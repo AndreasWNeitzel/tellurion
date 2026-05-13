@@ -1,17 +1,17 @@
-# Backprop Tiny Net
+# Backpropagation on a tiny MLP
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A 2-input, H-hidden, 1-output neural network trained on a 2D binary classification problem. Watch the decision surface deform under gradient descent. Three datasets: moons, XOR, spiral.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+What to look for: the initial decision boundary is roughly linear. After 100 iterations on moons it bends to fit the two arcs. XOR is impossible for a linear classifier; the hidden layer makes it work. Spiral is the hardest and benefits from more hidden units.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: dataset dropdown, hidden H, lr, speed, reset / single step / pause / play.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Goodfellow et al. 2016, Deep Learning, Chapter 6; Rumelhart, Hinton, Williams 1986, Nature 323, 533.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: output in [0, 1], loss decreases, moons > 80 percent, XOR > 90 percent.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.

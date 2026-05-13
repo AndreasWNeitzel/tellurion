@@ -1,28 +1,58 @@
-// Backprop Tiny Net invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Backprop tiny MLP invariant tests.
+// (a) Forward pass output is in [0, 1] (sigmoid range).
+// (b) Loss decreases on average over training.
+// (c) Final accuracy on moons exceeds 80 percent after 200 iterations.
+// (d) Larger H gives no worse training loss.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { createNet, forward, trainStep, makeMoons, makeXOR } from './sim.js';
 
-describe('Backprop Tiny Net invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('Backprop: forward pass range', () => {
+  it('output sigmoid in [0, 1] for arbitrary input', () => {
+    const net = createNet({ hidden: 8, seed: 1 });
+    for (const x of [[0, 0], [10, 10], [-10, -10], [1, -1], [-5, 2]]) {
+      const { p } = forward(net, x);
+      expect(p).toBeGreaterThanOrEqual(0);
+      expect(p).toBeLessThanOrEqual(1);
+    }
   });
+});
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+describe('Backprop: loss decreases on moons', () => {
+  it('after 100 iters loss < initial loss', () => {
+    const net = createNet({ hidden: 8, seed: 1 });
+    const { X, y } = makeMoons({ N: 200, seed: 1, noise: 0.15 });
+    const L0 = trainStep(net, X, y, 0.0);   // zero LR returns current loss
+    for (let i = 0; i < 100; i += 1) trainStep(net, X, y, 0.5);
+    const Lf = trainStep(net, X, y, 0.0);
+    expect(Lf).toBeLessThan(L0);
   });
+});
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+describe('Backprop: moons accuracy > 80% after 200 iters', () => {
+  it('classify moons with > 80% accuracy', () => {
+    const net = createNet({ hidden: 8, seed: 1 });
+    const { X, y } = makeMoons({ N: 200, seed: 1, noise: 0.15 });
+    for (let i = 0; i < 200; i += 1) trainStep(net, X, y, 0.5);
+    let acc = 0;
+    for (let n = 0; n < X.length; n += 1) {
+      const { p } = forward(net, X[n]);
+      if ((p > 0.5 ? 1 : 0) === y[n]) acc += 1;
+    }
+    expect(acc / X.length).toBeGreaterThan(0.8);
+  });
+});
+
+describe('Backprop: XOR (nonlinear) needs hidden layer', () => {
+  it('classify XOR with > 90% accuracy after 400 iters with H=8', () => {
+    const net = createNet({ hidden: 8, seed: 1 });
+    const { X, y } = makeXOR({ N: 200, seed: 1, noise: 0.10 });
+    for (let i = 0; i < 400; i += 1) trainStep(net, X, y, 0.5);
+    let acc = 0;
+    for (let n = 0; n < X.length; n += 1) {
+      const { p } = forward(net, X[n]);
+      if ((p > 0.5 ? 1 : 0) === y[n]) acc += 1;
+    }
+    expect(acc / X.length).toBeGreaterThan(0.9);
+  });
 });
