@@ -61,7 +61,7 @@ Build `shared/js/engine/lattice-mc.js` (Wolff + Metropolis + Swendsen-Wang + Wan
 
 | engine | seeds playgrounds |
 |--------|-------------------|
-| symplectic | double-pendulum, barnes-hut-nbody, schwarzschild-geodesics, lagrange-points-cr3bp, mercury-precession-pn, schwarzschild-photon-sphere |
+| symplectic | double-pendulum, barnes-hut-nbody, schwarzschild-geodesics, lagrange-points-cr3bp, mercury-precession-pn |
 | fd-grid | schrodinger-1d, advection-burgers-kdv, heat, allen-cahn, 1d-tdse-scattering-comparator, advection-scheme-shootout |
 | yee-fdtd | slit-grating-diffraction, photonic-band, mie-scattering |
 | mcmc-harness | mcmc-comparator, bayesian-shrinkage, hmc-on-funnel |
@@ -89,7 +89,9 @@ Ship 12 to 18 of these in six months. Six well-built playgrounds beat fifteen ru
 
 ## Catalog: ratified concepts
 
-Forty-one ratified playground concepts beyond Phases 1 through 6 and the Stretch list, organized by topical group. Each row names the playground slug, group, engine reuse (existing or newly named), primary citation key, and the strong invariant with its quantitative threshold.
+Forty ratified playground concepts beyond Phases 1 through 6 and the Stretch list, organized by topical group. Each row names the playground slug, group, engine reuse (existing or newly named), primary citation key, and the strong invariant with its quantitative threshold.
+
+(The original ratified list was 41; `schwarzschild-photon-sphere` was absorbed into the already-shipped `schwarzschild-geodesics` playground, which already exposes the b_crit = 3 sqrt(3) M photon-sphere demo through a checkbox toggle.)
 
 ### Group A: Ising and lattice spin variants
 
@@ -162,4 +164,3 @@ Forty-one ratified playground concepts beyond Phases 1 through 6 and the Stretch
 | mercury-precession-pn | H | symplectic | Hartle Ch. 9 | 43 arcsec per century for the GR 1PN orbit within 5 percent |
 | roche-tidal-disruption | H | none (analytic limit) | Binney-Tremaine Ch. 8 | d/R = 2.44 (rigid) and 2.45 (fluid) within 1 percent |
 | relativistic-beaming-azimuth | H | none | Rybicki-Lightman Ch. 4 (bib NEW) | Doppler-boost ratio D to the (3 + alpha) within 1e-6 |
-| schwarzschild-photon-sphere | H | symplectic | Carroll Ch. 5; Hartle Ch. 9 | b_crit = 3 sqrt(3) M within 0.1 percent |
