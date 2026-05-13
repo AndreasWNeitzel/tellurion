@@ -18,6 +18,10 @@ export default defineConfig({
     testTimeout: 30_000,
     hookTimeout: 30_000,
     reporters: ['default'],
+    // Controls tests need DOM; everything else runs in plain Node.
+    environmentMatchGlobs: [
+      ['tests/controls/**', 'happy-dom']
+    ],
     coverage: {
       provider: 'v8',
       include: ['shared/js/**/*.js'],
