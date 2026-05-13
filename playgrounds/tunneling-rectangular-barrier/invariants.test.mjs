@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { transmission, reflection, resonanceEnergy } from './sim.js';
+import { transmission, reflection, resonanceEnergy, psiReal } from './sim.js';
 
 describe('tunneling-rectangular-barrier: limiting cases', () => {
   it('T(E -> 0) = 0 (no transmission at zero energy)', () => {
@@ -48,5 +48,42 @@ describe('tunneling-rectangular-barrier: reproducibility', () => {
     const a = transmission(2.5, 5, 1.3);
     const b = transmission(2.5, 5, 1.3);
     expect(a).toBe(b);
+  });
+});
+
+describe('tunneling-rectangular-barrier: wavefunction continuity at the walls', () => {
+  it('psi is continuous at x = 0 and x = a (E < V0)', () => {
+    // Approach from both sides with very small offset and compare.
+    const params = { E: 2.5, V0: 6.0, a: 1.4, t: 0.3 };
+    const eps = 1e-7;
+    const left0 = psiReal(-eps, params.t, params.E, params.V0, params.a);
+    const right0 = psiReal(+eps, params.t, params.E, params.V0, params.a);
+    expect(Math.abs(left0 - right0)).toBeLessThan(1e-4);
+
+    const lefta = psiReal(params.a - eps, params.t, params.E, params.V0, params.a);
+    const righta = psiReal(params.a + eps, params.t, params.E, params.V0, params.a);
+    expect(Math.abs(lefta - righta)).toBeLessThan(1e-4);
+  });
+
+  it('psi is continuous at x = 0 and x = a (E > V0, above-barrier)', () => {
+    const params = { E: 8.0, V0: 4.0, a: 1.2, t: 0.0 };
+    const eps = 1e-7;
+    const left0 = psiReal(-eps, params.t, params.E, params.V0, params.a);
+    const right0 = psiReal(+eps, params.t, params.E, params.V0, params.a);
+    expect(Math.abs(left0 - right0)).toBeLessThan(1e-4);
+    const lefta = psiReal(params.a - eps, params.t, params.E, params.V0, params.a);
+    const righta = psiReal(params.a + eps, params.t, params.E, params.V0, params.a);
+    expect(Math.abs(lefta - righta)).toBeLessThan(1e-4);
+  });
+
+  it('psi inside the barrier is bounded (does not diverge as we move through)', () => {
+    // Even for a thick barrier, the matched A,B solution stays bounded.
+    const E = 1.0, V0 = 10, a = 2.0;
+    for (let i = 0; i <= 20; i += 1) {
+      const x = (a * i) / 20;
+      const val = psiReal(x, 0, E, V0, a);
+      expect(Number.isFinite(val)).toBe(true);
+      expect(Math.abs(val)).toBeLessThan(5);
+    }
   });
 });

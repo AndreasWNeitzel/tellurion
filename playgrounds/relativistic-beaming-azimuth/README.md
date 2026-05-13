@@ -1,17 +1,17 @@
-# Relativistic Beaming Azimuth
+# Relativistic beaming pattern
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A source emitting isotropically in its rest frame looks like a focused headlight when boosted. Move the gamma slider from 1 (rest) to 20 (ultra-relativistic) and watch the polar plot collapse from a circle to a narrow forward cone. The forward intensity scales as D^{3+alpha}; the back-lobe scales as the inverse. This is how blazars work.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+What to look for: at gamma = 5, alpha = 0, the front/back intensity ratio is already ~ 1e4. The yellow arrow shows the velocity direction; the bright lobe is along it. Pushing alpha up sharpens the beam.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: gamma (Lorentz factor), alpha (spectral index).
 
 ## Reference
 
-Primary citation: __CITATION__.
+Rybicki and Lightman 1979, Radiative Processes in Astrophysics, Section 4.8.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: closed-form Doppler at theta = 0 and pi, beam half-angle ~ 1/gamma at high gamma, I(0)/I(pi) = ((1+beta)/(1-beta))^3.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.

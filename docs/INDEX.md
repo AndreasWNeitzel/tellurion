@@ -77,14 +77,14 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[GP Kernel Zoo](../playgrounds/gp-kernel-zoo/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Hydrogen Orbital Cross Sections 2D](../playgrounds/hydrogen-orbital-cross-sections-2d/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Hydrogen Orbital Cross Sections in the (x, z) Plane](../playgrounds/hydrogen-orbital-cross-sections-2d/index.html)** &nbsp; (verified)
+  The bound stationary states of the hydrogen atom, parameterized by three quantum numbers (n, l, m). Probability density |psi_nlm|^2 plotted in the plane through the nucleus that contains the z axis (i.e., y = 0). This is the standard textbook visualization for orbital shapes.
 
 - **[KL Divergence Asymmetry (Mass-Covering vs Mode-Seeking)](../playgrounds/kl-divergence-asymmetry/index.html)** &nbsp; (verified)
   Two probability densities on a 1D axis. Target P is a bimodal mixture of two Gaussians at +/- sep; approximation Q is a single Gaussian with controllable (mu_q, sigma_q). The playground computes the two directions of KL divergence and shows how their argmins differ qualitatively.
 
-- **[Kronig-Penney Bands](../playgrounds/kronig-penney-bands/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Kronig-Penney Band Structure](../playgrounds/kronig-penney-bands/index.html)** &nbsp; (verified)
+  A 1D crystal with delta-function spikes on a periodic lattice (period a, dimensionless strength P). The energy spectrum splits into allowed bands and forbidden gaps. The simplest textbook model in solid-state physics that produces a band structure.
 
 - **[Lagrange Points of the Circular Restricted Three-Body Problem](../playgrounds/lagrange-points-cr3bp/index.html)** &nbsp; (verified)
   Two heavy bodies of mass m1 and m2 orbit their common center of mass in a circular orbit. A test particle (mass negligible) moves under their combined gravity, computed in the rotating frame where the two primaries stand still. Non-dimensional units: total mass = 1, separation = 1, angular velocity = 1.
@@ -125,11 +125,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[q-state Potts Model on a 2D Square Lattice](../playgrounds/potts-q-state-transition/index.html)** &nbsp; (verified)
   Each site of an L x L periodic square lattice holds a discrete spin s in {0, 1, ..., q - 1}. Energy: E = -J sum_{<i, j>} delta(s_i, s_j) with J = 1.
 
-- **[Relativistic Beaming Azimuth](../playgrounds/relativistic-beaming-azimuth/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Roche Tidal Disruption](../playgrounds/roche-tidal-disruption/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Relativistic Beaming Pattern](../playgrounds/relativistic-beaming-azimuth/index.html)** &nbsp; (verified)
+  A monochromatic source that emits isotropically in its rest frame. When the source moves at relativistic speed, the lab-frame emission is concentrated into a forward cone of half-angle ~ 1/gamma. The textbook beaming effect; it explains blazar variability and the brightness of AGN jets pointed near our line of sight.
 
 - **[Rossler Funnel Attractor](../playgrounds/rossler-funnel/index.html)** &nbsp; (verified)
   Otto Rossler's 1976 minimal continuous-time chaotic system. Three coupled first-order ODEs in (x, y, z) with one quadratic nonlinearity (z times x). Compared to Lorenz, the geometry is simpler: a near-planar spiral on the (x, y) plane with a single fold that lifts trajectories in z and drops them back near the origin. As the control parameter c increases, th
@@ -139,6 +136,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates
+
+- **[Tidal Disruption Near a Massive Primary](../playgrounds/roche-tidal-disruption/index.html)** &nbsp; (verified)
+  A cloud of 80 self-gravitating test particles ("a fluid satellite") on an eccentric orbit around a heavy point-mass primary. When the orbit takes the cloud inside the Roche radius, the tidal force from the primary overwhelms the satellite's self-gravity and stretches it into a stream. Outside the Roche radius the cloud holds together.
 
 - **[Two-Stream PIC Plasma](../playgrounds/two-stream-pic-plasma/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

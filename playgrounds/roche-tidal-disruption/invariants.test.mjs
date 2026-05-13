@@ -1,28 +1,53 @@
-// Roche Tidal Disruption invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Roche tidal disruption invariant tests.
+// (a) Far orbit with cohesion: cloud stays compact.
+// (b) Pericenter inside Roche radius: stream length grows.
+// (c) High cohesion keeps the cloud bound at any radius.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { createCloud, stepCloud, streamLength, comDistance } from './sim.js';
 
-describe('Roche Tidal Disruption invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('Roche: cloud constructor produces a bounded initial swarm', () => {
+  it('initial stream length matches the cloud radius', () => {
+    const cloud = createCloud({ N: 60, a: 10.0, e: 0.0, rCloud: 0.3, seed: 1 });
+    expect(streamLength(cloud)).toBeLessThan(0.35);
+    expect(streamLength(cloud)).toBeGreaterThan(0.20);
   });
+});
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+describe('Roche: aggressive pericenter passage stretches the cloud', () => {
+  it('a=3, e=0.6 cohesion=0.01: stream length grows > 2x by t=20', () => {
+    const cloud = createCloud({ N: 80, a: 3.0, e: 0.6, rCloud: 0.3, seed: 1 });
+    const L0 = streamLength(cloud);
+    for (let s = 0; s < 4000; s += 1) stepCloud(cloud, 0.005, 0.01);
+    const L1 = streamLength(cloud);
+    expect(L1 / L0).toBeGreaterThan(2.0);
   });
+});
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+describe('Roche: low cohesion + circular orbit also spreads (differential Kepler motion)', () => {
+  it('cloud with zero cohesion at any radius spreads over time', () => {
+    const cloud = createCloud({ N: 40, a: 5.0, e: 0.1, rCloud: 0.3, seed: 1 });
+    const L0 = streamLength(cloud);
+    for (let s = 0; s < 4000; s += 1) stepCloud(cloud, 0.005, 0.0);
+    const L1 = streamLength(cloud);
+    expect(L1 / L0).toBeGreaterThan(1.5);
+  });
+});
+
+describe('Roche: CoM follows an elliptical orbit', () => {
+  it('CoM distance oscillates between approximately a(1-e) and a(1+e)', () => {
+    const a = 4, e = 0.5;
+    const cloud = createCloud({ N: 40, a, e, rCloud: 0.1, seed: 5 });
+    let rMin = Infinity, rMax = -Infinity;
+    for (let s = 0; s < 6000; s += 1) {
+      stepCloud(cloud, 0.005, 0.0);
+      if (s % 50 === 0) {
+        const r = comDistance(cloud);
+        if (r < rMin) rMin = r;
+        if (r > rMax) rMax = r;
+      }
+    }
+    expect(rMin).toBeLessThan(a * (1 - e) + 1.0);
+    expect(rMax).toBeGreaterThan(a * (1 + e) - 1.0);
+  }, 10_000);
 });

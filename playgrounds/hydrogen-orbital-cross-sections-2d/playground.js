@@ -1,113 +1,157 @@
-// Hydrogen Orbital Cross Sections 2d playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// playground.js
+// Hydrogen orbital |psi_nlm|^2 in the (x, z) plane.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { viridis } from '../../shared/js/render/colormaps.js';
+import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
+import { densityField, ORBITALS } from './sim.js';
 
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const urlParams      = new URLSearchParams(location.search);
+const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
+const DETERMINISTIC  = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME   = urlParams.get('capture');
+const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const selOrbital   = document.getElementById('select-orbital');
+const sliderSpan   = document.getElementById('slider-span');
+const sliderGamma  = document.getElementById('slider-gamma');
+const valueSpan    = document.getElementById('value-span');
+const valueGamma   = document.getElementById('value-gamma');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
+const W = canvas.width, H = canvas.height;
+const state = {
+  idx: 4,                        // 3s by default; rich radial nodes
+  span: ORBITALS[4].span,
+  gamma: 0.40,
 };
 
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
-
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+function fillOptions() {
+  selOrbital.innerHTML = '';
+  for (let i = 0; i < ORBITALS.length; i += 1) {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = ORBITALS[i].label;
+    if (i === state.idx) opt.selected = true;
+    selOrbital.appendChild(opt);
   }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
 }
+
+function drawAll() {
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+
+  const PLOT_SIDE = Math.min(W - 20, H - 80);
+  const PLOT_X = (W - PLOT_SIDE) / 2;
+  const PLOT_Y = 30;
+  const orb = ORBITALS[state.idx];
+
+  const NF = 256;
+  const { field, zMax } = densityField({ n: orb.n, l: orb.l, m: orb.m, N: NF, span: state.span });
+  const img = new ImageData(NF, NF);
+  for (let j = 0; j < NF; j += 1) {
+    for (let i = 0; i < NF; i += 1) {
+      const t = Math.pow(Math.max(0, Math.min(1, field[(NF - 1 - j) * NF + i] / Math.max(1e-30, zMax))), state.gamma);
+      const c = viridis(t);
+      const idx = (j * NF + i) * 4;
+      img.data[idx]     = c.r;
+      img.data[idx + 1] = c.g;
+      img.data[idx + 2] = c.b;
+      img.data[idx + 3] = 255;
+    }
+  }
+  const off = new OffscreenCanvas(NF, NF);
+  off.getContext('2d').putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(off, PLOT_X, PLOT_Y, PLOT_SIDE, PLOT_SIDE);
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(PLOT_X, PLOT_Y, PLOT_SIDE, PLOT_SIDE);
+
+  // Axis labels and centered cross-hair
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.textAlign = 'center';
+  ctx.fillText('x (a_0)', PLOT_X + PLOT_SIDE / 2, PLOT_Y + PLOT_SIDE + 22);
+  ctx.save();
+  ctx.translate(PLOT_X - 16, PLOT_Y + PLOT_SIDE / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('z (a_0)', 0, 0);
+  ctx.restore();
+
+  // Tick marks at +/- span
+  ctx.textAlign = 'right';
+  ctx.fillText('+' + state.span, PLOT_X + PLOT_SIDE - 4, PLOT_Y + 12);
+  ctx.textAlign = 'left';
+  ctx.fillText('-' + state.span, PLOT_X + 4, PLOT_Y + PLOT_SIDE - 4);
+
+  // Top-right labels
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.textAlign = 'left';
+  const E = -1 / (2 * orb.n * orb.n);  // hydrogen energy in Hartree
+  const rows = [
+    ['n', String(orb.n)],
+    ['l', String(orb.l)],
+    ['m', String(orb.m)],
+    ['E (Hartree)', E.toFixed(4)],
+    ['E (eV)', (E * 27.2114).toFixed(3)],
+  ];
+  let y = 20;
+  for (const [k, v] of rows) {
+    ctx.textAlign = 'left';
+    ctx.fillText(k, 12, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(v, 180, y);
+    y += 14;
+  }
+}
+
+selOrbital.addEventListener('change', () => {
+  state.idx = parseInt(selOrbital.value, 10);
+  state.span = ORBITALS[state.idx].span;
+  sliderSpan.value = String(state.span);
+  valueSpan.textContent = String(state.span);
+  drawAll();
+});
+sliderSpan.addEventListener('input', () => {
+  state.span = parseFloat(sliderSpan.value);
+  valueSpan.textContent = String(state.span);
+  drawAll();
+});
+sliderGamma.addEventListener('input', () => {
+  state.gamma = parseFloat(sliderGamma.value);
+  valueGamma.textContent = state.gamma.toFixed(2);
+  drawAll();
+});
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
+  fillOptions();
+  drawAll();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
-  }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
+    const idxs = [0, 2, 4, 6, 8];   // 1s, 2p_z, 3s, 3d_z2, 4f_z3
+    state.idx = idxs[Math.min(idxs.length - 1, Math.round(frac * (idxs.length - 1)))];
+    state.span = ORBITALS[state.idx].span;
+    selOrbital.value = String(state.idx);
+    sliderSpan.value = String(state.span);
+    valueSpan.textContent = String(state.span);
+    drawAll();
+    if (DETERMINISTIC) {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+        });
       });
-    });
+    }
   }
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
