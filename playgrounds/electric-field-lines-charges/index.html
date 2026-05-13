@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Electric Field Lines from Point Charges</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: repeat(4, 1fr); grid-column: span 2; gap: var(--space-2); }
+  </style>
+</head>
+<body>
+  <h1>Electric field lines from point charges</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> field lines of $\mathbf{E}$ for
+    four canonical configurations. Each line is an integral curve of the
+    electric field; by Gauss's law, the line density on the plane is
+    proportional to $|\mathbf{E}|$. Field lines start from positive charges
+    and either terminate on a negative charge or escape to infinity.
+  </p>
+  <p>
+    The dipole shows the classic figure-eight pattern with lines bridging
+    from + to -. Two like charges produce a "no crossing" pattern with a
+    zero-field point at the midpoint. The quadrupole produces four lobes
+    with field cancellations between alternating signs. The monopole shows
+    radial lines that decay slower than the higher-order configurations.
+    A moving test charge is shown for the active preset; press
+    <em>shoot test charge</em> to send it from the left edge through the
+    field.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="600" tabindex="0"
+            aria-label="Electric field lines for one of four charge configurations with a moving test charge."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Electric field lines. Method: streamline integration of
+      $\mathbf{E}(\mathbf{r}) = \sum_i q_i (\mathbf{r} - \mathbf{r}_i) / |\mathbf{r} - \mathbf{r}_i|^3$.
+      Source: Griffiths, Introduction to Electrodynamics 4e Ch. 2.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Field-line controls">
+    <div class="row buttons">
+      <button id="btn-p-dipole" type="button" data-preset="dipole">dipole</button>
+      <button id="btn-p-two-plus" type="button" data-preset="two-plus">two +</button>
+      <button id="btn-p-quad" type="button" data-preset="quadrupole">quadrupole</button>
+      <button id="btn-p-mono" type="button" data-preset="mono-plus">monopole</button>
+    </div>
+    <div class="row buttons">
+      <button id="btn-shoot" type="button">shoot test charge</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

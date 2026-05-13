@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Electric Field Lines from Point Charges](../playgrounds/electric-field-lines-charges/index.html)** &nbsp; (verified, verified 2026-05-13T18:24:10Z)
+  A small set of point charges in the plane. The electric field is E(r) = sum_i q_i (r - r_i) / |r - r_i|^3 (units chosen so that the Coulomb constant is 1).
+
 - **[Standing Waves on a String](../playgrounds/standing-waves-string-modes/index.html)** &nbsp; (verified, verified 2026-05-13T18:20:30Z)
   A uniform string of length L is fixed at both ends. The normal modes of small transverse oscillation are y_n(x, t) = sin(n pi x / L) cos(2 pi f_n t),  f_n = n c / (2 L).
 
@@ -157,9 +160,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
-
-- **[Electric Field Lines Charges](../playgrounds/electric-field-lines-charges/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und
