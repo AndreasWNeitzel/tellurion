@@ -6,8 +6,8 @@ set -euo pipefail
 
 slug="${1:?Usage: scaffold.sh <kebab-slug>}"
 
-if [[ ! "$slug" =~ ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ ]]; then
-  echo "Invalid slug. Use kebab-case: lowercase letters, digits, hyphens, starting with a letter." >&2
+if [[ ! "$slug" =~ ^[a-z0-9][a-z0-9]*(-[a-z0-9]+)*$ ]]; then
+  echo "Invalid slug. Use kebab-case: lowercase letters, digits, hyphens. Leading char must be alphanumeric." >&2
   exit 1
 fi
 
