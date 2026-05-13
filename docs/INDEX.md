@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gauss-Legendre vs Trapezoid Quadrature](../playgrounds/gauss-quadrature-vs-trapezoid/index.html)** &nbsp; (verified, verified 2026-05-13T19:41:10Z)
+  Numerical evaluation of integral_{-1}^1 f(x) dx by: - Trapezoidal rule: n + 1 equispaced points. - Gauss-Legendre: n optimized nodes from roots of P_n.
+
 - **[Runge Phenomenon and Chebyshev Cure](../playgrounds/runge-vs-chebyshev/index.html)** &nbsp; (verified, verified 2026-05-13T19:37:00Z)
   Polynomial interpolation of the Runge function f(x) = 1 / (1 + 25 x^2) on [-1, 1] at n + 1 nodes: - Equispaced: x_i = -1 + 2 i / n. - Chebyshev (second kind, including endpoints): x_i = cos(i pi / n).
 
@@ -217,9 +220,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
-
-- **[Gauss Quadrature Vs Trapezoid](../playgrounds/gauss-quadrature-vs-trapezoid/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und
