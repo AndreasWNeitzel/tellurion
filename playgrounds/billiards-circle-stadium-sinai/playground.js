@@ -1,113 +1,225 @@
-// Billiards Circle Stadium Sinai playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// playground.js
+// Three classical 2D billiards: circle, stadium, Sinai. Particle bounces
+// specularly; trail accumulates.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
+import { createBilliard, step, GEOM_BOUNDS, STADIUM_HALF_LENGTH, SINAI_R } from './sim.js';
 
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const urlParams      = new URLSearchParams(location.search);
+const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
+const DETERMINISTIC  = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME   = urlParams.get('capture');
+const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const selGeom      = document.getElementById('select-geom');
+const sliderSpeed  = document.getElementById('slider-speed');
+const valueSpeed   = document.getElementById('value-speed');
+const btnReset     = document.getElementById('btn-reset');
+const btnPlayPause = document.getElementById('btn-playpause');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const W = canvas.width, H = canvas.height;
+const TRAIL_MAX = 1500;
 
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
+const state = {
+  geom: 'stadium',
+  speed: 6,
+  billiard: null,
+  trail: [],
+  playing: !DETERMINISTIC,
 };
 
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
+const tok = {
+  accent: cssVar('--accent', '#1B6CA8'),
+  accentWarm: cssVar('--accent-warm', '#C13B27'),
+};
+
+function toPx(x, y) {
+  const b = GEOM_BOUNDS[state.geom];
+  const span = Math.max(b.xmax - b.xmin, b.ymax - b.ymin);
+  const scale = Math.min(W, H) / span * 0.9;
+  const cx = (b.xmax + b.xmin) / 2;
+  const cy = (b.ymax + b.ymin) / 2;
+  return {
+    px: W / 2 + (x - cx) * scale,
+    py: H / 2 - (y - cy) * scale,
+  };
 }
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
+function drawWalls() {
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.lineWidth = 1.5;
+  if (state.geom === 'circle') {
+    const c = toPx(0, 0);
+    const e = toPx(1, 0);
+    const r = Math.abs(e.px - c.px);
+    ctx.beginPath();
+    ctx.arc(c.px, c.py, r, 0, 2 * Math.PI);
+    ctx.stroke();
+  } else if (state.geom === 'stadium') {
+    const L = STADIUM_HALF_LENGTH;
+    const tl = toPx(-L, 1), tr = toPx(L, 1);
+    const bl = toPx(-L, -1), br = toPx(L, -1);
+    ctx.beginPath();
+    ctx.moveTo(tl.px, tl.py); ctx.lineTo(tr.px, tr.py);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(bl.px, bl.py); ctx.lineTo(br.px, br.py);
+    ctx.stroke();
+    // Right semicircle from (L, 1) -> (L, -1) through (L+1, 0)
+    const cr = toPx(L, 0);
+    const er = toPx(L + 1, 0);
+    const rad = Math.abs(er.px - cr.px);
+    ctx.beginPath();
+    ctx.arc(cr.px, cr.py, rad, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+    const cl = toPx(-L, 0);
+    ctx.beginPath();
+    ctx.arc(cl.px, cl.py, rad, Math.PI / 2, 3 * Math.PI / 2);
+    ctx.stroke();
+  } else if (state.geom === 'sinai') {
+    const tl = toPx(-1, 1), tr = toPx(1, 1), br = toPx(1, -1), bl = toPx(-1, -1);
+    ctx.beginPath();
+    ctx.moveTo(tl.px, tl.py); ctx.lineTo(tr.px, tr.py);
+    ctx.lineTo(br.px, br.py); ctx.lineTo(bl.px, bl.py); ctx.closePath();
+    ctx.stroke();
+    const c = toPx(0, 0);
+    const e = toPx(SINAI_R, 0);
+    const r = Math.abs(e.px - c.px);
+    ctx.beginPath();
+    ctx.arc(c.px, c.py, r, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
 }
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+function drawAll() {
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+  drawWalls();
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  // Trail
+  if (state.trail.length >= 2) {
+    ctx.strokeStyle = tok.accent;
+    ctx.lineWidth = 0.7;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    const f = toPx(state.trail[0].x, state.trail[0].y);
+    ctx.moveTo(f.px, f.py);
+    for (let i = 1; i < state.trail.length; i += 1) {
+      const p = toPx(state.trail[i].x, state.trail[i].y);
+      ctx.lineTo(p.px, p.py);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
 
-  render();
-  updateReadout();
-  frame += 1;
+  // Current position
+  if (state.billiard) {
+    const p = toPx(state.billiard.x, state.billiard.y);
+    ctx.fillStyle = tok.accentWarm;
+    ctx.beginPath();
+    ctx.arc(p.px, p.py, 3.5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // Readout
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.textAlign = 'left';
+  const integrable = state.geom === 'circle';
+  const rows = [
+    ['geometry', state.geom],
+    ['integrable', integrable ? 'yes' : 'no'],
+    ['bounces', state.billiard ? String(state.billiard.bounces) : '0'],
+    ['trail length', String(state.trail.length)],
+  ];
+  let y = 18;
+  for (const [k, v] of rows) {
+    ctx.fillText(k, 12, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(v, 250, y);
+    ctx.textAlign = 'left';
+    y += 14;
+  }
+}
+
+function rebuild() {
+  // Generic non-symmetric IC so the circle traces a non-trivial caustic and
+  // the chaotic ones quickly fill phase space.
+  let ic;
+  if (state.geom === 'circle') ic = { x: 0.7, y: 0.0, vx: 0.3, vy: 0.95 };
+  else if (state.geom === 'stadium') ic = { x: 0.1, y: 0.2, vx: 1.0, vy: 0.7 };
+  else ic = { x: 0.55, y: 0.55, vx: 1.0, vy: 0.6 };
+  state.billiard = createBilliard({ geom: state.geom, ...ic });
+  state.trail = [{ x: state.billiard.x, y: state.billiard.y }];
+}
+
+function tickN(nBounces) {
+  if (!state.billiard) return;
+  for (let i = 0; i < nBounces; i += 1) {
+    step(state.billiard);
+    state.trail.push({ x: state.billiard.x, y: state.billiard.y });
+    if (state.trail.length > TRAIL_MAX) state.trail.shift();
+  }
+}
+
+selGeom.addEventListener('change', () => {
+  state.geom = selGeom.value;
+  rebuild(); drawAll();
+});
+sliderSpeed.addEventListener('input', () => {
+  state.speed = parseInt(sliderSpeed.value, 10);
+  valueSpeed.textContent = String(state.speed);
+});
+btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
+btnPlayPause.addEventListener('click', () => {
+  state.playing = !state.playing;
+  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+});
+
+function bootSync() {
+  rebuild();
+  if (CAPTURE_NAME) {
+    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    const stages = [
+      { geom: 'circle',  bounces: 800 },
+      { geom: 'circle',  bounces: 3000 },
+      { geom: 'stadium', bounces: 3000 },
+      { geom: 'sinai',   bounces: 3000 },
+      { geom: 'stadium', bounces: 6000 },
+    ];
+    const s = stages[Math.min(stages.length - 1, Math.round(frac * (stages.length - 1)))];
+    state.geom = s.geom;
+    selGeom.value = state.geom;
+    rebuild();
+    tickN(s.bounces);
+    drawAll();
+    if (DETERMINISTIC) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+        });
+      });
+    }
+    return;
+  }
+  drawAll();
+}
+
+function tick() {
+  if (state.playing) {
+    tickN(state.speed);
+    drawAll();
+  }
   requestAnimationFrame(tick);
 }
 
-function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
-  }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
-}
-
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

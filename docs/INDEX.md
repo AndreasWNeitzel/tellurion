@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Billiards - Circle, Stadium, Sinai](../playgrounds/billiards-circle-stadium-sinai/index.html)** &nbsp; (verified, verified 2026-05-13T17:02:26Z)
+  A free particle of unit speed bouncing elastically off the walls of a 2D shape. Three classical geometries: circle (integrable), Bunimovich stadium (chaotic), Sinai billiard (chaotic with convex scatterer). Used to study quantum-classical correspondence and the onset of chaos under purely geometric constraints.
+
 - **[2D Site Percolation](../playgrounds/percolation-2d/index.html)** &nbsp; (verified, verified 2026-05-13T16:07:02Z)
   Each site of an L x L square lattice is independently occupied with probability p (the "site occupation probability"). We label all connected clusters of occupied sites (4-neighbor connectivity) and highlight the largest cluster. As p crosses the critical value p_c = 0.59274621, a giant spanning cluster appears (Newman-Ziff 2000).
 
@@ -111,9 +114,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Backprop Tiny Net](../playgrounds/backprop-tiny-net/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Billiards: Circle, Stadium, Sinai](../playgrounds/billiards-circle-stadium-sinai/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
