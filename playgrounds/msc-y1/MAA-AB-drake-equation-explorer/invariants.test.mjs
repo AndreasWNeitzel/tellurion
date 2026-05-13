@@ -1,28 +1,66 @@
-// Drake Equation Explorer invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Drake equation invariants.
+// (a) Default Drake yields N ~ 30 (loose).
+// (b) Any factor zero -> N zero.
+// (c) Doubling L doubles N.
+// (d) Monte Carlo returns a positive-valued array of correct length.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { drakeN, monteCarlo, DEFAULTS, DRAKE_LABELS } from './sim.js';
+import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
-describe('Drake Equation Explorer invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('drake-equation-explorer', () => {
+  it('canonical N ~ 30 (Carroll-Ostlie type)', () => {
+    const N = drakeN(DEFAULTS);
+    // 1.5 * 1 * 0.4 * 0.5 * 0.1 * 0.1 * 1e4 = 30
+    expect(Math.abs(N - 30)).toBeLessThan(1e-6);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('any single factor zero yields N = 0', () => {
+    for (const k of Object.keys(DEFAULTS)) {
+      const params = { ...DEFAULTS, [k]: 0 };
+      expect(drakeN(params)).toBe(0);
+    }
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('doubling L doubles N', () => {
+    const N0 = drakeN(DEFAULTS);
+    const N1 = drakeN({ ...DEFAULTS, L: DEFAULTS.L * 2 });
+    expect(Math.abs(N1 - 2 * N0) / N0).toBeLessThan(1e-12);
+  });
+
+  it('Monte Carlo returns positive array of correct length', () => {
+    const rng = makeRng(DEFAULT_SEED);
+    const N = 100;
+    const samples = monteCarlo(rng, {
+      R_star: [0.5, 3], f_p: [0.5, 1], n_e: [0.1, 1],
+      f_l: [0.01, 1], f_i: [0.01, 1], f_c: [0.01, 1],
+      L: [1e3, 1e6],
+    }, N);
+    expect(samples.length).toBe(N);
+    for (let i = 0; i < N; i += 1) expect(samples[i]).toBeGreaterThan(0);
+  });
+
+  it('DRAKE_LABELS has all 7 factors', () => {
+    expect(DRAKE_LABELS.length).toBe(7);
+    const keys = DRAKE_LABELS.map(d => d.key);
+    for (const k of ['R_star', 'f_p', 'n_e', 'f_l', 'f_i', 'f_c', 'L']) {
+      expect(keys).toContain(k);
+    }
+  });
+
+  it('DEFAULTS gives a positive N', () => {
+    expect(drakeN(DEFAULTS)).toBeGreaterThan(0);
+  });
+
+  it('Monte Carlo samples span multiple decades when ranges are wide', () => {
+    const rng = makeRng(DEFAULT_SEED);
+    const samples = monteCarlo(rng, {
+      R_star: [0.5, 3], f_p: [0.5, 1], n_e: [0.1, 1],
+      f_l: [0.01, 1], f_i: [0.01, 1], f_c: [0.01, 1],
+      L: [1e2, 1e9],
+    }, 1000);
+    const min = Math.min(...samples);
+    const max = Math.max(...samples);
+    expect(max / min).toBeGreaterThan(1e3);
+  });
 });

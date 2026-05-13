@@ -8,24 +8,56 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Drake Equation Explorer</h1>
+  <h1>Drake equation explorer</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the Drake equation
+    $N = R_\star \cdot f_p \cdot n_e \cdot f_l \cdot f_i \cdot f_c \cdot L$
+    visualized as a multiplicative chain of probabilities and a Monte
+    Carlo histogram over their uncertain ranges. Each slider sets the
+    log-range of one factor; 2000 trials draw log-uniformly from
+    those ranges and the histogram shows the distribution of $N$ across
+    20 decades.
+  </p>
+  <p>
+    The Carroll-Ostlie reference values give $N \approx 30$ (lots of
+    civilizations); pessimistic intelligence and signal-lifetime
+    factors collapse $N$ below 1. The Fermi paradox is the gap between
+    the optimistic central value and our observed lack of detections.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Drake equation Monte Carlo histogram of log N."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">N (point):</span><span class="value" id="readout-n">30</span>
+      <span class="label">log10(N) MC median:</span><span class="value" id="readout-med">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Drake-equation Monte Carlo: log-uniform sampling over the
+      uncertain factors. Source: Carroll-Ostlie 2e Ch. 7
+      (`carroll-ostlie`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Drake controls">
+    <div class="row"><span class="label">log10 R_star</span><input type="range" id="slider-R" min="-1" max="2" step="0.05" value="0.18"><span class="value" id="value-R">0.18</span></div>
+    <div class="row"><span class="label">log10 f_l</span><input type="range" id="slider-fl" min="-6" max="0" step="0.05" value="-0.3"><span class="value" id="value-fl">-0.30</span></div>
+    <div class="row"><span class="label">log10 f_i</span><input type="range" id="slider-fi" min="-6" max="0" step="0.05" value="-1.0"><span class="value" id="value-fi">-1.00</span></div>
+    <div class="row"><span class="label">log10 L (yr)</span><input type="range" id="slider-L" min="2" max="9" step="0.05" value="4.0"><span class="value" id="value-L">4.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

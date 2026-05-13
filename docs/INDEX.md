@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Drake Equation Explorer](../playgrounds/msc-y1/MAA-AB-drake-equation-explorer/index.html)** &nbsp; (verified, verified 2026-05-13T23:58:18Z)
+  The Drake equation $$N = R_\star \cdot f_p \cdot n_e \cdot f_l \cdot f_i \cdot f_c \cdot L$$ estimates the number of currently detectable civilizations in our galaxy. Each factor is a probability or rate. Sliders set the most uncertain factors; a 2000-trial Monte Carlo draws each factor log-uniformly within $\pm 0.5$ dex of the slider center and computes the
+
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/index.html)** &nbsp; (verified, verified 2026-05-13T23:54:24Z)
   A central star characterized by effective temperature $T_\text{eff}$ and radius $R_\star$ (in solar units). The luminosity is the Stefan-Boltzmann integral
 
@@ -393,9 +396,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Distance Ladder Toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Drake Equation Explorer](../playgrounds/msc-y1/MAA-AB-drake-equation-explorer/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Dynamical Friction Chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)
