@@ -37,10 +37,10 @@ const btnPause     = document.getElementById('btn-pause');
 
 const W = canvas.width, H = canvas.height;
 
-// Galaxy panel fills the canvas; the rotation-curve inset is overlaid in the
-// bottom-right corner with translucent background.
-const GAL = { cx: 440, cy: 250, R: 245 };                        // px
-const PLOT = { x: 640, y: 340, w: 230, h: 145, rmax: 30, vmax: 280 };
+// Galaxy panel occupies the upper portion (square area centered top).
+// Rotation-curve subplot lies underneath, full-width.
+const GAL  = { cx: 440, cy: 240, R: 220 };
+const PLOT = { x: 80, y: 500, w: 760, h: 180, rmax: 30, vmax: 280 };
 
 const state = {
   model:      'dm',
@@ -109,16 +109,7 @@ function pxPlot(R, v) {
 }
 
 function drawGalaxyPanel() {
-  // panel background
-  ctx.fillStyle = tokens.surface;
-  ctx.beginPath();
-  ctx.arc(GAL.cx, GAL.cy, GAL.R + 8, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.strokeStyle = tokens.grid;
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
-
-  // faint radial grid: 5, 10, 15, 20, 25 kpc
+  // Radial grid: 5, 10, 15, 20, 25 kpc.
   ctx.strokeStyle = tokens.grid;
   ctx.lineWidth = 0.5;
   for (const Rg of [5, 10, 15, 20, 25]) {
@@ -127,7 +118,7 @@ function drawGalaxyPanel() {
     ctx.arc(GAL.cx, GAL.cy, pr, 0, 2 * Math.PI);
     ctx.stroke();
   }
-  // R = 8 kpc (solar circle) accent ring
+  // Solar-circle (8 kpc) dashed accent ring.
   ctx.strokeStyle = tokens.fgFaint;
   ctx.lineWidth = 0.7;
   ctx.setLineDash([3, 3]);
@@ -171,24 +162,13 @@ function drawGalaxyPanel() {
 }
 
 function drawRotationCurveInset() {
-  // translucent panel so the galaxy reads through
-  ctx.fillStyle = 'rgba(251, 251, 249, 0.70)';
+  // Subplot underneath the galaxy. No grid. Dim fill so the boundary reads
+  // without competing with the galaxy.
+  ctx.fillStyle = 'rgba(15, 16, 18, 0.04)';
   ctx.fillRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h);
-  ctx.strokeStyle = tokens.fg;
-  ctx.lineWidth = 0.8;
+  ctx.strokeStyle = tokens.fgFaint;
+  ctx.lineWidth = 0.6;
   ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
-
-  // gridlines
-  ctx.beginPath();
-  for (let R = 5; R <= 25; R += 5) {
-    const { px: x } = pxPlot(R, 0);
-    ctx.moveTo(x, PLOT.y); ctx.lineTo(x, PLOT.y + PLOT.h);
-  }
-  for (let v = 50; v <= 250; v += 50) {
-    const { py: y } = pxPlot(0, v);
-    ctx.moveTo(PLOT.x, y); ctx.lineTo(PLOT.x + PLOT.w, y);
-  }
-  ctx.stroke();
 
   // ticks
   ctx.fillStyle = tokens.fgFaint;
@@ -216,10 +196,10 @@ function drawRotationCurveInset() {
     }
     if (glow) {
       ctx.save();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.lineWidth = lineWidth + 4;
-      ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-      ctx.shadowBlur = 6;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.40)';
+      ctx.lineWidth = lineWidth + 2.5;
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.30)';
+      ctx.shadowBlur = 3;
       ctx.stroke();
       ctx.restore();
     }
@@ -248,16 +228,17 @@ function drawRotationCurveInset() {
     ctx.fill();
   }
 
-  // axis labels
+  // axis labels: title above the box, x-axis along the bottom edge inside,
+  // y-axis rotated to the left.
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Rotation curve v(R)', PLOT.x + PLOT.w / 2, PLOT.y - 10);
+  ctx.fillText('Rotation curve v(R)', PLOT.x + PLOT.w / 2, PLOT.y - 8);
   ctx.font = '10px "Inter", system-ui, sans-serif';
   ctx.fillStyle = tokens.fgFaint;
-  ctx.fillText('R (kpc)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 24);
+  ctx.fillText('R (kpc)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 16);
   ctx.save();
-  ctx.translate(PLOT.x - 32, PLOT.y + PLOT.h / 2);
+  ctx.translate(PLOT.x - 36, PLOT.y + PLOT.h / 2);
   ctx.rotate(-Math.PI / 2);
   ctx.fillText('v (km/s)', 0, 0);
   ctx.restore();
@@ -265,10 +246,10 @@ function drawRotationCurveInset() {
 
 function drawLegendAndReadout() {
   // legend at top-left of the canvas (above the galaxy)
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
   const lx = 20;
-  let ly = 50;
+  let ly = 60;
   const items = [
     { color: MODEL_COLOR.rigid,   label: 'Rigid-body (v proportional R)' },
     { color: MODEL_COLOR.kepler,  label: 'Keplerian (point mass)' },
@@ -283,21 +264,27 @@ function drawLegendAndReadout() {
     ly += 16;
   }
 
-  // live readout overlay (top-right of canvas)
+  // live readout overlay (top-right of canvas). Two-column layout: labels
+  // left-aligned at xLabel, values right-aligned at xValue so the columns
+  // stay flush as the model and numbers change.
   const v8 = vModel(8, state.model);
   const chi2 = chiSquared(state.model, state.data);
-  const lines = [
-    `model     ${state.model.padEnd(8)}`,
-    `t (Gyr)   ${state.t.toFixed(3).padStart(7)}`,
-    `v(R=8)    ${v8.toFixed(1).padStart(6)} km/s`,
-    `chi^2     ${chi2.toFixed(1).padStart(7)}`,
+  const rows = [
+    ['model',         state.model],
+    ['t (Gyr)',       state.t.toFixed(3)],
+    ['v(R=8) [km/s]', v8.toFixed(1)],
+    ['chi^2',         chi2.toFixed(1)],
   ];
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.textAlign = 'right';
   ctx.fillStyle = tokens.fg;
+  const xLabel = W - 160;
+  const xValue = W - 16;
   let y = 20;
-  for (const line of lines) {
-    ctx.fillText(line, W - 16, y);
+  for (const [label, value] of rows) {
+    ctx.textAlign = 'left';
+    ctx.fillText(label, xLabel, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(value, xValue, y);
     y += 14;
   }
 }
