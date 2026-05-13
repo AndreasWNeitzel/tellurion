@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Wave on a String: Fixed vs Free End Reflection](../playgrounds/wave-on-string-reflection/index.html)** &nbsp; (verified, verified 2026-05-13T20:23:00Z)
+  Two parallel 1D strings of length L = 4 with c = 1, each with a Gaussian pulse launched moving rightward. Top string: fixed ends (y = 0 at both boundaries). Bottom string: free ends (y_x = 0 boundary, i.e. the neighbor mirrors at the boundary). Pulse reflects when it reaches each boundary.
+
 - **[Kapitza Inverted Pendulum](../playgrounds/inverted-pendulum-kapitza/index.html)** &nbsp; (verified, verified 2026-05-13T20:18:30Z)
   Rigid pendulum of length l = 1 with pivot driven vertically at y_p(t) = a cos(omega t). In the inertial frame the equation of motion about the upside-down equilibrium (theta = 0 = up) is theta'' = ((g - a omega^2 cos(omega t)) / l) sin(theta)
 
@@ -253,6 +256,3 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Wave On String Reflection](../playgrounds/wave-on-string-reflection/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
