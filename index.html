@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (42)</h2>
+  <h2>Shipped (43)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/particle-mesh-2d-disk/index.html">Particle-Mesh Self-Gravitating 2D Disk</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">A flat 2D disc of 1500 self-gravitating particles in an exponential surface-density profile. Gravity solved via particle-mesh on a 32 x 32 periodic grid using cloud-in-cell (CIC) deposit and interpolation.</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/two-stream-pic-plasma/index.html">Two-Stream Instability (1D PIC)</a></h2>
@@ -379,14 +387,13 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (7)</h2>
+  <h2 class="drafts-heading">Draft (6)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">double-pendulum</span></li>
     <li><span class="drafts-slug">liouvillian-flow</span></li>
     <li><span class="drafts-slug">logistic-cobweb</span></li>
     <li><span class="drafts-slug">lyapunov-spectrum</span></li>
-    <li><span class="drafts-slug">particle-mesh-2d-disk</span></li>
     <li><span class="drafts-slug">sph-sod-shock-tube</span></li>
     <li><span class="drafts-slug">three-body-orbit</span></li>
   </ul>
