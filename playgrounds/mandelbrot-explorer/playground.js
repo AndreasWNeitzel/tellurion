@@ -38,18 +38,25 @@ const state = {
   width: 3.5,
   maxIter: 256,
   autoZoom: false,
-  // The exponential-zoom factor per frame. width *= ZOOM_PER_FRAME until
-  // the floor (~ 1e-13, a hair above double-precision noise).
-  zoomFactor: 0.97,
+  // The exponential-zoom factor per frame. width *= zoomFactor until the
+  // floor (1e-13, just above double-precision noise). 0.965 reads as a
+  // smooth, controlled drift; faster looks jerky.
+  zoomFactor: 0.965,
   zoomFloor: 1e-13,
   rafId: null,
   hover: null,
-  // The rainbow palette is precomputed at 1024 hues for speed.
   palette: null,
-  // Cached ImageData of the last fractal render so the overlay (title,
-  // readout, crosshair) can be redrawn over a clean fractal on every
-  // pointermove without re-iterating pixels.
-  fractalImage: null,
+  // Offscreen canvas with the most recent full fractal render plus the
+  // (cx, cy, width) view it corresponds to. The main canvas displays this
+  // via drawImage scaled and translated to reflect the current view, so
+  // zoom and pan feel instant even while a re-render is pending.
+  offscreen: null,
+  offCtx: null,
+  cached: { cx: -0.5, cy: 0, width: 3.5 },
+  // How aggressively to re-render during auto-zoom. We re-render when the
+  // visible scale factor (cached.width / state.width) exceeds reRenderRatio,
+  // keeping zoom motion bounded between renders.
+  reRenderRatio: 1.18,
 };
 
 function cssVar(name, fallback) {
@@ -126,7 +133,7 @@ function render(downsample) {
   const setR = 6, setG = 6, setB = 8;       // near-black for set members
   const Wp = Math.ceil(W / step);
   const Hp = Math.ceil(H / step);
-  const img = ctx.createImageData(W, H);
+  const img = state.offCtx.createImageData(W, H);
   const data = img.data;
   const dx = state.width / W;
   const dy = state.width * ASPECT / H;
@@ -164,13 +171,34 @@ function render(downsample) {
       }
     }
   }
-  state.fractalImage = img;
-  ctx.putImageData(img, 0, 0);
+  state.offCtx.putImageData(img, 0, 0);
+  state.cached.cx    = state.cx;
+  state.cached.cy    = state.cy;
+  state.cached.width = state.width;
+  blit();
+}
+
+// Display the cached fractal scaled and translated to reflect the current
+// view. drawImage with imageSmoothingEnabled = false gives a clean pixelated
+// preview; the fresh fractal will replace it on the next render.
+function blit() {
+  if (!state.offscreen) return;
+  const scale   = state.cached.width / state.width;
+  const offsetX = (state.cached.cx - state.cx) * W / state.width;
+  const offsetY = -(state.cached.cy - state.cy) * W / state.width;
+  const destW = W * scale;
+  const destH = H * scale;
+  const destX = W / 2 - destW / 2 + offsetX;
+  const destY = H / 2 - destH / 2 + offsetY;
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(state.offscreen, 0, 0, W, H, destX, destY, destW, destH);
 }
 
 function drawOverlay() {
   // Repaint the cached fractal first so the overlay text never accumulates.
-  if (state.fractalImage) ctx.putImageData(state.fractalImage, 0, 0);
+  blit();
 
   // hover crosshair
   if (state.hover) {
@@ -285,10 +313,23 @@ function startAutoZoom() {
       stopAutoZoom();
       return;
     }
-    // Fixed 2x downsample throughout: the cap on maxIter (1500) keeps frame
-    // time manageable without dropping to 3x or 4x, which the user reported
-    // as visually choppy.
-    refresh(2);
+    state.maxIter = maxIterForWidth(state.width);
+    // Always blit the cached fractal scaled to the current view. This gives
+    // smooth perceived zoom even when the underlying fractal hasn't been
+    // re-computed yet (XaoS-style frame reuse).
+    blit();
+    drawOverlay();                          // overlay over the scaled cache
+    updateReadouts();
+    // Re-render only when the scale factor between the cached view and the
+    // current view exceeds reRenderRatio. This trades fresh pixels for
+    // motion smoothness: a recompute takes 50..400 ms; we don't want it on
+    // every rAF tick.
+    const scaleNeeded = state.cached.width / state.width;
+    if (scaleNeeded > state.reRenderRatio) {
+      render(2);                            // synchronous re-render at 2x downsample
+      drawOverlay();
+      updateReadouts();
+    }
     state.rafId = requestAnimationFrame(tick);
   };
   state.rafId = requestAnimationFrame(tick);
@@ -329,7 +370,11 @@ selPreset.addEventListener('change', () => {
 });
 
 function bootSync() {
-  state.palette = buildPalette();
+  state.palette   = buildPalette();
+  state.offscreen = document.createElement('canvas');
+  state.offscreen.width  = W;
+  state.offscreen.height = H;
+  state.offCtx    = state.offscreen.getContext('2d', { alpha: false });
 
   if (CAPTURE_NAME) {
     // Deterministic capture: an exponential zoom into Seahorse Valley while
