@@ -27,9 +27,12 @@ const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
 
-const SAMPLES_PER_FRAME = 30;
+// Slower default + shorter trail so each chain stays readable; the first
+// subplot used to smear because three chains painted thousands of samples
+// on top of each other every frame.
+const SAMPLES_PER_FRAME = 6;
 const WARMUP = 200;
-const TRAIL_MAX = 8000;
+const TRAIL_MAX = 1500;
 
 const PLOT  = { x: 30, y: 40, w: 540, h: 430, xmin: -6, xmax: 6, ymin: -4, ymax: 4 };
 const PANEL = { x: 600, y: 40, w: 260, h: 430 };
@@ -170,24 +173,57 @@ function drawDiagnosticsPanel() {
   ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.fillStyle = tokens.fgMuted;
   ctx.textAlign = 'left';
-  ctx.fillText('Live diagnostics', PANEL.x + 12, PANEL.y + 20);
+  ctx.fillText('Per-chain trace of x[0]', PANEL.x + 12, PANEL.y + 16);
 
   const target = buildTarget();
-  const rowH = 110;
+  const rowH = (PANEL.h - 40) / state.chains.length;
   for (let i = 0; i < state.chains.length; i += 1) {
-    const top = PANEL.y + 36 + i * rowH;
+    const top = PANEL.y + 30 + i * rowH;
+    const plot = { x: PANEL.x + 12, y: top + 18, w: PANEL.w - 24, h: rowH - 30 };
+    // mini trace plot of the last TRAIL_MAX samples' x coordinate
+    const tr = state.traces[i];
+    const chain = state.chains[i];
+    const n = tr.length;
+    // y-range from the contour panel for consistency
+    const ymin = PLOT.ymin, ymax = PLOT.ymax;
+    // background
+    ctx.fillStyle = 'rgba(26, 27, 28, 0.04)';
+    ctx.fillRect(plot.x, plot.y, plot.w, plot.h);
+    ctx.strokeStyle = tokens.fgFaint;
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(plot.x + 0.5, plot.y + 0.5, plot.w - 1, plot.h - 1);
+    // zero line
+    const yZero = plot.y + (1 - (0 - ymin) / (ymax - ymin)) * plot.h;
+    ctx.strokeStyle = tokens.fgFaint;
+    ctx.lineWidth = 0.4;
+    ctx.beginPath();
+    ctx.moveTo(plot.x, yZero); ctx.lineTo(plot.x + plot.w, yZero);
+    ctx.stroke();
+    // trace line
+    if (n >= 2) {
+      ctx.strokeStyle = COLORS[i];
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      const stride = Math.max(1, Math.floor(n / plot.w));
+      let first = true;
+      for (let k = 0; k < n; k += stride) {
+        const xv = plot.x + (k / n) * plot.w;
+        const yv = plot.y + (1 - (tr[k].x - ymin) / (ymax - ymin)) * plot.h;
+        if (first) { ctx.moveTo(xv, yv); first = false; } else { ctx.lineTo(xv, yv); }
+      }
+      ctx.stroke();
+    }
+    // sampler label + acceptance + ESS
     ctx.fillStyle = COLORS[i];
     ctx.beginPath();
-    ctx.arc(PANEL.x + 18, top + 12, 5, 0, 2 * Math.PI);
+    ctx.arc(plot.x + 5, top + 9, 4, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.font = '12px "Inter", system-ui, sans-serif';
+    ctx.font = '11px "Inter", system-ui, sans-serif';
     ctx.fillStyle = tokens.fg;
-    ctx.fillText(SAMPLER_LABEL[state.samplers[i]], PANEL.x + 32, top + 16);
+    ctx.textAlign = 'left';
+    ctx.fillText(SAMPLER_LABEL[state.samplers[i]], plot.x + 14, top + 13);
 
-    const chain = state.chains[i];
-    const tr = state.traces[i];
-    const n = tr.length;
-    const acceptance = chain.acceptance;
+    // metrics on the right edge
     let essStr = '', ksStr = '';
     if (n > WARMUP + 50) {
       const postN = Math.min(n - WARMUP, 4000);
@@ -197,22 +233,20 @@ function drawDiagnosticsPanel() {
         flat[k * 2 + 1] = tr[n - postN + k].y;
       }
       const d = chain.diagnostics(flat);
-      essStr = `ess[0] = ${d.ess[0].toFixed(0)}`;
+      essStr = `ess=${d.ess[0].toFixed(0)}`;
       if (target.name === 'gaussian2d') {
         const cols = new Float64Array(postN);
         for (let k = 0; k < postN; k += 1) cols[k] = flat[k * 2];
-        const ks = ks1D(cols, x => normCdf(x, 0, 1));
-        ksStr = `KS = ${ks.toFixed(3)}`;
+        ksStr = `KS=${ks1D(cols, x => normCdf(x, 0, 1)).toFixed(3)}`;
       }
     } else {
       essStr = `burn ${n}/${WARMUP}`;
     }
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-    ctx.fillStyle = tokens.fg;
-    ctx.fillText(`accept = ${(100 * acceptance).toFixed(1)} pct`, PANEL.x + 18, top + 38);
-    ctx.fillText(essStr, PANEL.x + 18, top + 54);
-    if (ksStr) ctx.fillText(ksStr, PANEL.x + 18, top + 70);
-    ctx.fillText(`n = ${n}`, PANEL.x + 18, top + 86);
+    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = tokens.fgMuted;
+    const metricStr = `acc ${(100 * chain.acceptance).toFixed(0)}%  ${essStr}` + (ksStr ? `  ${ksStr}` : '');
+    ctx.fillText(metricStr, plot.x + plot.w - 4, top + 13);
   }
 
   ctx.font = '11px "Inter", system-ui, sans-serif';

@@ -171,17 +171,45 @@ function drawBodyTrailAndDot(idx, body, color) {
 }
 
 function drawKeplerThirdLawInset() {
-  // panel background (translucent so the star field reads behind)
-  ctx.fillStyle = 'rgba(251, 251, 249, 0.92)';
+  // Panel background uses a soft tinted surface so it reads as a real
+  // subplot rather than a flat white box.
+  ctx.fillStyle = 'rgba(26, 27, 28, 0.04)';
   ctx.fillRect(KPL.x, KPL.y, KPL.w, KPL.h);
   ctx.strokeStyle = tokens.fg;
-  ctx.lineWidth = 0.6;
+  ctx.lineWidth = 0.8;
   ctx.strokeRect(KPL.x + 0.5, KPL.y + 0.5, KPL.w - 1, KPL.h - 1);
 
-  // Kepler-III line: log(T^2) = log(a^3) for GM = 1 units (slope = 1)
-  ctx.strokeStyle = tokens.fgFaint;
-  ctx.lineWidth = 0.8;
-  ctx.setLineDash([3, 3]);
+  // gridlines at every integer in log space
+  ctx.strokeStyle = tokens.grid;
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  for (let v = Math.ceil(KPL.log_a3_min); v <= Math.floor(KPL.log_a3_max); v += 1) {
+    const p = pxKepler(v, 0);
+    ctx.moveTo(p.px, KPL.y); ctx.lineTo(p.px, KPL.y + KPL.h);
+  }
+  for (let v = Math.ceil(KPL.log_T2_min); v <= Math.floor(KPL.log_T2_max); v += 1) {
+    const p = pxKepler(0, v);
+    ctx.moveTo(KPL.x, p.py); ctx.lineTo(KPL.x + KPL.w, p.py);
+  }
+  ctx.stroke();
+  // axis tick labels
+  ctx.fillStyle = tokens.fgFaint;
+  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  for (let v = Math.ceil(KPL.log_a3_min); v <= Math.floor(KPL.log_a3_max); v += 1) {
+    const p = pxKepler(v, KPL.log_T2_min);
+    ctx.fillText(`10^${v}`, p.px, KPL.y + KPL.h + 12);
+  }
+  ctx.textAlign = 'right';
+  for (let v = Math.ceil(KPL.log_T2_min); v <= Math.floor(KPL.log_T2_max); v += 1) {
+    const p = pxKepler(KPL.log_a3_min, v);
+    ctx.fillText(`10^${v}`, KPL.x - 4, p.py + 3);
+  }
+
+  // Kepler-III line on log-log axes (slope 1 in the (log_a3, log_T2 / 4 pi^2) plane)
+  ctx.strokeStyle = tokens.accent;
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([5, 4]);
   ctx.beginPath();
   const p0 = pxKepler(KPL.log_a3_min, KPL.log_a3_min);
   const p1 = pxKepler(KPL.log_a3_max, KPL.log_a3_max);
@@ -189,40 +217,41 @@ function drawKeplerThirdLawInset() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // data points: one per body (a^3, T^2 = (2 pi a^1.5)^2 = 4 pi^2 a^3)
-  // log_T2 = log(4 pi^2) + log_a3; offset between line and points is the
-  // 4 pi^2 prefactor. Since we plot log_T2 against log_a3 on a 1:1 slope,
-  // and our line is log_T2 = log_a3 (with no prefactor), I'll plot
-  // log(T^2 / (4 pi^2)) = log_a3 so the line passes through the data.
+  // data points with planet name labels
   const bodies = allBodies();
   for (let i = 0; i < bodies.length; i += 1) {
     const a = bodies[i].a;
     const T = keplerThirdLaw(a);
     const log_a3 = Math.log10(a * a * a);
-    const log_T2 = Math.log10(T * T / (4 * Math.PI * Math.PI));   // ~ log_a3 in GM=1 units
+    const log_T2 = Math.log10(T * T / (4 * Math.PI * Math.PI));
     const p = pxKepler(log_a3, log_T2);
     const c = bodies[i].color === 'accent-warm' ? tokens.accentWarm : PLANET_COLOR[bodies[i].color];
     ctx.fillStyle = c;
     ctx.beginPath();
-    ctx.arc(p.px, p.py, 4, 0, 2 * Math.PI);
+    ctx.arc(p.px, p.py, 6, 0, 2 * Math.PI);
     ctx.fill();
     ctx.strokeStyle = tokens.fg;
-    ctx.lineWidth = 0.6;
+    ctx.lineWidth = 1.0;
     ctx.stroke();
+    // label
+    ctx.fillStyle = tokens.fg;
+    ctx.font = '10px "Inter", system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(bodies[i].name, p.px + 8, p.py + 3);
   }
 
   // axis labels
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText("Kepler's III law", KPL.x + KPL.w / 2, KPL.y - 8);
+  ctx.fillText("Kepler's third law: T^2 proportional to a^3", KPL.x + KPL.w / 2, KPL.y - 8);
   ctx.font = '10px "Inter", system-ui, sans-serif';
   ctx.fillStyle = tokens.fgFaint;
-  ctx.fillText('log10(a^3 / AU^3)', KPL.x + KPL.w / 2, KPL.y + KPL.h + 14);
+  ctx.fillText('a^3 (AU^3)', KPL.x + KPL.w / 2, KPL.y + KPL.h + 26);
   ctx.save();
-  ctx.translate(KPL.x - 26, KPL.y + KPL.h / 2);
+  ctx.translate(KPL.x - 36, KPL.y + KPL.h / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('log10(T^2 / (4 pi^2 yr^2))', 0, 0);
+  ctx.fillText('T^2 / (4 pi^2) (yr^2)', 0, 0);
   ctx.restore();
 }
 

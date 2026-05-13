@@ -84,10 +84,12 @@ const tokens = {
 function buildSwarm() {
   state.swarm      = createPhotonSwarm({ N: state.N, bMax: state.bMax, xInf: 12 });
   state.stepsSoFar = 0;
-  // Independent two-photon "critical swarm" at b = +/- b_crit, used to mark
-  // the boundary visually. These photons orbit the photon sphere near
-  // indefinitely; we render them with extra weight.
-  state.criticalSwarm = createPhotonSwarm({ N: 2, bMax: B_CRIT * 1.0001, xInf: 12 });
+  // Independent two-photon "critical swarm" at b just above +/- b_crit.
+  // The photon sphere is an unstable circular orbit so any deviation from
+  // b_crit grows exponentially in the orbital phase; we pick b extremely
+  // close to b_crit so the photon visibly loops the photon sphere several
+  // times before its fate is decided.
+  state.criticalSwarm = createPhotonSwarm({ N: 2, bMax: B_CRIT * (1 + 1e-7), xInf: 12 });
 }
 
 function stepN(nSteps) {

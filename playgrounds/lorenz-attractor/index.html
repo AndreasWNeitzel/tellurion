@@ -6,6 +6,10 @@
   <title>Lorenz Attractor</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
   <style>
     .pg-figure { max-width: 760px; }
     .pg-figure canvas { width: 100%; height: auto; background: #060608; }
@@ -41,13 +45,24 @@
   <h1>Lorenz attractor</h1>
 
   <p>
-    The Lorenz 1963 system, the canonical example of deterministic chaos.
-    Three coupled ODEs in (x, y, z); the (x, z) projection is rendered as
-    the trajectory traces out the strange attractor's two-lobed butterfly.
-    A live tangent-vector estimate gives the running maximum Lyapunov
-    exponent (analytic value 0.9056 at the classical sigma=10, rho=28,
-    beta=8/3). Tune the parameters to escape the chaotic regime (rho below
-    24.74 gives stable spirals; very large rho gives periodic windows).
+    <strong>What you are seeing:</strong> a simplified model of atmospheric
+    convection, due to Edward Lorenz in 1963. The trajectory in
+    $(x, y, z)$ never settles down and never repeats, but it stays trapped
+    in a butterfly-shaped region of space. This was the first rigorously
+    studied example of deterministic chaos: noise-free, completely
+    deterministic, yet long-term prediction is impossible.
+  </p>
+  <p>
+    The equations are
+    $\dot x = \sigma (y - x)$,
+    $\dot y = x (\rho - z) - y$,
+    $\dot z = x y - \beta z$,
+    here projected onto the $(x, z)$ plane. The red dot is the current
+    state. $\lambda_1$ in the corner is the running estimate of the
+    largest Lyapunov exponent (analytic value about $0.906$); it tells you
+    how fast two nearby starting points drift apart. Drop $\rho$ below
+    $24.74$ for a stable spiral; push it past $100$ for periodic windows
+    inside chaos.
   </p>
 
   <figure class="pg-figure">
@@ -84,8 +99,8 @@
     </div>
     <div class="row">
       <span class="label">speed</span>
-      <input type="range" id="slider-speed" min="0.5" max="5" step="0.1" value="1">
-      <span class="value" id="value-speed">1.0</span>
+      <input type="range" id="slider-speed" min="0.1" max="1.5" step="0.05" value="0.5">
+      <span class="value" id="value-speed">0.5</span>
     </div>
     <div class="row buttons">
       <button id="btn-reset" type="button" aria-label="Reset to (1, 1, 1) and clear trail">Reset</button>

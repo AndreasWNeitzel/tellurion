@@ -1,28 +1,68 @@
-// Tsne Vs Umap Vs Isomap invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+import { describe, it, expect } from 'vitest';
+import { swissRoll, twoBlobs, pca, isomap, tsne } from './sim.js';
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
-
-describe('Tsne Vs Umap Vs Isomap invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('dr-comparator: dataset generators', () => {
+  it('swissRoll returns N x 3 array with N labels', () => {
+    const d = swissRoll({ N: 100, seed: 1 });
+    expect(d.X.length).toBe(300);
+    expect(d.labels.length).toBe(100);
+    expect(d.D).toBe(3);
+    expect(d.N).toBe(100);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('twoBlobs has roughly half points at each cluster', () => {
+    const d = twoBlobs({ N: 200, seed: 1 });
+    let zero = 0, one = 0;
+    for (let i = 0; i < d.N; i += 1) { if (d.labels[i] === 0) zero += 1; else one += 1; }
+    expect(zero).toBe(100);
+    expect(one).toBe(100);
+  });
+});
+
+describe('dr-comparator: PCA correctness', () => {
+  it('PCA of two clearly separated blobs places them on opposite sides of the first PC', () => {
+    const d = twoBlobs({ N: 80, seed: 1 });
+    const Y = pca(d.X, d.N, d.D);
+    let leftMean = 0, rightMean = 0, lc = 0, rc = 0;
+    for (let i = 0; i < d.N; i += 1) {
+      if (d.labels[i] === 0) { leftMean += Y[i * 2]; lc += 1; }
+      else                    { rightMean += Y[i * 2]; rc += 1; }
+    }
+    leftMean /= lc; rightMean /= rc;
+    expect(Math.abs(rightMean - leftMean)).toBeGreaterThan(1);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('PCA output has 2N entries', () => {
+    const d = twoBlobs({ N: 50, seed: 0 });
+    const Y = pca(d.X, d.N, d.D);
+    expect(Y.length).toBe(100);
+  });
+});
+
+describe('dr-comparator: Isomap roughly preserves cluster structure', () => {
+  it('Isomap of two blobs keeps the labels separable in the first coordinate', () => {
+    const d = twoBlobs({ N: 60, seed: 1 });
+    const Y = isomap(d.X, d.N, d.D, 6);
+    let leftMean = 0, rightMean = 0, lc = 0, rc = 0;
+    for (let i = 0; i < d.N; i += 1) {
+      if (d.labels[i] === 0) { leftMean += Y[i * 2]; lc += 1; }
+      else                    { rightMean += Y[i * 2]; rc += 1; }
+    }
+    leftMean /= lc; rightMean /= rc;
+    expect(Math.abs(rightMean - leftMean)).toBeGreaterThan(0.5);
+  });
+});
+
+describe('dr-comparator: t-SNE separates the two-blob clusters', () => {
+  it('t-SNE post-200-iter places labels in disjoint regions on the first coord', () => {
+    const d = twoBlobs({ N: 60, seed: 1 });
+    const Y = tsne(d.X, d.N, d.D, { perplexity: 20, nIter: 200, seed: 0 });
+    let leftMean = 0, rightMean = 0, lc = 0, rc = 0;
+    for (let i = 0; i < d.N; i += 1) {
+      if (d.labels[i] === 0) { leftMean += Y[i * 2]; lc += 1; }
+      else                    { rightMean += Y[i * 2]; rc += 1; }
+    }
+    leftMean /= lc; rightMean /= rc;
+    expect(Math.abs(rightMean - leftMean)).toBeGreaterThan(1);
+  }, 60_000);
 });

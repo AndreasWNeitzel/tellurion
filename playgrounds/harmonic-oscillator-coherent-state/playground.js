@@ -19,8 +19,10 @@ const btnReset      = document.getElementById('btn-reset');
 const btnPlayPause  = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const PLOT = { x: 60, y: 30, w: 660, h: 440, xmin: -5, xmax: 5, ymin: -0.2, ymax: 1.6 };
-const DT = 0.025;
+const PLOT = { x: 60, y: 30, w: 660, h: 440, xmin: -5, xmax: 5, ymin: -0.6, ymax: 1.6 };
+// 4x slower than the original (0.025). Default speed 1 advances 0.00625
+// time units per frame so a full oscillator period takes ~ 17 sec at 60 Hz.
+const DT = 0.00625;
 
 const state = {
   alpha: 2.0,
@@ -124,14 +126,20 @@ function drawRealPsi() {
 }
 
 function drawClassicalMarker() {
+  // Classical particle position: sits ON the potential V(x) = x^2 / 2 at
+  // (x_0, V(x_0) scaled to match the dashed potential curve). The previous
+  // version put the dot at (x_0, 0), which slid horizontally instead of
+  // tracing the bowl.
   const { x0 } = classicalOrbit(state.alpha, state.t);
-  const p = px(x0, 0);
+  const V = 0.5 * x0 * x0;
+  const Vscaled = Math.min(V / 12, PLOT.ymax);
+  const p = px(x0, Vscaled);
   ctx.fillStyle = tok.accentWarm;
   ctx.beginPath();
-  ctx.arc(p.px, p.py, 5, 0, 2 * Math.PI);
+  ctx.arc(p.px, p.py, 6, 0, 2 * Math.PI);
   ctx.fill();
   ctx.strokeStyle = tok.fg;
-  ctx.lineWidth = 0.7;
+  ctx.lineWidth = 0.9;
   ctx.stroke();
 }
 

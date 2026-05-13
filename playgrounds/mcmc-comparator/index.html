@@ -6,6 +6,10 @@
   <title>MCMC Sampler Comparator</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
   <style>
     .pg-figure { max-width: 880px; }
     .pg-figure canvas { width: 100%; height: auto; }
@@ -33,15 +37,21 @@
 </head>
 <body>
   <h1>MCMC sampler comparator</h1>
-
   <p>
-    Three Markov-chain Monte Carlo samplers run in parallel on a chosen 2D
-    target density. Each sampler lays down its accepted-state trail in a
-    distinct categorical colour; the contour map under the trails shows the
-    target. The right-hand panel reports per-sampler acceptance, effective
-    sample size, and a Kolmogorov-Smirnov statistic against the analytic
-    marginal where available. Switch the target or any sampler to see how
-    mixing behaviour changes.
+    <strong>What you are seeing:</strong> three different random-walk
+    algorithms trying to sample from the same probability density
+    $\pi(x, y)$. The grey shading on the left is the density itself
+    (darker = higher probability). Each colored trail is one sampler
+    laying down points: it tries to walk in a way that, in the long run,
+    spends time at each $(x, y)$ in proportion to $\pi$.
+  </p>
+  <p>
+    A "good" sampler explores the whole region quickly and decorrelates;
+    a "bad" sampler gets stuck. The right panels are live trace plots of
+    the $x$ coordinate of each chain, plus its acceptance rate and
+    effective sample size $N_\text{eff}$. Switch the target to the banana
+    or the funnel to see HMC pull ahead; switch to the mixture to see
+    samplers getting trapped in one mode.
   </p>
 
   <figure class="pg-figure">

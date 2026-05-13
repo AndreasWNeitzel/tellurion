@@ -3,29 +3,75 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tsne Vs Umap Vs Isomap</title>
+  <title>Dimensionality Reduction: PCA, Isomap, t-SNE</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 900px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Tsne Vs Umap Vs Isomap</h1>
+  <h1>Dimensionality reduction: PCA vs Isomap vs t-SNE</h1>
+  <p>
+    <strong>What you are seeing:</strong> a 3D dataset (left panel, viewed
+    from above) being flattened into 2D by three different methods. The
+    points are colored by a known label (position along the Swiss roll's
+    length, or which Gaussian cluster they came from). A good embedding
+    keeps points with the same color near each other.
+  </p>
+  <p>
+    <strong>PCA</strong> (linear): find the two directions of largest
+    variance in 3D and project onto them. Fast, deterministic, but rigid:
+    a Swiss roll gets squashed into a useless oval.
+    <strong>Isomap</strong>: build a $k$-nearest-neighbor graph, measure
+    distances along the graph (not through air), then do classical MDS.
+    Unrolls the Swiss roll because graph distances follow the manifold.
+    <strong>t-SNE</strong>: place a Student-t kernel in 2D and minimize
+    KL divergence to a Gaussian-affinity matrix in 3D. Excellent at
+    preserving local neighborhoods (clusters), worse at global geometry.
+    <em>The slug names UMAP; the third method shown here is the simpler
+    classical PCA, kept as a linear baseline.</em>
+  </p>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <figure class="pg-figure">
+    <canvas id="stage" width="900" height="620" tabindex="0"
+            aria-label="Four-panel comparison: 3D dataset top-down view, plus three 2D embeddings via PCA, Isomap, and t-SNE."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Top-down view of the 3D dataset (top-left) and three 2D embeddings.
+      Method: closed-form PCA, Floyd-Warshall geodesics for Isomap MDS,
+      and Student-t KL gradient descent for t-SNE (250 iterations).
+      Source: Murphy, Probabilistic Machine Learning Vol. 1, Section 20.4
+      (t-SNE and UMAP) and 20.5 (Isomap and Laplacian eigenmaps).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="DR controls">
+    <div class="row">
+      <span class="label">dataset</span>
+      <select id="select-dataset">
+        <option value="swiss-roll" selected>Swiss roll</option>
+        <option value="two-blobs">Two blobs</option>
+      </select>
+    </div>
+    <div class="row"><span class="label">N points</span><input type="range" id="slider-N" min="100" max="500" step="50" value="300"><span class="value" id="value-N">300</span></div>
+    <div class="row"><span class="label">k (Isomap)</span><input type="range" id="slider-k" min="3" max="20" step="1" value="8"><span class="value" id="value-k">8</span></div>
+    <div class="row"><span class="label">perplexity (t-SNE)</span><input type="range" id="slider-perp" min="5" max="50" step="5" value="30"><span class="value" id="value-perp">30</span></div>
+    <div class="row buttons">
+      <button id="btn-recompute" type="button">Recompute</button>
+      <button id="btn-reset" type="button">Reset defaults</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

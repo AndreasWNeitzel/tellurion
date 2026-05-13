@@ -89,9 +89,9 @@ Ship 12 to 18 of these in six months. Six well-built playgrounds beat fifteen ru
 
 ## Catalog: ratified concepts
 
-Forty ratified playground concepts beyond Phases 1 through 6 and the Stretch list, organized by topical group. Each row names the playground slug, group, engine reuse (existing or newly named), primary citation key, and the strong invariant with its quantitative threshold.
+Thirty-nine ratified playground concepts beyond Phases 1 through 6 and the Stretch list, organized by topical group. Each row names the playground slug, group, engine reuse (existing or newly named), primary citation key, and the strong invariant with its quantitative threshold.
 
-(The original ratified list was 41; `schwarzschild-photon-sphere` was absorbed into the already-shipped `schwarzschild-geodesics` playground, which already exposes the b_crit = 3 sqrt(3) M photon-sphere demo through a checkbox toggle.)
+(The original ratified list was 41; `schwarzschild-photon-sphere` was absorbed into the already-shipped `schwarzschild-geodesics` playground. `arnold-cat-map` was removed from the catalog on user request.)
 
 ### Group A: Ising and lattice spin variants
 
@@ -111,7 +111,6 @@ Forty ratified playground concepts beyond Phases 1 through 6 and the Stretch lis
 | billiards-circle-stadium-sinai | B | billiards (new) | Berry 1981 | escape-rate / ergodicity contrast: stadium and Sinai mix; circle does not |
 | standard-map-kam | B | none (pure 2D map) | Ott Ch. 7 | Greene K_c = 0.971635 within 1 percent for golden-mean torus breakup |
 | duffing-oscillator | B | ode-rk (new) | Strogatz Ch. 12 | period-doubling cascade with Feigenbaum delta ~ 4.669 within 5 percent |
-| arnold-cat-map | B | none (pure 2D map) | Ott Ch. 2 | Lyapunov exponent log((3 + sqrt(5)) / 2) within 1e-6 |
 
 ### Group C: Quantum mechanics
 

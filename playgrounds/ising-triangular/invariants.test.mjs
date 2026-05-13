@@ -1,28 +1,46 @@
-// Ising Triangular invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+import { describe, it, expect } from 'vitest';
+import { createIsing, sweep, magnetization, energyPerSite, TC_ANALYTIC } from './sim.js';
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
-
-describe('Ising Triangular invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('ising-triangular: limiting cases', () => {
+  it('cold start, very low T: magnetization stays close to +/-1', () => {
+    const s = createIsing({ L: 32, T: 0.5, seed: 1, init: 'cold' });
+    sweep(s, 50);
+    expect(Math.abs(magnetization(s))).toBeGreaterThan(0.95);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('hot start, very high T: magnetization fluctuates near zero', () => {
+    const s = createIsing({ L: 32, T: 12, seed: 1, init: 'hot' });
+    sweep(s, 200);
+    expect(Math.abs(magnetization(s))).toBeLessThan(0.15);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('exact Tc = 4 / ln(3) ~ 3.6410', () => {
+    expect(Math.abs(TC_ANALYTIC - 4 / Math.log(3))).toBeLessThan(1e-12);
+    expect(Math.abs(TC_ANALYTIC - 3.6410)).toBeLessThan(0.001);
+  });
+});
+
+describe('ising-triangular: energy bounds', () => {
+  it('energy per site lies in [-3, 3]', () => {
+    const s = createIsing({ L: 32, T: 2, seed: 1, init: 'hot' });
+    sweep(s, 30);
+    const e = energyPerSite(s);
+    expect(e).toBeGreaterThan(-3.01);
+    expect(e).toBeLessThan(3.01);
+  });
+
+  it('cold lattice has e = -3 per site (every bond aligned)', () => {
+    const s = createIsing({ L: 16, T: 0.01, seed: 0, init: 'cold' });
+    expect(energyPerSite(s)).toBeCloseTo(-3, 6);
+  });
+});
+
+describe('ising-triangular: reproducibility', () => {
+  it('same seed gives bit-identical magnetization after N sweeps', () => {
+    const a = createIsing({ L: 16, T: 3, seed: 42, init: 'hot' });
+    const b = createIsing({ L: 16, T: 3, seed: 42, init: 'hot' });
+    sweep(a, 30);
+    sweep(b, 30);
+    expect(magnetization(a)).toBe(magnetization(b));
+  });
 });

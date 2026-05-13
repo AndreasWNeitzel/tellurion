@@ -6,6 +6,10 @@
   <title>Henon Strange Attractor</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
   <style>
     .pg-figure { max-width: 760px; }
     .pg-figure canvas { width: 100%; height: auto; background: #060608; }
@@ -32,10 +36,21 @@
 <body>
   <h1>Henon strange attractor</h1>
   <p>
-    The Henon 1976 map x' = 1 - a x^2 + y, y' = b x. At the canonical
-    a = 1.4, b = 0.3 the iterates settle onto a strange attractor with
-    box-count dimension ~ 1.26 and max-Lyapunov ~ 0.4192. Tune a and b to
-    visit the period-doubling cascade and the Henon-Smale horseshoe regime.
+    <strong>What you are seeing:</strong> take a point in the plane, then
+    repeatedly apply two short rules to it (a stretch and a fold). After a
+    hundred thousand repetitions, the cloud of points does not fill the
+    plane and does not collapse to one orbit. Instead it lays down on a
+    thin curve with infinitely many layered folds, called a "strange
+    attractor". Michel Henon wrote this map down in 1976 as the simplest
+    example of the phenomenon.
+  </p>
+  <p>
+    The rule is $x' = 1 - a\,x^2 + y$, $y' = b\,x$, here with the classical
+    $a = 1.4$, $b = 0.3$. The shape has Hausdorff dimension about $1.26$
+    (between a curve and a surface) and a positive Lyapunov exponent
+    $\lambda \approx 0.42$ (small starting differences grow exponentially).
+    Slide $a$ to walk through a period-doubling cascade like the logistic
+    map; slide $b$ to fatten or flatten the bowtie.
   </p>
 
   <figure class="pg-figure">

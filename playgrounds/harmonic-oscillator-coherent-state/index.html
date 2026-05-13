@@ -6,6 +6,10 @@
   <title>Harmonic Oscillator Coherent State</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
   <style>
     .pg-figure { max-width: 760px; }
     .pg-figure canvas { width: 100%; height: auto; }
@@ -19,13 +23,20 @@
 <body>
   <h1>Harmonic oscillator coherent state</h1>
   <p>
-    A coherent state of the 1D quantum harmonic oscillator |alpha&gt; is
-    the eigenvector of the lowering operator a. Its probability density
-    |psi(x, t)|^2 is a Gaussian of fixed width 1/sqrt 2 whose mean follows
-    the classical orbit x_0(t) = sqrt 2 Re(alpha e^{-i omega t}). The
-    blue curve is |psi|^2; the cat-2 trace is Re(psi); the parabolic
-    background is the harmonic potential V(x) = x^2 / 2. Watch the wave
-    packet oscillate without spreading, the hallmark of coherent states.
+    <strong>What you are seeing:</strong> a quantum wave packet that slides
+    back and forth inside a parabolic bowl <em>without spreading out</em>.
+    Classical balls in this bowl oscillate forever; a typical quantum wave
+    packet would smear and lose coherence. The "coherent state"
+    $|\alpha\rangle$ is the special wave packet that keeps its Gaussian
+    shape, with its centre tracing the classical orbit
+    $x_0(t) = \sqrt{2}\,\mathrm{Re}(\alpha e^{-i \omega t})$.
+  </p>
+  <p>
+    The blue curve is the probability density $|\psi(x, t)|^2$; the orange
+    wiggle underneath is $\mathrm{Re}(\psi)$; the dashed parabola is the
+    potential $V(x) = x^2 / 2$. The red dot is the classical particle that
+    would correspond to the same orbit. They move together. The expected
+    number of energy quanta is $\langle n \rangle = |\alpha|^2$.
   </p>
 
   <figure class="pg-figure">
@@ -42,7 +53,7 @@
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Coherent state controls">
     <div class="row"><span class="label">alpha</span><input type="range" id="slider-alpha" min="0" max="4" step="0.1" value="2"><span class="value" id="value-alpha">2.00</span></div>
-    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0.1" max="3" step="0.1" value="1"><span class="value" id="value-speed">1.0</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0.1" max="2" step="0.1" value="0.6"><span class="value" id="value-speed">0.6</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>

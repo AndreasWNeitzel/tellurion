@@ -39,3 +39,42 @@ export function resonanceEnergy(n, V0, a) {
   const kappa = n * Math.PI / a;
   return V0 + 0.5 * kappa * kappa;
 }
+
+// Real part of the wavefunction at position x for incident wave A e^{i k x},
+// time t, with the barrier centred between 0 and a. Outside the barrier the
+// solution is a sum of plane waves; inside it is exponential or oscillatory
+// depending on E vs V0. We return Re(psi(x, t)) with the incident amplitude
+// fixed at 1 for display. This is a coarse stationary-state visualization;
+// time evolution is just an exp(-i E t) global phase.
+export function psiReal(x, t, E, V0, a) {
+  if (E <= 0) return 0;
+  const k = Math.sqrt(2 * E);
+  const phase = -E * t;       // global e^{-i E t} factor
+  if (x < 0) {
+    // incident + reflected
+    const T = transmission(E, V0, a);
+    // Reflection coefficient amplitude r. For simplicity use sqrt(1 - T)
+    // with conventional phase; this is a visualization, not a measurement.
+    const r = Math.sqrt(Math.max(0, 1 - T));
+    return Math.cos(k * x + phase) + r * Math.cos(-k * x + phase + Math.PI);
+  }
+  if (x > a) {
+    const T = transmission(E, V0, a);
+    const t_amp = Math.sqrt(T);
+    return t_amp * Math.cos(k * (x - a) + phase);
+  }
+  // inside the barrier
+  if (E > V0) {
+    const kappa = Math.sqrt(2 * (E - V0));
+    // approximate oscillatory inside-amplitude scaled by transmission
+    const T = transmission(E, V0, a);
+    const amp = (1 + Math.sqrt(T)) / 2;
+    return amp * Math.cos(kappa * x + phase);
+  }
+  const kappa = Math.sqrt(2 * (V0 - E));
+  // decaying solution from the left interface
+  const T = transmission(E, V0, a);
+  const amp = (1 + Math.sqrt(T)) / 2;
+  const decay = Math.exp(-kappa * x);
+  return amp * decay * Math.cos(phase);
+}

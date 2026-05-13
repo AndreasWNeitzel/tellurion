@@ -1,0 +1,245 @@
+{
+  "double-pendulum": [
+    {
+      "line": 98,
+      "raw": "derived by direct linearization of the Newman Ex. 8.15",
+      "author_or_title": "derived by direct linearization of the Newman",
+      "section": "8.15",
+      "bib_key": "newman2013",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 98,
+      "raw": "using the Strogatz Section 6.3",
+      "author_or_title": "using the Strogatz",
+      "section": "6.3",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 108,
+      "raw": "Strogatz Section 6.7",
+      "author_or_title": "Strogatz",
+      "section": "6.7",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 112,
+      "raw": "Strogatz Section 6.5",
+      "author_or_title": "Strogatz",
+      "section": "6.5",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 127,
+      "raw": "Strogatz Section 6.5",
+      "author_or_title": "Strogatz",
+      "section": "6.5",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    }
+  ],
+  "kepler-orbit-explorer": [
+    {
+      "line": 80,
+      "raw": "Newman Exercise 8.12",
+      "author_or_title": "Newman",
+      "section": "8.12",
+      "bib_key": "newman2013",
+      "verdict": "OK",
+      "note": ""
+    }
+  ],
+  "liouvillian-flow": [
+    {
+      "line": 75,
+      "raw": "Strogatz Section 6.5",
+      "author_or_title": "Strogatz",
+      "section": "6.5",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 76,
+      "raw": "Strogatz Section 6.7",
+      "author_or_title": "Strogatz",
+      "section": "6.7",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    }
+  ],
+  "logistic-cobweb": [
+    {
+      "line": 28,
+      "raw": "Strogatz Section 10.5",
+      "author_or_title": "Strogatz",
+      "section": "10.5",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 30,
+      "raw": "Strogatz Section 10.3",
+      "author_or_title": "Strogatz",
+      "section": "10.3",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 30,
+      "raw": "universality of the ratio is the subject of Strogatz Section 10.6",
+      "author_or_title": "universality of the ratio is the subject of Strogatz",
+      "section": "10.6",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 72,
+      "raw": "Strogatz Section 10.5",
+      "author_or_title": "Strogatz",
+      "section": "10.5",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 73,
+      "raw": "Strogatz Section 10.6",
+      "author_or_title": "Strogatz",
+      "section": "10.6",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 100,
+      "raw": "Strogatz Section 10.2",
+      "author_or_title": "Strogatz",
+      "section": "10.2",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 100,
+      "raw": "Newman Exercise 3.6",
+      "author_or_title": "Newman",
+      "section": "3.6",
+      "bib_key": "newman2013",
+      "verdict": "OK",
+      "note": ""
+    }
+  ],
+  "lyapunov-spectrum": [
+    {
+      "line": 81,
+      "raw": "Strogatz Section 12.2",
+      "author_or_title": "Strogatz",
+      "section": "12.2",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 82,
+      "raw": "Strogatz Section 12.2",
+      "author_or_title": "Strogatz",
+      "section": "12.2",
+      "bib_key": "strogatz2015",
+      "verdict": "OK",
+      "note": ""
+    }
+  ],
+  "mandelbrot-explorer": [],
+  "mcmc-comparator": [
+    {
+      "line": 20,
+      "raw": "Robert-Casella Section 7.6",
+      "author_or_title": "Robert-Casella",
+      "section": "7.6",
+      "bib_key": "robertcasella2004",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 77,
+      "raw": "Bishop-Bishop Section 14.3",
+      "author_or_title": "Bishop-Bishop",
+      "section": "14.3",
+      "bib_key": "bishopbishop2024",
+      "verdict": "OK",
+      "note": ""
+    }
+  ],
+  "rotation-curve-explorer": [],
+  "schwarzschild-geodesics": [
+    {
+      "line": 71,
+      "raw": "Carroll Section 5.4",
+      "author_or_title": "Carroll",
+      "section": "5.4",
+      "bib_key": "carroll2019",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 80,
+      "raw": "Carroll Section 5.4",
+      "author_or_title": "Carroll",
+      "section": "5.4",
+      "bib_key": "carroll2019",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 81,
+      "raw": "Carroll Section 5.4",
+      "author_or_title": "Carroll",
+      "section": "5.4",
+      "bib_key": "carroll2019",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 107,
+      "raw": "Add a Kerr-spin toggle once Carroll Chapter 6",
+      "author_or_title": "Add a Kerr-spin toggle once Carroll",
+      "section": "6",
+      "bib_key": "carroll2019",
+      "verdict": "MISCITED-SUBSECTION",
+      "note": "carroll2019 chapter_index missing 6"
+    }
+  ],
+  "three-body-orbit": [
+    {
+      "line": 75,
+      "raw": "Newman Exercise 8.16",
+      "author_or_title": "Newman",
+      "section": "8.16",
+      "bib_key": "newman2013",
+      "verdict": "OK",
+      "note": ""
+    },
+    {
+      "line": 76,
+      "raw": "Newman Exercise 8.12",
+      "author_or_title": "Newman",
+      "section": "8.12",
+      "bib_key": "newman2013",
+      "verdict": "OK",
+      "note": ""
+    }
+  ]
+}

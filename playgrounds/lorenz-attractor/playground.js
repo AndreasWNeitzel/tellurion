@@ -33,7 +33,10 @@ const W = canvas.width, H = canvas.height;
 const VIEW = { xmin: -25, xmax: 25, zmin: 0, zmax: 50 };
 const TRAIL_MAX = 12000;
 const RESCALE_EVERY = 50;
-const STEPS_PER_FRAME = 60;
+// Slower default: 18 steps/frame at speed=1 advances ~ 0.09 time units/frame,
+// or one Lyapunov time (~ 1.1 t.u.) every 12 frames. Speed slider now allows
+// 0.1 .. 1.5 with 1.0 as the default ceiling for clarity.
+const STEPS_PER_FRAME = 18;
 const WARMUP_STEPS = 1000;
 
 const state = {
