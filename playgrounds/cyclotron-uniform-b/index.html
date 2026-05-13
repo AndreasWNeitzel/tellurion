@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cyclotron Motion in a Uniform Magnetic Field</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Cyclotron motion in a uniform magnetic field</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a charged particle (q = m = 1) in a
+    uniform out-of-page magnetic field B. The Lorentz force
+    $\mathbf{F} = q \mathbf{v} \times \mathbf{B}$ is always perpendicular
+    to $\mathbf{v}$, so it does no work; the speed is constant. The
+    trajectory is a circle of radius $r = m v / (q B)$ traced at angular
+    frequency $\omega_c = q B / m$. Increasing $B$ tightens the orbit but
+    speeds up the rotation, leaving the period $T = 2\pi m / (q B)$ shorter.
+  </p>
+  <p>
+    Vary $B$: smaller $B$ gives bigger circles. Vary the initial speed: at
+    fixed $B$, larger $v$ gives bigger circles but the same period. The
+    field-strength readout shows the resulting radius and period.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Charged particle tracing a circle in a uniform magnetic field with B vector indicator."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Cyclotron motion. Method: RK4 integration of $\dot{\mathbf{v}} = q/m \, \mathbf{v} \times \mathbf{B}$.
+      Source: Jackson, Classical Electrodynamics Ch. 12.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Cyclotron controls">
+    <div class="row"><span class="label">B</span><input type="range" id="slider-B" min="0.3" max="3.0" step="0.05" value="1.0"><span class="value" id="value-B">1.00</span></div>
+    <div class="row"><span class="label">|v|</span><input type="range" id="slider-v" min="0.3" max="2.5" step="0.05" value="1.0"><span class="value" id="value-v">1.00</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
