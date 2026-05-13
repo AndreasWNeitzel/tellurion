@@ -25,9 +25,9 @@ where $r \in (0, 4]$ is the bifurcation parameter and $x_n \in [0, 1]$ is the st
 - **Discretization**: pure iteration. No integrator. Each iteration is one evaluation of $f$, computed as `x_next = r * x * (1 - x)` in IEEE 754 double precision.
 - **Iteration counts (rendering pass, bifurcation panel)**: per r value, run a base burn-in of 256 iterations to let high-period transients (up to period 64) decay, then plot the next 200 steady-state points. Total 456 iterations per r, with a horizontal grid of $4 \times 10^3$ r values across r in [2.5, 4.0]; redraws on zoom recompute only the visible r window.
 - **Iteration counts (cobweb panel)**: up to 1000 iterations per orbit, drawn as a graphical staircase.
-- **Lyapunov estimator**: at a fixed r, discard a burn-in of $10^3$ iterations, then accumulate $N = 2 \times 10^5$ terms of $\ln |f'(x_n)|$ where $f'(x) = r(1 - 2x)$. The 2-sigma margin against the 0.7 percent invariant gate at r = 4 is conservative under the natural invariant density $\rho(x) = 1 / (\pi \sqrt{x(1-x)})$ (Strogatz Ch. 10).
+- **Lyapunov estimator**: at a fixed r, discard a burn-in of $10^3$ iterations, then accumulate $N = 2 \times 10^5$ terms of $\ln |f'(x_n)|$ where $f'(x) = r(1 - 2x)$. The 2-sigma margin against the 0.7 percent invariant gate at r = 4 is conservative under the natural invariant density $\rho(x) = 1 / (\pi \sqrt{x(1-x)})$ (Strogatz Section 10.5 Liapunov Exponent).
 - **Lyapunov zero-handling**: if $|f'(x_n)| < 10^{-12}$, skip the term and decrement N. At r = 4 the probability of hitting this band under $\rho$ is $\sim 2 \times 10^{-12} / \pi$ per step, so the skip count is negligible. Without this guard, a single near-miss at $x_n = 1/2$ injects $\ln(0) = -\infty$ and poisons the sum.
-- **Feigenbaum delta computation (invariant test)**: use the superstable cascade $R_n$ (Strogatz Ch. 10), defined as the parameter values at which the orbit through $x_0 = 1/2$ has period $2^n$. Equivalently, $R_n$ is the root of $g_n(r) = f^{2^n}(1/2; r) - 1/2$. Locate each $R_n$ for $n = 1, \dots, 6$ by bisection around the Feigenbaum extrapolation $R_n \approx R_{n-1} + (R_{n-1} - R_{n-2}) / \delta$ to tolerance $10^{-12}$. Compute $\delta_n = (R_{n-1} - R_{n-2})/(R_n - R_{n-1})$ for $n = 3, 4, 5$. The superstable cascade converges to the same Feigenbaum constant as the bifurcation cascade with the same geometric rate. Anchors: $R_0 = 2$ (period-1 superstable: $f(0.5; 2) = 0.5$), $R_1 = 1 + \sqrt{5} \approx 3.23607$ (period-2 superstable, closed form from solving $f(f(1/2; r); r) = 1/2$ in r). The rendering of the bifurcation panel uses a different, coarser algorithm (period-folding sweep) since the panel does not need to meet the 0.1 percent threshold.
+- **Feigenbaum delta computation (invariant test)**: use the superstable cascade $R_n$ (Strogatz Section 10.3 Logistic Map: Analysis), defined as the parameter values at which the orbit through $x_0 = 1/2$ has period $2^n$. Equivalently, $R_n$ is the root of $g_n(r) = f^{2^n}(1/2; r) - 1/2$. Locate each $R_n$ for $n = 1, \dots, 6$ by bisection around the Feigenbaum extrapolation $R_n \approx R_{n-1} + (R_{n-1} - R_{n-2}) / \delta$ to tolerance $10^{-12}$ (universality of the ratio is the subject of Strogatz Section 10.6 Universality and Experiments). Compute $\delta_n = (R_{n-1} - R_{n-2})/(R_n - R_{n-1})$ for $n = 3, 4, 5$. The superstable cascade converges to the same Feigenbaum constant as the bifurcation cascade with the same geometric rate. Anchors: $R_0 = 2$ (period-1 superstable: $f(0.5; 2) = 0.5$), $R_1 = 1 + \sqrt{5} \approx 3.23607$ (period-2 superstable, closed form from solving $f(f(1/2; r); r) = 1/2$ in r). The rendering of the bifurcation panel uses a different, coarser algorithm (period-folding sweep) since the panel does not need to meet the 0.1 percent threshold.
 - **Spatial domain**: x in [0, 1] for all panels.
 - **Boundary conditions**: none (scalar iteration).
 - **RNG**: PRNG from `shared/js/render/rng.js` seeded with `0xC0FFEE` by default. Used only if x_0 jitter is applied to disambiguate near attractor-merge points; baseline runs use a fixed x_0 (typically x_0 = 0.1).
@@ -69,8 +69,8 @@ A visual SSIM fallback of > 0.92 against committed golden frames at seed 0xC0FFE
 | r = 1 | x_n -> 0; fixed point at x* = 0 | $f(x; 1) - x = -x^2 \le 0$ on [0, 1], so iterates decrease monotonically to 0 |
 | r = 2 | fixed point x* = 1/2 (stable) | $f'(x) = r(1 - 2x)$, so $\|f'(1/2)\| = \|2(1 - 1)\| = 0$ |
 | r = 3 | bifurcation from period 1 to period 2; x* = (r-1)/r = 2/3 loses stability | $\|f'(2/3)\| = \|3(1 - 4/3)\| = \|-1\| = 1$, marginal stability |
-| r -> 4 | attractor becomes chaotic; Lyapunov exponent lambda = ln 2 | analytically known from tent-map conjugacy; see Strogatz Ch. 10 |
-| r in (3, 3.57) | successive bifurcations accumulate at r_inf; delta ratio approaches 4.6692... | Feigenbaum universality; Strogatz Ch. 10 |
+| r -> 4 | attractor becomes chaotic; Lyapunov exponent lambda = ln 2 | tent-map conjugacy; Strogatz Section 10.5 Liapunov Exponent |
+| r in (3, 3.57) | successive bifurcations accumulate at r_inf; delta ratio approaches 4.6692... | Feigenbaum universality; Strogatz Section 10.6 Universality and Experiments |
 
 ## Visual fallback
 
@@ -78,9 +78,14 @@ Primary validation is via the two strong invariants. If period detection produce
 
 ## Citations
 
-1. **Strogatz, Steven H.** "Nonlinear Dynamics and Chaos." 2nd ed., Westview/CRC Press, 2015. Bib key `strogatz2015`. Chapter 10 ("One-Dimensional Maps") covers the logistic map definition, the bifurcation diagram and period-doubling cascade, Feigenbaum's constants delta and alpha, the superstable cascade, and the Lyapunov exponent on 1D maps including the analytic value lambda = ln 2 at r = 4 from the tent-map conjugacy.
+1. **Strogatz, Steven H.** "Nonlinear Dynamics and Chaos." 2nd ed., Westview/CRC Press, 2015. Bib key `strogatz2015`. Sections cited:
+   - Section 10.1 Fixed Points and Cobwebs: cobweb construction.
+   - Section 10.2 Logistic Map: Numerics: period-doubling sequence.
+   - Section 10.3 Logistic Map: Analysis: superstable cycles and the cascade.
+   - Section 10.5 Liapunov Exponent: definition for 1D maps, value lambda = ln 2 at r = 4 from the tent-map conjugacy.
+   - Section 10.6 Universality and Experiments: Feigenbaum constants delta and alpha.
 
-2. **Newman, Mark.** "Computational Physics." Revised printing, CreateSpace, 2013. Bib key `newman2013`. Chapter 3 ("Graphics and Visualization"), Exercise 3.6 "Deterministic Chaos and the Feigenbaum Plot" presents the bifurcation diagram exercise; the exercise title was confirmed via the published exercise repository at public.websites.umich.edu/~mejn/cp/. Newman 2013 does not contain a dedicated exercise on the Lyapunov exponent of the logistic map.
+2. **Newman, Mark.** "Computational Physics." Revised printing, CreateSpace, 2013. Bib key `newman2013`. Exercise 3.6 "Deterministic Chaos and the Feigenbaum Plot" presents the bifurcation diagram exercise; the exercise title was confirmed via the exercise distribution at public.websites.umich.edu/~mejn/cp/. Newman 2013 does not contain a dedicated exercise on the Lyapunov exponent of the logistic map.
 
 ## Stretch goals
 
@@ -92,7 +97,7 @@ Primary validation is via the two strong invariants. If period detection produce
 
 ## Aesthetic deviations
 
-- The bifurcation density panel uses a monochrome ramp from `--surface` to `--fg`, not the project default `viridis` colormap. Bifurcation diagrams are conventionally drawn as black-ink density plots throughout the chaos literature (Strogatz Ch. 10, Newman Ch. 3, Ott Ch. 2); a multi-hue colormap obscures the period-doubling structure. The single-channel scalar (orbit count per pixel) is well-represented by a perceptually monotonic monochrome ramp.
+- The bifurcation density panel uses a monochrome ramp from `--surface` to `--fg`, not the project default `viridis` colormap. Bifurcation diagrams are conventionally drawn as black-ink density plots in the chaos literature (Strogatz Section 10.2 Logistic Map: Numerics figure, Newman Exercise 3.6 figures); a multi-hue colormap obscures the period-doubling structure. The single-channel scalar (orbit count per pixel) is well-represented by a perceptually monotonic monochrome ramp.
 
 ## Risk register
 

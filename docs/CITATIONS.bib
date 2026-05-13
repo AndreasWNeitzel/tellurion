@@ -1,6 +1,13 @@
 % Source-of-truth bibliography for the playgrounds portfolio.
 % Every claim in spec.md, README.md, and captions must reference a key here.
 % Add new entries with full bibliographic data and a precise chapter/equation pointer in the citing file.
+%
+% The optional chapter_index field lists verified subsection numbers and titles
+% (or exercise numbers and titles) that playgrounds are allowed to cite.
+% citation-validator grep-matches subsection-level citations like "Strogatz Section 10.5"
+% against this index. Any citation to a subsection NOT listed here fails the gate;
+% the fix is to verify the subsection title against the source and extend chapter_index,
+% never to weaken the citation. Format: one entry per line as "N.M: Title;" inside braces.
 
 @book{newman2013,
   author    = {Newman, Mark},
@@ -9,7 +16,20 @@
   publisher = {CreateSpace},
   year      = {2013},
   isbn      = {978-1480145511},
-  url       = {http://public.websites.umich.edu/~mejn/cp/}
+  url       = {http://public.websites.umich.edu/~mejn/cp/},
+  chapter_index = {
+    3.1: Plotting Experimental Data;
+    3.2: Curve Plotting;
+    3.3: Density Grid Plotting;
+    3.4: Picturing an Atomic Lattice;
+    3.5: Visualization of the solar system;
+    3.6: Deterministic Chaos and the Feigenbaum Plot;
+    3.7: The Mandelbrot set;
+    3.8: Least-squares fitting and the photoelectric effect;
+    8.12: Orbit of the Earth;
+    8.13: Planetary orbits;
+    8.15: The double pendulum
+  }
 }
 
 @book{strogatz2015,
@@ -18,7 +38,24 @@
   edition   = {Second},
   publisher = {Westview / CRC Press},
   year      = {2015},
-  isbn      = {978-0813349107}
+  isbn      = {978-0813349107},
+  chapter_index = {
+    6.1: Phase Portraits;
+    6.2: Existence, Uniqueness, and Topological Consequences;
+    6.3: Fixed Points and Linearization;
+    6.4: Rabbits versus Sheep;
+    6.5: Conservative Systems;
+    6.6: Reversible Systems;
+    6.7: Pendulum;
+    6.8: Index Theory;
+    10.1: Fixed Points and Cobwebs;
+    10.2: Logistic Map: Numerics;
+    10.3: Logistic Map: Analysis;
+    10.4: Periodic Windows;
+    10.5: Liapunov Exponent;
+    10.6: Universality and Experiments;
+    10.7: Renormalization
+  }
 }
 
 @book{krauth2006,
@@ -27,7 +64,10 @@
   series    = {Oxford Master Series in Physics},
   publisher = {Oxford University Press},
   year      = {2006},
-  isbn      = {978-0198515364}
+  isbn      = {978-0198515364},
+  chapter_index = {
+    5: Order and disorder in spin systems
+  }
 }
 
 @book{newmanbarkema1999,
@@ -35,7 +75,11 @@
   title     = {Monte Carlo Methods in Statistical Physics},
   publisher = {Oxford University Press},
   year      = {1999},
-  isbn      = {978-0198517979}
+  isbn      = {978-0198517979},
+  chapter_index = {
+    3: The Ising model and the Metropolis algorithm;
+    4: Other algorithms for the Ising model
+  }
 }
 
 @book{bishopbishop2024,
@@ -192,7 +236,13 @@
   title     = {Spacetime and Geometry: An Introduction to General Relativity},
   publisher = {Cambridge University Press},
   year      = {2019},
-  isbn      = {978-1108488396}
+  isbn      = {978-1108488396},
+  chapter_index = {
+    5.1: The Schwarzschild Metric;
+    5.2: Birkhoff's Theorem;
+    5.3: Singularities;
+    5.4: Geodesics of Schwarzschild
+  }
 }
 
 @book{hartle2003,

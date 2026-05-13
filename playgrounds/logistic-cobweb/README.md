@@ -8,7 +8,7 @@ Controls: drag the vertical r-line on the bifurcation panel, or use the left and
 
 ## Reference
 
-Primary citation: Strogatz, "Nonlinear Dynamics and Chaos", 2nd ed., Chapter 10 (bib key `strogatz2015`). The bifurcation diagram corresponds to Newman, "Computational Physics", 2013, Ch. 3 Exercise 3.6 "Deterministic Chaos and the Feigenbaum Plot" (bib key `newman2013`).
+Primary citation: Strogatz, "Nonlinear Dynamics and Chaos", 2nd ed., Sections 10.1 (Fixed Points and Cobwebs), 10.2 (Logistic Map: Numerics), 10.3 (Logistic Map: Analysis), 10.5 (Liapunov Exponent), and 10.6 (Universality and Experiments) (bib key `strogatz2015`). The bifurcation diagram corresponds to Newman, "Computational Physics", 2013, Exercise 3.6 "Deterministic Chaos and the Feigenbaum Plot" (bib key `newman2013`).
 
 ## Verification
 
