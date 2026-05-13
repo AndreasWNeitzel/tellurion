@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mandelbrot Set Explorer</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <style>
+    .pg-figure { max-width: 720px; }
+    .pg-figure canvas { width: 100%; height: auto; cursor: crosshair; touch-action: none; }
+    .pg-readout {
+      display: grid;
+      grid-template-columns: max-content 12ch;
+      gap: var(--space-1) var(--space-4);
+      margin-top: var(--space-3);
+      width: max-content;
+    }
+    .pg-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3) var(--space-4);
+      align-items: center;
+      margin-block: var(--space-4);
+    }
+    .pg-controls .row {
+      display: grid;
+      grid-template-columns: 6ch 1fr 5ch;
+      gap: var(--space-3);
+      align-items: center;
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+    .pg-controls .row .value {
+      font-family: var(--font-mono);
+      font-feature-settings: "tnum";
+      text-align: right;
+      color: var(--fg);
+    }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Mandelbrot set explorer</h1>
+
+  <p>
+    The Mandelbrot set is the set of complex numbers c for which the iteration
+    z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c starting from z<sub>0</sub> = 0 stays
+    bounded. Each pixel of the canvas is one value of c; the gray level encodes the
+    smooth escape time (how many iterations the orbit takes to leave the disk |z| &le; 2).
+    Click anywhere on the canvas to recenter the view; drag the width slider to zoom.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="720" height="480" tabindex="0"
+            aria-label="Mandelbrot set rendered as a grayscale escape-time density."></canvas>
+
+    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">Re c (center):</span>  <span class="value" id="readout-cr">-0.500000</span>
+      <span class="label">Im c (center):</span>  <span class="value" id="readout-ci">0.000000</span>
+      <span class="label">view width:</span>     <span class="value" id="readout-width">3.5000</span>
+      <span class="label">iter at hover:</span>  <span class="value" id="readout-iter">NA</span>
+      <span class="label">status:</span>         <span class="value" id="readout-status">hover</span>
+    </div>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Mandelbrot set rendered by per-pixel iteration of z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c
+      from z<sub>0</sub> = 0, with smooth escape-time grayscale (MAX_ITER = 256). Set members
+      (orbits that stay bounded for all 256 iterations) are rendered in the foreground token;
+      exterior pixels fade toward the surface token in proportion to log-scaled smooth iteration count.
+      Source: Newman, Computational Physics, 2013, Exercise 3.7 "The Mandelbrot set"; the real-axis
+      cross-section connects to Strogatz Section 10.4 Periodic Windows.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row">
+      <span class="label">width</span>
+      <input type="range" id="slider-width" min="0.5" max="4" step="0.05" value="3.5"
+             aria-label="View width in complex-plane units">
+      <span class="value" id="value-width">3.50</span>
+    </div>
+    <div class="row">
+      <button id="btn-reset" type="button" aria-label="Reset view to (-0.5, 0), width 3.5">Reset</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
