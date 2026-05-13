@@ -257,12 +257,13 @@ canvas.addEventListener('pointerleave', () => {
   updateReadouts();
 });
 canvas.addEventListener('pointerdown', (e) => {
-  if (state.autoZoom) return;            // ignore clicks during auto-zoom
+  // Clicking during auto-zoom steers the target: useful to correct drift
+  // when the auto-zoom slowly walks away from a boundary feature.
   const p = canvasPos(e);
   const { cr, ci } = pixelToC(p);
   state.cx = cr;
   state.cy = ci;
-  refresh(1);
+  if (!state.autoZoom) refresh(1);
   e.preventDefault();
 });
 
@@ -284,12 +285,10 @@ function startAutoZoom() {
       stopAutoZoom();
       return;
     }
-    // Adaptive downsample: 2x at shallow zoom, 3x at moderate, 4x at deep
-    // zoom. This keeps frame time bounded even at maxIter ~ 2200 by
-    // rendering ~ 1/16 of the pixels at the deepest level.
-    const ds = state.width > 1e-3 ? 2
-             : state.width > 1e-6 ? 3 : 4;
-    refresh(ds);
+    // Fixed 2x downsample throughout: the cap on maxIter (1500) keeps frame
+    // time manageable without dropping to 3x or 4x, which the user reported
+    // as visually choppy.
+    refresh(2);
     state.rafId = requestAnimationFrame(tick);
   };
   state.rafId = requestAnimationFrame(tick);
@@ -322,7 +321,10 @@ selPreset.addEventListener('change', () => {
   stopAutoZoom();
   state.cx = target.cx;
   state.cy = target.cy;
-  state.width = 0.005;                   // start already zoomed in
+  // Each preset declares its own jump-in width so the user lands on a
+  // viewport that frames the named structure. Without this, deep targets
+  // showed only flat colour because the initial width was always too small.
+  state.width = target.width ?? 0.05;
   refresh(1);
 });
 

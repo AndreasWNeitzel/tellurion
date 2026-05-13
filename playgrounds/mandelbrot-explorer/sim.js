@@ -51,20 +51,19 @@ export function escapeIterations(cr, ci, maxIter = DEFAULT_MAX_ITER) {
 // Default zoom targets known to be visually rich. Used by the auto-zoom
 // presets and the capture sweep.
 export const ZOOM_TARGETS = {
-  seahorse:    { cx: -0.7269,            cy:  0.1889,            label: 'Seahorse Valley' },
-  spiral:      { cx: -0.745428,          cy:  0.113009,          label: 'Spiral on the boundary' },
-  satellite:   { cx: -0.748,             cy:  0.1,               label: 'Satellite copy' },
-  elephant:    { cx:  0.27322626,        cy:  0.00592323,        label: 'Elephant Valley' },
-  triplecusp:  { cx: -0.10109636,        cy:  0.95628651,        label: 'Triple-spiral cusp' },
-  // The "valley of double seahorses" near a Misiurewicz point. Always
-  // visually striking under exponential zoom.
-  misiurewicz: { cx: -1.7693831791955150, cy: 0.0042368479187367, label: 'Misiurewicz point' },
+  seahorse:    { cx: -0.7269,            cy:  0.1889,            label: 'Seahorse Valley',           width: 0.20 },
+  spiral:      { cx: -0.745428,          cy:  0.113009,          label: 'Spiral on the boundary',    width: 0.04 },
+  satellite:   { cx: -1.769383179195515, cy:  0.004236847918737,  label: 'Satellite mini-Mandelbrot', width: 0.025 },
+  elephant:    { cx:  0.2741,            cy:  0.00488,           label: 'Elephant Valley',           width: 0.06 },
+  triplecusp:  { cx: -0.0852,            cy:  0.65126,           label: 'Triple-spiral cusp',        width: 0.06 },
+  misiurewicz: { cx: -0.77568377,        cy:  0.13646737,        label: 'Misiurewicz point',         width: 0.02 },
 };
 
 // Adaptive iteration count given the view width. Wider views need fewer
-// iterations; deep zooms need many more. The formula is calibrated so the
-// default 3.5 view uses 256 iterations and a 1e-9 zoom uses ~ 2200.
+// iterations; deep zooms need more. Capped at 1500 so deep-zoom frames stay
+// interactive; the cap shows as a flatter rainbow on extreme zoom but the
+// boundary structure still resolves.
 export function maxIterForWidth(width) {
-  const depth = Math.max(0, Math.log10(3.5 / width));   // 0 at full view, log10 at zoom
-  return Math.round(256 + 220 * depth);
+  const depth = Math.max(0, Math.log10(3.5 / width));   // 0 at full view
+  return Math.min(1500, Math.round(256 + 180 * depth));
 }
