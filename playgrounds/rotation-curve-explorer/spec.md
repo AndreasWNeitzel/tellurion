@@ -10,110 +10,102 @@ created: 2026-05-13
 
 ## Physical setup
 
-A model spiral galaxy is decomposed into three mass components, each contributing an axisymmetric circular velocity squared at radius $R$:
+A face-on synthetic spiral galaxy with a Hernquist bulge ($M_b = 10^{10} M_\odot$, $a_b = 0.5$ kpc) and a Miyamoto-Nagai disk ($M_d = 6 \times 10^{10} M_\odot$, $a_d = 4$ kpc, $b_d = 0.3$ kpc), seen from above. The same visible mass is present in all three models; what changes is the assumption about unseen mass.
 
-- Bulge: Hernquist profile, $v_b^2(R) = G M_b R / (R + a_b)^2$.
-- Disk: Miyamoto-Nagai with $z = 0$, $v_d^2(R) = G M_d R^2 / (R^2 + (a_d + b_d)^2)^{3/2}$.
-- Halo: NFW, $v_h^2(R) = G M_{200} / R \cdot [\ln(1 + R/r_s) - (R/r_s)/(1 + R/r_s)] / [\ln(1 + c) - c/(1 + c)]$, where $r_s = R_{200} / c$ and $R_{200}$ is set by $M_{200}$.
+Three rotation-curve models share the visible-matter inventory:
 
-The total circular velocity at each $R$ is $v(R) = \sqrt{v_b^2 + v_d^2 + v_h^2}$. The playground generates a synthetic "ground truth" rotation curve with fixed parameters and adds a small Gaussian noise floor at each radius. The user adjusts sliders for the mass and scale of each component to fit the synthetic data; the chi-squared misfit is reported live.
+1. **Keplerian (point mass)**: the entire visible mass is concentrated at the centre, giving $v(R) = \sqrt{G M_\text{tot} / R}$ outside the central cap.
+2. **Visible matter only**: bulge plus disk, no halo.
+3. **Visible + dark matter**: bulge plus disk plus an NFW halo ($M_{200} = 1.5 \times 10^{12} M_\odot$, $c = 12$).
 
-Units: $R$ in kpc; $v$ in km/s; masses in $10^{10} M_\odot$. $G$ is taken in the consistent unit system so that $G M / r$ has units of (km/s)$^2$ with $G = 4.302 \times 10^{-6}$ in (kpc) (km/s)$^2$ / $M_\odot$, or $G \approx 4.302 \times 10^4$ in (kpc) (km/s)$^2$ / ($10^{10} M_\odot$).
+The synthetic observation set was drawn from model 3 (the truth) at 16 log-spaced radii in $[1, 28]$ kpc with $\sigma = 6$ km/s Gaussian noise. The pedagogy is that only model 3 fits the data at $R > 10$ kpc.
 
 ## Governing equations
 
-Hernquist bulge (Binney-Tremaine Section 2.2):
+For each visible component:
 
-$$\Phi_b(R) = -\frac{G M_b}{R + a_b}, \qquad v_b^2(R) = -R \frac{d\Phi_b}{dR} = \frac{G M_b R}{(R + a_b)^2}.$$
+$$v_b^2(R) = \frac{G M_b R}{(R + a_b)^2}, \qquad v_d^2(R) = \frac{G M_d R^2}{(R^2 + (a_d + b_d)^2)^{3/2}}.$$
 
-Miyamoto-Nagai disk evaluated in the equatorial plane ($z = 0$; Binney-Tremaine Section 2.3):
+The NFW halo contributes
 
-$$\Phi_d(R, 0) = -\frac{G M_d}{\sqrt{R^2 + (a_d + b_d)^2}}, \qquad v_d^2(R) = \frac{G M_d R^2}{(R^2 + (a_d + b_d)^2)^{3/2}}.$$
+$$v_h^2(R) = \frac{G M_{200}}{R} \frac{\ln(1+x) - x/(1+x)}{\ln(1+c) - c/(1+c)}, \quad x = R / r_s, \quad r_s = R_{200}/c, \quad R_{200} = 206 (M_{200}/10^{12})^{1/3} \text{ kpc}.$$
 
-NFW halo (Binney-Tremaine Section 2.2; the dimensionless mass profile $g(c) = \ln(1+c) - c/(1+c)$):
-
-$$v_h^2(R) = \frac{G M_{200}}{R} \cdot \frac{\ln(1 + R/r_s) - (R/r_s)/(1 + R/r_s)}{g(c)}.$$
-
-Total: $v(R) = \sqrt{v_b^2(R) + v_d^2(R) + v_h^2(R)}$.
+The total $v(R)^2$ for each model is the sum of its components. Angular speed is $\Omega(R) = v(R) / R$; for tracer stars in the top-down view we use $\Omega(R) = 1.022 \, v(R) / R$ rad/Gyr (the 1.022 converts km/s to kpc/Gyr).
 
 ## Numerical method
 
-- **Discretization**: closed-form analytic profiles; no ODE or PDE integration. Each velocity component is one floating-point evaluation per radius.
-- **Synthetic data set**: 18 radii log-spaced in $R \in [1, 50]$ kpc. True parameters (frozen): $M_b = 1 \times 10^{10} M_\odot$, $a_b = 0.5$ kpc; $M_d = 6 \times 10^{10} M_\odot$, $a_d = 4$ kpc, $b_d = 0.3$ kpc; $M_{200} = 1.5 \times 10^{12} M_\odot$, $c = 12$. Noise floor 4 km/s Gaussian per radius, seeded at 0xC0FFEE so the data set is deterministic.
-- **Chi-squared metric**: $\chi^2 = \sum_i ((v_\text{obs}(R_i) - v_\text{model}(R_i; \theta)) / \sigma_i)^2$ with $\sigma_i = 4$ km/s. Reported live as the user adjusts sliders. The reduced chi-squared is $\chi^2 / (N_\text{points} - N_\text{params})$.
-- **RNG**: `shared/js/render/rng.js` seeded at 0xC0FFEE for the noise draws. No randomness elsewhere.
+- **No integration**. All component velocity profiles are evaluated in closed form.
+- **Tracer stars**: 4 spiral arms with 80 stars each, log-spaced in radius from 1 to 25 kpc, phase $\varphi_i = \varphi_\text{arm} + 0.55 \ln(R / R_\text{min})$ with azimuthal scatter $\sigma_\varphi = 0.07$ rad and radial scatter $\sigma_R = 0.18$ kpc. Plus 140 bulge stars sampled from a Gaussian cloud with FWHM 1.5 kpc.
+- **Animation**: stars advance as $\varphi(t) = \varphi_0 + \Omega(R) \cdot t$. Time advances 0.012 Gyr per requestAnimationFrame call, looping back to zero at $t = 2.5$ Gyr. The captureFraction sweep maps to $t \in [0, 1.8]$ Gyr.
+- **Seed**: 0xC0FFEE drives the tracer-star positions and the synthetic observation noise.
 
 ## Controls
 
-| name | type | units | range | default | sets |
-|------|------|-------|-------|---------|------|
-| M_b (bulge mass) | slider | $10^{10} M_\odot$ | 0.1 to 10 | 1.0 | Hernquist bulge mass |
-| M_d (disk mass) | slider | $10^{10} M_\odot$ | 1 to 20 | 6.0 | Miyamoto-Nagai disk mass |
-| M_200 (halo mass) | slider | $10^{12} M_\odot$ | 0.3 to 5 | 1.5 | NFW virial mass |
-| c (halo concentration) | slider | dimensionless | 5 to 20 | 12 | NFW concentration parameter |
-| reset | button | N/A | N/A | N/A | restore all sliders to the true-parameter values |
+| name | type | sets |
+|------|------|------|
+| Model radio (3 buttons) | radio | rotation-curve model: keplerian, visible, or dm |
+| Pause/Play | button | freeze/resume the time advance |
+| Reset t | button | set t = 0 |
 
-Scale lengths $a_b$, $a_d$, $b_d$ are fixed at their true values; only the four mass-and-concentration parameters are free in v1. (Stretch goal: open up scale-length sliders.)
+The captureFraction URL parameter sweeps simulation time; an optional captureModel parameter selects which model is captured (default: dm).
 
 ## Expected qualitative features
 
-### Visible in the default golden frames
+### In the default golden frames
 
-The captureFraction sweep maps to the halo mass: $M_{200}$ varies from 0.3 (frac=0) to 5.0 (frac=1) while the other three sliders stay at their true values. The five frames show:
+The captureFraction sweep holds the model fixed at `dm` and varies $t \in [0, 1.8]$ Gyr. Every frame shows:
 
-- t-000 ($M_{200} = 0.3$): halo curve well below the data; the total curve falls short at large $R$.
-- t-025 ($M_{200} \approx 1.5$): halo + disk + bulge close to the true synthetic curve; data points lie on the model curve.
-- t-050 ($M_{200} \approx 2.7$): halo dominates, the model overshoots at large $R$.
-- t-075 ($M_{200} \approx 3.8$): halo over-large; chi^2 grows.
-- t-100 ($M_{200} = 5.0$): worst over-fit; the total curve is well above the data at $R > 10$ kpc.
+- A circular galaxy panel on the left with bulge (red) and disk (dark) tracer stars in a 4-arm spiral pattern.
+- A solar-circle dashed ring at $R = 8$ kpc.
+- A single highlighted tracer at $R = 8$ kpc in the active-model accent colour, orbiting at $\Omega_\text{dm}(8)$ rad/Gyr.
+- An inset rotation curve panel on the right plotting all three model curves plus the 16 synthetic observations with error bars. The active-model curve is bold.
+- A legend below the inset and a live readout (model, t, v(R=8), $\chi^2$) in the top-right.
 
-In every frame the synthetic data points are dark dots with error bars; the three component curves are colored ($--cat-1$, $--cat-2$, $--cat-3$); the total curve is the accent color.
+At $t = 0$ the spiral arms are crisp; at $t = 1.8$ Gyr they have wound up enough to be visually distinct from the IC. The solar-circle tracer completes roughly $0.4 / 0.22 \approx 8$ orbits in this interval.
 
-### Available via user interaction
+### Through user interaction
 
-- Drag $M_{200}$ down to 0.3 and watch the outer rotation curve fall short of the data; flat curves indicate the halo dominance.
-- Drag $c$ down to 5 to see the concentration parameter spread the halo mass out, lowering the inner rotation; up to 20 to concentrate it inward.
-- The live chi^2 readout marks the goodness of fit; the lowest chi^2 occurs when all four sliders are at their true values.
+- Switch to Keplerian: the rotation curve drops as $R^{-1/2}$, the outer tracers slow dramatically, and the inset shows the data points sitting well above the curve at $R > 10$ kpc.
+- Switch to visible-only: the outer rotation curve declines moderately; the data still lie above the curve, demonstrating the missing-mass problem.
+- Switch back to DM: the curve flattens at $\sim 200$ km/s and tracks the data.
 
 ## Invariants and acceptance thresholds
 
-| invariant | strong/medium/weak | threshold | notes |
-|-----------|-------------------|-----------|-------|
-| Chi-squared at true parameters | strong | $\chi^2 / (N - 4) < 2.0$ when sliders are at the true values | with $N = 18$ data points and noise $\sigma = 4$ km/s, expected reduced $\chi^2$ is ~ 1 with standard deviation ~ sqrt(2/(N-4)) ~ 0.38; bound 2.0 absorbs single-seed statistical fluctuation |
-| Synthetic data deterministic | strong | identical noise draws on repeated runs at seed 0xC0FFEE | guards against RNG drift |
-| Asymptotic flatness | medium | with all components at true values, $v(R)$ varies by less than 30 km/s over $R \in [10, 50]$ kpc | the flat-rotation regime is the qualitative signature of a halo-dominated outer disk |
+| invariant | strong/medium | threshold | notes |
+|-----------|---------------|-----------|-------|
+| DM model fits its own data | strong | $\chi^2 / N < 2$ | by construction |
+| Keplerian fit quality | strong | $\chi^2_\text{kepler} > 50 \chi^2_\text{dm}$ | outer stars far too slow |
+| Visible-only fit quality | strong | $\chi^2_\text{visible} > 20 \chi^2_\text{dm}$ | declining $v(R)$ misses data |
+| Galaxy radial preservation | strong | $|R(t) - R(0)| < 10^{-9}$ | circular orbits at fixed $R$ |
+| DM-model asymptotic flatness | strong | $v_\max - v_\min < 35$ km/s on $[8, 28]$ kpc | NFW + Miyamoto-Nagai works out |
+| Keplerian: $v^2 R = $ const | strong | $\le 10^{-6}$ relative drift between $R = 10$ and $R = 25$ | basic Kepler |
+| Visible-only is below DM at large R | strong | $\Delta v(25) > 50$ km/s | unambiguous gap |
+| Inner-galaxy degeneracy | medium | all three models within 30 percent at $R = 4$ kpc | bulge dominates here |
 
-## Limiting cases for verification
+## Limiting cases
 
 | limit | expected | source |
 |-------|----------|--------|
-| $M_b = M_d = 0$, NFW only | rotation curve rises and flattens at $r_s$; this is the characteristic NFW signature | Binney-Tremaine Section 2.2 |
-| $M_b = M_{200} = 0$, disk only | rotation rises and then falls $\propto 1/\sqrt{R}$ at large $R$ (Keplerian) | Binney-Tremaine Section 2.3 |
-| $M_d = M_{200} = 0$, bulge only | Hernquist rotation rises and falls; peaks at $R \sim a_b$ | Binney-Tremaine Section 2.2 |
-| Small $R$ inside the bulge | $v(R) \to \sqrt{G M_b / a_b^2} R$, linear rise | Binney-Tremaine Section 2.2 |
+| $R \to 0$ in Kepler | capped at $R = 0.5$ kpc to keep $\Omega$ finite | implementation detail |
+| $R \to \infty$ in disk | $v_d \propto R^{-1/2}$ | Miyamoto-Nagai analytic |
+| $R \to \infty$ in halo | $v_h \to 0$ slowly | NFW $\ln(1+x)/x \to 0$ |
+| Solar circle ($R = 8$, DM) | $v \approx 220$ km/s, period $\approx 220$ Myr | Milky-Way benchmark |
 
-## Visual fallback
+## Aesthetic waivers
 
-Primary validation is via the chi-squared invariant. SSIM > 0.92 against five committed golden frames at the halo-mass sweep is the secondary gate.
+1. **Three categorical model colours plus the bulge accent.** Standard says one accent at a time. Here the three model curves and the bulge tracers must all be distinguishable; the three model colours come from the dedicated cat-1/cat-2/cat-3 categorical scale (built for exactly this), and the bulge tracer is in `--accent-warm`. Approved.
+2. **Canvas 2D text at 10 px and 11 px hard-coded.** Same constraint as the schwarzschild playground: `ctx.font` does not inherit CSS variables.
 
 ## Citations
 
-1. **Binney, James and Tremaine, Scott.** "Galactic Dynamics", 2nd ed., Princeton University Press, 2008. Bib key `binneytremaine2008`. Sections cited:
-   - Section 2.2 Spherical systems: Hernquist and NFW profiles, including the dimensionless NFW mass profile $g(c) = \ln(1 + c) - c/(1+c)$.
-   - Section 2.3 Potential-density pairs for flattened systems: Miyamoto-Nagai disk evaluated at $z = 0$.
-   Both sections are in chapter_index (added this session).
-2. The synthetic data values and noise floor were chosen by the spec author to produce a typical massive-spiral rotation curve; no observational data set is used. Real observational rotation curves are published in e.g. de Blok et al. 2008 (SPARC sample), but that paper is not in the project bibliography so the playground does not reproduce or fit real data; the implementation is illustrative.
+1. **Binney, J. and Tremaine, S.** "Galactic Dynamics", 2nd edition, Princeton, 2008. Bib key `binneytremaine2008`. Sections:
+   - Section 2.1 (Spherical systems): Hernquist bulge potential.
+   - Section 2.2 (Potential theory of axisymmetric systems): Miyamoto-Nagai disk.
+   - Section 2.3 (Potential-density pairs for flattened systems): NFW halo.
+   chapter_index verified.
 
 ## Stretch goals
 
-- Free up the scale-length sliders ($a_b$, $a_d$, $b_d$, $r_s$) and concentration so the user can tune all seven free parameters.
-- Add residual panel below the main rotation curve.
-- Toggle "real data" mode that loads an observed rotation curve (would require adding a published SPARC paper to the bibliography first).
-- Bayesian credible-interval mode using the chi-squared as a likelihood.
-- Component-separation visualization: dim the contributions in turn to show each component's signature.
-
-## Risk register
-
-1. **Floor-degeneracy of disk mass vs halo concentration.** The disk-mass slider and halo concentration are partially degenerate at the radii probed by the synthetic data set; multiple parameter combinations can give similar chi-squared. Mitigation: documented; the playground is exploratory, not a publication-grade fitter.
-2. **NFW $g(c)$ singular as $c \to 0$.** The dimensionless NFW mass profile is well-defined for $c > 0$ but the implementation guards against $c < 1$ where $g(c)$ can underflow. Mitigation: slider range starts at $c = 5$.
-3. **Asymptotic behavior at very small or very large $R$.** Outside the data range, the model is extrapolative; the readout reports chi^2 only over the data radii. The plot still extends to $R = 60$ kpc for visual context.
+- Add MOND as a fourth model and compare with the DM fit.
+- Let the user drag the bulge or disk mass slider and watch the inset curve respond live.
+- Add a thin-disk gravitational dragline (gas rotation curve from 21 cm) as an alternative data set.

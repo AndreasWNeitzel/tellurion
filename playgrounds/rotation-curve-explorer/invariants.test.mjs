@@ -2,80 +2,137 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  vBulge2, vDisk2, vHalo2, vTotal,
-  syntheticData, chiSquared,
-  TRUE_PARAMS, DATA_RADII,
+  vBulge2, vDisk2, vHalo2,
+  vModel, vModel2, omegaModel, MODELS,
+  syntheticObservations, chiSquared,
+  VISIBLE_PARAMS, DM_PARAMS,
+  DATA_RADII, DATA_SIGMA,
+  buildGalaxy, galaxyAt,
+  G, KMS_TO_KPC_GYR,
 } from './sim.js';
 
-describe('rotation-curve-explorer: strong invariants', () => {
-  it('reduced chi^2 at true parameters is below 2.0', () => {
-    const data = syntheticData(0xC0FFEE);
-    const chi2 = chiSquared(TRUE_PARAMS, data);
-    const dof = data.length - 4;
+describe('rotation-curve-explorer: model curve quality', () => {
+  it('dark-matter model achieves reduced chi^2 < 2 against its own synthetic data', () => {
+    const data = syntheticObservations(0xC0FFEE);
+    const chi2 = chiSquared('dm', data);
+    const dof = data.length;       // no free parameters in this comparison
     expect(chi2 / dof).toBeLessThan(2.0);
   });
 
-  it('synthetic data deterministic at seed 0xC0FFEE', () => {
-    const a = syntheticData(0xC0FFEE);
-    const b = syntheticData(0xC0FFEE);
+  it('Keplerian model fits the data at least 50x worse than the DM model', () => {
+    const data = syntheticObservations(0xC0FFEE);
+    expect(chiSquared('kepler', data)).toBeGreaterThan(50 * chiSquared('dm', data));
+  });
+
+  it('visible-only model fits the data at least 20x worse than the DM model', () => {
+    const data = syntheticObservations(0xC0FFEE);
+    expect(chiSquared('visible', data)).toBeGreaterThan(20 * chiSquared('dm', data));
+  });
+
+  it('synthetic data is deterministic at seed 0xC0FFEE', () => {
+    const a = syntheticObservations(0xC0FFEE);
+    const b = syntheticObservations(0xC0FFEE);
     for (let i = 0; i < a.length; i += 1) {
       expect(a[i].R).toBe(b[i].R);
       expect(a[i].v).toBe(b[i].v);
     }
   });
+});
 
-  it('asymptotic flatness: at true params v varies < 30 km/s over R in [10, 50]', () => {
+describe('rotation-curve-explorer: model physics', () => {
+  it('Keplerian: v(R) ~ R^{-1/2} at large R', () => {
+    // v(R)^2 * R should be approximately constant = G * M_tot.
+    const v10R10 = vModel2(10, 'kepler') * 10;
+    const v25R25 = vModel2(25, 'kepler') * 25;
+    expect(Math.abs(v10R10 - v25R25) / v10R10).toBeLessThan(1e-6);
+  });
+
+  it('DM model: v(R) is approximately flat at large R (variation < 35 km/s over [8, 28])', () => {
     let minV = Infinity, maxV = -Infinity;
-    const p = TRUE_PARAMS;
-    for (let R = 10; R <= 50; R += 1) {
-      const v = vTotal(R, p);
+    for (let R = 8; R <= 28; R += 0.5) {
+      const v = vModel(R, 'dm');
       if (v < minV) minV = v;
       if (v > maxV) maxV = v;
     }
-    expect(maxV - minV).toBeLessThan(30);
+    expect(maxV - minV).toBeLessThan(35);
+  });
+
+  it('visible-only at R = 25 kpc is at least 50 km/s below the DM curve', () => {
+    const diff = vModel(25, 'dm') - vModel(25, 'visible');
+    expect(diff).toBeGreaterThan(50);
+  });
+
+  it('all three models agree within 30 percent at R = 4 kpc (inner-galaxy degeneracy)', () => {
+    const v_kepler  = vModel(4, 'kepler');
+    const v_visible = vModel(4, 'visible');
+    const v_dm      = vModel(4, 'dm');
+    const refV = (v_kepler + v_visible + v_dm) / 3;
+    expect(Math.abs(v_kepler  - refV) / refV).toBeLessThan(0.30);
+    expect(Math.abs(v_visible - refV) / refV).toBeLessThan(0.30);
+    expect(Math.abs(v_dm      - refV) / refV).toBeLessThan(0.30);
   });
 });
 
-describe('rotation-curve-explorer: limiting cases', () => {
-  it('bulge-only: at R = a_b the peak rotation matches sqrt(G M_b / (4 a_b))', () => {
-    const Mb = TRUE_PARAMS.Mb, ab = TRUE_PARAMS.ab;
-    // v_b^2 = G M_b R / (R + a_b)^2 peaks at R = a_b giving v_b^2 = G M_b / (4 a_b).
-    const v2_peak = vBulge2(ab, Mb, ab);
-    const expected = 43020 * Mb / (4 * ab);
-    expect(Math.abs(v2_peak - expected) / expected).toBeLessThan(1e-12);
+describe('rotation-curve-explorer: omega and unit conversion', () => {
+  it('DM model at the solar circle gives omega ~ 28 rad/Gyr (period ~ 0.22 Gyr)', () => {
+    const omega8 = omegaModel(8, 'dm');
+    expect(omega8).toBeGreaterThan(24);
+    expect(omega8).toBeLessThan(32);
+    const period = 2 * Math.PI / omega8;
+    expect(period).toBeGreaterThan(0.18);
+    expect(period).toBeLessThan(0.30);
   });
 
-  it('disk-only: Keplerian fall at large R', () => {
-    // v_d^2 -> G M_d / R as R -> infinity. So v_d^2 * R -> G M_d.
-    const Md = TRUE_PARAMS.Md, ad = TRUE_PARAMS.ad, bd = TRUE_PARAMS.bd;
-    const R = 200;
-    const product = vDisk2(R, Md, ad, bd) * R;
-    const expected = 43020 * Md;
-    expect(Math.abs(product - expected) / expected).toBeLessThan(0.05);
+  it('KMS_TO_KPC_GYR = 1.022 within 0.5 percent', () => {
+    expect(Math.abs(KMS_TO_KPC_GYR - 1.022)).toBeLessThan(0.005);
+  });
+});
+
+describe('rotation-curve-explorer: galaxy tracer population', () => {
+  it('buildGalaxy returns 4 arms * 80 + 140 bulge stars = 460 total', () => {
+    const stars = buildGalaxy(0xC0FFEE);
+    expect(stars.length).toBe(4 * 80 + 140);
   });
 
-  it('halo-only: NFW gives finite v at large R (vs Keplerian Mb=Md=0)', () => {
-    const v50 = Math.sqrt(vHalo2(50, TRUE_PARAMS.M200, TRUE_PARAMS.c));
-    expect(v50).toBeGreaterThan(150);
-    expect(v50).toBeLessThan(300);
+  it('galaxyAt(t = 0) preserves radii (stars stay on their circular orbits)', () => {
+    const stars = buildGalaxy(0xC0FFEE);
+    const snap = galaxyAt(stars, 0, 'dm');
+    for (let i = 0; i < stars.length; i += 1) {
+      const Rsnap = Math.hypot(snap[i].x, snap[i].y);
+      expect(Math.abs(Rsnap - stars[i].R)).toBeLessThan(1e-9);
+    }
   });
 
-  it('worst-fit M200 sweep: chi^2 at M200 = 0.3 and 5.0 is much larger than at truth', () => {
-    const data = syntheticData(0xC0FFEE);
-    const chi2_true = chiSquared(TRUE_PARAMS, data);
-    const chi2_low  = chiSquared({ ...TRUE_PARAMS, M200: 0.3 }, data);
-    const chi2_high = chiSquared({ ...TRUE_PARAMS, M200: 5.0 }, data);
-    expect(chi2_low).toBeGreaterThan(50 * chi2_true);
-    expect(chi2_high).toBeGreaterThan(50 * chi2_true);
+  it('galaxyAt is bit-identical at the same t and model', () => {
+    const stars = buildGalaxy(0xC0FFEE);
+    const a = galaxyAt(stars, 0.5, 'dm');
+    const b = galaxyAt(stars, 0.5, 'dm');
+    for (let i = 0; i < a.length; i += 1) {
+      expect(a[i].x).toBe(b[i].x);
+      expect(a[i].y).toBe(b[i].y);
+    }
+  });
+
+  it('a single star advanced by one period returns to its starting position', () => {
+    const stars = [{ R: 8, phi0: 0, kind: 'arm' }];
+    const T = 2 * Math.PI / omegaModel(8, 'dm');
+    const snap = galaxyAt(stars, T, 'dm');
+    expect(Math.abs(snap[0].x - 8)).toBeLessThan(1e-6);
+    expect(Math.abs(snap[0].y - 0)).toBeLessThan(1e-6);
   });
 });
 
 describe('rotation-curve-explorer: data structure', () => {
-  it('synthetic data has 18 points spanning roughly [1, 50] kpc', () => {
-    const data = syntheticData(0xC0FFEE);
-    expect(data.length).toBe(18);
+  it('synthetic data has 16 points over [1, 28] kpc', () => {
+    const data = syntheticObservations(0xC0FFEE);
+    expect(data.length).toBe(16);
     expect(data[0].R).toBeCloseTo(1, 6);
-    expect(data[data.length - 1].R).toBeCloseTo(50, 6);
-    expect(DATA_RADII.length).toBe(18);
+    expect(data[data.length - 1].R).toBeCloseTo(28, 6);
+    expect(DATA_RADII.length).toBe(16);
+    expect(DATA_SIGMA).toBeGreaterThan(0);
+  });
+
+  it('MODELS metadata has 3 entries', () => {
+    expect(Object.keys(MODELS)).toEqual(['kepler', 'visible', 'dm']);
   });
 });

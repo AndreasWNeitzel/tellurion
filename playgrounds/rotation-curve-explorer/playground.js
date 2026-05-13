@@ -1,12 +1,19 @@
 // playground.js
-// Rotation curve explorer UI. Plots the rotation curve and three component
-// contributions with the synthetic data points and a live chi^2 readout.
+// Top-down rotating spiral galaxy. Tracer stars are advanced by omega(R) for
+// the selected rotation-curve model. A rotation-curve inset plots v(R) for
+// the three models against the synthetic observation set, so the user sees
+// both the visual difference (galaxy spinning faster or slower at large R)
+// and the quantitative gap that motivates dark matter.
 
 import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
 import {
-  vBulge2, vDisk2, vHalo2,
-  syntheticData, chiSquared,
-  TRUE_PARAMS,
+  vModel, omegaModel,
+  MODELS,
+  syntheticObservations,
+  chiSquared,
+  buildGalaxy,
+  galaxyAt,
+  DATA_RADII, DATA_SIGMA,
 } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
@@ -14,43 +21,33 @@ const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toStr
 const DETERMINISTIC  = urlParams.get('deterministic') === '1';
 const CAPTURE_NAME   = urlParams.get('capture');
 const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const CAPTURE_MODEL  = urlParams.get('captureModel');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const readouts     = {
-  Mb:    document.getElementById('readout-Mb'),
-  Md:    document.getElementById('readout-Md'),
-  M200:  document.getElementById('readout-M200'),
-  c:     document.getElementById('readout-c'),
-  chi2:  document.getElementById('readout-chi2'),
-  redChi2: document.getElementById('readout-redchi2'),
+  model:    document.getElementById('readout-model'),
+  t:        document.getElementById('readout-t'),
+  vAt20:    document.getElementById('readout-vAt20'),
+  chi2:     document.getElementById('readout-chi2'),
 };
-const sliders = {
-  Mb:   document.getElementById('slider-Mb'),
-  Md:   document.getElementById('slider-Md'),
-  M200: document.getElementById('slider-M200'),
-  c:    document.getElementById('slider-c'),
-};
-const sliderValues = {
-  Mb:   document.getElementById('value-Mb'),
-  Md:   document.getElementById('value-Md'),
-  M200: document.getElementById('value-M200'),
-  c:    document.getElementById('value-c'),
-};
-const btnReset = document.getElementById('btn-reset');
+const radios       = Array.from(document.querySelectorAll('input[name="model"]'));
+const btnReset     = document.getElementById('btn-reset');
+const btnPause     = document.getElementById('btn-pause');
 
 const W = canvas.width, H = canvas.height;
-const PLOT = { x: 60, y: 30, w: 620, h: 400, rmin: 0, rmax: 60, vmin: 0, vmax: 320 };
 
-const N_DATA_POINTS = 18;
-const NUM_FREE = 4;
-const data = syntheticData(SEED);
+// Galaxy panel on the left, rotation-curve inset on the upper right.
+const GAL = { cx: 250, cy: 260, R: 220 };                        // px
+const PLOT = { x: 530, y: 110, w: 320, h: 200, rmax: 30, vmax: 280 };
 
 const state = {
-  Mb:   TRUE_PARAMS.Mb,
-  Md:   TRUE_PARAMS.Md,
-  M200: TRUE_PARAMS.M200,
-  c:    TRUE_PARAMS.c,
+  model:      'dm',
+  t:          0,                            // Gyr
+  paused:     false,
+  rafId:      null,
+  stars:      [],
+  data:       [],
 };
 
 function cssVar(name, fallback) {
@@ -65,58 +62,115 @@ const tokens = {
   fgMuted: cssVar('--fg-muted', '#5C5E61'),
   fgFaint: cssVar('--fg-faint', '#9A9C9F'),
   accent:  cssVar('--accent', '#1B6CA8'),
+  accentWarm: cssVar('--accent-warm', '#C13B27'),
   cat1:    cssVar('--cat-1', '#4C72B0'),
   cat2:    cssVar('--cat-2', '#DD8452'),
   cat3:    cssVar('--cat-3', '#55A868'),
   grid:    cssVar('--grid', '#9A9C9F4D'),
 };
 
-function currentParams() {
+const MODEL_COLOR = {
+  kepler:  tokens.cat2,
+  visible: tokens.cat1,
+  dm:      tokens.cat3,
+};
+
+function pxGal(x, y) {
+  // x, y in kpc; scale R = 25 kpc to the half-extent 220 px.
+  const s = GAL.R / 25;
+  return { px: GAL.cx + s * x, py: GAL.cy - s * y };
+}
+
+function pxPlot(R, v) {
   return {
-    Mb: state.Mb, ab: TRUE_PARAMS.ab,
-    Md: state.Md, ad: TRUE_PARAMS.ad, bd: TRUE_PARAMS.bd,
-    M200: state.M200, c: state.c,
+    px: PLOT.x + (R / PLOT.rmax) * PLOT.w,
+    py: PLOT.y + (1 - v / PLOT.vmax) * PLOT.h,
   };
 }
 
-function px(R, v) {
-  return {
-    px: PLOT.x + ((R - PLOT.rmin) / (PLOT.rmax - PLOT.rmin)) * PLOT.w,
-    py: PLOT.y + (1 - (v - PLOT.vmin) / (PLOT.vmax - PLOT.vmin)) * PLOT.h,
-  };
-}
-
-function drawCurve(color, vFn, lineWidth) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
+function drawGalaxyPanel() {
+  // panel background
+  ctx.fillStyle = tokens.surface;
   ctx.beginPath();
-  let first = true;
-  for (let R = PLOT.rmin + 0.05; R <= PLOT.rmax; R += 0.25) {
-    const v = Math.sqrt(Math.max(vFn(R), 0));
-    const { px: x, py: y } = px(R, v);
-    if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); }
-  }
+  ctx.arc(GAL.cx, GAL.cy, GAL.R + 8, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = tokens.grid;
+  ctx.lineWidth = 0.5;
   ctx.stroke();
+
+  // faint radial grid: 5, 10, 15, 20, 25 kpc
+  ctx.strokeStyle = tokens.grid;
+  ctx.lineWidth = 0.5;
+  for (const Rg of [5, 10, 15, 20, 25]) {
+    const pr = (Rg / 25) * GAL.R;
+    ctx.beginPath();
+    ctx.arc(GAL.cx, GAL.cy, pr, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+  // R = 8 kpc (solar circle) accent ring
+  ctx.strokeStyle = tokens.fgFaint;
+  ctx.lineWidth = 0.7;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.arc(GAL.cx, GAL.cy, (8 / 25) * GAL.R, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // star particles
+  const snapshot = galaxyAt(state.stars, state.t, state.model);
+  for (let i = 0; i < snapshot.length; i += 1) {
+    const s = snapshot[i];
+    const p = pxGal(s.x, s.y);
+    if (s.kind === 'bulge') {
+      ctx.fillStyle = tokens.accentWarm;
+      ctx.beginPath();
+      ctx.arc(p.px, p.py, 1.2, 0, 2 * Math.PI);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = tokens.fg;
+      ctx.beginPath();
+      ctx.arc(p.px, p.py, 1.4, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  }
+
+  // R = 8 kpc highlight tracer (single bright dot moving at the solar circle)
+  // makes the per-model speed difference visually unmistakable.
+  const sunR = 8;
+  const sunPhi = state.t * omegaModel(sunR, state.model);
+  const sun = pxGal(sunR * Math.cos(sunPhi), sunR * Math.sin(sunPhi));
+  ctx.fillStyle = MODEL_COLOR[state.model];
+  ctx.beginPath();
+  ctx.arc(sun.px, sun.py, 3.5, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = tokens.fg;
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+
+  // panel title
+  ctx.fillStyle = tokens.fgMuted;
+  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Top-down view: spiral galaxy (R = 25 kpc, dashed ring = R = 8 kpc)',
+               GAL.cx, GAL.cy - GAL.R - 14);
 }
 
-function drawAll() {
-  ctx.fillStyle = tokens.bg;
-  ctx.fillRect(0, 0, W, H);
-
+function drawRotationCurveInset() {
+  // background panel
   ctx.fillStyle = tokens.surface;
   ctx.fillRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h);
   ctx.strokeStyle = tokens.grid;
   ctx.lineWidth = 0.5;
   ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
 
-  // grid
+  // gridlines
   ctx.beginPath();
-  for (let R = 10; R <= 50; R += 10) {
-    const { px: x } = px(R, 0);
+  for (let R = 5; R <= 25; R += 5) {
+    const { px: x } = pxPlot(R, 0);
     ctx.moveTo(x, PLOT.y); ctx.lineTo(x, PLOT.y + PLOT.h);
   }
-  for (let v = 50; v <= 300; v += 50) {
-    const { py: y } = px(0, v);
+  for (let v = 50; v <= 250; v += 50) {
+    const { py: y } = pxPlot(0, v);
     ctx.moveTo(PLOT.x, y); ctx.lineTo(PLOT.x + PLOT.w, y);
   }
   ctx.stroke();
@@ -125,133 +179,191 @@ function drawAll() {
   ctx.fillStyle = tokens.fgFaint;
   ctx.font = '10px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'center';
-  for (const R of [0, 10, 20, 30, 40, 50, 60]) {
-    const { px: x } = px(R, 0);
+  for (const R of [0, 10, 20, 30]) {
+    const { px: x } = pxPlot(R, 0);
     ctx.fillText(String(R), x, PLOT.y + PLOT.h + 13);
   }
   ctx.textAlign = 'right';
-  for (const v of [0, 100, 200, 300]) {
-    const { py: y } = px(0, v);
+  for (const v of [0, 100, 200]) {
+    const { py: y } = pxPlot(0, v);
     ctx.fillText(String(v), PLOT.x - 4, y + 3);
   }
 
-  // component curves
-  const p = currentParams();
-  drawCurve(tokens.cat1, R => vBulge2(R, p.Mb, p.ab), 1.0);
-  drawCurve(tokens.cat2, R => vDisk2(R, p.Md, p.ad, p.bd), 1.0);
-  drawCurve(tokens.cat3, R => vHalo2(R, p.M200, p.c), 1.0);
-  // total
-  drawCurve(tokens.accent, R => {
-    const total = vBulge2(R, p.Mb, p.ab) + vDisk2(R, p.Md, p.ad, p.bd) + vHalo2(R, p.M200, p.c);
-    return total;
-  }, 1.5);
+  // model curves: all three at once so the user sees the gap
+  function drawCurve(model, color, lineWidth) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    let first = true;
+    for (let R = 0.5; R <= PLOT.rmax; R += 0.5) {
+      const v = vModel(R, model);
+      const { px: x, py: y } = pxPlot(R, Math.min(v, PLOT.vmax));
+      if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); }
+    }
+    ctx.stroke();
+  }
+  drawCurve('kepler',  MODEL_COLOR.kepler,  state.model === 'kepler'  ? 2.0 : 1.0);
+  drawCurve('visible', MODEL_COLOR.visible, state.model === 'visible' ? 2.0 : 1.0);
+  drawCurve('dm',      MODEL_COLOR.dm,      state.model === 'dm'      ? 2.0 : 1.0);
 
-  // data points with error bars
-  ctx.fillStyle = tokens.fg;
-  for (const d of data) {
-    const c = px(d.R, d.v);
-    // error bar
-    const top = px(d.R, d.v + 4);
-    const bot = px(d.R, d.v - 4);
+  // observed data points with error bars
+  for (const d of state.data) {
+    const c = pxPlot(d.R, d.v);
+    const top = pxPlot(d.R, d.v + DATA_SIGMA);
+    const bot = pxPlot(d.R, d.v - DATA_SIGMA);
     ctx.strokeStyle = tokens.fgMuted;
     ctx.lineWidth = 0.8;
     ctx.beginPath();
     ctx.moveTo(c.px, top.py); ctx.lineTo(c.px, bot.py);
     ctx.stroke();
-    // marker
+    ctx.fillStyle = tokens.fg;
     ctx.beginPath();
-    ctx.arc(c.px, c.py, 2.5, 0, 2 * Math.PI);
+    ctx.arc(c.px, c.py, 2.2, 0, 2 * Math.PI);
     ctx.fill();
   }
 
-  // titles
+  // axis labels
   ctx.fillStyle = tokens.fgMuted;
   ctx.font = '11px "Inter", system-ui, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText('Rotation curve: bulge (cat-1), disk (cat-2), halo (cat-3), total (accent)', PLOT.x, PLOT.y - 10);
   ctx.textAlign = 'center';
-  ctx.fillStyle = tokens.fgFaint;
+  ctx.fillText('Rotation curve v(R)', PLOT.x + PLOT.w / 2, PLOT.y - 10);
   ctx.font = '10px "Inter", system-ui, sans-serif';
-  ctx.fillText('R (kpc)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 26);
+  ctx.fillStyle = tokens.fgFaint;
+  ctx.fillText('R (kpc)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 24);
   ctx.save();
-  ctx.translate(PLOT.x - 38, PLOT.y + PLOT.h / 2);
+  ctx.translate(PLOT.x - 32, PLOT.y + PLOT.h / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('v_circ (km/s)', 0, 0);
+  ctx.fillText('v (km/s)', 0, 0);
   ctx.restore();
 }
 
-function updateReadouts() {
-  readouts.Mb.textContent   = state.Mb.toFixed(2);
-  readouts.Md.textContent   = state.Md.toFixed(2);
-  readouts.M200.textContent = state.M200.toFixed(2);
-  readouts.c.textContent    = state.c.toFixed(1);
-  const chi2 = chiSquared(currentParams(), data);
-  readouts.chi2.textContent = chi2.toFixed(2);
-  readouts.redChi2.textContent = (chi2 / (N_DATA_POINTS - NUM_FREE)).toFixed(2);
+function drawLegendAndReadout() {
+  // legend below the rotation-curve inset
+  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'left';
+  const lx = PLOT.x;
+  let ly = PLOT.y + PLOT.h + 40;
+  const items = [
+    { color: MODEL_COLOR.kepler,  label: 'Keplerian (point mass)' },
+    { color: MODEL_COLOR.visible, label: 'Visible matter only' },
+    { color: MODEL_COLOR.dm,      label: 'Visible + dark matter' },
+  ];
+  for (const it of items) {
+    ctx.fillStyle = it.color;
+    ctx.fillRect(lx, ly - 8, 14, 3);
+    ctx.fillStyle = tokens.fg;
+    ctx.fillText(it.label, lx + 22, ly);
+    ly += 16;
+  }
+  ctx.fillStyle = tokens.fgMuted;
+  ctx.fillText('Dots: observed v at radii from the DM-model truth.', lx, ly + 4);
+
+  // live readout overlay (top-right of canvas)
+  const v8 = vModel(8, state.model);
+  const chi2 = chiSquared(state.model, state.data);
+  const lines = [
+    `model     ${state.model.padEnd(8)}`,
+    `t (Gyr)   ${state.t.toFixed(3).padStart(7)}`,
+    `v(R=8)    ${v8.toFixed(1).padStart(6)} km/s`,
+    `chi^2     ${chi2.toFixed(1).padStart(7)}`,
+  ];
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = tokens.fg;
+  let y = 20;
+  for (const line of lines) {
+    ctx.fillText(line, W - 16, y);
+    y += 14;
+  }
 }
 
-function applySliders() {
-  state.Mb   = parseFloat(sliders.Mb.value);
-  state.Md   = parseFloat(sliders.Md.value);
-  state.M200 = parseFloat(sliders.M200.value);
-  state.c    = parseFloat(sliders.c.value);
-  sliderValues.Mb.textContent   = state.Mb.toFixed(2);
-  sliderValues.Md.textContent   = state.Md.toFixed(2);
-  sliderValues.M200.textContent = state.M200.toFixed(2);
-  sliderValues.c.textContent    = state.c.toFixed(1);
-  drawAll();
-  updateReadouts();
+function drawFrame() {
+  ctx.fillStyle = tokens.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  drawGalaxyPanel();
+  drawRotationCurveInset();
+  drawLegendAndReadout();
+
+  // DOM readouts mirror canvas
+  readouts.model.textContent = MODELS[state.model].label;
+  readouts.t.textContent     = state.t.toFixed(3);
+  readouts.vAt20.textContent = vModel(20, state.model).toFixed(1);
+  readouts.chi2.textContent  = chiSquared(state.model, state.data).toFixed(1);
 }
 
-for (const key of ['Mb', 'Md', 'M200', 'c']) {
-  sliders[key].addEventListener('input', applySliders);
+// Animation: advance time at 0.012 Gyr per rAF (~60 Hz -> 0.72 Gyr/sec, so
+// the outer galaxy at R = 20 kpc with v_dm = 200 km/s -> omega = 10.2 rad/Gyr
+// completes one orbit in ~0.85 sec on the screen. Inner orbits are faster.)
+const DT_PER_FRAME = 0.012;
+const T_RESET_AT   = 2.5;             // Gyr, loop time
+
+function tick() {
+  if (state.paused) return;
+  state.t += DT_PER_FRAME;
+  if (state.t > T_RESET_AT) state.t = 0;
+  drawFrame();
+  state.rafId = requestAnimationFrame(tick);
+}
+
+function startAnim() {
+  if (state.rafId !== null) cancelAnimationFrame(state.rafId);
+  state.rafId = requestAnimationFrame(tick);
+}
+
+function pauseAnim() {
+  state.paused = !state.paused;
+  btnPause.textContent = state.paused ? 'Play' : 'Pause';
+  if (!state.paused) startAnim();
+}
+
+function setModel(model) {
+  state.model = model;
+  drawFrame();
+}
+
+for (const r of radios) {
+  r.addEventListener('change', () => {
+    if (r.checked) setModel(r.value);
+  });
 }
 
 btnReset.addEventListener('click', () => {
-  sliders.Mb.value   = TRUE_PARAMS.Mb.toString();
-  sliders.Md.value   = TRUE_PARAMS.Md.toString();
-  sliders.M200.value = TRUE_PARAMS.M200.toString();
-  sliders.c.value    = TRUE_PARAMS.c.toString();
-  applySliders();
+  state.t = 0;
+  drawFrame();
 });
 
+btnPause.addEventListener('click', pauseAnim);
+
 function bootSync() {
+  state.stars = buildGalaxy(SEED);
+  state.data  = syntheticObservations(SEED);
+
   if (CAPTURE_NAME) {
+    // Deterministic capture sweep: spans t in [0, 1.8] Gyr at a fixed model.
+    // The captureModel query parameter switches the model so the golden set
+    // can show all three side-by-side; default is 'dm' if missing.
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.Mb   = TRUE_PARAMS.Mb;
-    state.Md   = TRUE_PARAMS.Md;
-    state.M200 = 0.3 + frac * (5.0 - 0.3);
-    state.c    = TRUE_PARAMS.c;
-    sliders.Mb.value   = state.Mb.toString();
-    sliders.Md.value   = state.Md.toString();
-    sliders.M200.value = state.M200.toString();
-    sliders.c.value    = state.c.toString();
-    sliderValues.Mb.textContent   = state.Mb.toFixed(2);
-    sliderValues.Md.textContent   = state.Md.toFixed(2);
-    sliderValues.M200.textContent = state.M200.toFixed(2);
-    sliderValues.c.textContent    = state.c.toFixed(1);
-  } else {
-    state.Mb   = parseFloat(sliders.Mb.value);
-    state.Md   = parseFloat(sliders.Md.value);
-    state.M200 = parseFloat(sliders.M200.value);
-    state.c    = parseFloat(sliders.c.value);
-    sliderValues.Mb.textContent   = state.Mb.toFixed(2);
-    sliderValues.Md.textContent   = state.Md.toFixed(2);
-    sliderValues.M200.textContent = state.M200.toFixed(2);
-    sliderValues.c.textContent    = state.c.toFixed(1);
-  }
-  drawAll();
-  updateReadouts();
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => {
+    state.model  = CAPTURE_MODEL ?? 'dm';
+    state.t      = frac * 1.8;
+    state.paused = true;
+    for (const r of radios) r.checked = (r.value === state.model);
+    drawFrame();
+    if (DETERMINISTIC) {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
+        requestAnimationFrame(() => {
+          const detail = { capture: CAPTURE_NAME, seed: SEED, model: state.model, t: state.t };
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = detail;
+        });
       });
-    });
+    }
+    return;
   }
+
+  drawFrame();
+  startAnim();
 }
 
 if (document.readyState === 'loading') {

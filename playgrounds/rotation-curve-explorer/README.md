@@ -1,20 +1,22 @@
 # Rotation Curve Explorer
 
-A model spiral galaxy decomposed into three axisymmetric mass components: a Hernquist bulge, a Miyamoto-Nagai disk evaluated at z = 0, and an NFW dark-matter halo. Each component contributes a circular-velocity-squared at radius R in closed analytic form; the total rotation curve is the quadrature sum. The playground generates a synthetic "observed" curve at fixed "true" parameters with 4 km/s Gaussian noise; four sliders let the user fit the data by adjusting the masses of all three components plus the NFW concentration.
+A top-down view of a model spiral galaxy and an inset rotation curve. Stars orbit at $\Omega(R) = v(R) / R$ for the active model. Three rotation-curve models share the same visible matter (Hernquist bulge plus Miyamoto-Nagai disk) but differ in the unseen mass: Keplerian (all visible mass concentrated at the centre), visible only (no halo), and visible plus an NFW dark-matter halo. The synthetic observation set on the inset was drawn from the third model with 6 km/s Gaussian noise.
 
-Look at the live chi-squared: at the true parameters (Reset button), reduced chi^2 sits near 1, indicating a good fit to the noisy data. Crank the halo mass down and the outer rotation curve drops below the data points; crank it up and the curve overshoots. The halo concentration c shifts mass inward (high c) or outward (low c), changing the inner rotation behavior. The disk and bulge dominate inside R = 10 kpc; the halo dominates outside.
+Watch the highlighted tracer at the solar circle $R = 8$ kpc. Under the DM model it orbits at $\sim 220$ km/s ($\sim 220$ Myr per orbit). Under the Keplerian model it slows to $\sim 120$ km/s. Under the visible-only model it sits at $\sim 200$ km/s, but step out to $R = 25$ kpc and the visible-only curve drops to $\sim 110$ km/s while the data still sit at $\sim 200$ km/s. That gap is the dark-matter problem.
 
-Controls: drag the four mass / concentration sliders. Reset returns to the true parameters. Scale lengths (a_b, a_d, b_d, r_s through R_200) are fixed at their true values in v1; the stretch goal opens them up.
+Controls: select a rotation-curve model (radio buttons), pause or resume, reset time to zero.
 
 ## Reference
 
-Primary citation: Binney and Tremaine, "Galactic Dynamics", 2nd ed., Sections 2.2 (Spherical systems) for the Hernquist and NFW profiles and 2.3 (Potential-density pairs for flattened systems) for the Miyamoto-Nagai disk (bib key `binneytremaine2008`, chapter_index verified this session). No observational data set is reproduced; the data are synthetic at a fixed seed.
+Primary citation: Binney and Tremaine, "Galactic Dynamics", 2nd ed., Sections 2.1 (Spherical systems), 2.2 (Potential theory of axisymmetric systems), 2.3 (Potential-density pairs for flattened systems). Bib key `binneytremaine2008`, chapter_index verified.
 
 ## Verification
 
 - Strong invariants:
-  - Reduced chi^2 < 2.0 at the true parameter values (expected ~ 1, single-seed fluctuation absorbed).
-  - Deterministic synthetic data: identical noise draws on repeated runs at seed 0xC0FFEE.
-- Medium invariant: asymptotic flatness of the rotation curve in R in [10, 50] kpc (signature of a halo-dominated outer disk).
-- Visual gate: SSIM > 0.92 against committed golden frames showing a halo-mass sweep.
+  - DM model reduced chi^2 < 2 against its own synthetic observations.
+  - Keplerian chi^2 > 50x DM chi^2; visible-only chi^2 > 20x DM chi^2.
+  - Galaxy tracer radii preserved to better than 1e-9 kpc under any model (circular orbits).
+  - DM model v(R) flat to within 35 km/s over [8, 28] kpc.
+- Medium invariant: all three models agree within 30 percent at R = 4 kpc.
+- Visual gate: SSIM > 0.92 against committed golden frames showing a time sweep at the DM model.
 - Last verified: see `.verified`.
