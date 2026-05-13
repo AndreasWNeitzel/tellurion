@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shakura-Sunyaev Accretion Disc Temperature</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Shakura-Sunyaev accretion disc temperature profile</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the temperature profile of a
+    steady, optically thick, geometrically thin accretion disc around a
+    compact object. The Shakura-Sunyaev (1973) closed form is
+    $T(r) = T_\text{in} (R_\text{in}/r)^{3/4} [1 - \sqrt{R_\text{in}/r}]^{1/4}$.
+    The bracket factor vanishes at the inner edge (so $T(R_\text{in}) = 0$
+    even though the bare $r^{-3/4}$ scaling would diverge from below);
+    the maximum of $T(r)$ occurs at $r = (49/36) R_\text{in}$.
+  </p>
+  <p>
+    The top panel shows $T(r)$ in cyan and the bare $r^{-3/4}$ scaling in
+    dashed orange. The bottom panel is a face-on rendering of the disc
+    with annulus colors set by local temperature. The hot inner ring shows
+    the temperature peak and the gradual cooling toward larger radii.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="600" tabindex="0"
+            aria-label="Accretion disc temperature profile and face-on disc rendering."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Shakura-Sunyaev temperature profile. Method: closed-form
+      $T(r) = T_\text{in} (R_\text{in}/r)^{3/4} (1 - \sqrt{R_\text{in}/r})^{1/4}$
+      with bare $r^{-3/4}$ overlay. Source: Frank, King, Raine, Accretion
+      Power in Astrophysics Ch. 5 (`frank-king-raine`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Disc controls">
+    <div class="row"><span class="label">view</span><input type="range" id="slider-view" min="0" max="1" step="1" value="0"><span class="value" id="value-view">profile</span></div>
+    <div class="row"><span class="label">r_out</span><input type="range" id="slider-rmax" min="20" max="200" step="5" value="80"><span class="value" id="value-rmax">80</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0" max="6" step="1" value="0"><span class="value" id="value-speed">0</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
