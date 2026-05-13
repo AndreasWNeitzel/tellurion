@@ -51,13 +51,19 @@ const tok = {
 // Color points by their label using a hue ramp (viridis-like) for swiss-roll
 // and two-color categorical for two-blobs.
 function colorFor(label, dataset) {
-  if (dataset === 'two-blobs') {
-    return label === 0 ? '#4C72B0' : '#DD8452';
+  if (dataset === 'clusters-5d') {
+    const palette = ['#4C72B0', '#DD8452', '#55A868', '#C44E52', '#8172B2'];
+    return palette[Math.round(label) % palette.length];
   }
-  // hue ramp by t parameter
+  if (dataset === 's-curve') {
+    const t = (label + 1.5 * Math.PI) / (3 * Math.PI);
+    const h = (260 + 180 * t) % 360;
+    return `hsl(${h.toFixed(0)}, 75%, 50%)`;
+  }
+  // default: swiss-roll hue ramp by t parameter
   const t = (label - 1.5 * Math.PI) / (3 * Math.PI);
   const h = (220 + 200 * t) % 360;
-  return `hsl(${h.toFixed(0)}, 70%, 50%)`;
+  return `hsl(${h.toFixed(0)}, 75%, 50%)`;
 }
 
 function drawRaw() {
@@ -68,27 +74,62 @@ function drawRaw() {
   ctx.fillStyle = tok.fgMuted;
   ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('Original 3D data (top-down view)', p.x + 8, p.y - 6);
+  const dimLabel = state.data ? `${state.data.D}D` : 'data';
+  ctx.fillText(`Original ${dimLabel} data (rotating)`, p.x + 8, p.y - 6);
   if (!state.data) return;
-  // Compute bounds
-  const X = state.data.X;
-  let mx = Infinity, MX = -Infinity, mz = Infinity, MZ = -Infinity;
-  for (let i = 0; i < state.data.N; i += 1) {
-    const x = X[i * 3], z = X[i * 3 + 2];
-    if (x < mx) mx = x; if (x > MX) MX = x;
-    if (z < mz) mz = z; if (z > MZ) MZ = z;
+  const { X, N, D } = state.data;
+  // Project to 2D via a slowly rotating camera so the user can see the 3D
+  // (or higher-D) structure. For D > 3 we fold extra dimensions into the
+  // vertical axis with a small coefficient so noise dims smear the points
+  // visibly along y.
+  const phi = state.rotPhi || 0;
+  const cP = Math.cos(phi), sP = Math.sin(phi);
+  const us = new Float64Array(N), vs = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    const x = X[i * D];
+    const y = D >= 2 ? X[i * D + 1] : 0;
+    const z = D >= 3 ? X[i * D + 2] : 0;
+    const u = x * cP - z * sP;
+    let v = y;
+    if (D > 3) {
+      let extra = 0;
+      for (let d = 3; d < D; d += 1) extra += X[i * D + d];
+      v = y + 0.35 * extra;
+    }
+    us[i] = u; vs[i] = v;
   }
-  const pad = 0.05 * Math.max(MX - mx, MZ - mz);
-  mx -= pad; MX += pad; mz -= pad; MZ += pad;
-  for (let i = 0; i < state.data.N; i += 1) {
-    const x = X[i * 3], z = X[i * 3 + 2];
-    const cx = p.x + ((x - mx) / (MX - mx)) * p.w;
-    const cy = p.y + (1 - (z - mz) / (MZ - mz)) * p.h;
+  let umin = Infinity, umax = -Infinity, vmin = Infinity, vmax = -Infinity;
+  for (let i = 0; i < N; i += 1) {
+    if (us[i] < umin) umin = us[i]; if (us[i] > umax) umax = us[i];
+    if (vs[i] < vmin) vmin = vs[i]; if (vs[i] > vmax) vmax = vs[i];
+  }
+  const pad = 0.05 * Math.max(umax - umin, vmax - vmin, 1e-9);
+  umin -= pad; umax += pad; vmin -= pad; vmax += pad;
+  for (let i = 0; i < N; i += 1) {
+    const cx = p.x + (us[i] - umin) / (umax - umin) * p.w;
+    const cy = p.y + (1 - (vs[i] - vmin) / (vmax - vmin)) * p.h;
     ctx.fillStyle = colorFor(state.data.labels[i], state.dataset);
     ctx.beginPath();
-    ctx.arc(cx, cy, 2.2, 0, 2 * Math.PI);
+    ctx.arc(cx, cy, 2.4, 0, 2 * Math.PI);
     ctx.fill();
   }
+  // small axis tripod in the corner
+  const cx0 = p.x + p.w - 38, cy0 = p.y + 30, L = 20;
+  function drawAxis(dx, dz, color, label) {
+    const u = dx * cP - dz * sP;
+    const ex = cx0 + u * L, ey = cy0;
+    ctx.strokeStyle = color; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.fillStyle = color; ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.fillText(label, ex + 2, ey - 2);
+  }
+  drawAxis(1, 0, 'rgba(193,59,39,0.9)',  'x');
+  drawAxis(0, 1, 'rgba(76,114,176,0.9)', 'z');
+  ctx.strokeStyle = 'rgba(85,168,104,0.9)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(cx0, cy0 - L); ctx.stroke();
+  ctx.fillStyle = 'rgba(85,168,104,0.9)';
+  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillText('y', cx0 + 2, cy0 - L - 2);
 }
 
 function drawEmbedding(p, Y, title) {
@@ -180,9 +221,13 @@ btnReset.addEventListener('click', () => {
 function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.dataset = frac < 0.5 ? 'swiss-roll' : 'two-blobs';
+    // Sweep through datasets: 0..1/3 swiss-roll, 1/3..2/3 s-curve, rest clusters-5d
+    if (frac < 1 / 3)       state.dataset = 'swiss-roll';
+    else if (frac < 2 / 3)  state.dataset = 's-curve';
+    else                    state.dataset = 'clusters-5d';
     selDataset.value = state.dataset;
     state.N = 200; state.k = 8; state.perplexity = 25;
+    state.rotPhi = frac * 2 * Math.PI;
     // Run all three synchronously so the capture is deterministic at draw time.
     const factory = DATASETS[state.dataset];
     state.data = factory({ N: state.N, seed: 0xC0FFEE });
@@ -206,8 +251,19 @@ function bootSync() {
   applyControls();
 }
 
+// rotate the 3D data panel slowly so the user sees that it really is 3D
+state.rotPhi = 0.0;
+function rotateTick() {
+  if (!CAPTURE_NAME) {
+    state.rotPhi += 0.006;
+    drawAll();
+  }
+  requestAnimationFrame(rotateTick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(rotateTick); }, { once: true });
 } else {
   bootSync();
+  if (!CAPTURE_NAME) requestAnimationFrame(rotateTick);
 }

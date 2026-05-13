@@ -267,8 +267,8 @@ function bootSync() {
 
 function tick() {
   if (state.playing) {
-    state.t += 0.04;
-    drawAll();
+    state.t += 0.008;        // 5x slower than before; phase rolls over a full
+    drawAll();               // 2 pi every ~ 800 frames (~ 13 sec at 60 Hz).
   }
   state.rafId = requestAnimationFrame(tick);
 }

@@ -24,24 +24,38 @@
 <body>
   <h1>Dimensionality reduction: PCA vs Isomap vs t-SNE</h1>
   <p>
-    <strong>What you are seeing:</strong> a 3D dataset (left panel, viewed
-    from above) being flattened into 2D by three different methods. The
-    points are colored by a known label (position along the Swiss roll's
-    length, or which Gaussian cluster they came from). A good embedding
-    keeps points with the same color near each other.
+    <strong>What you are seeing:</strong> a higher-dimensional dataset
+    (top-left panel, slowly rotating around the vertical axis so you can
+    see it really is 3D or more), and three different ways of flattening
+    it into 2D. Points are colored by a hidden label (position along the
+    Swiss roll, position along the S-curve, or cluster index). A method
+    is doing a "good job" when same-colored points stay near each other
+    in the 2D embedding.
   </p>
   <p>
-    <strong>PCA</strong> (linear): find the two directions of largest
-    variance in 3D and project onto them. Fast, deterministic, but rigid:
-    a Swiss roll gets squashed into a useless oval.
+    <strong>PCA</strong> (linear): keep the two directions of largest
+    variance. Fast and deterministic, but rigid; on a Swiss roll it
+    squashes the whole spiral into a useless oval because variance does
+    not know about curvature.
     <strong>Isomap</strong>: build a $k$-nearest-neighbor graph, measure
-    distances along the graph (not through air), then do classical MDS.
-    Unrolls the Swiss roll because graph distances follow the manifold.
+    distances along the graph (not through air), then do classical MDS on
+    those geodesic distances. Unrolls the Swiss roll because the graph
+    distance follows the manifold.
     <strong>t-SNE</strong>: place a Student-t kernel in 2D and minimize
-    KL divergence to a Gaussian-affinity matrix in 3D. Excellent at
-    preserving local neighborhoods (clusters), worse at global geometry.
-    <em>The slug names UMAP; the third method shown here is the simpler
-    classical PCA, kept as a linear baseline.</em>
+    the KL divergence to a Gaussian-affinity matrix in the original
+    space. Local neighborhoods are preserved well, global geometry is
+    not. Strong for finding clusters, weak for measuring distances.
+    <em>The catalog slug names UMAP; we show classical PCA in its place
+    as a linear baseline. UMAP is conceptually close to t-SNE but has its
+    own implementation cost (fuzzy simplicial sets) that we cut for
+    space.</em>
+  </p>
+  <p>
+    Datasets: <em>Swiss roll</em> and <em>S-curve</em> are 3D manifolds
+    with one intrinsic curved dimension; <em>Five clusters in 5D</em> has
+    five Gaussian blobs arranged on a ring in dimensions 0 and 1, with
+    dimensions 2 through 4 being pure noise. A useful DR method on this
+    last one ignores the noise and produces five tight clumps.
   </p>
 
   <figure class="pg-figure">
@@ -61,8 +75,9 @@
     <div class="row">
       <span class="label">dataset</span>
       <select id="select-dataset">
-        <option value="swiss-roll" selected>Swiss roll</option>
-        <option value="two-blobs">Two blobs</option>
+        <option value="swiss-roll" selected>Swiss roll (3D manifold)</option>
+        <option value="s-curve">S-curve (3D manifold)</option>
+        <option value="clusters-5d">Five clusters in 5D</option>
       </select>
     </div>
     <div class="row"><span class="label">N points</span><input type="range" id="slider-N" min="100" max="500" step="50" value="300"><span class="value" id="value-N">300</span></div>

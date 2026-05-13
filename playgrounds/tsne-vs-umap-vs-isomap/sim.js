@@ -28,24 +28,47 @@ export function swissRoll({ N = 400, seed = 0xC0FFEE } = {}) {
   return { X, labels, N, D: 3 };
 }
 
-export function twoBlobs({ N = 400, seed = 0xC0FFEE } = {}) {
+// S-curve in 3D: parameterize by (t, h) and embed as
+//   x = sin(t), y = h, z = sign(t) (1 - cos(t)).
+export function sCurve({ N = 400, seed = 0xC0FFEE } = {}) {
   const rng = makeRng(seed);
   const X = new Float64Array(N * 3);
   const labels = new Float64Array(N);
   for (let i = 0; i < N; i += 1) {
-    const cluster = i < N / 2 ? 0 : 1;
-    const c = cluster === 0 ? -3 : 3;
-    X[i * 3]     = c + gaussian(rng, 0, 1);
-    X[i * 3 + 1] = gaussian(rng, 0, 1);
-    X[i * 3 + 2] = gaussian(rng, 0, 1);
-    labels[i] = cluster;
+    const t = (-1.5 + 3 * rng()) * Math.PI;
+    const h = 4 * rng() - 2;
+    X[i * 3]     = Math.sin(t);
+    X[i * 3 + 1] = h;
+    X[i * 3 + 2] = Math.sign(t) * (1 - Math.cos(t));
+    labels[i] = t;
   }
   return { X, labels, N, D: 3 };
 }
 
+// Five Gaussian clusters arranged around a circle in dim-D (default 5D).
+// The signal lives in dims 0, 1 (the ring); dims 2..D-1 are pure noise.
+// A useful DR method should recover five tight clumps and ignore the noise.
+// This is the canonical "intrinsic dimension 0, ambient dimension 5" toy.
+export function fiveClustersRing({ N = 500, seed = 0xC0FFEE, dim = 5 } = {}) {
+  const rng = makeRng(seed);
+  const K = 5;
+  const X = new Float64Array(N * dim);
+  const labels = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    const k = i % K;
+    const theta = 2 * Math.PI * k / K;
+    X[i * dim]     = 3 * Math.cos(theta) + gaussian(rng, 0, 0.4);
+    X[i * dim + 1] = 3 * Math.sin(theta) + gaussian(rng, 0, 0.4);
+    for (let d = 2; d < dim; d += 1) X[i * dim + d] = gaussian(rng, 0, 0.8);
+    labels[i] = k;
+  }
+  return { X, labels, N, D: dim };
+}
+
 export const DATASETS = {
-  'swiss-roll': swissRoll,
-  'two-blobs':  twoBlobs,
+  'swiss-roll':  swissRoll,
+  's-curve':     sCurve,
+  'clusters-5d': fiveClustersRing,
 };
 
 // ==== linear algebra helpers ==============================================
@@ -176,6 +199,16 @@ export function isomap(X, N, D, k = 8) {
       }
     }
   }
+  // If the k-NN graph is disconnected (well-separated clusters with k less
+  // than the largest cluster), some entries remain Infinity. Replace those
+  // with 2x the largest finite geodesic so MDS centering stays defined and
+  // the cluster topology is preserved.
+  let maxFinite = 0;
+  for (let i = 0; i < N * N; i += 1) {
+    if (dist[i] !== Infinity && dist[i] > maxFinite) maxFinite = dist[i];
+  }
+  const bigD = (maxFinite > 0 ? maxFinite : 1) * 2;
+  for (let i = 0; i < N * N; i += 1) if (dist[i] === Infinity) dist[i] = bigD;
   const D2 = new Float64Array(N * N);
   for (let i = 0; i < N * N; i += 1) D2[i] = dist[i] * dist[i];
   const rowMean = new Float64Array(N), colMean = new Float64Array(N);

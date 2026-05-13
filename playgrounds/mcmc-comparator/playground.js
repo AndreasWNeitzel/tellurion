@@ -30,9 +30,9 @@ const W = canvas.width, H = canvas.height;
 // Slower default + shorter trail so each chain stays readable; the first
 // subplot used to smear because three chains painted thousands of samples
 // on top of each other every frame.
-const SAMPLES_PER_FRAME = 6;
+const SAMPLES_PER_FRAME = 3;
 const WARMUP = 200;
-const TRAIL_MAX = 1500;
+const TRAIL_MAX = 400;            // tight cap: only last 400 accepted states
 
 const PLOT  = { x: 30, y: 40, w: 540, h: 430, xmin: -6, xmax: 6, ymin: -4, ymax: 4 };
 const PANEL = { x: 600, y: 40, w: 260, h: 430 };
@@ -139,28 +139,37 @@ function drawTrails() {
   for (let i = 0; i < state.traces.length; i += 1) {
     const tr = state.traces[i];
     if (tr.length < 2) continue;
-    ctx.strokeStyle = COLORS[i];
-    ctx.lineWidth = 0.8;
-    ctx.globalAlpha = 0.75;
-    ctx.beginPath();
-    const first = pxPlot(tr[0].x, tr[0].y);
-    ctx.moveTo(first.px, first.py);
+    // Fade trail per segment: older points are nearly invisible, newer ones
+    // bright. Stops the contour plot from becoming one solid smear.
+    const rgb = hexToRgb(COLORS[i]);
+    ctx.lineWidth = 1.0;
     for (let k = 1; k < tr.length; k += 1) {
-      const p = pxPlot(tr[k].x, tr[k].y);
-      ctx.lineTo(p.px, p.py);
+      const a = tr[k - 1], b = tr[k];
+      const fade = k / tr.length;                  // 0 (oldest) -> 1 (newest)
+      const alpha = (0.04 + 0.70 * fade).toFixed(3);
+      ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+      ctx.beginPath();
+      const pa = pxPlot(a.x, a.y);
+      const pb = pxPlot(b.x, b.y);
+      ctx.moveTo(pa.px, pa.py); ctx.lineTo(pb.px, pb.py);
+      ctx.stroke();
     }
-    ctx.stroke();
-    ctx.globalAlpha = 1;
     const last = tr[tr.length - 1];
     const lp = pxPlot(last.x, last.y);
     ctx.fillStyle = COLORS[i];
     ctx.beginPath();
-    ctx.arc(lp.px, lp.py, 3.5, 0, 2 * Math.PI);
+    ctx.arc(lp.px, lp.py, 4.5, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.strokeStyle = tokens.fg;
-    ctx.lineWidth = 0.6;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.0;
     ctx.stroke();
   }
+}
+
+function hexToRgb(hex) {
+  const h = hex.startsWith('#') ? hex.slice(1) : hex;
+  if (h.length === 3) return [parseInt(h[0]+h[0],16), parseInt(h[1]+h[1],16), parseInt(h[2]+h[2],16)];
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
 }
 
 function drawDiagnosticsPanel() {
