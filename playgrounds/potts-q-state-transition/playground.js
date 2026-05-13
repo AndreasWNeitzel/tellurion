@@ -159,6 +159,13 @@ sliderSpeed.addEventListener('input', () => {
 });
 btnHot.addEventListener('click', () => { rebuild('hot'); drawAll(); });
 btnCold.addEventListener('click', () => { rebuild('cold'); drawAll(); });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    state.playing = !state.playing;
+    btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+  });
+}
 
 function bootSync() {
   rebuild('hot');

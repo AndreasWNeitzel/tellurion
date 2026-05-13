@@ -150,8 +150,38 @@ function bootSync() {
   }
 }
 
+// Animation: cycle through the orbital list slowly.
+let animFrame = 0;
+let paused = false;
+let userOverride = false;
+selOrbital.addEventListener('change', () => { userOverride = true; });
+sliderSpan.addEventListener('input', () => { userOverride = true; });
+sliderGamma.addEventListener('input', () => { userOverride = true; });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
+function tick() {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
+    animFrame += 1;
+    if (animFrame % 180 === 0) {
+      state.idx = (state.idx + 1) % ORBITALS.length;
+      state.span = ORBITALS[state.idx].span;
+      selOrbital.value = String(state.idx);
+      sliderSpan.value = String(state.span);
+      valueSpan.textContent = String(state.span);
+      drawAll();
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

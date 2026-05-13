@@ -177,6 +177,31 @@ btnKcrit.addEventListener('click', () => {
   rebuild();
 });
 
+// Animation: slowly sweep K so the user sees the transition to chaos.
+let animTime = 0;
+let paused = false;
+let userOverride = false;
+sliderK.addEventListener('input', () => { userOverride = true; });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
+function tick() {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
+    animTime += 0.003;
+    const v = 1.5 + 1.4 * Math.sin(animTime);
+    state.K = v;
+    sliderK.value = state.K.toFixed(3);
+    valueK.textContent = state.K.toFixed(3);
+    rebuild();
+  }
+  requestAnimationFrame(tick);
+}
+
 function bootSync() {
   rebuild();
   if (CAPTURE_NAME) {
@@ -202,7 +227,7 @@ function bootSync() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

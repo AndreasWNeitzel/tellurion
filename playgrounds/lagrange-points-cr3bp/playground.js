@@ -200,6 +200,13 @@ btnClear.addEventListener('click', () => {
   state.particles = [];
   drawAll();
 });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    state.playing = !state.playing;
+    btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+  });
+}
 
 function bootSync() {
   rebuildLagrange();

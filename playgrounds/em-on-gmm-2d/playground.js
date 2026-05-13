@@ -259,8 +259,29 @@ function bootSync() {
   drawAll();
 }
 
+// Auto-run mode: when enabled, run one EM step per frame; users can pause.
+let autoRun = false;
+let autoFrame = 0;
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    autoRun = !autoRun;
+    btnPlayPause.textContent = autoRun ? 'Pause auto-run' : 'Auto-run';
+  });
+}
+function autoTick() {
+  if (autoRun && !CAPTURE_NAME) {
+    autoFrame += 1;
+    if (autoFrame % 6 === 0) {
+      step();
+      drawAll();
+    }
+  }
+  requestAnimationFrame(autoTick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(autoTick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(autoTick);
 }

@@ -258,8 +258,16 @@ function bootSync() {
 
 // rotate the 3D data panel slowly so the user sees that it really is 3D
 state.rotPhi = 0.0;
+let rotPaused = false;
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    rotPaused = !rotPaused;
+    btnPlayPause.textContent = rotPaused ? 'Resume rotation' : 'Pause rotation';
+  });
+}
 function rotateTick() {
-  if (!CAPTURE_NAME) {
+  if (!rotPaused && !CAPTURE_NAME) {
     state.rotPhi += 0.006;
     drawAll();
   }

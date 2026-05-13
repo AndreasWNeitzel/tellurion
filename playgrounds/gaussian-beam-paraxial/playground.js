@@ -202,8 +202,34 @@ function bootSync() {
   }
 }
 
+// Animate w_0 slowly so the beam pulses.
+let animTime = 0;
+let paused = false;
+let userOverride = false;
+sliderW0.addEventListener('input', () => { userOverride = true; });
+sliderLam.addEventListener('input', () => { userOverride = true; });
+sliderZmax.addEventListener('input', () => { userOverride = true; });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
+function tick() {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
+    animTime += 0.008;
+    state.w0 = 0.22 + 0.16 * Math.sin(animTime);
+    sliderW0.value = state.w0.toFixed(3);
+    valueW0.textContent = state.w0.toFixed(3);
+    drawAll();
+  }
+  requestAnimationFrame(tick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

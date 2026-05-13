@@ -55,6 +55,9 @@
   <div class="controls pg-controls" id="controls" role="group" aria-label="Beaming controls">
     <div class="row"><span class="label">gamma</span><input type="range" id="slider-gamma" min="1.05" max="20" step="0.05" value="5.0"><span class="value" id="value-gamma">5.0</span></div>
     <div class="row"><span class="label">alpha</span><input type="range" id="slider-alpha" min="-1" max="2" step="0.05" value="0.0"><span class="value" id="value-alpha">0.0</span></div>
+    <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

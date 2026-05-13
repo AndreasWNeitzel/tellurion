@@ -110,8 +110,35 @@ function bootSync() {
   }
 }
 
+// Animate p slowly from 0.35 to 0.80 so the user sees the percolation threshold.
+let animTime = 0;
+let paused = false;
+let userOverride = false;
+sliderP.addEventListener('input', () => { userOverride = true; });
+sliderL.addEventListener('change', () => { userOverride = true; });
+btnResample.addEventListener('click', () => { userOverride = true; });
+btnPc.addEventListener('click', () => { userOverride = true; });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
+function tick() {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
+    animTime += 0.003;
+    state.p = 0.575 + 0.225 * Math.sin(animTime);
+    sliderP.value = state.p.toFixed(3);
+    valueP.textContent = state.p.toFixed(3);
+    drawAll();
+  }
+  requestAnimationFrame(tick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
