@@ -1,17 +1,17 @@
-# Frustrated Triangular Af
+# Frustrated triangular antiferromagnet
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+Antiferromagnetic Ising spins on a triangular lattice. Each spin wants to be opposite to its 6 neighbors. The triangular geometry makes this impossible (on every triangle, at least one pair must be aligned). Wannier 1950: no phase transition; even at T = 0 the system has extensive residual entropy.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+What to look for: drag T low and the system never freezes into a clean checkerboard. Patches of three same-spin "frustrated" plaquettes always exist; the readout shows their fraction.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: T (temperature), L (lattice size), speed (sweeps/frame), cold-stripe / hot-random init.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Wannier 1950, Phys. Rev. 79, 357; Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics, Section 5.4.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: m and e bounds, high-T disorder, cold-start stripe energy, frustrated-plaquette fraction non-trivial.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.

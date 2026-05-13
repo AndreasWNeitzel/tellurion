@@ -3,29 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Percolation 2d</title>
+  <title>2D Site Percolation</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Percolation 2d</h1>
+  <h1>2D site percolation</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <p>
+    <strong>What you are seeing:</strong> a square lattice where each site
+    is independently "occupied" with probability $p$. As $p$ rises past a
+    critical value, a single giant connected cluster appears that spans
+    the lattice from top to bottom (the percolating cluster). Below the
+    critical $p$, only small isolated islands.
+  </p>
+  <p>
+    Critical probability $p_c = 0.59274621\ldots$ (Newman and Ziff 2000,
+    Stauffer-Aharony 1994). Drag the slider through $p_c$ and watch the
+    landscape change from "small puddles" to "one continent". The
+    largest-cluster fraction is shown live; if a spanning cluster exists
+    its sites are highlighted in yellow.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="640" tabindex="0"
+            aria-label="Square lattice occupancy with the largest cluster highlighted and the percolation status reported."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      2D site percolation with union-find cluster labeling
+      (Hoshen-Kopelman 1976). Source: Stauffer and Aharony 1994,
+      Introduction to Percolation Theory, Chapter 2
+      (`staufferaharony1994`); Newman and Ziff 2000, Phys. Rev. Lett. 85,
+      4104.
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Percolation controls">
+    <div class="row"><span class="label">p</span><input type="range" id="slider-p" min="0.30" max="0.85" step="0.005" value="0.59"><span class="value" id="value-p">0.590</span></div>
+    <div class="row"><span class="label">L</span><input type="range" id="slider-L" min="32" max="128" step="8" value="80"><span class="value" id="value-L">80</span></div>
+    <div class="row buttons">
+      <button id="btn-resample" type="button">Resample lattice</button>
+      <button id="btn-pc" type="button">Snap to p_c</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

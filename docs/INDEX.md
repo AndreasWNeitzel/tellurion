@@ -47,6 +47,12 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[1D TDSE Scattering Comparator](../playgrounds/1d-tdse-scattering-comparator/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
+- **[2D Site Percolation](../playgrounds/percolation-2d/index.html)** &nbsp; (verified)
+  Each site of an L x L square lattice is independently occupied with probability p (the "site occupation probability"). We label all connected clusters of occupied sites (4-neighbor connectivity) and highlight the largest cluster. As p crosses the critical value p_c = 0.59274621, a giant spanning cluster appears (Newman-Ziff 2000).
+
+- **[2D XY Model and the BKT Vortex Transition](../playgrounds/xy-model-bkt/index.html)** &nbsp; (verified)
+  Classical XY model: each site of an L x L periodic square lattice holds a continuous angle theta in [0, 2 pi). Bond energy -J cos(theta_i - theta_j); J = 1. The 2D XY model has no spontaneous symmetry breaking at finite T (Mermin-Wagner), but it does have a finite-temperature Berezinskii-Kosterlitz-Thouless (BKT) transition at T_BKT ~ 0.893 J (Hasenbusch 200
+
 - **[Advection Scheme Shootout](../playgrounds/advection-scheme-shootout/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
@@ -71,8 +77,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[EM on a 2D Gaussian Mixture](../playgrounds/em-on-gmm-2d/index.html)** &nbsp; (verified)
   A 2D scatter of N = 600 points drawn from a 3-component Gaussian mixture with known means, covariances, and mixing weights. The EM algorithm tries to recover those parameters using only the data, alternating soft cluster assignment (E-step) and parameter refit (M-step).
 
-- **[Frustrated Triangular Antiferromagnet](../playgrounds/frustrated-triangular-af/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Frustrated Triangular Antiferromagnet](../playgrounds/frustrated-triangular-af/index.html)** &nbsp; (verified)
+  Antiferromagnetic Ising spins on a 2D triangular lattice with periodic boundaries. Each spin prefers to be opposite to its 6 neighbors. Geometric frustration: on every 3-spin plaquette, you cannot satisfy all three anti-alignments at once. Wannier 1950 showed there is no finite-T phase transition; the T = 0 ground state has extensive residual entropy.
 
 - **[GP Kernel Zoo](../playgrounds/gp-kernel-zoo/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
@@ -116,9 +122,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Particle-Mesh 2D Disk](../playgrounds/particle-mesh-2d-disk/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Percolation 2D](../playgrounds/percolation-2d/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
 - **[Perihelion Precession in a Schwarzschild Effective Potential](../playgrounds/mercury-precession-pn/index.html)** &nbsp; (verified)
   In pure Newtonian gravity, Bertrand's theorem says that the only closed bound orbits in central potentials are those of V(r) ~ 1/r and V(r) ~ r^2. Any departure from these forms causes the orbit to fail to close: the perihelion moves around with each revolution. The 1PN correction in the orbit-averaged Schwarzschild metric introduces an effective extra 1/r^3
 
@@ -144,7 +147,4 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[WKB vs Shooting](../playgrounds/wkb-vs-shooting/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[XY Model and BKT Transition](../playgrounds/xy-model-bkt/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

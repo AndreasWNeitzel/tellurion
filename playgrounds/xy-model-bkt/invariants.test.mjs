@@ -1,28 +1,56 @@
-// Xy Model Bkt invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// XY model invariant tests.
+// (a) Cold init: m = 1, e = -2 per site.
+// (b) High T: m near 0.
+// (c) Vortex charge conservation: n+ = n- on torus.
+// (d) Vortex density grows with T.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { createXY, sweep, magnetization, energyPerSite, vortexMap, T_BKT } from './sim.js';
 
-describe('Xy Model Bkt invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('XY model: trivial limits', () => {
+  it('cold init: m = 1, e = -2 per site', () => {
+    const s = createXY({ L: 32, T: 0.1, init: 'cold', seed: 1 });
+    expect(magnetization(s)).toBeCloseTo(1, 6);
+    expect(energyPerSite(s)).toBeCloseTo(-2, 6);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('hot init: |m| close to 0', () => {
+    const s = createXY({ L: 64, T: 5.0, init: 'hot', seed: 1 });
+    expect(magnetization(s)).toBeLessThan(0.1);
   });
+});
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+describe('XY model: high-T thermalization', () => {
+  it('at T = 2.5: |m| < 0.10 after 300 sweeps', () => {
+    const s = createXY({ L: 48, T: 2.5, init: 'cold', seed: 1 });
+    sweep(s, 300);
+    expect(magnetization(s)).toBeLessThan(0.10);
+  });
+});
+
+describe('XY model: vortex charge conservation', () => {
+  it('total vortex charge n+ - n- = 0 on torus', () => {
+    const s = createXY({ L: 48, T: 1.5, init: 'hot', seed: 1 });
+    sweep(s, 200);
+    const { nPlus, nMinus } = vortexMap(s);
+    expect(nPlus - nMinus).toBe(0);
+  });
+});
+
+describe('XY model: vortex density grows with T', () => {
+  it('rho(T=2.0) > rho(T=0.5) after equilibration', () => {
+    const sLow = createXY({ L: 48, T: 0.5, init: 'cold', seed: 1 });
+    sweep(sLow, 300);
+    const sHigh = createXY({ L: 48, T: 2.0, init: 'hot', seed: 1 });
+    sweep(sHigh, 300);
+    const rhoLow = vortexMap(sLow).nPlus;
+    const rhoHigh = vortexMap(sHigh).nPlus;
+    expect(rhoHigh).toBeGreaterThan(rhoLow);
+  });
+});
+
+describe('XY model: T_BKT value', () => {
+  it('T_BKT ~ 0.893 (Hasenbusch 2005)', () => {
+    expect(T_BKT).toBeCloseTo(0.893, 3);
+  });
 });

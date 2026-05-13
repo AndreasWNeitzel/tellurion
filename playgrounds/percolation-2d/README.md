@@ -1,17 +1,17 @@
-# Percolation 2d
+# 2D site percolation
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+Drop dots independently at each cell of a square grid with probability p; ask whether they connect from top to bottom. As p rises past 0.5927 a single giant cluster suddenly appears that spans the lattice.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+What to look for: at p = 0.4 just a handful of small clusters; at p = p_c a fractal cluster structure; at p = 0.7 one continent and thin strands. The yellow cells are the largest cluster; the "spans" readout flips from "no" to "yes" near p_c.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: p (occupation probability), L (lattice size). Resample rerolls the random occupations.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Stauffer and Aharony 1994, Chapter 2; Newman and Ziff 2000, Phys. Rev. Lett. 85, 4104.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: trivial limits, no spanning below p_c, spanning above, monotone P_inf, p_c value.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
