@@ -3,29 +3,74 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>De Broglie Wavelength</title>
+  <title>de Broglie Wavelength vs Kinetic Energy</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>De Broglie Wavelength</h1>
+  <h1>de Broglie wavelength vs kinetic energy</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the de Broglie wavelength
+    $\lambda = h/p$ plotted on a log-log axis against kinetic energy
+    for five particle species: massless photon, electron, proton,
+    neutron, and a $^{12}$C atom. The relativistic momentum
+    $pc = \sqrt{(T + mc^2)^2 - (mc^2)^2}$ is used so the curves are
+    valid in both the non-relativistic ($T \ll mc^2$) and relativistic
+    regimes.
+  </p>
+  <p>
+    Look for the slope-1/2 line at low energies (non-relativistic
+    $\lambda \propto T^{-1/2}$) breaking to a slope-1 line at high
+    energies (ultra-relativistic $\lambda \propto T^{-1}$). The
+    transition happens at $T \sim mc^2$, which is why electrons go
+    relativistic around 1 MeV but protons only around 1 GeV. The
+    photon line is the universal relativistic asymptote, $\lambda = hc/E$,
+    a clean slope-1 line. Reference horizontal lines mark a typical
+    atomic spacing (0.1 nm) and a nuclear scale (1 fm = 10$^{-6}$ nm).
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="de Broglie wavelength versus kinetic energy log-log plot for five particle species."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">lambda (nm):</span><span class="value" id="readout-lam">0</span>
+      <span class="label">T / mc^2:</span><span class="value" id="readout-rel">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      de Broglie wavelength versus kinetic energy across particle
+      species. Method: closed-form relativistic $\lambda = hc/pc$.
+      Source: Eisberg and Resnick, Quantum Physics 2e Ch. 3
+      (`eisberg-resnick`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="de Broglie controls">
+    <div class="row"><span class="label">species</span>
+      <select id="select-species">
+        <option value="photon">photon</option>
+        <option value="electron" selected>electron</option>
+        <option value="proton">proton</option>
+        <option value="neutron">neutron</option>
+        <option value="C-12">C-12 atom</option>
+      </select>
+      <span class="value" id="value-species">electron</span>
+    </div>
+    <div class="row"><span class="label">log10(T/eV)</span><input type="range" id="slider-logT" min="-3" max="12" step="0.05" value="2"><span class="value" id="value-logT">2.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

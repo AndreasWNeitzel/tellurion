@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[de Broglie Wavelength](../playgrounds/bsc-y2s2/FIS2017-de-broglie-wavelength/index.html)** &nbsp; (verified, verified 2026-05-13T22:39:39Z)
+  A particle of rest mass $m$ and kinetic energy $T$ has a quantum wavelength
+
 - **[Photoelectric Effect Threshold](../playgrounds/bsc-y2s2/FIS2017-photoelectric-effect-threshold/index.html)** &nbsp; (verified, verified 2026-05-13T22:20:23Z)
   Monochromatic light of frequency $\nu$ illuminates a clean metal cathode with work function $\phi$. Einstein 1905: each photon delivers exactly $h\nu$ of energy to a bound electron. Electrons appear only if $h\nu \ge \phi$. The maximum kinetic energy of the ejected electron is $$KE_{max} = h\nu - \phi, \qquad \nu > \nu_0 \equiv \phi / h.$$ Below threshold, n
 
@@ -345,9 +348,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Davisson Germer Diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[De Broglie Wavelength](../playgrounds/bsc-y2s2/FIS2017-de-broglie-wavelength/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Distance Ladder Toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (draft)
