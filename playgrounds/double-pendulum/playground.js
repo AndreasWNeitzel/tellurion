@@ -52,13 +52,19 @@ const sliderValues = {
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
-// Layout: support point in the canvas (px), pixels per meter scale.
-// Canvas is 720x480 logical; pixels-per-meter chosen so that l_max=2 + l_max=2 = 4 m
-// fits in ~360 px, so ppm = 90.
+// Layout: pendulum lives on the left half, phase trajectory on the right.
+// Canvas is 880x500. Pendulum at SUPPORT_X = 220 leaves x in [40, 400] for
+// the bob extent; phase panel sits at x in [470, 850].
 const W = canvas.width, H = canvas.height;
-const SUPPORT_X = W / 2;
+const SUPPORT_X = 220;
 const SUPPORT_Y = 90;
 const PPM       = 90;
+
+// Phase trajectory panel: theta1 on x in [-pi, pi], omega1 on y in [-8, 8].
+const PHASE = { x: 470, y: 60, w: 380, h: 380,
+                tMin: -Math.PI, tMax: Math.PI,
+                wMin: -8,       wMax: 8 };
+const PHASE_TRAIL_MAX = 4000;     // last 4 s of (theta1, omega1) samples
 
 const TRAIL_MAX = 2400;    // number of (x2, y2) samples to keep (~2.4 s of motion at PHYSICS_DT=1ms)
 const TRAIL_DECAY = 0.55;  // peak alpha at the head of the trail; linear decay toward the tail
@@ -79,7 +85,8 @@ const state = {
   l2: 1.0,
   inst: null,
   poincare: new PoincareCounter(),
-  trail: [],            // ring buffer of {x, y} for bob 2
+  trail: [],            // ring buffer of {x, y} for bob 2 (physical-space trail)
+  phaseTrail: [],       // ring buffer of {t1, w1} for the phase panel
   playing: !DETERMINISTIC,
   dragging: null,       // 'bob1' | 'bob2' | null
   dragVelocityReset: false,
@@ -119,7 +126,8 @@ function rebuildEngine(ic) {
     integrator: 'verlet',
   });
   state.poincare.reset();
-  state.trail.length = 0;
+  state.trail.length      = 0;
+  state.phaseTrail.length = 0;
 }
 
 function clampToEnvelope(theta1, theta2) {
@@ -216,6 +224,98 @@ function drawTrail() {
   ctx.globalAlpha = 1;
 }
 
+function phaseToPx(t1, w1) {
+  return {
+    px: PHASE.x + (t1 - PHASE.tMin) / (PHASE.tMax - PHASE.tMin) * PHASE.w,
+    py: PHASE.y + (1 - (w1 - PHASE.wMin) / (PHASE.wMax - PHASE.wMin)) * PHASE.h,
+  };
+}
+
+function drawPhasePanel() {
+  // panel background
+  ctx.fillStyle = tokens.surface;
+  ctx.fillRect(PHASE.x, PHASE.y, PHASE.w, PHASE.h);
+  ctx.strokeStyle = tokens.fgFaint;
+  ctx.lineWidth = 0.6;
+  ctx.strokeRect(PHASE.x + 0.5, PHASE.y + 0.5, PHASE.w - 1, PHASE.h - 1);
+
+  // axes through (0, 0)
+  ctx.strokeStyle = tokens.fgFaint;
+  ctx.lineWidth = 0.5;
+  const o = phaseToPx(0, 0);
+  ctx.beginPath();
+  ctx.moveTo(PHASE.x, o.py); ctx.lineTo(PHASE.x + PHASE.w, o.py);
+  ctx.moveTo(o.px, PHASE.y); ctx.lineTo(o.px, PHASE.y + PHASE.h);
+  ctx.stroke();
+
+  // tick labels
+  ctx.fillStyle = tokens.fgFaint;
+  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  for (const [t, lbl] of [[-Math.PI, '-pi'], [0, '0'], [Math.PI, 'pi']]) {
+    const { px: x } = phaseToPx(t, 0);
+    ctx.fillText(lbl, x, PHASE.y + PHASE.h + 13);
+  }
+  ctx.textAlign = 'right';
+  for (const w of [-6, -3, 0, 3, 6]) {
+    const { py } = phaseToPx(0, w);
+    ctx.fillText(String(w), PHASE.x - 4, py + 3);
+  }
+
+  // trajectory
+  const N = state.phaseTrail.length;
+  if (N >= 2) {
+    ctx.lineWidth = 1.0;
+    ctx.strokeStyle = tokens.accent;
+    ctx.lineCap = 'round';
+    // Draw segments only when consecutive samples are within the panel
+    // (skip the wrap discontinuity at +/- pi).
+    ctx.beginPath();
+    let drawing = false;
+    for (let i = 1; i < N; i += 1) {
+      const a = state.phaseTrail[i - 1];
+      const b = state.phaseTrail[i];
+      if (Math.abs(a.t1 - b.t1) > Math.PI * 0.5) {
+        drawing = false;
+        continue;
+      }
+      const pa = phaseToPx(a.t1, a.w1);
+      const pb = phaseToPx(b.t1, b.w1);
+      if (!drawing) { ctx.moveTo(pa.px, pa.py); drawing = true; }
+      ctx.lineTo(pb.px, pb.py);
+    }
+    ctx.stroke();
+  }
+
+  // current point
+  if (N >= 1) {
+    const last = state.phaseTrail[N - 1];
+    const { px, py } = phaseToPx(last.t1, last.w1);
+    ctx.fillStyle = tokens.accentWarm;
+    ctx.beginPath();
+    ctx.arc(px, py, 4, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = tokens.fg;
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
+  // labels
+  ctx.fillStyle = tokens.fgMuted;
+  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Phase trajectory (theta1 mod 2pi, omega1)', PHASE.x, PHASE.y - 8);
+  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.fillStyle = tokens.fgFaint;
+  ctx.textAlign = 'center';
+  ctx.fillText('theta1 (rad)', PHASE.x + PHASE.w / 2, PHASE.y + PHASE.h + 26);
+  ctx.save();
+  ctx.translate(PHASE.x - 32, PHASE.y + PHASE.h / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('omega1 (rad/s)', 0, 0);
+  ctx.restore();
+}
+
 function drawAll() {
   ctx.fillStyle = tokens.bg;
   ctx.fillRect(0, 0, W, H);
@@ -223,6 +323,7 @@ function drawAll() {
   drawTrail();
   const t1 = state.inst.q[0], t2 = state.inst.q[1];
   drawPendulum(t1, t2);
+  drawPhasePanel();
 }
 
 //
@@ -234,10 +335,16 @@ function stepOnce() {
   const t1 = state.inst.q[0];
   const w1 = state.inst.qdot[0];
   state.poincare.observe(t1, w1);
-  // append trail
+  // append physical-space trail
   const { p2 } = thetaToBobPx(state.inst.q[0], state.inst.q[1]);
   state.trail.push(p2);
   if (state.trail.length > TRAIL_MAX) state.trail.shift();
+  // append phase-space sample (theta1 mod 2pi, omega1)
+  let theta1 = t1;
+  while (theta1 >   Math.PI) theta1 -= 2 * Math.PI;
+  while (theta1 <= -Math.PI) theta1 += 2 * Math.PI;
+  state.phaseTrail.push({ t1: theta1, w1 });
+  if (state.phaseTrail.length > PHASE_TRAIL_MAX) state.phaseTrail.shift();
 }
 
 //

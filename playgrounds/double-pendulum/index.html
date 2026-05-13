@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
   <style>
-    .pg-figure { max-width: 720px; }
+    .pg-figure { max-width: 880px; }
     .pg-figure canvas { width: 100%; height: auto; cursor: grab; touch-action: none; }
     .pg-figure canvas:active { cursor: grabbing; }
     .pg-readout {
@@ -61,8 +61,8 @@
   </p>
 
   <figure class="pg-figure">
-    <canvas id="stage" width="720" height="480" tabindex="0"
-            aria-label="Double pendulum simulation: two rods on a support; the user can drag either bob to set its initial angle."></canvas>
+    <canvas id="stage" width="880" height="500" tabindex="0"
+            aria-label="Double pendulum with a side-by-side phase-space trajectory in (theta_1, omega_1) accumulating points over time."></canvas>
 
     <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
       <span class="label">&theta;<sub>1</sub> (rad):</span>      <span class="value" id="readout-theta1">0.5000</span>
