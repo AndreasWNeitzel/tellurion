@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 117 |
+| draft | 116 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 75 |
+| verified | 76 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -35,7 +35,7 @@ Total playgrounds: 203
 - **Double Pendulum Phase Portrait and Energy Conservation** ([FIS1013-double-pendulum](../playgrounds/bsc-y1s1/FIS1013-double-pendulum/)). Status: `in-progress`. citation pending (supporting: FIS2021).
 - **Elastic Inelastic Collisions 2d** ([FIS1013-elastic-inelastic-collisions-2d](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/)). Status: `draft`. `marion-thornton` ch 9; impulse and restitution coefficient exact.
 - **Foucault Pendulum and Coriolis Precession** ([FIS1013-foucault-pendulum](../playgrounds/bsc-y1s1/FIS1013-foucault-pendulum/)). Status: `verified`. citation pending.
-- **Free Fall Stokes Vs Quadratic Drag** ([FIS1013-free-fall-stokes-vs-quadratic-drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/)). Status: `draft`. `marion-thornton` ch 2; Stokes terminal velocity vs Newton drag crossover.
+- **Free Fall Stokes vs Quadratic Drag** ([FIS1013-free-fall-stokes-vs-quadratic-drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/)). Status: `verified`. `marion-thornton` ch 2.
 - **Gyroscope Precession** ([FIS1013-gyroscope-precession](../playgrounds/bsc-y1s1/FIS1013-gyroscope-precession/)). Status: `verified`. citation pending (supporting: FIS2021).
 - **Inclined Plane Friction** ([FIS1013-inclined-plane-friction](../playgrounds/bsc-y1s1/FIS1013-inclined-plane-friction/)). Status: `verified`. `marion-thornton` ch 2.
 - **Kapitza Inverted Pendulum** ([FIS1013-inverted-pendulum-kapitza](../playgrounds/bsc-y1s1/FIS1013-inverted-pendulum-kapitza/)). Status: `verified`. citation pending (supporting: FIS2021).

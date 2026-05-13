@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Free Fall Stokes vs Quadratic Drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/index.html)** &nbsp; (verified, verified 2026-05-13T22:56:41Z)
+  Three unit-mass balls dropped from the same height $y_0$ at $t = 0$, falling under three different drag laws: vacuum, Stokes (linear in velocity), and quadratic (Newtonian). Gravity acts downward; $g = 9.81$ m/s$^2$.
+
 - **[SVD as Rotate-Scale-Rotate](../playgrounds/bsc-y1s1/M1038-svd-singular-values-2d-shape/index.html)** &nbsp; (verified, verified 2026-05-13T22:52:57Z)
   A real 2x2 matrix $M$ acting on the unit circle in $\mathbb{R}^2$. The singular value decomposition writes $M = U S V^T$ with $U, V$ rotations (orthogonal, determinant $+1$) and $S = \mathrm{diag}(s_1, s_2)$ with $s_1 \ge s_2 \ge 0$. The four-panel display shows the unit circle stretched step by step: rotate by $V^T$, scale by $S$, rotate by $U$.
 
@@ -396,9 +399,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fourier Vs Laplace Transform Pair](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Free Fall Stokes Vs Quadratic Drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Friedmann Cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/index.html)** &nbsp; (draft)
