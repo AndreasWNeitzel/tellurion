@@ -83,5 +83,5 @@ Every frame shows:
 
 ## Citations
 
-1. **Newman, M.** "Computational Physics". 2013. Exercise 3.7 "The Mandelbrot set". Bib key `newman2013`. chapter_index lists Section 3.7 (already verified).
+1. **Newman, M.** "Computational Physics". 2013. Exercise 3.7 "The Mandelbrot set". Bib key `newman2013`; the chapter_index entry for 3.7 is verified.
 2. **Lehmer, D. H.** Cardioid test for the Mandelbrot set, common knowledge in the dynamics-of-iterated-maps literature (no specific citation in the project bib; tagged `[no-source: internal-reasoning]` because the test is geometric, not a methodological choice that needs sourcing).

@@ -49,6 +49,20 @@ jobs:
       - name: Playground visual tests
         run: npm run test:visual
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Citation linter
+        run: |
+          uv sync
+          uv run python scripts/py/lint_citations.py --quiet
+          uv run pytest scripts/py/tests/
+
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4

@@ -104,7 +104,7 @@ Primary validation is via the critical-impact-parameter and weak-field tests. SS
 - Vertical-sweep slider that emits a Gaussian wave packet at the horizon instead of an infinite plane.
 - "Light bending angle" panel plotting $\Delta\varphi(b)$ alongside the spatial trail panel; the curve diverges at $b_\text{crit}$.
 - Add timelike geodesics back as a toggle (the prior single-orbit pedagogy from this same playground).
-- Add a Kerr-spin toggle if the chapter_index ever grows to include Carroll Section 6 (rotating black holes).
+- Add a Kerr-spin toggle once Carroll Chapter 6 (rotating black holes) has its subsections added to chapter_index.
 
 ## Risk register
 
