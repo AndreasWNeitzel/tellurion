@@ -50,7 +50,10 @@ function tick(now) {
   frame += 1;
 
   if (DETERMINISTIC) {
-    window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { frame, simClock } }));
+    const detail = { frame, simClock };
+    window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
+    window.__simulationReady = true;
+    window.__simulationReadyDetail = detail;
   }
   requestAnimationFrame(tick);
 }

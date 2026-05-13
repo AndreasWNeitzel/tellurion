@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // scripts/capture-reference.mjs --playground <slug> [--deterministic] [--seed 0xC0FFEE]
 // Captures the five canonical frames for a playground using Playwright Chromium.
+// Serves the project over http://127.0.0.1 because Chromium blocks ES-module imports from file://.
 
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { startStaticServer } from '../tests/helpers/static-server.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT      = path.resolve(__dirname, '..');
@@ -45,27 +47,31 @@ const FRAMES = [
   { name: 't-100', fraction: 1.00 }
 ];
 
+const { server, url: baseUrl } = await startStaticServer(ROOT);
 const browser = await chromium.launch({ headless: true });
 const ctx     = await browser.newContext({ viewport: { width: 800, height: 600 }, deviceScaleFactor: 2 });
 const page    = await ctx.newPage();
 
-const url = new URL(pathToFileURL(path.join(pgDir, 'index.html')).toString());
-url.searchParams.set('seed', values.seed);
-if (values.deterministic) url.searchParams.set('deterministic', '1');
-
-for (const frame of FRAMES) {
-  url.searchParams.set('capture', frame.name);
-  url.searchParams.set('captureFraction', String(frame.fraction));
-  await page.goto(url.toString());
-  await page.waitForEvent('simulation-ready', { timeout: 30_000 });
-  await page.waitForTimeout(50);            // settle one render frame
-  const target = page.locator('#stage');
-  const buf    = await target.screenshot();
-  await fs.writeFile(path.join(outDir, `${frame.name}.png`), buf);
-  console.log(`captured ${frame.name}`);
+try {
+  const baseHref = `${baseUrl}/playgrounds/${values.playground}/index.html`;
+  for (const frame of FRAMES) {
+    const url = new URL(baseHref);
+    url.searchParams.set('seed', values.seed);
+    if (values.deterministic) url.searchParams.set('deterministic', '1');
+    url.searchParams.set('capture', frame.name);
+    url.searchParams.set('captureFraction', String(frame.fraction));
+    await page.goto(url.toString());
+    await page.waitForFunction('window.__simulationReady === true', { timeout: 30_000 });
+    await page.waitForTimeout(50);                    // one render frame settle
+    const target = page.locator('#stage');
+    const buf    = await target.screenshot();
+    await fs.writeFile(path.join(outDir, `${frame.name}.png`), buf);
+    console.log(`captured ${frame.name}`);
+  }
+} finally {
+  await browser.close();
+  await server.closePromise();
 }
-
-await browser.close();
 
 const manifest = {
   playground: values.playground,

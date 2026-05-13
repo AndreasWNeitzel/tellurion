@@ -21,7 +21,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
+      // Spread the Chrome device first so explicit viewport / deviceScaleFactor below
+      // override the device defaults and match scripts/capture-reference.mjs.
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 800, height: 600 },
+        deviceScaleFactor: 2,
+        colorScheme: 'light'
+      }
     }
   ]
 });
