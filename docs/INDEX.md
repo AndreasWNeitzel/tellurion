@@ -256,3 +256,357 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
+
+- **[Aberration Of Light Stellar](../playgrounds/aberration-of-light-stellar/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Addition Of Angular Momenta](../playgrounds/addition-of-angular-momenta/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Adiabatic Vs Isothermal Pv](../playgrounds/adiabatic-vs-isothermal-pv/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Aharonov Bohm Flux Line](../playgrounds/aharonov-bohm-flux-line/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Alfven Wave Mhd 1d](../playgrounds/alfven-wave-mhd-1d/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Alpha Decay Gamow Tunneling](../playgrounds/alpha-decay-gamow-tunneling/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Aperture Photometry Toy](../playgrounds/aperture-photometry-toy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Asymptotic Period Spacing](../playgrounds/asymptotic-period-spacing/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Baryon Acoustic Oscillation Toy](../playgrounds/baryon-acoustic-oscillation-toy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Bbn Light Element Toy](../playgrounds/bbn-light-element-toy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Bcs Gap Self Consistent](../playgrounds/bcs-gap-self-consistent/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Big O Empirical](../playgrounds/big-o-empirical/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Bloch Oscillations](../playgrounds/bloch-oscillations/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Bohr Hydrogen Spectrum](../playgrounds/bohr-hydrogen-spectrum/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Bondi Accretion Spherical](../playgrounds/bondi-accretion-spherical/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Bremsstrahlung Spectrum](../playgrounds/bremsstrahlung-spectrum/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Capacitor Discharge Rc](../playgrounds/capacitor-discharge-rc/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Cauchy Sequence Convergence Monitor](../playgrounds/cauchy-sequence-convergence-monitor/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Ckm Mixing Unitarity Triangle](../playgrounds/ckm-mixing-unitarity-triangle/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Cmb Power Spectrum Toy](../playgrounds/cmb-power-spectrum-toy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Compton Scattering Kinematics](../playgrounds/compton-scattering-kinematics/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Compton Vs Inverse Compton](../playgrounds/compton-vs-inverse-compton/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Convection Mixing Length](../playgrounds/convection-mixing-length/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Cooper Pair Binding Energy](../playgrounds/cooper-pair-binding-energy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Coulomb Equilibrium Charges](../playgrounds/coulomb-equilibrium-charges/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Coupled Pendulums Normal Modes](../playgrounds/coupled-pendulums-normal-modes/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Curvature Tensor 2d Surfaces](../playgrounds/curvature-tensor-2d-surfaces/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Davisson Germer Diffraction](../playgrounds/davisson-germer-diffraction/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[De Broglie Wavelength](../playgrounds/de-broglie-wavelength/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Distance Ladder Toy](../playgrounds/distance-ladder-toy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Drake Equation Explorer](../playgrounds/drake-equation-explorer/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Dynamical Friction Chandrasekhar](../playgrounds/dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Eddington Grey Atmosphere](../playgrounds/eddington-grey-atmosphere/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Eigenvector Rotation 2x2](../playgrounds/eigenvector-rotation-2x2/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Elastic Inelastic Collisions 2d](../playgrounds/elastic-inelastic-collisions-2d/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Engine Cycle Explorer](../playgrounds/engine-cycle-explorer/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Epsilon Delta Continuity Visualizer](../playgrounds/epsilon-delta-continuity-visualizer/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Equipartition From Collisions](../playgrounds/equipartition-from-collisions/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Fabry Perot Finesse](../playgrounds/fabry-perot-finesse/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Fermi Surface 2d Square](../playgrounds/fermi-surface-2d-square/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Fine Structure Hydrogen](../playgrounds/fine-structure-hydrogen/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Floating Point Precision Pitfalls](../playgrounds/floating-point-precision-pitfalls/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Fourier Vs Laplace Transform Pair](../playgrounds/fourier-vs-laplace-transform-pair/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Free Fall Stokes Vs Quadratic Drag](../playgrounds/free-fall-stokes-vs-quadratic-drag/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Friedmann Cosmography](../playgrounds/friedmann-cosmography/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Gauss Law Flux Through Surface](../playgrounds/gauss-law-flux-through-surface/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Geodesic Deviation Equation](../playgrounds/geodesic-deviation-equation/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Gram Schmidt Orthogonalization](../playgrounds/gram-schmidt-orthogonalization/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Grating Resolving Power](../playgrounds/grating-resolving-power/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Green Function 1d Laplacian](../playgrounds/green-function-1d-laplacian/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Group Vs Phase Velocity](../playgrounds/group-vs-phase-velocity/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Habitable Zone Stellar Flux](../playgrounds/habitable-zone-stellar-flux/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Hamiltonian Phase Space Flow](../playgrounds/hamiltonian-phase-space-flow/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Inclined Plane Friction](../playgrounds/inclined-plane-friction/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Inflation Slow Roll](../playgrounds/inflation-slow-roll/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Inverse Compton Scattering Cooling](../playgrounds/inverse-compton-scattering-cooling/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Jeans Instability](../playgrounds/jeans-instability/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Jeans Isothermal Sphere](../playgrounds/jeans-isothermal-sphere/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Kepler Equation Newton Iteration](../playgrounds/kepler-equation-newton-iteration/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Kepler Orbit Elements](../playgrounds/kepler-orbit-elements/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Lagrangian Vs Newtonian](../playgrounds/lagrangian-vs-newtonian/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Larmor Radiation Pattern](../playgrounds/larmor-radiation-pattern/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Least Squares Orbit Fit Gauss](../playgrounds/least-squares-orbit-fit-gauss/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Lienard Wiechert Synchrotron](../playgrounds/lienard-wiechert-synchrotron/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Line Integral Vs Path](../playgrounds/line-integral-vs-path/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Linear Perturbation Growth](../playgrounds/linear-perturbation-growth/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Linear System Direct Vs Iterative](../playgrounds/linear-system-direct-vs-iterative/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Liouville Phase Volume Conservation](../playgrounds/liouville-phase-volume-conservation/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Main Sequence Mass Luminosity](../playgrounds/main-sequence-mass-luminosity/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Matter Radiation Equality](../playgrounds/matter-radiation-equality/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Method Of Images 2d](../playgrounds/method-of-images-2d/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Michelson Fringe Counter](../playgrounds/michelson-fringe-counter/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Michelson Interferometer](../playgrounds/michelson-interferometer/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Mode Trapping Evolved Stars](../playgrounds/mode-trapping-evolved-stars/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Multiple Integral Fubini](../playgrounds/multiple-integral-fubini/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Noether Symmetry To Conservation](../playgrounds/noether-symmetry-to-conservation/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Nuclear Beta Decay Fermi Vs Gt](../playgrounds/nuclear-beta-decay-fermi-vs-gt/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Nuclear Burning Rate Temperature](../playgrounds/nuclear-burning-rate-temperature/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Nuclear Shell Model Magic Numbers](../playgrounds/nuclear-shell-model-magic-numbers/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Ode Solver Euler Rk4 Rk45](../playgrounds/ode-solver-euler-rk4-rk45/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Orbits In Axisymmetric Potential](../playgrounds/orbits-in-axisymmetric-potential/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[P G Mode Cavities](../playgrounds/p-g-mode-cavities/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Parallel Transport On Sphere](../playgrounds/parallel-transport-on-sphere/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Parker Solar Wind](../playgrounds/parker-solar-wind/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Parton Distribution Toy](../playgrounds/parton-distribution-toy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Phonon Dispersion 1d Monatomic Diatomic](../playgrounds/phonon-dispersion-1d-monatomic-diatomic/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Photoelectric Effect Threshold](../playgrounds/photoelectric-effect-threshold/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Point Spread Function Strehl](../playgrounds/point-spread-function-strehl/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Polytrope Lane Emden](../playgrounds/polytrope-lane-emden/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Pulsar Wind Nebula Magnetization](../playgrounds/pulsar-wind-nebula-magnetization/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Radial Velocity Orbital Trace](../playgrounds/radial-velocity-orbital-trace/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Radiative Transfer 1d Slab](../playgrounds/radiative-transfer-1d-slab/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Relativistic Collision Mandelstam](../playgrounds/relativistic-collision-mandelstam/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Relativistic Doppler](../playgrounds/relativistic-doppler/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Resonance Mean Motion Toy](../playgrounds/resonance-mean-motion-toy/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Root Finding Bisect Newton Secant](../playgrounds/root-finding-bisect-newton-secant/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Rotational Splitting Multiplets](../playgrounds/rotational-splitting-multiplets/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Saha Boltzmann Ionization](../playgrounds/saha-boltzmann-ionization/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Secular Perturbation Laplace Lagrange](../playgrounds/secular-perturbation-laplace-lagrange/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Sedov Taylor Blastwave](../playgrounds/sedov-taylor-blastwave/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Semi Empirical Mass Formula](../playgrounds/semi-empirical-mass-formula/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Series Convergence Tests](../playgrounds/series-convergence-tests/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Skin Effect 1d Conductor](../playgrounds/skin-effect-1d-conductor/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Speckle Pattern Statistics](../playgrounds/speckle-pattern-statistics/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Spiral Density Wave Dispersion](../playgrounds/spiral-density-wave-dispersion/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Stellar Blackbody Vs Line](../playgrounds/stellar-blackbody-vs-line/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Stokes Theorem 2d Circulation](../playgrounds/stokes-theorem-2d-circulation/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Sturm Liouville Eigenfunctions](../playgrounds/sturm-liouville-eigenfunctions/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Svd Singular Values 2d Shape](../playgrounds/svd-singular-values-2d-shape/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Synchrotron Spectrum](../playgrounds/synchrotron-spectrum/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Thomas Precession](../playgrounds/thomas-precession/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Transit Mandel Agol Analytic](../playgrounds/transit-mandel-agol-analytic/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Transmission Line Impedance Matching](../playgrounds/transmission-line-impedance-matching/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Transverse Vs Longitudinal Mode](../playgrounds/transverse-vs-longitudinal-mode/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Vector Field Div Curl Visualizer](../playgrounds/vector-field-div-curl-visualizer/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Voigt Profile Decomposition](../playgrounds/voigt-profile-decomposition/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Wavepacket Dispersion 1d](../playgrounds/wavepacket-dispersion-1d/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Zeeman Paschen Back Crossover](../playgrounds/zeeman-paschen-back-crossover/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
