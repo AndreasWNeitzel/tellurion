@@ -1,28 +1,63 @@
-// Habitable Zone Stellar Flux invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Habitable-zone invariants.
+// (a) Sun: L_star matches L_sun within 1 percent.
+// (b) Earth at 1 AU receives ~1361 W/m^2.
+// (c) Earth at 1 AU is in the Sun's HZ.
+// (d) HZ shrinks with cooler / smaller stars.
+// (e) Habitable bounds: inner < outer.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  stellarLuminosity, fluxAt, asSEff,
+  habitableInnerAu, habitableOuterAu, inHabitableZone,
+  L_SUN, R_SUN, AU, T_SUN, S_SUN_W_PER_M2,
+} from './sim.js';
 
-describe('Habitable Zone Stellar Flux invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('habitable-zone-stellar-flux', () => {
+  it('Sun luminosity from R_sun + T_sun ~ L_sun', () => {
+    const L = stellarLuminosity(R_SUN, T_SUN);
+    expect(Math.abs(L - L_SUN) / L_SUN).toBeLessThan(0.01);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Earth at 1 AU receives ~1361 W/m^2', () => {
+    const L = stellarLuminosity(R_SUN, T_SUN);
+    const S = fluxAt(L, AU);
+    expect(Math.abs(S - S_SUN_W_PER_M2) / S_SUN_W_PER_M2).toBeLessThan(0.01);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('asSEff at 1 AU = 1 (modulo solar-constant rounding)', () => {
+    const L = stellarLuminosity(R_SUN, T_SUN);
+    const S = fluxAt(L, AU);
+    expect(Math.abs(asSEff(S) - 1)).toBeLessThan(0.01);
+  });
+
+  it('Sun HZ: inner ~ 0.85 AU, outer ~ 1.68 AU (Kasting recent)', () => {
+    const L = stellarLuminosity(R_SUN, T_SUN);
+    expect(habitableInnerAu(L)).toBeGreaterThan(0.8);
+    expect(habitableInnerAu(L)).toBeLessThan(0.9);
+    expect(habitableOuterAu(L)).toBeGreaterThan(1.6);
+    expect(habitableOuterAu(L)).toBeLessThan(1.8);
+  });
+
+  it('Earth at 1 AU is inside Sun HZ', () => {
+    const L = stellarLuminosity(R_SUN, T_SUN);
+    expect(inHabitableZone(L, 1.0)).toBe(true);
+  });
+
+  it('Mercury at 0.387 AU is inside Sun HZ? (Should be NOT)', () => {
+    const L = stellarLuminosity(R_SUN, T_SUN);
+    expect(inHabitableZone(L, 0.387)).toBe(false);
+  });
+
+  it('HZ shrinks for M-dwarf (T = 3000 K, R = 0.3 R_sun)', () => {
+    const L_M = stellarLuminosity(0.3 * R_SUN, 3000);
+    const L_sun = stellarLuminosity(R_SUN, T_SUN);
+    expect(habitableOuterAu(L_M)).toBeLessThan(habitableInnerAu(L_sun));
+  });
+
+  it('inner < outer always', () => {
+    for (const T of [3000, 5778, 10000]) {
+      const L = stellarLuminosity(R_SUN, T);
+      expect(habitableInnerAu(L)).toBeLessThan(habitableOuterAu(L));
+    }
+  });
 });

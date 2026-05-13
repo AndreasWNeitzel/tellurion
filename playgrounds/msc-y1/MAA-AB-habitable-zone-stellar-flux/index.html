@@ -3,29 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Habitable Zone Stellar Flux</title>
+  <title>Stellar Habitable Zone</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Habitable Zone Stellar Flux</h1>
+  <h1>Stellar habitable zone</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the habitable-zone band of a
+    star with stellar radius $R_\star$ and effective temperature
+    $T_\text{eff}$. Stellar luminosity $L = 4 \pi R_\star^2 \sigma T_\text{eff}^4$
+    sets the incident flux $S(d) = L / (4 \pi d^2)$ at distance $d$ from
+    the star. The continuous habitable zone (Kasting et al. 1993,
+    recent estimates) corresponds to $S$ between $1.37\,S_\odot$ (inner
+    edge, runaway greenhouse) and $0.354\,S_\odot$ (outer edge, maximum
+    greenhouse).
+  </p>
+  <p>
+    The Sun-like default places the HZ between 0.85 and 1.68 AU; Earth
+    at 1 AU sits comfortably inside. A cool M-dwarf at $T_\text{eff} = 3000$ K
+    and $R_\star = 0.3\,R_\odot$ has its HZ at about 0.05-0.10 AU; this is
+    why Proxima Centauri b at 0.05 AU is a candidate habitable world.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Star at center with concentric habitable-zone band and reference planet."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">L (L_sun):</span><span class="value" id="readout-l">1</span>
+      <span class="label">HZ (AU):</span><span class="value" id="readout-hz">0.85 to 1.68</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Stellar habitable zone from effective flux. Method: closed-form
+      Stefan-Boltzmann + inverse-square. Source: Carroll-Ostlie 2e
+      Ch. 7 (`carroll-ostlie`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Star controls">
+    <div class="row"><span class="label">T_eff (K)</span><input type="range" id="slider-T" min="2500" max="10000" step="100" value="5778"><span class="value" id="value-T">5778</span></div>
+    <div class="row"><span class="label">R_star (R_sun)</span><input type="range" id="slider-R" min="0.1" max="3" step="0.05" value="1"><span class="value" id="value-R">1.00</span></div>
+    <div class="row"><span class="label">d (AU)</span><input type="range" id="slider-d" min="0.05" max="5" step="0.01" value="1"><span class="value" id="value-d">1.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

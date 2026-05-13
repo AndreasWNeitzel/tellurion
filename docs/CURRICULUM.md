@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 103 |
+| draft | 102 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 89 |
+| verified | 90 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -403,7 +403,7 @@ Total playgrounds: 203
 2 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Drake Equation Explorer** ([MAA-AB-drake-equation-explorer](../playgrounds/msc-y1/MAA-AB-drake-equation-explorer/)). Status: `draft`. `carroll-ostlie` ch 7; drag each factor; histogram emerges from Monte Carlo.
-- **Habitable Zone Stellar Flux** ([MAA-AB-habitable-zone-stellar-flux](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/)). Status: `draft`. `carroll-ostlie` ch 7 (supporting: AST2004); effective flux S_eff(T_eff) closed-form.
+- **Stellar Habitable Zone** ([MAA-AB-habitable-zone-stellar-flux](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/)). Status: `verified`. `carroll-ostlie` ch 7 (supporting: AST2004).
 
 ### MAA-DM Data Mining and Machine Learning for Astronomy
 

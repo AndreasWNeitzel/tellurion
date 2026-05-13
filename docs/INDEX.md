@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/index.html)** &nbsp; (verified, verified 2026-05-13T23:54:24Z)
+  A central star characterized by effective temperature $T_\text{eff}$ and radius $R_\star$ (in solar units). The luminosity is the Stefan-Boltzmann integral
+
 - **[Transmission Line Impedance Matching](../playgrounds/bsc-y2s1/FIS2013-transmission-line-impedance-matching/index.html)** &nbsp; (verified, verified 2026-05-13T23:51:39Z)
   A coaxial transmission line of characteristic impedance $Z_0 = 50\,\Omega$ terminated by a resistive load $Z_L$. The forward and reflected voltage waves superpose into a standing pattern whose amplitude envelope depends on the mismatch.
 
@@ -438,9 +441,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Group Vs Phase Velocity](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Habitable Zone Stellar Flux](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Hamiltonian Phase Space Flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/index.html)** &nbsp; (draft)
