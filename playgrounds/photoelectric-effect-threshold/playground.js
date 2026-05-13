@@ -1,99 +1,171 @@
-// Photoelectric Effect Threshold playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// Photoelectric effect playground.
+// Plot KE_max = h nu - phi for each metal as a function of nu. Highlight
+// the selected metal and draw a vertical line at the current nu.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { METALS, thresholdFreqPhz, keMaxEv } from './sim.js';
 
 const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC  = params.get('deterministic') === '1';
 const CAPTURE_NAME   = params.get('capture');
 const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const canvas      = document.getElementById('stage');
+const ctx         = canvas.getContext('2d', { alpha: false });
+const readoutKe   = document.getElementById('readout-ke');
+const readoutNu0  = document.getElementById('readout-nu0');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const selectMetal = document.getElementById('select-metal');
+const sliderNu    = document.getElementById('slider-nu');
+const valueMetal  = document.getElementById('value-metal');
+const valueNu     = document.getElementById('value-nu');
 
-const _rng = makeRng(SEED);
+let metalName = selectMetal.value;
+let nuPhz     = parseFloat(sliderNu.value);
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
+function currentMetal() {
+  return METALS.find(m => m.name === metalName) || METALS[0];
+}
+
+selectMetal.addEventListener('change', () => {
+  metalName = selectMetal.value;
+  valueMetal.textContent = metalName;
+});
+sliderNu.addEventListener('input', () => {
+  nuPhz = parseFloat(sliderNu.value);
+  valueNu.textContent = nuPhz.toFixed(2);
+});
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg:     css.getPropertyValue('--bg').trim() || '#060608',
+    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    grid:   '#23252a',
+  };
+}
+
+function drawPlot(c, x0, y0, w, h) {
+  const padL = 64, padR = 16, padT = 28, padB = 44;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(x0, y0, w, h);
+
+  const nuMin = 0;
+  const nuMax = 3.0;
+  const keMax = 6.0;
+
+  function xFor(nu) { return x0 + padL + plotW * (nu - nuMin) / (nuMax - nuMin); }
+  function yFor(ke) { return y0 + padT + plotH * (1 - ke / keMax); }
+
+  ctx.strokeStyle = c.grid;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i += 1) {
+    const x = x0 + padL + plotW * i / 6;
+    ctx.beginPath(); ctx.moveTo(x, y0 + padT); ctx.lineTo(x, y0 + padT + plotH); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText(`${(i * 0.5).toFixed(1)}`, x - 6, y0 + padT + plotH + 12);
+  }
+  for (let i = 0; i <= 6; i += 1) {
+    const y = y0 + padT + plotH * i / 6;
+    ctx.beginPath(); ctx.moveTo(x0 + padL, y); ctx.lineTo(x0 + padL + plotW, y); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.fillText(`${(6 - i)}`, x0 + padL - 14, y + 3);
+  }
+  ctx.fillStyle = c.muted;
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText('nu (PHz = 1e15 Hz)', x0 + padL + plotW / 2 - 50, y0 + padT + plotH + 28);
+  ctx.save();
+  ctx.translate(x0 + 14, y0 + padT + plotH / 2 + 40);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('KE_max (eV)', 0, 0);
+  ctx.restore();
+
+  for (const m of METALS) {
+    const nu0 = thresholdFreqPhz(m.phi);
+    if (nu0 > nuMax) continue;
+    const xStart = xFor(nu0);
+    const yStart = yFor(0);
+    const xEnd = xFor(nuMax);
+    const ke_end = keMaxEv(nuMax, m.phi);
+    const yEnd = yFor(Math.min(ke_end, keMax));
+
+    ctx.strokeStyle = m.color;
+    ctx.lineWidth = (m.name === metalName) ? 3 : 1.5;
+    ctx.globalAlpha = (m.name === metalName) ? 1.0 : 0.55;
+    ctx.beginPath(); ctx.moveTo(xStart, yStart); ctx.lineTo(xEnd, yEnd); ctx.stroke();
+
+    ctx.fillStyle = m.color;
+    ctx.beginPath();
+    ctx.arc(xStart, yStart, 4, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = (m.name === metalName) ? m.color : c.muted;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`${m.name} (${m.phi.toFixed(2)} eV)`, xEnd - 130, yEnd - 6);
+  }
+  ctx.globalAlpha = 1.0;
+
+  const xNow = xFor(nuPhz);
+  ctx.strokeStyle = c.accent;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(xNow, y0 + padT); ctx.lineTo(xNow, y0 + padT + plotH); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const m = currentMetal();
+  const keNow = keMaxEv(nuPhz, m.phi);
+  if (keNow > 0) {
+    const yNow = yFor(Math.min(keNow, keMax));
+    ctx.fillStyle = m.color;
+    ctx.beginPath();
+    ctx.arc(xNow, yNow, 6, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = c.fg;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
 
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
+  const c = colors();
+  ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+  drawPlot(c, 0, 0, canvas.width, canvas.height);
 }
 
-let lastReadoutTime = 0;
 function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
+  const m = currentMetal();
+  readoutKe.textContent  = keMaxEv(nuPhz, m.phi).toFixed(3);
+  readoutNu0.textContent = thresholdFreqPhz(m.phi).toFixed(3);
 }
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
-  }
-
+function loop() {
   render();
   updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  requestAnimationFrame(loop);
 }
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    nuPhz = 0.4 + frac * 2.0;
+    valueNu.textContent = nuPhz.toFixed(2);
+    sliderNu.value = String(nuPhz);
   }
+  valueMetal.textContent = metalName;
+  valueNu.textContent = nuPhz.toFixed(2);
+  render();
+  updateReadout();
 
   if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
+        const detail = { capture: CAPTURE_NAME ?? null, metal: metalName, nu: nuPhz };
         window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
         window.__simulationReady = true;
         window.__simulationReadyDetail = detail;
@@ -105,9 +177,9 @@ function bootSync() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+    if (!CAPTURE_NAME) requestAnimationFrame(loop);
   }, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  if (!CAPTURE_NAME) requestAnimationFrame(loop);
 }

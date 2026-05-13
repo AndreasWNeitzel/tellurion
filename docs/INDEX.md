@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Photoelectric Effect Threshold](../playgrounds/photoelectric-effect-threshold/index.html)** &nbsp; (verified, verified 2026-05-13T22:20:23Z)
+  Monochromatic light of frequency $\nu$ illuminates a clean metal cathode with work function $\phi$. Einstein 1905: each photon delivers exactly $h\nu$ of energy to a bound electron. Electrons appear only if $h\nu \ge \phi$. The maximum kinetic energy of the ejected electron is $$KE_{max} = h\nu - \phi, \qquad \nu > \nu_0 \equiv \phi / h.$$ Below threshold, n
+
 - **[Bohr Hydrogen Spectrum](../playgrounds/bohr-hydrogen-spectrum/index.html)** &nbsp; (verified, verified 2026-05-13T22:16:16Z)
   A single electron orbits a proton in a Coulomb potential. The Bohr quantization condition $L = n \hbar$ pins discrete orbits indexed by integer $n \ge 1$ with energies $E_n = -E_R / n^2$, where $E_R = 13.605693$ eV is the (infinite-mass) Rydberg energy. Transitions between levels emit photons of wavelength $$\frac{1}{\lambda} = R_H \left( \frac{1}{n_\ell^2} 
 
@@ -513,9 +516,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Phonon Dispersion 1d Monatomic Diatomic](../playgrounds/phonon-dispersion-1d-monatomic-diatomic/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Photoelectric Effect Threshold](../playgrounds/photoelectric-effect-threshold/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Point Spread Function Strehl](../playgrounds/point-spread-function-strehl/index.html)** &nbsp; (draft)
