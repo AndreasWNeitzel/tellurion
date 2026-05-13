@@ -242,6 +242,17 @@ function drawRotationCurveInset() {
   ctx.rotate(-Math.PI / 2);
   ctx.fillText('v (km/s)', 0, 0);
   ctx.restore();
+
+  // legend for the observation dots, anchored to the subplot lower-right.
+  const legX = PLOT.x + PLOT.w - 14;
+  const legY = PLOT.y + PLOT.h - 12;
+  ctx.fillStyle = tokens.fg;
+  ctx.beginPath();
+  ctx.arc(legX, legY, 2.6, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Observed velocities', legX - 8, legY + 4);
 }
 
 function drawLegendAndReadout() {
