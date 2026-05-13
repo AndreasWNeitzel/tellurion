@@ -180,9 +180,18 @@ function bootSync() {
 // page is alive on first load. User dragging the rho slider takes over.
 let animTime = 0;
 let userOverride = false;
+let paused = false;
+const btnPlayPause = document.getElementById('btn-playpause');
 sliderRho.addEventListener('input', () => { userOverride = true; });
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
 function tick() {
-  if (!userOverride && !CAPTURE_NAME) {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
     animTime += 0.012;
     state.rho = 0.93 * Math.sin(animTime);
     sliderRho.value = state.rho.toFixed(3);

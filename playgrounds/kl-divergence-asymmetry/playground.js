@@ -220,12 +220,21 @@ function bootSync() {
 // Animate: sweep Q's mean back and forth through the bimodal target.
 let animTime = 0;
 let userOverride = false;
+let paused = false;
+const btnPlayPause = document.getElementById('btn-playpause');
 sliderMu.addEventListener('input', () => { userOverride = true; });
 sliderSig.addEventListener('input', () => { userOverride = true; });
 btnCover.addEventListener('click', () => { userOverride = true; });
 btnSeek.addEventListener('click', () => { userOverride = true; });
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
 function tick() {
-  if (!userOverride && !CAPTURE_NAME) {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
     animTime += 0.010;
     state.mu = (state.sep + 1.5) * Math.sin(animTime);
     state.sigma = 1.2 + 0.9 * (0.5 + 0.5 * Math.sin(animTime * 0.6));

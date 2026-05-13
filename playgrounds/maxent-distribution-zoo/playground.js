@@ -193,8 +193,36 @@ function bootSync() {
   }
 }
 
+// Animate: cycle the scale slider so the user sees the distribution breathe.
+let animTime = 0;
+let paused = false;
+let userOverride = false;
+sliderMu.addEventListener('input', () => { userOverride = true; });
+sliderScale.addEventListener('input', () => { userOverride = true; });
+sliderSupp.addEventListener('input', () => { userOverride = true; });
+selFamily.addEventListener('change', () => { userOverride = true; });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
+function tick() {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
+    animTime += 0.008;
+    const phase = 0.5 + 0.5 * Math.sin(animTime);
+    state.scale = 0.5 + 2.0 * phase;
+    sliderScale.value = state.scale.toFixed(2);
+    valueScale.textContent = state.scale.toFixed(2);
+    drawAll();
+  }
+  requestAnimationFrame(tick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

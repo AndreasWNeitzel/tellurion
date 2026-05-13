@@ -54,6 +54,9 @@
   <div class="controls pg-controls" id="controls" role="group" aria-label="Kronig-Penney controls">
     <div class="row"><span class="label">P (strength)</span><input type="range" id="slider-P" min="0.5" max="20" step="0.1" value="4.0"><span class="value" id="value-P">4.0</span></div>
     <div class="row"><span class="label">eps max</span><input type="range" id="slider-emax" min="20" max="120" step="5" value="60"><span class="value" id="value-emax">60</span></div>
+    <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

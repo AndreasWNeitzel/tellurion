@@ -183,8 +183,32 @@ function bootSync() {
   }
 }
 
+// Animation: cycle x_max slowly so the user sees the pattern zoom in and out.
+let animTime = 0;
+let paused = false;
+let userOverride = false;
+sliderXmax.addEventListener('input', () => { userOverride = true; });
+const btnPlayPause = document.getElementById('btn-playpause');
+if (btnPlayPause) {
+  btnPlayPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPlayPause.textContent = paused ? 'Play' : 'Pause';
+    if (!paused) userOverride = false;
+  });
+}
+function tick() {
+  if (!paused && !userOverride && !CAPTURE_NAME) {
+    animTime += 0.008;
+    state.xMax = 14 + 9 * Math.sin(animTime);
+    sliderXmax.value = state.xMax.toFixed(1);
+    valueXmax.textContent = state.xMax.toFixed(1);
+    drawAll();
+  }
+  requestAnimationFrame(tick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
