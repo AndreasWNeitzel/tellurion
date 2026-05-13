@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gyroscope Precession](../playgrounds/gyroscope-precession/index.html)** &nbsp; (verified, verified 2026-05-13T20:09:00Z)
+  Heavy symmetric top of mass M = 1, with pivot fixed at one end and center of mass at distance r = 0.5 along the body axis. Spin moment of inertia I_s = 0.1. Gravity g = 9.81 along -z.
+
 - **[BTW Sandpile and Self-Organized Criticality](../playgrounds/abelian-sandpile-btw/index.html)** &nbsp; (verified, verified 2026-05-13T20:03:30Z)
   32 x 32 lattice of integer heights. Drop a grain at a random site; topple when height >= 4. Boundary sites lose grains to the outside. After enough drops the system settles into a critical state where avalanche-size distribution is a power law P(s) ~ s^(-tau), tau ~ 1.21 in 2D.
 
@@ -244,3 +247,12 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
+
+- **[Inverted Pendulum Kapitza](../playgrounds/inverted-pendulum-kapitza/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Magnus Effect Spinning Ball](../playgrounds/magnus-effect-spinning-ball/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Wave On String Reflection](../playgrounds/wave-on-string-reflection/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
