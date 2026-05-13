@@ -3,29 +3,59 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compton Vs Inverse Compton</title>
+  <title>Compton vs Inverse Compton</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Compton Vs Inverse Compton</h1>
+  <h1>Compton vs inverse Compton scattering</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> two complementary photon-electron
+    scatterings on the same energy axis. Forward Compton ($E$ photon, electron
+    at rest) gives a downshifted photon by
+    $E' = E / (1 + (E / m_e c^2)(1 - \cos\theta))$. Inverse Compton
+    ($E$ photon, relativistic electron at Lorentz factor $\gamma$) gives a
+    typical upshift by $E_\text{typ} = (4/3) \gamma^2 E$ in the Thomson limit,
+    with a maximum energy at $4 \gamma^2 E / (1 + 4 \gamma E / m_e c^2)$
+    for backscatter.
+  </p>
+  <p>
+    Inverse Compton is the workhorse of high-energy astrophysics. A
+    $\gamma = 10^4$ electron up-scatters a CMB photon ($E \sim 6 \times 10^{-4}$
+    eV) into an X-ray photon at $\sim 100$ keV. Klein-Nishina suppression
+    kicks in when $\gamma E \gtrsim m_e c^2$; the readout shows the regime.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Compton and inverse-Compton scattering energy diagram."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">E_IC max (eV):</span><span class="value" id="readout-emax">0</span>
+      <span class="label">Thomson regime?:</span><span class="value" id="readout-reg">yes</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Compton ($E$ down) and inverse Compton ($\gamma^2 E$ up) scattering.
+      Source: Rybicki and Lightman Ch. 7 (`rybickilightman1979`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="IC controls">
+    <div class="row"><span class="label">log10 E_in (eV)</span><input type="range" id="slider-logE" min="-6" max="6" step="0.05" value="0"><span class="value" id="value-logE">0.00</span></div>
+    <div class="row"><span class="label">log10 gamma</span><input type="range" id="slider-logG" min="0" max="8" step="0.05" value="4"><span class="value" id="value-logG">4.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

@@ -1,99 +1,148 @@
-// Compton Vs Inverse Compton playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// Compton vs inverse-Compton playground. Plot energy axis on log scale
+// with the input photon, the forward-Compton-shifted photon, and the
+// inverse-Compton up-scattered photon marked.
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import {
+  comptonForward, icMaxEnergy, icTypicalThomson, isThomsonRegime,
+} from './sim.js';
 
 const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC  = params.get('deterministic') === '1';
 const CAPTURE_NAME   = params.get('capture');
 const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const canvas      = document.getElementById('stage');
+const ctx         = canvas.getContext('2d', { alpha: false });
+const readoutEmax = document.getElementById('readout-emax');
+const readoutReg  = document.getElementById('readout-reg');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const sliderLogE = document.getElementById('slider-logE');
+const sliderLogG = document.getElementById('slider-logG');
+const valueLogE  = document.getElementById('value-logE');
+const valueLogG  = document.getElementById('value-logG');
 
-const _rng = makeRng(SEED);
+let logE = parseFloat(sliderLogE.value);
+let logG = parseFloat(sliderLogG.value);
+sliderLogE.addEventListener('input', () => { logE = parseFloat(sliderLogE.value); valueLogE.textContent = logE.toFixed(2); });
+sliderLogG.addEventListener('input', () => { logG = parseFloat(sliderLogG.value); valueLogG.textContent = logG.toFixed(2); });
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg:     css.getPropertyValue('--bg').trim() || '#060608',
+    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    blue:   '#5bc0eb',
+    orange: '#f4a261',
+    red:    '#ef476f',
+    grid:   '#23252a',
+  };
+}
 
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
+  const c = colors();
+  ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
+  const padL = 64, padR = 16, padT = 32, padB = 40;
+  const plotW = canvas.width - padL - padR;
+  const plotH = canvas.height - padT - padB;
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+  const E = Math.pow(10, logE);
+  const gam = Math.pow(10, logG);
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  const Edown = comptonForward(E, Math.PI); // backscatter (max down-shift)
+  const Eup = icMaxEnergy(gam, E);
+  const Etyp = icTypicalThomson(gam, E);
+
+  // Log energy axis from -6 to 14 (covers radio to TeV).
+  const eMinLog = -6, eMaxLog = 14;
+  function xFor(le) { return padL + plotW * (le - eMinLog) / (eMaxLog - eMinLog); }
+
+  // Spectrum bands (radio, optical, X-ray, gamma).
+  const bands = [
+    { from: -6, to: -3, label: 'radio',   color: 'rgba(167, 139, 250, 0.06)' },
+    { from: -1, to: 1,  label: 'optical', color: 'rgba(91, 192, 235, 0.06)' },
+    { from: 2,  to: 5,  label: 'X-ray',   color: 'rgba(244, 162, 97, 0.08)' },
+    { from: 5,  to: 14, label: 'gamma',   color: 'rgba(239, 71, 111, 0.08)' },
+  ];
+  for (const b of bands) {
+    ctx.fillStyle = b.color;
+    ctx.fillRect(xFor(b.from), padT, xFor(b.to) - xFor(b.from), plotH);
+    ctx.fillStyle = c.muted;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(b.label, xFor(0.5 * (b.from + b.to)) - 20, padT + 14);
   }
 
+  // Grid.
+  ctx.strokeStyle = c.grid;
+  ctx.lineWidth = 1;
+  for (let le = eMinLog; le <= eMaxLog; le += 2) {
+    const x = xFor(le);
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText(`1e${le}`, x - 14, padT + plotH + 14);
+  }
+  ctx.fillStyle = c.muted;
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText('photon energy (eV, log)', padL + plotW - 140, padT + plotH + 28);
+
+  // Track lines.
+  function marker(x, y, color, label) {
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = c.fg;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(label, x + 8, y - 6);
+  }
+  const yIn = padT + plotH * 0.7;
+  const yDown = padT + plotH * 0.5;
+  const yUp = padT + plotH * 0.3;
+  marker(xFor(logE), yIn, c.blue, `E_in = ${E.toExponential(2)} eV`);
+  if (Edown > 0) marker(xFor(Math.log10(Edown)), yDown, c.orange, `Compton backscatter`);
+  if (Eup > 0)   marker(xFor(Math.log10(Eup)), yUp, c.accent, `IC max (gamma=${gam.toExponential(1)})`);
+
+  // Connectors.
+  ctx.strokeStyle = c.muted;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Edown)), yDown); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Eup)), yUp); ctx.stroke();
+}
+
+function updateReadout() {
+  const E = Math.pow(10, logE);
+  const gam = Math.pow(10, logG);
+  readoutEmax.textContent = icMaxEnergy(gam, E).toExponential(2);
+  readoutReg.textContent = isThomsonRegime(gam, E) ? 'yes' : 'Klein-Nishina';
+}
+
+function loop() {
   render();
   updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  requestAnimationFrame(loop);
 }
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    logG = 1 + frac * 7;
+    sliderLogG.value = String(logG);
+    valueLogG.textContent = logG.toFixed(2);
   }
+  valueLogE.textContent = logE.toFixed(2);
+  valueLogG.textContent = logG.toFixed(2);
+  render();
+  updateReadout();
 
   if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
+        const detail = { capture: CAPTURE_NAME ?? null, logE, logG };
         window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
         window.__simulationReady = true;
         window.__simulationReadyDetail = detail;
@@ -105,9 +154,9 @@ function bootSync() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+    if (!CAPTURE_NAME) requestAnimationFrame(loop);
   }, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  if (!CAPTURE_NAME) requestAnimationFrame(loop);
 }

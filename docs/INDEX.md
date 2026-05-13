@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Compton vs Inverse Compton](../playgrounds/bsc-y3s2/AST3016-compton-vs-inverse-compton/index.html)** &nbsp; (verified, verified 2026-05-13T23:48:40Z)
+  Two photon-electron scattering channels on the same energy axis.
+
 - **[Stellar Aberration of Light](../playgrounds/bsc-y3s2/FIS3028-aberration-of-light-stellar/index.html)** &nbsp; (verified, verified 2026-05-13T23:44:45Z)
   Stars at uniform angular positions in their rest frame; the observer moves at velocity $\beta c$ along $+x$. Lorentz aberration
 
@@ -369,9 +372,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Cmb Power Spectrum Toy](../playgrounds/msc-y1/MAA-CS-cmb-power-spectrum-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Compton Vs Inverse Compton](../playgrounds/bsc-y3s2/AST3016-compton-vs-inverse-compton/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Convection Mixing Length](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/index.html)** &nbsp; (draft)
