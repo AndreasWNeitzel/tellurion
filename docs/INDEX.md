@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Matter-Radiation Equality](../playgrounds/msc-y1/MAA-CS-matter-radiation-equality/index.html)** &nbsp; (verified, verified 2026-05-13T23:23:33Z)
+  A flat Friedmann universe with three energy components: matter ($\rho_m \propto a^{-3}$), radiation ($\rho_r \propto a^{-4}$), and a cosmological constant ($\rho_\Lambda$ = const). The playground plots all three on a log-log scale against the scale factor $a$ (today $a = 1$) and marks the matter-radiation equality at $a_\text{eq} = \Omega_r / \Omega_m$.
+
 - **[Divergence and Curl Visualizer](../playgrounds/bsc-y2s1/M2037-vector-field-div-curl-visualizer/index.html)** &nbsp; (verified, verified 2026-05-13T23:20:45Z)
   A parameterized 2D vector field $\mathbf{F}(x, y; a)$ visualized as a grid of arrows on a $\pm 3 \times \pm 2$ region. Four families:
 
@@ -474,9 +477,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Main Sequence Mass Luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Matter Radiation Equality](../playgrounds/msc-y1/MAA-CS-matter-radiation-equality/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Method Of Images 2d](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/index.html)** &nbsp; (draft)

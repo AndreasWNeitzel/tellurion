@@ -1,28 +1,63 @@
-// Matter Radiation Equality invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Matter-radiation equality invariants.
+// (a) rho_m / rho_r = (a/a_eq).
+// (b) z_eq = Omega_m/Omega_r - 1; close to 3410 for standard LCDM.
+// (c) HoverH0(1) = 1 for any flat (Omega_m + Omega_r + Omega_lam = 1).
+// (d) HoverH0(a) -> sqrt(Omega_r)/a^2 in the radiation era (a small).
+// (e) HoverH0(a) -> sqrt(Omega_lam) in the late de Sitter era (a large).
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  rhoMatter, rhoRadiation, rhoLambda,
+  aEq, zEq, HoverH0,
+  OMEGA_M_DEFAULT, OMEGA_R_DEFAULT,
+} from './sim.js';
 
-describe('Matter Radiation Equality invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
+const OL = 1 - OMEGA_M_DEFAULT - OMEGA_R_DEFAULT;
 
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('matter-radiation-equality', () => {
+  it('rho_m / rho_r = a / a_eq exact', () => {
+    const aeq = aEq(OMEGA_M_DEFAULT, OMEGA_R_DEFAULT);
+    for (const a of [1e-6, 1e-4, 1e-2, 0.5, 1]) {
+      const ratio = rhoMatter(a, OMEGA_M_DEFAULT) / rhoRadiation(a, OMEGA_R_DEFAULT);
+      const expected = a / aeq;
+      expect(Math.abs(ratio - expected) / expected).toBeLessThan(1e-12);
+    }
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('z_eq for standard LCDM is approximately 3410', () => {
+    const z = zEq(OMEGA_M_DEFAULT, OMEGA_R_DEFAULT);
+    expect(z).toBeGreaterThan(3300);
+    expect(z).toBeLessThan(3500);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('H/H_0 = 1 today (a = 1) for a flat universe', () => {
+    expect(Math.abs(HoverH0(1, OMEGA_M_DEFAULT, OMEGA_R_DEFAULT, OL) - 1)).toBeLessThan(1e-12);
+  });
+
+  it('H/H_0 -> sqrt(Omega_r) / a^2 in radiation era (a small)', () => {
+    const a = 1e-6;
+    const h = HoverH0(a, OMEGA_M_DEFAULT, OMEGA_R_DEFAULT, OL);
+    const expected = Math.sqrt(OMEGA_R_DEFAULT) / (a * a);
+    expect(Math.abs(h - expected) / expected).toBeLessThan(0.01);
+  });
+
+  it('H/H_0 -> sqrt(Omega_lam) in late de Sitter (a large)', () => {
+    const a = 1e6;
+    const h = HoverH0(a, OMEGA_M_DEFAULT, OMEGA_R_DEFAULT, OL);
+    const expected = Math.sqrt(OL);
+    expect(Math.abs(h - expected) / expected).toBeLessThan(1e-6);
+  });
+
+  it('At a = a_eq, rho_m equals rho_r', () => {
+    const aeq = aEq(OMEGA_M_DEFAULT, OMEGA_R_DEFAULT);
+    const rm = rhoMatter(aeq, OMEGA_M_DEFAULT);
+    const rr = rhoRadiation(aeq, OMEGA_R_DEFAULT);
+    expect(Math.abs(rm - rr) / rm).toBeLessThan(1e-12);
+  });
+
+  it('Lambda dominates over matter today: rho_Lambda > rho_matter at a = 1', () => {
+    const rm = rhoMatter(1, OMEGA_M_DEFAULT);
+    const rl = rhoLambda(OL);
+    expect(rl).toBeGreaterThan(rm);
+  });
 });
