@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maxwell-Boltzmann Emergence from Hard-Disk Collisions</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Maxwell-Boltzmann emergence from hard-disk collisions</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> 80 hard disks in a 2D box, all
+    starting at the same speed $v_0$ but with random directions (top
+    panel). Pairwise elastic collisions redistribute the speeds. Despite
+    starting with a delta function $\delta(|v| - v_0)$, the distribution
+    relaxes to the 2D Maxwell-Boltzmann form
+    $p(v) = (v / \sigma^2) \exp(-v^2 / 2\sigma^2)$ where
+    $\sigma = v_0 / \sqrt{2}$. The bottom panel shows the running speed
+    histogram with the analytic MB curve overlaid.
+  </p>
+  <p>
+    The energy is exactly conserved by elastic collisions; only the
+    distribution shape evolves. Some particles slow down close to zero while
+    others speed up to higher than the initial $v_0$. The mean speed
+    converges to $\sigma \sqrt{\pi / 2} \approx 0.886 \, v_0$, lower than
+    the initial mean because the distribution develops a long high-speed
+    tail. The most probable speed is $\sigma = v_0 / \sqrt{2} \approx 0.707 v_0$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="640" tabindex="0"
+            aria-label="Hard-disk gas in 2D box with speed histogram approaching Maxwell-Boltzmann."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Hard-disk gas in 2D. Method: time-stepped pairwise elastic collisions
+      with reflecting walls; histogram updated each render. Source: Reif,
+      Fundamentals of Statistical and Thermal Physics Ch. 1 (`reif`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="MB controls">
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
