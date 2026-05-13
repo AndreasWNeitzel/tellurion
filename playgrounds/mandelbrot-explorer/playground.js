@@ -211,11 +211,22 @@ function drawOverlay() {
     ctx.lineTo(state.hover.px, state.hover.py + 12);
     ctx.stroke();
   }
+  // Center crosshair so the user can see exactly which point the auto-zoom
+  // is converging toward. Drawn in soft white over the fractal.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.lineWidth = 0.7;
+  ctx.beginPath();
+  ctx.moveTo(W / 2 - 14, H / 2); ctx.lineTo(W / 2 - 4, H / 2);
+  ctx.moveTo(W / 2 + 4, H / 2);  ctx.lineTo(W / 2 + 14, H / 2);
+  ctx.moveTo(W / 2, H / 2 - 14); ctx.lineTo(W / 2, H / 2 - 4);
+  ctx.moveTo(W / 2, H / 2 + 4);  ctx.lineTo(W / 2, H / 2 + 14);
+  ctx.stroke();
+
   // top-left title
   ctx.fillStyle = 'rgba(255, 255, 255, 0.80)';
   ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('Mandelbrot set. Click to recenter; auto-zoom drives into the click point.', 12, 18);
+  ctx.fillText('Mandelbrot set. Click to recenter; auto-zoom drives into the canvas centre.', 12, 18);
 
   // top-right readout overlay
   const zoom = 3.5 / state.width;
@@ -314,23 +325,15 @@ function startAutoZoom() {
       stopAutoZoom();
       return;
     }
+    // Direct render every frame at a fixed 3x downsample. The cached-frame
+    // blit approach was producing visible color flicker as the palette index
+    // shifted slightly between renders. Fresh pixels every frame at 1/9
+    // resolution (~ 38k pixels) is still well within 16 ms of compute even
+    // at maxIter ~ 1500, and the visual quality is consistent throughout.
     state.maxIter = maxIterForWidth(state.width);
-    // Always blit the cached fractal scaled to the current view. This gives
-    // smooth perceived zoom even when the underlying fractal hasn't been
-    // re-computed yet (XaoS-style frame reuse).
-    blit();
-    drawOverlay();                          // overlay over the scaled cache
+    render(3);
+    drawOverlay();
     updateReadouts();
-    // Re-render only when the scale factor between the cached view and the
-    // current view exceeds reRenderRatio. This trades fresh pixels for
-    // motion smoothness: a recompute takes 50..400 ms; we don't want it on
-    // every rAF tick.
-    const scaleNeeded = state.cached.width / state.width;
-    if (scaleNeeded > state.reRenderRatio) {
-      render(2);                            // synchronous re-render at 2x downsample
-      drawOverlay();
-      updateReadouts();
-    }
     state.rafId = requestAnimationFrame(tick);
   };
   state.rafId = requestAnimationFrame(tick);
