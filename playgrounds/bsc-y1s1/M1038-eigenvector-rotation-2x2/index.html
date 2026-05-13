@@ -3,29 +3,63 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Eigenvector Rotation 2x2</title>
+  <title>2x2 Eigenvectors as You Drag the Matrix</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 7ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Eigenvector Rotation 2x2</h1>
+  <h1>2x2 eigenvectors as you drag the matrix</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> a 2x2 matrix $M = \begin{pmatrix}a & b \\ c & d\end{pmatrix}$
+    acting on the unit circle. The blue ellipse is the image of the unit
+    circle under $M$ (semi-axes equal to the singular values). The accent
+    arrows are the eigenvectors of $M$, scaled by their eigenvalues. The
+    eigenvalue formula
+    $\lambda_\pm = (a+d)/2 \pm \sqrt{(a+d)^2/4 - (ad - bc)}$
+    has real solutions when the discriminant is non-negative.
+  </p>
+  <p>
+    Drag the sliders for $a, b, c, d$. With $a = d$ and $b = -c$ you get
+    a rotation; the eigenvalues become complex and the eigenvector
+    arrows disappear (the readout flags the complex spectrum). With $b = c$
+    (symmetric $M$) the eigenvectors are exactly orthogonal. With $b = c = 0$
+    the eigenvectors stay axis-aligned regardless of $a, d$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Unit circle and its image under a 2x2 matrix, with eigenvectors drawn when real."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">lambda_1, lambda_2:</span><span class="value" id="readout-eigs">real</span>
+      <span class="label">det, tr:</span><span class="value" id="readout-trdet">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      2x2 eigendecomposition: unit circle, its image, and eigenvectors.
+      Method: closed-form quadratic for eigenvalues; null-space row pick
+      for eigenvectors. Source: Arfken-Weber, Mathematical Methods for
+      Physicists 7e Ch. 3 (`arfken-weber`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Matrix entries">
+    <div class="row"><span class="label">a</span><input type="range" id="slider-a" min="-3" max="3" step="0.05" value="2"><span class="value" id="value-a">2.00</span></div>
+    <div class="row"><span class="label">b</span><input type="range" id="slider-b" min="-3" max="3" step="0.05" value="1"><span class="value" id="value-b">1.00</span></div>
+    <div class="row"><span class="label">c</span><input type="range" id="slider-c" min="-3" max="3" step="0.05" value="1"><span class="value" id="value-c">1.00</span></div>
+    <div class="row"><span class="label">d</span><input type="range" id="slider-d" min="-3" max="3" step="0.05" value="3"><span class="value" id="value-d">3.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

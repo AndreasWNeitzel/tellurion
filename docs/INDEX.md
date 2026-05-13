@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Eigenvector Rotation in 2x2](../playgrounds/bsc-y1s1/M1038-eigenvector-rotation-2x2/index.html)** &nbsp; (verified, verified 2026-05-13T22:47:28Z)
+  Real 2x2 matrix $M = \begin{pmatrix}a & b \\ c & d\end{pmatrix}$ visualized as a linear transformation of the unit circle in $\mathbb{R}^2$. Sliders set each of the four matrix entries. The image of the unit circle is generally an ellipse; the eigenvectors (when real) point along directions that $M$ leaves invariant up to scaling by an eigenvalue.
+
 - **[Davisson-Germer Electron Diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/index.html)** &nbsp; (verified, verified 2026-05-13T22:43:53Z)
   Electrons accelerated through a voltage $V$ are scattered off the (111) face of a nickel crystal. The atomic row spacing on that surface is $D = 0.215$ nm. Constructive interference appears at angle $\theta$ from the normal satisfying
 
@@ -360,9 +363,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Eddington Grey Atmosphere](../playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Eigenvector Rotation 2x2](../playgrounds/bsc-y1s1/M1038-eigenvector-rotation-2x2/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Elastic Inelastic Collisions 2d](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (draft)
