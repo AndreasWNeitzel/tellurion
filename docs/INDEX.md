@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Projectile Motion with Air Drag](../playgrounds/projectile-with-air-drag/index.html)** &nbsp; (verified, verified 2026-05-13T18:52:40Z)
+  Three projectiles of equal mass m = 1 kg fired simultaneously at the same speed v_0 and angle theta. Drag laws: 1. None (vacuum). 2. Stokes (linear): F_drag = -b v, b = 0.20. 3. Quadratic (Newton): F_drag = -c |v| v, c = 0.012.
+
 - **[Foucault Pendulum and Coriolis Precession](../playgrounds/foucault-pendulum/index.html)** &nbsp; (verified, verified 2026-05-13T18:49:28Z)
   A small-amplitude pendulum suspended over a point on a rotating Earth at latitude phi. In the horizontal (x, y) frame at that point, the Coriolis acceleration has a vertical component omega_z = Omega sin(phi). The linearized equations of motion are x'' = -omega_0^2 x + 2 omega_z y' y'' = -omega_0^2 y - 2 omega_z x'.
 
@@ -189,9 +192,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
 
 - **[Maxwell Boltzmann Emergence](../playgrounds/maxwell-boltzmann-emergence/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Projectile With Air Drag](../playgrounds/projectile-with-air-drag/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
