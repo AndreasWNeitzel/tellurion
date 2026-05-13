@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Kapitza Inverted Pendulum](../playgrounds/inverted-pendulum-kapitza/index.html)** &nbsp; (verified, verified 2026-05-13T20:18:30Z)
+  Rigid pendulum of length l = 1 with pivot driven vertically at y_p(t) = a cos(omega t). In the inertial frame the equation of motion about the upside-down equilibrium (theta = 0 = up) is theta'' = ((g - a omega^2 cos(omega t)) / l) sin(theta)
+
 - **[Magnus Effect on a Spinning Ball](../playgrounds/magnus-effect-spinning-ball/index.html)** &nbsp; (verified, verified 2026-05-13T20:13:25Z)
   A baseball-like ball (m = 0.15 kg) launched with initial speed v_0 and angle, subject to gravity, quadratic drag, and Magnus lift due to spin. Convention: positive spin = top-spin (ball rotates in direction of flight; Magnus force pushes down). Negative spin = back-spin (Magnus force pushes up).
 
@@ -250,9 +253,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Inverted Pendulum Kapitza](../playgrounds/inverted-pendulum-kapitza/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Wave On String Reflection](../playgrounds/wave-on-string-reflection/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

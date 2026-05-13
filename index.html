@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (83)</h2>
+  <h2>Shipped (84)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/inverted-pendulum-kapitza/index.html">Kapitza Inverted Pendulum</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">Rigid pendulum of length l = 1 with pivot driven vertically at y_p(t) = a cos(omega t). In the inertial frame the equation of motion about the upside-down equilibrium (theta = 0 = up) is theta'' = ((g - a omega^2 cos(omega t)) / l) sin(theta)</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/magnus-effect-spinning-ball/index.html">Magnus Effect on a Spinning Ball</a></h2>
@@ -707,10 +715,9 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (2)</h2>
+  <h2 class="drafts-heading">Draft (1)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
-    <li><span class="drafts-slug">inverted-pendulum-kapitza</span></li>
     <li><span class="drafts-slug">wave-on-string-reflection</span></li>
   </ul>
 </body>

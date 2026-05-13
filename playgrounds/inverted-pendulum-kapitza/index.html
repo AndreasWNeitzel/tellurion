@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kapitza Inverted Pendulum</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Kapitza inverted pendulum</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a rigid pendulum whose pivot
+    moves vertically at $y_p(t) = a \cos(\omega t)$. The natural unstable
+    equilibrium (pendulum upside-down) becomes STABLE when the drive is
+    strong enough: $a^2 \omega^2 / (2 g l) > 1$ (Kapitza 1951). Below
+    threshold the pendulum falls; above, it bobs around the upside-down
+    equilibrium.
+  </p>
+  <p>
+    Adjust $a$ (amplitude) and $\omega$ (frequency). The stability
+    indicator turns green when $a^2 \omega^2 > 2 g l$. The yellow
+    effective potential $U_\text{eff}(\theta) = -m g l \cos\theta +
+    \frac{1}{4} m (a \omega)^2 \sin^2\theta$ has a minimum at $\theta = 0$
+    (upside-down) once stability is achieved.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="560" tabindex="0"
+            aria-label="Kapitza pendulum with driven pivot and effective potential."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Kapitza pendulum. Method: RK4 on
+      $\ddot\theta = ((g - a\omega^2 \cos(\omega t)) / l) \sin\theta$.
+      Source: Landau and Lifshitz I Sec. 30
+      (`landau-lifshitz-mechanics`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Kapitza controls">
+    <div class="row"><span class="label">a (m)</span><input type="range" id="slider-a" min="0.02" max="0.20" step="0.005" value="0.1"><span class="value" id="value-a">0.100</span></div>
+    <div class="row"><span class="label">omega</span><input type="range" id="slider-omega" min="10" max="100" step="1" value="60"><span class="value" id="value-omega">60</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="10" step="1" value="5"><span class="value" id="value-speed">5</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
