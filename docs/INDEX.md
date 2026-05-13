@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[FitzHugh-Nagumo Excitable Neuron](../playgrounds/fitzhugh-nagumo-excitable/index.html)** &nbsp; (verified, verified 2026-05-13T19:55:30Z)
+  Two-variable reduction of the Hodgkin-Huxley model: v' = v - v^3 / 3 - w + I w' = epsilon (v + a - b w) with a = 0.7, b = 0.8, epsilon = 0.08. v is fast (voltage); w is slow (recovery). External input I tunes the system from excitable rest to sustained limit-cycle firing through a Hopf bifurcation.
+
 - **[Pendulum on a Moving Cart](../playgrounds/pendulum-on-moving-cart/index.html)** &nbsp; (verified, verified 2026-05-13T19:51:50Z)
   Frictionless cart of mass M = 2 on a horizontal rail, with a rigid pendulum of length L = 1 and bob mass m = 0.5 hanging from a pivot on top. Gravity g = 9.81. Two-degree-of-freedom system, no external horizontal forces.
 
@@ -237,9 +240,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
 
 - **[Abelian Sandpile Btw](../playgrounds/abelian-sandpile-btw/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Fitzhugh Nagumo Excitable](../playgrounds/fitzhugh-nagumo-excitable/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Mc Integration Convergence](../playgrounds/mc-integration-convergence/index.html)** &nbsp; (draft)

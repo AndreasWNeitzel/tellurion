@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (78)</h2>
+  <h2>Shipped (79)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/fitzhugh-nagumo-excitable/index.html">FitzHugh-Nagumo Excitable Neuron</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">Two-variable reduction of the Hodgkin-Huxley model: v' = v - v^3 / 3 - w + I w' = epsilon (v + a - b w) with a = 0.7, b = 0.8, epsilon = 0.08. v is fast (voltage); w is slow (recovery). External input I tunes the system from excitable rest to sustained limit-cycle firing through a Hopf bifurcation.</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/pendulum-on-moving-cart/index.html">Pendulum on a Moving Cart</a></h2>
@@ -667,11 +675,10 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (3)</h2>
+  <h2 class="drafts-heading">Draft (2)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">abelian-sandpile-btw</span></li>
-    <li><span class="drafts-slug">fitzhugh-nagumo-excitable</span></li>
     <li><span class="drafts-slug">mc-integration-convergence</span></li>
   </ul>
 </body>
