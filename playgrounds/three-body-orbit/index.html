@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Three-Body Figure-Eight Choreography</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <style>
+    .pg-figure { max-width: 720px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-readout {
+      display: grid;
+      grid-template-columns: max-content 12ch;
+      gap: var(--space-1) var(--space-4);
+      margin-top: var(--space-3);
+      width: max-content;
+    }
+    .pg-readout .value.warn { color: var(--accent-warm); }
+    .pg-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3) var(--space-4);
+      align-items: center;
+      margin-block: var(--space-4);
+    }
+    .pg-controls .row {
+      display: grid;
+      grid-template-columns: 4ch 1fr 7ch;
+      gap: var(--space-3);
+      align-items: center;
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+    .pg-controls .row .value {
+      font-family: var(--font-mono);
+      font-feature-settings: "tnum";
+      text-align: right;
+      color: var(--fg);
+    }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons {
+      grid-template-columns: 1fr 1fr;
+      grid-column: span 2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Three-body figure-eight choreography</h1>
+
+  <p>
+    Three equal masses interact under Newtonian gravity in 2D. At the
+    Chenciner-Montgomery initial condition (2000), all three masses chase one
+    another along a single closed figure-eight curve with period T &approx; 6.326.
+    The velocity-Verlet integrator from <code>shared/js/engine/symplectic.js</code>
+    preserves total energy to a part-in-a-million bound and total linear and
+    angular momentum to machine precision. The "dv" slider perturbs the initial
+    velocity of body 3 by a small amount; at dv = 0 the choreography is stable,
+    and at dv = 0.01 the system slowly drifts off the closed curve.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="720" height="480" tabindex="0"
+            aria-label="Three colored bodies tracing a figure-eight curve in the plane."></canvas>
+
+    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">dv:</span>           <span class="value" id="readout-dv">0.0000</span>
+      <span class="label">E:</span>            <span class="value" id="readout-E">0.000000</span>
+      <span class="label">|dE/E|:</span>       <span class="value" id="readout-dE">0.0e+00</span>
+      <span class="label">|P|:</span>          <span class="value" id="readout-P">0.0e+00</span>
+      <span class="label">L:</span>            <span class="value" id="readout-L">0.0e+00</span>
+      <span class="label">t:</span>            <span class="value" id="readout-t">0.00</span>
+    </div>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Chenciner-Montgomery figure-eight choreography of three equal point masses
+      under Newtonian gravity in 2D (G = m_i = 1). Method: velocity-Verlet on the
+      6-DOF Hamiltonian from <code>shared/js/engine/symplectic.js</code> with
+      pairwise gravitational acceleration. Source: Newman, Computational Physics,
+      2013, Exercise 8.16 "Three-body problem"; numerical IC values from Chenciner
+      &amp; Montgomery (2000).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row">
+      <span class="label">dv</span>
+      <input type="range" id="slider-dv" min="0" max="0.01" step="0.0005" value="0"
+             aria-label="Perturbation added to body 3 initial velocity in the +x direction">
+      <span class="value" id="value-dv">0.0000</span>
+    </div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button" aria-label="Reset to dv=0">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
