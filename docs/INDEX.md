@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Divergence and Curl Visualizer](../playgrounds/bsc-y2s1/M2037-vector-field-div-curl-visualizer/index.html)** &nbsp; (verified, verified 2026-05-13T23:20:45Z)
+  A parameterized 2D vector field $\mathbf{F}(x, y; a)$ visualized as a grid of arrows on a $\pm 3 \times \pm 2$ region. Four families:
+
 - **[Line Integral vs Path](../playgrounds/bsc-y1s2/M1015-line-integral-vs-path/index.html)** &nbsp; (verified, verified 2026-05-13T23:18:16Z)
   A 2D vector field $\mathbf{F} = (P, Q)$ in the plane, with two paths from $A = (-1, 0)$ to $B = (1, 0)$: the straight chord and the upper semicircular arc. Simpson quadrature evaluates $\int_A^B \mathbf{F} \cdot d\mathbf{r}$ along each path; the closed-loop integral (straight forward, arc reversed) measures the failure of path-independence.
 
@@ -597,9 +600,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Transverse Vs Longitudinal Mode](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Vector Field Div Curl Visualizer](../playgrounds/bsc-y2s1/M2037-vector-field-div-curl-visualizer/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)

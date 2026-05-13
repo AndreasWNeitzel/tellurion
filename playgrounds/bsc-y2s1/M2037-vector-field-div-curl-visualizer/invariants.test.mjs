@@ -1,28 +1,63 @@
-// Vector Field Div Curl Visualizer invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Div / curl visualizer invariants.
+// (a) source: div = 2 a, curl = 0.
+// (b) rotation: div = 0, curl = 2 a.
+// (c) shear: div = 0, curl = -a.
+// (d) saddle: div = 0, curl = 0.
+// (e) Analytic and FD div/curl agree within 1e-8.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { FAMILIES, divFD, curlFD } from './sim.js';
 
-describe('Vector Field Div Curl Visualizer invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('vector-field-div-curl-visualizer', () => {
+  it('source: div = 2 a, curl = 0', () => {
+    const f = FAMILIES.source;
+    expect(f.div(0.5, 0.5, 1.5)).toBeCloseTo(3.0, 12);
+    expect(f.curl(0.5, 0.5, 1.5)).toBe(0);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('rotation: div = 0, curl = 2 a', () => {
+    const f = FAMILIES.rotation;
+    expect(f.div(0.5, 0.5, 1.5)).toBe(0);
+    expect(f.curl(0.5, 0.5, 1.5)).toBeCloseTo(3.0, 12);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('shear: div = 0, curl = -a', () => {
+    const f = FAMILIES.shear;
+    expect(f.div(0.5, 0.5, 1.5)).toBe(0);
+    expect(f.curl(0.5, 0.5, 1.5)).toBeCloseTo(-1.5, 12);
+  });
+
+  it('saddle: div = 0, curl = 0', () => {
+    const f = FAMILIES.saddle;
+    expect(f.div(0.5, 0.5, 1.5)).toBe(0);
+    expect(f.curl(0.5, 0.5, 1.5)).toBe(0);
+  });
+
+  it('analytic and FD div agree', () => {
+    for (const [name, f] of Object.entries(FAMILIES)) {
+      const x = 0.7, y = -0.3, a = 1.2;
+      const fdv = divFD(f.P, f.Q, x, y, a);
+      expect(Math.abs(fdv - f.div(x, y, a))).toBeLessThan(1e-8);
+    }
+  });
+
+  it('analytic and FD curl agree', () => {
+    for (const [name, f] of Object.entries(FAMILIES)) {
+      const x = 0.7, y = -0.3, a = 1.2;
+      const fdc = curlFD(f.P, f.Q, x, y, a);
+      expect(Math.abs(fdc - f.curl(x, y, a))).toBeLessThan(1e-8);
+    }
+  });
+
+  it('FAMILIES exposes four named families', () => {
+    for (const n of ['source', 'rotation', 'shear', 'saddle']) {
+      expect(FAMILIES[n]).toBeDefined();
+    }
+  });
+
+  it('source div is constant across the field', () => {
+    const f = FAMILIES.source;
+    expect(f.div(0, 0, 1)).toBe(f.div(1, 1, 1));
+    expect(f.div(-2, 0.3, 1)).toBe(2);
+  });
 });

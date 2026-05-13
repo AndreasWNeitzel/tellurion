@@ -1,17 +1,17 @@
-# Vector Field Div Curl Visualizer
+# Divergence and curl of a 2D vector field
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A parameterized 2D vector field with four canonical families: source (radial), rotation (azimuthal), shear (horizontal proportional to height), and saddle (stretch and compress). Each family has constant divergence and curl (closed-form), and the readout reports them at the origin.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+Look for the visual signatures: a source has arrows fanning out, a rotation has arrows wrapping around, a shear has all arrows horizontal but stronger far from $y = 0$, and a saddle pulls horizontally while squeezing vertically. Slide the parameter $a$ to see linear scaling.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Dropdown selects the family; slider sets $a$.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: Riley-Hobson-Bence, *Mathematical Methods for Physics and Engineering*, 3e, Ch. 10 (`riley-hobson`).
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: analytic div/curl match centered finite differences within $10^{-8}$; closed-form constants exact.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
