@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Runge Phenomenon and Chebyshev Cure](../playgrounds/runge-vs-chebyshev/index.html)** &nbsp; (verified, verified 2026-05-13T19:37:00Z)
+  Polynomial interpolation of the Runge function f(x) = 1 / (1 + 25 x^2) on [-1, 1] at n + 1 nodes: - Equispaced: x_i = -1 + 2 i / n. - Chebyshev (second kind, including endpoints): x_i = cos(i pi / n).
+
 - **[Shapiro Time Delay](../playgrounds/shapiro-time-delay/index.html)** &nbsp; (verified, verified 2026-05-13T19:33:15Z)
   A light signal travels past a massive body (Schwarzschild M = 1 in geometric units) at impact parameter b. The leading-order PPN time delay relative to flat-space is
 
@@ -226,9 +229,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
-
-- **[Runge Vs Chebyshev](../playgrounds/runge-vs-chebyshev/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates
