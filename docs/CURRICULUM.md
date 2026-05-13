@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 116 |
+| draft | 115 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 76 |
+| verified | 77 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -66,7 +66,7 @@ Total playgrounds: 203
 2 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Big O Empirical** ([CC1017-big-o-empirical](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/)). Status: `draft`. `newman2013` ch 4 (supporting: FIS2018); N log N vs N^2 vs N^3 sorted comparisons on same input.
-- **Floating Point Precision Pitfalls** ([CC1017-floating-point-precision-pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/)). Status: `draft`. `newman2013` ch 4 (supporting: FIS2018); catastrophic cancellation; 1 - cos(x) reformulation; rel err scaling.
+- **Floating-Point Precision Pitfalls** ([CC1017-floating-point-precision-pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/)). Status: `verified`. `newman2013` ch 4 (supporting: FIS2018).
 
 ## BSc Year 1 Semester 2
 

@@ -1,28 +1,69 @@
-// Floating Point Precision Pitfalls invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Floating-point pitfalls invariants.
+// (a) At x = 1, naive and stable formulae agree closely.
+// (b) At x = 1e-8, naive loses ~half the digits; stable stays accurate.
+// (c) At x = 1e-15, naive returns 0; stable returns ~5e-31.
+// (d) Quadratic naive vs stable differ on ill-conditioned input.
+// (e) logspace returns exact endpoints.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  oneMinusCosNaive, oneMinusCosStable,
+  quadraticNaive, quadraticStable,
+  relErr, logspace,
+} from './sim.js';
 
-describe('Floating Point Precision Pitfalls invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('floating-point-precision-pitfalls', () => {
+  it('1 - cos(1) naive and stable agree closely', () => {
+    const naive = oneMinusCosNaive(1);
+    const stable = oneMinusCosStable(1);
+    expect(relErr(naive, stable)).toBeLessThan(1e-14);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('1 - cos(1e-8) naive loses precision; stable stays accurate', () => {
+    const x = 1e-8;
+    const exact = x * x / 2; // leading Taylor term
+    const naive = oneMinusCosNaive(x);
+    const stable = oneMinusCosStable(x);
+    expect(relErr(stable, exact)).toBeLessThan(1e-12);
+    // naive is order ~1 wrong by the time we hit 1e-8
+    expect(relErr(naive, exact)).toBeGreaterThan(1e-3);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('1 - cos(1e-15) naive returns 0; stable returns positive', () => {
+    const x = 1e-15;
+    const naive = oneMinusCosNaive(x);
+    const stable = oneMinusCosStable(x);
+    expect(naive).toBe(0);
+    expect(stable).toBeGreaterThan(0);
+    expect(stable).toBeLessThan(1e-29);
+  });
+
+  it('quadratic with a=1, b=1e8, c=1: roots differ by sign for naive vs stable on the small root', () => {
+    // Small root is ~ -1e-8; the naive (-b + sqrt) branch cancels almost completely.
+    const a = 1, b = 1e8, c = 1;
+    const naive = quadraticNaive(a, b, c);
+    const stable = quadraticStable(a, b, c);
+    const exactSmall = -c / b; // first-order Vieta
+    expect(relErr(stable.rootPlus, exactSmall)).toBeLessThan(1e-10);
+    // naive small root is off by tens of percent due to cancellation
+    expect(relErr(naive.rootPlus, exactSmall)).toBeGreaterThan(1e-4);
+  });
+
+  it('quadratic agrees on the well-conditioned root', () => {
+    const a = 1, b = 1e8, c = 1;
+    const naive = quadraticNaive(a, b, c);
+    const stable = quadraticStable(a, b, c);
+    expect(relErr(naive.rootMinus, stable.rootMinus)).toBeLessThan(1e-12);
+  });
+
+  it('logspace returns exact endpoints', () => {
+    const xs = logspace(-3, 0, 5);
+    expect(xs[0]).toBeCloseTo(1e-3, 12);
+    expect(xs[4]).toBeCloseTo(1e0, 12);
+  });
+
+  it('1 - cos(0) is exactly 0 in both formulae', () => {
+    expect(oneMinusCosNaive(0)).toBe(0);
+    expect(oneMinusCosStable(0)).toBe(0);
+  });
 });

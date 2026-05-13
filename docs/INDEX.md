@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Floating-Point Precision Pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/index.html)** &nbsp; (verified, verified 2026-05-13T22:59:45Z)
+  A pure-numerical playground that contrasts two algebraically identical formulae for $1 - \cos(x)$:
+
 - **[Free Fall Stokes vs Quadratic Drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/index.html)** &nbsp; (verified, verified 2026-05-13T22:56:41Z)
   Three unit-mass balls dropped from the same height $y_0$ at $t = 0$, falling under three different drag laws: vacuum, Stokes (linear in velocity), and quadratic (Newtonian). Gravity acts downward; $g = 9.81$ m/s$^2$.
 
@@ -393,9 +396,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fine Structure Hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Floating Point Precision Pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fourier Vs Laplace Transform Pair](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (draft)
