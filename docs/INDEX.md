@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Relativistic Doppler Effect](../playgrounds/bsc-y3s2/FIS3028-relativistic-doppler/index.html)** &nbsp; (verified, verified 2026-05-13T23:42:05Z)
+  A monochromatic source at rest in frame $K'$ emits frequency $f_s$ and moves at velocity $\beta c$ along the $+x$ axis relative to the observer in frame $K$. The observer sees the photon arriving at angle $\theta$ from the $+x$ axis. The relativistic Doppler factor is
+
 - **[Gauss Law in 2D](../playgrounds/bsc-y1s2/FIS1014-gauss-law-flux-through-surface/index.html)** &nbsp; (verified, verified 2026-05-13T23:26:29Z)
   A 2D point charge $q$ at user-set position generates the planar Coulomb field $\mathbf{E} = q / (2 \pi \epsilon_0 r) \hat r$. A user-controlled closed curve (ellipse or perturbed-ellipse blob) is drawn around the charge, and the flux $\oint \mathbf{E} \cdot \hat n\,ds$ is computed numerically via Simpson quadrature.
 
@@ -543,9 +546,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Relativistic Collision Mandelstam](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Relativistic Doppler](../playgrounds/bsc-y3s2/FIS3028-relativistic-doppler/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Resonance Mean Motion Toy](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/index.html)** &nbsp; (draft)

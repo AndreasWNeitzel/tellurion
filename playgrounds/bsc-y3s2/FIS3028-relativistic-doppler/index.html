@@ -3,29 +3,60 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Relativistic Doppler</title>
+  <title>Relativistic Doppler Effect</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Relativistic Doppler</h1>
+  <h1>Relativistic Doppler effect</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the observed frequency ratio
+    $f_\text{obs}/f_\text{src} = 1 / (\gamma (1 - \beta \cos\theta))$
+    as a function of viewing angle $\theta$ at fixed source speed
+    $\beta = v/c$. The polar plot shows the same factor on radial axes:
+    head-on approach ($\theta = 0$) gives the maximum blueshift,
+    recession ($\theta = \pi$) gives the maximum redshift, and at
+    $\theta = \pi/2$ there is a pure transverse redshift by
+    $1/\gamma$ (no Newtonian analog).
+  </p>
+  <p>
+    Slide the speed to see the curve sharpen as $\beta \to 1$: the
+    blueshift cone narrows toward forward beaming. The dashed red
+    horizontal at $f_\text{obs}/f_\text{src} = 1$ marks where blueshift
+    flips to redshift; it crosses zero at $\cos\theta = (1 - 1/\gamma) / \beta$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Doppler factor vs angle and polar plot."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">gamma:</span><span class="value" id="readout-g">1</span>
+      <span class="label">f_obs / f_src:</span><span class="value" id="readout-f">1</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Relativistic Doppler $f_\text{obs}/f_\text{src} = 1/(\gamma(1-\beta\cos\theta))$
+      vs angle. Method: closed-form. Source: Jackson 3e Ch. 11
+      (`jackson1998`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Doppler controls">
+    <div class="row"><span class="label">beta (v/c)</span><input type="range" id="slider-beta" min="0" max="0.99" step="0.005" value="0.5"><span class="value" id="value-beta">0.500</span></div>
+    <div class="row"><span class="label">theta (deg)</span><input type="range" id="slider-theta" min="0" max="180" step="1" value="60"><span class="value" id="value-theta">60</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>
