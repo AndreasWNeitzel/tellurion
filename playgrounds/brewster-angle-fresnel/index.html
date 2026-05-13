@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brewster Angle and Fresnel Equations</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Brewster angle and the Fresnel reflectance</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> light incident on a planar
+    dielectric interface from medium of index $n_1$ onto medium of index
+    $n_2$. The reflectance for $s$-polarized light (electric field
+    perpendicular to the plane of incidence) and $p$-polarized light
+    (electric field in the plane) follow the Fresnel formulas. The right
+    panel shows $R_s(\theta_i)$ and $R_p(\theta_i)$ over the full range of
+    incidence angles. The animated ray sketch on the left shows incoming,
+    reflected, and transmitted beams.
+  </p>
+  <p>
+    At Brewster's angle $\theta_B = \arctan(n_2 / n_1)$ the $p$-reflectance
+    drops exactly to zero: light at this angle is reflected purely
+    $s$-polarized. Polarizing sunglasses exploit this by filtering out
+    $s$-polarized glare from horizontal surfaces. If $n_1 > n_2$, beyond
+    the critical angle the wave undergoes total internal reflection and
+    both $R_s$ and $R_p$ equal 1.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Ray diagram with incident, reflected, and transmitted beams; Fresnel reflectance curves."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Brewster angle and Fresnel reflectance. Method: closed-form Fresnel
+      formulas with Snell's-law refraction. Source: Hecht, Optics 5e Ch. 4.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Brewster controls">
+    <div class="row"><span class="label">theta_i</span><input type="range" id="slider-theta" min="0" max="89" step="0.5" value="56.31"><span class="value" id="value-theta">56.3 deg</span></div>
+    <div class="row"><span class="label">n2 / n1</span><input type="range" id="slider-ratio" min="0.6" max="2.5" step="0.02" value="1.5"><span class="value" id="value-ratio">1.50</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

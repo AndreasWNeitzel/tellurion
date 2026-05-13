@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Brewster Angle and Fresnel Equations](../playgrounds/brewster-angle-fresnel/index.html)** &nbsp; (verified, verified 2026-05-13T19:11:48Z)
+  Plane wave from medium 1 (index n_1) incident on the planar interface with medium 2 (index n_2) at angle theta_i. Default: n_1 = 1.0 (air), n_2 = 1.5 (glass). Refracted angle theta_t from Snell's law.
+
 - **[Thin-Film Interference and Iridescent Colors](../playgrounds/thin-film-interference/index.html)** &nbsp; (verified, verified 2026-05-13T19:08:10Z)
   A thin layer of refractive index n_film and thickness d sits on a substrate. Default values: n_top = 1.0 (air), n_film = 1.33 (water/oil), n_sub = 1.5 (glass). White light at normal incidence reflects from both interfaces; the two reflected beams interfere, with the interference pattern depending on d / lambda.
 
@@ -190,9 +193,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Schwarzschild Light Bending](../playgrounds/schwarzschild-geodesics/index.html)** &nbsp; (in-progress, verified 2026-05-13T08:35:00Z)
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
-
-- **[Brewster Angle Fresnel](../playgrounds/brewster-angle-fresnel/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
