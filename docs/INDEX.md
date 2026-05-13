@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[WKB Bohr-Sommerfeld vs Exact](../playgrounds/wkb-vs-shooting/index.html)** &nbsp; (verified, verified 2026-05-13T17:14:14Z)
+  Bound-state energies for a 1D particle in a power-law well V(x) = |x|^p / p, hbar = m = 1. Compare the Bohr-Sommerfeld (WKB) approximation to the "exact" reference levels for the harmonic oscillator (p = 2; closed form E_n = n + 1/2) and quartic anharmonic oscillator (p = 4; Bender-Wu 1969 numerical levels).
+
 - **[1D TDSE Wavepacket Scattering](../playgrounds/1d-tdse-scattering-comparator/index.html)** &nbsp; (verified, verified 2026-05-13T17:07:26Z)
   A 1D Gaussian wavepacket initially at x_0 = -15 with momentum k_0 moves to the right and scatters off a potential (rectangular barrier, step, or square well). Computed with Crank-Nicolson on a uniform grid; norm-preserving by construction.
 
@@ -144,7 +147,4 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates
 
 - **[Two-Stream PIC Plasma](../playgrounds/two-stream-pic-plasma/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[WKB vs Shooting](../playgrounds/wkb-vs-shooting/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

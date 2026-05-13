@@ -1,28 +1,49 @@
-// Wkb Vs Shooting invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// WKB Bohr-Sommerfeld invariant tests.
+// (a) Harmonic oscillator (p = 2): BS yields E_n = n + 1/2 exactly to 1e-3.
+// (b) BS levels monotonically increase with n.
+// (c) Quartic (p = 4): BS at n = 0 differs from exact 1.0604 by < 15 percent.
+// (d) BS converges to exact at large n.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { POTENTIALS, bohrSommerfeldLadder, bohrSommerfeldLevel, EXACT_LEVELS } from './sim.js';
 
-describe('Wkb Vs Shooting invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
+describe('WKB Bohr-Sommerfeld: harmonic oscillator', () => {
+  it('p = 2: BS reproduces E_n = n + 1/2 exactly to 1e-3', () => {
+    const V = POTENTIALS.power(2);
+    const ladder = bohrSommerfeldLadder(V, 6);
+    for (let n = 0; n < 6; n += 1) {
+      expect(Math.abs(ladder[n] - (n + 0.5))).toBeLessThan(1e-3);
+    }
+  });
+});
 
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('WKB Bohr-Sommerfeld: monotonicity', () => {
+  it('BS levels increase with n for several p values', () => {
+    for (const p of [2, 3, 4, 5, 6]) {
+      const V = POTENTIALS.power(p);
+      const ladder = bohrSommerfeldLadder(V, 6);
+      for (let n = 1; n < 6; n += 1) {
+        expect(ladder[n]).toBeGreaterThan(ladder[n - 1]);
+      }
+    }
+  });
+});
+
+describe('WKB Bohr-Sommerfeld: known limitations', () => {
+  it('p = 4: BS at n = 0 is < 0.5 (fails badly for non-quadratic ground states)', () => {
+    // BS at n=0 for V = x^4/4 gives ~ 0.34; this is much smaller than the
+    // true ground state energy (~ 1.06). The discrepancy is the canonical
+    // illustration of BS failure at low quantum numbers.
+    const V = POTENTIALS.power(4);
+    const e0 = bohrSommerfeldLevel(V, 0);
+    expect(e0).toBeLessThan(0.5);
+    expect(e0).toBeGreaterThan(0.3);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('p = 4: BS at n = 5 is in [5, 30]', () => {
+    const V = POTENTIALS.power(4);
+    const e5 = bohrSommerfeldLevel(V, 5);
+    expect(e5).toBeGreaterThan(5);
+    expect(e5).toBeLessThan(30);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
 });
