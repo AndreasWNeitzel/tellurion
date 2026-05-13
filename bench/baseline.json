@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-13T10:57:42.600Z",
+  "node": "v18.19.1",
+  "engines": {
+    "symplectic": {
+      "verlet_dim2_nsteps1e5": 0.00012545074999332427,
+      "verlet_dim10_nsteps1e5": 0.0002423472299799323,
+      "verlet_dim100_nsteps1e4": 0.0008743813000619411,
+      "yoshida4_dim2_nsteps1e5": 0.0004442237899824977
+    },
+    "mcmc_harness": {
+      "rwm_gauss_1e5": 0.0010367787799984217,
+      "mala_gauss_1e5": 0.0013602099699899554,
+      "hmc_banana_5e4": 0.0020855234000086782
+    }
+  }
+}

@@ -9,6 +9,8 @@
     "capture": "node scripts/capture-reference.mjs",
     "verify": "bash scripts/verify-all.sh",
     "test:engines": "vitest run tests/engines",
+    "bench": "node scripts/bench-engines.mjs",
+    "build:index": "node scripts/build-index.mjs",
     "test:invariants": "vitest run \"playgrounds/*/invariants.test.mjs\"",
     "test:visual": "playwright test \"playgrounds/*/visual.test.mjs\"",
     "dev": "vite",
