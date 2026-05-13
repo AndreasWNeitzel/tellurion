@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Schwarzschild Effective Potential and the ISCO](../playgrounds/schwarzschild-effective-potential/index.html)** &nbsp; (verified, verified 2026-05-13T19:28:30Z)
+  Effective radial potential for geodesics outside a Schwarzschild black hole of mass M (geometric units G = c = 1): - Massive: V_eff = 0.5 (1 - 2M/r)(1 + L^2 / r^2) - 0.5. - Photon:  V_eff = 0.5 (L^2 / r^2)(1 - 2M/r).
+
 - **[Gravitational Redshift in Schwarzschild](../playgrounds/gravitational-redshift/index.html)** &nbsp; (verified, verified 2026-05-13T19:23:25Z)
   A photon emitted at radius r_em outside a Schwarzschild black hole of mass M (geometric units G = c = 1) is observed at infinity with frequency f_obs = f_em sqrt(1 - 2M / r_em). At the horizon r = 2M the redshift factor vanishes, corresponding to infinite redshift.
 
@@ -214,9 +217,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
-
-- **[Schwarzschild Effective Potential](../playgrounds/schwarzschild-effective-potential/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates

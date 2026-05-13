@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Schwarzschild Effective Potential and the ISCO</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Schwarzschild effective potential and the ISCO</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the effective radial potential
+    $V_{\text{eff}}(r)$ for geodesics in Schwarzschild spacetime. Massive
+    particle: $V_{\text{eff}}(r) = \frac{1}{2}(1 - 2M/r)(1 + L^2/r^2) - \frac{1}{2}$.
+    Photon: $V_{\text{eff}}(r) = \frac{1}{2}(L^2/r^2)(1 - 2M/r)$. A radial
+    geodesic obeys $(dr/d\tau)^2 = E^2 - 1 - 2 V_{\text{eff}}$ (massive),
+    so $V_{\text{eff}}$ acts like a one-dimensional barrier or well.
+  </p>
+  <p>
+    Two special radii: the photon sphere $r_\gamma = 3M$ is the unstable
+    circular orbit for light (peak of the photon potential); the ISCO is
+    at $r_\text{ISCO} = 6M$, the smallest stable circular orbit for massive
+    matter. Below ISCO ($L < 2\sqrt{3} M$) no stable circular orbit exists;
+    matter spirals inward.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Schwarzschild effective-potential curve with ISCO and photon-sphere markers."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Schwarzschild effective potential. Method: closed-form V_eff(r, L)
+      with analytic turning-point markers. Source: Carroll Ch. 5; Hartle
+      Ch. 9.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Veff controls">
+    <div class="row"><span class="label">L / M</span><input type="range" id="slider-L" min="2.5" max="6" step="0.05" value="4.5"><span class="value" id="value-L">4.50</span></div>
+    <div class="row"><span class="label">mode</span><input type="range" id="slider-mode" min="0" max="1" step="1" value="0"><span class="value" id="value-mode">massive</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
