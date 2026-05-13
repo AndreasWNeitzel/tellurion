@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 115 |
+| draft | 114 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 77 |
+| verified | 78 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -144,7 +144,7 @@ Total playgrounds: 203
 14 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Bohr Hydrogen Spectrum** ([AST2004-bohr-hydrogen-spectrum](../playgrounds/bsc-y2s1/AST2004-bohr-hydrogen-spectrum/)). Status: `verified`. `carroll-ostlie` ch 5 (supporting: FIS2017).
-- **Jeans Instability** ([AST2004-jeans-instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/)). Status: `draft`. `carroll-ostlie` ch 12 (supporting: MAA-GD); lambda_J = sqrt(pi c_s^2 / (G rho)) exact.
+- **Jeans Instability** ([AST2004-jeans-instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/)). Status: `verified`. `carroll-ostlie` ch 12 (supporting: MAA-GD).
 - **Kepler Orbit Elements** ([AST2004-kepler-orbit-elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/)). Status: `draft`. `carroll-ostlie` ch 2; six orbital elements drive trajectory; Kepler 3rd law.
 - **Kepler Orbit Explorer** ([AST2004-kepler-orbit-explorer](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-explorer/)). Status: `in-progress`. citation pending.
 - **Lagrange Points of the Circular Restricted Three-Body Problem** ([AST2004-lagrange-points-cr3bp](../playgrounds/bsc-y2s1/AST2004-lagrange-points-cr3bp/)). Status: `verified`. citation pending (supporting: FIS2021).

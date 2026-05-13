@@ -1,7 +1,7 @@
 ---
 title: Jeans Instability
 slug: jeans-instability
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004
@@ -11,27 +11,74 @@ primary_citation: carroll-ostlie
 primary_chapter: 12
 ---
 
-# Jeans Instability
+# Jeans instability: dispersion relation and length scale
 
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+## Physical setup
 
-Required sections (filled by architect):
+A uniform, self-gravitating, isothermal hydrogen medium with mass density $\rho$ and sound speed $c_s = \sqrt{k_B T / m_p}$. Linear perturbations $\propto \exp(i k x - i \omega t)$ satisfy the dispersion relation
 
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
+$$\omega^2 = c_s^2 k^2 - 4 \pi G \rho.$$
 
-See `docs/PLAYGROUND_SPEC.md` for the full template.
+Modes with $\omega^2 < 0$ grow exponentially (Jeans-unstable, gravitational collapse); modes with $\omega^2 > 0$ oscillate as sound waves. The Jeans length is
 
+$$\lambda_J = \sqrt{\pi c_s^2 / (G \rho)}, \qquad k_J = 2 \pi / \lambda_J.$$
 
-## Curriculum pitch
+## Governing equations
 
-Strong invariant: lambda_J = sqrt(pi c_s^2 / (G rho)) exact. Primary citation: carroll-ostlie, chapter 12. Spec body to be filled by playground-architect.
+For canonical molecular-cloud parameters ($n = 10^3$ cm$^{-3}$, $T = 10$ K, pure hydrogen), $c_s \approx 290$ m/s, $\rho \approx 1.7 \times 10^{-18}$ kg/m$^3$, $\lambda_J \approx 1.5$ pc, and the Jeans mass $M_J = (4 \pi/3)(\lambda_J/2)^3 \rho \approx 50 \, M_\odot$.
+
+## Numerical method
+
+Closed-form. The dispersion is sampled at 200 logarithmically spaced $k$-points from $10^{-22}$ to $10^{-12}$ m$^{-1}$ and plotted on a signed-log $\omega^2$ axis.
+
+## Controls
+
+- Temperature $T$ (5 to 10000 K). Sets the sound speed.
+- Number density $\log_{10}(n / \text{cm}^{-3})$ (-2 to 6). Sets the mass density via $\rho = n m_p$.
+
+## Expected qualitative features
+
+1. The dispersion curve is an upward-opening parabola in $\omega^2$ vs $k$.
+2. The unstable band (shaded) extends from $k = 0$ up to $k_J$.
+3. Higher density shrinks $\lambda_J$ (square-root dependence) and shifts the unstable band toward smaller wavelengths.
+4. Higher temperature increases $c_s$ and stretches $\lambda_J$ linearly.
+
+## Invariants and acceptance thresholds
+
+| invariant | threshold | location |
+| $\omega^2 = 0$ at $k = k_J$ | within $10^{-30}$ | invariants test |
+| $\omega^2 < 0$ for $k < k_J$ | strict | invariants test |
+| $\omega^2 > 0$ for $k > k_J$ | strict | invariants test |
+| $\lambda_J \propto c_s / \sqrt{\rho}$ scaling | within $10^{-12}$ | invariants test |
+| $\lambda_J \propto c_s$ at fixed $\rho$ | within $10^{-12}$ | invariants test |
+| cold cloud $\lambda_J \in (1, 3)$ pc | strict | invariants test |
+| cold cloud $M_J \in (10, 200) \, M_\odot$ | strict | invariants test |
+| isothermal $c_s$ at 10 K is $\approx$ 287 m/s | within 5 percent | invariants test |
+
+All confirmed in `invariants.test.mjs` (8 tests passing).
+
+## Limiting cases for verification
+
+- $\rho \to 0$: $\lambda_J \to \infty$; medium can never collapse.
+- $T \to 0$: $c_s \to 0$, $\lambda_J \to 0$; everything unstable.
+- $T \to \infty$: even galactic-scale perturbations are sound waves.
+
+## Visual fallback
+
+If KaTeX or Canvas2D is unavailable, sliders still set $T$ and $n$ and the readout reports $\lambda_J$ and $M_J$.
+
+## Citations
+
+- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 12 (`carroll-ostlie`).
+- Binney-Tremaine, *Galactic Dynamics*, 2e, Ch. 4 (`binneytremaine2008`) for the dynamical-friction context.
+
+## Stretch goals
+
+- Add rotation (Jeans-Toomre criterion $Q = \kappa c_s / (\pi G \Sigma)$).
+- Magnetic stabilization (Chandrasekhar-Fermi mode).
+- Time-domain visualization: density evolution of a perturbation that crosses the Jeans threshold.
+
+## Risk register
+
+- The signed-log axis can be confusing; the zero line is drawn as a thick muted line.
+- $\omega^2$ at extreme parameters can be tiny; clamped to $|y| > 10^{-30}$ for log display.

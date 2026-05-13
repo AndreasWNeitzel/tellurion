@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Jeans Instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/index.html)** &nbsp; (verified, verified 2026-05-13T23:03:23Z)
+  A uniform, self-gravitating, isothermal hydrogen medium with mass density $\rho$ and sound speed $c_s = \sqrt{k_B T / m_p}$. Linear perturbations $\propto \exp(i k x - i \omega t)$ satisfy the dispersion relation
+
 - **[Floating-Point Precision Pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/index.html)** &nbsp; (verified, verified 2026-05-13T22:59:45Z)
   A pure-numerical playground that contrasts two algebraically identical formulae for $1 - \cos(x)$:
 
@@ -429,9 +432,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Inverse Compton Scattering Cooling](../playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Jeans Instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)
