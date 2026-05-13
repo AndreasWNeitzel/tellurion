@@ -1,6 +1,13 @@
 // Perceptually uniform colormaps for scalar fields.
 // Coefficients are the polynomial fit from matplotlib's source; precision good to 1 unit on 8-bit RGB.
 // Reference: matplotlib/lib/matplotlib/_cm_listed.py
+//
+// TODO(schrodinger-1d): the viridis 5th-order polynomial below has visible inaccuracy
+// at the high-t end (returns rgb(252, 204, 255) at t = 1 where matplotlib gives
+// rgb(253, 231, 37) yellow). Logistic-cobweb waived this by using a monochrome ramp;
+// the first playground that actually needs a perceptually uniform multi-hue colormap
+// must replace the polynomial with a lookup table or fit a higher-order polynomial
+// against the matplotlib LUT. Verified at t in {0, 0.5, 1} during logistic-cobweb work.
 
 // Sample viridis at t in [0, 1] returning {r, g, b} in [0, 255].
 export function viridis(t) {
