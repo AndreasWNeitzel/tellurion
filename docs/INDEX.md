@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Standing Waves on a String](../playgrounds/standing-waves-string-modes/index.html)** &nbsp; (verified, verified 2026-05-13T18:20:30Z)
+  A uniform string of length L is fixed at both ends. The normal modes of small transverse oscillation are y_n(x, t) = sin(n pi x / L) cos(2 pi f_n t),  f_n = n c / (2 L).
+
 - **[Catenary: Shape of a Hanging Chain](../playgrounds/catenary-hanging-chain/index.html)** &nbsp; (verified, verified 2026-05-13T18:15:10Z)
   A perfectly flexible, uniform chain hangs under gravity between two pegs at (plus minus 1, 0). The hanging shape is the catenary y(x) = a cosh(x / a) - a
 
@@ -166,9 +169,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
-
-- **[Standing Waves String Modes](../playgrounds/standing-waves-string-modes/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates
