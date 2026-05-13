@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Schwarzschild Geodesics</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <style>
+    .pg-figure { max-width: 720px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-readout {
+      display: grid;
+      grid-template-columns: max-content 12ch;
+      gap: var(--space-1) var(--space-4);
+      margin-top: var(--space-3);
+      width: max-content;
+    }
+    .pg-readout .value.warn { color: var(--accent-warm); }
+    .pg-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3) var(--space-4);
+      align-items: center;
+      margin-block: var(--space-4);
+    }
+    .pg-controls .row {
+      display: grid;
+      grid-template-columns: 4ch 1fr 5ch;
+      gap: var(--space-3);
+      align-items: center;
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+    .pg-controls .row .value {
+      font-family: var(--font-mono);
+      font-feature-settings: "tnum";
+      text-align: right;
+      color: var(--fg);
+    }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons {
+      grid-template-columns: 1fr 1fr;
+      grid-column: span 2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Schwarzschild geodesics in the equatorial plane</h1>
+
+  <p>
+    A massive test particle on a Schwarzschild background, geometric units G = c = M = 1.
+    The radial motion is a 1D Hamiltonian in the effective potential
+    V<sub>eff</sub>(r) = &minus;1/r + L<sup>2</sup>/(2r<sup>2</sup>) &minus; L<sup>2</sup>/r<sup>3</sup>;
+    the last term is the relativistic correction that causes perihelion precession.
+    Velocity-Verlet from <code>shared/js/engine/symplectic.js</code> integrates the radial
+    Hamiltonian; the angular coordinate &varphi; advances as L/r<sup>2</sup>. The dashed
+    inner circle is the event horizon r = 2; the dashed outer circle is the ISCO r = 6.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="720" height="480" tabindex="0"
+            aria-label="Schwarzschild geodesic orbit around a central black hole; horizon and ISCO drawn as dashed circles."></canvas>
+
+    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">r:</span>           <span class="value" id="readout-r">12.0000</span>
+      <span class="label">L:</span>           <span class="value" id="readout-L">3.9000</span>
+      <span class="label">&varphi;:</span>    <span class="value" id="readout-phi">0.0000</span>
+      <span class="label">E (radial):</span>  <span class="value" id="readout-E">0.0000</span>
+      <span class="label">|dE/E|:</span>      <span class="value" id="readout-dE">0.0e+00</span>
+      <span class="label">&tau;:</span>       <span class="value" id="readout-t">0.00</span>
+    </div>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Equatorial Schwarzschild geodesic in geometric units (M = 1). Method: velocity-Verlet
+      on the radial Hamiltonian H = p<sub>r</sub><sup>2</sup>/2 + V<sub>eff</sub>(r) from
+      <code>shared/js/engine/symplectic.js</code>; the angular coordinate &varphi; is updated
+      as L/r<sup>2</sup> each step. Source: Carroll, Spacetime and Geometry, Sections 5.1,
+      5.3, 5.4.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row">
+      <span class="label">r<sub>ap</sub></span>
+      <input type="range" id="slider-rap" min="8" max="30" step="0.5" value="12"
+             aria-label="Apoapsis radial position in geometric units">
+      <span class="value" id="value-rap">12.0</span>
+    </div>
+    <div class="row">
+      <span class="label">L</span>
+      <input type="range" id="slider-L" min="3.5" max="6.0" step="0.05" value="3.9"
+             aria-label="Angular momentum">
+      <span class="value" id="value-L">3.90</span>
+    </div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button" aria-label="Reset to r_ap=12, L=3.9">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
