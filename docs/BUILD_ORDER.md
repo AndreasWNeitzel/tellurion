@@ -75,6 +75,21 @@ Build `shared/js/engine/lattice-mc.js` (Wolff + Metropolis + Swendsen-Wang + Wan
 | sph-2d (new) | sph-sod-shock-tube |
 | pic-2d (new) | two-stream-pic-plasma |
 | gp-solver (new) | gp-kernel-zoo |
+| ode-leapfrog (UPorto Phase 4) | kepler-orbit-elements, orbits-in-axisymmetric-potential, secular-perturbation-laplace-lagrange |
+| fft-1d-2d (UPorto Phase 4) | wavepacket-dispersion-1d, cmb-power-spectrum-toy, baryon-acoustic-oscillation-toy |
+| kepler-solver (UPorto Phase 4) | kepler-orbit-elements, kepler-equation-newton-iteration, transit-mandel-agol-analytic, radial-velocity-orbital-trace, resonance-mean-motion-toy |
+| blackbody-planck (UPorto Phase 4) | stellar-blackbody-vs-line, eddington-grey-atmosphere, cmb-power-spectrum-toy |
+| voigt-profile (UPorto Phase 4) | voigt-profile-decomposition, stellar-blackbody-vs-line, radiative-transfer-1d-slab |
+
+## Invariant helper reuse (UPorto curriculum additions)
+
+The following invariant helpers were named during Phase 4 of the UPorto curriculum reorganization. The existing `detailed-balance.js` stub in `shared/js/invariants/README.md` already covers the MCMC and lattice-MC cases; the three rows below are new.
+
+| helper | seeds playgrounds |
+|-|-|
+| orbit-element-conservation | kepler-orbit-elements, transit-mandel-agol-analytic, radial-velocity-orbital-trace, kepler-equation-newton-iteration, secular-perturbation-laplace-lagrange |
+| energy-spectrum-power-law | bremsstrahlung-spectrum, synchrotron-spectrum, compton-vs-inverse-compton, pulsar-wind-nebula-magnetization |
+| fit-residual-chi2 | least-squares-orbit-fit-gauss, aperture-photometry-toy, point-spread-function-strehl |
 
 ## Stretch playgrounds beyond Phase 6
 

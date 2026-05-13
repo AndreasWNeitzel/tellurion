@@ -60,3 +60,27 @@ Particle-in-cell electrostatic plasma simulator. Depends on particle-mesh.js for
 ### gp-solver.js
 
 Gaussian-process regression core. Cholesky factorization of the kernel matrix with white-noise jitter, posterior mean and covariance for arbitrary query points. API: `create({ trainX, trainY, kernel, sigmaNoise })`. Seeds: gp-kernel-zoo.
+
+## Engines surfaced by the UPorto curriculum additions
+
+Phase 4 (UPorto curriculum reorganization, 2026-05-13) adds five new engine stubs. Each is named by a draft playground whose strong invariant calls for it. Implementation lands at the first playground that consumes the engine; until then the stub is informational.
+
+### ode-leapfrog.js
+
+Kick-drift-kick leapfrog integrator distinct from the velocity-Verlet form in `symplectic.js`. Wanted where the separated explicit form is more readable than the in-place Verlet pair (Hamiltonian phase-space visualizations, N-body codes that interleave drift and kick at half-steps). Seeds: `kepler-orbit-elements`, `orbits-in-axisymmetric-potential`, `secular-perturbation-laplace-lagrange`. RK4/DOP853 in `ode-rk.js` already covers the non-symplectic adaptive RK45 case named in the directive; no separate `ode-rk45.js` is needed.
+
+### fft-1d-2d.js
+
+Cooley-Tukey FFT for 1D real / complex inputs and 2D images. Seeds: `wavepacket-dispersion-1d` (Gaussian wavepacket spreading), `cmb-power-spectrum-toy` (angular power spectrum from a map), `baryon-acoustic-oscillation-toy` (sound horizon Fourier features). Output convention: numpy `fftfreq` ordering; no normalization shortcut, the playground pays the explicit `1/N` factor.
+
+### kepler-solver.js
+
+Newton iteration on `M = E - e sin E` for a single mean anomaly M and eccentricity e, with quadratic convergence from `E_0 = M`. Vectorized variant for an array of M at fixed e. Seeds: `kepler-orbit-elements`, `kepler-equation-newton-iteration`, `transit-mandel-agol-analytic`, `radial-velocity-orbital-trace`, `resonance-mean-motion-toy`.
+
+### blackbody-planck.js
+
+Analytic Planck function `B(nu, T) = (2 h nu^3 / c^2) / (exp(h nu / k T) - 1)` with overflow-safe form `expm1` and a vectorized frequency-grid path. Returns `B_nu`, `B_lambda`, and the bolometric integral via Stefan-Boltzmann. Seeds: `stellar-blackbody-vs-line`, `eddington-grey-atmosphere`, `cmb-power-spectrum-toy`.
+
+### voigt-profile.js
+
+Voigt profile via the Faddeeva function approximation (Humlicek 1982 rational fit). Convolution of a Gaussian (Doppler width) with a Lorentzian (natural plus pressure broadening) on a frequency grid. Seeds: `voigt-profile-decomposition`, `stellar-blackbody-vs-line` (line on a blackbody continuum), `radiative-transfer-1d-slab` (line transfer).

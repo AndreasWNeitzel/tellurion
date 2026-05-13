@@ -40,3 +40,19 @@ Symmetric finite-difference gradient check. Given a scalar function f and its an
 ### union-find.js (added during Phase 3 cross-cutting work)
 
 Union-find with path compression, plus the Hoshen-Kopelman one-pass cluster labeler for square lattices. Not strictly an invariant but needed by the percolation cluster geometry. Seeds: percolation-2d (catalog Group A).
+
+## Helpers surfaced by the UPorto curriculum additions
+
+Phase 4 (UPorto curriculum reorganization, 2026-05-13) names three more invariant helpers. The `detailed-balance.js` stub above already covers the MCMC and lattice-MC cases named in the directive; no duplicate is added.
+
+### orbit-element-conservation.js
+
+For an unperturbed Kepler two-body problem, the six orbital elements (`a`, `e`, `i`, `Omega`, `omega`, `M`) plus the specific energy `E = -G M / (2 a)` and the angular-momentum magnitude `L = sqrt(G M a (1 - e^2))` are conserved. Helper computes elements from the cartesian state at every step and returns the relative drift max(|delta x| / |x|) per element. Seeds: `kepler-orbit-elements`, `transit-mandel-agol-analytic`, `radial-velocity-orbital-trace`, `kepler-equation-newton-iteration`, `secular-perturbation-laplace-lagrange`. Gate: 1e-8 over 100 orbital periods at e <= 0.5.
+
+### energy-spectrum-power-law.js
+
+Slope estimator for power-law spectra `dN/dE ~ E^(-alpha)`. Returns the best-fit alpha by linear regression on log E vs log dN/dE with optional inverse-variance weighting from photon counting noise. Includes a flag for spectral break detection (changepoint by F-test on residuals). Seeds: `bremsstrahlung-spectrum`, `synchrotron-spectrum`, `compton-vs-inverse-compton`, `pulsar-wind-nebula-magnetization`. Gate: recovered alpha within 1 percent of the analytic input.
+
+### fit-residual-chi2.js
+
+Reduced chi-squared `chi2 / (N - p)` for a model y_model with parameters theta_hat against data y_obs with errors sigma. Returns the scalar and the residual vector. Seeds: `least-squares-orbit-fit-gauss`, `aperture-photometry-toy`, `point-spread-function-strehl`. Gate: synthetic noise injection yields chi2_red within 1 plus or minus 3 sigma_N at the fitted parameters.
