@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logistic Cobweb and Bifurcation</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <style>
+    .pg-figure { max-width: 720px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-readout {
+      display: grid;
+      grid-template-columns: max-content 6ch;
+      gap: var(--space-1) var(--space-4);
+      margin-top: var(--space-3);
+      width: max-content;
+    }
+    .pg-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      align-items: center;
+      margin-block: var(--space-4);
+    }
+    .pg-controls label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+    .pg-controls input[type="number"] {
+      width: 6ch;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+      font-feature-settings: "tnum";
+      font-size: 13px;
+      border: 1px solid var(--grid);
+      background: var(--surface);
+      color: var(--fg);
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+  <h1>Logistic cobweb and bifurcation</h1>
+
+  <p>
+    The logistic map <span class="mono">x<sub>n+1</sub> = r&nbsp;x<sub>n</sub>(1 &minus; x<sub>n</sub>)</span>
+    is the canonical scalar dynamical system showing a period-doubling cascade and chaos.
+    Drag the vertical line on the bifurcation diagram (right) to set the parameter
+    <span class="mono">r</span>; the cobweb on the left redraws to show how iterates
+    converge, oscillate, or wander.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="720" height="480" tabindex="0"
+            aria-label="Two panels: a cobweb diagram on the left and a bifurcation diagram on the right with a draggable vertical line at r."></canvas>
+
+    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">r (dimensionless):</span>       <span class="value" id="readout-r">3.200000</span>
+      <span class="label">period (steps):</span>           <span class="value" id="readout-period">2</span>
+      <span class="label">&lambda; (per iteration):</span>  <span class="value" id="readout-lambda">0.0000</span>
+      <span class="label">Feigenbaum &delta;:</span>        <span class="value" id="readout-delta">4.6692</span>
+    </div>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Cobweb and bifurcation diagram of the logistic map
+      <span class="mono">x<sub>n+1</sub> = r&nbsp;x<sub>n</sub>(1 &minus; x<sub>n</sub>)</span>.
+      Method: scalar iteration in IEEE 754 double precision; Feigenbaum &delta; is computed
+      by bisection on the superstable cascade
+      <span class="mono">f<sup>2<sup>n</sup></sup>(1/2; R<sub>n</sub>) = 1/2</span>.
+      Source: Strogatz, Nonlinear Dynamics and Chaos, 2e, Ch. 10.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <button id="btn-reset" type="button" aria-label="Reset r and x_0 to defaults">Reset</button>
+    <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
+    <label>
+      x<sub>0</sub>:
+      <input id="input-x0" type="number" min="0.001" max="0.999" step="0.001" value="0.100"
+             aria-label="Initial condition x_0 in the open interval (0, 1)">
+    </label>
+    <span style="font-size: 13px; color: var(--fg-faint);">
+      Keys: &larr; / &rarr; nudge r (Shift for fine).
+    </span>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
