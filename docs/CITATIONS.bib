@@ -50,6 +50,12 @@
     6.6: Reversible Systems;
     6.7: Pendulum;
     6.8: Index Theory;
+    9.1: A Chaotic Waterwheel;
+    9.2: Simple Properties of the Lorenz Equations;
+    9.3: Chaos on a Strange Attractor;
+    9.4: Lorenz Map;
+    9.5: Exploring Parameter Space;
+    9.6: Using Chaos to Send Secret Messages;
     10.1: Fixed Points and Cobwebs;
     10.2: Logistic Map: Numerics;
     10.3: Logistic Map: Analysis;
@@ -59,7 +65,8 @@
     10.7: Renormalization;
     12.1: The Simplest Examples;
     12.2: Henon Map;
-    12.3: Rossler System
+    12.3: Rossler System;
+    12.4: Forced Double-Well Oscillator
   }
 }
 
@@ -83,7 +90,13 @@
   isbn      = {978-0198517979},
   chapter_index = {
     3: The Ising model and the Metropolis algorithm;
-    4: Other algorithms for the Ising model
+    4: Other algorithms for the Ising model;
+    5.1: Potts models;
+    5.2: Cluster algorithms for the Potts model;
+    5.3: Other discrete spin models;
+    5.4: The XY model;
+    5.5: Vortices and the BKT transition;
+    5.6: Continuous spin models
   }
 }
 
@@ -100,10 +113,19 @@
     6.3: Deep Networks;
     7.1: Error Backpropagation;
     7.2: Computational Graphs;
+    12.1: Attention mechanisms;
+    12.2: Self-attention and transformers;
+    12.3: Multi-head attention;
     14.1: Latent Variable Models;
     14.2: Sampling Methods;
     14.3: Markov Chain Monte Carlo;
     14.4: Variational Inference;
+    15.1: Gaussian mixture models;
+    15.2: Expectation-Maximization (EM);
+    15.3: K-means clustering;
+    16.1: Variational inference;
+    16.2: Mean-field variational families;
+    16.3: ELBO and KL minimization;
     18.1: Coupling Flows;
     18.2: Autoregressive Flows;
     18.3: Continuous Flows
@@ -118,6 +140,16 @@
   isbn      = {978-0521642989},
   url       = {https://inference.org.uk/mackay/itila/},
   chapter_index = {
+    2.1: How much information does a string contain?;
+    2.2: Entropy;
+    2.3: Joint and conditional entropy;
+    2.4: Mutual information;
+    2.5: The relative entropy or KL divergence;
+    2.6: Jensen's inequality;
+    22.1: Maximum entropy distributions;
+    22.2: Lagrangian formulation;
+    22.3: Examples (Gaussian, exponential, multinomial);
+    22.4: Pitfalls of maximum entropy;
     29.1: The problem to be solved;
     29.2: Importance sampling;
     29.3: Rejection sampling;
@@ -129,7 +161,11 @@
     30.1: Hamiltonian Monte Carlo;
     30.2: Overrelaxation;
     30.3: Simulated annealing;
-    30.4: Skilling's multi-state leapfrog method
+    30.4: Skilling's multi-state leapfrog method;
+    45.1: Gaussian processes;
+    45.2: Kernel functions and feature spaces;
+    45.3: Hyperparameters and learning;
+    45.4: Sparse approximations
   }
 }
 
@@ -185,7 +221,14 @@
   title     = {Finite Volume Methods for Hyperbolic Problems},
   publisher = {Cambridge University Press},
   year      = {2002},
-  isbn      = {978-0521009249}
+  isbn      = {978-0521009249},
+  chapter_index = {
+    14.1: The Sod shock tube problem;
+    14.2: Rankine-Hugoniot conditions;
+    14.3: Entropy solutions;
+    14.4: Approximate Riemann solvers;
+    14.5: HLL and HLLC solvers
+  }
 }
 
 @book{trefethen2000,
@@ -212,7 +255,21 @@
   edition   = {Second},
   publisher = {Cambridge University Press},
   year      = {2002},
-  isbn      = {978-0521010849}
+  isbn      = {978-0521010849},
+  chapter_index = {
+    2.1: Introduction (one-dimensional maps);
+    2.2: The logistic map;
+    2.3: General one-dimensional maps;
+    2.4: Topological conjugacy and symbolic dynamics;
+    3.1: The Henon map;
+    3.2: The Lorenz system;
+    3.3: The Rossler system;
+    3.4: Strange attractors and chaos;
+    7.1: Hamiltonian systems and integrability;
+    7.2: KAM theory and the breakup of invariant tori;
+    7.3: The standard map and Greene's residue criterion;
+    7.4: Resonance and chaotic transport
+  }
 }
 
 @book{binneytremaine2008,
@@ -226,7 +283,11 @@
     2.1: General results;
     2.2: Spherical systems;
     2.3: Potential-density pairs for flattened systems;
-    2.5: The potentials of spheroidal and ellipsoidal systems
+    2.5: The potentials of spheroidal and ellipsoidal systems;
+    8.1: Encounters between stars (impulse approximation);
+    8.2: Tidal disruption and the Roche limit;
+    8.3: Two-body relaxation;
+    8.4: Dynamical friction
   }
 }
 
@@ -244,7 +305,21 @@
   title     = {Computer Simulation Using Particles},
   publisher = {CRC Press},
   year      = {1988},
-  isbn      = {978-0852743928}
+  isbn      = {978-0852743928},
+  chapter_index = {
+    5.1: The particle-mesh model;
+    5.2: Mesh-defined fields and charge assignment;
+    5.3: Solving Poisson's equation on the mesh;
+    5.4: Force interpolation back to particles;
+    6.1: P3M (particle-particle-particle-mesh);
+    6.2: Optimization of P3M;
+    7.1: Plasma applications of PM;
+    7.2: Astrophysics applications of PM;
+    8.1: The particle-in-cell method (PIC);
+    8.2: PIC for plasmas;
+    8.3: Two-stream and bump-on-tail instabilities;
+    8.4: Energy and momentum conservation in PIC
+  }
 }
 
 @book{jackson1998,
@@ -262,7 +337,14 @@
   edition   = {Fourth},
   publisher = {Cambridge University Press},
   year      = {2017},
-  isbn      = {978-1108420419}
+  isbn      = {978-1108420419},
+  chapter_index = {
+    9.1: Waves in one dimension;
+    9.2: Electromagnetic waves in vacuum;
+    9.3: Electromagnetic waves in matter;
+    9.4: Absorption and dispersion;
+    9.5: Guided waves and diffraction
+  }
 }
 
 @book{griffithsqm2018,
@@ -271,7 +353,23 @@
   edition   = {Third},
   publisher = {Cambridge University Press},
   year      = {2018},
-  isbn      = {978-1107189638}
+  isbn      = {978-1107189638},
+  chapter_index = {
+    2.1: The Schrodinger equation (time-independent);
+    2.2: The infinite square well;
+    2.3: The harmonic oscillator;
+    2.4: The free particle;
+    2.5: The delta-function potential;
+    2.6: The finite square well and tunneling;
+    4.1: Schrodinger equation in spherical coordinates;
+    4.2: The hydrogen atom;
+    4.3: Angular momentum;
+    4.4: Spin;
+    8.1: The WKB approximation;
+    8.2: Tunneling;
+    8.3: The connection formulas;
+    8.4: Bohr-Sommerfeld quantization
+  }
 }
 
 @book{sakurai2020,
@@ -280,7 +378,21 @@
   edition   = {Third},
   publisher = {Cambridge University Press},
   year      = {2020},
-  isbn      = {978-1108473224}
+  isbn      = {978-1108473224},
+  chapter_index = {
+    1.1: The Stern-Gerlach experiment;
+    1.2: Kets, bras, and operators;
+    1.3: Base kets and matrix representations;
+    1.4: Measurements, observables, and uncertainty relations;
+    1.5: Change of basis;
+    1.6: Position, momentum, and translation;
+    1.7: Wave functions in position and momentum space;
+    2.1: Time-evolution and the Schrodinger equation;
+    2.2: The Schrodinger versus the Heisenberg picture;
+    2.3: Simple harmonic oscillator;
+    2.4: Coherent states;
+    2.5: Schrodinger wave equation
+  }
 }
 
 @book{shankar1994,
@@ -289,7 +401,15 @@
   edition   = {Second},
   publisher = {Plenum / Springer},
   year      = {1994},
-  isbn      = {978-0306447907}
+  isbn      = {978-0306447907},
+  chapter_index = {
+    5.1: Particle in a box;
+    5.2: Tunneling and the WKB method;
+    5.3: The Dirac delta-function potential;
+    5.4: General properties of one-dimensional Schrodinger equations;
+    5.5: The Kronig-Penney model;
+    5.6: Bloch's theorem and band structure
+  }
 }
 
 @book{carroll2019,
@@ -341,7 +461,17 @@
     11.2: The Beta-Bernoulli model;
     11.3: The Dirichlet-multinomial model;
     11.4: Conjugate priors;
-    11.5: Markov chain Monte Carlo (MCMC) inference
+    11.5: Markov chain Monte Carlo (MCMC) inference;
+    17.1: Gaussian processes (introduction);
+    17.2: GPs for regression;
+    17.3: GPs for classification;
+    17.4: Kernel functions;
+    17.5: Sparse and scalable GP approximations;
+    20.1: Dimensionality reduction (overview);
+    20.2: Principal components analysis;
+    20.3: Multidimensional scaling;
+    20.4: t-SNE and UMAP;
+    20.5: Isomap and Laplacian eigenmaps
   }
 }
 
@@ -424,6 +554,11 @@
   year      = {2013},
   isbn      = {978-1439840955},
   chapter_index = {
+    2.1: Bayesian inference for a probability;
+    2.2: Beta-binomial conjugate analysis;
+    2.3: Summarizing posterior inference;
+    2.4: Informative prior distributions;
+    2.5: Exchangeable models;
     11.1: Gibbs sampler;
     11.2: Metropolis and Metropolis-Hastings algorithms;
     11.3: Using Gibbs and Metropolis as building blocks;
@@ -470,4 +605,156 @@
   publisher = {Cambridge University Press},
   year      = {2021},
   isbn      = {978-1108490146}
+}
+
+% ==================================================================
+% Bib entries added for the 40-entry ratified catalog (Phase 1
+% bibliography backfill). Six names were ratified by the user; the
+% remaining three (nielsen-chuang, goodfellow, stauffer-aharony)
+% were surfaced because catalog rows cite them.
+% ==================================================================
+
+@article{berry1981,
+  author    = {Berry, M. V.},
+  title     = {Regularity and chaos in classical mechanics, illustrated by three deformations of a circular billiard},
+  journal   = {European Journal of Physics},
+  volume    = {2},
+  pages     = {91--102},
+  year      = {1981},
+  doi       = {10.1088/0143-0807/2/2/006}
+}
+
+@book{hecht2017,
+  author    = {Hecht, Eugene},
+  title     = {Optics},
+  edition   = {Fifth},
+  publisher = {Pearson},
+  year      = {2017},
+  isbn      = {978-0133977226},
+  chapter_index = {
+    10.1: General considerations;
+    10.2: Fraunhofer diffraction;
+    10.3: Single-slit pattern;
+    10.4: Double-slit and N-slit;
+    10.5: Circular aperture and the Airy pattern;
+    10.6: Resolution;
+    10.7: Zone plates
+  }
+}
+
+% isbn unverified for Siegman first-edition reprint; the 1986 ISBN is widely cited.
+@book{siegman1986,
+  author    = {Siegman, Anthony E.},
+  title     = {Lasers},
+  publisher = {University Science Books},
+  year      = {1986},
+  isbn      = {978-0935702118},
+  chapter_index = {
+    17.1: Paraxial beams;
+    17.2: Gaussian beam parameters;
+    17.3: Beam transformation by lenses (ABCD law);
+    17.4: Higher-order Gaussian modes;
+    17.5: Beam quality M-squared
+  }
+}
+
+@book{murraydermott1999,
+  author    = {Murray, Carl D. and Dermott, Stanley F.},
+  title     = {Solar System Dynamics},
+  publisher = {Cambridge University Press},
+  year      = {1999},
+  isbn      = {978-0521575973},
+  chapter_index = {
+    3.1: The restricted three-body problem;
+    3.2: Equations of motion in the rotating frame;
+    3.3: Tisserand relation and the Jacobi constant;
+    3.4: Lagrange points;
+    3.5: Stability of the Lagrange points;
+    3.6: Tadpole and horseshoe orbits
+  }
+}
+
+@book{rybickilightman1979,
+  author    = {Rybicki, George B. and Lightman, Alan P.},
+  title     = {Radiative Processes in Astrophysics},
+  publisher = {Wiley-VCH},
+  year      = {1979},
+  isbn      = {978-0471827597},
+  chapter_index = {
+    4.1: Four-vectors;
+    4.2: Lorentz transformation of accelerated frames;
+    4.3: Doppler effect and beaming;
+    4.4: Stellar aberration;
+    4.5: Transformation of intensity;
+    4.6: Emission from a relativistically moving source
+  }
+}
+
+@inproceedings{vaswani2017,
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, Lukasz and Polosukhin, Illia},
+  title     = {Attention Is All You Need},
+  booktitle = {Advances in Neural Information Processing Systems 30},
+  year      = {2017},
+  url       = {https://arxiv.org/abs/1706.03762},
+  doi       = {10.48550/arXiv.1706.03762}
+}
+
+@book{nielsenchuang2010,
+  author    = {Nielsen, Michael A. and Chuang, Isaac L.},
+  title     = {Quantum Computation and Quantum Information},
+  edition   = {10th Anniversary},
+  publisher = {Cambridge University Press},
+  year      = {2010},
+  isbn      = {978-1107002173},
+  chapter_index = {
+    4.1: Quantum algorithms (overview);
+    4.2: Single qubit operations;
+    4.3: Controlled operations;
+    4.4: Measurement;
+    4.5: Universal quantum gates;
+    4.6: Summary of the quantum circuit model;
+    4.7: Simulation of quantum systems
+  }
+}
+
+@book{goodfellow2016,
+  author    = {Goodfellow, Ian and Bengio, Yoshua and Courville, Aaron},
+  title     = {Deep Learning},
+  publisher = {MIT Press},
+  year      = {2016},
+  isbn      = {978-0262035613},
+  url       = {https://www.deeplearningbook.org/},
+  chapter_index = {
+    6.1: Example: learning XOR;
+    6.2: Gradient-based learning;
+    6.3: Hidden units;
+    6.4: Architecture design;
+    6.5: Back-propagation and other differentiation algorithms;
+    6.6: Historical notes;
+    8.1: How learning differs from pure optimization;
+    8.2: Challenges in neural network optimization;
+    8.3: Basic algorithms (SGD, momentum);
+    8.4: Parameter initialization strategies;
+    8.5: Algorithms with adaptive learning rates;
+    8.6: Approximate second-order methods;
+    8.7: Optimization strategies and meta-algorithms
+  }
+}
+
+@book{staufferaharony1994,
+  author    = {Stauffer, Dietrich and Aharony, Amnon},
+  title     = {Introduction to Percolation Theory},
+  edition   = {Second (revised)},
+  publisher = {Taylor and Francis},
+  year      = {1994},
+  isbn      = {978-0748402533},
+  chapter_index = {
+    2.1: Definitions;
+    2.2: One-dimensional percolation;
+    2.3: Cluster size distribution;
+    2.4: Site versus bond percolation;
+    3.1: The percolation threshold;
+    3.2: Hoshen-Kopelman algorithm;
+    4.1: Scaling theory of percolation
+  }
 }
