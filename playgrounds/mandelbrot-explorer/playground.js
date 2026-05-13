@@ -38,10 +38,10 @@ const state = {
   width: 3.5,
   maxIter: 256,
   autoZoom: false,
-  // The exponential-zoom factor per frame. width *= zoomFactor until the
-  // floor (1e-13, just above double-precision noise). 0.965 reads as a
-  // smooth, controlled drift; faster looks jerky.
-  zoomFactor: 0.965,
+  // The exponential-zoom factor per frame. 0.985 is the slow-and-steady
+  // pace that reads as smooth (zoom takes ~ 17 sec to reach 1e-6 from 1.0,
+  // and ~ 30 sec to reach 1e-10).
+  zoomFactor: 0.985,
   zoomFloor: 1e-13,
   rafId: null,
   hover: null,
@@ -53,10 +53,10 @@ const state = {
   offscreen: null,
   offCtx: null,
   cached: { cx: -0.5, cy: 0, width: 3.5 },
-  // How aggressively to re-render during auto-zoom. We re-render when the
-  // visible scale factor (cached.width / state.width) exceeds reRenderRatio,
-  // keeping zoom motion bounded between renders.
-  reRenderRatio: 1.18,
+  // How aggressively to re-render during auto-zoom. With zoomFactor 0.985
+  // and reRenderRatio 1.10, fresh renders happen every ~ 7 zoom frames, so
+  // the cached image never stretches more than 10 percent between refreshes.
+  reRenderRatio: 1.10,
 };
 
 function cssVar(name, fallback) {
@@ -285,13 +285,14 @@ canvas.addEventListener('pointerleave', () => {
   updateReadouts();
 });
 canvas.addEventListener('pointerdown', (e) => {
-  // Clicking during auto-zoom steers the target: useful to correct drift
-  // when the auto-zoom slowly walks away from a boundary feature.
+  // Clicking during auto-zoom recenters and forces an immediate full-frame
+  // recompute so the user sees fresh pixels at the new centre on the next
+  // animation frame (no stale cached-blit pan).
   const p = canvasPos(e);
   const { cr, ci } = pixelToC(p);
   state.cx = cr;
   state.cy = ci;
-  if (!state.autoZoom) refresh(1);
+  refresh(state.autoZoom ? 2 : 1);
   e.preventDefault();
 });
 
