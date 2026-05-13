@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coupled Springs Normal Modes</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Coupled springs: normal modes and beats</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> two equal masses on a frictionless
+    track, coupled by three identical springs between two fixed walls. The
+    classical small-oscillation problem has two normal modes: a symmetric
+    in-phase mode at $\omega_+ = \sqrt{k/m}$, and an antisymmetric
+    out-of-phase mode at $\omega_- = \sqrt{3k/m}$. Generic initial conditions
+    excite both modes; the visible motion is the superposition.
+  </p>
+  <p>
+    Press the <em>+ mode</em> or <em>- mode</em> button to start in a pure
+    eigenmode. With the <em>generic</em> initial condition, watch energy slosh
+    between the two masses: the upper trace (left mass position) and lower
+    trace (right mass position) show the beat pattern at envelope frequency
+    $|\omega_- - \omega_+|/2 \approx 0.366$. The phase portrait
+    $(x_1, x_2)$ on the right traces out a Lissajous figure whose closure
+    depends on whether $\omega_-/\omega_+ = \sqrt{3}$ is rational (it is not),
+    so the trajectory is dense in its bounding parallelogram.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="Two-mass three-spring system with displacement traces and phase portrait."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Coupled springs. Method: velocity-Verlet integration with analytic
+      eigenmode decomposition. Source: Goldstein, Classical Mechanics 3e
+      Ch. 6 (`goldstein2001`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Springs controls">
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="8" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons">
+      <button id="btn-plus" type="button">+ mode</button>
+      <button id="btn-minus" type="button">- mode</button>
+      <button id="btn-generic" type="button">generic</button>
+    </div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
