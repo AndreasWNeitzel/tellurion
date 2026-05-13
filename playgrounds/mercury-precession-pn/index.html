@@ -3,29 +3,67 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mercury Precession Pn</title>
+  <title>Perihelion Precession in a Schwarzschild Effective Potential</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Mercury Precession Pn</h1>
+  <h1>Perihelion precession in a Schwarzschild-like potential</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <p>
+    <strong>What you are seeing:</strong> a planet on an elliptic orbit
+    around a massive central body. In pure Newtonian gravity the ellipse
+    is closed: the point of closest approach (perihelion) stays exactly in
+    place. General relativity adds a small correction that breaks this
+    closure. Each orbit rotates the entire ellipse by a tiny angle. For
+    Mercury the real value is about 43 arcseconds per century, way too
+    slow to render; here you can dial the GR strength up so it is visible
+    within a handful of orbits.
+  </p>
+  <p>
+    The acceleration is
+    $\vec a = -\dfrac{GM}{r^3}\,\vec r\left(1 + \dfrac{\alpha}{r^2}\right)$,
+    with $GM = 1$ and semi-major axis $a = 1$ in code units. The first term
+    is Newton; the second is the orbit-averaged 1PN correction from the
+    Schwarzschild metric. The orange ellipse is the current orbit; faint
+    blue traces are the four most recent orbits, showing the precession.
+    Red dots are perihelion passages.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="600" tabindex="0"
+            aria-label="Orbit plot in the (x, y) plane with current orbit in orange, recent orbits in faint blue, and red dots at each perihelion."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Precessing Keplerian orbit in the 1PN-corrected effective potential
+      of the Schwarzschild metric. Method: velocity-Verlet from
+      <code>shared/js/engine/symplectic.js</code>, fixed dt = 0.005.
+      Source: Misner, Thorne, Wheeler 1973, Gravitation, Chapter 25.5;
+      Binney and Tremaine 2008, Galactic Dynamics 2e, Section 3.6.
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Mercury PN controls">
+    <div class="row"><span class="label">alpha</span><input type="range" id="slider-alpha" min="0.0" max="0.1" step="0.001" value="0.02"><span class="value" id="value-alpha">0.020</span></div>
+    <div class="row"><span class="label">e</span><input type="range" id="slider-e" min="0.0" max="0.8" step="0.01" value="0.4"><span class="value" id="value-e">0.40</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0.1" max="2.0" step="0.1" value="0.5"><span class="value" id="value-speed">0.5</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

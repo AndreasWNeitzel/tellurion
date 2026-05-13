@@ -1,113 +1,224 @@
-// Kl Divergence Asymmetry playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// playground.js
+// KL-divergence asymmetry visualization. P is a bimodal mixture, Q is a
+// single Gaussian whose mu, sigma the user controls. The plot shows
+// D(P||Q) and D(Q||P) live and labels the argmin of each.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
+import { pBimodal, qGaussian, klPQ, klQP, findArgmins, GRID_XMIN, GRID_XMAX, GRID_N } from './sim.js';
 
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const urlParams      = new URLSearchParams(location.search);
+const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
+const DETERMINISTIC  = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME   = urlParams.get('capture');
+const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const sliderMu     = document.getElementById('slider-mu');
+const sliderSig    = document.getElementById('slider-sigma');
+const sliderSep    = document.getElementById('slider-sep');
+const valueMu      = document.getElementById('value-mu');
+const valueSig     = document.getElementById('value-sigma');
+const valueSep     = document.getElementById('value-sep');
+const btnCover     = document.getElementById('btn-cover');
+const btnSeek      = document.getElementById('btn-seek');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const W = canvas.width, H = canvas.height;
 
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
+const state = {
+  mu: 0.0,
+  sigma: 2.5,
+  sep: 2.0,
+  argmins: null,
 };
 
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
+const tok = {
+  accent: cssVar('--accent', '#1B6CA8'),
+  accentWarm: cssVar('--accent-warm', '#C13B27'),
+};
+
+function updateArgmins() {
+  const { p } = pBimodal({ mu1: -state.sep, mu2: state.sep });
+  state.argmins = findArgmins({ p });
 }
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
+function drawAll() {
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+  // Plot region for densities
+  const X0 = 60, X1 = W - 60;
+  const Y0 = 40, Y1 = H - 80;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(X0, Y0, X1 - X0, Y1 - Y0);
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  const { p } = pBimodal({ mu1: -state.sep, mu2: state.sep });
+  const { q } = qGaussian({ mu: state.mu, sigma: state.sigma });
+  const xs = new Float64Array(GRID_N);
+  for (let i = 0; i < GRID_N; i += 1) xs[i] = GRID_XMIN + (GRID_XMAX - GRID_XMIN) * (i / (GRID_N - 1));
+
+  // Find max for scaling
+  let yMax = 0;
+  for (let i = 0; i < GRID_N; i += 1) {
+    if (p[i] > yMax) yMax = p[i];
+    if (q[i] > yMax) yMax = q[i];
+  }
+  yMax *= 1.10;
+
+  function toPx(x, y) {
+    return {
+      px: X0 + (X1 - X0) * (x - GRID_XMIN) / (GRID_XMAX - GRID_XMIN),
+      py: Y1 - (Y1 - Y0) * (y / yMax),
+    };
   }
 
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  // axis x = 0
+  const zero = toPx(0, 0);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+  ctx.beginPath();
+  ctx.moveTo(zero.px, Y0); ctx.lineTo(zero.px, Y1);
+  ctx.stroke();
+
+  // P (filled)
+  ctx.fillStyle = 'rgba(110, 165, 215, 0.30)';
+  ctx.beginPath();
+  let first = toPx(xs[0], 0);
+  ctx.moveTo(first.px, first.py);
+  for (let i = 0; i < GRID_N; i += 1) {
+    const pp = toPx(xs[i], p[i]);
+    ctx.lineTo(pp.px, pp.py);
+  }
+  const last = toPx(xs[GRID_N - 1], 0);
+  ctx.lineTo(last.px, last.py);
+  ctx.closePath();
+  ctx.fill();
+  // P outline
+  ctx.strokeStyle = tok.accent;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let i = 0; i < GRID_N; i += 1) {
+    const pp = toPx(xs[i], p[i]);
+    if (i === 0) ctx.moveTo(pp.px, pp.py); else ctx.lineTo(pp.px, pp.py);
+  }
+  ctx.stroke();
+
+  // Q outline (orange)
+  ctx.strokeStyle = tok.accentWarm;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let i = 0; i < GRID_N; i += 1) {
+    const pp = toPx(xs[i], q[i]);
+    if (i === 0) ctx.moveTo(pp.px, pp.py); else ctx.lineTo(pp.px, pp.py);
+  }
+  ctx.stroke();
+
+  // Tick labels on x
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.textAlign = 'center';
+  for (const xt of [-6, -3, 0, 3, 6]) {
+    const t = toPx(xt, 0);
+    ctx.fillText(String(xt), t.px, Y1 + 14);
+  }
+
+  // Live KL readouts
+  const pq = klPQ(p, q);
+  const qp = klQP(p, q);
+  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+  ctx.textAlign = 'left';
+  ctx.fillText('D(P || Q) = ' + pq.toFixed(4) + ' nats  (mass-covering)', X0, Y0 - 12);
+  ctx.textAlign = 'right';
+  ctx.fillText('D(Q || P) = ' + qp.toFixed(4) + ' nats  (mode-seeking)', X1, Y0 - 12);
+
+  if (state.argmins) {
+    const A = state.argmins.argminPQ;
+    const B = state.argmins.argminQP;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.fillText(`argmin D(P||Q): mu = ${A.mu.toFixed(2)}, sigma = ${A.sigma.toFixed(2)}  (D = ${A.val.toFixed(3)})`, X0, Y1 + 40);
+    ctx.fillText(`argmin D(Q||P): mu = ${B.mu.toFixed(2)}, sigma = ${B.sigma.toFixed(2)}  (D = ${B.val.toFixed(3)})`, X0, Y1 + 56);
+  }
 }
+
+sliderMu.addEventListener('input', () => {
+  state.mu = parseFloat(sliderMu.value);
+  valueMu.textContent = state.mu.toFixed(2);
+  drawAll();
+});
+sliderSig.addEventListener('input', () => {
+  state.sigma = parseFloat(sliderSig.value);
+  valueSig.textContent = state.sigma.toFixed(2);
+  drawAll();
+});
+sliderSep.addEventListener('change', () => {
+  state.sep = parseFloat(sliderSep.value);
+  valueSep.textContent = state.sep.toFixed(1);
+  updateArgmins();
+  drawAll();
+});
+sliderSep.addEventListener('input', () => {
+  valueSep.textContent = parseFloat(sliderSep.value).toFixed(1);
+});
+btnCover.addEventListener('click', () => {
+  if (!state.argmins) return;
+  state.mu = state.argmins.argminPQ.mu;
+  state.sigma = state.argmins.argminPQ.sigma;
+  sliderMu.value = state.mu.toFixed(2);
+  sliderSig.value = state.sigma.toFixed(2);
+  valueMu.textContent = state.mu.toFixed(2);
+  valueSig.textContent = state.sigma.toFixed(2);
+  drawAll();
+});
+btnSeek.addEventListener('click', () => {
+  if (!state.argmins) return;
+  state.mu = state.argmins.argminQP.mu;
+  state.sigma = state.argmins.argminQP.sigma;
+  sliderMu.value = state.mu.toFixed(2);
+  sliderSig.value = state.sigma.toFixed(2);
+  valueMu.textContent = state.mu.toFixed(2);
+  valueSig.textContent = state.sigma.toFixed(2);
+  drawAll();
+});
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
+  updateArgmins();
+  drawAll();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
-  }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
+    // Slide Q from broad-covering at 0 to mode-seeking at +sep through capture frames.
+    const samples = [
+      { mu: 0, sigma: 2.8 },         // wide centered
+      { mu: 0, sigma: 1.0 },         // narrow centered (high D(P||Q))
+      { mu: state.sep, sigma: 0.7 }, // mode-seeking right
+      { mu: -state.sep, sigma: 0.7 },// mode-seeking left
+      { mu: 0, sigma: 3.5 },         // very wide
+    ];
+    const s = samples[Math.min(samples.length - 1, Math.round(frac * (samples.length - 1)))];
+    state.mu = s.mu;
+    state.sigma = s.sigma;
+    sliderMu.value = state.mu.toFixed(2);
+    sliderSig.value = state.sigma.toFixed(2);
+    valueMu.textContent = state.mu.toFixed(2);
+    valueSig.textContent = state.sigma.toFixed(2);
+    drawAll();
+    if (DETERMINISTIC) {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+        });
       });
-    });
+    }
   }
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

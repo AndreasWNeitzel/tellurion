@@ -8,24 +8,65 @@
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Duffing Oscillator</h1>
+  <h1>Duffing oscillator</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <p>
+    <strong>What you are seeing:</strong> a ball in a double-well potential
+    being pushed back and forth at a fixed frequency. Without the push the
+    ball settles into one of the two wells; with a small push it rattles
+    around in one well; with a strong enough push it occasionally jumps
+    over the barrier between the wells. The Duffing equation
+    $\ddot x + \delta\dot x - x + x^3 = \gamma\cos(\omega t)$ is the
+    standard textbook example of a chaotic driven oscillator.
+  </p>
+  <p>
+    The left panel shows the phase portrait $(x, \dot x)$. Dots: $x$ vs
+    $\dot x$ sampled once per drive period $T = 2\pi/\omega$ ("strobe", or
+    Poincare section). A clean periodic orbit lays down a single dot;
+    period-2 lays two; chaos sprays a fractal cloud. The right panel is
+    the bifurcation diagram: for each value of $\gamma$ on the horizontal
+    axis, we plot the strobed $x$ values vertically. You can see the
+    period-doubling cascade as $\gamma$ crosses about $0.4$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="520" tabindex="0"
+            aria-label="Left: Duffing phase portrait with stroboscopic Poincare dots. Right: bifurcation diagram in gamma."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Left: phase portrait of the Duffing oscillator with stroboscopic
+      Poincare points (one per drive period). Right: bifurcation diagram
+      across $\gamma$, showing the period-doubling cascade to chaos.
+      Method: classical fourth-order Runge-Kutta from
+      <code>shared/js/engine/ode-rk.js</code>, fixed step
+      $dt = T/200$. Source: Strogatz 2024, Nonlinear Dynamics and Chaos
+      2e, Section 12.5; Ott 2002, Chaos in Dynamical Systems 2e, Section
+      7.2.
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Duffing controls">
+    <div class="row"><span class="label">delta</span><input type="range" id="slider-delta" min="0.05" max="0.6" step="0.01" value="0.3"><span class="value" id="value-delta">0.30</span></div>
+    <div class="row"><span class="label">gamma</span><input type="range" id="slider-gamma" min="0.0" max="0.8" step="0.005" value="0.5"><span class="value" id="value-gamma">0.500</span></div>
+    <div class="row"><span class="label">omega</span><input type="range" id="slider-omega" min="0.6" max="2.0" step="0.05" value="1.2"><span class="value" id="value-omega">1.20</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0.1" max="2.0" step="0.1" value="0.6"><span class="value" id="value-speed">0.6</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

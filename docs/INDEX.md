@@ -50,8 +50,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Advection Scheme Shootout](../playgrounds/advection-scheme-shootout/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Airy Pattern Circular Aperture](../playgrounds/airy-pattern-circular-aperture/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Airy Diffraction Pattern from a Circular Aperture](../playgrounds/airy-pattern-circular-aperture/index.html)** &nbsp; (verified)
+  The Fraunhofer far-field intensity from a uniformly illuminated circular aperture of radius a. This is the classical resolution-limiting pattern for any optical instrument with a round pupil: telescopes, microscopes, eyes.
 
 - **[Backprop Tiny Net](../playgrounds/backprop-tiny-net/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
@@ -59,11 +59,14 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Billiards: Circle, Stadium, Sinai](../playgrounds/billiards-circle-stadium-sinai/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
+- **[Chirikov Standard Map - KAM Tori](../playgrounds/standard-map-kam/index.html)** &nbsp; (verified)
+  The standard map is the discrete-time area-preserving map p_{n+1} = p_n + K sin(theta_n) (mod 2 pi) theta_{n+1} = theta_n + p_{n+1} (mod 2 pi) on the torus (theta, p) in [0, 2 pi)^2. It is the Poincare section of a periodically kicked rotator. At K = 0 the dynamics is integrable; at finite K the KAM theorem guarantees that sufficiently irrational tori surviv
+
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
 
-- **[Duffing Oscillator](../playgrounds/duffing-oscillator/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Driven Damped Duffing Oscillator](../playgrounds/duffing-oscillator/index.html)** &nbsp; (verified)
+  A particle in a symmetric double-well potential V(x) = -x^2/2 + x^4/4, subject to linear damping and a periodic external drive. The Duffing equation is the textbook system that exhibits a complete period-doubling cascade to chaos under a single control parameter (the drive amplitude gamma). It is also one of the cleanest examples for visualizing a Poincare s
 
 - **[EM on GMM 2D](../playgrounds/em-on-gmm-2d/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
@@ -80,14 +83,14 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Hydrogen Orbital Cross Sections 2D](../playgrounds/hydrogen-orbital-cross-sections-2d/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[KL Divergence Asymmetry](../playgrounds/kl-divergence-asymmetry/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[KL Divergence Asymmetry (Mass-Covering vs Mode-Seeking)](../playgrounds/kl-divergence-asymmetry/index.html)** &nbsp; (verified)
+  Two probability densities on a 1D axis. Target P is a bimodal mixture of two Gaussians at +/- sep; approximation Q is a single Gaussian with controllable (mu_q, sigma_q). The playground computes the two directions of KL divergence and shows how their argmins differ qualitatively.
 
 - **[Kronig-Penney Bands](../playgrounds/kronig-penney-bands/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Lagrange Points (CR3BP)](../playgrounds/lagrange-points-cr3bp/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Lagrange Points of the Circular Restricted Three-Body Problem](../playgrounds/lagrange-points-cr3bp/index.html)** &nbsp; (verified)
+  Two heavy bodies of mass m1 and m2 orbit their common center of mass in a circular orbit. A test particle (mass negligible) moves under their combined gravity, computed in the rotating frame where the two primaries stand still. Non-dimensional units: total mass = 1, separation = 1, angular velocity = 1.
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und
@@ -104,11 +107,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Mean-Field VI on the Banana](../playgrounds/mean-field-vi-on-banana/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Mercury Precession (1PN)](../playgrounds/mercury-precession-pn/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Mutual Information 2D](../playgrounds/mutual-information-2d/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Mutual Information of a Bivariate Gaussian](../playgrounds/mutual-information-2d/index.html)** &nbsp; (verified)
+  A static, exact, no-integration example: two correlated Gaussian random variables (X, Y) with covariance Sigma. The joint density p(x, y) is rendered as a heatmap; the marginals p(x) and p(y) are drawn above and beside it. Mutual information I(X; Y) is the area you can carve out of the joint by knowing the marginals; for a Gaussian it admits a closed form -0
 
 - **[Particle in a Well Zoo](../playgrounds/particle-in-a-well-zoo/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
@@ -119,8 +119,11 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Percolation 2D](../playgrounds/percolation-2d/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Potts q-State Transition](../playgrounds/potts-q-state-transition/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Perihelion Precession in a Schwarzschild Effective Potential](../playgrounds/mercury-precession-pn/index.html)** &nbsp; (verified)
+  In pure Newtonian gravity, Bertrand's theorem says that the only closed bound orbits in central potentials are those of V(r) ~ 1/r and V(r) ~ r^2. Any departure from these forms causes the orbit to fail to close: the perihelion moves around with each revolution. The 1PN correction in the orbit-averaged Schwarzschild metric introduces an effective extra 1/r^3
+
+- **[q-state Potts Model on a 2D Square Lattice](../playgrounds/potts-q-state-transition/index.html)** &nbsp; (verified)
+  Each site of an L x L periodic square lattice holds a discrete spin s in {0, 1, ..., q - 1}. Energy: E = -J sum_{<i, j>} delta(s_i, s_j) with J = 1.
 
 - **[Relativistic Beaming Azimuth](../playgrounds/relativistic-beaming-azimuth/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
@@ -128,13 +131,10 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Roche Tidal Disruption](../playgrounds/roche-tidal-disruption/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Rossler Funnel](../playgrounds/rossler-funnel/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Rossler Funnel Attractor](../playgrounds/rossler-funnel/index.html)** &nbsp; (verified)
+  Otto Rossler's 1976 minimal continuous-time chaotic system. Three coupled first-order ODEs in (x, y, z) with one quadratic nonlinearity (z times x). Compared to Lorenz, the geometry is simpler: a near-planar spiral on the (x, y) plane with a single fold that lifts trajectories in z and drops them back near the origin. As the control parameter c increases, th
 
 - **[SPH Sod Shock Tube](../playgrounds/sph-sod-shock-tube/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Standard Map and KAM](../playgrounds/standard-map-kam/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)

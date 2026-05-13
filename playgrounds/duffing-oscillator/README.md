@@ -1,17 +1,17 @@
-# Duffing Oscillator
+# Duffing oscillator
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A particle in a double-well potential, damped and shaken at a fixed frequency. Two panels: phase portrait with stroboscopic Poincare points on the left, bifurcation diagram in the drive amplitude gamma on the right.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+What to look for: as gamma rises past 0.4, the orange strobe in the phase portrait splits from one point to two to four, then sprays into a fractal cloud. The bifurcation diagram on the right shows the same cascade as a sideways tree of branching curves; a vertical orange marker tracks the current gamma value.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: delta is damping; gamma is drive amplitude; omega is drive frequency. Speed sets integration steps per frame. The bifurcation diagram is heavy to compute and recomputes only when delta or omega change.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Strogatz 2024, Nonlinear Dynamics and Chaos, 2e, Section 12.5; Ott 2002, Chaos in Dynamical Systems, 2e, Section 7.2.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: undriven energy conservation (1e-3 over 4000 steps), weak-drive strobe collapse (sigma < 0.02), chaotic-regime occupancy >= 6 bins.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.

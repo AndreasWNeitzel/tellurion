@@ -3,29 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Potts Q State Transition</title>
+  <title>q-state Potts Model on a 2D Square Lattice</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Potts Q State Transition</h1>
+  <h1>q-state Potts model on a 2D square lattice</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <p>
+    <strong>What you are seeing:</strong> a generalization of the Ising
+    model where each site holds one of $q$ colors (instead of just two
+    spin values). Like-colored neighbors bind with energy
+    $-J\,\delta(s_i, s_j)$; the system minimizes this energy by forming
+    large monochromatic patches at low temperature and disordering into
+    salt-and-pepper noise at high temperature.
+  </p>
+  <p>
+    The transition temperature is
+    $T_c(q) = 1 / \ln(1 + \sqrt q)$ (Wu 1982). For $q = 2$ this reduces
+    to the Ising model and the transition is second-order: the order
+    parameter $M$ drops smoothly to zero at $T_c$. For $q \geq 5$ the
+    transition becomes first-order and you see latent-heat jumps in the
+    energy across $T_c$. The $q = 3$ and $q = 4$ cases sit in between with
+    a marginal second-order behavior.
+  </p>
+  <p>
+    Below: the left panel is the current spin configuration; the right
+    panel is the order parameter $M(t)$ trace (red horizontal: zero;
+    yellow: current value).
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="560" tabindex="0"
+            aria-label="Left: Potts spin configuration as colored cells. Right: trace of order parameter over MC sweeps."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Single-spin Metropolis on the q-state Potts model. Order parameter
+      $M = (q\,n_{\max} - N) / ((q - 1) N)$. Source: Wu 1982,
+      Rev. Mod. Phys. 54, 235 (`wu1982potts`); Stauffer and Aharony 1994,
+      Introduction to Percolation Theory, Section 8.4 (`staufferaharony1994`);
+      Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics,
+      Chapter 5 (`newmanbarkema1999`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Potts controls">
+    <div class="row">
+      <span class="label">q</span>
+      <input type="range" id="slider-q" min="2" max="10" step="1" value="3">
+      <span class="value" id="value-q">3</span>
+    </div>
+    <div class="row">
+      <span class="label">T / T_c</span>
+      <input type="range" id="slider-Tr" min="0.5" max="1.6" step="0.01" value="1.0">
+      <span class="value" id="value-Tr">1.00</span>
+    </div>
+    <div class="row">
+      <span class="label">speed</span>
+      <input type="range" id="slider-speed" min="0.5" max="6.0" step="0.5" value="2.0">
+      <span class="value" id="value-speed">2.0</span>
+    </div>
+    <div class="row buttons">
+      <button id="btn-cold" type="button">Cold start</button>
+      <button id="btn-hot" type="button">Hot start</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

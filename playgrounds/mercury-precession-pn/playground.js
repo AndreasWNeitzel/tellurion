@@ -1,105 +1,252 @@
-// Mercury Precession Pn playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// playground.js
+// Schwarzschild-effective-potential orbit with tunable GR-strength alpha.
+// Orange: current orbit (last single revolution). Faint blue: four recent
+// orbits, fading. Red dots: perihelion passages. Yellow disc: central body.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
+import {
+  createMercury, stepMercury, mercuryDiagnostics,
+  DEFAULT_DT, DEFAULT_ALPHA, DEFAULT_E,
+} from './sim.js';
 
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const urlParams      = new URLSearchParams(location.search);
+const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
+const DETERMINISTIC  = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME   = urlParams.get('capture');
+const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const sliderAlpha  = document.getElementById('slider-alpha');
+const sliderE      = document.getElementById('slider-e');
+const sliderSpeed  = document.getElementById('slider-speed');
+const valueAlpha   = document.getElementById('value-alpha');
+const valueE       = document.getElementById('value-e');
+const valueSpeed   = document.getElementById('value-speed');
+const btnReset     = document.getElementById('btn-reset');
+const btnPlayPause = document.getElementById('btn-playpause');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const W = canvas.width, H = canvas.height;
+const VIEW_R = 1.9;
+const CX = W / 2, CY = H / 2;
+const PX_PER_UNIT = Math.min(W, H) / (2 * VIEW_R);
+const STEPS_PER_FRAME_BASE = 30;
 
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
+const state = {
+  merc: null,
+  alpha: DEFAULT_ALPHA,
+  e: DEFAULT_E,
+  speed: 0.5,
+  ringBuffer: [],
+  recentOrbits: [],
+  currentOrbit: [],
+  perihelions: [],
+  rPrev: Infinity, rCurr: Infinity, rNext: Infinity,
+  playing: !DETERMINISTIC,
+  rafId: null,
 };
 
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+function cssVar(name, fallback) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
 }
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
+const tokens = {
+  fg:        cssVar('--fg', '#1A1B1C'),
+  fgMuted:   cssVar('--fg-muted', '#5C5E61'),
+  accent:    cssVar('--accent', '#1B6CA8'),
+  accentWarm:cssVar('--accent-warm', '#C13B27'),
+};
+
+function toPx(x, y) {
+  return { px: CX + x * PX_PER_UNIT, py: CY - y * PX_PER_UNIT };
 }
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+function rebuild() {
+  state.merc = createMercury({ alpha: state.alpha, e: state.e, integrator: 'verlet' });
+  state.recentOrbits = [];
+  state.currentOrbit = [];
+  state.perihelions = [];
+  state.rPrev = Infinity; state.rCurr = Infinity; state.rNext = Infinity;
+}
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+function drawAll() {
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  ctx.lineWidth = 0.5;
+  for (let k = 1; k <= 2; k += 1) {
+    ctx.beginPath();
+    ctx.arc(CX, CY, k * 0.5 * PX_PER_UNIT, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(0, CY); ctx.lineTo(W, CY);
+  ctx.moveTo(CX, 0); ctx.lineTo(CX, H);
+  ctx.stroke();
+
+  for (let oi = 0; oi < state.recentOrbits.length; oi += 1) {
+    const orb = state.recentOrbits[oi];
+    const fade = (oi + 1) / state.recentOrbits.length;
+    ctx.strokeStyle = `rgba(120, 165, 220, ${0.10 + 0.25 * fade})`;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i < orb.length; i += 1) {
+      const p = toPx(orb[i][0], orb[i][1]);
+      if (!started) { ctx.moveTo(p.px, p.py); started = true; }
+      else ctx.lineTo(p.px, p.py);
+    }
+    ctx.stroke();
   }
 
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  if (state.currentOrbit.length >= 2) {
+    ctx.strokeStyle = tokens.accentWarm;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    const f = toPx(state.currentOrbit[0][0], state.currentOrbit[0][1]);
+    ctx.moveTo(f.px, f.py);
+    for (let i = 1; i < state.currentOrbit.length; i += 1) {
+      const p = toPx(state.currentOrbit[i][0], state.currentOrbit[i][1]);
+      ctx.lineTo(p.px, p.py);
+    }
+    ctx.stroke();
+  }
+
+  for (const ph of state.perihelions) {
+    const p = toPx(ph.x, ph.y);
+    ctx.fillStyle = '#ff5050';
+    ctx.beginPath();
+    ctx.arc(p.px, p.py, 3, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#ffd96a';
+  ctx.beginPath();
+  ctx.arc(CX, CY, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  if (state.merc) {
+    const last = state.merc.inst.q;
+    const p = toPx(last[0], last[1]);
+    ctx.fillStyle = tokens.accent;
+    ctx.beginPath();
+    ctx.arc(p.px, p.py, 4, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  drawReadout();
 }
+
+function drawReadout() {
+  if (!state.merc) return;
+  const diag = mercuryDiagnostics(state.merc);
+  const rows = [
+    ['alpha',     state.alpha.toFixed(3)],
+    ['e',         state.e.toFixed(2)],
+    ['t',         diag.t.toFixed(2)],
+    ['perihelia', String(state.perihelions.length)],
+    ['dE/E',      diag.energyDrift.toExponential(2)],
+    ['L',         diag.angularMomentum.toFixed(4)],
+  ];
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  let y = 22;
+  for (const [k, v] of rows) {
+    ctx.textAlign = 'left';
+    ctx.fillText(k, 18, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(v, 220, y);
+    y += 14;
+  }
+}
+
+function trackPerihelion() {
+  const y = state.merc.inst.q;
+  const r = Math.hypot(y[0], y[1]);
+  state.rPrev = state.rCurr;
+  state.rCurr = state.rNext;
+  state.rNext = r;
+  if (Number.isFinite(state.rPrev) && state.rPrev > state.rCurr && state.rCurr < state.rNext) {
+    state.perihelions.push({ x: y[0], y: y[1] });
+    if (state.perihelions.length > 16) state.perihelions.shift();
+    if (state.currentOrbit.length > 10) {
+      state.recentOrbits.push(state.currentOrbit);
+      if (state.recentOrbits.length > 4) state.recentOrbits.shift();
+    }
+    state.currentOrbit = [];
+  }
+}
+
+function tickN(nSteps) {
+  if (!state.merc) return;
+  const y = state.merc.inst.q;
+  for (let i = 0; i < nSteps; i += 1) {
+    stepMercury(state.merc, DEFAULT_DT);
+    state.currentOrbit.push([y[0], y[1]]);
+    if (state.currentOrbit.length > 6000) state.currentOrbit.shift();
+    trackPerihelion();
+  }
+}
+
+function applyControls() {
+  state.alpha = parseFloat(sliderAlpha.value);
+  state.e     = parseFloat(sliderE.value);
+  state.speed = parseFloat(sliderSpeed.value);
+  valueAlpha.textContent = state.alpha.toFixed(3);
+  valueE.textContent     = state.e.toFixed(2);
+  valueSpeed.textContent = state.speed.toFixed(1);
+  rebuild();
+  drawAll();
+}
+
+sliderAlpha.addEventListener('change', applyControls);
+sliderE.addEventListener('change', applyControls);
+sliderSpeed.addEventListener('input', () => {
+  state.speed = parseFloat(sliderSpeed.value);
+  valueSpeed.textContent = state.speed.toFixed(1);
+});
+
+btnReset.addEventListener('click', applyControls);
+btnPlayPause.addEventListener('click', () => {
+  state.playing = !state.playing;
+  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+});
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
+  rebuild();
+
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
+    const CAPTURE_TOTAL = 30_000;
+    const target = Math.round(frac * CAPTURE_TOTAL);
+    tickN(target);
+    drawAll();
+    if (DETERMINISTIC) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent('simulation-ready', {
+            detail: { capture: CAPTURE_NAME, seed: SEED, steps: target },
+          }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED, steps: target };
+        });
+      });
     }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    return;
   }
 
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
+  drawAll();
+}
+
+function tick() {
+  if (state.playing) {
+    const stepsThisFrame = Math.max(2, Math.round(STEPS_PER_FRAME_BASE * state.speed));
+    tickN(stepsThisFrame);
+    drawAll();
   }
+  state.rafId = requestAnimationFrame(tick);
 }
 
 if (document.readyState === 'loading') {

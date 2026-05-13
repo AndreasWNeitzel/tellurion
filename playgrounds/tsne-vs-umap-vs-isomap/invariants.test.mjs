@@ -58,9 +58,9 @@ describe('dr-comparator: each method separates the 5D cluster ring', () => {
     expect(minPairDistance(cx, cy, 5)).toBeGreaterThan(1.5);
   });
 
-  it('Isomap also separates the 5D clusters', () => {
+  it('Isomap also separates the 5D clusters (k = 20 needed for connectivity at N = 200)', () => {
     const d = fiveClustersRing({ N: 200, seed: 1 });
-    const Y = isomap(d.X, d.N, d.D, 6);
+    const Y = isomap(d.X, d.N, d.D, 20);
     const { cx, cy } = clusterCentroids(Y, d.labels, 5, d.N);
     expect(minPairDistance(cx, cy, 5)).toBeGreaterThan(0.5);
   });
