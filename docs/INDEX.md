@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Damped, Driven Oscillator and Resonance](../playgrounds/damped-driven-oscillator/index.html)** &nbsp; (verified, verified 2026-05-13T18:42:00Z)
+  A single mass on a spring with linear damping, driven sinusoidally: x'' + 2 gamma x' + omega_0^2 x = F_0 cos(omega t)
+
 - **[Tautochrone: Cycloid Isochronism](../playgrounds/tautochrone-isochronism/index.html)** &nbsp; (verified, verified 2026-05-13T18:36:55Z)
   Five frictionless beads on a single inverted cycloid bowl, released from five different starting amplitudes. The bowl is the curve x(theta) = R (theta - sin theta) y(theta) = R (1 + cos theta) with bottom at (R pi, 0) (theta = pi).
 
@@ -166,9 +169,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Schwarzschild Light Bending](../playgrounds/schwarzschild-geodesics/index.html)** &nbsp; (in-progress, verified 2026-05-13T08:35:00Z)
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
-
-- **[Damped Driven Oscillator](../playgrounds/damped-driven-oscillator/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
