@@ -1,0 +1,20 @@
+import { chromium } from 'playwright';
+import { startStaticServer } from '../tests/helpers/static-server.mjs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, '..');
+const { server, url: baseUrl } = await startStaticServer(ROOT);
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1400, height: 900 }, deviceScaleFactor: 4 });
+const page = await ctx.newPage();
+await page.goto(`${baseUrl}/playgrounds/predator-prey-hopf/index.html`);
+await page.waitForTimeout(2000);
+const handle = await page.evaluateHandle(() => Array.from(document.querySelectorAll('.katex')).find(k => k.textContent.includes('K−KH')));
+const el = handle.asElement();
+const box = await el.boundingBox();
+await page.screenshot({ path: path.join(ROOT, 'tests', 'audit-snaps', 'pp-sqrt-zoom.png'),
+  clip: { x: Math.max(0, box.x - 60), y: Math.max(0, box.y - 30), width: box.width + 120, height: box.height + 60 } });
+console.log('box', box);
+await browser.close();
+await server.closePromise();
