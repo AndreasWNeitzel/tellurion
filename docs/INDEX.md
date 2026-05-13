@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Shapiro Time Delay](../playgrounds/shapiro-time-delay/index.html)** &nbsp; (verified, verified 2026-05-13T19:33:15Z)
+  A light signal travels past a massive body (Schwarzschild M = 1 in geometric units) at impact parameter b. The leading-order PPN time delay relative to flat-space is
+
 - **[Schwarzschild Effective Potential and the ISCO](../playgrounds/schwarzschild-effective-potential/index.html)** &nbsp; (verified, verified 2026-05-13T19:28:30Z)
   Effective radial potential for geodesics outside a Schwarzschild black hole of mass M (geometric units G = c = 1): - Massive: V_eff = 0.5 (1 - 2M/r)(1 + L^2 / r^2) - 0.5. - Photon:  V_eff = 0.5 (L^2 / r^2)(1 - 2M/r).
 
@@ -206,8 +209,14 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Schwarzschild Light Bending](../playgrounds/schwarzschild-geodesics/index.html)** &nbsp; (in-progress, verified 2026-05-13T08:35:00Z)
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
 
+- **[Accretion Disk Temperature Profile](../playgrounds/accretion-disk-temperature-profile/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
+
+- **[Gauss Quadrature Vs Trapezoid](../playgrounds/gauss-quadrature-vs-trapezoid/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und
@@ -217,6 +226,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
+
+- **[Runge Vs Chebyshev](../playgrounds/runge-vs-chebyshev/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates
