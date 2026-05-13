@@ -1,113 +1,193 @@
-// 1d Tdse Scattering Comparator playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// playground.js
+// Render the 1D TDSE wavefunction (Re psi, |psi|^2) with barrier overlay.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
+import { createTDSE, stepCN, totalNorm, reflectionTransmission, N_GRID, X_MIN, X_MAX } from './sim.js';
 
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const urlParams      = new URLSearchParams(location.search);
+const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
+const DETERMINISTIC  = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME   = urlParams.get('capture');
+const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const selKind      = document.getElementById('select-kind');
+const sliderV0     = document.getElementById('slider-v0');
+const sliderK0     = document.getElementById('slider-k0');
+const sliderSpeed  = document.getElementById('slider-speed');
+const valueV0      = document.getElementById('value-v0');
+const valueK0      = document.getElementById('value-k0');
+const valueSpeed   = document.getElementById('value-speed');
+const btnReset     = document.getElementById('btn-reset');
+const btnPlayPause = document.getElementById('btn-playpause');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const W = canvas.width, H = canvas.height;
 
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
+const state = {
+  tdse: null,
+  speed: 6,
+  V0: 4.0,
+  k0: 2.0,
+  kind: 'barrier',
+  playing: !DETERMINISTIC,
 };
 
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
+const tok = {
+  accent: cssVar('--accent', '#1B6CA8'),
+  accentWarm: cssVar('--accent-warm', '#C13B27'),
+};
+
+function toPx(x, y, ymin, ymax) {
+  return {
+    px: (W - 40) * (x - X_MIN) / (X_MAX - X_MIN) + 20,
+    py: 20 + (H - 80) * (1 - (y - ymin) / (ymax - ymin)),
+  };
 }
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
+function drawAll() {
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+  // Y range covers ~ [-0.5, 0.5] for Re psi, and 0-1.0 for |psi|^2.
+  const ymin = -0.6, ymax = 0.6;
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  // Axis
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+  ctx.lineWidth = 0.5;
+  const zero = toPx(0, 0, ymin, ymax);
+  ctx.beginPath();
+  ctx.moveTo(20, zero.py); ctx.lineTo(W - 20, zero.py);
+  ctx.moveTo(zero.px, 20); ctx.lineTo(zero.px, H - 60);
+  ctx.stroke();
+
+  if (!state.tdse) { return; }
+
+  // Barrier rectangle
+  const v0Px = state.V0 / 10;   // scale V_0 to a barrier-rect height in the plot
+  for (let i = 0; i < N_GRID; i += 1) {
+    const x = X_MIN + i * (X_MAX - X_MIN) / (N_GRID - 1);
+    const V = state.tdse.V[i];
+    if (V !== 0) {
+      const a = toPx(x, 0, ymin, ymax);
+      const b = toPx(x, V * 0.05, ymin, ymax);
+      ctx.fillStyle = V > 0 ? 'rgba(255, 80, 80, 0.20)' : 'rgba(80, 255, 80, 0.18)';
+      ctx.fillRect(a.px - 1, Math.min(a.py, b.py), 2, Math.abs(a.py - b.py));
+    }
   }
 
-  render();
-  updateReadout();
-  frame += 1;
+  // |psi|^2 in red
+  ctx.strokeStyle = tok.accentWarm;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let i = 0; i < N_GRID; i += 1) {
+    const x = X_MIN + i * (X_MAX - X_MIN) / (N_GRID - 1);
+    const p = state.tdse.psiRe[i] ** 2 + state.tdse.psiIm[i] ** 2;
+    const pt = toPx(x, p * 1.5, ymin, ymax);
+    if (i === 0) ctx.moveTo(pt.px, pt.py); else ctx.lineTo(pt.px, pt.py);
+  }
+  ctx.stroke();
+
+  // Re psi in blue
+  ctx.strokeStyle = tok.accent;
+  ctx.lineWidth = 1.0;
+  ctx.beginPath();
+  for (let i = 0; i < N_GRID; i += 1) {
+    const x = X_MIN + i * (X_MAX - X_MIN) / (N_GRID - 1);
+    const pt = toPx(x, state.tdse.psiRe[i], ymin, ymax);
+    if (i === 0) ctx.moveTo(pt.px, pt.py); else ctx.lineTo(pt.px, pt.py);
+  }
+  ctx.stroke();
+
+  // Readout
+  const norm = totalNorm(state.tdse);
+  const { R, T } = reflectionTransmission(state.tdse);
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  const rows = [
+    ['t',     state.tdse.t.toFixed(2)],
+    ['steps', String(state.tdse.nSteps)],
+    ['V_0',   state.tdse.V0.toFixed(2)],
+    ['k_0',   state.k0.toFixed(2)],
+    ['kind',  state.tdse.kind],
+    ['norm',  norm.toFixed(6)],
+    ['R (x<0)', R.toFixed(3)],
+    ['T (x>0)', T.toFixed(3)],
+  ];
+  let y = 20;
+  for (const [k, v] of rows) {
+    ctx.textAlign = 'left';
+    ctx.fillText(k, 24, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(v, 240, y);
+    y += 14;
+  }
+
+  // Color legend
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = tok.accent;
+  ctx.fillText('Re psi', W - 24, 20);
+  ctx.fillStyle = tok.accentWarm;
+  ctx.fillText('|psi|^2 (x 1.5)', W - 24, 34);
+}
+
+function rebuild() {
+  state.tdse = createTDSE({
+    x0: -15, k0: state.k0, sigma: 1.5,
+    V0: state.V0, barrierA: 3.0, kind: state.kind, dt: 0.05,
+  });
+}
+
+function tickN(n) {
+  if (!state.tdse) return;
+  for (let i = 0; i < n; i += 1) stepCN(state.tdse);
+}
+
+selKind.addEventListener('change', () => { state.kind = selKind.value; rebuild(); drawAll(); });
+sliderV0.addEventListener('change', () => { state.V0 = parseFloat(sliderV0.value); valueV0.textContent = state.V0.toFixed(1); rebuild(); drawAll(); });
+sliderV0.addEventListener('input', () => { valueV0.textContent = parseFloat(sliderV0.value).toFixed(1); });
+sliderK0.addEventListener('change', () => { state.k0 = parseFloat(sliderK0.value); valueK0.textContent = state.k0.toFixed(2); rebuild(); drawAll(); });
+sliderK0.addEventListener('input', () => { valueK0.textContent = parseFloat(sliderK0.value).toFixed(2); });
+sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
+btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
+btnPlayPause.addEventListener('click', () => {
+  state.playing = !state.playing;
+  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+});
+
+function bootSync() {
+  rebuild();
+  if (CAPTURE_NAME) {
+    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    const target = Math.round(frac * 400);   // 400 steps total = full crossing
+    tickN(target);
+    drawAll();
+    if (DETERMINISTIC) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+        });
+      });
+    }
+    return;
+  }
+  drawAll();
+}
+
+function tick() {
+  if (state.playing) {
+    tickN(state.speed);
+    drawAll();
+  }
   requestAnimationFrame(tick);
 }
 
-function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
-  }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
-}
-
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

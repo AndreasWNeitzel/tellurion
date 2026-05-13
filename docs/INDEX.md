@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[1D TDSE Wavepacket Scattering](../playgrounds/1d-tdse-scattering-comparator/index.html)** &nbsp; (verified, verified 2026-05-13T17:07:26Z)
+  A 1D Gaussian wavepacket initially at x_0 = -15 with momentum k_0 moves to the right and scatters off a potential (rectangular barrier, step, or square well). Computed with Crank-Nicolson on a uniform grid; norm-preserving by construction.
+
 - **[Billiards - Circle, Stadium, Sinai](../playgrounds/billiards-circle-stadium-sinai/index.html)** &nbsp; (verified, verified 2026-05-13T17:02:26Z)
   A free particle of unit speed bouncing elastically off the walls of a 2D shape. Three classical geometries: circle (integrable), Bunimovich stadium (chaotic), Sinai billiard (chaotic with convex scatterer). Used to study quantum-classical correspondence and the onset of chaos under purely geometric constraints.
 
@@ -106,9 +109,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Schwarzschild Light Bending](../playgrounds/schwarzschild-geodesics/index.html)** &nbsp; (in-progress, verified 2026-05-13T08:35:00Z)
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
-
-- **[1D TDSE Scattering Comparator](../playgrounds/1d-tdse-scattering-comparator/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Advection Scheme Shootout](../playgrounds/advection-scheme-shootout/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
