@@ -85,11 +85,23 @@ async function loadCards() {
       continue;
     }
     const { frontmatter, body } = parseFrontmatter(spec);
+    let description = firstParagraph(body);
+    // Spec bodies that still hold the scaffold placeholder are useless as
+    // card descriptions; fall back to the README's first paragraph.
+    if (!description || description.startsWith('This file is a placeholder')) {
+      try {
+        const readme = await fs.readFile(path.join(dir, 'README.md'), 'utf-8');
+        const readmeDesc = firstParagraph(readme);
+        if (readmeDesc && !readmeDesc.startsWith('One short paragraph')) {
+          description = readmeDesc;
+        }
+      } catch { /* no README */ }
+    }
     const verified = await readVerified(dir);
     cards.push({
       slug:          frontmatter.slug ?? name,
       title:         frontmatter.title ?? name,
-      description:   firstParagraph(body),
+      description:   description,
       citation:      extractPrimaryCitation(body),
       status:        frontmatter.status ?? 'unknown',
       verifiedAt:    verified,
@@ -113,14 +125,24 @@ function htmlEscape(s) {
 }
 
 function renderHTML(cards) {
-  const cardsHtml = cards.map(c => `
+  const shipped = cards.filter(c => c.verifiedAt);
+  const drafts  = cards.filter(c => !c.verifiedAt);
+
+  const cardsHtml = shipped.map(c => `
     <article class="card">
       <h2><a href="./playgrounds/${htmlEscape(c.slug)}/index.html">${htmlEscape(c.title)}</a></h2>
-      <p class="status">status: ${htmlEscape(c.status)}${c.verifiedAt ? ` &middot; verified ${htmlEscape(c.verifiedAt)}` : ''}</p>
+      <p class="status">verified ${htmlEscape((c.verifiedAt || '').slice(0, 10))}</p>
       <p class="description">${htmlEscape(c.description)}</p>
       ${c.citation ? `<p class="citation"><em>${htmlEscape(c.citation)}</em></p>` : ''}
     </article>
   `).join('\n');
+
+  const draftsHtml = drafts.length === 0 ? '' : `
+  <h2 class="drafts-heading">Draft (${drafts.length})</h2>
+  <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
+  <ul class="drafts-list">
+    ${drafts.map(c => `<li><span class="drafts-slug">${htmlEscape(c.slug)}</span></li>`).join('\n    ')}
+  </ul>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -141,14 +163,33 @@ function renderHTML(cards) {
     .card .status { font-size: 0.8rem; color: var(--fg-muted); margin: 0 0 var(--space-2); font-family: var(--font-mono); }
     .card .description { font-size: 0.92rem; color: var(--fg); margin: 0 0 var(--space-2); }
     .card .citation { font-size: 0.80rem; color: var(--fg-muted); margin: 0; }
+    .drafts-heading { margin-top: var(--space-6); color: var(--fg-muted); font-size: 1rem; }
+    .drafts-note { color: var(--fg-muted); font-size: 0.85rem; }
+    .drafts-list { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); padding: 0; list-style: none; }
+    .drafts-list li { padding: 4px 8px; border: 1px solid var(--grid); border-radius: 4px; }
+    .drafts-slug { font-family: var(--font-mono); font-size: 0.85rem; color: var(--fg-muted); }
+    .note {
+      background: var(--accent-soft, rgba(27, 108, 168, 0.08));
+      border-left: 3px solid var(--accent);
+      padding: var(--space-3) var(--space-4);
+      margin-block: var(--space-4);
+      font-size: 0.92em;
+      color: var(--fg);
+    }
+    code { font-family: var(--font-mono); font-size: 0.92em; }
   </style>
 </head>
 <body>
   <h1>Playgrounds portfolio</h1>
-  <p>In-browser physics, astronomy, and machine-learning playgrounds. Each card links to a bundled interactive demo.</p>
+  <p>In-browser physics, astronomy, and machine-learning playgrounds. Every shipped card is gated by a strong physical or analytic invariant plus an SSIM visual gate. See <a href="./docs/BUILD_ORDER.md">docs/BUILD_ORDER.md</a> for the full plan and <a href="./docs/INDEX.md">docs/INDEX.md</a> for a markdown index.</p>
+  <div class="note">
+    These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
+  </div>
+  <h2>Shipped (${shipped.length})</h2>
   <section class="card-grid">
 ${cardsHtml}
   </section>
+${draftsHtml}
 </body>
 </html>
 `;
@@ -164,11 +205,16 @@ function renderMarkdown(cards) {
 async function main() {
   const cards = await loadCards();
   await fs.mkdir(DIST_DIR, { recursive: true });
-  const htmlPath = path.join(DIST_DIR, 'index.html');
+  const html = renderHTML(cards);
+  // Write to BOTH dist/index.html (production bundle) and the project root
+  // index.html (what vite's dev server and naive static servers serve).
+  const distHtml = path.join(DIST_DIR, 'index.html');
+  const rootHtml = path.join(ROOT, 'index.html');
   const mdPath   = path.join(DOCS_DIR, 'INDEX.md');
-  await fs.writeFile(htmlPath, renderHTML(cards));
+  await fs.writeFile(distHtml, html);
+  await fs.writeFile(rootHtml, html);
   await fs.writeFile(mdPath,   renderMarkdown(cards));
-  console.log(`Wrote ${htmlPath} and ${mdPath}; ${cards.length} cards`);
+  console.log(`Wrote ${distHtml}, ${rootHtml}, ${mdPath}; ${cards.length} cards`);
 }
 
 main().catch(err => {
