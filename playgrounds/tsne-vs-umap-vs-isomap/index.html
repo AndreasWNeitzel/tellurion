@@ -24,38 +24,36 @@
 <body>
   <h1>Dimensionality reduction: PCA vs Isomap vs t-SNE</h1>
   <p>
-    <strong>What you are seeing:</strong> a higher-dimensional dataset
-    (top-left panel, slowly rotating around the vertical axis so you can
-    see it really is 3D or more), and three different ways of flattening
-    it into 2D. Points are colored by a hidden label (position along the
-    Swiss roll, position along the S-curve, or cluster index). A method
-    is doing a "good job" when same-colored points stay near each other
-    in the 2D embedding.
+    <strong>What you are seeing:</strong> a topologically non-trivial
+    dataset (top-left panel, slowly rotating so you can see its 3D
+    structure), and three different ways of flattening it into 2D.
+    Points are colored by a hidden label (toroidal angle, ring-index, or
+    cluster-index). A method is doing a "good job" when same-colored
+    points stay near each other in the 2D embedding.
   </p>
   <p>
     <strong>PCA</strong> (linear): keep the two directions of largest
-    variance. Fast and deterministic, but rigid; on a Swiss roll it
-    squashes the whole spiral into a useless oval because variance does
-    not know about curvature.
-    <strong>Isomap</strong>: build a $k$-nearest-neighbor graph, measure
-    distances along the graph (not through air), then do classical MDS on
-    those geodesic distances. Unrolls the Swiss roll because the graph
-    distance follows the manifold.
-    <strong>t-SNE</strong>: place a Student-t kernel in 2D and minimize
-    the KL divergence to a Gaussian-affinity matrix in the original
-    space. Local neighborhoods are preserved well, global geometry is
-    not. Strong for finding clusters, weak for measuring distances.
+    variance. Fast and deterministic, but rigid; cannot unwrap a torus
+    or unlink the Hopf rings because it has no notion of curvature or
+    connectivity. <strong>Isomap</strong>: build a $k$-nearest-neighbor
+    graph, measure distances along the graph (not through air), then do
+    classical MDS on those geodesic distances. Unwraps the torus into a
+    roughly periodic strip. <strong>t-SNE</strong>: place a Student-t
+    kernel in 2D and minimize the KL divergence to a Gaussian-affinity
+    matrix in the original space. Local neighborhoods preserved well;
+    global geometry lost.
     <em>The catalog slug names UMAP; we show classical PCA in its place
-    as a linear baseline. UMAP is conceptually close to t-SNE but has its
-    own implementation cost (fuzzy simplicial sets) that we cut for
-    space.</em>
+    as the linear baseline.</em>
   </p>
   <p>
-    Datasets: <em>Swiss roll</em> and <em>S-curve</em> are 3D manifolds
-    with one intrinsic curved dimension; <em>Five clusters in 5D</em> has
-    five Gaussian blobs arranged on a ring in dimensions 0 and 1, with
-    dimensions 2 through 4 being pure noise. A useful DR method on this
-    last one ignores the noise and produces five tight clumps.
+    Datasets:
+    <em>Torus</em> ($S^1 \times S^1$ embedded in 3D) is intrinsically 2D
+    but topologically has a hole: no linear projection can flatten it.
+    <em>Hopf link</em> is two interlinked 1D circles, intrinsically
+    1D but topologically inseparable in 3-space.
+    <em>Five clusters in 5D</em> has five Gaussian blobs on a ring in
+    dimensions 0 and 1 with dims 2 through 4 pure noise. A good DR
+    method ignores the noise.
   </p>
 
   <figure class="pg-figure">
@@ -75,8 +73,8 @@
     <div class="row">
       <span class="label">dataset</span>
       <select id="select-dataset">
-        <option value="swiss-roll" selected>Swiss roll (3D manifold)</option>
-        <option value="s-curve">S-curve (3D manifold)</option>
+        <option value="torus" selected>Torus surface (topologically S^1 x S^1 in 3D)</option>
+        <option value="hopf-link">Hopf link (two interlocked rings in 3D)</option>
         <option value="clusters-5d">Five clusters in 5D</option>
       </select>
     </div>

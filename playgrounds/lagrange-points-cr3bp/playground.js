@@ -150,10 +150,15 @@ function drawReadout() {
 }
 
 function tickN(nSteps) {
+  const trailStride = Math.max(1, Math.floor(nSteps / 200));
   for (const p of state.particles) {
-    for (let s = 0; s < nSteps; s += 1) stepCR3BP(p.sim, DEFAULT_DT);
-    p.trail.push({ x: p.sim.inst.q[0], y: p.sim.inst.q[1] });
-    if (p.trail.length > TRAIL_MAX) p.trail.shift();
+    for (let s = 0; s < nSteps; s += 1) {
+      stepCR3BP(p.sim, DEFAULT_DT);
+      if ((s % trailStride) === 0) {
+        p.trail.push({ x: p.sim.inst.q[0], y: p.sim.inst.q[1] });
+        if (p.trail.length > TRAIL_MAX) p.trail.shift();
+      }
+    }
   }
 }
 

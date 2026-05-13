@@ -176,8 +176,24 @@ function bootSync() {
   }
 }
 
+// Animation: cycle rho through [-0.95, +0.95] with a slow sinusoid so the
+// page is alive on first load. User dragging the rho slider takes over.
+let animTime = 0;
+let userOverride = false;
+sliderRho.addEventListener('input', () => { userOverride = true; });
+function tick() {
+  if (!userOverride && !CAPTURE_NAME) {
+    animTime += 0.012;
+    state.rho = 0.93 * Math.sin(animTime);
+    sliderRho.value = state.rho.toFixed(3);
+    valueRho.textContent = state.rho.toFixed(3);
+    drawAll();
+  }
+  requestAnimationFrame(tick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

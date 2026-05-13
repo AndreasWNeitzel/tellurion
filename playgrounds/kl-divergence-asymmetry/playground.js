@@ -217,8 +217,29 @@ function bootSync() {
   }
 }
 
+// Animate: sweep Q's mean back and forth through the bimodal target.
+let animTime = 0;
+let userOverride = false;
+sliderMu.addEventListener('input', () => { userOverride = true; });
+sliderSig.addEventListener('input', () => { userOverride = true; });
+btnCover.addEventListener('click', () => { userOverride = true; });
+btnSeek.addEventListener('click', () => { userOverride = true; });
+function tick() {
+  if (!userOverride && !CAPTURE_NAME) {
+    animTime += 0.010;
+    state.mu = (state.sep + 1.5) * Math.sin(animTime);
+    state.sigma = 1.2 + 0.9 * (0.5 + 0.5 * Math.sin(animTime * 0.6));
+    sliderMu.value = state.mu.toFixed(2);
+    sliderSig.value = state.sigma.toFixed(2);
+    valueMu.textContent = state.mu.toFixed(2);
+    valueSig.textContent = state.sigma.toFixed(2);
+    drawAll();
+  }
+  requestAnimationFrame(tick);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

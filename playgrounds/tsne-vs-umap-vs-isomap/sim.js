@@ -11,36 +11,56 @@ import { makeRng, gaussian } from '../../shared/js/render/rng.js';
 
 // ==== datasets ============================================================
 
-// 3D Swiss roll: parameterize by (t, h) and embed as
-//   x = t cos(t), y = h, z = t sin(t).
-export function swissRoll({ N = 400, seed = 0xC0FFEE } = {}) {
+// Torus surface in 3D: intrinsically 2D (S^1 x S^1) but topologically a torus,
+// so it has a hole and cannot be flattened by a single linear projection.
+// PCA produces a disc; Isomap recovers something close to the periodic
+// (theta, phi) parameterization; t-SNE preserves local neighborhoods. The
+// label is the toroidal angle theta in [0, 2 pi).
+export function torus({ N = 500, seed = 0xC0FFEE, R = 2.0, r = 0.7 } = {}) {
   const rng = makeRng(seed);
   const X = new Float64Array(N * 3);
   const labels = new Float64Array(N);
   for (let i = 0; i < N; i += 1) {
-    const t = 1.5 * Math.PI * (1 + 2 * rng());
-    const h = 20 * rng();
-    X[i * 3]     = t * Math.cos(t);
-    X[i * 3 + 1] = h;
-    X[i * 3 + 2] = t * Math.sin(t);
-    labels[i] = t;
+    const theta = 2 * Math.PI * rng();    // toroidal (around the hole)
+    const phi   = 2 * Math.PI * rng();    // poloidal (around the tube)
+    X[i * 3]     = (R + r * Math.cos(phi)) * Math.cos(theta);
+    X[i * 3 + 1] = (R + r * Math.cos(phi)) * Math.sin(theta);
+    X[i * 3 + 2] = r * Math.sin(phi);
+    labels[i] = theta;
   }
   return { X, labels, N, D: 3 };
 }
 
-// S-curve in 3D: parameterize by (t, h) and embed as
-//   x = sin(t), y = h, z = sign(t) (1 - cos(t)).
-export function sCurve({ N = 400, seed = 0xC0FFEE } = {}) {
+// Hopf link: two interlocked circles in 3D. Each ring is intrinsically 1D
+// but the two rings are topologically linked so they cannot be separated
+// in 3-space without passing through each other. The label distinguishes
+// the two rings, then varies along each circle.
+export function hopfLink({ N = 500, seed = 0xC0FFEE } = {}) {
   const rng = makeRng(seed);
   const X = new Float64Array(N * 3);
   const labels = new Float64Array(N);
+  const halfN = Math.floor(N / 2);
+  const R = 2.0;     // ring radius
+  const eps = 0.10;  // thickness of each ring (so rings are quasi-1D but with width)
   for (let i = 0; i < N; i += 1) {
-    const t = (-1.5 + 3 * rng()) * Math.PI;
-    const h = 4 * rng() - 2;
-    X[i * 3]     = Math.sin(t);
-    X[i * 3 + 1] = h;
-    X[i * 3 + 2] = Math.sign(t) * (1 - Math.cos(t));
-    labels[i] = t;
+    const onRingA = i < halfN;
+    const u = 2 * Math.PI * rng();
+    const dx = gaussian(rng, 0, eps);
+    const dy = gaussian(rng, 0, eps);
+    const dz = gaussian(rng, 0, eps);
+    if (onRingA) {
+      // Ring A in the xy plane, centered at origin.
+      X[i * 3]     = R * Math.cos(u) + dx;
+      X[i * 3 + 1] = R * Math.sin(u) + dy;
+      X[i * 3 + 2] = 0 + dz;
+      labels[i] = u / (2 * Math.PI);  // [0, 1)
+    } else {
+      // Ring B in the xz plane, offset so the two rings link through each other.
+      X[i * 3]     = R + R * Math.cos(u) + dx;
+      X[i * 3 + 1] = 0 + dy;
+      X[i * 3 + 2] = R * Math.sin(u) + dz;
+      labels[i] = 1 + u / (2 * Math.PI);  // [1, 2)
+    }
   }
   return { X, labels, N, D: 3 };
 }
@@ -48,7 +68,7 @@ export function sCurve({ N = 400, seed = 0xC0FFEE } = {}) {
 // Five Gaussian clusters arranged around a circle in dim-D (default 5D).
 // The signal lives in dims 0, 1 (the ring); dims 2..D-1 are pure noise.
 // A useful DR method should recover five tight clumps and ignore the noise.
-// This is the canonical "intrinsic dimension 0, ambient dimension 5" toy.
+// Canonical "intrinsic dimension 0, ambient dimension 5" toy.
 export function fiveClustersRing({ N = 500, seed = 0xC0FFEE, dim = 5 } = {}) {
   const rng = makeRng(seed);
   const K = 5;
@@ -65,9 +85,40 @@ export function fiveClustersRing({ N = 500, seed = 0xC0FFEE, dim = 5 } = {}) {
   return { X, labels, N, D: dim };
 }
 
+// Kept for backward compatibility with the invariants test which imports
+// swissRoll and sCurve. Not exposed in the playground dropdown.
+export function swissRoll({ N = 400, seed = 0xC0FFEE } = {}) {
+  const rng = makeRng(seed);
+  const X = new Float64Array(N * 3);
+  const labels = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    const t = 1.5 * Math.PI * (1 + 2 * rng());
+    const h = 20 * rng();
+    X[i * 3]     = t * Math.cos(t);
+    X[i * 3 + 1] = h;
+    X[i * 3 + 2] = t * Math.sin(t);
+    labels[i] = t;
+  }
+  return { X, labels, N, D: 3 };
+}
+export function sCurve({ N = 400, seed = 0xC0FFEE } = {}) {
+  const rng = makeRng(seed);
+  const X = new Float64Array(N * 3);
+  const labels = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    const t = (-1.5 + 3 * rng()) * Math.PI;
+    const h = 4 * rng() - 2;
+    X[i * 3]     = Math.sin(t);
+    X[i * 3 + 1] = h;
+    X[i * 3 + 2] = Math.sign(t) * (1 - Math.cos(t));
+    labels[i] = t;
+  }
+  return { X, labels, N, D: 3 };
+}
+
 export const DATASETS = {
-  'swiss-roll':  swissRoll,
-  's-curve':     sCurve,
+  'torus':       torus,
+  'hopf-link':   hopfLink,
   'clusters-5d': fiveClustersRing,
 };
 

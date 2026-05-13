@@ -29,7 +29,7 @@ const PANEL = {
 };
 
 const state = {
-  dataset: 'swiss-roll',
+  dataset: 'torus',
   N: 300,
   k: 8,
   perplexity: 30,
@@ -48,22 +48,27 @@ const tok = {
   accent: cssVar('--accent', '#1B6CA8'),
 };
 
-// Color points by their label using a hue ramp (viridis-like) for swiss-roll
-// and two-color categorical for two-blobs.
+// Color points by their label.
 function colorFor(label, dataset) {
   if (dataset === 'clusters-5d') {
     const palette = ['#4C72B0', '#DD8452', '#55A868', '#C44E52', '#8172B2'];
     return palette[Math.round(label) % palette.length];
   }
-  if (dataset === 's-curve') {
-    const t = (label + 1.5 * Math.PI) / (3 * Math.PI);
-    const h = (260 + 180 * t) % 360;
+  if (dataset === 'hopf-link') {
+    // Two-ring categorical with intra-ring hue ramp.
+    const ringA = label < 1;
+    const t = ringA ? label : label - 1;     // [0, 1)
+    const baseHue = ringA ? 210 : 30;
+    const h = (baseHue + 60 * t) % 360;
+    return `hsl(${h.toFixed(0)}, 80%, 50%)`;
+  }
+  if (dataset === 'torus') {
+    // Hue ramp along the toroidal angle theta in [0, 2 pi).
+    const t = label / (2 * Math.PI);
+    const h = (220 + 300 * t) % 360;
     return `hsl(${h.toFixed(0)}, 75%, 50%)`;
   }
-  // default: swiss-roll hue ramp by t parameter
-  const t = (label - 1.5 * Math.PI) / (3 * Math.PI);
-  const h = (220 + 200 * t) % 360;
-  return `hsl(${h.toFixed(0)}, 75%, 50%)`;
+  return '#69a8d6';
 }
 
 function drawRaw() {
@@ -213,7 +218,7 @@ function applyControls() {
 [selDataset, sliderN, sliderK, sliderPerp].forEach(s => s.addEventListener('change', applyControls));
 btnRecompute.addEventListener('click', applyControls);
 btnReset.addEventListener('click', () => {
-  selDataset.value = 'swiss-roll';
+  selDataset.value = 'torus';
   sliderN.value = '300'; sliderK.value = '8'; sliderPerp.value = '30';
   applyControls();
 });
@@ -221,9 +226,9 @@ btnReset.addEventListener('click', () => {
 function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    // Sweep through datasets: 0..1/3 swiss-roll, 1/3..2/3 s-curve, rest clusters-5d
-    if (frac < 1 / 3)       state.dataset = 'swiss-roll';
-    else if (frac < 2 / 3)  state.dataset = 's-curve';
+    // Sweep through datasets: 0..1/3 torus, 1/3..2/3 hopf-link, rest clusters-5d.
+    if (frac < 1 / 3)       state.dataset = 'torus';
+    else if (frac < 2 / 3)  state.dataset = 'hopf-link';
     else                    state.dataset = 'clusters-5d';
     selDataset.value = state.dataset;
     state.N = 200; state.k = 8; state.perplexity = 25;

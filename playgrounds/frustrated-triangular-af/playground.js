@@ -41,11 +41,12 @@ function drawAll() {
   const { L, spins } = state.af;
   const cell = Math.floor((W - 40) / L);
   const x0 = 20, y0 = 20;
+  // Render as flat grid (no row offset). Triangular neighbor logic lives in
+  // sim.js; the visual layout is a clean square grid for readability.
   for (let j = 0; j < L; j += 1) {
-    const shift = (j & 1) === 1 ? cell / 2 : 0;
     for (let i = 0; i < L; i += 1) {
       ctx.fillStyle = spins[j * L + i] === 1 ? '#1B6CA8' : '#C13B27';
-      ctx.fillRect(x0 + i * cell + shift, y0 + j * cell, cell, cell);
+      ctx.fillRect(x0 + i * cell, y0 + j * cell, cell, cell);
     }
   }
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';

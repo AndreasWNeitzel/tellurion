@@ -1,25 +1,31 @@
 import { describe, it, expect } from 'vitest';
-import { swissRoll, sCurve, fiveClustersRing, pca, isomap, tsne } from './sim.js';
+import { torus, hopfLink, fiveClustersRing, swissRoll, sCurve, pca, isomap, tsne } from './sim.js';
 
 describe('dr-comparator: dataset generators', () => {
-  it('swissRoll returns N x 3 array with N labels', () => {
-    const d = swissRoll({ N: 100, seed: 1 });
-    expect(d.X.length).toBe(300);
-    expect(d.labels.length).toBe(100);
+  it('torus returns N x 3 array; all points lie on torus surface', () => {
+    const d = torus({ N: 200, seed: 1, R: 2.0, r: 0.7 });
+    expect(d.X.length).toBe(600);
     expect(d.D).toBe(3);
-    expect(d.N).toBe(100);
+    expect(d.N).toBe(200);
+    // Torus surface check: distance from generic point (x, y, z) to torus
+    // axis r_axis = sqrt(x^2 + y^2) - R; distance to surface = sqrt(r_axis^2 + z^2) - r.
+    // We expect this to be 0 within numerical tolerance for all points.
+    for (let i = 0; i < d.N; i += 1) {
+      const x = d.X[i * 3], y = d.X[i * 3 + 1], z = d.X[i * 3 + 2];
+      const rAxis = Math.sqrt(x * x + y * y) - 2.0;
+      const dSurface = Math.sqrt(rAxis * rAxis + z * z) - 0.7;
+      expect(Math.abs(dSurface)).toBeLessThan(1e-10);
+    }
   });
 
-  it('sCurve returns N x 3 with z in [-2, 2]', () => {
-    const d = sCurve({ N: 100, seed: 1 });
-    expect(d.D).toBe(3);
-    let zmin = Infinity, zmax = -Infinity;
+  it('hopfLink has two linked rings (half of points on each)', () => {
+    const d = hopfLink({ N: 200, seed: 1 });
+    let countA = 0, countB = 0;
     for (let i = 0; i < d.N; i += 1) {
-      const z = d.X[i * 3 + 2];
-      if (z < zmin) zmin = z; if (z > zmax) zmax = z;
+      if (d.labels[i] < 1) countA += 1; else countB += 1;
     }
-    expect(zmin).toBeGreaterThan(-2.1);
-    expect(zmax).toBeLessThan(2.1);
+    expect(countA).toBe(100);
+    expect(countB).toBe(100);
   });
 
   it('fiveClustersRing has 5 clusters with N/5 points each', () => {
@@ -74,9 +80,21 @@ describe('dr-comparator: each method separates the 5D cluster ring', () => {
 });
 
 describe('dr-comparator: PCA output shape', () => {
-  it('PCA on swiss-roll returns 2N entries', () => {
-    const d = swissRoll({ N: 50, seed: 0 });
+  it('PCA on torus returns 2N entries', () => {
+    const d = torus({ N: 50, seed: 0 });
     const Y = pca(d.X, d.N, d.D);
     expect(Y.length).toBe(100);
+  });
+});
+
+describe('dr-comparator: legacy datasets (kept exported)', () => {
+  it('swissRoll still works (kept for backward compatibility)', () => {
+    const d = swissRoll({ N: 50, seed: 0 });
+    expect(d.D).toBe(3);
+    expect(d.X.length).toBe(150);
+  });
+  it('sCurve still works', () => {
+    const d = sCurve({ N: 50, seed: 0 });
+    expect(d.D).toBe(3);
   });
 });
