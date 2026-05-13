@@ -3,29 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aberration Of Light Stellar</title>
+  <title>Stellar Aberration of Light</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Aberration Of Light Stellar</h1>
+  <h1>Stellar aberration of light</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> star positions as they appear
+    to an observer moving at velocity $\beta c$ along the $+x$ axis,
+    compared to their rest-frame positions. The Lorentz aberration
+    formula
+    $\cos\theta_\text{obs} = (\cos\theta_\text{rest} + \beta) / (1 + \beta \cos\theta_\text{rest})$
+    pulls every star toward the forward direction (relativistic beaming
+    in geometry). For Earth's annual orbital aberration
+    ($\beta \approx 10^{-4}$), the maximum shift is the classical
+    constant of aberration $\approx 20.5"$.
+  </p>
+  <p>
+    Rest-frame stars are drawn at uniform angles around the observer
+    (cyan dots); their observed positions cluster forward (orange dots).
+    Connecting lines show the shift; the maximum-shift line is highlighted
+    in accent. As $\beta \to 1$ the entire visible sphere concentrates
+    into a forward cone.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Stellar aberration polar plot showing rest and observed positions."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">max shift (arcsec):</span><span class="value" id="readout-as">0</span>
+      <span class="label">small-beta approx ok?:</span><span class="value" id="readout-ap">yes</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Stellar aberration: rest vs observed positions on a polar plot.
+      Method: closed-form Lorentz aberration. Source: Jackson 3e Ch. 11
+      (`jackson1998`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Aberration controls">
+    <div class="row"><span class="label">log10 beta</span><input type="range" id="slider-logb" min="-6" max="0" step="0.05" value="-4"><span class="value" id="value-logb">-4.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>
