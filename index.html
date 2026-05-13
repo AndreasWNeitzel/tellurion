@@ -39,13 +39,21 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (13)</h2>
+  <h2>Shipped (14)</h2>
   <section class="card-grid">
 
     <article class="card">
-      <h2><a href="./playgrounds/arnold-cat-map/index.html">Arnold Cat Map</a></h2>
+      <h2><a href="./playgrounds/tsne-vs-umap-vs-isomap/index.html">t-SNE vs UMAP vs Isomap</a></h2>
       <p class="status">verified 2026-05-13</p>
-      <p class="description">Arnold's cat map on the unit torus: x' = (2x + y) mod 1, y' = (x + y) mod 1. The map is area-preserving and uniformly hyperbolic, with eigenvalues (3 +/- sqrt 5) / 2 giving maximum Lyapunov exponent log((3 + sqrt 5) / 2) = 0.9624. On an N x N pixel grid the dynamics is finite and exactly periodic: for N = 64 the period is 48 iterations. Start with a recogniz</p>
+      <p class="description">A 3D dataset shown alongside three 2D embeddings of it. The Swiss roll is the classic &quot;is your DR method nonlinear?&quot; test: PCA squashes it because PCA only knows linear projections, Isomap unrolls it because it measures distances along the manifold, t-SNE clusters local neighborhoods but loses the global ordering. The two-blob dataset is easier and all three</p>
+      
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/ising-triangular/index.html">Ising Triangular</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">A grid of tiny magnets on a triangular lattice. Each one points up or down; neighbors prefer to agree (lower energy). Lower the temperature to watch them align into one giant domain; raise it to watch them flicker randomly. Right at the critical temperature $T_c = 4/\ln(3) \approx 3.641$ (Wannier 1950) the system is on the knife edge between order and disord</p>
       
     </article>
   
@@ -147,7 +155,7 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (37)</h2>
+  <h2 class="drafts-heading">Draft (35)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">1d-tdse-scattering-comparator</span></li>
@@ -162,7 +170,6 @@
     <li><span class="drafts-slug">gaussian-beam-paraxial</span></li>
     <li><span class="drafts-slug">gp-kernel-zoo</span></li>
     <li><span class="drafts-slug">hydrogen-orbital-cross-sections-2d</span></li>
-    <li><span class="drafts-slug">ising-triangular</span></li>
     <li><span class="drafts-slug">kl-divergence-asymmetry</span></li>
     <li><span class="drafts-slug">kronig-penney-bands</span></li>
     <li><span class="drafts-slug">lagrange-points-cr3bp</span></li>
@@ -182,7 +189,6 @@
     <li><span class="drafts-slug">rossler-funnel</span></li>
     <li><span class="drafts-slug">sph-sod-shock-tube</span></li>
     <li><span class="drafts-slug">standard-map-kam</span></li>
-    <li><span class="drafts-slug">tsne-vs-umap-vs-isomap</span></li>
     <li><span class="drafts-slug">three-body-orbit</span></li>
     <li><span class="drafts-slug">two-stream-pic-plasma</span></li>
     <li><span class="drafts-slug">wkb-vs-shooting</span></li>

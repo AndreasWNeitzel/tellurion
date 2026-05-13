@@ -2,8 +2,11 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
-- **[Arnold Cat Map](../playgrounds/arnold-cat-map/index.html)** &nbsp; (draft, verified 2026-05-13T12:57:00Z)
-  Arnold's cat map on the unit torus: x' = (2x + y) mod 1, y' = (x + y) mod 1. The map is area-preserving and uniformly hyperbolic, with eigenvalues (3 +/- sqrt 5) / 2 giving maximum Lyapunov exponent log((3 + sqrt 5) / 2) = 0.9624. On an N x N pixel grid the dynamics is finite and exactly periodic: for N = 64 the period is 48 iterations. Start with a recogniz
+- **[t-SNE vs UMAP vs Isomap](../playgrounds/tsne-vs-umap-vs-isomap/index.html)** &nbsp; (draft, verified 2026-05-13T13:50:00Z)
+  A 3D dataset shown alongside three 2D embeddings of it. The Swiss roll is the classic "is your DR method nonlinear?" test: PCA squashes it because PCA only knows linear projections, Isomap unrolls it because it measures distances along the manifold, t-SNE clusters local neighborhoods but loses the global ordering. The two-blob dataset is easier and all three
+
+- **[Ising Triangular](../playgrounds/ising-triangular/index.html)** &nbsp; (draft, verified 2026-05-13T13:45:00Z)
+  A grid of tiny magnets on a triangular lattice. Each one points up or down; neighbors prefer to agree (lower energy). Lower the temperature to watch them align into one giant domain; raise it to watch them flicker randomly. Right at the critical temperature $T_c = 4/\ln(3) \approx 3.641$ (Wannier 1950) the system is on the knife edge between order and disord
 
 - **[Attention as Soft Retrieval](../playgrounds/attention-as-soft-retrieval/index.html)** &nbsp; (draft, verified 2026-05-13T12:54:00Z)
   Single-head scaled dot-product attention over a small key-value bank: w_i = softmax(Q . k_i / sqrt(d) / tau), output = sum w_i v_i. The left panel shows six keys in 2D; the query (red) can be dragged. The right panel shows the value bars colored by attention weight; the cat-3 bar is the weighted output. As temperature tau drops, attention concentrates on the
@@ -77,9 +80,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Hydrogen Orbital Cross Sections 2D](../playgrounds/hydrogen-orbital-cross-sections-2d/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
-- **[Ising Triangular](../playgrounds/ising-triangular/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
 - **[KL Divergence Asymmetry](../playgrounds/kl-divergence-asymmetry/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
@@ -135,9 +135,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Standard Map and KAM](../playgrounds/standard-map-kam/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[t-SNE vs UMAP vs Isomap](../playgrounds/tsne-vs-umap-vs-isomap/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
