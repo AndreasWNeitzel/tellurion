@@ -43,12 +43,13 @@ const btnReset     = document.getElementById('btn-reset');
 const W = canvas.width, H = canvas.height;
 const VIEW = { xmin: -13, xmax: 13, ymin: -8.7, ymax: 8.7 };
 
-// Animation tuning. SUBSTEPS_PER_FRAME = 12 advances roughly 0.6 affine
-// units of simulation time per rAF tick; the wave crosses the field of view
-// in about 2 seconds at 60 Hz. MAX_STEPS caps photons that loop the photon
-// sphere indefinitely. CAPTURE_TOTAL_STEPS is the time horizon for the
-// deterministic captureFraction sweep so t-000..t-100 cover full evolution.
-const SUBSTEPS_PER_FRAME = 12;
+// Animation tuning. SUBSTEPS_PER_FRAME advances roughly 0.12 affine units
+// of simulation time per rAF tick (~10 sec for the wave to cross the field
+// of view at 60 Hz). MAX_STEPS caps photons that loop the photon sphere
+// indefinitely. CAPTURE_TOTAL_STEPS is the deterministic horizon for the
+// captureFraction sweep; goldens cover the same total simulation time as
+// before, only the live framerate has slowed.
+const SUBSTEPS_PER_FRAME = 2;
 const MAX_STEPS          = 4000;
 const CAPTURE_TOTAL_STEPS = 1500;
 
