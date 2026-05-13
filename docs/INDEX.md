@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Capacitor Discharge through a Resistor](../playgrounds/bsc-y1s2/FIS1014-capacitor-discharge-rc/index.html)** &nbsp; (verified, verified 2026-05-13T23:11:07Z)
+  A capacitor of capacitance $C$ charged to $V_0$ is suddenly connected across a resistor of resistance $R$. Kirchhoff's voltage law gives the first-order linear ODE $$R \dot Q + Q/C = 0,$$ whose closed-form solution is $$V_C(t) = V_0 \exp(-t / \tau), \qquad \tau = R C.$$
+
 - **[Saha-Boltzmann Hydrogen Ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/index.html)** &nbsp; (verified, verified 2026-05-13T23:05:56Z)
   Pure-hydrogen plasma in local thermodynamic equilibrium. Charge balance ($n_e = n_+$) and total nucleon conservation ($n_\text{tot} = n_+ + n_0$) plus the Saha equation give a closed-form quadratic for the ionization fraction $x = n_+ / n_\text{tot}$:
 
@@ -339,9 +342,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bremsstrahlung Spectrum](../playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Capacitor Discharge Rc](../playgrounds/bsc-y1s2/FIS1014-capacitor-discharge-rc/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Cauchy Sequence Convergence Monitor](../playgrounds/bsc-y1s1/M1017-cauchy-sequence-convergence-monitor/index.html)** &nbsp; (draft)

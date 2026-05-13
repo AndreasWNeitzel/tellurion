@@ -3,29 +3,64 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Capacitor Discharge Rc</title>
+  <title>Capacitor Discharge through a Resistor</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Capacitor Discharge Rc</h1>
+  <h1>RC discharge</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> a capacitor charged to $V_0$
+    discharging through a resistor $R$. Kirchhoff's loop equation gives
+    $V_C(t) = V_0 \exp(-t/\tau)$ with $\tau = RC$. The current is just
+    $I(t) = V_C(t)/R$, also exponentially decaying. The orange ball on
+    the circuit diagram represents the charge $Q(t) = C V(t)$ leaking
+    from the capacitor through the resistor.
+  </p>
+  <p>
+    Look for the canonical time constants: $V$ drops to $1/e \approx 37$
+    percent at $t = \tau$, to half at $t = \tau \ln 2 \approx 0.693 \tau$,
+    and to 1 percent at $t \approx 4.6 \tau$. Total energy dissipated as
+    heat in $R$ equals the initial $U_C(0) = \tfrac{1}{2} C V_0^2$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="RC discharge: circuit on the left, V(t) and I(t) curves on the right."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">V (V):</span><span class="value" id="readout-v">0</span>
+      <span class="label">I (mA):</span><span class="value" id="readout-i">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Capacitor discharging through a resistor. Method: closed-form
+      $V(t) = V_0 e^{-t/\tau}$, $\tau = RC$. Source: Griffiths,
+      Introduction to Electrodynamics 5e Ch. 7 (`griffithsem2017`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="RC controls">
+    <div class="row"><span class="label">V_0 (V)</span><input type="range" id="slider-v0" min="1" max="50" step="0.5" value="10"><span class="value" id="value-v0">10.0</span></div>
+    <div class="row"><span class="label">R (kOhm)</span><input type="range" id="slider-R" min="0.1" max="100" step="0.1" value="10"><span class="value" id="value-R">10.0</span></div>
+    <div class="row"><span class="label">C (uF)</span><input type="range" id="slider-C" min="0.1" max="100" step="0.1" value="10"><span class="value" id="value-C">10.0</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>
