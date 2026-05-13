@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Thin-Film Interference and Iridescent Colors](../playgrounds/thin-film-interference/index.html)** &nbsp; (verified, verified 2026-05-13T19:08:10Z)
+  A thin layer of refractive index n_film and thickness d sits on a substrate. Default values: n_top = 1.0 (air), n_film = 1.33 (water/oil), n_sub = 1.5 (glass). White light at normal incidence reflects from both interfaces; the two reflected beams interfere, with the interference pattern depending on d / lambda.
+
 - **[Kuramoto Oscillators and Synchronization](../playgrounds/coupled-kuramoto-oscillators/index.html)** &nbsp; (verified, verified 2026-05-13T19:04:40Z)
   N = 128 phase oscillators with intrinsic frequencies omega_i drawn from a Lorentzian distribution with half-width-at-half-maximum gamma. Each oscillator couples globally to the mean phase with strength K: theta_i' = omega_i + (K / N) sum_j sin(theta_j - theta_i)
 
@@ -202,9 +205,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
-
-- **[Thin Film Interference](../playgrounds/thin-film-interference/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates

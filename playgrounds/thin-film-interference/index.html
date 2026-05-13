@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thin-Film Interference and Iridescent Colors</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Thin-film interference and iridescent colors</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> reflectance of a thin oil-like film
+    (n = 1.33) on a glass substrate (n = 1.5) viewed at normal incidence
+    by white light. The film causes wavelength-selective constructive and
+    destructive interference between the front and back reflections. The
+    bottom strip shows the reflected spectrum (sum of reflectance times
+    blackbody-ish illuminant) translated to RGB. The top curve shows
+    $R(\lambda)$ for the current thickness.
+  </p>
+  <p>
+    Move the thickness slider and watch the reflected color cycle through
+    blue, green, yellow, red as the constructive-interference wavelength
+    $\lambda = 2 n_{\text{film}} d / m$ sweeps across the visible spectrum.
+    This is why oil slicks, soap bubbles, and butterfly wings show iridescent
+    color: even a slight thickness gradient produces a rainbow of reflected
+    hues.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Thin-film reflectance spectrum and reflected color swatch."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Thin-film interference. Method: Airy formula for two-interface
+      reflectance at normal incidence; spectrum mapped to RGB. Source:
+      Hecht, Optics 5e Ch. 9.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Thin-film controls">
+    <div class="row"><span class="label">d (nm)</span><input type="range" id="slider-d" min="50" max="1500" step="5" value="350"><span class="value" id="value-d">350</span></div>
+    <div class="row"><span class="label">n_film</span><input type="range" id="slider-n" min="1.10" max="2.40" step="0.01" value="1.33"><span class="value" id="value-n">1.33</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
