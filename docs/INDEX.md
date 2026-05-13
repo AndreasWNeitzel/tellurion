@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Predator-Prey and the Hopf Bifurcation](../playgrounds/predator-prey-hopf/index.html)** &nbsp; (verified, verified 2026-05-13T19:01:25Z)
+  Rosenzweig-MacArthur predator-prey model with Holling Type II response: x' = r x (1 - x / K) - a x y / (b + x) y' = e a x y / (b + x) - d y
+
 - **[Maxwell-Boltzmann Emergence from Hard-Disk Collisions](../playgrounds/maxwell-boltzmann-emergence/index.html)** &nbsp; (verified, verified 2026-05-13T18:56:30Z)
   A 2D box of side L = 8 containing N = 80 hard disks (radius 0.15) initially moving with identical speed v_0 = 1 but random orientations. Walls are reflecting; disk-disk collisions are elastic with equal masses (which exchanges only the velocity components along the contact normal).
 
@@ -182,6 +185,12 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Schwarzschild Light Bending](../playgrounds/schwarzschild-geodesics/index.html)** &nbsp; (in-progress, verified 2026-05-13T08:35:00Z)
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
 
+- **[Brewster Angle Fresnel](../playgrounds/brewster-angle-fresnel/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Coupled Kuramoto Oscillators](../playgrounds/coupled-kuramoto-oscillators/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
 
@@ -193,6 +202,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
+
+- **[Thin Film Interference](../playgrounds/thin-film-interference/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates

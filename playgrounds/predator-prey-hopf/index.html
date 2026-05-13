@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Predator-Prey and the Hopf Bifurcation</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Predator-prey and the Hopf bifurcation</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the Rosenzweig-MacArthur
+    predator-prey model with Holling Type II response:
+    $\dot{x} = r x (1 - x / K) - a x y / (b + x)$,
+    $\dot{y} = e a x y / (b + x) - d y$.
+    Prey ($x$) grow logistically and are consumed by predators; predators
+    ($y$) grow by eating prey and die at rate $d$. Increasing the prey
+    carrying capacity $K$ destabilizes the coexistence equilibrium through
+    a supercritical Hopf bifurcation at $K_H \approx 0.7$. Below $K_H$ the
+    populations damp to a fixed point; above it they oscillate on a stable
+    limit cycle.
+  </p>
+  <p>
+    Watch the phase portrait $(x, y)$ on the left and the time series on
+    the right. Sliding $K$ from 0.4 to 2.0 sweeps through the Hopf: small
+    $K$ gives damped spirals; large $K$ gives clean limit cycles whose
+    amplitude grows as $\sqrt{K - K_H}$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Predator-prey phase portrait and time series."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Rosenzweig-MacArthur model with Hopf bifurcation. Method: RK4 with
+      analytic equilibrium markers. Source: Strogatz, Nonlinear Dynamics
+      Ch. 8.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Predator-prey controls">
+    <div class="row"><span class="label">K</span><input type="range" id="slider-K" min="0.4" max="2.0" step="0.02" value="1.5"><span class="value" id="value-K">1.50</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
