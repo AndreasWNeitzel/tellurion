@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Transmission Line Impedance Matching](../playgrounds/bsc-y2s1/FIS2013-transmission-line-impedance-matching/index.html)** &nbsp; (verified, verified 2026-05-13T23:51:39Z)
+  A coaxial transmission line of characteristic impedance $Z_0 = 50\,\Omega$ terminated by a resistive load $Z_L$. The forward and reflected voltage waves superpose into a standing pattern whose amplitude envelope depends on the mismatch.
+
 - **[Compton vs Inverse Compton](../playgrounds/bsc-y3s2/AST3016-compton-vs-inverse-compton/index.html)** &nbsp; (verified, verified 2026-05-13T23:48:40Z)
   Two photon-electron scattering channels on the same energy axis.
 
@@ -594,9 +597,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Transit Mandel Agol Analytic](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Transmission Line Impedance Matching](../playgrounds/bsc-y2s1/FIS2013-transmission-line-impedance-matching/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Transverse Vs Longitudinal Mode](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/index.html)** &nbsp; (draft)

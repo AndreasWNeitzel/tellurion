@@ -8,24 +8,54 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Transmission Line Impedance Matching</h1>
+  <h1>Transmission line and impedance matching</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> a coaxial line of characteristic
+    impedance $Z_0 = 50 \, \Omega$ terminated by a load $Z_L$. The
+    reflection coefficient
+    $\Gamma = (Z_L - Z_0) / (Z_L + Z_0)$ measures the ratio of reflected
+    to incident voltage. At matched load $Z_L = Z_0$ the reflection is
+    zero and all power transfers. At open or short the reflection has
+    magnitude 1 and no power transfers.
+  </p>
+  <p>
+    Slide $Z_L$ over the resistive range $1 \, \Omega$ to $1000 \, \Omega$.
+    The two indicators show $|\Gamma|$ and VSWR. The animated standing
+    wave on the line illustrates that mismatched impedances produce a
+    visible voltage envelope (interference between forward and reflected
+    waves); matched loads give a uniform amplitude.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Transmission line standing wave with reflection coefficient and VSWR readouts."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">|Gamma|, VSWR:</span><span class="value" id="readout-g">0</span>
+      <span class="label">P_L / P_inc:</span><span class="value" id="readout-p">1</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Transmission line voltage standing wave with reflection
+      $\Gamma = (Z_L - Z_0)/(Z_L + Z_0)$. Method: closed-form. Source:
+      Jackson 3e Ch. 8 (`jackson1998`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Line controls">
+    <div class="row"><span class="label">Z_L (Ohm)</span><input type="range" id="slider-zl" min="1" max="500" step="1" value="50"><span class="value" id="value-zl">50</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

@@ -1,99 +1,153 @@
-// Transmission Line Impedance Matching playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// Transmission-line playground. Standing wave on the line with the
+// reflection coefficient, VSWR, and power delivered.
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { reflection, vswr, powerDelivered } from './sim.js';
 
 const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC  = params.get('deterministic') === '1';
 const CAPTURE_NAME   = params.get('capture');
 const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const readoutG     = document.getElementById('readout-g');
+const readoutP     = document.getElementById('readout-p');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const sliderZL = document.getElementById('slider-zl');
+const valueZL  = document.getElementById('value-zl');
 
-const _rng = makeRng(SEED);
+const Z0 = 50;
+let ZL = parseFloat(sliderZL.value);
+sliderZL.addEventListener('input', () => { ZL = parseFloat(sliderZL.value); valueZL.textContent = String(ZL); });
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
+let t0 = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg:     css.getPropertyValue('--bg').trim() || '#060608',
+    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    blue:   '#5bc0eb',
+    red:    '#ef476f',
+    grid:   '#23252a',
+  };
 }
 
-let lastReadoutTime = 0;
+function render(now) {
+  const c = colors();
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const padL = 20, padR = 20, padT = 100, padB = 80;
+  const plotW = canvas.width - padL - padR;
+  const lineY = canvas.height / 2;
+  const ampPx = (canvas.height - padT - padB) * 0.4;
+
+  const g = reflection(ZL, Z0);
+  const t = (now - t0) / 1000;
+
+  // The standing wave envelope: |V(x)| = |V_inc| * sqrt(1 + g^2 + 2 g cos(2 k x))
+  // where x is distance from the load. Animation: time-domain V(x, t) = V_inc(cos(omega t - kx) + g cos(omega t + kx)).
+  const k = 2 * Math.PI / (plotW / 3); // 3 wavelengths along line
+  const omega = 2 * Math.PI * 0.6;
+
+  // Line.
+  ctx.strokeStyle = c.muted;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(padL, lineY); ctx.lineTo(padL + plotW, lineY);
+  ctx.stroke();
+
+  // Voltage waveform on the line (drawn as a snake above the line).
+  ctx.strokeStyle = c.accent;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  const N = 400;
+  for (let i = 0; i <= N; i += 1) {
+    const x = padL + plotW * i / N;
+    const xPhys = (plotW - (x - padL)); // distance from load (right edge is load)
+    const v_fwd = Math.cos(omega * t - k * xPhys);
+    const v_ref = g * Math.cos(omega * t + k * xPhys);
+    const V = v_fwd + v_ref;
+    const yPx = lineY - ampPx * V;
+    if (i === 0) ctx.moveTo(x, yPx); else ctx.lineTo(x, yPx);
+  }
+  ctx.stroke();
+
+  // Envelope (max and min).
+  ctx.strokeStyle = c.muted;
+  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i <= N; i += 1) {
+    const x = padL + plotW * i / N;
+    const xPhys = (plotW - (x - padL));
+    const E = Math.sqrt(1 + g * g + 2 * g * Math.cos(2 * k * xPhys));
+    const yPx = lineY - ampPx * E;
+    if (i === 0) ctx.moveTo(x, yPx); else ctx.lineTo(x, yPx);
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i <= N; i += 1) {
+    const x = padL + plotW * i / N;
+    const xPhys = (plotW - (x - padL));
+    const E = Math.sqrt(1 + g * g + 2 * g * Math.cos(2 * k * xPhys));
+    const yPx = lineY + ampPx * E;
+    if (i === 0) ctx.moveTo(x, yPx); else ctx.lineTo(x, yPx);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Source on left, load on right.
+  ctx.fillStyle = c.blue;
+  ctx.fillRect(padL - 14, lineY - 18, 14, 36);
+  ctx.fillStyle = c.red;
+  ctx.fillRect(padL + plotW, lineY - 18, 14, 36);
+
+  ctx.fillStyle = c.muted;
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`source (Z_0 = 50 Ohm)`, padL - 4, padT + 14);
+  ctx.fillText(`load Z_L = ${ZL} Ohm`, padL + plotW - 130, padT + 14);
+  ctx.fillStyle = c.accent;
+  ctx.fillText(`Gamma = ${g.toFixed(3)}`, padL + plotW / 2 - 60, padT + 14);
+  ctx.fillStyle = c.muted;
+  ctx.fillText('voltage standing wave (live)', padL, canvas.height - padB / 2);
+  ctx.fillText('dashed: |V| envelope', padL, canvas.height - padB / 2 + 16);
+}
+
 function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
+  const g = reflection(ZL, Z0);
+  const v = vswr(ZL, Z0);
+  const p = powerDelivered(ZL, Z0);
+  readoutG.textContent = `${Math.abs(g).toFixed(3)}, ${v === Infinity ? 'inf' : v.toFixed(3)}`;
+  readoutP.textContent = p.toFixed(3);
 }
 
 function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
-  }
-
-  render();
+  render(now);
   updateReadout();
-  frame += 1;
   requestAnimationFrame(tick);
 }
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    ZL = 10 + frac * 400;
+    sliderZL.value = String(Math.round(ZL));
+    valueZL.textContent = String(Math.round(ZL));
+    // Freeze time at the same instant for all captured frames.
+    t0 = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   }
+  valueZL.textContent = String(ZL);
+  render((typeof performance !== 'undefined' ? performance.now() : Date.now()));
+  updateReadout();
 
   if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
+        const detail = { capture: CAPTURE_NAME ?? null, ZL };
         window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
         window.__simulationReady = true;
         window.__simulationReadyDetail = detail;
