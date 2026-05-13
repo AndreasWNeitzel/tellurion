@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
   <style>
-    .pg-figure { max-width: 720px; }
+    .pg-figure { max-width: 880px; }
     .pg-figure canvas { width: 100%; height: auto; cursor: grab; touch-action: none; }
     .pg-figure canvas:active { cursor: grabbing; }
     .pg-readout {
@@ -39,8 +39,8 @@
   </p>
 
   <figure class="pg-figure">
-    <canvas id="stage" width="720" height="480" tabindex="0"
-            aria-label="Pendulum phase portrait with a tracer cloud and a draggable blob-center handle."></canvas>
+    <canvas id="stage" width="880" height="480" tabindex="0"
+            aria-label="Pendulum phase portrait on the left with a tracer cloud; physical pendulum bobs on the right showing each tracer's instantaneous configuration."></canvas>
 
     <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
       <span class="label">blob &theta;:</span>     <span class="value" id="readout-theta">0.6000</span>

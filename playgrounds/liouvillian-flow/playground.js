@@ -34,9 +34,13 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const PHASE = { x: 60, y: 30, w: 620, h: 400,
+const PHASE = { x: 60, y: 30, w: 480, h: 400,
                 thetaMin: -Math.PI, thetaMax: Math.PI,
                 pMin: -3,           pMax: 3 };
+// Physical pendulum panel on the right. Each tracer's angular position is
+// shown as a faint bob hanging from the panel origin so the user can watch
+// the cloud librate, rotate, and filament in physical space.
+const PEND = { cx: 700, cy: 220, L: 140 };
 
 const TRACER_RADIUS = 1.2;
 
@@ -164,6 +168,73 @@ function drawBlobHandle() {
   ctx.setLineDash([]);
 }
 
+function drawPendulumPanel() {
+  // panel background
+  ctx.fillStyle = tokens.surface;
+  ctx.fillRect(PEND.cx - PEND.L - 30, PEND.cy - 30, 2 * PEND.L + 60, PEND.L + 120);
+  ctx.strokeStyle = tokens.grid;
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(PEND.cx - PEND.L - 30 + 0.5, PEND.cy - 30 + 0.5, 2 * PEND.L + 60 - 1, PEND.L + 120 - 1);
+
+  // pivot point
+  ctx.fillStyle = tokens.fg;
+  ctx.beginPath();
+  ctx.arc(PEND.cx, PEND.cy, 2.5, 0, 2 * Math.PI);
+  ctx.fill();
+  // reference vertical line
+  ctx.strokeStyle = tokens.fgFaint;
+  ctx.lineWidth = 0.5;
+  ctx.setLineDash([3, 4]);
+  ctx.beginPath();
+  ctx.moveTo(PEND.cx, PEND.cy); ctx.lineTo(PEND.cx, PEND.cy + PEND.L);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // reference arc at L
+  ctx.strokeStyle = tokens.grid;
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.arc(PEND.cx, PEND.cy, PEND.L, Math.PI / 2 - Math.PI, Math.PI / 2 + Math.PI);
+  ctx.stroke();
+
+  // tracer bobs: each tracer i sits at (cx + L sin(theta), cy + L cos(theta)).
+  // Render as semi-transparent dots so accumulation highlights cluster density.
+  if (state.swarm) {
+    const q = state.swarm.inst.q;
+    const N = q.length;
+    ctx.fillStyle = 'rgba(27, 108, 168, 0.40)';     // tokens.accent with alpha
+    for (let i = 0; i < N; i += 1) {
+      const theta = q[i];                            // can be unwrapped (rotation branch)
+      const bx = PEND.cx + PEND.L * Math.sin(theta);
+      const by = PEND.cy + PEND.L * Math.cos(theta);
+      ctx.beginPath();
+      ctx.arc(bx, by, 2.2, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+    // mean bob: bigger, opaque, accent-warm so the cloud centroid is obvious.
+    let sumS = 0, sumC = 0;
+    for (let i = 0; i < N; i += 1) { sumS += Math.sin(q[i]); sumC += Math.cos(q[i]); }
+    const meanTheta = Math.atan2(sumS, sumC);
+    const mbx = PEND.cx + PEND.L * Math.sin(meanTheta);
+    const mby = PEND.cy + PEND.L * Math.cos(meanTheta);
+    ctx.strokeStyle = tokens.accentWarm;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(PEND.cx, PEND.cy); ctx.lineTo(mbx, mby);
+    ctx.stroke();
+    ctx.fillStyle = tokens.accentWarm;
+    ctx.beginPath();
+    ctx.arc(mbx, mby, 4.5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // panel label
+  ctx.fillStyle = tokens.fgMuted;
+  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Physical pendulums (red rod = mean angle)',
+               PEND.cx, PEND.cy - 38);
+}
+
 function drawTitles() {
   ctx.fillStyle = tokens.fgMuted;
   ctx.font = '11px "Inter", system-ui, sans-serif';
@@ -187,6 +258,7 @@ function drawAll() {
   drawSeparatrix();
   drawTracers();
   drawBlobHandle();
+  drawPendulumPanel();
   drawTitles();
 }
 
