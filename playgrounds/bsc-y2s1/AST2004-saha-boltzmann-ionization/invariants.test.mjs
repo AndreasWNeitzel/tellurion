@@ -1,28 +1,67 @@
-// Saha Boltzmann Ionization invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Saha equation invariants.
+// (a) ionization fraction monotonic in T.
+// (b) Fully ionized at very high T (x -> 1).
+// (c) Neutral at very low T (x -> 0).
+// (d) Quadratic identity: x^2 + R x - R = 0 satisfied exactly.
+// (e) Bisection-found T_ion has x ~ 0.5.
+// (f) Higher density shifts T_ion upward (more ions to ionize at fixed Saha factor).
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  ionizationFraction, ionizationTemp, sahaRatioPerM3,
+  CHI_H_EV, KB_EV_K,
+} from './sim.js';
 
-describe('Saha Boltzmann Ionization invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('saha-boltzmann-ionization', () => {
+  it('ionization fraction is monotonic in T at fixed density', () => {
+    const n = 1e22;
+    const x1 = ionizationFraction(3000, n);
+    const x2 = ionizationFraction(10000, n);
+    const x3 = ionizationFraction(50000, n);
+    expect(x1).toBeLessThan(x2);
+    expect(x2).toBeLessThan(x3);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('high temperature gives x ~ 1', () => {
+    const x = ionizationFraction(1e6, 1e22);
+    expect(x).toBeGreaterThan(0.99);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('low temperature gives x ~ 0', () => {
+    const x = ionizationFraction(1000, 1e22);
+    expect(x).toBeLessThan(1e-3);
+  });
+
+  it('quadratic identity x^2 + R x - R = 0 satisfied', () => {
+    const T = 8000, n = 1e22;
+    const x = ionizationFraction(T, n);
+    const R = sahaRatioPerM3(T) / n;
+    const residual = x * x + R * x - R;
+    expect(Math.abs(residual)).toBeLessThan(1e-12 * Math.max(1, R));
+  });
+
+  it('bisection finds T_ion with x ~ 0.5', () => {
+    const n = 1e22;
+    const Tion = ionizationTemp(n);
+    const x = ionizationFraction(Tion, n);
+    expect(Math.abs(x - 0.5)).toBeLessThan(0.005);
+  });
+
+  it('higher density shifts T_ion upward', () => {
+    const T1 = ionizationTemp(1e20);
+    const T2 = ionizationTemp(1e25);
+    expect(T2).toBeGreaterThan(T1);
+  });
+
+  it('Saha ratio grows exponentially with T at fixed density', () => {
+    const r1 = sahaRatioPerM3(5000);
+    const r2 = sahaRatioPerM3(20000);
+    expect(r2 / r1).toBeGreaterThan(1e10);
+  });
+
+  it('T_ion at solar photosphere density (~1e23 /m^3) is roughly 8000-20000 K', () => {
+    const Tion = ionizationTemp(1e23);
+    expect(Tion).toBeGreaterThan(7000);
+    expect(Tion).toBeLessThan(20000);
+  });
 });

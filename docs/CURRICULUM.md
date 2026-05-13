@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 114 |
+| draft | 113 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 78 |
+| verified | 79 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -152,7 +152,7 @@ Total playgrounds: 203
 - **Radial Velocity Orbital Trace** ([AST2004-radial-velocity-orbital-trace](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/)). Status: `draft`. `carroll-ostlie` ch 7 (supporting: MAA-SS); RV semi-amplitude K from m, P, e, i closed-form.
 - **Tidal Disruption Near a Massive Primary** ([AST2004-roche-tidal-disruption](../playgrounds/bsc-y2s1/AST2004-roche-tidal-disruption/)). Status: `verified`. citation pending (supporting: MAA-HE).
 - **Rotation Curve Explorer** ([AST2004-rotation-curve-explorer](../playgrounds/bsc-y2s1/AST2004-rotation-curve-explorer/)). Status: `in-progress`. citation pending (supporting: MAA-GD).
-- **Saha Boltzmann Ionization** ([AST2004-saha-boltzmann-ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/)). Status: `draft`. `carroll-ostlie` ch 8 (supporting: MAA-SP); Saha crossing T_ion within 1 percent.
+- **Saha-Boltzmann Hydrogen Ionization** ([AST2004-saha-boltzmann-ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/)). Status: `verified`. `carroll-ostlie` ch 8 (supporting: MAA-SP).
 - **Schwarzschild Effective Potential and the ISCO** ([AST2004-schwarzschild-effective-potential](../playgrounds/bsc-y2s1/AST2004-schwarzschild-effective-potential/)). Status: `verified`. citation pending (supporting: AST3017).
 - **Stellar Blackbody Vs Line** ([AST2004-stellar-blackbody-vs-line](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/)). Status: `draft`. `carroll-ostlie` ch 3 (supporting: MAA-SP); Planck function plus Voigt absorption line analytic.
 - **Three-Body Figure-Eight Choreography** ([AST2004-three-body-orbit](../playgrounds/bsc-y2s1/AST2004-three-body-orbit/)). Status: `in-progress`. citation pending (supporting: FIS2021, FIS1013).

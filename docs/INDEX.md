@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Saha-Boltzmann Hydrogen Ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/index.html)** &nbsp; (verified, verified 2026-05-13T23:05:56Z)
+  Pure-hydrogen plasma in local thermodynamic equilibrium. Charge balance ($n_e = n_+$) and total nucleon conservation ($n_\text{tot} = n_+ + n_0$) plus the Saha equation give a closed-form quadratic for the ionization fraction $x = n_+ / n_\text{tot}$:
+
 - **[Jeans Instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/index.html)** &nbsp; (verified, verified 2026-05-13T23:03:23Z)
   A uniform, self-gravitating, isothermal hydrogen medium with mass density $\rho$ and sound speed $c_s = \sqrt{k_B T / m_p}$. Linear perturbations $\propto \exp(i k x - i \omega t)$ satisfy the dispersion relation
 
@@ -549,9 +552,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Rotational Splitting Multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Saha Boltzmann Ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Secular Perturbation Laplace Lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (draft)
