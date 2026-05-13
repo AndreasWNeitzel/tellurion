@@ -12,9 +12,10 @@ point at the midpoint; the quadrupole's four-lobe alternation; the
 monopole's radial lines. The test charge curves toward negative charges
 and away from positive ones, following the local force F = q E.
 
-Use the four preset buttons to switch configurations. Shoot test charge
-launches a test particle. Reset clears the trail and re-traces the field
-lines.
+Use the four preset buttons to switch configurations. Drag any charge
+with the mouse to reposition it; field lines re-trace live. Shoot test
+charge launches a test particle. Reset clears the trail and re-traces
+the field lines.
 
 ## Reference
 

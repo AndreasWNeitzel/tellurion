@@ -37,7 +37,7 @@ const tok = {
 };
 
 function rebuild() {
-  state.sim = createGas({ N: 80, v0: V0, seed: SEED });
+  state.sim = createGas({ N: 1000, v0: V0, seed: SEED });
   state.KE0 = totalKE(state.sim);
 }
 
@@ -90,7 +90,7 @@ function drawAll() {
   ctx.fillRect(histX, histY, histW, histH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(histX + 0.5, histY + 0.5, histW - 1, histH - 1);
-  const NBINS = 24;
+  const NBINS = 32;
   const VMAX = 2.5;
   const { bins, dv } = speedHistogram(state.sim, NBINS, VMAX);
   let pMax = 0;

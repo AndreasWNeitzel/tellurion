@@ -36,25 +36,43 @@ const tok = {
 };
 
 function rebuild() {
-  state.charges = PRESETS[state.preset];
-  state.lines = [];
+  // Take a deep copy so drag-edits don't mutate PRESETS.
+  state.charges = PRESETS[state.preset].map(c => ({ ...c }));
   state.trail = [];
   state.testCharge = null;
+  retraceLines();
+}
+
+function retraceLines() {
+  state.lines = [];
   const emits = emissionPoints(state.charges, 16);
   for (const e of emits) {
     state.lines.push(traceLine(e.x, e.y, state.charges, e.sign));
   }
 }
 
-function worldToPx(x, y) {
+const SCALE_LAYOUT = (() => {
   const padL = 30, padR = 30, padT = 60, padB = 80;
   const drawW = W - padL - padR;
   const drawH = H - padT - padB;
   const wbox = 2 * BOX;
   const scale = Math.min(drawW / wbox, drawH / wbox);
+  return { padL, padR, padT, padB, drawW, drawH, scale };
+})();
+
+function worldToPx(x, y) {
+  const { padL, padT, drawW, drawH, scale } = SCALE_LAYOUT;
   return {
     px: padL + drawW / 2 + x * scale,
     py: padT + drawH / 2 - y * scale,
+  };
+}
+
+function pxToWorld(px, py) {
+  const { padL, padT, drawW, drawH, scale } = SCALE_LAYOUT;
+  return {
+    x: (px - padL - drawW / 2) / scale,
+    y: (padT + drawH / 2 - py) / scale,
   };
 }
 
@@ -187,6 +205,55 @@ presetBtns.forEach(b => b.addEventListener('click', () => {
   rebuild();
   drawAll();
 }));
+
+// Drag a charge with the mouse / touch.
+let dragIndex = -1;
+function eventToWorld(ev) {
+  const rect = canvas.getBoundingClientRect();
+  const px = (ev.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (ev.clientY - rect.top) * (canvas.height / rect.height);
+  return pxToWorld(px, py);
+}
+function pickCharge(p) {
+  let best = -1, bestD2 = 0.36;     // radius 0.6 in world units
+  for (let i = 0; i < state.charges.length; i += 1) {
+    const c = state.charges[i];
+    const d2 = (p.x - c.x) ** 2 + (p.y - c.y) ** 2;
+    if (d2 < bestD2) { bestD2 = d2; best = i; }
+  }
+  return best;
+}
+canvas.addEventListener('pointerdown', (ev) => {
+  const p = eventToWorld(ev);
+  dragIndex = pickCharge(p);
+  if (dragIndex >= 0) {
+    canvas.setPointerCapture(ev.pointerId);
+    canvas.style.cursor = 'grabbing';
+    ev.preventDefault();
+  }
+});
+canvas.addEventListener('pointermove', (ev) => {
+  const p = eventToWorld(ev);
+  if (dragIndex >= 0) {
+    const c = state.charges[dragIndex];
+    c.x = Math.max(-BOX * 0.9, Math.min(BOX * 0.9, p.x));
+    c.y = Math.max(-BOX * 0.9, Math.min(BOX * 0.9, p.y));
+    retraceLines();
+    drawAll();
+  } else {
+    canvas.style.cursor = pickCharge(p) >= 0 ? 'grab' : 'default';
+  }
+});
+function endDrag(ev) {
+  if (dragIndex >= 0) {
+    try { canvas.releasePointerCapture(ev.pointerId); } catch {}
+  }
+  dragIndex = -1;
+  canvas.style.cursor = 'default';
+}
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+canvas.addEventListener('pointerleave', endDrag);
 btnShoot.addEventListener('click', () => { shootTestCharge(); drawAll(); });
 btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
 btnPlayPause.addEventListener('click', () => {

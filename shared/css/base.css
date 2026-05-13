@@ -106,5 +106,8 @@ button[data-variant="primary"] {
   color: var(--bg);
 }
 
-/* KaTeX scoping safety: don't let it override the body font */
-.katex { font-size: 1em; }
+/* KaTeX scoping safety: don't let it override the body font.
+   white-space: nowrap on inline math prevents line-wrap from clipping
+   the radical bar of long sqrt expressions. */
+.katex { font-size: 1em; white-space: nowrap; }
+.katex-display { white-space: normal; }

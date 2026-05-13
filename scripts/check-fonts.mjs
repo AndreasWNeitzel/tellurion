@@ -1,0 +1,33 @@
+import { chromium } from 'playwright';
+import { startStaticServer } from '../tests/helpers/static-server.mjs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, '..');
+const { server, url: baseUrl } = await startStaticServer(ROOT);
+const browser = await chromium.launch();
+const ctx = await browser.newContext();
+const page = await ctx.newPage();
+const responses = [];
+page.on('response', (resp) => responses.push(`${resp.status()} ${resp.url()}`));
+page.on('requestfailed', (req) => responses.push(`FAILED ${req.url()}: ${req.failure()?.errorText}`));
+await page.goto(`${baseUrl}/playgrounds/damped-driven-oscillator/index.html`);
+await page.waitForTimeout(3000);
+console.log('Responses:');
+for (const r of responses.filter(r => r.includes('katex') || r.includes('FAILED'))) console.log('  ' + r);
+const fontInfo = await page.evaluate(() => {
+  const els = document.querySelectorAll('.katex .mord');
+  if (els.length === 0) return 'no katex elements';
+  const s = getComputedStyle(els[0]);
+  return `font-family=${s.fontFamily}, font-weight=${s.fontWeight}, color=${s.color}, opacity=${s.opacity}`;
+});
+console.log('First KaTeX font:', fontInfo);
+const sqrtInfo = await page.evaluate(() => {
+  const sqrt = document.querySelector('.katex .sqrt');
+  if (!sqrt) return 'no sqrt';
+  const rect = sqrt.getBoundingClientRect();
+  return `width=${rect.width}, height=${rect.height}, innerHTML=${sqrt.innerHTML.slice(0, 200)}`;
+});
+console.log('Sqrt:', sqrtInfo);
+await browser.close();
+await server.closePromise();
