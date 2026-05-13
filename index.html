@@ -39,7 +39,7 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (72)</h2>
+  <h2>Shipped (77)</h2>
   <section class="card-grid">
 
     <article class="card">
@@ -617,16 +617,47 @@
       <p class="citation"><em>Carroll, Sean M.. &quot;Spacetime and Geometry: An Introduction to General Relativity.&quot; Cambridge University Press, 2019. Bib key `carroll2019`. Sections:</em></p>
     </article>
   
+
+    <article class="card">
+      <h2><a href="./playgrounds/three-body-orbit/index.html">Three-Body Figure-Eight Choreography</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous &quot;choreography&quot; solution of the planar three-body problem. The playground integrates</p>
+      <p class="citation"><em>Newman, Mark.. &quot;Computational Physics.&quot; Revised printing, CreateSpace, 2013. Bib key `newman2013`. Exercise 8.16 &quot;Three-body problem&quot; sets up the planar three-body integration with mutual gravity. Verified in chapter_ind</em></p>
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/liouvillian-flow/index.html">Liouvillian Flow on the Pendulum Phase Space</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und</p>
+      <p class="citation"><em>Strogatz, Steven H.. &quot;Nonlinear Dynamics and Chaos.&quot; 2nd ed., Westview/CRC Press, 2015. Bib key `strogatz2015`. Sections:</em></p>
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/lyapunov-spectrum/index.html">Lyapunov Spectrum via Benettin QR</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra</p>
+      <p class="citation"><em>Strogatz, Steven H.. &quot;Nonlinear Dynamics and Chaos.&quot; 2nd ed., Westview/CRC Press, 2015. Bib key strogatz2015. Sections cited:</em></p>
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/double-pendulum/index.html">Double Pendulum Phase Portrait and Energy Conservation</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t</p>
+      <p class="citation"><em>Newman, Mark.. &quot;Computational Physics.&quot; Revised printing, CreateSpace, 2013. Bib key `newman2013`. Exercise 8.15 &quot;The double pendulum&quot; provides the problem statement and a reference implementation in a compiled language </em></p>
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/logistic-cobweb/index.html">Logistic Map Cobweb and Bifurcation Diagram</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio</p>
+      <p class="citation"><em>Strogatz, Steven H.. &quot;Nonlinear Dynamics and Chaos.&quot; 2nd ed., Westview/CRC Press, 2015. Bib key `strogatz2015`. Sections cited:</em></p>
+    </article>
+  
   </section>
 
-  <h2 class="drafts-heading">Draft (5)</h2>
-  <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
-  <ul class="drafts-list">
-    <li><span class="drafts-slug">double-pendulum</span></li>
-    <li><span class="drafts-slug">liouvillian-flow</span></li>
-    <li><span class="drafts-slug">logistic-cobweb</span></li>
-    <li><span class="drafts-slug">lyapunov-spectrum</span></li>
-    <li><span class="drafts-slug">three-body-orbit</span></li>
-  </ul>
 </body>
 </html>
