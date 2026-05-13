@@ -1,0 +1,110 @@
+/* Base styles. Consumes tokens.css; no hardcoded values. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-family: var(--font-sans);
+  font-size:   var(--font-body-size);
+  line-height: var(--font-body-line);
+  color:       var(--fg);
+  background:  var(--bg);
+  font-feature-settings: "kern", "liga", "calt";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  padding: var(--space-6) var(--space-5);
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-block: var(--space-6) var(--space-3);
+}
+
+h1 { font-size: 1.9rem; line-height: 1.2; }
+h2 { font-size: 1.4rem; line-height: 1.25; }
+h3 { font-size: 1.15rem; line-height: 1.3; }
+
+p { margin-block: var(--space-3) var(--space-3); }
+
+code, kbd, samp, pre, .mono { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+
+/* Figure conventions */
+figure {
+  margin: var(--space-6) 0;
+  padding: 0;
+}
+figcaption {
+  font-size: var(--font-caption-size);
+  color: var(--fg-muted);
+  margin-top: var(--space-3);
+  line-height: 1.5;
+}
+figcaption .figure-number { font-style: italic; color: var(--fg-faint); margin-right: var(--space-2); }
+
+/* Canvas defaults */
+canvas, svg {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+/* Live readout panel */
+.readout {
+  position: relative;
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  font-size: 13px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--grid);
+  border-radius: var(--radius-sm);
+  color: var(--fg-muted);
+}
+.readout .label  { color: var(--fg-faint); }
+.readout .value  { color: var(--fg); text-align: right; }
+
+/* Controls */
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-block: var(--space-4);
+}
+.controls details summary {
+  cursor: pointer;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 14px;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--easing);
+}
+button:hover { background: var(--accent-soft); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+button[data-variant="primary"] {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* KaTeX scoping safety: don't let it override the body font */
+.katex { font-size: 1em; }

@@ -1,0 +1,36 @@
+[project]
+name = "playgrounds-portfolio-tools"
+version = "0.1.0"
+description = "Python helpers for the playgrounds portfolio (figure prep, citation linting, reference numerics)."
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=2.0",
+  "scipy>=1.13",
+  "matplotlib>=3.9",
+  "pillow>=10.4",
+  "bibtexparser>=1.4",
+  "pydantic>=2.8",
+  "ruff>=0.6",
+]
+
+[tool.uv]
+managed = true
+dev-dependencies = [
+  "pytest>=8.3",
+  "mypy>=1.11",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["scripts/py"]
+addopts = "-ra -q --strict-markers"

@@ -1,0 +1,19 @@
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "semi": true,
+  "trailingComma": "none",
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": ["*.md"],
+      "options": { "printWidth": 100, "proseWrap": "preserve" }
+    },
+    {
+      "files": ["*.html"],
+      "options": { "printWidth": 120 }
+    }
+  ]
+}

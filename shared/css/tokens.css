@@ -1,0 +1,124 @@
+/* Design tokens. Single source of truth for color, type, spacing, motion.
+   Per-playground overrides are forbidden except for one documented accent.
+   See docs/AESTHETIC.md for the rules these encode. */
+
+:root {
+  /* Backgrounds */
+  --bg-light: #FBFBF9;
+  --bg-dark:  #0E0F10;
+  --bg:       var(--bg-light);
+  --surface:  #FFFFFFEE;        /* card surfaces in light */
+
+  /* Foreground */
+  --fg:       #1A1B1C;
+  --fg-muted: #5C5E61;
+  --fg-faint: #9A9C9F;
+
+  /* Accent (one primary at a time) */
+  --accent:        #1B6CA8;
+  --accent-warm:   #C13B27;     /* warning / contrast trace, sparingly */
+  --accent-soft:   #1B6CA822;
+
+  /* Categorical palette (max 6 simultaneous) */
+  --cat-1: #4C72B0;
+  --cat-2: #DD8452;
+  --cat-3: #55A868;
+  --cat-4: #C44E52;
+  --cat-5: #8172B2;
+  --cat-6: #937860;
+
+  /* Grid and lines */
+  --grid:    #9A9C9F4D;          /* 30 percent opacity */
+  --grid-strong: #9A9C9F80;
+  --stroke-primary:   1.5px;
+  --stroke-secondary: 1.0px;
+  --stroke-grid:      0.5px;
+  --stroke-highlight: 2.5px;
+
+  /* Typography */
+  --font-sans: "Inter", "IBM Plex Sans", "Source Sans 3", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-serif: "Charter", "Iowan Old Style", Georgia, serif;
+  --font-body-size: 16px;
+  --font-body-line: 1.55;
+  --font-caption-size: 14.4px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 220ms;
+  --motion-slow: 360ms;
+  --easing:      cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Shadows */
+  --shadow-1: 0 1px 2px #0000000F, 0 1px 1px #0000000F;
+  --shadow-2: 0 4px 12px #00000014, 0 1px 2px #00000014;
+
+  /* Layout */
+  --content-max: 760px;
+  --figure-min:  520px;
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       var(--bg-dark);
+    --surface:  #1A1B1DEE;
+    --fg:       #E8E8E6;
+    --fg-muted: #9A9C9F;
+    --fg-faint: #5C5E61;
+    --grid:     #9A9C9F33;
+    --grid-strong: #9A9C9F66;
+    --accent:        #6BB4E0;
+    --accent-warm:   #E48566;
+    --accent-soft:   #6BB4E022;
+  }
+}
+
+[data-theme="dark"] {
+  --bg:       var(--bg-dark);
+  --surface:  #1A1B1DEE;
+  --fg:       #E8E8E6;
+  --fg-muted: #9A9C9F;
+  --fg-faint: #5C5E61;
+  --grid:     #9A9C9F33;
+  --grid-strong: #9A9C9F66;
+  --accent:        #6BB4E0;
+  --accent-warm:   #E48566;
+  --accent-soft:   #6BB4E022;
+}
+
+[data-theme="light"] {
+  --bg:       var(--bg-light);
+  --surface:  #FFFFFFEE;
+  --fg:       #1A1B1C;
+  --fg-muted: #5C5E61;
+  --fg-faint: #9A9C9F;
+  --grid:     #9A9C9F4D;
+  --grid-strong: #9A9C9F80;
+  --accent:        #1B6CA8;
+  --accent-warm:   #C13B27;
+  --accent-soft:   #1B6CA822;
+}
+
+/* Reduced motion override */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-slow: 0ms;
+  }
+}
