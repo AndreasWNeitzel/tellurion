@@ -23,11 +23,21 @@ uv sync
 
 ## Quickstart
 
+To open a playground in a browser, serve the project over HTTP. Each playground loads `playground.js` as an ES module that imports from `shared/`, so browsers block it from `file://`.
+
 ```
-npm run scaffold logistic-cobweb
+npm run dev
 ```
 
-This copies `playgrounds/_template` into `playgrounds/logistic-cobweb`, substitutes placeholders, and prepares the folder for the `playground-architect` subagent to draft `spec.md`.
+That starts vite on `http://localhost:5173/`. The root page lists shipped playgrounds; or jump directly to `http://localhost:5173/playgrounds/<slug>/index.html`. Any equivalent static server works.
+
+To scaffold a new playground:
+
+```
+npm run scaffold <slug>
+```
+
+This copies `playgrounds/_template` into `playgrounds/<slug>`, substitutes placeholders, and prepares the folder for the `playground-architect` subagent to draft `spec.md`.
 
 The build flow for any playground:
 
