@@ -1,17 +1,17 @@
-# Gauss Law Flux Through Surface
+# Gauss's law: flux invariant under deformation
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A 2D point charge inside a closed loop generates a flux $\oint \mathbf{E} \cdot \hat n\,ds = q / \epsilon_0$, regardless of how the loop is deformed - this is Gauss's law in two dimensions. If the charge moves outside the loop, the flux drops to zero exactly.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+Look for the dual color signal: the loop turns accent-yellow when the charge is inside (flux $= q/\epsilon_0$) and muted gray when the charge is outside (flux $= 0$). Switching the shape from ellipse to blob doesn't change the flux at all.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Slider controls the shape, semi-axes, and charge x-position.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: Griffiths, *Introduction to Electrodynamics*, 5e, Ch. 2 (`griffithsem2017`).
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: flux through enclosing ellipse equals $q/\epsilon_0$ within $10^{-6}$; flux zero for outside charge; invariant under deformation.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.

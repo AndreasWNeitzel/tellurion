@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gauss Law in 2D](../playgrounds/bsc-y1s2/FIS1014-gauss-law-flux-through-surface/index.html)** &nbsp; (verified, verified 2026-05-13T23:26:29Z)
+  A 2D point charge $q$ at user-set position generates the planar Coulomb field $\mathbf{E} = q / (2 \pi \epsilon_0 r) \hat r$. A user-controlled closed curve (ellipse or perturbed-ellipse blob) is drawn around the charge, and the flux $\oint \mathbf{E} \cdot \hat n\,ds$ is computed numerically via Simpson quadrature.
+
 - **[Matter-Radiation Equality](../playgrounds/msc-y1/MAA-CS-matter-radiation-equality/index.html)** &nbsp; (verified, verified 2026-05-13T23:23:33Z)
   A flat Friedmann universe with three energy components: matter ($\rho_m \propto a^{-3}$), radiation ($\rho_r \propto a^{-4}$), and a cosmological constant ($\rho_\Lambda$ = const). The playground plots all three on a log-log scale against the scale factor $a$ (today $a = 1$) and marks the matter-radiation equality at $a_\text{eq} = \Omega_r / \Omega_m$.
 
@@ -417,9 +420,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Friedmann Cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Gauss Law Flux Through Surface](../playgrounds/bsc-y1s2/FIS1014-gauss-law-flux-through-surface/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Geodesic Deviation Equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/index.html)** &nbsp; (draft)

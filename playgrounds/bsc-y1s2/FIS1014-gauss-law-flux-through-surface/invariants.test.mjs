@@ -1,28 +1,66 @@
-// Gauss Law Flux Through Surface invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// 2D Gauss's law invariants.
+// (a) Flux through any ellipse enclosing the charge equals q / epsilon_0.
+// (b) Flux through any ellipse NOT enclosing the charge is zero.
+// (c) Flux is invariant under shape deformation as long as the charge stays inside.
+// (d) Flux scales linearly with charge magnitude.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  field, ellipse, blob, flux, insideEllipse,
+  EPS0, Q_C,
+} from './sim.js';
 
-describe('Gauss Law Flux Through Surface invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
+const Q_TEST = 1e-9;
+const Q_OVER_EPS = Q_TEST / EPS0;
 
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('gauss-law-flux-through-surface', () => {
+  it('flux through unit circle around point charge equals q / eps_0', () => {
+    const c = ellipse(0, 0, 1, 1);
+    const f = flux(c, 0, 0, Q_TEST);
+    expect(Math.abs(f - Q_OVER_EPS) / Q_OVER_EPS).toBeLessThan(1e-6);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('flux invariant under ellipse aspect ratio (charge inside)', () => {
+    const c1 = ellipse(0, 0, 1, 1);
+    const c2 = ellipse(0, 0, 2, 0.5);
+    const c3 = ellipse(0, 0, 0.5, 1.5);
+    const f1 = flux(c1, 0, 0, Q_TEST);
+    const f2 = flux(c2, 0, 0, Q_TEST);
+    const f3 = flux(c3, 0, 0, Q_TEST);
+    expect(Math.abs(f1 - f2) / f1).toBeLessThan(1e-6);
+    expect(Math.abs(f1 - f3) / f1).toBeLessThan(1e-6);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('flux is zero when charge is outside the curve', () => {
+    // Charge at (3, 0), circle around origin radius 1.
+    const c = ellipse(0, 0, 1, 1);
+    const f = flux(c, 3, 0, Q_TEST);
+    expect(Math.abs(f) / Q_OVER_EPS).toBeLessThan(1e-6);
+  });
+
+  it('flux invariant under blob deformation when charge is inside', () => {
+    const c1 = ellipse(0, 0, 1, 1);
+    const c2 = blob(0, 0, 1, 1, 0.3, 3);
+    const f1 = flux(c1, 0, 0, Q_TEST);
+    const f2 = flux(c2, 0, 0, Q_TEST);
+    expect(Math.abs(f1 - f2) / f1).toBeLessThan(1e-6);
+  });
+
+  it('flux scales linearly with charge', () => {
+    const c = ellipse(0, 0, 1, 1);
+    const f1 = flux(c, 0, 0, Q_TEST);
+    const f2 = flux(c, 0, 0, 3 * Q_TEST);
+    expect(Math.abs(f2 - 3 * f1) / f1).toBeLessThan(1e-6);
+  });
+
+  it('insideEllipse correctly identifies enclosed charges', () => {
+    expect(insideEllipse(0, 0, 0, 0, 1, 1)).toBe(true);
+    expect(insideEllipse(2, 0, 0, 0, 1, 1)).toBe(false);
+    expect(insideEllipse(0.5, 0, 0, 0, 1, 1)).toBe(true);
+  });
+
+  it('field is repulsive (E_x > 0 to the right of positive charge)', () => {
+    const { Ex } = field(1, 0, 0, 0, 1);
+    expect(Ex).toBeGreaterThan(0);
+  });
 });
