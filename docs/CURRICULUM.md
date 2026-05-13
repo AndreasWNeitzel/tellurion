@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 121 |
+| draft | 120 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 71 |
+| verified | 72 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -174,7 +174,7 @@ Total playgrounds: 203
 4 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Compton Scattering Kinematics** ([FIS2017-compton-scattering-kinematics](../playgrounds/bsc-y2s2/FIS2017-compton-scattering-kinematics/)). Status: `verified`. `eisberg-resnick` ch 2.
-- **Davisson Germer Diffraction** ([FIS2017-davisson-germer-diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/)). Status: `draft`. `eisberg-resnick` ch 3; Bragg peak at lambda = 2 d sin(theta) exact.
+- **Davisson-Germer Electron Diffraction** ([FIS2017-davisson-germer-diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/)). Status: `verified`. `eisberg-resnick` ch 3.
 - **de Broglie Wavelength** ([FIS2017-de-broglie-wavelength](../playgrounds/bsc-y2s2/FIS2017-de-broglie-wavelength/)). Status: `verified`. `eisberg-resnick` ch 3.
 - **Photoelectric Effect Threshold** ([FIS2017-photoelectric-effect-threshold](../playgrounds/bsc-y2s2/FIS2017-photoelectric-effect-threshold/)). Status: `verified`. `eisberg-resnick` ch 2.
 

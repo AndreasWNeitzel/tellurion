@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Davisson-Germer Electron Diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/index.html)** &nbsp; (verified, verified 2026-05-13T22:43:53Z)
+  Electrons accelerated through a voltage $V$ are scattered off the (111) face of a nickel crystal. The atomic row spacing on that surface is $D = 0.215$ nm. Constructive interference appears at angle $\theta$ from the normal satisfying
+
 - **[de Broglie Wavelength](../playgrounds/bsc-y2s2/FIS2017-de-broglie-wavelength/index.html)** &nbsp; (verified, verified 2026-05-13T22:39:39Z)
   A particle of rest mass $m$ and kinetic energy $T$ has a quantum wavelength
 
@@ -345,9 +348,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Curvature Tensor 2d Surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Davisson Germer Diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Distance Ladder Toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (draft)

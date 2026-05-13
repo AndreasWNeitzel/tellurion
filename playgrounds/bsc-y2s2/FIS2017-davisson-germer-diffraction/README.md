@@ -1,17 +1,18 @@
-# Davisson Germer Diffraction
+# Davisson-Germer electron diffraction
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+Electrons accelerated through voltage $V$ have de Broglie wavelength $\lambda = h c / pc$ and scatter off the (111) Ni surface at angles satisfying $D \sin\theta = n\lambda$ for row spacing $D = 0.215$ nm. At the original 1927 voltage $V = 54$ V the first-order peak appears at $\theta \approx 51^\circ$, the iconic confirmation of de Broglie's hypothesis.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+Look for the two-panel display. The left panel is a geometry sketch: vertical incident beam, horizontal crystal surface with atomic-row dots, accent-colored arrow at the first-order peak direction. The right panel is the N-slit grating intensity $I(\theta) = (\sin N\phi / \sin\phi)^2$ with $\phi = \pi D \sin\theta / \lambda$, with dashed vertical lines marking each principal order. Raising $V$ pulls the peaks inward; raising $N$ sharpens them.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Sliders control $V$ in volts and $N$ in atomic rows. Both update the geometry and intensity plots in real time.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 3 (`eisberg-resnick`).
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: canonical $V = 54$ V $\to$ $\lambda = 0.167$ nm and $\theta_1 \approx 51^\circ$.
+- N-slit principal max $= N^2$ exact.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
