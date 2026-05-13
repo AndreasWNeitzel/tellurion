@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T17:02:26Z
+invariants: 7/7 (speed conservation, boundary contact, integrability, chaos signature)
+visual: SSIM > 0.92 (5 frames sweeping geometries: circle, circle-deep, stadium, sinai, stadium-late)

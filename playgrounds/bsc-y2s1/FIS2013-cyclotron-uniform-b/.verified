@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T18:28:30Z
+invariants: 5/5 (speed conservation, trajectory on analytic circle, period closure under RK4, radius scaling, B sign reversal)
+visual: SSIM > 0.92 across 5 frames showing one cyclotron period

@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:01:25Z
+invariants: 5/5 (equilibrium fixed point, above-Hopf limit-cycle amplitude, non-negative populations, xStar formula, Hopf threshold)
+visual: SSIM > 0.92 across 5 frames showing phase orbit and time series

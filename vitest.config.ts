@@ -5,13 +5,13 @@ export default defineConfig({
     include: [
       'tests/**/*.test.mjs',
       'shared/**/*.test.mjs',
-      'playgrounds/*/invariants.test.mjs'
+      'playgrounds/**/invariants.test.mjs'
     ],
     exclude: [
       'node_modules/**',
       'dist/**',
       'playgrounds/_template/**',
-      'playgrounds/*/visual.test.mjs'   // Playwright owns these
+      'playgrounds/**/visual.test.mjs'   // Playwright owns these
     ],
     pool: 'forks',                       // each test file in its own process for determinism
     isolate: true,

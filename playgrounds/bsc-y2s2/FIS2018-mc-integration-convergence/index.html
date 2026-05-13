@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monte Carlo Integration: 1/sqrt(N) Convergence</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Monte Carlo integration and 1/sqrt(N) convergence</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> Monte Carlo estimation of
+    $\int_0^1 (1 + 10 (x - \frac{1}{2})^4) \, dx = 1.125$ via plain
+    uniform sampling and importance sampling with a Beta(2, 2) proposal.
+    Both estimators are unbiased; their standard errors decay as
+    $\sigma / \sqrt{N}$.
+  </p>
+  <p>
+    The top panel shows the test function $f(x)$ (white). The bottom
+    panel plots $|\hat I - I|$ vs $N$ on log scale, with a dashed
+    $1/\sqrt{N}$ reference. For this function (largest at the endpoints),
+    Beta(2,2) IS does not help: the proposal puts mass at the center
+    where $f$ is small.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="600" tabindex="0"
+            aria-label="MC integration with samples and 1/sqrt(N) convergence curve."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Monte Carlo integration. Method: plain and importance-sampled
+      estimators with reference line. Source: MacKay, Information Theory
+      Ch. 29.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="MC controls">
+    <div class="row"><span class="label">log2(N)</span><input type="range" id="slider-log" min="4" max="18" step="1" value="14"><span class="value" id="value-log">14</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

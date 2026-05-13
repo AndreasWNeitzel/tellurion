@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lyapunov Spectrum of the Henon Map</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <style>
+    .pg-figure { max-width: 720px; }
+    .pg-figure canvas { width: 100%; height: auto; cursor: crosshair; touch-action: none; }
+    .pg-readout {
+      display: grid;
+      grid-template-columns: max-content 10ch;
+      gap: var(--space-1) var(--space-4);
+      margin-top: var(--space-3);
+      width: max-content;
+    }
+    .pg-readout .value.warn { color: var(--accent-warm); }
+    .pg-controls {
+      display: flex;
+      gap: var(--space-3);
+      margin-block: var(--space-4);
+    }
+  </style>
+</head>
+<body>
+  <h1>Lyapunov spectrum of the Henon map</h1>
+
+  <p>
+    The Henon map <span class="mono">x<sub>n+1</sub> = 1 &minus; a&nbsp;x<sub>n</sub><sup>2</sup> + y<sub>n</sub></span>,
+    <span class="mono">y<sub>n+1</sub> = b&nbsp;x<sub>n</sub></span> is the canonical 2D chaos benchmark. At
+    <span class="mono">(a, b) = (1.4, 0.3)</span> its attractor is a strange set with a positive largest Lyapunov
+    exponent and a negative second exponent that sum exactly to <span class="mono">ln|b|</span>. Drag the handle on
+    the parameter panel to explore how the attractor morphs and how the spectrum responds. The trace identity
+    <span class="mono">&lambda;<sub>1</sub> + &lambda;<sub>2</sub> = ln|b|</span> is an exact dynamical invariant
+    that the Benettin QR algorithm preserves to machine precision.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="720" height="480" tabindex="0"
+            aria-label="Henon attractor scatter on the left; draggable (a, b) parameter panel on the right."></canvas>
+
+    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">a:</span>                                   <span class="value" id="readout-a">1.400000</span>
+      <span class="label">b:</span>                                   <span class="value" id="readout-b">0.300000</span>
+      <span class="label">&lambda;<sub>1</sub>:</span>                <span class="value" id="readout-lambda1">0.4203</span>
+      <span class="label">&lambda;<sub>2</sub>:</span>                <span class="value" id="readout-lambda2">-1.6242</span>
+      <span class="label">&lambda;<sub>1</sub>+&lambda;<sub>2</sub>:</span> <span class="value" id="readout-sum">-1.2040</span>
+      <span class="label">ln|b|:</span>                                <span class="value" id="readout-target">-1.2040</span>
+      <span class="label">N:</span>                                   <span class="value" id="readout-N">100000</span>
+    </div>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Henon attractor (left) and the (a, b) parameter panel (right). Method: 2D Henon iteration plus a
+      Benettin QR algorithm on a 2x2 tangent frame with modified Gram-Schmidt re-orthonormalization at each step.
+      Source: Strogatz, Nonlinear Dynamics and Chaos, 2e, Section 12.2; Benettin, Galgani, Giorgilli, Strelcyn,
+      Meccanica 15, 9-20 (1980).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <button id="btn-reset" type="button" aria-label="Reset to canonical (1.4, 0.3)">Reset</button>
+    <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tunneling: Rectangular Barrier</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3) var(--space-4);
+      margin-block: var(--space-4);
+      align-items: center;
+    }
+    .pg-controls .row { display: grid; grid-template-columns: 6ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Quantum tunneling through a rectangular barrier</h1>
+  <p>
+    <strong>What you are seeing:</strong> a quantum particle with energy
+    $E$ approaches a wall of height $V_0$ and width $a$. Classically, if
+    $E &lt; V_0$ the particle bounces back every time (the dashed grey
+    step). Quantum mechanically it has a non-zero chance $T(E)$ of leaking
+    through, even when $E$ is below $V_0$. Above the barrier the
+    transmission is mostly $1$ but with resonance dips: oscillations from
+    interference inside the barrier.
+  </p>
+  <p>
+    The blue curve is the analytic transmission probability $T(E)$ for the
+    rectangular barrier; the red ticks are the perfect-transmission
+    resonance energies $E_n = V_0 + n^2 \pi^2 / (2 a^2)$ where
+    $T(E_n) = 1$ exactly. The smaller panel underneath is an animation
+    of the wave at the current energy $E^\star$, with the barrier shaded
+    in red. Watch the wave amplitude inside the barrier: it decays
+    exponentially for $E^\star &lt; V_0$ and oscillates for
+    $E^\star &gt; V_0$. Drag $E^\star$ to sweep through the regimes.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="640" tabindex="0"
+            aria-label="Top panel: transmission coefficient T(E) over a rectangular barrier with classical step overlay and a moving E_star marker. Bottom panel: animated wavefunction at energy E_star showing incident, transmitted, and inside-barrier behaviour."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Transmission T(E) for a 1D Schrodinger particle scattering off a
+      rectangular barrier, hbar = m = 1. Method: analytic closed form
+      with the matching-coefficient solution at the two interfaces.
+      Source: Griffiths, Introduction to Quantum Mechanics 3e,
+      Sections 2.6 and 8.2.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Barrier controls">
+    <div class="row"><span class="label">V_0</span><input type="range" id="slider-V" min="0.1" max="20" step="0.1" value="5"><span class="value" id="value-V">5.00</span></div>
+    <div class="row"><span class="label">a</span><input type="range" id="slider-a" min="0.1" max="5" step="0.05" value="1"><span class="value" id="value-a">1.00</span></div>
+    <div class="row"><span class="label">E_star</span><input type="range" id="slider-E" min="0.1" max="20" step="0.1" value="3"><span class="value" id="value-E">3.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-playpause" type="button" aria-pressed="false">Pause</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

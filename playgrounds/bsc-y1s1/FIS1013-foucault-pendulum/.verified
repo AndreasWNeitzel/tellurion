@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T18:49:28Z
+invariants: 6/6 (energy bounded, precession-period formula, equator no precession, pole T = T_ref, hemisphere sign flip, swing-plane precession visible)
+visual: SSIM > 0.92 across 5 frames showing rosette pattern growth

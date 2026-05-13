@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T17:17:52Z
+invariants: 5/5 (upwind TVD, FTCS explosion, LW bounded TV, mass conservation, periodicity)
+visual: SSIM > 0.92 across 5 frames showing the four schemes diverge from the exact pulse

@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T18:33:40Z
+invariants: 5/5 (drift formula, cycloid from rest, E=0 reduces to cyclotron, numerical vs analytic, sign reversal)
+visual: SSIM > 0.92 across 5 frames showing cycloid trajectory and drift

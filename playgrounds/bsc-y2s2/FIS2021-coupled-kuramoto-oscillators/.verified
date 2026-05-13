@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:04:40Z
+invariants: 5/5 (r in [0,1], K=0 incoherent, K=4 synchronized, K_c formula, N exported)
+visual: SSIM > 0.92 across 5 frames showing unit-circle dots and r(t) trace

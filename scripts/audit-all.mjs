@@ -18,10 +18,31 @@ const ROOT = path.resolve(__dirname, '..');
 
 const { server, url: baseUrl } = await startStaticServer(ROOT);
 
-const playgrounds = (await fs.readdir(path.join(ROOT, 'playgrounds'), { withFileTypes: true }))
-  .filter(d => d.isDirectory() && d.name !== '_template' && d.name !== 'arnold-cat-map')
-  .map(d => d.name)
-  .sort();
+// Walk playgrounds/ recursively so the curriculum-aligned tree is supported.
+async function findPlaygroundDirs(d) {
+  const out = [];
+  async function recurse(dir) {
+    let entries;
+    try { entries = await fs.readdir(dir, { withFileTypes: true }); }
+    catch { return; }
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      if (e.name === '_template' || e.name === 'references' || e.name === 'golden-frames' || e.name === 'captured') continue;
+      const full = path.join(dir, e.name);
+      try {
+        await fs.access(path.join(full, 'index.html'));
+        out.push(full);
+      } catch {
+        await recurse(full);
+      }
+    }
+  }
+  await recurse(d);
+  return out;
+}
+const playgroundDirs = await findPlaygroundDirs(path.join(ROOT, 'playgrounds'));
+playgroundDirs.sort();
+const playgrounds = playgroundDirs.map(d => path.relative(path.join(ROOT, 'playgrounds'), d));
 
 console.log(`Auditing ${playgrounds.length} playgrounds...\n`);
 

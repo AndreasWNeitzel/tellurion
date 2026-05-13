@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tautochrone: Cycloid Isochronism</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Tautochrone: the cycloid's isochronism</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> five frictionless beads released
+    simultaneously from different heights along the same cycloid bowl.
+    Despite the wide range of release positions, all five reach the bottom
+    at exactly the same time. Huygens proved this in 1673 by showing that
+    the equation of motion in arc-length $s$ from the bottom is
+    $\ddot{s} = -(g / 4R) s$, an exact simple harmonic oscillator
+    independent of amplitude.
+  </p>
+  <p>
+    This isochronism is what makes the cycloid the curve of equal time, the
+    tautochrone. It is also (separately) the brachistochrone, the curve of
+    least time from a fixed start to a fixed end. Huygens used this to
+    design pendulum clocks whose period would not drift with swing amplitude.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="Five beads on a cycloid bowl arriving at the bottom simultaneously."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Tautochrone. Method: closed-form $s(t) = s_0 \cos(\omega t)$ with
+      $\omega = \sqrt{g / 4R}$, mapped through the cycloid parametrization.
+      Source: Huygens 1673, Horologium Oscillatorium (`huygens1673`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Tautochrone controls">
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

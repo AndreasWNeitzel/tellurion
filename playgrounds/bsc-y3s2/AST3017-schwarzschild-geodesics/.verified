@@ -1,0 +1,4 @@
+verified-at: 2026-05-13T08:35:00Z
+invariants: 7/7 pass
+visual-ssim-min: > 0.92 (all 5 frames)
+reviewers: visual=PASS, citation=PASS, aesthetics=PASS-after-fixes (red+blue dual-accent waivered in spec.md)

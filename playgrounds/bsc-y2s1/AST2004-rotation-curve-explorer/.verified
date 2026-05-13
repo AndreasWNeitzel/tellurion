@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T08:43:00Z
+invariants: 16/16 pass
+visual-ssim-min: > 0.92 (all 5 frames)

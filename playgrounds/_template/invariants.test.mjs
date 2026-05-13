@@ -3,8 +3,8 @@
 // against the threshold in spec.md.
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
+// import * as engine from '../../../shared/js/engine/<engine>.js';
 
 describe('__TITLE__ invariants', () => {
   let sim;

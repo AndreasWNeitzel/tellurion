@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maximum-Entropy Distributions: A Small Zoo</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Maximum-entropy distributions: a small zoo</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> if all you know about a random
+    variable is a couple of summary statistics (its support, mean,
+    variance, etc.), what is the most "honest" probability density you
+    can write down? The maximum-entropy principle picks the density
+    $p(x)$ that uses no extra structure beyond what those statistics
+    force, by maximizing the differential entropy
+    $h(p) = -\int p(x)\,\log p(x)\,dx$.
+  </p>
+  <p>
+    The answer depends entirely on the constraint:
+  </p>
+  <ul>
+    <li>support $[a, b]$, no moment constraint $\Rightarrow$ uniform $U(a, b)$, $h = \ln(b - a)$.</li>
+    <li>support $[0, \infty)$, mean $\mu$ $\Rightarrow$ exponential $\text{Exp}(1/\mu)$, $h = 1 + \ln \mu$.</li>
+    <li>support $\mathbb R$, mean $\mu$, variance $\sigma^2$ $\Rightarrow$ Gaussian $N(\mu, \sigma)$, $h = \tfrac12 \ln(2\pi e \sigma^2)$.</li>
+    <li>support $\mathbb R$, mean $\mu$, $E|X - \mu| = b$ $\Rightarrow$ Laplace, $h = 1 + \ln(2 b)$.</li>
+  </ul>
+  <p>
+    The plot shows the chosen pdf with its analytic entropy and a numerical
+    trapezoidal estimate. They agree to a few percent.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="520" tabindex="0"
+            aria-label="Plot of selected maximum-entropy pdf with live entropy values."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      One-dimensional maximum-entropy distributions for four common
+      constraint families. Method: closed-form pdfs, trapezoidal entropy
+      on a 500-point grid. Source: MacKay 2003, Information Theory,
+      Inference, and Learning Algorithms, Section 22.2 (`mackay2003`);
+      Cover and Thomas 2006, Elements of Information Theory, 2e, Section
+      12.1.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Maxent controls">
+    <div class="row">
+      <span class="label">family</span>
+      <select id="select-family">
+        <option value="gaussian" selected>Gaussian (mean, variance)</option>
+        <option value="uniform">Uniform (support)</option>
+        <option value="exponential">Exponential (mean, support [0, infty))</option>
+        <option value="laplace">Laplace (mean, mean absolute deviation)</option>
+      </select>
+    </div>
+    <div class="row" id="row-mu"><span class="label">mu</span><input type="range" id="slider-mu" min="-2" max="2" step="0.05" value="0"><span class="value" id="value-mu">0.00</span></div>
+    <div class="row" id="row-sigma"><span class="label">sigma / b / mean</span><input type="range" id="slider-scale" min="0.3" max="3.0" step="0.05" value="1.0"><span class="value" id="value-scale">1.00</span></div>
+    <div class="row" id="row-support"><span class="label">support</span><input type="range" id="slider-supp" min="0.5" max="3.0" step="0.05" value="2.0"><span class="value" id="value-supp">2.00</span></div>
+    <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

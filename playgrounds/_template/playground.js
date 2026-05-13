@@ -2,8 +2,8 @@
 // Replace this stub with the real simulation. Keep the structure: import an engine,
 // wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+// import * as engine from '../../../shared/js/engine/<engine>.js';
 
 const params         = new URLSearchParams(location.search);
 const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;

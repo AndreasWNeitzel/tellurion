@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T12:54:00Z
+invariants: 7/7
+visual: SSIM > 0.92 (5 frames sweeping tau from 2.5 down to 0.05)

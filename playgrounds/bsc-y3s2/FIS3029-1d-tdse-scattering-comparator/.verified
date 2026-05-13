@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T17:07:26Z
+invariants: 5/5 (initial-norm, norm-after-300-steps, R+T=1, group-velocity, high-barrier-blocks)
+visual: SSIM > 0.92 across 5 frames sweeping a full barrier passage

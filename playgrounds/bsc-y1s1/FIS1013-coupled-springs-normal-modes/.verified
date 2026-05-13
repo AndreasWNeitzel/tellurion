@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T17:56:30Z
+invariants: 5/5 (omega_+ exact, omega_- exact, energy drift < 1e-3 over 10^4 Verlet steps, eigenfrequencies analytic, numerical vs analytic agreement at t = 2)
+visual: SSIM > 0.92 across 5 frames showing mass motion, displacement traces, and phase portrait

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Standing Waves on a String</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Standing waves on a fixed-end string</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the first five normal modes of a
+    string fixed at both ends. The displacement is
+    $y_n(x, t) = A \sin(n\pi x / L) \cos(2\pi f_n t)$, with mode frequency
+    $f_n = n c / (2L)$. Mode $n$ has $n$ antinodes (places of maximum
+    motion) and $n - 1$ interior nodes (places where the string stays at
+    rest). The fundamental is mode 1; modes 2, 3, ... are the harmonics
+    that give a plucked string its characteristic timbre.
+  </p>
+  <p>
+    The traces overlay all selected modes' instantaneous profiles together
+    with the envelope $\pm A \sin(n\pi x / L)$ for each (dashed). The
+    fastest mode (highest n) oscillates n times faster than mode 1.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Five overlaid standing-wave modes on a fixed-end string."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Standing-wave modes on a fixed-end string of length L = 1 with wave
+      speed c = 1. Method: closed-form $\sin(n\pi x/L) \cos(2\pi f_n t)$.
+      Source: French, Vibrations and Waves Ch. 5 (`french-vibrations`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Standing-wave controls">
+    <div class="row"><span class="label">mode n</span><input type="range" id="slider-n" min="1" max="5" step="1" value="1"><span class="value" id="value-n">1</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-superpose" type="button">superpose 1+3</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

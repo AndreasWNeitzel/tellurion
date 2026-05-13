@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T17:21:43Z
+invariants: 4/4 (output in [0,1], loss decreases, moons > 80%, XOR > 90%)
+visual: SSIM > 0.92 across 5 frames showing decision surface evolution

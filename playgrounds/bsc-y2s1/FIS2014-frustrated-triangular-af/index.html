@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frustrated Triangular Antiferromagnet</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Frustrated triangular antiferromagnet</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> antiferromagnetic Ising spins on
+    a 2D triangular lattice. Each spin energetically wants to be
+    <em>opposite</em> to its 6 neighbors, but the triangular geometry
+    makes that impossible: on every elementary triangle, you cannot
+    anti-align all three pairs at once. The system is "frustrated".
+  </p>
+  <p>
+    Famous Wannier 1950 result: the 2D AF Ising on a triangular lattice
+    has <em>no</em> phase transition at finite $T$. Even at $T = 0$ the
+    ground state has extensive residual entropy. Watch the lattice: even
+    at very low $T$ it never reaches a clean checkerboard order; instead
+    a sea of competing domains lives forever.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="640" tabindex="0"
+            aria-label="Triangular AF Ising spin grid with live energy and frustration readouts."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Antiferromagnetic Ising on a triangular lattice; row-offset display.
+      Method: single-spin Metropolis. Source: Wannier 1950, Phys. Rev. 79,
+      357; Newman and Barkema 1999, Monte Carlo Methods in Statistical
+      Physics, Section 5.4 (`newmanbarkema1999`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="AF controls">
+    <div class="row"><span class="label">T</span><input type="range" id="slider-T" min="0.05" max="5.0" step="0.05" value="0.5"><span class="value" id="value-T">0.50</span></div>
+    <div class="row"><span class="label">L</span><input type="range" id="slider-L" min="32" max="96" step="16" value="64"><span class="value" id="value-L">64</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="8" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons">
+      <button id="btn-cold" type="button">Cold (stripe)</button>
+      <button id="btn-hot" type="button">Hot (random)</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

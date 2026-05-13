@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:59:45Z
+invariants: 5/5 (plain MC converges, 1/sqrt(N) SE scaling, both methods finite, convergence array shape, exact integral)
+visual: SSIM > 0.92 across 5 frames sweeping log2 N

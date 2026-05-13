@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T20:13:25Z
+invariants: 5/5 (top-spin shortens, back-spin extends, zero-spin near-parabolic, sign difference, lands at y=0)
+visual: SSIM > 0.92 across 5 frames showing three trajectories with animated ball

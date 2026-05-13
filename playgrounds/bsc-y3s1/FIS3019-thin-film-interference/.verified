@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:08:10Z
+invariants: 5/5 (R in [0,1], constructive maxima, zero-thickness limit, periodic in d, constructive formula)
+visual: SSIM > 0.92 across 5 frames showing R(lambda) sweep and color history

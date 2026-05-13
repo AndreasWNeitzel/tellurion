@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T18:46:08Z
+invariants: 5/5 (limit-cycle uniqueness, peak near 2 for moderate mu, mu = 0 SHO closure, asymptotic-period formula, measured-period near asymptotic at mu = 10)
+visual: SSIM > 0.92 across 5 frames showing phase portrait and time series

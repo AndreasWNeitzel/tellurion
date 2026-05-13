@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harmonic Oscillator Coherent State</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 6ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Harmonic oscillator coherent state</h1>
+  <p>
+    <strong>What you are seeing:</strong> a quantum wave packet that slides
+    back and forth inside a parabolic bowl <em>without spreading out</em>.
+    Classical balls in this bowl oscillate forever; a typical quantum wave
+    packet would smear and lose coherence. The "coherent state"
+    $|\alpha\rangle$ is the special wave packet that keeps its Gaussian
+    shape, with its centre tracing the classical orbit
+    $x_0(t) = \sqrt{2}\,\mathrm{Re}(\alpha e^{-i \omega t})$.
+  </p>
+  <p>
+    The blue curve is the probability density $|\psi(x, t)|^2$; the orange
+    wiggle underneath is $\mathrm{Re}(\psi)$; the dashed parabola is the
+    potential $V(x) = x^2 / 2$. The red dot is the classical particle that
+    would correspond to the same orbit. They move together. The expected
+    number of energy quanta is $\langle n \rangle = |\alpha|^2$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Coherent state |psi|^2 oscillating in a harmonic well, with the parabolic potential overlaid."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Coherent state of the 1D harmonic oscillator. Method: analytic
+      closed-form psi(x, t) with classical orbit center (x_0, p_0).
+      hbar = m = omega = 1. Source: Sakurai-Napolitano, Modern Quantum
+      Mechanics 3e, Section 2.4 (Coherent states).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Coherent state controls">
+    <div class="row"><span class="label">alpha</span><input type="range" id="slider-alpha" min="0" max="4" step="0.1" value="2"><span class="value" id="value-alpha">2.00</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0.1" max="2" step="0.1" value="0.6"><span class="value" id="value-speed">0.6</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

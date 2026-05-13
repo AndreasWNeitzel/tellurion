@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Foucault Pendulum and the Coriolis Precession</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Foucault pendulum: Coriolis precession</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a small-amplitude pendulum swinging
+    in the horizontal $(x, y)$ plane on a rotating Earth. The Coriolis
+    force $2 \Omega \sin(\phi) \, \hat{z} \times \mathbf{v}$ does no work,
+    but it causes the plane of oscillation to slowly rotate. The trace
+    pattern is a Spirograph-like rosette: the pendulum still oscillates,
+    but the long axis of each swing rotates between swings.
+  </p>
+  <p>
+    The precession period is $T_{\text{precess}} = T_0 / \sin(\phi)$ where
+    $T_0$ is the rotation period at the pole. At the equator there is no
+    Coriolis component along the vertical, so the swing plane does not
+    rotate. In the southern hemisphere the rotation reverses direction.
+    Time is scaled here so $T_0$ is 24 seconds (not 24 hours) for
+    visibility. Try the latitude slider to move from the equator to a pole.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="600" tabindex="0"
+            aria-label="Foucault pendulum trace showing precession of swing plane with latitude."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Foucault pendulum precession. Method: RK4 on linearized Coriolis EOMs.
+      Source: Marion and Thornton, Classical Dynamics 5e Ch. 10
+      (`marion-thornton`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Foucault controls">
+    <div class="row"><span class="label">latitude</span><input type="range" id="slider-lat" min="-90" max="90" step="1" value="45"><span class="value" id="value-lat">45 deg</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

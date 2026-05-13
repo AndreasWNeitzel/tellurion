@@ -27,11 +27,35 @@ if (!values.playground) {
   process.exit(1);
 }
 
-const pgDir = path.join(ROOT, 'playgrounds', values.playground);
-try {
-  await fs.access(path.join(pgDir, 'index.html'));
-} catch {
-  console.error(`Playground not found: ${pgDir}`);
+// Resolve the playground directory under the curriculum-aligned tree.
+// Accepts either a bare slug (post-rename: <uc>-<slug> or pre-rename: <slug>)
+// or a relative path like "bsc-y1s1/FIS1013-inclined-plane-friction".
+async function resolvePlaygroundDir(arg) {
+  const direct = path.join(ROOT, 'playgrounds', arg);
+  try { await fs.access(path.join(direct, 'index.html')); return direct; } catch {}
+  // Search recursively for a directory matching the slug or ending with -<slug>.
+  const base = path.join(ROOT, 'playgrounds');
+  async function recurse(d) {
+    let entries;
+    try { entries = await fs.readdir(d, { withFileTypes: true }); }
+    catch { return null; }
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      const full = path.join(d, e.name);
+      if (e.name === arg || e.name.endsWith(`-${arg}`)) {
+        try { await fs.access(path.join(full, 'index.html')); return full; } catch {}
+      }
+      const r = await recurse(full);
+      if (r) return r;
+    }
+    return null;
+  }
+  return recurse(base);
+}
+
+const pgDir = await resolvePlaygroundDir(values.playground);
+if (!pgDir) {
+  console.error(`Playground not found: ${values.playground}`);
   process.exit(1);
 }
 
@@ -53,7 +77,8 @@ const ctx     = await browser.newContext({ viewport: { width: 800, height: 600 }
 const page    = await ctx.newPage();
 
 try {
-  const baseHref = `${baseUrl}/playgrounds/${values.playground}/index.html`;
+  const urlPath = path.relative(ROOT, pgDir).split(path.sep).join('/');
+  const baseHref = `${baseUrl}/${urlPath}/index.html`;
   for (const frame of FRAMES) {
     const url = new URL(baseHref);
     url.searchParams.set('seed', values.seed);

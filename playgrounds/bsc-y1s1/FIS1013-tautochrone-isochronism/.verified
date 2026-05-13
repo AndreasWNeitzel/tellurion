@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T18:36:55Z
+invariants: 6/6 (quarter-period amplitude independence, cycloid bottom, arc-length formula, theta-s inversion, period formula, full period closure)
+visual: SSIM > 0.92 across 5 frames showing 5 beads converging at the bottom at t = T/4

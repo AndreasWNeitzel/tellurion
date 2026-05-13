@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPH Sod Shock Tube</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>SPH Sod shock tube</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a one-dimensional smoothed-particle
+    hydrodynamics (SPH) simulation of the Sod shock tube. The membrane at
+    $x = 0.5$ separates a high-pressure left state ($\rho = 1$, $P = 1$, $v = 0$)
+    from a low-pressure right state ($\rho = 0.125$, $P = 0.1$, $v = 0$). At
+    $t = 0$ the membrane is removed.
+  </p>
+  <p>
+    The exact Riemann solution has three waves: a left-moving rarefaction fan
+    (where the gas accelerates and rarefies), a contact discontinuity in the
+    middle (where density jumps but pressure and velocity are smooth), and a
+    right-moving shock (where density, pressure, and velocity all jump). The
+    SPH method represents the fluid as 360 Lagrangian particles smoothed by
+    a cubic-spline kernel; the artificial viscosity (Monaghan 1992) is what
+    allows it to capture the shock.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="1D SPH Sod shock tube showing density rho(x) and velocity v(x) profiles."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      SPH Sod shock tube. Method: cubic-spline kernel SPH with
+      Monaghan-Gingold artificial viscosity (alpha=1, beta=2). Source:
+      Monaghan 1992 ARAA review (`monaghan1992`); Price 2012 JCP
+      (`price2012sph`); Sod 1978 (`sod1978`); LeVeque FV Chapter 14
+      (`leveque2002`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="SPH controls">
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="5" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row"><span class="label">field</span><input type="range" id="slider-field" min="0" max="2" step="1" value="0"><span class="value" id="value-field">rho</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

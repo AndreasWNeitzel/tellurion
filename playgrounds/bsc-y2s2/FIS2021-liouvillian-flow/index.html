@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liouvillian Flow on the Pendulum Phase Space</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; cursor: grab; touch-action: none; }
+    .pg-figure canvas:active { cursor: grabbing; }
+    .pg-readout {
+      display: grid;
+      grid-template-columns: max-content 10ch;
+      gap: var(--space-1) var(--space-4);
+      margin-top: var(--space-3);
+      width: max-content;
+    }
+    .pg-readout .value.warn { color: var(--accent-warm); }
+    .pg-controls {
+      display: flex;
+      gap: var(--space-3);
+      margin-block: var(--space-4);
+    }
+  </style>
+</head>
+<body>
+  <h1>Liouvillian flow on the pendulum phase space</h1>
+
+  <p>
+    Drop a Gaussian blob of 256 tracers anywhere in the pendulum phase space (theta, p). Each
+    tracer evolves under the Hamiltonian H = p<sup>2</sup>/2 &minus; cos(theta) via velocity-Verlet.
+    The cloud rotates, shears, and filaments, but its phase-space area is preserved
+    (Liouville's theorem). The dashed curve is the separatrix p = &pm;2 cos(theta/2): below it
+    orbits librate, above it they rotate. Drag the dashed circle (handle) to set the blob center.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="480" tabindex="0"
+            aria-label="Pendulum phase portrait on the left with a tracer cloud; physical pendulum bobs on the right showing each tracer's instantaneous configuration."></canvas>
+
+    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">blob &theta;:</span>     <span class="value" id="readout-theta">0.6000</span>
+      <span class="label">blob p:</span>            <span class="value" id="readout-p">0.0000</span>
+      <span class="label">A (cov):</span>           <span class="value" id="readout-area">0.0000</span>
+      <span class="label">&Delta;A / A<sub>0</sub>:</span> <span class="value" id="readout-dArea">0.0e+00</span>
+      <span class="label">E (1st tracer):</span>   <span class="value" id="readout-E0">0.0000</span>
+      <span class="label">N tracers:</span>         <span class="value" id="readout-N">256</span>
+      <span class="label">t (s):</span>             <span class="value" id="readout-t">0.00</span>
+    </div>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Pendulum phase space (theta, p) with a Gaussian tracer cloud evolving under H = p^2/2 &minus; cos(theta).
+      Method: 256 independent tracers integrated by velocity-Verlet from
+      <code>shared/js/engine/symplectic.js</code>, with the symplectic Jacobian preserving the phase-space
+      covariance determinant to within engine accuracy. Source: Strogatz, Nonlinear Dynamics and Chaos,
+      2e, Sections 6.5 and 6.7.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <button id="btn-reset" type="button" aria-label="Reset blob to default (theta=0.6, p=0)">Reset</button>
+    <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

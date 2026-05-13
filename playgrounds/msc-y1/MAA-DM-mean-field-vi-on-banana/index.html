@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mean-Field VI on a Banana</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Mean-field VI on a banana</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the simplest variational
+    inference setup, fit to the simplest distribution that breaks it.
+    Target: a Rosenbrock-style "banana" $\log p(x, y) = -((1 - x)^2 + 100 (y - x^2)^2)/20$,
+    a long curved valley.
+    Variational family: a product $q(x, y) = N(\mu_x, \sigma_x^2)\,N(\mu_y, \sigma_y^2)$,
+    axis-aligned Gaussian (mean-field). VI maximizes
+    $\text{ELBO} = E_q[\log p] + H(q)$ by gradient ascent.
+  </p>
+  <p>
+    The contour lines are the target $\log p$. The orange ellipse is the
+    current $q$. The yellow trace below is the ELBO over training. The
+    "best" Gaussian approximation cannot follow the banana's curvature;
+    it settles into a compact ellipse at the bend.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="640" tabindex="0"
+            aria-label="Banana log-density contours with the variational Gaussian ellipse overplotted; ELBO trace below."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Mean-field VI on a Rosenbrock banana, reparameterization gradient
+      with K = 32 Monte Carlo samples per step. Source: Bishop and
+      Bishop 2024 Deep Learning Ch. 16 (`bishop2006`); Blei, Kucukelbir,
+      McAuliffe 2017.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="VI controls">
+    <div class="row"><span class="label">lr</span><input type="range" id="slider-lr" min="0.001" max="0.02" step="0.001" value="0.005"><span class="value" id="value-lr">0.005</span></div>
+    <div class="row"><span class="label">K (MC)</span><input type="range" id="slider-K" min="8" max="128" step="8" value="32"><span class="value" id="value-K">32</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="20" step="1" value="5"><span class="value" id="value-speed">5</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-step" type="button">Single step</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

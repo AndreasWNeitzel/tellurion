@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T18:11:40Z
+invariants: 8/8 (cycloid < arc, cycloid < line, endpoints, initial position, cycloid parametrization, cycloid time formula)
+visual: SSIM > 0.92 across 5 frames showing three-bead race with time bars

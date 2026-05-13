@@ -6,12 +6,12 @@ import { test, expect } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compareImagesSSIM } from '../../tests/helpers/ssim.mjs';
-import { startStaticServer } from '../../tests/helpers/static-server.mjs';
+import { compareImagesSSIM } from '../../../tests/helpers/ssim.mjs';
+import { startStaticServer } from '../../../tests/helpers/static-server.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PLAYGROUND_DIR = __dirname;
-const PROJECT_ROOT   = path.resolve(PLAYGROUND_DIR, '..', '..');
+const PROJECT_ROOT   = path.resolve(PLAYGROUND_DIR, '..', '..', '..');
 const GOLDEN_DIR     = path.join(PLAYGROUND_DIR, 'references', 'golden-frames');
 const SEED           = '0xC0FFEE';
 const FRAMES         = ['t-000', 't-025', 't-050', 't-075', 't-100'];
@@ -30,12 +30,13 @@ test.afterAll(async () => {
 });
 
 const PG_SLUG = path.basename(PLAYGROUND_DIR);
+const URL_PATH = path.relative(PROJECT_ROOT, PLAYGROUND_DIR).split(path.sep).join('/');
 const FRACTION = { 't-000': 0, 't-025': 0.25, 't-050': 0.5, 't-075': 0.75, 't-100': 1 };
 
 test.describe('__TITLE__ visual gate', () => {
   for (const frameName of FRAMES) {
     test(`frame ${frameName} matches golden`, async ({ page }) => {
-      const url = new URL(`${baseUrl}/playgrounds/${PG_SLUG}/index.html`);
+      const url = new URL(`${baseUrl}/${URL_PATH}/index.html`);
       url.searchParams.set('seed', SEED);
       url.searchParams.set('deterministic', '1');
       url.searchParams.set('capture', frameName);

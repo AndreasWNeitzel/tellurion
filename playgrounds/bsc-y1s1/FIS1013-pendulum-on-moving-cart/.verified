@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:51:50Z
+invariants: 5/5 (energy, momentum, theta bounded, equilibrium fixed point, small-angle finite period)
+visual: SSIM > 0.92 across 5 frames showing cart-pendulum motion + phase portrait

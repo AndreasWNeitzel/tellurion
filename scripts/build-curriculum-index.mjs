@@ -126,16 +126,39 @@ function extractPitch(content) {
 }
 
 const playgroundsDir = path.join(ROOT, 'playgrounds');
-const slugs = (await fs.readdir(playgroundsDir, { withFileTypes: true }))
-  .filter(d => d.isDirectory() && d.name !== '_template')
-  .map(d => d.name)
-  .sort();
+
+async function findPlaygroundDirs(d) {
+  const out = [];
+  async function recurse(dir) {
+    let entries;
+    try { entries = await fs.readdir(dir, { withFileTypes: true }); }
+    catch { return; }
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      if (e.name === '_template' || e.name === 'references' || e.name === 'golden-frames' || e.name === 'captured') continue;
+      const full = path.join(dir, e.name);
+      try {
+        await fs.access(path.join(full, 'spec.md'));
+        out.push(full);
+      } catch {
+        await recurse(full);
+      }
+    }
+  }
+  await recurse(d);
+  return out;
+}
+
+const playgroundDirs = await findPlaygroundDirs(playgroundsDir);
+playgroundDirs.sort();
 
 const playgrounds = [];
 const statusCount = { draft: 0, 'in-progress': 0, verified: 0, implemented: 0, shipped: 0 };
 const orphans = [];
-for (const slug of slugs) {
-  const specPath = path.join(playgroundsDir, slug, 'spec.md');
+for (const dir of playgroundDirs) {
+  const slug = path.basename(dir);
+  const urlPath = path.relative(ROOT, dir).split(path.sep).join('/');
+  const specPath = path.join(dir, 'spec.md');
   let raw;
   try { raw = await fs.readFile(specPath, 'utf-8'); }
   catch { orphans.push(`${slug}: missing spec.md`); continue; }
@@ -148,6 +171,7 @@ for (const slug of slugs) {
   const pitch = extractPitch(raw);
   playgrounds.push({
     slug,
+    urlPath,
     title: fm.title || slug,
     status: fm.status || 'unknown',
     primary_uc: fm.primary_uc,
@@ -210,7 +234,7 @@ for (const [yearKey, yearLabel] of YEAR_ORDER) {
         ? ` (supporting: ${p.supporting_ucs.join(', ')})`
         : '';
       const pitchTail = p.pitch ? `; ${p.pitch}` : '';
-      out.push(`- **${p.title}** ([${p.slug}](../playgrounds/${p.slug}/)). Status: \`${p.status}\`. ${citation}${supporting}${pitchTail}.`);
+      out.push(`- **${p.title}** ([${p.slug}](../${p.urlPath}/)). Status: \`${p.status}\`. ${citation}${supporting}${pitchTail}.`);
     }
     out.push('');
   }

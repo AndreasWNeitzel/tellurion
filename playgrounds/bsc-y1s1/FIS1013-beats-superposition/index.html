@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beats from Superposition of Close Frequencies</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Beats from superposition of close frequencies</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the sum of two cosines of nearby
+    frequencies, $y(t) = \cos(2\pi f_1 t) + \cos(2\pi f_2 t)$. By a standard
+    trig identity this equals $2 \cos(2\pi \bar{f} t) \cos(2\pi f_b t)$, where
+    $\bar{f} = (f_1 + f_2)/2$ is the carrier and $f_b = |f_1 - f_2| / 2$ is
+    the envelope rate. The audible beat rate is $|f_1 - f_2|$, twice the
+    envelope rate, because the ear hears amplitude modulation and a maximum
+    occurs every half-period of the envelope.
+  </p>
+  <p>
+    Move the $f_2$ slider toward $f_1$ and the envelope stretches out. At
+    $f_1 = f_2$ the beats disappear and the sum collapses to $2\cos(2\pi f t)$.
+    The lower panel shows the explicit envelope $\pm 2 \cos(2\pi f_b t)$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="Beats superposition: two close-frequency cosines and their sum with envelope."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Beats from two nearby frequencies. Method: closed-form evaluation of
+      $\cos(2\pi f_1 t) + \cos(2\pi f_2 t)$ with animated time cursor. Source:
+      Crawford, Waves and Oscillations, Ch. 1 (`crawford-waves`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Beats controls">
+    <div class="row"><span class="label">f_1 (Hz)</span><input type="range" id="slider-f1" min="3" max="7" step="0.05" value="5.0"><span class="value" id="value-f1">5.00</span></div>
+    <div class="row"><span class="label">f_2 (Hz)</span><input type="range" id="slider-f2" min="3" max="7" step="0.05" value="4.7"><span class="value" id="value-f2">4.70</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

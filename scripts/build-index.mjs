@@ -71,12 +71,36 @@ async function readVerified(playgroundDir) {
   }
 }
 
+// Recursively find every spec.md under playgrounds/, skipping _template
+// and any reference / golden-frames subdirectory.
+async function findPlaygroundDirs() {
+  const out = [];
+  async function recurse(d) {
+    let entries;
+    try { entries = await fs.readdir(d, { withFileTypes: true }); }
+    catch { return; }
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      if (e.name === '_template' || e.name === 'references' || e.name === 'golden-frames' || e.name === 'captured') continue;
+      const full = path.join(d, e.name);
+      try {
+        await fs.access(path.join(full, 'spec.md'));
+        out.push(full);
+      } catch {
+        await recurse(full);
+      }
+    }
+  }
+  await recurse(PG_DIR);
+  return out;
+}
+
 async function loadCards() {
-  const entries = await fs.readdir(PG_DIR);
+  const dirs = await findPlaygroundDirs();
   const cards = [];
-  for (const name of entries) {
-    if (name === '_template') continue;
-    const dir = path.join(PG_DIR, name);
+  for (const dir of dirs) {
+    const name = path.basename(dir);
+    const urlPath = path.relative(ROOT, dir).split(path.sep).join('/'); // e.g. playgrounds/bsc-y1s1/FIS1013-inclined-plane-friction
     const specPath = path.join(dir, 'spec.md');
     let spec;
     try {
@@ -86,8 +110,6 @@ async function loadCards() {
     }
     const { frontmatter, body } = parseFrontmatter(spec);
     let description = firstParagraph(body);
-    // Spec bodies that still hold the scaffold placeholder are useless as
-    // card descriptions; fall back to the README's first paragraph.
     if (!description || description.startsWith('This file is a placeholder')) {
       try {
         const readme = await fs.readFile(path.join(dir, 'README.md'), 'utf-8');
@@ -100,6 +122,7 @@ async function loadCards() {
     const verified = await readVerified(dir);
     cards.push({
       slug:          frontmatter.slug ?? name,
+      urlPath:       urlPath,
       title:         frontmatter.title ?? name,
       description:   description,
       citation:      extractPrimaryCitation(body),
@@ -130,7 +153,7 @@ function renderHTML(cards) {
 
   const cardsHtml = shipped.map(c => `
     <article class="card">
-      <h2><a href="./playgrounds/${htmlEscape(c.slug)}/index.html">${htmlEscape(c.title)}</a></h2>
+      <h2><a href="./${htmlEscape(c.urlPath)}/index.html">${htmlEscape(c.title)}</a></h2>
       <p class="status">verified ${htmlEscape((c.verifiedAt || '').slice(0, 10))}</p>
       <p class="description">${htmlEscape(c.description)}</p>
       ${c.citation ? `<p class="citation"><em>${htmlEscape(c.citation)}</em></p>` : ''}
@@ -197,7 +220,7 @@ ${draftsHtml}
 
 function renderMarkdown(cards) {
   const rows = cards.map(c =>
-    `- **[${c.title}](../playgrounds/${c.slug}/index.html)** &nbsp; (${c.status}${c.verifiedAt ? `, verified ${c.verifiedAt}` : ''})\n  ${c.description}`
+    `- **[${c.title}](../${c.urlPath}/index.html)** &nbsp; (${c.status}${c.verifiedAt ? `, verified ${c.verifiedAt}` : ''})\n  ${c.description}`
   );
   return `# Playgrounds index\n\nAuto-generated from spec.md frontmatter. Do not edit by hand. Run \`npm run build:index\`.\n\n${rows.join('\n\n')}\n`;
 }

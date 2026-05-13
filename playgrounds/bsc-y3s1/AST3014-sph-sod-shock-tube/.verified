@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T17:47:53Z
+invariants: 5/5 (mass exact, energy drift bounded, kernel reconstruction 10 percent, rarefaction and shock develop, peak density bounded by strong-shock limit)
+visual: SSIM > 0.92 across 5 frames showing the three-wave Riemann structure (rarefaction, contact, shock)

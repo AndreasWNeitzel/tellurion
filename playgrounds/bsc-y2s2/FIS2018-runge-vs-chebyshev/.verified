@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:37:00Z
+invariants: 6/6 (equispaced diverges, Chebyshev converges, equispaced spacing, Chebyshev clustering, exact at nodes, factor-10 gap)
+visual: SSIM > 0.92 across 5 frames sweeping n

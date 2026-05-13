@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCMC Sampler Comparator</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3) var(--space-4);
+      align-items: center;
+      margin-block: var(--space-4);
+    }
+    .pg-controls .row {
+      display: grid;
+      grid-template-columns: 8ch 1fr;
+      gap: var(--space-3);
+      align-items: center;
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+    .pg-controls .row.buttons {
+      grid-template-columns: 1fr 1fr;
+      grid-column: span 3;
+    }
+    .pg-controls select { width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>MCMC sampler comparator</h1>
+  <p>
+    <strong>What you are seeing:</strong> three different random-walk
+    algorithms trying to sample from the same probability density
+    $\pi(x, y)$. The grey shading on the left is the density itself
+    (darker = higher probability). Each colored trail is one sampler
+    laying down points: it tries to walk in a way that, in the long run,
+    spends time at each $(x, y)$ in proportion to $\pi$.
+  </p>
+  <p>
+    A "good" sampler explores the whole region quickly and decorrelates;
+    a "bad" sampler gets stuck. The right panels are live trace plots of
+    the $x$ coordinate of each chain, plus its acceptance rate and
+    effective sample size $N_\text{eff}$. Switch the target to the banana
+    or the funnel to see HMC pull ahead; switch to the mixture to see
+    samplers getting trapped in one mode.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="500" tabindex="0"
+            aria-label="MCMC sampler comparator: contour map of the target with three accepted-state trails overlaid; right-hand panel of live diagnostics."></canvas>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Three MCMC samplers running simultaneously on a 2D target.
+      Method: <code>shared/js/engine/mcmc-harness.js</code>; ESS via the
+      initial monotone sequence estimator from
+      <code>shared/js/invariants/ess.js</code>. Source: MacKay, Information
+      Theory, Inference, and Learning Algorithms, Sections 29.4, 30.1;
+      Robert and Casella, Monte Carlo Statistical Methods 2e, Sections 7.2,
+      7.6; Bishop and Bishop, Deep Learning, Section 14.3; Gelman BDA3 11.6.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Sampler and target controls">
+    <div class="row">
+      <span class="label">Target</span>
+      <select id="select-target">
+        <option value="gaussian2d">Gaussian 2D</option>
+        <option value="banana" selected>Banana</option>
+        <option value="mixture2d">Mixture 2D</option>
+        <option value="funnel">Neal's funnel</option>
+      </select>
+    </div>
+    <div class="row">
+      <span class="label">Sampler A</span>
+      <select id="select-a">
+        <option value="rwm" selected>RWM</option>
+        <option value="adaptive-rwm">Adaptive RWM</option>
+        <option value="mala">MALA</option>
+        <option value="hmc">HMC</option>
+      </select>
+    </div>
+    <div class="row">
+      <span class="label">Sampler B</span>
+      <select id="select-b">
+        <option value="rwm">RWM</option>
+        <option value="adaptive-rwm">Adaptive RWM</option>
+        <option value="mala" selected>MALA</option>
+        <option value="hmc">HMC</option>
+      </select>
+    </div>
+    <div class="row">
+      <span class="label">Sampler C</span>
+      <select id="select-c">
+        <option value="rwm">RWM</option>
+        <option value="adaptive-rwm">Adaptive RWM</option>
+        <option value="mala">MALA</option>
+        <option value="hmc" selected>HMC</option>
+      </select>
+    </div>
+    <div class="row">
+      <span class="label">HMC L</span>
+      <input type="range" id="slider-L" min="1" max="40" step="1" value="20">
+    </div>
+    <div class="row">
+      <span class="label">Sample N</span>
+      <input type="range" id="slider-N" min="100" max="50000" step="100" value="5000">
+    </div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button" aria-label="Restart all three chains at origin">Restart chains</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

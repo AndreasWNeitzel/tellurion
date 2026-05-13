@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Billiards: Circle, Stadium, Sinai</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Billiards: circle, stadium, Sinai</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a free particle bouncing
+    elastically off the walls of a 2D shape. Three shapes, three very
+    different long-term behaviors. The <em>circle</em> is integrable:
+    the angle of incidence at every wall hit is fixed, so the trajectory
+    traces out a regular caustic and never explores the whole space.
+    The <em>Bunimovich stadium</em> (a rectangle capped with two
+    semicircles) is fully chaotic: any straight segment, however short,
+    is enough to make trajectories diverge exponentially. The
+    <em>Sinai billiard</em> (square with a circular hole at the center)
+    is also chaotic, for the opposite reason: the convex obstacle
+    "defocuses" rays at every reflection.
+  </p>
+  <p>
+    Specular reflection at each wall: angle of incidence = angle of
+    reflection. The particle has unit speed; the only invariant is the
+    energy (which is constant exactly, machine precision). The trail
+    accumulates over time; click "Reset" to start fresh.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="600" tabindex="0"
+            aria-label="Particle bouncing inside the chosen billiard with trail accumulating over time."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A free particle in three classical billiard geometries (circle,
+      Bunimovich stadium, Sinai). Method: ray-tracing with specular
+      reflection. Source: Berry 1981, Eur. J. Phys. 2, 91
+      (`berry1981`); Tabachnikov 2005, Geometry and Billiards.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Billiard controls">
+    <div class="row">
+      <span class="label">geometry</span>
+      <select id="select-geom">
+        <option value="stadium" selected>Bunimovich stadium (chaotic)</option>
+        <option value="circle">Circle (integrable)</option>
+        <option value="sinai">Sinai (chaotic)</option>
+      </select>
+    </div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="20" step="1" value="6"><span class="value" id="value-speed">6</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

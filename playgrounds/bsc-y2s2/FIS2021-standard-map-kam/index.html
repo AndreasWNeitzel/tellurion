@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chirikov Standard Map: KAM Tori</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Chirikov standard map: KAM tori and the breakdown of integrability</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the simplest area-preserving map
+    that exhibits the transition from regular motion to chaos. At each step
+    we kick a rotator and let it free-rotate; the result is a discrete
+    Hamiltonian dynamics on the torus $(\theta, p) \in [0, 2\pi)^2$. The
+    rule is
+    $p_{n+1} = p_n + K\sin(\theta_n)$,
+    $\theta_{n+1} = \theta_n + p_{n+1}$
+    (both mod $2\pi$).
+  </p>
+  <p>
+    At $K = 0$ the dynamics is integrable: every horizontal line $p = \text{const}$
+    is invariant, and trajectories fill it densely if $p/2\pi$ is irrational
+    or close to it in a Diophantine sense. As $K$ grows, the KAM theorem
+    guarantees that "sufficiently irrational" tori survive while rational
+    tori shatter into chains of islands and surrounding chaos. The most
+    persistent torus has the golden-mean winding number $(\sqrt 5 - 1)/2$
+    and breaks last, at the critical value
+    $K_\text{crit} \approx 0.9716$ (Greene 1979). Above this value, orbits
+    can in principle diffuse arbitrarily far in $p$.
+  </p>
+  <p>
+    Click anywhere on the plot to seed a new orbit at that $(\theta, p)$.
+    Each color is a separate initial condition. Drag the $K$ slider and
+    watch the regular curves break up.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="600" tabindex="0"
+            aria-label="Phase portrait of the Chirikov standard map. Horizontal axis: theta in [0, 2 pi). Vertical axis: p in [0, 2 pi). Each orbit is a different color."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Phase portrait of the Chirikov standard map. Method: 32 initial
+      conditions, 1200 forward iterates each. Source: Chirikov 1979,
+      Physics Reports 52; Greene 1979, J. Math. Phys. 20.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Standard map controls">
+    <div class="row"><span class="label">K</span><input type="range" id="slider-K" min="0.0" max="3.0" step="0.005" value="0.971"><span class="value" id="value-K">0.971</span></div>
+    <div class="row"><span class="label">n/orbit</span><input type="range" id="slider-n" min="200" max="3000" step="100" value="1200"><span class="value" id="value-n">1200</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset orbits</button>
+      <button id="btn-kcrit" type="button">Snap K to K_crit</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shapiro Time Delay</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Shapiro time delay</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a light signal traveling from an
+    emitter to a receiver passes near a massive body (the Sun at the
+    origin). In flat space the signal would travel in a straight line
+    parallel to the $x$-axis at impact parameter $b$. In General
+    Relativity the signal experiences a time delay
+    $\delta t = 2M \ln(4 r_E r_R / b^2)$ relative to the flat-space
+    expectation, where $r_E$ and $r_R$ are the emitter and receiver
+    distances from the Sun.
+  </p>
+  <p>
+    The delay is logarithmic in $b$, growing rapidly as the signal grazes
+    the body. For light grazing the Sun, the round-trip Cassini delay was
+    about $250$ microseconds; Bertotti, Iess and Tortora measured it to
+    high precision in 2003 to test the PPN parameter gamma.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Light path past a massive body with Shapiro delay vs impact parameter."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Shapiro delay. Method: closed-form PPN formula with full
+      Schwarzschild overlay. Source: Schutz, A First Course in GR Ch. 11
+      (`schutz-firstcourse`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Shapiro controls">
+    <div class="row"><span class="label">b (units M)</span><input type="range" id="slider-b" min="1" max="100" step="0.5" value="20"><span class="value" id="value-b">20</span></div>
+    <div class="row"><span class="label">r_E = r_R</span><input type="range" id="slider-r" min="100" max="3000" step="50" value="1000"><span class="value" id="value-r">1000</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

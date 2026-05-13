@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1D TDSE: Wavepacket Scattering</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>1D TDSE: wavepacket scattering off a barrier</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a Gaussian quantum wavepacket
+    moving to the right and hitting a potential barrier. Part of the
+    wavefunction reflects, part tunnels through. The standing
+    Schrodinger equation only gives you transmission probabilities at
+    fixed energies (the green theory curve); this simulation watches the
+    full time evolution and shows what really happens to a finite-width
+    pulse: it stretches, interferes with itself, and splits cleanly into
+    reflected and transmitted parts.
+  </p>
+  <p>
+    We solve $i\hbar\,\partial_t\psi = -\frac{\hbar^2}{2m}\partial_x^2\psi + V(x)\psi$
+    via Crank-Nicolson: $(I + i\,dt\,H/2)\psi^{n+1} = (I - i\,dt\,H/2)\psi^n$.
+    This is unconditionally stable and norm-preserving to 1e-10 per step.
+    Blue curve: $\mathrm{Re}\,\psi$. Red curve: $|\psi|^2$. Grey
+    rectangle: barrier. Code units $\hbar = m = 1$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="520" tabindex="0"
+            aria-label="1D wavefunction Re psi (blue) and probability density |psi|^2 (red) with barrier overlay."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Gaussian wavepacket scattering off a rectangular barrier under the
+      1D TDSE. Method: Crank-Nicolson on 800-point uniform grid,
+      tridiagonal Thomas. Source: Newman 2013, Computational Physics, Ch.
+      9 Ex. 9.8; Griffiths and Schroeter 2018 QM 3e, Sec. 2.5
+      (`griffithsqm2018`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="TDSE controls">
+    <div class="row">
+      <span class="label">potential</span>
+      <select id="select-kind">
+        <option value="barrier" selected>Rectangular barrier</option>
+        <option value="step">Step</option>
+        <option value="well">Square well</option>
+      </select>
+    </div>
+    <div class="row"><span class="label">V_0</span><input type="range" id="slider-v0" min="-6" max="10" step="0.2" value="4"><span class="value" id="value-v0">4.0</span></div>
+    <div class="row"><span class="label">k_0</span><input type="range" id="slider-k0" min="0.5" max="5" step="0.1" value="2.0"><span class="value" id="value-k0">2.0</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="20" step="1" value="6"><span class="value" id="value-speed">6</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

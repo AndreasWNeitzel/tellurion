@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hydrogen Orbitals: 2D Cross Sections</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Hydrogen orbitals in the (x, z) plane</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the probability density
+    $|\psi_{nlm}|^2$ for an electron in a hydrogen atom, sliced through
+    the plane that contains the nucleus and the $z$ axis (so we see the
+    radial nodes and the angular lobes at once). Each panel is a
+    different bound state labeled by three quantum numbers
+    $(n, \ell, m)$: $n$ sets the size and the number of radial nodes,
+    $\ell$ sets the angular shape (s, p, d, f), and $m$ picks one of the
+    $2\ell + 1$ orientations.
+  </p>
+  <p>
+    The radial part is $R_{n\ell}(r) \propto \rho^\ell\,e^{-r/n}\,
+    L^{2\ell + 1}_{n - \ell - 1}(\rho)$ with $\rho = 2 r / n$; the angular
+    part is a real combination of spherical harmonics
+    $Y^\ell_m(\theta, \phi)$. Standard textbook coordinates, in Bohr radii
+    $a_0$ (where 1 unit = the size of the 1s ground state).
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="640" tabindex="0"
+            aria-label="Probability density heatmap of a hydrogen orbital in the xz plane."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      $|\psi_{n\ell m}(r, \theta, \phi = 0)|^2$ for the selected orbital,
+      gamma-corrected for visibility. Method: closed-form Laguerre and
+      Legendre recurrences on a 256 x 256 grid. Source: Griffiths and
+      Schroeter 2018, QM 3e, Section 4.2 (`griffithsqm2018`); Sakurai and
+      Napolitano 2017, Modern QM 3e, Section 3.6 (`sakurai2017`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Orbital controls">
+    <div class="row">
+      <span class="label">orbital</span>
+      <select id="select-orbital"></select>
+    </div>
+    <div class="row"><span class="label">span (a_0)</span><input type="range" id="slider-span" min="6" max="60" step="2" value="20"><span class="value" id="value-span">20</span></div>
+    <div class="row"><span class="label">gamma</span><input type="range" id="slider-gamma" min="0.10" max="1.00" step="0.02" value="0.40"><span class="value" id="value-gamma">0.40</span></div>
+    <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

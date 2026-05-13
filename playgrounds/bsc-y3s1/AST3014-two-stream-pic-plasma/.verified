@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T17:35:12Z
+invariants: 4/4 (mode-1 growth, momentum conservation, periodic BC, initial perturbation small)
+visual: SSIM > 0.92 across 5 frames showing linear -> nonlinear -> vortex regimes

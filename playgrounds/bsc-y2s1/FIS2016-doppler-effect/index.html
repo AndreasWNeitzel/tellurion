@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doppler Effect: Moving Source and Circular Wavefronts</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Doppler effect from a moving source</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a source moving at constant velocity
+    $v$ to the right (cyan dot) emits a circular wavefront once per
+    source-frame period $T = 1 / f$. Each wavefront then expands at the
+    wave speed $c$. Because the source moves between emissions, the
+    wavefronts cluster in front of the source and stretch behind it.
+  </p>
+  <p>
+    Pick any angle $\theta$ from the velocity vector. A stationary observer
+    there hears frequency $f_\text{obs} = f / (1 - (v/c) \cos\theta)$. In
+    front ($\theta = 0$) the frequency is blue-shifted by $1 / (1 - v/c)$;
+    behind ($\theta = \pi$) red-shifted by $1 / (1 + v/c)$; perpendicular
+    ($\theta = \pi / 2$) it equals $f$ in the non-relativistic limit. Move
+    the source-speed slider toward $v / c = 1$ to see the front wavefronts
+    pile up tightly.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="Moving source with circular wavefronts illustrating Doppler shift."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Doppler effect for a uniformly moving source. Method: emission of a
+      circular wavefront once per source-frame period, each expanding at
+      speed c. Source: Crawford, Waves and Oscillations Ch. 4
+      (`crawford-waves`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Doppler controls">
+    <div class="row"><span class="label">v / c</span><input type="range" id="slider-v" min="0" max="0.95" step="0.01" value="0.5"><span class="value" id="value-v">0.50</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

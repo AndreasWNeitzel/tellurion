@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T18:03:00Z
+invariants: 7/7 (integer-ratio closure, boundedness, 1:1 circle, 1:1 line, sample correctness)
+visual: SSIM > 0.92 across 5 frames showing pen tracing the 3:5 curve with phase pi/2

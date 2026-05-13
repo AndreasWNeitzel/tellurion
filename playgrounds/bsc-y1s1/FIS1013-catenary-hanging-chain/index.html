@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catenary: Shape of a Hanging Chain</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Catenary: shape of a hanging chain</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a uniform, perfectly flexible chain
+    suspended between two fixed pegs at $(\pm 1, 0)$. The shape is
+    $y(x) = a \cosh(x / a) - a$, where $a = T_0 / (\mu g)$ is the catenary
+    parameter (horizontal tension $T_0$, linear mass density $\mu$, gravity
+    $g$). As $a$ grows the chain is pulled taut and the cosh flattens
+    toward a parabola $y \approx x^2 / 2a$; as $a$ shrinks the chain sags
+    more.
+  </p>
+  <p>
+    The orange dashed line shows the parabolic approximation $y = x^2 / 2a$
+    for the same $a$. For small sag the two curves agree; for large sag
+    (small $a$) the parabola underestimates the chain shape because cosh
+    grows faster than its quadratic Taylor expansion.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="Hanging chain with catenary curve and parabolic approximation."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Catenary. Method: closed-form $y = a \cosh(x/a) - a$ with animated
+      sweep over $a$ from 0.4 to 3.0. Source: Lemos, Analytical Mechanics
+      Ch. 2 (`lemos-analytical`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Catenary controls">
+    <div class="row"><span class="label">a</span><input type="range" id="slider-a" min="0.3" max="3.0" step="0.02" value="0.6"><span class="value" id="value-a">0.60</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="0" max="5" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

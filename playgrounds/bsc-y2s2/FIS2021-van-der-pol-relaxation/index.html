@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Van der Pol: Limit Cycle to Relaxation Oscillator</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Van der Pol: limit cycle to relaxation oscillator</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> the Van der Pol equation
+    $\ddot{x} - \mu (1 - x^2) \dot{x} + x = 0$. For any starting point off
+    the trivial fixed point at the origin, the trajectory converges to a
+    unique limit cycle. At small $\mu$ the cycle is nearly circular (close
+    to the harmonic oscillator). As $\mu$ grows, the cycle deforms into a
+    relaxation oscillation: long slow phases interrupted by fast jumps.
+  </p>
+  <p>
+    Left panel: the phase portrait $(x, v)$ with the trajectory tracing
+    the limit cycle. Right panel: the time series $x(t)$ showing the
+    characteristic slow-fast pattern when $\mu$ is large. Slide $\mu$ from
+    0 (pure SHO) to 8 (deep relaxation) and watch the cycle deform.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="540" tabindex="0"
+            aria-label="Van der Pol oscillator phase portrait and time series."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Van der Pol oscillator. Method: RK4 integration with phase-portrait
+      and time-series rendering. Source: Strogatz, Nonlinear Dynamics and
+      Chaos Ch. 7 (`strogatz`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Van der Pol controls">
+    <div class="row"><span class="label">mu</span><input type="range" id="slider-mu" min="0" max="8" step="0.1" value="1.0"><span class="value" id="value-mu">1.00</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:28:30Z
+invariants: 6/6 (photon peak r=3M, photon peak value, ISCO at 6M, far-field Newtonian, V(2M) = -1/2, turning-point formula)
+visual: SSIM > 0.92 across 5 frames sweeping L

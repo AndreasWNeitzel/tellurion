@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relativistic Beaming Pattern</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Relativistic beaming pattern</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a light source that emits
+    equally in all directions <em>in its own rest frame</em>. When the
+    source is moving toward you at high speed, special relativity
+    concentrates the emission into a narrow cone pointing forward (along
+    the direction of motion). This is "relativistic beaming". It is why
+    blazar jets look much brighter when their axis points at us and dim
+    when it does not.
+  </p>
+  <p>
+    The Doppler factor is $D(\theta) = 1 / [\gamma\,(1 - \beta \cos\theta)]$
+    where $\beta = v/c$, $\gamma = 1/\sqrt{1 - \beta^2}$, and $\theta$ is
+    the angle to the line of sight in the lab frame. For an isotropic
+    source the observed intensity scales as $D^{3 + \alpha}$ with $\alpha$
+    the spectral index. The half-angle of the forward beam shrinks like
+    $1/\gamma$ at large $\gamma$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="640" tabindex="0"
+            aria-label="Polar plot of D^{3+alpha} intensity as a function of viewing angle theta."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Polar diagram of $D^{3+\alpha}$ vs angle from the velocity vector.
+      Yellow vector: source velocity. Source: Rybicki and Lightman 1979,
+      Radiative Processes in Astrophysics, Section 4.8
+      (`rybickilightman1979`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Beaming controls">
+    <div class="row"><span class="label">gamma</span><input type="range" id="slider-gamma" min="1.05" max="20" step="0.05" value="5.0"><span class="value" id="value-gamma">5.0</span></div>
+    <div class="row"><span class="label">alpha</span><input type="range" id="slider-alpha" min="-1" max="2" step="0.05" value="0.0"><span class="value" id="value-alpha">0.0</span></div>
+    <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

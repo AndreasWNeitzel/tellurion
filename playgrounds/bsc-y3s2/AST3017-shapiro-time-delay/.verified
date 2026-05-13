@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T19:33:15Z
+invariants: 6/6 (leading-order vs full, b dependence, r dependence, M linearity, full formula b=r=0, manual formula match)
+visual: SSIM > 0.92 across 5 frames sweeping b from 1 to 100 M

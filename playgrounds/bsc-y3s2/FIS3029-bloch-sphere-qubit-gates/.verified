@@ -1,0 +1,3 @@
+verified-at: 2026-05-13T12:46:00Z
+invariants: 7/7
+visual: SSIM > 0.92 (5 frames sweeping the gate sequence H X Y Z H S T)
