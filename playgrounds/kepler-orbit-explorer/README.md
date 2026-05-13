@@ -1,20 +1,19 @@
-# Kepler Orbit Explorer
+# Kepler Solar System Explorer
 
-A test particle orbits a fixed central mass under Newtonian gravity in 2D. The equations of motion are integrated by the project's velocity-Verlet symplectic engine; energy, angular momentum, and the Laplace-Runge-Lenz vector are reported as conserved (or near-conserved) quantities. Sliders for the semi-major axis a and eccentricity e set the orbit shape; the IC is placed at apastron with the matching velocity.
+A central mass at the origin (yellow disc), four inner Solar System planets at their real semi-major axes and eccentricities (Mercury through Mars), plus a user-controllable fifth test orbit. All five bodies obey the same inverse-square law in GM = 1 units where a = 1 AU corresponds to Earth's orbit (1 yr per revolution by Kepler's III law).
 
-Look at the readouts: under Verlet the angular momentum is conserved to machine precision (the central force has zero torque, and the integrator is symplectic), while the energy oscillates within a bounded envelope at level |dE/E| < 1e-3 over thousands of periods. The LRL vector magnitude equals the eccentricity e by construction and stays bounded over the simulation; secular drift would signal an integrator failure. Push e toward 0.9 and watch the orbit elongate and perihelion shrink to a(1 - e); the live drift readout grows correspondingly because the unresolved perihelion timescale tightens.
+The inset (top-right) plots log(T^2 / 4 pi^2) versus log(a^3) for every body. They all land on the dashed line of slope 1, which is Kepler's third law: T^2 proportional to a^3 regardless of eccentricity. Adjust the test orbit's (a, e) and watch its data point slide along the line.
 
-Controls: drag the a and e sliders to change the orbit; the IC re-seeds at apastron with the new parameters. Reset returns to a = 1, e = 0.6 (the engine-test benchmark). Play/Pause toggles integration. Trails are bounded to 1500 samples after the most recent reset.
+The animation runs in real time: the speed slider sets the year-per-second rate (default 1 yr/sec; Mercury then completes a full orbit every ~ 0.24 sec on screen, Mars every ~ 1.88 sec). The test orbit can stretch out to a = 2.5, e = 0.6 for a comet-like trajectory.
 
 ## Reference
 
-Primary citation: Newman, "Computational Physics", 2013, Exercise 8.12 "Orbit of the Earth" (bib key `newman2013`, verified in chapter_index). Engine: `shared/js/engine/symplectic.js`, validated in `tests/engines/symplectic.test.mjs` for Kepler at e = 0.6 over 10^4 periods.
+Primary citation: Newman, "Computational Physics", 2013, Exercise 8.12 "Orbit of the Earth". Bib key `newman2013`, chapter_index lists Section 8.12.
 
 ## Verification
 
-- Strong invariants:
-  - |dE/E| < 1e-3 over 10^3 periods at a = 1, e = 0.6, dt = 0.01.
-  - |dL/L| < 1e-10 over 10^3 periods (central force, symplectic Verlet).
-- Medium invariant: LRL magnitude bounded; |dA/A| < 5e-3 over 10^3 periods.
-- Visual gate: SSIM > 0.92 against committed golden frames at five eccentricity values 0 -> 0.6.
+- Strong invariants: per-body Kepler's III law (T = 2 pi a^(3/2) in GM = 1 units); eccentricity recovered from state to 1e-8; semi-major axis recovered to 1e-8; Earth orbit returns within 2 percent of IC after one period.
+- Long-term integration: all five bodies stay bound over 1 yr (radius < 2 a_apastron).
+- Reproducibility: bit-identical positions after 1000 steps.
+- Visual gate: SSIM > 0.92 across 5 frames spanning t = 0 to t = 2 yr.
 - Last verified: see `.verified`.
