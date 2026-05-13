@@ -3,86 +3,91 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mandelbrot Set Explorer</title>
+  <title>Mandelbrot Rainbow Explorer</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
   <style>
     .pg-figure { max-width: 720px; }
-    .pg-figure canvas { width: 100%; height: auto; cursor: crosshair; touch-action: none; }
+    .pg-figure canvas { width: 100%; height: auto; cursor: crosshair; touch-action: none; background: #060608; }
     .pg-readout {
       display: grid;
-      grid-template-columns: max-content 12ch;
+      grid-template-columns: max-content 16ch;
       gap: var(--space-1) var(--space-4);
       margin-top: var(--space-3);
       width: max-content;
     }
     .pg-controls {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: var(--space-3) var(--space-4);
       align-items: center;
       margin-block: var(--space-4);
     }
-    .pg-controls .row {
-      display: grid;
-      grid-template-columns: 6ch 1fr 5ch;
+    .pg-controls .buttons {
+      display: flex;
       gap: var(--space-3);
       align-items: center;
-      font-size: 13px;
-      color: var(--fg-muted);
+      flex-wrap: wrap;
     }
-    .pg-controls .row .value {
-      font-family: var(--font-mono);
-      font-feature-settings: "tnum";
-      text-align: right;
+    .pg-controls label {
+      display: block;
+      font-size: 13px;
       color: var(--fg);
     }
-    .pg-controls input[type="range"] { width: 100%; }
   </style>
 </head>
 <body>
-  <h1>Mandelbrot set explorer</h1>
+  <h1>Mandelbrot rainbow explorer</h1>
 
   <p>
     The Mandelbrot set is the set of complex numbers c for which the iteration
-    z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c starting from z<sub>0</sub> = 0 stays
-    bounded. Each pixel of the canvas is one value of c; the gray level encodes the
-    smooth escape time (how many iterations the orbit takes to leave the disk |z| &le; 2).
-    Click anywhere on the canvas to recenter the view; drag the width slider to zoom.
+    z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c, started from z<sub>0</sub> = 0, stays
+    bounded. Click anywhere on the canvas to recenter on that complex coordinate, or pick
+    a preset target and let the auto-zoom drive into it. The iteration cap rises with zoom
+    depth so deep boundary structure stays resolved. The double-precision floor sits near
+    width 1e-13, after which pixel coordinates collide.
   </p>
 
   <figure class="pg-figure">
     <canvas id="stage" width="720" height="480" tabindex="0"
-            aria-label="Mandelbrot set rendered as a grayscale escape-time density."></canvas>
+            aria-label="Mandelbrot set rendered with a continuous rainbow palette."></canvas>
 
     <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Re c (center):</span>  <span class="value" id="readout-cr">-0.500000</span>
-      <span class="label">Im c (center):</span>  <span class="value" id="readout-ci">0.000000</span>
-      <span class="label">view width:</span>     <span class="value" id="readout-width">3.5000</span>
+      <span class="label">Re c (center):</span>  <span class="value" id="readout-cr">-0.5000000000</span>
+      <span class="label">Im c (center):</span>  <span class="value" id="readout-ci">0.0000000000</span>
+      <span class="label">view width:</span>     <span class="value" id="readout-width">3.500e+0</span>
+      <span class="label">zoom (3.5/w):</span>   <span class="value" id="readout-zoom">1.00e+0</span>
+      <span class="label">maxIter:</span>        <span class="value" id="readout-maxIter">256</span>
       <span class="label">iter at hover:</span>  <span class="value" id="readout-iter">NA</span>
-      <span class="label">status:</span>         <span class="value" id="readout-status">hover</span>
     </div>
 
     <figcaption>
       <span class="figure-number">Figure 1.</span>
       Mandelbrot set rendered by per-pixel iteration of z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c
-      from z<sub>0</sub> = 0, with smooth escape-time grayscale (MAX_ITER = 256). Set members
-      (orbits that stay bounded for all 256 iterations) are rendered in the foreground token;
-      exterior pixels fade toward the surface token in proportion to log-scaled smooth iteration count.
-      Source: Newman, Computational Physics, 2013, Exercise 3.7 "The Mandelbrot set"; the real-axis
-      cross-section connects to Strogatz Section 10.4 Periodic Windows.
+      from z<sub>0</sub> = 0, with continuous escape-time hue mapping (1024-step palette,
+      log(1 + mu) phase). Cardioid and period-2 bulb membership tested in closed form to skip
+      the iteration loop. maxIter scales with zoom depth: 256 at the full set, ~ 2200 at zoom 1e9x.
+      Source: Newman, Computational Physics, 2013, Exercise 3.7.
     </figcaption>
   </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-    <div class="row">
-      <span class="label">width</span>
-      <input type="range" id="slider-width" min="0.5" max="4" step="0.05" value="3.5"
-             aria-label="View width in complex-plane units">
-      <span class="value" id="value-width">3.50</span>
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Mandelbrot controls">
+    <div class="buttons">
+      <button id="btn-autozoom" type="button" aria-label="Toggle auto-zoom into the current center">Auto-zoom</button>
+      <button id="btn-zoomout"  type="button" aria-label="Zoom out by factor 2">Zoom out</button>
+      <button id="btn-reset"    type="button" aria-label="Reset to the full Mandelbrot set">Reset</button>
     </div>
-    <div class="row">
-      <button id="btn-reset" type="button" aria-label="Reset view to (-0.5, 0), width 3.5">Reset</button>
+    <div>
+      <label for="preset-target">Jump to preset target</label>
+      <select id="preset-target">
+        <option value="">(stay at current view)</option>
+        <option value="seahorse">Seahorse Valley</option>
+        <option value="spiral">Spiral on boundary</option>
+        <option value="satellite">Satellite mini-set</option>
+        <option value="elephant">Elephant Valley</option>
+        <option value="triplecusp">Triple-spiral cusp</option>
+        <option value="misiurewicz">Misiurewicz point</option>
+      </select>
     </div>
   </div>
 
