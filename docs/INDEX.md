@@ -68,13 +68,10 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Driven Damped Duffing Oscillator](../playgrounds/duffing-oscillator/index.html)** &nbsp; (verified)
   A particle in a symmetric double-well potential V(x) = -x^2/2 + x^4/4, subject to linear damping and a periodic external drive. The Duffing equation is the textbook system that exhibits a complete period-doubling cascade to chaos under a single control parameter (the drive amplitude gamma). It is also one of the cleanest examples for visualizing a Poincare s
 
-- **[EM on GMM 2D](../playgrounds/em-on-gmm-2d/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[EM on a 2D Gaussian Mixture](../playgrounds/em-on-gmm-2d/index.html)** &nbsp; (verified)
+  A 2D scatter of N = 600 points drawn from a 3-component Gaussian mixture with known means, covariances, and mixing weights. The EM algorithm tries to recover those parameters using only the data, alternating soft cluster assignment (E-step) and parameter refit (M-step).
 
 - **[Frustrated Triangular Antiferromagnet](../playgrounds/frustrated-triangular-af/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Gaussian Beam Paraxial](../playgrounds/gaussian-beam-paraxial/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[GP Kernel Zoo](../playgrounds/gp-kernel-zoo/index.html)** &nbsp; (draft)
@@ -101,8 +98,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
 
-- **[MaxEnt Distribution Zoo](../playgrounds/maxent-distribution-zoo/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Maximum-Entropy Distributions Zoo](../playgrounds/maxent-distribution-zoo/index.html)** &nbsp; (verified)
+  A 1D probability density on a continuous support. The maximum-entropy principle (Jaynes 1957) selects the density that maximizes differential entropy h(p) = -integral p ln p dx subject to fixed moments (or other linear functionals of p). The result depends entirely on the choice of constraints; this playground enumerates four canonical cases.
 
 - **[Mean-Field VI on the Banana](../playgrounds/mean-field-vi-on-banana/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
@@ -110,8 +107,11 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Mutual Information of a Bivariate Gaussian](../playgrounds/mutual-information-2d/index.html)** &nbsp; (verified)
   A static, exact, no-integration example: two correlated Gaussian random variables (X, Y) with covariance Sigma. The joint density p(x, y) is rendered as a heatmap; the marginals p(x) and p(y) are drawn above and beside it. Mutual information I(X; Y) is the area you can carve out of the joint by knowing the marginals; for a Gaussian it admits a closed form -0
 
-- **[Particle in a Well Zoo](../playgrounds/particle-in-a-well-zoo/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+- **[Paraxial Gaussian Beam (TEM_00)](../playgrounds/gaussian-beam-paraxial/index.html)** &nbsp; (verified)
+  The fundamental TEM_00 mode of a laser cavity, modeled in the paraxial (slowly varying envelope) limit. The beam is narrowest at z = 0 with 1/e^2 intensity radius w_0; it expands hyperbolically along z as it propagates.
+
+- **[Particle in a Well - A Quantum Zoo](../playgrounds/particle-in-a-well-zoo/index.html)** &nbsp; (verified)
+  Three canonical 1D quantum bound-state problems plotted on the same axes for comparison: infinite square well, finite square well, and harmonic oscillator. In each, V(x) is fixed and we solve the time-independent Schrodinger equation for energy eigenstates.
 
 - **[Particle-Mesh 2D Disk](../playgrounds/particle-mesh-2d-disk/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

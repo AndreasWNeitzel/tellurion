@@ -1,17 +1,17 @@
-# Em On Gmm 2d
+# EM on a 2D Gaussian mixture
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A 600-point synthetic 2D dataset drawn from 3 Gaussian clusters with known parameters. EM tries to recover those parameters. Faint dashed ellipses show the truth; the colored ellipses are the current estimate.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+What to look for: hit Step a few times and watch the colored ellipses settle onto the data. The log-likelihood trace at the bottom is monotone non-decreasing (EM is guaranteed to never get worse). Try K bigger or smaller than the true number to see how the algorithm splits or merges clusters. Bad init seeds can land in a local optimum; reseed with the second slider.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: K is the number of components, init seed picks the K-means style starting points. Step / Run 20 advance the algorithm.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Bishop 2006, PRML, Section 9.2; Murphy 2022, Probabilistic Machine Learning Vol. 1, Section 17.2; Dempster, Laird, Rubin 1977.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: log-likelihood monotone, gamma normalization, mean recovery within 0.6, weights sum to 1, det Sigma > 0.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.

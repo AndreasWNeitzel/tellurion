@@ -3,29 +3,75 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Particle In A Well Zoo</title>
+  <title>Particle in a Well: A Quantum Zoo</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Particle In A Well Zoo</h1>
+  <h1>Particle in a well: a quantum zoo</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <p>
+    <strong>What you are seeing:</strong> three canonical 1D quantum
+    bound-state problems. In each one, the particle is trapped by a
+    potential $V(x)$. Solving the time-independent Schrodinger equation
+    $-\tfrac{\hbar^2}{2m}\psi''(x) + V(x)\psi(x) = E\psi(x)$ gives a
+    discrete ladder of energy levels $E_n$ and their wavefunctions
+    $\psi_n$.
+  </p>
+  <p>
+    The well sets the level ladder:
+  </p>
+  <ul>
+    <li><strong>Infinite square well</strong> on $[0, L]$ ($L = 2$): $E_n = n^2\pi^2 / (2 L^2)$ (in units $\hbar = m = 1$).</li>
+    <li><strong>Finite square well</strong> $[-a, a]$ depth $V_0$: bound states $E_n < V_0$; tails leak into the classically forbidden region with exponential decay $e^{-\kappa |x|}$.</li>
+    <li><strong>Harmonic oscillator</strong> $V = \tfrac12 m\omega^2 x^2$: $E_n = (n + \tfrac12)\hbar\omega$, equally spaced.</li>
+  </ul>
+  <p>
+    The potential is drawn in grey; horizontal lines mark each bound
+    level; the wavefunction $\psi_n(x)$ for the selected level is drawn
+    in blue (filled area). For the harmonic oscillator we shift each
+    wavefunction vertically to its eigenenergy to suggest the level
+    structure.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="560" tabindex="0"
+            aria-label="Potential V(x) in grey, eigenenergies as horizontal lines, selected wavefunction in blue."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Eigenfunctions and energies for three 1D bound-state problems.
+      Method: closed-form infinite-well and harmonic-oscillator solutions;
+      bisection on the finite-well transcendental equation. Source:
+      Griffiths and Schroeter 2018, Introduction to Quantum Mechanics 3e,
+      Sections 2.2 - 2.6 and 2.3 (`griffithsqm2018`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Well controls">
+    <div class="row">
+      <span class="label">well</span>
+      <select id="select-well">
+        <option value="infinite" selected>Infinite square well</option>
+        <option value="finite">Finite square well</option>
+        <option value="harmonic">Harmonic oscillator</option>
+      </select>
+    </div>
+    <div class="row"><span class="label">level n</span><input type="range" id="slider-n" min="1" max="8" step="1" value="1"><span class="value" id="value-n">1</span></div>
+    <div class="row"><span class="label">depth V0</span><input type="range" id="slider-V0" min="5" max="40" step="1" value="15"><span class="value" id="value-V0">15</span></div>
+    <div class="row"><span class="label">a (finite)</span><input type="range" id="slider-a" min="0.5" max="2.0" step="0.05" value="1.0"><span class="value" id="value-a">1.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>
