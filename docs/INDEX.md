@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Catenary: Shape of a Hanging Chain](../playgrounds/catenary-hanging-chain/index.html)** &nbsp; (verified, verified 2026-05-13T18:15:10Z)
+  A perfectly flexible, uniform chain hangs under gravity between two pegs at (plus minus 1, 0). The hanging shape is the catenary y(x) = a cosh(x / a) - a
+
 - **[Brachistochrone: Why the Cycloid Wins](../playgrounds/brachistochrone-cycloid/index.html)** &nbsp; (verified, verified 2026-05-13T18:11:40Z)
   Three frictionless beads of equal mass slide from A = (0, 0) to B = (4, -2) under uniform gravity g = 9.81. The paths are: - Cycloid: x = R (theta - sin theta), y = -R (1 - cos theta), with R fixed by the endpoint. - Straight line. - Circular arc through A, tangent to the horizontal at A, passing through B.
 
@@ -148,9 +151,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Schwarzschild Light Bending](../playgrounds/schwarzschild-geodesics/index.html)** &nbsp; (in-progress, verified 2026-05-13T08:35:00Z)
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
-
-- **[Catenary Hanging Chain](../playgrounds/catenary-hanging-chain/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
