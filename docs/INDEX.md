@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Lissajous Figures](../playgrounds/lissajous-figures/index.html)** &nbsp; (verified, verified 2026-05-13T18:03:00Z)
+  A point traces out the parametric curve x(t) = A sin(a t + delta) y(t) = B sin(b t) on a 2D plane. The shape depends only on the frequency ratio a / b and the phase delta. Such curves arise whenever two perpendicular harmonic oscillations are observed simultaneously, as in oscilloscope traces or optical interference of two-mode beams.
+
 - **[Beats from Superposition of Close Frequencies](../playgrounds/beats-superposition/index.html)** &nbsp; (verified, verified 2026-05-13T17:59:50Z)
   Two harmonic signals of nearby frequencies, summed: y(t) = cos(2 pi f_1 t) + cos(2 pi f_2 t)
 
@@ -148,9 +151,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und
-
-- **[Lissajous Figures](../playgrounds/lissajous-figures/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/logistic-cobweb/index.html)** &nbsp; (in-progress)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
