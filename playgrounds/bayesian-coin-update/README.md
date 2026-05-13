@@ -1,17 +1,17 @@
 # Bayesian Coin Update
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+Conjugate Beta-Binomial inference for the bias theta of an unfair coin. Prior Beta(alpha0, beta0); k heads in n flips; posterior Beta(alpha0 + k, beta0 + n - k). The plot overlays prior, normalized likelihood, and posterior, with a shaded 95 percent credible interval around the posterior mean.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Adjust alpha0, beta0, k, n to see how prior strength and observed data combine. Press "Flip 5 (random)" to simulate five additional flips at the true bias 0.7 and watch the posterior concentrate.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Gelman, Carlin, Stern, Dunson, Vehtari, Rubin, "Bayesian Data Analysis", 3rd ed., 2013, Section 2.2 (Beta-binomial conjugate analysis); Murphy, "Probabilistic Machine Learning: An Introduction", 2022, Section 11.2. Both verified in chapter_index.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+- Posterior parameters match a0+k and b0+n-k exactly.
+- Beta(1,1) is uniform with pdf = 1 everywhere.
+- Mean and variance match the conjugate formulae.
+- Posterior variance shrinks roughly as 1/n with more data.
+- The 95 percent credible interval contains the posterior mean.

@@ -3,29 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tunneling Rectangular Barrier</title>
+  <title>Tunneling: Rectangular Barrier</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3) var(--space-4);
+      margin-block: var(--space-4);
+      align-items: center;
+    }
+    .pg-controls .row { display: grid; grid-template-columns: 6ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Tunneling Rectangular Barrier</h1>
+  <h1>Tunneling: rectangular barrier</h1>
+  <p>
+    A 1D Schrodinger particle of energy E incident on a square barrier of
+    height V_0 and width a. Below the barrier (E &lt; V_0) the wave decays
+    exponentially inside but a finite transmission T(E) leaks through;
+    above the barrier (E &gt; V_0) classical mechanics says T = 1 but
+    quantum mechanics shows oscillations with resonance dips at
+    kappa a = n pi. Sweep E to trace out T(E); the dashed curve is the
+    classical step function for comparison.
+  </p>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Transmission coefficient T(E) over a rectangular barrier of height V0 and width a, with classical step overlay."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Transmission T(E) for a 1D Schrodinger particle scattering off a
+      rectangular barrier, hbar = m = 1. Method: analytic closed form
+      with the matching-coefficient solution at the two interfaces.
+      Source: Griffiths, Introduction to Quantum Mechanics 3e,
+      Sections 2.6 and 8.2.
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Barrier controls">
+    <div class="row"><span class="label">V_0</span><input type="range" id="slider-V" min="0.1" max="20" step="0.1" value="5"><span class="value" id="value-V">5.00</span></div>
+    <div class="row"><span class="label">a</span><input type="range" id="slider-a" min="0.1" max="5" step="0.05" value="1"><span class="value" id="value-a">1.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

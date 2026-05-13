@@ -1,28 +1,52 @@
-// Tunneling Rectangular Barrier invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+import { describe, it, expect } from 'vitest';
+import { transmission, reflection, resonanceEnergy } from './sim.js';
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
-
-describe('Tunneling Rectangular Barrier invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('tunneling-rectangular-barrier: limiting cases', () => {
+  it('T(E -> 0) = 0 (no transmission at zero energy)', () => {
+    expect(transmission(0, 5, 1)).toBe(0);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('T + R = 1 over a wide energy sweep', () => {
+    for (const E of [0.1, 0.5, 1, 2, 5, 10, 20]) {
+      const sum = transmission(E, 5, 1) + reflection(E, 5, 1);
+      expect(Math.abs(sum - 1)).toBeLessThan(1e-12);
+    }
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('T at resonance E = V0 + n^2 pi^2 / (2 a^2) equals 1 within 1e-10', () => {
+    const V0 = 4, a = 1;
+    for (let n = 1; n <= 4; n += 1) {
+      const Eres = resonanceEnergy(n, V0, a);
+      const T = transmission(Eres, V0, a);
+      expect(Math.abs(T - 1)).toBeLessThan(1e-10);
+    }
+  });
+
+  it('thick wide barrier: T decays exponentially with sqrt(V0 - E)', () => {
+    // T ~ exp(-2 kappa a) for kappa a >> 1
+    const V0 = 10, a = 5;
+    const E = 1;
+    const kappa = Math.sqrt(2 * (V0 - E));
+    const T = transmission(E, V0, a);
+    // T should be roughly 16 E (V0-E)/V0^2 * exp(-2 kappa a)
+    const Tasymp = 16 * E * (V0 - E) / (V0 * V0) * Math.exp(-2 * kappa * a);
+    expect(T).toBeGreaterThan(0.1 * Tasymp);
+    expect(T).toBeLessThan(10 * Tasymp);
+    expect(T).toBeLessThan(1e-8);
+  });
+
+  it('V0 = 0 (no barrier) gives T = 1 at all positive E', () => {
+    for (const E of [0.1, 1, 5, 10]) {
+      // V0 = 0 means kappa = sqrt(2 E) = k; T = 4 E * E / (4 E^2 + 0) = 1.
+      expect(Math.abs(transmission(E, 0, 1) - 1)).toBeLessThan(1e-12);
+    }
+  });
+});
+
+describe('tunneling-rectangular-barrier: reproducibility', () => {
+  it('transmission is bit-identical for repeated calls', () => {
+    const a = transmission(2.5, 5, 1.3);
+    const b = transmission(2.5, 5, 1.3);
+    expect(a).toBe(b);
+  });
 });

@@ -6,26 +6,49 @@
   <title>Bayesian Coin Update</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Bayesian Coin Update</h1>
+  <h1>Bayesian coin update</h1>
+  <p>
+    Conjugate Bayesian inference for the bias theta of an unfair coin.
+    Prior: Beta(alpha0, beta0). Data: k heads observed in n flips.
+    Posterior: Beta(alpha0 + k, beta0 + n - k). The plot overlays the
+    prior (cat-1), the likelihood (theta to the k times (1 - theta) to the
+    n - k, renormalized for display), and the posterior (cat-3). Drag k
+    and n to see the posterior sharpen.
+  </p>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Beta-Binomial conjugate posterior over a coin bias theta."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Beta-Binomial conjugate update for an unfair coin. Method:
+      closed-form posterior plus numerical Beta-CDF for the 95 percent
+      credible interval. Source: Gelman et al., Bayesian Data Analysis
+      3e, Section 2.2 (Beta-binomial conjugate analysis); Murphy PML I
+      Section 11.2.
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Beta-Binomial controls">
+    <div class="row"><span class="label">alpha_0</span><input type="range" id="slider-a0" min="0.5" max="20" step="0.5" value="2"><span class="value" id="value-a0">2.0</span></div>
+    <div class="row"><span class="label">beta_0</span><input type="range" id="slider-b0" min="0.5" max="20" step="0.5" value="2"><span class="value" id="value-b0">2.0</span></div>
+    <div class="row"><span class="label">k (heads)</span><input type="range" id="slider-k" min="0" max="50" step="1" value="7"><span class="value" id="value-k">7</span></div>
+    <div class="row"><span class="label">n (flips)</span><input type="range" id="slider-n" min="0" max="50" step="1" value="10"><span class="value" id="value-n">10</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-flip" type="button">Flip 5 (random)</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

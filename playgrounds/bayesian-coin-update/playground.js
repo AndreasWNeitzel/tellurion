@@ -1,113 +1,222 @@
-// Bayesian Coin Update playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// playground.js
+// Beta-Binomial conjugate posterior. Three curves over theta in [0, 1]:
+// prior (cat-1), normalized likelihood (cat-2), posterior (cat-3) with its
+// 95 percent credible interval shaded.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { makeRng } from '../../shared/js/render/rng.js';
+import { betaPdf, posteriorParams, betaMean, betaVariance, credibleInterval } from './sim.js';
 
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const urlParams      = new URLSearchParams(location.search);
+const DETERMINISTIC  = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME   = urlParams.get('capture');
+const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const canvas    = document.getElementById('stage');
+const ctx       = canvas.getContext('2d', { alpha: false });
+const sliderA0  = document.getElementById('slider-a0');
+const sliderB0  = document.getElementById('slider-b0');
+const sliderK   = document.getElementById('slider-k');
+const sliderN   = document.getElementById('slider-n');
+const valueA0   = document.getElementById('value-a0');
+const valueB0   = document.getElementById('value-b0');
+const valueK    = document.getElementById('value-k');
+const valueN    = document.getElementById('value-n');
+const btnReset  = document.getElementById('btn-reset');
+const btnFlip   = document.getElementById('btn-flip');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const W = canvas.width, H = canvas.height;
+const PLOT = { x: 70, y: 50, w: 660, h: 380, ymin: 0, ymax: 6 };
 
-const _rng = makeRng(SEED);
+const rng = makeRng(0xC0FFEE);
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
+const state = { a0: 2, b0: 2, k: 7, n: 10, trueBias: 0.7 };
+
+function cssVar(name, fallback) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+const tok = {
+  bg: cssVar('--bg', '#FBFBF9'),
+  surface: cssVar('--surface', '#FFFFFF'),
+  fg: cssVar('--fg', '#1A1B1C'),
+  fgMuted: cssVar('--fg-muted', '#5C5E61'),
+  fgFaint: cssVar('--fg-faint', '#9A9C9F'),
+  cat1: cssVar('--cat-1', '#4C72B0'),
+  cat2: cssVar('--cat-2', '#DD8452'),
+  cat3: cssVar('--cat-3', '#55A868'),
+  grid: cssVar('--grid', '#9A9C9F4D'),
 };
 
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+function px(t, y) {
+  return {
+    px: PLOT.x + t * PLOT.w,
+    py: PLOT.y + (1 - y / PLOT.ymax) * PLOT.h,
+  };
 }
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
+function drawAxes() {
+  ctx.fillStyle = tok.bg; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = tok.surface; ctx.fillRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h);
+  ctx.strokeStyle = tok.fgFaint;
+  ctx.lineWidth = 0.6;
+  ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
+
+  ctx.fillStyle = tok.fgFaint;
+  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+    const p = px(t, 0);
+    ctx.fillText(t.toFixed(2), p.px, PLOT.y + PLOT.h + 13);
+    ctx.strokeStyle = tok.grid;
+    ctx.lineWidth = 0.4;
+    ctx.beginPath(); ctx.moveTo(p.px, PLOT.y); ctx.lineTo(p.px, PLOT.y + PLOT.h); ctx.stroke();
+  }
+  ctx.fillStyle = tok.fgMuted;
+  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('theta (coin bias)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 32);
+  ctx.save();
+  ctx.translate(PLOT.x - 38, PLOT.y + PLOT.h / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('density', 0, 0);
+  ctx.restore();
 }
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+function drawCurve(color, fn, lineWidth = 1.5) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  const N = 400;
+  for (let i = 0; i <= N; i += 1) {
+    const t = i / N;
+    const y = fn(t);
+    const p = px(t, Math.min(y, PLOT.ymax));
+    if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+  }
+  ctx.stroke();
+}
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+function drawAll() {
+  const post = posteriorParams({ a0: state.a0, b0: state.b0, k: state.k, n: state.n });
+  const meanPost = betaMean(post.a, post.b);
+  const peakPost = betaPdf(meanPost, post.a, post.b);
+  PLOT.ymax = Math.max(4, peakPost * 1.2);
+
+  drawAxes();
+
+  if (post.a > 0 && post.b > 0) {
+    const ci = credibleInterval(post.a, post.b, 0.95);
+    const N = 200;
+    ctx.fillStyle = 'rgba(85, 168, 104, 0.18)';
+    ctx.beginPath();
+    const p0 = px(ci.lo, 0);
+    ctx.moveTo(p0.px, p0.py);
+    for (let i = 0; i <= N; i += 1) {
+      const t = ci.lo + (i / N) * (ci.hi - ci.lo);
+      const y = betaPdf(t, post.a, post.b);
+      const p = px(t, Math.min(y, PLOT.ymax));
+      ctx.lineTo(p.px, p.py);
+    }
+    const pEnd = px(ci.hi, 0);
+    ctx.lineTo(pEnd.px, pEnd.py);
+    ctx.closePath();
+    ctx.fill();
   }
 
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  drawCurve(tok.cat1, t => betaPdf(t, state.a0, state.b0), 1.2);
+  drawCurve(tok.cat3, t => betaPdf(t, post.a, post.b), 2.0);
+  drawCurve(tok.cat2, t => betaPdf(t, state.k + 1, state.n - state.k + 1), 1.2);
+
+  ctx.font = '11px "Inter", system-ui, sans-serif';
+  const lx = PLOT.x + 12;
+  const items = [
+    [tok.cat1, `prior Beta(${state.a0.toFixed(1)}, ${state.b0.toFixed(1)})`],
+    [tok.cat2, `likelihood (Beta(${state.k + 1}, ${state.n - state.k + 1}))`],
+    [tok.cat3, `posterior Beta(${post.a.toFixed(1)}, ${post.b.toFixed(1)})`],
+  ];
+  let ly = PLOT.y + 16;
+  for (const [c, label] of items) {
+    ctx.fillStyle = c;
+    ctx.fillRect(lx, ly - 8, 14, 3);
+    ctx.fillStyle = tok.fg;
+    ctx.textAlign = 'left';
+    ctx.fillText(label, lx + 22, ly);
+    ly += 14;
+  }
+
+  const ci = credibleInterval(post.a, post.b, 0.95);
+  const sigma = Math.sqrt(betaVariance(post.a, post.b));
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  const rows = [
+    ['k / n',       `${state.k} / ${state.n}`],
+    ['mean',        meanPost.toFixed(4)],
+    ['sigma',       sigma.toFixed(4)],
+    ['95% CI low',  ci.lo.toFixed(4)],
+    ['95% CI high', ci.hi.toFixed(4)],
+  ];
+  const xL = W - 190, xR = W - 16;
+  let y = 20;
+  for (const [k, v] of rows) {
+    ctx.textAlign = 'left';  ctx.fillStyle = tok.fgMuted; ctx.fillText(k, xL, y);
+    ctx.textAlign = 'right'; ctx.fillStyle = tok.fg; ctx.fillText(v, xR, y);
+    y += 14;
+  }
 }
+
+function applyControls() {
+  state.a0 = parseFloat(sliderA0.value);
+  state.b0 = parseFloat(sliderB0.value);
+  state.k  = parseInt(sliderK.value, 10);
+  state.n  = parseInt(sliderN.value, 10);
+  if (state.k > state.n) { state.k = state.n; sliderK.value = state.k; }
+  valueA0.textContent = state.a0.toFixed(1);
+  valueB0.textContent = state.b0.toFixed(1);
+  valueK.textContent  = String(state.k);
+  valueN.textContent  = String(state.n);
+  drawAll();
+}
+[sliderA0, sliderB0, sliderK, sliderN].forEach(s => s.addEventListener('input', applyControls));
+btnReset.addEventListener('click', () => {
+  sliderA0.value = '2'; sliderB0.value = '2'; sliderK.value = '7'; sliderN.value = '10';
+  applyControls();
+});
+btnFlip.addEventListener('click', () => {
+  let extraHeads = 0;
+  for (let i = 0; i < 5; i += 1) if (rng() < state.trueBias) extraHeads += 1;
+  state.n += 5;
+  state.k += extraHeads;
+  sliderN.value = String(state.n);
+  sliderK.value = String(state.k);
+  if (state.n > 50) { sliderN.max = String(state.n); sliderK.max = String(state.n); }
+  applyControls();
+});
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
-  }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
+    state.n = Math.round(frac * 40);
+    state.k = Math.round(state.trueBias * state.n);
+    state.a0 = 2; state.b0 = 2;
+    sliderA0.value = '2'; sliderB0.value = '2';
+    sliderK.value = String(state.k); sliderN.value = String(state.n);
+    valueA0.textContent = '2.0'; valueB0.textContent = '2.0';
+    valueK.textContent = String(state.k); valueN.textContent = String(state.n);
+    drawAll();
+    if (DETERMINISTIC) {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = { capture: CAPTURE_NAME };
+        });
       });
-    });
+    }
+    return;
   }
+  applyControls();
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

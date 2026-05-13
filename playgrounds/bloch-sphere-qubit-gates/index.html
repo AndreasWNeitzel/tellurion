@@ -6,26 +6,61 @@
   <title>Bloch Sphere Qubit Gates</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls button { font-family: var(--font-mono); }
+    .pg-controls .row { grid-column: span 4; display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls .row input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  </style>
 </head>
 <body>
-  <h1>Bloch Sphere Qubit Gates</h1>
+  <h1>Bloch sphere qubit gates</h1>
+  <p>
+    A single qubit lives on the Bloch sphere; pure states are points on
+    the unit 2-sphere. Apply gates (X, Y, Z, H, S, T) or continuous
+    rotations (R_x, R_y, R_z) and watch the state vector trace its path.
+    The trail shows the last few moves; the readout reports the live
+    (theta, phi), the Bloch components (r_x, r_y, r_z), and the unitarity
+    norm of the most recent gate (should be machine zero).
+  </p>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Bloch-sphere visualization of a single-qubit state, with gate buttons and continuous-rotation slider."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Single qubit on the Bloch sphere. Method: 2x2 complex unitary
+      products applied to the amplitude pair (alpha, beta); Bloch
+      coordinates extracted via r = (2 Re(a* b), 2 Im(a* b), |a|^2 - |b|^2).
+      Source: Sakurai-Napolitano Modern Quantum Mechanics 3e, Section 1.2;
+      Nielsen-Chuang Quantum Computation 10th Anniv ed., Section 4.2.
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Bloch sphere gate buttons">
+    <button data-gate="X">X</button>
+    <button data-gate="Y">Y</button>
+    <button data-gate="Z">Z</button>
+    <button data-gate="H">H</button>
+    <button data-gate="S">S</button>
+    <button data-gate="T">T</button>
+    <button data-gate="reset">Reset</button>
+    <button data-gate="random">Random sequence</button>
+    <div class="row">
+      <span class="label">R_x angle</span>
+      <input type="range" id="slider-angle" min="-180" max="180" step="5" value="90">
+      <span class="value" id="value-angle">90</span>
+    </div>
+    <div class="row buttons">
+      <button data-gate="Rx">Apply R_x</button>
+      <button data-gate="Ry">Apply R_y</button>
+      <button data-gate="Rz">Apply R_z</button>
+      <button data-gate="invert">Reverse last</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>
