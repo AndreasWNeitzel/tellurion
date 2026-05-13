@@ -1,99 +1,154 @@
-// Svd Singular Values 2d Shape playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// SVD 2D playground.
+// Four panels showing the unit circle stretched by each step of M = U S V^T.
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { svd2x2 } from './sim.js';
 
 const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC  = params.get('deterministic') === '1';
 const CAPTURE_NAME   = params.get('capture');
 const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const canvas      = document.getElementById('stage');
+const ctx         = canvas.getContext('2d', { alpha: false });
+const readoutS    = document.getElementById('readout-s');
+const readoutCond = document.getElementById('readout-cond');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const sliders = ['a', 'b', 'c', 'd'].reduce((o, k) => {
+  o[k] = document.getElementById(`slider-${k}`);
+  o[`v${k}`] = document.getElementById(`value-${k}`);
+  return o;
+}, {});
 
-const _rng = makeRng(SEED);
+let a = parseFloat(sliders.a.value);
+let b = parseFloat(sliders.b.value);
+let c = parseFloat(sliders.c.value);
+let d = parseFloat(sliders.d.value);
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
+for (const k of ['a', 'b', 'c', 'd']) {
+  sliders[k].addEventListener('input', () => {
+    const v = parseFloat(sliders[k].value);
+    if (k === 'a') a = v;
+    if (k === 'b') b = v;
+    if (k === 'c') c = v;
+    if (k === 'd') d = v;
+    sliders[`v${k}`].textContent = v.toFixed(2);
+  });
+}
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg:     css.getPropertyValue('--bg').trim() || '#060608',
+    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    blue:   '#5bc0eb',
+    red:    '#ef476f',
+    grid:   '#23252a',
+  };
+}
+
+function drawPanel(c, x0, y0, w, h, points, color, title) {
+  const cx = x0 + w / 2, cy = y0 + h / 2;
+  const scale = Math.min(w, h) * 0.18;
+  // Background.
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(x0, y0, w, h);
+
+  // Axes (subtle).
+  ctx.strokeStyle = c.grid;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x0 + 6, cy); ctx.lineTo(x0 + w - 6, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, y0 + 18); ctx.lineTo(cx, y0 + h - 14); ctx.stroke();
+
+  // Curve.
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < points.length; i += 1) {
+    const p = points[i];
+    const px = cx + scale * p.x;
+    const py = cy - scale * p.y;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
+
+  // Title.
+  ctx.fillStyle = c.muted;
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(title, x0 + 8, y0 + 14);
+}
 
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
+  const cs = colors();
+  ctx.fillStyle = cs.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
+  const s = svd2x2(a, b, c, d);
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  // Generate unit circle.
+  const N = 200;
+  const circle = [];
+  for (let i = 0; i <= N; i += 1) {
+    const t = 2 * Math.PI * i / N;
+    circle.push({ x: Math.cos(t), y: Math.sin(t) });
   }
+  // After V^T (V^T x): coordinates in V basis.
+  const afterVT = circle.map(p => ({
+    x: s.v1.x * p.x + s.v1.y * p.y,
+    y: s.v2.x * p.x + s.v2.y * p.y,
+  }));
+  // After S: stretch by s1, s2.
+  const afterS = afterVT.map(p => ({ x: s.s1 * p.x, y: s.s2 * p.y }));
+  // After U: rotate by U.
+  const afterU = afterS.map(p => ({
+    x: s.u1.x * p.x + s.u2.x * p.y,
+    y: s.u1.y * p.x + s.u2.y * p.y,
+  }));
 
+  const panelW = canvas.width / 4;
+  const panelH = canvas.height;
+  drawPanel(cs, panelW * 0, 0, panelW, panelH, circle,  cs.muted,  'unit circle');
+  drawPanel(cs, panelW * 1, 0, panelW, panelH, afterVT, cs.blue,   'after V^T (rotate)');
+  drawPanel(cs, panelW * 2, 0, panelW, panelH, afterS,  cs.accent, `after S (s_1=${s.s1.toFixed(2)}, s_2=${s.s2.toFixed(2)})`);
+  drawPanel(cs, panelW * 3, 0, panelW, panelH, afterU,  cs.red,    'after U (rotate)');
+}
+
+function updateReadout() {
+  const s = svd2x2(a, b, c, d);
+  readoutS.textContent = `${s.s1.toFixed(3)}, ${s.s2.toFixed(3)}`;
+  if (s.s2 > 1e-12) {
+    readoutCond.textContent = (s.s1 / s.s2).toFixed(3);
+  } else {
+    readoutCond.textContent = 'inf';
+  }
+}
+
+function loop() {
   render();
   updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  requestAnimationFrame(loop);
 }
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    b = -1 + 2 * frac;
+    sliders.b.value = String(b.toFixed(2));
+    sliders.vb.textContent = b.toFixed(2);
   }
+  sliders.va.textContent = a.toFixed(2);
+  sliders.vb.textContent = b.toFixed(2);
+  sliders.vc.textContent = c.toFixed(2);
+  sliders.vd.textContent = d.toFixed(2);
+  render();
+  updateReadout();
 
   if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
+        const detail = { capture: CAPTURE_NAME ?? null, a, b, c, d };
         window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
         window.__simulationReady = true;
         window.__simulationReadyDetail = detail;
@@ -105,9 +160,9 @@ function bootSync() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+    if (!CAPTURE_NAME) requestAnimationFrame(loop);
   }, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  if (!CAPTURE_NAME) requestAnimationFrame(loop);
 }

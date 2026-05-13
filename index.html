@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (93)</h2>
+  <h2>Shipped (94)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/bsc-y1s1/M1038-svd-singular-values-2d-shape/index.html">SVD as Rotate-Scale-Rotate</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">A real 2x2 matrix $M$ acting on the unit circle in $\mathbb{R}^2$. The singular value decomposition writes $M = U S V^T$ with $U, V$ rotations (orthogonal, determinant $+1$) and $S = \mathrm{diag}(s_1, s_2)$ with $s_1 \ge s_2 \ge 0$. The four-panel display shows the unit circle stretched step by step: rotate by $V^T$, scale by $S$, rotate by $U$.</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/bsc-y1s1/M1038-gram-schmidt-orthogonalization/index.html">Gram-Schmidt Orthogonalization</a></h2>
@@ -787,7 +795,7 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (110)</h2>
+  <h2 class="drafts-heading">Draft (109)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">aberration-of-light-stellar</span></li>
@@ -890,7 +898,6 @@
     <li><span class="drafts-slug">stellar-blackbody-vs-line</span></li>
     <li><span class="drafts-slug">stokes-theorem-2d-circulation</span></li>
     <li><span class="drafts-slug">sturm-liouville-eigenfunctions</span></li>
-    <li><span class="drafts-slug">svd-singular-values-2d-shape</span></li>
     <li><span class="drafts-slug">synchrotron-spectrum</span></li>
     <li><span class="drafts-slug">thomas-precession</span></li>
     <li><span class="drafts-slug">transit-mandel-agol-analytic</span></li>

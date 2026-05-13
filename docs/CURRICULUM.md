@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 118 |
+| draft | 117 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 74 |
+| verified | 75 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -59,7 +59,7 @@ Total playgrounds: 203
 
 - **Eigenvector Rotation in 2x2** ([M1038-eigenvector-rotation-2x2](../playgrounds/bsc-y1s1/M1038-eigenvector-rotation-2x2/)). Status: `verified`. `arfken-weber` ch 3.
 - **Gram-Schmidt Orthogonalization** ([M1038-gram-schmidt-orthogonalization](../playgrounds/bsc-y1s1/M1038-gram-schmidt-orthogonalization/)). Status: `verified`. `arfken-weber` ch 3.
-- **Svd Singular Values 2d Shape** ([M1038-svd-singular-values-2d-shape](../playgrounds/bsc-y1s1/M1038-svd-singular-values-2d-shape/)). Status: `draft`. `arfken-weber` ch 3; unit circle under M = U S V^T; singular values exact.
+- **SVD as Rotate-Scale-Rotate** ([M1038-svd-singular-values-2d-shape](../playgrounds/bsc-y1s1/M1038-svd-singular-values-2d-shape/)). Status: `verified`. `arfken-weber` ch 3.
 
 ### CC1017 Programming I
 

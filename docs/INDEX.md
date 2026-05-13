@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[SVD as Rotate-Scale-Rotate](../playgrounds/bsc-y1s1/M1038-svd-singular-values-2d-shape/index.html)** &nbsp; (verified, verified 2026-05-13T22:52:57Z)
+  A real 2x2 matrix $M$ acting on the unit circle in $\mathbb{R}^2$. The singular value decomposition writes $M = U S V^T$ with $U, V$ rotations (orthogonal, determinant $+1$) and $S = \mathrm{diag}(s_1, s_2)$ with $s_1 \ge s_2 \ge 0$. The four-panel display shows the unit circle stretched step by step: rotate by $V^T$, scale by $S$, rotate by $U$.
+
 - **[Gram-Schmidt Orthogonalization](../playgrounds/bsc-y1s1/M1038-gram-schmidt-orthogonalization/index.html)** &nbsp; (verified, verified 2026-05-13T22:50:16Z)
   Two input vectors $v_1, v_2$ in the plane, set by polar (angle, length) sliders. The playground displays the inputs (faded), the projection of $v_2$ onto $u_1 = v_1 / |v_1|$ (dashed), the residual $v_2 - \langle v_2, u_1 \rangle u_1$ (orange dashed), and the resulting orthonormal pair $u_1, u_2$ (bold accent and red).
 
@@ -579,9 +582,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Sturm Liouville Eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Svd Singular Values 2d Shape](../playgrounds/bsc-y1s1/M1038-svd-singular-values-2d-shape/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (draft)
