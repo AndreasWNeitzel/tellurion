@@ -4,6 +4,9 @@ slug: accretion-disk-temperature-profile
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-HE
+supporting_ucs: []
+curriculum_year: msc-y1
 ---
 
 # Shakura-Sunyaev accretion disc temperature profile

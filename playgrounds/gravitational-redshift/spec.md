@@ -4,6 +4,9 @@ slug: gravitational-redshift
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST3017
+supporting_ucs: []
+curriculum_year: bsc-y3s2
 ---
 
 # Gravitational redshift in Schwarzschild spacetime

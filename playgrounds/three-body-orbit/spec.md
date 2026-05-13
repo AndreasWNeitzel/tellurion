@@ -4,6 +4,9 @@ slug: three-body-orbit
 status: in-progress
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST2004
+supporting_ucs: [FIS2021, FIS1013]
+curriculum_year: bsc-y2s1
 ---
 
 # Three-Body Figure-Eight Choreography

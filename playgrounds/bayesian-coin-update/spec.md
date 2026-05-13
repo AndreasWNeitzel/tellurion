@@ -4,6 +4,9 @@ slug: bayesian-coin-update
 status: draft
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-DM
+supporting_ucs: [MAA-ST]
+curriculum_year: msc-y1
 ---
 
 # Bayesian Coin Update

@@ -4,6 +4,9 @@ slug: mean-field-vi-on-banana
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-DM
+supporting_ucs: [MAA-ST]
+curriculum_year: msc-y1
 ---
 
 # Mean-field VI on a banana

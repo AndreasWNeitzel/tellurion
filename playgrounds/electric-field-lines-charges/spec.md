@@ -4,6 +4,9 @@ slug: electric-field-lines-charges
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS1014
+supporting_ucs: []
+curriculum_year: bsc-y1s2
 ---
 
 # Electric field lines from point charges

@@ -4,6 +4,9 @@ slug: henon-strange-attractor
 status: draft
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2021
+supporting_ucs: []
+curriculum_year: bsc-y2s2
 ---
 
 # Henon Strange Attractor

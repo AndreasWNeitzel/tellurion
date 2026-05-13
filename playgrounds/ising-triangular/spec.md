@@ -4,6 +4,9 @@ slug: ising-triangular
 status: draft
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2014
+supporting_ucs: [FIS2018, MAA-NM]
+curriculum_year: bsc-y2s1
 ---
 
 # Ising Triangular

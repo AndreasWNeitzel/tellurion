@@ -4,6 +4,9 @@ slug: schwarzschild-geodesics
 status: in-progress
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST3017
+supporting_ucs: []
+curriculum_year: bsc-y3s2
 ---
 
 # Schwarzschild Light Bending

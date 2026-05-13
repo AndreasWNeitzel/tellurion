@@ -4,6 +4,9 @@ slug: van-der-pol-relaxation
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2021
+supporting_ucs: [FIS1013]
+curriculum_year: bsc-y2s2
 ---
 
 # Van der Pol: limit cycle to relaxation oscillator

@@ -4,6 +4,9 @@ slug: wave-on-string-reflection
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2016
+supporting_ucs: []
+curriculum_year: bsc-y2s1
 ---
 
 # Wave on a string: fixed vs free-end reflection

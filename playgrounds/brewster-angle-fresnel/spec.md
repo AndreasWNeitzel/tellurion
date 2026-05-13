@@ -4,6 +4,9 @@ slug: brewster-angle-fresnel
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS1014
+supporting_ucs: [FIS3019]
+curriculum_year: bsc-y1s2
 ---
 
 # Brewster angle and the Fresnel reflectance

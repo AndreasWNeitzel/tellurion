@@ -4,6 +4,9 @@ slug: single-double-multi-slit
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2016
+supporting_ucs: [FIS3019]
+curriculum_year: bsc-y2s1
 ---
 
 # Single, double, and multi-slit diffraction

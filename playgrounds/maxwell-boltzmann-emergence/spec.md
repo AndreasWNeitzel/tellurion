@@ -4,6 +4,9 @@ slug: maxwell-boltzmann-emergence
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2014
+supporting_ucs: []
+curriculum_year: bsc-y2s1
 ---
 
 # Maxwell-Boltzmann emergence from hard-disk collisions

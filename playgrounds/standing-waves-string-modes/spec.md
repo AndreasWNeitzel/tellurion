@@ -4,6 +4,9 @@ slug: standing-waves-string-modes
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2016
+supporting_ucs: []
+curriculum_year: bsc-y2s1
 ---
 
 # Standing waves on a fixed-end string

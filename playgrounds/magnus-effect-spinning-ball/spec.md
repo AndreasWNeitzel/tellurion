@@ -4,6 +4,9 @@ slug: magnus-effect-spinning-ball
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS1013
+supporting_ucs: [AST3014]
+curriculum_year: bsc-y1s1
 ---
 
 # Magnus effect on a spinning ball

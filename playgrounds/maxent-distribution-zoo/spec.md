@@ -4,6 +4,9 @@ slug: maxent-distribution-zoo
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-ST
+supporting_ucs: []
+curriculum_year: msc-y1
 ---
 
 # Maximum-entropy distributions: a small zoo

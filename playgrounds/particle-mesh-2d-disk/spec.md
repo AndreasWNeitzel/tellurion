@@ -4,6 +4,9 @@ slug: particle-mesh-2d-disk
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST3015
+supporting_ucs: [MAA-GD]
+curriculum_year: bsc-y3s1
 ---
 
 # Particle-mesh 2D self-gravitating disk

@@ -4,6 +4,9 @@ slug: billiards-circle-stadium-sinai
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2021
+supporting_ucs: []
+curriculum_year: bsc-y2s2
 ---
 
 # Billiards: circle, stadium, Sinai

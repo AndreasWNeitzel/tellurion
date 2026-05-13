@@ -4,6 +4,9 @@ slug: backprop-tiny-net
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-DM
+supporting_ucs: []
+curriculum_year: msc-y1
 ---
 
 # Backpropagation on a tiny MLP

@@ -4,6 +4,9 @@ slug: doppler-effect
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2016
+supporting_ucs: [AST2004]
+curriculum_year: bsc-y2s1
 ---
 
 # Doppler effect from a moving source

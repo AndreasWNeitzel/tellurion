@@ -4,6 +4,9 @@ slug: 1d-tdse-scattering-comparator
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS3029
+supporting_ucs: [FIS2018]
+curriculum_year: bsc-y3s2
 ---
 
 # 1D TDSE wavepacket scattering off a barrier

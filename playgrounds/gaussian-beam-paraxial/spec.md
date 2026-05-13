@@ -4,6 +4,9 @@ slug: gaussian-beam-paraxial
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS3019
+supporting_ucs: []
+curriculum_year: bsc-y3s1
 ---
 
 # Paraxial Gaussian beam (TEM_00)

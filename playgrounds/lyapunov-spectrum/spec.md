@@ -4,6 +4,9 @@ slug: lyapunov-spectrum
 status: in-progress
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2021
+supporting_ucs: []
+curriculum_year: bsc-y2s2
 ---
 
 # Lyapunov Spectrum of the Henon Map

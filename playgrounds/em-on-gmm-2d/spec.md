@@ -4,6 +4,9 @@ slug: em-on-gmm-2d
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-DM
+supporting_ucs: []
+curriculum_year: msc-y1
 ---
 
 # EM on a 2D Gaussian mixture

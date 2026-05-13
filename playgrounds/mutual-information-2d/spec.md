@@ -4,6 +4,9 @@ slug: mutual-information-2d
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-ST
+supporting_ucs: [MAA-DM]
+curriculum_year: msc-y1
 ---
 
 # Mutual information of a bivariate Gaussian

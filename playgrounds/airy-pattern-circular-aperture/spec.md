@@ -4,6 +4,9 @@ slug: airy-pattern-circular-aperture
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2016
+supporting_ucs: [FIS3019, MAA-OT]
+curriculum_year: bsc-y2s1
 ---
 
 # Airy diffraction pattern from a circular aperture

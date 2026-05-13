@@ -4,6 +4,9 @@ slug: sph-sod-shock-tube
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST3014
+supporting_ucs: [FIS2018]
+curriculum_year: bsc-y3s1
 ---
 
 # SPH 1D Sod shock tube

@@ -4,6 +4,9 @@ slug: relativistic-beaming-azimuth
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST3016
+supporting_ucs: [MAA-HE]
+curriculum_year: bsc-y3s2
 ---
 
 # Relativistic beaming pattern

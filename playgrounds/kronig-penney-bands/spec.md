@@ -4,6 +4,9 @@ slug: kronig-penney-bands
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS3029
+supporting_ucs: [FIS3020]
+curriculum_year: bsc-y3s2
 ---
 
 # Kronig-Penney band structure

@@ -4,6 +4,9 @@ slug: mc-integration-convergence
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2018
+supporting_ucs: [MAA-NM, MAA-ST]
+curriculum_year: bsc-y2s2
 ---
 
 # Monte Carlo integration and 1/sqrt(N) convergence

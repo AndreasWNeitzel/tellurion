@@ -4,6 +4,9 @@ slug: lagrange-points-cr3bp
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST2004
+supporting_ucs: [FIS2021]
+curriculum_year: bsc-y2s1
 ---
 
 # Lagrange points of the CR3BP

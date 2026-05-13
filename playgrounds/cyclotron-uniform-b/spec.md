@@ -4,6 +4,9 @@ slug: cyclotron-uniform-b
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2013
+supporting_ucs: [MAA-PL]
+curriculum_year: bsc-y2s1
 ---
 
 # Cyclotron motion in a uniform magnetic field

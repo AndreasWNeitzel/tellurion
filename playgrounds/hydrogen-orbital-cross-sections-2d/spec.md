@@ -4,6 +4,9 @@ slug: hydrogen-orbital-cross-sections-2d
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS3029
+supporting_ucs: [FIS2017]
+curriculum_year: bsc-y3s2
 ---
 
 # Hydrogen orbital cross sections in the (x, z) plane

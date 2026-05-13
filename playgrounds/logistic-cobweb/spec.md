@@ -4,6 +4,9 @@ slug: logistic-cobweb
 status: in-progress
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS2021
+supporting_ucs: [FIS2018]
+curriculum_year: bsc-y2s2
 ---
 
 # Logistic Map Cobweb and Bifurcation Diagram

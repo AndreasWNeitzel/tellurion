@@ -4,6 +4,9 @@ slug: tsne-vs-umap-vs-isomap
 status: draft
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-DM
+supporting_ucs: []
+curriculum_year: msc-y1
 ---
 
 # t-SNE vs UMAP vs Isomap

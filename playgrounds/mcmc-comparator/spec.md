@@ -4,6 +4,9 @@ slug: mcmc-comparator
 status: in-progress
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-ST
+supporting_ucs: [MAA-DM]
+curriculum_year: msc-y1
 ---
 
 # MCMC Sampler Comparator

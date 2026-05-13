@@ -4,6 +4,9 @@ slug: attention-as-soft-retrieval
 status: draft
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-DM
+supporting_ucs: []
+curriculum_year: msc-y1
 ---
 
 # Attention as Soft Retrieval

@@ -4,6 +4,9 @@ slug: coupled-springs-normal-modes
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS1013
+supporting_ucs: [FIS2016, FIS2021]
+curriculum_year: bsc-y1s1
 ---
 
 # Coupled springs and normal modes

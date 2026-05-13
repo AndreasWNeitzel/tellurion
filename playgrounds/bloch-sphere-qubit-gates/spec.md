@@ -4,6 +4,9 @@ slug: bloch-sphere-qubit-gates
 status: draft
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS3029
+supporting_ucs: []
+curriculum_year: bsc-y3s2
 ---
 
 # Bloch Sphere Qubit Gates

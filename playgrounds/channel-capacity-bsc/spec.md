@@ -4,6 +4,9 @@ slug: channel-capacity-bsc
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: MAA-ST
+supporting_ucs: []
+curriculum_year: msc-y1
 ---
 
 # Binary symmetric channel and the repetition code

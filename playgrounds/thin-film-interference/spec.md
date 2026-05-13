@@ -4,6 +4,9 @@ slug: thin-film-interference
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: FIS3019
+supporting_ucs: []
+curriculum_year: bsc-y3s1
 ---
 
 # Thin-film interference and iridescent colors

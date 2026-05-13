@@ -4,6 +4,9 @@ slug: two-stream-pic-plasma
 status: verified
 audience: portfolio
 created: 2026-05-13
+primary_uc: AST3014
+supporting_ucs: [MAA-PL]
+curriculum_year: bsc-y3s1
 ---
 
 # Two-stream instability via 1D-1V PIC
