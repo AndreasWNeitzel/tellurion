@@ -6,7 +6,7 @@
 // final paint at rest is full resolution.
 
 import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
-import { escapeTime, maxIterForWidth, ZOOM_TARGETS, DEFAULT_MAX_ITER } from './sim.js';
+import { escapeTime, maxIterForWidth, ZOOM_TARGETS } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -64,7 +64,7 @@ function cssVar(name, fallback) {
   return v || fallback;
 }
 
-const tokens = {
+const _tokens = {
   bg:      cssVar('--bg', '#FBFBF9'),
   surface: cssVar('--surface', '#FFFFFF'),
   fg:      cssVar('--fg', '#1A1B1C'),

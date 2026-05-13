@@ -22,7 +22,7 @@ let accumulator  = 0;
 let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 let frame        = 0;
 
-const rng = makeRng(SEED);
+const _rng = makeRng(SEED);
 
 // Replace this with engine.create({...})
 const sim = {

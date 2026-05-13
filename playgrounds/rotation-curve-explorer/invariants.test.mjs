@@ -2,13 +2,11 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  vBulge2, vDisk2, vHalo2,
   vModel, vModel2, omegaModel, MODELS,
   syntheticObservations, chiSquared,
-  VISIBLE_PARAMS, DM_PARAMS,
   DATA_RADII, DATA_SIGMA,
   buildGalaxy, galaxyAt,
-  G, KMS_TO_KPC_GYR,
+  KMS_TO_KPC_GYR,
 } from './sim.js';
 
 describe('rotation-curve-explorer: model curve quality', () => {

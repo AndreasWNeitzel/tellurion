@@ -12,7 +12,7 @@ describe('__TITLE__ invariants', () => {
   const STEPS = 10_000;
 
   beforeAll(() => {
-    const rng = makeRng(DEFAULT_SEED);
+    const _rng = makeRng(DEFAULT_SEED);
     // sim = engine.create({ ... seed: DEFAULT_SEED ... });
     sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
     for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);

@@ -13,7 +13,7 @@ import {
   chiSquared,
   buildGalaxy,
   galaxyAt,
-  DATA_RADII, DATA_SIGMA,
+  DATA_SIGMA,
 } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);

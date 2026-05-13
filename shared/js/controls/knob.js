@@ -18,7 +18,9 @@ export function mountKnob(container, {
   }
 
   let v = clamp(value, min, max);
-  const stepSize = step ?? (max - min) / 100;     // 1 percent default
+  // step (optional) is reserved for future use as the explicit minimum
+  // increment; current implementation always nudges by 1 percent of range.
+  void step;
 
   const el = document.createElement('div');
   el.classList.add('knob');
@@ -83,7 +85,6 @@ export function mountKnob(container, {
 
   function nudge(direction, fraction) {
     if (scale === 'log') {
-      const lo = Math.log(min), hi = Math.log(max);
       const dt = direction * fraction;
       const t  = clamp(tValue() + dt, 0, 1);
       set(fromT(t), { keyboard: true });
