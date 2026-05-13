@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 126 |
+| draft | 125 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 66 |
+| verified | 67 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -37,7 +37,7 @@ Total playgrounds: 203
 - **Foucault Pendulum and Coriolis Precession** ([foucault-pendulum](../playgrounds/foucault-pendulum/)). Status: `verified`. citation pending.
 - **Free Fall Stokes Vs Quadratic Drag** ([free-fall-stokes-vs-quadratic-drag](../playgrounds/free-fall-stokes-vs-quadratic-drag/)). Status: `draft`. `marion-thornton` ch 2; Stokes terminal velocity vs Newton drag crossover.
 - **Gyroscope Precession** ([gyroscope-precession](../playgrounds/gyroscope-precession/)). Status: `verified`. citation pending (supporting: FIS2021).
-- **Inclined Plane Friction** ([inclined-plane-friction](../playgrounds/inclined-plane-friction/)). Status: `draft`. `marion-thornton` ch 2; Coulomb-friction static-vs-kinetic transition exact.
+- **Inclined Plane Friction** ([inclined-plane-friction](../playgrounds/inclined-plane-friction/)). Status: `verified`. `marion-thornton` ch 2.
 - **Kapitza Inverted Pendulum** ([inverted-pendulum-kapitza](../playgrounds/inverted-pendulum-kapitza/)). Status: `verified`. citation pending (supporting: FIS2021).
 - **Lissajous Figures** ([lissajous-figures](../playgrounds/lissajous-figures/)). Status: `verified`. citation pending (supporting: FIS1015).
 - **Magnus Effect on a Spinning Ball** ([magnus-effect-spinning-ball](../playgrounds/magnus-effect-spinning-ball/)). Status: `verified`. citation pending (supporting: AST3014).

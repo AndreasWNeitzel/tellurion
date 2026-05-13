@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Inclined Plane Friction](../playgrounds/inclined-plane-friction/index.html)** &nbsp; (in-progress, verified 2026-05-13T22:07:35Z)
+  A unit-mass block sits at the top of a slope of length 5 m inclined at angle $\theta$. The block is in contact with the slope through Coulomb friction characterized by a static coefficient $\mu_s$ and a kinetic coefficient $\mu_k$. Gravity $g = 9.81$ m/s$^2$ points downward. The block is released from rest and the simulation tracks position $x$ along the slo
+
 - **[Wave on a String: Fixed vs Free End Reflection](../playgrounds/wave-on-string-reflection/index.html)** &nbsp; (verified, verified 2026-05-13T20:23:00Z)
   Two parallel 1D strings of length L = 4 with c = 1, each with a Gaussian pulse launched moving rightward. Top string: fixed ends (y = 0 at both boundaries). Bottom string: free ends (y_x = 0 boundary, i.e. the neighbor mirrors at the boundary). Pulse reflects when it reaches each boundary.
 
@@ -414,9 +417,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Hamiltonian Phase Space Flow](../playgrounds/hamiltonian-phase-space-flow/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Inclined Plane Friction](../playgrounds/inclined-plane-friction/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Inflation Slow Roll](../playgrounds/inflation-slow-roll/index.html)** &nbsp; (draft)
