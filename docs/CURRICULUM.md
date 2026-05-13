@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 112 |
+| draft | 111 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 80 |
+| verified | 81 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -29,7 +29,7 @@ Total playgrounds: 203
 - **Beats from Superposition of Close Frequencies** ([FIS1013-beats-superposition](../playgrounds/bsc-y1s1/FIS1013-beats-superposition/)). Status: `verified`. citation pending (supporting: FIS2016).
 - **Brachistochrone: Why the Cycloid Wins** ([FIS1013-brachistochrone-cycloid](../playgrounds/bsc-y1s1/FIS1013-brachistochrone-cycloid/)). Status: `verified`. citation pending (supporting: FIS2021).
 - **Catenary: Shape of a Hanging Chain** ([FIS1013-catenary-hanging-chain](../playgrounds/bsc-y1s1/FIS1013-catenary-hanging-chain/)). Status: `verified`. citation pending (supporting: FIS2021).
-- **Coupled Pendulums Normal Modes** ([FIS1013-coupled-pendulums-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/)). Status: `draft`. `french-waves` ch 5 (supporting: FIS2016); eigenmode frequencies; mode-mode beat period.
+- **Coupled Pendulums and Normal Modes** ([FIS1013-coupled-pendulums-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/)). Status: `verified`. `french-waves` ch 5 (supporting: FIS2016).
 - **Coupled Springs and Normal Modes** ([FIS1013-coupled-springs-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-springs-normal-modes/)). Status: `verified`. citation pending (supporting: FIS2016, FIS2021).
 - **Damped, Driven Oscillator and Resonance** ([FIS1013-damped-driven-oscillator](../playgrounds/bsc-y1s1/FIS1013-damped-driven-oscillator/)). Status: `verified`. citation pending (supporting: FIS2016, FIS1015).
 - **Double Pendulum Phase Portrait and Energy Conservation** ([FIS1013-double-pendulum](../playgrounds/bsc-y1s1/FIS1013-double-pendulum/)). Status: `in-progress`. citation pending (supporting: FIS2021).

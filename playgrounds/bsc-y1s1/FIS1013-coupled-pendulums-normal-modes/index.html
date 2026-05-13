@@ -8,24 +8,61 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Coupled Pendulums Normal Modes</h1>
+  <h1>Coupled pendulums and normal modes</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> two identical pendulums of
+    length $L$ and mass $m$, coupled by a spring of constant $k$ attached
+    at distance $d$ from the pivot. The small-angle EOM has two normal
+    modes: symmetric (both swing in phase) at $\omega_+ = \sqrt{g/L}$,
+    and antisymmetric (opposite phase) at
+    $\omega_- = \sqrt{g/L + 2 k d^2 / (m L^2)}$.
+  </p>
+  <p>
+    Start with only pendulum 1 displaced ($\theta_2 = 0$) and watch the
+    energy slosh back and forth: pendulum 1 slows while pendulum 2
+    grows, until after half a beat period almost all the energy lives on
+    pendulum 2. Beat period $T_\text{beat} = 2 \pi / (\omega_- - \omega_+)$.
+    Symmetric or antisymmetric initial conditions stay locked in their
+    respective modes forever.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Two coupled pendulums hanging from a horizontal bar, with theta(t) traces below."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">omega_+, omega_- (rad/s):</span><span class="value" id="readout-w">0</span>
+      <span class="label">T_beat (s):</span><span class="value" id="readout-tb">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Two coupled pendulums with symmetric and antisymmetric normal modes.
+      Method: linearized EOM, RK4 integration. Source: French, Vibrations
+      and Waves Ch. 5 (`french-waves`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Coupled pendulum controls">
+    <div class="row"><span class="label">k (N/m)</span><input type="range" id="slider-k" min="0" max="20" step="0.1" value="4"><span class="value" id="value-k">4.0</span></div>
+    <div class="row"><span class="label">d / L</span><input type="range" id="slider-dl" min="0.1" max="1" step="0.01" value="0.5"><span class="value" id="value-dl">0.50</span></div>
+    <div class="row buttons">
+      <button id="btn-asym" type="button">Asymmetric IC</button>
+      <button id="btn-sym" type="button">Symmetric IC</button>
+      <button id="btn-anti" type="button">Antisym IC</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

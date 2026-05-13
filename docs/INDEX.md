@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Coupled Pendulums and Normal Modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/index.html)** &nbsp; (verified, verified 2026-05-13T23:15:34Z)
+  Two identical pendulums of length $L$ and mass $m$, coupled by a spring of constant $k$ attached at distance $d$ from each pivot. Small-angle linearized EOM:
+
 - **[Capacitor Discharge through a Resistor](../playgrounds/bsc-y1s2/FIS1014-capacitor-discharge-rc/index.html)** &nbsp; (verified, verified 2026-05-13T23:11:07Z)
   A capacitor of capacitance $C$ charged to $V_0$ is suddenly connected across a resistor of resistance $R$. Kirchhoff's voltage law gives the first-order linear ODE $$R \dot Q + Q/C = 0,$$ whose closed-form solution is $$V_C(t) = V_0 \exp(-t / \tau), \qquad \tau = R C.$$
 
@@ -363,9 +366,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Coulomb Equilibrium Charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Coupled Pendulums Normal Modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Curvature Tensor 2d Surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/index.html)** &nbsp; (draft)

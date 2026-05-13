@@ -1,17 +1,17 @@
-# Coupled Pendulums Normal Modes
+# Coupled pendulums and normal modes
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+Two identical pendulums coupled by a spring at distance $d$ from the pivot oscillate in two normal modes: symmetric ($\omega_+ = \sqrt{g/L}$) and antisymmetric ($\omega_- = \sqrt{g/L + 2 k d^2 / m L^2}$). The asymmetric initial condition (one displaced, the other at rest) decomposes into both modes and produces beating: energy moves between the two pendulums with period $T_\text{beat} = 2\pi / (\omega_- - \omega_+)$.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+Look for the classic beating pattern when you click "Asymmetric IC": pendulum 1 starts large and pendulum 2 starts at zero; after one quarter of the beat period pendulum 2 is matching pendulum 1; after a half beat almost all the amplitude is on pendulum 2. Click "Symmetric IC" or "Antisym IC" to lock into a single mode where no beating occurs.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Two sliders set the coupling strength $k$ and the attachment ratio $d/L$. Three buttons reinitialize with canonical initial conditions.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: French, *Vibrations and Waves* (MIT Introductory Physics), Ch. 5 (`french-waves`).
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: $\omega_\pm$ exact; symmetric and antisymmetric modes preserve their structure; energy conservation $10^{-6}$ over 10 s.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
