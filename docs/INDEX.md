@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Two-Stream Instability (1D PIC)](../playgrounds/two-stream-pic-plasma/index.html)** &nbsp; (verified, verified 2026-05-13T17:35:12Z)
+  Two counter-streaming electron beams at +/- v_0 against a uniform neutralizing ion background. Small density perturbations grow exponentially at the linear rate omega_p / (2 sqrt 2). The beams eventually form phase-space vortices and saturate.
+
 - **[Mean-Field VI on a Banana](../playgrounds/mean-field-vi-on-banana/index.html)** &nbsp; (verified, verified 2026-05-13T17:30:41Z)
   Fit a mean-field Gaussian q(x, y) = N(mu_x, sigma_x^2) * N(mu_y, sigma_y^2) to a Rosenbrock-style banana target. The banana is a long curved valley; the mean-field Gaussian is axis-aligned; this gap is the canonical failure mode of variational inference.
 
@@ -145,6 +148,3 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates
-
-- **[Two-Stream PIC Plasma](../playgrounds/two-stream-pic-plasma/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
