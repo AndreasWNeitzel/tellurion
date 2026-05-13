@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 124 |
+| draft | 123 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 68 |
+| verified | 69 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -143,7 +143,7 @@ Total playgrounds: 203
 
 14 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Bohr Hydrogen Spectrum** ([bohr-hydrogen-spectrum](../playgrounds/bohr-hydrogen-spectrum/)). Status: `draft`. `carroll-ostlie` ch 5 (supporting: FIS2017); Rydberg E_n = - 13.6 eV / n^2 exact.
+- **Bohr Hydrogen Spectrum** ([bohr-hydrogen-spectrum](../playgrounds/bohr-hydrogen-spectrum/)). Status: `verified`. `carroll-ostlie` ch 5 (supporting: FIS2017).
 - **Jeans Instability** ([jeans-instability](../playgrounds/jeans-instability/)). Status: `draft`. `carroll-ostlie` ch 12 (supporting: MAA-GD); lambda_J = sqrt(pi c_s^2 / (G rho)) exact.
 - **Kepler Orbit Elements** ([kepler-orbit-elements](../playgrounds/kepler-orbit-elements/)). Status: `draft`. `carroll-ostlie` ch 2; six orbital elements drive trajectory; Kepler 3rd law.
 - **Kepler Orbit Explorer** ([kepler-orbit-explorer](../playgrounds/kepler-orbit-explorer/)). Status: `in-progress`. citation pending.

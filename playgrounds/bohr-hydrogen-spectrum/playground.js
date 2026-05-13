@@ -1,99 +1,261 @@
-// Bohr Hydrogen Spectrum playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// Bohr hydrogen spectrum playground.
+// Left half: hydrogen energy ladder with transition arrows. Right half:
+// wavelength axis (log scale) with emission lines color-coded by series.
+// Closed-form, no time integration.
 
-import { makeRng, DEFAULT_SEED } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import {
+  level, wavelengthNm, seriesLimitNm, buildLines, SERIES, E_R,
+} from './sim.js';
 
 const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC  = params.get('deterministic') === '1';
 const CAPTURE_NAME   = params.get('capture');
 const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const canvas      = document.getElementById('stage');
+const ctx         = canvas.getContext('2d', { alpha: false });
+const readoutLam  = document.getElementById('readout-lam');
+const readoutEn   = document.getElementById('readout-en');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const selectSeries = document.getElementById('select-series');
+const sliderNmax   = document.getElementById('slider-nmax');
+const sliderLine   = document.getElementById('slider-line');
+const valueSeries  = document.getElementById('value-series');
+const valueNmax    = document.getElementById('value-nmax');
+const valueLine    = document.getElementById('value-line');
 
-const _rng = makeRng(SEED);
+let seriesFilter = selectSeries.value;
+let nMax = parseInt(sliderNmax.value, 10);
+let lineIdx = parseInt(sliderLine.value, 10);
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
-function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+function filteredLines() {
+  const all = buildLines(nMax);
+  if (seriesFilter === 'all') return all;
+  return all.filter(l => l.series === seriesFilter);
 }
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
+function updateLineSlider() {
+  const lines = filteredLines();
+  sliderLine.max = String(Math.max(0, lines.length - 1));
+  if (lineIdx >= lines.length) lineIdx = lines.length - 1;
+  if (lineIdx < 0) lineIdx = 0;
+  sliderLine.value = String(lineIdx);
+  if (lines[lineIdx]) {
+    valueLine.textContent = `${lines[lineIdx].nHigh}->${lines[lineIdx].nLow}`;
+  }
 }
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+selectSeries.addEventListener('change', () => {
+  seriesFilter = selectSeries.value;
+  valueSeries.textContent = seriesFilter === 'all' ? 'All' : seriesFilter;
+  lineIdx = 0;
+  updateLineSlider();
+});
+sliderNmax.addEventListener('input', () => {
+  nMax = parseInt(sliderNmax.value, 10);
+  valueNmax.textContent = String(nMax);
+  updateLineSlider();
+});
+sliderLine.addEventListener('input', () => {
+  lineIdx = parseInt(sliderLine.value, 10);
+  const lines = filteredLines();
+  if (lines[lineIdx]) {
+    valueLine.textContent = `${lines[lineIdx].nHigh}->${lines[lineIdx].nLow}`;
+  }
+});
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg:     css.getPropertyValue('--bg').trim() || '#060608',
+    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    grid:   '#23252a',
+  };
+}
+
+function drawLadder(c, x0, y0, w, h) {
+  const padL = 60, padT = 28, padB = 24, padR = 14;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(x0, y0, w, h);
+
+  // Vertical energy axis, E_n on log-like spacing so high n is visible.
+  // Map E_n in [-13.6, 0] eV to vertical pixel coord.
+  function yForE(E) {
+    const Emin = -E_R - 0.2;
+    const Emax = 0.05;
+    const frac = (E - Emin) / (Emax - Emin);
+    return y0 + padT + plotH * (1 - frac);
   }
 
+  ctx.strokeStyle = c.grid;
+  ctx.lineWidth = 1;
+  for (const eMark of [-13.6, -10, -5, -2, -1, -0.5, 0]) {
+    const y = yForE(eMark);
+    ctx.beginPath(); ctx.moveTo(x0 + padL, y); ctx.lineTo(x0 + padL + plotW, y); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText(`${eMark.toFixed(1)}`, x0 + padL - 38, y + 3);
+  }
+  ctx.fillStyle = c.muted;
+  ctx.fillText('E (eV)', x0 + 8, y0 + padT - 4);
+
+  // Energy levels n = 1..nMax.
+  for (let n = 1; n <= nMax; n += 1) {
+    const E = level(n);
+    const y = yForE(E);
+    ctx.strokeStyle = c.fg;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x0 + padL + 6, y); ctx.lineTo(x0 + padL + plotW - 6, y); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`n=${n}`, x0 + padL + plotW - 30, y - 4);
+  }
+
+  // Transition arrows for filtered series.
+  const lines = filteredLines();
+  for (let i = 0; i < lines.length; i += 1) {
+    const ln = lines[i];
+    const yh = yForE(level(ln.nHigh));
+    const yl = yForE(level(ln.nLow));
+    const x = x0 + padL + 12 + i * 14;
+    if (x > x0 + padL + plotW - 18) continue;
+    ctx.strokeStyle = ln.color;
+    ctx.globalAlpha = (i === lineIdx) ? 1.0 : 0.35;
+    ctx.lineWidth = (i === lineIdx) ? 2.5 : 1.4;
+    ctx.beginPath(); ctx.moveTo(x, yh); ctx.lineTo(x, yl); ctx.stroke();
+    // arrowhead pointing to lower level
+    ctx.beginPath();
+    ctx.moveTo(x, yl);
+    ctx.lineTo(x - 4, yl - 6);
+    ctx.lineTo(x + 4, yl - 6);
+    ctx.closePath();
+    ctx.fillStyle = ln.color;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1.0;
+}
+
+function drawSpectrum(c, x0, y0, w, h) {
+  const padL = 48, padT = 28, padB = 38, padR = 12;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(x0, y0, w, h);
+
+  // Wavelength axis log-spaced from 50 nm to 50,000 nm so all series fit.
+  const lamMin = 50;
+  const lamMax = 50000;
+  function xForLam(lam) {
+    const frac = (Math.log10(lam) - Math.log10(lamMin)) / (Math.log10(lamMax) - Math.log10(lamMin));
+    return x0 + padL + plotW * frac;
+  }
+
+  // Decade gridlines.
+  ctx.strokeStyle = c.grid;
+  ctx.lineWidth = 1;
+  for (const lam of [100, 1000, 10000]) {
+    const x = xForLam(lam);
+    ctx.beginPath(); ctx.moveTo(x, y0 + padT); ctx.lineTo(x, y0 + padT + plotH); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText(`${lam} nm`, x - 16, y0 + padT + plotH + 14);
+  }
+  ctx.fillStyle = c.muted;
+  ctx.fillText('UV', xForLam(120) - 6, y0 + padT - 6);
+  ctx.fillText('visible', xForLam(550) - 12, y0 + padT - 6);
+  ctx.fillText('IR', xForLam(5000) - 4, y0 + padT - 6);
+
+  // Visible band shaded.
+  ctx.fillStyle = 'rgba(91,192,235,0.05)';
+  ctx.fillRect(xForLam(380), y0 + padT, xForLam(750) - xForLam(380), plotH);
+
+  // Draw all lines.
+  const lines = filteredLines();
+  for (let i = 0; i < lines.length; i += 1) {
+    const ln = lines[i];
+    if (ln.lambdaNm < lamMin || ln.lambdaNm > lamMax) continue;
+    const x = xForLam(ln.lambdaNm);
+    ctx.strokeStyle = ln.color;
+    ctx.lineWidth = (i === lineIdx) ? 3 : 1.2;
+    ctx.globalAlpha = (i === lineIdx) ? 1.0 : 0.7;
+    ctx.beginPath(); ctx.moveTo(x, y0 + padT + 6); ctx.lineTo(x, y0 + padT + plotH - 4); ctx.stroke();
+  }
+  ctx.globalAlpha = 1.0;
+
+  // Series limits as dashed lines.
+  for (const s of SERIES) {
+    if (seriesFilter !== 'all' && s.name !== seriesFilter) continue;
+    const lam = seriesLimitNm(s.nLow);
+    if (lam < lamMin || lam > lamMax) continue;
+    const x = xForLam(lam);
+    ctx.strokeStyle = s.color;
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y0 + padT + 4); ctx.lineTo(x, y0 + padT + plotH - 4); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Title.
+  ctx.fillStyle = c.muted;
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`emission spectrum (log lambda)`, x0 + padL, y0 + 16);
+}
+
+function render() {
+  const c = colors();
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height;
+  drawLadder(c, 0, 0, W * 0.5, H);
+  drawSpectrum(c, W * 0.5, 0, W * 0.5, H);
+}
+
+function updateReadout() {
+  const lines = filteredLines();
+  if (lines.length === 0) {
+    readoutLam.textContent = '--';
+    readoutEn.textContent = '--';
+    return;
+  }
+  const ln = lines[Math.min(lineIdx, lines.length - 1)];
+  readoutLam.textContent = ln.lambdaNm.toFixed(2);
+  readoutEn.textContent = level(ln.nHigh).toFixed(3);
+}
+
+function loop() {
   render();
   updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  requestAnimationFrame(loop);
 }
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    // Cycle through SERIES in capture mode.
+    const seriesNames = ['Lyman', 'Balmer', 'Paschen', 'Brackett', 'Pfund'];
+    const idx = Math.min(seriesNames.length - 1, Math.floor(frac * seriesNames.length));
+    selectSeries.value = seriesNames[idx];
+    seriesFilter = seriesNames[idx];
+    valueSeries.textContent = seriesNames[idx];
+    lineIdx = 0;
+    updateLineSlider();
   }
+  valueSeries.textContent = seriesFilter === 'all' ? 'All' : seriesFilter;
+  valueNmax.textContent = String(nMax);
+  updateLineSlider();
+  render();
+  updateReadout();
 
   if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
+        const detail = { capture: CAPTURE_NAME ?? null };
         window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
         window.__simulationReady = true;
         window.__simulationReadyDetail = detail;
@@ -105,9 +267,9 @@ function bootSync() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+    if (!CAPTURE_NAME) requestAnimationFrame(loop);
   }, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  if (!CAPTURE_NAME) requestAnimationFrame(loop);
 }

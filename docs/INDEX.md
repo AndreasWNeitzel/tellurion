@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Bohr Hydrogen Spectrum](../playgrounds/bohr-hydrogen-spectrum/index.html)** &nbsp; (verified, verified 2026-05-13T22:16:16Z)
+  A single electron orbits a proton in a Coulomb potential. The Bohr quantization condition $L = n \hbar$ pins discrete orbits indexed by integer $n \ge 1$ with energies $E_n = -E_R / n^2$, where $E_R = 13.605693$ eV is the (infinite-mass) Rydberg energy. Transitions between levels emit photons of wavelength $$\frac{1}{\lambda} = R_H \left( \frac{1}{n_\ell^2} 
+
 - **[Compton Scattering Kinematics](../playgrounds/compton-scattering-kinematics/index.html)** &nbsp; (verified, verified 2026-05-13T22:11:23Z)
   A monochromatic photon of wavelength $\lambda$ (typically 0.5 to 10 pm, the X-ray regime where Compton scattering is significant) is incident along the $+x$ axis on a free electron at rest. The photon scatters at angle $\theta$ measured from its original direction. The recoiling electron flies off at angle $\phi$ on the opposite side of the scattering plane.
 
@@ -300,9 +303,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bloch Oscillations](../playgrounds/bloch-oscillations/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Bohr Hydrogen Spectrum](../playgrounds/bohr-hydrogen-spectrum/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bondi Accretion Spherical](../playgrounds/bondi-accretion-spherical/index.html)** &nbsp; (draft)
