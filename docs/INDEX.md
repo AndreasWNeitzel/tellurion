@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Tautochrone: Cycloid Isochronism](../playgrounds/tautochrone-isochronism/index.html)** &nbsp; (verified, verified 2026-05-13T18:36:55Z)
+  Five frictionless beads on a single inverted cycloid bowl, released from five different starting amplitudes. The bowl is the curve x(theta) = R (theta - sin theta) y(theta) = R (1 + cos theta) with bottom at (R pi, 0) (theta = pi).
+
 - **[E x B Drift and the Cycloid](../playgrounds/exb-drift-cycloid/index.html)** &nbsp; (verified, verified 2026-05-13T18:33:40Z)
   A charged particle (q = m = 1) in crossed uniform fields B = B z-hat (out of page) and E = E x-hat. Starting from rest at the origin, the particle follows a cycloid: it accelerates in +x under E until v x B curves it back. The net motion is a uniform drift in (E x B) / B^2 = -E / B in y.
 
@@ -178,9 +181,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/lyapunov-spectrum/index.html)** &nbsp; (in-progress)
   The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attra
-
-- **[Tautochrone Isochronism](../playgrounds/tautochrone-isochronism/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/three-body-orbit/index.html)** &nbsp; (in-progress)
   Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates
