@@ -3,29 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gp Kernel Zoo</title>
+  <title>GP Kernel Zoo</title>
   <link rel="stylesheet" href="../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 880px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 8ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Gp Kernel Zoo</h1>
+  <h1>Gaussian Process kernel zoo</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
+  <p>
+    <strong>What you are seeing:</strong> a Gaussian Process is a
+    probability distribution over functions: pick any kernel
+    $k(x, x')$ and the GP says "any function I might draw has covariance
+    given by $k$". Top panel: five random functions drawn from the prior
+    (no observations) at the current kernel. Bottom panel: five draws
+    from the posterior after conditioning on three observed points
+    (yellow dots) with noise $\sigma_n$.
+  </p>
+  <p>
+    Five kernels: <em>RBF</em> (squared exponential, very smooth),
+    <em>Matern 3/2</em> (continuous, 1-time-differentiable),
+    <em>Matern 5/2</em> (twice differentiable), <em>periodic</em>
+    (exact repetition with period $p$), <em>linear</em> (Bayesian linear
+    regression in kernel disguise). The blue band is mean $\pm$ 2 sigma.
+    Click on the plot to add an observation.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="880" height="600" tabindex="0"
+            aria-label="Top panel prior GP samples; bottom panel posterior mean and confidence band with observations."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Gaussian Process kernel zoo with prior and posterior samples.
+      Method: Cholesky factorization of the covariance matrix, exact
+      conditioning. Source: Murphy 2022, Probabilistic Machine Learning
+      Vol. 1, Ch. 17 (`murphy2022pml`); MacKay 2003, Information Theory,
+      Inference, and Learning Algorithms, Ch. 45 (`mackay2003`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="GP controls">
+    <div class="row">
+      <span class="label">kernel</span>
+      <select id="select-kernel">
+        <option value="rbf" selected>RBF (squared exponential)</option>
+        <option value="matern32">Matern 3/2</option>
+        <option value="matern52">Matern 5/2</option>
+        <option value="periodic">Periodic</option>
+        <option value="linear">Linear</option>
+      </select>
+    </div>
+    <div class="row"><span class="label">l (length)</span><input type="range" id="slider-ell" min="0.10" max="2.5" step="0.05" value="0.7"><span class="value" id="value-ell">0.70</span></div>
+    <div class="row"><span class="label">sigma_f</span><input type="range" id="slider-sf" min="0.2" max="2.0" step="0.05" value="1.0"><span class="value" id="value-sf">1.00</span></div>
+    <div class="row"><span class="label">sigma_n</span><input type="range" id="slider-sn" min="0.01" max="0.5" step="0.01" value="0.05"><span class="value" id="value-sn">0.05</span></div>
+    <div class="row buttons">
+      <button id="btn-clear" type="button">Clear observations</button>
+      <button id="btn-resample" type="button">Resample priors</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>
