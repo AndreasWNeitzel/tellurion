@@ -46,6 +46,10 @@ const state = {
   hover: null,
   // The rainbow palette is precomputed at 1024 hues for speed.
   palette: null,
+  // Cached ImageData of the last fractal render so the overlay (title,
+  // readout, crosshair) can be redrawn over a clean fractal on every
+  // pointermove without re-iterating pixels.
+  fractalImage: null,
 };
 
 function cssVar(name, fallback) {
@@ -160,10 +164,14 @@ function render(downsample) {
       }
     }
   }
+  state.fractalImage = img;
   ctx.putImageData(img, 0, 0);
 }
 
 function drawOverlay() {
+  // Repaint the cached fractal first so the overlay text never accumulates.
+  if (state.fractalImage) ctx.putImageData(state.fractalImage, 0, 0);
+
   // hover crosshair
   if (state.hover) {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
@@ -276,7 +284,12 @@ function startAutoZoom() {
       stopAutoZoom();
       return;
     }
-    refresh(2);                          // half-resolution during zoom
+    // Adaptive downsample: 2x at shallow zoom, 3x at moderate, 4x at deep
+    // zoom. This keeps frame time bounded even at maxIter ~ 2200 by
+    // rendering ~ 1/16 of the pixels at the deepest level.
+    const ds = state.width > 1e-3 ? 2
+             : state.width > 1e-6 ? 3 : 4;
+    refresh(ds);
     state.rafId = requestAnimationFrame(tick);
   };
   state.rafId = requestAnimationFrame(tick);
