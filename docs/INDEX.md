@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Magnus Effect on a Spinning Ball](../playgrounds/magnus-effect-spinning-ball/index.html)** &nbsp; (verified, verified 2026-05-13T20:13:25Z)
+  A baseball-like ball (m = 0.15 kg) launched with initial speed v_0 and angle, subject to gravity, quadratic drag, and Magnus lift due to spin. Convention: positive spin = top-spin (ball rotates in direction of flight; Magnus force pushes down). Negative spin = back-spin (Magnus force pushes up).
+
 - **[Gyroscope Precession](../playgrounds/gyroscope-precession/index.html)** &nbsp; (verified, verified 2026-05-13T20:09:00Z)
   Heavy symmetric top of mass M = 1, with pivot fixed at one end and center of mass at distance r = 0.5 along the body axis. Spin moment of inertia I_s = 0.1. Gravity g = 9.81 along -z.
 
@@ -249,9 +252,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
 
 - **[Inverted Pendulum Kapitza](../playgrounds/inverted-pendulum-kapitza/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Magnus Effect Spinning Ball](../playgrounds/magnus-effect-spinning-ball/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Wave On String Reflection](../playgrounds/wave-on-string-reflection/index.html)** &nbsp; (draft)
