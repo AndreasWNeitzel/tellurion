@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Davisson Germer Diffraction</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Davisson Germer Diffraction</h1>
+
+  <figure>
+    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
+      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
