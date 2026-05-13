@@ -48,6 +48,16 @@ export function vKepler2(R, Mb, Md) {
   return G * (Mb + Md) / Reff;
 }
 
+// Rigid-body rotation: v(R) = k R, which makes omega = v/R = k constant.
+// Pedagogically useful because it is the unique rotation law that does NOT
+// wind a material spiral pattern. We pick k so that v(R = 8 kpc) = 220 km/s
+// matches the solar-circle benchmark.
+export const RIGID_BODY_K = 220 / 8;       // (km/s) / kpc -> 27.5
+export function vRigid2(R) {
+  const v = RIGID_BODY_K * R;
+  return v * v;
+}
+
 // Default visible-matter inventory matching a Milky-Way-ish galaxy.
 export const VISIBLE_PARAMS = {
   Mb: 1.0,
@@ -64,14 +74,17 @@ export const DM_PARAMS = {
 };
 
 export const MODELS = {
-  kepler:   { label: 'Keplerian (point mass)',  hasDisk: false, hasHalo: false },
-  visible:  { label: 'Visible matter only',     hasDisk: true,  hasHalo: false },
-  dm:       { label: 'Visible + dark matter',   hasDisk: true,  hasHalo: true  },
+  rigid:    { label: 'Rigid-body (v proportional R)', hasDisk: false, hasHalo: false },
+  kepler:   { label: 'Keplerian (point mass)',        hasDisk: false, hasHalo: false },
+  visible:  { label: 'Visible matter only',           hasDisk: true,  hasHalo: false },
+  dm:       { label: 'Visible + dark matter',         hasDisk: true,  hasHalo: true  },
 };
 
 // Circular velocity squared for a given model. R in kpc, returns (km/s)^2.
 export function vModel2(R, model) {
   switch (model) {
+    case 'rigid':
+      return vRigid2(R);
     case 'kepler':
       return vKepler2(R, VISIBLE_PARAMS.Mb, VISIBLE_PARAMS.Md);
     case 'visible':

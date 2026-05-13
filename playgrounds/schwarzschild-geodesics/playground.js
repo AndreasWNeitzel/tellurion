@@ -39,6 +39,7 @@ const sliderBmax   = document.getElementById('slider-bMax');
 const valueN       = document.getElementById('value-N');
 const valueBmax    = document.getElementById('value-bMax');
 const btnReset     = document.getElementById('btn-reset');
+const chkBcrit     = document.getElementById('chk-bcrit');
 
 const W = canvas.width, H = canvas.height;
 const VIEW = { xmin: -13, xmax: 13, ymin: -8.7, ymax: 8.7 };
@@ -60,6 +61,8 @@ const state = {
   stepsSoFar: 0,
   rafId: null,
   animating: false,
+  showBcrit: true,
+  criticalSwarm: null,           // tiny 2-photon swarm at +/- b_crit
 };
 
 function cssVar(name, fallback) {
@@ -81,6 +84,10 @@ const tokens = {
 function buildSwarm() {
   state.swarm      = createPhotonSwarm({ N: state.N, bMax: state.bMax, xInf: 12 });
   state.stepsSoFar = 0;
+  // Independent two-photon "critical swarm" at b = +/- b_crit, used to mark
+  // the boundary visually. These photons orbit the photon sphere near
+  // indefinitely; we render them with extra weight.
+  state.criticalSwarm = createPhotonSwarm({ N: 2, bMax: B_CRIT * 1.0001, xInf: 12 });
 }
 
 function stepN(nSteps) {
@@ -88,6 +95,7 @@ function stepN(nSteps) {
   for (let i = 0; i < nSteps; i += 1) {
     if (state.stepsSoFar >= MAX_STEPS) return true;
     const done = stepSwarm(state.swarm, DEFAULT_DT);
+    if (state.criticalSwarm) stepSwarm(state.criticalSwarm, DEFAULT_DT);
     state.stepsSoFar += 1;
     if (done) return true;
   }
@@ -142,6 +150,47 @@ function drawFrame() {
 
   // photon-sphere dashed circle r = 3
   drawCircle(R_PHOTON_SPHERE, tokens.fgFaint, 1.0, [4, 5]);
+
+  // b_crit reference lines and critical trails (toggle)
+  if (state.showBcrit) {
+    // horizontal dashed reference lines at y = +/- b_crit on the incoming side
+    const yTopPlus  = px(0,  B_CRIT).py;
+    const yTopMinus = px(0, -B_CRIT).py;
+    ctx.strokeStyle = tokens.fg;
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath();
+    const xLeft  = px(VIEW.xmin, 0).px;
+    const xRight = px(VIEW.xmax, 0).px;
+    ctx.moveTo(xLeft, yTopPlus);  ctx.lineTo(xRight, yTopPlus);
+    ctx.moveTo(xLeft, yTopMinus); ctx.lineTo(xRight, yTopMinus);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // labels at left edge
+    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.fillStyle = tokens.fg;
+    ctx.textAlign = 'left';
+    ctx.fillText('+b_crit', xLeft + 6, yTopPlus  - 4);
+    ctx.fillText('-b_crit', xLeft + 6, yTopMinus + 14);
+    // critical photons (drawn in fg, thick, before the main swarm so trails layer correctly)
+    if (state.criticalSwarm) {
+      const sw = state.criticalSwarm;
+      ctx.strokeStyle = tokens.fg;
+      ctx.lineWidth = 2.0;
+      for (let i = 0; i < sw.N; i += 1) {
+        const trail = sw.trails[i];
+        if (trail.length < 2) continue;
+        ctx.beginPath();
+        const first = px(trail[0].x, trail[0].y);
+        ctx.moveTo(first.px, first.py);
+        for (let k = 1; k < trail.length; k += 1) {
+          const p = px(trail[k].x, trail[k].y);
+          ctx.lineTo(p.px, p.py);
+        }
+        ctx.stroke();
+      }
+    }
+  }
 
   // photon trails and current-position dots
   let nSwallowed = 0, nDeflected = 0, nRunning = 0;
@@ -267,6 +316,11 @@ btnReset.addEventListener('click', () => {
   sliderN.value    = '41';
   sliderBmax.value = '9';
   applySliders();
+});
+
+chkBcrit.addEventListener('change', () => {
+  state.showBcrit = chkBcrit.checked;
+  drawFrame();
 });
 
 function bootSync() {

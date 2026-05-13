@@ -70,10 +70,29 @@ const tokens = {
 };
 
 const MODEL_COLOR = {
+  rigid:   tokens.fgMuted,
   kepler:  tokens.cat2,
   visible: tokens.cat1,
   dm:      tokens.cat3,
 };
+
+function drawFivePointedStar(cx, cy, rOuter, fill, stroke) {
+  const rInner = rOuter * 0.42;
+  ctx.beginPath();
+  for (let i = 0; i < 10; i += 1) {
+    const r = (i % 2 === 0) ? rOuter : rInner;
+    const a = -Math.PI / 2 + i * Math.PI / 5;       // top point first
+    const x = cx + r * Math.cos(a);
+    const y = cy + r * Math.sin(a);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.0;
+  ctx.stroke();
+}
 
 function pxGal(x, y) {
   // x, y in kpc; scale R = 25 kpc to the half-extent 220 px.
@@ -134,18 +153,13 @@ function drawGalaxyPanel() {
     }
   }
 
-  // R = 8 kpc highlight tracer (single bright dot moving at the solar circle)
-  // makes the per-model speed difference visually unmistakable.
+  // R = 8 kpc highlight tracer: the Sun. Drawn as a five-pointed yellow star
+  // with a dark outline. Per-model speed difference is visible by how quickly
+  // it traverses its dashed orbit ring.
   const sunR = 8;
   const sunPhi = state.t * omegaModel(sunR, state.model);
   const sun = pxGal(sunR * Math.cos(sunPhi), sunR * Math.sin(sunPhi));
-  ctx.fillStyle = MODEL_COLOR[state.model];
-  ctx.beginPath();
-  ctx.arc(sun.px, sun.py, 3.5, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.strokeStyle = tokens.fg;
-  ctx.lineWidth = 0.7;
-  ctx.stroke();
+  drawFivePointedStar(sun.px, sun.py, 8, '#F2C641', tokens.fg);
 
   // panel title
   ctx.fillStyle = tokens.fgMuted;
@@ -202,6 +216,7 @@ function drawRotationCurveInset() {
     }
     ctx.stroke();
   }
+  drawCurve('rigid',   MODEL_COLOR.rigid,   state.model === 'rigid'   ? 2.0 : 1.0);
   drawCurve('kepler',  MODEL_COLOR.kepler,  state.model === 'kepler'  ? 2.0 : 1.0);
   drawCurve('visible', MODEL_COLOR.visible, state.model === 'visible' ? 2.0 : 1.0);
   drawCurve('dm',      MODEL_COLOR.dm,      state.model === 'dm'      ? 2.0 : 1.0);
@@ -244,6 +259,7 @@ function drawLegendAndReadout() {
   const lx = PLOT.x;
   let ly = PLOT.y + PLOT.h + 40;
   const items = [
+    { color: MODEL_COLOR.rigid,   label: 'Rigid-body (v proportional R)' },
     { color: MODEL_COLOR.kepler,  label: 'Keplerian (point mass)' },
     { color: MODEL_COLOR.visible, label: 'Visible matter only' },
     { color: MODEL_COLOR.dm,      label: 'Visible + dark matter' },
@@ -292,10 +308,10 @@ function drawFrame() {
   readouts.chi2.textContent  = chiSquared(state.model, state.data).toFixed(1);
 }
 
-// Animation: advance time at 0.012 Gyr per rAF (~60 Hz -> 0.72 Gyr/sec, so
+// Animation: advance time at 0.0006 Gyr per rAF (~60 Hz -> 0.036 Gyr/sec, so
 // the outer galaxy at R = 20 kpc with v_dm = 200 km/s -> omega = 10.2 rad/Gyr
-// completes one orbit in ~0.85 sec on the screen. Inner orbits are faster.)
-const DT_PER_FRAME = 0.012;
+// completes one orbit in ~17 sec on the screen. Inner orbits are faster.)
+const DT_PER_FRAME = 0.0006;
 const T_RESET_AT   = 2.5;             // Gyr, loop time
 
 function tick() {
@@ -319,6 +335,10 @@ function pauseAnim() {
 
 function setModel(model) {
   state.model = model;
+  // Reset time on model switch so the user sees the unwound IC under the new
+  // rotation law. Without this, a switch from DM to rigid-body inherits the
+  // already-wound DM angular positions, which would mislead the eye.
+  state.t = 0;
   drawFrame();
 }
 

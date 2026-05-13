@@ -73,6 +73,48 @@ describe('rotation-curve-explorer: model physics', () => {
   });
 });
 
+describe('rotation-curve-explorer: rigid-body model and winding', () => {
+  it('rigid-body model has omega independent of R (no winding)', () => {
+    const omega5  = omegaModel(5, 'rigid');
+    const omega15 = omegaModel(15, 'rigid');
+    const omega25 = omegaModel(25, 'rigid');
+    expect(Math.abs(omega5  - omega15)).toBeLessThan(1e-9);
+    expect(Math.abs(omega15 - omega25)).toBeLessThan(1e-9);
+  });
+
+  it('rigid-body model: v(R = 8) = 220 km/s by construction', () => {
+    expect(Math.abs(vModel(8, 'rigid') - 220)).toBeLessThan(1e-9);
+  });
+
+  it('rigid-body model: starting spoke stays a spoke (no winding) after one period', () => {
+    const stars = [
+      { R: 5,  phi0: 0, kind: 'arm' },
+      { R: 10, phi0: 0, kind: 'arm' },
+      { R: 20, phi0: 0, kind: 'arm' },
+    ];
+    // One period for any star under rigid-body rotation
+    const T = 2 * Math.PI / omegaModel(8, 'rigid');
+    const snap = galaxyAt(stars, T, 'rigid');
+    // After exactly one period each star returns to (R, 0), confirming a rigid spoke.
+    for (let i = 0; i < stars.length; i += 1) {
+      expect(Math.abs(snap[i].x - stars[i].R)).toBeLessThan(1e-9);
+      expect(Math.abs(snap[i].y - 0)).toBeLessThan(1e-9);
+    }
+  });
+
+  it('DM model winds an initial spoke (omega differential)', () => {
+    // After 0.3 Gyr, inner stars are far around the disc while outer ones lag.
+    const stars = [
+      { R: 5,  phi0: 0, kind: 'arm' },
+      { R: 25, phi0: 0, kind: 'arm' },
+    ];
+    const snap = galaxyAt(stars, 0.3, 'dm');
+    const phi5  = Math.atan2(snap[0].y, snap[0].x);
+    const phi25 = Math.atan2(snap[1].y, snap[1].x);
+    expect(Math.abs(phi5 - phi25)).toBeGreaterThan(0.5);     // > ~30 deg
+  });
+});
+
 describe('rotation-curve-explorer: omega and unit conversion', () => {
   it('DM model at the solar circle gives omega ~ 28 rad/Gyr (period ~ 0.22 Gyr)', () => {
     const omega8 = omegaModel(8, 'dm');
@@ -132,7 +174,7 @@ describe('rotation-curve-explorer: data structure', () => {
     expect(DATA_SIGMA).toBeGreaterThan(0);
   });
 
-  it('MODELS metadata has 3 entries', () => {
-    expect(Object.keys(MODELS)).toEqual(['kepler', 'visible', 'dm']);
+  it('MODELS metadata has 4 entries (rigid, kepler, visible, dm)', () => {
+    expect(Object.keys(MODELS)).toEqual(['rigid', 'kepler', 'visible', 'dm']);
   });
 });
