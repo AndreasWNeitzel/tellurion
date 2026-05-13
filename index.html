@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (37)</h2>
+  <h2>Shipped (38)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/advection-scheme-shootout/index.html">Advection Scheme Shootout</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">1D linear advection u_t + c u_x = 0 on a periodic domain [0, 1] with a square pulse initial condition. Four numerical schemes solve the same problem side-by-side; the dashed green line is the analytic solution (pure translation of the pulse).</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/wkb-vs-shooting/index.html">WKB Bohr-Sommerfeld vs Exact</a></h2>
@@ -339,10 +347,9 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (12)</h2>
+  <h2 class="drafts-heading">Draft (11)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
-    <li><span class="drafts-slug">advection-scheme-shootout</span></li>
     <li><span class="drafts-slug">backprop-tiny-net</span></li>
     <li><span class="drafts-slug">double-pendulum</span></li>
     <li><span class="drafts-slug">gp-kernel-zoo</span></li>

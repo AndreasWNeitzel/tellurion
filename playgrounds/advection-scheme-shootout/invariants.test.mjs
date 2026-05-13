@@ -1,28 +1,70 @@
-// Advection Scheme Shootout invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Advection scheme invariant tests.
+// (a) Upwind is TVD: total variation never grows.
+// (b) FTCS blows up: TV grows arbitrarily large.
+// (c) Lax-Wendroff has bounded TV on smooth data.
+// (d) Upwind preserves mass.
+// (e) Exact solution wraps periodically.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  initSquare, initGaussian, exactSolution,
+  stepFTCS, stepUpwind, stepLaxWendroff, stepMacCormack,
+  totalVariation, l2Error, NX, DX,
+} from './sim.js';
 
-describe('Advection Scheme Shootout invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('Advection: upwind is TVD', () => {
+  it('total variation never grows over 100 steps', () => {
+    const u = initSquare();
+    let tvPrev = totalVariation(u);
+    for (let i = 0; i < 100; i += 1) {
+      stepUpwind(u, 1.0, 0.8 * DX / 1.0);
+      const tv = totalVariation(u);
+      expect(tv).toBeLessThanOrEqual(tvPrev + 1e-10);
+      tvPrev = tv;
+    }
   });
+});
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+describe('Advection: FTCS is unstable', () => {
+  it('TV grows by > 5x over 200 steps', () => {
+    const u = initSquare();
+    const tv0 = totalVariation(u);
+    for (let i = 0; i < 200; i += 1) stepFTCS(u, 1.0, 0.5 * DX / 1.0);
+    const tvFinal = totalVariation(u);
+    expect(tvFinal).toBeGreaterThan(tv0 * 5);
   });
+});
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+describe('Advection: Lax-Wendroff bounded TV on smooth data', () => {
+  it('on Gaussian: TV grows by < 5 percent over 200 steps', () => {
+    const u = initGaussian();
+    const tv0 = totalVariation(u);
+    for (let i = 0; i < 200; i += 1) stepLaxWendroff(u, 1.0, 0.8 * DX / 1.0);
+    const tvFinal = totalVariation(u);
+    expect(tvFinal).toBeLessThan(tv0 * 1.05);
+  });
+});
+
+describe('Advection: mass conservation', () => {
+  it('upwind conserves integral u over 200 steps', () => {
+    const u = initSquare();
+    let m0 = 0;
+    for (let i = 0; i < NX; i += 1) m0 += u[i] * DX;
+    for (let i = 0; i < 200; i += 1) stepUpwind(u, 1.0, 0.8 * DX / 1.0);
+    let mF = 0;
+    for (let i = 0; i < NX; i += 1) mF += u[i] * DX;
+    expect(Math.abs(mF - m0)).toBeLessThan(1e-10);
+  });
+});
+
+describe('Advection: exact solution wraps periodically', () => {
+  it('exactSolution(u0, c, period) gives back u0 (up to index discretization)', () => {
+    const u0 = initGaussian();
+    const period = 1.0;
+    const c = 1.0;
+    const u = exactSolution(u0, c, period);
+    let maxDiff = 0;
+    for (let i = 0; i < NX; i += 1) { const d = Math.abs(u[i] - u0[i]); if (d > maxDiff) maxDiff = d; }
+    expect(maxDiff).toBeLessThan(0.01);
+  });
 });

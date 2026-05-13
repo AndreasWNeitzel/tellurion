@@ -1,27 +1,79 @@
 ---
 title: Advection Scheme Shootout
 slug: advection-scheme-shootout
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 ---
 
-# Advection Scheme Shootout
+# Advection scheme shootout
 
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+## Physical setup
 
-Required sections (filled by architect):
+1D linear advection u_t + c u_x = 0 on a periodic domain [0, 1] with a square pulse initial condition. Four numerical schemes solve the same problem side-by-side; the dashed green line is the analytic solution (pure translation of the pulse).
 
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
+## Governing equations
 
-See `docs/PLAYGROUND_SPEC.md` for the full template.
+  u_t + c u_x = 0.
+
+Schemes (Courant number C = c dt / dx):
+- FTCS: u^{n+1}_i = u^n_i - (C/2)(u^n_{i+1} - u^n_{i-1}). Unconditionally unstable.
+- Upwind (c > 0): u^{n+1}_i = u^n_i - C (u^n_i - u^n_{i-1}). First-order, TVD, dissipative.
+- Lax-Wendroff: u^{n+1}_i = u^n_i - (C/2)(u^n_{i+1} - u^n_{i-1}) + (C^2/2)(u^n_{i+1} - 2 u^n_i + u^n_{i-1}). Second-order, oscillatory at shocks.
+- MacCormack: predictor (forward) + corrector (backward) producing a different second-order method.
+
+## Numerical method
+
+NX = 200 cells, periodic BCs. dt set from the user-controlled CFL number C, so dt = C dx / c. Each scheme runs in its own 200-element state array.
+
+## Controls
+
+- c: advection speed, 0.1 - 2.0, default 1.0
+- CFL: Courant number, 0.1 - 1.2, default 0.8
+- speed: time steps per render frame, 1 - 10, default 3
+- Reset: re-initialize all four schemes to the same square pulse
+- Pause / Play
+
+## Expected qualitative features
+
+1. FTCS top-left: visibly blows up within ~ 50 steps even at small CFL.
+2. Upwind top-right: pulse smears out, total variation never grows.
+3. Lax-Wendroff bottom-left: pulse keeps shape but produces visible oscillations on each side of the original step.
+4. MacCormack bottom-right: similar to LW, slightly different truncation error.
+
+## Invariants and acceptance thresholds
+
+- Upwind TVD: TV non-increasing over 100 steps.
+- FTCS unstable: TV grows by > 5x over 200 steps.
+- Lax-Wendroff bounded TV on smooth data: < 5 percent growth over 200 steps on Gaussian.
+- Upwind mass conservation: mass invariant to 1e-10 over 200 steps.
+- Exact solution wraps periodically.
+
+All confirmed in `invariants.test.mjs`.
+
+## Limiting cases for verification
+
+- CFL > 1: all schemes diverge (CFL is the necessary stability condition).
+- CFL = 1, Upwind: exact (numerical viscosity vanishes).
+- Smooth (Gaussian) IC: LW recovers second-order, upwind first-order error decay.
+
+## Visual fallback
+
+Canvas2D only.
+
+## Citations
+
+- LeVeque 1992, Numerical Methods for Conservation Laws, Chapter 9 (`leveque1992`).
+- LeVeque 2002, Finite Volume Methods for Hyperbolic Problems, Chapter 4 - 6 (TVD discussion).
+- MacCormack 1969, "The Effect of Viscosity in Hypervelocity Impact Cratering", AIAA Paper 69-354.
+
+## Stretch goals
+
+- Add a Beam-Warming scheme for a true 3-way comparison.
+- Add MUSCL with minmod limiter to show a non-oscillatory second-order method.
+- Add an L1/L2 error rate inset as dt varies.
+
+## Risk register
+
+- FTCS at CFL = 0.5 generates an explosion that can drown the y-axis; the panel clamps display values for readability but the underlying state can overflow Float64 at very long runs. Reset before the explosion is unreadable.
+- All four schemes share the same dt; large c at high CFL pushes the upwind into its boundary.

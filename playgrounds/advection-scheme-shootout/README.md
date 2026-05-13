@@ -1,17 +1,17 @@
-# Advection Scheme Shootout
+# Advection scheme shootout
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+Solve u_t + c u_x = 0 (the simplest PDE there is) on a square pulse using four numerical methods at once. The exact solution just translates the pulse forever; the four methods all fail in different, instructive ways.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+What to look for: FTCS top-left blows up regardless of CFL (unstable). Upwind smears the pulse but stays positive (dissipative). Lax-Wendroff keeps the shape but rings near the discontinuity (Gibbs-like). MacCormack is similar to LW.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: advection speed c, CFL number, speed, reset, pause/play.
 
 ## Reference
 
-Primary citation: __CITATION__.
+LeVeque 1992, Numerical Methods for Conservation Laws, Chapter 9.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: upwind TVD, FTCS explosion, LW bounded TV on smooth data, mass conservation.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
