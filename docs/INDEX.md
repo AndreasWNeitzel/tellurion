@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Pendulum on a Moving Cart](../playgrounds/pendulum-on-moving-cart/index.html)** &nbsp; (verified, verified 2026-05-13T19:51:50Z)
+  Frictionless cart of mass M = 2 on a horizontal rail, with a rigid pendulum of length L = 1 and bob mass m = 0.5 hanging from a pivot on top. Gravity g = 9.81. Two-degree-of-freedom system, no external horizontal forces.
+
 - **[Shakura-Sunyaev Accretion Disc Temperature](../playgrounds/accretion-disk-temperature-profile/index.html)** &nbsp; (verified, verified 2026-05-13T19:45:30Z)
   Steady, optically thick, geometrically thin accretion disc around a non-rotating compact object. Shakura-Sunyaev (1973) temperature profile:
 
@@ -232,3 +235,12 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
+
+- **[Abelian Sandpile Btw](../playgrounds/abelian-sandpile-btw/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Fitzhugh Nagumo Excitable](../playgrounds/fitzhugh-nagumo-excitable/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+
+- **[Mc Integration Convergence](../playgrounds/mc-integration-convergence/index.html)** &nbsp; (draft)
+  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
