@@ -37,9 +37,10 @@ const btnPause     = document.getElementById('btn-pause');
 
 const W = canvas.width, H = canvas.height;
 
-// Galaxy panel on the left, rotation-curve inset on the upper right.
-const GAL = { cx: 250, cy: 260, R: 220 };                        // px
-const PLOT = { x: 530, y: 110, w: 320, h: 200, rmax: 30, vmax: 280 };
+// Galaxy panel fills the canvas; the rotation-curve inset is overlaid in the
+// bottom-right corner with translucent background.
+const GAL = { cx: 440, cy: 250, R: 245 };                        // px
+const PLOT = { x: 640, y: 340, w: 230, h: 145, rmax: 30, vmax: 280 };
 
 const state = {
   model:      'dm',
@@ -161,20 +162,20 @@ function drawGalaxyPanel() {
   const sun = pxGal(sunR * Math.cos(sunPhi), sunR * Math.sin(sunPhi));
   drawFivePointedStar(sun.px, sun.py, 8, '#F2C641', tokens.fg);
 
-  // panel title
+  // top banner
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('Top-down view: spiral galaxy (R = 25 kpc, dashed ring = R = 8 kpc)',
-               GAL.cx, GAL.cy - GAL.R - 14);
+  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Top-down view: spiral galaxy out to R = 25 kpc. Dashed ring = solar circle (8 kpc). Yellow star = Sun.',
+               20, 22);
 }
 
 function drawRotationCurveInset() {
-  // background panel
-  ctx.fillStyle = tokens.surface;
+  // translucent panel so the galaxy reads through
+  ctx.fillStyle = 'rgba(251, 251, 249, 0.70)';
   ctx.fillRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h);
-  ctx.strokeStyle = tokens.grid;
-  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = tokens.fg;
+  ctx.lineWidth = 0.8;
   ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
 
   // gridlines
@@ -203,10 +204,9 @@ function drawRotationCurveInset() {
     ctx.fillText(String(v), PLOT.x - 4, y + 3);
   }
 
-  // model curves: all three at once so the user sees the gap
-  function drawCurve(model, color, lineWidth) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
+  // model curves: paint all four. The selected curve gets a white glow halo
+  // and a thicker stroke so it pops against the others.
+  function drawCurve(model, color, lineWidth, glow) {
     ctx.beginPath();
     let first = true;
     for (let R = 0.5; R <= PLOT.rmax; R += 0.5) {
@@ -214,12 +214,23 @@ function drawRotationCurveInset() {
       const { px: x, py: y } = pxPlot(R, Math.min(v, PLOT.vmax));
       if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); }
     }
+    if (glow) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.lineWidth = lineWidth + 4;
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
     ctx.stroke();
   }
-  drawCurve('rigid',   MODEL_COLOR.rigid,   state.model === 'rigid'   ? 2.0 : 1.0);
-  drawCurve('kepler',  MODEL_COLOR.kepler,  state.model === 'kepler'  ? 2.0 : 1.0);
-  drawCurve('visible', MODEL_COLOR.visible, state.model === 'visible' ? 2.0 : 1.0);
-  drawCurve('dm',      MODEL_COLOR.dm,      state.model === 'dm'      ? 2.0 : 1.0);
+  for (const m of ['rigid', 'kepler', 'visible', 'dm']) {
+    const isSel = (state.model === m);
+    drawCurve(m, MODEL_COLOR[m], isSel ? 2.4 : 1.0, isSel);
+  }
 
   // observed data points with error bars
   for (const d of state.data) {
@@ -253,11 +264,11 @@ function drawRotationCurveInset() {
 }
 
 function drawLegendAndReadout() {
-  // legend below the rotation-curve inset
+  // legend at top-left of the canvas (above the galaxy)
   ctx.font = '11px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
-  const lx = PLOT.x;
-  let ly = PLOT.y + PLOT.h + 40;
+  const lx = 20;
+  let ly = 50;
   const items = [
     { color: MODEL_COLOR.rigid,   label: 'Rigid-body (v proportional R)' },
     { color: MODEL_COLOR.kepler,  label: 'Keplerian (point mass)' },
@@ -271,8 +282,6 @@ function drawLegendAndReadout() {
     ctx.fillText(it.label, lx + 22, ly);
     ly += 16;
   }
-  ctx.fillStyle = tokens.fgMuted;
-  ctx.fillText('Dots: observed v at radii from the DM-model truth.', lx, ly + 4);
 
   // live readout overlay (top-right of canvas)
   const v8 = vModel(8, state.model);
