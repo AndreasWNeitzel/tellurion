@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Kuramoto Oscillators and Synchronization](../playgrounds/coupled-kuramoto-oscillators/index.html)** &nbsp; (verified, verified 2026-05-13T19:04:40Z)
+  N = 128 phase oscillators with intrinsic frequencies omega_i drawn from a Lorentzian distribution with half-width-at-half-maximum gamma. Each oscillator couples globally to the mean phase with strength K: theta_i' = omega_i + (K / N) sum_j sin(theta_j - theta_i)
+
 - **[Predator-Prey and the Hopf Bifurcation](../playgrounds/predator-prey-hopf/index.html)** &nbsp; (verified, verified 2026-05-13T19:01:25Z)
   Rosenzweig-MacArthur predator-prey model with Holling Type II response: x' = r x (1 - x / K) - a x y / (b + x) y' = e a x y / (b + x) - d y
 
@@ -186,9 +189,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
 
 - **[Brewster Angle Fresnel](../playgrounds/brewster-angle-fresnel/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Coupled Kuramoto Oscillators](../playgrounds/coupled-kuramoto-oscillators/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)

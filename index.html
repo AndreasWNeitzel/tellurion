@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (61)</h2>
+  <h2>Shipped (62)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/coupled-kuramoto-oscillators/index.html">Kuramoto Oscillators and Synchronization</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">N = 128 phase oscillators with intrinsic frequencies omega_i drawn from a Lorentzian distribution with half-width-at-half-maximum gamma. Each oscillator couples globally to the mean phase with strength K: theta_i' = omega_i + (K / N) sum_j sin(theta_j - theta_i)</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/predator-prey-hopf/index.html">Predator-Prey and the Hopf Bifurcation</a></h2>
@@ -531,11 +539,10 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (8)</h2>
+  <h2 class="drafts-heading">Draft (7)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">brewster-angle-fresnel</span></li>
-    <li><span class="drafts-slug">coupled-kuramoto-oscillators</span></li>
     <li><span class="drafts-slug">double-pendulum</span></li>
     <li><span class="drafts-slug">liouvillian-flow</span></li>
     <li><span class="drafts-slug">logistic-cobweb</span></li>
