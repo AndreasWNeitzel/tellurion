@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gram-Schmidt Orthogonalization](../playgrounds/bsc-y1s1/M1038-gram-schmidt-orthogonalization/index.html)** &nbsp; (verified, verified 2026-05-13T22:50:16Z)
+  Two input vectors $v_1, v_2$ in the plane, set by polar (angle, length) sliders. The playground displays the inputs (faded), the projection of $v_2$ onto $u_1 = v_1 / |v_1|$ (dashed), the residual $v_2 - \langle v_2, u_1 \rangle u_1$ (orange dashed), and the resulting orthonormal pair $u_1, u_2$ (bold accent and red).
+
 - **[Eigenvector Rotation in 2x2](../playgrounds/bsc-y1s1/M1038-eigenvector-rotation-2x2/index.html)** &nbsp; (verified, verified 2026-05-13T22:47:28Z)
   Real 2x2 matrix $M = \begin{pmatrix}a & b \\ c & d\end{pmatrix}$ visualized as a linear transformation of the unit circle in $\mathbb{R}^2$. Sliders set each of the four matrix entries. The image of the unit circle is generally an ellipse; the eigenvectors (when real) point along directions that $M$ leaves invariant up to scaling by an eigenvalue.
 
@@ -402,9 +405,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Geodesic Deviation Equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Gram Schmidt Orthogonalization](../playgrounds/bsc-y1s1/M1038-gram-schmidt-orthogonalization/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Grating Resolving Power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/index.html)** &nbsp; (draft)

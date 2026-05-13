@@ -3,29 +3,62 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gram Schmidt Orthogonalization</title>
+  <title>Gram-Schmidt Orthogonalization in 2D</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Gram Schmidt Orthogonalization</h1>
+  <h1>Gram-Schmidt orthogonalization in 2D</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> two input vectors $v_1, v_2$
+    and the orthonormal output $u_1, u_2$ produced by one step of
+    Gram-Schmidt: $u_1 = v_1/|v_1|$, then
+    $u_2 = (v_2 - \langle v_2, u_1\rangle u_1) / |v_2 - \langle v_2, u_1\rangle u_1|$.
+    The dashed cyan vector shows the projection $\langle v_2, u_1\rangle u_1$
+    being subtracted; the orange vector is the residual that becomes $u_2$
+    after normalization.
+  </p>
+  <p>
+    Drag the sliders for the angles and magnitudes of $v_1$ and $v_2$.
+    The readout reports $|\langle u_1, u_2\rangle|$, which stays at
+    machine zero ($10^{-16}$) regardless of input. Pushing $v_2$ collinear
+    with $v_1$ collapses the residual to zero (linearly dependent inputs),
+    which the readout flags.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Two input vectors and their Gram-Schmidt orthonormal output."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">|u_1 . u_2|:</span><span class="value" id="readout-orth">0</span>
+      <span class="label">|v_2 - proj|:</span><span class="value" id="readout-res">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Gram-Schmidt orthogonalization in 2D. Method: modified Gram-Schmidt,
+      closed-form. Source: Arfken-Weber, Mathematical Methods for Physicists
+      7e Ch. 3 (`arfken-weber`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Vector controls">
+    <div class="row"><span class="label">v1 angle</span><input type="range" id="slider-a1" min="0" max="360" step="1" value="20"><span class="value" id="value-a1">20</span></div>
+    <div class="row"><span class="label">v1 length</span><input type="range" id="slider-l1" min="0.5" max="3" step="0.05" value="2"><span class="value" id="value-l1">2.00</span></div>
+    <div class="row"><span class="label">v2 angle</span><input type="range" id="slider-a2" min="0" max="360" step="1" value="70"><span class="value" id="value-a2">70</span></div>
+    <div class="row"><span class="label">v2 length</span><input type="range" id="slider-l2" min="0.5" max="3" step="0.05" value="2"><span class="value" id="value-l2">2.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>
