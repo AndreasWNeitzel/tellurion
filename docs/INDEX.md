@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[E x B Drift and the Cycloid](../playgrounds/exb-drift-cycloid/index.html)** &nbsp; (verified, verified 2026-05-13T18:33:40Z)
+  A charged particle (q = m = 1) in crossed uniform fields B = B z-hat (out of page) and E = E x-hat. Starting from rest at the origin, the particle follows a cycloid: it accelerates in +x under E until v x B curves it back. The net motion is a uniform drift in (E x B) / B^2 = -E / B in y.
+
 - **[Cyclotron Motion in a Uniform Magnetic Field](../playgrounds/cyclotron-uniform-b/index.html)** &nbsp; (verified, verified 2026-05-13T18:28:30Z)
   A charged particle (q = m = 1) in a uniform, out-of-page magnetic field B = B z-hat. Initial state: (x, y) = (0, 0), (vx, vy) = (0, v).
 
@@ -166,9 +169,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
-
-- **[Exb Drift Cycloid](../playgrounds/exb-drift-cycloid/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und

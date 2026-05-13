@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>E x B Drift and the Cycloid</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>E x B drift and the cycloid</h1>
+
+  <p>
+    <strong>What you are seeing:</strong> a charged particle in crossed
+    uniform fields, $\mathbf{B} = B \hat{z}$ (out of page) and
+    $\mathbf{E} = E \hat{x}$ (right). Starting from rest, the particle
+    traces a cycloid: it accelerates in the $+x$ direction under $\mathbf{E}$
+    until the resulting $\mathbf{v} \times \mathbf{B}$ curves it back, then
+    repeats. The net motion is a uniform drift in the
+    $\mathbf{E} \times \mathbf{B} / B^2$ direction (here $-y$).
+  </p>
+  <p>
+    The drift velocity $\mathbf{v}_d = \mathbf{E} \times \mathbf{B} / B^2$ is
+    independent of the particle's charge and mass; positive and negative
+    particles drift the same way. The cycloid amplitude is $E / B^2$ and
+    its period equals the cyclotron period $T_c = 2 \pi m / (q B)$. Vary
+    $E$ to make the drift faster; vary $B$ to tighten the cycloid loops.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="Charged particle in crossed E and B fields tracing a cycloid with E x B drift."></canvas>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      E x B drift. Method: RK4 integration with analytic drift overlay.
+      Source: Jackson, Classical Electrodynamics Ch. 12.
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="ExB controls">
+    <div class="row"><span class="label">E</span><input type="range" id="slider-E" min="0.1" max="1.5" step="0.05" value="0.5"><span class="value" id="value-E">0.50</span></div>
+    <div class="row"><span class="label">B</span><input type="range" id="slider-B" min="0.5" max="2.5" step="0.05" value="1.0"><span class="value" id="value-B">1.00</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
