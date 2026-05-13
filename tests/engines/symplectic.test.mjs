@@ -228,6 +228,79 @@ describe('symplectic: Kepler two-body (reduced mass, GM=1, a=1, e=0.6)', () => {
     expect(snapshot(a).q[0]).toBe(snapshot(b).q[0]);
     expect(snapshot(a).qdot[1]).toBe(snapshot(b).qdot[1]);
   });
+
+  it('|dE/E| < 1e-8 over 100 periods (Yoshida 4, dt=0.002)', () => {
+    const inst = makeInst('yoshida4');
+    const dt = 0.002;
+    const N_PERIODS = 100;
+    const totalSteps = Math.round(N_PERIODS * periodAnalytic / dt);
+    let maxEnergyDrift = 0;
+    for (let i = 0; i < totalSteps; i += 1) {
+      step(inst, dt);
+      if ((i & 0xFFF) === 0) {
+        const d = Math.abs(diagnostics(inst).energyDrift);
+        if (d > maxEnergyDrift) maxEnergyDrift = d;
+      }
+    }
+    expect(maxEnergyDrift).toBeLessThan(1e-8);
+  }, 60_000);
+});
+
+describe('symplectic: convergence order on the harmonic oscillator', () => {
+  const omega = 1;
+  const periodAnalytic = 2 * Math.PI / omega;
+  const accel = (q, _qdot, _m, _t, out) => { out[0] = -omega * omega * q[0]; };
+  const energy = (q, qdot, m) => 0.5 * m[0] * (qdot[0] * qdot[0] + omega * omega * q[0] * q[0]);
+
+  // Worst |dE/E| over `nPeriods` periods at step size dt.
+  function maxDriftFor(integrator, dt, nPeriods) {
+    const inst = create({
+      positions:  Float64Array.from([1]),
+      velocities: Float64Array.from([0]),
+      masses: 1,
+      accelerationFn: accel,
+      energyFn: energy,
+      integrator,
+    });
+    const steps = Math.round(nPeriods * periodAnalytic / dt);
+    let worst = 0;
+    for (let i = 0; i < steps; i += 1) {
+      step(inst, dt);
+      const d = Math.abs(diagnostics(inst).energyDrift);
+      if (d > worst) worst = d;
+    }
+    return worst;
+  }
+
+  function fitSlope(xs, ys) {
+    // Least-squares slope of log(y) on log(x).
+    const lx = xs.map(Math.log);
+    const ly = ys.map(Math.log);
+    const n = lx.length;
+    const mx = lx.reduce((a, b) => a + b, 0) / n;
+    const my = ly.reduce((a, b) => a + b, 0) / n;
+    let num = 0, den = 0;
+    for (let i = 0; i < n; i += 1) {
+      num += (lx[i] - mx) * (ly[i] - my);
+      den += (lx[i] - mx) * (lx[i] - mx);
+    }
+    return num / den;
+  }
+
+  it('Verlet error scales as O(dt^2): fitted slope within 0.1 of 2', () => {
+    const dts = [0.04, 0.02, 0.01, 0.005];
+    const ys  = dts.map(dt => maxDriftFor('verlet', dt, 20));
+    const slope = fitSlope(dts, ys);
+    expect(Math.abs(slope - 2)).toBeLessThan(0.1);
+  });
+
+  it('Yoshida 4 error scales as O(dt^4): fitted slope within 0.1 of 4', () => {
+    // Step sizes large enough that round-off doesn't dominate (10x ratio span).
+    const dts = [0.20, 0.10, 0.05, 0.025];
+    const ys  = dts.map(dt => maxDriftFor('yoshida4', dt, 20));
+    const slope = fitSlope(dts, ys);
+    expect(Math.abs(slope - 4)).toBeLessThan(0.2);
+  });
 });
 
 // Double pendulum: q = [theta1, theta2], qdot = [omega1, omega2].
