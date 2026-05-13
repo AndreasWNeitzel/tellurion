@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (80)</h2>
+  <h2>Shipped (81)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/abelian-sandpile-btw/index.html">BTW Sandpile and Self-Organized Criticality</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">32 x 32 lattice of integer heights. Drop a grain at a random site; topple when height &gt;= 4. Boundary sites lose grains to the outside. After enough drops the system settles into a critical state where avalanche-size distribution is a power law P(s) ~ s^(-tau), tau ~ 1.21 in 2D.</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/mc-integration-convergence/index.html">Monte Carlo Integration Convergence</a></h2>
@@ -683,10 +691,5 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (1)</h2>
-  <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
-  <ul class="drafts-list">
-    <li><span class="drafts-slug">abelian-sandpile-btw</span></li>
-  </ul>
 </body>
 </html>
