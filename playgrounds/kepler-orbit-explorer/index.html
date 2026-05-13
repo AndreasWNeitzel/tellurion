@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kepler Orbit Explorer</title>
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <style>
+    .pg-figure { max-width: 720px; }
+    .pg-figure canvas { width: 100%; height: auto; }
+    .pg-readout {
+      display: grid;
+      grid-template-columns: max-content 12ch;
+      gap: var(--space-1) var(--space-4);
+      margin-top: var(--space-3);
+      width: max-content;
+    }
+    .pg-readout .value.warn { color: var(--accent-warm); }
+    .pg-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3) var(--space-4);
+      align-items: center;
+      margin-block: var(--space-4);
+    }
+    .pg-controls .row {
+      display: grid;
+      grid-template-columns: 3ch 1fr 5ch;
+      gap: var(--space-3);
+      align-items: center;
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+    .pg-controls .row .value {
+      font-family: var(--font-mono);
+      font-feature-settings: "tnum";
+      text-align: right;
+      color: var(--fg);
+    }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons {
+      grid-template-columns: 1fr 1fr;
+      grid-column: span 2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kepler orbit explorer</h1>
+
+  <p>
+    A test particle orbits a fixed central mass under inverse-square gravity in 2D
+    (GM = 1, geometric units). The velocity-Verlet integrator from
+    <code>shared/js/engine/symplectic.js</code> conserves energy and angular momentum
+    to high precision across thousands of periods. Adjust the semi-major axis a and
+    eccentricity e to set the orbit. The trail traces the past 1500 samples of the
+    particle's position; the readouts on the right report the conserved quantities and
+    the live energy drift.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="720" height="480" tabindex="0"
+            aria-label="2D Kepler orbit around a central mass; trail and current position drawn in the canvas."></canvas>
+
+    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">a:</span>                          <span class="value" id="readout-a">1.000</span>
+      <span class="label">e:</span>                          <span class="value" id="readout-e">0.600</span>
+      <span class="label">T = 2&pi;a<sup>3/2</sup>:</span>   <span class="value" id="readout-T">6.283</span>
+      <span class="label">E:</span>                          <span class="value" id="readout-E">-0.500000</span>
+      <span class="label">L:</span>                          <span class="value" id="readout-L">0.800000</span>
+      <span class="label">|A|:</span>                        <span class="value" id="readout-A">0.6000</span>
+      <span class="label">|dE/E|:</span>                     <span class="value" id="readout-dE">0.0e+00</span>
+      <span class="label">t:</span>                          <span class="value" id="readout-t">0.00</span>
+    </div>
+
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Bound Kepler orbit of a test particle around a fixed central mass, GM = 1. Method:
+      2D velocity-Verlet on the inverse-square force from
+      <code>shared/js/engine/symplectic.js</code>; energy, angular momentum, and the
+      Laplace-Runge-Lenz vector tracked as live diagnostics. Source: Newman,
+      Computational Physics, 2013, Exercise 8.12 "Orbit of the Earth".
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row">
+      <span class="label">a</span>
+      <input type="range" id="slider-a" min="0.5" max="2.0" step="0.05" value="1.0"
+             aria-label="Semi-major axis a in geometric units">
+      <span class="value" id="value-a">1.00</span>
+    </div>
+    <div class="row">
+      <span class="label">e</span>
+      <input type="range" id="slider-e" min="0.0" max="0.9" step="0.01" value="0.6"
+             aria-label="Eccentricity e dimensionless">
+      <span class="value" id="value-e">0.60</span>
+    </div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button" aria-label="Reset to a=1, e=0.6">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
+    </div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
