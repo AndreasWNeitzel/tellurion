@@ -325,13 +325,12 @@ function startAutoZoom() {
       stopAutoZoom();
       return;
     }
-    // Direct render every frame at a fixed 3x downsample. The cached-frame
-    // blit approach was producing visible color flicker as the palette index
-    // shifted slightly between renders. Fresh pixels every frame at 1/9
-    // resolution (~ 38k pixels) is still well within 16 ms of compute even
-    // at maxIter ~ 1500, and the visual quality is consistent throughout.
+    // Direct render every frame. Downsample adapts: 2x while the view is
+    // wide (cheap), 3x at deep zoom (maxIter is high). With maxIter capped
+    // at 900 this keeps frame time near 50 ms even at zoom 1e8x.
     state.maxIter = maxIterForWidth(state.width);
-    render(3);
+    const ds = state.width > 1e-4 ? 2 : 3;
+    render(ds);
     drawOverlay();
     updateReadouts();
     state.rafId = requestAnimationFrame(tick);

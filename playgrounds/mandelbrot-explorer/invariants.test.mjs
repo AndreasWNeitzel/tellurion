@@ -75,10 +75,10 @@ describe('mandelbrot-explorer: zoom targets and adaptive iter', () => {
 
   it('maxIterForWidth scales sensibly with zoom depth', () => {
     expect(maxIterForWidth(3.5)).toBe(256);
-    expect(maxIterForWidth(0.35)).toBeGreaterThan(420);
-    expect(maxIterForWidth(3.5e-9)).toBeGreaterThanOrEqual(1500);
-    // capped at 1500 to keep deep-zoom frames interactive
-    expect(maxIterForWidth(3.5e-13)).toBeLessThanOrEqual(1500);
+    expect(maxIterForWidth(0.35)).toBeGreaterThan(350);
+    expect(maxIterForWidth(3.5e-9)).toBeGreaterThanOrEqual(900);
+    // capped at 900 to keep deep-zoom frames interactive
+    expect(maxIterForWidth(3.5e-13)).toBeLessThanOrEqual(900);
   });
 });
 

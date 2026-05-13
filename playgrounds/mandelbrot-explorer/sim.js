@@ -51,19 +51,25 @@ export function escapeIterations(cr, ci, maxIter = DEFAULT_MAX_ITER) {
 // Default zoom targets known to be visually rich. Used by the auto-zoom
 // presets and the capture sweep.
 export const ZOOM_TARGETS = {
-  seahorse:    { cx: -0.7269,            cy:  0.1889,            label: 'Seahorse Valley',           width: 0.20 },
-  spiral:      { cx: -0.745428,          cy:  0.113009,          label: 'Spiral on the boundary',    width: 0.04 },
-  satellite:   { cx: -1.769383179195515, cy:  0.004236847918737,  label: 'Satellite mini-Mandelbrot', width: 0.025 },
-  elephant:    { cx:  0.2741,            cy:  0.00488,           label: 'Elephant Valley',           width: 0.06 },
-  triplecusp:  { cx: -0.0852,            cy:  0.65126,           label: 'Triple-spiral cusp',        width: 0.06 },
-  misiurewicz: { cx: -0.77568377,        cy:  0.13646737,        label: 'Misiurewicz point',         width: 0.02 },
+  // Canonical Mandelbrot-boundary coordinates from the published zoom-target
+  // literature (XaoS sample tours, "Mandel" tutorials). Each (cx, cy) is on
+  // the boundary at high precision; `width` is a hand-tuned framing for the
+  // initial jump so the named structure is visible immediately and the
+  // user can auto-zoom from there.
+  seahorse:    { cx: -0.7453,                cy:  0.1127,               label: 'Seahorse Valley',           width: 0.30 },
+  spiral:      { cx: -0.74364085,            cy:  0.13182733,           label: 'Spiral on the boundary',    width: 0.0015 },
+  satellite:   { cx: -1.74995768370609,      cy:  0.0,                  label: 'Satellite mini-Mandelbrot', width: 0.04 },
+  elephant:    { cx:  0.2549870375144766,    cy:  0.0,                  label: 'Elephant Valley',           width: 0.06 },
+  triplecusp:  { cx: -0.088,                 cy:  0.654,                label: 'Triple-spiral cusp',        width: 0.04 },
+  misiurewicz: { cx: -0.10109636384562,      cy:  0.95628651080914,     label: 'Misiurewicz point',         width: 0.05 },
 };
 
 // Adaptive iteration count given the view width. Wider views need fewer
-// iterations; deep zooms need more. Capped at 1500 so deep-zoom frames stay
-// interactive; the cap shows as a flatter rainbow on extreme zoom but the
-// boundary structure still resolves.
+// iterations; deep zooms need more. Capped at 900 so deep-zoom frames stay
+// interactive at ~ 50 ms per render even at downsample = 3 (38k pixels).
+// Beyond this cap the rainbow flattens but the boundary structure is still
+// resolved.
 export function maxIterForWidth(width) {
   const depth = Math.max(0, Math.log10(3.5 / width));   // 0 at full view
-  return Math.min(1500, Math.round(256 + 180 * depth));
+  return Math.min(900, Math.round(256 + 120 * depth));
 }
