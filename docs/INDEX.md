@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Beats from Superposition of Close Frequencies](../playgrounds/beats-superposition/index.html)** &nbsp; (verified, verified 2026-05-13T17:59:50Z)
+  Two harmonic signals of nearby frequencies, summed: y(t) = cos(2 pi f_1 t) + cos(2 pi f_2 t)
+
 - **[Coupled Springs and Normal Modes](../playgrounds/coupled-springs-normal-modes/index.html)** &nbsp; (verified, verified 2026-05-13T17:56:30Z)
   Two equal masses on a frictionless track, connected by three identical springs to two fixed walls: wall - (k) - m - (k) - m - (k) - wall. This is the textbook small-oscillation system; everything follows from diagonalizing the 2 x 2 stiffness matrix.
 
@@ -136,9 +139,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Schwarzschild Light Bending](../playgrounds/schwarzschild-geodesics/index.html)** &nbsp; (in-progress, verified 2026-05-13T08:35:00Z)
   A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by t
-
-- **[Beats Superposition](../playgrounds/beats-superposition/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Doppler Effect](../playgrounds/doppler-effect/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
