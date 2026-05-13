@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Foucault Pendulum and Coriolis Precession](../playgrounds/foucault-pendulum/index.html)** &nbsp; (verified, verified 2026-05-13T18:49:28Z)
+  A small-amplitude pendulum suspended over a point on a rotating Earth at latitude phi. In the horizontal (x, y) frame at that point, the Coriolis acceleration has a vertical component omega_z = Omega sin(phi). The linearized equations of motion are x'' = -omega_0^2 x + 2 omega_z y' y'' = -omega_0^2 y - 2 omega_z x'.
+
 - **[Van der Pol: Limit Cycle to Relaxation Oscillator](../playgrounds/van-der-pol-relaxation/index.html)** &nbsp; (verified, verified 2026-05-13T18:46:08Z)
   The Van der Pol equation: x'' - mu (1 - x^2) x' + x = 0
 
@@ -175,9 +178,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
-
-- **[Foucault Pendulum](../playgrounds/foucault-pendulum/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und
