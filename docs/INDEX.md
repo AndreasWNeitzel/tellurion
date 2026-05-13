@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gravitational Redshift in Schwarzschild](../playgrounds/gravitational-redshift/index.html)** &nbsp; (verified, verified 2026-05-13T19:23:25Z)
+  A photon emitted at radius r_em outside a Schwarzschild black hole of mass M (geometric units G = c = 1) is observed at infinity with frequency f_obs = f_em sqrt(1 - 2M / r_em). At the horizon r = 2M the redshift factor vanishes, corresponding to infinite redshift.
+
 - **[Binary Symmetric Channel and the Repetition Code](../playgrounds/channel-capacity-bsc/index.html)** &nbsp; (verified, verified 2026-05-13T19:19:30Z)
   A BSC flips each transmitted bit with probability p. Shannon's capacity C(p) = 1 - H(p), with H(p) = -p log2 p - (1 - p) log2 (1 - p). At p = 0.5 the channel is useless; at p = 0 or 1 the channel is noiseless.
 
@@ -202,9 +205,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/double-pendulum/index.html)** &nbsp; (in-progress)
   A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of t
-
-- **[Gravitational Redshift](../playgrounds/gravitational-redshift/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Liouvillian Flow on the Pendulum Phase Space](../playgrounds/liouvillian-flow/index.html)** &nbsp; (in-progress)
   A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers und
