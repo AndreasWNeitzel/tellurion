@@ -1,7 +1,7 @@
 ---
 title: Compton Scattering Kinematics
 slug: compton-scattering-kinematics
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2017
@@ -11,27 +11,78 @@ primary_citation: eisberg-resnick
 primary_chapter: 2
 ---
 
-# Compton Scattering Kinematics
+# Compton scattering kinematics
 
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+## Physical setup
 
-Required sections (filled by architect):
+A monochromatic photon of wavelength $\lambda$ (typically 0.5 to 10 pm, the X-ray regime where Compton scattering is significant) is incident along the $+x$ axis on a free electron at rest. The photon scatters at angle $\theta$ measured from its original direction. The recoiling electron flies off at angle $\phi$ on the opposite side of the scattering plane.
 
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
+## Governing equations
 
-See `docs/PLAYGROUND_SPEC.md` for the full template.
+Energy and momentum conservation for the photon-electron 4-vector collision yield the Compton shift
 
+$$\lambda' - \lambda = \frac{h}{m_e c} \, (1 - \cos\theta).$$
 
-## Curriculum pitch
+The constant $h / m_e c = 2.4263102367$ pm is the electron Compton wavelength $\lambda_C$. The recoiling electron carries kinetic energy
 
-Strong invariant: Delta lambda = (h / mc)(1 - cos theta) exact. Primary citation: eisberg-resnick, chapter 2. Spec body to be filled by playground-architect.
+$$T = h c \left( \frac{1}{\lambda} - \frac{1}{\lambda'} \right).$$
+
+The electron recoil angle satisfies
+
+$$\cot\phi = (1 + \alpha) \tan(\theta/2), \quad \alpha = \lambda_C / \lambda.$$
+
+## Numerical method
+
+Closed-form evaluation. No time integration; no truncation error. The diagram and the $\Delta\lambda(\theta)$ plot are re-rendered each rAF frame using the current $\lambda$ and $\theta$ sliders.
+
+## Controls
+
+- Incident wavelength $\lambda$ in pm (0.5 to 10, step 0.05).
+- Scattering angle $\theta$ in degrees (0 to 180, step 1).
+- Sweep button: animates $\theta$ from 0 to 180 over 8 s.
+- Reset button: returns to $\lambda = 2.5$ pm, $\theta = 60$ deg.
+
+## Expected qualitative features
+
+1. The scattered-photon arrow (orange) sweeps around the scattering vertex as $\theta$ moves from 0 to 180.
+2. The electron arrow (red) sweeps the opposite hemisphere; $\phi \to 0$ as $\theta \to \pi$ and $\phi \to \pi/2$ as $\theta \to 0$.
+3. The $\Delta\lambda$ curve is a flipped cosine going from 0 at $\theta = 0$ to $2\lambda_C \approx 4.85$ pm at $\theta = \pi$.
+4. The red dot on the curve tracks the current angle.
+
+## Invariants and acceptance thresholds
+
+| invariant | threshold | location |
+| forward shift zero | $\Delta\lambda(0) < 10^{-15}$ pm | invariants test |
+| backscatter equals $2\lambda_C$ | within $10^{-15}$ pm | invariants test |
+| right-angle equals $\lambda_C$ | within $10^{-15}$ pm | invariants test |
+| photon energy = scattered photon + electron T | within $10^{-12}$ relative | invariants test |
+| electron angle $\phi \to 0$ as $\theta \to \pi$ | $\phi < 10^{-6}$ rad | invariants test |
+| electron angle $\phi \to \pi/2$ as $\theta \to 0$ | within $10^{-4}$ rad | invariants test |
+| $\cot\phi = (1 + \alpha) \tan(\theta/2)$ | within $10^{-12}$ relative | invariants test |
+
+All confirmed in `invariants.test.mjs` (7 tests passing).
+
+## Limiting cases for verification
+
+- $\theta = 0$: $\Delta\lambda = 0$, $T = 0$, electron undisturbed.
+- $\theta = \pi$: $\Delta\lambda = 2\lambda_C$, $T$ maximal, electron straight forward.
+- $\lambda \gg \lambda_C$: shift $\ll \lambda$, recovers classical Thomson scattering geometry.
+
+## Visual fallback
+
+If KaTeX or Canvas2D is unavailable, sliders remain functional and the figure caption still reads as a paper sentence.
+
+## Citations
+
+- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 2 (`eisberg-resnick`).
+
+## Stretch goals
+
+- Add Klein-Nishina differential cross section to weight the angular distribution.
+- Allow the electron to start with momentum (Doppler broadening, ICS in astrophysics).
+- Inverse Compton mode: electron at relativistic gamma, low-energy photon up-scattered.
+
+## Risk register
+
+- Very small $\theta$ leaves the recoil-angle calculation near the $\theta = 0$ branch; the engine returns $\phi = \pi/2$ at exactly $\theta = 0$ for visual continuity.
+- $\lambda$ very large (visible light) gives essentially zero shift; the readout shows $\Delta\lambda \ll 1$ pm but the plot still works.

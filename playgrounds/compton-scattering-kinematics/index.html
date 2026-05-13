@@ -8,24 +8,62 @@
   <link rel="stylesheet" href="../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Compton Scattering Kinematics</h1>
+  <h1>Compton scattering kinematics</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> a photon of incident wavelength
+    $\lambda$ scatters off a free electron at scattering angle $\theta$,
+    and emerges with wavelength
+    $\lambda' = \lambda + (h/m_e c)(1 - \cos\theta)$. The Compton wavelength
+    $h/m_e c \approx 2.426$ pm is the universal length that sets the shift.
+    Forward scatter ($\theta = 0$) gives no shift; backscatter
+    ($\theta = \pi$) gives the maximum shift $2\lambda_C$. Right-angle
+    scatter gives exactly $\lambda_C$.
+  </p>
+  <p>
+    The recoiling electron carries the missing energy
+    $T = hc(\lambda^{-1} - \lambda'^{-1})$. Its recoil angle $\phi$
+    relative to the incident photon satisfies
+    $\cot\phi = (1 + \alpha)\tan(\theta/2)$ with $\alpha = \lambda_C/\lambda$,
+    so for $\theta \to \pi$ the electron goes straight forward, and for
+    $\theta \to 0$ the electron barely moves.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Compton scattering: kinematic diagram on the left, wavelength shift versus angle on the right."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">delta lambda (pm):</span><span class="value" id="readout-shift">0</span>
+      <span class="label">T_e (keV):</span><span class="value" id="readout-te">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Compton scattering kinematics. Method: closed-form
+      $\lambda' = \lambda + (h/m_e c)(1 - \cos\theta)$. Source: Eisberg and
+      Resnick, Quantum Physics 2e Ch. 2 (`eisberg-resnick`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Compton controls">
+    <div class="row"><span class="label">lambda (pm)</span><input type="range" id="slider-lam" min="0.5" max="10" step="0.05" value="2.5"><span class="value" id="value-lam">2.50</span></div>
+    <div class="row"><span class="label">theta (deg)</span><input type="range" id="slider-theta" min="0" max="180" step="1" value="60"><span class="value" id="value-theta">60</span></div>
+    <div class="row buttons">
+      <button id="btn-sweep" type="button" aria-pressed="false">Sweep theta</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

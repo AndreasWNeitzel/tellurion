@@ -2,7 +2,10 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
-- **[Inclined Plane Friction](../playgrounds/inclined-plane-friction/index.html)** &nbsp; (in-progress, verified 2026-05-13T22:07:35Z)
+- **[Compton Scattering Kinematics](../playgrounds/compton-scattering-kinematics/index.html)** &nbsp; (verified, verified 2026-05-13T22:11:23Z)
+  A monochromatic photon of wavelength $\lambda$ (typically 0.5 to 10 pm, the X-ray regime where Compton scattering is significant) is incident along the $+x$ axis on a free electron at rest. The photon scatters at angle $\theta$ measured from its original direction. The recoiling electron flies off at angle $\phi$ on the opposite side of the scattering plane.
+
+- **[Inclined Plane Friction](../playgrounds/inclined-plane-friction/index.html)** &nbsp; (verified, verified 2026-05-13T22:07:35Z)
   A unit-mass block sits at the top of a slope of length 5 m inclined at angle $\theta$. The block is in contact with the slope through Coulomb friction characterized by a static coefficient $\mu_s$ and a kinetic coefficient $\mu_k$. Gravity $g = 9.81$ m/s$^2$ points downward. The block is released from rest and the simulation tracks position $x$ along the slo
 
 - **[Wave on a String: Fixed vs Free End Reflection](../playgrounds/wave-on-string-reflection/index.html)** &nbsp; (verified, verified 2026-05-13T20:23:00Z)
@@ -318,9 +321,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Cmb Power Spectrum Toy](../playgrounds/cmb-power-spectrum-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Compton Scattering Kinematics](../playgrounds/compton-scattering-kinematics/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Compton Vs Inverse Compton](../playgrounds/compton-vs-inverse-compton/index.html)** &nbsp; (draft)

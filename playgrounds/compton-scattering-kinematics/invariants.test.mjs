@@ -1,28 +1,61 @@
-// Compton Scattering Kinematics invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Compton scattering invariants.
+// (a) Forward scatter (theta = 0) gives zero shift.
+// (b) Backscatter (theta = pi) gives max shift 2 lambda_C.
+// (c) Right-angle scatter (theta = pi/2) gives shift = lambda_C exactly.
+// (d) Energy conservation: h nu = h nu' + T_electron.
+// (e) Recoil angle limit: theta = pi -> phi = 0 (electron goes forward).
+// (f) Recoil angle limit: theta -> 0 -> phi -> pi/2 (electron stays put).
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  comptonShift, scatteredWavelength, electronKE, electronRecoilAngle,
+  photonEnergy, maxShift, LAMBDA_C_NM, HC_EV_NM,
+} from './sim.js';
 
-describe('Compton Scattering Kinematics invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('compton-scattering-kinematics', () => {
+  it('forward scatter gives zero shift', () => {
+    expect(Math.abs(comptonShift(0))).toBeLessThan(1e-15);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('backscatter gives shift = 2 lambda_C exactly', () => {
+    const shift = comptonShift(Math.PI);
+    expect(Math.abs(shift - 2 * LAMBDA_C_NM)).toBeLessThan(1e-15);
+    expect(Math.abs(shift - maxShift())).toBeLessThan(1e-15);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('right-angle scatter gives shift = lambda_C exactly', () => {
+    const shift = comptonShift(Math.PI / 2);
+    expect(Math.abs(shift - LAMBDA_C_NM)).toBeLessThan(1e-15);
+  });
+
+  it('energy conservation: h nu = h nu prime + T_electron', () => {
+    const lambdaNm = 0.001; // X-ray, 1 pm
+    const theta = 1.2;
+    const E_in = photonEnergy(lambdaNm);
+    const E_out = photonEnergy(scatteredWavelength(lambdaNm, theta));
+    const T = electronKE(lambdaNm, theta);
+    expect(Math.abs(E_in - E_out - T) / E_in).toBeLessThan(1e-12);
+  });
+
+  it('electron recoil angle approaches 0 as theta -> pi', () => {
+    const lambdaNm = 0.001;
+    const phi = electronRecoilAngle(lambdaNm, Math.PI - 1e-9);
+    expect(phi).toBeLessThan(1e-6);
+  });
+
+  it('electron recoil angle approaches pi/2 as theta -> 0', () => {
+    const lambdaNm = 0.001;
+    const phi = electronRecoilAngle(lambdaNm, 1e-8);
+    expect(Math.abs(phi - Math.PI / 2)).toBeLessThan(1e-4);
+  });
+
+  it('cot(phi) = (1 + alpha) tan(theta/2) closed form', () => {
+    const lambdaNm = 0.001;
+    const theta = 0.8;
+    const alpha = LAMBDA_C_NM / lambdaNm;
+    const cotExpected = (1 + alpha) * Math.tan(theta / 2);
+    const phi = electronRecoilAngle(lambdaNm, theta);
+    const cotActual = 1 / Math.tan(phi);
+    expect(Math.abs(cotActual - cotExpected) / cotExpected).toBeLessThan(1e-12);
+  });
 });

@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 125 |
+| draft | 124 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 67 |
+| verified | 68 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -173,7 +173,7 @@ Total playgrounds: 203
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Compton Scattering Kinematics** ([compton-scattering-kinematics](../playgrounds/compton-scattering-kinematics/)). Status: `draft`. `eisberg-resnick` ch 2; Delta lambda = (h / mc)(1 - cos theta) exact.
+- **Compton Scattering Kinematics** ([compton-scattering-kinematics](../playgrounds/compton-scattering-kinematics/)). Status: `verified`. `eisberg-resnick` ch 2.
 - **Davisson Germer Diffraction** ([davisson-germer-diffraction](../playgrounds/davisson-germer-diffraction/)). Status: `draft`. `eisberg-resnick` ch 3; Bragg peak at lambda = 2 d sin(theta) exact.
 - **De Broglie Wavelength** ([de-broglie-wavelength](../playgrounds/de-broglie-wavelength/)). Status: `draft`. `eisberg-resnick` ch 3; lambda = h / p verified across regimes.
 - **Photoelectric Effect Threshold** ([photoelectric-effect-threshold](../playgrounds/photoelectric-effect-threshold/)). Status: `draft`. `eisberg-resnick` ch 2; KE_max = h nu - phi linear above threshold.
