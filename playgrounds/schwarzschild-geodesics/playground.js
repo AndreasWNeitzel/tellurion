@@ -1,13 +1,22 @@
 // playground.js
-// UI for the Schwarzschild geodesics playground. Draws the (x, y) orbit trail
-// over horizon and ISCO reference circles, with sliders for (r_ap, L).
+// Plane wave of photons incident on a Schwarzschild black hole, animated.
+// The swarm advances at K substeps per requestAnimationFrame call so the
+// user watches photons cross the photon sphere and split into swallowed
+// and deflected. Capture mode steps a deterministic count synchronously
+// so visual.test.mjs frames are reproducible.
 
 import { DEFAULT_SEED } from '../../shared/js/render/rng.js';
 import {
-  createGeodesic,
-  stepGeodesic,
-  geodesicDiagnostics,
+  createPhotonSwarm,
+  stepSwarm,
+  photonPosition,
   DEFAULT_DT,
+  B_CRIT,
+  R_HORIZON,
+  R_PHOTON_SPHERE,
+  SWALLOWED,
+  DEFLECTED,
+  RUNNING,
 } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
@@ -19,31 +28,37 @@ const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const readouts     = {
-  r:        document.getElementById('readout-r'),
-  L:        document.getElementById('readout-L'),
-  phi:      document.getElementById('readout-phi'),
-  E:        document.getElementById('readout-E'),
-  dE:       document.getElementById('readout-dE'),
-  t:        document.getElementById('readout-t'),
+  N:          document.getElementById('readout-N'),
+  bMax:       document.getElementById('readout-bMax'),
+  bCrit:      document.getElementById('readout-bCrit'),
+  swallowed:  document.getElementById('readout-swallowed'),
+  deflected:  document.getElementById('readout-deflected'),
 };
-const sliderRap    = document.getElementById('slider-rap');
-const sliderL      = document.getElementById('slider-L');
-const valueRap     = document.getElementById('value-rap');
-const valueL       = document.getElementById('value-L');
+const sliderN      = document.getElementById('slider-N');
+const sliderBmax   = document.getElementById('slider-bMax');
+const valueN       = document.getElementById('value-N');
+const valueBmax    = document.getElementById('value-bMax');
 const btnReset     = document.getElementById('btn-reset');
-const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const VIEW = { xmin: -16, xmax: 16, ymin: -10, ymax: 10 };
-const TRAIL_MAX = 30000;
+const VIEW = { xmin: -13, xmax: 13, ymin: -8.7, ymax: 8.7 };
+
+// Animation tuning. SUBSTEPS_PER_FRAME = 12 advances roughly 0.6 affine
+// units of simulation time per rAF tick; the wave crosses the field of view
+// in about 2 seconds at 60 Hz. MAX_STEPS caps photons that loop the photon
+// sphere indefinitely. CAPTURE_TOTAL_STEPS is the time horizon for the
+// deterministic captureFraction sweep so t-000..t-100 cover full evolution.
+const SUBSTEPS_PER_FRAME = 12;
+const MAX_STEPS          = 4000;
+const CAPTURE_TOTAL_STEPS = 1500;
 
 const state = {
-  r_ap: 12.0,
-  L:    3.9,
-  geo: null,
-  trail: [],
-  playing: !DETERMINISTIC,
-  plunge: false,
+  N: 41,
+  bMax: 9,
+  swarm: null,
+  stepsSoFar: 0,
+  rafId: null,
+  animating: false,
 };
 
 function cssVar(name, fallback) {
@@ -62,10 +77,20 @@ const tokens = {
   grid:       cssVar('--grid', '#9A9C9F4D'),
 };
 
-function rebuild() {
-  state.geo   = createGeodesic(state.r_ap, state.L);
-  state.trail = [{ x: state.r_ap, y: 0 }];
-  state.plunge = false;
+function buildSwarm() {
+  state.swarm      = createPhotonSwarm({ N: state.N, bMax: state.bMax, xInf: 12 });
+  state.stepsSoFar = 0;
+}
+
+function stepN(nSteps) {
+  if (!state.swarm) return false;
+  for (let i = 0; i < nSteps; i += 1) {
+    if (state.stepsSoFar >= MAX_STEPS) return true;
+    const done = stepSwarm(state.swarm, DEFAULT_DT);
+    state.stepsSoFar += 1;
+    if (done) return true;
+  }
+  return false;
 }
 
 function px(x, y) {
@@ -87,19 +112,19 @@ function drawCircle(rWorld, strokeStyle, lineWidth, dash) {
   if (dash) ctx.setLineDash([]);
 }
 
-function drawAll() {
+function drawFrame() {
   ctx.fillStyle = tokens.bg;
   ctx.fillRect(0, 0, W, H);
 
-  // grid lines at integer ticks
+  // grid
   ctx.strokeStyle = tokens.grid;
   ctx.lineWidth = 0.5;
   ctx.beginPath();
-  for (let x = -15; x <= 15; x += 3) {
+  for (let x = -12; x <= 12; x += 3) {
     const { px: xp } = px(x, 0);
     ctx.moveTo(xp, 0); ctx.lineTo(xp, H);
   }
-  for (let y = -9; y <= 9; y += 3) {
+  for (let y = -6; y <= 6; y += 3) {
     const { py: yp } = px(0, y);
     ctx.moveTo(0, yp); ctx.lineTo(W, yp);
   }
@@ -107,172 +132,181 @@ function drawAll() {
 
   // axes
   ctx.strokeStyle = tokens.fgFaint;
-  ctx.lineWidth = 0.8;
+  ctx.lineWidth = 0.5;
   ctx.beginPath();
   const o = px(0, 0);
   ctx.moveTo(0, o.py); ctx.lineTo(W, o.py);
   ctx.moveTo(o.px, 0); ctx.lineTo(o.px, H);
   ctx.stroke();
 
-  // reference circles: horizon (r=2) and ISCO (r=6)
-  drawCircle(2, tokens.accentWarm, 1.2, [3, 4]);
-  drawCircle(6, tokens.fgFaint,    0.8, [4, 5]);
+  // photon-sphere dashed circle r = 3
+  drawCircle(R_PHOTON_SPHERE, tokens.fgFaint, 1.0, [4, 5]);
 
-  // trail
-  if (state.trail.length >= 2) {
-    ctx.strokeStyle = tokens.accent;
-    ctx.lineWidth = 1.0;
-    ctx.beginPath();
-    const first = px(state.trail[0].x, state.trail[0].y);
-    ctx.moveTo(first.px, first.py);
-    for (let i = 1; i < state.trail.length; i += 1) {
-      const q = px(state.trail[i].x, state.trail[i].y);
-      ctx.lineTo(q.px, q.py);
+  // photon trails and current-position dots
+  let nSwallowed = 0, nDeflected = 0, nRunning = 0;
+  if (state.swarm) {
+    const sw = state.swarm;
+    for (let i = 0; i < sw.N; i += 1) {
+      const trail = sw.trails[i];
+      const fate = sw.fates[i];
+      ctx.strokeStyle = fate === SWALLOWED ? tokens.accentWarm
+                        : fate === DEFLECTED ? tokens.accent
+                        : tokens.fgMuted;
+      ctx.lineWidth = fate === RUNNING ? 1.2 : 1.5;
+      if (trail.length >= 2) {
+        ctx.beginPath();
+        const first = px(trail[0].x, trail[0].y);
+        ctx.moveTo(first.px, first.py);
+        for (let k = 1; k < trail.length; k += 1) {
+          const p = px(trail[k].x, trail[k].y);
+          ctx.lineTo(p.px, p.py);
+        }
+        ctx.stroke();
+      }
+      if (fate === SWALLOWED) nSwallowed += 1;
+      else if (fate === DEFLECTED) nDeflected += 1;
+      else nRunning += 1;
     }
-    ctx.stroke();
+    // leading-edge dots for photons still en route
+    for (let i = 0; i < sw.N; i += 1) {
+      if (sw.fates[i] !== RUNNING) continue;
+      const p = photonPosition(sw, i);
+      const pp = px(p.x, p.y);
+      ctx.fillStyle = tokens.fg;
+      ctx.beginPath();
+      ctx.arc(pp.px, pp.py, 2.5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
   }
 
-  // central black hole
-  ctx.fillStyle = tokens.fg;
+  // central black hole (event horizon)
   const center = px(0, 0);
-  const horizonPx = (2 / (VIEW.xmax - VIEW.xmin)) * W;
+  const horizonPx = (R_HORIZON / (VIEW.xmax - VIEW.xmin)) * W;
+  ctx.fillStyle = tokens.fg;
   ctx.beginPath();
   ctx.arc(center.px, center.py, horizonPx, 0, 2 * Math.PI);
   ctx.fill();
-
-  // current particle
-  if (state.geo) {
-    const d = geodesicDiagnostics(state.geo);
-    const x = d.r * Math.cos(d.phi);
-    const y = d.r * Math.sin(d.phi);
-    const p = px(x, y);
-    ctx.fillStyle = tokens.accent;
-    ctx.beginPath();
-    ctx.arc(p.px, p.py, 5, 0, 2 * Math.PI);
-    ctx.fill();
-  }
+  ctx.strokeStyle = tokens.accentWarm;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(center.px, center.py, horizonPx, 0, 2 * Math.PI);
+  ctx.stroke();
 
   // titles
   ctx.fillStyle = tokens.fgMuted;
   ctx.font = '11px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('Schwarzschild geodesic (M = 1, geometric units)', 20, 20);
-  ctx.fillText('Inner dashed circle: event horizon r = 2.  Outer dashed circle: ISCO r = 6.', 20, 36);
+  ctx.fillText('Plane wave of photons at Schwarzschild BH (M = 1, geometric units)', 20, 20);
+  ctx.fillText('Red trails: swallowed.  Blue trails: deflected.  Dashed circle: photon sphere r = 3.', 20, 36);
 
-  if (state.plunge) {
-    ctx.fillStyle = tokens.accentWarm;
-    ctx.font = '13px "Inter", system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('plunge: orbit fell inside r = 2.1', W / 2, H / 2);
+  // live readout overlay (top-right)
+  const lines = [
+    `N         ${String(state.N).padStart(4)}`,
+    `b_max     ${state.bMax.toFixed(2).padStart(4)}`,
+    `b_crit    ${B_CRIT.toFixed(3)}`,
+    `step      ${String(state.stepsSoFar).padStart(4)}`,
+    `running   ${String(nRunning).padStart(4)}`,
+    `swallow   ${String(nSwallowed).padStart(4)}`,
+    `deflect   ${String(nDeflected).padStart(4)}`,
+  ];
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = tokens.fg;
+  const xRight = W - 16;
+  let y = 20;
+  for (const line of lines) {
+    ctx.fillText(line, xRight, y);
+    y += 14;
   }
+
+  // mirror counts to DOM readouts
+  readouts.N.textContent         = String(state.N);
+  readouts.bMax.textContent      = state.bMax.toFixed(2);
+  readouts.bCrit.textContent     = B_CRIT.toFixed(4);
+  readouts.swallowed.textContent = String(nSwallowed);
+  readouts.deflected.textContent = String(nDeflected);
 }
 
-function updateReadouts() {
-  if (!state.geo) return;
-  const d = geodesicDiagnostics(state.geo);
-  readouts.r.textContent   = d.r.toFixed(4);
-  readouts.L.textContent   = d.L.toFixed(4);
-  readouts.phi.textContent = d.phi.toFixed(4);
-  readouts.E.textContent   = d.radialEnergy.toFixed(6);
-  readouts.dE.textContent  = Math.abs(d.radialEnergyDrift).toExponential(2);
-  readouts.t.textContent   = d.t.toFixed(2);
-  readouts.dE.classList.toggle('warn', Math.abs(d.radialEnergyDrift) > 1e-3);
+function stopAnim() {
+  if (state.rafId !== null) cancelAnimationFrame(state.rafId);
+  state.rafId = null;
+  state.animating = false;
 }
 
-function stepOnce() {
-  if (state.plunge) return;
-  stepGeodesic(state.geo, DEFAULT_DT);
-  const r = state.geo.inst.q[0];
-  if (r < 2.1) {
-    state.plunge = true;
-    return;
-  }
-  const x = r * Math.cos(state.geo.phi);
-  const y = r * Math.sin(state.geo.phi);
-  state.trail.push({ x, y });
-  if (state.trail.length > TRAIL_MAX) state.trail.shift();
+function startAnim() {
+  if (state.animating) return;
+  state.animating = true;
+  const tick = () => {
+    const done = stepN(SUBSTEPS_PER_FRAME);
+    drawFrame();
+    if (done || state.stepsSoFar >= MAX_STEPS) {
+      stopAnim();
+      return;
+    }
+    state.rafId = requestAnimationFrame(tick);
+  };
+  state.rafId = requestAnimationFrame(tick);
 }
 
 function applySliders() {
-  state.r_ap = parseFloat(sliderRap.value);
-  state.L    = parseFloat(sliderL.value);
-  valueRap.textContent = state.r_ap.toFixed(1);
-  valueL.textContent   = state.L.toFixed(2);
-  rebuild();
-  drawAll();
-  updateReadouts();
+  state.N    = parseInt(sliderN.value, 10);
+  state.bMax = parseFloat(sliderBmax.value);
+  valueN.textContent    = String(state.N);
+  valueBmax.textContent = state.bMax.toFixed(2);
+  stopAnim();
+  buildSwarm();
+  drawFrame();
+  startAnim();
 }
 
-sliderRap.addEventListener('input', applySliders);
-sliderL.addEventListener('input', applySliders);
+sliderN.addEventListener('change', applySliders);
+sliderBmax.addEventListener('change', applySliders);
 
 btnReset.addEventListener('click', () => {
-  sliderRap.value = '12.0';
-  sliderL.value   = '3.9';
+  sliderN.value    = '41';
+  sliderBmax.value = '9';
   applySliders();
 });
-btnPlayPause.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-});
-
-const CAPTURE_TOTAL_T = 1500;
 
 function bootSync() {
-  state.r_ap = parseFloat(sliderRap.value);
-  state.L    = parseFloat(sliderL.value);
-  valueRap.textContent = state.r_ap.toFixed(1);
-  valueL.textContent   = state.L.toFixed(2);
-  rebuild();
   if (CAPTURE_NAME) {
+    // Deterministic capture mode: hold (N, bMax) fixed at the default and
+    // sweep simulation time via captureFraction. t-000 shows the plane wave
+    // just released; t-100 shows the resolved fan.
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const steps = Math.round(frac * CAPTURE_TOTAL_T / DEFAULT_DT);
-    for (let i = 0; i < steps; i += 1) stepOnce();
-    state.playing = false;
-  }
-  drawAll();
-  updateReadouts();
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => {
+    state.N    = 41;
+    state.bMax = 9;
+    sliderN.value    = String(state.N);
+    sliderBmax.value = state.bMax.toString();
+    valueN.textContent    = String(state.N);
+    valueBmax.textContent = state.bMax.toFixed(2);
+    buildSwarm();
+    const target = Math.round(frac * CAPTURE_TOTAL_STEPS);
+    stepN(target);
+    drawFrame();
+    if (DETERMINISTIC) {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, r_ap: state.r_ap, L: state.L };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
+        requestAnimationFrame(() => {
+          const detail = { capture: CAPTURE_NAME, seed: SEED, N: state.N, bMax: state.bMax, steps: state.stepsSoFar };
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
+          window.__simulationReady = true;
+          window.__simulationReadyDetail = detail;
+        });
       });
-    });
+    }
+  } else {
+    state.N    = parseInt(sliderN.value, 10);
+    state.bMax = parseFloat(sliderBmax.value);
+    valueN.textContent    = String(state.N);
+    valueBmax.textContent = state.bMax.toFixed(2);
+    buildSwarm();
+    drawFrame();
+    startAnim();
   }
-}
-
-let lastFrameTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let accumulator   = 0;
-
-function tick(now) {
-  if (!state.playing) {
-    lastFrameTime = now;
-    requestAnimationFrame(tick);
-    return;
-  }
-  const frameDt = Math.min((now - lastFrameTime) / 1000, 0.1);
-  lastFrameTime = now;
-  accumulator += frameDt;
-  let safety = 0;
-  while (accumulator >= DEFAULT_DT && safety < 240) {
-    stepOnce();
-    accumulator -= DEFAULT_DT;
-    safety += 1;
-  }
-  drawAll();
-  updateReadouts();
-  requestAnimationFrame(tick);
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }

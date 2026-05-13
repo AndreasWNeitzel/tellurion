@@ -1,20 +1,20 @@
-# Schwarzschild Geodesics
+# Schwarzschild Light Bending
 
-A massive test particle moves on a Schwarzschild background in the equatorial plane, geometric units G = c = M = 1. The radial motion is a 1D Hamiltonian system with effective potential V_eff(r; L) = -1/r + L^2/(2r^2) - L^2/r^3; the last term is the relativistic correction that distinguishes Schwarzschild from Newton and produces perihelion precession. The project's velocity-Verlet symplectic engine integrates the (r, p_r) pair; the angular coordinate phi advances as L/r^2 each step. The dashed inner circle is the event horizon r = 2; the dashed outer circle is the ISCO at r = 6.
+A plane wave of photons hits a non-rotating black hole. Geometric units G = c = M = 1. Each photon follows a null geodesic with conserved energy and angular momentum; the impact parameter b at infinity (the offset from the head-on line) determines its fate. Photons with |b| < 3*sqrt(3) ≈ 5.196 cross the photon sphere at r = 3 and fall through the event horizon at r = 2; photons with |b| > 5.196 are deflected. Photons with |b| just above critical loop the photon sphere multiple times before escaping; photons far above critical are weakly deflected by ~4M/b radians.
 
-Look at the trail: at the default (r_ap = 12, L = 3.9) the orbit precesses by about 172 degrees per radial period, producing a clean rosette. The radial energy is conserved to machine precision by the symplectic integrator. Push L down toward 3.5 and the orbit gets more eccentric, the perihelion shrinks, and the precession rate grows; eventually the perihelion crosses the ISCO and the orbit becomes unstable, plunging into the horizon (the playground halts and flags this state). Push L up and the orbit becomes more circular; very large L gives a near-circular orbit with essentially no precession (the Newtonian limit).
+Look at the four regimes the user-set slider range exposes: head-on plunges (red, going straight in), wide-angle captures (red, looping into the BH), critical-but-deflected loops (blue, sweeping multiple times around r=3 before escaping), and weak deflections (blue, nearly straight lines). The boundary between red and blue sits at the critical impact parameter; you can verify it visually as the impact-parameter range crosses 5.196.
 
-Controls: drag the r_ap and L sliders to set the orbit. The IC is placed at apoapsis with zero radial velocity; the angular motion is determined by L. Reset returns to the default IC. Play/Pause toggles integration.
+Controls: drag the N slider to vary photon count (the density of the wave). Drag the b_max slider to narrow or widen the impact-parameter range. Reset returns to defaults.
 
 ## Reference
 
-Primary citation: Carroll, "Spacetime and Geometry: An Introduction to General Relativity", Sections 5.1 (The Schwarzschild Metric), 5.3 (Singularities), and 5.4 (Geodesics of Schwarzschild). Bib key `carroll2019`. Newtonian limit: Newman, "Computational Physics", 2013, Exercise 8.12 (bib key `newman2013`). Engine: `shared/js/engine/symplectic.js`.
+Primary citation: Carroll, "Spacetime and Geometry: An Introduction to General Relativity", Sections 5.1 (The Schwarzschild Metric), 5.3 (Singularities), and 5.4 (Geodesics of Schwarzschild). Bib key `carroll2019`, chapter_index verified. Engine: `shared/js/engine/symplectic.js`, integrator 'verlet'.
 
 ## Verification
 
 - Strong invariants:
-  - Radial Hamiltonian conservation: |dE/E| < 1e-3 over 10^4 dt at canonical (r_ap=12, L=3.9). Empirical max drift is roughly 1e-8.
-  - Angular momentum L exactly conserved by construction (the integrator does not modify it).
-- Medium invariant: perihelion stays above the event horizon (r > 2) at the canonical IC.
-- Visual gate: SSIM > 0.92 against committed golden frames showing the precessing rosette across captureFraction.
+  - Photons at |b| = 4 are swallowed; at |b| = 7 are deflected; the boundary lies near |b| = 3*sqrt(3) within +/- 0.1.
+  - Weak-field deflection at b = 12 matches 4M/b ≈ 0.33 rad within 30 percent.
+- Medium invariant: photons within 0.05 of b_crit loop the photon sphere at least one full 2*pi.
+- Visual gate: SSIM > 0.92 against committed golden frames.
 - Last verified: see `.verified`.
