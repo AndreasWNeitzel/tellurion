@@ -3,29 +3,68 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Line Integral Vs Path</title>
+  <title>Line Integral: Path Dependence and Stokes</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Line Integral Vs Path</h1>
+  <h1>Line integrals: path dependence and Stokes</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> a vector field in the plane, and
+    two paths from $A = (-1, 0)$ to $B = (1, 0)$: the straight line
+    (orange) and the upper semicircular arc (cyan). The line integral
+    $\int_A^B \mathbf{F} \cdot d\mathbf{r}$ is computed on each path
+    using Simpson quadrature. For a conservative field the two values
+    coincide; for a non-conservative field they differ, and the
+    closed-loop integral around the semicircle equals the curl integrated
+    over the enclosed area (Stokes' theorem).
+  </p>
+  <p>
+    The selector switches between two conservative fields
+    ($\mathbf{F} = (2xy, x^2)$ and $\mathbf{F} = (x, y)$) and two
+    non-conservative fields ($\mathbf{F} = (-y, x)$ with curl 2,
+    $\mathbf{F} = (y, 0)$ with curl $-1$). The readout reports both
+    path integrals and their difference (the closed-loop value).
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Vector field with straight and arc paths from A to B."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">straight, arc:</span><span class="value" id="readout-paths">0, 0</span>
+      <span class="label">closed loop:</span><span class="value" id="readout-loop">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Line integrals of a vector field along two paths from A to B.
+      Method: Simpson quadrature at $n = 200$ subintervals. Source:
+      Riley-Hobson-Bence Ch. 10 (`riley-hobson`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Field selector">
+    <div class="row"><span class="label">field</span>
+      <select id="select-field">
+        <option value="conservative1" selected>F = (2xy, x^2) (conservative)</option>
+        <option value="conservative2">F = (x, y) (conservative)</option>
+        <option value="rotation">F = (-y, x) (rotation, curl 2)</option>
+        <option value="shear">F = (y, 0) (shear, curl -1)</option>
+      </select>
+      <span class="value" id="value-field">conservative</span>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

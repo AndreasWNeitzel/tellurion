@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Line Integral vs Path](../playgrounds/bsc-y1s2/M1015-line-integral-vs-path/index.html)** &nbsp; (verified, verified 2026-05-13T23:18:16Z)
+  A 2D vector field $\mathbf{F} = (P, Q)$ in the plane, with two paths from $A = (-1, 0)$ to $B = (1, 0)$: the straight chord and the upper semicircular arc. Simpson quadrature evaluates $\int_A^B \mathbf{F} \cdot d\mathbf{r}$ along each path; the closed-loop integral (straight forward, arc reversed) measures the failure of path-independence.
+
 - **[Coupled Pendulums and Normal Modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/index.html)** &nbsp; (verified, verified 2026-05-13T23:15:34Z)
   Two identical pendulums of length $L$ and mass $m$, coupled by a spring of constant $k$ attached at distance $d$ from each pivot. Small-angle linearized EOM:
 
@@ -456,9 +459,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Lienard Wiechert Synchrotron](../playgrounds/bsc-y2s1/FIS2013-lienard-wiechert-synchrotron/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Line Integral Vs Path](../playgrounds/bsc-y1s2/M1015-line-integral-vs-path/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Linear Perturbation Growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (draft)

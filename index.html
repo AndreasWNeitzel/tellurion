@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (100)</h2>
+  <h2>Shipped (101)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/bsc-y1s2/M1015-line-integral-vs-path/index.html">Line Integral vs Path</a></h2>
+      <p class="status">verified 2026-05-13</p>
+      <p class="description">A 2D vector field $\mathbf{F} = (P, Q)$ in the plane, with two paths from $A = (-1, 0)$ to $B = (1, 0)$: the straight chord and the upper semicircular arc. Simpson quadrature evaluates $\int_A^B \mathbf{F} \cdot d\mathbf{r}$ along each path; the closed-loop integral (straight forward, arc reversed) measures the failure of path-independence.</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/index.html">Coupled Pendulums and Normal Modes</a></h2>
@@ -843,7 +851,7 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (103)</h2>
+  <h2 class="drafts-heading">Draft (102)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">aberration-of-light-stellar</span></li>
@@ -898,7 +906,6 @@
     <li><span class="drafts-slug">larmor-radiation-pattern</span></li>
     <li><span class="drafts-slug">least-squares-orbit-fit-gauss</span></li>
     <li><span class="drafts-slug">lienard-wiechert-synchrotron</span></li>
-    <li><span class="drafts-slug">line-integral-vs-path</span></li>
     <li><span class="drafts-slug">linear-perturbation-growth</span></li>
     <li><span class="drafts-slug">linear-system-direct-vs-iterative</span></li>
     <li><span class="drafts-slug">liouville-phase-volume-conservation</span></li>
