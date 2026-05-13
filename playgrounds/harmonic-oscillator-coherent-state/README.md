@@ -1,17 +1,16 @@
 # Harmonic Oscillator Coherent State
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A coherent state |alpha> of the 1D quantum harmonic oscillator. The probability density |psi(x, t)|^2 is a Gaussian of fixed width 1/sqrt(2) whose mean follows the classical orbit x_0(t) = sqrt(2) Re(alpha e^{-i omega t}). Adjust alpha to set the orbit amplitude; press play to watch the wave packet oscillate without spreading (the defining property of a coherent state).
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Controls: alpha slider, speed slider, pause/play, reset.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Sakurai-Napolitano, "Modern Quantum Mechanics", 3rd ed., Section 2.4 (Coherent states). Verified in chapter_index.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+- <n> = |alpha|^2 and <H>/(hbar omega) = |alpha|^2 + 1/2 exact closed forms.
+- Classical orbit (x_0, p_0) has period 2 pi/omega within 1e-12.
+- Density integrates to 1 over a wide window; second moment about x_0 equals 1/2 to 1e-4.
+- |psiRealImag|^2 matches density(x, alpha, t) to 1e-10.

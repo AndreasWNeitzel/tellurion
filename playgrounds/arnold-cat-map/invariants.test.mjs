@@ -1,28 +1,58 @@
-// Arnold Cat Map invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+import { describe, it, expect } from 'vitest';
+import { catMapForward, recurrencePeriod, iterate, LYAP_EXACT } from './sim.js';
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../shared/js/render/rng.js';
-// import * as engine from '../../shared/js/engine/<engine>.js';
-
-describe('Arnold Cat Map invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('arnold-cat-map: continuous map invariants', () => {
+  it('area preserving: 100 points map into [0, 1) x [0, 1)', () => {
+    for (let i = 0; i < 100; i += 1) {
+      const r = catMapForward((i * 0.01234) % 1, (i * 0.07189) % 1);
+      expect(r.x).toBeGreaterThanOrEqual(0);
+      expect(r.x).toBeLessThan(1);
+      expect(r.y).toBeGreaterThanOrEqual(0);
+      expect(r.y).toBeLessThan(1);
+    }
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Lyapunov exponent equals log((3 + sqrt 5) / 2)', () => {
+    expect(Math.abs(LYAP_EXACT - Math.log((3 + Math.sqrt(5)) / 2))).toBeLessThan(1e-12);
+  });
+});
+
+describe('arnold-cat-map: pixel-grid periodicity', () => {
+  it('N = 64 grid recurrence period is 48', () => {
+    const N = 64;
+    const grid = new Uint8Array(N * N);
+    grid[3 * N + 5] = 1;
+    grid[10 * N + 20] = 1;
+    grid[33 * N + 50] = 1;
+    expect(recurrencePeriod(grid, N, 256)).toBe(48);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('N = 16 grid recurrence period is 12', () => {
+    const N = 16;
+    const grid = new Uint8Array(N * N);
+    grid[2 * N + 4] = 1;
+    grid[5 * N + 9] = 1;
+    expect(recurrencePeriod(grid, N, 64)).toBe(12);
+  });
+
+  it('grid is exactly recovered after T iterations', () => {
+    const N = 16;
+    const grid = new Uint8Array(N * N);
+    for (let i = 0; i < N * N; i += 7) grid[i] = 1;
+    const T = recurrencePeriod(grid, N, 64);
+    const after = iterate(grid, N, T);
+    for (let i = 0; i < N * N; i += 1) expect(after[i]).toBe(grid[i]);
+  });
+});
+
+describe('arnold-cat-map: reproducibility', () => {
+  it('two iterations from the same grid are bit-identical', () => {
+    const N = 16;
+    const a = new Uint8Array(N * N), b = new Uint8Array(N * N);
+    for (let i = 0; i < N * N; i += 3) a[i] = 1;
+    const ax = iterate(a, N, 10);
+    for (let i = 0; i < N * N; i += 3) b[i] = 1;
+    const bx = iterate(b, N, 10);
+    for (let i = 0; i < N * N; i += 1) expect(ax[i]).toBe(bx[i]);
+  });
 });
