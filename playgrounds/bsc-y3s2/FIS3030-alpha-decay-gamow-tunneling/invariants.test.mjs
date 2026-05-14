@@ -1,28 +1,21 @@
-// Alpha Decay Gamow Tunneling invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Alpha Decay Gamow Tunneling invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { geigerNuttallLogT, gamowExponent } from './sim.js';
+describe('alpha-decay-gamow-tunneling', () => {
+  it('Geiger-Nuttall increases with Z', () => {
+    expect(geigerNuttallLogT(90, 5)).toBeLessThan(geigerNuttallLogT(95, 5));
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Geiger-Nuttall decreases with Q', () => {
+    expect(geigerNuttallLogT(90, 4)).toBeGreaterThan(geigerNuttallLogT(90, 6));
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('U-238: Z_d=90, Q=4.27 MeV: log10(T/s) ~ 17', () => {
+    const v = geigerNuttallLogT(90, 4.27);
+    expect(v).toBeGreaterThan(12);
+    expect(v).toBeLessThan(22);
+  });
+  it('Po-212: Z_d=82, Q=8.95 MeV: short half-life log10 < 0', () => {
+    expect(geigerNuttallLogT(82, 8.95)).toBeLessThan(0);
+  });
+  it('Gamow exponent positive', () => {
+    expect(gamowExponent(82, 5)).toBeGreaterThan(0);
+  });
 });

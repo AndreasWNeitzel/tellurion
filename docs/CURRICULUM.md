@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 26 |
+| draft | 25 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 166 |
+| verified | 167 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -321,7 +321,7 @@ Total playgrounds: 203
 
 6 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Alpha Decay Gamow Tunneling** ([FIS3030-alpha-decay-gamow-tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/)). Status: `draft`. `krane-nuclear` ch 8; tunneling probability vs Q; Geiger-Nuttall.
+- **Alpha Decay via Gamow Tunneling** ([FIS3030-alpha-decay-gamow-tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/)). Status: `verified`. `krane-nuclear` ch 8.
 - **Ckm Mixing Unitarity Triangle** ([FIS3030-ckm-mixing-unitarity-triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/)). Status: `draft`. `griffiths-particles` ch 11; phases sum to pi; CP-violation magnitude.
 - **Nuclear Beta Decay Fermi Vs Gt** ([FIS3030-nuclear-beta-decay-fermi-vs-gt](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/)). Status: `draft`. `krane-nuclear` ch 9; Sargent rule lifetime ~ Q^-5 scaling.
 - **Nuclear Shell Model Magic Numbers** ([FIS3030-nuclear-shell-model-magic-numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/)). Status: `verified`. `krane-nuclear` ch 5.
