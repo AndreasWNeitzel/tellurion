@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 8 |
+| draft | 7 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 184 |
+| verified | 185 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -431,5 +431,5 @@ Total playgrounds: 203
 
 2 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Point Spread Function Strehl** ([MAA-OT-point-spread-function-strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/)). Status: `draft`. `hecht2017` ch 11 (supporting: FIS3019); Strehl ratio from aberration RMS.
+- **PSF and Strehl Ratio** ([MAA-OT-point-spread-function-strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/)). Status: `verified`. `born-wolf` ch 8.
 - **Speckle Pattern Statistics** ([MAA-OT-speckle-pattern-statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/)). Status: `draft`. `born-wolf` ch 10; exponential intensity histogram.

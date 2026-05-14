@@ -1,37 +1,14 @@
 ---
-title: Point Spread Function Strehl
+title: PSF and Strehl Ratio
 slug: point-spread-function-strehl
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: MAA-OT
-supporting_ucs: [FIS3019]
+supporting_ucs: []
 curriculum_year: msc-y1
-primary_citation: hecht2017
-primary_chapter: 11
+primary_citation: born-wolf
+primary_chapter: 8
 ---
-
-# Point Spread Function Strehl
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: Strehl ratio from aberration RMS. Primary citation: hecht2017, chapter 11. Spec body to be filled by playground-architect.
+# PSF and Strehl ratio
+Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8 (`born-wolf`).

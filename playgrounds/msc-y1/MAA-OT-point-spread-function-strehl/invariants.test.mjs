@@ -1,28 +1,22 @@
-// Point Spread Function Strehl invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Point Spread Function Strehl invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { airyIntensity, strehl, firstNullArcsec } from './sim.js';
+describe('psf-strehl', () => {
+  it('Airy maximum at theta = 0', () => {
+    expect(airyIntensity(0, 500, 8)).toBeCloseTo(1, 5);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('First null at 1.22 lambda/D', () => {
+    const theta = 1.22 * 500e-9 / 8;
+    expect(airyIntensity(theta, 500, 8)).toBeLessThan(1e-3);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Strehl 1 for zero wavefront error', () => {
+    expect(strehl(0)).toBe(1);
+  });
+  it('Strehl drops to ~0.8 at sigma = lambda/14 (Marechal)', () => {
+    expect(Math.abs(strehl(1 / 14) - 0.82)).toBeLessThan(0.01);
+  });
+  it('VLT 8m at H band: first null ~ 0.05"', () => {
+    const arcsec = firstNullArcsec(1650, 8);
+    expect(arcsec).toBeGreaterThan(0.04);
+    expect(arcsec).toBeLessThan(0.06);
+  });
 });

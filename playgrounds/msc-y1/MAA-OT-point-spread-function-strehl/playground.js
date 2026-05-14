@@ -1,113 +1,58 @@
-// Point Spread Function Strehl playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
-
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
-
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
+import { airyIntensity, strehl, firstNullArcsec } from './sim.js';
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+const rS = document.getElementById('readout-s');
+const sL = document.getElementById('slider-l'), vL = document.getElementById('value-l');
+const sD = document.getElementById('slider-D'), vD = document.getElementById('value-D');
+const sSg = document.getElementById('slider-s'), vSg = document.getElementById('value-s');
+const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
+let st = { lambda: 650, D: 8, sigma: 0.05 }; let running = true;
+sL.addEventListener('input', () => { st.lambda = parseFloat(sL.value); vL.textContent = st.lambda.toFixed(0); });
+sD.addEventListener('input', () => { st.D = parseFloat(sD.value); vD.textContent = st.D.toFixed(1); });
+sSg.addEventListener('input', () => { st.sigma = parseFloat(sSg.value); vSg.textContent = st.sigma.toFixed(3); });
+btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
-
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height;
+  const psfSize = 280, x0 = 40, y0 = 80;
+  const arcsec_per_px = firstNullArcsec(st.lambda, st.D) / 80;
+  const S = strehl(st.sigma);
+  // 2D PSF.
+  const id = ctx.createImageData(psfSize, psfSize);
+  for (let py = 0; py < psfSize; py += 1) for (let px = 0; px < psfSize; px += 1) {
+    const dx = (px - psfSize / 2), dy = (py - psfSize / 2);
+    const r_arcsec = Math.hypot(dx, dy) * arcsec_per_px;
+    const theta = r_arcsec / 3600 * Math.PI / 180;
+    const I_diff = airyIntensity(theta, st.lambda, st.D);
+    const I = S * I_diff + (1 - S) * 0.03 * Math.exp(-r_arcsec * r_arcsec / 4);
+    const a = Math.max(0, Math.min(255, Math.floor(Math.pow(I, 0.3) * 255)));
+    const idx = (py * psfSize + px) * 4;
+    id.data[idx] = a; id.data[idx + 1] = a * 0.9; id.data[idx + 2] = a * 0.6; id.data[idx + 3] = 255;
   }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
-}
-
-function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+  ctx.putImageData(id, x0, y0);
+  // Radial cut.
+  const rL = x0 + psfSize + 60, rT = 80, rW = W - rL - 30, rH = 320;
+  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(rL, rT); ctx.lineTo(rL, rT + rH); ctx.lineTo(rL + rW, rT + rH); ctx.stroke();
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('I(θ) (log)', rL + 4, rT + 12); ctx.fillText('θ (arcsec)', rL + rW - 60, rT + rH + 14);
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let i = 0; i <= 200; i += 1) {
+    const arcsec = i / 200 * arcsec_per_px * 100;
+    const theta = arcsec / 3600 * Math.PI / 180;
+    const I = airyIntensity(theta, st.lambda, st.D);
+    const px = rL + i / 200 * rW;
+    const py = rT + rH - (Math.log10(I + 1e-6) + 6) / 6 * rH;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
+  ctx.stroke();
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`λ = ${st.lambda} nm, D = ${st.D.toFixed(1)} m, first null = ${firstNullArcsec(st.lambda, st.D).toFixed(3)}"`, 12, 20);
+  ctx.fillText(`σ_RMS = ${st.sigma.toFixed(3)} λ → Strehl S = ${S.toFixed(3)} ${S > 0.8 ? '(diffraction-limited)' : ''}`, 12, 38);
+  rS.textContent = S.toFixed(3);
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+function tick() { render(); requestAnimationFrame(tick); }
+function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
