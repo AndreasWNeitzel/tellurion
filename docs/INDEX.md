@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Inverse-Compton Cooling](../playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling/index.html)** &nbsp; (verified, verified 2026-05-14T00:37:25Z)
+  Relativistic electrons (Lorentz factor $\gamma$) immersed in a soft-photon bath (energy density $U_\text{ph}$) lose energy by inverse-Compton up-scattering of the photons. In the Thomson limit the cooling time is $$t_\text{IC} = \frac{3 m_e c}{4 \sigma_T \gamma U_\text{ph}}.$$
+
 - **[Sturm-Liouville Eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/index.html)** &nbsp; (verified, verified 2026-05-14T00:33:26Z)
   The simplest regular Sturm-Liouville problem: $-y'' = \lambda y$ on $[0, \pi]$ with $y(0) = y(\pi) = 0$. The eigenvalues are $\lambda_n = n^2$ and the eigenfunctions are $\phi_n(x) = \sqrt{2/\pi} \sin(n x)$, orthonormal under $\langle f, g \rangle = \int_0^\pi f g\,dx$.
 
@@ -468,9 +471,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Inflation Slow Roll](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Inverse Compton Scattering Cooling](../playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)
