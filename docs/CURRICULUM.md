@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 88 |
+| draft | 80 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 104 |
+| verified | 112 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -120,7 +120,7 @@ Total playgrounds: 203
 - **Engine Cycle Explorer** ([FIS2014-engine-cycle-explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/)). Status: `draft`. `callen` ch 4; Otto, Diesel, Stirling, Carnot side by side; efficiency closed-form.
 - **Equipartition From Collisions** ([FIS2014-equipartition-from-collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/)). Status: `draft`. `reif` ch 6; hard-disk thermalization; each DOF reaches kT / 2 within 2 percent.
 - **Frustrated Triangular Antiferromagnet** ([FIS2014-frustrated-triangular-af](../playgrounds/bsc-y2s1/FIS2014-frustrated-triangular-af/)). Status: `verified`. citation pending (supporting: FIS2018, MAA-NM).
-- **Ising Triangular** ([FIS2014-ising-triangular](../playgrounds/bsc-y2s1/FIS2014-ising-triangular/)). Status: `draft`. citation pending (supporting: FIS2018, MAA-NM).
+- **Ising Triangular** ([FIS2014-ising-triangular](../playgrounds/bsc-y2s1/FIS2014-ising-triangular/)). Status: `verified`. citation pending (supporting: FIS2018, MAA-NM).
 - **Maxwell-Boltzmann Emergence from Hard-Disk Collisions** ([FIS2014-maxwell-boltzmann-emergence](../playgrounds/bsc-y2s1/FIS2014-maxwell-boltzmann-emergence/)). Status: `verified`. citation pending.
 - **2D Site Percolation** ([FIS2014-percolation-2d](../playgrounds/bsc-y2s1/FIS2014-percolation-2d/)). Status: `verified`. citation pending (supporting: FIS2018, MAA-NM).
 - **q-state Potts Model on a 2D Square Lattice** ([FIS2014-potts-q-state-transition](../playgrounds/bsc-y2s1/FIS2014-potts-q-state-transition/)). Status: `verified`. citation pending (supporting: FIS2018, MAA-NM).
@@ -199,7 +199,7 @@ Total playgrounds: 203
 - **Driven Damped Duffing Oscillator** ([FIS2021-duffing-oscillator](../playgrounds/bsc-y2s2/FIS2021-duffing-oscillator/)). Status: `verified`. citation pending (supporting: FIS1013).
 - **FitzHugh-Nagumo Excitable Neuron** ([FIS2021-fitzhugh-nagumo-excitable](../playgrounds/bsc-y2s2/FIS2021-fitzhugh-nagumo-excitable/)). Status: `verified`. citation pending.
 - **Hamiltonian Phase Space Flow** ([FIS2021-hamiltonian-phase-space-flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/)). Status: `draft`. `goldstein-mech` ch 8; flow preserves symplectic 2-form numerically.
-- **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `draft`. citation pending.
+- **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. citation pending.
 - **Lagrangian Vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `draft`. `goldstein-mech` ch 1 (supporting: FIS1013); same constrained system, two formulations agree.
 - **Liouville Phase Volume Conservation** ([FIS2021-liouville-phase-volume-conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/)). Status: `draft`. `goldstein-mech` ch 9; integrated phase volume constant within 1e-6.
 - **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `in-progress`. citation pending.
@@ -307,13 +307,13 @@ Total playgrounds: 203
 - **1D TDSE Wavepacket Scattering** ([FIS3029-1d-tdse-scattering-comparator](../playgrounds/bsc-y3s2/FIS3029-1d-tdse-scattering-comparator/)). Status: `verified`. citation pending (supporting: FIS2018).
 - **Addition Of Angular Momenta** ([FIS3029-addition-of-angular-momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/)). Status: `draft`. `sakurai2020` ch 3; Clebsch-Gordan table for j1 x j2; orthonormality.
 - **Aharonov Bohm Flux Line** ([FIS3029-aharonov-bohm-flux-line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/)). Status: `draft`. `sakurai2020` ch 2; topological phase e Phi / hbar exact.
-- **Bloch Sphere Qubit Gates** ([FIS3029-bloch-sphere-qubit-gates](../playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/)). Status: `draft`. citation pending.
+- **Bloch Sphere Qubit Gates** ([FIS3029-bloch-sphere-qubit-gates](../playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/)). Status: `verified`. citation pending.
 - **Fine Structure Hydrogen** ([FIS3029-fine-structure-hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/)). Status: `draft`. `sakurai2020` ch 5; |Delta E| ~ alpha^2 E_n analytic perturbation.
-- **Harmonic Oscillator Coherent State** ([FIS3029-harmonic-oscillator-coherent-state](../playgrounds/bsc-y3s2/FIS3029-harmonic-oscillator-coherent-state/)). Status: `draft`. citation pending (supporting: FIS2017).
+- **Harmonic Oscillator Coherent State** ([FIS3029-harmonic-oscillator-coherent-state](../playgrounds/bsc-y3s2/FIS3029-harmonic-oscillator-coherent-state/)). Status: `verified`. citation pending (supporting: FIS2017).
 - **Hydrogen Orbital Cross Sections in the (x, z) Plane** ([FIS3029-hydrogen-orbital-cross-sections-2d](../playgrounds/bsc-y3s2/FIS3029-hydrogen-orbital-cross-sections-2d/)). Status: `verified`. citation pending (supporting: FIS2017).
 - **Kronig-Penney Band Structure** ([FIS3029-kronig-penney-bands](../playgrounds/bsc-y3s2/FIS3029-kronig-penney-bands/)). Status: `verified`. citation pending (supporting: FIS3020).
 - **Particle in a Well - A Quantum Zoo** ([FIS3029-particle-in-a-well-zoo](../playgrounds/bsc-y3s2/FIS3029-particle-in-a-well-zoo/)). Status: `verified`. citation pending (supporting: FIS2017).
-- **Tunneling Rectangular Barrier** ([FIS3029-tunneling-rectangular-barrier](../playgrounds/bsc-y3s2/FIS3029-tunneling-rectangular-barrier/)). Status: `draft`. citation pending (supporting: FIS2017).
+- **Tunneling Rectangular Barrier** ([FIS3029-tunneling-rectangular-barrier](../playgrounds/bsc-y3s2/FIS3029-tunneling-rectangular-barrier/)). Status: `verified`. citation pending (supporting: FIS2017).
 - **WKB Bohr-Sommerfeld vs Exact** ([FIS3029-wkb-vs-shooting](../playgrounds/bsc-y3s2/FIS3029-wkb-vs-shooting/)). Status: `verified`. citation pending (supporting: FIS2018).
 - **Zeeman Paschen Back Crossover** ([FIS3029-zeeman-paschen-back-crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/)). Status: `draft`. `sakurai2020` ch 5; weak vs strong field regimes.
 
@@ -409,13 +409,13 @@ Total playgrounds: 203
 
 7 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Attention as Soft Retrieval** ([MAA-DM-attention-as-soft-retrieval](../playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/)). Status: `draft`. citation pending.
+- **Attention as Soft Retrieval** ([MAA-DM-attention-as-soft-retrieval](../playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/)). Status: `verified`. citation pending.
 - **Backprop on a Tiny MLP** ([MAA-DM-backprop-tiny-net](../playgrounds/msc-y1/MAA-DM-backprop-tiny-net/)). Status: `verified`. citation pending.
-- **Bayesian Coin Update** ([MAA-DM-bayesian-coin-update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/)). Status: `draft`. citation pending (supporting: MAA-ST).
+- **Bayesian Coin Update** ([MAA-DM-bayesian-coin-update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/)). Status: `verified`. citation pending (supporting: MAA-ST).
 - **EM on a 2D Gaussian Mixture** ([MAA-DM-em-on-gmm-2d](../playgrounds/msc-y1/MAA-DM-em-on-gmm-2d/)). Status: `verified`. citation pending.
 - **GP Kernel Zoo** ([MAA-DM-gp-kernel-zoo](../playgrounds/msc-y1/MAA-DM-gp-kernel-zoo/)). Status: `verified`. citation pending (supporting: MAA-ST).
 - **Mean-Field VI on a Banana** ([MAA-DM-mean-field-vi-on-banana](../playgrounds/msc-y1/MAA-DM-mean-field-vi-on-banana/)). Status: `verified`. citation pending (supporting: MAA-ST).
-- **t-SNE vs UMAP vs Isomap** ([MAA-DM-tsne-vs-umap-vs-isomap](../playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/)). Status: `draft`. citation pending.
+- **t-SNE vs UMAP vs Isomap** ([MAA-DM-tsne-vs-umap-vs-isomap](../playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/)). Status: `verified`. citation pending.
 
 ### MAA-ST Statistics for Astronomy
 

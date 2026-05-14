@@ -1,7 +1,7 @@
 ---
 title: Bloch Sphere Qubit Gates
 slug: bloch-sphere-qubit-gates
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3029

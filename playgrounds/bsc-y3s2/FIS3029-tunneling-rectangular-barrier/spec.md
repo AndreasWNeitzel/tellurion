@@ -1,7 +1,7 @@
 ---
 title: Tunneling Rectangular Barrier
 slug: tunneling-rectangular-barrier
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3029

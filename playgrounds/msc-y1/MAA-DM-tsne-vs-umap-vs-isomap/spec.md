@@ -1,7 +1,7 @@
 ---
 title: t-SNE vs UMAP vs Isomap
 slug: tsne-vs-umap-vs-isomap
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-DM

@@ -1,7 +1,7 @@
 ---
 title: Attention as Soft Retrieval
 slug: attention-as-soft-retrieval
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-DM

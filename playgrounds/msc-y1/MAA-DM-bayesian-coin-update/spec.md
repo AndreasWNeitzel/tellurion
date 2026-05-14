@@ -1,7 +1,7 @@
 ---
 title: Bayesian Coin Update
 slug: bayesian-coin-update
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-DM
