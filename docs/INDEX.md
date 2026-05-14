@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (verified, verified 2026-05-14T02:26:45Z)
+  Gaussian core × Lorentzian wings. Source: Mihalas Stellar Atmospheres Ch. 9 (`mihalas-atm`).
+
 - **[Mixing-Length Convection](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/index.html)** &nbsp; (verified, verified 2026-05-14T02:25:38Z)
   Schwarzschild criterion + MLT parameter $\alpha = l_m / H_P$. Source: Hansen-Kawaler Ch. 5 (`hansen-kawaler`).
 
@@ -606,7 +609,4 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Secular Perturbation Laplace Lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

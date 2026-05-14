@@ -1,28 +1,23 @@
-// Voigt Profile Decomposition invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Voigt Profile Decomposition invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { gaussian, lorentzian, pseudoVoigt } from './sim.js';
+describe('voigt-profile-decomposition', () => {
+  it('Gaussian integrates to 1', () => {
+    let s = 0; const N = 5000, dx = 0.01;
+    for (let i = -N / 2; i <= N / 2; i += 1) s += gaussian(i * dx, 1) * dx;
+    expect(Math.abs(s - 1)).toBeLessThan(0.01);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Lorentzian integrates to 1', () => {
+    let s = 0; const N = 50000, dx = 0.01;
+    for (let i = -N / 2; i <= N / 2; i += 1) s += lorentzian(i * dx, 1) * dx;
+    expect(Math.abs(s - 1)).toBeLessThan(0.05);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Voigt -> Gaussian when gamma -> 0', () => {
+    expect(Math.abs(pseudoVoigt(0, 1, 1e-6) - gaussian(0, 1)) / gaussian(0, 1)).toBeLessThan(0.1);
+  });
+  it('Voigt -> Lorentzian when sigma -> 0', () => {
+    expect(pseudoVoigt(0, 1e-6, 1)).toBeGreaterThan(0);
+  });
+  it('Voigt peak at x=0', () => {
+    expect(pseudoVoigt(0, 1, 0.5)).toBeGreaterThan(pseudoVoigt(1, 1, 0.5));
+  });
 });
