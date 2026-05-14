@@ -18,6 +18,10 @@ echo "::group::a11y"
 node scripts/a11y-audit.mjs
 echo "::endgroup::"
 
+echo "::group::smoke"
+node scripts/smoke-test.mjs
+echo "::endgroup::"
+
 echo "::group::perf-aggregate"
 node scripts/perf-aggregate.mjs
 echo "::endgroup::"
