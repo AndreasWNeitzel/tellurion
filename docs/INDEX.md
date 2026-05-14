@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Asymptotic Period Spacing in Red Giants](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/index.html)** &nbsp; (verified, verified 2026-05-14T02:08:00Z)
+  $\Pi_1$ distinguishes RGB (~80 s) from RC (~250 s). Source: Aerts et al. Ch. 3 (`aerts-asteroseism`).
+
 - **[Geodesic Deviation on a Sphere](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/index.html)** &nbsp; (verified, verified 2026-05-14T02:06:44Z)
   Two parallel-starting geodesics on a sphere converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).
 
@@ -550,9 +553,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Asymptotic Period Spacing](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Baryon Acoustic Oscillation Toy](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

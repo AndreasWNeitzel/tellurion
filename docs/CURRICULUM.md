@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 20 |
+| draft | 19 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 172 |
+| verified | 173 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -385,7 +385,7 @@ Total playgrounds: 203
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Asymptotic Period Spacing** ([MAA-AS-asymptotic-period-spacing](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/)). Status: `draft`. `aerts-asteroseism` ch 3; Pi_l = 2 pi^2 / sqrt(l (l + 1)) integral N / r dr.
+- **Asymptotic Period Spacing in Red Giants** ([MAA-AS-asymptotic-period-spacing](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/)). Status: `verified`. `aerts-asteroseism` ch 3.
 - **Mode Trapping Evolved Stars** ([MAA-AS-mode-trapping-evolved-stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/)). Status: `draft`. `aerts-asteroseism` ch 7; oscillator coupling at glitches.
 - **P G Mode Cavities** ([MAA-AS-p-g-mode-cavities](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/)). Status: `draft`. `aerts-asteroseism` ch 3; Lamb plus Brunt frequency boundaries.
 - **Rotational Splitting Multiplets** ([MAA-AS-rotational-splitting-multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/)). Status: `draft`. `aerts-asteroseism` ch 3; m-splitting linear in Omega within 1 percent.

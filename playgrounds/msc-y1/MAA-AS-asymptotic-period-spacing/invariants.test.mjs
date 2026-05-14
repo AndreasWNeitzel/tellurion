@@ -1,28 +1,17 @@
-// Asymptotic Period Spacing invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Asymptotic Period Spacing invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { Pi_l, evolutionStage } from './sim.js';
+describe('asymptotic-period-spacing', () => {
+  it('Pi_l = Pi_0 / sqrt(l(l+1))', () => {
+    expect(Math.abs(Pi_l(100, 1) - 100 / Math.sqrt(2))).toBeLessThan(1e-12);
+    expect(Math.abs(Pi_l(100, 2) - 100 / Math.sqrt(6))).toBeLessThan(1e-12);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('RGB classifier at Pi_1 ~ 80', () => {
+    expect(evolutionStage(80)).toBe('RGB');
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('RC classifier at Pi_1 ~ 250', () => {
+    expect(evolutionStage(250)).toBe('RC');
+  });
+  it('transition at Pi_1 ~ 140', () => {
+    expect(evolutionStage(140)).toBe('transition');
+  });
 });
