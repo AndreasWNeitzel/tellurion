@@ -1,113 +1,57 @@
-// Nuclear Beta Decay Fermi Vs Gt playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
-
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
-
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
+import { transitionType, kurie } from './sim.js';
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+const rT = document.getElementById('readout-t');
+const sJi = document.getElementById('slider-ji'), vJi = document.getElementById('value-ji');
+const sJf = document.getElementById('slider-jf'), vJf = document.getElementById('value-jf');
+const selP = document.getElementById('select-p');
+const sQ = document.getElementById('slider-Q'), vQ = document.getElementById('value-Q');
+const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
+let st = { Ji: 0.5, Jf: 0.5, dPi: 0, Q: 1000 }; let running = true;
+function jLabel(v) { return v % 1 === 0 ? `${v}` : `${v * 2}/2`; }
+sJi.addEventListener('input', () => { st.Ji = parseInt(sJi.value) / 2; vJi.textContent = jLabel(st.Ji); });
+sJf.addEventListener('input', () => { st.Jf = parseInt(sJf.value) / 2; vJf.textContent = jLabel(st.Jf); });
+selP.addEventListener('change', () => { st.dPi = parseInt(selP.value); });
+sQ.addEventListener('input', () => { st.Q = parseFloat(sQ.value); vQ.textContent = st.Q; });
+btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
-
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
-  }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
-}
-
-function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height;
+  // Classifier on left.
+  const type = transitionType(st.Ji, st.Jf, st.dPi);
+  const color = type === 'Fermi (pure)' ? '#ffd166' : type === 'GT (pure)' ? '#5bc0eb' : type === 'Mixed' ? '#06d6a0' : '#ef476f';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '14px ui-monospace, monospace';
+  ctx.fillText(`J_i = ${jLabel(st.Ji)} → J_f = ${jLabel(st.Jf)}`, 40, 50);
+  ctx.fillText(`Δπ = ${st.dPi === 0 ? 'no' : 'yes'}`, 40, 76);
+  ctx.font = '20px ui-monospace, monospace'; ctx.fillStyle = color;
+  ctx.fillText(`Type: ${type}`, 40, 130);
+  // Kurie plot on right.
+  const x0 = W / 2 + 30, y0 = 80, w = W - x0 - 30, h = H - y0 - 60;
+  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y0 + h); ctx.lineTo(x0 + w, y0 + h); ctx.stroke();
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('Kurie sqrt(N/p²F)', x0 + 4, y0 + 12);
+  ctx.fillText('E_e (keV)', x0 + w - 50, y0 + h + 14);
+  if (type !== 'Forbidden') {
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 100; i += 1) {
+      const E = (i / 100) * st.Q;
+      const K = kurie(E, st.Q);
+      const px = x0 + i / 100 * w;
+      const py = y0 + h - K / st.Q * h;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
-    render();
-    updateReadout();
+    ctx.stroke();
   } else {
-    render();
-    updateReadout();
+    ctx.fillStyle = '#ef476f'; ctx.font = '14px ui-monospace, monospace';
+    ctx.fillText('No allowed transition', x0 + w / 2 - 100, y0 + h / 2);
   }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`Q = ${st.Q} keV`, x0 + 4, H - 14);
+  rT.textContent = type;
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+function tick() { render(); requestAnimationFrame(tick); }
+function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }

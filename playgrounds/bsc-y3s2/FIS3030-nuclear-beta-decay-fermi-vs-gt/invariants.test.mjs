@@ -1,28 +1,22 @@
-// Nuclear Beta Decay Fermi Vs Gt invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Nuclear Beta Decay Fermi Vs Gt invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { kurie, transitionType } from './sim.js';
+describe('nuclear-beta-decay-fermi-vs-gt', () => {
+  it('Kurie zero at endpoint', () => {
+    expect(kurie(1000, 1000)).toBe(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Kurie linear in T = Q - E_e (slope -1)', () => {
+    expect(kurie(100, 1000) - kurie(101, 1000)).toBeCloseTo(1, 10);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('0+ -> 0+: pure Fermi', () => {
+    expect(transitionType(0, 0, 0)).toBe('Fermi (pure)');
+  });
+  it('1+ -> 0+: pure GT (J=1 to J=0)', () => {
+    expect(transitionType(1, 0, 0)).toBe('GT (pure)');
+  });
+  it('1/2+ -> 1/2+: mixed', () => {
+    expect(transitionType(0.5, 0.5, 0)).toBe('Mixed');
+  });
+  it('Parity change blocks allowed transitions', () => {
+    expect(transitionType(0, 0, 1)).toBe('Forbidden');
+  });
 });

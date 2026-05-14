@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Beta Decay - Fermi vs Gamow-Teller](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/index.html)** &nbsp; (verified, verified 2026-05-14T02:03:19Z)
+  Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9 (`krane-nuclear`).
+
 - **[CKM Mixing Unitarity Triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/index.html)** &nbsp; (verified, verified 2026-05-14T02:02:09Z)
   Wolfenstein parameterization; triangle area is Jarlskog (CP violation). Source: Griffiths-Particles Ch. 10 (`griffiths-particles`).
 
@@ -570,9 +573,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Mode Trapping Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Nuclear Beta Decay Fermi Vs Gt](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Nuclear Burning Rate Temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/index.html)** &nbsp; (draft)
