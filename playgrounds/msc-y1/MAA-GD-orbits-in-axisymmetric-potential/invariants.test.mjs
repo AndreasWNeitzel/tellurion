@@ -1,28 +1,19 @@
-// Orbits In Axisymmetric Potential invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Orbits In Axisymmetric Potential invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { miyamotoPotential, rk4Orbit, forceR, forceZ } from './sim.js';
+describe('orbits-in-axisymmetric-potential', () => {
+  it('Potential negative', () => {
+    expect(miyamotoPotential(1e20, 0, 1e41, 5e19, 3e18)).toBeLessThan(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Force radial inward', () => {
+    expect(forceR(1e20, 0, 1e41, 5e19, 3e18)).toBeLessThan(0);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Force vertical points toward midplane', () => {
+    expect(forceZ(1e20, 1e19, 1e41, 5e19, 3e18)).toBeLessThan(0);
+    expect(forceZ(1e20, -1e19, 1e41, 5e19, 3e18)).toBeGreaterThan(0);
+  });
+  it('rk4 advances state', () => {
+    const s0 = [1e20, 1e18, 0, 5e4];
+    const s1 = rk4Orbit(s0, 1e12, 1e41, 5e19, 3e18);
+    expect(s1[1]).not.toBe(s0[1]);
+  });
 });

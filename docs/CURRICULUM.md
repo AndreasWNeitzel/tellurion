@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 11 |
+| draft | 10 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 181 |
+| verified | 182 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -346,7 +346,7 @@ Total playgrounds: 203
 
 - **Chandrasekhar Dynamical Friction** ([MAA-GD-dynamical-friction-chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/)). Status: `verified`. `binney-tremaine` ch 8.
 - **Jeans Isothermal Sphere** ([MAA-GD-jeans-isothermal-sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/)). Status: `verified`. `binney-tremaine` ch 4.
-- **Orbits In Axisymmetric Potential** ([MAA-GD-orbits-in-axisymmetric-potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/)). Status: `draft`. `binneytremaine2008` ch 3; surface-of-section regular vs chaotic.
+- **Orbits in an Axisymmetric Potential** ([MAA-GD-orbits-in-axisymmetric-potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/)). Status: `verified`. `binney-tremaine` ch 3.
 - **Spiral Density Wave Dispersion** ([MAA-GD-spiral-density-wave-dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/)). Status: `draft`. `binneytremaine2008` ch 6; Lin-Shu dispersion relation.
 
 ### MAA-SA Stellar Astrophysics

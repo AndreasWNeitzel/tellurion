@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Orbits in an Axisymmetric Potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/index.html)** &nbsp; (verified, verified 2026-05-14T02:18:05Z)
+  Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3 (`binney-tremaine`).
+
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (verified, verified 2026-05-14T02:16:58Z)
   $\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).
 
@@ -585,9 +588,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Nuclear Burning Rate Temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Orbits In Axisymmetric Potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Point Spread Function Strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/index.html)** &nbsp; (draft)
