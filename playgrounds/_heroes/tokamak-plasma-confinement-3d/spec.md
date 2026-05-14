@@ -15,7 +15,7 @@ tags: [fluids-mhd, animation, live-readout]
 difficulty: 4
 tier: single
 hero_candidate: true
-renderer: canvas2d
+renderer: webgl2
 estimated_engagement_minutes: 6
 share_state_keys: [R0, a, B0, Ip]
 ---
