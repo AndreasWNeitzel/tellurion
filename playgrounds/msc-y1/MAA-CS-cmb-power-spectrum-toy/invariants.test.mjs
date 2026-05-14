@@ -1,28 +1,13 @@
-// Cmb Power Spectrum Toy invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Cmb Power Spectrum Toy invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { Dl, firstPeakL } from './sim.js';
+describe('cmb-power-spectrum-toy', () => {
+  it('Dl > 0 for l in [2, 3000]', () => {
+    for (let l = 2; l <= 3000; l += 100) expect(Dl(l)).toBeGreaterThan(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Damping tail: Dl(3000) << Dl(1000)', () => {
+    expect(Dl(3000)).toBeLessThan(Dl(1000));
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('First peak near l=220 for Omega_m=0.3', () => {
+    expect(Math.abs(firstPeakL(0.3) - 220)).toBeLessThan(0.1);
+  });
 });

@@ -1,113 +1,51 @@
-// Cmb Power Spectrum Toy playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
-
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
-
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
+import { Dl } from './sim.js';
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+const rL = document.getElementById('readout-l');
+const sL = document.getElementById('slider-l'), vL = document.getElementById('value-l');
+const sD = document.getElementById('slider-d'), vD = document.getElementById('value-d');
+const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
+let st = { lPeak: 220, lDamp: 2000 }; let running = true;
+sL.addEventListener('input', () => { st.lPeak = parseFloat(sL.value); vL.textContent = st.lPeak.toFixed(0); });
+sD.addEventListener('input', () => { st.lDamp = parseFloat(sD.value); vD.textContent = st.lDamp.toFixed(0); });
+btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
-
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: 50 };
+  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('D_ℓ (μK²)', 12, pad.t + 10); ctx.fillText('ℓ', W - 30, H - pad.b + 14);
+  const lMin = 2, lMax = 3000;
+  const xToPx = (l) => pad.l + (l - lMin) / (lMax - lMin) * (W - pad.l - pad.r);
+  let max = 0;
+  const N = 600; const vals = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    const l = lMin + (lMax - lMin) * i / (N - 1);
+    vals[i] = Dl(l, st.lPeak, st.lDamp);
+    if (vals[i] > max) max = vals[i];
   }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
-}
-
-function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+  const yToPx = (d) => H - pad.b - d / max * (H - pad.t - pad.b);
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i < N; i += 1) {
+    const l = lMin + (lMax - lMin) * i / (N - 1);
+    const px = xToPx(l), py = yToPx(vals[i]);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
+  ctx.stroke();
+  // Peak marker.
+  let peakIdx = 0;
+  for (let i = 0; i < N; i += 1) if (vals[i] > vals[peakIdx]) peakIdx = i;
+  const peakL = lMin + (lMax - lMin) * peakIdx / (N - 1);
+  ctx.strokeStyle = '#5bc0eb'; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(xToPx(peakL), pad.t); ctx.lineTo(xToPx(peakL), H - pad.b); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText(`ℓ_1 ≈ ${peakL.toFixed(0)}`, xToPx(peakL) + 4, pad.t + 14);
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`First acoustic peak at ℓ ≈ ${peakL.toFixed(0)}`, 12, H - 14);
+  rL.textContent = peakL.toFixed(0);
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+function tick() { render(); requestAnimationFrame(tick); }
+function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
