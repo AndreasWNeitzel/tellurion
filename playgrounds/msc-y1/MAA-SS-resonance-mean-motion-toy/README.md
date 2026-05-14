@@ -1,17 +1,2 @@
-# Resonance Mean Motion Toy
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Kirkwood gaps and mean-motion resonances
+Asteroid scatter in the main belt, with gaps at 2:1, 3:1, 5:2, 7:3 mean-motion resonances with Jupiter. The cyan dot is Jupiter; the red dashed lines mark resonance semi-major axes. Source: Murray-Dermott Ch. 8 (`murray-dermott`).
