@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Slow-Roll Inflation](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (verified, verified 2026-05-14T00:40:46Z)
+  A scalar inflaton field $\phi$ with potential $V(\phi)$ in slow-roll regime ($\epsilon, |\eta| \ll 1$). The slow-roll parameters are $\epsilon = (M_\text{Pl}^2 / 2)(V'/V)^2$ and $\eta = M_\text{Pl}^2 V''/V$. Observables to leading order:
+
 - **[Inverse-Compton Cooling](../playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling/index.html)** &nbsp; (verified, verified 2026-05-14T00:37:25Z)
   Relativistic electrons (Lorentz factor $\gamma$) immersed in a soft-photon bath (energy density $U_\text{ph}$) lose energy by inverse-Compton up-scattering of the photons. In the Thomson limit the cooling time is $$t_\text{IC} = \frac{3 m_e c}{4 \sigma_T \gamma U_\text{ph}}.$$
 
@@ -468,9 +471,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Hamiltonian Phase Space Flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Inflation Slow Roll](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)

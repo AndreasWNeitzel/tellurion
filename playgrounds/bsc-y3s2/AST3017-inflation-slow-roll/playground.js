@@ -1,99 +1,179 @@
-// Inflation Slow Roll playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// Slow-roll inflation playground. (n_s, r) plane with Planck 2018 box.
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { nsR, withinPlanckBox, PLANCK_NS, PLANCK_NS_SIG, PLANCK_R_UPPER } from './sim.js';
 
 const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC  = params.get('deterministic') === '1';
 const CAPTURE_NAME   = params.get('capture');
 const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const readoutM     = document.getElementById('readout-m');
+const readoutNr    = document.getElementById('readout-nr');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const sliderN  = document.getElementById('slider-N');
+const selectM  = document.getElementById('select-model');
+const valueN   = document.getElementById('value-N');
+const valueM   = document.getElementById('value-model');
 
-const _rng = makeRng(SEED);
+let N = parseInt(sliderN.value, 10);
+let model = selectM.value;
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
+sliderN.addEventListener('input', () => { N = parseInt(sliderN.value, 10); valueN.textContent = String(N); });
+selectM.addEventListener('change', () => { model = selectM.value; valueM.textContent = model; });
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg:     css.getPropertyValue('--bg').trim() || '#060608',
+    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    blue:   '#5bc0eb',
+    red:    '#ef476f',
+    green:  '#06d6a0',
+    orange: '#f4a261',
+    grid:   '#23252a',
+  };
+}
+
+const MODEL_COLORS = {
+  phi2: '#5bc0eb',
+  phi4: '#ef476f',
+  natural: '#f4a261',
+  starobinsky: '#06d6a0',
 };
 
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
+  const c = colors();
+  ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
+  const padL = 64, padR = 16, padT = 30, padB = 40;
+  const plotW = canvas.width - padL - padR;
+  const plotH = canvas.height - padT - padB;
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
+  const nsMin = 0.90, nsMax = 1.0;
+  const rMin = 0, rMax = 0.3;
 
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  function xFor(ns) { return padL + plotW * (ns - nsMin) / (nsMax - nsMin); }
+  function yFor(r) { return padT + plotH * (1 - (r - rMin) / (rMax - rMin)); }
+
+  // Grid.
+  ctx.strokeStyle = c.grid;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i += 1) {
+    const x = padL + plotW * i / 5;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText(`${(nsMin + (nsMax - nsMin) * i / 5).toFixed(2)}`, x - 12, padT + plotH + 14);
+  }
+  for (let i = 0; i <= 6; i += 1) {
+    const y = padT + plotH * i / 6;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+    ctx.fillStyle = c.muted;
+    ctx.fillText(`${(rMax * (1 - i / 6)).toFixed(2)}`, padL - 28, y + 3);
   }
 
+  // Planck 2018 box.
+  const x_lo = xFor(PLANCK_NS - 2 * PLANCK_NS_SIG);
+  const x_hi = xFor(PLANCK_NS + 2 * PLANCK_NS_SIG);
+  const y_top = yFor(PLANCK_R_UPPER);
+  const y_bot = yFor(0);
+  ctx.fillStyle = 'rgba(6, 214, 160, 0.15)';
+  ctx.fillRect(x_lo, y_top, x_hi - x_lo, y_bot - y_top);
+  ctx.strokeStyle = c.green;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x_lo, y_top, x_hi - x_lo, y_bot - y_top);
+  ctx.fillStyle = c.green;
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('Planck 2018 box', x_lo + 4, y_top + 14);
+
+  // Plot model trajectories from N = 50 to N = 80.
+  for (const m of ['phi2', 'phi4', 'natural', 'starobinsky']) {
+    ctx.strokeStyle = MODEL_COLORS[m];
+    ctx.lineWidth = m === model ? 3 : 1.5;
+    ctx.globalAlpha = m === model ? 1.0 : 0.4;
+    ctx.beginPath();
+    let started = false;
+    for (let n = 50; n <= 80; n += 1) {
+      const { ns, r } = nsR(m, n);
+      if (ns < nsMin || ns > nsMax || r < rMin || r > rMax) continue;
+      if (!started) { ctx.moveTo(xFor(ns), yFor(r)); started = true; } else ctx.lineTo(xFor(ns), yFor(r));
+    }
+    ctx.stroke();
+    // Endpoints.
+    const ep50 = nsR(m, 50);
+    const ep80 = nsR(m, 80);
+    if (ep50.ns >= nsMin && ep50.ns <= nsMax && ep50.r >= rMin && ep50.r <= rMax) {
+      ctx.fillStyle = MODEL_COLORS[m];
+      ctx.beginPath(); ctx.arc(xFor(ep50.ns), yFor(ep50.r), 5, 0, 2 * Math.PI); ctx.fill();
+    }
+    if (ep80.ns >= nsMin && ep80.ns <= nsMax && ep80.r >= rMin && ep80.r <= rMax) {
+      ctx.fillStyle = MODEL_COLORS[m];
+      ctx.beginPath(); ctx.arc(xFor(ep80.ns), yFor(ep80.r), 5, 0, 2 * Math.PI); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1.0;
+
+  // Current selection marker.
+  const cur = nsR(model, N);
+  if (cur.ns >= nsMin && cur.ns <= nsMax && cur.r >= rMin && cur.r <= rMax) {
+    const xc = xFor(cur.ns);
+    const yc = yFor(cur.r);
+    ctx.strokeStyle = c.accent;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(xc, yc, 9, 0, 2 * Math.PI); ctx.stroke();
+  }
+
+  // Legend.
+  let ly = padT + 12;
+  for (const m of ['phi2', 'phi4', 'natural', 'starobinsky']) {
+    ctx.fillStyle = MODEL_COLORS[m];
+    ctx.fillRect(padL + plotW - 130, ly - 10, 12, 3);
+    ctx.fillStyle = m === model ? MODEL_COLORS[m] : c.muted;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(m, padL + plotW - 110, ly);
+    ly += 14;
+  }
+
+  ctx.fillStyle = c.muted;
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText('n_s', padL + plotW - 12, padT + plotH + 28);
+  ctx.save(); ctx.translate(16, padT + plotH / 2 + 24); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('r (tensor-to-scalar)', 0, 0); ctx.restore();
+}
+
+function updateReadout() {
+  const { ns, r } = nsR(model, N);
+  readoutM.textContent = model + (withinPlanckBox(ns, r) ? ' (favored)' : ' (excluded)');
+  readoutNr.textContent = `${ns.toFixed(4)}, ${r.toFixed(4)}`;
+}
+
+function loop() {
   render();
   updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  requestAnimationFrame(loop);
 }
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    const models = ['phi2', 'phi4', 'natural', 'starobinsky'];
+    model = models[Math.min(models.length - 1, Math.floor(frac * models.length))];
+    selectM.value = model;
   }
+  valueN.textContent = String(N);
+  valueM.textContent = model;
+  render();
+  updateReadout();
 
   if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
+        const detail = { capture: CAPTURE_NAME ?? null, N, model };
         window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
         window.__simulationReady = true;
         window.__simulationReadyDetail = detail;
@@ -105,9 +185,9 @@ function bootSync() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+    if (!CAPTURE_NAME) requestAnimationFrame(loop);
   }, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  if (!CAPTURE_NAME) requestAnimationFrame(loop);
 }

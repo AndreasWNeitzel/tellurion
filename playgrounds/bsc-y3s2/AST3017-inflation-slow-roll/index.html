@@ -3,29 +3,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inflation Slow Roll</title>
+  <title>Slow-Roll Inflation: n_s vs r</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Inflation Slow Roll</h1>
+  <h1>Slow-roll inflation: $n_s$ vs $r$</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the predictions of slow-roll
+    inflationary models on the $(n_s, r)$ plane, with the Planck 2018
+    constraint box overlaid. The spectral index
+    $n_s = 1 - 6\epsilon + 2\eta$ and tensor-to-scalar ratio $r = 16\epsilon$
+    follow from the inflaton potential $V(\phi)$ via the slow-roll
+    parameters $\epsilon = (V'/V)^2/2$ and $\eta = V''/V$.
+  </p>
+  <p>
+    Models tracked: $\phi^2$ (chaotic quadratic, excluded), $\phi^4$
+    (chaotic quartic, far excluded), natural inflation (depending on $f$),
+    and Starobinsky $R^2$ inflation (favored, sits well inside the box).
+    Trajectories sweep through $N = 50$ to $80$ e-folds before the end of
+    inflation.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="n_s vs r plane with Planck constraint and slow-roll model predictions."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">model:</span><span class="value" id="readout-m">starobinsky</span>
+      <span class="label">n_s, r at N=60:</span><span class="value" id="readout-nr">0.967, 0.0033</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      $(n_s, r)$ predictions of slow-roll inflation models. Source:
+      Mukhanov Ch. 5 (`mukhanov-cosmology`); Planck 2018 constraints.
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Inflation controls">
+    <div class="row"><span class="label">N (e-folds)</span><input type="range" id="slider-N" min="40" max="80" step="1" value="60"><span class="value" id="value-N">60</span></div>
+    <div class="row"><span class="label">model</span>
+      <select id="select-model">
+        <option value="phi2">phi^2 (chaotic)</option>
+        <option value="phi4">phi^4 (chaotic)</option>
+        <option value="natural">natural</option>
+        <option value="starobinsky" selected>Starobinsky / R^2</option>
+      </select>
+      <span class="value" id="value-model">Starobinsky</span>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>
