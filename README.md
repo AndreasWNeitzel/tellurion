@@ -54,7 +54,7 @@ See `CLAUDE.md`. Highlights: no em-dash, no en-dash, no emoji, no AI-tells in pr
 
 - 203 verified playgrounds (all gates green).
 - 1306 invariant tests passing (221 test files).
-- 6 heroes designated: 2 Canvas2D MVPs shipped, 4 scoped for WebGL2 implementation.
+- 6 heroes designated: 6 Canvas2D MVPs shipped (all invariants green); WebGL2 upgrade queued for each.
 - Phases 0-8 of the dissemination directive complete (frontmatter + tags, landing, share-state, heroes, a11y reviewer stub, license + contributing, visual standard, engine-gl primitives + smoke test).
 - See `docs/NEEDS-ATTENTION.md` for the open punch list.
 
