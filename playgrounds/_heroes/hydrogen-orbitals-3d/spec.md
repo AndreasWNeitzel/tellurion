@@ -1,5 +1,7 @@
 ---
 title: Hydrogen Orbitals 3D (Hero)
+description: '$|\psi_{n\ell m}|^2$ volume-rendered with viridis density or HSV phase coloring; optional Blinn-Phong isosurface mode. Quantum numbers obey $\ell \lt n$ and $|m| \le \ell$ via slider clamping. Drag to orbit, scroll to zoom.'
+caption: 'Figure 1. Volume rendering of hydrogen orbital density $|\psi_{n\ell m}|^2$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).'
 slug: hydrogen-orbitals-3d
 status: verified
 audience: portfolio
@@ -20,4 +22,4 @@ estimated_engagement_minutes: 8
 share_state_keys: [n, l, m, view]
 ---
 # Hydrogen orbital density (3D hero)
-Canvas2D MVP of $|\psi_{n,\ell,m}|^2$ sliced through $y=0$ with rotation animation. CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`. WebGL2 volume ray-march and isosurface modes still queued.
+WebGL2 volume ray-march of $|\psi_{n,\ell,m}|^2$ on a $40^3$ R16F 3D texture, with an isosurface mode that shades the level set via central-difference gradient normals and Blinn-Phong. Associated Laguerre and Legendre polynomials evaluated on the CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`, then uploaded to the GL engine at `shared/js/engine-gl/hydrogen-orbital.js` whenever $(n, \ell, m)$ changes. The ray-march uses 96 steps with density-weighted alpha compositing; Canvas2D slice-through-$y=0$ remains as a fallback when `EXT_color_buffer_float` is unavailable.

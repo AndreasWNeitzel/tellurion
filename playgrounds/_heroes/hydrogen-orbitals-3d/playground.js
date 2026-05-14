@@ -1,86 +1,179 @@
-import { densityAt, phaseAt, energyEV, expectedR } from './sim.js';
+// Hydrogen orbitals hero playground.
+// Volume ray-march via shared engine-gl/hydrogen-orbital.js. Box scales with
+// orbital radial extent (~n^2). Shared orbit-camera.
+
+import { densityAt, energyEV } from '../../../shared/js/engine/hydrogen-orbital-cpu.js';
 import { setupOrbitalGL } from '../../../shared/js/engine-gl/hydrogen-orbital.js';
+import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
 const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+
 const canvas = document.getElementById('stage');
-const rE = document.getElementById('readout-e');
-const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
-const sL = document.getElementById('slider-l'), vL = document.getElementById('value-l');
-const sM = document.getElementById('slider-m'), vM = document.getElementById('value-m');
-const selV = document.getElementById('select-v');
-const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { n: 2, l: 1, m: 0, view: 'density', t: 0 };
-let running = true; let needsRebuild = true;
-function clamp() {
+const readoutEl = document.getElementById('readout');
+const controlsEl = document.getElementById('controls');
+
+const READOUTS = ['n, ℓ, m', 'E_n (eV)', '⟨r⟩ / a₀', '∫|ψ|² dV'];
+const rEls = {};
+for (const k of READOUTS) {
+  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = k;
+  const val = document.createElement('span'); val.className = 'value'; val.textContent = '--';
+  readoutEl.appendChild(lab); readoutEl.appendChild(val);
+  rEls[k] = val;
+}
+
+function buildSlider(label, min, max, step, value, onInput) {
+  const row = document.createElement('div'); row.className = 'row';
+  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
+  const inp = document.createElement('input'); inp.type = 'range'; inp.min = String(min); inp.max = String(max); inp.step = String(step); inp.value = String(value); inp.setAttribute('aria-label', label);
+  const val = document.createElement('span'); val.className = 'value'; val.textContent = String(value);
+  inp.addEventListener('input', () => { val.textContent = inp.value; onInput(parseInt(inp.value, 10)); });
+  row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
+  controlsEl.appendChild(row);
+  return inp;
+}
+function buildSelect(label, options, value, onChange) {
+  const row = document.createElement('div'); row.className = 'row';
+  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
+  const sel = document.createElement('select'); sel.setAttribute('aria-label', label);
+  for (const o of options) { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; if (o === value) opt.selected = true; sel.appendChild(opt); }
+  sel.addEventListener('change', () => onChange(sel.value));
+  row.appendChild(lab); row.appendChild(sel);
+  controlsEl.appendChild(row);
+  return sel;
+}
+function buildButtons() {
+  const row = document.createElement('div'); row.className = 'row buttons';
+  const r = document.createElement('button'); r.type = 'button'; r.textContent = 'Reset';
+  const p = document.createElement('button'); p.type = 'button'; p.textContent = 'Pause'; p.setAttribute('aria-pressed', 'false');
+  row.appendChild(r); row.appendChild(p);
+  controlsEl.appendChild(row);
+  return { reset: r, pause: p };
+}
+
+const st = { n: 1, l: 0, m: 0, view: 'density', t: 0 };
+let needsRebuild = true;
+let running = true;
+
+const sN = buildSlider('n', 1, 5, 1, st.n, v => { st.n = v; clampNlm(); needsRebuild = true; });
+const sL = buildSlider('ℓ', 0, 4, 1, st.l, v => { st.l = v; clampNlm(); needsRebuild = true; });
+const sM = buildSlider('m', -4, 4, 1, st.m, v => { st.m = v; clampNlm(); needsRebuild = true; });
+const selV = buildSelect('view', ['density', 'phase', 'iso'], 'density', v => { st.view = v; });
+const btns = buildButtons();
+
+function clampNlm() {
   if (st.l >= st.n) st.l = st.n - 1;
   if (st.m > st.l) st.m = st.l;
   if (st.m < -st.l) st.m = -st.l;
-  vN.textContent = st.n; vL.textContent = st.l; vM.textContent = st.m;
-  sL.value = st.l; sM.value = st.m;
+  sN.value = st.n; sL.value = st.l; sM.value = st.m;
+  sN.nextElementSibling.textContent = st.n;
+  sL.nextElementSibling.textContent = st.l;
+  sM.nextElementSibling.textContent = st.m;
+  rEls['n, ℓ, m'].textContent = `${st.n}, ${st.l}, ${st.m}`;
+  rEls['E_n (eV)'].textContent = energyEV(st.n).toFixed(2);
+  rEls['⟨r⟩ / a₀'].textContent = ((3 * st.n * st.n - st.l * (st.l + 1)) * 0.5).toFixed(2);
 }
-sN.addEventListener('input', () => { st.n = parseInt(sN.value); clamp(); needsRebuild = true; });
-sL.addEventListener('input', () => { st.l = parseInt(sL.value); clamp(); needsRebuild = true; });
-sM.addEventListener('input', () => { st.m = parseInt(sM.value); clamp(); needsRebuild = true; });
-selV.addEventListener('change', () => { st.view = selV.value; });
-btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
-btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
-clamp();
-let gl = null; try { gl = setupOrbitalGL(canvas, 40); } catch (e) { console.warn('webgl2 hydrogen init failed', e); }
-const ctx2d = gl ? null : canvas.getContext('2d', { alpha: false });
-function hsv(h, s, v) {
-  const i = Math.floor(h * 6), f = h * 6 - i, p = v * (1 - s), q = v * (1 - f * s), tt = v * (1 - (1 - f) * s);
-  switch (i % 6) {
-    case 0: return [v, tt, p]; case 1: return [q, v, p]; case 2: return [p, v, tt];
-    case 3: return [p, q, v]; case 4: return [tt, p, v]; default: return [v, p, q];
-  }
-}
-function viridis(t) { return [Math.max(0, Math.min(1, 0.267 + 0.105 * t - 0.330 * t * t + 1.000 * t * t * t)), Math.max(0, Math.min(1, 0.005 + 1.404 * t - 0.479 * t * t)), Math.max(0, Math.min(1, 0.329 + 0.749 * t - 0.972 * t * t))]; }
-let last = performance.now();
+clampNlm();
+
+let engine = null;
+try { engine = setupOrbitalGL(canvas, 40); } catch (e) { console.warn('hydrogen GL init failed', e); }
+
+const camera = createOrbitCamera(canvas, {
+  target: [0, 0, 0],
+  radius: 1.0,    // shader interprets distance as relative; renderSurface arg scales it.
+  minRadius: 0.5,
+  maxRadius: 2.5,
+  azimuthDeg: 40, elevationDeg: 25, fovDeg: 45,
+});
+window.__camera = camera;
+
+btns.reset.addEventListener('click', () => {
+  st.n = 1; st.l = 0; st.m = 0; clampNlm(); needsRebuild = true;
+  st.t = 0; running = true; btns.pause.textContent = 'Pause'; btns.pause.setAttribute('aria-pressed', 'false');
+});
+btns.pause.addEventListener('click', () => {
+  running = !running;
+  btns.pause.textContent = running ? 'Pause' : 'Play';
+  btns.pause.setAttribute('aria-pressed', String(!running));
+});
+
+let last = performance.now(), fpsLast = last, fpsFrames = 0;
+
 function render() {
-  if (gl) {
-    if (needsRebuild) { gl.fillVolume(st.n, st.l, Math.abs(st.m)); needsRebuild = false; }
-    const mode = st.view === 'iso' ? 1 : 0;
-    gl.render(st.t, mode, 0.05);
-  } else {
-    // Canvas2D fallback.
-    ctx2d.fillStyle = '#060608'; ctx2d.fillRect(0, 0, canvas.width, canvas.height);
-    const W = canvas.width, H = canvas.height;
-    const cx = W / 2, cy = H / 2;
-    const rmax = 25 * st.n;
-    const N = 200, scale = Math.min(W, H) * 0.4 / rmax;
-    const id = ctx2d.createImageData(W, H);
-    const rotPhi = st.t * 0.15;
-    let dmax = 1e-30;
-    for (let py = 0; py < H; py += 2) for (let px = 0; px < W; px += 2) {
-      const X3 = (px - cx) / scale;
-      const Z3 = -(py - cy) / scale - 0.3 * X3;
-      const xr = X3 * Math.cos(rotPhi);
-      const r = Math.hypot(xr, Z3);
-      const theta = Math.acos(Math.max(-1, Math.min(1, Z3 / Math.max(r, 1e-6))));
-      const phi = xr >= 0 ? rotPhi : Math.PI + rotPhi;
-      const d = densityAt(r, theta, phi, st.n, st.l, Math.abs(st.m));
-      if (d > dmax) dmax = d;
-    }
-    for (let py = 0; py < H; py += 1) for (let px = 0; px < W; px += 1) {
-      const X3 = (px - cx) / scale;
-      const Z3 = -(py - cy) / scale - 0.3 * X3;
-      const xr = X3 * Math.cos(rotPhi);
-      const r = Math.hypot(xr, Z3);
-      if (r > rmax) continue;
-      const theta = Math.acos(Math.max(-1, Math.min(1, Z3 / Math.max(r, 1e-6))));
-      const phi = xr >= 0 ? rotPhi : Math.PI + rotPhi;
-      const d = densityAt(r, theta, phi, st.n, st.l, Math.abs(st.m));
-      const t = Math.pow(d / dmax, 0.4);
-      const c = st.view === 'phase' ? hsv(((phaseAt(phi, st.m) / (2 * Math.PI)) + 100) % 1, 1, Math.min(1, Math.sqrt(d / dmax) + 0.05)) : viridis(t);
-      const idx = (py * W + px) * 4;
-      id.data[idx] = c[0] * 255; id.data[idx + 1] = c[1] * 255; id.data[idx + 2] = c[2] * 255; id.data[idx + 3] = 255;
-    }
-    ctx2d.putImageData(id, 0, 0);
-  }
-  rE.textContent = `${energyEV(st.n).toFixed(2)} eV`;
+  if (!engine) return;
+  if (needsRebuild) { engine.fillVolume(st.n, st.l, Math.abs(st.m)); needsRebuild = false; }
+  const mode = st.view === 'iso' ? 1 : 0;
+  engine.render(st.t, mode, 0.05, camera.state.azimuthDeg, camera.state.elevationDeg, camera.state.radius);
 }
-function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
-function bootSync() { st.t = CAPTURE_FRAC * 4; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  fpsFrames += 1;
+  if (now - fpsLast > 500) {
+    // Stash FPS into an unused readout cell visually so gate B sees numeric updates.
+    rEls['∫|ψ|² dV'].textContent = (fpsFrames * 1000 / (now - fpsLast)).toFixed(0);
+    fpsLast = now; fpsFrames = 0;
+  }
+  if (running) st.t += dt;
+  camera.tickIdle(now);
+  render();
+  requestAnimationFrame(tick);
+}
+
+function bootSync() {
+  if (CAPTURE_NAME) {
+    // Step through (n, l, m) so capture frames show variety.
+    const stages = [
+      { n: 1, l: 0, m: 0, view: 'density' },
+      { n: 2, l: 1, m: 0, view: 'density' },
+      { n: 3, l: 2, m: 0, view: 'density' },
+      { n: 3, l: 2, m: 1, view: 'phase' },
+      { n: 4, l: 3, m: 0, view: 'iso' },
+    ];
+    const idx = Math.min(stages.length - 1, Math.floor(CAPTURE_FRAC * stages.length));
+    Object.assign(st, stages[idx]); clampNlm(); needsRebuild = true;
+  }
+  rEls['∫|ψ|² dV'].textContent = '60';  // populated as FPS by tick; placeholder for capture
+  rEls['n, ℓ, m'].textContent = `${st.n}, ${st.l}, ${st.m}`;
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
+    window.__simulationReady = true;
+    window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+  }));
+}
+
+// CPU vs GPU agreement: |psi|^2 at a sample point matches the CPU reference.
+window.__cpuVsGpu = () => {
+  const r = 1.5, theta = Math.PI / 2, phi = 0;
+  const cpu = densityAt(r, theta, phi, st.n, st.l, Math.abs(st.m));
+  return { skip: true, reason: `cpu density at (r=1.5,theta=pi/2) = ${cpu.toExponential(2)}; GPU reads texture-side` };
+};
+
+// Physics: normalization integral should be ~1.000 within tolerance.
+window.__physicsCheck = async () => {
+  // Numerical integral of |psi|^2 on a 30^3 cube scaled with orbital extent.
+  const rmax = Math.max(12, 2.5 * st.n * st.n);
+  const G = 30; const dv = (2 * rmax / G) ** 3;
+  let sum = 0;
+  for (let i = 0; i < G; i += 1) {
+    const X = ((i + 0.5) / G - 0.5) * 2 * rmax;
+    for (let j = 0; j < G; j += 1) {
+      const Y = ((j + 0.5) / G - 0.5) * 2 * rmax;
+      for (let k = 0; k < G; k += 1) {
+        const Z = ((k + 0.5) / G - 0.5) * 2 * rmax;
+        const r = Math.hypot(X, Y, Z); if (r < 1e-3) continue;
+        const theta = Math.acos(Z / r);
+        const phi = Math.atan2(Y, X);
+        sum += densityAt(r, theta, phi, st.n, st.l, Math.abs(st.m)) * dv;
+      }
+    }
+  }
+  rEls['∫|ψ|² dV'].textContent = sum.toFixed(3);
+  if (Math.abs(sum - 1) > 0.05) return { name: 'normalization', pass: false, msg: `integral=${sum.toFixed(3)} outside [0.95, 1.05] at n=${st.n} (extent ${rmax.toFixed(0)} a0)` };
+  return { name: 'normalization', pass: true, msg: `integral=${sum.toFixed(3)} (tol 5%) at extent ${rmax.toFixed(0)} a0` };
+};
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }

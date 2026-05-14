@@ -126,8 +126,9 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
   const sceneFBO = createFBO(gl, W, H);
   const post = setupPostProcess(gl, W, H);
   function fillVolume(n, l, m) {
-    // Compute |psi|^2 on the cube [-rmax, rmax]^3 with rmax ~ 6 a_0 n.
-    const rmax = 6 * n;
+    // The orbital mean radius scales like 1.5 n^2 a_0. Use 2.5 n^2 so the
+    // density at the box wall is well below 1e-4 of peak even for n_max.
+    const rmax = Math.max(12, 2.5 * n * n);
     const data = new Float32Array(gridSize ** 3);
     let dmax = 1e-30;
     for (let k = 0; k < gridSize; k += 1) for (let j = 0; j < gridSize; j += 1) for (let i = 0; i < gridSize; i += 1) {
@@ -149,7 +150,7 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
     gl.bindTexture(gl.TEXTURE_3D, tex);
     gl.texSubImage3D(gl.TEXTURE_3D, 0, 0, 0, 0, gridSize, gridSize, gridSize, gl.RED, gl.HALF_FLOAT, half);
   }
-  function render(t, mode = 0, isoThreshold = 0.05) {
+  function render(t, mode = 0, isoThreshold = 0.05, azDeg, elDeg, distance) {
     gl.useProgram(prog);
     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
@@ -157,10 +158,10 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
     gl.uniform1i(gl.getUniformLocation(prog, 'uVolume'), 0);
     gl.uniform1i(gl.getUniformLocation(prog, 'uMode'), mode);
     gl.uniform1f(gl.getUniformLocation(prog, 'uIsoThreshold'), isoThreshold);
-    // Orbit camera.
-    const az = Math.PI * 0.3 + t * 0.1;
-    const el = 0.4;
-    const r = 3.5;
+    // Camera: external az/el/dist if given, otherwise the original orbiting default.
+    const az = azDeg != null ? azDeg * Math.PI / 180 : Math.PI * 0.3 + t * 0.1;
+    const el = elDeg != null ? elDeg * Math.PI / 180 : 0.4;
+    const r = distance != null ? distance * 3.5 : 3.5;
     const eye = [r * Math.cos(el) * Math.cos(az), r * Math.sin(el), r * Math.cos(el) * Math.sin(az)];
     const tgt = [0, 0, 0]; const up = [0, 1, 0];
     const view = lookAt(eye, tgt, up);
