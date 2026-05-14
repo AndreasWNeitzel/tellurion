@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:51:57Z)
+  Lunisolar precession 50.29 arcsec/yr; 18.6-yr nutation with amplitudes 17.2"/9.2" in Δψ/Δε. Source: Smart, Celestial Mechanics.
+
 - **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:50:38Z)
   Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
 
@@ -616,9 +619,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Earth Axial Precession and Nutation 3D (Hero, Pending)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (needs-implementation)
-  Oblate Earth with $(C-A)/A = 1/298.257$, obliquity $\epsilon_0 = 23.4393$ deg, lunisolar precession 25,772 yr (50.29 arcsec/yr). 18.6-yr nutation ($\Delta\psi$ up to 17.2", $\Delta\epsilon$ up to 9.2"); 9.3-yr and semi-annual terms layered. Procedural fractal-noise surface texture (continents, oceans, polar ice).
 
 - **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (needs-webgl2-upgrade)
   $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.

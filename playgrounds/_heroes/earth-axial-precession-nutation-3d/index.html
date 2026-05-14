@@ -1,2 +1,17 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Earth precession (pending)</title><style>body{background:#060608;color:#e8e8e8;font:14px ui-monospace,monospace;padding:40px;}</style></head>
-<body><h1>Earth axial precession 3D (hero, pending)</h1><p>This hero is scoped but not yet implemented. See docs/HEROES.md for the target spec.</p></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Earth precession + nutation</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Earth axial precession + nutation (3D hero)</h1>
+<p><strong>What you are seeing:</strong> the Earth's rotation axis traces a slow cone with a 25,800-yr period (lunisolar precession at 50.29 arcsec/yr) overlaid with the 18.6-yr lunar-node nutation (amplitude ~9.2 arcsec in obliquity, ~17.2 arcsec in longitude). The current axis tip and its time history are shown projected onto the celestial sphere. Source: Smart, Celestial Mechanics.</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">ε:</span><span class="value" id="readout-e">23.44°</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Axis tip trace with lunisolar precession + nutation. Source: Smart, Celestial Mechanics.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">time scale</span><input type="range" id="slider-s" min="0" max="4" step="0.1" value="2"><span class="value" id="value-s">2.0</span></div>
+<div class="row"><span class="label">epoch (yr)</span><input type="range" id="slider-y" min="0" max="30000" step="100" value="0"><span class="value" id="value-y">0</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>
