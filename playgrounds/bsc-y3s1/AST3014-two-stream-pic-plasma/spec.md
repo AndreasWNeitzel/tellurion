@@ -7,6 +7,15 @@ created: 2026-05-13
 primary_uc: AST3014
 supporting_ucs: [MAA-PL]
 curriculum_year: bsc-y3s1
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [fluids-mhd, stellar, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Two-stream instability via 1D-1V PIC

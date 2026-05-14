@@ -4,6 +4,15 @@ slug: __SLUG__
 status: draft
 audience: portfolio
 created: __DATE__
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [numerics, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # __TITLE__

@@ -9,6 +9,15 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: jackson1998
 primary_chapter: 11
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [relativity, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Relativistic Doppler effect

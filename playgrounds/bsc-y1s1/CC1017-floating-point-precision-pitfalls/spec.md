@@ -9,6 +9,15 @@ supporting_ucs: [FIS2018]
 curriculum_year: bsc-y1s1
 primary_citation: newman2013
 primary_chapter: 4
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [numerics, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Catastrophic cancellation in 1 - cos(x)

@@ -9,6 +9,15 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: marion-thornton
 primary_chapter: 2
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [mechanics, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Inclined plane with Coulomb friction

@@ -9,6 +9,15 @@ supporting_ucs: [AST2004]
 curriculum_year: bsc-y3s1
 primary_citation: carroll-ostlie
 primary_chapter: 2
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [exoplanets, numerics, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Kepler equation: Newton iteration converges quadratically

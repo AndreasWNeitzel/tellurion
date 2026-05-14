@@ -9,6 +9,15 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: arfken-weber
 primary_chapter: 3
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [numerics, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Eigenvectors of a 2x2 matrix as you drag the entries

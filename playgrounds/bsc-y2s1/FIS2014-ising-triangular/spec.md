@@ -7,6 +7,15 @@ created: 2026-05-13
 primary_uc: FIS2014
 supporting_ucs: [FIS2018, MAA-NM]
 curriculum_year: bsc-y2s1
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [thermodynamics, statistical-physics, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Ising Triangular

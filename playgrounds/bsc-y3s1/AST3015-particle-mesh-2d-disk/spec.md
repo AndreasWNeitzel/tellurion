@@ -7,6 +7,15 @@ created: 2026-05-13
 primary_uc: AST3015
 supporting_ucs: [MAA-GD]
 curriculum_year: bsc-y3s1
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [exoplanets, numerics, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Particle-mesh 2D self-gravitating disk

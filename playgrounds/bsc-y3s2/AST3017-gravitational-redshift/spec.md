@@ -7,6 +7,15 @@ created: 2026-05-13
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [cosmology, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Gravitational redshift in Schwarzschild spacetime

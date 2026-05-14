@@ -9,6 +9,15 @@ supporting_ucs: [AST3017]
 curriculum_year: bsc-y3s2
 primary_citation: carroll2019
 primary_chapter: 3
+hook: 'STATUS: needs_hook'
+one_paragraph: 'STATUS: needs_paragraph'
+tags: [relativity, animation, live-readout]
+difficulty: 3
+tier: simple
+hero_candidate: false
+renderer: canvas2d
+estimated_engagement_minutes: 3
+share_state_keys: []
 ---
 
 # Parallel transport on a sphere
