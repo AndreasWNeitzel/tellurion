@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Lagrangian vs Newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/index.html)** &nbsp; (verified, verified 2026-05-14T01:26:43Z)
+  Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3 (`lemos-mech`).
+
 - **[Hamiltonian Phase-Space Flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/index.html)** &nbsp; (verified, verified 2026-05-14T01:25:11Z)
   Click to seed tracers; each one traces an orbit at constant energy. Source: Lemos Ch. 6 (`lemos-mech`).
 
@@ -525,9 +528,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Lagrangian Vs Newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Least Squares Orbit Fit Gauss](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/index.html)** &nbsp; (draft)

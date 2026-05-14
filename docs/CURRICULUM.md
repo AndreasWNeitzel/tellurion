@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 53 |
+| draft | 52 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 139 |
+| verified | 140 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -200,7 +200,7 @@ Total playgrounds: 203
 - **FitzHugh-Nagumo Excitable Neuron** ([FIS2021-fitzhugh-nagumo-excitable](../playgrounds/bsc-y2s2/FIS2021-fitzhugh-nagumo-excitable/)). Status: `verified`. citation pending.
 - **Hamiltonian Phase-Space Flow** ([FIS2021-hamiltonian-phase-space-flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/)). Status: `verified`. `lemos-mech` ch 6.
 - **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. citation pending.
-- **Lagrangian Vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `draft`. `goldstein-mech` ch 1 (supporting: FIS1013); same constrained system, two formulations agree.
+- **Lagrangian vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `verified`. `lemos-mech` ch 2.
 - **Liouville Phase Volume Conservation** ([FIS2021-liouville-phase-volume-conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/)). Status: `draft`. `goldstein-mech` ch 9; integrated phase volume constant within 1e-6.
 - **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `in-progress`. citation pending.
 - **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `in-progress`. citation pending (supporting: FIS2018).
