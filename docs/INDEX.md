@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fourier vs Laplace Transform Pairs](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (verified, verified 2026-05-14T01:32:40Z)
+  Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15 (`arfken-weber`).
+
 - **[Grating Resolving Power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/index.html)** &nbsp; (verified, verified 2026-05-14T01:31:09Z)
   $N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10 (`hecht2017`).
 
@@ -522,9 +525,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fine Structure Hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Fourier Vs Laplace Transform Pair](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Geodesic Deviation Equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/index.html)** &nbsp; (draft)

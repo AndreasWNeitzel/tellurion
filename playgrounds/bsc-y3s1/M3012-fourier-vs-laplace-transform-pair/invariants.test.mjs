@@ -1,28 +1,25 @@
-// Fourier Vs Laplace Transform Pair invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Fourier Vs Laplace Transform Pair invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { fourierMag2, laplaceReal, timeFn } from './sim.js';
+describe('fourier-vs-laplace-transform-pair', () => {
+  it('exp -at: |F(omega)|^2 = 1/(a^2 + omega^2)', () => {
+    expect(Math.abs(fourierMag2(0, 'exp', { a: 1 }) - 1)).toBeLessThan(1e-12);
+    expect(Math.abs(fourierMag2(1, 'exp', { a: 1 }) - 0.5)).toBeLessThan(1e-12);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Laplace L{e^-at} = 1/(s+a)', () => {
+    expect(Math.abs(laplaceReal(0, 'exp', { a: 1 }) - 1)).toBeLessThan(1e-12);
+    expect(Math.abs(laplaceReal(1, 'exp', { a: 1 }) - 0.5)).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('cos Laplace: L{cos(w0 t)} = s / (s^2 + w0^2) at decay = 0', () => {
+    expect(Math.abs(laplaceReal(2, 'cos', { decay: 0, omega0: 1 }) - 2 / 5)).toBeLessThan(1e-12);
+  });
+  it('ramp Laplace: L{t} = 1/s^2', () => {
+    expect(Math.abs(laplaceReal(1, 'ramp', { decay: 0 }) - 1)).toBeLessThan(1e-12);
+    expect(Math.abs(laplaceReal(2, 'ramp', { decay: 0 }) - 0.25)).toBeLessThan(1e-12);
+  });
+  it('timeFn vanishes for t < 0', () => {
+    expect(timeFn(-1, 'exp', { a: 1 })).toBe(0);
+  });
+  it('sinc^2 / pulse FT: |F(0)|^2 = T^2', () => {
+    expect(Math.abs(fourierMag2(0, 'rect', { T: 2 }) - 4)).toBeLessThan(1e-12);
+  });
 });

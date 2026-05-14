@@ -1,33 +1,23 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fourier Vs Laplace Transform Pair</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Fourier Vs Laplace Transform Pair</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Fourier vs Laplace</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Fourier and Laplace transform pairs</h1>
+<p><strong>What you are seeing:</strong> the same function $f(t)$ shown alongside its Fourier-magnitude-squared $|F(\omega)|^2$ and its Laplace transform $F(s)$ on the real axis. Notice the Lorentzian shape of $|F|^2$ for an exponential decay, and the pole location in $s$. Source: Arfken-Weber Ch. 15 (`arfken-weber`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">a:</span><span class="value" id="readout-a">1.00</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Time-domain function, Fourier power spectrum, Laplace transform. Source: Arfken-Weber Ch. 15 (`arfken-weber`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">parameter a / γ</span><input type="range" id="slider-a" min="0.2" max="3" step="0.05" value="1"><span class="value" id="value-a">1.00</span></div>
+<div class="row"><span class="label">ω₀</span><input type="range" id="slider-w" min="0.5" max="5" step="0.1" value="2"><span class="value" id="value-w">2.0</span></div>
+<div class="row"><span class="label">function</span>
+  <select id="select-f" style="grid-column: span 2;">
+    <option value="exp">f(t) = e^(-a t) u(t)</option>
+    <option value="cos">f(t) = cos(ω₀ t) e^(-γ t) u(t)</option>
+    <option value="ramp">f(t) = t e^(-γ t) u(t)</option>
+    <option value="rect">f(t) = rect(0, T)</option>
+  </select>
+</div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>
