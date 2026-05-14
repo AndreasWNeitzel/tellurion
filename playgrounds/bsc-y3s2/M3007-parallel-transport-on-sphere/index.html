@@ -3,29 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Parallel Transport On Sphere</title>
+  <title>Parallel Transport on a Sphere</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Parallel Transport On Sphere</h1>
+  <h1>Parallel transport on a sphere</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> a "Beltrami" spherical triangle
+    on the unit sphere with one vertex at the north pole and the other
+    two on a colatitude $\alpha$ circle, separated by longitude $\beta$.
+    Parallel transport of any vector around the triangle returns it
+    rotated by the enclosed solid angle
+    $\Omega = (1 - \cos\alpha) \beta$. This is Gauss-Bonnet on the
+    sphere of constant curvature $K = 1$: the angle excess
+    $A + B + C - \pi$ equals the integrated curvature, which is just
+    the area on the unit sphere.
+  </p>
+  <p>
+    For the full hemisphere ($\alpha = \pi/2$, $\beta = 2\pi$) the
+    holonomy is $2\pi$: a full rotation. For a quarter octant
+    ($\alpha = \beta = \pi/2$) the holonomy is $\pi/2$. For tiny
+    triangles the holonomy is just the area, vanishing as $\alpha \to 0$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Spherical triangle with holonomy readout."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">Omega (sr):</span><span class="value" id="readout-om">0</span>
+      <span class="label">A + B + C - pi:</span><span class="value" id="readout-abc">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Parallel transport around a Beltrami spherical triangle: holonomy
+      = solid angle. Source: do Carmo (cited via `carroll2019` for the
+      same Gauss-Bonnet statement in GR textbooks).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Sphere controls">
+    <div class="row"><span class="label">alpha (deg)</span><input type="range" id="slider-alpha" min="5" max="90" step="1" value="60"><span class="value" id="value-alpha">60</span></div>
+    <div class="row"><span class="label">beta (deg)</span><input type="range" id="slider-beta" min="10" max="180" step="1" value="90"><span class="value" id="value-beta">90</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

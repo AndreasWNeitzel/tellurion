@@ -1,28 +1,56 @@
-// Parallel Transport On Sphere invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Parallel-transport invariants.
+// (a) Full hemisphere (alpha = pi/2, beta = 2 pi): holonomy = 2 pi.
+// (b) Half octant (alpha = pi/2, beta = pi/2): holonomy = pi/2.
+// (c) Polar point (alpha = 0): holonomy = 0 (degenerate triangle, no area).
+// (d) Gauss-Bonnet: A + B + C = pi + holonomy.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { holonomy, interiorAngleSum, sphericalToCartesian } from './sim.js';
 
-describe('Parallel Transport On Sphere invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('parallel-transport-on-sphere', () => {
+  it('full hemisphere (alpha = pi/2, beta = 2 pi): holonomy = 2 pi', () => {
+    expect(Math.abs(holonomy(Math.PI / 2, 2 * Math.PI) - 2 * Math.PI)).toBeLessThan(1e-12);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('quarter octant: alpha = pi/2, beta = pi/2: holonomy = pi/2', () => {
+    expect(Math.abs(holonomy(Math.PI / 2, Math.PI / 2) - Math.PI / 2)).toBeLessThan(1e-12);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('degenerate alpha = 0: holonomy = 0', () => {
+    expect(Math.abs(holonomy(0, 1.5))).toBeLessThan(1e-12);
+  });
+
+  it('Gauss-Bonnet: A + B + C - pi = holonomy', () => {
+    for (const alpha of [0.3, 0.8, Math.PI / 2]) {
+      for (const beta of [0.5, 1.0, 2.0]) {
+        const sum = interiorAngleSum(alpha, beta);
+        const om = holonomy(alpha, beta);
+        expect(Math.abs(sum - Math.PI - om)).toBeLessThan(1e-12);
+      }
+    }
+  });
+
+  it('sphericalToCartesian: equator (lat = 0, lon = 0) -> (1, 0, 0)', () => {
+    const p = sphericalToCartesian(0, 0);
+    expect(Math.abs(p.x - 1)).toBeLessThan(1e-12);
+    expect(Math.abs(p.y)).toBeLessThan(1e-12);
+    expect(Math.abs(p.z)).toBeLessThan(1e-12);
+  });
+
+  it('sphericalToCartesian: north pole (lat = pi/2) -> (0, 0, 1)', () => {
+    const p = sphericalToCartesian(Math.PI / 2, 0);
+    expect(Math.abs(p.x)).toBeLessThan(1e-12);
+    expect(Math.abs(p.y)).toBeLessThan(1e-12);
+    expect(Math.abs(p.z - 1)).toBeLessThan(1e-12);
+  });
+
+  it('holonomy increases with beta (linearly)', () => {
+    const alpha = Math.PI / 3;
+    expect(holonomy(alpha, 2.0)).toBeGreaterThan(holonomy(alpha, 1.0));
+  });
+
+  it('holonomy increases with alpha (sinusoidally)', () => {
+    const beta = 1.0;
+    expect(holonomy(Math.PI / 2, beta)).toBeGreaterThan(holonomy(Math.PI / 4, beta));
+  });
 });

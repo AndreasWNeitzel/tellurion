@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Parallel Transport on a Sphere](../playgrounds/bsc-y3s2/M3007-parallel-transport-on-sphere/index.html)** &nbsp; (verified, verified 2026-05-14T00:30:14Z)
+  A spherical triangle on the unit sphere with one vertex at the north pole and the other two at colatitude $\alpha$ separated by longitude $\beta$. Parallel-transporting a vector around the triangle rotates it by the enclosed solid angle $$\Omega = (1 - \cos\alpha) \beta.$$
+
 - **[Nuclear Shell Model Magic Numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/index.html)** &nbsp; (verified, verified 2026-05-14T00:27:04Z)
   Nucleons (protons and neutrons separately) fill single-particle levels of an average nuclear potential. The harmonic-oscillator-with-strong-spin-orbit model of Mayer and Jensen (1949) gives shell closures at $2, 8, 20, 28, 50, 82, 126$ that match the observed extra binding (Hartree-Fock confirmation came decades later).
 
@@ -525,9 +528,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[P G Mode Cavities](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Parallel Transport On Sphere](../playgrounds/bsc-y3s2/M3007-parallel-transport-on-sphere/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Parker Solar Wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/index.html)** &nbsp; (draft)

@@ -1,17 +1,17 @@
-# Parallel Transport On Sphere
+# Parallel transport on a sphere
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A Beltrami spherical triangle has interior angles summing to $\pi$ + (enclosed solid angle). Parallel-transporting a vector around the triangle rotates it by that solid angle (holonomy). For one vertex at the north pole and the other two at colatitude $\alpha$ separated by longitude $\beta$, the holonomy is $(1 - \cos\alpha) \beta$.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+Look for the hemisphere limit ($\alpha = 90, \beta = 360$): holonomy $= 2\pi$, a full rotation. The Foucault-pendulum playground demonstrates the same principle dynamically on circles of constant latitude.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Two sliders for $\alpha$ and $\beta$.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: Carroll, *Spacetime and Geometry*, Ch. 3 (`carroll2019`).
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: hemisphere holonomy $= 2\pi$ exact; Gauss-Bonnet $A + B + C - \pi = \Omega$ within $10^{-12}$.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
