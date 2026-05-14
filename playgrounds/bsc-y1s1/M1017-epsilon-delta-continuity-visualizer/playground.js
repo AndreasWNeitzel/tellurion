@@ -1,113 +1,65 @@
-// Epsilon Delta Continuity Visualizer playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
-
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
-
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
+import { f, maxDelta } from './sim.js';
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+const readoutD = document.getElementById('readout-d');
+const readoutX = document.getElementById('readout-x');
+const sliderX = document.getElementById('slider-x');
+const sliderEps = document.getElementById('slider-eps');
+const valueX = document.getElementById('value-x');
+const valueEps = document.getElementById('value-eps');
+let x0 = parseFloat(sliderX.value);
+let eps = parseFloat(sliderEps.value);
+sliderX.addEventListener('input', () => { x0 = parseFloat(sliderX.value); valueX.textContent = x0.toFixed(2); });
+sliderEps.addEventListener('input', () => { eps = parseFloat(sliderEps.value); valueEps.textContent = eps.toFixed(3); });
+function colors() {
+  const css = getComputedStyle(document.body);
+  return { bg: css.getPropertyValue('--bg').trim() || '#060608', fg: css.getPropertyValue('--fg').trim() || '#e8e8e8', muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6', accent: css.getPropertyValue('--accent').trim() || '#ffd166', blue: '#5bc0eb', grid: '#23252a' };
+}
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
+  const c = colors();
+  ctx.fillStyle = c.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const padL = 60, padR = 16, padT = 22, padB = 38;
+  const plotW = canvas.width - padL - padR, plotH = canvas.height - padT - padB;
+  const xMin = -3, xMax = 3, yMin = -1.3, yMax = 1.3;
+  function xFor(x) { return padL + plotW * (x - xMin) / (xMax - xMin); }
+  function yFor(y) { return padT + plotH * (1 - (y - yMin) / (yMax - yMin)); }
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i += 1) { const x = padL + plotW * i / 6; ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke(); }
+  for (let i = 0; i <= 4; i += 1) { const y = padT + plotH * i / 4; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke(); }
+  ctx.strokeStyle = c.muted; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, yFor(0)); ctx.lineTo(padL + plotW, yFor(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(xFor(0), padT); ctx.lineTo(xFor(0), padT + plotH); ctx.stroke();
+  const f0 = f(x0);
+  const dMax = maxDelta(x0, eps);
+  ctx.fillStyle = 'rgba(255, 209, 102, 0.15)';
+  ctx.fillRect(xFor(x0 - dMax), yFor(f0 + eps), xFor(x0 + dMax) - xFor(x0 - dMax), yFor(f0 - eps) - yFor(f0 + eps));
+  ctx.strokeStyle = c.accent; ctx.lineWidth = 2;
+  ctx.strokeRect(xFor(x0 - dMax), yFor(f0 + eps), xFor(x0 + dMax) - xFor(x0 - dMax), yFor(f0 - eps) - yFor(f0 + eps));
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let i = 0; i <= 300; i += 1) {
+    const x = xMin + (xMax - xMin) * i / 300;
+    if (i === 0) ctx.moveTo(xFor(x), yFor(f(x))); else ctx.lineTo(xFor(x), yFor(f(x)));
+  }
+  ctx.stroke();
+  ctx.fillStyle = c.accent; ctx.beginPath(); ctx.arc(xFor(x0), yFor(f0), 6, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`epsilon = ${eps.toFixed(3)}, delta_max = ${dMax.toFixed(4)}`, padL + 8, padT + 14);
 }
-
-let lastReadoutTime = 0;
 function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
+  readoutD.textContent = maxDelta(x0, eps).toFixed(4);
+  readoutX.textContent = `${x0.toFixed(2)}, ${f(x0).toFixed(3)}`;
 }
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
-  }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
-}
-
+function loop() { render(); updateReadout(); requestAnimationFrame(loop); }
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
-  }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
+  if (CAPTURE_NAME) { eps = 0.05 + (CAPTURE_FRAC || 0) * 0.4; sliderEps.value = String(eps); valueEps.textContent = eps.toFixed(3); }
+  valueX.textContent = x0.toFixed(2);
+  valueEps.textContent = eps.toFixed(3);
+  render(); updateReadout();
+  if (DETERMINISTIC) { requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null, x0, eps } })); })); }
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop); }

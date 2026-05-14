@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Epsilon-Delta Continuity Visualizer](../playgrounds/bsc-y1s1/M1017-epsilon-delta-continuity-visualizer/index.html)** &nbsp; (verified, verified 2026-05-14T00:45:27Z)
+  Slider for $x_0$ and $\epsilon$. The accent-yellow box shows the maximum $\delta_{\max}(\epsilon)$ such that $|x - x_0| < \delta$ implies $|f(x) - f(x_0)| < \epsilon$ for $f = \sin$. Demonstrates continuity at every point. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
+
 - **[Big-O Empirical Scaling](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/index.html)** &nbsp; (verified, verified 2026-05-14T00:43:57Z)
   Four complexity curves $N$, $N \log N$, $N^2$, $N^3$ on a log-log plot. Slider sets input size; cubic time at modern CPU rates shown in the readout. Demonstrates the gap between tractable (linear / linearithmic) and intractable (quadratic at large $N$, cubic almost immediately) algorithms. Source: Newman, Computational Physics Ch. 4 (`newman2013`).
 
@@ -444,9 +447,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Engine Cycle Explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Epsilon Delta Continuity Visualizer](../playgrounds/bsc-y1s1/M1017-epsilon-delta-continuity-visualizer/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Equipartition From Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (draft)

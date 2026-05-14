@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 79 |
+| draft | 78 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 113 |
+| verified | 114 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -50,7 +50,7 @@ Total playgrounds: 203
 3 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Cauchy Sequence Convergence Monitor** ([M1017-cauchy-sequence-convergence-monitor](../playgrounds/bsc-y1s1/M1017-cauchy-sequence-convergence-monitor/)). Status: `draft`. `arfken-weber` ch 1; distance |a_n - a_m| < epsilon for n, m > N.
-- **Epsilon Delta Continuity Visualizer** ([M1017-epsilon-delta-continuity-visualizer](../playgrounds/bsc-y1s1/M1017-epsilon-delta-continuity-visualizer/)). Status: `draft`. `arfken-weber` ch 1; delta-band reachable for every epsilon.
+- **Epsilon-Delta Continuity Visualizer** ([M1017-epsilon-delta-continuity-visualizer](../playgrounds/bsc-y1s1/M1017-epsilon-delta-continuity-visualizer/)). Status: `verified`. `arfken-weber` ch 1.
 - **Series Convergence Tests** ([M1017-series-convergence-tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/)). Status: `draft`. `arfken-weber` ch 1; geometric, ratio, root, alternating-series partial sums.
 
 ### M1038 Linear Algebra and Analytic Geometry
