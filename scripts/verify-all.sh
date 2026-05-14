@@ -18,6 +18,10 @@ echo "::group::a11y"
 node scripts/a11y-audit.mjs
 echo "::endgroup::"
 
+echo "::group::perf-aggregate"
+node scripts/perf-aggregate.mjs
+echo "::endgroup::"
+
 echo "::group::visual-tests"
 npx playwright test --reporter=line
 echo "::endgroup::"
