@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 36 |
+| draft | 35 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 156 |
+| verified | 157 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -289,7 +289,7 @@ Total playgrounds: 203
 - **Bloch Oscillations** ([FIS3020-bloch-oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/)). Status: `draft`. `ashcroft-mermin` ch 12; T_B = h / (e E a); Zener tunneling regime.
 - **Cooper Pair Binding Energy** ([FIS3020-cooper-pair-binding-energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/)). Status: `draft`. `kittel-cm` ch 10; bound state for arbitrarily weak attractive coupling.
 - **Fermi Surface 2D Square Lattice** ([FIS3020-fermi-surface-2d-square](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/)). Status: `verified`. `ashcroft-mermin` ch 8.
-- **Phonon Dispersion 1d Monatomic Diatomic** ([FIS3020-phonon-dispersion-1d-monatomic-diatomic](../playgrounds/bsc-y3s2/FIS3020-phonon-dispersion-1d-monatomic-diatomic/)). Status: `draft`. `kittel-cm` ch 4; acoustic and optical branches; band gap analytic.
+- **1D Phonon Dispersion (Monatomic and Diatomic)** ([FIS3020-phonon-dispersion-1d-monatomic-diatomic](../playgrounds/bsc-y3s2/FIS3020-phonon-dispersion-1d-monatomic-diatomic/)). Status: `verified`. `ashcroft-mermin` ch 22.
 
 ### FIS3028 Electrodynamics and Relativity
 

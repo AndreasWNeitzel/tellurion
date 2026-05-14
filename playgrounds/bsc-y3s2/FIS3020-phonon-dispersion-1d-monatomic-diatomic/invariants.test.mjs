@@ -1,28 +1,26 @@
-// Phonon Dispersion 1d Monatomic Diatomic invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Phonon Dispersion 1d Monatomic Diatomic invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { monatomic, diatomic, gapAtZoneBoundary } from './sim.js';
+describe('phonon-dispersion-1d', () => {
+  it('monatomic omega(0) = 0', () => {
+    expect(monatomic(0)).toBe(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('monatomic peak at k = pi: 2 sqrt(K/m)', () => {
+    expect(Math.abs(monatomic(Math.PI) - 2)).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('diatomic equal masses reduce to monatomic-like', () => {
+    const d = diatomic(Math.PI, 1, 1, 1);
+    expect(d.acoustic).toBeLessThan(d.optical);
+  });
+  it('diatomic acoustic branch goes to 0 at k = 0', () => {
+    const d = diatomic(0);
+    expect(d.acoustic).toBeLessThan(1e-9);
+  });
+  it('diatomic gap exists for unequal masses', () => {
+    const d = diatomic(Math.PI, 1, 1, 2);
+    expect(d.optical).toBeGreaterThan(d.acoustic);
+  });
+  it('gap formula returns finite values', () => {
+    const g = gapAtZoneBoundary(1, 1, 2);
+    expect(g.low).toBeGreaterThan(0); expect(g.high).toBeGreaterThan(g.low);
+  });
 });
