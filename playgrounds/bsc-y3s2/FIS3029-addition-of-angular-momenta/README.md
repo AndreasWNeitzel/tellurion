@@ -1,17 +1,2 @@
-# Addition Of Angular Momenta
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Adding two angular momenta
+Couple two angular momenta and watch the decomposition into total-$J$ multiplets. Each row shows the $(2J+1)$ states for a given $J$. Source: Sakurai QM Ch. 3 (`sakurai-qm`).

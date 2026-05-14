@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 30 |
+| draft | 29 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 162 |
+| verified | 163 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -305,7 +305,7 @@ Total playgrounds: 203
 12 primary; supporting use of this UC appears elsewhere when listed.
 
 - **1D TDSE Wavepacket Scattering** ([FIS3029-1d-tdse-scattering-comparator](../playgrounds/bsc-y3s2/FIS3029-1d-tdse-scattering-comparator/)). Status: `verified`. citation pending (supporting: FIS2018).
-- **Addition Of Angular Momenta** ([FIS3029-addition-of-angular-momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/)). Status: `draft`. `sakurai2020` ch 3; Clebsch-Gordan table for j1 x j2; orthonormality.
+- **Addition of Two Angular Momenta** ([FIS3029-addition-of-angular-momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/)). Status: `verified`. `sakurai-qm` ch 3.
 - **Aharonov Bohm Flux Line** ([FIS3029-aharonov-bohm-flux-line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/)). Status: `draft`. `sakurai2020` ch 2; topological phase e Phi / hbar exact.
 - **Bloch Sphere Qubit Gates** ([FIS3029-bloch-sphere-qubit-gates](../playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/)). Status: `verified`. citation pending.
 - **Fine Structure Hydrogen** ([FIS3029-fine-structure-hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/)). Status: `draft`. `sakurai2020` ch 5; |Delta E| ~ alpha^2 E_n analytic perturbation.
