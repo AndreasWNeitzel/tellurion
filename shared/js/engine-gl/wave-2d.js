@@ -59,20 +59,20 @@ layout(location = 0) in vec2 aGrid;
 uniform sampler2D uState;
 uniform mat4 uMVP;
 uniform float uHeight;
+uniform float uInvN;
 out vec3 vWorldPos;
 out vec3 vNormal;
 out float vH;
 void main() {
   float h = texture(uState, aGrid).r * uHeight;
-  // Estimate normal from finite differences.
-  vec2 dx = vec2(1.0 / 96.0, 0.0);
-  vec2 dy = vec2(0.0, 1.0 / 96.0);
+  vec2 dx = vec2(uInvN, 0.0);
+  vec2 dy = vec2(0.0, uInvN);
   float hL = texture(uState, aGrid - dx).r * uHeight;
   float hR = texture(uState, aGrid + dx).r * uHeight;
   float hD = texture(uState, aGrid - dy).r * uHeight;
   float hU = texture(uState, aGrid + dy).r * uHeight;
-  vec3 dxV = vec3(2.0 / 96.0, hR - hL, 0.0);
-  vec3 dyV = vec3(0.0, hU - hD, 2.0 / 96.0);
+  vec3 dxV = vec3(2.0 * uInvN, hR - hL, 0.0);
+  vec3 dyV = vec3(0.0, hU - hD, 2.0 * uInvN);
   vNormal = normalize(cross(dyV, dxV));
   vec3 worldPos = vec3(aGrid.x * 2.0 - 1.0, h, aGrid.y * 2.0 - 1.0);
   vWorldPos = worldPos;
@@ -87,16 +87,16 @@ in vec3 vNormal;
 in float vH;
 uniform vec3 uCamPos;
 out vec4 oColor;
-// Viridis approximation.
-vec3 viridis(float t) {
+// Coolwarm diverging: zero -> white, +height -> warm, -height -> cool.
+vec3 coolwarm(float t) {
   t = clamp(t, 0.0, 1.0);
-  return vec3(
-    clamp(0.267 + 0.105*t - 0.330*t*t + 1.000*t*t*t, 0.0, 1.0),
-    clamp(0.005 + 1.404*t - 0.479*t*t, 0.0, 1.0),
-    clamp(0.329 + 0.749*t - 0.972*t*t, 0.0, 1.0)
-  );
+  float x = t * 2.0 - 1.0;
+  if (x < 0.0) {
+    float a = -x;
+    return vec3(1.0 - a * (1.0 - 0.23), 1.0 - a * (1.0 - 0.30), 1.0 - a * (1.0 - 0.75));
+  }
+  return vec3(1.0 - x * (1.0 - 0.71), 1.0 - x * (1.0 - 0.02), 1.0 - x * (1.0 - 0.15));
 }
-// ACES filmic.
 vec3 aces(vec3 x) {
   float a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14;
   return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
@@ -104,18 +104,22 @@ vec3 aces(vec3 x) {
 void main() {
   vec3 n = normalize(vNormal);
   vec3 v = normalize(uCamPos - vWorldPos);
-  // Three-point lighting.
-  vec3 lKey = normalize(vec3(0.5, 0.8, 0.3));
-  vec3 lFill = normalize(vec3(-0.4, -0.3, 0.2));
-  vec3 lRim = normalize(vec3(0.0, -0.2, -1.0));
-  vec3 albedo = viridis(vH * 0.5 + 0.5);
-  vec3 cKey = vec3(1.0, 0.95, 0.8), cFill = vec3(0.6, 0.7, 0.9), cRim = vec3(0.7, 0.85, 1.0);
+  // Key light from upper-right, elevation 50 deg.
+  vec3 lKey = normalize(vec3(0.6, 1.2, 0.4));
+  vec3 lFill = normalize(vec3(-0.4, 0.3, 0.6));
+  vec3 lRim = normalize(vec3(0.0, 0.2, -1.0));
+  // Map signed height to coolwarm.
+  vec3 albedo = coolwarm(clamp(vH * 0.9 + 0.5, 0.0, 1.0));
+  vec3 cKey = vec3(1.0, 0.95, 0.8), cFill = vec3(0.5, 0.7, 1.0), cRim = vec3(0.7, 0.85, 1.0);
   vec3 col = vec3(0.0);
-  vec3 h = normalize(lKey + v);
-  col += cKey * (albedo * max(0.0, dot(n, lKey)) + vec3(pow(max(0.0, dot(n, h)), 32.0)));
-  col += cFill * albedo * max(0.0, dot(n, lFill)) * 0.3;
-  col += cRim * pow(max(0.0, dot(n, lRim)), 4.0) * 0.6;
-  col += albedo * 0.15; // ambient.
+  vec3 hVec = normalize(lKey + v);
+  // Specular exponent 60 for visible crest glint.
+  float spec = pow(max(0.0, dot(n, hVec)), 60.0);
+  col += cKey * albedo * max(0.0, dot(n, lKey));
+  col += cKey * spec * 1.6;
+  col += cFill * albedo * max(0.0, dot(n, lFill)) * 0.30;
+  col += cRim * pow(max(0.0, dot(n, lRim)), 4.0) * 0.60;
+  col += albedo * 0.10;
   oColor = vec4(aces(col), 1.0);
 }`;
 
@@ -183,7 +187,7 @@ export function setupWave2DGL(canvas, N = 96) {
       post = setupPostProcess(gl, w, h);
     }
   }
-  function renderSurface(width, height, height_scale, t) {
+  function renderSurfaceWithCamera(width, height, height_scale, viewMat, projMat, eye) {
     ensureScene(width, height);
     gl.useProgram(surfProg);
     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
@@ -192,27 +196,27 @@ export function setupWave2DGL(canvas, N = 96) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    // Camera at 30 deg elevation, 45 deg azimuth orbit (with idle drift).
-    const az = Math.PI * 0.25 + t * 0.05;
-    const el = Math.PI * 30 / 180;
-    const r = 3.0;
-    const eye = [r * Math.cos(el) * Math.cos(az), r * Math.sin(el), r * Math.cos(el) * Math.sin(az)];
-    const tgt = [0, 0, 0];
-    const up = [0, 1, 0];
-    const view = lookAt(eye, tgt, up);
-    const proj = perspective(50 * Math.PI / 180, width / height, 0.1, 100);
-    const mvp = matMul(proj, view);
+    const mvp = matMul(projMat, viewMat);
     gl.uniformMatrix4fv(gl.getUniformLocation(surfProg, 'uMVP'), false, mvp);
     gl.uniform3f(gl.getUniformLocation(surfProg, 'uCamPos'), eye[0], eye[1], eye[2]);
     gl.uniform1f(gl.getUniformLocation(surfProg, 'uHeight'), height_scale);
+    gl.uniform1f(gl.getUniformLocation(surfProg, 'uInvN'), 1.0 / N);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.tex);
     gl.uniform1i(gl.getUniformLocation(surfProg, 'uState'), 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
     gl.disable(gl.DEPTH_TEST);
-    // Bloom on bright wave crests.
     post.run(sceneFBO.tex, 0.95, 0.25, 0.4);
+  }
+  function renderSurface(width, height, height_scale, azDeg, elDeg, distance) {
+    const az = (azDeg ?? 45) * Math.PI / 180;
+    const el = (elDeg ?? 30) * Math.PI / 180;
+    const r = distance ?? 3.0;
+    const eye = [r * Math.cos(el) * Math.cos(az), r * Math.sin(el), r * Math.cos(el) * Math.sin(az)];
+    const view = lookAt(eye, [0, 0, 0], [0, 1, 0]);
+    const proj = perspective(50 * Math.PI / 180, width / height, 0.1, 100);
+    renderSurfaceWithCamera(width, height, height_scale, view, proj, eye);
   }
   function readback() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, A.fbo);
@@ -220,7 +224,7 @@ export function setupWave2DGL(canvas, N = 96) {
     gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf);
     return buf;
   }
-  return { gl, step, seed, reset, renderSurface, readback, N };
+  return { gl, step, seed, reset, renderSurface, renderSurfaceWithCamera, readback, N };
 }
 
 function lookAt(eye, tgt, up) {

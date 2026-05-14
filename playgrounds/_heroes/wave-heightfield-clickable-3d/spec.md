@@ -1,5 +1,7 @@
 ---
 title: Wave Heightfield (Clickable Hero)
+description: 'Click the 3D surface to seed a Gaussian impulse into the damped 2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 256x256 Dirichlet grid. Concentric ridges spread, reflect at the walls, and two impulses interfere. Drag to orbit, scroll to zoom.'
+caption: 'Figure 1. Heightfield render of $u(x, y, t)$ with $c$ and $\gamma$ controllable. Source: French Waves Ch. 6 (`french-waves`).'
 slug: wave-heightfield-clickable-3d
 status: verified
 audience: portfolio

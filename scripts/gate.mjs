@@ -55,7 +55,8 @@ async function gateA() {
 }
 
 async function gateB() {
-  const { page, ctx } = await newPage('&capture=t-000&captureFraction=0');
+  // Boot WITHOUT capture so the tick loop runs and frames advance.
+  const { page, ctx } = await newPage('');
   try {
     await page.waitForFunction('window.__simulationReady === true', { timeout: 25_000 });
     const f0 = await page.locator('#stage').screenshot();
@@ -146,16 +147,19 @@ async function gateF() {
     await page.waitForTimeout(200);
     const probe = await page.evaluate(() => {
       const c = document.getElementById('stage');
-      const gl = c.getContext('webgl2');
-      if (!gl) return null;
       const w = c.width, h = c.height;
+      // Copy the GL canvas to a 2D canvas so we can read pixels reliably (the
+      // GL default framebuffer is usually unreadable after compositor consumes it).
+      const off = document.createElement('canvas');
+      off.width = w; off.height = h;
+      const ctx2d = off.getContext('2d');
+      ctx2d.drawImage(c, 0, 0);
       const sx = Math.floor(w * 0.2), sy = Math.floor(h * 0.2);
       const sw = Math.floor(w * 0.6), sh = Math.floor(h * 0.6);
-      const center = new Uint8Array(sw * sh * 4);
-      gl.readPixels(sx, sy, sw, sh, gl.RGBA, gl.UNSIGNED_BYTE, center);
-      const cx = Math.floor(w * 0.05), cy = Math.floor(h * 0.05);
-      const corner = new Uint8Array(cx * cy * 4);
-      gl.readPixels(0, 0, cx, cy, gl.RGBA, gl.UNSIGNED_BYTE, corner);
+      const center = ctx2d.getImageData(sx, sy, sw, sh).data;
+      const cw = Math.max(8, Math.floor(w * 0.05));
+      const ch = Math.max(8, Math.floor(h * 0.05));
+      const corner = ctx2d.getImageData(0, 0, cw, ch).data;
       const colors = new Set();
       let lumLo = 0, lumHi = 0, lumTotal = 0, hot = 0;
       for (let i = 0; i < center.length; i += 4) {
