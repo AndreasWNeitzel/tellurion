@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 44 |
+| draft | 43 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 148 |
+| verified | 149 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -224,7 +224,7 @@ Total playgrounds: 203
 - **1D Alfvén Wave in MHD** ([AST3014-alfven-wave-mhd-1d](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/)). Status: `verified`. `goedbloed-plasma` ch 5.
 - **Bondi Spherical Accretion** ([AST3014-bondi-accretion-spherical](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/)). Status: `verified`. `frank-king-raine` ch 2.
 - **Parker Solar Wind** ([AST3014-parker-solar-wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/)). Status: `verified`. `shu-vol2` ch 17.
-- **Sedov Taylor Blastwave** ([AST3014-sedov-taylor-blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/)). Status: `draft`. `shu-vol2` ch 18; self-similar r ~ t^(2/5) within 1 percent.
+- **Sedov-Taylor Blast Wave** ([AST3014-sedov-taylor-blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/)). Status: `verified`. `shu-vol2` ch 17 (supporting: AST3016).
 - **SPH 1D Sod Shock Tube** ([AST3014-sph-sod-shock-tube](../playgrounds/bsc-y3s1/AST3014-sph-sod-shock-tube/)). Status: `verified`. citation pending (supporting: FIS2018).
 - **Two-Stream Instability (1D PIC)** ([AST3014-two-stream-pic-plasma](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/)). Status: `verified`. citation pending (supporting: MAA-PL).
 

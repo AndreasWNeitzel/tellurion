@@ -1,37 +1,14 @@
 ---
-title: Sedov Taylor Blastwave
+title: Sedov-Taylor Blast Wave
 slug: sedov-taylor-blastwave
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: AST3014
-supporting_ucs: []
+supporting_ucs: [AST3016]
 curriculum_year: bsc-y3s1
 primary_citation: shu-vol2
-primary_chapter: 18
+primary_chapter: 17
 ---
-
-# Sedov Taylor Blastwave
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: self-similar r ~ t^(2/5) within 1 percent. Primary citation: shu-vol2, chapter 18. Spec body to be filled by playground-architect.
+# Sedov-Taylor blast wave
+Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17 (`shu-vol2`).

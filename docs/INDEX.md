@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Sedov-Taylor Blast Wave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/index.html)** &nbsp; (verified, verified 2026-05-14T01:38:42Z)
+  Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17 (`shu-vol2`).
+
 - **[Parker Solar Wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/index.html)** &nbsp; (verified, verified 2026-05-14T01:37:33Z)
   Transonic isothermal wind solution; sonic crossing at $r_c = GM/(2 c_s^2)$. Source: Shu Vol II Ch. 17 (`shu-vol2`).
 
@@ -588,9 +591,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Secular Perturbation Laplace Lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Sedov Taylor Blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Speckle Pattern Statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/index.html)** &nbsp; (draft)

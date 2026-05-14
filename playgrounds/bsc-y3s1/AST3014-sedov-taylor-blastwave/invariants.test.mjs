@@ -1,28 +1,23 @@
-// Sedov Taylor Blastwave invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Sedov Taylor Blastwave invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { shockRadius, shockSpeed, postShockDensity, postShockPressure } from './sim.js';
+describe('sedov-taylor-blastwave', () => {
+  it('R scales as t^{2/5}', () => {
+    const R1 = shockRadius(1, 1, 1);
+    const R2 = shockRadius(1, 32, 1);
+    expect(Math.abs(R2 / R1 - Math.pow(32, 0.4))).toBeLessThan(1e-9);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('R scales as E^{1/5}', () => {
+    const R1 = shockRadius(1, 1, 1);
+    const R2 = shockRadius(32, 1, 1);
+    expect(Math.abs(R2 / R1 - Math.pow(32, 0.2))).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('shock speed = (2/5) R/t', () => {
+    expect(Math.abs(shockSpeed(1, 2, 1) - 0.4 * shockRadius(1, 2, 1) / 2)).toBeLessThan(1e-12);
+  });
+  it('post-shock density: 4 rho_1 at gamma 5/3', () => {
+    expect(postShockDensity(1)).toBe(4);
+  });
+  it('post-shock pressure positive for nonzero vs', () => {
+    expect(postShockPressure(1, 100)).toBeGreaterThan(0);
+  });
 });
