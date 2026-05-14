@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>WebGL2 smoke test</title>
+<style>html, body { margin: 0; background: #060608; height: 100%; } canvas { display: block; width: 100vw; height: 100vh; }</style></head>
+<body><canvas id="c"></canvas>
+<script type="module">
+import { createGL2 } from '../../shared/js/engine-gl/context.js';
+import { compileProgram } from '../../shared/js/engine-gl/shader.js';
+import { createQuad } from '../../shared/js/engine-gl/quad.js';
+const canvas = document.getElementById('c');
+canvas.width = 512; canvas.height = 512;
+let ok = false;
+try {
+  const gl = createGL2(canvas);
+  const vs = `#version 300 es
+  layout(location = 0) in vec2 a; out vec2 uv;
+  void main() { uv = a * 0.5 + 0.5; gl_Position = vec4(a, 0.0, 1.0); }`;
+  const fs = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  // viridis approximation.
+  vec3 viridis(float t) {
+    return vec3(0.267 + 0.105 * t - 0.330 * t * t + 1.000 * t * t * t, 0.005 + 1.404 * t - 0.479 * t * t, 0.329 + 0.749 * t - 0.972 * t * t);
+  }
+  void main() { o = vec4(viridis(uv.x), 1.0); }`;
+  const prog = compileProgram(gl, vs, fs);
+  gl.useProgram(prog);
+  const quad = createQuad(gl);
+  gl.viewport(0, 0, 512, 512); quad.draw();
+  ok = true;
+} catch (e) {
+  document.body.innerHTML = `<pre style="color:#ef476f;padding:20px;">WebGL2 unavailable: ${e.message}</pre>`;
+}
+window.__simulationReady = ok;
+window.dispatchEvent(new CustomEvent('simulation-ready'));
+</script></body></html>
