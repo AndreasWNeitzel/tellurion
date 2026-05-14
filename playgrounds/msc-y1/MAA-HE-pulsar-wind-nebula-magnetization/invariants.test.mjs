@@ -1,28 +1,19 @@
-// Pulsar Wind Nebula Magnetization invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Pulsar Wind Nebula Magnetization invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { terminationRadius, sigma_M, CRAB_L, CRAB_R_TS_PC } from './sim.js';
+describe('pulsar-wind-nebula-magnetization', () => {
+  it('R_TS scales as sqrt(L)', () => {
+    expect(Math.abs(terminationRadius(4, 1) / terminationRadius(1, 1) - 2)).toBeLessThan(1e-9);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('R_TS scales as 1/sqrt(P_ext)', () => {
+    expect(Math.abs(terminationRadius(1, 4) / terminationRadius(1, 1) - 0.5)).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Crab termination shock ~ 0.1 pc with P_ext ~ 5e-9 dyn/cm^2', () => {
+    const R = terminationRadius(CRAB_L, 5e-9);
+    const PC = 3.086e18;
+    expect(R / PC).toBeGreaterThan(0.01);
+    expect(R / PC).toBeLessThan(1);
+  });
+  it('sigma high when U_B >> U_part', () => {
+    expect(sigma_M(10, 1)).toBe(10);
+  });
 });

@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 9 |
+| draft | 8 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 183 |
+| verified | 184 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -396,7 +396,7 @@ Total playgrounds: 203
 
 - **Shakura-Sunyaev Accretion Disc Temperature** ([MAA-HE-accretion-disk-temperature-profile](../playgrounds/msc-y1/MAA-HE-accretion-disk-temperature-profile/)). Status: `verified`. citation pending.
 - **Inverse-Compton Cooling** ([MAA-HE-inverse-compton-scattering-cooling](../playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling/)). Status: `verified`. `rybickilightman1979` ch 7.
-- **Pulsar Wind Nebula Magnetization** ([MAA-HE-pulsar-wind-nebula-magnetization](../playgrounds/msc-y1/MAA-HE-pulsar-wind-nebula-magnetization/)). Status: `draft`. `maggiore-gw` ch 6; sigma parameter spectrum.
+- **Pulsar Wind Nebula Magnetization** ([MAA-HE-pulsar-wind-nebula-magnetization](../playgrounds/msc-y1/MAA-HE-pulsar-wind-nebula-magnetization/)). Status: `verified`. `rybickilightman1979` ch 6.
 
 ### MAA-AB Astrobiology
 
