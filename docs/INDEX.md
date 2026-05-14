@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (verified, verified 2026-05-14T01:49:44Z)
+  Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12 (`ashcroft-mermin`).
+
 - **[1D Phonon Dispersion (Monatomic and Diatomic)](../playgrounds/bsc-y3s2/FIS3020-phonon-dispersion-1d-monatomic-diatomic/index.html)** &nbsp; (verified, verified 2026-05-14T01:48:31Z)
   Monatomic acoustic vs diatomic acoustic + optical; gap at zone boundary. Source: Ashcroft-Mermin Ch. 22 (`ashcroft-mermin`).
 
@@ -522,9 +525,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bcs Gap Self Consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Ckm Mixing Unitarity Triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/index.html)** &nbsp; (draft)

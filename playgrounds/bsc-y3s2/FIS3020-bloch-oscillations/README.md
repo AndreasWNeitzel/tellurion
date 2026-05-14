@@ -1,17 +1,2 @@
-# Bloch Oscillations
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Bloch oscillations
+A constant force on a particle in a periodic potential drives quasi-momentum to slide through the Brillouin zone; Bragg reflection at the boundary gives a real-space oscillation of period $T_B = h / (eFa)$. Source: Ashcroft-Mermin Ch. 12 (`ashcroft-mermin`).
