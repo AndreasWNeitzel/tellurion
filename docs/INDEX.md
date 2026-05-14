@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Atmospheric Speckle Statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/index.html)** &nbsp; (verified, verified 2026-05-14T02:22:38Z)
+  $N \sim (D/r_0)^2$ speckles per realization. Source: Roddier (`hardy-ao`); Goodman (`goodman-speckle`).
+
 - **[PSF and Strehl Ratio](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/index.html)** &nbsp; (verified, verified 2026-05-14T02:21:34Z)
   Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8 (`born-wolf`).
 
@@ -603,9 +606,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Secular Perturbation Laplace Lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Speckle Pattern Statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)

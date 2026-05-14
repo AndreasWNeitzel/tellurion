@@ -1,28 +1,19 @@
-// Speckle Pattern Statistics invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Speckle Pattern Statistics invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { speckleField, expectedSpeckleCount } from './sim.js';
+describe('speckle-pattern-statistics', () => {
+  it('expected count: (D/r0)^2', () => {
+    expect(expectedSpeckleCount(10, 1)).toBe(100);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('field is a valid intensity array', () => {
+    const I = speckleField(8, 3, 1.2, 0xABCD);
+    expect(I.length).toBe(64);
+    expect(I.every(v => v >= 0)).toBe(true);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('deterministic for fixed seed', () => {
+    const I1 = speckleField(16, 3, 1.5, 0xCAFE);
+    const I2 = speckleField(16, 3, 1.5, 0xCAFE);
+    let diff = 0;
+    for (let i = 0; i < I1.length; i += 1) diff += Math.abs(I1[i] - I2[i]);
+    expect(diff).toBeLessThan(1e-6);
+  });
 });
