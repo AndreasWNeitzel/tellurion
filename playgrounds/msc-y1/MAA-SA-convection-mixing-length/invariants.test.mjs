@@ -1,28 +1,17 @@
-// Convection Mixing Length invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Convection Mixing Length invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { vConv, FConv, schwarzschild, HpScale } from './sim.js';
+describe('convection-mixing-length', () => {
+  it('vConv vanishes at DeltaT = 0', () => {
+    expect(vConv(10, 0, 1e7, 1e8)).toBe(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('FConv positive for positive DeltaT', () => {
+    expect(FConv(1, 1e8, 1, 1)).toBeGreaterThan(0);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('schwarzschild correctly classifies', () => {
+    expect(schwarzschild(0.4, 0.3)).toBe('convective');
+    expect(schwarzschild(0.2, 0.3)).toBe('radiative');
+  });
+  it('Hp scales as P/rho/g', () => {
+    expect(HpScale(1e15, 1, 100)).toBe(1e13);
+  });
 });

@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 4 |
+| draft | 3 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 188 |
+| verified | 189 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -353,7 +353,7 @@ Total playgrounds: 203
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Convection Mixing Length** ([MAA-SA-convection-mixing-length](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/)). Status: `draft`. `hansen-kawaler` ch 5; Schwarzschild criterion vs Ledoux.
+- **Mixing-Length Convection** ([MAA-SA-convection-mixing-length](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/)). Status: `verified`. `hansen-kawaler` ch 5.
 - **Main-Sequence Mass-Luminosity Relation** ([MAA-SA-main-sequence-mass-luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/)). Status: `verified`. `carroll-ostlie` ch 7.
 - **Nuclear Burning Rates vs Temperature** ([MAA-SA-nuclear-burning-rate-temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/)). Status: `verified`. `hansen-kawaler` ch 6.
 - **Lane-Emden Polytrope** ([MAA-SA-polytrope-lane-emden](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/)). Status: `verified`. `hansen-kawaler` ch 7.
