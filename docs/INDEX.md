@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Aharonov-Bohm Effect](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/index.html)** &nbsp; (verified, verified 2026-05-14T01:56:27Z)
+  Solenoid behind a double slit shifts the fringe pattern by $\Phi/\Phi_0$ cycles. Source: Sakurai Ch. 2 (`sakurai-qm`).
+
 - **[Addition of Two Angular Momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/index.html)** &nbsp; (verified, verified 2026-05-14T01:55:19Z)
   $j_1 \otimes j_2 = |j_1-j_2| \oplus \dots \oplus j_1+j_2$. Source: Sakurai QM Ch. 3 (`sakurai-qm`).
 
@@ -523,9 +526,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Aharonov Bohm Flux Line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Alpha Decay Gamow Tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
