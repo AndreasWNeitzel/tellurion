@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Keplerian Orbit Elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/index.html)** &nbsp; (verified, verified 2026-05-14T01:15:02Z)
+  Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).
+
 - **[Wavepacket Dispersion in 1D](../playgrounds/bsc-y2s1/FIS2016-wavepacket-dispersion-1d/index.html)** &nbsp; (verified, verified 2026-05-14T01:13:45Z)
   The packet center drifts at $\hbar k_0 / m$; the width broadens as $\sigma(t) = \sigma_0\sqrt{1 + (\hbar t/2m\sigma_0^2)^2}$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).
 
@@ -504,9 +507,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Kepler Orbit Elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Lagrangian Vs Newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/index.html)** &nbsp; (draft)

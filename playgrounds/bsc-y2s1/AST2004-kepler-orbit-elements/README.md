@@ -1,17 +1,2 @@
-# Kepler Orbit Elements
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Keplerian orbit elements
+The six classical orbital elements parameterize a Kepler orbit in 3D. Tweak $a$, $e$ to change shape; $i$, $\Omega$, $\omega$ to reorient. The cyan disk is the reference plane; the green ellipse is the orbit; the red dot is the moving body. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).

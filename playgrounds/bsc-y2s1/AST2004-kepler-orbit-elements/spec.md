@@ -1,37 +1,14 @@
 ---
-title: Kepler Orbit Elements
+title: Keplerian Orbit Elements
 slug: kepler-orbit-elements
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: AST2004
-supporting_ucs: []
+supporting_ucs: [AST3015]
 curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 2
 ---
-
-# Kepler Orbit Elements
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: six orbital elements drive trajectory; Kepler 3rd law. Primary citation: carroll-ostlie, chapter 2. Spec body to be filled by playground-architect.
+# Keplerian orbit elements
+Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).

@@ -1,33 +1,18 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kepler Orbit Elements</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Kepler Orbit Elements</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kepler Orbit Elements</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Keplerian orbit elements</h1>
+<p><strong>What you are seeing:</strong> the six classical orbital elements parameterize a Kepler orbit. Semi-major axis $a$ and eccentricity $e$ set the shape; inclination $i$, longitude of ascending node $\Omega$, and argument of periapsis $\omega$ orient the orbit in 3D. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">r:</span><span class="value" id="readout-r">1.00</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Orbit drawn from elements; reference plane (ecliptic) shaded. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">a (AU)</span><input type="range" id="slider-a" min="0.5" max="3" step="0.05" value="1.5"><span class="value" id="value-a">1.50</span></div>
+<div class="row"><span class="label">e</span><input type="range" id="slider-e" min="0" max="0.9" step="0.01" value="0.3"><span class="value" id="value-e">0.30</span></div>
+<div class="row"><span class="label">i (deg)</span><input type="range" id="slider-i" min="0" max="180" step="1" value="30"><span class="value" id="value-i">30</span></div>
+<div class="row"><span class="label">Ω (deg)</span><input type="range" id="slider-O" min="0" max="360" step="1" value="60"><span class="value" id="value-O">60</span></div>
+<div class="row"><span class="label">ω (deg)</span><input type="range" id="slider-w" min="0" max="360" step="1" value="45"><span class="value" id="value-w">45</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>
