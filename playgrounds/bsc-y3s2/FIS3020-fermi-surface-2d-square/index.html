@@ -3,29 +3,57 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fermi Surface 2d Square</title>
+  <title>Fermi Surface on a 2D Square Lattice</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Fermi Surface 2d Square</h1>
+  <h1>Fermi surface on a 2D square lattice</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the Brillouin zone (kx, ky) in
+    $[-\pi, \pi]^2$ for a tight-binding electron on a square lattice
+    with dispersion $E(k_x, k_y) = -2t (\cos k_x + \cos k_y)$. Below
+    half-filling the Fermi surface is a closed loop around the
+    $\Gamma$ point; at half-filling it is the perfectly nested
+    square diagonals (van Hove singularity in DOS); above half-filling
+    it shifts to closed loops around the (pi, pi) corners.
+  </p>
+  <p>
+    Sliding the filling fraction $f$ from 0 to 1 sweeps through these
+    three regimes. The right panel shows the density of states with the
+    Fermi energy marked; the van Hove peak at $E = 0$ is the signature
+    of the saddle points at $(\pm \pi, 0)$ and $(0, \pm \pi)$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Brillouin zone with occupied k-states shaded, plus DOS histogram with E_F marker."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">E_F / t:</span><span class="value" id="readout-ef">0</span>
+      <span class="label">filling f:</span><span class="value" id="readout-f">0.50</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Fermi surface and DOS for a 2D tight-binding square lattice.
+      Source: Ashcroft-Mermin Ch. 8 (`ashcroft-mermin`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Fermi controls">
+    <div class="row"><span class="label">filling f</span><input type="range" id="slider-f" min="0.01" max="0.99" step="0.005" value="0.3"><span class="value" id="value-f">0.300</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

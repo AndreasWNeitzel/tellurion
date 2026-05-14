@@ -1,28 +1,52 @@
-// Fermi Surface 2d Square invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Fermi surface 2D invariants.
+// (a) Dispersion bottom at (0, 0): E = -4 t.
+// (b) Dispersion top at (pi, pi): E = +4 t.
+// (c) Half-filling Fermi energy ~ 0 (van Hove).
+// (d) Empty filling: E_F = -4t (bottom).
+// (e) Full filling: E_F = +4t (top).
+// (f) Density of states sums to N^2 sites.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  dispersion, fermiEnergyAtFilling, densityOfStates, fermiCircleK,
+} from './sim.js';
 
-describe('Fermi Surface 2d Square invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('fermi-surface-2d-square', () => {
+  it('dispersion bottom at (0, 0): E = -4 t', () => {
+    expect(Math.abs(dispersion(0, 0, 1) + 4)).toBeLessThan(1e-12);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('dispersion top at (pi, pi): E = +4 t', () => {
+    expect(Math.abs(dispersion(Math.PI, Math.PI, 1) - 4)).toBeLessThan(1e-12);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('half-filling Fermi energy is ~ 0 (van Hove)', () => {
+    const Ef = fermiEnergyAtFilling(0.5, 1, 100);
+    expect(Math.abs(Ef)).toBeLessThan(0.1);
+  });
+
+  it('empty filling Fermi energy ~ -4t', () => {
+    const Ef = fermiEnergyAtFilling(0.001, 1, 100);
+    expect(Ef).toBeLessThan(-3.9);
+  });
+
+  it('full filling Fermi energy ~ +4t', () => {
+    const Ef = fermiEnergyAtFilling(0.999, 1, 100);
+    expect(Ef).toBeGreaterThan(3.9);
+  });
+
+  it('DOS histogram sums to total grid points', () => {
+    const { bins, total } = densityOfStates(1, 50, 30);
+    let sum = 0;
+    for (const b of bins) sum += b;
+    expect(sum).toBe(total);
+  });
+
+  it('continuum fermiCircleK at f = 0.01 is small', () => {
+    expect(fermiCircleK(0.01)).toBeLessThan(0.4);
+  });
+
+  it('continuum fermiCircleK at f = 0.5 equals sqrt(2 pi)', () => {
+    expect(Math.abs(fermiCircleK(0.5) - Math.sqrt(2 * Math.PI))).toBeLessThan(1e-12);
+  });
 });

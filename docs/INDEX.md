@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fermi Surface 2D Square Lattice](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/index.html)** &nbsp; (verified, verified 2026-05-14T00:20:40Z)
+  Tight-binding electrons on a square lattice with nearest-neighbor hopping. Dispersion $E(k_x, k_y) = -2t (\cos k_x + \cos k_y)$ over the Brillouin zone $(k_x, k_y) \in [-\pi, \pi]^2$. The bandwidth is $8t$ from $-4t$ (Gamma point) to $+4t$ (M point).
+
 - **[Lane-Emden Polytrope](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/index.html)** &nbsp; (verified, verified 2026-05-14T00:17:38Z)
   A self-gravitating sphere with equation of state $P = K \rho^{1 + 1/n}$. The dimensionless density profile $\theta(\xi) = (\rho/\rho_c)^{1/n}$ satisfies the Lane-Emden equation
 
@@ -429,9 +432,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Equipartition From Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Fermi Surface 2d Square](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fine Structure Hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/index.html)** &nbsp; (draft)

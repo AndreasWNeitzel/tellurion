@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 95 |
+| draft | 94 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 97 |
+| verified | 98 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -288,7 +288,7 @@ Total playgrounds: 203
 - **Bcs Gap Self Consistent** ([FIS3020-bcs-gap-self-consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/)). Status: `draft`. `kittel-cm` ch 10; gap equation iterates to Delta(T); Tc analytic.
 - **Bloch Oscillations** ([FIS3020-bloch-oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/)). Status: `draft`. `ashcroft-mermin` ch 12; T_B = h / (e E a); Zener tunneling regime.
 - **Cooper Pair Binding Energy** ([FIS3020-cooper-pair-binding-energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/)). Status: `draft`. `kittel-cm` ch 10; bound state for arbitrarily weak attractive coupling.
-- **Fermi Surface 2d Square** ([FIS3020-fermi-surface-2d-square](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/)). Status: `draft`. `ashcroft-mermin` ch 8; Fermi circle from 2D electron density.
+- **Fermi Surface 2D Square Lattice** ([FIS3020-fermi-surface-2d-square](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/)). Status: `verified`. `ashcroft-mermin` ch 8.
 - **Phonon Dispersion 1d Monatomic Diatomic** ([FIS3020-phonon-dispersion-1d-monatomic-diatomic](../playgrounds/bsc-y3s2/FIS3020-phonon-dispersion-1d-monatomic-diatomic/)). Status: `draft`. `kittel-cm` ch 4; acoustic and optical branches; band gap analytic.
 
 ### FIS3028 Electrodynamics and Relativity
