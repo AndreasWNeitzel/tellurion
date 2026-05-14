@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Eddington Grey Atmosphere](../playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere/index.html)** &nbsp; (verified, verified 2026-05-14T00:13:47Z)
+  A grey (frequency-independent opacity) stellar atmosphere in radiative equilibrium. The temperature profile follows $$T(\tau) = T_\text{eff} \left[\tfrac{3}{4} (\tau + \tfrac{2}{3})\right]^{1/4}.$$
+
 - **[Friedmann Cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/index.html)** &nbsp; (verified, verified 2026-05-14T00:11:04Z)
   A flat Friedmann-Lemaitre-Robertson-Walker universe with matter density parameter $\Omega_m$, cosmological constant $\Omega_\Lambda = 1 - \Omega_m$, and Hubble constant $H_0$. The dimensionless Hubble function and cosmic age follow from the Friedmann equation.
 
@@ -411,9 +414,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Dynamical Friction Chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Eddington Grey Atmosphere](../playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Elastic Inelastic Collisions 2d](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (draft)

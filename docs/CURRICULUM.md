@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 97 |
+| draft | 96 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 95 |
+| verified | 96 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -362,7 +362,7 @@ Total playgrounds: 203
 
 2 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Eddington Grey Atmosphere** ([MAA-SP-eddington-grey-atmosphere](../playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere/)). Status: `draft`. `hansen-kawaler` ch 3; T(tau) = T_eff (3 / 4 (tau + 2 / 3))^(1/4) exact.
+- **Eddington Grey Atmosphere** ([MAA-SP-eddington-grey-atmosphere](../playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere/)). Status: `verified`. `hansen-kawaler` ch 3.
 - **Voigt Profile Decomposition** ([MAA-SP-voigt-profile-decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/)). Status: `draft`. `rybickilightman1979` ch 1; convolution of Lorentzian and Gaussian; equivalent width.
 
 ### MAA-CS Cosmology

@@ -1,17 +1,17 @@
-# Eddington Grey Atmosphere
+# Eddington grey atmosphere
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+The temperature in a grey atmosphere in radiative equilibrium follows $T(\tau) = T_\text{eff} (3/4 (\tau + 2/3))^{1/4}$. At the photosphere ($\tau = 2/3$) the temperature equals $T_\text{eff}$; at the boundary ($\tau = 0$) it drops to $T_\text{eff} / \sqrt[4]{2} \approx 0.841 T_\text{eff}$; deep inside it grows as $\tau^{1/4}$.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+The Eddington-Barbier limb darkening $I(\mu)/I(1) = 0.4 + 0.6 \mu$ explains why the limb of the Sun is visibly darker than the center.
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+One slider for $T_\text{eff}$.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: Hansen-Kawaler-Trimble, *Stellar Interiors*, 2e, Ch. 3 (`hansen-kawaler`).
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: $T(2/3) = T_\text{eff}$ exact; $T(0) = T_\text{eff} (1/2)^{1/4}$ exact; limb $I(0)/I(1) = 0.4$ exact.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
