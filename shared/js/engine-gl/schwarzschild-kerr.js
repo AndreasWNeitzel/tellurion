@@ -84,65 +84,86 @@ void main() {
   float disc = 1.0 / (b * b) - u * u + 2.0 * u * u * u;
   float du = (disc > 0.0) ? sqrt(disc) : 1.0 / b;
   float phi = 0.0;
-  // Frame-dragging twist: rotate phi by a small spin-dependent amount per step.
-  // Sign chosen so prograde (a > 0) drags forward.
-  float dphi = 0.015;
   bool captured = false;
   bool hitDisk = false;
   int crossings = 0;
   vec3 col = vec3(0.0);
+  // Volumetric-disk accumulated optical depth (so the near side can occlude the far side).
+  float tau = 0.0;
   // Track the y-coordinate of the 3D ray position so we can detect equatorial
-  // plane crossings: y = r * (cos(phi) * e1.y + sin(phi) * e2.y).
+  // plane crossings via sign change.
   float prevY = r_eye * e1.y;
-  for (int i = 0; i < 180; i += 1) {
-    float k1u = du, k1d = -u + 3.0 * u * u;
-    float u2 = u + 0.5 * dphi * k1u, du2 = du + 0.5 * dphi * k1d;
-    float k2u = du2, k2d = -u2 + 3.0 * u2 * u2;
-    float u3 = u + 0.5 * dphi * k2u, du3 = du + 0.5 * dphi * k2d;
-    float k3u = du3, k3d = -u3 + 3.0 * u3 * u3;
-    float u4 = u + dphi * k3u, du4 = du + dphi * k3d;
-    float k4u = du4, k4d = -u4 + 3.0 * u4 * u4;
-    u += dphi * (k1u + 2.0 * k2u + 2.0 * k3u + k4u) / 6.0;
-    du += dphi * (k1d + 2.0 * k2d + 2.0 * k3d + k4d) / 6.0;
+  float prevR = r_eye;
+  // Disk vertical scale height (thin but not zero).
+  const float DISK_H = 0.5;
+  // Conserved-quantity reference: at infinity, (du)^2 + u^2 - 2 u^3 = 1/b^2.
+  // We periodically renormalize to keep this invariant (null-condition projection).
+  float invB2 = 1.0 / (b * b);
+  for (int i = 0; i < 220; i += 1) {
+    // Curvature-adaptive step: shrink near the horizon (small r = large u).
+    // Far from BH, take larger steps; near periapsis / horizon, tighten.
+    float r_now = 1.0 / max(u, 1e-6);
+    float dphi = clamp(0.020 * sqrt(r_now * 0.5), 0.003, 0.04);
+    // Velocity-Verlet (leapfrog) on u'' = a(u) = -u + 3 u^2. Symplectic, warp-coherent.
+    float a0 = -u + 3.0 * u * u;
+    du += 0.5 * dphi * a0;      // half-kick
+    u  += dphi * du;             // drift
+    float a1 = -u + 3.0 * u * u;
+    du += 0.5 * dphi * a1;      // half-kick
     phi += dphi;
+    // Hamiltonian renormalization every 16 steps: rescale du so the conserved
+    // quantity stays at its initial value. Prevents slow drift of the photon
+    // ring orbit over many revolutions.
+    if (i > 0 && (i % 16) == 0) {
+      float H = du * du + u * u - 2.0 * u * u * u;
+      if (H > 0.0) {
+        float scale = sqrt(max(0.0, invB2 / H));
+        du *= scale;
+      }
+    }
     // Frame-dragging twist proxy: add a small phi increment proportional to a/r^2.
     float r = 1.0 / max(u, 1e-6);
     phi += dphi * uAOverM * (1.5 / (r * r));
-    // Capture.
     if (r < rH * 1.001) { captured = true; break; }
-    // Escape.
     if (u < 1e-3 && phi > 0.2) break;
     if (r > 400.0) break;
     // 3D position in world coords.
     vec3 pos = r * (cos(phi) * e1 + sin(phi) * e2);
     float curY = pos.y;
-    if (prevY * curY < 0.0 && r > uDiskInner && r < uDiskOuter) {
-      hitDisk = true; crossings += 1;
-      // Disk emission: Planck temperature T(r) ~ (r_in / r)^(3/4) * T_peak.
-      float T = 1.2e4 * pow(uDiskInner / r, 0.75);
-      vec3 emit = planck(T);
-      // Doppler beaming proxy: orbital velocity v_phi = sqrt(M/r). The brightest
-      // pixel is where the disk's tangent direction aligns with the ray; using
-      // pos.x as a proxy for the line-of-sight component.
-      float vphi = sqrt(1.0 / r);
-      float losDopp = pos.x / r;  // -1..1
-      float g = 1.0 + vphi * losDopp;
-      g = clamp(g, 0.4, 1.6);
-      // Bolometric Doppler factor g^4 for radiation intensity.
-      float gain = pow(g, 4.0);
-      // Color shift: scale temperature by g (approaching = bluer).
-      emit = planck(T * g);
-      // Procedural azimuthal noise on the disk.
-      float ang = atan(pos.z, pos.x);
-      float noise = 0.7 + 0.3 * sin(8.0 * ang + 0.7 * r);
-      // Radial fade: smooth attenuation toward the outer edge so the disk
-      // doesn't leak bright light into the canvas corners after lensing.
-      float edgeFade = 1.0 - smoothstep(uDiskOuter * 0.7, uDiskOuter, r);
-      col += emit * gain * noise * edgeFade * (crossings == 1 ? 1.0 : 0.45);
-      if (crossings >= 2) break;
+    // VOLUMETRIC DISK: emit along the segment while the ray is inside the
+    // disk volume (|y| < DISK_H and r in [r_in, r_out]). Smooth profile in y.
+    if (r > uDiskInner && r < uDiskOuter) {
+      float yProf = exp(-curY * curY / (2.0 * DISK_H * DISK_H));
+      if (yProf > 0.01) {
+        // Segment length in 3D between prev and current position.
+        vec3 prevPos = prevR * (cos(phi - dphi) * e1 + sin(phi - dphi) * e2);
+        float ds = length(pos - prevPos);
+        float T = 1.2e4 * pow(uDiskInner / r, 0.75);
+        float vphi = sqrt(1.0 / r);
+        float losDopp = pos.x / r;
+        float g = clamp(1.0 + vphi * losDopp, 0.45, 1.6);
+        float gain = pow(g, 4.0);
+        vec3 emit = planck(T * g);
+        // Soft radial edges (limb brightening at the inner rim).
+        float innerFade = smoothstep(uDiskInner * 0.95, uDiskInner * 1.4, r);
+        float outerFade = 1.0 - smoothstep(uDiskOuter * 0.7, uDiskOuter, r);
+        float radial = innerFade * outerFade;
+        // Azimuthal density variation.
+        float ang = atan(pos.z, pos.x);
+        float noise = 0.7 + 0.3 * sin(8.0 * ang + 0.7 * r);
+        // Per-step opacity: optical depth contribution.
+        float kappa = 0.18 * yProf * radial * noise;
+        float dTau = kappa * ds;
+        // Emission attenuated by accumulated tau in front of it.
+        col += emit * gain * yProf * radial * noise * ds * 0.85 * exp(-tau);
+        tau += dTau;
+        if (tau > 4.0) { hitDisk = true; break; }
+      }
     }
     prevY = curY;
+    prevR = r;
   }
+  hitDisk = hitDisk || tau > 0.05;
   if (captured) { oColor = vec4(col + vec3(0.0), 1.0); return; }
   // Escape: sample star texture in the bent direction.
   if (!hitDisk || crossings < 2) {

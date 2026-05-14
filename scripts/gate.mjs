@@ -59,9 +59,14 @@ async function gateB() {
   const { page, ctx } = await newPage('');
   try {
     await page.waitForFunction('window.__simulationReady === true', { timeout: 25_000 });
-    const f0 = await page.locator('#stage').screenshot({ animations: 'allow', timeout: 10000 });
+    // Use page.screenshot with a clip to the canvas's bounding box. Avoids
+    // locator.screenshot's wait-for-stable that hangs on a continuously
+    // re-rendering WebGL canvas.
+    const box = await page.locator('#stage').boundingBox();
+    const clip = { x: Math.floor(box.x), y: Math.floor(box.y), width: Math.floor(box.width), height: Math.floor(box.height) };
+    const f0 = await page.screenshot({ clip, animations: 'allow' });
     await page.waitForTimeout(2000);
-    const f1 = await page.locator('#stage').screenshot({ animations: 'allow', timeout: 10000 });
+    const f1 = await page.screenshot({ clip, animations: 'allow' });
     let diff = 0, total = 0;
     const sz = Math.min(f0.length, f1.length);
     for (let i = 0; i < sz; i += 4) {
