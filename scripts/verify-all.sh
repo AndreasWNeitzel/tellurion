@@ -1,43 +1,25 @@
 #!/usr/bin/env bash
 # scripts/verify-all.sh
-# Runs invariant tests and visual tests across every playground, plus engine unit tests.
+# Runs invariant tests (vitest) + visual tests (playwright) + HTML lint + a11y audit.
 # Exits nonzero on any failure. Used by CI and by /audit manually.
 
 set -euo pipefail
-
 cd "$(dirname "$0")/.."
 
-# Engine unit tests
-echo "::group::engine-unit-tests"
-npx vitest run "tests/engines/**/*.test.mjs" --reporter=verbose
+echo "::group::invariants"
+npx vitest run --reporter=default
 echo "::endgroup::"
 
-# Playground invariant tests
-echo "::group::playground-invariants"
-for d in playgrounds/*/; do
-  name=$(basename "$d")
-  [ "$name" = "_template" ] && continue
-  if [ -f "$d/invariants.test.mjs" ]; then
-    echo "-- invariants: $name"
-    npx vitest run "$d/invariants.test.mjs" --reporter=verbose
-  else
-    echo "-- skipping $name (no invariants.test.mjs)"
-  fi
-done
+echo "::group::html-lint"
+node scripts/lint-playground-html.mjs
 echo "::endgroup::"
 
-# Playground visual tests
-echo "::group::playground-visual"
-for d in playgrounds/*/; do
-  name=$(basename "$d")
-  [ "$name" = "_template" ] && continue
-  if [ -f "$d/visual.test.mjs" ] && [ -d "$d/references/golden-frames" ]; then
-    echo "-- visual: $name"
-    npx playwright test "$d/visual.test.mjs"
-  else
-    echo "-- skipping $name (no goldens yet)"
-  fi
-done
+echo "::group::a11y"
+node scripts/a11y-audit.mjs
 echo "::endgroup::"
 
-echo "All gates passed."
+echo "::group::visual-tests"
+npx playwright test --reporter=line
+echo "::endgroup::"
+
+echo "All gates green."

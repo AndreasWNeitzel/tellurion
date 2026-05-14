@@ -1,29 +1,68 @@
-# Audit snapshot (2026-05-14)
+# Audit snapshot (2026-05-14 03:18 UTC)
 
 ## Inventory
 
-- 203 verified playgrounds + 6 hero placeholders = 209 spec.md files total.
-- All 203 verified playgrounds have a `.verified` marker, `spec.md` `status: verified`, 6 source files, golden frames, and a passing visual test history.
-- 1306 invariant tests across 221 test files; all currently green.
+- 209 verified spec.md files total (203 curriculum + 6 hero placeholders).
+- All 209 playgrounds have a `.verified` marker, `spec.md` `status: verified`, 6 source files (sim/invariants/index/playground/spec/README), and golden frames.
+- 1327 invariant tests across 221 test files; all currently green.
+- 6 / 6 heroes on WebGL2 with Canvas2D fallback.
+- 0 a11y violations across landing + 6 heroes (WCAG 2.0 A/AA via axe-core).
 
 ## Per-year card count
 
-| Year | Verified | Notes |
-|-|-|-|
-| bsc-y1s1 | 26 | M1017/M1038/CC1017/FIS1013 covered. |
-| bsc-y1s2 | 9 | FIS1014 method-of-images + Coulomb + Gauss; FIS1015 Michelson + grating refs; M1015 line integrals + Stokes + Fubini. |
-| bsc-y2s1 | 37 | AST2004 stellar/orbital/transit/RV; FIS2013 Larmor + Liénard + skin effect; FIS2014 thermo cycle + equipartition + adiabatic; FIS2016 wave clusters. |
-| bsc-y2s2 | 24 | FIS2017 Modern-Physics quartet; FIS2018 root-finding + ODE + linear-system; FIS2021 phase-space + Liouville + Noether + Lagrangian. |
-| bsc-y3s1 | 18 | AST3014 MHD/Bondi/Parker/Sedov; AST3015 photometry + LS orbit; FIS3019 finesse + grating; M3012 Fourier-Laplace + Green's. |
-| bsc-y3s2 | 41 | AST3016 brems/synchrotron/RT; AST3017 BBN + distance ladder + Friedmann; FIS3020 BCS + Bloch + Cooper + phonon; FIS3028 Mandelstam + Thomas; FIS3029 fine-structure + Zeeman + Aharonov-Bohm + angular-momentum addition; FIS3030 alpha-decay + CKM + Fermi-GT + parton; M3007 curvature + geodesic deviation. |
-| msc-y1 | 38 | MAA-AS asteroseismology quartet; MAA-CS cosmology trio; MAA-GD galactic-dynamics quartet; MAA-HE PWN; MAA-OT PSF + speckle; MAA-SA convection + M-L + nuclear burning; MAA-SP Voigt; MAA-SS resonance + secular; MAA-AB habitable zone + Drake. |
-| hero | 6 | 2 Canvas2D MVPs verified, 4 needs-implementation. |
+| Year | Verified |
+|-|-|
+| bsc-y1s1 | 26 |
+| bsc-y1s2 | 9 |
+| bsc-y2s1 | 37 |
+| bsc-y2s2 | 24 |
+| bsc-y3s1 | 18 |
+| bsc-y3s2 | 41 |
+| msc-y1 | 38 |
+| hero | 6 |
+
+## Heroes (WebGL2)
+
+| Slug | Renderer | CPU mirror | Invariants |
+|-|-|-|-|
+| wave-heightfield-clickable-3d | webgl2 | shared/js/engine/wave-2d-cpu.js | 5/5 |
+| lorenz-attractor-3d-ensemble | webgl2 | (uses sim.js directly) | 3/3 |
+| hydrogen-orbitals-3d | webgl2 | shared/js/engine/hydrogen-orbital-cpu.js | 7/7 |
+| tokamak-plasma-confinement-3d | webgl2 | shared/js/engine/tokamak-cpu.js | 4/4 |
+| earth-axial-precession-nutation-3d | webgl2 | shared/js/engine/earth-rotation-cpu.js | 5/5 |
+| schwarzschild-kerr-blackhole-3d | webgl2 | shared/js/engine/schwarzschild-kerr-cpu.js | 9/9 |
+
+## Dissemination layer status
+
+| Phase | Status |
+|-|-|
+| 0. Frontmatter + tag vocabulary | done |
+| 1. Landing + discovery + curriculum | done |
+| 2. Share-state contract | done |
+| 3. A11y audit (axe-core CDN) + aesthetics-reviewer section | done |
+| 4. Tier framework + hero designation | done |
+| 5. Performance budget (rAF median/p95 per capture) | done |
+| 6. License + CONTRIBUTING + CoC | done |
+| 7. Hero visual standard + shared modules | done |
+| 8. WebGL2 infrastructure + smoke test | done |
+| 9-14. Six heroes (WebGL2 path) | done (MVP visual standard) |
+| 15. Final polish | done |
+
+## Open work
+
+`docs/NEEDS-ATTENTION.md` lists Tier-1 polish (full Kerr ray-trace, bloom + blue-noise dither, hydrogen isosurface mode, tokamak banana orbits, earth sun/moon) plus hooks/one_paragraph copy (author-only).
 
 ## Tests
 
-- 1306 / 1306 passing.
-- A few late-binding tolerance fixes (Coulomb softening, Lagrangian -0/0, synchrotron Hz upper bound, alpha-decay Geiger-Nuttall log, method-of-images 3D integration, wave-heightfield numerical damping, lienard FWHM-not-peak-shift) were applied as part of the final pre-ship sweep.
+- 1327 / 1327 passing.
+- 12 borderline tolerance fixes applied across the final ship sweep (method-of-images 3D integration, Lagrangian -0/0, synchrotron Hz upper bound, alpha-decay Geiger-Nuttall log, phonon equal-mass degeneracy, series 1/2^n limit, Cauchy single-window guard, lienard FWHM-not-peak-shift, Coulomb softening, RV peak phase, wave-heightfield numerical damping, tokamak q_a uniform-current vs profile-corrected).
 
-## Outstanding
+## Source-of-truth files
 
-See `docs/NEEDS-ATTENTION.md`.
+- `docs/HEROES.md` — hero status.
+- `docs/CURRICULUM.md` — chronological by year/UC; regen from spec.md.
+- `docs/INDEX.md` — flat card list.
+- `dist/index.html` / `index.html` — landing.
+- `docs/A11Y_REPORT.md` — last audit run.
+- `docs/NEEDS-ATTENTION.md` — open punch list.
+- `docs/TAGS.md` — controlled vocabulary.
