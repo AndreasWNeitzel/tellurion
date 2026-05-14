@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 17 |
+| draft | 16 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 175 |
+| verified | 176 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -388,7 +388,7 @@ Total playgrounds: 203
 - **Asymptotic Period Spacing in Red Giants** ([MAA-AS-asymptotic-period-spacing](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/)). Status: `verified`. `aerts-asteroseism` ch 3.
 - **Mode Trapping in Evolved Stars** ([MAA-AS-mode-trapping-evolved-stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/)). Status: `verified`. `aerts-asteroseism` ch 3.
 - **p- and g-Mode Cavities (Propagation Diagram)** ([MAA-AS-p-g-mode-cavities](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/)). Status: `verified`. `aerts-asteroseism` ch 3.
-- **Rotational Splitting Multiplets** ([MAA-AS-rotational-splitting-multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/)). Status: `draft`. `aerts-asteroseism` ch 3; m-splitting linear in Omega within 1 percent.
+- **Rotational Splitting of Multiplets** ([MAA-AS-rotational-splitting-multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/)). Status: `verified`. `aerts-asteroseism` ch 3.
 
 ### MAA-HE High-Energy Astrophysics
 

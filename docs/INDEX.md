@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Rotational Splitting of Multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/index.html)** &nbsp; (verified, verified 2026-05-14T02:11:32Z)
+  Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8 (`aerts-asteroseism`).
+
 - **[p- and g-Mode Cavities (Propagation Diagram)](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/index.html)** &nbsp; (verified, verified 2026-05-14T02:10:29Z)
   Propagation diagram with $N$, $S_\ell$, and the mode frequency. Source: Aerts et al. Ch. 3 (`aerts-asteroseism`).
 
@@ -594,9 +597,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Resonance Mean Motion Toy](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Rotational Splitting Multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Secular Perturbation Laplace Lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (draft)
