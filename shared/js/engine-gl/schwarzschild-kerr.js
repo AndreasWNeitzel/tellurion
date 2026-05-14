@@ -164,13 +164,20 @@ void main() {
     prevR = r;
   }
   hitDisk = hitDisk || tau > 0.05;
-  if (captured) { oColor = vec4(col + vec3(0.0), 1.0); return; }
-  // Escape: sample star texture in the bent direction.
-  if (!hitDisk || crossings < 2) {
-    // Deflected direction: rotate the outgoing ray by phi in the orbital plane.
-    vec3 outgoing = normalize(cos(phi) * rayDir + sin(phi) * e2);
-    col += sampleEnv(outgoing);
-  }
+  // Fallback: if the loop exhausted its step budget without explicit capture
+  // OR explicit escape, the ray was winding near the photon sphere. Those
+  // rays should be captured (they fall into the BH). Otherwise the loop-end
+  // fall-through would sample the star texture and paint the shadow with
+  // mirrored content, producing a reflective-sphere look.
+  if (!captured && u > 1e-3) captured = true;
+  if (captured) { oColor = vec4(col, 1.0); return; }
+  // Escape: sample star texture in the BENT direction (the geodesic tangent
+  // at infinity). In the orbital basis (e1 toward periapsis, e2 perpendicular)
+  // the position vector is r * (cos(phi) e1 + sin(phi) e2); the tangent is
+  // -sin(phi) e1 + cos(phi) e2 (90 deg rotated in the orbital plane). That is
+  // the outgoing ray direction at infinity.
+  vec3 outgoing = normalize(-sin(phi) * e1 + cos(phi) * e2);
+  col += sampleEnv(outgoing);
   vec2 c2 = uv - 0.5;
   float vign = 1.0 - 0.30 * dot(c2, c2) * 2.0;
   oColor = vec4(aces(col * vign), 1.0);
