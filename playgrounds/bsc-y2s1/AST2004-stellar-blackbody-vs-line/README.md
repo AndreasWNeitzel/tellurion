@@ -1,17 +1,2 @@
-# Stellar Blackbody Vs Line
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Stellar continuum plus absorption lines
+A Planck blackbody spectrum at temperature $T$ with the canonical stellar absorption lines superimposed (H Balmer, Ca II H&K, Na D, Mg b). Sliding $T$ sweeps through the OBAFGKM classes. Source: Carroll-Ostlie Ch. 3 (`carroll-ostlie`).

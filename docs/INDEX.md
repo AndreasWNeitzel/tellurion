@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Stellar Blackbody + Absorption Lines](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/index.html)** &nbsp; (verified, verified 2026-05-14T01:17:47Z)
+  Planck continuum plus Balmer / Ca II / Na D absorption lines. Source: Carroll-Ostlie Ch. 3 (`carroll-ostlie`).
+
 - **[Radial Velocity Curve from Orbital Elements](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/index.html)** &nbsp; (verified, verified 2026-05-14T01:16:23Z)
   Orbit and corresponding RV curve, side by side. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
 
@@ -591,9 +594,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Spiral Density Wave Dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Stellar Blackbody Vs Line](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (draft)

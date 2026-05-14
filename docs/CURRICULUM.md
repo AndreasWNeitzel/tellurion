@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 59 |
+| draft | 58 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 133 |
+| verified | 134 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -154,7 +154,7 @@ Total playgrounds: 203
 - **Rotation Curve Explorer** ([AST2004-rotation-curve-explorer](../playgrounds/bsc-y2s1/AST2004-rotation-curve-explorer/)). Status: `in-progress`. citation pending (supporting: MAA-GD).
 - **Saha-Boltzmann Hydrogen Ionization** ([AST2004-saha-boltzmann-ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/)). Status: `verified`. `carroll-ostlie` ch 8 (supporting: MAA-SP).
 - **Schwarzschild Effective Potential and the ISCO** ([AST2004-schwarzschild-effective-potential](../playgrounds/bsc-y2s1/AST2004-schwarzschild-effective-potential/)). Status: `verified`. citation pending (supporting: AST3017).
-- **Stellar Blackbody Vs Line** ([AST2004-stellar-blackbody-vs-line](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/)). Status: `draft`. `carroll-ostlie` ch 3 (supporting: MAA-SP); Planck function plus Voigt absorption line analytic.
+- **Stellar Blackbody + Absorption Lines** ([AST2004-stellar-blackbody-vs-line](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/)). Status: `verified`. `carroll-ostlie` ch 3 (supporting: MAA-SP).
 - **Three-Body Figure-Eight Choreography** ([AST2004-three-body-orbit](../playgrounds/bsc-y2s1/AST2004-three-body-orbit/)). Status: `in-progress`. citation pending (supporting: FIS2021, FIS1013).
 - **Transit Mandel Agol Analytic** ([AST2004-transit-mandel-agol-analytic](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/)). Status: `draft`. `carroll-ostlie` ch 7 (supporting: MAA-SS); Mandel and Agol 2002 closed-form light curve.
 
