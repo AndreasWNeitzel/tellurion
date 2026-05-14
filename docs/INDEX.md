@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Michelson Fringe Counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/index.html)** &nbsp; (verified, verified 2026-05-14T01:01:49Z)
+  Moving one arm of a Michelson interferometer by $\lambda/2$ produces one full fringe at the center. The rendered pattern is the ring system for a divergent source. Source: Hecht Optics Ch. 9.4 (`hecht2017`).
+
 - **[Method of Images: Charge Above a Grounded Plane](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/index.html)** &nbsp; (verified, verified 2026-05-14T00:59:47Z)
   A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2 (`griffiths-em`).
 
@@ -513,9 +516,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Main Sequence Mass Luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Michelson Fringe Counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Mode Trapping Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (draft)

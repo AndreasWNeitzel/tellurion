@@ -1,33 +1,24 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Michelson Fringe Counter</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Michelson Fringe Counter</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Michelson Fringe Counter</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Michelson interferometer fringe counter</h1>
+<p><strong>What you are seeing:</strong> a Michelson interferometer with one movable mirror. Moving the mirror by $\lambda/2$ produces one full fringe (the optical path difference changes by $\lambda$ since the light travels the arm twice). The ring pattern is the divergent-source case; the count tracks how many fringes pass the center as the mirror moves. Source: Hecht Optics Ch. 9.4 (`hecht2017`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">d:</span><span class="value" id="readout-d">0 nm</span><span class="label">fringes:</span><span class="value" id="readout-n">0</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Michelson rings and fringe count. Each fringe corresponds to a $\lambda/2$ mirror displacement. Source: Hecht Optics Ch. 9.4 (`hecht2017`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">λ (nm)</span><input type="range" id="slider-lambda" min="380" max="780" step="1" value="633"><span class="value" id="value-lambda">633</span></div>
+<div class="row"><span class="label">drift rate (nm/s)</span><input type="range" id="slider-rate" min="0" max="2000" step="10" value="200"><span class="value" id="value-rate">200</span></div>
+<div class="row"><span class="label">arm ratio I2/I1</span><input type="range" id="slider-vis" min="0.1" max="1" step="0.05" value="1"><span class="value" id="value-vis">1.0</span></div>
+<div class="row"><span class="label">source</span>
+  <select id="select-src" style="grid-column: span 2;">
+    <option value="ring">Extended (rings)</option>
+    <option value="wedge">Wedge (lines)</option>
+    <option value="point">Point (uniform)</option>
+  </select>
+</div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><button id="btn-step" type="button">Step lambda/2</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>

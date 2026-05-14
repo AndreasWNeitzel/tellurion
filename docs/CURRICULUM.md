@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 71 |
+| draft | 70 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 121 |
+| verified | 122 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -87,7 +87,7 @@ Total playgrounds: 203
 
 1 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Michelson Fringe Counter** ([FIS1015-michelson-fringe-counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/)). Status: `draft`. `hecht2017` ch 9 (supporting: FIS3019); fringe count = 2 d / lambda within 0.5 percent.
+- **Michelson Fringe Counter** ([FIS1015-michelson-fringe-counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/)). Status: `verified`. `hecht2017` ch 9.
 
 ### M1015 Analysis II
 
