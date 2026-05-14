@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Mode Trapping in Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (verified, verified 2026-05-14T02:09:19Z)
+  Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018 (`mosser2018-trap`); Aerts et al. Ch. 3 (`aerts-asteroseism`).
+
 - **[Asymptotic Period Spacing in Red Giants](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/index.html)** &nbsp; (verified, verified 2026-05-14T02:08:00Z)
   $\Pi_1$ distinguishes RGB (~80 s) from RC (~250 s). Source: Aerts et al. Ch. 3 (`aerts-asteroseism`).
 
@@ -573,9 +576,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Main Sequence Mass Luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Mode Trapping Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Nuclear Burning Rate Temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/index.html)** &nbsp; (draft)

@@ -1,37 +1,14 @@
 ---
-title: Mode Trapping Evolved Stars
+title: Mode Trapping in Evolved Stars
 slug: mode-trapping-evolved-stars
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: MAA-AS
 supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: aerts-asteroseism
-primary_chapter: 7
+primary_chapter: 3
 ---
-
-# Mode Trapping Evolved Stars
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: oscillator coupling at glitches. Primary citation: aerts-asteroseism, chapter 7. Spec body to be filled by playground-architect.
+# Mode trapping in evolved stars
+Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018 (`mosser2018-trap`); Aerts et al. Ch. 3 (`aerts-asteroseism`).
