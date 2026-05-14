@@ -1,3 +1,4 @@
-import { test } from '@playwright/test';
-import { runVisualTest } from '../../../tests/visual-test-runner.mjs';
-test('lorenz-attractor-3d-ensemble visual', async ({ page }) => { await runVisualTest(page, 'playgrounds/_heroes/lorenz-attractor-3d-ensemble'); });
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { registerVisualGate } from '../../../tests/visual-test-runner.mjs';
+registerVisualGate(path.dirname(fileURLToPath(import.meta.url)), 'lorenz-attractor-3d-ensemble visual gate');
