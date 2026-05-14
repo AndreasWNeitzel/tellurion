@@ -1,33 +1,14 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jeans Isothermal Sphere</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Jeans Isothermal Sphere</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Isothermal Sphere</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Singular isothermal sphere</h1>
+<p><strong>What you are seeing:</strong> the Jeans-equation solution for an isothermal, self-gravitating sphere has $\rho \propto r^{-2}$, $M(\lt r) \propto r$, and a flat circular-velocity curve $v_c = \sqrt 2 \sigma$. This is the canonical "flat rotation curve" of an isothermal halo. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">v_c:</span><span class="value" id="readout-v">0 km/s</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Rotation curve flat at $\sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">σ (km/s)</span><input type="range" id="slider-s" min="20" max="300" step="5" value="200"><span class="value" id="value-s">200</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>
