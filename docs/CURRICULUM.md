@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 42 |
+| draft | 41 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 150 |
+| verified | 151 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -234,7 +234,7 @@ Total playgrounds: 203
 
 - **Aperture Photometry** ([AST3015-aperture-photometry-toy](../playgrounds/bsc-y3s1/AST3015-aperture-photometry-toy/)). Status: `verified`. `howell-ccd` ch 5.
 - **Kepler Equation Newton Iteration** ([AST3015-kepler-equation-newton-iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/)). Status: `verified`. `carroll-ostlie` ch 2 (supporting: AST2004).
-- **Least Squares Orbit Fit Gauss** ([AST3015-least-squares-orbit-fit-gauss](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/)). Status: `draft`. `press2007` ch 15 (supporting: MAA-ST); chi^2 minimization on synthetic noisy ephemerides.
+- **Least-Squares Orbit Fit (Gauss Heritage)** ([AST3015-least-squares-orbit-fit-gauss](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/)). Status: `verified`. `bmw` ch 5.
 - **Particle-Mesh Self-Gravitating 2D Disk** ([AST3015-particle-mesh-2d-disk](../playgrounds/bsc-y3s1/AST3015-particle-mesh-2d-disk/)). Status: `verified`. citation pending (supporting: MAA-GD).
 
 ### FIS3019 Optics and Photonics

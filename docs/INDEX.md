@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Least-Squares Orbit Fit (Gauss Heritage)](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/index.html)** &nbsp; (verified, verified 2026-05-14T01:41:22Z)
+  Noisy positions along a Kepler orbit; fit a circle by least squares. The fit is biased when $e > 0$. Source: Bate-Mueller-White Ch. 5 (`bmw`).
+
 - **[Aperture Photometry](../playgrounds/bsc-y3s1/AST3015-aperture-photometry-toy/index.html)** &nbsp; (verified, verified 2026-05-14T01:39:59Z)
   Synthetic Moffat PSF on a CCD; aperture + sky annulus recovers true flux. Source: Howell CCD Handbook (`howell-ccd`).
 
@@ -540,9 +543,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Least Squares Orbit Fit Gauss](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Linear Perturbation Growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (draft)

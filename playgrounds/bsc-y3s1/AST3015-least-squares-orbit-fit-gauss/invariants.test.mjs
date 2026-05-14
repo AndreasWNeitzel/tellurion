@@ -1,28 +1,22 @@
-// Least Squares Orbit Fit Gauss invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Least Squares Orbit Fit Gauss invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { generateData, fitCircle, rms } from './sim.js';
+describe('least-squares-orbit-fit-gauss', () => {
+  it('fitCircle exact on 3 noiseless points', () => {
+    const data = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
+    const f = fitCircle(data);
+    expect(Math.abs(f.x0)).toBeLessThan(1e-6);
+    expect(Math.abs(f.y0)).toBeLessThan(1e-6);
+    expect(Math.abs(f.r - 1)).toBeLessThan(1e-6);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('rms is zero on noiseless circle', () => {
+    const data = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }];
+    const f = fitCircle(data);
+    expect(rms(data, f)).toBeLessThan(1e-6);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Fitting noisy circular orbit recovers radius to within 5%', () => {
+    const times = Array.from({ length: 30 }, (_, i) => i / 30);
+    const data = generateData(1, 0, 0, 1, times, 0.05, 0xABCD);
+    const f = fitCircle(data);
+    expect(Math.abs(f.r - 1)).toBeLessThan(0.05);
+  });
 });
