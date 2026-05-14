@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Chandrasekhar Dynamical Friction](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (verified, verified 2026-05-14T02:16:00Z)
+  Friction on a massive perturber in a Maxwellian background; peaks near $v \sim \sigma$. Source: Binney-Tremaine Ch. 8 (`binney-tremaine`).
+
 - **[Linear Perturbation Growth in LCDM](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (verified, verified 2026-05-14T02:14:54Z)
   $\delta \propto a$ in matter era; Lambda saturates growth. Source: Liddle Ch. 12 (`liddle-cosmology`).
 
@@ -573,9 +576,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
 
 - **[Convection Mixing Length](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Dynamical Friction Chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)

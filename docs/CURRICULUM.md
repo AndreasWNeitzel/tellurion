@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 13 |
+| draft | 12 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 179 |
+| verified | 180 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -344,7 +344,7 @@ Total playgrounds: 203
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Dynamical Friction Chandrasekhar** ([MAA-GD-dynamical-friction-chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/)). Status: `draft`. `binneytremaine2008` ch 8; ln(Lambda) factor plus analytic decel.
+- **Chandrasekhar Dynamical Friction** ([MAA-GD-dynamical-friction-chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/)). Status: `verified`. `binney-tremaine` ch 8.
 - **Jeans Isothermal Sphere** ([MAA-GD-jeans-isothermal-sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/)). Status: `draft`. `binneytremaine2008` ch 4; density profile rho ~ r^-2 analytic.
 - **Orbits In Axisymmetric Potential** ([MAA-GD-orbits-in-axisymmetric-potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/)). Status: `draft`. `binneytremaine2008` ch 3; surface-of-section regular vs chaotic.
 - **Spiral Density Wave Dispersion** ([MAA-GD-spiral-density-wave-dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/)). Status: `draft`. `binneytremaine2008` ch 6; Lin-Shu dispersion relation.
