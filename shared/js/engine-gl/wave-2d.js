@@ -6,6 +6,7 @@
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
 import { createFBO } from './fbo.js';
+import { setupPostProcess } from './postprocess.js';
 
 const VS_QUAD = `#version 300 es
 layout(location = 0) in vec2 a;
@@ -175,12 +176,20 @@ export function setupWave2DGL(canvas, N = 96) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.fbo); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
     });
   }
+  let sceneFBO = null, post = null;
+  function ensureScene(w, h) {
+    if (!sceneFBO || sceneFBO.w !== w || sceneFBO.h !== h) {
+      sceneFBO = createFBO(gl, w, h, { depth: true });
+      post = setupPostProcess(gl, w, h);
+    }
+  }
   function renderSurface(width, height, height_scale, t) {
+    ensureScene(width, height);
     gl.useProgram(surfProg);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, width, height);
     gl.clearColor(0.024, 0.024, 0.031, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     // Camera at 30 deg elevation, 45 deg azimuth orbit (with idle drift).
@@ -201,6 +210,9 @@ export function setupWave2DGL(canvas, N = 96) {
     gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
+    gl.disable(gl.DEPTH_TEST);
+    // Bloom on bright wave crests.
+    post.run(sceneFBO.tex, 0.95, 0.25, 0.4);
   }
   function readback() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, A.fbo);

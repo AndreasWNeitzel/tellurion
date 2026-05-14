@@ -2,6 +2,8 @@
 // Reference: Smart, Celestial Mechanics; texture-from-noise pattern.
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
+import { createFBO } from './fbo.js';
+import { setupPostProcess } from './postprocess.js';
 
 const VS_SPHERE = `#version 300 es
 layout(location = 0) in vec3 aPos;
@@ -90,9 +92,14 @@ export function setupEarthGL(canvas) {
   const axisVBO = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, axisVBO);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, -1.3, 0, 0, 1.3, 0]), gl.STATIC_DRAW);
+  let sceneFBO = null, post = null;
   function render(t, obliquityDeg, precessionDeg) {
     const W = canvas.width, H = canvas.height;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (!sceneFBO || sceneFBO.w !== W || sceneFBO.h !== H) {
+      sceneFBO = createFBO(gl, W, H, { depth: true });
+      post = setupPostProcess(gl, W, H);
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.clearColor(0.024, 0.024, 0.031, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -131,6 +138,9 @@ export function setupEarthGL(canvas) {
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.lineWidth(2);
     gl.drawArrays(gl.LINES, 0, 2);
+    gl.disable(gl.DEPTH_TEST);
+    // Subtle bloom on the bright Earth-lit hemisphere and axis.
+    post.run(sceneFBO.tex, 0.9, 0.25, 0.35);
   }
   return { render };
 }

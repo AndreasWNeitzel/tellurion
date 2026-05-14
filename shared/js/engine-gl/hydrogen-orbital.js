@@ -5,6 +5,8 @@
 // Reference: Wittenbrink et al. 1998 (`gpugems`); Eisberg-Resnick Ch. 5 (`eisberg-resnick`).
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
+import { createFBO } from './fbo.js';
+import { setupPostProcess } from './postprocess.js';
 import { densityAt } from '../engine/hydrogen-orbital-cpu.js';
 
 const VS_QUAD = `#version 300 es
@@ -84,6 +86,9 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
   const vbo = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const W = canvas.width, H = canvas.height;
+  const sceneFBO = createFBO(gl, W, H);
+  const post = setupPostProcess(gl, W, H);
   function fillVolume(n, l, m) {
     // Compute |psi|^2 on the cube [-rmax, rmax]^3 with rmax ~ 6 a_0 n.
     const rmax = 6 * n;
@@ -109,9 +114,8 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
     gl.texSubImage3D(gl.TEXTURE_3D, 0, 0, 0, 0, gridSize, gridSize, gridSize, gl.RED, gl.HALF_FLOAT, half);
   }
   function render(t) {
-    const W = canvas.width, H = canvas.height;
     gl.useProgram(prog);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_3D, tex);
     gl.uniform1i(gl.getUniformLocation(prog, 'uVolume'), 0);
@@ -131,6 +135,8 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // Bloom on bright voxels (emission-only volumes).
+    post.run(sceneFBO.tex, 0.75, 0.25, 0.5);
   }
   return { fillVolume, render };
 }

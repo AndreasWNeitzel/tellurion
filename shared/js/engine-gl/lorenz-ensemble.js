@@ -7,6 +7,7 @@
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
 import { createFBO } from './fbo.js';
+import { setupPostProcess } from './postprocess.js';
 
 const VS_QUAD = `#version 300 es
 layout(location = 0) in vec2 a;
@@ -117,6 +118,9 @@ export function setupLorenzGL(canvas, N_root = 32) {
   // Re-bind format: createFBO is RGBA16F; for accumulation we want a higher-precision color.
   // Use a separate FBO.
   const accumA = createFBO(gl, W, H);
+  // HDR pre-composite for postprocess (renderProg writes here instead of default fb).
+  const sceneFBO = createFBO(gl, W, H);
+  const post = setupPostProcess(gl, W, H);
   // Initial state: small ball around (1, 1, 1).
   function init(seed = 0xC0FFEE) {
     const data = new Float32Array(N_root * N_root * 4);
@@ -181,14 +185,17 @@ export function setupLorenzGL(canvas, N_root = 32) {
     gl.blitFramebuffer(0, 0, W, H, 0, 0, W, H, gl.COLOR_BUFFER_BIT, gl.NEAREST);
   }
   function render() {
+    // Pass 1: scene to HDR FBO.
     gl.useProgram(renderProg);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, accumA.tex);
     gl.uniform1i(gl.getUniformLocation(renderProg, 'uAccum'), 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, quadVBO);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // Pass 2: bloom + ACES + dither + vignette to default fb.
+    post.run(sceneFBO.tex, 0.9, 0.25, 0.6);
   }
   // Camera matrices.
   function camera(t) {

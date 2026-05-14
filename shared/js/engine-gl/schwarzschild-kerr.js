@@ -6,6 +6,8 @@
 // Reference: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
+import { createFBO } from './fbo.js';
+import { setupPostProcess } from './postprocess.js';
 
 const VS_QUAD = `#version 300 es
 layout(location = 0) in vec2 a;
@@ -100,14 +102,17 @@ void main() {
 
 export function setupBHGL(canvas) {
   const gl = createGL2(canvas);
+  if (!gl.getExtension('EXT_color_buffer_float')) throw new Error('EXT_color_buffer_float unavailable');
   const prog = compileProgram(gl, VS_QUAD, FS_BH);
   const vbo = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const W = canvas.width, H = canvas.height;
+  const sceneFBO = createFBO(gl, W, H);
+  const post = setupPostProcess(gl, W, H);
   function render(t, aOverM, inclDeg) {
-    const W = canvas.width, H = canvas.height;
     gl.useProgram(prog);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.uniform2f(gl.getUniformLocation(prog, 'uRes'), W, H);
     gl.uniform1f(gl.getUniformLocation(prog, 'uAoverM'), aOverM);
@@ -116,6 +121,8 @@ export function setupBHGL(canvas) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // Bloom on hot disk pixels.
+    post.run(sceneFBO.tex, 0.85, 0.25, 0.55);
   }
   return { render };
 }

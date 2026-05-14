@@ -4,6 +4,8 @@
 // Reference: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`); standard 3D rendering.
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
+import { createFBO } from './fbo.js';
+import { setupPostProcess } from './postprocess.js';
 
 const VS_VESSEL = `#version 300 es
 layout(location = 0) in vec3 aPos;
@@ -121,9 +123,14 @@ export function setupTokamakGL(canvas) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(hues), gl.DYNAMIC_DRAW);
     lineLen = verts.length / 3;
   }
+  let sceneFBO = null, post = null;
   function render(t, R = 1.0, a = 0.35, q = 3) {
     const W = canvas.width, H = canvas.height;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (!sceneFBO || sceneFBO.w !== W || sceneFBO.h !== H) {
+      sceneFBO = createFBO(gl, W, H, { depth: true });
+      post = setupPostProcess(gl, W, H);
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.clearColor(0.024, 0.024, 0.031, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -160,6 +167,9 @@ export function setupTokamakGL(canvas) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboT);
     gl.drawElements(gl.TRIANGLES, torus.idx.length, gl.UNSIGNED_SHORT, 0);
     gl.depthMask(true); gl.disable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
+    // Bloom on bright field-line tubes.
+    post.run(sceneFBO.tex, 0.85, 0.25, 0.55);
   }
   return { buildFieldLines, render };
 }
