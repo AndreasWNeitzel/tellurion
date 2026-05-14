@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Cosmic Distance Ladder](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (verified, verified 2026-05-14T01:47:15Z)
+  Four-rung overlap and error propagation. Source: Carroll-Ostlie Ch. 24 (`carroll-ostlie`).
+
 - **[BBN Light-Element Abundances](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/index.html)** &nbsp; (verified, verified 2026-05-14T01:46:07Z)
   Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11 (`liddle-cosmology`).
 
@@ -534,9 +537,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Curvature Tensor 2d Surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Distance Ladder Toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Dynamical Friction Chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)

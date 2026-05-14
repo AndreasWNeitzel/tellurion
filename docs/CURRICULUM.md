@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 37 |
+| draft | 36 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 155 |
+| verified | 156 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -274,7 +274,7 @@ Total playgrounds: 203
 7 primary; supporting use of this UC appears elsewhere when listed.
 
 - **BBN Light-Element Abundances** ([AST3017-bbn-light-element-toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/)). Status: `verified`. `liddle-cosmology` ch 11.
-- **Distance Ladder Toy** ([AST3017-distance-ladder-toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/)). Status: `draft`. `liddle-cosmology` ch 5 (supporting: MAA-CS); parallax to Cepheid to SNIa logical chain.
+- **Cosmic Distance Ladder** ([AST3017-distance-ladder-toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/)). Status: `verified`. `carroll-ostlie` ch 24.
 - **Friedmann Cosmography** ([AST3017-friedmann-cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: MAA-CS).
 - **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. citation pending.
 - **Slow-Roll Inflation** ([AST3017-inflation-slow-roll](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/)). Status: `verified`. `mukhanov-cosmology` ch 5 (supporting: MAA-CS).

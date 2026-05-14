@@ -1,28 +1,16 @@
-// Distance Ladder Toy invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Distance Ladder Toy invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { distanceModulus, ladderUncertainty, RANGE_PC } from './sim.js';
+describe('distance-ladder-toy', () => {
+  it('distance modulus at 10 pc is 0', () => {
+    expect(distanceModulus(10)).toBe(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('distance modulus at 1 kpc is 10', () => {
+    expect(Math.abs(distanceModulus(1000) - 10)).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('ladder error: orthogonal sum of rung errors', () => {
+    expect(Math.abs(ladderUncertainty([0.03, 0.04]) - 0.05)).toBeLessThan(1e-12);
+  });
+  it('parallax range starts at 1 pc', () => {
+    expect(RANGE_PC.parallax[0]).toBe(1);
+  });
 });
