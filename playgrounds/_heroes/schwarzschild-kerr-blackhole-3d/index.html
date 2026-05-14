@@ -1,18 +1,34 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Schwarzschild-Kerr black hole</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-slot="title">Schwarzschild-Kerr Black Hole 3D (Hero)</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
-<h1>Schwarzschild-Kerr black hole (3D hero)</h1>
-<p><strong>What you are seeing:</strong> a black-hole schematic with three characteristic surfaces: event horizon $r_+ = M + \sqrt{M^2 - a^2}$ (black disk), photon sphere $r_{\rm ph} = 3M$ (Schwarzschild; orange ring), and outer ergosphere $r_{\rm erg}(\theta) = M + \sqrt{M^2 - a^2 \cos^2\theta}$ (purple). The inner accretion disk truncates at the ISCO, which migrates inward for prograde Kerr spin. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).</p>
-<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">r_ISCO:</span><span class="value" id="readout-r">6.0 M</span></div>
-<figcaption><span class="figure-number">Figure 1.</span> Schwarzschild-Kerr black-hole geometry: horizon, photon sphere, ergosphere, ISCO. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).</figcaption></figure>
-<div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">a/M</span><input aria-label="a/M" type="range" id="slider-a" min="-1" max="1" step="0.01" value="0"><span class="value" id="value-a">0.00</span></div>
-<div class="row"><span class="label">incl. (deg)</span><input aria-label="incl. (deg)" type="range" id="slider-i" min="0" max="89" step="1" value="20"><span class="value" id="value-i">20</span></div>
-<div class="row buttons"><button id="btn-reset" type="button">Reset (Schwarzschild)</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
-</div>
-<script type="module" src="./playground.js"></script></body></html>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+  body { padding: var(--space-4); }
+  .pg-figure { max-width: 920px; position: relative; }
+  .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; display: block; }
+  .pg-figure canvas.dragging { cursor: grabbing; }
+  .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 16ch 12ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: auto; }
+  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+</style></head><body>
+<header>
+  <h1 data-slot="title">Schwarzschild-Kerr Black Hole 3D (Hero)</h1>
+  <div data-slot="description" class="katex-target">Per-pixel null-geodesic ray-march in the Schwarzschild metric. Black-hole shadow + photon ring at $b_c = 3\sqrt{3}M$, gravitationally lensed starfield, thin accretion disk at the ISCO with Planck-temperature color. Drag to orbit, scroll to zoom; the inclination slider controls camera latitude.</div>
+</header>
+<figure class="pg-figure">
+  <canvas id="stage" width="900" height="600"></canvas>
+  <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Schwarzschild null-geodesic ray-march. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).</figcaption>
+</figure>
+<div id="controls" class="pg-controls"></div>
+<div id="custom-controls"></div>
+<script type="module" src="./playground.js"></script>
+</body></html>

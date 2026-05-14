@@ -1,5 +1,7 @@
 ---
 title: Schwarzschild-Kerr Black Hole 3D (Hero)
+description: 'Per-pixel null-geodesic ray-march in the Schwarzschild metric. Black-hole shadow + photon ring at $b_c = 3\sqrt{3}M$, gravitationally lensed starfield, thin accretion disk at the ISCO with Planck-temperature color. Drag to orbit, scroll to zoom; the inclination slider controls camera latitude.'
+caption: 'Figure 1. Schwarzschild null-geodesic ray-march. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).'
 slug: schwarzschild-kerr-blackhole-3d
 status: verified
 audience: portfolio

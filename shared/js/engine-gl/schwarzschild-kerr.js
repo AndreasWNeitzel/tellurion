@@ -1,9 +1,16 @@
-// WebGL2 black-hole renderer. Per-pixel weak-field geodesic deflection +
-// horizon/photon-ring capture rule + Planck-blackbody disk emission with
-// gravitational redshift. ACES + bloom + vignette on final pass.
-// Not a full Kerr ray-trace; visualizes the qualitative features at MVP level
-// while the per-pixel RK4 Boyer-Lindquist integration is queued.
-// Reference: Shapiro-Teukolsky Ch. 12 (shapiro-teukolsky).
+// Schwarzschild + Kerr (perturbative) black hole hero engine.
+// Backward ray-march: for each pixel, build the world-space primary ray, then
+// integrate u(phi) = M / r in the ray's orbital plane (Schwarzschild ODE
+// d2u/dphi2 + u = 3 M u^2). At every step the 3D position is reconstructed
+// in world space; equatorial-plane crossings within [r_in, r_out] sample the
+// disk emission, horizon crossings give the shadow, escaping rays sample a
+// CPU-generated equirectangular star texture in their deflected direction.
+//
+// For non-zero a/M the geodesic ODE is the same to leading order; the spin
+// enters via (i) the horizon r_+ = M + sqrt(M^2 - a^2), (ii) the ISCO used to
+// position the disk inner edge, and (iii) a frame-dragging azimuth twist
+// applied per step so the shadow visibly grows asymmetric at high spin.
+
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
 import { createFBO } from './fbo.js';
@@ -18,18 +25,19 @@ const FS_BH = `#version 300 es
 precision highp float;
 in vec2 uv;
 uniform vec2 uRes;
-uniform float uAoverM;
-uniform float uInclDeg;
-uniform float uTime;
+uniform vec3 uEye;
+uniform vec3 uForward;
+uniform vec3 uRight;
+uniform vec3 uUp;
+uniform float uTanHalfFov;
+uniform float uAspect;
+uniform float uDiskInner;
+uniform float uDiskOuter;
+uniform float uAOverM;
+uniform sampler2D uStars;
 out vec4 oColor;
 
-float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-vec3 viridis(float t) {
-  t = clamp(t, 0.0, 1.0);
-  return vec3(clamp(0.267 + 0.105*t - 0.330*t*t + 1.000*t*t*t, 0.0, 1.0),
-              clamp(0.005 + 1.404*t - 0.479*t*t, 0.0, 1.0),
-              clamp(0.329 + 0.749*t - 0.972*t*t, 0.0, 1.0));
-}
+// Planck blackbody at temperature T_K -> sRGB; saturates above 15000 K.
 vec3 planck(float T_K) {
   float t = clamp(T_K, 1000.0, 15000.0) * 0.01;
   float r = (t <= 66.0) ? 255.0 : min(255.0, 329.7 * pow(t - 60.0, -0.133));
@@ -37,100 +45,180 @@ vec3 planck(float T_K) {
   float b = (t >= 66.0) ? 255.0 : ((t <= 19.0) ? 0.0 : min(255.0, 138.5 * log(t - 10.0) - 305.0));
   return vec3(max(0.0, r), max(0.0, g), max(0.0, b)) / 255.0;
 }
+
+// Sample an equirectangular environment map by world-space direction.
+vec3 sampleEnv(vec3 dir) {
+  vec3 d = normalize(dir);
+  float lon = atan(d.z, d.x);
+  float lat = asin(clamp(d.y, -1.0, 1.0));
+  vec2 uv2 = vec2(lon / (2.0 * 3.14159265) + 0.5, lat / 3.14159265 + 0.5);
+  return texture(uStars, uv2).rgb;
+}
+
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 
-// Schwarzschild null-geodesic in (r, phi) plane.
-// ODE: d2u/dphi2 + u = 3 u^2  (with M = 1).
-// Initial: u = 0, du/dphi = -1/b (incoming from r = infinity).
-// We march forward in phi until u > 1/2 (horizon, r < 2M) or u < 1e-3 (escape) or disk crossing.
-// At each step, check the in-plane angle phi and look for the disk plane crossing.
-// Reference: Shapiro-Teukolsky Ch. 12 (shapiro-teukolsky).
-
 void main() {
-  vec2 frag = uv * uRes - uRes * 0.5;
-  float pxScale = 30.0;
-  vec2 pos = frag / pxScale;
-  float b = length(pos);
-  float impactAngle = atan(pos.y, pos.x);
-  if (b < 0.05) { oColor = vec4(0.0); return; }
-
-  // Geodesic plane is the plane containing camera direction and BH center.
-  // For visualization we project the disk's 3D orientation into this plane via inclination.
-  float incl = uInclDeg * 0.01745329;
-  // The 'disk axis' in image-plane coords: y = b sin(impact-angle).
-  // We integrate u(phi) and at each step check the orthogonal coordinate (pos.y / cos(incl) above midplane).
-
-  // Bookkeeping: u, du/dphi, phi, plus the previous orthogonal coordinate to detect midplane crossings.
-  float u = 1e-3;            // start near infinity.
-  float du = -1.0 / b;       // incoming ray.
+  // World-space primary ray.
+  vec2 ndc = uv * 2.0 - 1.0;
+  vec3 rayDir = normalize(uForward + uRight * (ndc.x * uTanHalfFov * uAspect) + uUp * (ndc.y * uTanHalfFov));
+  // Impact parameter (perpendicular distance from origin to ray line).
+  float tFoot = -dot(uEye, rayDir);
+  vec3 foot = uEye + tFoot * rayDir;
+  float b = length(foot);
+  // Build orbital-plane basis. e1 from BH toward periapsis, e2 along the ray.
+  vec3 e1 = (b > 1e-6) ? (-foot / b) : vec3(1.0, 0.0, 0.0);
+  vec3 e2 = normalize(rayDir - dot(rayDir, e1) * e1);
+  // Horizon radius (Kerr outer event horizon).
+  float rH = 1.0 + sqrt(max(0.0, 1.0 - uAOverM * uAOverM));
+  // Capture condition: rays with b below ~b_crit fall in. We rely on the ODE
+  // dynamics rather than a hard cut, so the photon ring emerges naturally.
+  if (b < 0.05) { oColor = vec4(vec3(0.0), 1.0); return; }
+  // Integrate u(phi). Start at u = 1/r_eye, with du from the incoming ray.
+  // Approximate: at the camera (r = |uEye|), u_eye = M / r_eye. The ray's
+  // dphi/dr is set by the geometry: phi increases from 0 at the camera.
+  float r_eye = length(uEye);
+  float u = 1.0 / r_eye;
+  // Conservation: (du/dphi)^2 = 1/b^2 - u^2 + 2 u^3 (Schwarzschild, M=1).
+  // Inbound (photon approaches the BH, r decreases, so u increases with phi):
+  // du > 0. We start at the camera (r = r_eye) on the inbound branch.
+  float disc = 1.0 / (b * b) - u * u + 2.0 * u * u * u;
+  float du = (disc > 0.0) ? sqrt(disc) : 1.0 / b;
   float phi = 0.0;
-  float dphi = 0.025;        // integration step (radians).
-  vec3 col = vec3(0.0);
+  // Frame-dragging twist: rotate phi by a small spin-dependent amount per step.
+  // Sign chosen so prograde (a > 0) drags forward.
+  float dphi = 0.015;
   bool captured = false;
-  bool diskHit = false;
-  float diskColMul = 1.0;
-  int  diskCrossings = 0;
-  float r_disk_in_pro = (uAoverM >= 0.0) ? max(2.05, 6.0 - 5.0 * uAoverM) : 6.0 - uAoverM * 3.0;
-  float r_disk_out = 22.0;
-  float prevY = b * sin(impactAngle);  // approximate ortho coordinate at entry.
-
-  for (int i = 0; i < 240; i += 1) {
-    // RK4 step on (u, du).
-    float k1u = du;
-    float k1d = -u + 3.0 * u * u;
-    float u2 = u + 0.5 * dphi * k1u;
-    float du2 = du + 0.5 * dphi * k1d;
-    float k2u = du2;
-    float k2d = -u2 + 3.0 * u2 * u2;
-    float u3 = u + 0.5 * dphi * k2u;
-    float du3 = du + 0.5 * dphi * k2d;
-    float k3u = du3;
-    float k3d = -u3 + 3.0 * u3 * u3;
-    float u4 = u + dphi * k3u;
-    float du4 = du + dphi * k3d;
-    float k4u = du4;
-    float k4d = -u4 + 3.0 * u4 * u4;
+  bool hitDisk = false;
+  int crossings = 0;
+  vec3 col = vec3(0.0);
+  // Track the y-coordinate of the 3D ray position so we can detect equatorial
+  // plane crossings: y = r * (cos(phi) * e1.y + sin(phi) * e2.y).
+  float prevY = r_eye * e1.y;
+  for (int i = 0; i < 180; i += 1) {
+    float k1u = du, k1d = -u + 3.0 * u * u;
+    float u2 = u + 0.5 * dphi * k1u, du2 = du + 0.5 * dphi * k1d;
+    float k2u = du2, k2d = -u2 + 3.0 * u2 * u2;
+    float u3 = u + 0.5 * dphi * k2u, du3 = du + 0.5 * dphi * k2d;
+    float k3u = du3, k3d = -u3 + 3.0 * u3 * u3;
+    float u4 = u + dphi * k3u, du4 = du + dphi * k3d;
+    float k4u = du4, k4d = -u4 + 3.0 * u4 * u4;
     u += dphi * (k1u + 2.0 * k2u + 2.0 * k3u + k4u) / 6.0;
     du += dphi * (k1d + 2.0 * k2d + 2.0 * k3d + k4d) / 6.0;
     phi += dphi;
-    if (u > 0.5) { captured = true; break; }                // r < 2M.
-    if (u < 1e-3 && phi > 0.5) break;                       // escape to infinity.
-    if (u < 1e-4) break;
-    float r = 1.0 / u;
-    if (r > r_disk_out * 2.0) break;
-    // Detect disk crossing: the in-plane radial position is r; the orthogonal coord
-    // relative to disk plane (assuming small inclination tilt) flips sign when crossing.
-    // We use a simple cos-modulation of phi to model the disk plane orientation.
-    float planeCoord = sin(phi + impactAngle) * cos(incl) + cos(phi + impactAngle) * sin(incl) * sign(pos.y);
-    if (prevY * planeCoord < 0.0 && r > r_disk_in_pro && r < r_disk_out) {
-      diskHit = true; diskCrossings += 1;
-      float T = 1e4 * pow(r_disk_in_pro / r, 0.75);
-      vec3 c = planck(T);
-      // Doppler proxy: blueshifted on prograde side.
-      float doppler = 1.0 + 0.5 * cos(phi + impactAngle - 1.5);
-      col += c * doppler * (diskCrossings == 1 ? 1.0 : 0.35);
-      if (diskCrossings >= 2) break;
+    // Frame-dragging twist proxy: add a small phi increment proportional to a/r^2.
+    float r = 1.0 / max(u, 1e-6);
+    phi += dphi * uAOverM * (1.5 / (r * r));
+    // Capture.
+    if (r < rH * 1.001) { captured = true; break; }
+    // Escape.
+    if (u < 1e-3 && phi > 0.2) break;
+    if (r > 400.0) break;
+    // 3D position in world coords.
+    vec3 pos = r * (cos(phi) * e1 + sin(phi) * e2);
+    float curY = pos.y;
+    if (prevY * curY < 0.0 && r > uDiskInner && r < uDiskOuter) {
+      hitDisk = true; crossings += 1;
+      // Disk emission: Planck temperature T(r) ~ (r_in / r)^(3/4) * T_peak.
+      float T = 1.2e4 * pow(uDiskInner / r, 0.75);
+      vec3 emit = planck(T);
+      // Doppler beaming proxy: orbital velocity v_phi = sqrt(M/r). The brightest
+      // pixel is where the disk's tangent direction aligns with the ray; using
+      // pos.x as a proxy for the line-of-sight component.
+      float vphi = sqrt(1.0 / r);
+      float losDopp = pos.x / r;  // -1..1
+      float g = 1.0 + vphi * losDopp;
+      g = clamp(g, 0.4, 1.6);
+      // Bolometric Doppler factor g^4 for radiation intensity.
+      float gain = pow(g, 4.0);
+      // Color shift: scale temperature by g (approaching = bluer).
+      emit = planck(T * g);
+      // Procedural azimuthal noise on the disk.
+      float ang = atan(pos.z, pos.x);
+      float noise = 0.7 + 0.3 * sin(8.0 * ang + 0.7 * r);
+      // Radial fade: smooth attenuation toward the outer edge so the disk
+      // doesn't leak bright light into the canvas corners after lensing.
+      float edgeFade = 1.0 - smoothstep(uDiskOuter * 0.7, uDiskOuter, r);
+      col += emit * gain * noise * edgeFade * (crossings == 1 ? 1.0 : 0.45);
+      if (crossings >= 2) break;
     }
-    prevY = planeCoord;
+    prevY = curY;
   }
-
-  if (captured) { oColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
-  // Photon-ring brightening near b_crit.
-  float b_crit = 3.0 * sqrt(3.0);
-  if (abs(b - b_crit) < 0.12) col += vec3(1.2, 1.0, 0.6) * 0.8 * (1.0 - abs(b - b_crit) / 0.12);
-  // Starfield where nothing was hit.
-  if (!diskHit && col.x + col.y + col.z < 0.05) {
-    vec2 cell = floor(uv * uRes * 0.1) / 0.1;
-    if (hash(cell) > 0.992) {
-      float h = hash(cell + vec2(1.0));
-      col = vec3(0.7 + 0.3 * h, 0.75, 0.95);
-    }
+  if (captured) { oColor = vec4(col + vec3(0.0), 1.0); return; }
+  // Escape: sample star texture in the bent direction.
+  if (!hitDisk || crossings < 2) {
+    // Deflected direction: rotate the outgoing ray by phi in the orbital plane.
+    vec3 outgoing = normalize(cos(phi) * rayDir + sin(phi) * e2);
+    col += sampleEnv(outgoing);
   }
-  // Vignette + ACES.
-  vec2 c = uv - 0.5;
-  float vign = 1.0 - 0.35 * dot(c, c) * 2.0;
+  vec2 c2 = uv - 0.5;
+  float vign = 1.0 - 0.30 * dot(c2, c2) * 2.0;
   oColor = vec4(aces(col * vign), 1.0);
 }`;
+
+// CPU-generated equirectangular star texture (2048 x 1024 RGBA8).
+function buildStarTexture(gl, W = 2048, H = 1024) {
+  const data = new Uint8Array(W * H * 4);
+  // Faint Milky Way band along a great circle (z-axis equator).
+  // Add procedural noise for a dim diffuse glow.
+  function hash(x) { let s = (x * 2654435761) >>> 0; s = (s ^ (s >>> 16)) >>> 0; return s / 0x100000000; }
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      const lat = (y / H - 0.5) * Math.PI;
+      const bandAtt = Math.exp(-Math.pow(lat / 0.25, 2) * 0.5);
+      const n = hash(x * 1361 + y * 9277);
+      const dim = bandAtt * (0.012 + 0.020 * n);
+      const i = (y * W + x) * 4;
+      data[i] = Math.min(255, dim * 220);
+      data[i + 1] = Math.min(255, dim * 200);
+      data[i + 2] = Math.min(255, dim * 240);
+      data[i + 3] = 255;
+    }
+  }
+  // ~3000 stars; brightness power-law; Gaussian splat radius 1..2.5 px.
+  let s = 0xC0FFEE >>> 0;
+  const rnd = () => { s = Math.imul(s, 1664525) + 1013904223 >>> 0; return s / 0x100000000; };
+  function planckRGB(T) {
+    const t = Math.max(1000, Math.min(15000, T)) / 100;
+    const r = t <= 66 ? 255 : Math.min(255, 329.7 * Math.pow(t - 60, -0.133));
+    const g = t <= 66 ? Math.min(255, 99.5 * Math.log(t) - 161.1) : Math.min(255, 288.1 * Math.pow(t - 60, -0.0755));
+    const b = t >= 66 ? 255 : t <= 19 ? 0 : Math.min(255, 138.5 * Math.log(t - 10) - 305);
+    return [r, g, b];
+  }
+  for (let k = 0; k < 3000; k += 1) {
+    // Uniform on sphere.
+    const z = 1 - 2 * rnd();
+    const phi = rnd() * 2 * Math.PI;
+    const lat = Math.asin(z);
+    const lon = phi - Math.PI;
+    const sx = Math.floor(((lon / (2 * Math.PI)) + 0.5) * W);
+    const sy = Math.floor((lat / Math.PI + 0.5) * H);
+    // Brightness power-law (Salpeter-ish).
+    const u = rnd();
+    const br = Math.pow(u, 2.5);
+    const T = 3000 + rnd() * 9000;
+    const [cr, cg, cb] = planckRGB(T);
+    const sigma = 0.6 + 1.5 * br;
+    const radius = Math.ceil(sigma * 2.5);
+    for (let dy = -radius; dy <= radius; dy += 1) for (let dx = -radius; dx <= radius; dx += 1) {
+      const x2 = sx + dx, y2 = sy + dy;
+      if (x2 < 0 || x2 >= W || y2 < 0 || y2 >= H) continue;
+      const r2 = dx * dx + dy * dy;
+      const g = Math.exp(-r2 / (2 * sigma * sigma)) * br;
+      const i = (y2 * W + x2) * 4;
+      data[i] = Math.min(255, data[i] + cr * g);
+      data[i + 1] = Math.min(255, data[i + 1] + cg * g);
+      data[i + 2] = Math.min(255, data[i + 2] + cb * g);
+    }
+  }
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, W, H, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return tex;
+}
 
 export function setupBHGL(canvas) {
   const gl = createGL2(canvas);
@@ -142,19 +230,44 @@ export function setupBHGL(canvas) {
   const W = canvas.width, H = canvas.height;
   const sceneFBO = createFBO(gl, W, H);
   const post = setupPostProcess(gl, W, H);
-  function render(t, aOverM, inclDeg) {
+  const starTex = buildStarTexture(gl, 2048, 1024);
+
+  function basis(eye, target, up, fovDeg) {
+    const fx = target[0] - eye[0], fy = target[1] - eye[1], fz = target[2] - eye[2];
+    const fl = Math.hypot(fx, fy, fz);
+    const f = [fx / fl, fy / fl, fz / fl];
+    const rx = f[1] * up[2] - f[2] * up[1];
+    const ry = f[2] * up[0] - f[0] * up[2];
+    const rz = f[0] * up[1] - f[1] * up[0];
+    const rl = Math.hypot(rx, ry, rz);
+    const r = [rx / rl, ry / rl, rz / rl];
+    const ux = r[1] * f[2] - r[2] * f[1];
+    const uy = r[2] * f[0] - r[0] * f[2];
+    const uz = r[0] * f[1] - r[1] * f[0];
+    return { forward: f, right: r, up: [ux, uy, uz], tanHalfFov: Math.tan(fovDeg * Math.PI / 180 / 2) };
+  }
+
+  function render(eye, target, up, fovDeg, diskInner, diskOuter, aOverM) {
+    const cam = basis(eye, target, up, fovDeg);
     gl.useProgram(prog);
     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.uniform2f(gl.getUniformLocation(prog, 'uRes'), W, H);
-    gl.uniform1f(gl.getUniformLocation(prog, 'uAoverM'), aOverM);
-    gl.uniform1f(gl.getUniformLocation(prog, 'uInclDeg'), inclDeg);
-    gl.uniform1f(gl.getUniformLocation(prog, 'uTime'), t);
+    gl.uniform3f(gl.getUniformLocation(prog, 'uEye'), eye[0], eye[1], eye[2]);
+    gl.uniform3f(gl.getUniformLocation(prog, 'uForward'), cam.forward[0], cam.forward[1], cam.forward[2]);
+    gl.uniform3f(gl.getUniformLocation(prog, 'uRight'), cam.right[0], cam.right[1], cam.right[2]);
+    gl.uniform3f(gl.getUniformLocation(prog, 'uUp'), cam.up[0], cam.up[1], cam.up[2]);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uTanHalfFov'), cam.tanHalfFov);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uAspect'), W / H);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uDiskInner'), diskInner);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uDiskOuter'), diskOuter);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uAOverM'), aOverM);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, starTex);
+    gl.uniform1i(gl.getUniformLocation(prog, 'uStars'), 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    // Bloom on hot disk pixels.
-    post.run(sceneFBO.tex, 0.85, 0.25, 0.55);
+    post.run(sceneFBO.tex, 0.75, 0.25, 0.7);
   }
-  return { render };
+  return { gl, render };
 }

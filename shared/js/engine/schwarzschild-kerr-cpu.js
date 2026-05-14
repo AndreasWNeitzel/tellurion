@@ -23,3 +23,37 @@ export function horizonOuter(a, M = 1) {
 }
 // Weak-field deflection: phi = 4 M / b.
 export function deflectionWeakField(b, M = 1) { return 4 * M / b; }
+
+// Schwarzschild null-geodesic deflection by RK4 on d2u/dphi2 + u = 3 u^2 (M = 1).
+// Returns { captured, phi, deflection } where deflection = phi - pi for escaped rays.
+export function deflectionAngleSchwarzschild(b, dphi = 0.0005) {
+  // Integrate from u = u_small inbound (du < 0) to the periapsis (du flips sign).
+  // Record phi at periapsis as phi_half. The asymptote sits at phi = -phi_inf
+  // where phi_inf is the angle from u_small to u=0, approximated by integrating
+  // backward in the weak-field tail (negligible for u_small ~ 1e-3 / b).
+  // Total light-bending deflection = 2 * phi_half - pi.
+  const uStart = 1e-3 / b;
+  let u = uStart;
+  // Inbound branch: u increases with phi, so du > 0.
+  let du = Math.sqrt(Math.max(0, 1 / (b * b) - u * u + 2 * u * u * u));
+  let phi = 0;
+  for (let i = 0; i < 400000; i += 1) {
+    const k1u = du, k1d = -u + 3 * u * u;
+    const u2 = u + 0.5 * dphi * k1u, du2 = du + 0.5 * dphi * k1d;
+    const k2u = du2, k2d = -u2 + 3 * u2 * u2;
+    const u3 = u + 0.5 * dphi * k2u, du3 = du + 0.5 * dphi * k2d;
+    const k3u = du3, k3d = -u3 + 3 * u3 * u3;
+    const u4 = u + dphi * k3u, du4 = du + dphi * k3d;
+    const k4u = du4, k4d = -u4 + 3 * u4 * u4;
+    const duNew = du + dphi * (k1d + 2 * k2d + 2 * k3d + k4d) / 6;
+    u += dphi * (k1u + 2 * k2u + 2 * k3u + k4u) / 6;
+    phi += dphi;
+    if (u > 0.5) return { captured: true, phi };
+    if (du > 0 && duNew <= 0) {
+      // Periapsis reached (du flipped from + to -). phi_half = phi at periapsis.
+      return { captured: false, phi, deflection: 2 * phi - Math.PI };
+    }
+    du = duNew;
+  }
+  return { captured: false, phi, deflection: 2 * phi - Math.PI };
+}

@@ -59,9 +59,9 @@ async function gateB() {
   const { page, ctx } = await newPage('');
   try {
     await page.waitForFunction('window.__simulationReady === true', { timeout: 25_000 });
-    const f0 = await page.locator('#stage').screenshot();
+    const f0 = await page.locator('#stage').screenshot({ animations: 'allow', timeout: 10000 });
     await page.waitForTimeout(2000);
-    const f1 = await page.locator('#stage').screenshot();
+    const f1 = await page.locator('#stage').screenshot({ animations: 'allow', timeout: 10000 });
     let diff = 0, total = 0;
     const sz = Math.min(f0.length, f1.length);
     for (let i = 0; i < sz; i += 4) {
