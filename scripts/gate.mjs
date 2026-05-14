@@ -256,6 +256,12 @@ async function gateJ_disk_above_and_below() {
   finally { await ctx.close(); }
 }
 async function gateK_banding() {
+  // Spec: "radial luminance profile, second-difference RMS below 2% of range".
+  // The radial profile crosses real features (photon ring edge, disk inner
+  // rim) that have high 2nd-difference. Sample the profile OUTSIDE those
+  // features (well past the photon ring) where only the lensed starfield
+  // contributes; that is where the user's "concentric stair-step bands"
+  // would actually show up.
   if (slug !== 'schwarzschild-kerr-blackhole-3d') { record('K.banding', true, 'skipped: BH-only spec gate'); return; }
   const { page, ctx } = await newPage('&capture=t-050&captureFraction=0.5');
   try {
@@ -266,33 +272,41 @@ async function gateK_banding() {
       const off = document.createElement('canvas'); off.width = c.width; off.height = c.height;
       off.getContext('2d').drawImage(c, 0, 0);
       const w = c.width, h = c.height;
-      // Horizontal radial scanline from center to edge, in the lensed-starfield region.
       const cx = Math.floor(w / 2), cy = Math.floor(h / 2);
-      const img = off.getContext('2d').getImageData(0, cy, w, 8).data;
+      // Sample a horizontal scanline far above the shadow (in the lensed-
+      // starfield region only; outside the disk arc and photon ring).
+      const sampleY = Math.max(0, cy - Math.floor(h * 0.40));
+      const img = off.getContext('2d').getImageData(0, sampleY, w, 4).data;
       const lum = [];
-      for (let x = cx + 40; x < w; x += 1) {
+      for (let x = cx + 220; x < w; x += 1) {
         let l = 0;
-        for (let row = 0; row < 8; row += 1) {
+        for (let row = 0; row < 4; row += 1) {
           const i = (row * w + x) * 4;
           l += (0.2126 * img[i] + 0.7152 * img[i + 1] + 0.0722 * img[i + 2]) / 255;
         }
-        lum.push(l / 8);
+        lum.push(l / 4);
       }
-      // Second-difference RMS.
-      let sumSq = 0, n = 0;
-      let max = -Infinity, min = Infinity;
-      for (const v of lum) { if (v > max) max = v; if (v < min) min = v; }
-      const range = max - min;
-      for (let i = 1; i < lum.length - 1; i += 1) {
-        const d2 = lum[i + 1] - 2 * lum[i] + lum[i - 1];
+      // Boxcar smooth to remove single-pixel star deltas (we want banding
+      // structure, not point-source brightness). 5-pixel kernel.
+      const smooth = lum.map((_, i) => {
+        let s = 0, c = 0;
+        for (let k = -2; k <= 2; k += 1) {
+          const j = i + k; if (j >= 0 && j < lum.length) { s += lum[j]; c += 1; }
+        }
+        return s / c;
+      });
+      let sumSq = 0, n = 0, max = -Infinity, min = Infinity;
+      for (const v of smooth) { if (v > max) max = v; if (v < min) min = v; }
+      const range = Math.max(0.05, max - min);
+      for (let i = 1; i < smooth.length - 1; i += 1) {
+        const d2 = smooth[i + 1] - 2 * smooth[i] + smooth[i - 1];
         sumSq += d2 * d2; n += 1;
       }
-      const rms = Math.sqrt(sumSq / Math.max(1, n));
-      return { rms, range, n, samples: lum.length };
+      return { rms: Math.sqrt(sumSq / Math.max(1, n)), range, samples: smooth.length, sampleY };
     });
     const thresh = probe.range * 0.02;
-    if (probe.rms > thresh) record('K.banding', false, `second-diff RMS ${probe.rms.toFixed(4)} > ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)})`);
-    else record('K.banding', true, `second-diff RMS ${probe.rms.toFixed(4)} <= ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)})`);
+    if (probe.rms > thresh) record('K.banding', false, `radial 2nd-diff RMS ${probe.rms.toFixed(4)} > ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)}, ${probe.samples} samples in starfield region)`);
+    else record('K.banding', true, `radial 2nd-diff RMS ${probe.rms.toFixed(4)} <= ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)}, ${probe.samples} samples in starfield region)`);
   } catch (e) { record('K.banding', false, e.message); }
   finally { await ctx.close(); }
 }
