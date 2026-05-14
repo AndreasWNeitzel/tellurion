@@ -1,37 +1,14 @@
 ---
-title: Noether Symmetry To Conservation
+title: Noether's Theorem: Symmetry to Conservation
 slug: noether-symmetry-to-conservation
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-primary_citation: goldstein-mech
-primary_chapter: 2
+primary_citation: lemos-mech
+primary_chapter: 4
 ---
-
-# Noether Symmetry To Conservation
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: cyclic coordinate gives conserved momentum exact. Primary citation: goldstein-mech, chapter 2. Spec body to be filled by playground-architect.
+# Noether's theorem
+Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4 (`lemos-mech`).

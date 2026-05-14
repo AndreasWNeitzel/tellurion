@@ -1,28 +1,22 @@
-// Noether Symmetry To Conservation invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Noether Symmetry To Conservation invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { rk4, angularMomentum, energy } from './sim.js';
+describe('noether-symmetry-to-conservation', () => {
+  it('central force: angular momentum conserved', () => {
+    let s = [1, 0, 0, 0.8];
+    const L0 = angularMomentum(s);
+    for (let i = 0; i < 5000; i += 1) s = rk4(s, 0.01, 0);
+    expect(Math.abs(angularMomentum(s) - L0) / Math.abs(L0)).toBeLessThan(0.01);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('symmetry-breaking term causes L to vary', () => {
+    let s = [1, 0, 0, 0.8];
+    const L0 = angularMomentum(s);
+    for (let i = 0; i < 5000; i += 1) s = rk4(s, 0.01, 0.3);
+    expect(Math.abs(angularMomentum(s) - L0)).toBeGreaterThan(0.001);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('time-invariant system: energy conserved', () => {
+    let s = [1, 0, 0, 0.8];
+    const E0 = energy(s, 0);
+    for (let i = 0; i < 5000; i += 1) s = rk4(s, 0.01, 0);
+    expect(Math.abs(energy(s, 0) - E0) / Math.abs(E0)).toBeLessThan(0.01);
+  });
 });

@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 51 |
+| draft | 50 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 141 |
+| verified | 142 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -207,7 +207,7 @@ Total playgrounds: 203
 - **Lorenz Attractor** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `in-progress`. citation pending.
 - **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `in-progress`. citation pending.
 - **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `in-progress`. citation pending (supporting: FIS2018).
-- **Noether Symmetry To Conservation** ([FIS2021-noether-symmetry-to-conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/)). Status: `draft`. `goldstein-mech` ch 2; cyclic coordinate gives conserved momentum exact.
+- **Noether's Theorem: Symmetry to Conservation** ([FIS2021-noether-symmetry-to-conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/)). Status: `verified`. `lemos-mech` ch 4.
 - **Predator-Prey and the Hopf Bifurcation** ([FIS2021-predator-prey-hopf](../playgrounds/bsc-y2s2/FIS2021-predator-prey-hopf/)). Status: `verified`. citation pending.
 - **Rossler Funnel Attractor** ([FIS2021-rossler-funnel](../playgrounds/bsc-y2s2/FIS2021-rossler-funnel/)). Status: `verified`. citation pending.
 - **Chirikov Standard Map - KAM Tori** ([FIS2021-standard-map-kam](../playgrounds/bsc-y2s2/FIS2021-standard-map-kam/)). Status: `verified`. citation pending.

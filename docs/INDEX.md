@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Noether's Theorem: Symmetry to Conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/index.html)** &nbsp; (verified, verified 2026-05-14T01:29:39Z)
+  Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4 (`lemos-mech`).
+
 - **[Liouville Phase-Volume Conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/index.html)** &nbsp; (verified, verified 2026-05-14T01:28:07Z)
   Initial-condition patch stretches but preserves phase-space area under pendulum flow. Source: Lemos Ch. 6 (`lemos-mech`).
 
@@ -543,9 +546,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Mode Trapping Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Noether Symmetry To Conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Nuclear Beta Decay Fermi Vs Gt](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/index.html)** &nbsp; (draft)
