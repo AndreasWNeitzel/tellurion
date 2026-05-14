@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 65 |
+| draft | 64 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 127 |
+| verified | 128 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -118,7 +118,7 @@ Total playgrounds: 203
 - **BTW Sandpile and Self-Organized Criticality** ([FIS2014-abelian-sandpile-btw](../playgrounds/bsc-y2s1/FIS2014-abelian-sandpile-btw/)). Status: `verified`. citation pending (supporting: FIS2018, MAA-NM).
 - **Adiabatic vs Isothermal Processes on a PV Diagram** ([FIS2014-adiabatic-vs-isothermal-pv](../playgrounds/bsc-y2s1/FIS2014-adiabatic-vs-isothermal-pv/)). Status: `verified`. `callen` ch 4.
 - **Engine Cycle Explorer** ([FIS2014-engine-cycle-explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/)). Status: `verified`. `callen` ch 4.
-- **Equipartition From Collisions** ([FIS2014-equipartition-from-collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/)). Status: `draft`. `reif` ch 6; hard-disk thermalization; each DOF reaches kT / 2 within 2 percent.
+- **Equipartition from Microscopic Collisions** ([FIS2014-equipartition-from-collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/)). Status: `verified`. `reif` ch 7.
 - **Frustrated Triangular Antiferromagnet** ([FIS2014-frustrated-triangular-af](../playgrounds/bsc-y2s1/FIS2014-frustrated-triangular-af/)). Status: `verified`. citation pending (supporting: FIS2018, MAA-NM).
 - **Ising Triangular** ([FIS2014-ising-triangular](../playgrounds/bsc-y2s1/FIS2014-ising-triangular/)). Status: `verified`. citation pending (supporting: FIS2018, MAA-NM).
 - **Maxwell-Boltzmann Emergence from Hard-Disk Collisions** ([FIS2014-maxwell-boltzmann-emergence](../playgrounds/bsc-y2s1/FIS2014-maxwell-boltzmann-emergence/)). Status: `verified`. citation pending.

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Equipartition from Microscopic Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (verified, verified 2026-05-14T01:09:53Z)
+  2D hard-disk gas; the mean translational kinetic energy converges to $kT$. Source: Reif Ch. 7 (`reif`).
+
 - **[Engine Cycle Explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/index.html)** &nbsp; (verified, verified 2026-05-14T01:08:34Z)
   Four idealized cycles on the PV plane: Otto, Diesel, Carnot, Stirling. Source: Callen Ch. 4-5 (`callen`).
 
@@ -471,9 +474,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Dynamical Friction Chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Equipartition From Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fine Structure Hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/index.html)** &nbsp; (draft)
