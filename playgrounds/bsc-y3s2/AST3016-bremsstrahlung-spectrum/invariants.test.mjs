@@ -1,28 +1,27 @@
-// Bremsstrahlung Spectrum invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Bremsstrahlung Spectrum invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { emissivity, cutoffHz, H, KB } from './sim.js';
+describe('bremsstrahlung-spectrum', () => {
+  it('cutoff at h nu = kT', () => {
+    expect(Math.abs(H * cutoffHz(1e7) / (KB * 1e7) - 1)).toBeLessThan(1e-12);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('emissivity drops below cutoff exponentially', () => {
+    const T = 1e7;
+    const nu_c = cutoffHz(T);
+    const ratio = emissivity(10 * nu_c, T, 1, 1) / emissivity(nu_c, T, 1, 1);
+    expect(ratio).toBeLessThan(0.01);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('flat below cutoff', () => {
+    const T = 1e7;
+    const nu_c = cutoffHz(T);
+    expect(Math.abs(emissivity(0.01 * nu_c, T, 1, 1) / emissivity(0.1 * nu_c, T, 1, 1) - 1)).toBeLessThan(0.1);
+  });
+  it('scales as n_e n_i', () => {
+    const T = 1e6, nu = 1e15;
+    const a = emissivity(nu, T, 2, 3);
+    const b = emissivity(nu, T, 1, 1);
+    expect(Math.abs(a / b - 6)).toBeLessThan(1e-9);
+  });
+  it('emissivity positive at all positive nu', () => {
+    for (let i = 1; i < 1e16; i *= 10) expect(emissivity(i, 1e7, 1, 1)).toBeGreaterThan(0);
+  });
 });

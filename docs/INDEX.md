@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Thermal Bremsstrahlung Spectrum](../playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/index.html)** &nbsp; (verified, verified 2026-05-14T01:42:40Z)
+  Flat below $h\nu = kT$, exponential cutoff above. Source: Rybicki-Lightman Ch. 5 (`rybickilightman1979`).
+
 - **[Least-Squares Orbit Fit (Gauss Heritage)](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/index.html)** &nbsp; (verified, verified 2026-05-14T01:41:22Z)
   Noisy positions along a Kepler orbit; fit a circle by least squares. The fit is biased when $e > 0$. Source: Bate-Mueller-White Ch. 5 (`bmw`).
 
@@ -510,9 +513,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Bremsstrahlung Spectrum](../playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Ckm Mixing Unitarity Triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/index.html)** &nbsp; (draft)
