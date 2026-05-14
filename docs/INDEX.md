@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Skin Effect in a Conductor](../playgrounds/bsc-y2s1/FIS2013-skin-effect-1d-conductor/index.html)** &nbsp; (verified, verified 2026-05-14T01:05:49Z)
+  Exponential decay of the AC electric field inside a conductor; skin depth $\delta = \sqrt{2/(\omega \mu \sigma)}$. Source: Griffiths E&M Ch. 9 (`griffiths-em`).
+
 - **[Lienard-Wiechert Beaming and Synchrotron Lobe](../playgrounds/bsc-y2s1/FIS2013-lienard-wiechert-synchrotron/index.html)** &nbsp; (verified, verified 2026-05-14T01:04:34Z)
   Relativistic radiation collimates into a forward cone of opening angle $\sim 1/\gamma$. Two limits (a parallel and a perpendicular to v) are shown. Source: Jackson 3e Ch. 14 (`jackson3e`).
 
@@ -576,9 +579,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Sedov Taylor Blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Skin Effect 1d Conductor](../playgrounds/bsc-y2s1/FIS2013-skin-effect-1d-conductor/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Speckle Pattern Statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/index.html)** &nbsp; (draft)

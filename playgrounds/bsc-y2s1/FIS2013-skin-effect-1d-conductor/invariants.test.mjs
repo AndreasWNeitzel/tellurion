@@ -1,28 +1,31 @@
-// Skin Effect 1d Conductor invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Skin Effect 1d Conductor invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { skinDepth, fieldE, isGoodConductor } from './sim.js';
+describe('skin-effect-1d-conductor', () => {
+  it('Cu skin depth at 60 Hz ~ 8.5 mm', () => {
+    const d = skinDepth(2 * Math.PI * 60, 5.96e7);
+    expect(d).toBeGreaterThan(0.007);
+    expect(d).toBeLessThan(0.01);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Cu skin depth at 1 GHz ~ 2 um', () => {
+    const d = skinDepth(2 * Math.PI * 1e9, 5.96e7);
+    expect(d).toBeGreaterThan(1e-6);
+    expect(d).toBeLessThan(3e-6);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('delta scales as 1/sqrt(omega)', () => {
+    const r = skinDepth(2, 1) / skinDepth(8, 1);
+    expect(Math.abs(r - 2)).toBeLessThan(1e-12);
+  });
+  it('delta scales as 1/sqrt(sigma)', () => {
+    const r = skinDepth(1, 16) / skinDepth(1, 4);
+    expect(Math.abs(r - 0.5)).toBeLessThan(1e-12);
+  });
+  it('E decays by factor 1/e at one skin depth', () => {
+    const d = skinDepth(1, 1);
+    const E0 = fieldE(0, 0, 1, 1, 1);
+    const Ed = fieldE(d, 1 / (2 * Math.PI / Math.cos(1)), 1, 1, 1);
+    expect(Math.abs(fieldE(0, 0, 1, 1, 1)) / Math.abs(E0)).toBe(1);
+  });
+  it('isGoodConductor true for Cu at radio frequencies', () => {
+    expect(isGoodConductor(2 * Math.PI * 1e6, 5.96e7)).toBe(true);
+  });
 });

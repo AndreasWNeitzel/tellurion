@@ -1,17 +1,2 @@
-# Skin Effect 1d Conductor
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Skin effect in a 1D conductor
+The AC electric field decays exponentially into a conductor with characteristic length $\delta = \sqrt{2/(\omega \mu \sigma)}$. Material selector toggles between Cu, Al, Fe (ferromagnetic, $\mu_r = 200$), and sea water (low conductivity). Source: Griffiths E&M Ch. 9 (`griffiths-em`).
