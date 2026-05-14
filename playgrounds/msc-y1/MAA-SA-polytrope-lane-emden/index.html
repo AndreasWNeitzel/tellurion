@@ -3,29 +3,68 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Polytrope Lane Emden</title>
+  <title>Lane-Emden Polytrope</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Polytrope Lane Emden</h1>
+  <h1>Lane-Emden polytrope</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the dimensionless density
+    profile $\theta(\xi)$ of a polytropic star satisfying
+    $\theta'' + (2/\xi) \theta' + \theta^n = 0$, with $\theta(0) = 1$
+    and $\theta'(0) = 0$. The first zero $\xi_1$ marks the stellar
+    surface. Three indices admit closed-form solutions ($n = 0, 1, 5$);
+    others including $n = 3/2$ (degenerate non-rel, brown dwarfs) and
+    $n = 3$ (relativistic-limit white dwarf, Chandrasekhar) require
+    numerical RK4.
+  </p>
+  <p>
+    The right panel marks $\xi_1$ for the chosen $n$. Known values
+    cross-checked: $\xi_1 = \sqrt{6}$ for $n = 0$, $\xi_1 = \pi$ for
+    $n = 1$, $\xi_1 \approx 3.6537$ for $n = 1.5$, $\xi_1 \approx 6.8969$
+    for $n = 3$, and $\xi_1 \to \infty$ for $n = 5$ (infinite radius).
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Lane-Emden theta(xi) curves for selected polytropic indices."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">xi_1:</span><span class="value" id="readout-xi1">2.45</span>
+      <span class="label">M proxy (xi_1^2 |theta'(xi_1)|):</span><span class="value" id="readout-m">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Lane-Emden solutions for $n = 0, 1, 1.5, 3, 5$. Method: RK4 with
+      $d\xi = 10^{-3}$. Source: Hansen-Kawaler-Trimble 2e Ch. 7
+      (`hansen-kawaler`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Lane-Emden controls">
+    <div class="row"><span class="label">n</span>
+      <select id="select-n">
+        <option value="0">n = 0 (uniform)</option>
+        <option value="1">n = 1 (analytic)</option>
+        <option value="1.5" selected>n = 1.5 (degenerate non-rel)</option>
+        <option value="3">n = 3 (Chandrasekhar)</option>
+        <option value="5">n = 5 (infinite radius)</option>
+      </select>
+      <span class="value" id="value-n">1.5</span>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

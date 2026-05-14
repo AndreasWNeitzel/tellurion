@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Lane-Emden Polytrope](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/index.html)** &nbsp; (verified, verified 2026-05-14T00:17:38Z)
+  A self-gravitating sphere with equation of state $P = K \rho^{1 + 1/n}$. The dimensionless density profile $\theta(\xi) = (\rho/\rho_c)^{1/n}$ satisfies the Lane-Emden equation
+
 - **[Eddington Grey Atmosphere](../playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere/index.html)** &nbsp; (verified, verified 2026-05-14T00:13:47Z)
   A grey (frequency-independent opacity) stellar atmosphere in radiative equilibrium. The temperature profile follows $$T(\tau) = T_\text{eff} \left[\tfrac{3}{4} (\tau + \tfrac{2}{3})\right]^{1/4}.$$
 
@@ -534,9 +537,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Point Spread Function Strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Polytrope Lane Emden](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Pulsar Wind Nebula Magnetization](../playgrounds/msc-y1/MAA-HE-pulsar-wind-nebula-magnetization/index.html)** &nbsp; (draft)

@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 96 |
+| draft | 95 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 96 |
+| verified | 97 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -356,7 +356,7 @@ Total playgrounds: 203
 - **Convection Mixing Length** ([MAA-SA-convection-mixing-length](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/)). Status: `draft`. `hansen-kawaler` ch 5; Schwarzschild criterion vs Ledoux.
 - **Main Sequence Mass Luminosity** ([MAA-SA-main-sequence-mass-luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/)). Status: `draft`. `hansen-kawaler` ch 8; L ~ M^3.5 from radiative envelope.
 - **Nuclear Burning Rate Temperature** ([MAA-SA-nuclear-burning-rate-temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/)). Status: `draft`. `hansen-kawaler` ch 6; pp, CNO, 3-alpha vs T scaling.
-- **Polytrope Lane Emden** ([MAA-SA-polytrope-lane-emden](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/)). Status: `draft`. `hansen-kawaler` ch 7; M-R relation for n = 0, 1, 3/2, 3 closed-form.
+- **Lane-Emden Polytrope** ([MAA-SA-polytrope-lane-emden](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/)). Status: `verified`. `hansen-kawaler` ch 7.
 
 ### MAA-SP Stellar Atmospheres and Spectra
 
