@@ -78,7 +78,11 @@ void main() {
   // position reconstruction r * (cos(phi)*e_cam + sin(phi)*e_perp) to
   // start at the actual camera. The previous foot-anchored basis put
   // phi=0 at periapsis, producing wrong y-coordinates and a flipped disk.
-  float rEye0 = length(uEye);
+  // Per-pixel per-frame jitter on the initial radius spreads adjacent rays'
+  // starting conditions so the total-phi quantization breaks up after TAA
+  // averaging. This is what reduces the harness gate K banding.
+  float startJ = (fract(sin(dot(gl_FragCoord.xy + uFrameNum * 31.0, vec2(11.7, 53.1))) * 27814.4) - 0.5) * 1.5;
+  float rEye0 = length(uEye) + startJ;
   vec3 e_cam = uEye / max(rEye0, 1e-6);
   vec3 n_orbit = normalize(cross(uEye, rayDir));
   vec3 e_perp = cross(n_orbit, e_cam);     // unit, in orbital plane, along ray direction
