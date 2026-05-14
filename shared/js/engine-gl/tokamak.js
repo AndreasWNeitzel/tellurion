@@ -61,10 +61,54 @@ out vec4 oColor;
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 void main() { oColor = vec4(aces(vColor * 1.2), 1.0); }`;
 
+// Test-particle banana orbit. Trapped particles bounce between two mirror points;
+// pitch angle theta_b sets bounce extent. Drift toroidally meanwhile.
+// Reference: Wesson, Tokamaks Ch. 3 (`wesson-tokamaks`).
+const VS_BANANA = `#version 300 es
+uniform mat4 uMVP;
+uniform float uT;
+uniform float uR0;
+uniform float uA;
+uniform float uQ;
+out vec3 vColor;
+void main() {
+  // gl_VertexID picks a particle id; we synthesize position from the id and time.
+  float id = float(gl_VertexID);
+  float k = id / 12.0;
+  // Each particle has its own minor-radius r and bounce extent.
+  float r_off = uA * (0.25 + 0.55 * k);
+  float bounceAmp = 0.8 + 0.4 * k;             // banana extent in poloidal theta.
+  float omega_b = 0.6 + 0.5 * k;               // bounce angular frequency.
+  float omega_phi = 0.18 + 0.07 * k;           // toroidal drift rate.
+  float phi = id * 0.52 + uT * omega_phi;
+  // Banana shape: theta oscillates around a midplane bounce point.
+  float theta = bounceAmp * sin(uT * omega_b + id * 0.7);
+  float x = (uR0 + r_off * cos(theta)) * cos(phi);
+  float y = r_off * sin(theta);
+  float z = (uR0 + r_off * cos(theta)) * sin(phi);
+  gl_Position = uMVP * vec4(x, y, z, 1.0);
+  gl_PointSize = 6.0;
+  // Hue shifts with bounce phase.
+  vColor = vec3(1.0, 0.6 + 0.4 * sin(uT * omega_b + id), 0.3);
+}`;
+
+const FS_BANANA = `#version 300 es
+precision highp float;
+in vec3 vColor;
+out vec4 oColor;
+void main() {
+  vec2 c = gl_PointCoord * 2.0 - 1.0;
+  float r2 = dot(c, c);
+  if (r2 > 1.0) discard;
+  float falloff = exp(-r2 * 2.0);
+  oColor = vec4(vColor * (1.0 + falloff), 1.0);
+}`;
+
 export function setupTokamakGL(canvas) {
   const gl = createGL2(canvas);
   const vesselProg = compileProgram(gl, VS_VESSEL, FS_VESSEL);
   const lineProg = compileProgram(gl, VS_LINE, FS_LINE);
+  const bananaProg = compileProgram(gl, VS_BANANA, FS_BANANA);
   // Torus mesh.
   function buildTorus(R, a, nMajor, nMinor) {
     const verts = []; const norms = []; const idx = [];
@@ -167,8 +211,16 @@ export function setupTokamakGL(canvas) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboT);
     gl.drawElements(gl.TRIANGLES, torus.idx.length, gl.UNSIGNED_SHORT, 0);
     gl.depthMask(true); gl.disable(gl.BLEND);
+    // Banana-orbit test particles: 12 points moving along trapped orbits.
+    gl.useProgram(bananaProg);
+    gl.uniformMatrix4fv(gl.getUniformLocation(bananaProg, 'uMVP'), false, mvp);
+    gl.uniform1f(gl.getUniformLocation(bananaProg, 'uT'), t);
+    gl.uniform1f(gl.getUniformLocation(bananaProg, 'uR0'), R);
+    gl.uniform1f(gl.getUniformLocation(bananaProg, 'uA'), a);
+    gl.uniform1f(gl.getUniformLocation(bananaProg, 'uQ'), q);
+    gl.drawArrays(gl.POINTS, 0, 12);
     gl.disable(gl.DEPTH_TEST);
-    // Bloom on bright field-line tubes.
+    // Bloom on bright field-line tubes + particles.
     post.run(sceneFBO.tex, 0.85, 0.25, 0.55);
   }
   return { buildFieldLines, render };

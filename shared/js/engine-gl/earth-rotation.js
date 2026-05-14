@@ -67,10 +67,30 @@ uniform vec3 uColor;
 out vec4 oColor;
 void main() { oColor = vec4(uColor, 1.0); }`;
 
+// Bright point: sun marker, moon body. gl_PointSize sized by uniform.
+const VS_POINT = `#version 300 es
+layout(location = 0) in vec3 aPos;
+uniform mat4 uMVP;
+uniform float uSize;
+void main() { gl_Position = uMVP * vec4(aPos, 1.0); gl_PointSize = uSize; }`;
+
+const FS_POINT = `#version 300 es
+precision highp float;
+uniform vec3 uColor;
+out vec4 oColor;
+void main() {
+  vec2 c = gl_PointCoord * 2.0 - 1.0;
+  float r2 = dot(c, c);
+  if (r2 > 1.0) discard;
+  float falloff = exp(-r2 * 3.0);
+  oColor = vec4(uColor * (1.0 + falloff * 2.0), 1.0);
+}`;
+
 export function setupEarthGL(canvas) {
   const gl = createGL2(canvas);
   const sphereProg = compileProgram(gl, VS_SPHERE, FS_SPHERE);
   const axisProg = compileProgram(gl, VS_AXIS, FS_AXIS);
+  const pointProg = compileProgram(gl, VS_POINT, FS_POINT);
   // Sphere mesh (slightly oblate).
   const lat = 40, lon = 60;
   const verts = []; const idx = [];
@@ -92,6 +112,21 @@ export function setupEarthGL(canvas) {
   const axisVBO = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, axisVBO);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, -1.3, 0, 0, 1.3, 0]), gl.STATIC_DRAW);
+  // Moon orbit ring (lunar inclination ~5.14 deg from ecliptic; scaled distance 2.5 R).
+  const moonRingVerts = [];
+  for (let i = 0; i <= 64; i += 1) {
+    const a = i / 64 * 2 * Math.PI;
+    const x = 2.5 * Math.cos(a);
+    const z = 2.5 * Math.sin(a);
+    const y = 0.22 * Math.cos(a);
+    moonRingVerts.push(x, y, z);
+  }
+  const moonRingVBO = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, moonRingVBO);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(moonRingVerts), gl.STATIC_DRAW);
+  const pointVBO = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, pointVBO);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(3), gl.DYNAMIC_DRAW);
   let sceneFBO = null, post = null;
   function render(t, obliquityDeg, precessionDeg) {
     const W = canvas.width, H = canvas.height;
@@ -138,9 +173,35 @@ export function setupEarthGL(canvas) {
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.lineWidth(2);
     gl.drawArrays(gl.LINES, 0, 2);
+    // Moon orbit ring (in heliocentric frame, no precession applied).
+    const ringMVP = matMul(proj, view);
+    gl.uniformMatrix4fv(gl.getUniformLocation(axisProg, 'uMVP'), false, ringMVP);
+    gl.uniform3f(gl.getUniformLocation(axisProg, 'uColor'), 0.5, 0.55, 0.7);
+    gl.bindBuffer(gl.ARRAY_BUFFER, moonRingVBO);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.LINE_STRIP, 0, 65);
+    // Sun + Moon point markers.
+    gl.useProgram(pointProg);
+    gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, 'uMVP'), false, ringMVP);
+    // Sun (off-screen direction; we render a virtual sun far away in -uSunDir).
+    const sunPos = [-6, 1.5, 4];
+    const moonAng = t * 0.5;
+    const moonPos = [2.5 * Math.cos(moonAng), 0.22 * Math.cos(moonAng), 2.5 * Math.sin(moonAng)];
+    gl.bindBuffer(gl.ARRAY_BUFFER, pointVBO);
+    // Sun.
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sunPos), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.uniform1f(gl.getUniformLocation(pointProg, 'uSize'), 18);
+    gl.uniform3f(gl.getUniformLocation(pointProg, 'uColor'), 1.0, 0.9, 0.5);
+    gl.drawArrays(gl.POINTS, 0, 1);
+    // Moon.
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(moonPos), gl.DYNAMIC_DRAW);
+    gl.uniform1f(gl.getUniformLocation(pointProg, 'uSize'), 7);
+    gl.uniform3f(gl.getUniformLocation(pointProg, 'uColor'), 0.85, 0.85, 0.9);
+    gl.drawArrays(gl.POINTS, 0, 1);
     gl.disable(gl.DEPTH_TEST);
-    // Subtle bloom on the bright Earth-lit hemisphere and axis.
-    post.run(sceneFBO.tex, 0.9, 0.25, 0.35);
+    // Subtle bloom on the bright Earth-lit hemisphere and the Sun marker.
+    post.run(sceneFBO.tex, 0.9, 0.25, 0.45);
   }
   return { render };
 }
