@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Multiple Integral Fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/index.html)** &nbsp; (verified, verified 2026-05-14T00:50:39Z)
+  Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
+
 - **[Stokes Theorem 2D Circulation](../playgrounds/bsc-y2s1/M2037-stokes-theorem-2d-circulation/index.html)** &nbsp; (verified, verified 2026-05-14T00:49:25Z)
   Three vector fields (unit-curl, shear, conservative) and a draggable rectangle. Circulation = $\iint$ curl $dA$ closed-form for these uniform-curl fields. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
 
@@ -516,9 +519,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Mode Trapping Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Multiple Integral Fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Noether Symmetry To Conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/index.html)** &nbsp; (draft)

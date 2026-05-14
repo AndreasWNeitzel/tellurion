@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 75 |
+| draft | 74 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 117 |
+| verified | 118 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -94,7 +94,7 @@ Total playgrounds: 203
 2 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Line Integral vs Path** ([M1015-line-integral-vs-path](../playgrounds/bsc-y1s2/M1015-line-integral-vs-path/)). Status: `verified`. `riley-hobson` ch 10.
-- **Multiple Integral Fubini** ([M1015-multiple-integral-fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/)). Status: `draft`. `riley-hobson` ch 10; Fubini equality demonstrated numerically.
+- **Multiple Integral Fubini** ([M1015-multiple-integral-fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/)). Status: `verified`. `riley-hobson` ch 10.
 
 ## BSc Year 2 Semester 1
 
