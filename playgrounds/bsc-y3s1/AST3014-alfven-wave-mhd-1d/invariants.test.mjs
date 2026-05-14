@@ -1,28 +1,24 @@
-// Alfven Wave Mhd 1d invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Alfven Wave Mhd 1d invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { alfvenSpeedMS, bField, vField, MU0 } from './sim.js';
+describe('alfven-wave-mhd-1d', () => {
+  it('solar wind Alfven speed: 5e-9 T, 5 amu/cm^3 ~ 50 km/s', () => {
+    const rho = 5 * 1.66e-27 * 1e6;
+    const vA = alfvenSpeedMS(5e-9, rho);
+    expect(vA).toBeGreaterThan(3e4); expect(vA).toBeLessThan(8e4);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('quadrupling B doubles vA', () => {
+    expect(Math.abs(alfvenSpeedMS(2, 1) / alfvenSpeedMS(1, 1) - 2)).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('halving rho gives vA * sqrt(2)', () => {
+    expect(Math.abs(alfvenSpeedMS(1, 0.5) / alfvenSpeedMS(1, 1) - Math.SQRT2)).toBeLessThan(1e-9);
+  });
+  it('b_y phase shifts to right at later t for dir=+1', () => {
+    const b1 = bField(0, 0, 1, 1, 1, 1);
+    const b2 = bField(0.1, 0.1, 1, 1, 1, 1);
+    expect(Math.abs(b1 - b2)).toBeLessThan(1e-9);
+  });
+  it('Alfven relation: v_y/b_y constant magnitude', () => {
+    const ratio = vField(0.2, 0.3, 1, 0.1, 1, 1, 1) / bField(0.2, 0.3, 1, 0.1, 1);
+    expect(Math.abs(Math.abs(ratio) - 1 / Math.sqrt(MU0))).toBeLessThan(0.1);
+  });
 });

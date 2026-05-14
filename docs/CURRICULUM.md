@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 47 |
+| draft | 46 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 145 |
+| verified | 146 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -221,7 +221,7 @@ Total playgrounds: 203
 
 6 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Alfven Wave Mhd 1d** ([AST3014-alfven-wave-mhd-1d](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/)). Status: `draft`. `goedbloed-plasma` ch 7 (supporting: MAA-PL); phase velocity v_A = B / sqrt(mu_0 rho) exact.
+- **1D Alfvén Wave in MHD** ([AST3014-alfven-wave-mhd-1d](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/)). Status: `verified`. `goedbloed-plasma` ch 5.
 - **Bondi Accretion Spherical** ([AST3014-bondi-accretion-spherical](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/)). Status: `draft`. `frank-king-raine` ch 2 (supporting: MAA-HE); sonic-point analytic solution.
 - **Parker Solar Wind** ([AST3014-parker-solar-wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/)). Status: `draft`. `frank-king-raine` ch 2; transonic flow through critical point.
 - **Sedov Taylor Blastwave** ([AST3014-sedov-taylor-blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/)). Status: `draft`. `shu-vol2` ch 18; self-similar r ~ t^(2/5) within 1 percent.

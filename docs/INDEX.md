@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[1D Alfvén Wave in MHD](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/index.html)** &nbsp; (verified, verified 2026-05-14T01:35:07Z)
+  Transverse magnetic perturbation travels at $v_A = B_0/\sqrt{\mu_0 \rho}$; magnetic-tension restoring force. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
+
 - **[1D Green's Function for the Laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/index.html)** &nbsp; (verified, verified 2026-05-14T01:33:50Z)
   Tent-shaped $G(x, x_0)$ with Dirichlet BC; convolution gives $u(x) = \int G f dx'$. Source: Arfken-Weber Ch. 9 (`arfken-weber`).
 
@@ -474,9 +477,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Aharonov Bohm Flux Line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Alfven Wave Mhd 1d](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Alpha Decay Gamow Tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/index.html)** &nbsp; (draft)
