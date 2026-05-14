@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-14T02:56:47Z)
+  $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.
+
 - **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:53:21Z)
   Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
 
@@ -622,9 +625,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (needs-webgl2-upgrade)
-  $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.
 
 - **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified)
   2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).

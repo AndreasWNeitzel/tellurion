@@ -1,7 +1,7 @@
 ---
 title: Lorenz Attractor Ensemble (Hero)
 slug: lorenz-attractor-3d-ensemble
-status: needs-webgl2-upgrade
+status: verified
 audience: portfolio
 created: 2026-05-14
 primary_uc: FIS2021
