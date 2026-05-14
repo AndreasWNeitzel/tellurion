@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[ODE Solvers: Euler vs RK4 vs RK45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/index.html)** &nbsp; (verified, verified 2026-05-14T01:22:21Z)
+  Three integrators on the simple harmonic oscillator; Euler drifts energy upward, RK4 is accurate, RK45 estimates its own error. Source: Villate VPython Numerical Methods (`villate-vpython`).
+
 - **[Root Finding: Bisection, Newton, Secant](../playgrounds/bsc-y2s2/FIS2018-root-finding-bisect-newton-secant/index.html)** &nbsp; (verified, verified 2026-05-14T01:20:51Z)
   Bisection, Newton-Raphson, and the secant method on a selectable test function. Source: Villate VPython Numerical Methods Ch. 4 (`villate-vpython`).
 
@@ -549,9 +552,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Nuclear Burning Rate Temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Ode Solver Euler Rk4 Rk45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Orbits In Axisymmetric Potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/index.html)** &nbsp; (draft)

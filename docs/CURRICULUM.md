@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 56 |
+| draft | 55 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 136 |
+| verified | 137 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -186,7 +186,7 @@ Total playgrounds: 203
 - **Gauss-Legendre vs Trapezoid Quadrature** ([FIS2018-gauss-quadrature-vs-trapezoid](../playgrounds/bsc-y2s2/FIS2018-gauss-quadrature-vs-trapezoid/)). Status: `verified`. citation pending (supporting: M3012, MAA-NM).
 - **Linear System Direct Vs Iterative** ([FIS2018-linear-system-direct-vs-iterative](../playgrounds/bsc-y2s2/FIS2018-linear-system-direct-vs-iterative/)). Status: `draft`. `newman2013` ch 6 (supporting: MAA-NM); LU vs Jacobi vs Gauss-Seidel vs CG on same matrix.
 - **Monte Carlo Integration Convergence** ([FIS2018-mc-integration-convergence](../playgrounds/bsc-y2s2/FIS2018-mc-integration-convergence/)). Status: `verified`. citation pending (supporting: MAA-NM, MAA-ST).
-- **Ode Solver Euler Rk4 Rk45** ([FIS2018-ode-solver-euler-rk4-rk45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/)). Status: `draft`. `newman2013` ch 8 (supporting: MAA-NM); error scaling O(h), O(h^4), O(h^5) verified.
+- **ODE Solvers: Euler vs RK4 vs RK45** ([FIS2018-ode-solver-euler-rk4-rk45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/)). Status: `verified`. `villate-vpython` ch 5.
 - **Root Finding: Bisection, Newton, Secant** ([FIS2018-root-finding-bisect-newton-secant](../playgrounds/bsc-y2s2/FIS2018-root-finding-bisect-newton-secant/)). Status: `verified`. `villate-vpython` ch 4.
 - **Runge Phenomenon and Chebyshev Cure** ([FIS2018-runge-vs-chebyshev](../playgrounds/bsc-y2s2/FIS2018-runge-vs-chebyshev/)). Status: `verified`. citation pending (supporting: M3012, MAA-NM).
 

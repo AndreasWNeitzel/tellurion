@@ -1,28 +1,26 @@
-// Ode Solver Euler Rk4 Rk45 invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Ode Solver Euler Rk4 Rk45 invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { euler, rk4, rk45, energy } from './sim.js';
+describe('ode-solver-euler-rk4-rk45', () => {
+  it('Euler drifts energy upward', () => {
+    let y = [1, 0];
+    const E0 = energy(y, 1);
+    for (let i = 0; i < 1000; i += 1) y = euler(y, 0.05, 1);
+    expect(energy(y, 1)).toBeGreaterThan(E0 * 5);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('RK4 conserves energy approximately', () => {
+    let y = [1, 0];
+    const E0 = energy(y, 1);
+    for (let i = 0; i < 1000; i += 1) y = rk4(y, 0.05, 1);
+    expect(Math.abs(energy(y, 1) - E0) / E0).toBeLessThan(0.005);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('RK45 single step returns error norm', () => {
+    const r = rk45([1, 0], 0.1, 1);
+    expect(r.err_norm).toBeGreaterThanOrEqual(0);
+  });
+  it('RK4 more accurate than Euler', () => {
+    let yE = [1, 0], yR = [1, 0];
+    for (let i = 0; i < 100; i += 1) { yE = euler(yE, 0.01, 1); yR = rk4(yR, 0.01, 1); }
+    const trueY = Math.cos(1);
+    expect(Math.abs(yR[0] - trueY)).toBeLessThan(Math.abs(yE[0] - trueY));
+  });
 });
