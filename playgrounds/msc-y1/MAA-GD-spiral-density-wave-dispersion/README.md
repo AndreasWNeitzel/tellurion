@@ -1,17 +1,2 @@
-# Spiral Density Wave Dispersion
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Lin-Shu density-wave dispersion
+The dispersion curve $\nu^2(k) = \kappa^2 - 2\pi G\Sigma |k| + k^2 c_s^2$. The Toomre $Q$ readout tells you whether $\nu^2 < 0$ anywhere (axisymmetric instability). Source: Binney-Tremaine Ch. 6 (`binney-tremaine`).

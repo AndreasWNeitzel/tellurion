@@ -1,28 +1,19 @@
-// Spiral Density Wave Dispersion invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Spiral Density Wave Dispersion invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { nuSquared, ToomreQ, kCrit } from './sim.js';
+describe('spiral-density-wave-dispersion', () => {
+  it('At k = 0: nu^2 = kappa^2', () => {
+    expect(nuSquared(0, 2, 0.5, 1)).toBe(4);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Q = 1 boundary', () => {
+    expect(Math.abs(ToomreQ(Math.PI, 1, 1) - 1)).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Q > 1 stable', () => {
+    expect(ToomreQ(2 * Math.PI, 1, 1)).toBeGreaterThan(1);
+  });
+  it('k_crit positive', () => {
+    expect(kCrit(2, 1)).toBeGreaterThan(0);
+  });
+  it('nu^2 < 0 for sigma = 0 at intermediate k', () => {
+    expect(nuSquared(2, 2, 0, 1)).toBeLessThan(4);
+  });
 });

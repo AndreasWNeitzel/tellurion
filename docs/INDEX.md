@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Spiral Density-Wave Dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/index.html)** &nbsp; (verified, verified 2026-05-14T02:19:12Z)
+  $\nu^2(k)$ for tightly-wound spiral waves; Toomre $Q$ boundary. Source: Binney-Tremaine Ch. 6 (`binney-tremaine`).
+
 - **[Orbits in an Axisymmetric Potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/index.html)** &nbsp; (verified, verified 2026-05-14T02:18:05Z)
   Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3 (`binney-tremaine`).
 
@@ -603,9 +606,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Speckle Pattern Statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Spiral Density Wave Dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)
