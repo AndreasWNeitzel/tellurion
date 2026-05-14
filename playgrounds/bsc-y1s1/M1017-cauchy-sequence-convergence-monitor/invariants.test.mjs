@@ -1,28 +1,21 @@
-// Cauchy Sequence Convergence Monitor invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+import { describe, it, expect } from 'vitest';
+import { SEQUENCES, cauchyWidth, isCauchy } from './sim.js';
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Cauchy Sequence Convergence Monitor invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('cauchy-sequence-convergence-monitor', () => {
+  it('geometric 1/2^n is Cauchy', () => {
+    expect(isCauchy('geom', 1e-6).isCauchy).toBe(true);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('harmonic series is NOT Cauchy (diverges)', () => {
+    const r = isCauchy('harm', 0.1, 200);
+    expect(r.isCauchy).toBe(false);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('arctan partial sums converge to pi/4', () => {
+    expect(Math.abs(SEQUENCES.arctan.fn(10000) - Math.PI / 4)).toBeLessThan(1e-3);
+  });
+  it('zeta(2) partial sums converge to pi^2 / 6', () => {
+    expect(Math.abs(SEQUENCES.zeta2.fn(10000) - Math.PI * Math.PI / 6)).toBeLessThan(1e-3);
+  });
+  it('cauchyWidth shrinks with N0 for convergent sequences', () => {
+    expect(cauchyWidth('geom', 50, 100)).toBeLessThan(cauchyWidth('geom', 1, 100));
+  });
 });

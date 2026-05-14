@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 78 |
+| draft | 77 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 114 |
+| verified | 115 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -49,7 +49,7 @@ Total playgrounds: 203
 
 3 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Cauchy Sequence Convergence Monitor** ([M1017-cauchy-sequence-convergence-monitor](../playgrounds/bsc-y1s1/M1017-cauchy-sequence-convergence-monitor/)). Status: `draft`. `arfken-weber` ch 1; distance |a_n - a_m| < epsilon for n, m > N.
+- **Cauchy Sequence Convergence Monitor** ([M1017-cauchy-sequence-convergence-monitor](../playgrounds/bsc-y1s1/M1017-cauchy-sequence-convergence-monitor/)). Status: `verified`. `arfken-weber` ch 1.
 - **Epsilon-Delta Continuity Visualizer** ([M1017-epsilon-delta-continuity-visualizer](../playgrounds/bsc-y1s1/M1017-epsilon-delta-continuity-visualizer/)). Status: `verified`. `arfken-weber` ch 1.
 - **Series Convergence Tests** ([M1017-series-convergence-tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/)). Status: `draft`. `arfken-weber` ch 1; geometric, ratio, root, alternating-series partial sums.
 
