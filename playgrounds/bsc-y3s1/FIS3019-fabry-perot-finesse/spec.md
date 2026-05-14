@@ -1,7 +1,7 @@
 ---
-title: Fabry Perot Finesse
+title: Fabry-Perot Finesse
 slug: fabry-perot-finesse
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3019
@@ -11,27 +11,65 @@ primary_citation: hecht2017
 primary_chapter: 9
 ---
 
-# Fabry Perot Finesse
+# Fabry-Perot etalon: Airy transmission and finesse
 
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
+## Physical setup
 
-Required sections (filled by architect):
+Two parallel partial mirrors of intensity reflectance $R$ at spacing $L$ form a Fabry-Perot etalon. Light incident at angle $\theta$ inside the cavity (refractive index $n$) accumulates round-trip phase $\phi = 4 \pi n L \cos\theta / \lambda$. Multiple-beam interference gives the Airy transmission
 
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
+$$T(\phi) = \frac{1}{1 + F \sin^2(\phi/2)}, \qquad F = \frac{4 R}{(1 - R)^2}.$$
 
-See `docs/PLAYGROUND_SPEC.md` for the full template.
+Resonance peaks at $\phi = 2 \pi m$ (integer $m$). The finesse $F_* = \pi \sqrt{R} / (1 - R)$ counts FWHMs per free spectral range.
 
+## Numerical method
 
-## Curriculum pitch
+Closed-form. Top panel: three FSRs at $\phi \in [-\pi, 5\pi]$; bottom panel: zoom on the $\phi = 2\pi$ peak using a window of width $3 \cdot \mathrm{FWHM}$.
 
-Strong invariant: F = pi sqrt(R) / (1 - R); FSR = c / (2 n L). Primary citation: hecht2017, chapter 9. Spec body to be filled by playground-architect.
+## Controls
+
+- Reflectance $R$ from 0.1 to 0.999.
+
+## Expected qualitative features
+
+1. $R$ near 1: sharp narrow peaks at every multiple of $2\pi$; $T \to 0$ between them.
+2. $R$ near 0: peaks broaden and $T_\min$ approaches $1/(1+F)$, far from zero.
+3. The zoom panel reveals the FWHM width $\approx 4/\sqrt{F}$ for high $R$.
+4. The finesse readout grows from ~10 at $R = 0.7$ to ~313 at $R = 0.99$.
+
+## Invariants and acceptance thresholds
+
+| invariant | threshold | location |
+| $T(0) = 1$ exact | within $10^{-15}$ | invariants test |
+| $T(\pi) = 1/(1+F)$ | within $10^{-12}$ | invariants test |
+| $T(2\pi) = 1$ exact | within $10^{-12}$ | invariants test |
+| finesse $F_* = \pi\sqrt{R}/(1-R)$ | within $10^{-12}$ | invariants test |
+| FSR in frequency $= c/(2nL)$ | within $10^{-6}$ | invariants test |
+| FSR scaling: $L \to 2L$ halves FSR | exact | invariants test |
+| FWHM shrinks as $R \to 1$ | strict | invariants test |
+| coefficient finesse $F = 4R/(1-R)^2$ | within $10^{-12}$ | invariants test |
+
+All confirmed in `invariants.test.mjs` (8 tests passing).
+
+## Limiting cases for verification
+
+- $R = 0$: $T = 1$ everywhere (no interference).
+- $R \to 1$: peaks become delta functions; ideal high-Q laser cavity.
+- $\phi = (2m+1) \pi$: $T = T_\min$ exactly.
+
+## Visual fallback
+
+If KaTeX or Canvas2D is unavailable, the slider still operates.
+
+## Citations
+
+- Hecht, *Optics*, 5e, Ch. 9 (`hecht2017`).
+
+## Stretch goals
+
+- Add angular dependence: tilt the etalon and watch peaks shift via $\cos\theta$.
+- Multi-wavelength input to show the spectrometer use case.
+- Time-domain ringdown: photon dwell time in the cavity.
+
+## Risk register
+
+- At $R = 0.999$ the finesse is huge and the peaks are sub-pixel in the top panel. The bottom panel auto-zooms with the FWHM so peaks always render.

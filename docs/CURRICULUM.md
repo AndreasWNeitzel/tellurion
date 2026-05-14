@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 100 |
+| draft | 99 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 92 |
+| verified | 93 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -241,7 +241,7 @@ Total playgrounds: 203
 
 5 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Fabry Perot Finesse** ([FIS3019-fabry-perot-finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/)). Status: `draft`. `hecht2017` ch 9 (supporting: MAA-OT); F = pi sqrt(R) / (1 - R); FSR = c / (2 n L).
+- **Fabry-Perot Finesse** ([FIS3019-fabry-perot-finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/)). Status: `verified`. `hecht2017` ch 9 (supporting: MAA-OT).
 - **Paraxial Gaussian Beam (TEM_00)** ([FIS3019-gaussian-beam-paraxial](../playgrounds/bsc-y3s1/FIS3019-gaussian-beam-paraxial/)). Status: `verified`. citation pending.
 - **Grating Resolving Power** ([FIS3019-grating-resolving-power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/)). Status: `draft`. `hecht2017` ch 10 (supporting: MAA-OT); R = m N; minimum resolvable wavelength.
 - **Michelson Interferometer** ([FIS3019-michelson-interferometer](../playgrounds/bsc-y3s1/FIS3019-michelson-interferometer/)). Status: `draft`. `hecht2017` ch 9 (supporting: MAA-OT); visibility vs coherence length analytic.

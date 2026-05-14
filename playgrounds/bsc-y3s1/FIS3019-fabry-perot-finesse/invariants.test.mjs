@@ -1,28 +1,58 @@
-// Fabry Perot Finesse invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Fabry-Perot invariants.
+// (a) T(0) = 1 exactly.
+// (b) T(pi) = 1 / (1 + F).
+// (c) T(2 pi) = 1 again (resonance).
+// (d) Finesse formula: F_* = pi sqrt(R) / (1 - R).
+// (e) FSR in frequency: c / (2 n L).
+// (f) FWHM in phi ~ 4 / sqrt(F) for high R.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  coefficientFinesse, finesse, transmission,
+  fsrWavelengthNm, fsrFreqHz, fwhmPhi,
+} from './sim.js';
 
-describe('Fabry Perot Finesse invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('fabry-perot-finesse', () => {
+  it('T(0) = 1 exactly', () => {
+    expect(Math.abs(transmission(0, 0.9) - 1)).toBeLessThan(1e-15);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('T(pi) = 1 / (1 + F)', () => {
+    const R = 0.9;
+    const F = coefficientFinesse(R);
+    const expected = 1 / (1 + F);
+    expect(Math.abs(transmission(Math.PI, R) - expected)).toBeLessThan(1e-12);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('T(2 pi) = 1 (resonance returns)', () => {
+    expect(Math.abs(transmission(2 * Math.PI, 0.9) - 1)).toBeLessThan(1e-12);
+  });
+
+  it('finesse F_* = pi sqrt(R) / (1 - R)', () => {
+    const R = 0.95;
+    const expected = Math.PI * Math.sqrt(R) / (1 - R);
+    expect(Math.abs(finesse(R) - expected)).toBeLessThan(1e-12);
+  });
+
+  it('FSR in frequency = c / (2 n L)', () => {
+    const c = 299792458;
+    expect(Math.abs(fsrFreqHz(1.5, 1e-2) - c / (2 * 1.5 * 1e-2))).toBeLessThan(1e-6);
+  });
+
+  it('FSR scaling: doubling L halves FSR', () => {
+    const f1 = fsrFreqHz(1, 1e-2);
+    const f2 = fsrFreqHz(1, 2e-2);
+    expect(Math.abs(f2 - f1 / 2) / f1).toBeLessThan(1e-12);
+  });
+
+  it('FWHM in phi shrinks as R approaches 1', () => {
+    const w1 = fwhmPhi(0.5);
+    const w2 = fwhmPhi(0.95);
+    expect(w2).toBeLessThan(w1);
+  });
+
+  it('coefficient finesse F = 4R / (1-R)^2', () => {
+    const R = 0.8;
+    expect(Math.abs(coefficientFinesse(R) - 4 * R / Math.pow(1 - R, 2))).toBeLessThan(1e-12);
+  });
 });

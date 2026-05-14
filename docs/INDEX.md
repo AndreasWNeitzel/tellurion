@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fabry-Perot Finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/index.html)** &nbsp; (verified, verified 2026-05-14T00:04:16Z)
+  Two parallel partial mirrors of intensity reflectance $R$ at spacing $L$ form a Fabry-Perot etalon. Light incident at angle $\theta$ inside the cavity (refractive index $n$) accumulates round-trip phase $\phi = 4 \pi n L \cos\theta / \lambda$. Multiple-beam interference gives the Airy transmission
+
 - **[Kepler Equation Newton Iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/index.html)** &nbsp; (verified, verified 2026-05-14T00:01:25Z)
   The Kepler equation $M = E - e \sin E$ relates the mean anomaly $M$ (the linear angular coordinate that ticks at $2\pi$ per orbital period) to the eccentric anomaly $E$ (the angle of the planet on the auxiliary circle of the ellipse). Position on the orbit follows from $(a(\cos E - e), \, a\sqrt{1-e^2} \sin E)$. The equation is transcendental, so we solve it
 
@@ -417,9 +420,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Equipartition From Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Fabry Perot Finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fermi Surface 2d Square](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/index.html)** &nbsp; (draft)
