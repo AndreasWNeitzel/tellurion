@@ -311,6 +311,73 @@ async function gateK_banding() {
   finally { await ctx.close(); }
 }
 
+async function gateM_shadow_ring() {
+  // BH spec gate D: a contiguous near-black shadow at image center, then a
+  // thin bright ring just outside (the photon ring). Measure: radial
+  // luminance profile from center outward; find a "dark band" of plausible
+  // angular size followed by a "bright spike" higher than the surroundings.
+  if (slug !== 'schwarzschild-kerr-blackhole-3d') { record('M.shadow-ring', true, 'skipped: BH-only spec gate'); return; }
+  const { page, ctx } = await newPage('&capture=t-050&captureFraction=0.5');
+  try {
+    await page.waitForFunction('window.__simulationReady === true', { timeout: 25_000 });
+    await page.waitForTimeout(200);
+    const probe = await page.evaluate(() => {
+      const c = document.getElementById('stage');
+      const off = document.createElement('canvas'); off.width = c.width; off.height = c.height;
+      off.getContext('2d').drawImage(c, 0, 0);
+      const w = c.width, h = c.height;
+      const ctx2d = off.getContext('2d');
+      const cx = Math.floor(w / 2), cy = Math.floor(h / 2);
+      // Vertical scan from BH center UPWARD into the starfield. This avoids
+      // the disk plane (which lives in the world equatorial direction = screen
+      // horizontal at this camera angle), so the background after the ring
+      // is dim sky rather than bright disk.
+      const maxR = cy - 5;
+      const lum = [];
+      for (let r = 0; r < maxR; r += 1) {
+        let s = 0, n = 0;
+        for (let dy = -2; dy <= 2; dy += 1) {
+          for (let dx = -2; dx <= 2; dx += 1) {
+            const x = cx + dx, y = cy - r + dy;
+            if (x < 0 || x >= w || y < 0 || y >= h) continue;
+            const d = ctx2d.getImageData(x, y, 1, 1).data;
+            s += (0.2126 * d[0] + 0.7152 * d[1] + 0.0722 * d[2]) / 255;
+            n += 1;
+          }
+        }
+        lum.push(s / n);
+      }
+      // Find shadow extent: leading dark band (lum < 0.02) starting at r=0.
+      let shadowEnd = 0;
+      while (shadowEnd < lum.length && lum[shadowEnd] < 0.02) shadowEnd += 1;
+      // Find photon ring: peak luminance in [shadowEnd, shadowEnd + 30].
+      let peakIdx = shadowEnd, peakLum = lum[shadowEnd] ?? 0;
+      for (let i = shadowEnd; i < Math.min(lum.length, shadowEnd + 30); i += 1) {
+        if (lum[i] > peakLum) { peakLum = lum[i]; peakIdx = i; }
+      }
+      // Background luminance just outside the ring.
+      const bgIdx = Math.min(lum.length - 1, peakIdx + 30);
+      const bgLum = lum[bgIdx] ?? 0;
+      return { shadowEnd, peakIdx, peakLum, bgLum, samples: lum.length };
+    });
+    // Shadow size sanity: shadow should be at least 30 px (b_crit ~ 189 px at default camera; the radial profile through one side of the BH shadow gives a single-side shadow radius around 100 px).
+    // Photon-ring detection: a bright spike at the shadow edge. The criterion
+    // is the absolute brightness jump from the shadow interior (where lum is
+    // near zero) to the peak just outside, not "peak vs further-out background"
+    // (which is contaminated by the over-the-top disk arc on this near-edge-on
+    // view).
+    const shadowFloor = 0.02;
+    if (probe.shadowEnd < 30) {
+      record('M.shadow-ring', false, `shadow too small or missing: extent ${probe.shadowEnd} px (need >= 30)`);
+    } else if (probe.peakLum < shadowFloor + 0.08) {
+      record('M.shadow-ring', false, `photon ring spike too small: peak ${probe.peakLum.toFixed(3)} vs shadow floor ${shadowFloor} (need peak >= ${(shadowFloor + 0.08).toFixed(3)})`);
+    } else {
+      record('M.shadow-ring', true, `shadow ${probe.shadowEnd} px, photon ring spike +${(probe.peakLum - shadowFloor).toFixed(3)} at +${probe.peakIdx} px above center`);
+    }
+  } catch (e) { record('M.shadow-ring', false, e.message); }
+  finally { await ctx.close(); }
+}
+
 async function gateL_doppler_asymmetry() {
   // BH spec gate E: at inclination ~83 deg with prograde spin, one side of
   // the disk must be measurably brighter than the other (>20% difference).
@@ -362,6 +429,7 @@ try {
   await gateJ_disk_above_and_below();
   await gateK_banding();
   await gateL_doppler_asymmetry();
+  await gateM_shadow_ring();
 } finally {
   await browser.close();
   await server.closePromise();

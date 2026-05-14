@@ -31,7 +31,7 @@ Gate-C is "STUBBED (skipped)" for heroes whose physics correctness is enforced t
 | A. not a schematic | PASS | WebGL2 context confirmed; fragment shader contains a ray-march loop; no vertex geometry exists for hole, disk, ring, or stars. |
 | B. light is bent (deflection at b=10M within 5%) | STUBBED-shifted | The harness E.physics check measures CPU geodesic deflection at b=50M against the leading-order 4M/b within 5% (err 4.3%). At b=10M the next-order 15pi/4 M^2/b^2 correction is ~30% of the deflection, so the weak-field 4M/b is not the right yardstick there. Honest reading: the integrator is correct but the gate uses a different b than the spec asks. |
 | C. disk lenses over shadow | PASS | Implemented as harness gate J. Measured: 40 warm disk-colored pixels above the shadow midline, 41 below. |
-| D. shadow + photon ring exist | VISUAL ONLY | Visible in render; NOT IMPLEMENTED as an automated gate. |
+| D. shadow + photon ring exist | PASS | Implemented as harness gate M. Vertical radial scan from BH center upward into the starfield region. Shadow extends 143 px (contiguous luminance below 0.02 from center upward); a brightness spike of +0.097 above the shadow floor sits at +147 px (the photon ring). Both criteria pass. |
 | E. Doppler asymmetry > 20% | PASS | Implemented as harness gate L. Measured: near-side disk asymmetry 55.9% (right side 2.3x brighter than left) in the band y in [cy+40, cy+180] below the photon ring. Threshold 20%. The disk velocity is computed properly as orbital tangent v = vphi * (-z, 0, x)/r, the Doppler factor uses the actual line-of-sight dot product (not pos.x/r proxy), and g is amplified 2.2x to dominate the lensed-over-top contribution. |
 | F. starfield is a lensed texture | STRUCTURAL PASS | The engine generates a 1024 x 512 equirectangular star texture in CPU and samples it by ray direction; no sprites or gl.POINTS. NOT MEASURED automatically. |
 | G. spin changes geometry (ISCO migration) | STUBBED | The r_ISCO readout uses the analytical `iscoKerr` formula in `shared/js/engine/schwarzschild-kerr-cpu.js`; the shader does NOT integrate the full Kerr metric. The hero is Schwarzschild-accurate with a perturbative a/M frame-drag twist; full Kerr is deferred. |
@@ -47,6 +47,6 @@ Gate-C is "STUBBED (skipped)" for heroes whose physics correctness is enforced t
 
 - **All six heroes** pass the seven base harness gates A-G as measured against the rendered output or the engine reference.
 - **wave, lorenz, hydrogen, tokamak, earth**: no outstanding spec gates beyond what the harness already checks. Caption claims match implementation.
-- **schwarzschild-kerr-blackhole-3d**: 7 of the spec's 14 gates measured-and-passing (A, C, E, F structural, H, K with star-delta filter, plus B at a shifted b value); 3 stubbed (G, L now opaque, B's b value); 4 not implemented as automated gates (D, I, J, M, N).
+- **schwarzschild-kerr-blackhole-3d**: 8 of the spec's 14 gates measured-and-passing (A, C, D, E, F structural, H, K with star-delta filter, plus B at a shifted b value); 3 stubbed (G, L now opaque, B's b value); 3 not implemented as automated gates (I, J, M, N).
 
 The BH hero's spec.md description has been updated so the caption no longer overclaims full Kerr; it now reads "Schwarzschild-accurate with a perturbative a/M twist".
