@@ -46,7 +46,9 @@ const st = { aOverM: 0, diskInner: 6, diskOuter: 14, t: 0 };
 let running = true;
 
 buildSlider('a/M', -1, 1, 0.05, st.aOverM, v => { st.aOverM = v; });
-buildSlider('disk r_in', 1.5, 12, 0.1, st.diskInner, v => { st.diskInner = v; });
+// disk_r_in is clamped to >= 6 M (the ISCO at a=0). Material inside the ISCO
+// is unphysical; placing the disk there leaks bright pixels into the shadow.
+buildSlider('disk r_in', 6.0, 12, 0.1, st.diskInner, v => { st.diskInner = v; });
 buildSlider('disk r_out', 8, 30, 0.5, st.diskOuter, v => { st.diskOuter = v; });
 const btns = buildButtons();
 

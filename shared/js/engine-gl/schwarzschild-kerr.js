@@ -94,16 +94,11 @@ void main() {
   float phi = 0.0;
   bool captured = false;
   bool hitDisk = false;
-  int crossings = 0;
   vec3 col = vec3(0.0);
-  // Volumetric-disk accumulated optical depth (so the near side can occlude the far side).
-  float tau = 0.0;
-  // Track the y-coordinate of the 3D ray position so we can detect equatorial
-  // plane crossings via sign change.
+  // Track the y-coordinate of the 3D ray position so we can detect the FIRST
+  // equatorial-plane crossing. Per the latest spec: thin opaque disk, one
+  // crossing, deposit emission, terminate.
   float prevY = r_eye * e1.y;
-  float prevR = r_eye;
-  // Disk vertical scale height (thin but not zero).
-  const float DISK_H = 0.5;
   // Conserved-quantity reference: at infinity, (du)^2 + u^2 - 2 u^3 = 1/b^2.
   // We periodically renormalize to keep this invariant (null-condition projection).
   float invB2 = 1.0 / (b * b);
@@ -135,50 +130,38 @@ void main() {
     // Frame-dragging twist proxy: add a small phi increment proportional to a/r^2.
     float r = 1.0 / max(u, 1e-6);
     phi += dphi * uAOverM * (1.5 / (r * r));
+    // FIX 2b: horizon check is FIRST. A ray that crosses the horizon dies
+    // before any disk sample can be added in this step.
     if (r < rH * 1.001) { captured = true; break; }
     if (u < 1e-3 && phi > 0.2) break;
     if (r > 400.0) break;
     // 3D position in world coords.
     vec3 pos = r * (cos(phi) * e1 + sin(phi) * e2);
     float curY = pos.y;
-    // VOLUMETRIC DISK: emit along the segment while the ray is inside the
-    // disk volume (|y| < DISK_H and r in [r_in, r_out]). Smooth profile in y.
-    if (r > uDiskInner && r < uDiskOuter) {
-      float yProf = exp(-curY * curY / (2.0 * DISK_H * DISK_H));
-      if (yProf > 0.01) {
-        // Segment length in 3D between prev and current position.
-        vec3 prevPos = prevR * (cos(phi - dphi) * e1 + sin(phi - dphi) * e2);
-        float ds = length(pos - prevPos);
-        // Cooler peak temperature so the bulk of the disk reads as warm
-        // (brown/orange) rather than blown-out white. Doppler beaming + g^4
-        // pushes the approaching side toward white-blue, the receding side
-        // toward red, recovering the asymmetric look.
-        float T = 6.5e3 * pow(uDiskInner / r, 0.75);
-        float vphi = sqrt(1.0 / r);
-        float losDopp = pos.x / r;
-        float g = clamp(1.0 + vphi * losDopp, 0.45, 1.6);
-        float gain = pow(g, 4.0);
-        vec3 emit = planck(T * g);
-        float innerFade = smoothstep(uDiskInner * 0.95, uDiskInner * 1.4, r);
-        float outerFade = 1.0 - smoothstep(uDiskOuter * 0.7, uDiskOuter, r);
-        float radial = innerFade * outerFade;
-        // Two-octave azimuthal + radial cloud noise so the disk has texture
-        // instead of a smooth band.
-        float ang = atan(pos.z, pos.x);
-        float n1 = 0.5 + 0.5 * sin(6.0 * ang + 1.1 * r);
-        float n2 = 0.5 + 0.5 * sin(13.0 * ang - 0.7 * r + 1.3);
-        float noise = mix(0.55, 1.0, n1) * mix(0.7, 1.0, n2);
-        float kappa = 0.22 * yProf * radial * noise;
-        float dTau = kappa * ds;
-        col += emit * gain * yProf * radial * noise * ds * 0.95 * exp(-tau);
-        tau += dTau;
-        if (tau > 4.0) { hitDisk = true; break; }
-      }
+    // OPAQUE DISK (Option A): FIRST equatorial-plane crossing inside the
+    // [r_in, r_out] band deposits one emission sample and the ray TERMINATES.
+    // No volumetric, no second-crossing accumulation. Removes ghost disks
+    // and inner-shadow leaks.
+    if (prevY * curY < 0.0 && r > uDiskInner && r < uDiskOuter) {
+      float T = 6.5e3 * pow(uDiskInner / r, 0.75);
+      float vphi = sqrt(1.0 / r);
+      float losDopp = pos.x / r;
+      float g = clamp(1.0 + vphi * losDopp, 0.45, 1.6);
+      float gain = pow(g, 4.0);
+      vec3 emit = planck(T * g);
+      // Soft radial fade at the outer edge keeps lensed light from leaking
+      // into the canvas corners.
+      float outerFade = 1.0 - smoothstep(uDiskOuter * 0.7, uDiskOuter, r);
+      float ang = atan(pos.z, pos.x);
+      float n1 = 0.5 + 0.5 * sin(6.0 * ang + 1.1 * r);
+      float n2 = 0.5 + 0.5 * sin(13.0 * ang - 0.7 * r + 1.3);
+      float noise = mix(0.55, 1.0, n1) * mix(0.7, 1.0, n2);
+      col = emit * gain * outerFade * noise;
+      hitDisk = true;
+      break;
     }
     prevY = curY;
-    prevR = r;
   }
-  hitDisk = hitDisk || tau > 0.05;
   // Fallback: if the loop exhausted its step budget without explicit capture
   // OR explicit escape, the ray was winding near the photon sphere. Those
   // rays should be captured (they fall into the BH). Otherwise the loop-end
