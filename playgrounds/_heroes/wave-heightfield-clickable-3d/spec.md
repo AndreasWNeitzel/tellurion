@@ -15,7 +15,7 @@ tags: [waves, click-seed, animation, live-readout, interactive-drag]
 difficulty: 3
 tier: single
 hero_candidate: true
-renderer: canvas2d
+renderer: webgl2
 estimated_engagement_minutes: 6
 share_state_keys: [c, gamma, A, sigma]
 ---
@@ -28,4 +28,4 @@ Currently rendered in Canvas2D using a viridis colormap on the height field; the
 
 ## Stack exemption
 
-Marked `hero_candidate: true` but `renderer: canvas2d` for now. The Phase 9 hero spec defaults to WebGL2; this entry is a "fast first hero" while the WebGL2 shaders are still being authored.
+Marked `hero_candidate: true` but `renderer: webgl2` for now. The Phase 9 hero spec defaults to WebGL2; this entry is a "fast first hero" while the WebGL2 shaders are still being authored.
