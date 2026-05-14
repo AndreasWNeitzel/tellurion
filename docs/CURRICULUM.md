@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 22 |
+| draft | 21 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 170 |
+| verified | 171 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -332,7 +332,7 @@ Total playgrounds: 203
 
 3 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Curvature Tensor 2d Surfaces** ([M3007-curvature-tensor-2d-surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/)). Status: `draft`. `carroll2019` ch 3; Gauss-Bonnet integral over closed surface exact.
+- **Gaussian Curvature of 2D Surfaces** ([M3007-curvature-tensor-2d-surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/)). Status: `verified`. `riley-hobson` ch 26.
 - **Geodesic Deviation Equation** ([M3007-geodesic-deviation-equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/)). Status: `draft`. `carroll2019` ch 3 (supporting: AST3017); tidal stretching vs Riemann tensor exact.
 - **Parallel Transport on a Sphere** ([M3007-parallel-transport-on-sphere](../playgrounds/bsc-y3s2/M3007-parallel-transport-on-sphere/)). Status: `verified`. `carroll2019` ch 3 (supporting: AST3017).
 

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gaussian Curvature of 2D Surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/index.html)** &nbsp; (verified, verified 2026-05-14T02:05:33Z)
+  Sphere, cylinder, hyperbolic plane, and torus. Source: Riley-Hobson Ch. 26 (`riley-hobson`).
+
 - **[Toy Parton Distribution Functions](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/index.html)** &nbsp; (verified, verified 2026-05-14T02:04:29Z)
   $x f(x)$ for $u_v$, $d_v$, gluon, sea quarks. Source: Griffiths-Particles Ch. 9 (`griffiths-particles`).
 
@@ -555,9 +558,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Convection Mixing Length](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Curvature Tensor 2d Surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Dynamical Friction Chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)

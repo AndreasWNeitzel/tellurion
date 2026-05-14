@@ -1,28 +1,22 @@
-// Curvature Tensor 2d Surfaces invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Curvature Tensor 2d Surfaces invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { sphereK, hyperbolicK, torusK, cylinderK, gaussBonnetSphere } from './sim.js';
+describe('curvature-tensor-2d-surfaces', () => {
+  it('sphere K = 1/R^2', () => {
+    expect(Math.abs(sphereK(2) - 0.25)).toBeLessThan(1e-12);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('hyperbolic K negative', () => {
+    expect(hyperbolicK(1)).toBe(-1);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('cylinder K = 0', () => {
+    expect(cylinderK()).toBe(0);
+  });
+  it('torus K positive on outer rim (theta=0)', () => {
+    expect(torusK(0, 3, 1)).toBeGreaterThan(0);
+  });
+  it('torus K negative on inner rim (theta=pi)', () => {
+    expect(torusK(Math.PI, 3, 1)).toBeLessThan(0);
+  });
+  it('Gauss-Bonnet on sphere: integral K dA = 4 pi (Euler char 2)', () => {
+    expect(gaussBonnetSphere(1)).toBeCloseTo(4 * Math.PI, 10);
+  });
 });
