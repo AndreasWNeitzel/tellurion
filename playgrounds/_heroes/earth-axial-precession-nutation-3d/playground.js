@@ -98,6 +98,21 @@ function sunDirFromState() {
 
 function identityMat4() { const m = new Float32Array(16); m[0] = m[5] = m[10] = m[15] = 1; return m; }
 
+// Rotate matrix about an arbitrary unit axis k by angle a (Rodrigues 4x4).
+function rotMat4(axis, angle) {
+  const [x, y, z] = axis;
+  const c = Math.cos(angle), s = Math.sin(angle), C = 1 - c;
+  return new Float32Array([
+    c + x*x*C,     x*y*C + z*s,   x*z*C - y*s,   0,
+    x*y*C - z*s,   c + y*y*C,     y*z*C + x*s,   0,
+    x*z*C + y*s,   y*z*C - x*s,   c + z*z*C,     0,
+    0,             0,             0,             1,
+  ]);
+}
+
+const traceTips = [];           // flat [x0,y0,z0, x1,y1,z1, ...]
+const TRACE_MAX_POINTS = 320;
+
 let last = performance.now(), fpsLast = last, fpsFrames = 0;
 const aspect = () => canvas.width / canvas.height;
 
@@ -116,7 +131,20 @@ function render() {
   if (!engine) return;
   const view = camera.viewMatrix();
   const proj = camera.projMatrix(aspect());
-  engine.render(view, proj, axisDirFromState(), sunDirFromState(), identityMat4());
+  const axis = axisDirFromState();
+  // Earth daily rotation about its instantaneous axis. The accumulator is
+  // in simulated years; spin angle = 2 pi * 365.25 * yearsElapsed gives the
+  // daily turn count (visually capped by time-accel slider; at high accel
+  // we see the spin blur as the year sweeps past). Modulo 2 pi to keep it
+  // bounded.
+  const spinTurns = 365.25 * (st.epochYear + st.yearsElapsed - 2000);
+  const spinAngle = ((spinTurns % 1) + 1) % 1 * 2 * Math.PI;
+  const model = rotMat4(axis, spinAngle);
+  // Record the rotation-axis tip every render.
+  const tip = [axis[0] * 1.6, axis[1] * 1.6, axis[2] * 1.6];
+  traceTips.push(tip[0], tip[1], tip[2]);
+  while (traceTips.length > TRACE_MAX_POINTS * 3) traceTips.splice(0, 3);
+  engine.render(view, proj, axis, sunDirFromState(), model, traceTips);
   readouts();
 }
 

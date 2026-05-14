@@ -148,7 +148,7 @@ export function setupEarthGL(canvas) {
   gl.bindBuffer(gl.ARRAY_BUFFER, vboStarPos); gl.bufferData(gl.ARRAY_BUFFER, starPos, gl.STATIC_DRAW);
   gl.bindBuffer(gl.ARRAY_BUFFER, vboStarCol); gl.bufferData(gl.ARRAY_BUFFER, starCol, gl.STATIC_DRAW);
 
-  function render(viewMat, projMat, axisDir, sunDir, model) {
+  function render(viewMat, projMat, axisDir, sunDir, model, traceTips = null) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.clearColor(0.012, 0.014, 0.022, 1);
@@ -175,22 +175,50 @@ export function setupEarthGL(canvas) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vboNorm); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     gl.drawElements(gl.TRIANGLES, sphere.indices.length, gl.UNSIGNED_SHORT, 0);
-    // Axis line in world space.
+    // Two axes drawn in world space:
+    //   1. Ecliptic pole (fixed white line along world +y).
+    //   2. Earth's rotation axis (warm red, sweeps with precession).
     const axisCol = [0.85, 0.30, 0.20];
-    const axScale = 2.2;
+    const eclipCol = [0.92, 0.94, 0.98];
+    const axScale = 2.4;
+    const eclipScale = 2.0;
     const axisPos = new Float32Array([
+      0, -eclipScale, 0,
+      0, eclipScale, 0,
       -axisDir[0] * axScale, -axisDir[1] * axScale, -axisDir[2] * axScale,
       axisDir[0] * axScale, axisDir[1] * axScale, axisDir[2] * axScale,
     ]);
-    const axisColBuf = new Float32Array([...axisCol, ...axisCol]);
+    const axisColBuf = new Float32Array([...eclipCol, ...eclipCol, ...axisCol, ...axisCol]);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboLinePos); gl.bufferData(gl.ARRAY_BUFFER, axisPos, gl.DYNAMIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboLineCol); gl.bufferData(gl.ARRAY_BUFFER, axisColBuf, gl.DYNAMIC_DRAW);
     gl.useProgram(lineProg);
     gl.uniformMatrix4fv(gl.getUniformLocation(lineProg, 'uMVP'), false, mvp);
-    gl.uniform1f(gl.getUniformLocation(lineProg, 'uAlpha'), 1.0);
+    gl.uniform1f(gl.getUniformLocation(lineProg, 'uAlpha'), 0.85);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboLinePos); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboLineCol); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
-    gl.drawArrays(gl.LINES, 0, 2);
+    gl.drawArrays(gl.LINES, 0, 4);
+    // Axis-tip trace: connect successive tips with line segments, alpha fading.
+    if (traceTips && traceTips.length >= 4) {
+      const segs = (traceTips.length / 3) - 1;
+      const tracePos = new Float32Array(segs * 6);
+      const traceCol = new Float32Array(segs * 6);
+      for (let i = 0; i < segs; i += 1) {
+        const a = i * 3, b = (i + 1) * 3;
+        tracePos[6 * i + 0] = traceTips[a];     tracePos[6 * i + 1] = traceTips[a + 1]; tracePos[6 * i + 2] = traceTips[a + 2];
+        tracePos[6 * i + 3] = traceTips[b];     tracePos[6 * i + 4] = traceTips[b + 1]; tracePos[6 * i + 5] = traceTips[b + 2];
+        const fade = i / segs;
+        traceCol[6 * i + 0] = 0.85 * fade; traceCol[6 * i + 1] = 0.40 * fade; traceCol[6 * i + 2] = 0.25 * fade;
+        traceCol[6 * i + 3] = 0.85 * fade; traceCol[6 * i + 4] = 0.40 * fade; traceCol[6 * i + 5] = 0.25 * fade;
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER, vboLinePos); gl.bufferData(gl.ARRAY_BUFFER, tracePos, gl.DYNAMIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER, vboLineCol); gl.bufferData(gl.ARRAY_BUFFER, traceCol, gl.DYNAMIC_DRAW);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.uniform1f(gl.getUniformLocation(lineProg, 'uAlpha'), 0.9);
+      gl.bindBuffer(gl.ARRAY_BUFFER, vboLinePos); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, vboLineCol); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.LINES, 0, segs * 2);
+      gl.disable(gl.BLEND);
+    }
     // Sun marker.
     gl.useProgram(ptProg);
     gl.uniform1f(gl.getUniformLocation(ptProg, 'uPointSize'), 30);
