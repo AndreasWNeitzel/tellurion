@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (verified, verified 2026-05-14T01:44:57Z)
+  Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
+
 - **[1D Radiative Transfer (Uniform Slab)](../playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab/index.html)** &nbsp; (verified, verified 2026-05-14T01:43:46Z)
   Slab with constant $S$ and finite $\tau$; closed-form $I(\tau) = I_{in} e^{-\tau} + S(1-e^{-\tau})$. Source: Rybicki-Lightman Ch. 1 (`rybickilightman1979`).
 
@@ -597,9 +600,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Spiral Density Wave Dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Thomas Precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/index.html)** &nbsp; (draft)

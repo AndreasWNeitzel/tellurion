@@ -1,28 +1,24 @@
-// Synchrotron Spectrum invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Synchrotron Spectrum invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { nu_c, singleSpec, powerLawSpec, spectralIndex } from './sim.js';
+describe('synchrotron-spectrum', () => {
+  it('1 GeV electron in 100 microGauss field has nu_c in radio', () => {
+    const gamma = 2000, B = 1e-8;
+    const v = nu_c(gamma, B);
+    expect(v).toBeGreaterThan(1e6);
+    expect(v).toBeLessThan(1e9);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('nu_c scales as gamma^2', () => {
+    expect(Math.abs(nu_c(100, 1) / nu_c(50, 1) - 4)).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('nu_c scales as B', () => {
+    expect(Math.abs(nu_c(100, 2) / nu_c(100, 1) - 2)).toBeLessThan(1e-9);
+  });
+  it('F(x) peaks near x = 0.29 (single-electron)', () => {
+    const at_peak = singleSpec(0.29);
+    expect(singleSpec(0.5)).toBeLessThan(at_peak * 1.05);
+    expect(singleSpec(0.1)).toBeLessThan(at_peak * 1.05);
+  });
+  it('spectral index (p-1)/2 = 0.7 for p=2.4', () => {
+    expect(Math.abs(spectralIndex(2.4) - 0.7)).toBeLessThan(1e-9);
+  });
 });
