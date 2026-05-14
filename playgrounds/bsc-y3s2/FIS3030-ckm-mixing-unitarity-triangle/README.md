@@ -1,17 +1,2 @@
-# Ckm Mixing Unitarity Triangle
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# CKM mixing and the unitarity triangle
+The CKM matrix moduli (left, color-coded heat map) and the unitarity triangle in the $(\bar\rho, \bar\eta)$ plane. A nonzero triangle area means CP is violated. Source: Griffiths-Particles Ch. 10 (`griffiths-particles`).

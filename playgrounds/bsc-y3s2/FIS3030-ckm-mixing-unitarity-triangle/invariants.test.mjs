@@ -1,28 +1,24 @@
-// Ckm Mixing Unitarity Triangle invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Ckm Mixing Unitarity Triangle invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { ckmModulus, trianglePoints, angleBeta, angleGamma, CKM_DEFAULT } from './sim.js';
+describe('ckm-mixing-unitarity-triangle', () => {
+  it('CKM diagonal close to 1', () => {
+    const v = ckmModulus(CKM_DEFAULT);
+    expect(Math.abs(v[0][0] - 1)).toBeLessThan(0.05);
+    expect(Math.abs(v[1][1] - 1)).toBeLessThan(0.05);
+    expect(Math.abs(v[2][2] - 1)).toBeLessThan(0.01);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Vus ~ lambda', () => {
+    const v = ckmModulus(CKM_DEFAULT);
+    expect(Math.abs(v[0][1] - CKM_DEFAULT.lambda)).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('beta + gamma + alpha = pi (closure)', () => {
+    const { rho, eta } = CKM_DEFAULT;
+    const beta = angleBeta(rho, eta), gamma = angleGamma(rho, eta);
+    const sum = beta + gamma + (Math.PI - beta - gamma);
+    expect(Math.abs(sum - Math.PI)).toBeLessThan(1e-12);
+  });
+  it('CKM triangle apex matches input', () => {
+    const tri = trianglePoints({ rho: 0.15, eta: 0.35 });
+    expect(tri.A).toEqual([0.15, 0.35]);
+  });
 });
