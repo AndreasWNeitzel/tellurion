@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 98 |
+| draft | 97 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 94 |
+| verified | 95 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -275,7 +275,7 @@ Total playgrounds: 203
 
 - **Bbn Light Element Toy** ([AST3017-bbn-light-element-toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/)). Status: `draft`. `kolb-turner` ch 3 (supporting: MAA-CS); primordial abundance vs eta_B from rate equations.
 - **Distance Ladder Toy** ([AST3017-distance-ladder-toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/)). Status: `draft`. `liddle-cosmology` ch 5 (supporting: MAA-CS); parallax to Cepheid to SNIa logical chain.
-- **Friedmann Cosmography** ([AST3017-friedmann-cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/)). Status: `draft`. `liddle-cosmology` ch 4 (supporting: MAA-CS); H(z) from (Omega_m, Omega_Lambda); age of universe.
+- **Friedmann Cosmography** ([AST3017-friedmann-cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: MAA-CS).
 - **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. citation pending.
 - **Inflation Slow Roll** ([AST3017-inflation-slow-roll](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/)). Status: `draft`. `mukhanov-cosmology` ch 5 (supporting: MAA-CS); epsilon, eta slow-roll params drive n_s, r predictions.
 - **Schwarzschild Light Bending** ([AST3017-schwarzschild-geodesics](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/)). Status: `in-progress`. citation pending.

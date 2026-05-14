@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Friedmann Cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/index.html)** &nbsp; (verified, verified 2026-05-14T00:11:04Z)
+  A flat Friedmann-Lemaitre-Robertson-Walker universe with matter density parameter $\Omega_m$, cosmological constant $\Omega_\Lambda = 1 - \Omega_m$, and Hubble constant $H_0$. The dimensionless Hubble function and cosmic age follow from the Friedmann equation.
+
 - **[Michelson Interferometer](../playgrounds/bsc-y3s1/FIS3019-michelson-interferometer/index.html)** &nbsp; (verified, verified 2026-05-14T00:06:59Z)
   A Michelson interferometer with one moving mirror produces a path difference $L = 2d$ between the two arms. The detector intensity is
 
@@ -432,9 +435,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Fourier Vs Laplace Transform Pair](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Friedmann Cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Geodesic Deviation Equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/index.html)** &nbsp; (draft)

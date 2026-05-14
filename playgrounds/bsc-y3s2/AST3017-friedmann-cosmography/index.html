@@ -8,24 +8,51 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Friedmann Cosmography</h1>
+  <h1>Friedmann cosmography</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the dimensionless Hubble
+    function $E(z) = \sqrt{\Omega_m (1+z)^3 + \Omega_\Lambda}$ and the
+    age of the universe $t(z)$ as functions of redshift, for a flat
+    LCDM universe. Sliders set $\Omega_m$ and $H_0$; $\Omega_\Lambda$ is
+    fixed by flatness. The Planck 2018 defaults
+    ($\Omega_m = 0.315$, $H_0 = 67.4$) give $t_0 \approx 13.8$ Gyr.
+  </p>
+  <p>
+    The Einstein-de Sitter limit ($\Omega_m = 1$) gives the textbook
+    $t_0 = 2/(3 H_0)$. Crank $\Omega_m$ down to zero and you get a
+    de Sitter universe with an infinite age and exponential expansion.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Hubble function E(z) and cosmic age t(z) vs redshift."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">t_0 (Gyr):</span><span class="value" id="readout-t0">13.8</span>
+      <span class="label">D_C(z=1) (Mpc):</span><span class="value" id="readout-dc">3300</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Hubble function and cosmic age in flat LCDM. Source: Liddle 3e
+      Ch. 4 (`liddle-cosmology`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="LCDM controls">
+    <div class="row"><span class="label">Omega_m</span><input type="range" id="slider-om" min="0.01" max="1" step="0.005" value="0.315"><span class="value" id="value-om">0.315</span></div>
+    <div class="row"><span class="label">H_0 (km/s/Mpc)</span><input type="range" id="slider-h0" min="50" max="100" step="0.5" value="67.4"><span class="value" id="value-h0">67.4</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>
