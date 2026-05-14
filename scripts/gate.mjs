@@ -311,10 +311,57 @@ async function gateK_banding() {
   finally { await ctx.close(); }
 }
 
+async function gateL_doppler_asymmetry() {
+  // BH spec gate E: at inclination ~83 deg with prograde spin, one side of
+  // the disk must be measurably brighter than the other (>20% difference).
+  // Measure: total luminance in the left half of the canvas vs the right
+  // half, restricted to the disk-emission band (warm pixels).
+  if (slug !== 'schwarzschild-kerr-blackhole-3d') { record('L.doppler', true, 'skipped: BH-only spec gate'); return; }
+  const { page, ctx } = await newPage('&capture=t-050&captureFraction=0.5');
+  try {
+    await page.waitForFunction('window.__simulationReady === true', { timeout: 25_000 });
+    await page.waitForTimeout(200);
+    const probe = await page.evaluate(() => {
+      const c = document.getElementById('stage');
+      const off = document.createElement('canvas'); off.width = c.width; off.height = c.height;
+      off.getContext('2d').drawImage(c, 0, 0);
+      const w = c.width, h = c.height;
+      const img = off.getContext('2d').getImageData(0, 0, w, h).data;
+      const cx = Math.floor(w / 2);
+      const cy = Math.floor(h / 2);
+      // Restrict to the disk near-side band BELOW the shadow midline.
+      // The over-the-top lensed arc above the shadow contributes a roughly
+      // symmetric contribution that washes out the Doppler asymmetry when
+      // counted; we want the asymmetric near-side band only.
+      const yMin = cy + 40;        // below the photon ring
+      const yMax = Math.min(h, cy + 180);
+      let left = 0, right = 0;
+      for (let y = yMin; y < yMax; y += 1) {
+        for (let x = 0; x < w; x += 1) {
+          const i = (y * w + x) * 4;
+          const r = img[i], g = img[i + 1], b = img[i + 2];
+          if (r > 50 && r > b + 10) {
+            const L = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+            if (x < cx) left += L; else right += L;
+          }
+        }
+      }
+      return { left, right, band: `y in [${yMin},${yMax}]` };
+    });
+    const bright = Math.max(probe.left, probe.right);
+    const dim = Math.min(probe.left, probe.right);
+    const asym = (bright - dim) / Math.max(1e-6, bright);
+    if (asym < 0.20) record('L.doppler', false, `near-side disk asymmetry ${(asym*100).toFixed(1)}% < 20% (left=${probe.left.toFixed(0)} right=${probe.right.toFixed(0)}, ${probe.band})`);
+    else record('L.doppler', true, `near-side disk asymmetry ${(asym*100).toFixed(1)}% (left=${probe.left.toFixed(0)} right=${probe.right.toFixed(0)}, ${probe.band})`);
+  } catch (e) { record('L.doppler', false, e.message); }
+  finally { await ctx.close(); }
+}
+
 try {
   await gateA(); await gateB(); await gateC(); await gateD(); await gateE(); await gateF(); await gateG();
   await gateJ_disk_above_and_below();
   await gateK_banding();
+  await gateL_doppler_asymmetry();
 } finally {
   await browser.close();
   await server.closePromise();

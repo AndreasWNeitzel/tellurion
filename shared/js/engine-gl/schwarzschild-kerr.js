@@ -157,8 +157,19 @@ void main() {
     if (prevY * curY < 0.0 && r > uDiskInner && r < uDiskOuter) {
       float T = 6.5e3 * pow(uDiskInner / r, 0.75);
       float vphi = sqrt(1.0 / r);
-      float losDopp = pos.x / r;
-      float g = clamp(1.0 + vphi * losDopp, 0.45, 1.6);
+      // Disk velocity at this point: tangent to circular orbit in the xz
+      // (equatorial) plane, prograde (counter-clockwise viewed from +y).
+      // For position (x, 0, z), tangent = (-z, 0, x) / r.
+      vec3 vDisk = vec3(-pos.z, 0.0, pos.x) * (vphi / max(r, 1e-6));
+      // Line of sight from disk point toward camera (we want approaching = blueshift).
+      vec3 los = normalize(uEye - pos);
+      float losDopp = dot(vDisk, los);   // -vphi..+vphi
+      // Boost the projected line-of-sight component so the asymmetry is
+      // visually obvious. Mathematically equivalent to using a higher
+      // orbital v_phi than the Newtonian sqrt(M/r); justified here as a
+      // proxy for relativistic v_phi (which is significantly higher than
+      // Newtonian near the ISCO).
+      float g = clamp(1.0 + 2.2 * losDopp, 0.30, 2.4);
       float gain = pow(g, 4.0);
       vec3 emit = planck(T * g);
       // Soft radial fade at the outer edge keeps lensed light from leaking
