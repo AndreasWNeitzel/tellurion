@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Parker Solar Wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/index.html)** &nbsp; (verified, verified 2026-05-14T01:37:33Z)
+  Transonic isothermal wind solution; sonic crossing at $r_c = GM/(2 c_s^2)$. Source: Shu Vol II Ch. 17 (`shu-vol2`).
+
 - **[Bondi Spherical Accretion](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/index.html)** &nbsp; (verified, verified 2026-05-14T01:36:26Z)
   Bondi radius and accretion rate for a steady spherically symmetric inflow; sonic point at $r_B/2$. Source: Frank-King-Raine Ch. 2 (`frank-king-raine`).
 
@@ -558,9 +561,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[P G Mode Cavities](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Parker Solar Wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Parton Distribution Toy](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/index.html)** &nbsp; (draft)

@@ -1,28 +1,20 @@
-// Parker Solar Wind invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Parker Solar Wind invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { criticalRadius, parkerSpeed, G, M_SUN, R_SUN } from './sim.js';
+describe('parker-solar-wind', () => {
+  it('critical radius for cs = 1e5 m/s ~ 6 R_sun', () => {
+    const rc = criticalRadius(1e5);
+    expect(rc).toBeGreaterThan(3 * R_SUN);
+    expect(rc).toBeLessThan(12 * R_SUN);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('speed at r_c equals cs', () => {
+    const cs = 1e5;
+    const rc = criticalRadius(cs);
+    const u = parkerSpeed(rc, cs);
+    expect(Math.abs(u / cs - 1)).toBeLessThan(0.2);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('speed at 1 AU > cs for hot corona', () => {
+    const cs = 1.4e5;
+    const u = parkerSpeed(1.496e11, cs);
+    expect(u).toBeGreaterThan(cs);
+  });
 });
