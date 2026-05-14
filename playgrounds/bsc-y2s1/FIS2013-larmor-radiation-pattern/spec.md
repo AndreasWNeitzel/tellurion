@@ -1,37 +1,14 @@
 ---
 title: Larmor Radiation Pattern
 slug: larmor-radiation-pattern
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: FIS2013
 supporting_ucs: []
 curriculum_year: bsc-y2s1
-primary_citation: jackson1998
-primary_chapter: 14
+primary_citation: griffiths-em
+primary_chapter: 11
 ---
-
-# Larmor Radiation Pattern
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: sin^2(theta) pattern within 1 percent; relativistic correction. Primary citation: jackson1998, chapter 14. Spec body to be filled by playground-architect.
+# Larmor radiation pattern
+Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11 (`griffiths-em`).

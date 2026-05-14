@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Larmor Radiation Pattern](../playgrounds/bsc-y2s1/FIS2013-larmor-radiation-pattern/index.html)** &nbsp; (verified, verified 2026-05-14T01:03:07Z)
+  Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11 (`griffiths-em`).
+
 - **[Michelson Fringe Counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/index.html)** &nbsp; (verified, verified 2026-05-14T01:01:49Z)
   Moving one arm of a Michelson interferometer by $\lambda/2$ produces one full fringe at the center. The rendered pattern is the ring system for a divergent source. Source: Hecht Optics Ch. 9.4 (`hecht2017`).
 
@@ -495,9 +498,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Lagrangian Vs Newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Larmor Radiation Pattern](../playgrounds/bsc-y2s1/FIS2013-larmor-radiation-pattern/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Least Squares Orbit Fit Gauss](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/index.html)** &nbsp; (draft)

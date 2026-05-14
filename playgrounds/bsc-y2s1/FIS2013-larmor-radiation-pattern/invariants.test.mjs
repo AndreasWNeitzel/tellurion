@@ -1,28 +1,24 @@
-// Larmor Radiation Pattern invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Larmor Radiation Pattern invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { dPdOmega, Ptotal, integratedPower } from './sim.js';
+describe('larmor-radiation-pattern', () => {
+  it('null at theta = 0 (along acceleration axis)', () => {
+    expect(dPdOmega(0, 1e10)).toBeLessThan(1e-50);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('maximum at theta = pi/2 (perpendicular)', () => {
+    const peak = dPdOmega(Math.PI / 2, 1e10);
+    expect(dPdOmega(Math.PI / 3, 1e10)).toBeLessThan(peak);
+    expect(dPdOmega(2 * Math.PI / 3, 1e10)).toBeLessThan(peak);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('symmetric about theta = pi/2', () => {
+    expect(Math.abs(dPdOmega(Math.PI / 4, 1) - dPdOmega(3 * Math.PI / 4, 1))).toBeLessThan(1e-30);
+  });
+  it('total power matches Larmor formula', () => {
+    const a = 1e15;
+    const P_num = integratedPower(a);
+    const P_an = Ptotal(a);
+    expect(Math.abs(P_num - P_an) / P_an).toBeLessThan(0.01);
+  });
+  it('P scales as a^2', () => {
+    expect(Math.abs(Ptotal(2) / Ptotal(1) - 4)).toBeLessThan(1e-12);
+  });
 });
