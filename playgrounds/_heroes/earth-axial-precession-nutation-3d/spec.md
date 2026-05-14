@@ -1,5 +1,7 @@
 ---
 title: Earth Axial Precession + Nutation 3D (Hero)
+description: 'Lit 3D Earth tilted at obliquity $\varepsilon$. Lunisolar precession at 50.29″/yr sweeps the rotation axis through a 25,772-yr cone, with the 18.6-yr lunar-node nutation superposed. Year display advances in simulated calendar years. Drag to orbit, scroll to zoom.'
+caption: 'Figure 1. Earth axial precession + nutation, 3D axis line drawn in world space. Source: Smart, Celestial Mechanics (`smart`).'
 slug: earth-axial-precession-nutation-3d
 status: verified
 audience: portfolio
