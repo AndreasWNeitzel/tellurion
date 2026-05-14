@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 33 |
+| draft | 32 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 159 |
+| verified | 160 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -287,7 +287,7 @@ Total playgrounds: 203
 
 - **BCS Gap, Self-Consistent** ([FIS3020-bcs-gap-self-consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/)). Status: `verified`. `ashcroft-mermin` ch 34.
 - **Bloch Oscillations** ([FIS3020-bloch-oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/)). Status: `verified`. `ashcroft-mermin` ch 12.
-- **Cooper Pair Binding Energy** ([FIS3020-cooper-pair-binding-energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/)). Status: `draft`. `kittel-cm` ch 10; bound state for arbitrarily weak attractive coupling.
+- **Cooper Pair Binding Energy** ([FIS3020-cooper-pair-binding-energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/)). Status: `verified`. `ashcroft-mermin` ch 34.
 - **Fermi Surface 2D Square Lattice** ([FIS3020-fermi-surface-2d-square](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/)). Status: `verified`. `ashcroft-mermin` ch 8.
 - **1D Phonon Dispersion (Monatomic and Diatomic)** ([FIS3020-phonon-dispersion-1d-monatomic-diatomic](../playgrounds/bsc-y3s2/FIS3020-phonon-dispersion-1d-monatomic-diatomic/)). Status: `verified`. `ashcroft-mermin` ch 22.
 
