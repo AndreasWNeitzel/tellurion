@@ -101,6 +101,11 @@ function bootSync() {
   rEls['r_ISCO (M)'].textContent = '6.00';
   rEls['r_photon (M)'].textContent = '3.00';
   rEls['b_crit (M)'].textContent = bCritSchwarzschild().toFixed(3);
+  // Accumulate TAA history across multiple frames so the captured still
+  // benefits from the same banding-suppression the live demo gets.
+  if (CAPTURE_NAME) {
+    for (let f = 0; f < 8; f += 1) render();
+  }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
     window.__simulationReady = true;

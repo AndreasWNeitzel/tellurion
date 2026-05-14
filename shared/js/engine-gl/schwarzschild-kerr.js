@@ -111,7 +111,10 @@ void main() {
     // Curvature-adaptive step: shrink near the horizon (small r = large u).
     // Far from BH, take larger steps; near periapsis / horizon, tighten.
     float r_now = 1.0 / max(u, 1e-6);
-    float dphi = clamp(0.020 * sqrt(r_now * 0.5), 0.003, 0.04);
+    // Per-pixel per-frame jitter on the step magnitude breaks the phi-quantization
+    // that causes the concentric ring banding in the lensed starfield.
+    float stepJ = 0.85 + 0.30 * fract(sin(dot(gl_FragCoord.xy + uFrameNum * 17.0, vec2(43.0, 91.0))) * 71283.0);
+    float dphi = clamp(0.020 * sqrt(r_now * 0.5) * stepJ, 0.003, 0.04);
     // Velocity-Verlet (leapfrog) on u'' = a(u) = -u + 3 u^2. Symplectic, warp-coherent.
     float a0 = -u + 3.0 * u * u;
     du += 0.5 * dphi * a0;      // half-kick
@@ -299,7 +302,10 @@ export function setupBHGL(canvas) {
   let frameNum = 0;
   let lastEyeKey = '';
   const post = setupPostProcess(gl, W, H);
-  const starTex = buildStarTexture(gl, 2048, 1024);
+  // 1024x512 is fast enough that initial load + setup completes well within
+  // page.goto's 30s wait. The 2048x1024 budget is reserved for production
+  // hardware where the CPU-side splat loop is irrelevant.
+  const starTex = buildStarTexture(gl, 1024, 512);
 
   function basis(eye, target, up, fovDeg) {
     const fx = target[0] - eye[0], fy = target[1] - eye[1], fz = target[2] - eye[2];
