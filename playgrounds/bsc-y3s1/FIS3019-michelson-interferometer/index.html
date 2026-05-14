@@ -8,24 +8,53 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Michelson Interferometer</h1>
+  <h1>Michelson interferometer: fringe visibility and coherence</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the detector intensity of a
+    Michelson interferometer as one mirror moves, producing path
+    difference $L = 2d$. The intensity oscillates as
+    $I(L) = \tfrac12 (1 + V(L) \cos(2 \pi L / \lambda))$, where the
+    visibility $V(L) = e^{-(L/L_c)^2}$ falls off over a coherence
+    length $L_c$. Fringes are sharp near $L = 0$ and wash out as $L
+    \gg L_c$.
+  </p>
+  <p>
+    A laser ($L_c \sim$ kilometers) maintains visibility over enormous
+    paths; sunlight ($L_c \sim 0.4$ um) decoheres after a few fringes.
+    The readout reports the implied spectral linewidth
+    $\Delta \nu \approx 0.44 c / L_c$.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Michelson intensity vs path difference with visibility envelope."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">L_c (um):</span><span class="value" id="readout-lc">1</span>
+      <span class="label">Delta nu (THz):</span><span class="value" id="readout-bw">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Michelson fringes and Gaussian coherence envelope. Source: Hecht
+      5e Ch. 9 (`hecht2017`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Michelson controls">
+    <div class="row"><span class="label">lambda (nm)</span><input type="range" id="slider-lam" min="400" max="700" step="1" value="550"><span class="value" id="value-lam">550</span></div>
+    <div class="row"><span class="label">log10 L_c (nm)</span><input type="range" id="slider-loglc" min="2" max="9" step="0.05" value="3"><span class="value" id="value-loglc">3.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

@@ -1,28 +1,51 @@
-// Michelson Interferometer invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Michelson invariants.
+// (a) V(0) = 1 (perfect coherence at zero delay).
+// (b) V(L_c) = 1/e (the e-folding definition).
+// (c) Fringe period = lambda.
+// (d) Bandwidth grows when coherence length shrinks (Heisenberg-like).
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import {
+  visibilityGaussian, intensity,
+  bandwidthFromCoherence, fringesPerMicron,
+} from './sim.js';
 
-describe('Michelson Interferometer invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('michelson-interferometer', () => {
+  it('V(0) = 1', () => {
+    expect(Math.abs(visibilityGaussian(0, 1000) - 1)).toBeLessThan(1e-15);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('V(L_c) = 1/e', () => {
+    const Lc = 500;
+    expect(Math.abs(visibilityGaussian(Lc, Lc) - 1 / Math.E)).toBeLessThan(1e-12);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('V -> 0 for L >> L_c', () => {
+    expect(visibilityGaussian(1000, 100)).toBeLessThan(1e-40);
+  });
+
+  it('intensity at L = 0: I = 1 (full coherence + on-fringe)', () => {
+    expect(Math.abs(intensity(0, 500, 1000) - 1)).toBeLessThan(1e-15);
+  });
+
+  it('fringe period equals lambda in intensity', () => {
+    const lam = 500;
+    const I0 = intensity(0, lam, 1e9);
+    const I1 = intensity(lam, lam, 1e9);
+    expect(Math.abs(I0 - I1)).toBeLessThan(1e-12);
+  });
+
+  it('intensity half-fringe gives minimum', () => {
+    const lam = 500;
+    const I = intensity(lam / 2, lam, 1e9);
+    expect(I).toBeLessThan(1e-12);
+  });
+
+  it('bandwidth grows when coherence shrinks', () => {
+    expect(bandwidthFromCoherence(100)).toBeGreaterThan(bandwidthFromCoherence(1000));
+  });
+
+  it('fringesPerMicron equals 2000 / lambda_nm', () => {
+    expect(fringesPerMicron(500)).toBeCloseTo(4, 12);
+  });
 });

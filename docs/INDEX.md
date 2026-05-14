@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Michelson Interferometer](../playgrounds/bsc-y3s1/FIS3019-michelson-interferometer/index.html)** &nbsp; (verified, verified 2026-05-14T00:06:59Z)
+  A Michelson interferometer with one moving mirror produces a path difference $L = 2d$ between the two arms. The detector intensity is
+
 - **[Fabry-Perot Finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/index.html)** &nbsp; (verified, verified 2026-05-14T00:04:16Z)
   Two parallel partial mirrors of intensity reflectance $R$ at spacing $L$ form a Fabry-Perot etalon. Light incident at angle $\theta$ inside the cavity (refractive index $n$) accumulates round-trip phase $\phi = 4 \pi n L \cos\theta / \lambda$. Multiple-beam interference gives the Airy transmission
 
@@ -489,9 +492,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Michelson Fringe Counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Michelson Interferometer](../playgrounds/bsc-y3s1/FIS3019-michelson-interferometer/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Mode Trapping Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (draft)

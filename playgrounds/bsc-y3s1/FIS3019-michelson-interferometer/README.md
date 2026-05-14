@@ -1,17 +1,17 @@
-# Michelson Interferometer
+# Michelson interferometer
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A Michelson interferometer with a moving mirror produces fringes at the detector with intensity $I = \tfrac12(1 + V \cos(2\pi L / \lambda))$. The visibility $V = e^{-(L/L_c)^2}$ falls off over the temporal coherence length $L_c$, with corresponding spectral bandwidth $\Delta\nu \sim 0.44 c / L_c$.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+Look for the difference between a laser-like (large $L_c$, fringes persist over the full plot) and a sunlight-like source (small $L_c$, only the central fringe).
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Two sliders: wavelength $\lambda$ and $\log_{10} L_c$.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: Hecht, *Optics*, 5e, Ch. 9 (`hecht2017`).
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
+- Strong invariants: $V(0) = 1$ exact; $V(L_c) = 1/e$ exact; fringe period = $\lambda$.
 - Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
 - Last verified: see `.verified`.
