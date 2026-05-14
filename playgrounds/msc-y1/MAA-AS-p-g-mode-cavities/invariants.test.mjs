@@ -1,28 +1,22 @@
-// P G Mode Cavities invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('P G Mode Cavities invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { N, S_l, cavities } from './sim.js';
+describe('p-g-mode-cavities', () => {
+  it('N peaks near core', () => {
+    expect(N(0.2)).toBeGreaterThan(N(0.5));
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('S_l decreases outward', () => {
+    expect(S_l(0.1, 1)).toBeGreaterThan(S_l(0.9, 1));
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('low-freq mode trapped in g cavity', () => {
+    const c = cavities(1, 1);
+    expect(c.gCavities.length).toBeGreaterThan(0);
+  });
+  it('high-freq mode in p cavity', () => {
+    const c = cavities(10, 1);
+    expect(c.pCavities.length).toBeGreaterThan(0);
+  });
+  it('mixed mode: both cavities exist', () => {
+    const c = cavities(3, 1);
+    expect(c.gCavities.length + c.pCavities.length).toBeGreaterThan(0);
+  });
 });

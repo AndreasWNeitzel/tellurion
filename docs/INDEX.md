@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[p- and g-Mode Cavities (Propagation Diagram)](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/index.html)** &nbsp; (verified, verified 2026-05-14T02:10:29Z)
+  Propagation diagram with $N$, $S_\ell$, and the mode frequency. Source: Aerts et al. Ch. 3 (`aerts-asteroseism`).
+
 - **[Mode Trapping in Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (verified, verified 2026-05-14T02:09:19Z)
   Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018 (`mosser2018-trap`); Aerts et al. Ch. 3 (`aerts-asteroseism`).
 
@@ -582,9 +585,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Orbits In Axisymmetric Potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[P G Mode Cavities](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Point Spread Function Strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/index.html)** &nbsp; (draft)
