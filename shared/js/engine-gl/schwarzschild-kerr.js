@@ -58,8 +58,14 @@ vec3 sampleEnv(vec3 dir) {
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 
 void main() {
-  // World-space primary ray.
-  vec2 ndc = uv * 2.0 - 1.0;
+  // World-space primary ray. Add a sub-pixel hash-based jitter so adjacent
+  // rays do not all snap to the same integration trajectory; this breaks the
+  // concentric-ring banding artifact in the lensed starfield without TAA.
+  vec2 pixJitter = vec2(
+    fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5,
+    fract(sin(dot(gl_FragCoord.xy, vec2(93.9898, 67.345))) * 24634.6345) - 0.5
+  );
+  vec2 ndc = (uv + pixJitter / uRes) * 2.0 - 1.0;
   vec3 rayDir = normalize(uForward + uRight * (ndc.x * uTanHalfFov * uAspect) + uUp * (ndc.y * uTanHalfFov));
   // Impact parameter (perpendicular distance from origin to ray line).
   float tFoot = -dot(uEye, rayDir);
@@ -177,6 +183,17 @@ void main() {
   // -sin(phi) e1 + cos(phi) e2 (90 deg rotated in the orbital plane). That is
   // the outgoing ray direction at infinity.
   vec3 outgoing = normalize(-sin(phi) * e1 + cos(phi) * e2);
+  // Per-pixel deterministic jitter on the outgoing direction. The Verlet
+  // step is discrete; rays at adjacent pixels often quantize to similar
+  // total phi, producing concentric ring banding in the lensed starfield.
+  // A tiny hash-based perturbation breaks up that aliasing without disturbing
+  // the smooth lensing on the scale that matters.
+  vec3 jitter = vec3(
+    fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5,
+    fract(sin(dot(gl_FragCoord.xy, vec2(93.9898, 67.345))) * 24634.6345) - 0.5,
+    fract(sin(dot(gl_FragCoord.xy, vec2(45.164, 23.789))) * 91264.3217) - 0.5
+  );
+  outgoing = normalize(outgoing + jitter * 0.012);
   col += sampleEnv(outgoing);
   vec2 c2 = uv - 0.5;
   float vign = 1.0 - 0.30 * dot(c2, c2) * 2.0;
