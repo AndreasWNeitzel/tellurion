@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Linear Perturbation Growth in LCDM](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (verified, verified 2026-05-14T02:14:54Z)
+  $\delta \propto a$ in matter era; Lambda saturates growth. Source: Liddle Ch. 12 (`liddle-cosmology`).
+
 - **[CMB Power Spectrum (Toy)](../playgrounds/msc-y1/MAA-CS-cmb-power-spectrum-toy/index.html)** &nbsp; (verified, verified 2026-05-14T02:13:43Z)
   Three free parameters: first-peak position, damping scale, amplitude. Source: Liddle Ch. 12 (`liddle-cosmology`).
 
@@ -576,9 +579,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Linear Perturbation Growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Main Sequence Mass Luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/index.html)** &nbsp; (draft)

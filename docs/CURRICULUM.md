@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 14 |
+| draft | 13 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 178 |
+| verified | 179 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -371,7 +371,7 @@ Total playgrounds: 203
 
 - **Baryon Acoustic Oscillation (Toy)** ([MAA-CS-baryon-acoustic-oscillation-toy](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/)). Status: `verified`. `liddle-cosmology` ch 11.
 - **CMB Power Spectrum (Toy)** ([MAA-CS-cmb-power-spectrum-toy](../playgrounds/msc-y1/MAA-CS-cmb-power-spectrum-toy/)). Status: `verified`. `liddle-cosmology` ch 12.
-- **Linear Perturbation Growth** ([MAA-CS-linear-perturbation-growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/)). Status: `draft`. `mukhanov-cosmology` ch 7; D(a) growth factor analytic for LCDM.
+- **Linear Perturbation Growth in LCDM** ([MAA-CS-linear-perturbation-growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/)). Status: `verified`. `liddle-cosmology` ch 12.
 - **Matter-Radiation Equality** ([MAA-CS-matter-radiation-equality](../playgrounds/msc-y1/MAA-CS-matter-radiation-equality/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: AST3017).
 
 ### MAA-SS Solar System and Exoplanets
