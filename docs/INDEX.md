@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[BBN Light-Element Abundances](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/index.html)** &nbsp; (verified, verified 2026-05-14T01:46:07Z)
+  Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11 (`liddle-cosmology`).
+
 - **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (verified, verified 2026-05-14T01:44:57Z)
   Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
 
@@ -510,9 +513,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Baryon Acoustic Oscillation Toy](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Bbn Light Element Toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bcs Gap Self Consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/index.html)** &nbsp; (draft)

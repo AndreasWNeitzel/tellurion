@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 38 |
+| draft | 37 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 154 |
+| verified | 155 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -273,7 +273,7 @@ Total playgrounds: 203
 
 7 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Bbn Light Element Toy** ([AST3017-bbn-light-element-toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/)). Status: `draft`. `kolb-turner` ch 3 (supporting: MAA-CS); primordial abundance vs eta_B from rate equations.
+- **BBN Light-Element Abundances** ([AST3017-bbn-light-element-toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/)). Status: `verified`. `liddle-cosmology` ch 11.
 - **Distance Ladder Toy** ([AST3017-distance-ladder-toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/)). Status: `draft`. `liddle-cosmology` ch 5 (supporting: MAA-CS); parallax to Cepheid to SNIa logical chain.
 - **Friedmann Cosmography** ([AST3017-friedmann-cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: MAA-CS).
 - **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. citation pending.

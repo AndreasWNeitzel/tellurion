@@ -1,17 +1,2 @@
-# Bbn Light Element Toy
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# BBN: light-element abundances vs $\eta_{10}$
+Three primordial abundances tracked as a function of the baryon-to-photon ratio. The red dashed line marks the Planck-measured value $\eta_{10} \approx 6.1$. Source: Liddle Ch. 11 (`liddle-cosmology`).
