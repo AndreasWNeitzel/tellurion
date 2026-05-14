@@ -1,17 +1,2 @@
-# Linear System Direct Vs Iterative
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Linear-system solvers
+The same Poisson problem is solved by a tridiagonal direct method (exact, instant) and three iterative methods. The lower panel tracks residual decay; CG terminates in at most $N$ steps in exact arithmetic. Source: Villate Ch. 6 (`villate-vpython`).

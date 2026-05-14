@@ -1,113 +1,77 @@
-// Linear System Direct Vs Iterative playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
-
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
-
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
+import { thomas, makePoissonRHS, residual, jacobiStep, gaussSeidelStep, conjugateGradientStep, applyA } from './sim.js';
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+const rR = document.getElementById('readout-r');
+const sN = document.getElementById('slider-N'), vN = document.getElementById('value-N');
+const selS = document.getElementById('select-s');
+const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
+let N = 32, solver = 'jacobi', x_iter, b, x_exact, hist = [], r_cg, p_cg, running = true;
+function reset() {
+  N = parseInt(sN.value);
+  b = makePoissonRHS(N);
+  x_iter = new Float64Array(N);
+  x_exact = thomas(b);
+  hist = [];
+  r_cg = b.slice(); p_cg = b.slice();
+}
+reset();
+sN.addEventListener('input', () => { vN.textContent = sN.value; reset(); });
+selS.addEventListener('change', () => { solver = selS.value; reset(); });
+btnR.addEventListener('click', () => { reset(); running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+let last = performance.now();
+function step() {
+  if (solver === 'jacobi') x_iter = jacobiStep(x_iter, b);
+  else if (solver === 'gs') x_iter = gaussSeidelStep(x_iter, b);
+  else if (solver === 'cg') { const out = conjugateGradientStep(x_iter, r_cg, p_cg, b); x_iter = out.x; r_cg = out.r; p_cg = out.p; }
+  hist.push(residual(x_iter, b) + 1e-30);
+  if (hist.length > 200) hist.shift();
+}
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
-
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height, pad = 40;
+  const top1 = pad, mid = H / 2 - 10, bot1 = mid - 10;
+  const top2 = mid + 10, bot2 = H - pad;
+  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad + 30, top1); ctx.lineTo(pad + 30, bot1); ctx.lineTo(W - pad, bot1); ctx.stroke();
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('u(x): cyan = exact, orange = iterative', pad + 30, top1 + 10);
+  const xToPx = (i) => pad + 30 + i / (N - 1) * (W - pad - pad - 30);
+  let umax = 0; for (let i = 0; i < N; i += 1) umax = Math.max(umax, Math.abs(x_exact[i]));
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let i = 0; i < N; i += 1) {
+    const py = bot1 - x_exact[i] / umax * (bot1 - top1) * 0.45 - (bot1 - top1) * 0.5 + (bot1 - top1) * 0.5;
+    if (i === 0) ctx.moveTo(xToPx(i), py); else ctx.lineTo(xToPx(i), py);
   }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
-}
-
-function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+  ctx.stroke();
+  ctx.strokeStyle = '#ffd166'; ctx.beginPath();
+  for (let i = 0; i < N; i += 1) {
+    const py = bot1 - x_iter[i] / umax * (bot1 - top1) * 0.45 - (bot1 - top1) * 0.5 + (bot1 - top1) * 0.5;
+    if (i === 0) ctx.moveTo(xToPx(i), py); else ctx.lineTo(xToPx(i), py);
   }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
+  ctx.stroke();
+  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad + 30, top2); ctx.lineTo(pad + 30, bot2); ctx.lineTo(W - pad, bot2); ctx.stroke();
+  ctx.fillStyle = '#9aa0a6'; ctx.fillText(`log10 ||r||  (iters: ${hist.length})`, pad + 30, top2 + 10);
+  if (hist.length > 0) {
+    let lmin = Math.log10(hist[hist.length - 1] + 1e-30);
+    let lmax = Math.log10(hist[0] + 1e-30);
+    if (lmax - lmin < 1) { lmin -= 1; }
+    ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 1.5; ctx.beginPath();
+    hist.forEach((r, i) => {
+      const px = pad + 30 + i / Math.max(1, hist.length - 1) * (W - pad - pad - 30);
+      const lr = Math.log10(r + 1e-30);
+      const py = bot2 - (lr - lmin) / (lmax - lmin) * (bot2 - top2 - 14);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     });
+    ctx.stroke();
   }
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  const r = residual(x_iter, b);
+  ctx.fillText(`||r|| = ${r.toExponential(2)}, exact ||r|| = ${residual(x_exact, b).toExponential(2)}`, pad + 30, H - 14);
+  rR.textContent = r.toExponential(2);
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+function tick(now) { const dt = (now - last) / 1000; last = now; if (running) for (let i = 0; i < 1; i += 1) step(); render(); requestAnimationFrame(tick); }
+function bootSync() { for (let i = 0; i < CAPTURE_FRAC * 80; i += 1) step(); render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }

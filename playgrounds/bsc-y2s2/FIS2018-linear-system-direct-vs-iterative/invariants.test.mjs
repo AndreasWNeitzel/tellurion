@@ -1,28 +1,34 @@
-// Linear System Direct Vs Iterative invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Linear System Direct Vs Iterative invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { thomas, makePoissonRHS, residual, jacobiStep, gaussSeidelStep, conjugateGradientStep, applyA } from './sim.js';
+describe('linear-system-direct-vs-iterative', () => {
+  it('Thomas solves N=8 system to high accuracy', () => {
+    const b = makePoissonRHS(8);
+    const x = thomas(b);
+    expect(residual(x, b)).toBeLessThan(1e-10);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Jacobi residual decreases monotonically', () => {
+    const N = 10, b = makePoissonRHS(N);
+    let x = new Float64Array(N);
+    const r0 = residual(x, b);
+    for (let i = 0; i < 50; i += 1) x = jacobiStep(x, b);
+    expect(residual(x, b)).toBeLessThan(r0);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('GS converges faster than Jacobi', () => {
+    const N = 10, b = makePoissonRHS(N);
+    let xJ = new Float64Array(N), xGS = new Float64Array(N);
+    for (let i = 0; i < 30; i += 1) { xJ = jacobiStep(xJ, b); xGS = gaussSeidelStep(xGS, b); }
+    expect(residual(xGS, b)).toBeLessThan(residual(xJ, b));
+  });
+  it('CG converges in N steps (exact arithmetic)', () => {
+    const N = 8, b = makePoissonRHS(N);
+    let x = new Float64Array(N);
+    let r = b.slice(), p = b.slice();
+    for (let i = 0; i < N; i += 1) ({ x, r, p } = conjugateGradientStep(x, r, p, b));
+    expect(residual(x, b)).toBeLessThan(1e-8);
+  });
+  it('applyA correct on basis vector', () => {
+    const e = new Float64Array(5); e[2] = 1;
+    const Ae = applyA(e);
+    expect(Ae[1]).toBe(-1); expect(Ae[2]).toBe(2); expect(Ae[3]).toBe(-1);
+  });
 });

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Linear System: Direct vs Iterative](../playgrounds/bsc-y2s2/FIS2018-linear-system-direct-vs-iterative/index.html)** &nbsp; (verified, verified 2026-05-14T01:23:52Z)
+  Poisson 1D problem; Thomas tridiagonal direct solver vs Jacobi, Gauss-Seidel, CG. Source: Villate Ch. 6 (`villate-vpython`).
+
 - **[ODE Solvers: Euler vs RK4 vs RK45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/index.html)** &nbsp; (verified, verified 2026-05-14T01:22:21Z)
   Three integrators on the simple harmonic oscillator; Euler drifts energy upward, RK4 is accurate, RK45 estimates its own error. Source: Villate VPython Numerical Methods (`villate-vpython`).
 
@@ -531,9 +534,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Linear Perturbation Growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Linear System Direct Vs Iterative](../playgrounds/bsc-y2s2/FIS2018-linear-system-direct-vs-iterative/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Liouville Phase Volume Conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/index.html)** &nbsp; (draft)

@@ -1,33 +1,21 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Linear System Direct Vs Iterative</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Linear System Direct Vs Iterative</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Direct vs Iterative</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Linear-system solvers: direct vs iterative</h1>
+<p><strong>What you are seeing:</strong> the discrete 1D Poisson problem $-u'' = \sin(\pi x)$ on $N$ grid points. The same right-hand side is fed to a Thomas direct solver (exact, $O(N)$), Jacobi, Gauss-Seidel, and conjugate gradient. The lower panel tracks the residual norm vs iteration count; CG converges in at most $N$ steps in exact arithmetic. Source: Villate Ch. 6 (`villate-vpython`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">‖r‖:</span><span class="value" id="readout-r">0</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Solution and residual history for four solvers on $-u'' = f$. Source: Villate Ch. 6 (`villate-vpython`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">N (grid)</span><input type="range" id="slider-N" min="8" max="64" step="1" value="32"><span class="value" id="value-N">32</span></div>
+<div class="row"><span class="label">solver</span>
+  <select id="select-s" style="grid-column: span 2;">
+    <option value="jacobi">Jacobi</option>
+    <option value="gs">Gauss-Seidel</option>
+    <option value="cg">Conjugate gradient</option>
+  </select>
+</div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>
