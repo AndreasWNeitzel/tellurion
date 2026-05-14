@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Root Finding: Bisection, Newton, Secant](../playgrounds/bsc-y2s2/FIS2018-root-finding-bisect-newton-secant/index.html)** &nbsp; (verified, verified 2026-05-14T01:20:51Z)
+  Bisection, Newton-Raphson, and the secant method on a selectable test function. Source: Villate VPython Numerical Methods Ch. 4 (`villate-vpython`).
+
 - **[Mandel-Agol Analytic Transit](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/index.html)** &nbsp; (verified, verified 2026-05-14T01:19:15Z)
   Analytic transit light curve; uniform-source closed form plus quadratic limb darkening via ring decomposition. Source: Mandel & Agol 2002 (`mandelagol2002`).
 
@@ -579,9 +582,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Resonance Mean Motion Toy](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Root Finding Bisect Newton Secant](../playgrounds/bsc-y2s2/FIS2018-root-finding-bisect-newton-secant/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Rotational Splitting Multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/index.html)** &nbsp; (draft)

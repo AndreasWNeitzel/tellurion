@@ -1,33 +1,30 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Root Finding Bisect Newton Secant</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Root Finding Bisect Newton Secant</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bisect, Newton, Secant</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Root finding: bisection, Newton, secant</h1>
+<p><strong>What you are seeing:</strong> a function $f(x)$ and the iterates of three classical root finders. Bisection halves the bracket each step (always convergent if $f$ changes sign on the bracket). Newton uses tangent lines (quadratic convergence near a simple root, but can diverge with bad initial guesses). Secant uses chord slopes (superlinear, golden-ratio order). Source: Burden-Faires Ch. 2 (`burdenfaires`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">root:</span><span class="value" id="readout-r">0</span><span class="label">iters:</span><span class="value" id="readout-n">0</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Trail of iterates from three root finders against $f(x)$. Source: Burden-Faires Ch. 2 (`burdenfaires`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">x0 / left</span><input type="range" id="slider-x0" min="-3" max="3" step="0.05" value="1"><span class="value" id="value-x0">1.00</span></div>
+<div class="row"><span class="label">x1 / right</span><input type="range" id="slider-x1" min="-3" max="3" step="0.05" value="2.5"><span class="value" id="value-x1">2.50</span></div>
+<div class="row"><span class="label">function</span>
+  <select id="select-f" style="grid-column: span 2;">
+    <option value="x2-2">f(x) = x² - 2</option>
+    <option value="cos-x">f(x) = cos(x) - x</option>
+    <option value="x3-x-1">f(x) = x³ - x - 1</option>
+    <option value="exp-x">f(x) = e^(-x) - x</option>
+  </select>
+</div>
+<div class="row"><span class="label">method</span>
+  <select id="select-m" style="grid-column: span 2;">
+    <option value="bisect">Bisection</option>
+    <option value="newton">Newton</option>
+    <option value="secant">Secant</option>
+  </select>
+</div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>

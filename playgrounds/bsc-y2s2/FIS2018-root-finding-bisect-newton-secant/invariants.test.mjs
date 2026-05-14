@@ -1,28 +1,29 @@
-// Root Finding Bisect Newton Secant invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Root Finding Bisect Newton Secant invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { bisect, newton, secant } from './sim.js';
+describe('root-finding-bisect-newton-secant', () => {
+  it('bisect finds sqrt(2) on [1, 2]', () => {
+    const r = bisect((x) => x * x - 2, 1, 2);
+    expect(Math.abs(r.root - Math.SQRT2)).toBeLessThan(1e-9);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('newton finds sqrt(2) from x0 = 1.5', () => {
+    const r = newton((x) => x * x - 2, (x) => 2 * x, 1.5);
+    expect(Math.abs(r.root - Math.SQRT2)).toBeLessThan(1e-10);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('secant finds sqrt(2) from x0=1, x1=2', () => {
+    const r = secant((x) => x * x - 2, 1, 2);
+    expect(Math.abs(r.root - Math.SQRT2)).toBeLessThan(1e-10);
+  });
+  it('newton fewer iterations than bisect for same tol', () => {
+    const rB = bisect((x) => x * x - 2, 1, 2);
+    const rN = newton((x) => x * x - 2, (x) => 2 * x, 1.5);
+    expect(rN.trail.length).toBeLessThan(rB.trail.length);
+  });
+  it('bisect rejects same-sign interval', () => {
+    const r = bisect((x) => x * x - 2, 5, 10);
+    expect(r.ok).toBe(false);
+  });
+  it('newton can diverge from bad initial guess', () => {
+    const r = newton((x) => x * x + 1, (x) => 2 * x, 1);
+    expect(r.ok).toBe(false);
+  });
 });
