@@ -1,28 +1,25 @@
-// Elastic Inelastic Collisions 2d invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Elastic Inelastic Collisions 2d invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { collide, ke, momentum } from './sim.js';
+describe('elastic-inelastic-collisions-2d', () => {
+  it('momentum conserved', () => {
+    const r = collide(1, 2, 1, -1, 0.5);
+    expect(Math.abs(momentum(1, r.v1, 1, r.v2) - momentum(1, 2, 1, -1))).toBeLessThan(1e-12);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('elastic: KE conserved', () => {
+    const r = collide(1, 2, 1, -1, 1);
+    expect(Math.abs(ke(1, r.v1, 1, r.v2) - ke(1, 2, 1, -1))).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('elastic equal mass head-on: v1 v2 swap', () => {
+    const r = collide(1, 5, 1, -3, 1);
+    expect(Math.abs(r.v1 - (-3))).toBeLessThan(1e-12);
+    expect(Math.abs(r.v2 - 5)).toBeLessThan(1e-12);
+  });
+  it('perfectly inelastic: v1 = v2', () => {
+    const r = collide(1, 5, 2, -2, 0);
+    expect(Math.abs(r.v1 - r.v2)).toBeLessThan(1e-12);
+  });
+  it('inelastic loses KE', () => {
+    const r = collide(1, 5, 2, -2, 0);
+    expect(ke(1, r.v1, 2, r.v2)).toBeLessThan(ke(1, 5, 2, -2));
+  });
 });

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Elastic and Inelastic Collisions in 1D](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (verified, verified 2026-05-14T00:52:02Z)
+  Two balls collide head-on with closed-form post-collision velocities parameterized by restitution $e$. Momentum is conserved for any $e$; KE is lost for $e < 1$. Source: Marion-Thornton Ch. 9 (`marion-thornton`).
+
 - **[Multiple Integral Fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/index.html)** &nbsp; (verified, verified 2026-05-14T00:50:39Z)
   Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
 
@@ -450,9 +453,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Dynamical Friction Chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Elastic Inelastic Collisions 2d](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Engine Cycle Explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/index.html)** &nbsp; (draft)
