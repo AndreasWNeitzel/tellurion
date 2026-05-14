@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Coulomb Equilibrium of Charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/index.html)** &nbsp; (verified, verified 2026-05-14T00:57:36Z)
+  Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths E&M Ch. 2 (`griffiths-em`).
+
 - **[Elastic and Inelastic Collisions in 1D](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (verified, verified 2026-05-14T00:52:02Z)
   Two balls collide head-on with closed-form post-collision velocities parameterized by restitution $e$. Momentum is conserved for any $e$; KE is lost for $e < 1$. Source: Marion-Thornton Ch. 9 (`marion-thornton`).
 
@@ -441,9 +444,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Cooper Pair Binding Energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Coulomb Equilibrium Charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Curvature Tensor 2d Surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/index.html)** &nbsp; (draft)

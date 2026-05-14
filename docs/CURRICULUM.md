@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 73 |
+| draft | 72 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 119 |
+| verified | 120 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -78,7 +78,7 @@ Total playgrounds: 203
 
 - **Brewster Angle and Fresnel Equations** ([FIS1014-brewster-angle-fresnel](../playgrounds/bsc-y1s2/FIS1014-brewster-angle-fresnel/)). Status: `verified`. citation pending (supporting: FIS3019).
 - **Capacitor Discharge through a Resistor** ([FIS1014-capacitor-discharge-rc](../playgrounds/bsc-y1s2/FIS1014-capacitor-discharge-rc/)). Status: `verified`. `griffithsem2017` ch 7.
-- **Coulomb Equilibrium Charges** ([FIS1014-coulomb-equilibrium-charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/)). Status: `draft`. `griffithsem2017` ch 2; N-charge equilibrium; potential-energy minimum verified.
+- **Coulomb Equilibrium of Charges** ([FIS1014-coulomb-equilibrium-charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/)). Status: `verified`. `griffiths-em` ch 2.
 - **Electric Field Lines from Point Charges** ([FIS1014-electric-field-lines-charges](../playgrounds/bsc-y1s2/FIS1014-electric-field-lines-charges/)). Status: `verified`. citation pending.
 - **Gauss Law in 2D** ([FIS1014-gauss-law-flux-through-surface](../playgrounds/bsc-y1s2/FIS1014-gauss-law-flux-through-surface/)). Status: `verified`. `griffithsem2017` ch 2.
 - **Method Of Images 2d** ([FIS1014-method-of-images-2d](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/)). Status: `draft`. `griffithsem2017` ch 2; image-charge analytic potential within 1e-6.

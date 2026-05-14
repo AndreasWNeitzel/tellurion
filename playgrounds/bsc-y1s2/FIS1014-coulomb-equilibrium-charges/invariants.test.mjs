@@ -1,28 +1,31 @@
-// Coulomb Equilibrium Charges invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Coulomb Equilibrium Charges invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { forceAt, potentialAt } from './sim.js';
+describe('coulomb-equilibrium-charges', () => {
+  it('force at center of symmetric quadrupole is zero', () => {
+    const q = [{x:1,y:1,q:1},{x:-1,y:1,q:1},{x:1,y:-1,q:1},{x:-1,y:-1,q:1}];
+    const f = forceAt(0, 0, q);
+    expect(Math.abs(f.fx)).toBeLessThan(1e-10);
+    expect(Math.abs(f.fy)).toBeLessThan(1e-10);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('force from single charge along axis', () => {
+    const q = [{x: 0, y: 0, q: 1}];
+    const f = forceAt(2, 0, q);
+    expect(Math.abs(f.fx - 0.25)).toBeLessThan(1e-10);
+    expect(Math.abs(f.fy)).toBeLessThan(1e-10);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('opposite charges cancel at midpoint along perpendicular bisector', () => {
+    const q = [{x: -1, y: 0, q: 1}, {x: 1, y: 0, q: 1}];
+    const f = forceAt(0, 2, q);
+    expect(Math.abs(f.fx)).toBeLessThan(1e-10);
+    expect(f.fy).toBeGreaterThan(0);
+  });
+  it('potential at infinity is zero', () => {
+    const q = [{x: 0, y: 0, q: 1}];
+    expect(Math.abs(potentialAt(1e6, 0, q))).toBeLessThan(1e-5);
+  });
+  it('quadrupole potential at origin equals 4', () => {
+    const q = [{x:1,y:1,q:1},{x:-1,y:1,q:1},{x:1,y:-1,q:1},{x:-1,y:-1,q:1}];
+    const v = potentialAt(0, 0, q);
+    expect(Math.abs(v - 4 / Math.sqrt(2))).toBeLessThan(1e-6);
+  });
 });

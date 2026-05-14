@@ -1,33 +1,25 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Coulomb Equilibrium Charges</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Coulomb Equilibrium Charges</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Coulomb Equilibrium</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas.dragging { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Coulomb equilibrium of charges</h1>
+<p><strong>What you are seeing:</strong> four fixed charges (the squares) generate a 2D electrostatic potential. A test charge (the dot) you drag is repelled by like charges and attracted by opposite charges. Equilibria are the points where the local force vanishes; their stability is given by $\nabla^2 V$. Source: Griffiths E&M Ch. 2 (`griffiths-em`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">F:</span><span class="value" id="readout-f">0</span><span class="label">V:</span><span class="value" id="readout-v">0</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Drag the test charge to feel the field. Equilibrium at the center for symmetric configurations. Source: Griffiths E&M Ch. 2 (`griffiths-em`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">Q (corner)</span><input type="range" id="slider-Q" min="-2" max="2" step="0.1" value="1"><span class="value" id="value-Q">1.0</span></div>
+<div class="row"><span class="label">q (test)</span><input type="range" id="slider-q" min="-1" max="1" step="0.1" value="0.5"><span class="value" id="value-q">0.5</span></div>
+<div class="row"><span class="label">config</span>
+  <select id="select-cfg" style="grid-column:span 2;">
+    <option value="quad">4 positive corners</option>
+    <option value="dipole">dipole</option>
+    <option value="line">3 in a row</option>
+    <option value="hex">hexagon</option>
+  </select>
+</div>
+<div class="row"><span class="label">show field</span><input type="checkbox" id="toggle-field" checked style="grid-column: span 2; justify-self: start;"></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><button id="btn-equil" type="button">Find equilibrium</button><button id="btn-trace" type="button">Trace orbit</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>
