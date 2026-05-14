@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 101 |
+| draft | 100 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 91 |
+| verified | 92 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -233,7 +233,7 @@ Total playgrounds: 203
 4 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Aperture Photometry Toy** ([AST3015-aperture-photometry-toy](../playgrounds/bsc-y3s1/AST3015-aperture-photometry-toy/)). Status: `draft`. `press2007` ch 15 (supporting: MAA-OT); SNR analytic on synthetic Gaussian PSF.
-- **Kepler Equation Newton Iteration** ([AST3015-kepler-equation-newton-iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/)). Status: `draft`. `carroll-ostlie` ch 2 (supporting: AST2004); converges quadratically from E_0 = M.
+- **Kepler Equation Newton Iteration** ([AST3015-kepler-equation-newton-iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/)). Status: `verified`. `carroll-ostlie` ch 2 (supporting: AST2004).
 - **Least Squares Orbit Fit Gauss** ([AST3015-least-squares-orbit-fit-gauss](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/)). Status: `draft`. `press2007` ch 15 (supporting: MAA-ST); chi^2 minimization on synthetic noisy ephemerides.
 - **Particle-Mesh Self-Gravitating 2D Disk** ([AST3015-particle-mesh-2d-disk](../playgrounds/bsc-y3s1/AST3015-particle-mesh-2d-disk/)). Status: `verified`. citation pending (supporting: MAA-GD).
 

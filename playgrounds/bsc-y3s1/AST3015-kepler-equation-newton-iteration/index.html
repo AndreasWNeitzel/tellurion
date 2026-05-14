@@ -8,24 +8,54 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Kepler Equation Newton Iteration</h1>
+  <h1>Kepler equation Newton iteration</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the orbit of a planet in a
+    Keplerian ellipse (left) and the Newton-iteration history for the
+    Kepler equation $M = E - e \sin E$ (right). At each rAF frame the
+    mean anomaly $M = 2\pi t / T$ ticks forward; the solver iterates
+    on $E$ until $|E_{n+1} - E_n| \lt 10^{-12}$ and the planet is placed
+    at $(a(\cos E - e), b \sin E)$ on the ellipse.
+  </p>
+  <p>
+    The right panel shows successive $|E_n - E_\infty|$ on a log axis.
+    Newton's method has quadratic local convergence: each iteration
+    roughly squares the remaining error. For moderate eccentricity
+    ($e \lesssim 0.9$) the residual drops to machine precision in 4-6
+    iterations; near $e = 0.99$ it takes 10-15.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Keplerian ellipse with planet position and Newton-iteration convergence trace."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">M (rad):</span><span class="value" id="readout-m">0</span>
+      <span class="label">E, iter:</span><span class="value" id="readout-e">0, 0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Kepler-equation Newton iteration on an a-e ellipse. Method:
+      closed-form residual + Newton step; quadratic convergence.
+      Source: Carroll-Ostlie 2e Ch. 2 (`carroll-ostlie`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Kepler controls">
+    <div class="row"><span class="label">e (eccentricity)</span><input type="range" id="slider-e" min="0" max="0.99" step="0.005" value="0.5"><span class="value" id="value-e">0.500</span></div>
+    <div class="row"><span class="label">speed</span><input type="range" id="slider-sp" min="0.1" max="3" step="0.05" value="1"><span class="value" id="value-sp">1.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

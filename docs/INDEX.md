@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Kepler Equation Newton Iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/index.html)** &nbsp; (verified, verified 2026-05-14T00:01:25Z)
+  The Kepler equation $M = E - e \sin E$ relates the mean anomaly $M$ (the linear angular coordinate that ticks at $2\pi$ per orbital period) to the eccentric anomaly $E$ (the angle of the planet on the auxiliary circle of the ellipse). Position on the orbit follows from $(a(\cos E - e), \, a\sqrt{1-e^2} \sin E)$. The equation is transcendental, so we solve it
+
 - **[Drake Equation Explorer](../playgrounds/msc-y1/MAA-AB-drake-equation-explorer/index.html)** &nbsp; (verified, verified 2026-05-13T23:58:18Z)
   The Drake equation $$N = R_\star \cdot f_p \cdot n_e \cdot f_l \cdot f_i \cdot f_c \cdot L$$ estimates the number of currently detectable civilizations in our galaxy. Each factor is a probability or rate. Sliders set the most uncertain factors; a 2000-trial Monte Carlo draws each factor log-uniformly within $\pm 0.5$ dex of the slider center and computes the
 
@@ -453,9 +456,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Kepler Equation Newton Iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Kepler Orbit Elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/index.html)** &nbsp; (draft)
