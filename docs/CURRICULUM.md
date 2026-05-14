@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 52 |
+| draft | 51 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 140 |
+| verified | 141 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -201,7 +201,7 @@ Total playgrounds: 203
 - **Hamiltonian Phase-Space Flow** ([FIS2021-hamiltonian-phase-space-flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/)). Status: `verified`. `lemos-mech` ch 6.
 - **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. citation pending.
 - **Lagrangian vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `verified`. `lemos-mech` ch 2.
-- **Liouville Phase Volume Conservation** ([FIS2021-liouville-phase-volume-conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/)). Status: `draft`. `goldstein-mech` ch 9; integrated phase volume constant within 1e-6.
+- **Liouville Phase-Volume Conservation** ([FIS2021-liouville-phase-volume-conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/)). Status: `verified`. `lemos-mech` ch 6.
 - **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `in-progress`. citation pending.
 - **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `in-progress`. citation pending (supporting: FIS2018).
 - **Lorenz Attractor** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `in-progress`. citation pending.

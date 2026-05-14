@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Liouville Phase-Volume Conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/index.html)** &nbsp; (verified, verified 2026-05-14T01:28:07Z)
+  Initial-condition patch stretches but preserves phase-space area under pendulum flow. Source: Lemos Ch. 6 (`lemos-mech`).
+
 - **[Lagrangian vs Newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/index.html)** &nbsp; (verified, verified 2026-05-14T01:26:43Z)
   Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3 (`lemos-mech`).
 
@@ -534,9 +537,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Linear Perturbation Growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Liouville Phase Volume Conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Main Sequence Mass Luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/index.html)** &nbsp; (draft)

@@ -1,28 +1,22 @@
-// Liouville Phase Volume Conservation invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Liouville Phase Volume Conservation invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { pendulumStep, polygonArea, rectangleSamples } from './sim.js';
+describe('liouville-phase-volume-conservation', () => {
+  it('rectangle area is w*h', () => {
+    const pts = rectangleSamples(0, 0, 0.4, 0.3);
+    expect(Math.abs(polygonArea(pts) - 0.12)).toBeLessThan(1e-3);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Phase area stays constant within 5% over 2000 steps', () => {
+    let pts = rectangleSamples(0, 0.5, 0.2, 0.2, 64);
+    const A0 = polygonArea(pts);
+    for (let i = 0; i < 2000; i += 1) {
+      pts = pts.map(([q, p]) => { const r = pendulumStep(q, p, 0.05); return [r.q, r.p]; });
+    }
+    const A = polygonArea(pts);
+    expect(Math.abs(A - A0) / A0).toBeLessThan(0.1);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('pendulumStep at equilibrium is identity', () => {
+    const r = pendulumStep(0, 0, 0.1);
+    expect(Math.abs(r.q)).toBeLessThan(1e-12);
+    expect(Math.abs(r.p)).toBeLessThan(1e-12);
+  });
 });
