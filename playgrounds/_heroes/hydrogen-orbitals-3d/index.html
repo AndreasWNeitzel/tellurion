@@ -1,2 +1,24 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Hydrogen orbitals 3D (pending)</title><style>body{background:#060608;color:#e8e8e8;font:14px ui-monospace,monospace;padding:40px;}</style></head>
-<body><h1>Hydrogen orbitals 3D (hero, pending)</h1><p>This hero is scoped but not yet implemented. See docs/HEROES.md for the target spec.</p></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Hydrogen orbitals 3D</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Hydrogen orbital density (3D hero)</h1>
+<p><strong>What you are seeing:</strong> a slice of $|\psi_{n,\ell,m}|^2$ through the $y = 0$ plane (so the orbital's $\hat z$ axis points up). Three-quarter projection accentuates the lobes; the orange disc marks the radial expectation value $\langle r \rangle = (3n^2 - \ell(\ell+1)) a_0 / 2$. Toggle $n, \ell, m$ from $\ell \lt n$ and $-\ell \le m \le \ell$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).</p>
+<figure class="pg-figure"><canvas id="stage" width="720" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">E_n:</span><span class="value" id="readout-e">-13.6 eV</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Slice of hydrogen orbital density. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">n</span><input type="range" id="slider-n" min="1" max="5" step="1" value="2"><span class="value" id="value-n">2</span></div>
+<div class="row"><span class="label">l</span><input type="range" id="slider-l" min="0" max="4" step="1" value="1"><span class="value" id="value-l">1</span></div>
+<div class="row"><span class="label">m</span><input type="range" id="slider-m" min="-4" max="4" step="1" value="0"><span class="value" id="value-m">0</span></div>
+<div class="row"><span class="label">view</span>
+  <select id="select-v" style="grid-column: span 2;">
+    <option value="density">|psi|² density</option>
+    <option value="phase">Phase (m phi)</option>
+  </select>
+</div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>

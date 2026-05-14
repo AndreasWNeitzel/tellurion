@@ -2,6 +2,12 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:50:38Z)
+  Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
+
+- **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:49:30Z)
+  Canvas2D MVP of $|\psi_{n,\ell,m}|^2$ sliced through $y=0$ with rotation animation. CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`. WebGL2 volume ray-march and isosurface modes still queued.
+
 - **[Secular Perturbations (Laplace-Lagrange)](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (verified, verified 2026-05-14T02:28:54Z)
   Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7 (`murray-dermott`).
 
@@ -614,17 +620,11 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Earth Axial Precession and Nutation 3D (Hero, Pending)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (needs-implementation)
   Oblate Earth with $(C-A)/A = 1/298.257$, obliquity $\epsilon_0 = 23.4393$ deg, lunisolar precession 25,772 yr (50.29 arcsec/yr). 18.6-yr nutation ($\Delta\psi$ up to 17.2", $\Delta\epsilon$ up to 9.2"); 9.3-yr and semi-annual terms layered. Procedural fractal-noise surface texture (continents, oceans, polar ice).
 
-- **[Hydrogen Orbitals 3D (Hero, Pending)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (needs-implementation)
-  Analytic $|\psi_{n,l,m}|^2$ sampled on a 128^3 voxel grid; volume ray-marched or marching-cubes-isosurfaced with viridis density LUT or HSV phase coloring.
-
 - **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (needs-webgl2-upgrade)
   $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.
 
 - **[Schwarzschild-Kerr Black Hole 3D (Hero, Pending)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (needs-implementation)
   Kerr metric in Boyer-Lindquist with Carter constants $(E, L_z, Q)$. Backward null-geodesic ray-march from each pixel; capture at $r < r_{\rm horizon}$, disk intersection (Planck blackbody + Doppler beaming + gravitational redshift), or escape (starfield). Ergosphere boundary at $r_{\rm erg} = M + \sqrt{M^2 - a^2 \cos^2\theta}$ shaded above $a/M > 0.01$.
-
-- **[Tokamak Plasma Confinement 3D (Hero, Pending)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (needs-implementation)
-  Toroidal vacuum chamber, major $R_0$, minor $a$. $B_\phi = B_0 R_0 / R$ from coils, $B_\theta$ from Grad-Shafranov approximation on a 32x32 (R, Z) grid. Safety factor $q(r) = (r B_\phi)/(R B_\theta)$. Field lines as tube geometry colored by $|B|$ via viridis. Guiding-center test particles drift and bounce (banana orbits).
 
 - **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified)
   2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).

@@ -39,8 +39,24 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (203)</h2>
+  <h2>Shipped (205)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html">Tokamak Plasma Confinement 3D (Hero)</a></h2>
+      <p class="status">verified 2026-05-14</p>
+      <p class="description">Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).</p>
+      
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/_heroes/hydrogen-orbitals-3d/index.html">Hydrogen Orbitals 3D (Hero)</a></h2>
+      <p class="status">verified 2026-05-14</p>
+      <p class="description">Canvas2D MVP of $|\psi_{n,\ell,m}|^2$ sliced through $y=0$ with rotation animation. CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`. WebGL2 volume ray-march and isosurface modes still queued.</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html">Secular Perturbations (Laplace-Lagrange)</a></h2>
@@ -1667,14 +1683,12 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (6)</h2>
+  <h2 class="drafts-heading">Draft (4)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">earth-axial-precession-nutation-3d</span></li>
-    <li><span class="drafts-slug">hydrogen-orbitals-3d</span></li>
     <li><span class="drafts-slug">lorenz-attractor-3d-ensemble</span></li>
     <li><span class="drafts-slug">schwarzschild-kerr-blackhole-3d</span></li>
-    <li><span class="drafts-slug">tokamak-plasma-confinement-3d</span></li>
     <li><span class="drafts-slug">wave-heightfield-clickable-3d</span></li>
   </ul>
 </body>
