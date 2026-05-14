@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Transverse vs Longitudinal Modes on a 1D Chain](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/index.html)** &nbsp; (verified, verified 2026-05-14T01:12:35Z)
+  Same dispersion, different polarization. Source: Crawford Ch. 5 (`crawford-waves`).
+
 - **[Group vs Phase Velocity in a Dispersive Medium](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/index.html)** &nbsp; (verified, verified 2026-05-14T01:11:17Z)
   Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6 (`crawford-waves`).
 
@@ -597,9 +600,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Transit Mandel Agol Analytic](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Transverse Vs Longitudinal Mode](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)

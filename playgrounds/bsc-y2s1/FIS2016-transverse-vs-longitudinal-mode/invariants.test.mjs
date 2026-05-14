@@ -1,28 +1,26 @@
-// Transverse Vs Longitudinal Mode invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Transverse Vs Longitudinal Mode invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { omegaK, modePosition } from './sim.js';
+describe('transverse-vs-longitudinal-mode', () => {
+  it('omega(k=0) = 0 (acoustic branch)', () => {
+    expect(omegaK(0)).toBe(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('omega(pi/a) = 2 sqrt(K/m) (Brillouin zone edge)', () => {
+    expect(Math.abs(omegaK(Math.PI) - 2)).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('omega monotone in [0, pi]', () => {
+    for (let i = 0; i < 10; i += 1) {
+      const k1 = Math.PI * i / 10, k2 = Math.PI * (i + 1) / 10;
+      expect(omegaK(k1)).toBeLessThanOrEqual(omegaK(k2));
+    }
+  });
+  it('transverse mode: particles move only in y', () => {
+    const p = modePosition(5, 0.7, 'transverse', 1, 0.3, 20);
+    expect(p.x).toBe(5);
+    expect(Math.abs(p.y)).toBeGreaterThan(0);
+  });
+  it('longitudinal mode: particles move only in x', () => {
+    const p = modePosition(5, 0.7, 'longitudinal', 1, 0.3, 20);
+    expect(p.y).toBe(0);
+    expect(p.x).not.toBe(5);
+  });
 });

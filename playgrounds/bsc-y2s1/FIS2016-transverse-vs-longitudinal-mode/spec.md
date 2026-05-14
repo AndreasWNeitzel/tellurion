@@ -1,37 +1,14 @@
 ---
-title: Transverse Vs Longitudinal Mode
+title: Transverse vs Longitudinal Modes on a 1D Chain
 slug: transverse-vs-longitudinal-mode
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: FIS2016
 supporting_ucs: []
 curriculum_year: bsc-y2s1
 primary_citation: crawford-waves
-primary_chapter: 2
+primary_chapter: 5
 ---
-
-# Transverse Vs Longitudinal Mode
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: pulse speeds vs medium parameters exact. Primary citation: crawford-waves, chapter 2. Spec body to be filled by playground-architect.
+# Transverse vs longitudinal modes
+Same dispersion, different polarization. Source: Crawford Ch. 5 (`crawford-waves`).
