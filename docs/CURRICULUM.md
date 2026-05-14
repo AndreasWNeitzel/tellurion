@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 1 |
+| draft | 0 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 191 |
+| verified | 192 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -379,7 +379,7 @@ Total playgrounds: 203
 2 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Mean-Motion Resonance and Kirkwood Gaps** ([MAA-SS-resonance-mean-motion-toy](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/)). Status: `verified`. `murray-dermott` ch 8.
-- **Secular Perturbation Laplace Lagrange** ([MAA-SS-secular-perturbation-laplace-lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/)). Status: `draft`. `murraydermott1999` ch 7; eigenfrequencies of inclination and eccentricity.
+- **Secular Perturbations (Laplace-Lagrange)** ([MAA-SS-secular-perturbation-laplace-lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/)). Status: `verified`. `murray-dermott` ch 7.
 
 ### MAA-AS Asteroseismology
 
