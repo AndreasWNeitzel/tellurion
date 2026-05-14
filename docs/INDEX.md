@@ -2,23 +2,23 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
-- **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:13:45Z)
+- **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T04:06:29Z)
   Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
 
-- **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:08:25Z)
+- **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:56:05Z)
   Lunisolar precession 50.29 arcsec/yr; 18.6-yr nutation with amplitudes 17.2"/9.2" in Δψ/Δε. Source: Smart, Celestial Mechanics.
 
-- **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:07:09Z)
+- **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:54:59Z)
   Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
 
-- **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:05:32Z)
-  Canvas2D MVP of $|\psi_{n,\ell,m}|^2$ sliced through $y=0$ with rotation animation. CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`. WebGL2 volume ray-march and isosurface modes still queued.
+- **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:48:06Z)
+  WebGL2 volume ray-march of $|\psi_{n,\ell,m}|^2$ on a $40^3$ R16F 3D texture, with an isosurface mode that shades the level set via central-difference gradient normals and Blinn-Phong. Associated Laguerre and Legendre polynomials evaluated on the CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`, then uploaded to the GL engine at `shared/js/engine-gl/
 
-- **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-14T03:00:27Z)
-  $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.
-
-- **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:58:33Z)
+- **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:38:47Z)
   2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).
+
+- **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-14T03:35:10Z)
+  $1024$ trajectories integrated in a fragment shader (RK4, $dt = 0.005$, $\sigma = 10$, $\beta = 8/3$, $\rho$ slider-controlled) starting from a $10^{-3}$ ball around $(1, 1, 1)$. Each frame the WebGL2 engine at `shared/js/engine-gl/lorenz-ensemble.js` advances every particle one RK4 step, then splats its image-space position into an HDR accumulator with geom
 
 - **[Secular Perturbations (Laplace-Lagrange)](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (verified, verified 2026-05-14T02:28:54Z)
   Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7 (`murray-dermott`).

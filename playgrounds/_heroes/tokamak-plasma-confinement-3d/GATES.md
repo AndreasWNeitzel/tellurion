@@ -1,11 +1,11 @@
 # Gates: tokamak-plasma-confinement-3d
 
-Captured at: 2026-05-14T08:16:08.487Z
+Captured at: 2026-05-14T11:15:17.530Z
 
 | Gate | Status | Detail |
 |...|...|...|
 | A.first-light | PASS |  |
-| B.liveness | PASS | 99.8% changed, 4 readouts numeric |
+| B.liveness | PASS | 99.9% changed, 4 readouts numeric |
 | C.cpu-gpu | PASS | skipped: tokamak hero is JS-built geometry; no GPU physics path |
 | D.camera | PASS | azimuth advanced 48.0 deg on drag |
 | E.physics | PASS | q_edge=1.08 in stable band |

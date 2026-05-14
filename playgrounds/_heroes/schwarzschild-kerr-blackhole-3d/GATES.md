@@ -1,6 +1,6 @@
 # Gates: schwarzschild-kerr-blackhole-3d
 
-Captured at: 2026-05-14T11:12:21.917Z
+Captured at: 2026-05-14T11:15:06.117Z
 
 | Gate | Status | Detail |
 |...|...|...|
