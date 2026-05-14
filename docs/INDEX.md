@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Group vs Phase Velocity in a Dispersive Medium](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/index.html)** &nbsp; (verified, verified 2026-05-14T01:11:17Z)
+  Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6 (`crawford-waves`).
+
 - **[Equipartition from Microscopic Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (verified, verified 2026-05-14T01:09:53Z)
   2D hard-disk gas; the mean translational kinetic energy converges to $kT$. Source: Reif Ch. 7 (`reif`).
 
@@ -489,9 +492,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Green Function 1d Laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Group Vs Phase Velocity](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Hamiltonian Phase Space Flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/index.html)** &nbsp; (draft)

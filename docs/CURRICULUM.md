@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 64 |
+| draft | 63 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 128 |
+| verified | 129 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -132,7 +132,7 @@ Total playgrounds: 203
 
 - **Airy Diffraction Pattern from a Circular Aperture** ([FIS2016-airy-pattern-circular-aperture](../playgrounds/bsc-y2s1/FIS2016-airy-pattern-circular-aperture/)). Status: `verified`. citation pending (supporting: FIS3019, MAA-OT).
 - **Doppler Effect from a Moving Source** ([FIS2016-doppler-effect](../playgrounds/bsc-y2s1/FIS2016-doppler-effect/)). Status: `verified`. citation pending (supporting: AST2004).
-- **Group Vs Phase Velocity** ([FIS2016-group-vs-phase-velocity](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/)). Status: `draft`. `crawford-waves` ch 6; dispersion relation drives envelope speed.
+- **Group vs Phase Velocity in a Dispersive Medium** ([FIS2016-group-vs-phase-velocity](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/)). Status: `verified`. `crawford-waves` ch 6.
 - **Single, Double, and Multi-Slit Diffraction** ([FIS2016-single-double-multi-slit](../playgrounds/bsc-y2s1/FIS2016-single-double-multi-slit/)). Status: `verified`. citation pending (supporting: FIS3019).
 - **Standing Waves on a String** ([FIS2016-standing-waves-string-modes](../playgrounds/bsc-y2s1/FIS2016-standing-waves-string-modes/)). Status: `verified`. citation pending.
 - **Transverse Vs Longitudinal Mode** ([FIS2016-transverse-vs-longitudinal-mode](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/)). Status: `draft`. `crawford-waves` ch 2; pulse speeds vs medium parameters exact.
