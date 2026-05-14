@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:53:21Z)
+  Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
+
 - **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:51:57Z)
   Lunisolar precession 50.29 arcsec/yr; 18.6-yr nutation with amplitudes 17.2"/9.2" in Δψ/Δε. Source: Smart, Celestial Mechanics.
 
@@ -622,9 +625,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (needs-webgl2-upgrade)
   $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.
-
-- **[Schwarzschild-Kerr Black Hole 3D (Hero, Pending)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (needs-implementation)
-  Kerr metric in Boyer-Lindquist with Carter constants $(E, L_z, Q)$. Backward null-geodesic ray-march from each pixel; capture at $r < r_{\rm horizon}$, disk intersection (Planck blackbody + Doppler beaming + gravitational redshift), or escape (starfield). Ergosphere boundary at $r_{\rm erg} = M + \sqrt{M^2 - a^2 \cos^2\theta}$ shaded above $a/M > 0.01$.
 
 - **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified)
   2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).

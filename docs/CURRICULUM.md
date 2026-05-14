@@ -15,7 +15,7 @@ Total playgrounds: 209
 | draft | 0 |
 | in-progress | 0 |
 | implemented | 0 |
-| verified | 207 |
+| verified | 208 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
