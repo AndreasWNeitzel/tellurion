@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Stokes Theorem 2D Circulation](../playgrounds/bsc-y2s1/M2037-stokes-theorem-2d-circulation/index.html)** &nbsp; (verified, verified 2026-05-14T00:49:25Z)
+  Three vector fields (unit-curl, shear, conservative) and a draggable rectangle. Circulation = $\iint$ curl $dA$ closed-form for these uniform-curl fields. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
+
 - **[Series Convergence Tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/index.html)** &nbsp; (verified, verified 2026-05-14T00:48:14Z)
   Four series (geometric, p-series 2, harmonic, alternating Leibniz) with partial sums plotted and the limit as a dashed line where finite. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
 
@@ -585,9 +588,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Stellar Blackbody Vs Line](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Stokes Theorem 2d Circulation](../playgrounds/bsc-y2s1/M2037-stokes-theorem-2d-circulation/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (draft)

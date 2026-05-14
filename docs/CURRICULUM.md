@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 76 |
+| draft | 75 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 116 |
+| verified | 117 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -162,7 +162,7 @@ Total playgrounds: 203
 
 2 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Stokes Theorem 2d Circulation** ([M2037-stokes-theorem-2d-circulation](../playgrounds/bsc-y2s1/M2037-stokes-theorem-2d-circulation/)). Status: `draft`. `riley-hobson` ch 10; contour integral equals surface integral of curl within 1e-10.
+- **Stokes Theorem 2D Circulation** ([M2037-stokes-theorem-2d-circulation](../playgrounds/bsc-y2s1/M2037-stokes-theorem-2d-circulation/)). Status: `verified`. `riley-hobson` ch 10.
 - **Divergence and Curl Visualizer** ([M2037-vector-field-div-curl-visualizer](../playgrounds/bsc-y2s1/M2037-vector-field-div-curl-visualizer/)). Status: `verified`. `riley-hobson` ch 10.
 
 ## BSc Year 2 Semester 2

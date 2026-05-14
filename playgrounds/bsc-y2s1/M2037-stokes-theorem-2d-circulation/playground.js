@@ -1,113 +1,63 @@
-// Stokes Theorem 2d Circulation playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
-
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
-
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
+import { curlAtPoint, circulationRect } from './sim.js';
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+const readoutC = document.getElementById('readout-c'); const readoutA = document.getElementById('readout-a');
+const selectF = document.getElementById('select-f');
+const sliderW = document.getElementById('slider-w'); const sliderH = document.getElementById('slider-h');
+const valueF = document.getElementById('value-f'); const valueW = document.getElementById('value-w'); const valueH = document.getElementById('value-h');
+let field = selectF.value; let w = parseFloat(sliderW.value); let h = parseFloat(sliderH.value);
+selectF.addEventListener('change', () => { field = selectF.value; valueF.textContent = field; });
+sliderW.addEventListener('input', () => { w = parseFloat(sliderW.value); valueW.textContent = w.toFixed(2); });
+sliderH.addEventListener('input', () => { h = parseFloat(sliderH.value); valueH.textContent = h.toFixed(2); });
+function colors() { const css = getComputedStyle(document.body); return { bg: css.getPropertyValue('--bg').trim() || '#060608', fg: css.getPropertyValue('--fg').trim() || '#e8e8e8', muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6', accent: css.getPropertyValue('--accent').trim() || '#ffd166', blue: '#5bc0eb', red: '#ef476f', grid: '#23252a' }; }
+function vec(field, x, y) {
+  if (field === 'unit') return { u: -y / 2, v: x / 2 };
+  if (field === 'shear') return { u: y, v: 0 };
+  return { u: x, v: y };
+}
+function arrow(c, x0, y0, x1, y1) { ctx.strokeStyle = c; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); const a = Math.atan2(y1 - y0, x1 - x0); const head = 4; ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - head * Math.cos(a - 0.32), y1 - head * Math.sin(a - 0.32)); ctx.lineTo(x1 - head * Math.cos(a + 0.32), y1 - head * Math.sin(a + 0.32)); ctx.closePath(); ctx.fill(); }
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
-
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  const c = colors(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const cx = canvas.width / 2, cy = canvas.height / 2; const scale = 70;
+  ctx.strokeStyle = c.muted; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+  for (let ix = -3; ix <= 3; ix += 0.4) for (let iy = -2; iy <= 2; iy += 0.4) {
+    const { u, v } = vec(field, ix, iy);
+    const mag = Math.hypot(u, v); if (mag < 1e-9) continue;
+    const len = Math.min(0.35, 0.08 + 0.05 * mag);
+    const dx = len * u / mag, dy = len * v / mag;
+    arrow(c.muted, cx + scale * ix, cy - scale * iy, cx + scale * (ix + dx), cy - scale * (iy + dy));
   }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  // Rectangle.
+  ctx.fillStyle = 'rgba(255, 209, 102, 0.15)';
+  ctx.fillRect(cx - scale * w / 2, cy - scale * h / 2, scale * w, scale * h);
+  ctx.strokeStyle = c.accent; ctx.lineWidth = 2.5;
+  ctx.strokeRect(cx - scale * w / 2, cy - scale * h / 2, scale * w, scale * h);
+  // Boundary arrows showing CCW orientation.
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - scale * w / 2, cy - scale * h / 2);
+  ctx.lineTo(cx + scale * w / 2, cy - scale * h / 2);
+  ctx.lineTo(cx + scale * w / 2, cy + scale * h / 2);
+  ctx.lineTo(cx - scale * w / 2, cy + scale * h / 2);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`field: ${field}`, 12, 20);
+  ctx.fillText(`curl = ${curlAtPoint(field, 0, 0)}`, 12, 38);
+  ctx.fillStyle = c.accent;
+  ctx.fillText(`circulation = ${circulationRect(field, 0, 0, w, h).toFixed(3)}, area = ${(w * h).toFixed(3)}`, 12, 56);
 }
-
+function updateReadout() { readoutC.textContent = circulationRect(field, 0, 0, w, h).toFixed(3); readoutA.textContent = (w * h).toFixed(3); }
+function loop() { render(); updateReadout(); requestAnimationFrame(loop); }
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
-  }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
+  if (CAPTURE_NAME) { const fields = ['unit', 'shear', 'conservative']; field = fields[Math.min(2, Math.floor((CAPTURE_FRAC || 0) * fields.length))]; selectF.value = field; }
+  valueF.textContent = field; valueW.textContent = w.toFixed(2); valueH.textContent = h.toFixed(2);
+  render(); updateReadout();
+  if (DETERMINISTIC) { requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop); }

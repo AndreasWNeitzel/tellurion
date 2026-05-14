@@ -1,28 +1,19 @@
-// Stokes Theorem 2d Circulation invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Stokes Theorem 2d Circulation invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { curlAtPoint, circulationRect } from './sim.js';
+describe('stokes-theorem-2d-circulation', () => {
+  it('unit-curl field: circulation = area', () => {
+    expect(circulationRect('unit', 0, 0, 2, 3)).toBe(6);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('shear field: circulation = -area', () => {
+    expect(circulationRect('shear', 0, 0, 2, 3)).toBe(-6);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('conservative field: zero circulation', () => {
+    expect(circulationRect('conservative', 0, 0, 2, 3)).toBe(0);
+  });
+  it('curl is uniform for unit field', () => {
+    for (const p of [[0,0],[1,1],[-2,3]]) expect(curlAtPoint('unit', ...p)).toBe(1);
+  });
+  it('doubling area doubles circulation', () => {
+    expect(circulationRect('unit', 0, 0, 4, 3)).toBe(2 * circulationRect('unit', 0, 0, 2, 3));
+  });
 });
