@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 28 |
+| draft | 27 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 164 |
+| verified | 165 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -308,7 +308,7 @@ Total playgrounds: 203
 - **Addition of Two Angular Momenta** ([FIS3029-addition-of-angular-momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/)). Status: `verified`. `sakurai-qm` ch 3.
 - **Aharonov-Bohm Effect** ([FIS3029-aharonov-bohm-flux-line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/)). Status: `verified`. `sakurai-qm` ch 2.
 - **Bloch Sphere Qubit Gates** ([FIS3029-bloch-sphere-qubit-gates](../playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/)). Status: `verified`. citation pending.
-- **Fine Structure Hydrogen** ([FIS3029-fine-structure-hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/)). Status: `draft`. `sakurai2020` ch 5; |Delta E| ~ alpha^2 E_n analytic perturbation.
+- **Hydrogen Fine Structure** ([FIS3029-fine-structure-hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/)). Status: `verified`. `griffiths-qm` ch 6.
 - **Harmonic Oscillator Coherent State** ([FIS3029-harmonic-oscillator-coherent-state](../playgrounds/bsc-y3s2/FIS3029-harmonic-oscillator-coherent-state/)). Status: `verified`. citation pending (supporting: FIS2017).
 - **Hydrogen Orbital Cross Sections in the (x, z) Plane** ([FIS3029-hydrogen-orbital-cross-sections-2d](../playgrounds/bsc-y3s2/FIS3029-hydrogen-orbital-cross-sections-2d/)). Status: `verified`. citation pending (supporting: FIS2017).
 - **Kronig-Penney Band Structure** ([FIS3029-kronig-penney-bands](../playgrounds/bsc-y3s2/FIS3029-kronig-penney-bands/)). Status: `verified`. citation pending (supporting: FIS3020).

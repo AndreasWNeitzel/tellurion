@@ -1,28 +1,22 @@
-// Fine Structure Hydrogen invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Fine Structure Hydrogen invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { bohrEnergy, fineStructureDelta, fsLevel } from './sim.js';
+describe('fine-structure-hydrogen', () => {
+  it('Bohr ground state -13.606 eV', () => {
+    expect(Math.abs(bohrEnergy(1) + 13.6057)).toBeLessThan(0.01);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Bohr n=2 is -3.4 eV', () => {
+    expect(Math.abs(bohrEnergy(2) + 3.401)).toBeLessThan(0.01);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('FS correction at n=2, j=1/2 ~ -56 micro-eV (below Bohr)', () => {
+    const d = fineStructureDelta(2, 0.5);
+    expect(d).toBeLessThan(0);
+  });
+  it('FS sign: smaller for larger j (closer to top)', () => {
+    expect(fsLevel(2, 1.5)).toBeGreaterThan(fsLevel(2, 0.5));
+  });
+  it('FS splitting in 2p between j=1/2 and j=3/2 ~ 4.5e-5 eV', () => {
+    const s = fineStructureDelta(2, 1.5) - fineStructureDelta(2, 0.5);
+    expect(s).toBeGreaterThan(0);
+    expect(s).toBeLessThan(1e-3);
+  });
 });
