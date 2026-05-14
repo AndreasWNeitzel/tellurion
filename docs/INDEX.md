@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Sturm-Liouville Eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/index.html)** &nbsp; (verified, verified 2026-05-14T00:33:26Z)
+  The simplest regular Sturm-Liouville problem: $-y'' = \lambda y$ on $[0, \pi]$ with $y(0) = y(\pi) = 0$. The eigenvalues are $\lambda_n = n^2$ and the eigenfunctions are $\phi_n(x) = \sqrt{2/\pi} \sin(n x)$, orthonormal under $\langle f, g \rangle = \int_0^\pi f g\,dx$.
+
 - **[Parallel Transport on a Sphere](../playgrounds/bsc-y3s2/M3007-parallel-transport-on-sphere/index.html)** &nbsp; (verified, verified 2026-05-14T00:30:14Z)
   A spherical triangle on the unit sphere with one vertex at the north pole and the other two at colatitude $\alpha$ separated by longitude $\beta$. Parallel-transporting a vector around the triangle rotates it by the enclosed solid angle $$\Omega = (1 - \cos\alpha) \beta.$$
 
@@ -585,9 +588,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Stokes Theorem 2d Circulation](../playgrounds/bsc-y2s1/M2037-stokes-theorem-2d-circulation/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Sturm Liouville Eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (draft)
