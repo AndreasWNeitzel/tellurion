@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Adiabatic vs Isothermal Processes on a PV Diagram](../playgrounds/bsc-y2s1/FIS2014-adiabatic-vs-isothermal-pv/index.html)** &nbsp; (verified, verified 2026-05-14T01:07:07Z)
+  Same initial state, two reversible processes; the adiabatic is steeper. Source: Callen Ch. 4 (`callen`).
+
 - **[Skin Effect in a Conductor](../playgrounds/bsc-y2s1/FIS2013-skin-effect-1d-conductor/index.html)** &nbsp; (verified, verified 2026-05-14T01:05:49Z)
   Exponential decay of the AC electric field inside a conductor; skin depth $\delta = \sqrt{2/(\omega \mu \sigma)}$. Source: Griffiths E&M Ch. 9 (`griffiths-em`).
 
@@ -411,9 +414,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
 
 - **[Addition Of Angular Momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Adiabatic Vs Isothermal Pv](../playgrounds/bsc-y2s1/FIS2014-adiabatic-vs-isothermal-pv/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Aharonov Bohm Flux Line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/index.html)** &nbsp; (draft)
