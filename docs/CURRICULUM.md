@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 62 |
+| draft | 61 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 130 |
+| verified | 131 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -137,7 +137,7 @@ Total playgrounds: 203
 - **Standing Waves on a String** ([FIS2016-standing-waves-string-modes](../playgrounds/bsc-y2s1/FIS2016-standing-waves-string-modes/)). Status: `verified`. citation pending.
 - **Transverse vs Longitudinal Modes on a 1D Chain** ([FIS2016-transverse-vs-longitudinal-mode](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/)). Status: `verified`. `crawford-waves` ch 5.
 - **Wave on a String: Fixed vs Free End Reflection** ([FIS2016-wave-on-string-reflection](../playgrounds/bsc-y2s1/FIS2016-wave-on-string-reflection/)). Status: `verified`. citation pending.
-- **Wavepacket Dispersion 1d** ([FIS2016-wavepacket-dispersion-1d](../playgrounds/bsc-y2s1/FIS2016-wavepacket-dispersion-1d/)). Status: `draft`. `crawford-waves` ch 6 (supporting: FIS3029); Gaussian wavepacket spreads as t / (m sigma_0^2) analytic.
+- **Wavepacket Dispersion in 1D** ([FIS2016-wavepacket-dispersion-1d](../playgrounds/bsc-y2s1/FIS2016-wavepacket-dispersion-1d/)). Status: `verified`. `eisberg-resnick` ch 5 (supporting: FIS2017).
 
 ### AST2004 Astrophysics
 

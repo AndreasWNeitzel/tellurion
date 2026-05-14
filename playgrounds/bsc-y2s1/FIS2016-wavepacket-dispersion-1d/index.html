@@ -1,33 +1,15 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Wavepacket Dispersion 1d</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Wavepacket Dispersion 1d</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Wavepacket Dispersion 1D</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Gaussian wavepacket dispersion (free particle)</h1>
+<p><strong>What you are seeing:</strong> a Gaussian wavepacket evolving under the free-particle Schrödinger equation. The orange curve is the real part of $\psi(x, t)$; the cyan curve is $|\psi|^2$. The packet center drifts at $v = \hbar k_0 / m$, while the width broadens as $\sigma(t) = \sigma_0 \sqrt{1 + (\hbar t / 2 m \sigma_0^2)^2}$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">σ(t):</span><span class="value" id="readout-s">1.00</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Free-particle Gaussian wavepacket. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">σ_0 (width)</span><input type="range" id="slider-s" min="0.3" max="3" step="0.05" value="1"><span class="value" id="value-s">1.00</span></div>
+<div class="row"><span class="label">k_0 (momentum)</span><input type="range" id="slider-k" min="0" max="6" step="0.1" value="3"><span class="value" id="value-k">3.0</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>

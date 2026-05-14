@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Wavepacket Dispersion in 1D](../playgrounds/bsc-y2s1/FIS2016-wavepacket-dispersion-1d/index.html)** &nbsp; (verified, verified 2026-05-14T01:13:45Z)
+  The packet center drifts at $\hbar k_0 / m$; the width broadens as $\sigma(t) = \sigma_0\sqrt{1 + (\hbar t/2m\sigma_0^2)^2}$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).
+
 - **[Transverse vs Longitudinal Modes on a 1D Chain](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/index.html)** &nbsp; (verified, verified 2026-05-14T01:12:35Z)
   Same dispersion, different polarization. Source: Crawford Ch. 5 (`crawford-waves`).
 
@@ -603,9 +606,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Wavepacket Dispersion 1d](../playgrounds/bsc-y2s1/FIS2016-wavepacket-dispersion-1d/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Zeeman Paschen Back Crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/index.html)** &nbsp; (draft)
