@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Bondi Spherical Accretion](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/index.html)** &nbsp; (verified, verified 2026-05-14T01:36:26Z)
+  Bondi radius and accretion rate for a steady spherically symmetric inflow; sonic point at $r_B/2$. Source: Frank-King-Raine Ch. 2 (`frank-king-raine`).
+
 - **[1D Alfvén Wave in MHD](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/index.html)** &nbsp; (verified, verified 2026-05-14T01:35:07Z)
   Transverse magnetic perturbation travels at $v_A = B_0/\sqrt{\mu_0 \rho}$; magnetic-tension restoring force. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
 
@@ -498,9 +501,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Bondi Accretion Spherical](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bremsstrahlung Spectrum](../playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/index.html)** &nbsp; (draft)

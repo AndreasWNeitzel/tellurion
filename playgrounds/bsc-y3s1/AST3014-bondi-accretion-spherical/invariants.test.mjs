@@ -1,28 +1,30 @@
-// Bondi Accretion Spherical invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Bondi Accretion Spherical invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { bondiRadius, bondiVelocityIsothermal, MdotBondi, G, M_SUN } from './sim.js';
+describe('bondi-accretion-spherical', () => {
+  it('Bondi radius for 1 Msun, cs=10 km/s ~ 10 AU', () => {
+    const cs = 1e4;
+    const rB = bondiRadius(M_SUN, cs);
+    expect(rB).toBeGreaterThan(1e12);
+    expect(rB).toBeLessThan(1e13);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('rB scales as M', () => {
+    const r1 = bondiRadius(M_SUN, 1e4);
+    const r2 = bondiRadius(2 * M_SUN, 1e4);
+    expect(Math.abs(r2 / r1 - 2)).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Mdot scales as M^2', () => {
+    const m1 = MdotBondi(M_SUN, 1e4, 1e-20);
+    const m2 = MdotBondi(2 * M_SUN, 1e4, 1e-20);
+    expect(Math.abs(m2 / m1 - 4)).toBeLessThan(1e-12);
+  });
+  it('Mdot scales as 1/cs^3', () => {
+    const m1 = MdotBondi(M_SUN, 1e4, 1e-20);
+    const m2 = MdotBondi(M_SUN, 2e4, 1e-20);
+    expect(Math.abs(m2 / m1 - 0.125)).toBeLessThan(1e-12);
+  });
+  it('Velocity is finite (returns a number)', () => {
+    const rB = bondiRadius(M_SUN, 1e4);
+    const u = bondiVelocityIsothermal(rB, M_SUN, 1e4);
+    expect(Number.isFinite(u)).toBe(true);
+  });
 });
