@@ -1,28 +1,33 @@
-// Lienard Wiechert Synchrotron invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Lienard Wiechert Synchrotron invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { gammaFromBeta, betaFromGamma, lobeParallel, lobePerpendicular, openingAngle } from './sim.js';
+describe('lienard-wiechert-synchrotron', () => {
+  it('gamma roundtrip', () => {
+    expect(Math.abs(betaFromGamma(gammaFromBeta(0.9)) - 0.9)).toBeLessThan(1e-12);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Larmor recovered at beta -> 0', () => {
+    expect(Math.abs(lobeParallel(Math.PI / 2, 1e-6) - 1)).toBeLessThan(1e-3);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('parallel lobe vanishes along motion', () => {
+    expect(lobeParallel(0, 0.5)).toBe(0);
+  });
+  it('perpendicular case more forward-beamed at higher gamma', () => {
+    const p1 = lobePerpendicular(0.05, 0, 0.99);
+    const p2 = lobePerpendicular(0.05, 0, 0.5);
+    expect(p1).toBeGreaterThan(p2);
+  });
+  it('opening angle scales as 1/gamma', () => {
+    expect(Math.abs(openingAngle(10) * 10 - 1)).toBeLessThan(1e-12);
+  });
+  it('peak shifts toward forward direction as beta -> 1', () => {
+    let peakTheta1 = 0, max1 = -Infinity;
+    let peakTheta2 = 0, max2 = -Infinity;
+    for (let i = 1; i < 180; i += 1) {
+      const th = i * Math.PI / 180;
+      const v1 = lobePerpendicular(th, 0, 0.9);
+      const v2 = lobePerpendicular(th, 0, 0.99);
+      if (v1 > max1) { max1 = v1; peakTheta1 = th; }
+      if (v2 > max2) { max2 = v2; peakTheta2 = th; }
+    }
+    expect(peakTheta2).toBeLessThan(peakTheta1);
+  });
 });

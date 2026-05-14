@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 69 |
+| draft | 68 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 123 |
+| verified | 124 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -107,7 +107,7 @@ Total playgrounds: 203
 - **Cyclotron Motion in a Uniform Magnetic Field** ([FIS2013-cyclotron-uniform-b](../playgrounds/bsc-y2s1/FIS2013-cyclotron-uniform-b/)). Status: `verified`. citation pending (supporting: MAA-PL).
 - **E x B Drift and the Cycloid** ([FIS2013-exb-drift-cycloid](../playgrounds/bsc-y2s1/FIS2013-exb-drift-cycloid/)). Status: `verified`. citation pending (supporting: MAA-PL).
 - **Larmor Radiation Pattern** ([FIS2013-larmor-radiation-pattern](../playgrounds/bsc-y2s1/FIS2013-larmor-radiation-pattern/)). Status: `verified`. `griffiths-em` ch 11.
-- **Lienard Wiechert Synchrotron** ([FIS2013-lienard-wiechert-synchrotron](../playgrounds/bsc-y2s1/FIS2013-lienard-wiechert-synchrotron/)). Status: `draft`. `jackson1998` ch 14 (supporting: AST3016); v / c sweep collapses beaming cone.
+- **Lienard-Wiechert Beaming and Synchrotron Lobe** ([FIS2013-lienard-wiechert-synchrotron](../playgrounds/bsc-y2s1/FIS2013-lienard-wiechert-synchrotron/)). Status: `verified`. `jackson3e` ch 14 (supporting: AST3016).
 - **Skin Effect 1d Conductor** ([FIS2013-skin-effect-1d-conductor](../playgrounds/bsc-y2s1/FIS2013-skin-effect-1d-conductor/)). Status: `draft`. `jackson1998` ch 8; penetration depth delta = sqrt(2 / (mu omega sigma)) exact.
 - **Transmission Line Impedance Matching** ([FIS2013-transmission-line-impedance-matching](../playgrounds/bsc-y2s1/FIS2013-transmission-line-impedance-matching/)). Status: `verified`. `jackson1998` ch 8.
 
