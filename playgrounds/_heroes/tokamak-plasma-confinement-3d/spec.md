@@ -1,5 +1,7 @@
 ---
 title: Tokamak Plasma Confinement 3D (Hero)
+description: 'Toroidal vacuum vessel + helical magnetic field lines colored by $|B|$ + glowing Planck-temperature plasma core + a handful of trapped (banana) particle trails. Drag to orbit, scroll to zoom.'
+caption: 'Figure 1. Tokamak field-line confinement with banana-orbit particles. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).'
 slug: tokamak-plasma-confinement-3d
 status: verified
 audience: portfolio
