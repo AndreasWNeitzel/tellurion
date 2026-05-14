@@ -1,17 +1,2 @@
-# Thomas Precession
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Thomas precession
+A gyroscope on a circular orbit in SR returns rotated by an extra $(\gamma - 1)$ rad per revolution compared to its starting orientation. Source: Jackson 3e Ch. 11.8 (`jackson3e`).

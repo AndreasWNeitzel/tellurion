@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Thomas Precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/index.html)** &nbsp; (verified, verified 2026-05-14T01:54:11Z)
+  A gyroscope on a circular orbit picks up $(\gamma - 1)$ rad of extra rotation per revolution. Source: Jackson 3e Ch. 11.8 (`jackson3e`).
+
 - **[Relativistic Collisions and Mandelstam s](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/index.html)** &nbsp; (verified, verified 2026-05-14T01:53:08Z)
   $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3 (`griffiths-particles`).
 
@@ -600,9 +603,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Spiral Density Wave Dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Thomas Precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)

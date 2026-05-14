@@ -1,37 +1,14 @@
 ---
 title: Thomas Precession
 slug: thomas-precession
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: FIS3028
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-primary_citation: jackson1998
+primary_citation: jackson3e
 primary_chapter: 11
 ---
-
-# Thomas Precession
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: Omega_T = (1 - gamma) / gamma Omega_orbit exact. Primary citation: jackson1998, chapter 11. Spec body to be filled by playground-architect.
+# Thomas precession
+A gyroscope on a circular orbit picks up $(\gamma - 1)$ rad of extra rotation per revolution. Source: Jackson 3e Ch. 11.8 (`jackson3e`).

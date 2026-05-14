@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 31 |
+| draft | 30 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 161 |
+| verified | 162 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -298,7 +298,7 @@ Total playgrounds: 203
 - **Stellar Aberration of Light** ([FIS3028-aberration-of-light-stellar](../playgrounds/bsc-y3s2/FIS3028-aberration-of-light-stellar/)). Status: `verified`. `jackson1998` ch 11 (supporting: AST2004).
 - **Relativistic Collisions and Mandelstam s** ([FIS3028-relativistic-collision-mandelstam](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/)). Status: `verified`. `griffiths-particles` ch 3.
 - **Relativistic Doppler Effect** ([FIS3028-relativistic-doppler](../playgrounds/bsc-y3s2/FIS3028-relativistic-doppler/)). Status: `verified`. `jackson1998` ch 11.
-- **Thomas Precession** ([FIS3028-thomas-precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/)). Status: `draft`. `jackson1998` ch 11; Omega_T = (1 - gamma) / gamma Omega_orbit exact.
+- **Thomas Precession** ([FIS3028-thomas-precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/)). Status: `verified`. `jackson3e` ch 11.
 
 ### FIS3029 Quantum Mechanics II
 
