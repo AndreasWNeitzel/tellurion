@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Zeeman to Paschen-Back Crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/index.html)** &nbsp; (verified, verified 2026-05-14T01:59:30Z)
+  Low-$B$ Zeeman: $g_J m_J \mu_B B$. High-$B$ Paschen-Back: $(m_L + 2m_S) \mu_B B$. Source: Griffiths QM Ch. 6.4 (`griffiths-qm`).
+
 - **[Hydrogen Fine Structure](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/index.html)** &nbsp; (verified, verified 2026-05-14T01:58:13Z)
   Bohr levels split by $\alpha^2$ corrections; degeneracy is $j$-labeled. Source: Griffiths QM Ch. 6 (`griffiths-qm`).
 
@@ -606,7 +609,4 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Zeeman Paschen Back Crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.

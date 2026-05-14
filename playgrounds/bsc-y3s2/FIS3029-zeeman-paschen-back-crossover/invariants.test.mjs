@@ -1,28 +1,16 @@
-// Zeeman Paschen Back Crossover invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Zeeman Paschen Back Crossover invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { weakFieldEnergy, strongFieldEnergy, gFactor, BOHR_MAGNETON_eV_T } from './sim.js';
+describe('zeeman-paschen-back-crossover', () => {
+  it('g_J for 2p_{3/2} is 4/3', () => {
+    expect(Math.abs(gFactor(1.5, 1, 0.5) - 4 / 3)).toBeLessThan(1e-9);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('g_J for 2p_{1/2} is 2/3', () => {
+    expect(Math.abs(gFactor(0.5, 1, 0.5) - 2 / 3)).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Strong-field linear in B', () => {
+    expect(strongFieldEnergy(1, 0.5, 2) / strongFieldEnergy(1, 0.5, 1)).toBeCloseTo(2, 10);
+  });
+  it('Weak field: m_j = 0 has no shift', () => {
+    expect(weakFieldEnergy(0.5, 0, 0, 0.5, 1)).toBe(0);
+  });
 });

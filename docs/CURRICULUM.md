@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 27 |
+| draft | 26 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 165 |
+| verified | 166 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -315,7 +315,7 @@ Total playgrounds: 203
 - **Particle in a Well - A Quantum Zoo** ([FIS3029-particle-in-a-well-zoo](../playgrounds/bsc-y3s2/FIS3029-particle-in-a-well-zoo/)). Status: `verified`. citation pending (supporting: FIS2017).
 - **Tunneling Rectangular Barrier** ([FIS3029-tunneling-rectangular-barrier](../playgrounds/bsc-y3s2/FIS3029-tunneling-rectangular-barrier/)). Status: `verified`. citation pending (supporting: FIS2017).
 - **WKB Bohr-Sommerfeld vs Exact** ([FIS3029-wkb-vs-shooting](../playgrounds/bsc-y3s2/FIS3029-wkb-vs-shooting/)). Status: `verified`. citation pending (supporting: FIS2018).
-- **Zeeman Paschen Back Crossover** ([FIS3029-zeeman-paschen-back-crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/)). Status: `draft`. `sakurai2020` ch 5; weak vs strong field regimes.
+- **Zeeman to Paschen-Back Crossover** ([FIS3029-zeeman-paschen-back-crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/)). Status: `verified`. `griffiths-qm` ch 6.
 
 ### FIS3030 Physics of the Nucleus and Particles
 
