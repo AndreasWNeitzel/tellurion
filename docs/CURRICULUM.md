@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 34 |
+| draft | 33 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 158 |
+| verified | 159 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -285,7 +285,7 @@ Total playgrounds: 203
 
 5 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Bcs Gap Self Consistent** ([FIS3020-bcs-gap-self-consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/)). Status: `draft`. `kittel-cm` ch 10; gap equation iterates to Delta(T); Tc analytic.
+- **BCS Gap, Self-Consistent** ([FIS3020-bcs-gap-self-consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/)). Status: `verified`. `ashcroft-mermin` ch 34.
 - **Bloch Oscillations** ([FIS3020-bloch-oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/)). Status: `verified`. `ashcroft-mermin` ch 12.
 - **Cooper Pair Binding Energy** ([FIS3020-cooper-pair-binding-energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/)). Status: `draft`. `kittel-cm` ch 10; bound state for arbitrarily weak attractive coupling.
 - **Fermi Surface 2D Square Lattice** ([FIS3020-fermi-surface-2d-square](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/)). Status: `verified`. `ashcroft-mermin` ch 8.

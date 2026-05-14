@@ -1,28 +1,22 @@
-// Bcs Gap Self Consistent invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Bcs Gap Self Consistent invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { gapZero, Tc, gapAtT } from './sim.js';
+describe('bcs-gap-self-consistent', () => {
+  it('gap zero at T = Tc', () => {
+    const N0V = 0.3;
+    const tc = Tc(N0V);
+    expect(gapAtT(tc * 1.001, N0V)).toBe(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('gap at T = 0 equals gapZero', () => {
+    const N0V = 0.3;
+    expect(Math.abs(gapAtT(1e-3, N0V) - gapZero(N0V)) / gapZero(N0V)).toBeLessThan(0.05);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('universal ratio 2 Delta(0) / kTc ~ 3.53', () => {
+    const N0V = 0.3;
+    const ratio = 2 * gapZero(N0V) / Tc(N0V);
+    expect(Math.abs(ratio - 3.528) / 3.528).toBeLessThan(0.02);
+  });
+  it('Delta decreases with T (T < Tc)', () => {
+    const N0V = 0.3;
+    expect(gapAtT(0.5 * Tc(N0V), N0V)).toBeGreaterThan(gapAtT(0.9 * Tc(N0V), N0V));
+  });
 });

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[BCS Gap, Self-Consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/index.html)** &nbsp; (verified, verified 2026-05-14T01:50:54Z)
+  $\Delta(T)$ from the BCS gap equation; universal ratio $2\Delta_0 / k_B T_c \approx 3.53$. Source: Ashcroft-Mermin Ch. 34 (`ashcroft-mermin`).
+
 - **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (verified, verified 2026-05-14T01:49:44Z)
   Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12 (`ashcroft-mermin`).
 
@@ -522,9 +525,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Baryon Acoustic Oscillation Toy](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Bcs Gap Self Consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Ckm Mixing Unitarity Triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/index.html)** &nbsp; (draft)
