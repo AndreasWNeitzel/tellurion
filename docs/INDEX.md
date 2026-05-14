@@ -2,20 +2,23 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
-- **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-14T02:56:47Z)
-  $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.
-
-- **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:53:21Z)
+- **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:10:04Z)
   Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
 
-- **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:51:57Z)
+- **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:08:25Z)
   Lunisolar precession 50.29 arcsec/yr; 18.6-yr nutation with amplitudes 17.2"/9.2" in Δψ/Δε. Source: Smart, Celestial Mechanics.
 
-- **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:50:38Z)
+- **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:07:09Z)
   Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
 
-- **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:49:30Z)
+- **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:05:32Z)
   Canvas2D MVP of $|\psi_{n,\ell,m}|^2$ sliced through $y=0$ with rotation animation. CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`. WebGL2 volume ray-march and isosurface modes still queued.
+
+- **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-14T03:00:27Z)
+  $10^3$ trajectories from a $10^{-3}$ ball around $(1,1,1)$ under the Lorenz system. Canvas2D MVP only; full WebGL2 splat-accumulator + viridis log-density still queued.
+
+- **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified, verified 2026-05-14T02:58:33Z)
+  2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).
 
 - **[Secular Perturbations (Laplace-Lagrange)](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (verified, verified 2026-05-14T02:28:54Z)
   Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7 (`murray-dermott`).
@@ -625,6 +628,3 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified)
-  2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).
