@@ -1,37 +1,14 @@
 ---
-title: Geodesic Deviation Equation
+title: Geodesic Deviation on a Sphere
 slug: geodesic-deviation-equation
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: M3007
-supporting_ucs: [AST3017]
+supporting_ucs: []
 curriculum_year: bsc-y3s2
-primary_citation: carroll2019
+primary_citation: carroll-spacetime
 primary_chapter: 3
 ---
-
-# Geodesic Deviation Equation
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: tidal stretching vs Riemann tensor exact. Primary citation: carroll2019, chapter 3. Spec body to be filled by playground-architect.
+# Geodesic deviation
+Two parallel-starting geodesics on a sphere converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).

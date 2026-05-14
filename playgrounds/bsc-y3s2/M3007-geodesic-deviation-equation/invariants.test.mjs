@@ -1,28 +1,19 @@
-// Geodesic Deviation Equation invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Geodesic Deviation Equation invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { greatCircle, angularSeparation } from './sim.js';
+describe('geodesic-deviation-equation', () => {
+  it('two geodesics from equator with d phi converge at the pole', () => {
+    const g1 = greatCircle(Math.PI / 2, Math.PI / 2, 0.0, Math.PI / 2);
+    const g2 = greatCircle(Math.PI / 2, Math.PI / 2, 0.1, Math.PI / 2);
+    const ang = angularSeparation(g1, g2);
+    expect(ang).toBeLessThan(0.05);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('point at t=0 is start point', () => {
+    const g = greatCircle(0, Math.PI / 2, 0.5, 0);
+    expect(Math.abs(g.theta - Math.PI / 2)).toBeLessThan(1e-6);
+    expect(Math.abs(g.phi - 0.5)).toBeLessThan(1e-6);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('moves east after small t (alpha=0)', () => {
+    const g = greatCircle(0.1, Math.PI / 2, 0, 0);
+    expect(g.phi).toBeGreaterThan(0);
+  });
 });

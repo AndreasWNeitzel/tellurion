@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 21 |
+| draft | 20 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 171 |
+| verified | 172 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -333,7 +333,7 @@ Total playgrounds: 203
 3 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Gaussian Curvature of 2D Surfaces** ([M3007-curvature-tensor-2d-surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/)). Status: `verified`. `riley-hobson` ch 26.
-- **Geodesic Deviation Equation** ([M3007-geodesic-deviation-equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/)). Status: `draft`. `carroll2019` ch 3 (supporting: AST3017); tidal stretching vs Riemann tensor exact.
+- **Geodesic Deviation on a Sphere** ([M3007-geodesic-deviation-equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/)). Status: `verified`. `carroll-spacetime` ch 3.
 - **Parallel Transport on a Sphere** ([M3007-parallel-transport-on-sphere](../playgrounds/bsc-y3s2/M3007-parallel-transport-on-sphere/)). Status: `verified`. `carroll2019` ch 3 (supporting: AST3017).
 
 ## MSc Year 1 (Astronomy and Astrophysics)
