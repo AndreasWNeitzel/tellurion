@@ -34,6 +34,7 @@ uniform float uAspect;
 uniform float uDiskInner;
 uniform float uDiskOuter;
 uniform float uAOverM;
+uniform float uFrameNum;
 uniform sampler2D uStars;
 out vec4 oColor;
 
@@ -58,12 +59,13 @@ vec3 sampleEnv(vec3 dir) {
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 
 void main() {
-  // World-space primary ray. Add a sub-pixel hash-based jitter so adjacent
-  // rays do not all snap to the same integration trajectory; this breaks the
-  // concentric-ring banding artifact in the lensed starfield without TAA.
+  // World-space primary ray with frame-varying sub-pixel jitter (TAA input).
+  // Different frame numbers give different jitter offsets at the same pixel,
+  // so TAA averaging over N frames removes the banding from deflection-angle
+  // quantization in the lensed starfield.
   vec2 pixJitter = vec2(
-    fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5,
-    fract(sin(dot(gl_FragCoord.xy, vec2(93.9898, 67.345))) * 24634.6345) - 0.5
+    fract(sin(dot(gl_FragCoord.xy + uFrameNum, vec2(12.9898, 78.233))) * 43758.5453) - 0.5,
+    fract(sin(dot(gl_FragCoord.xy + uFrameNum, vec2(93.9898, 67.345))) * 24634.6345) - 0.5
   );
   vec2 ndc = (uv + pixJitter / uRes) * 2.0 - 1.0;
   vec3 rayDir = normalize(uForward + uRight * (ndc.x * uTanHalfFov * uAspect) + uUp * (ndc.y * uTanHalfFov));
@@ -265,15 +267,37 @@ function buildStarTexture(gl, W = 2048, H = 1024) {
   return tex;
 }
 
+// TAA blend pass: result = mix(history, current, alpha). Per-frame, alpha is
+// small (e.g. 0.08) so the moving average converges over ~12 frames. Camera
+// motion resets the history by forcing alpha = 1.
+const FS_TAA = `#version 300 es
+precision highp float;
+in vec2 uv;
+uniform sampler2D uCurrent;
+uniform sampler2D uHistory;
+uniform float uAlpha;
+out vec4 o;
+void main() {
+  vec4 c = texture(uCurrent, uv);
+  vec4 h = texture(uHistory, uv);
+  o = mix(h, c, uAlpha);
+}`;
+
 export function setupBHGL(canvas) {
   const gl = createGL2(canvas);
   if (!gl.getExtension('EXT_color_buffer_float')) throw new Error('EXT_color_buffer_float unavailable');
   const prog = compileProgram(gl, VS_QUAD, FS_BH);
+  const taaProg = compileProgram(gl, VS_QUAD, FS_TAA);
   const vbo = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   const W = canvas.width, H = canvas.height;
   const sceneFBO = createFBO(gl, W, H);
+  const historyA = createFBO(gl, W, H);
+  const historyB = createFBO(gl, W, H);
+  let historyCur = historyA, historyPrev = historyB;
+  let frameNum = 0;
+  let lastEyeKey = '';
   const post = setupPostProcess(gl, W, H);
   const starTex = buildStarTexture(gl, 2048, 1024);
 
@@ -294,6 +318,12 @@ export function setupBHGL(canvas) {
 
   function render(eye, target, up, fovDeg, diskInner, diskOuter, aOverM) {
     const cam = basis(eye, target, up, fovDeg);
+    // Detect camera/scene change to reset TAA history.
+    const key = `${eye[0].toFixed(2)},${eye[1].toFixed(2)},${eye[2].toFixed(2)},${aOverM.toFixed(3)},${diskInner.toFixed(2)},${diskOuter.toFixed(2)}`;
+    const moved = key !== lastEyeKey;
+    lastEyeKey = key;
+    if (moved) frameNum = 0;
+    // 1. Geodesic pass into sceneFBO with frame-varying jitter.
     gl.useProgram(prog);
     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
@@ -307,12 +337,31 @@ export function setupBHGL(canvas) {
     gl.uniform1f(gl.getUniformLocation(prog, 'uDiskInner'), diskInner);
     gl.uniform1f(gl.getUniformLocation(prog, 'uDiskOuter'), diskOuter);
     gl.uniform1f(gl.getUniformLocation(prog, 'uAOverM'), aOverM);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uFrameNum'), frameNum);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, starTex);
     gl.uniform1i(gl.getUniformLocation(prog, 'uStars'), 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    post.run(sceneFBO.tex, 0.75, 0.25, 0.7);
+    // 2. TAA blend: result = mix(history, current, alpha). On camera move,
+    //    alpha = 1 (drop history) to avoid ghosting. Otherwise alpha small
+    //    so the moving average converges over ~12 static frames.
+    const alpha = moved ? 1.0 : 0.10;
+    gl.useProgram(taaProg);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, historyCur.fbo);
+    gl.viewport(0, 0, W, H);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, sceneFBO.tex);
+    gl.uniform1i(gl.getUniformLocation(taaProg, 'uCurrent'), 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, historyPrev.tex);
+    gl.uniform1i(gl.getUniformLocation(taaProg, 'uHistory'), 1);
+    gl.uniform1f(gl.getUniformLocation(taaProg, 'uAlpha'), alpha);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    [historyCur, historyPrev] = [historyPrev, historyCur];
+    // 3. Post-process: bloom + ACES + dither + vignette from the TAA result.
+    post.run(historyPrev.tex, 0.75, 0.25, 0.7);
+    frameNum += 1;
   }
   return { gl, render };
 }
