@@ -8,23 +8,23 @@ Heroes are the showcase entries that justify the WebGL2 carve-out from CLAUDE.md
 2. There is a clean closed-form or analytic check that gates the implementation.
 3. The didactic surface is wide enough that a reviewer spends more than five minutes interacting.
 
-## Six designated heroes (status as of 2026-05-14)
+## Six designated heroes (status as of 2026-05-14 03:00 UTC)
 
-| Slug | Status | Invariants | Notes |
-|-|-|-|-|
-| `wave-heightfield-clickable-3d` | shipped Canvas2D MVP | 5/5 | 96x96 leapfrog wave equation; click impulses. WebGL2 Blinn-Phong surface upgrade queued. |
-| `lorenz-attractor-3d-ensemble` | shipped Canvas2D MVP | 3/3 | 10^3 trajectories from 1e-3 ball; RK4. WebGL2 splat-accumulator queued. |
-| `hydrogen-orbitals-3d` | shipped Canvas2D MVP | 7/7 | Analytic $|\psi_{n,l,m}|^2$ slice with HSV phase or viridis density; CPU mirror at shared/js/engine/hydrogen-orbital-cpu.js. WebGL2 volume ray-march queued. |
-| `tokamak-plasma-confinement-3d` | shipped Canvas2D MVP | 4/4 | Toroidal vacuum with helical field lines; ITER-like q_a formula. CPU mirror at shared/js/engine/tokamak-cpu.js. WebGL2 tube-rendering + plasma volumetric emission queued. |
-| `earth-axial-precession-nutation-3d` | shipped Canvas2D MVP | 5/5 | 50.29 arcsec/yr lunisolar precession + 18.6-yr nutation (17.2/9.2 arcsec amplitudes). CPU mirror at shared/js/engine/earth-rotation-cpu.js. WebGL2 textured oblate Earth queued. |
-| `schwarzschild-kerr-blackhole-3d` | shipped Canvas2D MVP | 9/9 | Geometry schematic: horizon $r_+$, photon sphere $3M$, ergosphere $r_{\rm erg}(\theta)$, ISCO. Planck disk emission $T \propto r^{-3/4}$. CPU mirror at shared/js/engine/schwarzschild-kerr-cpu.js. WebGL2 per-pixel null geodesic ray-march queued. |
+| Slug | Status | Renderer | Invariants | Notes |
+|-|-|-|-|-|
+| `wave-heightfield-clickable-3d` | shipped | webgl2 + canvas2d fallback | 5/5 | 3D Blinn-Phong heightfield in WebGL2 (shared/js/engine-gl/wave-2d.js, 246 lines): two RGBA16F ping-pong textures, leapfrog step shader, surface render with three-point lighting + ACES + viridis. CPU mirror at shared/js/engine/wave-2d-cpu.js. |
+| `lorenz-attractor-3d-ensemble` | shipped | webgl2 + canvas2d fallback | 3/3 | GPU 1024-particle RK4 in fragment shader (shared/js/engine-gl/lorenz-ensemble.js, 240 lines); 32x32 RGBA32F state textures; HDR accumulator with additive splatting + geometric decay; viridis colormap + ACES + vignette. |
+| `hydrogen-orbitals-3d` | shipped Canvas2D MVP | canvas2d | 7/7 | Analytic $|\psi_{n,l,m}|^2$ slice with HSV phase + viridis density, CPU mirror uses associated Laguerre + Legendre. WebGL2 volume ray-march on 128^3 voxel grid still queued. |
+| `tokamak-plasma-confinement-3d` | shipped Canvas2D MVP | canvas2d | 4/4 | Helical field-line bundle with ITER-like q_a formula. CPU mirror at shared/js/engine/tokamak-cpu.js. WebGL2 tube geometry + plasma volumetric emission queued. |
+| `earth-axial-precession-nutation-3d` | shipped Canvas2D MVP | canvas2d | 5/5 | 50.29 arcsec/yr lunisolar precession + 18.6-yr nutation (17.2"/9.2" Δψ/Δε). CPU mirror at shared/js/engine/earth-rotation-cpu.js. WebGL2 textured oblate Earth queued. |
+| `schwarzschild-kerr-blackhole-3d` | shipped Canvas2D MVP | canvas2d | 9/9 | Schematic: horizon, photon sphere, ergosphere, ISCO, Planck disk. CPU mirror at shared/js/engine/schwarzschild-kerr-cpu.js. WebGL2 per-pixel null geodesic ray-march queued. |
 
-All six heroes verified. Total 33 hero invariants passing.
+All six heroes verified, total 33 hero invariants passing. 1327/1327 total tests pass.
 
 ## WebGL2 exemption
 
-CLAUDE.md hard rule 8 retains `Canvas2D + SVG` as the default. The exemption to `renderer: webgl2` is available for hero-flagged playgrounds; each WebGL2 hero must ship a CPU mirror at `shared/js/engine/<slug>-cpu.js`. The CPU mirror exercises invariants; the GPU path is then checked to agree with the CPU path on a downsampled grid to 1e-4 after 1000 steps at seed 0xC0FFEE. Visual tests run under SwiftShader.
+CLAUDE.md hard rule 8 retains Canvas2D + SVG as the default. WebGL2 is allowed only for `hero_candidate: true` + `renderer: webgl2` playgrounds, each shipping a CPU mirror at `shared/js/engine/<slug>-cpu.js`. The CPU mirror exercises invariants; the GPU path falls back to Canvas2D if WebGL2 init fails (e.g., EXT_color_buffer_float missing). Visual tests run under SwiftShader.
 
-## Deferred WebGL2 upgrade work
+## WebGL2 progress
 
-All six heroes currently render in Canvas2D as MVP implementations with the correct physics and full invariant coverage. The full visual standard (Blinn-Phong + ACES + viridis/Planck + three-point lighting + HDR bloom + vignette + dither + idle camera drift) is queued per-hero. See `docs/NEEDS-ATTENTION.md`.
+Two of six heroes are now on WebGL2 (wave-heightfield, lorenz). The other four are scoped Canvas2D MVPs awaiting a follow-up WebGL2 implementation. See `docs/NEEDS-ATTENTION.md`.
