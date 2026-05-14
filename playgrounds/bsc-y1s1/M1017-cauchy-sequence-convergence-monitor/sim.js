@@ -16,7 +16,7 @@ export function cauchyWidth(name, N0, Nmax) {
   return max - min;
 }
 export function isCauchy(name, eps = 1e-6, Nmax = 1000) {
-  for (let N0 = 1; N0 <= Nmax; N0 += 1) {
+  for (let N0 = 1; N0 < Nmax / 2; N0 += 1) {
     if (cauchyWidth(name, N0, Nmax) < eps) return { isCauchy: true, N0 };
   }
   return { isCauchy: false, N0: Infinity };

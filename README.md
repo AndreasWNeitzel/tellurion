@@ -1,139 +1,67 @@
-# playgrounds-portfolio
+# Playgrounds Portfolio
 
-Canvas2D and SVG physics, astronomy, and ML playgrounds. Built for autonomous extension by Claude Code under a strict dual-gate verification regime.
+Curated set of in-browser physics, astronomy, statistical-mechanics, and machine-learning playgrounds rendered with Canvas2D and SVG. The audience is AI-lab hiring committees and ESA Research Fellowship reviewers. Every artifact reads as research code, not as textbook clipart.
 
-## Repository purpose
+## What is here
 
-Twelve to eighteen interactive playgrounds rendered as static HTML, one per concept, each cited to a canonical textbook chapter and verified by both a strong physical invariant (energy, norm, detailed balance) and a perceptual visual gate (SSIM > 0.92 against committed reference frames). The aesthetic target is Ciechanowski / Distill, not default D3.
+- **203 verified playgrounds** spanning the UPorto FCUP Bachelor in Physics (years 1-3) and the MSc in Astronomy and Astrophysics. Each one ships with a `spec.md` describing physical setup + equations + numerical method + citations, a headless `sim.js`, ≥5 Vitest invariants, a `playground.js` UI, Playwright SSIM visual gates at threshold 0.92, and a `.verified` marker.
+- **6 designated WebGL2 heroes** (`playgrounds/_heroes/`): wave-heightfield-clickable-3d and lorenz-attractor-3d-ensemble shipped as Canvas2D MVPs; hydrogen-orbitals-3d, tokamak-plasma-confinement-3d, earth-axial-precession-nutation-3d, schwarzschild-kerr-blackhole-3d scoped with full visual-standard spec.md and queued for WebGL2 implementation. See `docs/HEROES.md` and `docs/NEEDS-ATTENTION.md`.
+- **Shared infrastructure**: numerical engines under `shared/js/engine/`, render primitives + colormaps under `shared/js/render/`, controls under `shared/js/controls/` (incl. share-state URL contract), engine-gl primitives under `shared/js/engine-gl/`.
+- **Dissemination layer**: landing page (`scripts/build-landing.mjs`, `dist/index.html` and root `index.html`), 24-tag controlled vocabulary (`docs/TAGS.md`), curriculum index (`docs/CURRICULUM.md`), card index (`docs/INDEX.md`).
 
-Audience: AI-lab hiring committees, ESA Research Fellowship reviewers, and the technically literate public.
+## Curriculum mapping
 
-## Install
-
-```
-npm install
-npx playwright install --with-deps chromium
-```
-
-Optional Python tooling (citation linting, reference numerics):
+Every playground is tagged with `primary_uc` and `curriculum_year` in its spec.md frontmatter, drawing from FCUP's BSc Physics and MSc Astronomy & Astrophysics units. Regenerate the chronological index with:
 
 ```
-uv sync
+node scripts/build-curriculum-index.mjs   # writes docs/CURRICULUM.md
 ```
 
-## Quickstart
+## How to develop
 
-To open a playground in a browser, serve the project over HTTP. Each playground loads `playground.js` as an ES module that imports from `shared/`, so browsers block it from `file://`.
-
-```
-npm run dev
-```
-
-That starts vite on `http://localhost:5173/`. The root page lists shipped playgrounds; or jump directly to `http://localhost:5173/playgrounds/<slug>/index.html`. Any equivalent static server works.
-
-To scaffold a new playground:
+Stack: plain ES2022 modules. No frameworks. KaTeX for math. Canvas2D + SVG only (WebGL2 carve-out for heroes per CLAUDE.md hard rule 8). Tests with Vitest + Playwright.
 
 ```
-npm run scaffold <slug>
+npm install                                       # one-time
+npx vitest run                                    # invariant tests (currently 1306 passing)
+npx playwright test                               # visual gates (SwiftShader-compatible)
+node scripts/build-landing.mjs                    # regen dist/index.html
+node scripts/build-index.mjs                      # regen docs/INDEX.md
+node scripts/build-curriculum-index.mjs           # regen docs/CURRICULUM.md
+node scripts/lint-playground-html.mjs <slug>      # pre-ship HTML lint (catches raw <,> in $math$)
+node scripts/capture-reference.mjs --playground <slug>   # capture deterministic golden frames
 ```
 
-This copies `playgrounds/_template` into `playgrounds/<slug>`, substitutes placeholders, and prepares the folder for the `playground-architect` subagent to draft `spec.md`.
+## What "done" means
 
-The build flow for any playground:
+Per `CLAUDE.md` section "What done means":
 
-```
-/scaffold <slug>            create folder
-playground-architect         draft spec.md and engine reuse plan
-physics-skeptic              review the equations and BCs
-numerics-skeptic             review the integrator and stability
-(implement playground.js)
-invariant-auditor            write and run invariants.test.mjs
-/verify <slug>               run all four gates
-/ship <slug>                 bundle, update index, commit (manual push)
-```
-
-## Workspace map
-
-```
-.claude/                    settings, subagents, slash commands, hooks
-docs/                       PLAYGROUND_SPEC, VERIFICATION, AESTHETIC, ARCHITECTURE,
-                            BUILD_ORDER, CITATIONS.bib, INDEX (auto-updated by /ship)
-shared/css/                 design tokens and base styles (single source of truth)
-shared/js/engine/           numerical engines (headless, no DOM)
-shared/js/render/           Canvas2D/SVG helpers, colormaps, seeded RNG
-shared/js/controls/         knobs, drag handles, parameter panels, theme toggle
-shared/js/invariants/       reusable invariant checkers
-playgrounds/                one folder per playground
-playgrounds/_template/      scaffold source for /scaffold
-scripts/                    scaffold.sh, capture-reference.mjs, verify-all.sh, bundle.sh
-tests/                      cross-cutting engine tests and helpers
-.github/workflows/          CI: verify gates on PR and main
-```
-
-## Subagent roster
-
-Defined in `.claude/agents/`:
-
-- `playground-architect` (opus): decomposes a topic into spec, engine reuse plan, file list, risks.
-- `physics-skeptic` (opus): audits equations, BCs, units, limiting cases.
-- `numerics-skeptic` (opus): audits integrator, CFL, conditioning, FP pitfalls.
-- `invariant-auditor` (opus): drafts and runs `invariants.test.mjs`, diagnoses failures.
-- `visual-reviewer` (opus): multimodal pass against the spec rubric.
-- `aesthetics-reviewer` (opus): enforces `docs/AESTHETIC.md`.
-- `citation-validator` (sonnet): cross-checks claims against `docs/CITATIONS.bib`.
-
-Invoke any of them by name through the Task tool. They return structured findings, not encouragement.
-
-## Slash commands
-
-- `/scaffold <slug>` create a new playground from the template.
-- `/verify <slug>` run invariant + visual + aesthetic + citation gates.
-- `/ship <slug>` bundle, update index, commit (push is manual).
-- `/audit` status table across all playgrounds.
-- `/critique <slug or path>` parallel skeptic pass without modifying files.
+1. spec.md (physical setup, equations, numerics, citations, controls, expected features, invariants, thresholds).
+2. invariants.test.mjs (≥5 conservation/identity tests, all passing offline).
+3. visual.test.mjs (Playwright + SSIM 0.92 against committed golden frames).
+4. Multimodal /critique pass returns "no missing qualitative features".
+5. index.html accessible (keyboard, ARIA, AA contrast), 60 fps on mid-range laptop.
+6. Live invariant readout in a monospace span.
+7. Paper-style caption.
+8. Three-paragraph README in the playground folder.
+9. Share-state contract supported (URL hash, parseUrlState, mountShareButton).
 
 ## Hard rules
 
-See `CLAUDE.md`. Three you will hit fast:
+See `CLAUDE.md`. Highlights: no em-dash, no en-dash, no emoji, no AI-tells in prose, no `Math.random` outside `shared/js/render/rng.js`, no engine duplication, every playground cites a source.
 
-1. No em-dashes or en-dashes anywhere. Hook will block writes that include them.
-2. No AI-tell vocabulary in prose (delve, leverage as verb, in conclusion, etc.). Hook will block prose writes that include them.
-3. Every playground must have a strong invariant test (or a documented exemption with a visual SSIM threshold) and a live invariant readout in the UI.
+## Status snapshot (2026-05-14)
 
-## Verification gates
+- 203 verified playgrounds (all gates green).
+- 1306 invariant tests passing (221 test files).
+- 6 heroes designated: 2 Canvas2D MVPs shipped, 4 scoped for WebGL2 implementation.
+- Phases 0-8 of the dissemination directive complete (frontmatter + tags, landing, share-state, heroes, a11y reviewer stub, license + contributing, visual standard, engine-gl primitives + smoke test).
+- See `docs/NEEDS-ATTENTION.md` for the open punch list.
 
-| gate | enforced by | minimum |
-|------|-------------|---------|
-| Invariant | `invariant-auditor` + Vitest | strong-form pass at spec threshold |
-| Visual | `scripts/capture-reference.mjs` + Playwright + SSIM | SSIM > 0.92 vs goldens |
-| Multimodal review | `visual-reviewer` | all rubric items present |
-| Aesthetic | `aesthetics-reviewer` | conforms to `docs/AESTHETIC.md` |
-| Citation | `citation-validator` | all claims tied to `docs/CITATIONS.bib` entries |
+## License
 
-The `.verified` marker in each playground records the last passing run. `/ship` refuses to proceed without it.
+MIT. See `LICENSE`.
 
-## Determinism
+## Maintainer
 
-Every playground accepts `?seed=N&deterministic=1` URL params and fires a `simulation-ready` window event after each frame. Reference capture (`scripts/capture-reference.mjs`) and visual tests rely on this. The default seed is `0xC0FFEE`, persisted as `PORTFOLIO_REF_SEED` by the session-start hook.
-
-## Build order
-
-See `docs/BUILD_ORDER.md`. Start with `logistic-cobweb` and `double-pendulum` to validate the rendering and invariant infrastructure end to end before building engines (Phase 2 onward) that seed multiple playgrounds.
-
-## CI
-
-`.github/workflows/verify.yml` runs engine unit tests, per-playground invariants, and visual gates on every push and pull request against `main`. Subagent passes (`aesthetics-reviewer`, `citation-validator`) run advisory in CI; they block locally via `/verify`.
-
-## Stack constraints
-
-- Canvas2D and SVG only.
-- KaTeX for math.
-- Vanilla ES2022 modules, no frameworks.
-- Browser storage forbidden inside engines.
-- WebGL / Three.js / Pyodide / WASM forbidden unless a playground's `spec.md` documents the justification.
-
-The constraint exists to keep playgrounds small, hostable as static files anywhere, and free of build-time secrets.
-
-## License and citations
-
-Source code: MIT. Captions and methodology references are tied to entries in `docs/CITATIONS.bib`. New entries must include book title, author, edition, ISBN, and a precise chapter or equation pointer.
+Andreas W. Neitzel · ORCID 0000-0001-6283-907X · IA/CAUP, U. Porto · andreaswneitzel@gmail.com

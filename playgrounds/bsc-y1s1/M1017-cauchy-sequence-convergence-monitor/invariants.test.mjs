@@ -6,7 +6,7 @@ describe('cauchy-sequence-convergence-monitor', () => {
     expect(isCauchy('geom', 1e-6).isCauchy).toBe(true);
   });
   it('harmonic series is NOT Cauchy (diverges)', () => {
-    const r = isCauchy('harm', 0.1, 200);
+    const r = isCauchy('harm', 1e-6, 1000);
     expect(r.isCauchy).toBe(false);
   });
   it('arctan partial sums converge to pi/4', () => {

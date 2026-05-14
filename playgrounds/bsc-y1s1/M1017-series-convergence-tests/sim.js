@@ -1,6 +1,6 @@
 // Geometric, ratio, root, and alternating-series tests on canonical sequences.
 export const SERIES = {
-  geom_half: { label: 'sum 1 / 2^n', terms: (n) => 1 / Math.pow(2, n), limit: 2 },
+  geom_half: { label: 'sum_{n>=1} 1 / 2^n', terms: (n) => 1 / Math.pow(2, n), limit: 1 },
   pseries_2: { label: 'sum 1 / n^2', terms: (n) => 1 / (n * n), limit: Math.PI * Math.PI / 6 },
   pseries_1: { label: 'harmonic 1 / n', terms: (n) => 1 / n, limit: Infinity },
   alt_log2: { label: 'sum (-1)^(n+1) / n', terms: (n) => Math.pow(-1, n + 1) / n, limit: Math.log(2) },

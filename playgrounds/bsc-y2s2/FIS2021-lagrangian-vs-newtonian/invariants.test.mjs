@@ -3,7 +3,7 @@ import { pendulumRHS, leapfrog, energy } from './sim.js';
 describe('lagrangian-vs-newtonian', () => {
   it('Newton RHS gives expected acceleration at equilibrium', () => {
     const r = pendulumRHS(0, 0, 1, 10);
-    expect(r.domega).toBe(0);
+    expect(Math.abs(r.domega)).toBeLessThan(1e-12);
   });
   it('Acceleration negative for small positive angle (restoring)', () => {
     const r = pendulumRHS(0.1, 0, 1, 10);

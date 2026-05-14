@@ -18,16 +18,16 @@ describe('lienard-wiechert-synchrotron', () => {
   it('opening angle scales as 1/gamma', () => {
     expect(Math.abs(openingAngle(10) * 10 - 1)).toBeLessThan(1e-12);
   });
-  it('peak shifts toward forward direction as beta -> 1', () => {
-    let peakTheta1 = 0, max1 = -Infinity;
-    let peakTheta2 = 0, max2 = -Infinity;
-    for (let i = 1; i < 180; i += 1) {
-      const th = i * Math.PI / 180;
-      const v1 = lobePerpendicular(th, 0, 0.9);
-      const v2 = lobePerpendicular(th, 0, 0.99);
-      if (v1 > max1) { max1 = v1; peakTheta1 = th; }
-      if (v2 > max2) { max2 = v2; peakTheta2 = th; }
+  it('beam narrows as beta -> 1 (FWHM half-angle smaller)', () => {
+    function widthHalfMax(beta) {
+      const peak = lobePerpendicular(0.001, 0, beta);
+      for (let i = 1; i < 1800; i += 1) {
+        const th = i * Math.PI / 1800;
+        const v = lobePerpendicular(th, 0, beta);
+        if (v < peak / 2) return th;
+      }
+      return Math.PI;
     }
-    expect(peakTheta2).toBeLessThan(peakTheta1);
+    expect(widthHalfMax(0.99)).toBeLessThan(widthHalfMax(0.9));
   });
 });

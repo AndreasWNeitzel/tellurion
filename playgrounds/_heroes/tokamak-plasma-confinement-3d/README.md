@@ -1,0 +1,2 @@
+# Tokamak plasma confinement (pending)
+WebGL2 hero scoped in docs/HEROES.md; implementation pending.

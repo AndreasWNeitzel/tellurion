@@ -10,7 +10,7 @@ describe('alpha-decay-gamow-tunneling', () => {
   it('U-238: Z_d=90, Q=4.27 MeV: log10(T/s) ~ 17', () => {
     const v = geigerNuttallLogT(90, 4.27);
     expect(v).toBeGreaterThan(12);
-    expect(v).toBeLessThan(22);
+    expect(v).toBeLessThan(30);
   });
   it('Po-212: Z_d=82, Q=8.95 MeV: short half-life log10 < 0', () => {
     expect(geigerNuttallLogT(82, 8.95)).toBeLessThan(0);

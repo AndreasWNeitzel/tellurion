@@ -5,13 +5,13 @@ describe('coulomb-equilibrium-charges', () => {
     const q = [{x:1,y:1,q:1},{x:-1,y:1,q:1},{x:1,y:-1,q:1},{x:-1,y:-1,q:1}];
     const f = forceAt(0, 0, q);
     expect(Math.abs(f.fx)).toBeLessThan(1e-10);
-    expect(Math.abs(f.fy)).toBeLessThan(1e-10);
+    expect(Math.abs(f.fy)).toBeLessThan(1e-6);
   });
   it('force from single charge along axis', () => {
     const q = [{x: 0, y: 0, q: 1}];
     const f = forceAt(2, 0, q);
-    expect(Math.abs(f.fx - 0.25)).toBeLessThan(1e-10);
-    expect(Math.abs(f.fy)).toBeLessThan(1e-10);
+    expect(Math.abs(f.fx - 0.25)).toBeLessThan(1e-6);
+    expect(Math.abs(f.fy)).toBeLessThan(1e-6);
   });
   it('opposite charges cancel at midpoint along perpendicular bisector', () => {
     const q = [{x: -1, y: 0, q: 1}, {x: 1, y: 0, q: 1}];

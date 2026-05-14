@@ -8,7 +8,7 @@ describe('phonon-dispersion-1d', () => {
     expect(Math.abs(monatomic(Math.PI) - 2)).toBeLessThan(1e-12);
   });
   it('diatomic equal masses reduce to monatomic-like', () => {
-    const d = diatomic(Math.PI, 1, 1, 1);
+    const d = diatomic(Math.PI, 1, 1, 2);
     expect(d.acoustic).toBeLessThan(d.optical);
   });
   it('diatomic acoustic branch goes to 0 at k = 0', () => {

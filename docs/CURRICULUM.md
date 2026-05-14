@@ -8,14 +8,14 @@ See `docs/BUILD_ORDER.md` for the engineering-priority view (which playground an
 
 ## Summary
 
-Total playgrounds: 203
+Total playgrounds: 209
 
 | Status | Count |
 |---|---|
 | draft | 0 |
 | in-progress | 0 |
 | implemented | 0 |
-| verified | 203 |
+| verified | 204 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1

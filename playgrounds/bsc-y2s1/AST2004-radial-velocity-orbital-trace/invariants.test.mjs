@@ -3,7 +3,7 @@ import { semiAmplitudeKMs, radialVelocityKMs, trueAnomaly, solveKepler } from '.
 describe('radial-velocity-orbital-trace', () => {
   it('circular orbit at omega=0: sinusoid amplitude K', () => {
     const K = 10;
-    const v_peak = radialVelocityKMs(0.25, K, 0, 0);
+    const v_peak = radialVelocityKMs(0, K, 0, 0);
     expect(Math.abs(v_peak - K)).toBeLessThan(1e-6);
   });
   it('circular orbit: integral over phase is zero', () => {

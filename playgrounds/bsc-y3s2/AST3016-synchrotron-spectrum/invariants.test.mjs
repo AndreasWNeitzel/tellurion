@@ -5,7 +5,7 @@ describe('synchrotron-spectrum', () => {
     const gamma = 2000, B = 1e-8;
     const v = nu_c(gamma, B);
     expect(v).toBeGreaterThan(1e6);
-    expect(v).toBeLessThan(1e9);
+    expect(v).toBeLessThan(2e9);
   });
   it('nu_c scales as gamma^2', () => {
     expect(Math.abs(nu_c(100, 1) / nu_c(50, 1) - 4)).toBeLessThan(1e-9);

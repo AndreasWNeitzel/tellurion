@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Wave heightfield (hero)</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: crosshair; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Wave heightfield (clickable hero)</h1>
+<p><strong>What you are seeing:</strong> a 2D damped wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 64x64 grid. Click anywhere to seed a Gaussian impulse; the energy readout decays at the observed rate $\gamma$. Source: French Waves Ch. 6 (`french-waves`).</p>
+<figure class="pg-figure"><canvas id="stage" width="640" height="640"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">E:</span><span class="value" id="readout-e">0.00</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> 2D wave equation with click-seeded impulses. Source: French Waves Ch. 6 (`french-waves`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">c (speed)</span><input type="range" id="slider-c" min="0.1" max="0.7" step="0.01" value="0.4"><span class="value" id="value-c">0.40</span></div>
+<div class="row"><span class="label">γ (damping)</span><input type="range" id="slider-g" min="0" max="0.5" step="0.01" value="0.05"><span class="value" id="value-g">0.05</span></div>
+<div class="row"><span class="label">A (impulse)</span><input type="range" id="slider-A" min="0.1" max="2" step="0.05" value="0.8"><span class="value" id="value-A">0.80</span></div>
+<div class="row"><span class="label">σ (impulse)</span><input type="range" id="slider-s" min="1" max="8" step="0.5" value="3"><span class="value" id="value-s">3.0</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>

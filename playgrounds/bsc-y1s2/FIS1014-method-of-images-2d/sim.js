@@ -20,13 +20,14 @@ export function field(x, y, q, a, b) {
 export function inducedSigma(x, q, b) {
   return -q * b / (2 * Math.PI * Math.pow(x * x + b * b, 1.5));
 }
-// Integrated total induced charge = -q.
-export function totalInducedCharge(q, b, L = 1e4, N = 20000) {
+// Integrated total induced charge over the conducting plane (3D, dA = 2 pi rho drho).
+// Analytic result: -q.
+export function totalInducedCharge(q, b, L = 1e3, N = 5000) {
   let s = 0;
-  const dx = (2 * L) / N;
-  for (let i = -N / 2; i <= N / 2; i += 1) {
-    const x = i * dx;
-    s += inducedSigma(x, q, b);
+  const drho = L / N;
+  for (let i = 0; i < N; i += 1) {
+    const rho = (i + 0.5) * drho;
+    s += inducedSigma(rho, q, b) * 2 * Math.PI * rho;
   }
-  return s * dx;
+  return s * drho;
 }
