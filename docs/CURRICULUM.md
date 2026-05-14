@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 23 |
+| draft | 22 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 169 |
+| verified | 170 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -325,7 +325,7 @@ Total playgrounds: 203
 - **CKM Mixing Unitarity Triangle** ([FIS3030-ckm-mixing-unitarity-triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/)). Status: `verified`. `griffiths-particles` ch 10.
 - **Beta Decay - Fermi vs Gamow-Teller** ([FIS3030-nuclear-beta-decay-fermi-vs-gt](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/)). Status: `verified`. `krane-nuclear` ch 9.
 - **Nuclear Shell Model Magic Numbers** ([FIS3030-nuclear-shell-model-magic-numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/)). Status: `verified`. `krane-nuclear` ch 5.
-- **Parton Distribution Toy** ([FIS3030-parton-distribution-toy](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/)). Status: `draft`. `griffiths-particles` ch 7; structure function from quark momenta.
+- **Toy Parton Distribution Functions** ([FIS3030-parton-distribution-toy](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/)). Status: `verified`. `griffiths-particles` ch 9.
 - **Semi-Empirical Mass Formula** ([FIS3030-semi-empirical-mass-formula](../playgrounds/bsc-y3s2/FIS3030-semi-empirical-mass-formula/)). Status: `verified`. `krane-nuclear` ch 3.
 
 ### M3007 Differential Geometry

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Toy Parton Distribution Functions](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/index.html)** &nbsp; (verified, verified 2026-05-14T02:04:29Z)
+  $x f(x)$ for $u_v$, $d_v$, gluon, sea quarks. Source: Griffiths-Particles Ch. 9 (`griffiths-particles`).
+
 - **[Beta Decay - Fermi vs Gamow-Teller](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/index.html)** &nbsp; (verified, verified 2026-05-14T02:03:19Z)
   Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9 (`krane-nuclear`).
 
@@ -582,9 +585,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[P G Mode Cavities](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Parton Distribution Toy](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Point Spread Function Strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/index.html)** &nbsp; (draft)

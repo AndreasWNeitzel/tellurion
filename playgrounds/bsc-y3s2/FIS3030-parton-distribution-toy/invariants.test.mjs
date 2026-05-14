@@ -1,28 +1,23 @@
-// Parton Distribution Toy invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Parton Distribution Toy invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { u_v, d_v, gluon, sea } from './sim.js';
+describe('parton-distribution-toy', () => {
+  it('u_v integrates to 2', () => {
+    let s = 0; const N = 1000;
+    for (let i = 0; i < N; i += 1) s += u_v((i + 0.5) / N);
+    expect(Math.abs(s / N - 2)).toBeLessThan(0.05);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('d_v integrates to 1', () => {
+    let s = 0; const N = 1000;
+    for (let i = 0; i < N; i += 1) s += d_v((i + 0.5) / N);
+    expect(Math.abs(s / N - 1)).toBeLessThan(0.05);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('gluon dominates at small x', () => {
+    expect(gluon(0.01)).toBeGreaterThan(u_v(0.01) + d_v(0.01));
+  });
+  it('valence peaks ~ 0.1-0.3', () => {
+    expect(u_v(0.1) + u_v(0.2) + u_v(0.3)).toBeGreaterThan(u_v(0.7) + u_v(0.8) + u_v(0.9));
+  });
+  it('sea is small at large x', () => {
+    expect(sea(0.5)).toBeLessThan(sea(0.05));
+  });
 });
