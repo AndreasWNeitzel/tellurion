@@ -1,28 +1,17 @@
-// Nuclear Burning Rate Temperature invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Nuclear Burning Rate Temperature invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { eps_pp, eps_CNO, eps_3alpha } from './sim.js';
+describe('nuclear-burning-rate-temperature', () => {
+  it('pp scales T^4', () => {
+    expect(Math.abs(eps_pp(2 * 1.5e7) / eps_pp(1.5e7) - 16)).toBeLessThan(0.01);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('CNO much steeper than pp', () => {
+    expect(eps_CNO(2 * 2e7) / eps_CNO(2e7)).toBeGreaterThan(1e4);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('3-alpha extremely steep', () => {
+    expect(eps_3alpha(2 * 1e8) / eps_3alpha(1e8)).toBeGreaterThan(1e10);
+  });
+  it('rho dependence: pp linear, 3-alpha quadratic', () => {
+    expect(Math.abs(eps_pp(2e7, 2) / eps_pp(2e7, 1) - 2)).toBeLessThan(0.01);
+    expect(Math.abs(eps_3alpha(1e8, 2) / eps_3alpha(1e8, 1) - 4)).toBeLessThan(0.01);
+  });
 });
