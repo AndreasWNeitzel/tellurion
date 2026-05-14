@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 32 |
+| draft | 31 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 160 |
+| verified | 161 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -296,7 +296,7 @@ Total playgrounds: 203
 4 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Stellar Aberration of Light** ([FIS3028-aberration-of-light-stellar](../playgrounds/bsc-y3s2/FIS3028-aberration-of-light-stellar/)). Status: `verified`. `jackson1998` ch 11 (supporting: AST2004).
-- **Relativistic Collision Mandelstam** ([FIS3028-relativistic-collision-mandelstam](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/)). Status: `draft`. `jackson1998` ch 11; 4-momentum conservation closed-form.
+- **Relativistic Collisions and Mandelstam s** ([FIS3028-relativistic-collision-mandelstam](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/)). Status: `verified`. `griffiths-particles` ch 3.
 - **Relativistic Doppler Effect** ([FIS3028-relativistic-doppler](../playgrounds/bsc-y3s2/FIS3028-relativistic-doppler/)). Status: `verified`. `jackson1998` ch 11.
 - **Thomas Precession** ([FIS3028-thomas-precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/)). Status: `draft`. `jackson1998` ch 11; Omega_T = (1 - gamma) / gamma Omega_orbit exact.
 

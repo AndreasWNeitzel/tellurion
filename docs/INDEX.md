@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Relativistic Collisions and Mandelstam s](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/index.html)** &nbsp; (verified, verified 2026-05-14T01:53:08Z)
+  $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3 (`griffiths-particles`).
+
 - **[Cooper Pair Binding Energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/index.html)** &nbsp; (verified, verified 2026-05-14T01:51:56Z)
   $E_{bind} = 2\hbar\omega_D \exp(-2/N(0)V)$. Exponentially small at weak coupling. Source: Ashcroft-Mermin Ch. 34 (`ashcroft-mermin`).
 
@@ -582,9 +585,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Pulsar Wind Nebula Magnetization](../playgrounds/msc-y1/MAA-HE-pulsar-wind-nebula-magnetization/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Relativistic Collision Mandelstam](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Resonance Mean Motion Toy](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/index.html)** &nbsp; (draft)

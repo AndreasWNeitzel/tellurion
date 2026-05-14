@@ -1,28 +1,16 @@
-// Relativistic Collision Mandelstam invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Relativistic Collision Mandelstam invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { fixedTargetS, colliderS, sqrtS, gamma } from './sim.js';
+describe('relativistic-collision-mandelstam', () => {
+  it('fixed-target s sums correctly', () => {
+    expect(Math.abs(fixedTargetS(1, 1, 10) - (2 + 20))).toBeLessThan(1e-12);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('collider head-on: s = (E1 + E2)^2 (equal masses)', () => {
+    expect(Math.abs(colliderS(0, 0, 10, 10) - 400)).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('s grows sqrtly with E_lab', () => {
+    expect(Math.abs(sqrtS(fixedTargetS(1, 100, 1e6))).toFixed(0)).toBe(sqrtS(2 * 100 * 1e6).toFixed(0));
+  });
+  it('gamma at v = 0.9c is 2.294', () => {
+    expect(Math.abs(gamma(0.9) - 2.294)).toBeLessThan(0.01);
+  });
 });
