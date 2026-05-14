@@ -53,9 +53,8 @@
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Inflation controls">
-    <div class="row"><span class="label">N (e-folds)</span><input type="range" id="slider-N" min="40" max="80" step="1" value="60"><span class="value" id="value-N">60</span></div>
-    <div class="row"><span class="label">model</span>
-      <select id="select-model">
+    <div class="row"><span class="label">N (e-folds)</span><input aria-label="N (e-folds)" type="range" id="slider-N" min="40" max="80" step="1" value="60"><span class="value" id="value-N">60</span></div>
+    <div class="row"><span class="label">model</span><select aria-label="model" id="select-model">
         <option value="phi2">phi^2 (chaotic)</option>
         <option value="phi4">phi^4 (chaotic)</option>
         <option value="natural">natural</option>

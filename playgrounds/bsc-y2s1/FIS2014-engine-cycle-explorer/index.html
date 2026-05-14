@@ -8,10 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">η:</span><span class="value" id="readout-e">0.50</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Four idealized engine cycles drawn on the PV plane. Source: Callen Ch. 4-5 (`callen`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">compression r</span><input type="range" id="slider-r" min="2" max="20" step="0.1" value="8"><span class="value" id="value-r">8.0</span></div>
-<div class="row"><span class="label">cutoff rc (Diesel)</span><input type="range" id="slider-rc" min="1.1" max="4" step="0.05" value="2"><span class="value" id="value-rc">2.0</span></div>
-<div class="row"><span class="label">cycle</span>
-  <select id="select-c" style="grid-column: span 2;">
+<div class="row"><span class="label">compression r</span><input aria-label="compression r" type="range" id="slider-r" min="2" max="20" step="0.1" value="8"><span class="value" id="value-r">8.0</span></div>
+<div class="row"><span class="label">cutoff rc (Diesel)</span><input aria-label="cutoff rc (Diesel)" type="range" id="slider-rc" min="1.1" max="4" step="0.05" value="2"><span class="value" id="value-rc">2.0</span></div>
+<div class="row"><span class="label">cycle</span><select aria-label="cycle" id="select-c" style="grid-column: span 2;">
     <option value="otto">Otto</option>
     <option value="diesel">Diesel</option>
     <option value="carnot">Carnot</option>

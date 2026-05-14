@@ -8,10 +8,10 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">E:</span><span class="value" id="readout-e">0.00</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> 2D wave equation with click-seeded impulses. Source: French Waves Ch. 6 (`french-waves`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">c (speed)</span><input type="range" id="slider-c" min="0.1" max="0.7" step="0.01" value="0.4"><span class="value" id="value-c">0.40</span></div>
-<div class="row"><span class="label">γ (damping)</span><input type="range" id="slider-g" min="0" max="0.5" step="0.01" value="0.05"><span class="value" id="value-g">0.05</span></div>
-<div class="row"><span class="label">A (impulse)</span><input type="range" id="slider-A" min="0.1" max="2" step="0.05" value="0.8"><span class="value" id="value-A">0.80</span></div>
-<div class="row"><span class="label">σ (impulse)</span><input type="range" id="slider-s" min="1" max="8" step="0.5" value="3"><span class="value" id="value-s">3.0</span></div>
+<div class="row"><span class="label">c (speed)</span><input aria-label="c (speed)" type="range" id="slider-c" min="0.1" max="0.7" step="0.01" value="0.4"><span class="value" id="value-c">0.40</span></div>
+<div class="row"><span class="label">γ (damping)</span><input aria-label="γ (damping)" type="range" id="slider-g" min="0" max="0.5" step="0.01" value="0.05"><span class="value" id="value-g">0.05</span></div>
+<div class="row"><span class="label">A (impulse)</span><input aria-label="A (impulse)" type="range" id="slider-A" min="0.1" max="2" step="0.05" value="0.8"><span class="value" id="value-A">0.80</span></div>
+<div class="row"><span class="label">σ (impulse)</span><input aria-label="σ (impulse)" type="range" id="slider-s" min="1" max="8" step="0.5" value="3"><span class="value" id="value-s">3.0</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

@@ -8,14 +8,13 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">tracers:</span><span class="value" id="readout-n">0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Phase-space orbits and the flow field of a Hamiltonian. Source: Lemos Ch. 6 (`lemos-mech`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">system</span>
-  <select id="select-s" style="grid-column: span 2;">
+<div class="row"><span class="label">system</span><select aria-label="system" id="select-s" style="grid-column: span 2;">
     <option value="pendulum">Pendulum</option>
     <option value="sho">SHO</option>
     <option value="cubic">Cubic (double well)</option>
   </select>
 </div>
-<div class="row"><span class="label">show flow</span><input type="checkbox" id="toggle-f" checked style="grid-column: span 2; justify-self: start;"></div>
+<div class="row"><span class="label">show flow</span><input aria-label="show flow" type="checkbox" id="toggle-f" checked style="grid-column: span 2; justify-self: start;"></div>
 <div class="row buttons"><button id="btn-reset" type="button">Clear</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><button id="btn-seed" type="button">Seed grid</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

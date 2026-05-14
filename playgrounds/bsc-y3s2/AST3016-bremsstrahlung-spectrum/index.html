@@ -8,8 +8,8 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">cutoff:</span><span class="value" id="readout-c">10⁻¹⁹</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Log-log thermal bremsstrahlung emissivity. Source: Rybicki-Lightman Ch. 5 (`rybickilightman1979`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">log10(T / K)</span><input type="range" id="slider-T" min="3" max="10" step="0.05" value="7"><span class="value" id="value-T">7.00</span></div>
-<div class="row"><span class="label">log10(n / cm⁻³)</span><input type="range" id="slider-n" min="-3" max="10" step="0.1" value="0"><span class="value" id="value-n">0.0</span></div>
+<div class="row"><span class="label">log10(T / K)</span><input aria-label="log10(T / K)" type="range" id="slider-T" min="3" max="10" step="0.05" value="7"><span class="value" id="value-T">7.00</span></div>
+<div class="row"><span class="label">log10(n / cm⁻³)</span><input aria-label="log10(n / cm⁻³)" type="range" id="slider-n" min="-3" max="10" step="0.1" value="0"><span class="value" id="value-n">0.0</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

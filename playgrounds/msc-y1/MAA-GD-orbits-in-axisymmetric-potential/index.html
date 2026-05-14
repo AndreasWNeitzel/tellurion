@@ -8,9 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">orbit:</span><span class="value" id="readout-r">rosette</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Meridional-plane orbit in Miyamoto-Nagai potential. Source: Binney-Tremaine Ch. 3 (`binney-tremaine`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">R_0 (kpc)</span><input type="range" id="slider-R" min="2" max="20" step="0.1" value="8"><span class="value" id="value-R">8.0</span></div>
-<div class="row"><span class="label">v_R (km/s)</span><input type="range" id="slider-v" min="-100" max="100" step="5" value="0"><span class="value" id="value-v">0</span></div>
-<div class="row"><span class="label">v_z (km/s)</span><input type="range" id="slider-vz" min="-100" max="100" step="5" value="40"><span class="value" id="value-vz">40</span></div>
+<div class="row"><span class="label">R_0 (kpc)</span><input aria-label="R_0 (kpc)" type="range" id="slider-R" min="2" max="20" step="0.1" value="8"><span class="value" id="value-R">8.0</span></div>
+<div class="row"><span class="label">v_R (km/s)</span><input aria-label="v_R (km/s)" type="range" id="slider-v" min="-100" max="100" step="5" value="0"><span class="value" id="value-v">0</span></div>
+<div class="row"><span class="label">v_z (km/s)</span><input aria-label="v_z (km/s)" type="range" id="slider-vz" min="-100" max="100" step="5" value="40"><span class="value" id="value-vz">40</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

@@ -57,8 +57,7 @@
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="GP controls">
     <div class="row">
-      <span class="label">kernel</span>
-      <select id="select-kernel">
+      <span class="label">kernel</span><select aria-label="kernel" id="select-kernel">
         <option value="rbf" selected>RBF (squared exponential)</option>
         <option value="matern32">Matern 3/2</option>
         <option value="matern52">Matern 5/2</option>
@@ -66,9 +65,9 @@
         <option value="linear">Linear</option>
       </select>
     </div>
-    <div class="row"><span class="label">l (length)</span><input type="range" id="slider-ell" min="0.10" max="2.5" step="0.05" value="0.7"><span class="value" id="value-ell">0.70</span></div>
-    <div class="row"><span class="label">sigma_f</span><input type="range" id="slider-sf" min="0.2" max="2.0" step="0.05" value="1.0"><span class="value" id="value-sf">1.00</span></div>
-    <div class="row"><span class="label">sigma_n</span><input type="range" id="slider-sn" min="0.01" max="0.5" step="0.01" value="0.05"><span class="value" id="value-sn">0.05</span></div>
+    <div class="row"><span class="label">l (length)</span><input aria-label="l (length)" type="range" id="slider-ell" min="0.10" max="2.5" step="0.05" value="0.7"><span class="value" id="value-ell">0.70</span></div>
+    <div class="row"><span class="label">sigma_f</span><input aria-label="sigma_f" type="range" id="slider-sf" min="0.2" max="2.0" step="0.05" value="1.0"><span class="value" id="value-sf">1.00</span></div>
+    <div class="row"><span class="label">sigma_n</span><input aria-label="sigma_n" type="range" id="slider-sn" min="0.01" max="0.5" step="0.01" value="0.05"><span class="value" id="value-sn">0.05</span></div>
     <div class="row buttons">
       <button id="btn-clear" type="button">Clear observations</button>
       <button id="btn-resample" type="button">Resample priors</button>

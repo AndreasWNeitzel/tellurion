@@ -8,11 +8,10 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">α:</span><span class="value" id="readout-a">0.70</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Single-electron hump and power-law ensemble. Source: Rybicki-Lightman Ch. 6 (`rybickilightman1979`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">γ</span><input type="range" id="slider-g" min="100" max="10000" step="50" value="2000"><span class="value" id="value-g">2000</span></div>
-<div class="row"><span class="label">log10(B / G)</span><input type="range" id="slider-B" min="-8" max="2" step="0.05" value="-4"><span class="value" id="value-B">-4.00</span></div>
-<div class="row"><span class="label">p (power law)</span><input type="range" id="slider-p" min="1.5" max="3.5" step="0.05" value="2.4"><span class="value" id="value-p">2.40</span></div>
-<div class="row"><span class="label">mode</span>
-  <select id="select-m" style="grid-column: span 2;">
+<div class="row"><span class="label">γ</span><input aria-label="γ" type="range" id="slider-g" min="100" max="10000" step="50" value="2000"><span class="value" id="value-g">2000</span></div>
+<div class="row"><span class="label">log10(B / G)</span><input aria-label="log10(B / G)" type="range" id="slider-B" min="-8" max="2" step="0.05" value="-4"><span class="value" id="value-B">-4.00</span></div>
+<div class="row"><span class="label">p (power law)</span><input aria-label="p (power law)" type="range" id="slider-p" min="1.5" max="3.5" step="0.05" value="2.4"><span class="value" id="value-p">2.40</span></div>
+<div class="row"><span class="label">mode</span><select aria-label="mode" id="select-m" style="grid-column: span 2;">
     <option value="single">Single electron</option>
     <option value="ensemble">Power-law ensemble</option>
   </select>

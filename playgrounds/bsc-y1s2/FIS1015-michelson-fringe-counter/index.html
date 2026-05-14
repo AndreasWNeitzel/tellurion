@@ -9,11 +9,10 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">d:</span><span class="value" id="readout-d">0 nm</span><span class="label">fringes:</span><span class="value" id="readout-n">0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Michelson rings and fringe count. Each fringe corresponds to a $\lambda/2$ mirror displacement. Source: Hecht Optics Ch. 9.4 (`hecht2017`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">λ (nm)</span><input type="range" id="slider-lambda" min="380" max="780" step="1" value="633"><span class="value" id="value-lambda">633</span></div>
-<div class="row"><span class="label">drift rate (nm/s)</span><input type="range" id="slider-rate" min="0" max="2000" step="10" value="200"><span class="value" id="value-rate">200</span></div>
-<div class="row"><span class="label">arm ratio I2/I1</span><input type="range" id="slider-vis" min="0.1" max="1" step="0.05" value="1"><span class="value" id="value-vis">1.0</span></div>
-<div class="row"><span class="label">source</span>
-  <select id="select-src" style="grid-column: span 2;">
+<div class="row"><span class="label">λ (nm)</span><input aria-label="λ (nm)" type="range" id="slider-lambda" min="380" max="780" step="1" value="633"><span class="value" id="value-lambda">633</span></div>
+<div class="row"><span class="label">drift rate (nm/s)</span><input aria-label="drift rate (nm/s)" type="range" id="slider-rate" min="0" max="2000" step="10" value="200"><span class="value" id="value-rate">200</span></div>
+<div class="row"><span class="label">arm ratio I2/I1</span><input aria-label="arm ratio I2/I1" type="range" id="slider-vis" min="0.1" max="1" step="0.05" value="1"><span class="value" id="value-vis">1.0</span></div>
+<div class="row"><span class="label">source</span><select aria-label="source" id="select-src" style="grid-column: span 2;">
     <option value="ring">Extended (rings)</option>
     <option value="wedge">Wedge (lines)</option>
     <option value="point">Point (uniform)</option>

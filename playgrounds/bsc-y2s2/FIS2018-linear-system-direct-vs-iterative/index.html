@@ -8,9 +8,8 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">‖r‖:</span><span class="value" id="readout-r">0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Solution and residual history for four solvers on $-u'' = f$. Source: Villate Ch. 6 (`villate-vpython`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">N (grid)</span><input type="range" id="slider-N" min="8" max="64" step="1" value="32"><span class="value" id="value-N">32</span></div>
-<div class="row"><span class="label">solver</span>
-  <select id="select-s" style="grid-column: span 2;">
+<div class="row"><span class="label">N (grid)</span><input aria-label="N (grid)" type="range" id="slider-N" min="8" max="64" step="1" value="32"><span class="value" id="value-N">32</span></div>
+<div class="row"><span class="label">solver</span><select aria-label="solver" id="select-s" style="grid-column: span 2;">
     <option value="jacobi">Jacobi</option>
     <option value="gs">Gauss-Seidel</option>
     <option value="cg">Conjugate gradient</option>

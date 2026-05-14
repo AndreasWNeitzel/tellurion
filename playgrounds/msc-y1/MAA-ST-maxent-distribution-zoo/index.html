@@ -62,17 +62,16 @@
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Maxent controls">
     <div class="row">
-      <span class="label">family</span>
-      <select id="select-family">
+      <span class="label">family</span><select aria-label="family" id="select-family">
         <option value="gaussian" selected>Gaussian (mean, variance)</option>
         <option value="uniform">Uniform (support)</option>
         <option value="exponential">Exponential (mean, support [0, infty))</option>
         <option value="laplace">Laplace (mean, mean absolute deviation)</option>
       </select>
     </div>
-    <div class="row" id="row-mu"><span class="label">mu</span><input type="range" id="slider-mu" min="-2" max="2" step="0.05" value="0"><span class="value" id="value-mu">0.00</span></div>
-    <div class="row" id="row-sigma"><span class="label">sigma / b / mean</span><input type="range" id="slider-scale" min="0.3" max="3.0" step="0.05" value="1.0"><span class="value" id="value-scale">1.00</span></div>
-    <div class="row" id="row-support"><span class="label">support</span><input type="range" id="slider-supp" min="0.5" max="3.0" step="0.05" value="2.0"><span class="value" id="value-supp">2.00</span></div>
+    <div class="row" id="row-mu"><span class="label">mu</span><input aria-label="mu" type="range" id="slider-mu" min="-2" max="2" step="0.05" value="0"><span class="value" id="value-mu">0.00</span></div>
+    <div class="row" id="row-sigma"><span class="label">sigma / b / mean</span><input aria-label="sigma / b / mean" type="range" id="slider-scale" min="0.3" max="3.0" step="0.05" value="1.0"><span class="value" id="value-scale">1.00</span></div>
+    <div class="row" id="row-support"><span class="label">support</span><input aria-label="support" type="range" id="slider-supp" min="0.5" max="3.0" step="0.05" value="2.0"><span class="value" id="value-supp">2.00</span></div>
     <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>

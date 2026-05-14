@@ -9,10 +9,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">P_tot:</span><span class="value" id="readout-p">0 W</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Time-averaged radiation pattern of an oscillating charge. Source: Griffiths E&M Ch. 11 (`griffiths-em`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">amplitude (rel)</span><input type="range" id="slider-amp" min="0.1" max="3" step="0.1" value="1"><span class="value" id="value-amp">1.0</span></div>
-<div class="row"><span class="label">frequency (Hz)</span><input type="range" id="slider-f" min="1" max="6" step="0.05" value="3"><span class="value" id="value-f">1e3</span></div>
-<div class="row"><span class="label">view</span>
-  <select id="select-view" style="grid-column: span 2;">
+<div class="row"><span class="label">amplitude (rel)</span><input aria-label="amplitude (rel)" type="range" id="slider-amp" min="0.1" max="3" step="0.1" value="1"><span class="value" id="value-amp">1.0</span></div>
+<div class="row"><span class="label">frequency (Hz)</span><input aria-label="frequency (Hz)" type="range" id="slider-f" min="1" max="6" step="0.05" value="3"><span class="value" id="value-f">1e3</span></div>
+<div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;">
     <option value="lobe">Polar lobe</option>
     <option value="3d">3D projection</option>
     <option value="electron">Electron + wavefronts</option>

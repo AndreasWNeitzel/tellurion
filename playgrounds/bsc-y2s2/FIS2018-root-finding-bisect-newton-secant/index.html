@@ -8,18 +8,16 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">root:</span><span class="value" id="readout-r">0</span><span class="label">iters:</span><span class="value" id="readout-n">0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Trail of iterates from three root finders against $f(x)$. Source: Burden-Faires Ch. 2 (`burdenfaires`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">x0 / left</span><input type="range" id="slider-x0" min="-3" max="3" step="0.05" value="1"><span class="value" id="value-x0">1.00</span></div>
-<div class="row"><span class="label">x1 / right</span><input type="range" id="slider-x1" min="-3" max="3" step="0.05" value="2.5"><span class="value" id="value-x1">2.50</span></div>
-<div class="row"><span class="label">function</span>
-  <select id="select-f" style="grid-column: span 2;">
+<div class="row"><span class="label">x0 / left</span><input aria-label="x0 / left" type="range" id="slider-x0" min="-3" max="3" step="0.05" value="1"><span class="value" id="value-x0">1.00</span></div>
+<div class="row"><span class="label">x1 / right</span><input aria-label="x1 / right" type="range" id="slider-x1" min="-3" max="3" step="0.05" value="2.5"><span class="value" id="value-x1">2.50</span></div>
+<div class="row"><span class="label">function</span><select aria-label="function" id="select-f" style="grid-column: span 2;">
     <option value="x2-2">f(x) = x² - 2</option>
     <option value="cos-x">f(x) = cos(x) - x</option>
     <option value="x3-x-1">f(x) = x³ - x - 1</option>
     <option value="exp-x">f(x) = e^(-x) - x</option>
   </select>
 </div>
-<div class="row"><span class="label">method</span>
-  <select id="select-m" style="grid-column: span 2;">
+<div class="row"><span class="label">method</span><select aria-label="method" id="select-m" style="grid-column: span 2;">
     <option value="bisect">Bisection</option>
     <option value="newton">Newton</option>
     <option value="secant">Secant</option>

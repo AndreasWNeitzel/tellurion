@@ -55,8 +55,7 @@
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Field controls">
-    <div class="row"><span class="label">family</span>
-      <select id="select-family">
+    <div class="row"><span class="label">family</span><select aria-label="family" id="select-family">
         <option value="source">source: F = a (x, y)</option>
         <option value="rotation" selected>rotation: F = a (-y, x)</option>
         <option value="shear">shear: F = a (y, 0)</option>
@@ -64,7 +63,7 @@
       </select>
       <span class="value" id="value-family">rotation</span>
     </div>
-    <div class="row"><span class="label">a</span><input type="range" id="slider-a" min="-2" max="2" step="0.05" value="1"><span class="value" id="value-a">1.00</span></div>
+    <div class="row"><span class="label">a</span><input aria-label="a" type="range" id="slider-a" min="-2" max="2" step="0.05" value="1"><span class="value" id="value-a">1.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

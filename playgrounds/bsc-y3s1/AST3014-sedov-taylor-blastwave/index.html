@@ -8,8 +8,8 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">R(t):</span><span class="value" id="readout-r">0 pc</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Blastwave radius vs time and density jump. Source: Shu Vol II Ch. 17 (`shu-vol2`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">log10(E / erg)</span><input type="range" id="slider-E" min="48" max="53" step="0.05" value="51"><span class="value" id="value-E">51.00</span></div>
-<div class="row"><span class="label">log10(n / cm⁻³)</span><input type="range" id="slider-n" min="-3" max="2" step="0.05" value="0"><span class="value" id="value-n">0.00</span></div>
+<div class="row"><span class="label">log10(E / erg)</span><input aria-label="log10(E / erg)" type="range" id="slider-E" min="48" max="53" step="0.05" value="51"><span class="value" id="value-E">51.00</span></div>
+<div class="row"><span class="label">log10(n / cm⁻³)</span><input aria-label="log10(n / cm⁻³)" type="range" id="slider-n" min="-3" max="2" step="0.05" value="0"><span class="value" id="value-n">0.00</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

@@ -8,15 +8,14 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">type:</span><span class="value" id="readout-t">Mixed</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Selection-rule classifier and Kurie plot. Source: Krane Ch. 9 (`krane-nuclear`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">2 J_i</span><input type="range" id="slider-ji" min="0" max="6" step="1" value="1"><span class="value" id="value-ji">1/2</span></div>
-<div class="row"><span class="label">2 J_f</span><input type="range" id="slider-jf" min="0" max="6" step="1" value="1"><span class="value" id="value-jf">1/2</span></div>
-<div class="row"><span class="label">Δπ</span>
-  <select id="select-p" style="grid-column: span 2;">
+<div class="row"><span class="label">2 J_i</span><input aria-label="2 J_i" type="range" id="slider-ji" min="0" max="6" step="1" value="1"><span class="value" id="value-ji">1/2</span></div>
+<div class="row"><span class="label">2 J_f</span><input aria-label="2 J_f" type="range" id="slider-jf" min="0" max="6" step="1" value="1"><span class="value" id="value-jf">1/2</span></div>
+<div class="row"><span class="label">Δπ</span><select aria-label="Δπ" id="select-p" style="grid-column: span 2;">
     <option value="0">no parity change</option>
     <option value="1">parity change</option>
   </select>
 </div>
-<div class="row"><span class="label">Q (keV)</span><input type="range" id="slider-Q" min="100" max="2000" step="10" value="1000"><span class="value" id="value-Q">1000</span></div>
+<div class="row"><span class="label">Q (keV)</span><input aria-label="Q (keV)" type="range" id="slider-Q" min="100" max="2000" step="10" value="1000"><span class="value" id="value-Q">1000</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

@@ -38,8 +38,7 @@
     <figcaption><span class="figure-number">Figure 1.</span> Partial sums and Cauchy width. Source: Arfken-Weber Ch. 1 (`arfken-weber`).</figcaption>
   </figure>
   <div class="controls pg-controls" id="controls">
-    <div class="row"><span class="label">sequence</span>
-      <select id="select-seq">
+    <div class="row"><span class="label">sequence</span><select aria-label="sequence" id="select-seq">
         <option value="geom">1 / 2^n (convergent)</option>
         <option value="harm">harmonic (divergent)</option>
         <option value="arctan" selected>arctan series (Leibniz)</option>
@@ -47,7 +46,7 @@
       </select>
       <span class="value" id="value-seq">arctan</span>
     </div>
-    <div class="row"><span class="label">N_0</span><input type="range" id="slider-n" min="1" max="200" step="1" value="10"><span class="value" id="value-n">10</span></div>
+    <div class="row"><span class="label">N_0</span><input aria-label="N_0" type="range" id="slider-n" min="1" max="200" step="1" value="10"><span class="value" id="value-n">10</span></div>
   </div>
   <script type="module" src="./playground.js"></script>
 </body>

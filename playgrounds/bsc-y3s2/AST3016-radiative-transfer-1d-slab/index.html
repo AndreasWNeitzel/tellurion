@@ -8,9 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">I_out:</span><span class="value" id="readout-i">0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> $I(\tau)$ along the slab. Source: Rybicki-Lightman Ch. 1 (`rybickilightman1979`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">I_in</span><input type="range" id="slider-Iin" min="0" max="5" step="0.05" value="1"><span class="value" id="value-Iin">1.00</span></div>
-<div class="row"><span class="label">S (source)</span><input type="range" id="slider-S" min="0" max="5" step="0.05" value="3"><span class="value" id="value-S">3.00</span></div>
-<div class="row"><span class="label">τ_total</span><input type="range" id="slider-tau" min="0.05" max="10" step="0.05" value="2"><span class="value" id="value-tau">2.00</span></div>
+<div class="row"><span class="label">I_in</span><input aria-label="I_in" type="range" id="slider-Iin" min="0" max="5" step="0.05" value="1"><span class="value" id="value-Iin">1.00</span></div>
+<div class="row"><span class="label">S (source)</span><input aria-label="S (source)" type="range" id="slider-S" min="0" max="5" step="0.05" value="3"><span class="value" id="value-S">3.00</span></div>
+<div class="row"><span class="label">τ_total</span><input aria-label="τ_total" type="range" id="slider-tau" min="0.05" max="10" step="0.05" value="2"><span class="value" id="value-tau">2.00</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

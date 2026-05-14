@@ -8,9 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">R_TS:</span><span class="value" id="readout-r">0 pc</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Schematic PWN with termination shock and magnetization. Source: Kennel-Coroniti 1984.</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">log10(L_sd erg/s)</span><input type="range" id="slider-L" min="32" max="42" step="0.1" value="38.7"><span class="value" id="value-L">38.7</span></div>
-<div class="row"><span class="label">log10(P_ext dyn)</span><input type="range" id="slider-P" min="-12" max="-6" step="0.1" value="-9"><span class="value" id="value-P">-9.0</span></div>
-<div class="row"><span class="label">σ</span><input type="range" id="slider-s" min="0.001" max="10" step="0.001" value="0.003"><span class="value" id="value-s">0.003</span></div>
+<div class="row"><span class="label">log10(L_sd erg/s)</span><input aria-label="log10(L_sd erg/s)" type="range" id="slider-L" min="32" max="42" step="0.1" value="38.7"><span class="value" id="value-L">38.7</span></div>
+<div class="row"><span class="label">log10(P_ext dyn)</span><input aria-label="log10(P_ext dyn)" type="range" id="slider-P" min="-12" max="-6" step="0.1" value="-9"><span class="value" id="value-P">-9.0</span></div>
+<div class="row"><span class="label">σ</span><input aria-label="σ" type="range" id="slider-s" min="0.001" max="10" step="0.001" value="0.003"><span class="value" id="value-s">0.003</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset (Crab)</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

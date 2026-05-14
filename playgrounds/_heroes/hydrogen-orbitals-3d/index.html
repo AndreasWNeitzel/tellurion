@@ -10,11 +10,10 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">E_n:</span><span class="value" id="readout-e">-13.6 eV</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Slice of hydrogen orbital density. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">n</span><input type="range" id="slider-n" min="1" max="5" step="1" value="2"><span class="value" id="value-n">2</span></div>
-<div class="row"><span class="label">l</span><input type="range" id="slider-l" min="0" max="4" step="1" value="1"><span class="value" id="value-l">1</span></div>
-<div class="row"><span class="label">m</span><input type="range" id="slider-m" min="-4" max="4" step="1" value="0"><span class="value" id="value-m">0</span></div>
-<div class="row"><span class="label">view</span>
-  <select id="select-v" style="grid-column: span 2;">
+<div class="row"><span class="label">n</span><input aria-label="n" type="range" id="slider-n" min="1" max="5" step="1" value="2"><span class="value" id="value-n">2</span></div>
+<div class="row"><span class="label">l</span><input aria-label="l" type="range" id="slider-l" min="0" max="4" step="1" value="1"><span class="value" id="value-l">1</span></div>
+<div class="row"><span class="label">m</span><input aria-label="m" type="range" id="slider-m" min="-4" max="4" step="1" value="0"><span class="value" id="value-m">0</span></div>
+<div class="row"><span class="label">view</span><select aria-label="view" id="select-v" style="grid-column: span 2;">
     <option value="density">|psi|² density</option>
     <option value="phase">Phase (m phi)</option>
   </select>

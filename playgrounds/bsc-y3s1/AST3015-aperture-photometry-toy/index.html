@@ -8,11 +8,11 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">F_meas:</span><span class="value" id="readout-f">0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Synthetic CCD image; circles mark aperture (cyan) and sky annulus (orange). Source: Howell, CCD Handbook (`howell-ccd`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">aperture r</span><input type="range" id="slider-a" min="2" max="20" step="0.5" value="6"><span class="value" id="value-a">6.0</span></div>
-<div class="row"><span class="label">sky r_in / r_out</span><input type="range" id="slider-s" min="8" max="22" step="0.5" value="14"><span class="value" id="value-s">14.0</span></div>
-<div class="row"><span class="label">FWHM (px)</span><input type="range" id="slider-w" min="1" max="6" step="0.1" value="2.5"><span class="value" id="value-w">2.5</span></div>
-<div class="row"><span class="label">F_true</span><input type="range" id="slider-F" min="100" max="50000" step="100" value="8000"><span class="value" id="value-F">8000</span></div>
-<div class="row"><span class="label">sky / pixel</span><input type="range" id="slider-sk" min="0" max="500" step="5" value="100"><span class="value" id="value-sk">100</span></div>
+<div class="row"><span class="label">aperture r</span><input aria-label="aperture r" type="range" id="slider-a" min="2" max="20" step="0.5" value="6"><span class="value" id="value-a">6.0</span></div>
+<div class="row"><span class="label">sky r_in / r_out</span><input aria-label="sky r_in / r_out" type="range" id="slider-s" min="8" max="22" step="0.5" value="14"><span class="value" id="value-s">14.0</span></div>
+<div class="row"><span class="label">FWHM (px)</span><input aria-label="FWHM (px)" type="range" id="slider-w" min="1" max="6" step="0.1" value="2.5"><span class="value" id="value-w">2.5</span></div>
+<div class="row"><span class="label">F_true</span><input aria-label="F_true" type="range" id="slider-F" min="100" max="50000" step="100" value="8000"><span class="value" id="value-F">8000</span></div>
+<div class="row"><span class="label">sky / pixel</span><input aria-label="sky / pixel" type="range" id="slider-sk" min="0" max="500" step="5" value="100"><span class="value" id="value-sk">100</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Re-roll noise</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

@@ -8,9 +8,8 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">x_0:</span><span class="value" id="readout-x">0.50</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Green's function (top) and solution for a chosen source (bottom). Source: Arfken-Weber Ch. 9 (`arfken-weber`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">x_0</span><input type="range" id="slider-x" min="0.05" max="0.95" step="0.01" value="0.5"><span class="value" id="value-x">0.50</span></div>
-<div class="row"><span class="label">f(x)</span>
-  <select id="select-f" style="grid-column: span 2;">
+<div class="row"><span class="label">x_0</span><input aria-label="x_0" type="range" id="slider-x" min="0.05" max="0.95" step="0.01" value="0.5"><span class="value" id="value-x">0.50</span></div>
+<div class="row"><span class="label">f(x)</span><select aria-label="f(x)" id="select-f" style="grid-column: span 2;">
     <option value="const">f(x) = 1</option>
     <option value="step">f(x) = step at L/2</option>
     <option value="gauss">f(x) = e^(-50(x-0.3)²)</option>

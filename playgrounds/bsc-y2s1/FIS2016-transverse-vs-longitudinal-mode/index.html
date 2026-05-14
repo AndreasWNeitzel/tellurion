@@ -8,10 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">ω(k):</span><span class="value" id="readout-w">0.0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Both modes shown with the same dispersion; the difference is in the polarization direction. Source: Crawford Ch. 5 (`crawford-waves`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">k (1/a)</span><input type="range" id="slider-k" min="0.1" max="3.0" step="0.05" value="1.0"><span class="value" id="value-k">1.0</span></div>
-<div class="row"><span class="label">amplitude</span><input type="range" id="slider-A" min="0.05" max="0.45" step="0.01" value="0.2"><span class="value" id="value-A">0.20</span></div>
-<div class="row"><span class="label">view</span>
-  <select id="select-v" style="grid-column: span 2;">
+<div class="row"><span class="label">k (1/a)</span><input aria-label="k (1/a)" type="range" id="slider-k" min="0.1" max="3.0" step="0.05" value="1.0"><span class="value" id="value-k">1.0</span></div>
+<div class="row"><span class="label">amplitude</span><input aria-label="amplitude" type="range" id="slider-A" min="0.05" max="0.45" step="0.01" value="0.2"><span class="value" id="value-A">0.20</span></div>
+<div class="row"><span class="label">view</span><select aria-label="view" id="select-v" style="grid-column: span 2;">
     <option value="both">Both rows</option>
     <option value="trans">Transverse only</option>
     <option value="long">Longitudinal only</option>

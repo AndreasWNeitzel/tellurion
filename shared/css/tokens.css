@@ -12,7 +12,7 @@
   /* Foreground */
   --fg:       #1A1B1C;
   --fg-muted: #5C5E61;
-  --fg-faint: #9A9C9F;
+  --fg-faint: #6E7073;
 
   /* Accent (one primary at a time) */
   --accent:        #1B6CA8;
@@ -106,7 +106,7 @@
   --surface:  #FFFFFFEE;
   --fg:       #1A1B1C;
   --fg-muted: #5C5E61;
-  --fg-faint: #9A9C9F;
+  --fg-faint: #6E7073;
   --grid:     #9A9C9F4D;
   --grid-strong: #9A9C9F80;
   --accent:        #1B6CA8;

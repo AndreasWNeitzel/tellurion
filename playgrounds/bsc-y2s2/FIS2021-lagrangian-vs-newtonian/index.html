@@ -8,10 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">E:</span><span class="value" id="readout-e">0.0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Three formalisms; one trajectory. Source: Lemos Ch. 2-3 (`lemos-mech`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">θ_0</span><input type="range" id="slider-th" min="-3" max="3" step="0.05" value="1.5"><span class="value" id="value-th">1.50</span></div>
-<div class="row"><span class="label">ω_0</span><input type="range" id="slider-om" min="-5" max="5" step="0.05" value="0"><span class="value" id="value-om">0.00</span></div>
-<div class="row"><span class="label">view</span>
-  <select id="select-v" style="grid-column: span 2;">
+<div class="row"><span class="label">θ_0</span><input aria-label="θ_0" type="range" id="slider-th" min="-3" max="3" step="0.05" value="1.5"><span class="value" id="value-th">1.50</span></div>
+<div class="row"><span class="label">ω_0</span><input aria-label="ω_0" type="range" id="slider-om" min="-5" max="5" step="0.05" value="0"><span class="value" id="value-om">0.00</span></div>
+<div class="row"><span class="label">view</span><select aria-label="view" id="select-v" style="grid-column: span 2;">
     <option value="all">All three</option>
     <option value="newton">Newton (force)</option>
     <option value="phase">Phase space (q, p)</option>

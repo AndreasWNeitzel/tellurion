@@ -8,10 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">a:</span><span class="value" id="readout-a">1.00</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Time-domain function, Fourier power spectrum, Laplace transform. Source: Arfken-Weber Ch. 15 (`arfken-weber`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">parameter a / γ</span><input type="range" id="slider-a" min="0.2" max="3" step="0.05" value="1"><span class="value" id="value-a">1.00</span></div>
-<div class="row"><span class="label">ω₀</span><input type="range" id="slider-w" min="0.5" max="5" step="0.1" value="2"><span class="value" id="value-w">2.0</span></div>
-<div class="row"><span class="label">function</span>
-  <select id="select-f" style="grid-column: span 2;">
+<div class="row"><span class="label">parameter a / γ</span><input aria-label="parameter a / γ" type="range" id="slider-a" min="0.2" max="3" step="0.05" value="1"><span class="value" id="value-a">1.00</span></div>
+<div class="row"><span class="label">ω₀</span><input aria-label="ω₀" type="range" id="slider-w" min="0.5" max="5" step="0.1" value="2"><span class="value" id="value-w">2.0</span></div>
+<div class="row"><span class="label">function</span><select aria-label="function" id="select-f" style="grid-column: span 2;">
     <option value="exp">f(t) = e^(-a t) u(t)</option>
     <option value="cos">f(t) = cos(ω₀ t) e^(-γ t) u(t)</option>
     <option value="ramp">f(t) = t e^(-γ t) u(t)</option>

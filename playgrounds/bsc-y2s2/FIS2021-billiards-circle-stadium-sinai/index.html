@@ -58,14 +58,13 @@
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Billiard controls">
     <div class="row">
-      <span class="label">geometry</span>
-      <select id="select-geom">
+      <span class="label">geometry</span><select aria-label="geometry" id="select-geom">
         <option value="stadium" selected>Bunimovich stadium (chaotic)</option>
         <option value="circle">Circle (integrable)</option>
         <option value="sinai">Sinai (chaotic)</option>
       </select>
     </div>
-    <div class="row"><span class="label">speed</span><input type="range" id="slider-speed" min="1" max="20" step="1" value="6"><span class="value" id="value-speed">6</span></div>
+    <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="20" step="1" value="6"><span class="value" id="value-speed">6</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>

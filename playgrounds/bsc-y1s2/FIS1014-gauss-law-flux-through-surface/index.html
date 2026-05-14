@@ -53,16 +53,15 @@
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Loop controls">
-    <div class="row"><span class="label">shape</span>
-      <select id="select-shape">
+    <div class="row"><span class="label">shape</span><select aria-label="shape" id="select-shape">
         <option value="ellipse" selected>ellipse</option>
         <option value="blob">blob (k = 3)</option>
       </select>
       <span class="value" id="value-shape">ellipse</span>
     </div>
-    <div class="row"><span class="label">semi-axis a</span><input type="range" id="slider-a" min="0.3" max="2.5" step="0.05" value="1.4"><span class="value" id="value-a">1.40</span></div>
-    <div class="row"><span class="label">semi-axis b</span><input type="range" id="slider-b" min="0.3" max="2.5" step="0.05" value="1.0"><span class="value" id="value-b">1.00</span></div>
-    <div class="row"><span class="label">charge cx</span><input type="range" id="slider-cx" min="-2" max="2" step="0.05" value="0.0"><span class="value" id="value-cx">0.00</span></div>
+    <div class="row"><span class="label">semi-axis a</span><input aria-label="semi-axis a" type="range" id="slider-a" min="0.3" max="2.5" step="0.05" value="1.4"><span class="value" id="value-a">1.40</span></div>
+    <div class="row"><span class="label">semi-axis b</span><input aria-label="semi-axis b" type="range" id="slider-b" min="0.3" max="2.5" step="0.05" value="1.0"><span class="value" id="value-b">1.00</span></div>
+    <div class="row"><span class="label">charge cx</span><input aria-label="charge cx" type="range" id="slider-cx" min="-2" max="2" step="0.05" value="0.0"><span class="value" id="value-cx">0.00</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

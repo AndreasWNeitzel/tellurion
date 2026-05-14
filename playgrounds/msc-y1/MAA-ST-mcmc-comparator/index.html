@@ -72,8 +72,7 @@
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Sampler and target controls">
     <div class="row">
-      <span class="label">Target</span>
-      <select id="select-target">
+      <span class="label">Target</span><select aria-label="Target" id="select-target">
         <option value="gaussian2d">Gaussian 2D</option>
         <option value="banana" selected>Banana</option>
         <option value="mixture2d">Mixture 2D</option>
@@ -81,8 +80,7 @@
       </select>
     </div>
     <div class="row">
-      <span class="label">Sampler A</span>
-      <select id="select-a">
+      <span class="label">Sampler A</span><select aria-label="Sampler A" id="select-a">
         <option value="rwm" selected>RWM</option>
         <option value="adaptive-rwm">Adaptive RWM</option>
         <option value="mala">MALA</option>
@@ -90,8 +88,7 @@
       </select>
     </div>
     <div class="row">
-      <span class="label">Sampler B</span>
-      <select id="select-b">
+      <span class="label">Sampler B</span><select aria-label="Sampler B" id="select-b">
         <option value="rwm">RWM</option>
         <option value="adaptive-rwm">Adaptive RWM</option>
         <option value="mala" selected>MALA</option>
@@ -99,8 +96,7 @@
       </select>
     </div>
     <div class="row">
-      <span class="label">Sampler C</span>
-      <select id="select-c">
+      <span class="label">Sampler C</span><select aria-label="Sampler C" id="select-c">
         <option value="rwm">RWM</option>
         <option value="adaptive-rwm">Adaptive RWM</option>
         <option value="mala">MALA</option>
@@ -108,12 +104,10 @@
       </select>
     </div>
     <div class="row">
-      <span class="label">HMC L</span>
-      <input type="range" id="slider-L" min="1" max="40" step="1" value="20">
+      <span class="label">HMC L</span><input aria-label="HMC L" type="range" id="slider-L" min="1" max="40" step="1" value="20">
     </div>
     <div class="row">
-      <span class="label">Sample N</span>
-      <input type="range" id="slider-N" min="100" max="50000" step="100" value="5000">
+      <span class="label">Sample N</span><input aria-label="Sample N" type="range" id="slider-N" min="100" max="50000" step="100" value="5000">
     </div>
     <div class="row buttons">
       <button id="btn-reset" type="button" aria-label="Restart all three chains at origin">Restart chains</button>

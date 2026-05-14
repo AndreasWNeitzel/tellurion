@@ -62,16 +62,15 @@
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Well controls">
     <div class="row">
-      <span class="label">well</span>
-      <select id="select-well">
+      <span class="label">well</span><select aria-label="well" id="select-well">
         <option value="infinite" selected>Infinite square well</option>
         <option value="finite">Finite square well</option>
         <option value="harmonic">Harmonic oscillator</option>
       </select>
     </div>
-    <div class="row"><span class="label">level n</span><input type="range" id="slider-n" min="1" max="8" step="1" value="1"><span class="value" id="value-n">1</span></div>
-    <div class="row"><span class="label">depth V0</span><input type="range" id="slider-V0" min="5" max="40" step="1" value="15"><span class="value" id="value-V0">15</span></div>
-    <div class="row"><span class="label">a (finite)</span><input type="range" id="slider-a" min="0.5" max="2.0" step="0.05" value="1.0"><span class="value" id="value-a">1.00</span></div>
+    <div class="row"><span class="label">level n</span><input aria-label="level n" type="range" id="slider-n" min="1" max="8" step="1" value="1"><span class="value" id="value-n">1</span></div>
+    <div class="row"><span class="label">depth V0</span><input aria-label="depth V0" type="range" id="slider-V0" min="5" max="40" step="1" value="15"><span class="value" id="value-V0">15</span></div>
+    <div class="row"><span class="label">a (finite)</span><input aria-label="a (finite)" type="range" id="slider-a" min="0.5" max="2.0" step="0.05" value="1.0"><span class="value" id="value-a">1.00</span></div>
     <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>

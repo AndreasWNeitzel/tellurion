@@ -91,7 +91,39 @@ try {
     const target = page.locator('#stage');
     const buf    = await target.screenshot();
     await fs.writeFile(path.join(outDir, `${frame.name}.png`), buf);
-    console.log(`captured ${frame.name}`);
+    // Collect performance timings: 30 frame samples of rAF callback duration.
+    const perf = await page.evaluate(async () => {
+      const samples = [];
+      await new Promise((resolve) => {
+        let n = 0;
+        function step() {
+          const t0 = performance.now();
+          requestAnimationFrame(() => {
+            const t1 = performance.now();
+            samples.push(t1 - t0);
+            n += 1;
+            if (n < 30) step(); else resolve();
+          });
+        }
+        step();
+      });
+      samples.sort((a, b) => a - b);
+      const median = samples[Math.floor(samples.length / 2)];
+      const p95 = samples[Math.floor(samples.length * 0.95)];
+      const heap = performance.memory ? performance.memory.usedJSHeapSize : null;
+      // GPU timing via EXT_disjoint_timer_query_webgl2 (best-effort; null if unavailable).
+      let gpu = null;
+      try {
+        const canvas = document.getElementById('stage');
+        if (canvas) {
+          const gl = canvas.getContext('webgl2');
+          if (gl) { const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2'); if (ext) gpu = 'supported'; }
+        }
+      } catch (e) {}
+      return { samples, median, p95, heap, gpu };
+    });
+    await fs.writeFile(path.join(outDir, `${frame.name}.perf.json`), JSON.stringify(perf, null, 2));
+    console.log(`captured ${frame.name} (rAF median ${perf.median?.toFixed?.(2) ?? 'n/a'} ms, p95 ${perf.p95?.toFixed?.(2) ?? 'n/a'} ms)`);
   }
 } finally {
   await browser.close();

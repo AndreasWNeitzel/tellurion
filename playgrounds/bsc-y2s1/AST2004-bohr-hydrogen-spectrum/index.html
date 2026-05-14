@@ -59,8 +59,7 @@
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Bohr controls">
-    <div class="row"><span class="label">series</span>
-      <select id="select-series">
+    <div class="row"><span class="label">series</span><select aria-label="series" id="select-series">
         <option value="all">All series</option>
         <option value="Lyman">Lyman (UV)</option>
         <option value="Balmer" selected>Balmer (visible)</option>
@@ -70,8 +69,8 @@
       </select>
       <span class="value" id="value-series">Balmer</span>
     </div>
-    <div class="row"><span class="label">n_max</span><input type="range" id="slider-nmax" min="3" max="14" step="1" value="8"><span class="value" id="value-nmax">8</span></div>
-    <div class="row"><span class="label">highlight line</span><input type="range" id="slider-line" min="0" max="6" step="1" value="0"><span class="value" id="value-line">3-&gt;2</span></div>
+    <div class="row"><span class="label">n_max</span><input aria-label="n_max" type="range" id="slider-nmax" min="3" max="14" step="1" value="8"><span class="value" id="value-nmax">8</span></div>
+    <div class="row"><span class="label">highlight line</span><input aria-label="highlight line" type="range" id="slider-line" min="0" max="6" step="1" value="0"><span class="value" id="value-line">3-&gt;2</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

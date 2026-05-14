@@ -8,9 +8,9 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">A(t)/A(0):</span><span class="value" id="readout-a">1.00</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Phase-space patch deforming under pendulum flow; area is invariant. Source: Lemos Ch. 6 (`lemos-mech`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">q_0 center</span><input type="range" id="slider-q" min="-3" max="3" step="0.05" value="0"><span class="value" id="value-q">0.00</span></div>
-<div class="row"><span class="label">p_0 center</span><input type="range" id="slider-p" min="0" max="2.5" step="0.05" value="0.8"><span class="value" id="value-p">0.80</span></div>
-<div class="row"><span class="label">patch w/h</span><input type="range" id="slider-s" min="0.05" max="0.6" step="0.01" value="0.2"><span class="value" id="value-s">0.20</span></div>
+<div class="row"><span class="label">q_0 center</span><input aria-label="q_0 center" type="range" id="slider-q" min="-3" max="3" step="0.05" value="0"><span class="value" id="value-q">0.00</span></div>
+<div class="row"><span class="label">p_0 center</span><input aria-label="p_0 center" type="range" id="slider-p" min="0" max="2.5" step="0.05" value="0.8"><span class="value" id="value-p">0.80</span></div>
+<div class="row"><span class="label">patch w/h</span><input aria-label="patch w/h" type="range" id="slider-s" min="0.05" max="0.6" step="0.01" value="0.2"><span class="value" id="value-s">0.20</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

@@ -9,7 +9,7 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">S_N:</span><span class="value" id="readout-s">0</span><span class="label">ratio rho:</span><span class="value" id="readout-r">0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Partial sums and convergence-test ratios. Source: Arfken-Weber Ch. 1 (`arfken-weber`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">series</span><select id="select-s"><option value="geom_half">geometric 1/2^n</option><option value="pseries_2" selected>p-series 1/n^2</option><option value="pseries_1">harmonic 1/n</option><option value="alt_log2">alternating (-1)^(n+1)/n</option></select><span class="value" id="value-s">pseries_2</span></div>
-<div class="row"><span class="label">N</span><input type="range" id="slider-N" min="2" max="200" step="1" value="40"><span class="value" id="value-N">40</span></div>
+<div class="row"><span class="label">series</span><select aria-label="series" id="select-s"><option value="geom_half">geometric 1/2^n</option><option value="pseries_2" selected>p-series 1/n^2</option><option value="pseries_1">harmonic 1/n</option><option value="alt_log2">alternating (-1)^(n+1)/n</option></select><span class="value" id="value-s">pseries_2</span></div>
+<div class="row"><span class="label">N</span><input aria-label="N" type="range" id="slider-N" min="2" max="200" step="1" value="40"><span class="value" id="value-N">40</span></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

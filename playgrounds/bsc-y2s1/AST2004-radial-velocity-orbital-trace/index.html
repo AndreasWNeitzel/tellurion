@@ -8,11 +8,11 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">K:</span><span class="value" id="readout-k">30 km/s</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Orbit (left) and RV curve (right) for selected elements. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">a (AU)</span><input type="range" id="slider-a" min="0.1" max="3" step="0.05" value="0.5"><span class="value" id="value-a">0.50</span></div>
-<div class="row"><span class="label">P (yr)</span><input type="range" id="slider-p" min="0.1" max="10" step="0.05" value="1"><span class="value" id="value-p">1.00</span></div>
-<div class="row"><span class="label">e</span><input type="range" id="slider-e" min="0" max="0.9" step="0.01" value="0.3"><span class="value" id="value-e">0.30</span></div>
-<div class="row"><span class="label">ω (deg)</span><input type="range" id="slider-w" min="0" max="360" step="1" value="60"><span class="value" id="value-w">60</span></div>
-<div class="row"><span class="label">i (deg)</span><input type="range" id="slider-i" min="0" max="90" step="1" value="80"><span class="value" id="value-i">80</span></div>
+<div class="row"><span class="label">a (AU)</span><input aria-label="a (AU)" type="range" id="slider-a" min="0.1" max="3" step="0.05" value="0.5"><span class="value" id="value-a">0.50</span></div>
+<div class="row"><span class="label">P (yr)</span><input aria-label="P (yr)" type="range" id="slider-p" min="0.1" max="10" step="0.05" value="1"><span class="value" id="value-p">1.00</span></div>
+<div class="row"><span class="label">e</span><input aria-label="e" type="range" id="slider-e" min="0" max="0.9" step="0.01" value="0.3"><span class="value" id="value-e">0.30</span></div>
+<div class="row"><span class="label">ω (deg)</span><input aria-label="ω (deg)" type="range" id="slider-w" min="0" max="360" step="1" value="60"><span class="value" id="value-w">60</span></div>
+<div class="row"><span class="label">i (deg)</span><input aria-label="i (deg)" type="range" id="slider-i" min="0" max="90" step="1" value="80"><span class="value" id="value-i">80</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

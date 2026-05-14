@@ -10,10 +10,10 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">q_a:</span><span class="value" id="readout-q">3.0</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Torus with helical field lines colored by $|B|$. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">R0 (m)</span><input type="range" id="slider-R" min="1" max="10" step="0.1" value="6.2"><span class="value" id="value-R">6.2</span></div>
-<div class="row"><span class="label">a (m)</span><input type="range" id="slider-a" min="0.3" max="3" step="0.05" value="2.0"><span class="value" id="value-a">2.0</span></div>
-<div class="row"><span class="label">B0 (T)</span><input type="range" id="slider-B" min="1" max="10" step="0.1" value="5.3"><span class="value" id="value-B">5.3</span></div>
-<div class="row"><span class="label">I_p (MA)</span><input type="range" id="slider-I" min="0.5" max="20" step="0.1" value="15"><span class="value" id="value-I">15</span></div>
+<div class="row"><span class="label">R0 (m)</span><input aria-label="R0 (m)" type="range" id="slider-R" min="1" max="10" step="0.1" value="6.2"><span class="value" id="value-R">6.2</span></div>
+<div class="row"><span class="label">a (m)</span><input aria-label="a (m)" type="range" id="slider-a" min="0.3" max="3" step="0.05" value="2.0"><span class="value" id="value-a">2.0</span></div>
+<div class="row"><span class="label">B0 (T)</span><input aria-label="B0 (T)" type="range" id="slider-B" min="1" max="10" step="0.1" value="5.3"><span class="value" id="value-B">5.3</span></div>
+<div class="row"><span class="label">I_p (MA)</span><input aria-label="I_p (MA)" type="range" id="slider-I" min="0.5" max="20" step="0.1" value="15"><span class="value" id="value-I">15</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset (ITER)</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>

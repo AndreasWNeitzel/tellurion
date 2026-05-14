@@ -9,10 +9,10 @@
 <div class="readout" id="readout" role="status" aria-live="polite"><span class="label">total induced:</span><span class="value" id="readout-q">-1.00</span></div>
 <figcaption><span class="figure-number">Figure 1.</span> Equipotentials and induced surface charge for a point charge near a grounded plane. Source: Griffiths E&M Ch. 3.2 (`griffiths-em`).</figcaption></figure>
 <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">q (real charge)</span><input type="range" id="slider-q" min="-2" max="2" step="0.1" value="1"><span class="value" id="value-q">1.0</span></div>
-<div class="row"><span class="label">show image</span><input type="checkbox" id="toggle-img" checked style="grid-column: span 2; justify-self: start;"></div>
-<div class="row"><span class="label">show field</span><input type="checkbox" id="toggle-field" checked style="grid-column: span 2; justify-self: start;"></div>
-<div class="row"><span class="label">show equipot.</span><input type="checkbox" id="toggle-equi" checked style="grid-column: span 2; justify-self: start;"></div>
+<div class="row"><span class="label">q (real charge)</span><input aria-label="q (real charge)" type="range" id="slider-q" min="-2" max="2" step="0.1" value="1"><span class="value" id="value-q">1.0</span></div>
+<div class="row"><span class="label">show image</span><input aria-label="show image" type="checkbox" id="toggle-img" checked style="grid-column: span 2; justify-self: start;"></div>
+<div class="row"><span class="label">show field</span><input aria-label="show field" type="checkbox" id="toggle-field" checked style="grid-column: span 2; justify-self: start;"></div>
+<div class="row"><span class="label">show equipot.</span><input aria-label="show equipot." type="checkbox" id="toggle-equi" checked style="grid-column: span 2; justify-self: start;"></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
 <script type="module" src="./playground.js"></script></body></html>
