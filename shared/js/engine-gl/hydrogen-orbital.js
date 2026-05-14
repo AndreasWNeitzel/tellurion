@@ -22,6 +22,8 @@ uniform sampler3D uVolume;
 uniform mat4 uInvViewProj;
 uniform vec3 uCamPos;
 uniform float uTime;
+uniform int uMode;             // 0 = volume emission, 1 = isosurface.
+uniform float uIsoThreshold;   // density threshold for isosurface.
 out vec4 oColor;
 
 vec3 viridis(float t) {
@@ -55,15 +57,49 @@ void main() {
   t0 = max(t0, 0.0);
   int STEPS = 96;
   float dt = (t1 - t0) / float(STEPS);
-  vec3 col = vec3(0.0); float trans = 1.0;
-  for (int i = 0; i < 96; i += 1) {
-    vec3 p = ro + (t0 + (float(i) + 0.5) * dt) * rd;
-    vec3 sp = p * 0.5 + 0.5;
-    float d = texture(uVolume, sp).r;
-    float emit = d * 8.0;
-    col += trans * viridis(min(1.0, d * 12.0)) * emit * dt;
-    trans *= exp(-d * 6.0 * dt);
-    if (trans < 0.01) break;
+  vec3 col = vec3(0.0);
+  if (uMode == 1) {
+    // Isosurface: march until density first exceeds threshold, then shade Blinn-Phong.
+    bool hit = false;
+    vec3 pHit = vec3(0.0);
+    for (int i = 0; i < 96; i += 1) {
+      vec3 p = ro + (t0 + (float(i) + 0.5) * dt) * rd;
+      vec3 sp = p * 0.5 + 0.5;
+      float d = texture(uVolume, sp).r;
+      if (d > uIsoThreshold) { hit = true; pHit = p; break; }
+    }
+    if (hit) {
+      vec3 sp = pHit * 0.5 + 0.5;
+      vec3 step3 = vec3(1.0 / 40.0);
+      float dxp = texture(uVolume, sp + vec3(step3.x, 0, 0)).r;
+      float dxn = texture(uVolume, sp - vec3(step3.x, 0, 0)).r;
+      float dyp = texture(uVolume, sp + vec3(0, step3.y, 0)).r;
+      float dyn = texture(uVolume, sp - vec3(0, step3.y, 0)).r;
+      float dzp = texture(uVolume, sp + vec3(0, 0, step3.z)).r;
+      float dzn = texture(uVolume, sp - vec3(0, 0, step3.z)).r;
+      vec3 n = normalize(-vec3(dxp - dxn, dyp - dyn, dzp - dzn));
+      vec3 L = normalize(vec3(0.5, 0.8, 0.3));
+      vec3 V = normalize(uCamPos - pHit);
+      vec3 H = normalize(L + V);
+      float diff = max(0.0, dot(n, L));
+      float spec = pow(max(0.0, dot(n, H)), 24.0);
+      vec3 albedo = viridis(uIsoThreshold * 3.0);
+      col = albedo * (0.2 + 0.8 * diff) + vec3(spec) * 0.6;
+    } else {
+      col = vec3(0.02, 0.02, 0.03);
+    }
+  } else {
+    // Volume emission (default).
+    float trans = 1.0;
+    for (int i = 0; i < 96; i += 1) {
+      vec3 p = ro + (t0 + (float(i) + 0.5) * dt) * rd;
+      vec3 sp = p * 0.5 + 0.5;
+      float d = texture(uVolume, sp).r;
+      float emit = d * 8.0;
+      col += trans * viridis(min(1.0, d * 12.0)) * emit * dt;
+      trans *= exp(-d * 6.0 * dt);
+      if (trans < 0.01) break;
+    }
   }
   vec2 cv = uv - 0.5;
   float vign = 1.0 - 0.3 * dot(cv, cv) * 2.0;
@@ -113,12 +149,14 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
     gl.bindTexture(gl.TEXTURE_3D, tex);
     gl.texSubImage3D(gl.TEXTURE_3D, 0, 0, 0, 0, gridSize, gridSize, gridSize, gl.RED, gl.HALF_FLOAT, half);
   }
-  function render(t) {
+  function render(t, mode = 0, isoThreshold = 0.05) {
     gl.useProgram(prog);
     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fbo);
     gl.viewport(0, 0, W, H);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_3D, tex);
     gl.uniform1i(gl.getUniformLocation(prog, 'uVolume'), 0);
+    gl.uniform1i(gl.getUniformLocation(prog, 'uMode'), mode);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uIsoThreshold'), isoThreshold);
     // Orbit camera.
     const az = Math.PI * 0.3 + t * 0.1;
     const el = 0.4;

@@ -41,7 +41,8 @@ let last = performance.now();
 function render() {
   if (gl) {
     if (needsRebuild) { gl.fillVolume(st.n, st.l, Math.abs(st.m)); needsRebuild = false; }
-    gl.render(st.t);
+    const mode = st.view === 'iso' ? 1 : 0;
+    gl.render(st.t, mode, 0.05);
   } else {
     // Canvas2D fallback.
     ctx2d.fillStyle = '#060608'; ctx2d.fillRect(0, 0, canvas.width, canvas.height);
