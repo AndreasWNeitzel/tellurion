@@ -1,28 +1,23 @@
-// Radiative Transfer 1d Slab invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Radiative Transfer 1d Slab invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { transmitOptical, profileVsTau } from './sim.js';
+describe('radiative-transfer-1d-slab', () => {
+  it('tau=0: I_out = I_in', () => {
+    expect(transmitOptical(2, 5, 0)).toBe(2);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('thick slab: I -> S', () => {
+    expect(Math.abs(transmitOptical(10, 1, 100) - 1)).toBeLessThan(1e-12);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Vacuum source-free: I = I_in for any tau (S=I_in)', () => {
+    expect(Math.abs(transmitOptical(3, 3, 5) - 3)).toBeLessThan(1e-12);
+  });
+  it('Emission line: I_in < S yields growing I with tau', () => {
+    expect(transmitOptical(1, 5, 2)).toBeGreaterThan(1);
+  });
+  it('Absorption line: I_in > S yields decreasing I with tau', () => {
+    expect(transmitOptical(5, 1, 2)).toBeLessThan(5);
+  });
+  it('Monotone limit obtains for large tau', () => {
+    const p = profileVsTau(5, 1, 10);
+    expect(Math.abs(p.I[p.I.length - 1] - 1)).toBeLessThan(0.01);
+  });
 });

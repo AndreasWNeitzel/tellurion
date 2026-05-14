@@ -1,17 +1,2 @@
-# Radiative Transfer 1d Slab
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Radiative transfer through a slab
+A uniform slab with constant source function emits or absorbs depending on whether $I_{in}$ is above or below $S$. The orange curve is $I(\tau)$; cyan dashed lines mark $S$ and $I_{in}$. Source: Rybicki-Lightman Ch. 1 (`rybickilightman1979`).

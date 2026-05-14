@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 40 |
+| draft | 39 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 152 |
+| verified | 153 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -265,7 +265,7 @@ Total playgrounds: 203
 
 - **Thermal Bremsstrahlung Spectrum** ([AST3016-bremsstrahlung-spectrum](../playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/)). Status: `verified`. `rybickilightman1979` ch 5.
 - **Compton vs Inverse Compton** ([AST3016-compton-vs-inverse-compton](../playgrounds/bsc-y3s2/AST3016-compton-vs-inverse-compton/)). Status: `verified`. `rybickilightman1979` ch 7 (supporting: MAA-HE).
-- **Radiative Transfer 1d Slab** ([AST3016-radiative-transfer-1d-slab](../playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab/)). Status: `draft`. `rybickilightman1979` ch 1 (supporting: MAA-SP); optically thick vs thin closed-form.
+- **1D Radiative Transfer (Uniform Slab)** ([AST3016-radiative-transfer-1d-slab](../playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab/)). Status: `verified`. `rybickilightman1979` ch 1.
 - **Relativistic Beaming Pattern** ([AST3016-relativistic-beaming-azimuth](../playgrounds/bsc-y3s2/AST3016-relativistic-beaming-azimuth/)). Status: `verified`. citation pending (supporting: MAA-HE).
 - **Synchrotron Spectrum** ([AST3016-synchrotron-spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/)). Status: `draft`. `rybickilightman1979` ch 6 (supporting: MAA-HE); nu^(1/3) below peak; exponential above.
 
