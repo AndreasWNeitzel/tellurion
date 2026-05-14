@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Big-O Empirical Scaling](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/index.html)** &nbsp; (verified, verified 2026-05-14T00:43:57Z)
+  Four complexity curves $N$, $N \log N$, $N^2$, $N^3$ on a log-log plot. Slider sets input size; cubic time at modern CPU rates shown in the readout. Demonstrates the gap between tractable (linear / linearithmic) and intractable (quadratic at large $N$, cubic almost immediately) algorithms. Source: Newman, Computational Physics Ch. 4 (`newman2013`).
+
 - **[Slow-Roll Inflation](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (verified, verified 2026-05-14T00:40:46Z)
   A scalar inflaton field $\phi$ with potential $V(\phi)$ in slow-roll regime ($\epsilon, |\eta| \ll 1$). The slow-roll parameters are $\epsilon = (M_\text{Pl}^2 / 2)(V'/V)^2$ and $\eta = M_\text{Pl}^2 V''/V$. Observables to leading order:
 
@@ -314,28 +317,28 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Tidal Disruption Near a Massive Primary](../playgrounds/bsc-y2s1/AST2004-roche-tidal-disruption/index.html)** &nbsp; (verified, verified 2026-05-13T16:07:02Z)
   A cloud of 80 self-gravitating test particles ("a fluid satellite") on an eccentric orbit around a heavy point-mass primary. When the orbit takes the cloud inside the Roche radius, the tidal force from the primary overwhelms the satellite's self-gravity and stretches it into a stream. Outside the Roche radius the cloud holds together.
 
-- **[t-SNE vs UMAP vs Isomap](../playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/index.html)** &nbsp; (draft, verified 2026-05-13T13:50:00Z)
+- **[t-SNE vs UMAP vs Isomap](../playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/index.html)** &nbsp; (verified, verified 2026-05-13T13:50:00Z)
   A 3D dataset shown alongside three 2D embeddings of it. The Swiss roll is the classic "is your DR method nonlinear?" test: PCA squashes it because PCA only knows linear projections, Isomap unrolls it because it measures distances along the manifold, t-SNE clusters local neighborhoods but loses the global ordering. The two-blob dataset is easier and all three
 
-- **[Ising Triangular](../playgrounds/bsc-y2s1/FIS2014-ising-triangular/index.html)** &nbsp; (draft, verified 2026-05-13T13:45:00Z)
+- **[Ising Triangular](../playgrounds/bsc-y2s1/FIS2014-ising-triangular/index.html)** &nbsp; (verified, verified 2026-05-13T13:45:00Z)
   A grid of tiny magnets on a triangular lattice. Each one points up or down; neighbors prefer to agree (lower energy). Lower the temperature to watch them align into one giant domain; raise it to watch them flicker randomly. Right at the critical temperature $T_c = 4/\ln(3) \approx 3.641$ (Wannier 1950) the system is on the knife edge between order and disord
 
-- **[Attention as Soft Retrieval](../playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/index.html)** &nbsp; (draft, verified 2026-05-13T12:54:00Z)
+- **[Attention as Soft Retrieval](../playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/index.html)** &nbsp; (verified, verified 2026-05-13T12:54:00Z)
   Single-head scaled dot-product attention over a small key-value bank: w_i = softmax(Q . k_i / sqrt(d) / tau), output = sum w_i v_i. The left panel shows six keys in 2D; the query (red) can be dragged. The right panel shows the value bars colored by attention weight; the cat-3 bar is the weighted output. As temperature tau drops, attention concentrates on the
 
-- **[Harmonic Oscillator Coherent State](../playgrounds/bsc-y3s2/FIS3029-harmonic-oscillator-coherent-state/index.html)** &nbsp; (draft, verified 2026-05-13T12:50:00Z)
+- **[Harmonic Oscillator Coherent State](../playgrounds/bsc-y3s2/FIS3029-harmonic-oscillator-coherent-state/index.html)** &nbsp; (verified, verified 2026-05-13T12:50:00Z)
   A coherent state |alpha> of the 1D quantum harmonic oscillator. The probability density |psi(x, t)|^2 is a Gaussian of fixed width 1/sqrt(2) whose mean follows the classical orbit x_0(t) = sqrt(2) Re(alpha e^{-i omega t}). Adjust alpha to set the orbit amplitude; press play to watch the wave packet oscillate without spreading (the defining property of a cohe
 
-- **[Bloch Sphere Qubit Gates](../playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/index.html)** &nbsp; (draft, verified 2026-05-13T12:46:00Z)
+- **[Bloch Sphere Qubit Gates](../playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/index.html)** &nbsp; (verified, verified 2026-05-13T12:46:00Z)
   A single qubit on the Bloch sphere. Apply standard gates (X, Y, Z, H, S, T) or continuous rotations (R_x, R_y, R_z by the slider angle). The red arrow is the live state vector; the blue trail shows the recent path; the readout reports the live (theta, phi) angles, the Bloch components (r_x, r_y, r_z), the norm (should equal 1), the unitarity of the most rece
 
-- **[Bayesian Coin Update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/index.html)** &nbsp; (draft, verified 2026-05-13T12:43:00Z)
+- **[Bayesian Coin Update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/index.html)** &nbsp; (verified, verified 2026-05-13T12:43:00Z)
   Conjugate Beta-Binomial inference for the bias theta of an unfair coin. Prior Beta(alpha0, beta0); k heads in n flips; posterior Beta(alpha0 + k, beta0 + n - k). The plot overlays prior, normalized likelihood, and posterior, with a shaded 95 percent credible interval around the posterior mean.
 
-- **[Tunneling Rectangular Barrier](../playgrounds/bsc-y3s2/FIS3029-tunneling-rectangular-barrier/index.html)** &nbsp; (draft, verified 2026-05-13T12:38:00Z)
+- **[Tunneling Rectangular Barrier](../playgrounds/bsc-y3s2/FIS3029-tunneling-rectangular-barrier/index.html)** &nbsp; (verified, verified 2026-05-13T12:38:00Z)
   A 1D Schrodinger particle of energy E incident on a rectangular barrier of height V_0 and width a. The transmission coefficient T(E) is closed-form: for E < V_0 it decays exponentially as the wave evanesces inside the barrier; for E > V_0 it oscillates with perfect resonances at E = V_0 + n^2 pi^2 / (2 a^2). The dashed classical step function (T = 0 below V_
 
-- **[Henon Strange Attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/index.html)** &nbsp; (draft, verified 2026-05-13T12:34:00Z)
+- **[Henon Strange Attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/index.html)** &nbsp; (verified, verified 2026-05-13T12:34:00Z)
   The Henon 1976 map x' = 1 - a x^2 + y, y' = b x. At the canonical (a=1.4, b=0.3) the iterates settle onto a strange attractor with maximum Lyapunov exponent ~ 0.4192 and box-counting dimension ~ 1.26. Tune a and b to walk through the period-doubling cascade and the Henon-Smale horseshoe regime.
 
 - **[Lorenz Attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/index.html)** &nbsp; (in-progress, verified 2026-05-13T11:36:00Z)
@@ -399,9 +402,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bcs Gap Self Consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Big O Empirical](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (draft)

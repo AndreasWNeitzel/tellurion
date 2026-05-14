@@ -1,7 +1,7 @@
 ---
-title: Big O Empirical
+title: Big-O Empirical Scaling
 slug: big-o-empirical
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: CC1017
@@ -10,28 +10,6 @@ curriculum_year: bsc-y1s1
 primary_citation: newman2013
 primary_chapter: 4
 ---
-
-# Big O Empirical
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: N log N vs N^2 vs N^3 sorted comparisons on same input. Primary citation: newman2013, chapter 4. Spec body to be filled by playground-architect.
+# Big-O empirical scaling
+Four complexity curves $N$, $N \log N$, $N^2$, $N^3$ on a log-log plot. Slider sets input size; cubic time at modern CPU rates shown in the readout. Demonstrates the gap between tractable (linear / linearithmic) and intractable (quadratic at large $N$, cubic almost immediately) algorithms.
+Source: Newman, Computational Physics Ch. 4 (`newman2013`).

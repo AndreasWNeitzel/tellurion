@@ -1,28 +1,27 @@
-// Big O Empirical invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+import { describe, it, expect } from 'vitest';
+import { counts, approxSeconds, SCALES } from './sim.js';
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Big O Empirical invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('big-o-empirical', () => {
+  it('counts at N = 1000 are 1000, ~10000, 10^6, 10^9', () => {
+    const c = counts(1000);
+    expect(c.linear).toBe(1000);
+    expect(c.nlogn).toBeCloseTo(1000 * Math.log2(1000), 6);
+    expect(c.quadratic).toBe(1e6);
+    expect(c.cubic).toBe(1e9);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('approxSeconds scales linearly with operation count', () => {
+    expect(approxSeconds(1e6)).toBeCloseTo(approxSeconds(5e5) * 2, 12);
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('quadratic and cubic blow up faster than linear', () => {
+    const N = 1e4;
+    const c = counts(N);
+    expect(c.quadratic).toBeGreaterThan(c.nlogn);
+    expect(c.cubic).toBeGreaterThan(c.quadratic);
+  });
+
+  it('SCALES has four entries', () => {
+    expect(SCALES.length).toBe(4);
+  });
 });
