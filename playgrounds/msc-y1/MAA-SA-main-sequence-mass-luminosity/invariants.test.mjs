@@ -1,28 +1,20 @@
-// Main Sequence Mass Luminosity invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Main Sequence Mass Luminosity invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { L_solar, MS_lifetime_Gyr } from './sim.js';
+describe('main-sequence-mass-luminosity', () => {
+  it('Sun: L = 1', () => {
+    expect(Math.abs(L_solar(1) - 1)).toBeLessThan(0.01);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('M-dwarf 0.5 Msun: L ~ 0.06', () => {
+    const L = L_solar(0.5);
+    expect(L).toBeGreaterThan(0.04); expect(L).toBeLessThan(0.07);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Lifetime decreases with M', () => {
+    expect(MS_lifetime_Gyr(2)).toBeLessThan(MS_lifetime_Gyr(1));
+  });
+  it('Sun lifetime ~ 10 Gyr', () => {
+    expect(Math.abs(MS_lifetime_Gyr(1) - 10)).toBeLessThan(0.5);
+  });
+  it('Massive star lifetime in Myr', () => {
+    expect(MS_lifetime_Gyr(20) * 1e3).toBeLessThan(50);
+  });
 });

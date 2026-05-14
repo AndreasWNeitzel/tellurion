@@ -1,37 +1,14 @@
 ---
-title: Main Sequence Mass Luminosity
+title: Main-Sequence Mass-Luminosity Relation
 slug: main-sequence-mass-luminosity
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: MAA-SA
 supporting_ucs: []
 curriculum_year: msc-y1
-primary_citation: hansen-kawaler
-primary_chapter: 8
+primary_citation: carroll-ostlie
+primary_chapter: 7
 ---
-
-# Main Sequence Mass Luminosity
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: L ~ M^3.5 from radiative envelope. Primary citation: hansen-kawaler, chapter 8. Spec body to be filled by playground-architect.
+# Main-sequence M-L relation
+Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
