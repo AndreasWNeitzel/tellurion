@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Series Convergence Tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/index.html)** &nbsp; (verified, verified 2026-05-14T00:48:14Z)
+  Four series (geometric, p-series 2, harmonic, alternating Leibniz) with partial sums plotted and the limit as a dashed line where finite. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
+
 - **[Cauchy Sequence Convergence Monitor](../playgrounds/bsc-y1s1/M1017-cauchy-sequence-convergence-monitor/index.html)** &nbsp; (verified, verified 2026-05-14T00:46:47Z)
   Partial sums of four series; Cauchy width $w(N_0) = \max |a_n - a_m|$ for $n, m \ge N_0$. Geometric, $\zeta(2)$, and Leibniz arctan converge; harmonic does not. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
 
@@ -570,9 +573,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Sedov Taylor Blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Series Convergence Tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Skin Effect 1d Conductor](../playgrounds/bsc-y2s1/FIS2013-skin-effect-1d-conductor/index.html)** &nbsp; (draft)

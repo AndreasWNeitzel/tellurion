@@ -1,28 +1,13 @@
-// Series Convergence Tests invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Series Convergence Tests invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { SERIES, partialSum, ratioTest, rootTest } from './sim.js';
+describe('series-convergence-tests', () => {
+  it('geometric 1/2^n converges to 2', () => expect(Math.abs(partialSum('geom_half', 100) - 2)).toBeLessThan(1e-15));
+  it('pseries_2 converges to pi^2/6', () => expect(Math.abs(partialSum('pseries_2', 100000) - Math.PI * Math.PI / 6)).toBeLessThan(1e-3));
+  it('alt_log2 converges to ln 2', () => expect(Math.abs(partialSum('alt_log2', 100000) - Math.log(2))).toBeLessThan(1e-4));
+  it('harmonic diverges', () => expect(partialSum('pseries_1', 1000000)).toBeGreaterThan(10));
+  it('ratio test for geom: rho = 1/2', () => expect(Math.abs(ratioTest('geom_half', 10) - 0.5)).toBeLessThan(1e-12));
+  it('root test for geom: lim = 1/2', () => {
+    expect(Math.abs(rootTest('geom_half', 50) - 0.5)).toBeLessThan(0.05);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
-  });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('SERIES has four entries', () => expect(Object.keys(SERIES).length).toBe(4));
 });
