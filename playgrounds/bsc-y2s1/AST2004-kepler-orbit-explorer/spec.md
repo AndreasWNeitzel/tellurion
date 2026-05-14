@@ -1,7 +1,7 @@
 ---
 title: Kepler Orbit Explorer
 slug: kepler-orbit-explorer
-status: in-progress
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004

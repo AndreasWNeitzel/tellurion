@@ -13,9 +13,9 @@ Total playgrounds: 203
 | Status | Count |
 |---|---|
 | draft | 0 |
-| in-progress | 11 |
+| in-progress | 0 |
 | implemented | 0 |
-| verified | 192 |
+| verified | 203 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -32,7 +32,7 @@ Total playgrounds: 203
 - **Coupled Pendulums and Normal Modes** ([FIS1013-coupled-pendulums-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/)). Status: `verified`. `french-waves` ch 5 (supporting: FIS2016).
 - **Coupled Springs and Normal Modes** ([FIS1013-coupled-springs-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-springs-normal-modes/)). Status: `verified`. citation pending (supporting: FIS2016, FIS2021).
 - **Damped, Driven Oscillator and Resonance** ([FIS1013-damped-driven-oscillator](../playgrounds/bsc-y1s1/FIS1013-damped-driven-oscillator/)). Status: `verified`. citation pending (supporting: FIS2016, FIS1015).
-- **Double Pendulum Phase Portrait and Energy Conservation** ([FIS1013-double-pendulum](../playgrounds/bsc-y1s1/FIS1013-double-pendulum/)). Status: `in-progress`. citation pending (supporting: FIS2021).
+- **Double Pendulum Phase Portrait and Energy Conservation** ([FIS1013-double-pendulum](../playgrounds/bsc-y1s1/FIS1013-double-pendulum/)). Status: `verified`. citation pending (supporting: FIS2021).
 - **Elastic and Inelastic Collisions in 1D** ([FIS1013-elastic-inelastic-collisions-2d](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/)). Status: `verified`. `marion-thornton` ch 9.
 - **Foucault Pendulum and Coriolis Precession** ([FIS1013-foucault-pendulum](../playgrounds/bsc-y1s1/FIS1013-foucault-pendulum/)). Status: `verified`. citation pending.
 - **Free Fall Stokes vs Quadratic Drag** ([FIS1013-free-fall-stokes-vs-quadratic-drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/)). Status: `verified`. `marion-thornton` ch 2.
@@ -146,16 +146,16 @@ Total playgrounds: 203
 - **Bohr Hydrogen Spectrum** ([AST2004-bohr-hydrogen-spectrum](../playgrounds/bsc-y2s1/AST2004-bohr-hydrogen-spectrum/)). Status: `verified`. `carroll-ostlie` ch 5 (supporting: FIS2017).
 - **Jeans Instability** ([AST2004-jeans-instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/)). Status: `verified`. `carroll-ostlie` ch 12 (supporting: MAA-GD).
 - **Keplerian Orbit Elements** ([AST2004-kepler-orbit-elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/)). Status: `verified`. `carroll-ostlie` ch 2 (supporting: AST3015).
-- **Kepler Orbit Explorer** ([AST2004-kepler-orbit-explorer](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-explorer/)). Status: `in-progress`. citation pending.
+- **Kepler Orbit Explorer** ([AST2004-kepler-orbit-explorer](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-explorer/)). Status: `verified`. citation pending.
 - **Lagrange Points of the Circular Restricted Three-Body Problem** ([AST2004-lagrange-points-cr3bp](../playgrounds/bsc-y2s1/AST2004-lagrange-points-cr3bp/)). Status: `verified`. citation pending (supporting: FIS2021).
 - **Perihelion Precession in a Schwarzschild Effective Potential** ([AST2004-mercury-precession-pn](../playgrounds/bsc-y2s1/AST2004-mercury-precession-pn/)). Status: `verified`. citation pending (supporting: AST3017).
 - **Radial Velocity Curve from Orbital Elements** ([AST2004-radial-velocity-orbital-trace](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/)). Status: `verified`. `carroll-ostlie` ch 7 (supporting: AST3015).
 - **Tidal Disruption Near a Massive Primary** ([AST2004-roche-tidal-disruption](../playgrounds/bsc-y2s1/AST2004-roche-tidal-disruption/)). Status: `verified`. citation pending (supporting: MAA-HE).
-- **Rotation Curve Explorer** ([AST2004-rotation-curve-explorer](../playgrounds/bsc-y2s1/AST2004-rotation-curve-explorer/)). Status: `in-progress`. citation pending (supporting: MAA-GD).
+- **Rotation Curve Explorer** ([AST2004-rotation-curve-explorer](../playgrounds/bsc-y2s1/AST2004-rotation-curve-explorer/)). Status: `verified`. citation pending (supporting: MAA-GD).
 - **Saha-Boltzmann Hydrogen Ionization** ([AST2004-saha-boltzmann-ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/)). Status: `verified`. `carroll-ostlie` ch 8 (supporting: MAA-SP).
 - **Schwarzschild Effective Potential and the ISCO** ([AST2004-schwarzschild-effective-potential](../playgrounds/bsc-y2s1/AST2004-schwarzschild-effective-potential/)). Status: `verified`. citation pending (supporting: AST3017).
 - **Stellar Blackbody + Absorption Lines** ([AST2004-stellar-blackbody-vs-line](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/)). Status: `verified`. `carroll-ostlie` ch 3 (supporting: MAA-SP).
-- **Three-Body Figure-Eight Choreography** ([AST2004-three-body-orbit](../playgrounds/bsc-y2s1/AST2004-three-body-orbit/)). Status: `in-progress`. citation pending (supporting: FIS2021, FIS1013).
+- **Three-Body Figure-Eight Choreography** ([AST2004-three-body-orbit](../playgrounds/bsc-y2s1/AST2004-three-body-orbit/)). Status: `verified`. citation pending (supporting: FIS2021, FIS1013).
 - **Mandel-Agol Analytic Transit** ([AST2004-transit-mandel-agol-analytic](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/)). Status: `verified`. `mandelagol2002` ch -1 (supporting: AST3015).
 
 ### M2037 Analysis III
@@ -202,11 +202,11 @@ Total playgrounds: 203
 - **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. citation pending.
 - **Lagrangian vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `verified`. `lemos-mech` ch 2.
 - **Liouville Phase-Volume Conservation** ([FIS2021-liouville-phase-volume-conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/)). Status: `verified`. `lemos-mech` ch 6.
-- **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `in-progress`. citation pending.
-- **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `in-progress`. citation pending (supporting: FIS2018).
-- **Lorenz Attractor** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `in-progress`. citation pending.
-- **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `in-progress`. citation pending.
-- **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `in-progress`. citation pending (supporting: FIS2018).
+- **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `verified`. citation pending.
+- **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `verified`. citation pending (supporting: FIS2018).
+- **Lorenz Attractor** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `verified`. citation pending.
+- **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `verified`. citation pending.
+- **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `verified`. citation pending (supporting: FIS2018).
 - **Noether's Theorem: Symmetry to Conservation** ([FIS2021-noether-symmetry-to-conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/)). Status: `verified`. `lemos-mech` ch 4.
 - **Predator-Prey and the Hopf Bifurcation** ([FIS2021-predator-prey-hopf](../playgrounds/bsc-y2s2/FIS2021-predator-prey-hopf/)). Status: `verified`. citation pending.
 - **Rossler Funnel Attractor** ([FIS2021-rossler-funnel](../playgrounds/bsc-y2s2/FIS2021-rossler-funnel/)). Status: `verified`. citation pending.
@@ -278,7 +278,7 @@ Total playgrounds: 203
 - **Friedmann Cosmography** ([AST3017-friedmann-cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: MAA-CS).
 - **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. citation pending.
 - **Slow-Roll Inflation** ([AST3017-inflation-slow-roll](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/)). Status: `verified`. `mukhanov-cosmology` ch 5 (supporting: MAA-CS).
-- **Schwarzschild Light Bending** ([AST3017-schwarzschild-geodesics](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/)). Status: `in-progress`. citation pending.
+- **Schwarzschild Light Bending** ([AST3017-schwarzschild-geodesics](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/)). Status: `verified`. citation pending.
 - **Shapiro Time Delay** ([AST3017-shapiro-time-delay](../playgrounds/bsc-y3s2/AST3017-shapiro-time-delay/)). Status: `verified`. citation pending.
 
 ### FIS3020 Condensed Matter Physics
@@ -424,7 +424,7 @@ Total playgrounds: 203
 - **Binary Symmetric Channel and the Repetition Code** ([MAA-ST-channel-capacity-bsc](../playgrounds/msc-y1/MAA-ST-channel-capacity-bsc/)). Status: `verified`. citation pending.
 - **KL Divergence Asymmetry (Mass-Covering vs Mode-Seeking)** ([MAA-ST-kl-divergence-asymmetry](../playgrounds/msc-y1/MAA-ST-kl-divergence-asymmetry/)). Status: `verified`. citation pending (supporting: MAA-DM).
 - **Maximum-Entropy Distributions Zoo** ([MAA-ST-maxent-distribution-zoo](../playgrounds/msc-y1/MAA-ST-maxent-distribution-zoo/)). Status: `verified`. citation pending.
-- **MCMC Sampler Comparator** ([MAA-ST-mcmc-comparator](../playgrounds/msc-y1/MAA-ST-mcmc-comparator/)). Status: `in-progress`. citation pending (supporting: MAA-DM).
+- **MCMC Sampler Comparator** ([MAA-ST-mcmc-comparator](../playgrounds/msc-y1/MAA-ST-mcmc-comparator/)). Status: `verified`. citation pending (supporting: MAA-DM).
 - **Mutual Information of a Bivariate Gaussian** ([MAA-ST-mutual-information-2d](../playgrounds/msc-y1/MAA-ST-mutual-information-2d/)). Status: `verified`. citation pending (supporting: MAA-DM).
 
 ### MAA-OT Optical / Infrared / Radio Observational Techniques

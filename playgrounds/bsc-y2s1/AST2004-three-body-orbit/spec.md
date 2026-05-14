@@ -1,7 +1,7 @@
 ---
 title: Three-Body Figure-Eight Choreography
 slug: three-body-orbit
-status: in-progress
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004

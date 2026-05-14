@@ -1,7 +1,7 @@
 ---
 title: Schwarzschild Light Bending
 slug: schwarzschild-geodesics
-status: in-progress
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3017

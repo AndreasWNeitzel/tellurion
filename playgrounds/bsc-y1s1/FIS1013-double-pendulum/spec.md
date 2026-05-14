@@ -1,7 +1,7 @@
 ---
 title: Double Pendulum Phase Portrait and Energy Conservation
 slug: double-pendulum
-status: in-progress
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013

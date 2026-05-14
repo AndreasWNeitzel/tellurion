@@ -1,7 +1,7 @@
 ---
 title: MCMC Sampler Comparator
 slug: mcmc-comparator
-status: in-progress
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-ST

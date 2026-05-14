@@ -1,7 +1,7 @@
 ---
 title: Logistic Map Cobweb and Bifurcation Diagram
 slug: logistic-cobweb
-status: in-progress
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021

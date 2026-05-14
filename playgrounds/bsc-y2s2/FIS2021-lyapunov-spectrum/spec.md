@@ -1,7 +1,7 @@
 ---
 title: Lyapunov Spectrum via Benettin QR
 slug: lyapunov-spectrum
-status: in-progress
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
