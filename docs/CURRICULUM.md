@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 48 |
+| draft | 47 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 144 |
+| verified | 145 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -252,7 +252,7 @@ Total playgrounds: 203
 3 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Fourier vs Laplace Transform Pairs** ([M3012-fourier-vs-laplace-transform-pair](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/)). Status: `verified`. `arfken-weber` ch 15.
-- **Green Function 1d Laplacian** ([M3012-green-function-1d-laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/)). Status: `draft`. `arfken-weber` ch 10; integral representation of solution exact.
+- **1D Green's Function for the Laplacian** ([M3012-green-function-1d-laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/)). Status: `verified`. `arfken-weber` ch 9.
 - **Sturm-Liouville Eigenfunctions** ([M3012-sturm-liouville-eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/)). Status: `verified`. `arfken-weber` ch 8.
 
 ## BSc Year 3 Semester 2 (Astrophysics profile)

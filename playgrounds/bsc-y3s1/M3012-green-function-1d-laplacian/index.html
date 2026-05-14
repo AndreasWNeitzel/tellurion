@@ -1,33 +1,22 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Green Function 1d Laplacian</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Green Function 1d Laplacian</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>1D Green's Function</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: crosshair; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>1D Green's function for the Laplacian</h1>
+<p><strong>What you are seeing:</strong> the Green's function $G(x, x_0)$ for $-u'' = f$ on $[0, L]$ with Dirichlet boundary conditions. Drag the source location $x_0$; the Green's function (orange tent) is plotted. Below, the solution $u(x)$ for the user-selected $f(x)$, obtained via convolution with $G$. Source: Arfken-Weber Ch. 9 (`arfken-weber`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">x_0:</span><span class="value" id="readout-x">0.50</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Green's function (top) and solution for a chosen source (bottom). Source: Arfken-Weber Ch. 9 (`arfken-weber`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">x_0</span><input type="range" id="slider-x" min="0.05" max="0.95" step="0.01" value="0.5"><span class="value" id="value-x">0.50</span></div>
+<div class="row"><span class="label">f(x)</span>
+  <select id="select-f" style="grid-column: span 2;">
+    <option value="const">f(x) = 1</option>
+    <option value="step">f(x) = step at L/2</option>
+    <option value="gauss">f(x) = e^(-50(x-0.3)²)</option>
+    <option value="sin">f(x) = sin(π x)</option>
+  </select>
+</div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>

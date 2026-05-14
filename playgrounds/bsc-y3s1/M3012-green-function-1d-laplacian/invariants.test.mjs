@@ -1,28 +1,23 @@
-// Green Function 1d Laplacian invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Green Function 1d Laplacian invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { greenFn, solve } from './sim.js';
+describe('green-function-1d-laplacian', () => {
+  it('G(0, x0) = 0 (boundary)', () => {
+    expect(greenFn(0, 0.5, 1)).toBe(0);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('G(L, x0) = 0 (boundary)', () => {
+    expect(greenFn(1, 0.5, 1)).toBe(0);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('symmetric: G(x, x0) = G(x0, x)', () => {
+    expect(greenFn(0.3, 0.7, 1)).toBe(greenFn(0.7, 0.3, 1));
+  });
+  it('solution to -u" = 1 satisfies u(0) = u(L) = 0', () => {
+    const r = solve((x) => 1, 1, 100);
+    expect(Math.abs(r.u[0])).toBeLessThan(1e-3);
+    expect(Math.abs(r.u[r.u.length - 1])).toBeLessThan(1e-3);
+  });
+  it('solution to -u" = 1 has midpoint u(L/2) = L^2/8', () => {
+    const r = solve((x) => 1, 1, 200);
+    const mid = r.u[100];
+    expect(Math.abs(mid - 1 / 8)).toBeLessThan(1e-3);
+  });
 });
