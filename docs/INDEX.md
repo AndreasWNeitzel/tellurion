@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Semi-Empirical Mass Formula](../playgrounds/bsc-y3s2/FIS3030-semi-empirical-mass-formula/index.html)** &nbsp; (verified, verified 2026-05-14T00:24:21Z)
+  The nuclear binding energy is the sum of five terms:
+
 - **[Fermi Surface 2D Square Lattice](../playgrounds/bsc-y3s2/FIS3020-fermi-surface-2d-square/index.html)** &nbsp; (verified, verified 2026-05-14T00:20:40Z)
   Tight-binding electrons on a square lattice with nearest-neighbor hopping. Dispersion $E(k_x, k_y) = -2t (\cos k_x + \cos k_y)$ over the Brillouin zone $(k_x, k_y) \in [-\pi, \pi]^2$. The bandwidth is $8t$ from $-4t$ (Gamma point) to $+4t$ (M point).
 
@@ -564,9 +567,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Sedov Taylor Blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Semi Empirical Mass Formula](../playgrounds/bsc-y3s2/FIS3030-semi-empirical-mass-formula/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Series Convergence Tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/index.html)** &nbsp; (draft)

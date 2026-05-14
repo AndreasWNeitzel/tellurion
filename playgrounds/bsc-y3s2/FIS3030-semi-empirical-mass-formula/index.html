@@ -3,29 +3,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Semi Empirical Mass Formula</title>
+  <title>Semi-Empirical Mass Formula</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Semi Empirical Mass Formula</h1>
+  <h1>Semi-empirical mass formula (Bethe-Weizsacker)</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the binding energy per nucleon
+    $B/A$ along the valley of stability $(A, Z^*(A))$, computed from
+    the Bethe-Weizsacker formula
+    $$B = a_V A - a_S A^{2/3} - a_C Z(Z-1)/A^{1/3} - a_A (N-Z)^2/A + \delta.$$
+    The peak near $A \approx 60$ at $B/A \approx 8.8$ MeV is iron-peak
+    territory; fusion releases energy below it, fission releases above.
+  </p>
+  <p>
+    Hover (slide) the mass number $A$ slider to see the four terms
+    individually. The Coulomb term grows like $Z^2/A^{1/3}$ and dominates
+    the fall-off above iron; the asymmetry term grows quadratically with
+    $N-Z$ (neutron excess); the pairing term oscillates by parity.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Binding energy per nucleon vs A with term breakdown."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">B/A at A:</span><span class="value" id="readout-ba">0</span>
+      <span class="label">peak A, B/A:</span><span class="value" id="readout-peak">62, 8.8</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Bethe-Weizsacker B/A vs A. Source: Krane Ch. 3 (`krane-nuclear`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="SEMF controls">
+    <div class="row"><span class="label">A</span><input type="range" id="slider-A" min="4" max="240" step="1" value="56"><span class="value" id="value-A">56</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

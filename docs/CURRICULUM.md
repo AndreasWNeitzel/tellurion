@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 94 |
+| draft | 93 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 98 |
+| verified | 99 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -326,7 +326,7 @@ Total playgrounds: 203
 - **Nuclear Beta Decay Fermi Vs Gt** ([FIS3030-nuclear-beta-decay-fermi-vs-gt](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/)). Status: `draft`. `krane-nuclear` ch 9; Sargent rule lifetime ~ Q^-5 scaling.
 - **Nuclear Shell Model Magic Numbers** ([FIS3030-nuclear-shell-model-magic-numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/)). Status: `draft`. `krane-nuclear` ch 5; shell filling at 2, 8, 20, 28, 50, 82, 126.
 - **Parton Distribution Toy** ([FIS3030-parton-distribution-toy](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/)). Status: `draft`. `griffiths-particles` ch 7; structure function from quark momenta.
-- **Semi Empirical Mass Formula** ([FIS3030-semi-empirical-mass-formula](../playgrounds/bsc-y3s2/FIS3030-semi-empirical-mass-formula/)). Status: `draft`. `krane-nuclear` ch 3; Bethe-Weizsacker fit to known binding energies.
+- **Semi-Empirical Mass Formula** ([FIS3030-semi-empirical-mass-formula](../playgrounds/bsc-y3s2/FIS3030-semi-empirical-mass-formula/)). Status: `verified`. `krane-nuclear` ch 3.
 
 ### M3007 Differential Geometry
 
