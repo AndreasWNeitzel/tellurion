@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Hamiltonian Phase-Space Flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/index.html)** &nbsp; (verified, verified 2026-05-14T01:25:11Z)
+  Click to seed tracers; each one traces an orbit at constant energy. Source: Lemos Ch. 6 (`lemos-mech`).
+
 - **[Linear System: Direct vs Iterative](../playgrounds/bsc-y2s2/FIS2018-linear-system-direct-vs-iterative/index.html)** &nbsp; (verified, verified 2026-05-14T01:23:52Z)
   Poisson 1D problem; Thomas tridiagonal direct solver vs Jacobi, Gauss-Seidel, CG. Source: Villate Ch. 6 (`villate-vpython`).
 
@@ -519,9 +522,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Green Function 1d Laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Hamiltonian Phase Space Flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (draft)

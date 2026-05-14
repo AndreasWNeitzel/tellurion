@@ -1,17 +1,2 @@
-# Hamiltonian Phase Space Flow
-
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
-
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
-
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
-
-## Reference
-
-Primary citation: __CITATION__.
-
-## Verification
-
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+# Hamiltonian phase-space flow
+Click anywhere to release a tracer; it follows the level curves of $H(q, p)$ via a symplectic leapfrog integrator. For the pendulum you can see the separatrix; "Seed grid" launches a 7x7 lattice of tracers to reveal the full flow. Source: Lemos Ch. 6 (`lemos-mech`).

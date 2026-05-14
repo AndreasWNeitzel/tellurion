@@ -1,28 +1,23 @@
-// Hamiltonian Phase Space Flow invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Hamiltonian Phase Space Flow invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { hamiltonian, leapfrog, rhs } from './sim.js';
+describe('hamiltonian-phase-space-flow', () => {
+  it('SHO leapfrog conserves energy over long time', () => {
+    let q = 1, p = 0;
+    const E0 = hamiltonian(q, p, 'sho');
+    for (let i = 0; i < 10000; i += 1) ({ q, p } = leapfrog(q, p, 0.05, 'sho'));
+    expect(Math.abs(hamiltonian(q, p, 'sho') - E0) / E0).toBeLessThan(0.001);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('pendulum: small oscillation has approx period 2 pi', () => {
+    let q = 0.1, p = 0; const dt = 0.01;
+    for (let i = 0; i < Math.floor(2 * Math.PI / dt); i += 1) ({ q, p } = leapfrog(q, p, dt, 'pendulum'));
+    expect(Math.abs(q - 0.1)).toBeLessThan(0.01);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('pendulum: separatrix at E = 1 (max p = 2 at q = 0)', () => {
+    expect(hamiltonian(Math.PI, 0, 'pendulum')).toBe(1);
+    expect(hamiltonian(0, 2, 'pendulum')).toBe(1);
+  });
+  it('rhs sign convention right', () => {
+    const r = rhs(0.5, 0, 'pendulum');
+    expect(r.dp).toBeLessThan(0);
+  });
 });
