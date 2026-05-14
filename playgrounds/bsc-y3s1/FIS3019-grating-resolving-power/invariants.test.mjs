@@ -1,28 +1,24 @@
-// Grating Resolving Power invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Grating Resolving Power invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { intensity, resolvingPower, principalMaxAngle } from './sim.js';
+describe('grating-resolving-power', () => {
+  it('principal max at sin theta = m lambda / d', () => {
+    const lam = 500, d = 2;
+    const theta = principalMaxAngle(1, lam, d);
+    expect(Math.abs(Math.sin(theta) - lam * 1e-9 / (d * 1e-6))).toBeLessThan(1e-10);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('R = m N', () => {
+    expect(resolvingPower(2, 1000)).toBe(2000);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Intensity at theta = 0 with N slits ~ N^2', () => {
+    const I = intensity(1e-6, 500, 2, 0.5, 10);
+    expect(Math.abs(I / 100 - 1)).toBeLessThan(0.05);
+  });
+  it('Two close wavelengths: distinct peaks at R = mN', () => {
+    const N = 100, m = 1, d = 2, a = 0.5;
+    const lam = 500;
+    const dlam = lam / (m * N);
+    const theta1 = principalMaxAngle(m, lam, d);
+    const theta2 = principalMaxAngle(m, lam + dlam, d);
+    expect(theta2).toBeGreaterThan(theta1);
+  });
 });

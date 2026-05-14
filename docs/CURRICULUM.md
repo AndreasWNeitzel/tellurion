@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 50 |
+| draft | 49 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 142 |
+| verified | 143 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -243,7 +243,7 @@ Total playgrounds: 203
 
 - **Fabry-Perot Finesse** ([FIS3019-fabry-perot-finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/)). Status: `verified`. `hecht2017` ch 9 (supporting: MAA-OT).
 - **Paraxial Gaussian Beam (TEM_00)** ([FIS3019-gaussian-beam-paraxial](../playgrounds/bsc-y3s1/FIS3019-gaussian-beam-paraxial/)). Status: `verified`. citation pending.
-- **Grating Resolving Power** ([FIS3019-grating-resolving-power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/)). Status: `draft`. `hecht2017` ch 10 (supporting: MAA-OT); R = m N; minimum resolvable wavelength.
+- **Grating Resolving Power** ([FIS3019-grating-resolving-power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/)). Status: `verified`. `hecht2017` ch 10.
 - **Michelson Interferometer** ([FIS3019-michelson-interferometer](../playgrounds/bsc-y3s1/FIS3019-michelson-interferometer/)). Status: `verified`. `hecht2017` ch 9 (supporting: MAA-OT).
 - **Thin-Film Interference and Iridescent Colors** ([FIS3019-thin-film-interference](../playgrounds/bsc-y3s1/FIS3019-thin-film-interference/)). Status: `verified`. citation pending.
 

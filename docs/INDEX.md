@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Grating Resolving Power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/index.html)** &nbsp; (verified, verified 2026-05-14T01:31:09Z)
+  $N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10 (`hecht2017`).
+
 - **[Noether's Theorem: Symmetry to Conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/index.html)** &nbsp; (verified, verified 2026-05-14T01:29:39Z)
   Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4 (`lemos-mech`).
 
@@ -525,9 +528,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Geodesic Deviation Equation](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Grating Resolving Power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Green Function 1d Laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/index.html)** &nbsp; (draft)

@@ -1,113 +1,65 @@
-// Grating Resolving Power playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
-
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
-
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
-
-const _rng = makeRng(SEED);
-
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
-
+import { intensity, resolvingPower, principalMaxAngle } from './sim.js';
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+const rR = document.getElementById('readout-r');
+const ids = ['N','d','a','l','dl'];
+const sliders = ids.map(k => ({ k, s: document.getElementById('slider-'+k), v: document.getElementById('value-'+k) }));
+let st = { N: 20, d: 2, a: 0.5, l: 589, dl: 6 };
+let running = true;
+sliders.forEach(({ k, s, v }) => s.addEventListener('input', () => { st[k] = parseFloat(s.value); v.textContent = k === 'N' ? st[k].toString() : st[k].toFixed(2); }));
+const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
+btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+let last = performance.now();
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
-
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
-
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height, pad = { l: 50, r: 30, t: 30, b: 50 };
+  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('I(θ)', 12, pad.t + 10); ctx.fillText('sin θ', W / 2, H - pad.b + 18);
+  const xMin = -0.5, xMax = 0.5;
+  const xToPx = (s) => pad.l + (s - xMin) / (xMax - xMin) * (W - pad.l - pad.r);
+  let Imax = 1;
+  const N1 = 800; const I1 = new Float64Array(N1), I2 = new Float64Array(N1);
+  for (let i = 0; i < N1; i += 1) {
+    const sinTh = xMin + (xMax - xMin) * i / (N1 - 1);
+    const theta = Math.asin(Math.max(-1, Math.min(1, sinTh)));
+    I1[i] = intensity(theta, st.l, st.d, st.a, st.N);
+    I2[i] = st.dl > 0 ? intensity(theta, st.l + st.dl, st.d, st.a, st.N) : 0;
+    if (I1[i] > Imax) Imax = I1[i];
+    if (I2[i] > Imax) Imax = I2[i];
   }
-
-  render();
-  updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
-}
-
-function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let i = 0; i < N1; i += 1) {
+    const sinTh = xMin + (xMax - xMin) * i / (N1 - 1);
+    const py = H - pad.b - I1[i] / Imax * (H - pad.t - pad.b);
+    if (i === 0) ctx.moveTo(xToPx(sinTh), py); else ctx.lineTo(xToPx(sinTh), py);
+  }
+  ctx.stroke();
+  if (st.dl > 0) {
+    ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.5; ctx.beginPath();
+    for (let i = 0; i < N1; i += 1) {
+      const sinTh = xMin + (xMax - xMin) * i / (N1 - 1);
+      const py = H - pad.b - I2[i] / Imax * (H - pad.t - pad.b);
+      if (i === 0) ctx.moveTo(xToPx(sinTh), py); else ctx.lineTo(xToPx(sinTh), py);
     }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    ctx.stroke();
   }
-
-  if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
+  for (let m = -5; m <= 5; m += 1) {
+    const sinTh_m = m * st.l * 1e-9 / (st.d * 1e-6);
+    if (sinTh_m < xMin || sinTh_m > xMax) continue;
+    ctx.strokeStyle = 'rgba(154,160,166,0.4)'; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xToPx(sinTh_m), pad.t); ctx.lineTo(xToPx(sinTh_m), H - pad.b); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle = '#9aa0a6'; ctx.fillText(`m=${m}`, xToPx(sinTh_m) - 12, pad.t + 22);
   }
+  const R = resolvingPower(1, st.N);
+  const dlam_min = st.l / R;
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`R = m*N = 1*${st.N} = ${R}, min Δλ = ${dlam_min.toFixed(2)} nm @ ${st.l} nm`, 12, H - 14);
+  rR.textContent = R;
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+function tick() { render(); requestAnimationFrame(tick); }
+function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
