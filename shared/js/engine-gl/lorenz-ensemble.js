@@ -51,8 +51,10 @@ vec3 viridis(float t) {
 }
 void main() {
   float v = texture(uAccum, uv).r;
-  float t = clamp(log(1.0 + v * 30.0) * 0.42, 0.0, 1.0);
-  vec3 col = viridis(t) * (0.35 + 1.4 * t);
+  // Tighter log mapping so most attractor pixels read in viridis green/teal
+  // rather than saturating to yellow; only the densest filaments saturate.
+  float t = clamp(log(1.0 + v * 10.0) * 0.22, 0.0, 1.0);
+  vec3 col = viridis(t) * (0.30 + 1.3 * t);
   vec2 c = uv - 0.5;
   float vign = 1.0 - 0.30 * dot(c, c) * 2.0;
   o = vec4(col * vign, 1.0);
