@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 60 |
+| draft | 59 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 132 |
+| verified | 133 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -149,7 +149,7 @@ Total playgrounds: 203
 - **Kepler Orbit Explorer** ([AST2004-kepler-orbit-explorer](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-explorer/)). Status: `in-progress`. citation pending.
 - **Lagrange Points of the Circular Restricted Three-Body Problem** ([AST2004-lagrange-points-cr3bp](../playgrounds/bsc-y2s1/AST2004-lagrange-points-cr3bp/)). Status: `verified`. citation pending (supporting: FIS2021).
 - **Perihelion Precession in a Schwarzschild Effective Potential** ([AST2004-mercury-precession-pn](../playgrounds/bsc-y2s1/AST2004-mercury-precession-pn/)). Status: `verified`. citation pending (supporting: AST3017).
-- **Radial Velocity Orbital Trace** ([AST2004-radial-velocity-orbital-trace](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/)). Status: `draft`. `carroll-ostlie` ch 7 (supporting: MAA-SS); RV semi-amplitude K from m, P, e, i closed-form.
+- **Radial Velocity Curve from Orbital Elements** ([AST2004-radial-velocity-orbital-trace](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/)). Status: `verified`. `carroll-ostlie` ch 7 (supporting: AST3015).
 - **Tidal Disruption Near a Massive Primary** ([AST2004-roche-tidal-disruption](../playgrounds/bsc-y2s1/AST2004-roche-tidal-disruption/)). Status: `verified`. citation pending (supporting: MAA-HE).
 - **Rotation Curve Explorer** ([AST2004-rotation-curve-explorer](../playgrounds/bsc-y2s1/AST2004-rotation-curve-explorer/)). Status: `in-progress`. citation pending (supporting: MAA-GD).
 - **Saha-Boltzmann Hydrogen Ionization** ([AST2004-saha-boltzmann-ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/)). Status: `verified`. `carroll-ostlie` ch 8 (supporting: MAA-SP).

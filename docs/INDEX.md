@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Radial Velocity Curve from Orbital Elements](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/index.html)** &nbsp; (verified, verified 2026-05-14T01:16:23Z)
+  Orbit and corresponding RV curve, side by side. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
+
 - **[Keplerian Orbit Elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/index.html)** &nbsp; (verified, verified 2026-05-14T01:15:02Z)
   Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).
 
@@ -561,9 +564,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Pulsar Wind Nebula Magnetization](../playgrounds/msc-y1/MAA-HE-pulsar-wind-nebula-magnetization/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Radial Velocity Orbital Trace](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Radiative Transfer 1d Slab](../playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab/index.html)** &nbsp; (draft)
