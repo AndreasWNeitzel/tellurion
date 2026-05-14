@@ -1,99 +1,136 @@
-// Nuclear Shell Model Magic Numbers playground.
-// Replace this stub with the real simulation. Keep the structure: import an engine,
-// wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
+// Nuclear shell-model playground. Vertical level diagram with
+// occupancy filled bottom-up.
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { LEVELS, MAGIC, fillIndex, isMagic, levelEnergyMeV } from './sim.js';
 
 const params         = new URLSearchParams(location.search);
-const SEED           = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC  = params.get('deterministic') === '1';
 const CAPTURE_NAME   = params.get('capture');
 const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const readoutN     = document.getElementById('readout-N');
+const readoutMagic = document.getElementById('readout-magic');
 
-const PHYSICS_DT = 1 / 240;
-let simClock     = 0;
-let accumulator  = 0;
-let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let frame        = 0;
+const sliderN = document.getElementById('slider-N');
+const valueN  = document.getElementById('value-N');
 
-const _rng = makeRng(SEED);
+let N = parseInt(sliderN.value, 10);
+sliderN.addEventListener('input', () => { N = parseInt(sliderN.value, 10); valueN.textContent = String(N); });
 
-// Replace this with engine.create({...})
-const sim = {
-  energy: 1.0,
-  step(dt) {
-    this.energy *= 1 - 1e-9 * dt;
-  },
-  diagnostics() {
-    return { energyDrift: this.energy - 1.0 };
-  },
-};
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg:     css.getPropertyValue('--bg').trim() || '#060608',
+    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    blue:   '#5bc0eb',
+    red:    '#ef476f',
+    green:  '#06d6a0',
+    grid:   '#23252a',
+  };
+}
 
 function render() {
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#FBFBF9';
+  const c = colors();
+  ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // implementation goes here
-}
 
-let lastReadoutTime = 0;
-function updateReadout() {
-  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastReadoutTime < 100) return;       // 10 Hz throttle
-  lastReadoutTime = now;
-  const d = sim.diagnostics();
-  readoutInv.textContent   = d.energyDrift.toExponential(2);
-  readoutFrame.textContent = String(frame);
-}
+  const padL = 60, padR = 130, padT = 30, padB = 30;
+  const plotW = canvas.width - padL - padR;
+  const plotH = canvas.height - padT - padB;
 
-function tick(now) {
-  const frameDt = Math.min((now - lastTime) / 1000, 0.1);
-  lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  // Vertical axis: bottom = level 0, top = level (LEVELS.length-1).
+  function yFor(i) {
+    return padT + plotH * (1 - i / (LEVELS.length - 1));
   }
 
+  // Compute filled levels.
+  let remaining = N;
+  for (let i = 0; i < LEVELS.length; i += 1) {
+    const lvl = LEVELS[i];
+    const y = yFor(i);
+    const isMagicHere = MAGIC.includes(lvl.cumul);
+
+    // Bar.
+    const occColor = isMagicHere ? c.accent : c.blue;
+    const filledOcc = Math.min(remaining, lvl.occ);
+    const emptyOcc = lvl.occ - filledOcc;
+    remaining -= filledOcc;
+
+    // Width per nucleon slot.
+    const wSlot = 14;
+    const startX = padL + 10;
+    // Filled portion.
+    if (filledOcc > 0) {
+      ctx.fillStyle = occColor;
+      ctx.fillRect(startX, y - 6, wSlot * filledOcc, 12);
+      ctx.strokeStyle = c.fg;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(startX, y - 6, wSlot * filledOcc, 12);
+    }
+    // Empty portion.
+    if (emptyOcc > 0) {
+      ctx.strokeStyle = c.muted;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(startX + wSlot * filledOcc, y - 6, wSlot * emptyOcc, 12);
+    }
+
+    // Label.
+    ctx.fillStyle = isMagicHere ? c.accent : c.muted;
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(lvl.label, padL - 50, y + 4);
+
+    // Cumulative count on right.
+    const isMagicLevel = MAGIC.includes(lvl.cumul);
+    ctx.fillStyle = isMagicLevel ? c.green : c.muted;
+    ctx.font = isMagicLevel ? 'bold 12px ui-monospace, monospace' : '11px ui-monospace, monospace';
+    ctx.fillText(`${lvl.cumul}${isMagicLevel ? '  MAGIC' : ''}`, startX + wSlot * lvl.occ + 14, y + 4);
+  }
+
+  // Current N horizontal marker.
+  const idx = fillIndex(N);
+  const yMark = yFor(idx);
+  ctx.strokeStyle = c.red;
+  ctx.setLineDash([5, 4]);
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(padL - 56, yMark + 8); ctx.lineTo(canvas.width - 8, yMark + 8); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = c.muted;
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`N = ${N} (${isMagic(N) ? 'magic shell closure' : 'open shell'})`, padL, padT - 14);
+}
+
+function updateReadout() {
+  readoutN.textContent = String(N);
+  readoutMagic.textContent = isMagic(N) ? 'yes (magic)' : 'no';
+}
+
+function loop() {
   render();
   updateReadout();
-  frame += 1;
-  requestAnimationFrame(tick);
+  requestAnimationFrame(loop);
 }
 
 function bootSync() {
-  // Capture mode: step the simulation to the captured fraction of its total
-  // run time, render once, then signal readiness through the simulation-ready
-  // flag below. Live mode: kick off the rAF loop.
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const TOTAL_T = 1.0;     // edit per playground
-    const stepsNeeded = Math.round(frac * TOTAL_T / PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) {
-      sim.step(PHYSICS_DT);
-      simClock += PHYSICS_DT;
-    }
-    render();
-    updateReadout();
-  } else {
-    render();
-    updateReadout();
+    const targets = [2, 20, 50, 82, 126];
+    N = targets[Math.min(targets.length - 1, Math.floor(frac * targets.length))];
+    sliderN.value = String(N);
+    valueN.textContent = String(N);
   }
+  valueN.textContent = String(N);
+  render();
+  updateReadout();
 
   if (DETERMINISTIC) {
-    // Two rAFs: first lets the browser flush the synchronous render, second
-    // marks the page ready. visual.test.mjs and capture-reference.mjs both
-    // poll window.__simulationReady.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, simClock };
+        const detail = { capture: CAPTURE_NAME ?? null, N };
         window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
         window.__simulationReady = true;
         window.__simulationReadyDetail = detail;
@@ -105,9 +142,9 @@ function bootSync() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+    if (!CAPTURE_NAME) requestAnimationFrame(loop);
   }, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  if (!CAPTURE_NAME) requestAnimationFrame(loop);
 }

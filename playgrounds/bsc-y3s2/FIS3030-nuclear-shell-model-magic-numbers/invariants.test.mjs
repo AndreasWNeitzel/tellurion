@@ -1,28 +1,62 @@
-// Nuclear Shell Model Magic Numbers invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Shell-model invariants.
+// (a) Magic numbers are exactly 2, 8, 20, 28, 50, 82, 126.
+// (b) Each level has occupancy 2j+1.
+// (c) Cumul grows monotonically.
+// (d) Cumul reaches 126 at the last shown level.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { LEVELS, MAGIC, fillIndex, isMagic, levelEnergyMeV } from './sim.js';
 
-describe('Nuclear Shell Model Magic Numbers invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('nuclear-shell-model-magic-numbers', () => {
+  it('MAGIC sequence is 2, 8, 20, 28, 50, 82, 126', () => {
+    expect(MAGIC).toEqual([2, 8, 20, 28, 50, 82, 126]);
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('each level occupancy equals 2 j + 1', () => {
+    for (const lvl of LEVELS) {
+      expect(lvl.occ).toBe(2 * lvl.j + 1);
+    }
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('cumul grows monotonically across levels', () => {
+    let prev = 0;
+    for (const lvl of LEVELS) {
+      expect(lvl.cumul).toBeGreaterThan(prev);
+      prev = lvl.cumul;
+    }
+  });
+
+  it('cumul = sum of occupancies up to and including each level', () => {
+    let sum = 0;
+    for (const lvl of LEVELS) {
+      sum += lvl.occ;
+      expect(lvl.cumul).toBe(sum);
+    }
+  });
+
+  it('every MAGIC number appears as a cumul somewhere', () => {
+    const cumuls = new Set(LEVELS.map(l => l.cumul));
+    for (const m of MAGIC) expect(cumuls.has(m)).toBe(true);
+  });
+
+  it('fillIndex(8) returns the 1p1/2 level', () => {
+    const idx = fillIndex(8);
+    expect(LEVELS[idx].label).toBe('1p1/2');
+  });
+
+  it('fillIndex(126) reaches the last 1i13/2 level', () => {
+    const idx = fillIndex(126);
+    expect(LEVELS[idx].label).toBe('1i13/2');
+  });
+
+  it('isMagic identifies magic numbers exactly', () => {
+    for (const m of MAGIC) expect(isMagic(m)).toBe(true);
+    for (const n of [4, 10, 15, 100]) expect(isMagic(n)).toBe(false);
+  });
+
+  it('levelEnergyMeV grows monotonically', () => {
+    for (let i = 1; i < LEVELS.length; i += 1) {
+      expect(levelEnergyMeV(i)).toBeGreaterThanOrEqual(levelEnergyMeV(i - 1));
+    }
+  });
 });

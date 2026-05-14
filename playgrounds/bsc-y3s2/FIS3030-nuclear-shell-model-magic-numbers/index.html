@@ -3,29 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nuclear Shell Model Magic Numbers</title>
+  <title>Nuclear Shell Model: Magic Numbers</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Nuclear Shell Model Magic Numbers</h1>
+  <h1>Nuclear shell model and magic numbers</h1>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
+  <p>
+    <strong>What you are seeing:</strong> the single-particle shell
+    structure of nucleons in a harmonic-oscillator-plus-spin-orbit
+    potential. With the spin-orbit term included (Mayer-Jensen 1949),
+    the closed-shell gaps fall exactly at the observed magic numbers
+    $2, 8, 20, 28, 50, 82, 126$. Pour nucleons in (slider $N$) and
+    watch the levels fill bottom-up; the readout flags magic numbers.
+  </p>
+  <p>
+    Without the spin-orbit term, only $2, 8, 20$ would be magic (the
+    pure HO closures); the appearance of $28, 50, 82, 126$ as observed
+    magic numbers is one of the historic confirmations of the
+    spin-orbit nuclear force.
+  </p>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" tabindex="0"
+            aria-label="Nuclear shell-model levels with filled-up-to-N occupancy."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+      <span class="label">N (nucleons):</span><span class="value" id="readout-N">28</span>
+      <span class="label">at magic number?:</span><span class="value" id="readout-magic">yes</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Nuclear shell-model level diagram with magic-number gaps. Source:
+      Krane Ch. 5 (`krane-nuclear`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Shell controls">
+    <div class="row"><span class="label">N</span><input type="range" id="slider-N" min="1" max="126" step="1" value="28"><span class="value" id="value-N">28</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

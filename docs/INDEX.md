@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Nuclear Shell Model Magic Numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/index.html)** &nbsp; (verified, verified 2026-05-14T00:27:04Z)
+  Nucleons (protons and neutrons separately) fill single-particle levels of an average nuclear potential. The harmonic-oscillator-with-strong-spin-orbit model of Mayer and Jensen (1949) gives shell closures at $2, 8, 20, 28, 50, 82, 126$ that match the observed extra binding (Hartree-Fock confirmation came decades later).
+
 - **[Semi-Empirical Mass Formula](../playgrounds/bsc-y3s2/FIS3030-semi-empirical-mass-formula/index.html)** &nbsp; (verified, verified 2026-05-14T00:24:21Z)
   The nuclear binding energy is the sum of five terms:
 
@@ -513,9 +516,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Nuclear Burning Rate Temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Nuclear Shell Model Magic Numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Ode Solver Euler Rk4 Rk45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/index.html)** &nbsp; (draft)
