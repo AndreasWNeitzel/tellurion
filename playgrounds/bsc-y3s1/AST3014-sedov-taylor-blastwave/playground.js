@@ -21,19 +21,19 @@ function render() {
   const t_now = 0.01 + (st.t % 10) * 1000 * yr;
   const R = shockRadius(E, t_now, rho1);
   const cx = canvas.width / 2, cy = canvas.height / 2 + 50;
-  const Rpx = Math.min(180, R / (50 * pc) * 180);
-  for (let r = Rpx; r > Rpx - 18; r -= 1) {
-    ctx.strokeStyle = `rgba(255,209,102,${(r - (Rpx - 18)) / 18})`;
+  const Rpx = Math.max(0.5, Math.min(180, R / (50 * pc) * 180));
+  for (let r = Math.max(1, Rpx - 17); r <= Rpx; r += 1) {
+    ctx.strokeStyle = `rgba(255,209,102,${Math.max(0, r - (Rpx - 18)) / 18})`;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
   }
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, 2 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, Math.max(0.5, Rpx), 0, 2 * Math.PI); ctx.stroke();
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
   for (let i = 0; i < 50; i += 1) {
     const t_k = (i + 1) / 50 * (st.t % 10) * 1000 * yr;
     if (t_k < 1) continue;
     const Rk = shockRadius(E, t_k, rho1) / (50 * pc) * 180;
-    if (Rk > Rpx) break;
+    if (Rk > Rpx || Rk < 0.5) continue;
     ctx.beginPath(); ctx.arc(cx, cy, Rk, 0, 2 * Math.PI); ctx.stroke();
   }
   ctx.setLineDash([]);

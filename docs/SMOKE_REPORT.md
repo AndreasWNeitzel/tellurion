@@ -1,5 +1,6 @@
 # Smoke test report
-Generated: 2026-05-14T04:29:15.439Z
+Generated: 2026-05-14T04:38:11.496Z
 Targets: 209.  OK: 209.  Failures: 0.
+Buttons clicked: 378.
 
-All targets loaded cleanly with no page errors or console errors.
+All targets loaded and all buttons clicked cleanly with no page errors.

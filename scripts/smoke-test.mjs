@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Headless smoke test: visit every verified playground's index.html, check for page
-// errors and basic interactivity. Writes docs/SMOKE_REPORT.md and exits nonzero on
-// any console error or page error.
+// Smoke test: visit every verified playground, capture page+console errors,
+// then click each <button> in the page and re-check for errors. Writes
+// docs/SMOKE_REPORT.md; exits nonzero on any failure.
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
 import { promises as fs } from 'node:fs';
@@ -45,6 +45,7 @@ const ctx = await browser.newContext();
 const page = await ctx.newPage();
 const failures = [];
 const results = [];
+let totalButtons = 0;
 try {
   for (const t of targets) {
     const errors = [];
@@ -54,15 +55,30 @@ try {
     page.on('pageerror', onErr);
     page.on('console', onConsole);
     const url = `${baseUrl}/${t}/index.html`;
+    let buttonCount = 0;
+    let clickFailures = [];
     try {
       await page.goto(url, { waitUntil: 'load', timeout: 5000 });
-      // Give it 200ms to run any rAF callbacks.
-      await page.waitForTimeout(200);
-      const bodyText = await page.evaluate(() => document.body.textContent.length);
-      results.push({ slug: t, ok: errors.length === 0 && consoleErrs.length === 0, errors, consoleErrs, bodyLen: bodyText });
-      if (errors.length || consoleErrs.length) failures.push({ slug: t, errors, consoleErrs });
+      await page.waitForTimeout(150);
+      // Click each <button>.
+      const buttons = await page.$$('button');
+      buttonCount = buttons.length;
+      totalButtons += buttonCount;
+      for (let i = 0; i < buttons.length; i += 1) {
+        const beforeErrs = errors.length + consoleErrs.length;
+        try {
+          await buttons[i].scrollIntoViewIfNeeded({ timeout: 500 }).catch(()=>{}); await buttons[i].click({ timeout: 1500, force: true });
+          await page.waitForTimeout(50);
+        } catch (e) { clickFailures.push(`button[${i}]: ${e.message}`); }
+        if (errors.length + consoleErrs.length > beforeErrs) {
+          clickFailures.push(`button[${i}] triggered error`);
+        }
+      }
+      const ok = errors.length === 0 && consoleErrs.length === 0 && clickFailures.length === 0;
+      results.push({ slug: t, ok, buttons: buttonCount, errors, consoleErrs, clickFailures });
+      if (!ok) failures.push({ slug: t, errors, consoleErrs, clickFailures });
     } catch (e) {
-      results.push({ slug: t, ok: false, errors: [e.message], consoleErrs: [] });
+      results.push({ slug: t, ok: false, buttons: 0, errors: [e.message], consoleErrs: [], clickFailures: [] });
       failures.push({ slug: t, errors: [e.message] });
     }
     page.off('pageerror', onErr);
@@ -73,18 +89,20 @@ try {
 const lines = [];
 lines.push('# Smoke test report\n');
 lines.push(`Generated: ${new Date().toISOString()}\n`);
-lines.push(`Targets: ${targets.length}.  OK: ${results.filter(r => r.ok).length}.  Failures: ${failures.length}.\n\n`);
+lines.push(`Targets: ${targets.length}.  OK: ${results.filter(r => r.ok).length}.  Failures: ${failures.length}.\n`);
+lines.push(`Buttons clicked: ${totalButtons}.\n\n`);
 if (failures.length) {
   lines.push('## Failures\n\n');
   for (const f of failures) {
     lines.push(`### ${f.slug}\n`);
     if (f.errors?.length) lines.push(`- pageerror: ${f.errors.join('; ')}\n`);
     if (f.consoleErrs?.length) lines.push(`- console.error: ${f.consoleErrs.join('; ')}\n`);
+    if (f.clickFailures?.length) lines.push(`- click failures: ${f.clickFailures.join('; ')}\n`);
     lines.push('\n');
   }
 } else {
-  lines.push('All targets loaded cleanly with no page errors or console errors.\n');
+  lines.push('All targets loaded and all buttons clicked cleanly with no page errors.\n');
 }
 await fs.writeFile(path.join(ROOT, 'docs', 'SMOKE_REPORT.md'), lines.join(''));
-console.log(`Wrote docs/SMOKE_REPORT.md (${results.filter(r => r.ok).length} OK / ${failures.length} fail / ${targets.length} total).`);
+console.log(`Wrote docs/SMOKE_REPORT.md (${results.filter(r => r.ok).length} OK / ${failures.length} fail / ${targets.length} total, ${totalButtons} buttons clicked).`);
 if (failures.length) process.exit(1);
