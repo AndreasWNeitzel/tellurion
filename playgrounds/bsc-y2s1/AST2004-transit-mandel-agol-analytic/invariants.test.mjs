@@ -1,28 +1,26 @@
-// Transit Mandel Agol Analytic invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Transit Mandel Agol Analytic invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { uniformLambda, fluxAt, fluxWithLimb } from './sim.js';
+describe('transit-mandel-agol-analytic', () => {
+  it('out of transit: F = 1', () => {
+    expect(fluxAt(0.1, 2)).toBeCloseTo(1, 10);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('center of transit, small planet: F = 1 - p^2', () => {
+    expect(Math.abs(fluxAt(0.1, 0) - (1 - 0.01))).toBeLessThan(1e-9);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('hot-Jupiter Rp/Rs = 0.1: depth ~ 1%', () => {
+    expect(Math.abs(fluxAt(0.1, 0) - 0.99)).toBeLessThan(1e-9);
+  });
+  it('Earth-like Rp/Rs = 0.009: depth ~ 80 ppm', () => {
+    const depth = 1 - fluxAt(0.009, 0);
+    expect(depth).toBeGreaterThan(7e-5);
+    expect(depth).toBeLessThan(9e-5);
+  });
+  it('monotone: shallower flux as z grows past contact', () => {
+    expect(fluxAt(0.1, 0.5)).toBeLessThanOrEqual(fluxAt(0.1, 0.95));
+  });
+  it('limb darkening deepens transit center', () => {
+    const F_uni = fluxAt(0.1, 0);
+    const F_dark = fluxWithLimb(0.1, 0, 0.5, 0.2);
+    expect(F_dark).toBeLessThan(F_uni + 0.005);
+  });
 });

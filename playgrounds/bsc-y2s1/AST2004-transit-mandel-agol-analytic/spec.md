@@ -1,37 +1,14 @@
 ---
-title: Transit Mandel Agol Analytic
+title: Mandel-Agol Analytic Transit
 slug: transit-mandel-agol-analytic
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: AST2004
-supporting_ucs: [MAA-SS]
+supporting_ucs: [AST3015]
 curriculum_year: bsc-y2s1
-primary_citation: carroll-ostlie
-primary_chapter: 7
+primary_citation: mandelagol2002
+primary_chapter: -1
 ---
-
-# Transit Mandel Agol Analytic
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: Mandel and Agol 2002 closed-form light curve. Primary citation: carroll-ostlie, chapter 7. Spec body to be filled by playground-architect.
+# Mandel-Agol transit
+Analytic transit light curve; uniform-source closed form plus quadratic limb darkening via ring decomposition. Source: Mandel & Agol 2002 (`mandelagol2002`).

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Mandel-Agol Analytic Transit](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/index.html)** &nbsp; (verified, verified 2026-05-14T01:19:15Z)
+  Analytic transit light curve; uniform-source closed form plus quadratic limb darkening via ring decomposition. Source: Mandel & Agol 2002 (`mandelagol2002`).
+
 - **[Stellar Blackbody + Absorption Lines](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/index.html)** &nbsp; (verified, verified 2026-05-14T01:17:47Z)
   Planck continuum plus Balmer / Ca II / Na D absorption lines. Source: Carroll-Ostlie Ch. 3 (`carroll-ostlie`).
 
@@ -600,9 +603,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Thomas Precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Transit Mandel Agol Analytic](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (draft)
