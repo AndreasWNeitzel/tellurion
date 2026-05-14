@@ -3,7 +3,7 @@
 // gravitational redshift. ACES + bloom + vignette on final pass.
 // Not a full Kerr ray-trace; visualizes the qualitative features at MVP level
 // while the per-pixel RK4 Boyer-Lindquist integration is queued.
-// Reference: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
+// Reference: Shapiro-Teukolsky Ch. 12 (shapiro-teukolsky).
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
 import { createFBO } from './fbo.js';
@@ -39,62 +39,94 @@ vec3 planck(float T_K) {
 }
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 
+// Schwarzschild null-geodesic in (r, phi) plane.
+// ODE: d2u/dphi2 + u = 3 u^2  (with M = 1).
+// Initial: u = 0, du/dphi = -1/b (incoming from r = infinity).
+// We march forward in phi until u > 1/2 (horizon, r < 2M) or u < 1e-3 (escape) or disk crossing.
+// At each step, check the in-plane angle phi and look for the disk plane crossing.
+// Reference: Shapiro-Teukolsky Ch. 12 (shapiro-teukolsky).
+
 void main() {
   vec2 frag = uv * uRes - uRes * 0.5;
   float pxScale = 30.0;
   vec2 pos = frag / pxScale;
-  // r,phi in image plane:
-  float b = length(pos);  // impact parameter in units of M.
-  float angle = atan(pos.y, pos.x);
-  // Schwarzschild: b_crit = 3 sqrt(3) M = 5.196.
-  float b_crit = 3.0 * sqrt(3.0) * (1.0 - 0.6 * abs(uAoverM));
-  // Event horizon (Kerr outer): r_+ = M + sqrt(M^2 - a^2).
-  float r_plus = 1.0 + sqrt(max(0.0, 1.0 - uAoverM * uAoverM));
-  float r_disk_in_pro = (uAoverM >= 0.0) ? max(r_plus * 1.05, 6.0 - 5.0 * uAoverM) : 6.0 - uAoverM * 3.0;
-  float r_disk_out = 20.0;
-  // Capture: if b < b_crit, ray plunges to horizon.
-  if (b < b_crit - 0.05) { oColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
-  // Photon ring: thin annulus at b ~ b_crit.
-  if (abs(b - b_crit) < 0.18) {
-    float lum = 1.0 - abs(b - b_crit) / 0.18;
-    oColor = vec4(aces(vec3(1.2, 1.0, 0.6) * lum * 1.4), 1.0);
-    return;
-  }
-  // Outside b_crit: deflection 4M / b. Map to a disk-intersection probe.
-  // Inclination tilts the disk relative to the image plane.
+  float b = length(pos);
+  float impactAngle = atan(pos.y, pos.x);
+  if (b < 0.05) { oColor = vec4(0.0); return; }
+
+  // Geodesic plane is the plane containing camera direction and BH center.
+  // For visualization we project the disk's 3D orientation into this plane via inclination.
   float incl = uInclDeg * 0.01745329;
-  // Project the impact-plane coordinate to the disk plane through a simple lens map:
-  // r_obs in image -> r_disk = b + b * (4/b)^... For visualization, the ring forms a
-  // double-image: the primary at r ~ b above b_crit, the secondary at the photon ring.
-  // We render the disk by checking if b falls within the projected disk annulus.
-  float disk_inner_proj = r_disk_in_pro;
-  float disk_outer_proj = r_disk_out;
+  // The 'disk axis' in image-plane coords: y = b sin(impact-angle).
+  // We integrate u(phi) and at each step check the orthogonal coordinate (pos.y / cos(incl) above midplane).
+
+  // Bookkeeping: u, du/dphi, phi, plus the previous orthogonal coordinate to detect midplane crossings.
+  float u = 1e-3;            // start near infinity.
+  float du = -1.0 / b;       // incoming ray.
+  float phi = 0.0;
+  float dphi = 0.025;        // integration step (radians).
   vec3 col = vec3(0.0);
-  // Top side of disk visible above b_crit (positive y when sin(incl) > 0).
-  bool topVisible = (pos.y * sin(incl) > 0.0) || (incl < 0.1);
-  // Compute pseudo-radial coordinate in disk plane assuming small inclination warp:
-  float r_eff = sqrt(pos.x * pos.x + pos.y * pos.y / max(0.01, cos(incl) * cos(incl)));
-  if (r_eff > disk_inner_proj && r_eff < disk_outer_proj && topVisible) {
-    float T = 1e4 * pow(disk_inner_proj / r_eff, 0.75);
-    vec3 c = planck(T);
-    // Doppler beaming proxy (one side brighter).
-    float doppler = 1.0 + 0.5 * sin(angle + uTime * 0.0);
-    col += c * doppler;
+  bool captured = false;
+  bool diskHit = false;
+  float diskColMul = 1.0;
+  int  diskCrossings = 0;
+  float r_disk_in_pro = (uAoverM >= 0.0) ? max(2.05, 6.0 - 5.0 * uAoverM) : 6.0 - uAoverM * 3.0;
+  float r_disk_out = 22.0;
+  float prevY = b * sin(impactAngle);  // approximate ortho coordinate at entry.
+
+  for (int i = 0; i < 240; i += 1) {
+    // RK4 step on (u, du).
+    float k1u = du;
+    float k1d = -u + 3.0 * u * u;
+    float u2 = u + 0.5 * dphi * k1u;
+    float du2 = du + 0.5 * dphi * k1d;
+    float k2u = du2;
+    float k2d = -u2 + 3.0 * u2 * u2;
+    float u3 = u + 0.5 * dphi * k2u;
+    float du3 = du + 0.5 * dphi * k2d;
+    float k3u = du3;
+    float k3d = -u3 + 3.0 * u3 * u3;
+    float u4 = u + dphi * k3u;
+    float du4 = du + dphi * k3d;
+    float k4u = du4;
+    float k4d = -u4 + 3.0 * u4 * u4;
+    u += dphi * (k1u + 2.0 * k2u + 2.0 * k3u + k4u) / 6.0;
+    du += dphi * (k1d + 2.0 * k2d + 2.0 * k3d + k4d) / 6.0;
+    phi += dphi;
+    if (u > 0.5) { captured = true; break; }                // r < 2M.
+    if (u < 1e-3 && phi > 0.5) break;                       // escape to infinity.
+    if (u < 1e-4) break;
+    float r = 1.0 / u;
+    if (r > r_disk_out * 2.0) break;
+    // Detect disk crossing: the in-plane radial position is r; the orthogonal coord
+    // relative to disk plane (assuming small inclination tilt) flips sign when crossing.
+    // We use a simple cos-modulation of phi to model the disk plane orientation.
+    float planeCoord = sin(phi + impactAngle) * cos(incl) + cos(phi + impactAngle) * sin(incl) * sign(pos.y);
+    if (prevY * planeCoord < 0.0 && r > r_disk_in_pro && r < r_disk_out) {
+      diskHit = true; diskCrossings += 1;
+      float T = 1e4 * pow(r_disk_in_pro / r, 0.75);
+      vec3 c = planck(T);
+      // Doppler proxy: blueshifted on prograde side.
+      float doppler = 1.0 + 0.5 * cos(phi + impactAngle - 1.5);
+      col += c * doppler * (diskCrossings == 1 ? 1.0 : 0.35);
+      if (diskCrossings >= 2) break;
+    }
+    prevY = planeCoord;
   }
-  // Far-side disk (behind BH): when b > b_crit and lensed below, render small.
-  if (r_eff > disk_inner_proj && r_eff < disk_outer_proj + 4.0 && !topVisible) {
-    float T = 8e3 * pow(disk_inner_proj / r_eff, 0.75);
-    col += planck(T) * 0.4;
-  }
-  // Starfield otherwise.
-  if (col.x + col.y + col.z < 0.01) {
+
+  if (captured) { oColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
+  // Photon-ring brightening near b_crit.
+  float b_crit = 3.0 * sqrt(3.0);
+  if (abs(b - b_crit) < 0.12) col += vec3(1.2, 1.0, 0.6) * 0.8 * (1.0 - abs(b - b_crit) / 0.12);
+  // Starfield where nothing was hit.
+  if (!diskHit && col.x + col.y + col.z < 0.05) {
     vec2 cell = floor(uv * uRes * 0.1) / 0.1;
     if (hash(cell) > 0.992) {
       float h = hash(cell + vec2(1.0));
       col = vec3(0.7 + 0.3 * h, 0.75, 0.95);
     }
   }
-  // Vignette.
+  // Vignette + ACES.
   vec2 c = uv - 0.5;
   float vign = 1.0 - 0.35 * dot(c, c) * 2.0;
   oColor = vec4(aces(col * vign), 1.0);
