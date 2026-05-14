@@ -12,10 +12,10 @@ Total playgrounds: 203
 
 | Status | Count |
 |---|---|
-| draft | 16 |
+| draft | 15 |
 | in-progress | 11 |
 | implemented | 0 |
-| verified | 176 |
+| verified | 177 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -369,7 +369,7 @@ Total playgrounds: 203
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Baryon Acoustic Oscillation Toy** ([MAA-CS-baryon-acoustic-oscillation-toy](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/)). Status: `draft`. `mukhanov-cosmology` ch 8; sound horizon at recombination ~ 150 Mpc.
+- **Baryon Acoustic Oscillation (Toy)** ([MAA-CS-baryon-acoustic-oscillation-toy](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/)). Status: `verified`. `liddle-cosmology` ch 11.
 - **Cmb Power Spectrum Toy** ([MAA-CS-cmb-power-spectrum-toy](../playgrounds/msc-y1/MAA-CS-cmb-power-spectrum-toy/)). Status: `draft`. `mukhanov-cosmology` ch 9; first acoustic peak at l ~ 220 analytic.
 - **Linear Perturbation Growth** ([MAA-CS-linear-perturbation-growth](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/)). Status: `draft`. `mukhanov-cosmology` ch 7; D(a) growth factor analytic for LCDM.
 - **Matter-Radiation Equality** ([MAA-CS-matter-radiation-equality](../playgrounds/msc-y1/MAA-CS-matter-radiation-equality/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: AST3017).

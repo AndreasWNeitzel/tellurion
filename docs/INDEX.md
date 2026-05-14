@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Baryon Acoustic Oscillation (Toy)](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/index.html)** &nbsp; (verified, verified 2026-05-14T02:12:40Z)
+  Sound wave + baryon shell freeze at $r_s \approx 150$ Mpc. Source: Liddle Ch. 11 (`liddle-cosmology`).
+
 - **[Rotational Splitting of Multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/index.html)** &nbsp; (verified, verified 2026-05-14T02:11:32Z)
   Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8 (`aerts-asteroseism`).
 
@@ -562,9 +565,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (in-progress, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[Baryon Acoustic Oscillation Toy](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Cmb Power Spectrum Toy](../playgrounds/msc-y1/MAA-CS-cmb-power-spectrum-toy/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
