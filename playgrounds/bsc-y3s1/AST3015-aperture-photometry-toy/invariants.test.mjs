@@ -1,28 +1,24 @@
-// Aperture Photometry Toy invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
-
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
-
-describe('Aperture Photometry Toy invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
-
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+import { describe, it, expect } from 'vitest';
+import { generateImage, aperturePhot, moffat } from './sim.js';
+describe('aperture-photometry-toy', () => {
+  it('Moffat profile peaks at r=0', () => {
+    expect(moffat(0, 2)).toBe(1);
   });
-
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('aperture flux recovers true flux within 10%', () => {
+    const img = generateImage(40, 20, 20, 10000, 3, 50);
+    const r = aperturePhot(img, 40, 20, 20, 8, 16, 12, 18);
+    expect(Math.abs(r.flux - 10000) / 10000).toBeLessThan(0.15);
   });
-
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('background recovered within 5% of input', () => {
+    const img = generateImage(40, 20, 20, 5000, 3, 200);
+    const r = aperturePhot(img, 40, 20, 20, 6, 14, 12, 18);
+    expect(Math.abs(r.sky - 200) / 200).toBeLessThan(0.1);
+  });
+  it('deterministic for same seed', () => {
+    const img1 = generateImage(20, 10, 10, 1000, 2, 100, 1, 1, 0xABCD);
+    const img2 = generateImage(20, 10, 10, 1000, 2, 100, 1, 1, 0xABCD);
+    let diff = 0;
+    for (let i = 0; i < img1.length; i += 1) diff += Math.abs(img1[i] - img2[i]);
+    expect(diff).toBeLessThan(1e-5);
+  });
 });

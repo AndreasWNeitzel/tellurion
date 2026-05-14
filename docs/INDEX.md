@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Aperture Photometry](../playgrounds/bsc-y3s1/AST3015-aperture-photometry-toy/index.html)** &nbsp; (verified, verified 2026-05-14T01:39:59Z)
+  Synthetic Moffat PSF on a CCD; aperture + sky annulus recovers true flux. Source: Howell CCD Handbook (`howell-ccd`).
+
 - **[Sedov-Taylor Blast Wave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/index.html)** &nbsp; (verified, verified 2026-05-14T01:38:42Z)
   Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17 (`shu-vol2`).
 
@@ -489,9 +492,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Alpha Decay Gamow Tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/index.html)** &nbsp; (draft)
-  This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-- **[Aperture Photometry Toy](../playgrounds/bsc-y3s1/AST3015-aperture-photometry-toy/index.html)** &nbsp; (draft)
   This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
 
 - **[Asymptotic Period Spacing](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/index.html)** &nbsp; (draft)

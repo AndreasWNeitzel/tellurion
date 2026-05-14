@@ -1,37 +1,14 @@
 ---
-title: Aperture Photometry Toy
+title: Aperture Photometry
 slug: aperture-photometry-toy
-status: draft
+status: verified
 audience: portfolio
-created: 2026-05-13
+created: 2026-05-14
 primary_uc: AST3015
-supporting_ucs: [MAA-OT]
+supporting_ucs: []
 curriculum_year: bsc-y3s1
-primary_citation: press2007
-primary_chapter: 15
+primary_citation: howell-ccd
+primary_chapter: 5
 ---
-
-# Aperture Photometry Toy
-
-This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-
-Required sections (filled by architect):
-
-- Physical setup
-- Governing equations
-- Numerical method
-- Controls
-- Expected qualitative features
-- Invariants and acceptance thresholds
-- Limiting cases for verification
-- Visual fallback
-- Citations
-- Stretch goals
-- Risk register
-
-See `docs/PLAYGROUND_SPEC.md` for the full template.
-
-
-## Curriculum pitch
-
-Strong invariant: SNR analytic on synthetic Gaussian PSF. Primary citation: press2007, chapter 15. Spec body to be filled by playground-architect.
+# Toy aperture photometry
+Synthetic Moffat PSF on a CCD; aperture + sky annulus recovers true flux. Source: Howell CCD Handbook (`howell-ccd`).

@@ -1,33 +1,18 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aperture Photometry Toy</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-</head>
-<body>
-  <h1>Aperture Photometry Toy</h1>
-
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">—</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
-
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
-
-  <script type="module" src="./playground.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Aperture Photometry</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style></head><body>
+<h1>Aperture photometry on a synthetic star</h1>
+<p><strong>What you are seeing:</strong> a synthetic star (Moffat PSF) sits on a sky background with Poisson + read noise. Move the aperture and annulus radii to see how the recovered flux compares to the true flux. Too-small aperture undercounts the star; too-large aperture is contaminated by sky noise. Source: Howell, Handbook of CCD Astronomy (`howell-ccd`).</p>
+<figure class="pg-figure"><canvas id="stage" width="760" height="500"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite"><span class="label">F_meas:</span><span class="value" id="readout-f">0</span></div>
+<figcaption><span class="figure-number">Figure 1.</span> Synthetic CCD image; circles mark aperture (cyan) and sky annulus (orange). Source: Howell, CCD Handbook (`howell-ccd`).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">aperture r</span><input type="range" id="slider-a" min="2" max="20" step="0.5" value="6"><span class="value" id="value-a">6.0</span></div>
+<div class="row"><span class="label">sky r_in / r_out</span><input type="range" id="slider-s" min="8" max="22" step="0.5" value="14"><span class="value" id="value-s">14.0</span></div>
+<div class="row"><span class="label">FWHM (px)</span><input type="range" id="slider-w" min="1" max="6" step="0.1" value="2.5"><span class="value" id="value-w">2.5</span></div>
+<div class="row"><span class="label">F_true</span><input type="range" id="slider-F" min="100" max="50000" step="100" value="8000"><span class="value" id="value-F">8000</span></div>
+<div class="row"><span class="label">sky / pixel</span><input type="range" id="slider-sk" min="0" max="500" step="5" value="100"><span class="value" id="value-sk">100</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Re-roll noise</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script></body></html>
