@@ -21,7 +21,7 @@
 </style></head><body>
 <header>
   <h1 data-slot="title">Schwarzschild-Kerr Black Hole 3D (Hero)</h1>
-  <div data-slot="description" class="katex-target">Per-pixel null-geodesic ray-march in the Schwarzschild metric. Black-hole shadow + photon ring at $b_c = 3\sqrt{3}M$, gravitationally lensed starfield, thin accretion disk at the ISCO with Planck-temperature color. Drag to orbit, scroll to zoom; the inclination slider controls camera latitude.</div>
+  <div data-slot="description" class="katex-target">Per-pixel null-geodesic ray-march. Schwarzschild-accurate ($u(\phi)$ Velocity-Verlet with curvature-adaptive step, null-condition renormalization); the $a/M$ slider applies a perturbative frame-drag twist (a full Kerr metric integration is deferred). Black-hole shadow + photon ring at $b_c = 3\sqrt{3}M$, gravitationally lensed equirectangular starfield, thin opaque accretion disk at the ISCO with Planck-temperature color and a Doppler-beamed near side. Drag to orbit, scroll to zoom.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>

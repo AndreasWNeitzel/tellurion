@@ -216,8 +216,91 @@ async function gateG() {
   } catch (e) { record('G.deterministic', false, e.message); }
 }
 
+// Spec-extension gates J/K for the BH hero. Both measure rendered pixels.
+async function gateJ_disk_above_and_below() {
+  // C-spec gate: at near edge-on, the disk arcs both ABOVE and BELOW the shadow.
+  if (slug !== 'schwarzschild-kerr-blackhole-3d') { record('J.disk-over-under', true, 'skipped: BH-only spec gate'); return; }
+  const { page, ctx } = await newPage('&capture=t-050&captureFraction=0.5');
+  try {
+    await page.waitForFunction('window.__simulationReady === true', { timeout: 25_000 });
+    await page.waitForTimeout(200);
+    const probe = await page.evaluate(() => {
+      const c = document.getElementById('stage');
+      const off = document.createElement('canvas'); off.width = c.width; off.height = c.height;
+      off.getContext('2d').drawImage(c, 0, 0);
+      const w = c.width, h = c.height;
+      // Sample a vertical column through center; record warm-disk pixels.
+      const colWidth = 24;
+      const sx = Math.floor((w - colWidth) / 2);
+      const img = off.getContext('2d').getImageData(sx, 0, colWidth, h).data;
+      let warmAbove = 0, warmBelow = 0;
+      const midY = Math.floor(h / 2);
+      for (let y = 0; y < h; y += 1) {
+        let warm = 0;
+        for (let x = 0; x < colWidth; x += 1) {
+          const i = (y * colWidth + x) * 4;
+          const r = img[i], g = img[i + 1], b = img[i + 2];
+          // Warm disk pixel: noticeably brighter than dark cosmic, redder than blue.
+          if (r > 40 && r > b + 8) warm += 1;
+        }
+        if (warm > colWidth * 0.2) {
+          if (y < midY - 30) warmAbove += 1;
+          else if (y > midY + 30) warmBelow += 1;
+        }
+      }
+      return { warmAbove, warmBelow };
+    });
+    if (probe.warmAbove < 4 || probe.warmBelow < 4) record('J.disk-over-under', false, `warm pixels above=${probe.warmAbove} below=${probe.warmBelow} (need >=4 each)`);
+    else record('J.disk-over-under', true, `warm pixels above=${probe.warmAbove} below=${probe.warmBelow}`);
+  } catch (e) { record('J.disk-over-under', false, e.message); }
+  finally { await ctx.close(); }
+}
+async function gateK_banding() {
+  if (slug !== 'schwarzschild-kerr-blackhole-3d') { record('K.banding', true, 'skipped: BH-only spec gate'); return; }
+  const { page, ctx } = await newPage('&capture=t-050&captureFraction=0.5');
+  try {
+    await page.waitForFunction('window.__simulationReady === true', { timeout: 25_000 });
+    await page.waitForTimeout(200);
+    const probe = await page.evaluate(() => {
+      const c = document.getElementById('stage');
+      const off = document.createElement('canvas'); off.width = c.width; off.height = c.height;
+      off.getContext('2d').drawImage(c, 0, 0);
+      const w = c.width, h = c.height;
+      // Horizontal radial scanline from center to edge, in the lensed-starfield region.
+      const cx = Math.floor(w / 2), cy = Math.floor(h / 2);
+      const img = off.getContext('2d').getImageData(0, cy, w, 8).data;
+      const lum = [];
+      for (let x = cx + 40; x < w; x += 1) {
+        let l = 0;
+        for (let row = 0; row < 8; row += 1) {
+          const i = (row * w + x) * 4;
+          l += (0.2126 * img[i] + 0.7152 * img[i + 1] + 0.0722 * img[i + 2]) / 255;
+        }
+        lum.push(l / 8);
+      }
+      // Second-difference RMS.
+      let sumSq = 0, n = 0;
+      let max = -Infinity, min = Infinity;
+      for (const v of lum) { if (v > max) max = v; if (v < min) min = v; }
+      const range = max - min;
+      for (let i = 1; i < lum.length - 1; i += 1) {
+        const d2 = lum[i + 1] - 2 * lum[i] + lum[i - 1];
+        sumSq += d2 * d2; n += 1;
+      }
+      const rms = Math.sqrt(sumSq / Math.max(1, n));
+      return { rms, range, n, samples: lum.length };
+    });
+    const thresh = probe.range * 0.02;
+    if (probe.rms > thresh) record('K.banding', false, `second-diff RMS ${probe.rms.toFixed(4)} > ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)})`);
+    else record('K.banding', true, `second-diff RMS ${probe.rms.toFixed(4)} <= ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)})`);
+  } catch (e) { record('K.banding', false, e.message); }
+  finally { await ctx.close(); }
+}
+
 try {
   await gateA(); await gateB(); await gateC(); await gateD(); await gateE(); await gateF(); await gateG();
+  await gateJ_disk_above_and_below();
+  await gateK_banding();
 } finally {
   await browser.close();
   await server.closePromise();

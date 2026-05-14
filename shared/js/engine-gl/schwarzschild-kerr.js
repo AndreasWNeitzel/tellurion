@@ -73,9 +73,16 @@ void main() {
   float tFoot = -dot(uEye, rayDir);
   vec3 foot = uEye + tFoot * rayDir;
   float b = length(foot);
-  // Build orbital-plane basis. e1 from BH toward periapsis, e2 along the ray.
-  vec3 e1 = (b > 1e-6) ? (-foot / b) : vec3(1.0, 0.0, 0.0);
-  vec3 e2 = normalize(rayDir - dot(rayDir, e1) * e1);
+  // Orbital-plane basis ANCHORED AT THE CAMERA so phi = 0 corresponds to
+  // the camera position (not periapsis). This is required for the 3D
+  // position reconstruction r * (cos(phi)*e_cam + sin(phi)*e_perp) to
+  // start at the actual camera. The previous foot-anchored basis put
+  // phi=0 at periapsis, producing wrong y-coordinates and a flipped disk.
+  float rEye0 = length(uEye);
+  vec3 e_cam = uEye / max(rEye0, 1e-6);
+  vec3 n_orbit = normalize(cross(uEye, rayDir));
+  vec3 e_perp = cross(n_orbit, e_cam);     // unit, in orbital plane, along ray direction
+  // Note: e_cam and e_perp are orthonormal and span the orbital plane.
   // Horizon radius (Kerr outer event horizon).
   float rH = 1.0 + sqrt(max(0.0, 1.0 - uAOverM * uAOverM));
   // Capture condition: rays with b below ~b_crit fall in. We rely on the ODE
@@ -95,10 +102,10 @@ void main() {
   bool captured = false;
   bool hitDisk = false;
   vec3 col = vec3(0.0);
-  // Track the y-coordinate of the 3D ray position so we can detect the FIRST
-  // equatorial-plane crossing. Per the latest spec: thin opaque disk, one
-  // crossing, deposit emission, terminate.
-  float prevY = r_eye * e1.y;
+  // Track y of the 3D ray position so we can detect the FIRST equatorial-
+  // plane crossing. Per the spec: thin opaque disk, one crossing, deposit,
+  // terminate. At phi=0 the ray is AT the camera so prevY = uEye.y.
+  float prevY = uEye.y;
   // Conserved-quantity reference: at infinity, (du)^2 + u^2 - 2 u^3 = 1/b^2.
   // We periodically renormalize to keep this invariant (null-condition projection).
   float invB2 = 1.0 / (b * b);
@@ -135,8 +142,9 @@ void main() {
     if (r < rH * 1.001) { captured = true; break; }
     if (u < 1e-3 && phi > 0.2) break;
     if (r > 400.0) break;
-    // 3D position in world coords.
-    vec3 pos = r * (cos(phi) * e1 + sin(phi) * e2);
+    // 3D position in world coords. phi=0 at camera, increasing phi moves
+    // along the ray's initial direction within the orbital plane.
+    vec3 pos = r * (cos(phi) * e_cam + sin(phi) * e_perp);
     float curY = pos.y;
     // OPAQUE DISK (Option A): FIRST equatorial-plane crossing inside the
     // [r_in, r_out] band deposits one emission sample and the ray TERMINATES.
@@ -174,7 +182,7 @@ void main() {
   // the position vector is r * (cos(phi) e1 + sin(phi) e2); the tangent is
   // -sin(phi) e1 + cos(phi) e2 (90 deg rotated in the orbital plane). That is
   // the outgoing ray direction at infinity.
-  vec3 outgoing = normalize(-sin(phi) * e1 + cos(phi) * e2);
+  vec3 outgoing = normalize(-sin(phi) * e_cam + cos(phi) * e_perp);
   // Per-pixel deterministic jitter on the outgoing direction. The Verlet
   // step is discrete; rays at adjacent pixels often quantize to similar
   // total phi, producing concentric ring banding in the lensed starfield.
