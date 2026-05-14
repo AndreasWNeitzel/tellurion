@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: '.',
   testMatch: ['**/visual.test.mjs', 'tests/**/*.spec.{mjs,ts}'],
+  testIgnore: ['playgrounds/_template/**', 'node_modules/**', 'tests/heroes/**'],
   fullyParallel: false,           // visual diffs are seed-deterministic but disk-bound
   forbidOnly: !!process.env.CI,
   retries: 0,                     // deterministic captures should not need retries; investigate flake
