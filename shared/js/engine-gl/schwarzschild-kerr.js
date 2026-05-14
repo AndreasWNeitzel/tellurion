@@ -149,24 +149,28 @@ void main() {
         // Segment length in 3D between prev and current position.
         vec3 prevPos = prevR * (cos(phi - dphi) * e1 + sin(phi - dphi) * e2);
         float ds = length(pos - prevPos);
-        float T = 1.2e4 * pow(uDiskInner / r, 0.75);
+        // Cooler peak temperature so the bulk of the disk reads as warm
+        // (brown/orange) rather than blown-out white. Doppler beaming + g^4
+        // pushes the approaching side toward white-blue, the receding side
+        // toward red, recovering the asymmetric look.
+        float T = 6.5e3 * pow(uDiskInner / r, 0.75);
         float vphi = sqrt(1.0 / r);
         float losDopp = pos.x / r;
         float g = clamp(1.0 + vphi * losDopp, 0.45, 1.6);
         float gain = pow(g, 4.0);
         vec3 emit = planck(T * g);
-        // Soft radial edges (limb brightening at the inner rim).
         float innerFade = smoothstep(uDiskInner * 0.95, uDiskInner * 1.4, r);
         float outerFade = 1.0 - smoothstep(uDiskOuter * 0.7, uDiskOuter, r);
         float radial = innerFade * outerFade;
-        // Azimuthal density variation.
+        // Two-octave azimuthal + radial cloud noise so the disk has texture
+        // instead of a smooth band.
         float ang = atan(pos.z, pos.x);
-        float noise = 0.7 + 0.3 * sin(8.0 * ang + 0.7 * r);
-        // Per-step opacity: optical depth contribution.
-        float kappa = 0.18 * yProf * radial * noise;
+        float n1 = 0.5 + 0.5 * sin(6.0 * ang + 1.1 * r);
+        float n2 = 0.5 + 0.5 * sin(13.0 * ang - 0.7 * r + 1.3);
+        float noise = mix(0.55, 1.0, n1) * mix(0.7, 1.0, n2);
+        float kappa = 0.22 * yProf * radial * noise;
         float dTau = kappa * ds;
-        // Emission attenuated by accumulated tau in front of it.
-        col += emit * gain * yProf * radial * noise * ds * 0.85 * exp(-tau);
+        col += emit * gain * yProf * radial * noise * ds * 0.95 * exp(-tau);
         tau += dTau;
         if (tau > 4.0) { hitDisk = true; break; }
       }
