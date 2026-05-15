@@ -55,9 +55,7 @@ const btns = buildButtons();
 let engine = null;
 try { engine = setupBHGL(canvas); } catch (e) { console.warn('BH GL init failed', e); }
 
-// Default camera per the latest spec: nearly edge-on (inclination 85 deg
-// from polar axis = 5 deg elevation above disk plane), closer (radius 25 M),
-// wider FOV (65 deg) so the disk overfills the frame on all sides.
+// Default camera: spec radius 25 M, FOV 65 deg, elevation 3 deg (near edge-on).
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0],
   radius: 25,
