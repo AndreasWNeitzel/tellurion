@@ -1,251 +1,178 @@
-// SEMF playground. Binding per nucleon vs A along the valley of stability,
-// with term-by-term decomposition.
+// SEMF as a fitting puzzle. Target B/A heatmap on the N-Z plane (canonical
+// Wapstra coefficients) vs the user's overlay (their five slider values).
+// The physics engine in sim.js is unchanged; the binding formula is
+// re-evaluated here with parameterized coefficients so the engine's
+// module-level COEFFS is never mutated.
 
-import {
-  bindingPerNucleon, bindingEnergyMeV, optimalZ, pairing, COEFFS,
-  bindingProfile,
-} from './sim.js';
+import { COEFFS } from './sim.js';
 
-const params         = new URLSearchParams(location.search);
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const params        = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME  = params.get('capture');
 
 const canvas      = document.getElementById('stage');
 const ctx         = canvas.getContext('2d', { alpha: false });
-const readoutBa   = document.getElementById('readout-ba');
-const readoutPeak = document.getElementById('readout-peak');
+const readoutBa   = document.getElementById('readout-ba') || { textContent: '' };
+const readoutPeak = document.getElementById('readout-peak') || { textContent: '' };
+const controlsEl  = document.getElementById('controls');
 
-const sliderA = document.getElementById('slider-A');
-const valueA  = document.getElementById('value-A');
+const W = canvas.width, H = canvas.height;
 
-let A = parseInt(sliderA.value, 10);
-sliderA.addEventListener('input', () => { A = parseInt(sliderA.value, 10); valueA.textContent = String(A); });
+// Parameterized SEMF binding-per-nucleon (mirrors sim.js bindingEnergyMeV
+// but with explicit coefficients instead of the frozen COEFFS object).
+function baWith(co, A, Z) {
+  if (A <= 0 || Z < 0 || Z > A) return 0;
+  const N = A - Z;
+  const volume    =  co.aV * A;
+  const surface   = -co.aS * Math.pow(A, 2 / 3);
+  const coulomb   = -co.aC * Z * (Z - 1) / Math.pow(A, 1 / 3);
+  const asymmetry = -co.aA * (N - Z) * (N - Z) / A;
+  let pair = 0;
+  if (A % 2 === 0) {
+    const eZ = Z % 2 === 0, eN = N % 2 === 0;
+    if (eZ && eN) pair = co.aP / Math.sqrt(A);
+    else if (!eZ && !eN) pair = -co.aP / Math.sqrt(A);
+  }
+  return (volume + surface + coulomb + asymmetry + pair) / A;
+}
 
-function colors() {
-  const css = getComputedStyle(document.body);
-  return {
-    bg:     css.getPropertyValue('--bg').trim() || '#060608',
-    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
-    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
-    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
-    blue:   '#5bc0eb',
-    red:    '#ef476f',
-    green:  '#06d6a0',
-    orange: '#f4a261',
-    grid:   '#23252a',
-  };
+const TARGET = { aV: 15.8, aS: 18.3, aC: 0.714, aA: 23.2, aP: 12.0 };
+const guess  = { aV: 0, aS: 0, aC: 0, aA: 0, aP: 0 };
+let showValley = false;
+
+// Sample grid: N in [0,160], Z in [0,100].
+const NMAX = 160, ZMAX = 100, STEP = 4;
+
+function chiSquared() {
+  let chi = 0;
+  for (let Z = 1; Z <= ZMAX; Z += STEP) {
+    for (let n = 1; n <= NMAX; n += STEP) {
+      const A = n + Z;
+      const bt = baWith(TARGET, A, Z);
+      if (bt < 1) continue;
+      const bf = baWith(guess, A, Z);
+      chi += (bt - bf) * (bt - bf);
+    }
+  }
+  return chi;
+}
+
+function color(ba) {
+  // viridis-ish 0..9 MeV.
+  const t = Math.max(0, Math.min(1, ba / 9));
+  const r = Math.round(255 * Math.min(1, 0.27 + 1.5 * t * t));
+  const g = Math.round(255 * (0.0 + 0.86 * t));
+  const b = Math.round(255 * (0.33 + 0.4 * Math.cos(3.0 * t)));
+  return `rgb(${r},${Math.min(255,g)},${Math.max(0,Math.min(255,b))})`;
 }
 
 function render() {
-  const c = colors();
-  ctx.fillStyle = c.bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0b0b10';
+  ctx.fillRect(0, 0, W, H);
 
-  const padL = 56, padR = 12, padT = 22, padB = 40;
-  const plotW = canvas.width - padL - padR;
-  const plotH = canvas.height - padT - padB;
+  // Three side-by-side panels: target, your fit, residual.
+  const pad = 16;
+  const pw = (W - 4 * pad) / 3, ph = H - 70;
+  const px0 = [pad, 2 * pad + pw, 3 * pad + 2 * pw];
+  const labels = ['Target B/A (Wapstra)', 'Your fit', 'Residual |target - fit|'];
 
-  const aMin = 1, aMax = 250;
-  function xFor(a) { return padL + plotW * (a - aMin) / (aMax - aMin); }
-
-  const yMin = 0, yMax = 10; // MeV per nucleon
-  function yFor(b) { return padT + plotH * (1 - (b - yMin) / (yMax - yMin)); }
-
-  // Grid.
-  ctx.strokeStyle = c.grid;
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 5; i += 1) {
-    const x = padL + plotW * i / 5;
-    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
-    ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
-    ctx.fillText(`${50 * i}`, x - 6, padT + plotH + 14);
-  }
-  for (let i = 0; i <= 5; i += 1) {
-    const y = padT + plotH * i / 5;
-    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
-    ctx.fillStyle = c.muted;
-    ctx.fillText(`${(2 * (5 - i))}`, padL - 22, y + 3);
-  }
-
-  // Plot binding profile.
-  const profile = bindingProfile();
-  let maxA = 0, maxB = 0;
-  for (const p of profile) if (p.BperA > maxB) { maxB = p.BperA; maxA = p.A; }
-
-  ctx.strokeStyle = c.accent;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  let started = false;
-  for (const p of profile) {
-    if (p.BperA < yMin) continue;
-    const xx = xFor(p.A);
-    const yy = yFor(Math.min(p.BperA, yMax));
-    if (!started) { ctx.moveTo(xx, yy); started = true; } else ctx.lineTo(xx, yy);
-  }
-  ctx.stroke();
-
-  // Mark peak.
-  const xp = xFor(maxA);
-  const yp = yFor(maxB);
-  ctx.fillStyle = c.green;
-  ctx.beginPath(); ctx.arc(xp, yp, 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = c.fg;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.fillStyle = c.green;
-  ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`peak A = ${maxA}, B/A = ${maxB.toFixed(2)} MeV`, xp + 8, yp - 6);
-
-  // Mark current A.
-  const Zs = Math.round(optimalZ(A));
-  const Bcurr = bindingPerNucleon(A, Zs);
-  const xc = xFor(A);
-  const yc = yFor(Math.min(Bcurr, yMax));
-  ctx.strokeStyle = c.blue;
-  ctx.setLineDash([5, 4]);
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(xc, padT); ctx.lineTo(xc, padT + plotH); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = c.blue;
-  ctx.beginPath(); ctx.arc(xc, yc, 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = c.fg;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.fillStyle = c.blue;
-  ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`A = ${A}, Z* = ${Zs}, B/A = ${Bcurr.toFixed(2)}`, xc + 8, yc + 14);
-
-  // Term decomposition at the current A.
-  const N = A - Zs;
-  const volume    =  COEFFS.aV;
-  const surface   = -COEFFS.aS / Math.pow(A, 1 / 3);
-  const coulomb   = -COEFFS.aC * Zs * (Zs - 1) / Math.pow(A, 4 / 3);
-  const asymmetry = -COEFFS.aA * (N - Zs) * (N - Zs) / (A * A);
-  const pair      =  pairing(A, Zs) / A;
-
-  ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`B/A breakdown at A = ${A}:`, padL + plotW - 240, padT + 14);
-  let ly = padT + 28;
-  for (const [label, val, col] of [
-    ['volume   ', volume,    c.accent],
-    ['surface  ', surface,   c.red],
-    ['coulomb  ', coulomb,   c.orange],
-    ['asymmetry', asymmetry, c.blue],
-    ['pairing  ', pair,      c.green],
-    ['sum      ', volume + surface + coulomb + asymmetry + pair, c.fg],
-  ]) {
-    ctx.fillStyle = col;
-    ctx.fillText(`${label} ${val >= 0 ? '+' : ''}${val.toFixed(3)}`, padL + plotW - 240, ly);
-    ly += 14;
+  for (let panel = 0; panel < 3; panel += 1) {
+    const ox = px0[panel], oy = 40;
+    for (let zi = 0; zi < ZMAX; zi += STEP) {
+      for (let ni = 0; ni < NMAX; ni += STEP) {
+        const Z = zi + 1, A = ni + Z;
+        const bt = baWith(TARGET, A, Z);
+        const bf = baWith(guess, A, Z);
+        let col;
+        if (panel === 0) col = bt > 1 ? color(bt) : '#0b0b10';
+        else if (panel === 1) col = bf > 1 ? color(bf) : '#0b0b10';
+        else {
+          const res = bt > 1 ? Math.abs(bt - bf) : 0;
+          const t = Math.min(1, res / 4);
+          col = bt > 1 ? `rgb(${Math.round(255*t)},${Math.round(60*(1-t))},${Math.round(60*(1-t))})` : '#0b0b10';
+        }
+        const cw = pw / (NMAX / STEP), chh = ph / (ZMAX / STEP);
+        ctx.fillStyle = col;
+        ctx.fillRect(ox + ni / NMAX * pw, oy + (ZMAX - zi) / ZMAX * ph - chh, cw + 1, chh + 1);
+      }
+    }
+    // Valley of stability ridge overlay.
+    if (showValley && panel === 0) {
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let A = 2; A <= NMAX + ZMAX; A += 2) {
+        const Zs = A / (2 + 0.5 * TARGET.aC * Math.pow(A, 2 / 3) / TARGET.aA);
+        const Ns = A - Zs;
+        if (Ns < 0 || Ns > NMAX || Zs > ZMAX) continue;
+        const x = ox + Ns / NMAX * pw;
+        const y = oy + (ZMAX - Zs) / ZMAX * ph;
+        if (A === 2) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(220,220,240,0.35)';
+    ctx.strokeRect(ox, 40, pw, ph);
+    ctx.fillStyle = '#dcdde2'; ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText(labels[panel], ox + 4, 28);
+    ctx.fillText('N ->', ox + pw - 34, 40 + ph + 16);
   }
 
-  ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('A (mass number)', padL + plotW - 100, padT + plotH + 28);
-  ctx.save(); ctx.translate(16, padT + plotH / 2 + 24); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('B/A (MeV)', 0, 0); ctx.restore();
+  const chi = chiSquared();
+  const matched = chi < 50;
+  readoutBa.textContent = `chi^2 = ${chi.toFixed(0)} MeV^2`;
+  readoutPeak.textContent = matched ? 'MATCH' : 'fitting...';
+  ctx.fillStyle = matched ? '#06d6a0' : '#9aa0a6';
+  ctx.font = 'bold 16px ui-monospace, monospace';
+  ctx.fillText(matched
+    ? `MATCH  (aV=${TARGET.aV} aS=${TARGET.aS} aC=${TARGET.aC} aA=${TARGET.aA} aP=${TARGET.aP})`
+    : `chi^2 = ${chi.toFixed(0)} MeV^2  (target < 50)`, pad, H - 18);
 }
 
-function updateReadout() {
-  const Zs = Math.round(optimalZ(A));
-  const Bcurr = bindingPerNucleon(A, Zs);
-  readoutBa.textContent = Bcurr.toFixed(3);
-  const profile = bindingProfile();
-  let maxA = 0, maxB = 0;
-  for (const p of profile) if (p.BperA > maxB) { maxB = p.BperA; maxA = p.A; }
-  readoutPeak.textContent = `${maxA}, ${maxB.toFixed(2)}`;
-}
-
-function loop() {
-  render();
-  updateReadout();
-  requestAnimationFrame(loop);
-}
-
-function bootSync() {
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    A = Math.round(4 + frac * 230);
-    sliderA.value = String(A);
-    valueA.textContent = String(A);
-  }
-  valueA.textContent = String(A);
-  render();
-  updateReadout();
-
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, A };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
-}
-
-// Upgrade E (Phase 13): coefficient-fitting puzzle. Five sliders start at 0;
-// the user drags each toward the Wapstra value; when all five are within
-// 5% of reference, the MATCH indicator lights green.
-(function attachPuzzle() {
-  const REF = { aV: 15.8, aS: 18.3, aC: 0.714, aA: 23.2, aP: 12.0 };
-  const guess = { aV: 0, aS: 0, aC: 0, aA: 0, aP: 0 };
-  const host = document.querySelector('.controls, #controls');
-  if (!host) return;
-  const wrap = document.createElement('div');
-  wrap.style.marginTop = '12px';
-  wrap.style.padding = '8px';
-  wrap.style.borderTop = '1px solid rgba(220,220,240,0.15)';
-  const head = document.createElement('div');
-  head.textContent = 'Puzzle: match the Wapstra coefficients (within 5%)';
-  head.style.color = '#dcdde2'; head.style.fontSize = '12px'; head.style.marginBottom = '6px';
-  wrap.appendChild(head);
-  const indicator = document.createElement('div');
-  indicator.style.fontFamily = 'monospace';
-  indicator.style.padding = '4px 8px';
-  indicator.style.marginTop = '6px';
-  indicator.style.borderRadius = '4px';
-  indicator.style.background = 'rgba(220,220,240,0.06)';
-  function update() {
-    const pct = (k) => REF[k] === 0 ? 0 : Math.abs(guess[k] - REF[k]) / REF[k];
-    const within = (k) => pct(k) < 0.05;
-    const tags = ['aV', 'aS', 'aC', 'aA', 'aP'].map(k => within(k) ? `${k} OK` : `${k} ${(pct(k) * 100).toFixed(0)}%`).join('  ');
-    const all = ['aV', 'aS', 'aC', 'aA', 'aP'].every(within);
-    indicator.style.color = all ? '#06d6a0' : '#9aa0a6';
-    indicator.style.background = all ? 'rgba(6,214,160,0.18)' : 'rgba(220,220,240,0.06)';
-    indicator.textContent = (all ? 'MATCH! ' : '') + tags;
-  }
-  function slider(label, key, max, step) {
+function buildControls() {
+  controlsEl.innerHTML = '';
+  function slider(key, label, max, step) {
     const row = document.createElement('div'); row.className = 'row';
-    const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = `puz-${key}`; lab.textContent = label;
-    const inp = document.createElement('input'); inp.id = `puz-${key}`; inp.type = 'range';
+    const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = `s-${key}`; lab.textContent = label;
+    const inp = document.createElement('input'); inp.id = `s-${key}`; inp.type = 'range';
     inp.min = '0'; inp.max = String(max); inp.step = String(step); inp.value = '0';
-    inp.setAttribute('aria-label', `${label} guess`);
+    inp.setAttribute('aria-label', label);
     const val = document.createElement('span'); val.className = 'value'; val.textContent = '0.00';
-    inp.addEventListener('input', () => { guess[key] = parseFloat(inp.value); val.textContent = guess[key].toFixed(2); update(); });
+    inp.addEventListener('input', () => { guess[key] = parseFloat(inp.value); val.textContent = guess[key].toFixed(2); });
     row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
-    wrap.appendChild(row);
+    controlsEl.appendChild(row);
   }
-  slider('aV (MeV)', 'aV', 30, 0.1);
-  slider('aS (MeV)', 'aS', 30, 0.1);
-  slider('aC (MeV)', 'aC',  2, 0.01);
-  slider('aA (MeV)', 'aA', 40, 0.1);
-  slider('aP (MeV)', 'aP', 20, 0.1);
-  wrap.appendChild(indicator);
-  host.appendChild(wrap);
-  update();
-})();
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(loop);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(loop);
+  slider('aV', 'a_V (MeV)', 30, 0.1);
+  slider('aS', 'a_S (MeV)', 30, 0.1);
+  slider('aC', 'a_C (MeV)', 2, 0.01);
+  slider('aA', 'a_A (MeV)', 40, 0.1);
+  slider('aP', 'a_P (MeV)', 20, 0.1);
+  const row = document.createElement('div'); row.className = 'row';
+  const hint = document.createElement('button'); hint.type = 'button'; hint.textContent = 'Hint: valley of stability';
+  hint.addEventListener('click', () => { showValley = !showValley; });
+  row.appendChild(hint); controlsEl.appendChild(row);
 }
+
+buildControls();
+let raf;
+function loop() { render(); raf = requestAnimationFrame(loop); }
+if (DETERMINISTIC) {
+  render();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    window.__simulationReady = true;
+    window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+  }));
+} else {
+  raf = requestAnimationFrame(loop);
+}
+
+window.__physicsCheck = async () => {
+  // With canonical coefficients, chi^2 vs target is ~0 (identical formula).
+  for (const k of Object.keys(guess)) guess[k] = TARGET[k];
+  const chiMatch = chiSquared();
+  for (const k of Object.keys(guess)) guess[k] = 0;
+  const chiZero = chiSquared();
+  for (const k of Object.keys(guess)) guess[k] = 0;
+  if (chiMatch >= 50) return { name: 'SEMF fit', pass: false, msg: `chi^2 at canonical = ${chiMatch}` };
+  if (chiZero <= 10000) return { name: 'SEMF fit', pass: false, msg: `chi^2 at zero = ${chiZero}` };
+  return { name: 'SEMF chi-squared puzzle', pass: true, msg: `canonical chi^2=${chiMatch.toFixed(1)} (<50), zero chi^2=${chiZero.toFixed(0)} (>10000)` };
+};
