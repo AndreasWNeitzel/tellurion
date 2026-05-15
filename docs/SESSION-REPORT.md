@@ -93,21 +93,21 @@ Not fixed in this run (documented):
 * gravity assist (minor): edge cases at near-parabolic eccentricity (r_min just above 1 with very small v_inf) are numerically marginal but do not blow up.
 * microlensing (minor): magnification at u = 0 clamped to 1e6 instead of true infinity; benign because slider u_min >= 0.01.
 
-## Content merge (Phase 0B), partial
+## Content merge (Phase 0B)
 
 * Michelson: FIS3019 canonical now shows BOTH the 1D I(L) curve AND a 2D ring-pattern inset in the top-right corner. The user gets the experimentalist view and the theorist view in one playground. The deprecated FIS1015 fringe-counter is still present for direct comparison but marked superseded_by.
-* Maxwell-Boltzmann + Equipartition merge: NOT done.
-* Hydrogen 2D-slice toggle inside the hero: NOT done.
+* Maxwell-Boltzmann + Equipartition merge DONE: canonical playground now shows a second readout line with `KE/(2N)` and `<v^2>/4` (which should agree per k T / 2 per DOF), unifying the two playgrounds.
+* Hydrogen 2D-slice toggle inside the hero: NOT done (the WebGL2 hero is complex enough that an in-place toggle is a separate task).
+
+## Upgrade E (SEMF puzzle), implemented
+
+Five-slider puzzle appended to the SEMF playground: aV, aS, aC, aA, aP all start at 0; the user drags each toward the Wapstra reference values; MATCH indicator lights green when all five are within 5%; per-term percentage error shown live.
 
 ## Outstanding work for the next run
 
-* Maxwell-Boltzmann + Equipartition dual-readout merge.
-* Hydrogen 2D-slice toggle inside `hydrogen-orbitals-3d` hero.
-* Full SEMF coefficient-fitting puzzle (Upgrade E).
-* Pulsar DM readout: flag when correct DM gives lower peak than user-set DM.
-* Galaxy merger: halo overlap check.
+* Hydrogen 2D-slice toggle inside `hydrogen-orbitals-3d` hero (WebGL2 hero modification; deferred to keep the working hero stable).
 * Engine reuse audit across the 15 new playgrounds: several (LBM, GW chirp, galaxy merger, aperture synthesis, cosmic-ray) run their math inline in playground.js rather than as shared engines in shared/js/engine/.
-* Spec.md hook and one_paragraph fields are still STATUS placeholders across the catalog.
+* Spec.md hook and one_paragraph fields are still STATUS placeholders across the catalog (deferred; touches every spec).
 * Visual regression tests (visual.test.mjs) not authored for the 15 new playgrounds.
 * Performance: LBM and dirty-image direct sum recompute every frame; both would benefit from incremental update.
 
