@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A foreground star drifts past a background source; the Paczynski light curve traces out, two distorted images flank the lens, and an Einstein ring flashes at closest approach.'
+one_paragraph: 'Single point-mass microlensing: magnification A(u) = (u^2+2)/(u sqrt(u^2+4)) with u(t) = sqrt(u_min^2 + ((t-t_peak)/t_E)^2), image positions theta_pm in units of theta_E, and a fully drawn Paczynski bump.'
 tags: [relativity, gr-relativity, animation, live-readout]
 difficulty: 3
 tier: large

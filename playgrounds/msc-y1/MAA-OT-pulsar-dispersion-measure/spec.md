@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: MAA-OT
 supporting_ucs: [MAA-AS]
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A radio pulse sweeps from high to low frequency through the ionized interstellar medium; dedispersion realigns the channels to a single sharp spike.'
+one_paragraph: 'Delay Delta t = DM / (2.41e-4) (1/f_MHz^2 - 1/f_ref^2) ms; the dynamic spectrum shows the f^-2 sweep, the dedispersed time series peaks sharply at the true DM and flattens out everywhere else.'
 tags: [stellar, radio-astronomy, animation, live-readout]
 difficulty: 3
 tier: medium

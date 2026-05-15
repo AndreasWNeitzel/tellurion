@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: MAA-OT
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A radio interferometer images the sky one baseline at a time as Earth rotates.'
+one_paragraph: 'Five real telescopes (ALMA, VLA, Effelsberg, Metsahovi, JCMT) trace UV-plane arcs as Earth rotates; the dirty image of a three-source sky model sharpens in real time via direct inverse Fourier transform. Drag a telescope to a new latitude, watch its arcs change, and see the resolution improve.'
 tags: [optics, radio-astronomy, interactive-drag, animation, live-readout]
 difficulty: 4
 tier: large

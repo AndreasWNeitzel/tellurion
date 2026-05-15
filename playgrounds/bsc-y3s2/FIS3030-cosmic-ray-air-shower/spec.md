@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: FIS3030
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A primary cosmic ray hits the atmosphere; a cascade of secondaries fans down to the ground detector array.'
+one_paragraph: 'Heitler model: each radiation length the energy halves and the particle count doubles, until E < E_c. Visible Xmax marker at log_2(E/E_c) splitting steps; iron primaries have shallower Xmax than protons at the same energy.'
 tags: [nuclear-particle, animation, interactive-drag, live-readout]
 difficulty: 4
 tier: large

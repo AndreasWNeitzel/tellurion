@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: FIS1013
 supporting_ucs: [MAA-SS]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A spacecraft skims past a planet on a hyperbola; the planet rest frame conserves speed, the solar-system frame does not.'
+one_paragraph: 'Hyperbolic flyby with turning angle delta = 2 arcsin(1 / (1 + r_min v_inf^2 / GM)). Solar-system delta-v emerges from vector addition with the planet velocity; presets reproduce Voyager 1 at Jupiter and Cassini at Venus to within 20%.'
 tags: [mechanics, interactive-drag, animation, live-readout]
 difficulty: 3
 tier: medium

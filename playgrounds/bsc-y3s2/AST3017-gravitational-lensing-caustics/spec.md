@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Drag the source across the source plane; watch images appear and disappear as it crosses a caustic.'
+one_paragraph: 'Point-mass lens with deflection 4 G M / (c^2 xi). Critical curves traced by det(J) = 0 grid scan. Newton iteration from coarse seeds finds the image positions; binary-lens mode produces a figure-8 caustic.'
 tags: [relativity, gr-relativity, interactive-drag, field-visualization]
 difficulty: 4
 tier: large

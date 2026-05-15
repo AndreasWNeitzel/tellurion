@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: M3012
 supporting_ucs: []
 curriculum_year: bsc-y3s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A chain of rotating circles, sorted largest to smallest, redraws any closed path through the discrete Fourier transform.'
+one_paragraph: 'For N complex sample points, compute C_k via DFT and reconstruct z(t) = sum_k C_k exp(2 pi i k t / N). With M epicycles the reconstruction error decreases monotonically; full N/2 reproduces the path within float precision.'
 tags: [numerics, waves, interactive-drag, animation]
 difficulty: 3
 tier: medium

@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: MAA-GD
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Two Hernquist galaxies collide; tracer particles feel both halo potentials and develop tidal tails, captured stars, and a final mixed-color elliptical remnant.'
+one_paragraph: 'Each tracer feels analytic Hernquist potentials of BOTH halos while halo centers integrate as a softened 2-body. Plummer softening keeps the pair force finite during close encounters.'
 tags: [galactic, interactive-drag, animation, live-readout]
 difficulty: 4
 tier: large

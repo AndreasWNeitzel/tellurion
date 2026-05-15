@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: MAA-CO
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Four rungs of the cosmic distance ladder, with their working ranges and accumulated error.'
+one_paragraph: 'Click through parallax (1/p), Cepheid period-luminosity, Type Ia standard candle, and Hubble flow d = cz/H_0. Each rung shows distance range and error; the cumulative error bar grows as you climb.'
 tags: [galactic, animation, multi-panel, live-readout]
 difficulty: 3
 tier: medium

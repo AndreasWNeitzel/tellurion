@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: MAA-CO
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A golden ball rolls down V(phi) under Hubble friction; the slow-roll parameters epsilon and eta produce a point on the (n_s, r) plane.'
+one_paragraph: 'Inflaton EOM with Hubble friction; epsilon = (V_phi/V)^2/2 and eta = V_phi_phi/V; observables n_s = 1 - 6 epsilon + 2 eta and r = 16 epsilon plotted on a Planck-style plane.'
 tags: [galactic, animation, live-readout]
 difficulty: 4
 tier: medium

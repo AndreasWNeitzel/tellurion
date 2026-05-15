@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: MAA-AS
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A stellar surface oscillates in spherical harmonic modes; p-modes live above the Lamb frequency, g-modes below the Brunt-Vaisala.'
+one_paragraph: 'Real Y_l^m(theta, phi) cos(omega t) drawn on the visible hemisphere with a diverging colormap; a propagation diagram shows N(r) and S_l(r) for a polytrope, with the mode frequency marked.'
 tags: [stellar, quantum, animation, multi-panel, live-readout]
 difficulty: 4
 tier: large

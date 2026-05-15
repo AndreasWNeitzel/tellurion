@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A compact binary inspirals to merger; the strain, spectrogram, and audio chirp all stay locked to the same physics.'
+one_paragraph: 'Post-Newtonian chirp f(t) for a binary of total mass m1+m2 at distance D, with strain h(t) drawn on a scrolling oscilloscope, a frequency track sweeping upward, two orbiting masses in 3D, and a WebAudio sonification of the chirp.'
 tags: [relativity, gr-relativity, animation, live-readout]
 difficulty: 4
 tier: large

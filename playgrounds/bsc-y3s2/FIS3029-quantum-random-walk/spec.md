@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: FIS3029
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A quantum walk spreads as N while a classical walk spreads as sqrt(N): the quadratic quantum speedup in one picture.'
+one_paragraph: 'Two-component |L>/|R> amplitude vector on a 101-site lattice, Hadamard coin every step, position probability summed as |psiL|^2 + |psiR|^2. Side-by-side classical binomial histogram for comparison.'
 tags: [quantum, animation, side-by-side-comparator, live-readout]
 difficulty: 3
 tier: medium

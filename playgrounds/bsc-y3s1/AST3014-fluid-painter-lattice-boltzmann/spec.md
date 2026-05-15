@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: AST3014
 supporting_ucs: []
 curriculum_year: bsc-y3s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Draw obstacles by click-drag; a Lattice Boltzmann solver responds in real time with vortex streets, Bernoulli flow acceleration, and a viridis velocity-magnitude field.'
+one_paragraph: 'D2Q9 BGK collision on a 192x96 grid, bounce-back at user-drawn obstacles, steady inflow on the left and zero-gradient outflow on the right. Reynolds number tunable via the relaxation time tau.'
 tags: [fluids-mhd, interactive-drag, animation, field-visualization]
 difficulty: 4
 tier: large

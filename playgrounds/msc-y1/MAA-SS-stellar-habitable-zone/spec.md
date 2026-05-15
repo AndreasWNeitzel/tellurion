@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: MAA-SS
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Move a planet between the inner and outer habitable-zone edges; the surface goes ice, ocean, or steam depending on equilibrium temperature.'
+one_paragraph: 'T_eq from L_star, albedo, and orbital radius; HZ band traced for T in [200, 273] K. Drag the planet, change Teff or albedo, and watch the surface state.'
 tags: [stellar, animation, multi-panel, live-readout]
 difficulty: 3
 tier: medium
