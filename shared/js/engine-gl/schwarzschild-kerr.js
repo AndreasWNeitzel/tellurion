@@ -223,7 +223,7 @@ void main() {
       emission *= (0.8 + 0.4 * rings);           // Layer D
       // Relativistic Doppler with inflated beta.
       float vk = sqrt(1.0 / max(r, 1.0));
-      float beta = clamp(vk * 2.0, 0.0, 0.92);
+      float beta = clamp(vk * 1.7, 0.0, 0.88);
       vec3 vDisk = vec3(-pos.z, 0.0, pos.x) * (vk / max(r, 1.0));
       vec3 los = normalize(uEye - pos);
       float losAlign = dot(normalize(vDisk + vec3(1e-6, 0.0, 0.0)), los);
@@ -233,7 +233,9 @@ void main() {
       float gain = pow(g, 4.0);
       // Photon ring boost: rays with phi > 2*pi (one full orbit) are photon-
       // ring rays. Multiply contribution by 3x per spec.
-      float ringBoost = phi > 6.2832 ? 3.0 : 1.0;
+      // Ring boost ramps with phi: rays that wound > 1 half-orbit are bent
+      // around enough to deposit their disk light on the photon-ring annulus.
+      float ringBoost = 1.0 + 8.0 * smoothstep(2.0, 5.0, phi);
       // Volumetric scale height h(r) = 0.12 r, 5 z-samples z = [-2h, -h, 0, h, 2h].
       float h = 0.12 * r;
       vec3 acc = vec3(0.0);
@@ -275,7 +277,13 @@ void main() {
   );
   outgoing = normalize(outgoing + jitter * 0.012);
   col += sampleEnv(outgoing);
+  // Inner-disk halo: radial 1/r^2 glow centered on the BH screen position.
+  // Feeds into the bloom pass so the canvas reads with a soft corona that
+  // fills empty regions (top edge especially at near edge-on view).
   vec2 c2 = uv - 0.5;
+  float screenDist = length(c2);
+  vec3 halo = vec3(1.0, 0.85, 0.60) * 0.4 / (screenDist * screenDist * 6.0 + 0.1);
+  col += halo;
   float vign = 1.0 - 0.30 * dot(c2, c2) * 2.0;
   oColor = vec4(aces(col * vign), 1.0);
 }`;
