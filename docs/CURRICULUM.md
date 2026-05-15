@@ -8,14 +8,14 @@ See `docs/BUILD_ORDER.md` for the engineering-priority view (which playground an
 
 ## Summary
 
-Total playgrounds: 219
+Total playgrounds: 220
 
 | Status | Count |
 |---|---|
 | draft | 0 |
 | in-progress | 0 |
 | implemented | 0 |
-| verified | 215 |
+| verified | 216 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -341,12 +341,13 @@ Total playgrounds: 219
 
 ## MSc Year 1 (Astronomy and Astrophysics)
 
-46 playgrounds.
+47 playgrounds.
 
 ### MAA-GD Galactic Dynamics
 
-5 primary; supporting use of this UC appears elsewhere when listed.
+6 primary; supporting use of this UC appears elsewhere when listed.
 
+- **Chandrasekhar Dynamical Friction** ([MAA-GD-chandrasekhar-dynamical-friction](../playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/)). Status: `verified`. `binney-tremaine` ch ?.
 - **Chandrasekhar Dynamical Friction** ([MAA-GD-dynamical-friction-chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/)). Status: `verified`. `binney-tremaine` ch 8.
 - **Galaxy Merger N-Body** ([MAA-GD-galaxy-merger-nbody](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/)). Status: `verified`. `hernquist1990` ch ?.
 - **Jeans Isothermal Sphere** ([MAA-GD-jeans-isothermal-sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/)). Status: `verified`. `binney-tremaine` ch 4.

@@ -3,15 +3,15 @@
 Heuristic audit. Q1 AUTOPLAY, Q2 DRAMA, Q3 PHYSICAL INSTANTIATION.
 Generated: 2026-05-15
 
-Total audited (excludes deprecated + template): 215
-PASS 128  PARTIAL 85  FAIL 2
+Total audited (excludes deprecated + template): 216
+PASS 128  PARTIAL 86  FAIL 2
 
 ## FAIL (all three gates fail) (2)
 
 - q1 q2 q3  `bsc-y1s1/CC1017-big-o-empirical`  Big-O Empirical Scaling
 - q1 q2 q3  `bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt`  Beta Decay - Fermi vs Gamow-Teller
 
-## PARTIAL (one or two gates fail) (85)
+## PARTIAL (one or two gates fail) (86)
 
 - Q1 Q2 q3  `bsc-y1s1/FIS1013-catenary-hanging-chain`  Catenary: Shape of a Hanging Chain
 - Q1 q2 Q3  `bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d`  Elastic and Inelastic Collisions in 1D
@@ -57,12 +57,12 @@ PASS 128  PARTIAL 85  FAIL 2
 - q1 q2 Q3  `bsc-y3s2/AST3017-bbn-light-element-toy`  BBN Light-Element Abundances
 - q1 q2 Q3  `bsc-y3s2/AST3017-distance-ladder-toy`  Cosmic Distance Ladder
 - q1 Q2 Q3  `bsc-y3s2/AST3017-gravitational-lensing-caustics`  Gravitational Lensing Caustics
-- q1 q2 Q3  `bsc-y3s2/FIS3020-bcs-gap-self-consistent`  BCS Gap, Self-Consistent
+- Q1 q2 Q3  `bsc-y3s2/FIS3020-bcs-gap-self-consistent`  BCS Gap, Self-Consistent
 - q1 q2 Q3  `bsc-y3s2/FIS3020-bloch-oscillations`  Bloch Oscillations
 - q1 q2 Q3  `bsc-y3s2/FIS3020-cooper-pair-binding-energy`  Cooper Pair Binding Energy
 - q1 q2 Q3  `bsc-y3s2/FIS3020-phonon-dispersion-1d-monatomic-diatomic`  1D Phonon Dispersion (Monatomic and Diatomic)
 - q1 q2 Q3  `bsc-y3s2/FIS3028-relativistic-collision-mandelstam`  Relativistic Collisions and Mandelstam s
-- q1 q2 Q3  `bsc-y3s2/FIS3028-thomas-precession`  Thomas Precession
+- Q1 q2 Q3  `bsc-y3s2/FIS3028-thomas-precession`  Thomas Precession
 - q1 q2 Q3  `bsc-y3s2/FIS3029-addition-of-angular-momenta`  Addition of Two Angular Momenta
 - q1 q2 Q3  `bsc-y3s2/FIS3029-aharonov-bohm-flux-line`  Aharonov-Bohm Effect
 - q1 q2 Q3  `bsc-y3s2/FIS3029-fine-structure-hydrogen`  Hydrogen Fine Structure
@@ -82,6 +82,7 @@ PASS 128  PARTIAL 85  FAIL 2
 - q1 q2 Q3  `msc-y1/MAA-CS-cmb-power-spectrum-toy`  CMB Power Spectrum (Toy)
 - q1 q2 Q3  `msc-y1/MAA-CS-linear-perturbation-growth`  Linear Perturbation Growth in LCDM
 - Q1 Q2 q3  `msc-y1/MAA-CS-matter-radiation-equality`  Matter-Radiation Equality
+- Q1 q2 Q3  `msc-y1/MAA-GD-chandrasekhar-dynamical-friction`  Chandrasekhar Dynamical Friction
 - q1 q2 Q3  `msc-y1/MAA-GD-dynamical-friction-chandrasekhar`  Chandrasekhar Dynamical Friction
 - q1 q2 Q3  `msc-y1/MAA-GD-jeans-isothermal-sphere`  Jeans Isothermal Sphere
 - q1 q2 Q3  `msc-y1/MAA-GD-orbits-in-axisymmetric-potential`  Orbits in an Axisymmetric Potential
