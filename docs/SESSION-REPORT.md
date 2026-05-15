@@ -79,15 +79,37 @@ Targeted adversarial review on the 4 highest-risk new playgrounds. 7 findings, 2
 * Aperture synthesis (major): dirty image now divided by number of UV samples so brightness is comparable across snapshot vs full synthesis.
 * Lensing caustics (major): image-dedup threshold widened (0.05 -> 0.08) so nearby Newton-converged roots collapse to a single image, recovering the correct image count in the single-lens regime.
 
+## Adversarial reviewer round 2
+
+A second adversarial pass on the OTHER 8 new playgrounds (quantum walk, gravity assist, pulsar DM, microlensing, stellar modes, cosmic-ray shower, galaxy merger, fourier epicycle). 8 findings, 2 blockers + 2 majors + 4 minor. Fixed in this run:
+
+* stellar-oscillation-modes (blocker): clamp m to [-l, l] in both the m and l slider callbacks so plgndr never returns 0 for |m| > l.
+* cosmic-ray-air-shower (blocker): the unused `sXmax` algebraic-no-op removed; the visual Xmax marker is now clamped to the user's chosen step count so high-energy showers do not draw beyond the rendered cascade.
+
+Not fixed in this run (documented):
+
+* pulsar dispersion measure (major): wrong DM can produce a higher peak than correct DM because shifted-but-misaligned channels can partially constructively interfere. Cosmetic readout that flags this is a follow-up.
+* galaxy merger (major): no halo-collision check; if impact = 0 and v_rel high, halos can overlap and force becomes ill-defined. Softening +0.5 in pairForce prevents singularity but not unphysical interpenetration.
+* gravity assist (minor): edge cases at near-parabolic eccentricity (r_min just above 1 with very small v_inf) are numerically marginal but do not blow up.
+* microlensing (minor): magnification at u = 0 clamped to 1e6 instead of true infinity; benign because slider u_min >= 0.01.
+
+## Content merge (Phase 0B), partial
+
+* Michelson: FIS3019 canonical now shows BOTH the 1D I(L) curve AND a 2D ring-pattern inset in the top-right corner. The user gets the experimentalist view and the theorist view in one playground. The deprecated FIS1015 fringe-counter is still present for direct comparison but marked superseded_by.
+* Maxwell-Boltzmann + Equipartition merge: NOT done.
+* Hydrogen 2D-slice toggle inside the hero: NOT done.
+
 ## Outstanding work for the next run
 
-* Real CONTENT merges in the three deprecated pairs (Michelson dual-tab, Maxwell-Boltzmann + Equipartition dual-readout, Hydrogen 2D-slice toggle). Currently the deprecation markers exist but the secondary content is not unified into the canonical playground.
-* Full SEMF coefficient-fitting puzzle (Upgrade E). Spec.md note exists; slider-puzzle gameification not implemented.
-* Engine reuse audit across the 15 new playgrounds: several (LBM, GW chirp, galaxy merger, aperture synthesis) run their math inline in playground.js rather than as shared engines in shared/js/engine/.
+* Maxwell-Boltzmann + Equipartition dual-readout merge.
+* Hydrogen 2D-slice toggle inside `hydrogen-orbitals-3d` hero.
+* Full SEMF coefficient-fitting puzzle (Upgrade E).
+* Pulsar DM readout: flag when correct DM gives lower peak than user-set DM.
+* Galaxy merger: halo overlap check.
+* Engine reuse audit across the 15 new playgrounds: several (LBM, GW chirp, galaxy merger, aperture synthesis, cosmic-ray) run their math inline in playground.js rather than as shared engines in shared/js/engine/.
 * Spec.md hook and one_paragraph fields are still STATUS placeholders across the catalog.
 * Visual regression tests (visual.test.mjs) not authored for the 15 new playgrounds.
 * Performance: LBM and dirty-image direct sum recompute every frame; both would benefit from incremental update.
-* Adversarial review extension: the other 8 new playgrounds (microlensing, stellar modes, cosmic-ray shower, distance ladder, slow-roll, habitable zone, quantum walk, gravity assist, fourier epicycle, pulsar DM) were not reviewed in this run.
 
 ## Structural issues
 
