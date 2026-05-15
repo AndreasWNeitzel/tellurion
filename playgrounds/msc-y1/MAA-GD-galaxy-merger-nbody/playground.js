@@ -11,8 +11,8 @@ const CAPTURE_NAME  = params.get('capture');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const readoutInv   = document.getElementById('readout-invariant') || { textContent: '' };
+const readoutFrame = document.getElementById('readout-frame') || { textContent: '' };
 const controlsEl   = document.getElementById('controls');
 
 const W = canvas.width, H = canvas.height;
@@ -161,7 +161,7 @@ function buildControls() {
 
 buildControls();
 if (DETERMINISTIC) {
-  for (let i = 0; i < 60; i += 1) step();
+  for (let i = 0; i < 30; i += 1) step();
   render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));

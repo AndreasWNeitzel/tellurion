@@ -8,8 +8,8 @@ const CAPTURE_NAME  = params.get('capture');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const readoutInv   = document.getElementById('readout-invariant') || { textContent: '' };
+const readoutFrame = document.getElementById('readout-frame') || { textContent: '' };
 const controlsEl   = document.getElementById('controls');
 
 const W = canvas.width, H = canvas.height;

@@ -10,8 +10,8 @@ const CAPTURE_NAME  = params.get('capture');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant');
-const readoutFrame = document.getElementById('readout-frame');
+const readoutInv   = document.getElementById('readout-invariant') || { textContent: '' };
+const readoutFrame = document.getElementById('readout-frame') || { textContent: '' };
 const controlsEl   = document.getElementById('controls');
 
 const W = canvas.width, H = canvas.height;
@@ -205,7 +205,11 @@ buildControls();
 accumulate();
 render();
 if (DETERMINISTIC) {
-  for (let i = 0; i < 60; i += 1) tick();
+  // One render is enough; the dirty-image direct sum is O(N_uv * N_pix^2)
+  // per call which exceeds Playwright's 30-s capture timeout if we step
+  // many frames here. The pre-rendered output reflects the initial
+  // accumulated UV sample set.
+  state.time = 60; accumulate(); render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
 } else {
