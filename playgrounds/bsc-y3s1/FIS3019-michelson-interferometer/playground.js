@@ -157,12 +157,53 @@ function bootSync() {
   }
 }
 
+// Content merge from FIS1015-michelson-fringe-counter: small inset in the
+// top-right that draws the 2D ring fringe pattern at the current path
+// difference L. The user sees both the 1D I(L) curve (main plot) AND the
+// experimentalist's 2D bullseye view (inset) in one playground.
+function renderRingInset() {
+  const insetW = 200, insetH = 200;
+  const x0 = canvas.width - insetW - 16;
+  const y0 = 16;
+  ctx.strokeStyle = 'rgba(220,220,240,0.35)';
+  ctx.strokeRect(x0, y0, insetW, insetH);
+  ctx.fillStyle = '#dcdde2'; ctx.font = '11px sans-serif';
+  ctx.fillText('Ring view (2D)', x0 + 8, y0 + 14);
+  const cx = x0 + insetW / 2, cy = y0 + insetH / 2;
+  // Visualize the ring pattern with current path difference L ~ lam/2.
+  // I(rho) = (1 + cos(4 pi L / lam * (1 - 0.5 rho^2))).
+  const L = lam;
+  const Imgd = ctx.createImageData(insetW, insetH);
+  const data = Imgd.data;
+  const rgbR = lam < 500 ? 60  : (lam > 600 ? 220 : 200);
+  const rgbG = lam < 500 ? 60  : (lam > 600 ? 80  : 200);
+  const rgbB = lam < 500 ? 220 : (lam > 600 ? 80  : 100);
+  for (let py = 0; py < insetH; py += 1) {
+    for (let px = 0; px < insetW; px += 1) {
+      const u = (px - insetW / 2) / (insetW / 2);
+      const v = (py - insetH / 2) / (insetH / 2);
+      const arg = 4 * Math.PI * L / lam * (1 - 0.5 * (u * u + v * v));
+      const I = 0.5 * (1 + Math.cos(arg));
+      const k = (py * insetW + px) * 4;
+      data[k    ] = Math.floor(rgbR * I);
+      data[k + 1] = Math.floor(rgbG * I);
+      data[k + 2] = Math.floor(rgbB * I);
+      data[k + 3] = 255;
+    }
+  }
+  ctx.putImageData(Imgd, x0, y0);
+  ctx.strokeStyle = 'rgba(220,220,240,0.35)';
+  ctx.strokeRect(x0, y0, insetW, insetH);
+}
+const origRender = render;
+const renderWithInset = function () { origRender(); renderRingInset(); };
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(loop);
+    bootSync(); renderWithInset();
+    if (!CAPTURE_NAME) (function loopWithInset() { renderWithInset(); requestAnimationFrame(loopWithInset); })();
   }, { once: true });
 } else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(loop);
+  bootSync(); renderWithInset();
+  if (!CAPTURE_NAME) (function loopWithInset() { renderWithInset(); requestAnimationFrame(loopWithInset); })();
 }
