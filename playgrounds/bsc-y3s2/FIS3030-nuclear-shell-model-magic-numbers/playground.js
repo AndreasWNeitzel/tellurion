@@ -18,10 +18,18 @@ const valueN  = document.getElementById('value-N');
 
 let N = parseInt(sliderN.value, 10);
 let flashUntil = 0, flashGold = false;
+// 1-B: a nucleon hopping into the lowest unfilled level over 0.3 s, plus a
+// 1.5 s gold shell-closure glow at magic numbers, plus an Auto-fill driver.
+let hopStart = 0, hopActive = false;
+let closureUntil = 0;
+let autoFill = false, autoLast = 0;
 
 function markFlash() {
   flashUntil = performance.now() + 700;
   flashGold = MAGIC.includes(N);
+  hopStart = performance.now();
+  hopActive = true;
+  if (MAGIC.includes(N)) closureUntil = performance.now() + 1500;
 }
 
 sliderN.addEventListener('input', () => { N = parseInt(sliderN.value, 10); valueN.textContent = String(N); markFlash(); });
@@ -41,7 +49,13 @@ sliderN.addEventListener('input', () => { N = parseInt(sliderN.value, 10); value
   plus.addEventListener('click', () => {
     if (N < parseInt(sliderN.max, 10)) { N += 1; sliderN.value = String(N); valueN.textContent = String(N); markFlash(); }
   });
-  row.appendChild(minus); row.appendChild(plus);
+  const auto = document.createElement('button'); auto.type = 'button'; auto.textContent = 'Auto-fill';
+  auto.addEventListener('click', () => {
+    autoFill = !autoFill;
+    auto.textContent = autoFill ? 'Stop' : 'Auto-fill';
+    autoLast = performance.now();
+  });
+  row.appendChild(minus); row.appendChild(plus); row.appendChild(auto);
   controls.appendChild(row);
 })();
 
@@ -128,6 +142,31 @@ function render() {
   ctx.fillStyle = c.muted;
   ctx.font = '12px ui-monospace, monospace';
   ctx.fillText(`N = ${N} (${isMagic(N) ? 'magic shell closure' : 'open shell'})`, padL, padT - 14);
+
+  const now = performance.now();
+  // Hopping nucleon: animates from above the diagram down to the marker
+  // line over 0.3 s after the last add.
+  if (hopActive) {
+    const tt = (now - hopStart) / 300;
+    if (tt >= 1) { hopActive = false; }
+    else {
+      const yTarget = yFor(fillIndex(N)) + 8;
+      const yStart = padT - 30;
+      const y = yStart + (yTarget - yStart) * (tt * tt * (3 - 2 * tt));
+      ctx.fillStyle = c.accent || '#ffd166';
+      ctx.beginPath(); ctx.arc(canvas.width * 0.5, y, 5, 0, 2 * Math.PI); ctx.fill();
+    }
+  }
+  // Shell-closure gold banner for 1.5 s at magic numbers.
+  if (now < closureUntil) {
+    ctx.fillStyle = 'rgba(255, 209, 102, 0.14)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ffd166';
+    ctx.font = 'bold 20px ui-monospace, monospace';
+    ctx.fillText('SHELL CLOSURE', canvas.width / 2 - 80, padT + 8);
+    // Binding-energy local-max up-arrow glyph.
+    ctx.fillText('^', canvas.width - 40, padT + 8);
+  }
 }
 
 function updateReadout() {
@@ -136,6 +175,16 @@ function updateReadout() {
 }
 
 function loop() {
+  // Auto-fill: increment N once per 0.4 s while active.
+  if (autoFill) {
+    const now = performance.now();
+    if (now - autoLast >= 400) {
+      autoLast = now;
+      if (N < parseInt(sliderN.max, 10)) {
+        N += 1; sliderN.value = String(N); valueN.textContent = String(N); markFlash();
+      } else { autoFill = false; }
+    }
+  }
   render();
   updateReadout();
   requestAnimationFrame(loop);

@@ -59,4 +59,10 @@ describe('nuclear-shell-model-magic-numbers', () => {
       expect(levelEnergyMeV(i)).toBeGreaterThanOrEqual(levelEnergyMeV(i - 1));
     }
   });
+  it('1-B: shell closure fires for and only for magic numbers', () => {
+    const MAGIC_SET = [2, 8, 20, 28, 50, 82, 126];
+    for (let n = 0; n <= 126; n += 1) {
+      expect(isMagic(n)).toBe(MAGIC_SET.includes(n));
+    }
+  });
 });
