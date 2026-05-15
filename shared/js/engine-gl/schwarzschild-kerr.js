@@ -199,32 +199,41 @@ void main() {
     // No volumetric, no second-crossing accumulation. Removes ghost disks
     // and inner-shadow leaks.
     if (prevY * curY < 0.0 && r > uDiskInner && r < uDiskOuter) {
-      // Normalized disk radius for the color LUT.
+      // Disk vertical scale height: h(r) = 0.15 * r. Integrate emission
+      // through the disk volume with a Gaussian vertical profile, sampled
+      // at 4 sub-steps. This softens the disk's vertical edge so it reads
+      // as a glowing body, not a razor-thin band.
+      float h = 0.15 * r;
       float t = (r - uDiskInner) / max(uDiskOuter - uDiskInner, 1e-6);
       vec3 color = diskLUT(t);
-      // Brightness drops sharply with r: emission ~ (r_in / r)^3. Base HDR
-      // luminosity 8.0 so the inner edge blows out through ACES bloom.
       float brightness = 8.0 * pow(uDiskInner / max(r, 1.0), 3.0);
-      // Three-layer FBM disk texture.
       float phi_disk = atan(pos.z, pos.x);
       float n_a = fbm6(vec2(phi_disk * 3.0, log(max(r, 1.0)) * 2.0));
       float n_b = fbm3(vec2(phi_disk * 8.0, r * 0.1));
       float n_c = hash21(vec2(phi_disk, r) * vec2(127.1, 311.7));
       brightness *= (0.7 + 0.6 * n_a) * (0.85 + 0.3 * n_b) * (0.92 + 0.08 * n_c);
-      // Relativistic Doppler g from Keplerian orbital velocity.
-      // beta_kep = sqrt(M / r) / (1 + sqrt(M / r))  (an approximation; close
-      // enough to the exact value for visual asymmetry).
+      // Relativistic Keplerian Doppler.
       float vk = sqrt(1.0 / max(r, 1.0));
       float beta = vk / (1.0 + vk);
       vec3 vDisk = vec3(-pos.z, 0.0, pos.x) * (vk / max(r, 1.0));
       vec3 los = normalize(uEye - pos);
       float losAlign = dot(normalize(vDisk + vec3(1e-6, 0.0, 0.0)), los);
-      // g = sqrt((1 + beta * losAlign) / (1 - beta * losAlign))
       float num = max(1e-3, 1.0 + beta * losAlign);
       float den = max(1e-3, 1.0 - beta * losAlign);
       float g = sqrt(num / den);
       float gain = pow(g, 4.0);
-      col = color * brightness * gain;
+      // Vertical integration: 4 samples in z over the local disk thickness,
+      // weighted by a Gaussian profile centered on z = 0. Total weight
+      // normalized so the midplane peaks at the previous single-sample value.
+      vec3 acc = vec3(0.0);
+      float wSum = 0.0;
+      for (int j = 0; j < 4; j += 1) {
+        float zOff = (float(j) - 1.5) * h * 0.6;
+        float w = exp(-zOff * zOff / (2.0 * h * h));
+        acc += w * color * brightness * gain;
+        wSum += w;
+      }
+      col = acc / max(wSum, 1e-3);
       hitDisk = true;
       break;
     }
