@@ -64,7 +64,7 @@ const camera = createOrbitCamera(canvas, {
   minRadius: 8,
   maxRadius: 100,
   azimuthDeg: 35,
-  elevationDeg: 5,
+  elevationDeg: 3,
   fovDeg: 65,
 });
 window.__camera = camera;
