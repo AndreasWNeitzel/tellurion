@@ -110,13 +110,62 @@ function drawLimb(c, x0, y_off, w, h) {
   ctx.fillText('Eddington limb darkening I(mu) = 0.4 + 0.6 mu', x0 + 12, y_off + 14);
 }
 
+// Wyman 2013 blackbody temperature (K) -> sRGB at unit luminance.
+function bbRGB(T) {
+  T = Math.max(1000, Math.min(25000, T));
+  let x;
+  if (T < 4000) x = -0.2661239e9 / (T*T*T) - 0.2343580e6 / (T*T) + 0.8776956e3 / T + 0.179910;
+  else          x = -3.0258469e9 / (T*T*T) + 2.1070379e6 / (T*T) + 0.2226347e3 / T + 0.240390;
+  let y;
+  if (T < 2222)      y = -1.1063814*x*x*x - 1.34811020*x*x + 2.18555832*x - 0.20219683;
+  else if (T < 4000) y = -0.9549476*x*x*x - 1.37418593*x*x + 2.09137015*x - 0.16748867;
+  else               y =  3.0817580*x*x*x - 5.87338670*x*x + 3.75112997*x - 0.37001483;
+  y = Math.max(y, 0.001);
+  const X = x / y, Z = (1 - x - y) / y;
+  let r =  3.2406*X - 1.5372 - 0.4986*Z;
+  let g = -0.9689*X + 1.8758 + 0.0415*Z;
+  let b =  0.0557*X - 0.2040 + 1.0570*Z;
+  const m = Math.max(r, g, b, 1e-6);
+  r = Math.max(0, r / m); g = Math.max(0, g / m); b = Math.max(0, b / m);
+  return [r, g, b];
+}
+
+// 1-F: a limb-darkened solar disk. I(mu) = 0.4 + 0.6 mu, mu = sqrt(1-(r/R)^2),
+// colored by a blackbody at T_eff * I(mu)^0.25.
+function drawDisk(c, x0, y0, w, h) {
+  const cx = x0 + w / 2, cy = y0 + h / 2;
+  const R = Math.min(w, h) * 0.42;
+  const img = ctx.getImageData(x0, y0, w, h);
+  const d = img.data;
+  for (let py = 0; py < h; py += 1) {
+    for (let px = 0; px < w; px += 1) {
+      const dx = (x0 + px) - cx, dy = (y0 + py) - cy;
+      const rr = Math.hypot(dx, dy) / R;
+      const idx = (py * w + px) * 4;
+      if (rr > 1) { d[idx] = 6; d[idx+1] = 6; d[idx+2] = 8; d[idx+3] = 255; continue; }
+      const mu = Math.sqrt(1 - rr * rr);
+      const I = 0.4 + 0.6 * mu;
+      const [cr, cg, cb] = bbRGB(Teff * Math.pow(I, 0.25));
+      d[idx]   = Math.round(255 * cr * I);
+      d[idx+1] = Math.round(255 * cg * I);
+      d[idx+2] = Math.round(255 * cb * I);
+      d[idx+3] = 255;
+    }
+  }
+  ctx.putImageData(img, x0, y0);
+  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`Limb-darkened disk  I(mu)=0.4+0.6 mu, T_eff=${Math.round(Teff)} K`, x0 + 12, y0 + 18);
+}
+
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  drawTau(c, 0, 0, W * 0.55, H);
-  drawLimb(c, W * 0.55, 0, W * 0.45, H);
+  const diskH = H * 0.58;
+  drawDisk(c, 0, 0, W, diskH);
+  drawTau(c, 0, diskH, W * 0.55, H - diskH);
+  drawLimb(c, W * 0.55, diskH, W * 0.45, H - diskH);
 }
 
 function updateReadout() {

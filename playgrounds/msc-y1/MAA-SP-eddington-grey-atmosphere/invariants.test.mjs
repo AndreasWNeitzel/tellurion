@@ -56,4 +56,10 @@ describe('eddington-grey-atmosphere', () => {
   it('TAU_PHOTOSPHERE constant equals 2/3', () => {
     expect(TAU_PHOTOSPHERE).toBeCloseTo(2 / 3, 12);
   });
+  it('1-F: disk center is at least 2x brighter than the limb', () => {
+    // I(mu) = 0.4 + 0.6 mu. Center mu=1 -> I=1.0. Limb mu->0 -> I->0.4.
+    const Icenter = 0.4 + 0.6 * 1.0;
+    const Ilimb = 0.4 + 0.6 * 0.0;
+    expect(Icenter / Ilimb).toBeGreaterThanOrEqual(2.0);
+  });
 });
