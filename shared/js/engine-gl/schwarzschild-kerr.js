@@ -167,9 +167,8 @@ vec3 bh_disk_emission(vec3 hit_pos, float r, float phi_hit, float r_isco, vec3 e
   float v = log(max(r / r_isco, 1.0)) * 2.5;
   float u_period = 2.0 * PI * S;
   // Differential Keplerian rotation: inner gas orbits faster than outer
-  // (omega ~ r^-3/2). Slowed to ~ one orbit per 75 s at r_isco so motion
-  // is perceptible but unobtrusive.
-  float omega = 0.084 * pow(r_isco / max(r, r_isco), 1.5);
+  // (omega ~ r^-3/2). One orbit per ~37 s at r_isco (2x the prior rate).
+  float omega = 0.168 * pow(r_isco / max(r, r_isco), 1.5);
   float phi_rot = phi_hit - omega * uTime;
   float phi_w = mod(phi_rot + PI, 2.0 * PI) - PI;     // [-pi, pi)
   float u0 = phi_w * S;
