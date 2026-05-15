@@ -280,28 +280,11 @@ void main() {
   oColor = vec4(aces(col * vign), 1.0);
 }`;
 
-// CPU-generated equirectangular star texture (2048 x 1024 RGBA8).
-function buildStarTexture(gl, W = 2048, H = 1024) {
+// CPU-generated equirectangular star texture (RGBA8). 4000 stars with
+// Airy-disk splats (Gaussian core + first ring) + diffraction spikes on
+// the brightest; Milky Way band along a great circle with FBM modulation.
+function buildStarTexture(gl, W = 1024, H = 512) {
   const data = new Uint8Array(W * H * 4);
-  // Faint Milky Way band along a great circle (z-axis equator).
-  // Add procedural noise for a dim diffuse glow.
-  function hash(x) { let s = (x * 2654435761) >>> 0; s = (s ^ (s >>> 16)) >>> 0; return s / 0x100000000; }
-  for (let y = 0; y < H; y += 1) {
-    for (let x = 0; x < W; x += 1) {
-      const lat = (y / H - 0.5) * Math.PI;
-      const bandAtt = Math.exp(-Math.pow(lat / 0.25, 2) * 0.5);
-      const n = hash(x * 1361 + y * 9277);
-      const dim = bandAtt * (0.012 + 0.020 * n);
-      const i = (y * W + x) * 4;
-      data[i] = Math.min(255, dim * 220);
-      data[i + 1] = Math.min(255, dim * 200);
-      data[i + 2] = Math.min(255, dim * 240);
-      data[i + 3] = 255;
-    }
-  }
-  // ~3000 stars; brightness power-law; Gaussian splat radius 1..2.5 px.
-  let s = 0xC0FFEE >>> 0;
-  const rnd = () => { s = Math.imul(s, 1664525) + 1013904223 >>> 0; return s / 0x100000000; };
   function planckRGB(T) {
     const t = Math.max(1000, Math.min(15000, T)) / 100;
     const r = t <= 66 ? 255 : Math.min(255, 329.7 * Math.pow(t - 60, -0.133));
@@ -309,31 +292,85 @@ function buildStarTexture(gl, W = 2048, H = 1024) {
     const b = t >= 66 ? 255 : t <= 19 ? 0 : Math.min(255, 138.5 * Math.log(t - 10) - 305);
     return [r, g, b];
   }
-  for (let k = 0; k < 3000; k += 1) {
-    // Uniform on sphere.
+  // FBM helpers for the Milky Way band.
+  function hash21(x, y) {
+    let s = ((x | 0) * 374761393 + (y | 0) * 668265263) >>> 0;
+    s = (s ^ (s >>> 13)) * 1274126177 >>> 0;
+    return ((s ^ (s >>> 16)) >>> 0) / 0x100000000;
+  }
+  function noise2(x, y) {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    return (hash21(xi, yi) * (1 - u) + hash21(xi + 1, yi) * u) * (1 - v)
+         + (hash21(xi, yi + 1) * (1 - u) + hash21(xi + 1, yi + 1) * u) * v;
+  }
+  function fbm(x, y, oct) {
+    let v = 0, a = 0.5, f = 1;
+    for (let i = 0; i < oct; i += 1) { v += a * noise2(x * f, y * f); f *= 2.03; a *= 0.5; }
+    return v;
+  }
+  // Milky Way band: galactic equator is a great circle; approximate as
+  // sine wave in equirectangular UV. Width ~0.04 in latitude.
+  for (let y = 0; y < H; y += 1) {
+    const v_norm = y / H;
+    for (let x = 0; x < W; x += 1) {
+      const u_norm = x / W;
+      const galLat = v_norm - 0.5 - 0.15 * Math.sin(u_norm * 2 * Math.PI);
+      const band = Math.exp(-galLat * galLat / (2 * 0.04 * 0.04));
+      const dustN = fbm(u_norm * 8.0, galLat * 20.0, 4);
+      const dim = band * (0.5 + 0.8 * dustN) * 0.10;
+      const i = (y * W + x) * 4;
+      data[i] = Math.min(255, dim * 255);
+      data[i + 1] = Math.min(255, dim * 178);
+      data[i + 2] = Math.min(255, dim * 102);
+      data[i + 3] = 255;
+    }
+  }
+  // 4000 stars with Airy splats + diffraction spikes for bright stars.
+  let s = 0xC0FFEE >>> 0;
+  const rnd = () => { s = Math.imul(s, 1664525) + 1013904223 >>> 0; return s / 0x100000000; };
+  let starCount = 0;
+  for (let k = 0; k < 4000; k += 1) {
     const z = 1 - 2 * rnd();
     const phi = rnd() * 2 * Math.PI;
     const lat = Math.asin(z);
     const lon = phi - Math.PI;
     const sx = Math.floor(((lon / (2 * Math.PI)) + 0.5) * W);
     const sy = Math.floor((lat / Math.PI + 0.5) * H);
-    // Brightness power-law (Salpeter-ish).
+    // Apparent magnitude m in [0, 8] with p(m) ~ 10^(0.6 m) (more faint).
     const u = rnd();
-    const br = Math.pow(u, 2.5);
-    const T = 3000 + rnd() * 9000;
+    const m = 8 * Math.pow(u, 0.4);
+    const T = 3500 + 8500 * rnd();
     const [cr, cg, cb] = planckRGB(T);
-    const sigma = 0.6 + 1.5 * br;
-    const radius = Math.ceil(sigma * 2.5);
+    const peak = Math.pow(10, -0.4 * m) * 4.0;
+    let sigma;
+    if (m < 2) sigma = 2.5;
+    else if (m < 4) sigma = 1.5;
+    else if (m < 6) sigma = 0.8;
+    else sigma = 0.4;
+    const radius = Math.ceil(6 * sigma);
+    const ringR = 2.44 * sigma;
+    const ringW = 0.6 * sigma;
     for (let dy = -radius; dy <= radius; dy += 1) for (let dx = -radius; dx <= radius; dx += 1) {
       const x2 = sx + dx, y2 = sy + dy;
       if (x2 < 0 || x2 >= W || y2 < 0 || y2 >= H) continue;
-      const r2 = dx * dx + dy * dy;
-      const g = Math.exp(-r2 / (2 * sigma * sigma)) * br;
+      const r_px = Math.sqrt(dx * dx + dy * dy);
+      const core = Math.exp(-r_px * r_px / (2 * sigma * sigma));
+      const ring = 0.12 * Math.exp(-Math.pow(r_px - ringR, 2) / (2 * ringW * ringW));
+      let airy = core + ring;
+      if (m < 3) {
+        const spikeH = 0.15 * Math.exp(-Math.abs(dy) / (0.8 * sigma)) * Math.exp(-dx * dx / (sigma * sigma * 0.1));
+        const spikeV = 0.15 * Math.exp(-Math.abs(dx) / (0.8 * sigma)) * Math.exp(-dy * dy / (sigma * sigma * 0.1));
+        airy += spikeH + spikeV;
+      }
+      const brightness = peak * airy;
       const i = (y2 * W + x2) * 4;
-      data[i] = Math.min(255, data[i] + cr * g);
-      data[i + 1] = Math.min(255, data[i + 1] + cg * g);
-      data[i + 2] = Math.min(255, data[i + 2] + cb * g);
+      data[i] = Math.min(255, data[i] + cr * brightness);
+      data[i + 1] = Math.min(255, data[i + 1] + cg * brightness);
+      data[i + 2] = Math.min(255, data[i + 2] + cb * brightness);
     }
+    starCount += 1;
   }
   const tex = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, tex);
