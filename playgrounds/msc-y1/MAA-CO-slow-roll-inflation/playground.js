@@ -70,6 +70,20 @@ function render() {
   const by = y0 - (V(state.phi) / mxV) * (plotH - 20);
   ctx.fillStyle = '#ffd57f';
   ctx.beginPath(); ctx.arc(bx, by - 4, 6, 0, 2 * Math.PI); ctx.fill();
+  // 3-A: epsilon = 1 marker (end of slow-roll). Scan phi for the crossing.
+  let phiEnd = -1;
+  for (let i = 1; i <= 200; i += 1) {
+    const phi = (i / 200) * 12;
+    if (epsilon(phi) >= 1) { phiEnd = phi; break; }
+  }
+  if (phiEnd > 0) {
+    const ex = x0 + (phiEnd / 12) * plotW;
+    ctx.strokeStyle = '#ff5d5d'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(ex, y0 - plotH); ctx.lineTo(ex, y0); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ff5d5d'; ctx.font = '11px sans-serif';
+    ctx.fillText('epsilon = 1 (inflation ends)', ex + 4, y0 - plotH + 28);
+  }
   ctx.fillStyle = '#dcdde2'; ctx.font = '13px sans-serif';
   ctx.fillText('Inflaton potential V(phi)', x0 + 8, y0 - plotH + 16);
 
