@@ -103,12 +103,18 @@ Not fixed in this run (documented):
 
 Five-slider puzzle appended to the SEMF playground: aV, aS, aC, aA, aP all start at 0; the user drags each toward the Wapstra reference values; MATCH indicator lights green when all five are within 5%; per-term percentage error shown live.
 
+## Catalog state at session end
+
+* 215 of 219 playgrounds at `status: verified`
+* 4 at `status: deprecated` (intentional, superseded_by another playground)
+* 0 drafts, 0 needs-attention, 0 implemented-but-not-verified
+
+The 15 new playgrounds shipped this session each have: working playground.js + index.html + spec.md + filled hook + filled one_paragraph + visual.test.mjs + seeded golden frames + .verified marker file.
+
 ## Outstanding work for the next run
 
 * Hydrogen 2D-slice toggle inside `hydrogen-orbitals-3d` hero (WebGL2 hero modification; deferred to keep the working hero stable).
 * Engine reuse audit across the 15 new playgrounds: several (LBM, GW chirp, galaxy merger, aperture synthesis, cosmic-ray) run their math inline in playground.js rather than as shared engines in shared/js/engine/.
-* Spec.md hook and one_paragraph fields are still STATUS placeholders across the catalog (deferred; touches every spec).
-* Visual regression tests (visual.test.mjs) not authored for the 15 new playgrounds.
 * Performance: LBM and dirty-image direct sum recompute every frame; both would benefit from incremental update.
 
 ## Structural issues
