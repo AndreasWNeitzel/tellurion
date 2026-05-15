@@ -17,7 +17,7 @@ const SEED           = '0xC0FFEE';
 const FRAMES         = ['t-000', 't-025', 't-050', 't-075', 't-100'];
 const FRACTION       = { 't-000': 0, 't-025': 0.25, 't-050': 0.5, 't-075': 0.75, 't-100': 1 };
 const SSIM_MIN       = 0.92;
-const PG_SLUG        = path.basename(PLAYGROUND_DIR);
+const URL_PATH       = path.relative(PROJECT_ROOT, PLAYGROUND_DIR).split(path.sep).join('/');
 
 let server, baseUrl;
 
@@ -34,7 +34,7 @@ test.afterAll(async () => {
 test.describe('Logistic Cobweb visual gate', () => {
   for (const frameName of FRAMES) {
     test(`frame ${frameName} matches golden`, async ({ page }) => {
-      const url = new URL(`${baseUrl}/playgrounds/${PG_SLUG}/index.html`);
+      const url = new URL(`${baseUrl}/${URL_PATH}/index.html`);
       url.searchParams.set('seed', SEED);
       url.searchParams.set('deterministic', '1');
       url.searchParams.set('capture', frameName);

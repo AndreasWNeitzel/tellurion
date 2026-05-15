@@ -31,7 +31,8 @@ function parseFrontmatter(text) {
     const eq = line.indexOf(':');
     if (eq === -1) continue;
     const key = line.slice(0, eq).trim();
-    const val = line.slice(eq + 1).trim();
+    let val = line.slice(eq + 1).trim();
+    val = val.replace(/^(['"])([\s\S]*)\1$/, '$2');
     front[key] = val;
   }
   return { frontmatter: front, body: m[2] };

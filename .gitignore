@@ -12,14 +12,19 @@ dist/
 *.tsbuildinfo
 
 # Test artifacts (ephemeral; goldens live under references/golden-frames/ and are committed)
+# Both the legacy flat layout playgrounds/<slug>/ and the curriculum-aligned
+# playgrounds/<year>/<UC>-<slug>/ layout are covered.
 playgrounds/*/references/captured/
+playgrounds/*/*/references/captured/
 playgrounds/*/failures/
+playgrounds/*/*/failures/
 playwright-report/
 test-results/
 coverage/
 
 # Verification markers (regenerated per /verify run)
 playgrounds/*/.verified
+playgrounds/*/*/.verified
 
 # Claude Code audit logs
 .claude/logs/

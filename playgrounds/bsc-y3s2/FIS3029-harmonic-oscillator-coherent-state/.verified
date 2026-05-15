@@ -1,3 +1,0 @@
-verified-at: 2026-05-13T12:50:00Z
-invariants: 7/7
-visual: SSIM > 0.92 (5 frames sweeping t from 0 to 2 pi at alpha = 2)

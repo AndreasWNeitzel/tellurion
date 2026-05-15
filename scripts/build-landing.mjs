@@ -69,7 +69,7 @@ const tagsRail = TAGS.map(t => `<button class="chip" data-tag="${t}">${t}</butto
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Playgrounds Portfolio — Andreas W. Neitzel</title>
+<title>Playgrounds Portfolio. Andreas W. Neitzel</title>
 <meta property="og:title" content="Playgrounds Portfolio">
 <meta property="og:description" content="${cards.length} interactive physics, astronomy, and ML playgrounds.">
 <meta name="twitter:card" content="summary">

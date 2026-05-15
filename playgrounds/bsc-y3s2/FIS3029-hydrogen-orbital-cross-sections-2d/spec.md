@@ -1,7 +1,8 @@
 ---
 title: Hydrogen Orbital Cross Sections in the (x, z) Plane
 slug: hydrogen-orbital-cross-sections-2d
-status: verified
+status: deprecated
+superseded_by: hydrogen-orbitals-3d
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3029

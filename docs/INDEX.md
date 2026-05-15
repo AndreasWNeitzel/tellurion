@@ -173,9 +173,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Noether's Theorem: Symmetry to Conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/index.html)** &nbsp; (verified, verified 2026-05-14T01:29:39Z)
   Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4 (`lemos-mech`).
 
-- **[Liouville Phase-Volume Conservation](../playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/index.html)** &nbsp; (verified, verified 2026-05-14T01:28:07Z)
-  Initial-condition patch stretches but preserves phase-space area under pendulum flow. Source: Lemos Ch. 6 (`lemos-mech`).
-
 - **[Lagrangian vs Newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/index.html)** &nbsp; (verified, verified 2026-05-14T01:26:43Z)
   Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3 (`lemos-mech`).
 
@@ -212,7 +209,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Group vs Phase Velocity in a Dispersive Medium](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/index.html)** &nbsp; (verified, verified 2026-05-14T01:11:17Z)
   Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6 (`crawford-waves`).
 
-- **[Equipartition from Microscopic Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (verified, verified 2026-05-14T01:09:53Z)
+- **[Equipartition from Microscopic Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (deprecated, verified 2026-05-14T01:09:53Z)
   2D hard-disk gas; the mean translational kinetic energy converges to $kT$. Source: Reif Ch. 7 (`reif`).
 
 - **[Engine Cycle Explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/index.html)** &nbsp; (verified, verified 2026-05-14T01:08:34Z)
@@ -230,7 +227,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Larmor Radiation Pattern](../playgrounds/bsc-y2s1/FIS2013-larmor-radiation-pattern/index.html)** &nbsp; (verified, verified 2026-05-14T01:03:07Z)
   Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11 (`griffiths-em`).
 
-- **[Michelson Fringe Counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/index.html)** &nbsp; (verified, verified 2026-05-14T01:01:49Z)
+- **[Michelson Fringe Counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/index.html)** &nbsp; (deprecated, verified 2026-05-14T01:01:49Z)
   Moving one arm of a Michelson interferometer by $\lambda/2$ produces one full fringe at the center. The rendered pattern is the ring system for a divergent source. Source: Hecht Optics Ch. 9.4 (`hecht2017`).
 
 - **[Method of Images: Charge Above a Grounded Plane](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/index.html)** &nbsp; (verified, verified 2026-05-14T00:59:47Z)
@@ -533,7 +530,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Frustrated Triangular Antiferromagnet](../playgrounds/bsc-y2s1/FIS2014-frustrated-triangular-af/index.html)** &nbsp; (verified, verified 2026-05-13T16:07:02Z)
   Antiferromagnetic Ising spins on a 2D triangular lattice with periodic boundaries. Each spin prefers to be opposite to its 6 neighbors. Geometric frustration: on every 3-spin plaquette, you cannot satisfy all three anti-alignments at once. Wannier 1950 showed there is no finite-T phase transition; the T = 0 ground state has extensive residual entropy.
 
-- **[Hydrogen Orbital Cross Sections in the (x, z) Plane](../playgrounds/bsc-y3s2/FIS3029-hydrogen-orbital-cross-sections-2d/index.html)** &nbsp; (verified, verified 2026-05-13T16:07:02Z)
+- **[Hydrogen Orbital Cross Sections in the (x, z) Plane](../playgrounds/bsc-y3s2/FIS3029-hydrogen-orbital-cross-sections-2d/index.html)** &nbsp; (deprecated, verified 2026-05-13T16:07:02Z)
   The bound stationary states of the hydrogen atom, parameterized by three quantum numbers (n, l, m). Probability density |psi_nlm|^2 plotted in the plane through the nucleus that contains the z axis (i.e., y = 0). This is the standard textbook visualization for orbital shapes.
 
 - **[KL Divergence Asymmetry (Mass-Covering vs Mode-Seeking)](../playgrounds/msc-y1/MAA-ST-kl-divergence-asymmetry/index.html)** &nbsp; (verified, verified 2026-05-13T16:07:02Z)
@@ -575,28 +572,16 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[t-SNE vs UMAP vs Isomap](../playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/index.html)** &nbsp; (verified, verified 2026-05-13T13:50:00Z)
   A 3D dataset shown alongside three 2D embeddings of it. The Swiss roll is the classic "is your DR method nonlinear?" test: PCA squashes it because PCA only knows linear projections, Isomap unrolls it because it measures distances along the manifold, t-SNE clusters local neighborhoods but loses the global ordering. The two-blob dataset is easier and all three
 
-- **[Ising Triangular](../playgrounds/bsc-y2s1/FIS2014-ising-triangular/index.html)** &nbsp; (verified, verified 2026-05-13T13:45:00Z)
-  A grid of tiny magnets on a triangular lattice. Each one points up or down; neighbors prefer to agree (lower energy). Lower the temperature to watch them align into one giant domain; raise it to watch them flicker randomly. Right at the critical temperature $T_c = 4/\ln(3) \approx 3.641$ (Wannier 1950) the system is on the knife edge between order and disord
-
 - **[Attention as Soft Retrieval](../playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/index.html)** &nbsp; (verified, verified 2026-05-13T12:54:00Z)
   Single-head scaled dot-product attention over a small key-value bank: w_i = softmax(Q . k_i / sqrt(d) / tau), output = sum w_i v_i. The left panel shows six keys in 2D; the query (red) can be dragged. The right panel shows the value bars colored by attention weight; the cat-3 bar is the weighted output. As temperature tau drops, attention concentrates on the
-
-- **[Harmonic Oscillator Coherent State](../playgrounds/bsc-y3s2/FIS3029-harmonic-oscillator-coherent-state/index.html)** &nbsp; (verified, verified 2026-05-13T12:50:00Z)
-  A coherent state |alpha> of the 1D quantum harmonic oscillator. The probability density |psi(x, t)|^2 is a Gaussian of fixed width 1/sqrt(2) whose mean follows the classical orbit x_0(t) = sqrt(2) Re(alpha e^{-i omega t}). Adjust alpha to set the orbit amplitude; press play to watch the wave packet oscillate without spreading (the defining property of a cohe
-
-- **[Bloch Sphere Qubit Gates](../playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/index.html)** &nbsp; (verified, verified 2026-05-13T12:46:00Z)
-  A single qubit on the Bloch sphere. Apply standard gates (X, Y, Z, H, S, T) or continuous rotations (R_x, R_y, R_z by the slider angle). The red arrow is the live state vector; the blue trail shows the recent path; the readout reports the live (theta, phi) angles, the Bloch components (r_x, r_y, r_z), the norm (should equal 1), the unitarity of the most rece
 
 - **[Bayesian Coin Update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/index.html)** &nbsp; (verified, verified 2026-05-13T12:43:00Z)
   Conjugate Beta-Binomial inference for the bias theta of an unfair coin. Prior Beta(alpha0, beta0); k heads in n flips; posterior Beta(alpha0 + k, beta0 + n - k). The plot overlays prior, normalized likelihood, and posterior, with a shaded 95 percent credible interval around the posterior mean.
 
-- **[Tunneling Rectangular Barrier](../playgrounds/bsc-y3s2/FIS3029-tunneling-rectangular-barrier/index.html)** &nbsp; (verified, verified 2026-05-13T12:38:00Z)
-  A 1D Schrodinger particle of energy E incident on a rectangular barrier of height V_0 and width a. The transmission coefficient T(E) is closed-form: for E < V_0 it decays exponentially as the wave evanesces inside the barrier; for E > V_0 it oscillates with perfect resonances at E = V_0 + n^2 pi^2 / (2 a^2). The dashed classical step function (T = 0 below V_
-
 - **[Henon Strange Attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/index.html)** &nbsp; (verified, verified 2026-05-13T12:34:00Z)
   The Henon 1976 map x' = 1 - a x^2 + y, y' = b x. At the canonical (a=1.4, b=0.3) the iterates settle onto a strange attractor with maximum Lyapunov exponent ~ 0.4192 and box-counting dimension ~ 1.26. Tune a and b to walk through the period-doubling cascade and the Henon-Smale horseshoe regime.
 
-- **[Lorenz Attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/index.html)** &nbsp; (verified, verified 2026-05-13T11:36:00Z)
+- **[Lorenz Attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/index.html)** &nbsp; (deprecated, verified 2026-05-13T11:36:00Z)
   The Lorenz 1963 system: a three-variable truncation of the Saltzman convection equations, written
 
 - **[MCMC Sampler Comparator](../playgrounds/msc-y1/MAA-ST-mcmc-comparator/index.html)** &nbsp; (verified, verified 2026-05-13T10:53:00Z)
@@ -628,3 +613,39 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
+
+- **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (needs-attention)
+  Five radio telescopes plotted on a procedural world map (continent outlines, no image texture): ALMA, VLA, Effelsberg, Metsahovi, JCMT. The sky-preview panel shows a three-source model (one bright dot + two fainter). As simulated time runs (one day per 10 s), each telescope pair traces an elliptical arc in the UV plane; the dirty image panel updates via 2D i
+
+- **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (needs-attention)
+  Atmosphere is drawn as vertical color bands from dark space to ground. Click the top of the canvas to fire a primary cosmic ray; the cascade fans down through the atmosphere with pions (red), kaons (orange), protons (white), and electromagnetic (blue). Shower maximum is visibly higher in the atmosphere for iron than for proton at the same energy. A detector 
+
+- **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (needs-attention)
+  Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
+
+- **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (implemented)
+  A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
+
+- **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (needs-attention)
+  Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emer
+
+- **[Gravitational Lensing Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/index.html)** &nbsp; (needs-attention)
+  Drag up to four point-mass lenses; caustic curves (in amber) and critical curves (in white) are drawn analytically. A source position marker in the source-plane creates 2, 3, or 4 multiply-lensed images that update in real time. A background dot grid shears according to the lens map.
+
+- **[Gravitational Microlensing Event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/index.html)** &nbsp; (needs-attention)
+  Top half is a 200-star procedural field; one star is the source (with a faint Einstein-radius ring), another is the lens moving across the field. As the lens approaches the source the user sees the two distorted images flanking it, an Einstein ring flash at zero impact parameter, and the characteristic Paczynski bump in the bottom-half light curve. A binary-
+
+- **[Gravitational-Wave Chirp Sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/index.html)** &nbsp; (needs-attention)
+  Three-panel visualization of a compact-binary inspiral. LEFT scrolls a strain $h(t)$ waveform that compresses and grows toward merger, then ringdown. CENTER spectrogram shows the chirp track as a bright upward sweep. RIGHT 3D inset shows the two orbiting masses (sphere size with mass) merging and ringing. WebAudio plays the strain shifted up to the audible b
+
+- **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (implemented)
+  A Jupiter-scale planet orbits a central star. A spacecraft enters on a hyperbolic trajectory; the user drags the periapsis distance and the relative approach angle. Inset shows the symmetric hyperbola in the planet rest frame; main panel shows the asymmetric solar-system-frame trajectory. Velocity arrows before and after make the energy change explicit. Pres
+
+- **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (implemented)
+  Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
+
+- **[Quantum vs Classical Random Walk](../playgrounds/bsc-y3s2/FIS3029-quantum-random-walk/index.html)** &nbsp; (implemented)
+  Side-by-side: classical (binomial) on the left, Hadamard quantum walk on the right, both on a 101-site 1D lattice. The classical distribution is a Gaussian widening as $\sqrt{N}$; the quantum is the characteristic double-peaked distribution widening as $N$. Quantum amplitudes drawn with hue from phase, brightness from $|\psi|^2$. Bottom panel overlays both h
+
+- **[Stellar Oscillation Modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/index.html)** &nbsp; (needs-attention)
+  A stellar disk breathes, rings, and ripples according to the chosen spherical-harmonic mode $Y_l^m(\theta, \phi) \cos(\omega t)$. Sliders for radial order $n$, degree $l$, azimuthal order $m$ morph the surface pattern. Side panel shows the propagation diagram (Brunt-Vaisala and Lamb frequencies vs radius for an $n = 3$ polytrope) with the current mode freque

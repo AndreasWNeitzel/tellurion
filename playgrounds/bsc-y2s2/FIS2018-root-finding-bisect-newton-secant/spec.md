@@ -1,5 +1,5 @@
 ---
-title: Root Finding: Bisection, Newton, Secant
+title: "Root Finding: Bisection, Newton, Secant"
 slug: root-finding-bisect-newton-secant
 status: verified
 audience: portfolio

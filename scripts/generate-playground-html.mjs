@@ -67,21 +67,29 @@ if (!values.slug) {
 async function resolveSlug(slug) {
   const direct = path.join(ROOT, 'playgrounds', slug);
   try { await fs.access(path.join(direct, 'spec.md')); return direct; } catch {}
+  // Collect ALL matches across the tree so we can detect ambiguity rather
+  // than silently returning the first one fs.readdir happens to return.
+  const matches = [];
   async function recurse(d) {
     let entries;
     try { entries = await fs.readdir(d, { withFileTypes: true }); }
-    catch { return null; }
+    catch { return; }
     for (const e of entries) {
       if (!e.isDirectory()) continue;
       const full = path.join(d, e.name);
-      if (e.name === slug) {
-        try { await fs.access(path.join(full, 'spec.md')); return full; } catch {}
+      if (e.name === slug || e.name.endsWith('-' + slug)) {
+        try { await fs.access(path.join(full, 'spec.md')); matches.push(full); } catch {}
       }
-      const r = await recurse(full); if (r) return r;
+      await recurse(full);
     }
-    return null;
   }
-  return recurse(path.join(ROOT, 'playgrounds'));
+  await recurse(path.join(ROOT, 'playgrounds'));
+  if (matches.length === 0) return null;
+  if (matches.length > 1) {
+    console.error('ambiguous slug:', slug, 'matches:\n  ' + matches.join('\n  '));
+    process.exit(2);
+  }
+  return matches[0];
 }
 
 const pgDir = await resolveSlug(values.slug);

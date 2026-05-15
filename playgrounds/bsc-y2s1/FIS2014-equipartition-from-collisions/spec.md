@@ -1,7 +1,8 @@
 ---
 title: Equipartition from Microscopic Collisions
 slug: equipartition-from-collisions
-status: verified
+status: deprecated
+superseded_by: maxwell-boltzmann-emergence
 audience: portfolio
 created: 2026-05-14
 primary_uc: FIS2014

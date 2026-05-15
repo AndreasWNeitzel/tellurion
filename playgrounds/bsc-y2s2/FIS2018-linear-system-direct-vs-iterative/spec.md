@@ -1,5 +1,5 @@
 ---
-title: Linear System: Direct vs Iterative
+title: "Linear System: Direct vs Iterative"
 slug: linear-system-direct-vs-iterative
 status: verified
 audience: portfolio

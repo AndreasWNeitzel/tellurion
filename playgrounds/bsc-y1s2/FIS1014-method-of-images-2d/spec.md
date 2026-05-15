@@ -1,5 +1,5 @@
 ---
-title: Method of Images: Charge Above a Grounded Plane
+title: "Method of Images: Charge Above a Grounded Plane"
 slug: method-of-images-2d
 status: verified
 audience: portfolio

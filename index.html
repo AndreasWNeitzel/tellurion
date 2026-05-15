@@ -39,7 +39,7 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (209)</h2>
+  <h2>Shipped (204)</h2>
   <section class="card-grid">
 
     <article class="card">
@@ -494,14 +494,6 @@
       <h2><a href="./playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/index.html">Noether's Theorem: Symmetry to Conservation</a></h2>
       <p class="status">verified 2026-05-14</p>
       <p class="description">Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4 (`lemos-mech`).</p>
-      
-    </article>
-  
-
-    <article class="card">
-      <h2><a href="./playgrounds/bsc-y2s2/FIS2021-liouville-phase-volume-conservation/index.html">Liouville Phase-Volume Conservation</a></h2>
-      <p class="status">verified 2026-05-14</p>
-      <p class="description">Initial-condition patch stretches but preserves phase-space area under pendulum flow. Source: Lemos Ch. 6 (`lemos-mech`).</p>
       
     </article>
   
@@ -1571,14 +1563,6 @@
   
 
     <article class="card">
-      <h2><a href="./playgrounds/bsc-y2s1/FIS2014-ising-triangular/index.html">Ising Triangular</a></h2>
-      <p class="status">verified 2026-05-13</p>
-      <p class="description">A grid of tiny magnets on a triangular lattice. Each one points up or down; neighbors prefer to agree (lower energy). Lower the temperature to watch them align into one giant domain; raise it to watch them flicker randomly. Right at the critical temperature $T_c = 4/\ln(3) \approx 3.641$ (Wannier 1950) the system is on the knife edge between order and disord</p>
-      
-    </article>
-  
-
-    <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/index.html">Attention as Soft Retrieval</a></h2>
       <p class="status">verified 2026-05-13</p>
       <p class="description">Single-head scaled dot-product attention over a small key-value bank: w_i = softmax(Q . k_i / sqrt(d) / tau), output = sum w_i v_i. The left panel shows six keys in 2D; the query (red) can be dragged. The right panel shows the value bars colored by attention weight; the cat-3 bar is the weighted output. As temperature tau drops, attention concentrates on the</p>
@@ -1587,33 +1571,9 @@
   
 
     <article class="card">
-      <h2><a href="./playgrounds/bsc-y3s2/FIS3029-harmonic-oscillator-coherent-state/index.html">Harmonic Oscillator Coherent State</a></h2>
-      <p class="status">verified 2026-05-13</p>
-      <p class="description">A coherent state |alpha&gt; of the 1D quantum harmonic oscillator. The probability density |psi(x, t)|^2 is a Gaussian of fixed width 1/sqrt(2) whose mean follows the classical orbit x_0(t) = sqrt(2) Re(alpha e^{-i omega t}). Adjust alpha to set the orbit amplitude; press play to watch the wave packet oscillate without spreading (the defining property of a cohe</p>
-      
-    </article>
-  
-
-    <article class="card">
-      <h2><a href="./playgrounds/bsc-y3s2/FIS3029-bloch-sphere-qubit-gates/index.html">Bloch Sphere Qubit Gates</a></h2>
-      <p class="status">verified 2026-05-13</p>
-      <p class="description">A single qubit on the Bloch sphere. Apply standard gates (X, Y, Z, H, S, T) or continuous rotations (R_x, R_y, R_z by the slider angle). The red arrow is the live state vector; the blue trail shows the recent path; the readout reports the live (theta, phi) angles, the Bloch components (r_x, r_y, r_z), the norm (should equal 1), the unitarity of the most rece</p>
-      
-    </article>
-  
-
-    <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-DM-bayesian-coin-update/index.html">Bayesian Coin Update</a></h2>
       <p class="status">verified 2026-05-13</p>
       <p class="description">Conjugate Beta-Binomial inference for the bias theta of an unfair coin. Prior Beta(alpha0, beta0); k heads in n flips; posterior Beta(alpha0 + k, beta0 + n - k). The plot overlays prior, normalized likelihood, and posterior, with a shaded 95 percent credible interval around the posterior mean.</p>
-      
-    </article>
-  
-
-    <article class="card">
-      <h2><a href="./playgrounds/bsc-y3s2/FIS3029-tunneling-rectangular-barrier/index.html">Tunneling Rectangular Barrier</a></h2>
-      <p class="status">verified 2026-05-13</p>
-      <p class="description">A 1D Schrodinger particle of energy E incident on a rectangular barrier of height V_0 and width a. The transmission coefficient T(E) is closed-form: for E &lt; V_0 it decays exponentially as the wave evanesces inside the barrier; for E &gt; V_0 it oscillates with perfect resonances at E = V_0 + n^2 pi^2 / (2 a^2). The dashed classical step function (T = 0 below V_</p>
       
     </article>
   
@@ -1715,5 +1675,21 @@
   
   </section>
 
+  <h2 class="drafts-heading">Draft (12)</h2>
+  <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
+  <ul class="drafts-list">
+    <li><span class="drafts-slug">aperture-synthesis-uv-plane</span></li>
+    <li><span class="drafts-slug">cosmic-ray-air-shower</span></li>
+    <li><span class="drafts-slug">fluid-painter-lattice-boltzmann</span></li>
+    <li><span class="drafts-slug">fourier-epicycle-drawing</span></li>
+    <li><span class="drafts-slug">galaxy-merger-nbody</span></li>
+    <li><span class="drafts-slug">gravitational-lensing-caustics</span></li>
+    <li><span class="drafts-slug">gravitational-microlensing-event</span></li>
+    <li><span class="drafts-slug">gravitational-wave-chirp-sonification</span></li>
+    <li><span class="drafts-slug">gravity-assist-slingshot</span></li>
+    <li><span class="drafts-slug">pulsar-dispersion-measure</span></li>
+    <li><span class="drafts-slug">quantum-random-walk</span></li>
+    <li><span class="drafts-slug">stellar-oscillation-modes</span></li>
+  </ul>
 </body>
 </html>

@@ -59,10 +59,10 @@
 
 ## Source-of-truth files
 
-- `docs/HEROES.md` — hero status.
-- `docs/CURRICULUM.md` — chronological by year/UC; regen from spec.md.
-- `docs/INDEX.md` — flat card list.
-- `dist/index.html` / `index.html` — landing.
-- `docs/A11Y_REPORT.md` — last audit run.
-- `docs/NEEDS-ATTENTION.md` — open punch list.
-- `docs/TAGS.md` — controlled vocabulary.
+- `docs/HEROES.md`: hero status.
+- `docs/CURRICULUM.md`: chronological by year/UC; regen from spec.md.
+- `docs/INDEX.md`: flat card list.
+- `dist/index.html` / `index.html`: landing.
+- `docs/A11Y_REPORT.md`: last audit run.
+- `docs/NEEDS-ATTENTION.md`: open punch list.
+- `docs/TAGS.md`: controlled vocabulary.

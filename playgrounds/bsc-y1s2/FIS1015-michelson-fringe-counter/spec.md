@@ -1,7 +1,8 @@
 ---
 title: Michelson Fringe Counter
 slug: michelson-fringe-counter
-status: verified
+status: deprecated
+superseded_by: michelson-interferometer
 audience: portfolio
 created: 2026-05-14
 primary_uc: FIS1015

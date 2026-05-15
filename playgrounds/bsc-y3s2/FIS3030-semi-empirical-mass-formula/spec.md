@@ -87,3 +87,11 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 ## Risk register
 
 - The Wapstra coefficients are one of several conventions; other compilations give slightly different values. The tests use 5 percent tolerance to absorb this.
+
+## Planned upgrade (Phase 13 / Upgrade E)
+
+Reframe as a fit-the-coefficients puzzle: five SEMF term sliders all start
+at 0; user drags them to match an analytic B/A heatmap on the N-Z chart.
+A "match" indicator lights when the fit is within 5% of the optimum. The
+valley of stability emerges as the user approaches the correct parameters.
+Status: planned, not yet implemented.

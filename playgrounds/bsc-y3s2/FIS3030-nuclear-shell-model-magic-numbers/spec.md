@@ -79,3 +79,10 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 ## Risk register
 
 - Level ordering near $N = 50, 82, 126$ is sensitive to the choice of $W \cdot \ell \cdot s$ coefficient; this playground uses the textbook Krane figure.
+
+## Planned upgrade (Phase 13 / Upgrade B)
+
+Animated nucleon filling: Z and N sliders 0 to 126; each proton/neutron hops
+onto the next shell-model level when the slider increments. At magic numbers
+(2, 8, 20, 28, 50, 82, 126) the filled shell glows gold and the binding-energy
+readout (SEMF-derived) shows the magic-number bump. Status: planned, not yet implemented.

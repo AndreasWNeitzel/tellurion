@@ -1,5 +1,5 @@
 ---
-title: Tautochrone: Cycloid Isochronism
+title: "Tautochrone: Cycloid Isochronism"
 slug: tautochrone-isochronism
 status: verified
 audience: portfolio

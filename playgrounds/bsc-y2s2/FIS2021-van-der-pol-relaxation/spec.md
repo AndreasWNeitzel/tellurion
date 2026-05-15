@@ -1,5 +1,5 @@
 ---
-title: Van der Pol: Limit Cycle to Relaxation Oscillator
+title: "Van der Pol: Limit Cycle to Relaxation Oscillator"
 slug: van-der-pol-relaxation
 status: verified
 audience: portfolio

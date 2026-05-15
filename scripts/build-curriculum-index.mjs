@@ -111,6 +111,7 @@ function parseFrontmatter(content) {
     const m = line.match(/^([a-z_]+):\s*(.*)$/);
     if (!m) continue;
     let val = m[2].trim();
+    val = val.replace(/^(['"])([\s\S]*)\1$/, '$2');
     if (val.startsWith('[') && val.endsWith(']')) {
       const inner = val.slice(1, -1).trim();
       val = inner.length === 0 ? [] : inner.split(',').map(s => s.trim());
@@ -123,6 +124,23 @@ function parseFrontmatter(content) {
 function extractPitch(content) {
   const m = content.match(/Strong invariant:\s*(.+?)\.\s/);
   return m ? m[1].trim() : null;
+}
+
+// Fallback when frontmatter lacks primary_citation: scan the body's
+// `## Citations` section for the first `(\`cite-key\`)` token and the
+// preceding `Ch. N` if present.
+function extractCitationFromBody(content) {
+  const idx = content.search(/^##\s+Citations/m);
+  if (idx < 0) return { key: null, chapter: null };
+  const section = content.slice(idx).split(/\n##\s/)[0];
+  const lines = section.split('\n');
+  for (const line of lines) {
+    const k = line.match(/`([a-z][a-z0-9-]{3,})`/);
+    if (!k) continue;
+    const c = line.match(/Ch(?:\.|apter)?\s*([0-9]+)/);
+    return { key: k[1], chapter: c ? c[1] : null };
+  }
+  return { key: null, chapter: null };
 }
 
 const playgroundsDir = path.join(ROOT, 'playgrounds');
@@ -169,6 +187,7 @@ for (const dir of playgroundDirs) {
     continue;
   }
   const pitch = extractPitch(raw);
+  const bodyCite = (!fm.primary_citation) ? extractCitationFromBody(raw) : { key: null, chapter: null };
   playgrounds.push({
     slug,
     urlPath,
@@ -177,8 +196,8 @@ for (const dir of playgroundDirs) {
     primary_uc: fm.primary_uc,
     supporting_ucs: Array.isArray(fm.supporting_ucs) ? fm.supporting_ucs : [],
     curriculum_year: fm.curriculum_year,
-    primary_citation: fm.primary_citation || null,
-    primary_chapter: fm.primary_chapter || null,
+    primary_citation: fm.primary_citation || bodyCite.key,
+    primary_chapter: fm.primary_chapter || bodyCite.chapter,
     pitch,
   });
   if (statusCount[fm.status] !== undefined) statusCount[fm.status] += 1;

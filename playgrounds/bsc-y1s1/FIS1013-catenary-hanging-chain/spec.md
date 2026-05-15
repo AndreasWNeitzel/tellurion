@@ -1,5 +1,5 @@
 ---
-title: Catenary: Shape of a Hanging Chain
+title: "Catenary: Shape of a Hanging Chain"
 slug: catenary-hanging-chain
 status: verified
 audience: portfolio

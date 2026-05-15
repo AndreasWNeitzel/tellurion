@@ -1,5 +1,5 @@
 ---
-title: Wave on a String: Fixed vs Free End Reflection
+title: "Wave on a String: Fixed vs Free End Reflection"
 slug: wave-on-string-reflection
 status: verified
 audience: portfolio

@@ -1,5 +1,5 @@
 ---
-title: ODE Solvers: Euler vs RK4 vs RK45
+title: "ODE Solvers: Euler vs RK4 vs RK45"
 slug: ode-solver-euler-rk4-rk45
 status: verified
 audience: portfolio

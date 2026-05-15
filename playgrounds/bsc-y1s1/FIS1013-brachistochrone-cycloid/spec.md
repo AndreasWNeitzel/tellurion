@@ -1,5 +1,5 @@
 ---
-title: Brachistochrone: Why the Cycloid Wins
+title: "Brachistochrone: Why the Cycloid Wins"
 slug: brachistochrone-cycloid
 status: verified
 audience: portfolio

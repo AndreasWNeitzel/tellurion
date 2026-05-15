@@ -1,7 +1,8 @@
 ---
 title: Lorenz Attractor
 slug: lorenz-attractor
-status: verified
+status: deprecated
+superseded_by: lorenz-attractor-3d-ensemble
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021

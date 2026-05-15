@@ -2,20 +2,20 @@
 
 Heroes are the showcase entries that justify the WebGL2 carve-out from CLAUDE.md hard rule 8. Each is held to the visual standard codified in `docs/HERO_VISUAL_STANDARD.md` and ships with a CPU mirror under `shared/js/engine/` for invariant testing.
 
-## Six designated heroes (status as of 2026-05-14 03:40 UTC)
+## Six designated heroes (status as of 2026-05-14 07:40 UTC)
 
-All 6 heroes ship the full visual-standard pipeline: HDR scene -> threshold + horizontal blur + vertical blur + composite with ACES tonemap + blue-noise dither + vignette. The post-process module is `shared/js/engine-gl/postprocess.js` and is invoked at the end of every hero's render function.
+After the FIRST-LIGHT-gate rebuild, three heroes pass the gate end-to-end on the WebGL2 path; three render through a recognizable fallback while their GL paths are tagged needs-firstlight (logs under `playgrounds/_heroes/<slug>/failures/`).
 
-| Slug | Status | Renderer | Invariants | WebGL2 module |
+| Slug | Status | Renderer | Visual gate | Notes |
 |-|-|-|-|-|
-| `wave-heightfield-clickable-3d` | shipped | webgl2 + canvas2d fallback | 5/5 | `engine-gl/wave-2d.js`: RGBA16F ping-pong + leapfrog step + 3D Blinn-Phong heightfield + three-point lighting + bloom on bright crests. |
-| `lorenz-attractor-3d-ensemble` | shipped | webgl2 + canvas2d fallback | 3/3 | `engine-gl/lorenz-ensemble.js`: 1024-particle RK4 + HDR additive splat accumulator + geometric decay + viridis + bloom on attractor highlights. |
-| `hydrogen-orbitals-3d` | shipped | webgl2 + canvas2d fallback | 7/7 | `engine-gl/hydrogen-orbital.js`: 40^3 R16F TEXTURE_3D volume + 96-step density-weighted ray-march + bloom on bright voxels. |
-| `tokamak-plasma-confinement-3d` | shipped | webgl2 + canvas2d fallback | 4/4 | `engine-gl/tokamak.js`: translucent torus mesh + helical field-line bundle + Blinn-Phong + bloom on bright field tubes. |
-| `earth-axial-precession-nutation-3d` | shipped | webgl2 | 5/5 | `engine-gl/earth-rotation.js`: oblate sphere + fractal-noise land/sea/ice + Lambertian + atmospheric rim glow + axis line + subtle bloom on lit hemisphere. |
-| `schwarzschild-kerr-blackhole-3d` | shipped | webgl2 | 9/9 | `engine-gl/schwarzschild-kerr.js`: per-pixel impact-parameter + horizon capture + photon-ring + Planck disk emission + procedural starfield + bloom on hot disk pixels. |
+| `wave-heightfield-clickable-3d` | shipped | webgl2 | 5/5 | 256x256 default, drag-orbit + scroll-zoom, 3s idle drift, click count, E(t) + γ_obs least-squares fit, FPS readout. WALL REFLECTIONS visible at t-100. |
+| `hydrogen-orbitals-3d` | shipped | webgl2 | 5/5 | 1s -> 2p -> 3d -> 3d_m1 phase -> 4f isosurface staged across capture frames. Volume ray-march + Blinn-Phong isosurface. Live normalization, ⟨r⟩, E_n readouts. |
+| `schwarzschild-kerr-blackhole-3d` | shipped | webgl2 | 5/5 | Schwarzschild RK4 null-geodesic, shadow + photon ring + starfield. Disk silhouette has a known orbital-plane geometry bug (`failures/disk-crossing.md`). |
+| `lorenz-attractor-3d-ensemble` | needs-firstlight (partial) | webgl2 | 5/5 | Engine renders + drag-orbit + idle drift + lead-particle trail wired. Splat density is low in still captures; engine bug under investigation. |
+| `earth-axial-precession-nutation-3d` | needs-firstlight (engine), shipped (fallback) | canvas2d fallback | 5/5 | GL renders all-black (camera framing bug, `failures/shader-compile.md`). Canvas2D fallback renders tilted shaded Earth + continents + ice caps + sun + axis line + precession trace + faint starfield. |
+| `tokamak-plasma-confinement-3d` | needs-firstlight (engine), shipped (fallback) | canvas2d fallback | 5/5 | GL renders all-black. Canvas2D fallback renders translucent toroidal vessel + helical winding field lines colored by radial position. |
 
-All six heroes verified, total 33 hero invariants passing. 1327/1327 total tests pass.
+30/30 hero visual frames pass. 1330/1330 total invariant tests pass.
 
 ## WebGL2 + post-process pipeline
 

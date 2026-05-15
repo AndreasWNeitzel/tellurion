@@ -1,5 +1,5 @@
 ---
-title: Noether's Theorem: Symmetry to Conservation
+title: "Noether's Theorem: Symmetry to Conservation"
 slug: noether-symmetry-to-conservation
 status: verified
 audience: portfolio

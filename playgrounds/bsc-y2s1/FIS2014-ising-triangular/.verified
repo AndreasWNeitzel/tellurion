@@ -1,3 +1,0 @@
-verified-at: 2026-05-13T13:45:00Z
-invariants: 6/6
-visual: SSIM > 0.92 (5 frames sweeping T from 1.5 to 6.0 through T_c)

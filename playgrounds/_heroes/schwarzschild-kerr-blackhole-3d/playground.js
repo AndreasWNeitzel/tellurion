@@ -42,34 +42,55 @@ function buildButtons() {
   return { reset: r, pause: p };
 }
 
-const st = { aOverM: 0, diskInner: 6, diskOuter: 35, t: 0 };
+const DEFAULTS = Object.freeze({ aOverM: 0, diskInner: 6, diskOuter: 55, radius: 35, azimuthDeg: 35, elevationDeg: 3 });
+const st = { aOverM: DEFAULTS.aOverM, diskInner: DEFAULTS.diskInner, diskOuter: DEFAULTS.diskOuter, t: 0 };
 let running = true;
 
-buildSlider('a/M', -1, 1, 0.05, st.aOverM, v => { st.aOverM = v; });
-// disk_r_in is clamped to >= 6 M (the ISCO at a=0). Material inside the ISCO
-// is unphysical; placing the disk there leaks bright pixels into the shadow.
-buildSlider('disk r_in', 6.0, 12, 0.1, st.diskInner, v => { st.diskInner = v; });
-buildSlider('disk r_out', 20, 80, 1, st.diskOuter, v => { st.diskOuter = v; });
+const sliders = {
+  aOverM:    buildSlider('a/M',        -1,  1, 0.05, st.aOverM,    v => { st.aOverM = v; }),
+  // disk_r_in is clamped to >= 6 M (the ISCO at a=0). Material inside the
+  // ISCO is unphysical; placing the disk there leaks bright pixels into the
+  // shadow.
+  diskInner: buildSlider('disk r_in', 6.0, 12, 0.1,  st.diskInner, v => { st.diskInner = v; }),
+  diskOuter: buildSlider('disk r_out', 20, 80, 1,    st.diskOuter, v => { st.diskOuter = v; })
+};
 const btns = buildButtons();
 
 let engine = null;
 try { engine = setupBHGL(canvas); } catch (e) { console.warn('BH GL init failed', e); }
 
-// Default camera: spec radius 25 M, FOV 65 deg, elevation 3 deg (near edge-on).
+// Default camera: radius 35 M (further from the BH than the previous 25 M
+// so the over-the-top arc and full disk fit the frame), FOV 65 deg,
+// elevation 3 deg (near edge-on).
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0],
-  radius: 25,
+  radius: DEFAULTS.radius,
   minRadius: 8,
   maxRadius: 100,
-  azimuthDeg: 35,
-  elevationDeg: 3,
+  azimuthDeg: DEFAULTS.azimuthDeg,
+  elevationDeg: DEFAULTS.elevationDeg,
   fovDeg: 65,
 });
 window.__camera = camera;
 
 btns.reset.addEventListener('click', () => {
-  st.aOverM = 0; st.diskInner = 6; st.diskOuter = 35;
-  running = true; btns.pause.textContent = 'Pause'; btns.pause.setAttribute('aria-pressed', 'false');
+  // Reset state + slider DOM values + camera pose to factory defaults.
+  st.aOverM    = DEFAULTS.aOverM;
+  st.diskInner = DEFAULTS.diskInner;
+  st.diskOuter = DEFAULTS.diskOuter;
+  sliders.aOverM.value    = String(DEFAULTS.aOverM);
+  sliders.diskInner.value = String(DEFAULTS.diskInner);
+  sliders.diskOuter.value = String(DEFAULTS.diskOuter);
+  // 'input' event so the value label next to each slider also refreshes.
+  sliders.aOverM.dispatchEvent(new Event('input'));
+  sliders.diskInner.dispatchEvent(new Event('input'));
+  sliders.diskOuter.dispatchEvent(new Event('input'));
+  camera.setRadius(DEFAULTS.radius);
+  camera.setAzimuthDeg(DEFAULTS.azimuthDeg);
+  camera.setElevationDeg(DEFAULTS.elevationDeg);
+  running = true;
+  btns.pause.textContent = 'Pause';
+  btns.pause.setAttribute('aria-pressed', 'false');
 });
 btns.pause.addEventListener('click', () => {
   running = !running;
@@ -82,7 +103,7 @@ let last = performance.now(), fpsLast = last, fpsFrames = 0;
 function render() {
   if (!engine) return;
   const eye = camera.eyePosition();
-  engine.render(eye, [0, 0, 0], [0, 1, 0], 65, st.diskInner, st.diskOuter, st.aOverM);
+  engine.render(eye, [0, 0, 0], [0, 1, 0], 65, st.diskInner, st.diskOuter, st.aOverM, st.t);
   rEls['r_ISCO (M)'].textContent = (st.aOverM === 0 ? 6 : iscoKerr(st.aOverM)).toFixed(2);
   rEls['r_photon (M)'].textContent = photonSphereSchwarzschild().toFixed(2);
   rEls['b_crit (M)'].textContent = bCritSchwarzschild().toFixed(3);
