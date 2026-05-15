@@ -21,7 +21,13 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 let last = performance.now();
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const cxStar = canvas.width / 2, cyStar = 130, Rstar = 90;
+  // Single shared horizontal mapping: phase p in [-0.5, 0.5] -> screen x.
+  // The star, the planet, the lightcurve, and the marker all use xForPhase
+  // so the planet and the marker share the exact same x coordinate.
+  const lcTop = 250, lcBot = canvas.height - 30, lcL = 40, lcR = canvas.width - 30;
+  const xForPhase = (p) => lcL + (p + 0.5) * (lcR - lcL);
+  const cyStar = 130, Rstar = 90;
+  const cxStar = xForPhase(0);              // star centered at mid-transit
   ctx.fillStyle = '#9aa0a6';
   for (let r = Rstar; r > 0; r -= 2) {
     const mu = Math.sqrt(1 - (r / Rstar) ** 2);
@@ -29,12 +35,15 @@ function render() {
     ctx.fillStyle = `rgba(255, ${200 + 30 * I}, ${100 + 100 * I}, ${I})`;
     ctx.beginPath(); ctx.arc(cxStar, cyStar, r, 0, 2 * Math.PI); ctx.fill();
   }
+  // Sky-plane separation per unit phase, in STELLAR RADII, derived from the
+  // shared screen mapping so the flux dip is exactly as wide as the planet's
+  // path across the star: (xForPhase(p) - cxStar) / Rstar = p * zScale.
+  const zScale = (lcR - lcL) / Rstar;
   const phase = ((st.t * 0.2) % 1) - 0.5;
-  const xPl = cxStar + phase * 4 * Rstar;
+  const xPl = xForPhase(phase);
   const yPl = cyStar + st.b * Rstar;
   ctx.fillStyle = '#060608';
   ctx.beginPath(); ctx.arc(xPl, yPl, Rstar * st.p, 0, 2 * Math.PI); ctx.fill();
-  const lcTop = 250, lcBot = canvas.height - 30, lcL = 40, lcR = canvas.width - 30;
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(lcL, lcTop); ctx.lineTo(lcL, lcBot); ctx.lineTo(lcR, lcBot); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('phase', lcR - 30, lcBot + 14);
@@ -43,7 +52,7 @@ function render() {
   const minF = Math.min(0.95, fluxWithLimb(st.p, st.b, st.u1, st.u2));
   for (let n = 0; n < 200; n += 1) {
     const ph = n / 200 - 0.5;
-    const z = Math.sqrt((ph * 4) ** 2 + st.b * st.b);
+    const z = Math.sqrt((ph * zScale) ** 2 + st.b * st.b);
     const F = fluxWithLimb(st.p, z, st.u1, st.u2);
     const px = lcL + n / 200 * (lcR - lcL);
     const py = lcTop + (1 - (F - minF) / (1 - minF + 1e-9)) * (lcBot - lcTop);
@@ -52,7 +61,7 @@ function render() {
   ctx.stroke();
   const phNow = ((st.t * 0.2) % 1);
   const ph2 = phNow - 0.5;
-  const zNow = Math.sqrt((ph2 * 4) ** 2 + st.b * st.b);
+  const zNow = Math.sqrt((ph2 * zScale) ** 2 + st.b * st.b);
   const Fnow = fluxWithLimb(st.p, zNow, st.u1, st.u2);
   const pxNow = lcL + phNow * (lcR - lcL);
   const pyNow = lcTop + (1 - (Fnow - minF) / (1 - minF + 1e-9)) * (lcBot - lcTop);
