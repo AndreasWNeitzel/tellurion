@@ -188,6 +188,58 @@ function bootSync() {
   }
 }
 
+// Upgrade E (Phase 13): coefficient-fitting puzzle. Five sliders start at 0;
+// the user drags each toward the Wapstra value; when all five are within
+// 5% of reference, the MATCH indicator lights green.
+(function attachPuzzle() {
+  const REF = { aV: 15.8, aS: 18.3, aC: 0.714, aA: 23.2, aP: 12.0 };
+  const guess = { aV: 0, aS: 0, aC: 0, aA: 0, aP: 0 };
+  const host = document.querySelector('.controls, #controls');
+  if (!host) return;
+  const wrap = document.createElement('div');
+  wrap.style.marginTop = '12px';
+  wrap.style.padding = '8px';
+  wrap.style.borderTop = '1px solid rgba(220,220,240,0.15)';
+  const head = document.createElement('div');
+  head.textContent = 'Puzzle: match the Wapstra coefficients (within 5%)';
+  head.style.color = '#dcdde2'; head.style.fontSize = '12px'; head.style.marginBottom = '6px';
+  wrap.appendChild(head);
+  const indicator = document.createElement('div');
+  indicator.style.fontFamily = 'monospace';
+  indicator.style.padding = '4px 8px';
+  indicator.style.marginTop = '6px';
+  indicator.style.borderRadius = '4px';
+  indicator.style.background = 'rgba(220,220,240,0.06)';
+  function update() {
+    const pct = (k) => REF[k] === 0 ? 0 : Math.abs(guess[k] - REF[k]) / REF[k];
+    const within = (k) => pct(k) < 0.05;
+    const tags = ['aV', 'aS', 'aC', 'aA', 'aP'].map(k => within(k) ? `${k} OK` : `${k} ${(pct(k) * 100).toFixed(0)}%`).join('  ');
+    const all = ['aV', 'aS', 'aC', 'aA', 'aP'].every(within);
+    indicator.style.color = all ? '#06d6a0' : '#9aa0a6';
+    indicator.style.background = all ? 'rgba(6,214,160,0.18)' : 'rgba(220,220,240,0.06)';
+    indicator.textContent = (all ? 'MATCH! ' : '') + tags;
+  }
+  function slider(label, key, max, step) {
+    const row = document.createElement('div'); row.className = 'row';
+    const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = `puz-${key}`; lab.textContent = label;
+    const inp = document.createElement('input'); inp.id = `puz-${key}`; inp.type = 'range';
+    inp.min = '0'; inp.max = String(max); inp.step = String(step); inp.value = '0';
+    inp.setAttribute('aria-label', `${label} guess`);
+    const val = document.createElement('span'); val.className = 'value'; val.textContent = '0.00';
+    inp.addEventListener('input', () => { guess[key] = parseFloat(inp.value); val.textContent = guess[key].toFixed(2); update(); });
+    row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
+    wrap.appendChild(row);
+  }
+  slider('aV (MeV)', 'aV', 30, 0.1);
+  slider('aS (MeV)', 'aS', 30, 0.1);
+  slider('aC (MeV)', 'aC',  2, 0.01);
+  slider('aA (MeV)', 'aA', 40, 0.1);
+  slider('aP (MeV)', 'aP', 20, 0.1);
+  wrap.appendChild(indicator);
+  host.appendChild(wrap);
+  update();
+})();
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync();
