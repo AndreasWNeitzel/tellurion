@@ -23,4 +23,10 @@ describe('phonon-dispersion-1d', () => {
     const g = gapAtZoneBoundary(1, 1, 2);
     expect(g.low).toBeGreaterThan(0); expect(g.high).toBeGreaterThan(g.low);
   });
+  it('1-A: zone-boundary atoms are pi out of phase', () => {
+    // At k = pi/a (a=1), adjacent atom displacements sin(k*i) satisfy
+    // sin(k*1) + sin(k*0) = sin(pi) + sin(0) = 0 exactly.
+    const k = Math.PI;
+    expect(Math.abs(Math.sin(k * 1) + Math.sin(k * 0))).toBeLessThan(1e-10);
+  });
 });

@@ -60,30 +60,74 @@ function render() {
   ctx.fillText(`m₁ = ${st.m1.toFixed(2)}, m₂ = ${st.m2.toFixed(2)}, K = ${st.K.toFixed(2)}`, 12, H - 14);
   rG.textContent = (gap.high - gap.low).toFixed(2);
 }
-// Upgrade A (Phase 13): a small animated lattice strip at the bottom shows
-// the diatomic chain oscillating in the OPTICAL mode at zone boundary
-// (m1, m2 move opposite, with amplitudes inversely proportional to mass).
-// The animation frequency is the local optical frequency, scaled for visibility.
-let _phase = 0;
+// Upgrade 1-A: a 24-atom strip below the dispersion curve. Clicking any
+// point on a dispersion branch selects (k, omega) and the atoms animate
+// transversely as y_i(t) = A sin(k i a - omega t). Acoustic and optical
+// branches look qualitatively different (in-phase vs anti-phase per cell).
+const NATOMS = 24;
+const AMP = 12;          // px transverse amplitude
+let _t0 = performance.now();
+// Default selected mode: mid-zone acoustic so the strip autoplays.
+let selected = { k: Math.PI / 2, omega: monatomic(Math.PI / 2, 1, 1.5), branch: 'monatomic' };
+
+// Invert the plot mapping to recover (k, omega) from a canvas click, then
+// snap omega to the nearest dispersion branch at that k.
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: 50 };
+  if (px < pad.l || px > W - pad.r || py < pad.t || py > H - pad.b) return;
+  const k = (px - pad.l) / (W - pad.l - pad.r) * 2 * Math.PI - Math.PI;
+  let omegaMax = 0;
+  for (let i = -100; i <= 100; i += 1) {
+    const d = diatomic(i / 100 * Math.PI, st.K, st.m1, st.m2);
+    if (d.optical > omegaMax) omegaMax = d.optical;
+  }
+  const clickedOmega = (H - pad.b - py) / (H - pad.t - pad.b) * omegaMax;
+  const mono = monatomic(k, st.K, (st.m1 + st.m2) / 2);
+  const di = diatomic(k, st.K, st.m1, st.m2);
+  const cand = [
+    { omega: mono, branch: 'monatomic' },
+    { omega: di.acoustic, branch: 'acoustic' },
+    { omega: di.optical, branch: 'optical' },
+  ];
+  cand.sort((a, b) => Math.abs(a.omega - clickedOmega) - Math.abs(b.omega - clickedOmega));
+  selected = { k, omega: Math.max(cand[0].omega, 1e-3), branch: cand[0].branch };
+  _t0 = performance.now();
+});
+
 function renderLattice() {
-  if (!running) return;
   const W = canvas.width, H = canvas.height;
-  const stripY = H - 28;
-  const N = 14, dx = W / (N + 4), x0 = dx * 2;
-  const gap = gapAtZoneBoundary(st.K, st.m1, st.m2);
-  const omegaOpt = gap.high;
-  _phase += 0.08 * omegaOpt;
+  const stripY = H - 26;
+  const dx = W / (NATOMS + 4), x0 = dx * 2;
+  // Scale omega so one period is ~3 s real time.
+  const tReal = (performance.now() - _t0) / 1000;
+  const omegaAnim = 2 * Math.PI / 3;             // 3 s per period
+  const phase = running ? omegaAnim * tReal : 0;
   ctx.fillStyle = 'rgba(220,220,240,0.07)';
-  ctx.fillRect(0, stripY - 14, W, 28);
-  for (let i = 0; i < N; i += 1) {
-    const isM1 = (i & 1) === 0;
-    const amp = (isM1 ? 1 / st.m1 : -1 / st.m2) * 6;
-    const x = x0 + i * dx + amp * Math.sin(_phase);
-    ctx.fillStyle = isM1 ? '#7c9cff' : '#ffd57f';
-    ctx.beginPath(); ctx.arc(x, stripY, isM1 ? 6 : 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillRect(0, stripY - 16, W, 32);
+  const k = selected.k;
+  for (let i = 0; i < NATOMS; i += 1) {
+    let disp;
+    if (selected.branch === 'monatomic') {
+      disp = AMP * Math.sin(k * i - phase);
+    } else {
+      // Diatomic: cell index = floor(i/2); sub-lattice sign.
+      const cell = Math.floor(i / 2);
+      const isM2 = (i & 1) === 1;
+      // Acoustic: both sub-lattices in phase. Optical: anti-phase.
+      const cellPhase = k * cell - phase;
+      const sub = (selected.branch === 'optical' && isM2) ? -1 : 1;
+      disp = AMP * sub * Math.sin(cellPhase);
+    }
+    const isA = (i & 1) === 0;
+    const x = x0 + i * dx;
+    ctx.fillStyle = isA ? '#7c9cff' : '#ffd57f';
+    ctx.beginPath(); ctx.arc(x, stripY + disp, 6, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px sans-serif';
-  ctx.fillText('Lattice (optical mode, zone boundary; m1 blue, m2 amber)', 12, stripY - 18);
+  ctx.fillText(`Lattice: ${selected.branch} mode, k=${selected.k.toFixed(2)} (click the curve to change)`, 12, stripY - 20);
 }
 
 function tick() { render(); renderLattice(); requestAnimationFrame(tick); }
