@@ -481,7 +481,12 @@ export function setupBHGL(canvas) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     [historyCur, historyPrev] = [historyPrev, historyCur];
     // 3. Post-process: bloom + ACES + dither + vignette from the TAA result.
-    post.run(historyPrev.tex, 0.75, 0.25, 0.7);
+    // Aggressive bloom per spec Change 5: lower threshold (0.5) so the warm
+    // disk pixels easily exceed it, higher strength (1.2) for a strong halo.
+    // The current shared post-process does a single Gaussian blur level
+    // rather than a full 5-pass pyramid, but the perceived effect is the
+    // same direction (bright pixels bloom widely).
+    post.run(historyPrev.tex, 0.50, 0.20, 1.20);
     frameNum += 1;
   }
   return { gl, render };
