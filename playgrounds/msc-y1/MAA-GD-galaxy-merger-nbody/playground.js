@@ -81,8 +81,13 @@ function step() {
   // Halos: feel each other (softened).
   function pairForce(a, b) {
     const dx = b.x - a.x, dy = b.y - a.y;
-    const r = Math.hypot(dx, dy) + 0.5;
-    const f = G * Mh / (r * r);
+    // Plummer-softening: keep the force finite for arbitrarily close approaches.
+    // (Prior code only added a constant 0.5 which still let the halos
+    // interpenetrate visually; this clamps the effective separation.)
+    const eps = 0.7;
+    const r2 = dx * dx + dy * dy + eps * eps;
+    const r = Math.sqrt(r2);
+    const f = G * Mh / r2;
     return { ax: f * dx / r, ay: f * dy / r };
   }
   const f12 = pairForce(halo1, halo2);

@@ -113,7 +113,12 @@ function render() {
   ctx.fillStyle = '#dcdde2';
   ctx.fillText('Dedispersed (sum across channels)', 8, botY0 + 16);
 
-  readoutInv.textContent = `true_DM=${state.trueDM}  guess_DM=${state.guessDM}  peak=${mx.toFixed(2)}`;
+  // Peak-flag readout: if guess DM is far from true DM, indicate
+  // misalignment so the student does not mistake a partially-aligned
+  // peak for a "correct" dedispersion.
+  const matchPct = 100 * (1 - Math.min(1, Math.abs(state.guessDM - state.trueDM) / Math.max(state.trueDM, 1)));
+  const flag = (matchPct < 70) ? '  [WRONG DM]' : (matchPct < 95 ? '  [near]' : '  [MATCH]');
+  readoutInv.textContent = `true_DM=${state.trueDM}  guess_DM=${state.guessDM}  peak=${mx.toFixed(2)}${flag}`;
   readoutFrame.textContent = '-';
 }
 

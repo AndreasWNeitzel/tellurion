@@ -53,7 +53,15 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   const KE = totalKE(state.sim);
   const mv = meanSpeed(state.sim);
+  // Equipartition: mean KE per DOF = kT/2. With 2D hard disks and m=1, kT is
+  // set by <v^2>/2 (per particle KE) so kT/2 = <v^2>/4. Two DOFs per
+  // particle, so KE/N/2 should converge to kT/2 = KE/(2N) on average.
+  // (Content merge from FIS2014-equipartition-from-collisions.)
+  const Nsim = state.sim.N;
+  const KE_per_dof = KE / (2 * Nsim);
+  const v2 = 2 * KE / Nsim;
   ctx.fillText(`<v> = ${mv.toFixed(3)} (MB pred = ${(V0 / Math.sqrt(2) * Math.sqrt(Math.PI / 2)).toFixed(3)})   KE drift = ${((KE - state.KE0) / state.KE0).toExponential(2)}`, 30, 40);
+  ctx.fillText(`Equipartition: KE/(2N) = ${KE_per_dof.toFixed(4)}   <v^2>/4 = ${(v2 / 4).toFixed(4)}   (should agree)`, 30, 56);
 
   // Top: gas box
   const boxSize = 320;
