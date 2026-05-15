@@ -36,6 +36,7 @@ uniform float uDiskOuter;
 uniform float uAOverM;
 uniform float uFrameNum;
 uniform sampler2D uStars;
+uniform sampler2D uGalaxy;
 out vec4 oColor;
 
 // Planck blackbody at temperature T_K -> sRGB; saturates above 15000 K.
@@ -92,7 +93,11 @@ vec3 sampleEnv(vec3 dir) {
   float lon = atan(d.z, d.x);
   float lat = asin(clamp(d.y, -1.0, 1.0));
   vec2 uv2 = vec2(lon / (2.0 * 3.14159265) + 0.5, lat / 3.14159265 + 0.5);
-  return texture(uStars, uv2).rgb;
+  // Galaxy dust layer behind the starfield; both are lensed by the bent ray
+  // direction so the warm dust nebulosity wraps around the BH like the stars.
+  vec3 stars = texture(uStars, uv2).rgb;
+  vec3 dust = texture(uGalaxy, uv2).rgb;
+  return stars + dust * 0.4;
 }
 
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
@@ -320,6 +325,54 @@ function buildStarTexture(gl, W = 2048, H = 1024) {
   return tex;
 }
 
+// CPU-generated galactic dust background. 4-octave FBM at low frequency
+// (features hundreds of pixels wide) tinted warm amber-grey; sampled by the
+// BENT escaped ray direction so the dust nebulosity lenses around the BH.
+function buildGalaxyTexture(gl, W = 1024, H = 512) {
+  const data = new Uint8Array(W * H * 4);
+  function hash21(x, y) {
+    let s = ((x | 0) * 374761393 + (y | 0) * 668265263) >>> 0;
+    s = (s ^ (s >>> 13)) * 1274126177 >>> 0;
+    return ((s ^ (s >>> 16)) >>> 0) / 0x100000000;
+  }
+  function noise2(x, y) {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const n00 = hash21(xi, yi);
+    const n10 = hash21(xi + 1, yi);
+    const n01 = hash21(xi, yi + 1);
+    const n11 = hash21(xi + 1, yi + 1);
+    return (n00 * (1 - u) + n10 * u) * (1 - v) + (n01 * (1 - u) + n11 * u) * v;
+  }
+  function fbm(x, y) {
+    let v = 0, a = 0.5, f = 1;
+    for (let i = 0; i < 4; i += 1) { v += a * noise2(x * f, y * f); f *= 2.03; a *= 0.5; }
+    return v;
+  }
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      // Low-frequency FBM at scale ~ W/12 (features ~80-150 px wide).
+      const n = fbm(x / 90, y / 90);
+      // Warm amber-grey tint. Peak intensity ~0.12.
+      const base = Math.max(0, n - 0.35) * 1.3;
+      const r = Math.min(255, base * 255 * 0.85);
+      const g = Math.min(255, base * 255 * 0.55);
+      const b = Math.min(255, base * 255 * 0.30);
+      const i = (y * W + x) * 4;
+      data[i] = r; data[i + 1] = g; data[i + 2] = b; data[i + 3] = 255;
+    }
+  }
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, W, H, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return tex;
+}
+
 // TAA blend pass: result = mix(history, current, alpha). Per-frame, alpha is
 // small (e.g. 0.08) so the moving average converges over ~12 frames. Camera
 // motion resets the history by forcing alpha = 1.
@@ -356,6 +409,7 @@ export function setupBHGL(canvas) {
   // page.goto's 30s wait. The 2048x1024 budget is reserved for production
   // hardware where the CPU-side splat loop is irrelevant.
   const starTex = buildStarTexture(gl, 1024, 512);
+  const galaxyTex = buildGalaxyTexture(gl, 1024, 512);
 
   function basis(eye, target, up, fovDeg) {
     const fx = target[0] - eye[0], fy = target[1] - eye[1], fz = target[2] - eye[2];
@@ -396,6 +450,8 @@ export function setupBHGL(canvas) {
     gl.uniform1f(gl.getUniformLocation(prog, 'uFrameNum'), frameNum);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, starTex);
     gl.uniform1i(gl.getUniformLocation(prog, 'uStars'), 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, galaxyTex);
+    gl.uniform1i(gl.getUniformLocation(prog, 'uGalaxy'), 1);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
