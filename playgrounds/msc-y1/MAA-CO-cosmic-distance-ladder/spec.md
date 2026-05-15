@@ -1,7 +1,7 @@
 ---
 title: "Cosmic Distance Ladder Journey"
 slug: cosmic-distance-ladder
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-CO

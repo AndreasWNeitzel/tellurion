@@ -1,7 +1,7 @@
 ---
 title: "Slow-Roll Inflation: Ball on the Potential"
 slug: slow-roll-inflation
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-CO

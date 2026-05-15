@@ -1,7 +1,7 @@
 ---
 title: "Cosmic-Ray Air Shower"
 slug: cosmic-ray-air-shower
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: FIS3030

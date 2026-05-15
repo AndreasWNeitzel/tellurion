@@ -1,7 +1,7 @@
 ---
 title: "Galaxy Merger N-Body"
 slug: galaxy-merger-nbody
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-GD

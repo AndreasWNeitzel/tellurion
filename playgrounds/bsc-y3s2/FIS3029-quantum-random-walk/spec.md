@@ -1,7 +1,7 @@
 ---
 title: "Quantum vs Classical Random Walk"
 slug: quantum-random-walk
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: FIS3029

@@ -1,7 +1,7 @@
 ---
 title: "Gravitational Microlensing Event"
 slug: gravitational-microlensing-event
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: AST3017

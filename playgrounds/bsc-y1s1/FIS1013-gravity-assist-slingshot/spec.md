@@ -1,7 +1,7 @@
 ---
 title: "Gravity Assist Slingshot"
 slug: gravity-assist-slingshot
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: FIS1013

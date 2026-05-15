@@ -1,7 +1,7 @@
 ---
 title: "Aperture Synthesis on the UV Plane"
 slug: aperture-synthesis-uv-plane
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-OT

@@ -1,7 +1,7 @@
 ---
 title: "Stellar Habitable Zone"
 slug: stellar-habitable-zone
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-SS

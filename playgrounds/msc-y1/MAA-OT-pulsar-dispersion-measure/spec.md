@@ -1,7 +1,7 @@
 ---
 title: "Pulsar Dispersion Measure Dedispersion"
 slug: pulsar-dispersion-measure
-status: implemented
+status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-OT
