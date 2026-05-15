@@ -235,7 +235,7 @@ void main() {
       // ring rays. Multiply contribution by 3x per spec.
       // Ring boost ramps with phi: rays that wound > 1 half-orbit are bent
       // around enough to deposit their disk light on the photon-ring annulus.
-      float ringBoost = 1.0 + 8.0 * smoothstep(2.0, 5.0, phi);
+      float ringBoost = 1.0 + 14.0 * smoothstep(1.7, 4.5, phi);
       // Volumetric scale height h(r) = 0.12 r, 5 z-samples z = [-2h, -h, 0, h, 2h].
       float h = 0.12 * r;
       vec3 acc = vec3(0.0);

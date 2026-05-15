@@ -42,7 +42,7 @@ function buildButtons() {
   return { reset: r, pause: p };
 }
 
-const st = { aOverM: 0, diskInner: 6, diskOuter: 60, t: 0 };
+const st = { aOverM: 0, diskInner: 6, diskOuter: 35, t: 0 };
 let running = true;
 
 buildSlider('a/M', -1, 1, 0.05, st.aOverM, v => { st.aOverM = v; });
@@ -68,7 +68,7 @@ const camera = createOrbitCamera(canvas, {
 window.__camera = camera;
 
 btns.reset.addEventListener('click', () => {
-  st.aOverM = 0; st.diskInner = 6; st.diskOuter = 60;
+  st.aOverM = 0; st.diskInner = 6; st.diskOuter = 35;
   running = true; btns.pause.textContent = 'Pause'; btns.pause.setAttribute('aria-pressed', 'false');
 });
 btns.pause.addEventListener('click', () => {
