@@ -163,6 +163,10 @@ function render() {
   // Dirty image (when accumulated enough).
   if (uvHistory.length > 5) {
     const { img, N } = dirtyImage();
+    // Normalize by number of UV samples so the dirty image brightness is
+    // comparable between snapshot (few samples) and full-synthesis state.
+    const Nsamp = Math.max(uvHistory.length, 1);
+    for (let i = 0; i < img.length; i += 1) img[i] /= Nsamp;
     let mx = 0, mn = Infinity;
     for (let i = 0; i < img.length; i += 1) { if (img[i] > mx) mx = img[i]; if (img[i] < mn) mn = img[i]; }
     const cell = Math.min(uvW, botH) / N;

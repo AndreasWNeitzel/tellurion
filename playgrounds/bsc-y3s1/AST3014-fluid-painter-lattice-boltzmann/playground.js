@@ -51,6 +51,13 @@ function step() {
       f[idx * 9 + k] = w[k] * rho * (1 + cu + 0.5 * cu * cu - 1.5 * (ux * ux + uy * uy));
     }
   }
+  // Outflow on right edge: zero-gradient (copy column NX-2 into NX-1). Prevents
+  // mass accumulating when fluid pumps in from the left every step.
+  for (let y = 0; y < NY; y += 1) {
+    const dst = (y * NX + (NX - 1)) * 9;
+    const src = (y * NX + (NX - 2)) * 9;
+    for (let k = 0; k < 9; k += 1) f[dst + k] = f[src + k];
+  }
   // Collision.
   for (let y = 0; y < NY; y += 1) for (let x = 0; x < NX; x += 1) {
     const idx = y * NX + x;

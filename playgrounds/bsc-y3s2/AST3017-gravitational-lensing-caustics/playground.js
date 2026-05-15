@@ -103,9 +103,11 @@ function findImages(beta) {
       if (Math.abs(dx) + Math.abs(dy) < 1e-8) break;
     }
     if (!ok) continue;
-    // De-duplicate.
+    // De-duplicate. Reviewer noted nearby roots ~0.06 apart were slipping
+    // through the prior 0.05 threshold; widen so each physical image is
+    // counted once.
     let dup = false;
-    for (const im of found) if (Math.hypot(im.x - tx, im.y - ty) < 0.05) { dup = true; break; }
+    for (const im of found) if (Math.hypot(im.x - tx, im.y - ty) < 0.08) { dup = true; break; }
     if (dup) continue;
     const bm = mapToSource({ x: tx, y: ty });
     if (Math.hypot(bm.x - beta.x, bm.y - beta.y) < 0.02) {

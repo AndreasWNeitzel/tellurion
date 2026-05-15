@@ -25,7 +25,10 @@ const state = {
 };
 
 const Msun_s = 4.925490947e-6;             // GM_sun/c^3 in seconds
-function chirpMass(m1, m2) { return Math.pow(m1 * m2, 0.6) / Math.pow(m1 + m2, 0.2); }
+function chirpMass(m1, m2) {
+  m1 = Math.max(m1, 0.1); m2 = Math.max(m2, 0.1);
+  return Math.pow(m1 * m2, 0.6) / Math.pow(m1 + m2, 0.2);
+}
 
 function freq(t, Mc) {
   // Newtonian f(t): f^(-8/3) = (256/5) pi^(8/3) (G Mc / c^3)^(5/3) (t_c - t)
@@ -38,12 +41,14 @@ function freq(t, Mc) {
 }
 
 function strain(t, Mc, D_Mpc, incl) {
+  D_Mpc = Math.max(D_Mpc, 1);
   const f = freq(t, Mc);
-  // h ~ (G Mc / c^2 D) (pi G Mc f / c^3)^(2/3)
+  if (!isFinite(f)) return 0;
   const amp = (Mc * Msun_s) / (D_Mpc * 1.029e14) * Math.pow(Math.PI * Mc * Msun_s * f, 2 / 3);
-  // Carrier with phase that accumulates from f.
-  const phaseEstimate = 2 * Math.PI * f * t; // rough; integration would be exact
-  return amp * 1e21 * Math.cos(phaseEstimate) * (1 + Math.cos(incl) ** 2) * 0.5;
+  // Crude product phase (rough but enough for the scrolling visual).
+  const phaseEstimate = 2 * Math.PI * f * t;
+  const h = amp * 1e21 * Math.cos(phaseEstimate) * (1 + Math.cos(incl) ** 2) * 0.5;
+  return isFinite(h) ? h : 0;
 }
 
 let audioCtx = null, osc = null, gain = null;
