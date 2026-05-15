@@ -208,13 +208,18 @@ function updateReadout() {
   readoutI.textContent = (I * 1e3).toFixed(3);
 }
 
+let holdUntil = 0;   // 2-B: 1 s pause at full discharge before auto-replay.
 function tick(now) {
   const dt = Math.min((now - lastTime) / 1000, 0.1);
   lastTime = now;
   const tau = R * C;
   if (running) {
-    t += dt;
-    if (t > 7 * tau) t = 0; // loop
+    if (holdUntil > 0) {
+      if (now >= holdUntil) { holdUntil = 0; t = 0; }
+    } else {
+      t += dt;
+      if (t > 7 * tau) { t = 7 * tau; holdUntil = now + 1000; }
+    }
   }
   render();
   updateReadout();
