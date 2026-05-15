@@ -47,6 +47,45 @@ vec3 planck(float T_K) {
   return vec3(max(0.0, r), max(0.0, g), max(0.0, b)) / 255.0;
 }
 
+// Disk color LUT keyed on normalized radius t in [0, 1] = (r - r_in) / (r_out - r_in).
+// Spec control points: blue-white at the ISCO, blinding white just outside,
+// warm gold at 0.33, deep amber at 0.50, burnt orange at 0.70, dark brown
+// at the outer rim. Linear interpolation between segments.
+vec3 diskLUT(float t) {
+  t = clamp(t, 0.0, 1.0);
+  vec3 c0 = vec3(0.70, 0.85, 1.00);
+  vec3 c1 = vec3(1.00, 1.00, 1.00);
+  vec3 c2 = vec3(1.00, 0.85, 0.50);
+  vec3 c3 = vec3(0.90, 0.55, 0.15);
+  vec3 c4 = vec3(0.60, 0.30, 0.05);
+  vec3 c5 = vec3(0.25, 0.12, 0.02);
+  if (t < 0.05) return mix(c0, c1, t / 0.05);
+  if (t < 0.20) return mix(c1, c2, (t - 0.05) / 0.15);
+  if (t < 0.40) return mix(c2, c3, (t - 0.20) / 0.20);
+  if (t < 0.70) return mix(c3, c4, (t - 0.40) / 0.30);
+  return mix(c4, c5, (t - 0.70) / 0.30);
+}
+
+// FBM building blocks (pure arithmetic, no texture samplers).
+float hash21(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise2(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float n00 = hash21(i), n10 = hash21(i + vec2(1.0, 0.0));
+  float n01 = hash21(i + vec2(0.0, 1.0)), n11 = hash21(i + vec2(1.0, 1.0));
+  return mix(mix(n00, n10, f.x), mix(n01, n11, f.x), f.y);
+}
+float fbm6(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 6; i += 1) { v += a * noise2(p); p *= 2.03; a *= 0.5; }
+  return v;
+}
+float fbm3(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 3; i += 1) { v += a * noise2(p); p *= 2.03; a *= 0.5; }
+  return v;
+}
+
 // Sample an equirectangular environment map by world-space direction.
 vec3 sampleEnv(vec3 dir) {
   vec3 d = normalize(dir);
@@ -155,31 +194,32 @@ void main() {
     // No volumetric, no second-crossing accumulation. Removes ghost disks
     // and inner-shadow leaks.
     if (prevY * curY < 0.0 && r > uDiskInner && r < uDiskOuter) {
-      float T = 6.5e3 * pow(uDiskInner / r, 0.75);
-      float vphi = sqrt(1.0 / r);
-      // Disk velocity at this point: tangent to circular orbit in the xz
-      // (equatorial) plane, prograde (counter-clockwise viewed from +y).
-      // For position (x, 0, z), tangent = (-z, 0, x) / r.
-      vec3 vDisk = vec3(-pos.z, 0.0, pos.x) * (vphi / max(r, 1e-6));
-      // Line of sight from disk point toward camera (we want approaching = blueshift).
+      // Normalized disk radius for the color LUT.
+      float t = (r - uDiskInner) / max(uDiskOuter - uDiskInner, 1e-6);
+      vec3 color = diskLUT(t);
+      // Brightness drops sharply with r: emission ~ (r_in / r)^3. Base HDR
+      // luminosity 8.0 so the inner edge blows out through ACES bloom.
+      float brightness = 8.0 * pow(uDiskInner / max(r, 1.0), 3.0);
+      // Three-layer FBM disk texture.
+      float phi_disk = atan(pos.z, pos.x);
+      float n_a = fbm6(vec2(phi_disk * 3.0, log(max(r, 1.0)) * 2.0));
+      float n_b = fbm3(vec2(phi_disk * 8.0, r * 0.1));
+      float n_c = hash21(vec2(phi_disk, r) * vec2(127.1, 311.7));
+      brightness *= (0.7 + 0.6 * n_a) * (0.85 + 0.3 * n_b) * (0.92 + 0.08 * n_c);
+      // Relativistic Doppler g from Keplerian orbital velocity.
+      // beta_kep = sqrt(M / r) / (1 + sqrt(M / r))  (an approximation; close
+      // enough to the exact value for visual asymmetry).
+      float vk = sqrt(1.0 / max(r, 1.0));
+      float beta = vk / (1.0 + vk);
+      vec3 vDisk = vec3(-pos.z, 0.0, pos.x) * (vk / max(r, 1.0));
       vec3 los = normalize(uEye - pos);
-      float losDopp = dot(vDisk, los);   // -vphi..+vphi
-      // Boost the projected line-of-sight component so the asymmetry is
-      // visually obvious. Mathematically equivalent to using a higher
-      // orbital v_phi than the Newtonian sqrt(M/r); justified here as a
-      // proxy for relativistic v_phi (which is significantly higher than
-      // Newtonian near the ISCO).
-      float g = clamp(1.0 + 2.2 * losDopp, 0.30, 2.4);
+      float losAlign = dot(normalize(vDisk + vec3(1e-6, 0.0, 0.0)), los);
+      // g = sqrt((1 + beta * losAlign) / (1 - beta * losAlign))
+      float num = max(1e-3, 1.0 + beta * losAlign);
+      float den = max(1e-3, 1.0 - beta * losAlign);
+      float g = sqrt(num / den);
       float gain = pow(g, 4.0);
-      vec3 emit = planck(T * g);
-      // Soft radial fade at the outer edge keeps lensed light from leaking
-      // into the canvas corners.
-      float outerFade = 1.0 - smoothstep(uDiskOuter * 0.7, uDiskOuter, r);
-      float ang = atan(pos.z, pos.x);
-      float n1 = 0.5 + 0.5 * sin(6.0 * ang + 1.1 * r);
-      float n2 = 0.5 + 0.5 * sin(13.0 * ang - 0.7 * r + 1.3);
-      float noise = mix(0.55, 1.0, n1) * mix(0.7, 1.0, n2);
-      col = emit * gain * outerFade * noise;
+      col = color * brightness * gain;
       hitDisk = true;
       break;
     }

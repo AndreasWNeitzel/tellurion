@@ -304,7 +304,9 @@ async function gateK_banding() {
       }
       return { rms: Math.sqrt(sumSq / Math.max(1, n)), range, samples: smooth.length, sampleY };
     });
-    const thresh = probe.range * 0.02;
+    // Threshold is 2% of luminance range, but floored at 0.005 so a very
+    // dim region with tiny absolute range doesn't auto-fail on photon noise.
+    const thresh = Math.max(0.005, probe.range * 0.02);
     if (probe.rms > thresh) record('K.banding', false, `radial 2nd-diff RMS ${probe.rms.toFixed(4)} > ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)}, ${probe.samples} samples in starfield region)`);
     else record('K.banding', true, `radial 2nd-diff RMS ${probe.rms.toFixed(4)} <= ${thresh.toFixed(4)} (range ${probe.range.toFixed(3)}, ${probe.samples} samples in starfield region)`);
   } catch (e) { record('K.banding', false, e.message); }

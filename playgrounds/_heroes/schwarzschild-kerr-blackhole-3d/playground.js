@@ -42,33 +42,35 @@ function buildButtons() {
   return { reset: r, pause: p };
 }
 
-const st = { aOverM: 0, diskInner: 6, diskOuter: 14, t: 0 };
+const st = { aOverM: 0, diskInner: 6, diskOuter: 60, t: 0 };
 let running = true;
 
 buildSlider('a/M', -1, 1, 0.05, st.aOverM, v => { st.aOverM = v; });
 // disk_r_in is clamped to >= 6 M (the ISCO at a=0). Material inside the ISCO
 // is unphysical; placing the disk there leaks bright pixels into the shadow.
 buildSlider('disk r_in', 6.0, 12, 0.1, st.diskInner, v => { st.diskInner = v; });
-buildSlider('disk r_out', 8, 30, 0.5, st.diskOuter, v => { st.diskOuter = v; });
+buildSlider('disk r_out', 20, 80, 1, st.diskOuter, v => { st.diskOuter = v; });
 const btns = buildButtons();
 
 let engine = null;
 try { engine = setupBHGL(canvas); } catch (e) { console.warn('BH GL init failed', e); }
 
+// Default camera per the latest spec: nearly edge-on (inclination 85 deg
+// from polar axis = 5 deg elevation above disk plane), closer (radius 25 M),
+// wider FOV (65 deg) so the disk overfills the frame on all sides.
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0],
-  radius: 35,
-  minRadius: 12,
-  maxRadius: 120,
+  radius: 25,
+  minRadius: 8,
+  maxRadius: 100,
   azimuthDeg: 35,
-  // Near edge-on default per the new spec (84 deg latitude from disk plane = 6 deg elevation in our convention).
-  elevationDeg: 6,
-  fovDeg: 35,
+  elevationDeg: 5,
+  fovDeg: 65,
 });
 window.__camera = camera;
 
 btns.reset.addEventListener('click', () => {
-  st.aOverM = 0; st.diskInner = 6; st.diskOuter = 14;
+  st.aOverM = 0; st.diskInner = 6; st.diskOuter = 60;
   running = true; btns.pause.textContent = 'Pause'; btns.pause.setAttribute('aria-pressed', 'false');
 });
 btns.pause.addEventListener('click', () => {
@@ -82,7 +84,7 @@ let last = performance.now(), fpsLast = last, fpsFrames = 0;
 function render() {
   if (!engine) return;
   const eye = camera.eyePosition();
-  engine.render(eye, [0, 0, 0], [0, 1, 0], 35, st.diskInner, st.diskOuter, st.aOverM);
+  engine.render(eye, [0, 0, 0], [0, 1, 0], 65, st.diskInner, st.diskOuter, st.aOverM);
   rEls['r_ISCO (M)'].textContent = (st.aOverM === 0 ? 6 : iscoKerr(st.aOverM)).toFixed(2);
   rEls['r_photon (M)'].textContent = photonSphereSchwarzschild().toFixed(2);
   rEls['b_crit (M)'].textContent = bCritSchwarzschild().toFixed(3);
