@@ -106,11 +106,11 @@ function render() {
     ctx.beginPath(); ctx.arc(x, detY, 4, 0, 2 * Math.PI); ctx.fill();
   }
 
-  // Xmax marker.
+  // Xmax marker. Heitler: cascade peaks at sMax = log2(E/Ec) splitting steps,
+  // which is X_max = X0 * log(E/Ec) in atmospheric column depth. Clamp the
+  // visual marker if sMax exceeds the user's chosen step count.
   const Xmax = X0 * Math.log(E / Ec);
-  const sXmax = Math.round((Xmax / (X0 * Math.log(E / Ec))) * state.steps);
-  // (In Heitler, max is exactly at log_2(E/Ec) steps.)
-  const sMax = Math.log2(E / Ec);
+  const sMax = Math.min(Math.log2(E / Ec), state.steps);
   const yMax = topY + sMax * dy;
   ctx.strokeStyle = 'rgba(255,213,127,0.5)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(0, yMax); ctx.lineTo(W, yMax); ctx.stroke();

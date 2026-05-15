@@ -70,14 +70,24 @@ Three upgrade existing playgrounds inline:
 * Both fixed: resolveSlug now collects ALL matches and errors with exit code 2 on ambiguity; controls now use explicit <label htmlFor=...> + aria-label.
 * code-reviewer pass 2: both fixes confirmed clean, no regressions.
 
+## Adversarial reviewer pass
+
+Targeted adversarial review on the 4 highest-risk new playgrounds. 7 findings, 2 blockers + 3 major + 2 minor. Fixed in this run:
+
+* LBM (blocker): added zero-gradient outflow on the right edge so mass does not accumulate from the steady inflow.
+* GW chirp (blocker): guarded `chirpMass` and `strain` against zero-mass and zero-distance inputs; non-finite results now return 0.
+* Aperture synthesis (major): dirty image now divided by number of UV samples so brightness is comparable across snapshot vs full synthesis.
+* Lensing caustics (major): image-dedup threshold widened (0.05 -> 0.08) so nearby Newton-converged roots collapse to a single image, recovering the correct image count in the single-lens regime.
+
 ## Outstanding work for the next run
 
-* Real CONTENT merges in the three deprecated pairs (tab UIs).
-* Full SEMF puzzle gameification (Upgrade E).
-* Engine reuse audit across the 12 new playgrounds: several (LBM, GW chirp, galaxy merger) currently run their math inline in playground.js rather than as shared engines in shared/js/engine/.
+* Real CONTENT merges in the three deprecated pairs (Michelson dual-tab, Maxwell-Boltzmann + Equipartition dual-readout, Hydrogen 2D-slice toggle). Currently the deprecation markers exist but the secondary content is not unified into the canonical playground.
+* Full SEMF coefficient-fitting puzzle (Upgrade E). Spec.md note exists; slider-puzzle gameification not implemented.
+* Engine reuse audit across the 15 new playgrounds: several (LBM, GW chirp, galaxy merger, aperture synthesis) run their math inline in playground.js rather than as shared engines in shared/js/engine/.
 * Spec.md hook and one_paragraph fields are still STATUS placeholders across the catalog.
-* Visual regression tests (visual.test.mjs) not yet authored for the 15 new playgrounds.
-* Performance: the LBM and the dirty-image direct sum recompute every frame; both would benefit from incremental update.
+* Visual regression tests (visual.test.mjs) not authored for the 15 new playgrounds.
+* Performance: LBM and dirty-image direct sum recompute every frame; both would benefit from incremental update.
+* Adversarial review extension: the other 8 new playgrounds (microlensing, stellar modes, cosmic-ray shower, distance ladder, slow-roll, habitable zone, quantum walk, gravity assist, fourier epicycle, pulsar DM) were not reviewed in this run.
 
 ## Structural issues
 

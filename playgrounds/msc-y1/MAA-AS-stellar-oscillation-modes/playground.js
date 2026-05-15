@@ -141,8 +141,13 @@ function buildControls() {
     controlsEl.appendChild(row);
   }
   slider('n-mode', 'n', 0, 5, 1, state.n, v => state.n = v);
-  slider('l-mode', 'l', 0, 4, 1, state.l, v => state.l = v);
-  slider('m-mode', 'm', -4, 4, 1, state.m, v => state.m = v);
+  slider('l-mode', 'l', 0, 4, 1, state.l, v => {
+    state.l = v;
+    // Maintain |m| <= l invariant (BLOCKER fix: plgndr returns 0 for m > l).
+    state.m = Math.max(-state.l, Math.min(state.l, state.m));
+  });
+  slider('m-mode', 'm', -4, 4, 1, state.m, v => { state.m = Math.max(-state.l, Math.min(state.l, v)); });
+
 }
 
 buildControls();
