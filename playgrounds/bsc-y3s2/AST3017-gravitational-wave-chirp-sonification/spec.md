@@ -1,7 +1,7 @@
 ---
 title: "Gravitational-Wave Chirp Sonification"
 slug: gravitational-wave-chirp-sonification
-status: needs-attention
+status: implemented
 audience: portfolio
 created: 2026-05-15
 primary_uc: AST3017

@@ -1,7 +1,6 @@
-// Galaxy merger N-body playground (scaffolded stub).
-// Status: needs-attention. The spec describes the full physics; this stub
-// renders a representative figure so the catalog index shows a working page.
-// Replace with the real engine when the implementation budget cycles cover it.
+// Galaxy-merger N-body. Two Hernquist halos sampled as tracer particles
+// orbit each other. Each tracer feels the analytic potential of BOTH halos;
+// the halo centers integrate as a softened 2-body. Tidal tails appear.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
@@ -14,62 +13,161 @@ const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const readoutInv   = document.getElementById('readout-invariant');
 const readoutFrame = document.getElementById('readout-frame');
+const controlsEl   = document.getElementById('controls');
 
-const rng = makeRng(SEED);
 const W = canvas.width, H = canvas.height;
-let frameNo = 0;
+const rng = makeRng(SEED);
 
-function drawSketch(t) {
+const G  = 1;          // toy units
+const N  = 600;        // tracers per galaxy
+const Mh = 1;          // halo mass each
+const aH = 1.0;        // Hernquist scale length
+
+const state = {
+  impact:   1.5,
+  vRel:     0.8,
+  running:  true,
+};
+
+// Hernquist enclosed-mass profile: M(<r) = M r^2 / (r + a)^2
+// Phi(r) = -G M / (r + a)
+function phiHernquist(r) { return -G * Mh / (r + aH); }
+function aHernquist(rx, ry) {
+  const r = Math.hypot(rx, ry) + 1e-6;
+  const dphidr = G * Mh / (r + aH) ** 2;
+  return { ax: -dphidr * rx / r, ay: -dphidr * ry / r };
+}
+
+function sampleHernquist() {
+  // Hernquist cumulative DF in 1D radius: r = a * sqrt(q) / (1 - sqrt(q)).
+  const out = [];
+  for (let i = 0; i < N; i += 1) {
+    const q = rng();
+    const r = aH * Math.sqrt(q) / Math.max(1 - Math.sqrt(q), 1e-4);
+    const theta = rng() * 2 * Math.PI;
+    out.push({ x: r * Math.cos(theta), y: r * Math.sin(theta), vx: 0, vy: 0 });
+  }
+  // Circular velocity from M(<r) / r at each radius.
+  for (const p of out) {
+    const r = Math.hypot(p.x, p.y) + 1e-6;
+    const M_enc = Mh * r * r / ((r + aH) ** 2);
+    const v_circ = Math.sqrt(G * M_enc / r);
+    // Random direction in tangent.
+    const dir = rng() > 0.5 ? 1 : -1;
+    p.vx = -dir * v_circ * p.y / r;
+    p.vy =  dir * v_circ * p.x / r;
+  }
+  return out;
+}
+
+let halo1 = { x: -3, y: 0, vx: 0,           vy:  state.vRel * 0.5 };
+let halo2 = { x:  3, y: state.impact, vx: 0, vy: -state.vRel * 0.5 };
+let tracers1 = sampleHernquist();
+let tracers2 = sampleHernquist();
+
+function reset() {
+  halo1 = { x: -3, y: 0,            vx: 0, vy:  state.vRel * 0.5 };
+  halo2 = { x:  3, y: state.impact, vx: 0, vy: -state.vRel * 0.5 };
+  tracers1 = sampleHernquist();
+  tracers2 = sampleHernquist();
+  // Translate tracers to their host halos.
+  for (const p of tracers1) { p.x += halo1.x; p.y += halo1.y; p.vx += halo1.vx; p.vy += halo1.vy; }
+  for (const p of tracers2) { p.x += halo2.x; p.y += halo2.y; p.vx += halo2.vx; p.vy += halo2.vy; }
+}
+reset();
+
+const dt = 0.02;
+function step() {
+  // Halos: feel each other (softened).
+  function pairForce(a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const r = Math.hypot(dx, dy) + 0.5;
+    const f = G * Mh / (r * r);
+    return { ax: f * dx / r, ay: f * dy / r };
+  }
+  const f12 = pairForce(halo1, halo2);
+  const f21 = { ax: -f12.ax, ay: -f12.ay };
+  halo1.vx += f12.ax * dt; halo1.vy += f12.ay * dt;
+  halo2.vx += f21.ax * dt; halo2.vy += f21.ay * dt;
+  halo1.x  += halo1.vx * dt; halo1.y += halo1.vy * dt;
+  halo2.x  += halo2.vx * dt; halo2.y += halo2.vy * dt;
+  // Tracers: feel both halos.
+  function update(p) {
+    const a1 = aHernquist(p.x - halo1.x, p.y - halo1.y);
+    const a2 = aHernquist(p.x - halo2.x, p.y - halo2.y);
+    p.vx += (a1.ax + a2.ax) * dt;
+    p.vy += (a1.ay + a2.ay) * dt;
+    p.x  += p.vx * dt;
+    p.y  += p.vy * dt;
+  }
+  for (const p of tracers1) update(p);
+  for (const p of tracers2) update(p);
+}
+
+function render() {
   ctx.fillStyle = '#0E0E13';
   ctx.fillRect(0, 0, W, H);
-
-  // Title strip.
-  ctx.fillStyle = '#dcdde2';
-  ctx.font = '18px sans-serif';
-  ctx.fillText('Galaxy merger N-body', 24, 36);
-  ctx.font = '12px sans-serif';
-  ctx.fillStyle = '#8b8c92';
-  ctx.fillText('Sketch: two Hernquist profiles approaching with tidal tails.', 24, 58);
+  const cx = W / 2, cy = H / 2;
+  const sc = Math.min(W, H) * 0.07;
+  ctx.fillStyle = '#7c9cff';
+  for (const p of tracers1) {
+    ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.3, 1.3);
+  }
   ctx.fillStyle = '#fdb56a';
-  ctx.fillText('Status: scaffolded, awaiting full implementation', 24, H - 24);
-
-  // Representative animated decoration: a Lissajous curve.
-  ctx.strokeStyle = '#7c9cff';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  for (let i = 0; i <= 256; i += 1) {
-    const u = i / 256;
-    const a = 2 * Math.PI * u + t;
-    const x = W / 2 + 200 * Math.sin(3 * a);
-    const y = H / 2 + 100 * Math.sin(2 * a + 0.5);
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  for (const p of tracers2) {
+    ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.3, 1.3);
   }
-  ctx.stroke();
-
-  // Animated moving dot to show liveness.
-  const dx = W / 2 + 200 * Math.sin(3 * t);
-  const dy = H / 2 + 100 * Math.sin(2 * t + 0.5);
+  // Halo cores.
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(cx + halo1.x * sc, cy + halo1.y * sc, 3, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#ffd57f';
-  ctx.beginPath(); ctx.arc(dx, dy, 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + halo2.x * sc, cy + halo2.y * sc, 3, 0, 2 * Math.PI); ctx.fill();
+
+  readoutInv.textContent = `dist=${Math.hypot(halo2.x - halo1.x, halo2.y - halo1.y).toFixed(2)}`;
 }
 
+let raf;
 function tick() {
-  const t = frameNo * 0.02;
-  drawSketch(t);
-  frameNo += 1;
-  if (frameNo % 12 === 0) {
-    readoutInv.textContent = 'stub';
-    readoutFrame.textContent = String(frameNo);
-  }
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  if (state.running) step();
+  render();
+  if (!CAPTURE_NAME) raf = requestAnimationFrame(tick);
 }
 
+function buildControls() {
+  controlsEl.innerHTML = '';
+  function slider(id, label, min, max, step_, value, onInput, fmt = v => v.toFixed(2)) {
+    const row = document.createElement('div'); row.className = 'row';
+    const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = id; lab.textContent = label;
+    const inp = document.createElement('input'); inp.id = id; inp.type = 'range';
+    inp.min = String(min); inp.max = String(max); inp.step = String(step_); inp.value = String(value);
+    inp.setAttribute('aria-label', label);
+    const val = document.createElement('span'); val.className = 'value'; val.textContent = fmt(value);
+    inp.addEventListener('input', () => { const v = parseFloat(inp.value); val.textContent = fmt(v); onInput(v); });
+    row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
+    controlsEl.appendChild(row);
+  }
+  slider('impact', 'impact b',     0, 4, 0.1, state.impact, v => { state.impact = v; });
+  slider('vRel',   'v_rel',        0, 2, 0.1, state.vRel,   v => { state.vRel = v; });
+  const row = document.createElement('div'); row.className = 'row';
+  const launch = document.createElement('button'); launch.type = 'button'; launch.textContent = 'Launch';
+  launch.addEventListener('click', () => { reset(); state.running = true; });
+  row.appendChild(launch); controlsEl.appendChild(row);
+}
+
+buildControls();
 if (DETERMINISTIC) {
-  for (let f = 0; f < 60; f += 1) { frameNo = f; drawSketch(f * 0.02); }
+  for (let i = 0; i < 60; i += 1) step();
+  render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
 } else {
-  requestAnimationFrame(tick);
+  raf = requestAnimationFrame(tick);
 }
 
-window.__physicsCheck = async () => ({ skip: true, reason: 'stub scaffold; physics check deferred' });
+window.__physicsCheck = async () => {
+  // Total halo-pair momentum should be conserved exactly (no external force).
+  const p1 = halo1.vx + halo2.vx;
+  const p2 = halo1.vy + halo2.vy;
+  if (Math.abs(p1) + Math.abs(p2) > 1e-6) return { name: 'momentum conservation', pass: false, msg: `(p_x, p_y) = (${p1}, ${p2})` };
+  return { name: 'halo pair momentum', pass: true, msg: 'two-body momentum exactly conserved' };
+};

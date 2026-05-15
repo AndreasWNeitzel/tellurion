@@ -614,28 +614,31 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
 
-- **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (needs-attention)
+- **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (implemented)
   Five radio telescopes plotted on a procedural world map (continent outlines, no image texture): ALMA, VLA, Effelsberg, Metsahovi, JCMT. The sky-preview panel shows a three-source model (one bright dot + two fainter). As simulated time runs (one day per 10 s), each telescope pair traces an elliptical arc in the UV plane; the dirty image panel updates via 2D i
 
-- **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (needs-attention)
+- **[Cosmic Distance Ladder Journey](../playgrounds/msc-y1/MAA-CO-cosmic-distance-ladder/index.html)** &nbsp; (implemented)
+  Click through four rungs of the distance ladder. Parallax: a nearby star swings against background, baseline 2 AU. Cepheid period-luminosity: a pulsating star with period 30 d, M_V from the Leavitt law. Type Ia: standard candle M_V = -19.3. Hubble flow: galaxy at z = 0.5, distance from D = cz/H_0.
+
+- **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (implemented)
   Atmosphere is drawn as vertical color bands from dark space to ground. Click the top of the canvas to fire a primary cosmic ray; the cascade fans down through the atmosphere with pions (red), kaons (orange), protons (white), and electromagnetic (blue). Shower maximum is visibly higher in the atmosphere for iron than for proton at the same energy. A detector 
 
-- **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (needs-attention)
+- **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (implemented)
   Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
 
 - **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (implemented)
   A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
 
-- **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (needs-attention)
+- **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (implemented)
   Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emer
 
-- **[Gravitational Lensing Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/index.html)** &nbsp; (needs-attention)
+- **[Gravitational Lensing Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/index.html)** &nbsp; (implemented)
   Drag up to four point-mass lenses; caustic curves (in amber) and critical curves (in white) are drawn analytically. A source position marker in the source-plane creates 2, 3, or 4 multiply-lensed images that update in real time. A background dot grid shears according to the lens map.
 
-- **[Gravitational Microlensing Event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/index.html)** &nbsp; (needs-attention)
+- **[Gravitational Microlensing Event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/index.html)** &nbsp; (implemented)
   Top half is a 200-star procedural field; one star is the source (with a faint Einstein-radius ring), another is the lens moving across the field. As the lens approaches the source the user sees the two distorted images flanking it, an Einstein ring flash at zero impact parameter, and the characteristic Paczynski bump in the bottom-half light curve. A binary-
 
-- **[Gravitational-Wave Chirp Sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/index.html)** &nbsp; (needs-attention)
+- **[Gravitational-Wave Chirp Sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/index.html)** &nbsp; (implemented)
   Three-panel visualization of a compact-binary inspiral. LEFT scrolls a strain $h(t)$ waveform that compresses and grows toward merger, then ringdown. CENTER spectrogram shows the chirp track as a bright upward sweep. RIGHT 3D inset shows the two orbiting masses (sphere size with mass) merging and ringing. WebAudio plays the strain shifted up to the audible b
 
 - **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (implemented)
@@ -647,5 +650,11 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Quantum vs Classical Random Walk](../playgrounds/bsc-y3s2/FIS3029-quantum-random-walk/index.html)** &nbsp; (implemented)
   Side-by-side: classical (binomial) on the left, Hadamard quantum walk on the right, both on a 101-site 1D lattice. The classical distribution is a Gaussian widening as $\sqrt{N}$; the quantum is the characteristic double-peaked distribution widening as $N$. Quantum amplitudes drawn with hue from phase, brightness from $|\psi|^2$. Bottom panel overlays both h
 
-- **[Stellar Oscillation Modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/index.html)** &nbsp; (needs-attention)
+- **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (implemented)
+  A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.
+
+- **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (implemented)
+  Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.
+
+- **[Stellar Oscillation Modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/index.html)** &nbsp; (implemented)
   A stellar disk breathes, rings, and ripples according to the chosen spherical-harmonic mode $Y_l^m(\theta, \phi) \cos(\omega t)$. Sliders for radial order $n$, degree $l$, azimuthal order $m$ morph the surface pattern. Side panel shows the propagation diagram (Brunt-Vaisala and Lamb frequencies vs radius for an $n = 3$ polytrope) with the current mode freque

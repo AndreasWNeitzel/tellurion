@@ -1,12 +1,8 @@
-// Quantum vs classical walk playground (scaffolded stub).
-// Status: needs-attention. The spec describes the full physics; this stub
-// renders a representative figure so the catalog index shows a working page.
-// Replace with the real engine when the implementation budget cycles cover it.
+// Quantum vs classical random walk on a 1D lattice of 101 sites.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
 const params        = new URLSearchParams(location.search);
-const SEED          = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
 
@@ -14,62 +10,120 @@ const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const readoutInv   = document.getElementById('readout-invariant');
 const readoutFrame = document.getElementById('readout-frame');
+const controlsEl   = document.getElementById('controls');
 
-const rng = makeRng(SEED);
 const W = canvas.width, H = canvas.height;
-let frameNo = 0;
+const N = 101;
+const CENTER = (N - 1) / 2;
 
-function drawSketch(t) {
+const state = { steps: 50 };
+
+function classical(steps) {
+  const p = new Float64Array(N);
+  for (let xi = 0; xi < N; xi += 1) {
+    const x = xi - CENTER;
+    if (Math.abs(x) > steps || ((steps + x) & 1) !== 0) continue;
+    const k = (steps + x) / 2;
+    let lp = -steps * Math.log(2);
+    for (let i = 1; i <= k; i += 1) lp += Math.log(steps - k + i) - Math.log(i);
+    p[xi] = Math.exp(lp);
+  }
+  return p;
+}
+
+function quantum(steps) {
+  let lR = new Float64Array(N), lI = new Float64Array(N);
+  let rR = new Float64Array(N), rI = new Float64Array(N);
+  // initial coin (|L> + i|R>)/sqrt2 produces a symmetric Hadamard distribution
+  const inv = 1 / Math.SQRT2;
+  lR[CENTER] = inv; rI[CENTER] = inv;
+  for (let t = 0; t < steps; t += 1) {
+    const aLR = new Float64Array(N), aLI = new Float64Array(N);
+    const aRR = new Float64Array(N), aRI = new Float64Array(N);
+    for (let x = 0; x < N; x += 1) {
+      aLR[x] = (lR[x] + rR[x]) * inv; aLI[x] = (lI[x] + rI[x]) * inv;
+      aRR[x] = (lR[x] - rR[x]) * inv; aRI[x] = (lI[x] - rI[x]) * inv;
+    }
+    const nLR = new Float64Array(N), nLI = new Float64Array(N);
+    const nRR = new Float64Array(N), nRI = new Float64Array(N);
+    for (let x = 0; x < N; x += 1) {
+      if (x - 1 >= 0) { nLR[x - 1] = aLR[x]; nLI[x - 1] = aLI[x]; }
+      if (x + 1 <  N) { nRR[x + 1] = aRR[x]; nRI[x + 1] = aRI[x]; }
+    }
+    lR = nLR; lI = nLI; rR = nRR; rI = nRI;
+  }
+  const p = new Float64Array(N);
+  for (let x = 0; x < N; x += 1) {
+    p[x] = lR[x] * lR[x] + lI[x] * lI[x] + rR[x] * rR[x] + rI[x] * rI[x];
+  }
+  return p;
+}
+
+function variance(p) {
+  let m = 0, tot = 0;
+  for (let x = 0; x < N; x += 1) { m += (x - CENTER) * p[x]; tot += p[x]; }
+  m /= Math.max(tot, 1e-12);
+  let v = 0;
+  for (let x = 0; x < N; x += 1) v += p[x] * (x - CENTER - m) ** 2;
+  return v / Math.max(tot, 1e-12);
+}
+
+function render() {
   ctx.fillStyle = '#0E0E13';
   ctx.fillRect(0, 0, W, H);
+  const pC = classical(state.steps);
+  const pQ = quantum(state.steps);
+  const baseY = H - 50;
+  const dx = (W / 2) / N;
+  let mx = 0;
+  for (let i = 0; i < N; i += 1) { if (pC[i] > mx) mx = pC[i]; if (pQ[i] > mx) mx = pQ[i]; }
+  const ys = (H - 110) / Math.max(mx, 1e-9);
 
-  // Title strip.
+  ctx.fillStyle = '#dcdde2'; ctx.font = '14px sans-serif';
+  ctx.fillText('Classical (binomial)', 20, 28);
+  ctx.fillStyle = '#7c9cff';
+  for (let i = 0; i < N; i += 1) ctx.fillRect(i * dx + 4, baseY - pC[i] * ys, dx - 1.5, pC[i] * ys);
+
   ctx.fillStyle = '#dcdde2';
-  ctx.font = '18px sans-serif';
-  ctx.fillText('Quantum vs classical walk', 24, 36);
-  ctx.font = '12px sans-serif';
-  ctx.fillStyle = '#8b8c92';
-  ctx.fillText('Sketch: side-by-side histogram (Gaussian vs double-peak).', 24, 58);
-  ctx.fillStyle = '#fdb56a';
-  ctx.fillText('Status: scaffolded, awaiting full implementation', 24, H - 24);
-
-  // Representative animated decoration: a Lissajous curve.
-  ctx.strokeStyle = '#7c9cff';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  for (let i = 0; i <= 256; i += 1) {
-    const u = i / 256;
-    const a = 2 * Math.PI * u + t;
-    const x = W / 2 + 200 * Math.sin(3 * a);
-    const y = H / 2 + 100 * Math.sin(2 * a + 0.5);
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // Animated moving dot to show liveness.
-  const dx = W / 2 + 200 * Math.sin(3 * t);
-  const dy = H / 2 + 100 * Math.sin(2 * t + 0.5);
+  ctx.fillText('Quantum (Hadamard)', W / 2 + 20, 28);
   ctx.fillStyle = '#ffd57f';
-  ctx.beginPath(); ctx.arc(dx, dy, 5, 0, 2 * Math.PI); ctx.fill();
+  for (let i = 0; i < N; i += 1) ctx.fillRect(W / 2 + i * dx + 4, baseY - pQ[i] * ys, dx - 1.5, pQ[i] * ys);
+
+  ctx.strokeStyle = 'rgba(220,220,240,0.4)';
+  ctx.beginPath(); ctx.moveTo(0, baseY); ctx.lineTo(W, baseY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, baseY); ctx.stroke();
+
+  const vC = variance(pC), vQ = variance(pQ);
+  readoutInv.textContent = `var_C=${vC.toFixed(2)} var_Q=${vQ.toFixed(2)} ratio=${(vQ / Math.max(vC, 1e-6)).toFixed(2)}`;
+  readoutFrame.textContent = String(state.steps);
 }
 
-function tick() {
-  const t = frameNo * 0.02;
-  drawSketch(t);
-  frameNo += 1;
-  if (frameNo % 12 === 0) {
-    readoutInv.textContent = 'stub';
-    readoutFrame.textContent = String(frameNo);
-  }
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+function buildControls() {
+  controlsEl.innerHTML = '';
+  const row = document.createElement('div'); row.className = 'row';
+  const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = 'qrw-steps'; lab.textContent = 'Steps N';
+  const inp = document.createElement('input'); inp.id = 'qrw-steps'; inp.type = 'range'; inp.min = '1'; inp.max = '50'; inp.value = String(state.steps);
+  inp.setAttribute('aria-label', 'Number of walk steps');
+  const val = document.createElement('span'); val.className = 'value'; val.textContent = String(state.steps);
+  inp.addEventListener('input', () => { state.steps = parseInt(inp.value, 10); val.textContent = String(state.steps); render(); });
+  row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
+  controlsEl.appendChild(row);
 }
 
+buildControls();
+render();
 if (DETERMINISTIC) {
-  for (let f = 0; f < 60; f += 1) { frameNo = f; drawSketch(f * 0.02); }
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-} else {
-  requestAnimationFrame(tick);
 }
 
-window.__physicsCheck = async () => ({ skip: true, reason: 'stub scaffold; physics check deferred' });
+window.__physicsCheck = async () => {
+  const pQ = quantum(state.steps);
+  let total = 0; for (let i = 0; i < N; i += 1) total += pQ[i];
+  if (Math.abs(total - 1) > 1e-8) return { name: 'unitarity', pass: false, msg: `sum|psi|^2 = ${total}` };
+  const vC = variance(classical(50));
+  const vQ = variance(quantum(50));
+  if (Math.abs(vC - 50) / 50 > 0.05) return { name: 'classical var', pass: false, msg: `var_C(50) = ${vC.toFixed(2)}` };
+  if (vQ < 75) return { name: 'quantum speedup', pass: false, msg: `var_Q(50) = ${vQ.toFixed(2)}` };
+  return { name: 'unitarity + speedup', pass: true, msg: `sum=1 var_C=${vC.toFixed(2)} var_Q=${vQ.toFixed(2)}` };
+};

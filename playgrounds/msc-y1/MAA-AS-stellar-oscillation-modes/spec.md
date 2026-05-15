@@ -1,7 +1,7 @@
 ---
 title: "Stellar Oscillation Modes"
 slug: stellar-oscillation-modes
-status: needs-attention
+status: implemented
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-AS

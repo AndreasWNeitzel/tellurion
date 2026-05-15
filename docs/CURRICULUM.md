@@ -8,13 +8,13 @@ See `docs/BUILD_ORDER.md` for the engineering-priority view (which playground an
 
 ## Summary
 
-Total playgrounds: 216
+Total playgrounds: 219
 
 | Status | Count |
 |---|---|
 | draft | 0 |
 | in-progress | 0 |
-| implemented | 4 |
+| implemented | 15 |
 | verified | 200 |
 | shipped | 0 |
 
@@ -222,7 +222,7 @@ Total playgrounds: 216
 
 - **1D Alfvén Wave in MHD** ([AST3014-alfven-wave-mhd-1d](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/)). Status: `verified`. `goedbloed-plasma` ch 5.
 - **Bondi Spherical Accretion** ([AST3014-bondi-accretion-spherical](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/)). Status: `verified`. `frank-king-raine` ch 2.
-- **Fluid Painter: Lattice Boltzmann Sandbox** ([AST3014-fluid-painter-lattice-boltzmann](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/)). Status: `needs-attention`. `kruger2017` ch ?.
+- **Fluid Painter: Lattice Boltzmann Sandbox** ([AST3014-fluid-painter-lattice-boltzmann](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/)). Status: `implemented`. `kruger2017` ch ?.
 - **Parker Solar Wind** ([AST3014-parker-solar-wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/)). Status: `verified`. `shu-vol2` ch 17.
 - **Sedov-Taylor Blast Wave** ([AST3014-sedov-taylor-blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/)). Status: `verified`. `shu-vol2` ch 17 (supporting: AST3016).
 - **SPH 1D Sod Shock Tube** ([AST3014-sph-sod-shock-tube](../playgrounds/bsc-y3s1/AST3014-sph-sod-shock-tube/)). Status: `verified`. `sod1978` ch ? (supporting: FIS2018).
@@ -277,10 +277,10 @@ Total playgrounds: 216
 - **BBN Light-Element Abundances** ([AST3017-bbn-light-element-toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/)). Status: `verified`. `liddle-cosmology` ch 11.
 - **Cosmic Distance Ladder** ([AST3017-distance-ladder-toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/)). Status: `verified`. `carroll-ostlie` ch 24.
 - **Friedmann Cosmography** ([AST3017-friedmann-cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: MAA-CS).
-- **Gravitational Lensing Caustics** ([AST3017-gravitational-lensing-caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/)). Status: `needs-attention`. `schneider2006` ch ?.
-- **Gravitational Microlensing Event** ([AST3017-gravitational-microlensing-event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/)). Status: `needs-attention`. `paczynski1986` ch ?.
+- **Gravitational Lensing Caustics** ([AST3017-gravitational-lensing-caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/)). Status: `implemented`. `schneider2006` ch ?.
+- **Gravitational Microlensing Event** ([AST3017-gravitational-microlensing-event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/)). Status: `implemented`. `paczynski1986` ch ?.
 - **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. `schutz-firstcourse` ch ?.
-- **Gravitational-Wave Chirp Sonification** ([AST3017-gravitational-wave-chirp-sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/)). Status: `needs-attention`. `maggiore2008` ch ?.
+- **Gravitational-Wave Chirp Sonification** ([AST3017-gravitational-wave-chirp-sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/)). Status: `implemented`. `maggiore2008` ch ?.
 - **Slow-Roll Inflation** ([AST3017-inflation-slow-roll](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/)). Status: `verified`. `mukhanov-cosmology` ch 5 (supporting: MAA-CS).
 - **Schwarzschild Light Bending** ([AST3017-schwarzschild-geodesics](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/)). Status: `verified`. `carroll2019` ch ?.
 - **Shapiro Time Delay** ([AST3017-shapiro-time-delay](../playgrounds/bsc-y3s2/AST3017-shapiro-time-delay/)). Status: `verified`. `schutz-firstcourse` ch ?.
@@ -325,7 +325,7 @@ Total playgrounds: 216
 
 - **Alpha Decay via Gamow Tunneling** ([FIS3030-alpha-decay-gamow-tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/)). Status: `verified`. `krane-nuclear` ch 8.
 - **CKM Mixing Unitarity Triangle** ([FIS3030-ckm-mixing-unitarity-triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/)). Status: `verified`. `griffiths-particles` ch 10.
-- **Cosmic-Ray Air Shower** ([FIS3030-cosmic-ray-air-shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/)). Status: `needs-attention`. `heitler1954` ch ?.
+- **Cosmic-Ray Air Shower** ([FIS3030-cosmic-ray-air-shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/)). Status: `implemented`. `heitler1954` ch ?.
 - **Beta Decay - Fermi vs Gamow-Teller** ([FIS3030-nuclear-beta-decay-fermi-vs-gt](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/)). Status: `verified`. `krane-nuclear` ch 9.
 - **Nuclear Shell Model Magic Numbers** ([FIS3030-nuclear-shell-model-magic-numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/)). Status: `verified`. `krane-nuclear` ch 5.
 - **Toy Parton Distribution Functions** ([FIS3030-parton-distribution-toy](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/)). Status: `verified`. `griffiths-particles` ch 9.
@@ -341,14 +341,14 @@ Total playgrounds: 216
 
 ## MSc Year 1 (Astronomy and Astrophysics)
 
-43 playgrounds.
+46 playgrounds.
 
 ### MAA-GD Galactic Dynamics
 
 5 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Chandrasekhar Dynamical Friction** ([MAA-GD-dynamical-friction-chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/)). Status: `verified`. `binney-tremaine` ch 8.
-- **Galaxy Merger N-Body** ([MAA-GD-galaxy-merger-nbody](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/)). Status: `needs-attention`. `hernquist1990` ch ?.
+- **Galaxy Merger N-Body** ([MAA-GD-galaxy-merger-nbody](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/)). Status: `implemented`. `hernquist1990` ch ?.
 - **Jeans Isothermal Sphere** ([MAA-GD-jeans-isothermal-sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/)). Status: `verified`. `binney-tremaine` ch 4.
 - **Orbits in an Axisymmetric Potential** ([MAA-GD-orbits-in-axisymmetric-potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/)). Status: `verified`. `binney-tremaine` ch 3.
 - **Spiral Density-Wave Dispersion** ([MAA-GD-spiral-density-wave-dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/)). Status: `verified`. `binney-tremaine` ch 6.
@@ -380,10 +380,11 @@ Total playgrounds: 216
 
 ### MAA-SS Solar System and Exoplanets
 
-2 primary; supporting use of this UC appears elsewhere when listed.
+3 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Mean-Motion Resonance and Kirkwood Gaps** ([MAA-SS-resonance-mean-motion-toy](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/)). Status: `verified`. `murray-dermott` ch 8.
 - **Secular Perturbations (Laplace-Lagrange)** ([MAA-SS-secular-perturbation-laplace-lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/)). Status: `verified`. `murray-dermott` ch 7.
+- **Stellar Habitable Zone** ([MAA-SS-stellar-habitable-zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/)). Status: `implemented`. citation pending.
 
 ### MAA-AS Asteroseismology
 
@@ -393,7 +394,7 @@ Total playgrounds: 216
 - **Mode Trapping in Evolved Stars** ([MAA-AS-mode-trapping-evolved-stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/)). Status: `verified`. `aerts-asteroseism` ch 3.
 - **p- and g-Mode Cavities (Propagation Diagram)** ([MAA-AS-p-g-mode-cavities](../playgrounds/msc-y1/MAA-AS-p-g-mode-cavities/)). Status: `verified`. `aerts-asteroseism` ch 3.
 - **Rotational Splitting of Multiplets** ([MAA-AS-rotational-splitting-multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/)). Status: `verified`. `aerts-asteroseism` ch 3.
-- **Stellar Oscillation Modes** ([MAA-AS-stellar-oscillation-modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/)). Status: `needs-attention`. `aerts2010` ch ?.
+- **Stellar Oscillation Modes** ([MAA-AS-stellar-oscillation-modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/)). Status: `implemented`. `aerts2010` ch ?.
 
 ### MAA-HE High-Energy Astrophysics
 
@@ -436,7 +437,7 @@ Total playgrounds: 216
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Aperture Synthesis on the UV Plane** ([MAA-OT-aperture-synthesis-uv-plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/)). Status: `needs-attention`. `tms2017` ch ?.
+- **Aperture Synthesis on the UV Plane** ([MAA-OT-aperture-synthesis-uv-plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/)). Status: `implemented`. `tms2017` ch ?.
 - **PSF and Strehl Ratio** ([MAA-OT-point-spread-function-strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/)). Status: `verified`. `born-wolf` ch 8.
 - **Pulsar Dispersion Measure Dedispersion** ([MAA-OT-pulsar-dispersion-measure](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/)). Status: `implemented`. `lorimer-kramer` ch ? (supporting: MAA-AS).
 - **Atmospheric Speckle Statistics** ([MAA-OT-speckle-pattern-statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/)). Status: `verified`. `born-wolf` ch 10.

@@ -60,6 +60,32 @@ function render() {
   ctx.fillText(`m₁ = ${st.m1.toFixed(2)}, m₂ = ${st.m2.toFixed(2)}, K = ${st.K.toFixed(2)}`, 12, H - 14);
   rG.textContent = (gap.high - gap.low).toFixed(2);
 }
-function tick() { render(); requestAnimationFrame(tick); }
+// Upgrade A (Phase 13): a small animated lattice strip at the bottom shows
+// the diatomic chain oscillating in the OPTICAL mode at zone boundary
+// (m1, m2 move opposite, with amplitudes inversely proportional to mass).
+// The animation frequency is the local optical frequency, scaled for visibility.
+let _phase = 0;
+function renderLattice() {
+  if (!running) return;
+  const W = canvas.width, H = canvas.height;
+  const stripY = H - 28;
+  const N = 14, dx = W / (N + 4), x0 = dx * 2;
+  const gap = gapAtZoneBoundary(st.K, st.m1, st.m2);
+  const omegaOpt = gap.high;
+  _phase += 0.08 * omegaOpt;
+  ctx.fillStyle = 'rgba(220,220,240,0.07)';
+  ctx.fillRect(0, stripY - 14, W, 28);
+  for (let i = 0; i < N; i += 1) {
+    const isM1 = (i & 1) === 0;
+    const amp = (isM1 ? 1 / st.m1 : -1 / st.m2) * 6;
+    const x = x0 + i * dx + amp * Math.sin(_phase);
+    ctx.fillStyle = isM1 ? '#7c9cff' : '#ffd57f';
+    ctx.beginPath(); ctx.arc(x, stripY, isM1 ? 6 : 5, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px sans-serif';
+  ctx.fillText('Lattice (optical mode, zone boundary; m1 blue, m2 amber)', 12, stripY - 18);
+}
+
+function tick() { render(); renderLattice(); requestAnimationFrame(tick); }
 function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }

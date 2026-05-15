@@ -1,7 +1,7 @@
 ---
 title: "Gravitational Lensing Caustics"
 slug: gravitational-lensing-caustics
-status: needs-attention
+status: implemented
 audience: portfolio
 created: 2026-05-15
 primary_uc: AST3017

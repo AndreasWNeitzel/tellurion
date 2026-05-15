@@ -1,7 +1,7 @@
 ---
 title: "Fluid Painter: Lattice Boltzmann Sandbox"
 slug: fluid-painter-lattice-boltzmann
-status: needs-attention
+status: implemented
 audience: portfolio
 created: 2026-05-15
 primary_uc: AST3014

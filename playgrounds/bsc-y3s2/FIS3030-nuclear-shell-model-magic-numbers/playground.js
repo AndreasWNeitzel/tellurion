@@ -17,7 +17,33 @@ const sliderN = document.getElementById('slider-N');
 const valueN  = document.getElementById('value-N');
 
 let N = parseInt(sliderN.value, 10);
-sliderN.addEventListener('input', () => { N = parseInt(sliderN.value, 10); valueN.textContent = String(N); });
+let flashUntil = 0, flashGold = false;
+
+function markFlash() {
+  flashUntil = performance.now() + 700;
+  flashGold = MAGIC.includes(N);
+}
+
+sliderN.addEventListener('input', () => { N = parseInt(sliderN.value, 10); valueN.textContent = String(N); markFlash(); });
+
+// Upgrade B (Phase 13): "Add nucleon" / "Remove" buttons for stepwise filling
+// with a brief flash on the most-recently-changed level. Gold flash when the
+// resulting N is a magic number.
+(() => {
+  const controls = document.querySelector('.controls, #controls');
+  if (!controls) return;
+  const row = document.createElement('div'); row.className = 'row';
+  const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = 'Remove nucleon';
+  const plus  = document.createElement('button'); plus.type  = 'button'; plus.textContent  = 'Add nucleon';
+  minus.addEventListener('click', () => {
+    if (N > 0) { N -= 1; sliderN.value = String(N); valueN.textContent = String(N); markFlash(); }
+  });
+  plus.addEventListener('click', () => {
+    if (N < parseInt(sliderN.max, 10)) { N += 1; sliderN.value = String(N); valueN.textContent = String(N); markFlash(); }
+  });
+  row.appendChild(minus); row.appendChild(plus);
+  controls.appendChild(row);
+})();
 
 function colors() {
   const css = getComputedStyle(document.body);
