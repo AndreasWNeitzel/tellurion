@@ -108,10 +108,11 @@ function bootSync() {
   // Accumulate TAA history across multiple frames so the captured still
   // benefits from the same banding-suppression the live demo gets.
   if (CAPTURE_NAME) {
-    // Deeper TAA convergence in capture mode to suppress the banding
-    // measured by harness gate K. 16 frames at ~250 ms each under
-    // SwiftShader still fits the 30 s page.goto budget.
-    for (let f = 0; f < 16; f += 1) render();
+    // Deeper TAA convergence in capture mode. The geodesic iteration cap
+    // is now 500 (was 220) for sharper photon-ring + lensed-background
+    // accuracy, so capture-frame count is dropped from 16 to 8 to keep
+    // total boot time inside the 30 s page.goto budget on SwiftShader.
+    for (let f = 0; f < 8; f += 1) render();
   }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {

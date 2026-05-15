@@ -157,7 +157,7 @@ void main() {
   // Conserved-quantity reference: at infinity, (du)^2 + u^2 - 2 u^3 = 1/b^2.
   // We periodically renormalize to keep this invariant (null-condition projection).
   float invB2 = 1.0 / (b * b);
-  for (int i = 0; i < 220; i += 1) {
+  for (int i = 0; i < 500; i += 1) {
     // Curvature-adaptive step: shrink near the horizon (small r = large u).
     // Far from BH, take larger steps; near periapsis / horizon, tighten.
     float r_now = 1.0 / max(u, 1e-6);
