@@ -23,24 +23,67 @@ function matProps() {
   }
 }
 let last = performance.now();
+
+// Minimal viridis-ish colormap (t in [0,1] -> rgb).
+function viridis(t) {
+  t = Math.max(0, Math.min(1, t));
+  const r = Math.round(255 * Math.min(1, 0.28 + 1.6 * Math.pow(t, 2.2)));
+  const g = Math.round(255 * (0.02 + 0.86 * t));
+  const b = Math.round(255 * (0.33 + 0.5 * Math.cos(3.1 * t - 0.4)));
+  return `rgb(${r},${Math.min(255, g)},${Math.max(0, Math.min(255, b))})`;
+}
+
 function render() {
-  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
   const f = Math.pow(10, st.fExp);
   const { sigma, mu_r } = matProps();
   const omega = 2 * Math.PI * f;
   const delta = skinDepth(omega, sigma, mu_r);
   const zmax = 5 * delta;
-  const cx = 80, cy = canvas.height / 2;
-  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(cx, 30); ctx.lineTo(cx, canvas.height - 30); ctx.stroke();
+
+  // PRIMARY: conductor cross-section. A filled bar; x = depth from surface.
+  // Current density J(x) = J0 exp(-x/delta) mapped to viridis, with an AC
+  // pulse so the surface brightens and dims at the drive frequency.
+  const barX = 40, barY = 30, barW = W - 80, barH = H * 0.42;
+  const pulse = 0.55 + 0.45 * Math.cos(st.t * 3.0);   // AC envelope in time
+  const cols = 220;
+  for (let c = 0; c < cols; c += 1) {
+    const xfrac = c / cols;
+    const xphys = xfrac * zmax;
+    const J = Math.exp(-xphys / delta) * pulse;
+    ctx.fillStyle = viridis(J);
+    ctx.fillRect(barX + xfrac * barW, barY, barW / cols + 1, barH);
+  }
+  ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(barX, barY, barW, barH);
+  // Skin-depth dashed line at x = delta.
+  const xDelta = barX + (delta / zmax) * barW;
+  ctx.strokeStyle = '#ff5d5d'; ctx.setLineDash([6, 4]); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(xDelta, barY - 6); ctx.lineTo(xDelta, barY + barH + 6); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#ff5d5d'; ctx.font = '12px ui-monospace, monospace';
+  const dLabel = delta < 1e-3 ? `${(delta * 1e6).toFixed(1)} um` : `${(delta * 1000).toFixed(2)} mm`;
+  ctx.fillText(`skin depth delta = ${dLabel}`, xDelta + 6, barY + 16);
+  ctx.fillStyle = '#e8e8e8';
+  ctx.fillText('surface', barX + 4, barY + barH + 18);
+  ctx.fillText('interior ->', barX + barW - 90, barY + barH + 18);
+  ctx.fillText(`f = ${f.toExponential(2)} Hz`, barX + 4, barY - 10);
+
+  // SECONDARY: the E(z) standing-profile curve, in the lower region.
+  const secTop = barY + barH + 30;
+  const secBot = H - 28;
+  const cx = 80, cy = (secTop + secBot) / 2;
+  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(cx, secTop); ctx.lineTo(cx, secBot); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(canvas.width - 20, cy); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('z = 0', cx + 5, 20);
+  ctx.fillText('E(z)', cx + 5, secTop + 12);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
   for (let k = 1; k <= 5; k += 1) {
     const z = k * delta;
     const px = cx + (z / zmax) * (canvas.width - cx - 40);
-    ctx.beginPath(); ctx.moveTo(px, 30); ctx.lineTo(px, canvas.height - 30); ctx.stroke();
-    ctx.fillStyle = '#5bc0eb'; ctx.fillText(`${k}δ`, px - 10, canvas.height - 12);
+    ctx.beginPath(); ctx.moveTo(px, secTop); ctx.lineTo(px, secBot); ctx.stroke();
+    ctx.fillStyle = '#5bc0eb'; ctx.fillText(`${k}d`, px - 8, secBot + 14);
   }
   ctx.setLineDash([]);
   ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 1.5;
@@ -50,7 +93,7 @@ function render() {
     const z = (i / N) * zmax;
     const E = fieldE(z, st.t / Math.max(1e-30, omega) * omega, omega, sigma, 1, mu_r);
     const px = cx + (z / zmax) * (canvas.width - cx - 40);
-    const py = cy - E * 170;
+    const py = cy - E * 55;
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
@@ -60,7 +103,7 @@ function render() {
     const z = (i / N) * zmax;
     const env = Math.exp(-z / delta);
     const px = cx + (z / zmax) * (canvas.width - cx - 40);
-    const py = cy - env * 170;
+    const py = cy - env * 55;
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
@@ -69,14 +112,11 @@ function render() {
     const z = (i / N) * zmax;
     const env = -Math.exp(-z / delta);
     const px = cx + (z / zmax) * (canvas.width - cx - 40);
-    const py = cy - env * 170;
+    const py = cy - env * 55;
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  ctx.fillStyle = '#e8e8e8'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`f = ${(f).toExponential(2)} Hz`, 12, 20);
-  ctx.fillText(`δ = ${(delta * 1000).toExponential(2)} mm`, 12, 38);
-  rD.textContent = (delta < 1e-3 ? `${(delta * 1e6).toFixed(2)} μm` : `${(delta * 1000).toFixed(3)} mm`);
+  rD.textContent = (delta < 1e-3 ? `${(delta * 1e6).toFixed(2)} um` : `${(delta * 1000).toFixed(3)} mm`);
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt * 4; render(); requestAnimationFrame(tick); }
 function bootSync() { if (CAPTURE_NAME) st.t = CAPTURE_FRAC * 5; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
