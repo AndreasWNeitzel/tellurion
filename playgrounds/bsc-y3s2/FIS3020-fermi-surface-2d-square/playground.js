@@ -32,12 +32,17 @@ function colors() {
   };
 }
 
+// 1-H: last BZ transform (for click/drag k-space inversion) + clicked v_F.
+let bzXf = { cxPx: 0, cyPx: 0, size: 1 };
+let vArrow = null;   // { kx, ky, vx, vy } or null
+
 function drawBZ(c, x0, y_off, w, h) {
   ctx.fillStyle = c.bg;
   ctx.fillRect(x0, y_off, w, h);
 
   const cxPx = x0 + w / 2, cyPx = y_off + h / 2;
   const size = Math.min(w, h) * 0.42;
+  bzXf = { cxPx, cyPx, size };
   const N = 60;
   const Ef = fermiEnergyAtFilling(f, 1, N);
 
@@ -131,7 +136,60 @@ function render() {
   const W = canvas.width, H = canvas.height;
   drawBZ(c, 0, 0, W * 0.5, H);
   drawDOS(c, W * 0.5, 0, W * 0.5, H);
+  // Fermi-velocity arrow at the clicked k-point.
+  if (vArrow) {
+    const { cxPx, cyPx, size } = bzXf;
+    const sx = cxPx + vArrow.kx / Math.PI * size;
+    const sy = cyPx + vArrow.ky / Math.PI * size;
+    const mag = Math.hypot(vArrow.vx, vArrow.vy) || 1;
+    const L = 34 * Math.min(1.4, mag / 2);
+    const ux = vArrow.vx / mag, uy = vArrow.vy / mag;
+    ctx.strokeStyle = '#ff5d5d'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + ux * L, sy + uy * L); ctx.stroke();
+    ctx.fillStyle = '#ff5d5d';
+    ctx.beginPath();
+    ctx.moveTo(sx + ux * L, sy + uy * L);
+    ctx.lineTo(sx + ux * L - 7 * ux + 4 * uy, sy + uy * L - 7 * uy - 4 * ux);
+    ctx.lineTo(sx + ux * L - 7 * ux - 4 * uy, sy + uy * L - 7 * uy + 4 * ux);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ff5d5d'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`v_F=(${vArrow.vx.toFixed(2)}, ${vArrow.vy.toFixed(2)})`, sx + 8, sy - 8);
+  }
 }
+
+// Convert a canvas point to (kx, ky) in the BZ; null if outside.
+function canvasToK(px, py) {
+  const { cxPx, cyPx, size } = bzXf;
+  if (px < cxPx - size || px > cxPx + size || py < cyPx - size || py > cyPx + size) return null;
+  return { kx: (px - cxPx) / size * Math.PI, ky: (py - cyPx) / size * Math.PI };
+}
+
+let dragging = false, dragY = 0;
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const k = canvasToK(px, py);
+  if (!k) return;
+  // Click on the Fermi surface (|E - Ef| small) -> velocity arrow.
+  const Ef = fermiEnergyAtFilling(f, 1, 80);
+  const E = dispersion(k.kx, k.ky, 1);
+  if (Math.abs(E - Ef) < 0.25) {
+    vArrow = { kx: k.kx, ky: k.ky, vx: 2 * Math.sin(k.kx), vy: 2 * Math.sin(k.ky) };
+  } else {
+    vArrow = null;
+    dragging = true; dragY = py;
+  }
+});
+canvas.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  const rect = canvas.getBoundingClientRect();
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  f = Math.max(0.02, Math.min(0.98, f + (dragY - py) * 0.0015));
+  dragY = py;
+  sliderF.value = String(f); valueF.textContent = f.toFixed(3);
+});
+canvas.addEventListener('mouseup', () => { dragging = false; });
 
 function updateReadout() {
   const Ef = fermiEnergyAtFilling(f, 1, 80);

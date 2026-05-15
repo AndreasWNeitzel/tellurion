@@ -49,4 +49,10 @@ describe('fermi-surface-2d-square', () => {
   it('continuum fermiCircleK at f = 0.5 equals sqrt(2 pi)', () => {
     expect(Math.abs(fermiCircleK(0.5) - Math.sqrt(2 * Math.PI))).toBeLessThan(1e-12);
   });
+  it('1-H: Fermi velocity at (pi/2, pi/2) points at 45 degrees', () => {
+    // E = -2t(cos kx + cos ky) => v = (2t sin kx, 2t sin ky).
+    const kx = Math.PI / 2, ky = Math.PI / 2;
+    const vx = 2 * Math.sin(kx), vy = 2 * Math.sin(ky);
+    expect(Math.abs(Math.atan2(vy, vx) - Math.PI / 4)).toBeLessThan(0.01);
+  });
 });
