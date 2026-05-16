@@ -20,30 +20,73 @@ function render() {
   const M = Math.pow(10, st.logM) * M_SUN, cs = st.cs * 1000;
   const rho_inf = Math.pow(10, st.logn) * 1.66e-27 * 1e6;
   const rB = bondiRadius(M, cs);
+  const rS = rB * 0.5;
   const Mdot = MdotBondi(M, cs, rho_inf);
   const cx = canvas.width / 2, cy = canvas.height / 2;
+  const maxRDisplay = rB * 1.5, pixelsPerRad = 180 / maxRDisplay;
   ctx.strokeStyle = '#5bc0eb'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(cx, cy, 140, 0, 2 * Math.PI); ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, 70, 0, 2 * Math.PI); ctx.stroke();
+  const rB_px = rB * pixelsPerRad, rS_px = rS * pixelsPerRad;
+  ctx.beginPath(); ctx.arc(cx, cy, rB_px, 0, 2 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rS_px, 0, 2 * Math.PI); ctx.stroke();
   ctx.setLineDash([]);
+  // r_B label above its circle, r_s label below, so they never collide.
   ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('r_B', cx + 145, cy);
-  ctx.fillText('r_B/2 (sonic)', cx + 75, cy);
-  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cx, cy, 8, 0, 2 * Math.PI); ctx.fill();
-  for (let k = 0; k < 60; k += 1) {
-    const ang = k * 2 * Math.PI / 60;
-    const r_outer = 200 + 30 * Math.sin(st.t * 0.5 + k);
-    const t_arrival = (st.t + k * 0.13) % 1;
-    const r_now = 200 - t_arrival * 190;
-    const px = cx + r_now * Math.cos(ang); const py = cy + r_now * Math.sin(ang);
-    const alpha = 1 - t_arrival;
-    ctx.fillStyle = `rgba(154,160,166,${alpha})`;
-    ctx.beginPath(); ctx.arc(px, py, 1.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillText('r_B (Bondi)', cx - 28, cy - rB_px - 6);
+  ctx.fillStyle = '#ff6b6b'; ctx.fillText('r_s (sonic)', cx - 26, cy + rS_px + 16);
+  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 2 * Math.PI); ctx.fill();
+  // Radial inflow streamlines: each spoke carries tracers that speed up
+  // as they fall in, blue while subsonic (r > r_s) and red once
+  // supersonic (r < r_s), fading as they reach the centre.
+  const r_inner = rS * 0.06;
+  for (let k = 0; k < 36; k += 1) {
+    const ang = k * 2 * Math.PI / 36;
+    for (let m = 0; m < 4; m += 1) {
+      const phase = (st.t * 0.5 + k * 0.13 + m * 0.25) % 1;
+      const r_now = maxRDisplay * Math.exp(-phase * Math.log(maxRDisplay / r_inner));
+      const mach = Math.abs(bondiVelocityIsothermal(r_now, M, cs)) / cs;
+      const a = Math.max(0, 0.85 * (1 - phase));
+      ctx.fillStyle = mach > 1 ? `rgba(255,107,107,${a.toFixed(3)})` : `rgba(91,192,235,${a.toFixed(3)})`;
+      const px = cx + r_now * pixelsPerRad * Math.cos(ang);
+      const py = cy + r_now * pixelsPerRad * Math.sin(ang);
+      ctx.beginPath(); ctx.arc(px, py, mach > 1 ? 2.4 : 1.8, 0, 2 * Math.PI); ctx.fill();
+    }
+  }
+  // Mach vs r inset: the transonic solution. r spans 0.08..2 r_B so the
+  // sonic radius r_s = 0.5 r_B sits inside the panel; the curve crosses
+  // the horizontal M=1 line exactly at the vertical r_s marker.
+  const vx0 = 40, vy0 = 412, vw = 340, vh = 84;
+  const rLo = 0.08 * rB, rHi = 2.0 * rB, machMax = 3;
+  ctx.strokeStyle = '#3a3d44'; ctx.lineWidth = 1; ctx.strokeRect(vx0, vy0, vw, vh);
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillText('Mach number vs radius (transonic Bondi solution)', vx0 + 2, vy0 - 5);
+  ctx.fillText('M', vx0 - 14, vy0 + 10); ctx.fillText('r', vx0 + vw + 4, vy0 + vh - 2);
+  const rToX = (r) => vx0 + (Math.log(r / rLo) / Math.log(rHi / rLo)) * vw;
+  const mToY = (mm) => vy0 + vh - Math.min(machMax, mm) / machMax * vh;
+  // M = 1 reference line.
+  ctx.strokeStyle = '#555'; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(vx0, mToY(1)); ctx.lineTo(vx0 + vw, mToY(1)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#888'; ctx.fillText('M=1', vx0 + 3, mToY(1) - 3);
+  // Sonic-radius vertical marker.
+  ctx.strokeStyle = '#ff6b6b'; ctx.setLineDash([4, 2]);
+  ctx.beginPath(); ctx.moveTo(rToX(rS), vy0); ctx.lineTo(rToX(rS), vy0 + vh); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#ff6b6b'; ctx.fillText('r_s', rToX(rS) + 3, vy0 + 11);
+  // Transonic curve: subsonic (blue) outside r_s, supersonic (red) inside.
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 160; i += 1) {
+    const r0 = rLo * Math.pow(rHi / rLo, i / 160);
+    const r1 = rLo * Math.pow(rHi / rLo, (i + 1) / 160);
+    const m0 = Math.abs(bondiVelocityIsothermal(r0, M, cs)) / cs;
+    const m1 = Math.abs(bondiVelocityIsothermal(r1, M, cs)) / cs;
+    ctx.strokeStyle = (0.5 * (m0 + m1) > 1) ? '#ff6b6b' : '#5bc0eb';
+    ctx.beginPath(); ctx.moveTo(rToX(r0), mToY(m0)); ctx.lineTo(rToX(r1), mToY(m1)); ctx.stroke();
   }
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`r_B = ${(rB / 1.496e11).toExponential(2)} AU`, 12, 20);
-  ctx.fillText(`Mdot = ${(Mdot * 3.155e7 / M_SUN).toExponential(2)} M⊙/yr`, 12, 38);
-  ctx.fillText(`cs = ${st.cs} km/s, M = 1e${st.logM.toFixed(1)} M⊙`, 12, canvas.height - 12);
+  ctx.fillText(`r_s = ${(rS / 1.496e11).toExponential(2)} AU`, 12, 20);
+  ctx.fillText(`r_B = ${(rB / 1.496e11).toExponential(2)} AU`, 12, 38);
+  ctx.fillText(`Mdot = ${(Mdot * 3.155e7 / M_SUN).toExponential(2)} M⊙/yr`, 12, 56);
+  ctx.fillText(`cs = ${st.cs} km/s, M = ${Math.pow(10, st.logM).toFixed(1)} M⊙`, 12, canvas.height - 12);
   rM.textContent = `${(Mdot * 3.155e7 / M_SUN).toExponential(1)} M⊙/yr`;
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }

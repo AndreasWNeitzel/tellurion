@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { bondiRadius, bondiVelocityIsothermal, MdotBondi, G, M_SUN } from './sim.js';
+import { bondiRadius, bondiVelocityIsothermal, MdotBondi, SONIC_OVER_BONDI, G, M_SUN } from './sim.js';
 describe('bondi-accretion-spherical', () => {
   it('Bondi radius for 1 Msun, cs=10 km/s ~ 10 AU', () => {
     const cs = 1e4;
@@ -26,5 +26,17 @@ describe('bondi-accretion-spherical', () => {
     const rB = bondiRadius(M_SUN, 1e4);
     const u = bondiVelocityIsothermal(rB, M_SUN, 1e4);
     expect(Number.isFinite(u)).toBe(true);
+  });
+  it('Flow is exactly sonic (M=1) at r_s = r_B/2', () => {
+    const cs = 1e4, rB = bondiRadius(M_SUN, cs), rs = SONIC_OVER_BONDI * rB;
+    const M = Math.abs(bondiVelocityIsothermal(rs, M_SUN, cs)) / cs;
+    expect(Math.abs(M - 1)).toBeLessThan(0.02);
+  });
+  it('Supersonic inside r_s, subsonic outside (transonic)', () => {
+    const cs = 1e4, rB = bondiRadius(M_SUN, cs), rs = SONIC_OVER_BONDI * rB;
+    const Min = Math.abs(bondiVelocityIsothermal(0.3 * rs, M_SUN, cs)) / cs;
+    const Mout = Math.abs(bondiVelocityIsothermal(3 * rs, M_SUN, cs)) / cs;
+    expect(Min).toBeGreaterThan(1);
+    expect(Mout).toBeLessThan(1);
   });
 });

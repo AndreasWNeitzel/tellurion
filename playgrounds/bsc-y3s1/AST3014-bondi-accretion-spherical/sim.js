@@ -7,24 +7,30 @@
 // Ch. 7 (`shu-vol2`).
 export const G = 6.674e-11, M_SUN = 1.989e30, AU = 1.496e11;
 export function bondiRadius(M, cs) { return G * M / (cs * cs); }
-// Isothermal Bondi (Parker-like solution): u^2/cs^2 - ln(u^2/cs^2) + 4 ln(r/r_B) + 4 r_B/r = -3 + 4 ln(1/2).
-// We numerically root-solve for u(r) along the supersonic branch.
+// Isothermal Bondi transonic accretion. With w = (u/cs)^2 the Bernoulli
+// + continuity integral is
+//   w - ln w = -3 + 4 ln(r/r_s) + 4 (r_s / r),
+// whose right-hand side equals 1 at r = r_s, where w - ln w is minimised
+// at w = 1: the flow is exactly sonic there. r_s = r_B / 2 (isothermal).
+// For r < r_s take the supersonic root (w > 1), for r > r_s the subsonic
+// root (0 < w < 1); both limbs join smoothly through M = 1 at r_s.
+export const SONIC_OVER_BONDI = 0.5;
 export function bondiVelocityIsothermal(r, M, cs) {
-  const rB = bondiRadius(M, cs);
-  const x = r / rB;
-  const rhs = -3 + 4 * Math.log(0.5);
-  // f(y) = y - ln(y) + 4 ln(x) + 4/x - 4 - 4 ln(2) but with y = u^2/cs^2.
-  // f(y) = 0 has two branches; pick subsonic for r > r_B/2, supersonic for r < r_B/2.
-  const target = rhs - 4 * Math.log(x) - 4 / x;
-  let y = x < 0.5 ? 2.5 : 0.4;
-  for (let it = 0; it < 50; it += 1) {
-    const fy = y - Math.log(y) - target;
-    const dfy = 1 - 1 / y;
-    if (Math.abs(dfy) < 1e-6) break;
-    y -= fy / dfy;
-    if (y < 1e-6) y = 1e-6;
+  const rs = SONIC_OVER_BONDI * bondiRadius(M, cs);
+  const xi = r / rs;
+  const rhs = -3 + 4 * Math.log(xi) + 4 / xi;          // = 1 exactly at xi = 1
+  // Solve w - ln w = rhs on the correct branch (rhs >= 1 always).
+  let w = r < rs ? Math.max(1.5, rhs) : 0.3;            // supersonic vs subsonic seed
+  for (let it = 0; it < 60; it += 1) {
+    const f = w - Math.log(w) - rhs;
+    const df = 1 - 1 / w;
+    if (Math.abs(df) < 1e-9) break;
+    let wn = w - f / df;
+    if (r < rs) { if (wn < 1) wn = 1 + 1e-6; }          // stay supersonic
+    else { if (wn <= 0) wn = 1e-6; if (wn > 1) wn = 1 - 1e-6; }   // stay subsonic
+    w = wn;
   }
-  return cs * Math.sqrt(y) * Math.sign(-1);
+  return -cs * Math.sqrt(w);
 }
 // Density via continuity: rho(r) u(r) r^2 = const = Mdot / 4 pi.
 export function bondiDensity(r, u, Mdot) { return Math.abs(Mdot / (4 * Math.PI * r * r * u)); }
