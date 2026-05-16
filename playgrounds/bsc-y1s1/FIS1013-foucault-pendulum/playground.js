@@ -28,7 +28,7 @@ const W = canvas.width, H = canvas.height;
 
 const state = {
   lat: 45,
-  speed: 3,
+  speed: 1,
   sim: null,
   trail: [],
   az: -0.7,            // camera azimuth (radians); slow live orbit
@@ -247,7 +247,7 @@ function drawAll() {
 
 function tickN(n) {
   for (let i = 0; i < n; i += 1) {
-    stepFoucault(state.sim, 0.02);
+    stepFoucault(state.sim, 0.005);
     state.trail.push([state.sim.x, state.sim.y]);
     if (state.trail.length > 7000) state.trail.shift();
   }
@@ -270,7 +270,7 @@ function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state.az = -0.7;                              // fixed camera for determinism
-    tickN(Math.round(frac * 2600));
+    tickN(Math.round(frac * 9000));
     drawAll();
     if (DETERMINISTIC) {
       requestAnimationFrame(() => requestAnimationFrame(() => {
