@@ -53,16 +53,33 @@ function render() {
     if (i === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
   }
   ctx.stroke();
-  const cx_p = canvas.width / 2 + 50 * vp * st.t * 0.3;
-  const cx_g = canvas.width / 2 + 50 * vg * st.t * 0.3;
-  if (Math.abs(cx_p - canvas.width / 2) < canvas.width / 2 - 20) {
-    ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cx_p, cy - 80, 8, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('phase', cx_p - 18, cy - 92);
-  }
-  if (Math.abs(cx_g - canvas.width / 2) < canvas.width / 2 - 20) {
-    ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(cx_g, cy + 80, 8, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#9aa0a6'; ctx.fillText('group', cx_g - 18, cy + 102);
-  }
+  // Trackers ride the actual features at the TRUE velocities (the old
+  // code used a spurious 0.3 factor so they never matched the wave).
+  // x_phys advances at v, wrapped into the visible window so they keep
+  // re-entering; sign of v is preserved so anomalous (opposite-sign)
+  // dispersion makes them travel in opposite directions.
+  const x0v = (20 - canvas.width / 2) / 50;          // left edge in phys units
+  const x1v = (canvas.width - 20 - canvas.width / 2) / 50;
+  const Lw = x1v - x0v;
+  const wrapX = (xphys) => x0v + (((xphys - x0v) % Lw) + Lw) % Lw;
+  const toPix = (xphys) => canvas.width / 2 + 50 * xphys;
+
+  const xpP = wrapX(vp * st.t);                       // phase: rides a carrier crest
+  const cxP = toPix(xpP);
+  const yP = (Math.cos(k1 * xpP - w1 * st.t) + Math.cos(k2 * xpP - w2 * st.t));
+  ctx.strokeStyle = 'rgba(255,209,102,0.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cxP, 20); ctx.lineTo(cxP, canvas.height - 20); ctx.stroke();
+  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cxP, cy - yP * 60, 7, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#ffd166'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`phase v_p=${vp.toFixed(2)}`, cxP + 9, cy - 96);
+
+  const xpG = wrapX(vg * st.t);                       // group: rides the envelope peak
+  const cxG = toPix(xpG);
+  const yG = 2 * Math.cos((k2 - k1) / 2 * xpG - (w2 - w1) / 2 * st.t);
+  ctx.strokeStyle = 'rgba(91,192,235,0.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cxG, 20); ctx.lineTo(cxG, canvas.height - 20); ctx.stroke();
+  ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(cxG, cy - yG * 60, 7, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText(`group v_g=${vg.toFixed(2)}`, cxG + 9, cy + 110);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
   ctx.fillText(`v_p = ${vp.toFixed(3)}, v_g = ${vg.toFixed(3)}, v_g/v_p = ${(vg/vp).toFixed(3)}`, 12, canvas.height - 12);
   rVp.textContent = vp.toFixed(3); rVg.textContent = vg.toFixed(3);

@@ -14,6 +14,10 @@ export function omega(disp, k) {
     case 'water-deep': return Math.sqrt(9.81 * k);
     case 'shrod': return 0.05 * k * k;
     case 'plasma': { const omega_p = 2; return Math.sqrt(omega_p * omega_p + k * k); }
+    // Anomalous / backward-wave branch: omega decreases with k, so the
+    // group velocity is negative while the phase velocity stays
+    // positive (the two trackers travel in opposite directions).
+    case 'anomalous': return 3 + 4 / k;
   }
   return k;
 }
