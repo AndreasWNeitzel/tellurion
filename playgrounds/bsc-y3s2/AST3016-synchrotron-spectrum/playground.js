@@ -10,11 +10,17 @@ const sB = document.getElementById('slider-B'), vB = document.getElementById('va
 const sP = document.getElementById('slider-p'), vP = document.getElementById('value-p');
 const selM = document.getElementById('select-m');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { gamma: 2000, logB: -4, p: 2.4, mode: 'single' }; let running = true;
-sG.addEventListener('input', () => { st.gamma = parseFloat(sG.value); vG.textContent = st.gamma.toFixed(0); });
-sB.addEventListener('input', () => { st.logB = parseFloat(sB.value); vB.textContent = st.logB.toFixed(2); });
-sP.addEventListener('input', () => { st.p = parseFloat(sP.value); vP.textContent = st.p.toFixed(2); });
-selM.addEventListener('change', () => { st.mode = selM.value; });
+// Default to the power-law ensemble: that is the headline physics and
+// the only mode where the electron index p affects the spectrum. In
+// single-electron mode F(nu/nu_c) is p-independent, so with the old
+// 'single' default the p slider correctly did nothing (it read as a
+// dead slider). Every handler calls render() so interaction is
+// authoritative regardless of the animation loop.
+let st = { gamma: 2000, logB: -4, p: 2.4, mode: 'ensemble' }; let running = true;
+sG.addEventListener('input', () => { st.gamma = parseFloat(sG.value); vG.textContent = st.gamma.toFixed(0); render(); });
+sB.addEventListener('input', () => { st.logB = parseFloat(sB.value); vB.textContent = st.logB.toFixed(2); render(); });
+sP.addEventListener('input', () => { st.p = parseFloat(sP.value); vP.textContent = st.p.toFixed(2); render(); });
+selM.addEventListener('change', () => { st.mode = selM.value; render(); });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function render() {
@@ -45,9 +51,11 @@ function render() {
   // the exponential cutoff, all from sim.js (no hand-rolled branches).
   const N = 500;
   const gMax = st.gamma, gMin = gMax / 300;
-  const nuLo = st.mode === 'single' ? nu_peak * 3e-4 : nu_c(gMin, B) * 3e-3;
-  const nuHi = st.mode === 'single' ? nu_peak * 60 : nu_c(gMax, B) * 60;
-  const lnumin = Math.log10(nuLo), lnumax = Math.log10(nuHi);
+  // Fixed absolute frequency axis (Hz). The earlier axis auto-ranged on
+  // nu_c(B), which slid with the spectrum and cancelled the visible
+  // effect of the B and gamma sliders. With a fixed axis the whole SED
+  // shifts right as nu_c ~ gamma^2 B grows, so B and gamma visibly act.
+  const lnumin = 4, lnumax = 20;
   const xToPx = (l) => padL + (l - lnumin) / (lnumax - lnumin) * (mainW - padL - padR);
   const lf = new Float64Array(N);
   let lmax = -1e30;
