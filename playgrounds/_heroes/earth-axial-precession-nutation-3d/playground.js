@@ -45,8 +45,14 @@ function buildButtons() {
 
 // Time model: yearsElapsed is a clean accumulator. log10TimeAccel is the
 // simulated-years-per-real-second exponent. The "year" readout = epoch + yearsElapsed.
-const st = { yearsElapsed: 0, log10TimeAccel: 6, epochYear: 2000 };
+const st = { yearsElapsed: 0, log10TimeAccel: 6, epochYear: 2000, spinPhase: 0 };
 let running = true;
+// Diurnal spin is driven by WALL-CLOCK time, not the (hugely
+// accelerated) precession year clock. Tying it to yearsElapsed made
+// 365.25 * accelerated-years alias to noise every frame, so the Earth
+// never visibly rotated about its axis. One turn ~ every 5 s reads as
+// a clear daily spin while precession proceeds on its own clock.
+const SPIN_RATE = (2 * Math.PI) / 5;
 
 buildSlider('log₁₀(yr/s)', 0, 9, 0.1, st.log10TimeAccel, v => { st.log10TimeAccel = v; }, v => v.toFixed(1));
 buildSlider('epoch (CE)', -5000, 30000, 100, st.epochYear, v => { st.epochYear = v; }, v => v.toFixed(0));
@@ -57,10 +63,10 @@ try { engine = setupEarthGL(canvas); } catch (e) { console.warn('earth GL init f
 
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0],
-  radius: 3.0,
+  radius: 6.0,
   minRadius: 1.5,
-  maxRadius: 8.0,
-  azimuthDeg: 30, elevationDeg: 18, fovDeg: 45,
+  maxRadius: 10.0,
+  azimuthDeg: 24, elevationDeg: 48, fovDeg: 45,
 });
 window.__camera = camera;
 
@@ -76,8 +82,7 @@ btns.pause.addEventListener('click', () => {
 
 const TO_RAD = Math.PI / 180;
 
-function axisDirFromState() {
-  const yr = st.epochYear + st.yearsElapsed - 2000;
+function axisAtYear(yr) {
   const eps = obliquity(yr);
   const psi = precessionLongitude(yr) / 3600;
   const epsR = eps * TO_RAD, psiR = psi * TO_RAD;
@@ -87,6 +92,9 @@ function axisDirFromState() {
     Math.cos(epsR),
     Math.sin(epsR) * Math.sin(psiR),
   ];
+}
+function axisDirFromState() {
+  return axisAtYear(st.epochYear + st.yearsElapsed - 2000);
 }
 
 function sunDirFromState() {
@@ -112,6 +120,10 @@ function rotMat4(axis, angle) {
 
 const traceTips = [];           // flat [x0,y0,z0, x1,y1,z1, ...]
 const TRACE_MAX_POINTS = 320;
+// Trace at the same scale as the drawn axis tip (engine axScale = 2.4)
+// so the red axis line is a generator of the precession cone and its
+// tip rides exactly along the traced ring.
+const TRACE_R = 2.4;
 
 let last = performance.now(), fpsLast = last, fpsFrames = 0;
 const aspect = () => canvas.width / canvas.height;
@@ -132,16 +144,11 @@ function render() {
   const view = camera.viewMatrix();
   const proj = camera.projMatrix(aspect());
   const axis = axisDirFromState();
-  // Earth daily rotation about its instantaneous axis. The accumulator is
-  // in simulated years; spin angle = 2 pi * 365.25 * yearsElapsed gives the
-  // daily turn count (visually capped by time-accel slider; at high accel
-  // we see the spin blur as the year sweeps past). Modulo 2 pi to keep it
-  // bounded.
-  const spinTurns = 365.25 * (st.epochYear + st.yearsElapsed - 2000);
-  const spinAngle = ((spinTurns % 1) + 1) % 1 * 2 * Math.PI;
-  const model = rotMat4(axis, spinAngle);
+  // Earth daily rotation about its instantaneous (precessing) axis,
+  // driven by the wall-clock spinPhase so it is always visibly turning.
+  const model = rotMat4(axis, st.spinPhase);
   // Record the rotation-axis tip every render.
-  const tip = [axis[0] * 1.6, axis[1] * 1.6, axis[2] * 1.6];
+  const tip = [axis[0] * TRACE_R, axis[1] * TRACE_R, axis[2] * TRACE_R];
   traceTips.push(tip[0], tip[1], tip[2]);
   while (traceTips.length > TRACE_MAX_POINTS * 3) traceTips.splice(0, 3);
   engine.render(view, proj, axis, sunDirFromState(), model, traceTips);
@@ -155,23 +162,49 @@ function tick(now) {
   if (running) {
     const yearsPerSec = Math.pow(10, st.log10TimeAccel);
     st.yearsElapsed += dt * yearsPerSec;
+    st.spinPhase = (st.spinPhase + dt * SPIN_RATE) % (2 * Math.PI);
   }
   camera.tickIdle(now);
   render();
   requestAnimationFrame(tick);
 }
 
+// Pre-fill the axis-tip trace with one full precession circuit so the
+// precession cone is drawn immediately, by default, without waiting
+// for the (slow) clock to sweep it out.
+function prefillTrace() {
+  traceTips.length = 0;
+  const yr0 = st.epochYear - 2000;
+  for (let i = 0; i <= TRACE_MAX_POINTS; i += 1) {
+    const a = axisAtYear(yr0 + (i / TRACE_MAX_POINTS) * 25772);
+    traceTips.push(a[0] * TRACE_R, a[1] * TRACE_R, a[2] * TRACE_R);
+  }
+}
+
 function bootSync() {
+  prefillTrace();
   if (CAPTURE_NAME) {
-    // Show different phases of the precession circle across capture frames.
+    // Different precession phases AND a different diurnal spin angle
+    // per frame, both deterministic functions of the capture fraction.
     st.yearsElapsed = CAPTURE_FRAC * 25772 * 0.5;  // up to half a circuit
+    st.spinPhase = CAPTURE_FRAC * 2 * Math.PI;
   }
   readouts();
   render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
-    window.__simulationReady = true;
-    window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-  }));
+  if (DETERMINISTIC) {
+    // Settle the GL scene + post-process over several identical frames
+    // so the screenshot is pixel-stable across runs (same hardening as
+    // the other WebGL heroes).
+    let warm = 0;
+    const settle = () => {
+      render();
+      warm += 1;
+      if (warm < 16) { requestAnimationFrame(settle); return; }
+      window.__simulationReady = true;
+      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+    };
+    requestAnimationFrame(settle);
+  }
 }
 
 // Physics: over a simulated 25772 yr, ψ advances 360 deg within 1%.
