@@ -20,7 +20,7 @@ share_state_keys: []
 
 # Gravitational-Wave Chirp Sonification
 
-Three-panel visualization of a compact-binary inspiral. LEFT scrolls a strain $h(t)$ waveform that compresses and grows toward merger, then ringdown. CENTER spectrogram shows the chirp track as a bright upward sweep. RIGHT 3D inset shows the two orbiting masses (sphere size with mass) merging and ringing. WebAudio plays the strain shifted up to the audible band, synchronized with the visualization.
+A compact-binary inspiral. A compact strain $h(t)$ strip scrolls the chirp waveform (clamped so the post-Newtonian divergence near merger cannot flood the panel) and an $f(t)$ strip tracks the rising frequency. The main panel is a 3D inspiral: two perspective-shaded spheres orbit on an inclined plane at the barycentric Kepler separation $a \propto f_\mathrm{orb}^{-2/3}$, trailing decaying spiral worldlines, while gravitational-wave fronts expand outward. When the separation collapses onto the touching radii the bodies coalesce in a bright flash into a single remnant with a photon-ring annulus and a damped ringdown wobble; the event then loops. WebAudio plays the strain shifted up to the audible band, synchronized with the visualization.
 
 ## Physical setup
 
@@ -46,7 +46,13 @@ Strain $h(t) \propto 4 \mathcal{M}_c^{5/3} (\pi f)^{2/3} / (D c^4)$. Ringdown is
 
 ## Status note
 
-Scaffolded with full PN spec; WebAudio path + spectrogram + 3D inset not yet implemented.
+3D inspiral-to-merger implemented: barycentric Kepler separation driven
+by the existing PN freq(), perspective-shaded spheres, spiral
+worldlines, expanding GW fronts, and a coalescence flash into a ringing
+remnant. The chirp-mass and freq() physics and the __physicsCheck
+(chirp-mass value and frequency monotonicity) are unchanged; the orbital
+phase is a numerical integral of the same freq(). WebAudio sonification
+present (muted by default).
 
 ## Citations
 
