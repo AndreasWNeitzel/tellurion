@@ -20,7 +20,7 @@ share_state_keys: []
 
 # Cosmic-Ray Air Shower
 
-Atmosphere is drawn as vertical color bands from dark space to ground. Click the top of the canvas to fire a primary cosmic ray; the cascade fans down through the atmosphere with pions (red), kaons (orange), protons (white), and electromagnetic (blue). Shower maximum is visibly higher in the atmosphere for iron than for proton at the same energy. A detector array at the ground lights up in arrival order.
+Atmosphere is drawn as a gradient from dark space to ground. A primary cosmic ray streaks in from the top; the shower front then propagates downward and the Heitler cascade fans out into a bright-cored cone, colour-coded by particle energy (white at high energy near shower maximum, gold mid-cascade, blue once below the critical energy). The descending front is highlighted so the eye tracks the shower maximum, and the ground detector array lights up in proportion to the local energy deposit once the cascade arrives. The event loops: a new primary arrives each cycle.
 
 ## Physical setup
 
@@ -28,9 +28,11 @@ Heitler electromagnetic cascade: photon $\to e^+ e^-$, electron $\to$ photon + e
 
 ## Controls
 
-- Click top of canvas to fire primary; primary energy slider ($10^{15}$ to $10^{20}$ eV)
-- Zenith-angle slider (0 to 60 deg)
-- Species toggle: proton vs iron
+- Primary energy slider, $\log_{10}(E/\mathrm{GeV})$ from 6 to 11 ($10^{15}$ to $10^{20}$ eV)
+- Zenith-angle slider (0 to 60 deg); tilts the shower axis with depth
+- Steps slider (radiation lengths simulated, 5 to 36)
+
+The shower develops automatically and loops; changing any slider restarts the event with a fresh primary.
 
 ## Invariants
 
@@ -40,7 +42,11 @@ Heitler electromagnetic cascade: photon $\to e^+ e^-$, electron $\to$ photon + e
 
 ## Status note
 
-Scaffolded; cascade tree + ground-array timing not yet implemented.
+Animated cascade implemented: primary entry, downward-propagating shower
+front, energy-coloured cone, and ground-array response. The Heitler tree,
+$X_0$, $E_c$, and the $X_\max$ formula are the physics of record; the
+transverse layout is a presentation-only cone (the toy model carries no
+real transverse momentum) with a core-peaked, sqrt(depth) profile.
 
 ## Citations
 
