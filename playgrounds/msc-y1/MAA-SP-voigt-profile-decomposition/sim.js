@@ -8,6 +8,25 @@ export function gaussian(x, sigma) {
 export function lorentzian(x, gamma) {
   return (gamma / Math.PI) / (x * x + gamma * gamma);
 }
+// True Voigt: the numerical convolution V(x) = integral G(x', sigma)
+// L(x - x', gamma) dx'. This is the exact object the playground sweeps
+// out, so the shaded overlap area equals the plotted output.
+export function voigtConv(x, sigma, gamma) {
+  // Convolve over u = x - x' so the grid is centred on the Lorentzian.
+  // Step resolves the narrower of the two widths and the span covers the
+  // wings of both; a fixed step misrepresented a Lorentzian narrower
+  // than the step. n is capped for the per-pixel render path.
+  const span = 6 * sigma + 12 * gamma;
+  const step = Math.max(0.0025, Math.min(sigma, gamma) / 10);
+  const n = Math.min(4000, Math.max(200, Math.ceil((2 * span) / step)));
+  const dx = (2 * span) / n;
+  let s = 0;
+  for (let i = 0; i <= n; i += 1) {
+    const u = -span + i * dx;
+    s += lorentzian(u, gamma) * gaussian(x - u, sigma) * dx;
+  }
+  return s;
+}
 // Pseudo-Voigt approximation: linear mix.
 export function pseudoVoigt(x, sigma, gamma) {
   const f_G = 2 * sigma * Math.sqrt(2 * Math.log(2));
