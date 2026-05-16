@@ -44,15 +44,31 @@ try {
   await page.goto(`${baseUrl}/${URL_PATH}/index.html`);
   await page.waitForFunction(() => window.__simulationReady === true || document.getElementById('stage'), null, { timeout: 15000 }).catch(() => {});
   await page.waitForTimeout(600);
-  const hash = () => page.evaluate(() => {
+  // Snapshot actual canvas pixels and compare by the FRACTION of pixels
+  // that change. A working control drives the main visualisation and
+  // changes a large fraction; a dead control changes nothing; a control
+  // that only updates a readout digit changes a tiny fraction. The last
+  // case is the real defect ("slider does nothing" perceptually) that a
+  // lenient any-change test and the SSIM gate both miss.
+  const snap = () => page.evaluate(() => {
     const c = document.getElementById('stage');
-    const g = c.getContext('2d') || c.getContext('webgl2') || c.getContext('webgl');
-    let s;
-    if (g && g.getImageData) { const d = g.getImageData(0, 0, c.width, c.height).data; s = d; }
-    else { return c.toDataURL().length + ':' + c.toDataURL().slice(-64); }
-    let h = 0; for (let i = 0; i < s.length; i += 997) h = (h * 31 + s[i]) | 0;
-    return String(h);
+    let g = c.getContext('2d');
+    if (g && g.getImageData) { const d = g.getImageData(0, 0, c.width, c.height).data; return Array.from(d.filter((_, i) => i % 41 === 0)); }
+    // WebGL: fall back to a PNG data URL split into chars.
+    return c.toDataURL('image/png');
   });
+  const changedFrac = (a, b) => {
+    if (typeof a === 'string' || typeof b === 'string') {
+      if (a === b) return 0;
+      const n = Math.min(a.length, b.length); let d = Math.abs(a.length - b.length);
+      for (let i = 0; i < n; i += 1) if (a[i] !== b[i]) d += 1;
+      return d / Math.max(1, Math.max(a.length, b.length));
+    }
+    const n = Math.min(a.length, b.length); let d = 0;
+    for (let i = 0; i < n; i += 1) if (Math.abs(a[i] - b[i]) > 8) d += 1;
+    return d / Math.max(1, n);
+  };
+  const hash = snap;
   const controls = await page.evaluate(() => {
     const out = [];
     for (const el of document.querySelectorAll('input[type=range]')) out.push({ id: el.id || el.getAttribute('aria-label'), kind: 'range', min: +el.min, max: +el.max, step: el.step });
@@ -76,9 +92,10 @@ try {
     }, c);
     await page.waitForTimeout(450);
     const after = await hash();
-    const ok = before !== after;
-    console.log(`${ok ? 'OK  ' : 'DEAD'}  ${c.kind}  ${c.id}`);
-    if (!ok) fails.push(`${c.kind}:${c.id}`);
+    const f = changedFrac(before, after);
+    const verdict = f >= 0.02 ? 'OK  ' : (f > 0.0008 ? 'WEAK' : 'DEAD');
+    console.log(`${verdict}  ${c.kind}  ${c.id}  (${(f * 100).toFixed(2)}% changed)`);
+    if (verdict !== 'OK  ') fails.push(`${c.kind}:${c.id}[${verdict.trim()}]`);
   }
   if (doClick) {
     const before = await hash();
@@ -86,9 +103,10 @@ try {
     await page.mouse.click(box.x + box.width * 0.42, box.y + box.height * 0.4);
     await page.waitForTimeout(450);
     const after = await hash();
-    const ok = before !== after;
-    console.log(`${ok ? 'OK  ' : 'DEAD'}  click  #stage`);
-    if (!ok) fails.push('click:#stage');
+    const f = changedFrac(before, after);
+    const verdict = f >= 0.02 ? 'OK  ' : (f > 0.0008 ? 'WEAK' : 'DEAD');
+    console.log(`${verdict}  click  #stage  (${(f * 100).toFixed(2)}% changed)`);
+    if (verdict !== 'OK  ') fails.push(`click:#stage[${verdict.trim()}]`);
   }
 } finally {
   await browser.close();
