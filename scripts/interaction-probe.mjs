@@ -69,6 +69,16 @@ try {
     return d / Math.max(1, n);
   };
   const hash = snap;
+  // Pause continuous animation first (as a user would) so each control
+  // is judged against a quiescent baseline. On a continuously animated
+  // playground the per-frame evolution is itself ~1% and would mask a
+  // genuine slider response in the relative metric.
+  await page.evaluate(() => {
+    const b = [...document.querySelectorAll('button')].find(e =>
+      /pause/i.test(e.id || '') || /pause/i.test(e.getAttribute('aria-label') || '') || /pause/i.test(e.textContent || ''));
+    if (b) b.click();
+  });
+  await page.waitForTimeout(250);
   // Per-page noise floor: the change between two snapshots with NO
   // interaction (animation jitter, antialiasing, nondeterminism). A
   // control is judged relative to THIS, so the verdict adapts to thin

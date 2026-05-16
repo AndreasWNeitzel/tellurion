@@ -13,3 +13,8 @@ export function eigenfrequencies(n_j, n_k, alpha) {
 export function eccentricityOsc(e0, dg, t) {
   return e0 * Math.cos(dg * t / 2);
 }
+// Equal-mass angular-momentum deficit: e1^2 + e2^2 is the conserved
+// secular invariant, the amplitude that the two planets exchange.
+export function amd(e1, e2) {
+  return e1 * e1 + e2 * e2;
+}
