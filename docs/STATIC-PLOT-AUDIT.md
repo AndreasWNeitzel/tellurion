@@ -57,14 +57,15 @@ DONE (committed, invariants pass, captures refreshed):
 - transit-mandel-agol: planet/marker phase-sync + dip width
 - bremsstrahlung-spectrum: electron-deflected-by-ion scene + EM wavefronts
 - parallel-transport-on-sphere: animated transported vector + holonomy ghost
+- galaxy-rotation-curve: dense ~8000-particle render + dark sky (arm/core balance noted follow-up)
+- tiny-mlp-backprop: live network graph, 1-3 layers/<=8 neurons, +circles/+gaussians, N=360
+- cosmic-ray-air-shower: animated primary entry + descending front + energy-coloured cone + lit detectors
+- gravitational-wave-chirp: real 3D inspiral, barycentric Kepler orbit, spiral worldlines, GW fronts, merger flash + ringdown remnant
 
 REMAINING boring->spatial makeovers (next sessions):
 - toy parton, Friedmann cosmography, gamow tunneling, fabry-perot,
   runge-chebyshev, de Broglie, CKM, matter-radiation equality,
   Lane-Emden, sturm-liouville, parker solar wind, p/g-mode cavity,
-  slow-roll inflation, relativistic beaming, GW-chirp 3D
-- cosmic-ray-shower: streaming incoming-particle animation
-- galaxy-rotation-curve: DONE (dense ~8000-particle render + dark sky; arm/core balance is a noted follow-up)
-- tiny-mlp-backprop: more examples/points; clamp layers 1-3, neurons<=8
+  slow-roll inflation, relativistic beaming
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static
