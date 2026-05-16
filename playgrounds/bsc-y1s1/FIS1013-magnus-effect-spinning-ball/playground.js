@@ -112,39 +112,63 @@ function drawAll() {
   }
   ctx.setLineDash([]);
 
-  // Animated current ball: a shaded pseudo-3D sphere with seam markings
-  // that rotate at the spin rate (and in the spin's direction) so the
-  // backspin/topspin that drives the Magnus force is visible.
+  // Animated current ball. For in-plane Magnus the spin axis is the
+  // screen normal, so the ball spins like a wheel: the surface texture
+  // rotates rigidly about the centre while the lighting stays fixed.
+  // That contrast (turning texture, static highlight) is what makes the
+  // top-/back-spin unambiguous. The earlier seam math left the vertical
+  // coordinate independent of the spin phase, so the ball only wobbled.
   if (state.sim.y >= 0) {
-    const cx = xP(state.sim.x), cy = yP(state.sim.y), R = 11;
-    const sph = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R);
+    const cx = xP(state.sim.x), cy = yP(state.sim.y), R = 12;
+    // Fixed base shading (light from upper-left, does not rotate).
+    const sph = ctx.createRadialGradient(cx - R * 0.4, cy - R * 0.45, R * 0.1, cx, cy, R);
     sph.addColorStop(0, '#ffe7c8'); sph.addColorStop(0.55, tok.accentWarm); sph.addColorStop(1, '#7a3318');
     ctx.fillStyle = sph;
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill();
-    // Two baseball-style seams, foreshortened by the spin phase so the
-    // sphere visibly rotates.
+    // Rotating surface texture, clipped to the disk: one darker
+    // hemisphere plus a stitched equator great circle. Under a rigid
+    // rotation about the screen normal the hemisphere boundary projects
+    // to a straight diameter and the equator to an ellipse that flattens
+    // and fattens once per turn, reading as a true spinning sphere.
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.clip();
-    ctx.strokeStyle = 'rgba(60,20,10,0.75)'; ctx.lineWidth = 1.6;
-    for (const off of [0, Math.PI]) {
-      const ph = state.spinAngle + off;
+    ctx.translate(cx, cy); ctx.rotate(state.spinAngle);
+    ctx.fillStyle = 'rgba(60,22,10,0.34)';
+    ctx.beginPath(); ctx.rect(-R, 0, 2 * R, R); ctx.fill();
+    ctx.strokeStyle = 'rgba(40,14,6,0.85)'; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.moveTo(-R, 0); ctx.lineTo(R, 0); ctx.stroke();
+    // Equator stitch ticks: short marks along the diameter, scaled so
+    // the row visibly compresses toward the limb as it turns.
+    ctx.strokeStyle = 'rgba(40,14,6,0.7)'; ctx.lineWidth = 1.2;
+    for (let s = -3; s <= 3; s += 1) {
+      const sxp = (s / 3.4) * R;
+      const fore = Math.sqrt(Math.max(0, 1 - (sxp / R) * (sxp / R)));
       ctx.beginPath();
-      for (let k = -10; k <= 10; k += 1) {
-        const u = k / 10;                       // along the seam
-        const sx = cx + R * Math.cos(ph) * 0.95 * Math.cos(u * 1.3) - R * 0.0;
-        const sy = cy + R * u * 0.95;
-        const px2 = cx + (sx - cx) * Math.cos(ph) + R * 0.25 * Math.sin(ph) * Math.sin(u * 2.0);
-        if (k === -10) ctx.moveTo(px2, sy); else ctx.lineTo(px2, sy);
-      }
-      ctx.stroke();
+      ctx.moveTo(sxp, -2.4 * fore); ctx.lineTo(sxp, 2.4 * fore); ctx.stroke();
     }
     ctx.restore();
+    // Fixed specular highlight and rim (static lighting over the spin).
+    const hi = ctx.createRadialGradient(cx - R * 0.42, cy - R * 0.48, 0, cx - R * 0.42, cy - R * 0.48, R * 0.6);
+    hi.addColorStop(0, 'rgba(255,255,255,0.55)'); hi.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = hi;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
-    // Spin-direction arrow above the ball.
-    ctx.strokeStyle = tok.accentWarm; ctx.lineWidth = 1.4;
+    // Curved spin-direction arrow above the ball, with an arrowhead so
+    // top-spin vs back-spin is readable at a glance.
     const dir = Math.sign(state.spin) || 1;
-    ctx.beginPath(); ctx.arc(cx, cy - R - 9, 6, -0.4 * dir, Math.PI + 0.4 * dir, dir < 0); ctx.stroke();
+    const ay = cy - R - 11, aR = 7;
+    ctx.strokeStyle = tok.accentWarm; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(cx, ay, aR, -2.4, 2.4, dir < 0); ctx.stroke();
+    const aEnd = dir > 0 ? 2.4 : Math.PI - 2.4 + Math.PI;
+    const hx = cx + aR * Math.cos(aEnd), hy = ay + aR * Math.sin(aEnd);
+    const tang = aEnd + (dir > 0 ? Math.PI / 2 : -Math.PI / 2);
+    ctx.fillStyle = tok.accentWarm;
+    ctx.beginPath();
+    ctx.moveTo(hx, hy);
+    ctx.lineTo(hx - 4 * Math.cos(tang - 0.4), hy - 4 * Math.sin(tang - 0.4));
+    ctx.lineTo(hx - 4 * Math.cos(tang + 0.4), hy - 4 * Math.sin(tang + 0.4));
+    ctx.closePath(); ctx.fill();
   }
 
   // Legend
@@ -161,7 +185,7 @@ function drawAll() {
 function tickN(n) {
   for (let i = 0; i < n; i += 1) {
     stepBall(state.sim, 0.01);
-    state.spinAngle += state.spin * 0.0009;     // visible sphere rotation
+    state.spinAngle += state.spin * 0.0012;     // visible sphere rotation
     if (state.sim.y < 0) {
       // Reset to relaunch
       state.sim = createBall({ v0: state.v0, angleDeg: state.angle, spin: state.spin });
