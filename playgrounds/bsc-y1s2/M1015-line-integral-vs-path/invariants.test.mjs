@@ -7,7 +7,36 @@
 import { describe, it, expect } from 'vitest';
 import {
   FIELDS, lineIntegral, straightPath, arcPath, closedLoopIntegral,
+  bezierPath, lineIntegralPolyline,
 } from './sim.js';
+
+describe('bezier path + polyline integral', () => {
+  it('a degenerate Bezier (C on the chord midpoint) equals the straight integral', () => {
+    const A = { x: -1, y: 0.3 }, B = { x: 1.4, y: -0.2 };
+    const C = { x: 0.5 * (A.x + B.x), y: 0.5 * (A.y + B.y) };
+    const f = FIELDS.rotation;
+    const sp = straightPath(A, B), bz = bezierPath(A, C, B);
+    expect(Math.abs(lineIntegral(f, bz.x, bz.y, bz.dx, bz.dy)
+      - lineIntegral(f, sp.x, sp.y, sp.dx, sp.dy))).toBeLessThan(1e-6);
+  });
+
+  it('conservative field: bent Bezier integral still equals phi(B) - phi(A)', () => {
+    const A = { x: -1.2, y: 0.4 }, B = { x: 1.1, y: -0.5 }, C = { x: 0.2, y: 2.0 };
+    const f = FIELDS.conservative1;
+    const bz = bezierPath(A, C, B);
+    const v = lineIntegral(f, bz.x, bz.y, bz.dx, bz.dy);
+    expect(Math.abs(v - (f.potential(B.x, B.y) - f.potential(A.x, A.y)))).toBeLessThan(1e-5);
+  });
+
+  it('polyline midpoint integral converges to the analytic straight integral', () => {
+    const A = { x: -1, y: 0 }, B = { x: 1, y: 0.8 };
+    const f = FIELDS.rotation;
+    const pts = [];
+    for (let i = 0; i <= 400; i += 1) { const t = i / 400; pts.push({ x: A.x + (B.x - A.x) * t, y: A.y + (B.y - A.y) * t }); }
+    const sp = straightPath(A, B);
+    expect(Math.abs(lineIntegralPolyline(f, pts) - lineIntegral(f, sp.x, sp.y, sp.dx, sp.dy))).toBeLessThan(1e-3);
+  });
+});
 
 describe('line-integral-vs-path', () => {
   it('conservative1 (F = (2xy, x^2)): straight and arc integrals agree', () => {

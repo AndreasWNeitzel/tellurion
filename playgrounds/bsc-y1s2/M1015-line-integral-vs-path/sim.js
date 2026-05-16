@@ -42,6 +42,29 @@ export function lineIntegral(field, x, y, dx, dy, n = 200) {
   return simpson(f, 0, 1, n);
 }
 
+// Quadratic Bezier A -> C -> B as a parametric path (for the
+// draggable bent path in the UI). Returns x,y,dx,dy closures for
+// lineIntegral, so the same Simpson integrator is reused.
+export function bezierPath(A, C, B) {
+  const bx = (t) => (1 - t) * (1 - t) * A.x + 2 * (1 - t) * t * C.x + t * t * B.x;
+  const by = (t) => (1 - t) * (1 - t) * A.y + 2 * (1 - t) * t * C.y + t * t * B.y;
+  const dbx = (t) => 2 * (1 - t) * (C.x - A.x) + 2 * t * (B.x - C.x);
+  const dby = (t) => 2 * (1 - t) * (C.y - A.y) + 2 * t * (B.y - C.y);
+  return { x: bx, y: by, dx: dbx, dy: dby };
+}
+
+// Integral of F . dr along an explicit polyline (array of {x,y}),
+// midpoint rule per segment. Used for the live readout while dragging.
+export function lineIntegralPolyline(field, pts) {
+  let s = 0;
+  for (let i = 1; i < pts.length; i += 1) {
+    const a = pts[i - 1], b = pts[i];
+    const mx = 0.5 * (a.x + b.x), my = 0.5 * (a.y + b.y);
+    s += field.P(mx, my) * (b.x - a.x) + field.Q(mx, my) * (b.y - a.y);
+  }
+  return s;
+}
+
 // Path 1: straight line from A to B.
 export function straightPath(A, B) {
   return {
