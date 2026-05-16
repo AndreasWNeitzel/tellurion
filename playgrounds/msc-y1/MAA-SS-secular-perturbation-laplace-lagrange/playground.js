@@ -31,14 +31,31 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 // Secular state at time t. The exchange angle phi = coupling*t rotates
 // amplitude between the planets at fixed e1^2 + e2^2 (equal-mass AMD).
 // Each perihelion precesses at one of the two eigenfrequencies.
+// Correct two-planet Laplace-Lagrange normal-mode solution. The
+// eccentricity vector z_j = h_j + i k_j is a superposition of the two
+// secular eigenmodes; for two equal planets the symmetric/antisymmetric
+// combination is z1 = A e^{i g1 t} + B e^{i g2 t}, z2 = A e^{i g1 t} -
+// B e^{i g2 t}. Then e1^2 + e2^2 = 2(A^2 + B^2) is conserved (AMD), the
+// eccentricities beat anti-correlated at |g1 - g2|, and each (h,k)
+// locus is a bounded two-frequency epicycle that stays well defined for
+// every coupling (the old |cos|/|sin| model was not Laplace-Lagrange
+// and degenerated as the coupling rose).
+function modes() {
+  const A = st.e0 * 0.62, B = st.e0 * 0.40;
+  const g1 = 0.35 * st.coupling, g2 = -1.0 * st.coupling;
+  return { A, B, g1, g2 };
+}
 function secular(t) {
-  const phi = st.coupling * t;
-  const e1 = st.e0 * Math.abs(Math.cos(phi));
-  const e2 = st.e0 * Math.abs(Math.sin(phi));
-  const g1 = -0.6 * st.coupling, g2 = 0.45 * st.coupling;
-  const w1 = g1 * t;
-  const w2 = g2 * t + Math.PI / 2;
-  return { e1, e2, w1, w2 };
+  const { A, B, g1, g2 } = modes();
+  const c1 = A * Math.cos(g1 * t), s1 = A * Math.sin(g1 * t);
+  const c2 = B * Math.cos(g2 * t), s2 = B * Math.sin(g2 * t);
+  const h1 = c1 + c2, k1 = s1 + s2;
+  const h2 = c1 - c2, k2 = s1 - s2;
+  return {
+    h1, k1, h2, k2,
+    e1: Math.hypot(h1, k1), e2: Math.hypot(h2, k2),
+    w1: Math.atan2(k1, h1), w2: Math.atan2(k2, h2),
+  };
 }
 
 function keplerXY(a, e, w, M, scale, cx, cy) {
@@ -96,23 +113,28 @@ function render() {
   ctx.beginPath(); ctx.moveTo(bx - 120, by); ctx.lineTo(bx + 120, by); ctx.moveTo(bx, by - 110); ctx.lineTo(bx, by + 110); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('(h, k) = (e cos ϖ, e sin ϖ)', bx - 110, by - 96);
   ctx.fillText('k', bx + 4, by - 98); ctx.fillText('h', bx + 110, by - 6);
-  // Trace one full secular period for each planet (the Laplace-Lagrange
-  // circle), then mark the current eccentricity vectors.
+  // Trace the FULL fundamental period of the two-mode epicycle so the
+  // moving dot always stays on the pre-rendered curve. The motion has
+  // frequencies g1 = 0.35 c and g2 = -1.0 c; their gcd is 0.05 c, so the
+  // closed locus has period 2 pi / (0.05 c). The window scales with
+  // 1/coupling, so the shape is identical at every coupling and the dot
+  // never runs outside it (the old [0, pi/coupling] arc did).
+  const Tfull = 2 * Math.PI / (0.05 * st.coupling);
+  const NB = 900;
   for (const [sel, col] of [[0, 'rgba(255,209,102,0.5)'], [1, 'rgba(91,192,235,0.5)']]) {
     ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.beginPath();
-    for (let i = 0; i <= 160; i += 1) {
-      const tt = (i / 160) * (Math.PI / st.coupling);
-      const ss = secular(tt);
-      const e = sel === 0 ? ss.e1 : ss.e2, w = sel === 0 ? ss.w1 : ss.w2;
-      const x = bx + bS * e * Math.cos(w), y = by - bS * e * Math.sin(w);
+    for (let i = 0; i <= NB; i += 1) {
+      const ss = secular((i / NB) * Tfull);
+      const h = sel === 0 ? ss.h1 : ss.h2, k = sel === 0 ? ss.k1 : ss.k2;
+      const x = bx + bS * h, y = by - bS * k;
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
   ctx.fillStyle = '#ffd166';
-  ctx.beginPath(); ctx.arc(bx + bS * s.e1 * Math.cos(s.w1), by - bS * s.e1 * Math.sin(s.w1), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx + bS * s.h1, by - bS * s.k1, 5, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#5bc0eb';
-  ctx.beginPath(); ctx.arc(bx + bS * s.e2 * Math.cos(s.w2), by - bS * s.e2 * Math.sin(s.w2), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx + bS * s.h2, by - bS * s.k2, 5, 0, 2 * Math.PI); ctx.fill();
 
   // Panel C: e1(t), e2(t) exchange (bottom right).
   const cx0 = W * 0.55, cx1 = W - 24, cy0 = H * 0.62, cy1 = H - 40;
@@ -120,7 +142,9 @@ function render() {
   ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(cx0, cy1); ctx.lineTo(cx1, cy1); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('e_j (orange = inner, cyan = outer)', cx0, cy0 - 6);
   ctx.fillText('t (secular)', cx1 - 60, cy1 + 14);
-  const tSpan = 2 * Math.PI / st.coupling;
+  // e_j^2 = A^2 + B^2 +- 2AB cos((g1 - g2) t): the beat period is
+  // 2 pi / |g1 - g2| with g1 - g2 = 1.35 c.
+  const tSpan = 2 * Math.PI / (1.35 * st.coupling);
   const tx = (tt) => cx0 + (tt % tSpan) / tSpan * (cx1 - cx0);
   const ey = (e) => cy1 - (e / (st.e0 * 1.1)) * (cy1 - cy0);
   for (const [sel, col] of [[0, '#ffd166'], [1, '#5bc0eb']]) {
