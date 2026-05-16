@@ -49,6 +49,24 @@ const N = 4096;
 let state = initEnsemble(N, 1e-3, 0xC0FFEE);
 let t = 0;
 
+// 3D object-space trail. Instead of a screen-space persistence buffer
+// (which smears and lags whenever the camera rotates), keep a ring of
+// recent particle positions in world space and re-project the whole
+// trail every frame. The decay is now per-trajectory age in 3D, so it
+// is identical from any view and stays crisp while the figure spins.
+const TRAIL = 28;
+const history = Array.from({ length: TRAIL }, () => new Float32Array(state.length));
+let histHead = 0;      // index of the most-recently written layer
+let histCount = 0;
+function pushHistory() {
+  histHead = (histHead + 1) % TRAIL;
+  history[histHead].set(state);
+  if (histCount < TRAIL) histCount += 1;
+}
+
+// Slow continuous self-rotation while the user is not dragging.
+const AUTO_DPS = 7;
+
 buildSlider('substeps', 1, 20, 1, ui.substeps, v => { ui.substeps = Math.floor(v); });
 buildSlider('trail decay', 0.80, 0.999, 0.001, ui.decay, v => { ui.decay = v; });
 const btns = buildButtons();
@@ -71,6 +89,8 @@ window.__camera = camera;
 btns.reset.addEventListener('click', () => {
   state = initEnsemble(N, 1e-3, 0xC0FFEE);
   t = 0;
+  histHead = 0; histCount = 0;
+  for (const h of history) h.fill(0);
   if (engine) engine.clearAccum();
   running = true; btns.pause.textContent = 'Pause'; btns.pause.setAttribute('aria-pressed', 'false');
 });
@@ -86,15 +106,27 @@ const aspect = () => canvas.width / canvas.height;
 function stepOnce(dt = 0.005) {
   for (let k = 0; k < ui.substeps; k += 1) rk4Step(state, dt);
   t += ui.substeps * dt;
+  pushHistory();
 }
 
 function render() {
   if (!engine) return;
-  engine.uploadPositions(state);
   const view = camera.viewMatrix();
   const proj = camera.projMatrix(aspect());
-  engine.decay(ui.decay);
-  engine.splat(view, proj, N, 0.18, 2.0);
+  // Re-project the entire 3D trail this frame. Clear (no screen-space
+  // persistence), then splat oldest -> newest with age-decaying
+  // intensity governed by the trail-decay slider. Because every layer
+  // is a world-space position re-projected through the current camera,
+  // rotation never smears.
+  engine.clearAccum();
+  const layers = histCount;
+  for (let a = layers - 1; a >= 0; a -= 1) {
+    const idx = ((histHead - a) % TRAIL + TRAIL) % TRAIL;
+    const intensity = 0.16 * Math.pow(ui.decay, a);
+    const size = 2.4 - 1.0 * (a / TRAIL);
+    engine.uploadPositions(history[idx]);
+    engine.splat(view, proj, N, intensity, Math.max(1.0, size));
+  }
   engine.compose();
   const d = diameter(state);
   const c = centroid(state);
@@ -109,7 +141,12 @@ function tick(now) {
   fpsFrames += 1;
   if (now - fpsLast > 500) { rEls.FPS.textContent = (fpsFrames * 1000 / (now - fpsLast)).toFixed(0); fpsLast = now; fpsFrames = 0; }
   if (running) stepOnce(0.005);
-  camera.tickIdle(now);
+  // Slow self-rotation whenever the user is not dragging, so the 3D
+  // structure reads without interaction. Direct state mutation keeps
+  // pointer drag fully responsive.
+  if (!camera.state.dragging) {
+    camera.state.azimuthDeg = (camera.state.azimuthDeg + AUTO_DPS * dt) % 360;
+  }
   render();
   requestAnimationFrame(tick);
 }
@@ -121,17 +158,16 @@ function bootSync() {
     const initSteps = Math.max(2200, Math.floor(2000 + CAPTURE_FRAC * 1500));
     for (let i = 0; i < initSteps; i += 1) rk4Step(state, 0.01);
     t += initSteps * 0.01;
-    if (engine) {
-      engine.clearAccum();
-      const view = camera.viewMatrix();
-      const proj = camera.projMatrix(aspect());
-      for (let frame = 0; frame < 280; frame += 1) {
-        rk4Step(state, 0.01);
-        engine.uploadPositions(state);
-        engine.splat(view, proj, N, 0.07, 1.6);
-      }
-      engine.compose();
-    }
+    // Fill the 3D trail ring deterministically, then render one frame
+    // (same object-space trail path as the live view).
+    for (let i = 0; i < TRAIL; i += 1) { rk4Step(state, 0.01); pushHistory(); }
+    if (engine) render();
+  } else {
+    // Live: warm up onto the attractor and pre-fill the trail so the
+    // first painted frame already shows the structure (no blank flash).
+    for (let i = 0; i < 1800; i += 1) rk4Step(state, 0.01);
+    t += 1800 * 0.01;
+    for (let i = 0; i < TRAIL; i += 1) { rk4Step(state, 0.01); pushHistory(); }
   }
   rEls.FPS.textContent = '60';
   rEls.diameter.textContent = diameter(state).toFixed(2);
