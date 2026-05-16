@@ -39,7 +39,12 @@ const W = canvas.width, H = canvas.height;
 
 // Galaxy panel occupies the upper portion (square area centered top).
 // Rotation-curve subplot lies underneath, full-width.
-const GAL  = { cx: 440, cy: 240, R: 220 };
+// RVIEW is the physical radius (kpc) mapped to the panel half-extent. The
+// bright arm/bulge population lives within ~12 kpc, so zooming to 15 kpc
+// (instead of 25) fills the panel instead of leaving a small disc in a sea
+// of empty space. Purely a presentation scale; the rotation-curve physics
+// and the tracer counts are unchanged.
+const GAL  = { cx: 440, cy: 238, R: 236, RVIEW: 15 };
 const PLOT = { x: 80, y: 500, w: 760, h: 180, rmax: 30, vmax: 280 };
 
 const state = {
@@ -96,8 +101,8 @@ function drawFivePointedStar(cx, cy, rOuter, fill, stroke) {
 }
 
 function pxGal(x, y) {
-  // x, y in kpc; scale R = 25 kpc to the half-extent 220 px.
-  const s = GAL.R / 25;
+  // x, y in kpc; scale R = RVIEW kpc to the panel half-extent.
+  const s = GAL.R / GAL.RVIEW;
   return { px: GAL.cx + s * x, py: GAL.cy - s * y };
 }
 
@@ -123,8 +128,8 @@ function drawGalaxyPanel() {
   // Radial grid: 5, 10, 15, 20, 25 kpc.
   ctx.strokeStyle = 'rgba(154,156,159,0.18)';
   ctx.lineWidth = 0.5;
-  for (const Rg of [5, 10, 15, 20, 25]) {
-    const pr = (Rg / 25) * GAL.R;
+  for (const Rg of [3, 6, 9, 12, 15]) {
+    const pr = (Rg / GAL.RVIEW) * GAL.R;
     ctx.beginPath();
     ctx.arc(GAL.cx, GAL.cy, pr, 0, 2 * Math.PI);
     ctx.stroke();
@@ -134,7 +139,7 @@ function drawGalaxyPanel() {
   ctx.lineWidth = 0.7;
   ctx.setLineDash([3, 3]);
   ctx.beginPath();
-  ctx.arc(GAL.cx, GAL.cy, (8 / 25) * GAL.R, 0, 2 * Math.PI);
+  ctx.arc(GAL.cx, GAL.cy, (8 / GAL.RVIEW) * GAL.R, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.setLineDash([]);
 
@@ -143,6 +148,11 @@ function drawGalaxyPanel() {
   // spiral galaxy rather than four bare spokes.
   const snapshot = galaxyAt(state.stars, state.t, state.model);
   ctx.save();
+  // Clip to the panel disc so the zoomed view stays tidy (stars beyond
+  // RVIEW are simply outside the frame).
+  ctx.beginPath();
+  ctx.arc(GAL.cx, GAL.cy, GAL.R * 1.02, 0, 2 * Math.PI);
+  ctx.clip();
   ctx.globalCompositeOperation = 'lighter';
   for (let i = 0; i < snapshot.length; i += 1) {
     const s = snapshot[i];
@@ -150,15 +160,15 @@ function drawGalaxyPanel() {
     const a = Math.max(0.02, Math.min(1, s.br));
     let col, rad;
     if (s.kind === 'bulge') {
-      col = `rgba(255, ${210 + (s.br*30|0)}, 170, ${0.05*a+0.02})`;
-      rad = 1.0;
+      col = `rgba(255, ${210 + (s.br*30|0)}, 170, ${0.11*a+0.05})`;
+      rad = 1.4;
     } else if (s.kind === 'disk') {
-      col = `rgba(150, 170, 220, ${0.05*a})`;
-      rad = 0.8;
+      col = `rgba(155, 175, 225, ${0.10*a+0.015})`;
+      rad = 1.1;
     } else {
       // arm: young blue-white stars
-      col = `rgba(185, 212, 255, ${0.28*a+0.05})`;
-      rad = s.br > 0.6 ? 1.3 : 0.9;
+      col = `rgba(190, 216, 255, ${0.46*a+0.10})`;
+      rad = s.br > 0.6 ? 1.7 : 1.2;
     }
     ctx.fillStyle = col;
     ctx.beginPath();
@@ -179,7 +189,7 @@ function drawGalaxyPanel() {
   ctx.fillStyle = tokens.fgMuted;
   ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('Top-down view: spiral galaxy out to R = 25 kpc. Dashed ring = solar circle (8 kpc). Yellow star = Sun.',
+  ctx.fillText('Top-down view: spiral galaxy out to R = 15 kpc. Dashed ring = solar circle (8 kpc). Yellow star = Sun.',
                20, 22);
 }
 
