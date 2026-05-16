@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST3016
 supporting_ucs: [MAA-HE]
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A relativistic source emits isotropically in its rest frame; in the lab frame the light collimates into a 1/gamma headlight cone.'
+one_paragraph: 'Pseudo-3D scene of relativistic beaming: the D^(3+alpha) emission pattern revolved into a shaded solid of revolution, with a photon stream sampled isotropically in the rest frame and aberrated to the lab frame so the forward collimation is shown directly. Sweeping gamma tightens the lobe from a broad teardrop to a pencil beam (theta_beam -> 1/gamma); alpha and the readout (D(0), D(pi), I(0)/I(pi)) stay locked to the closed-form Doppler physics.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -38,7 +38,7 @@ Beaming half-angle (definition: D(theta_beam) = D(0) / 2): theta_beam -> 1/gamma
 
 ## Numerical method
 
-Closed-form: sample 720 angles around the full circle; compute D(theta) and D^{3+alpha}. Polar-plot the result in log(1 + I) scale so backward emission is still visible.
+Closed-form Doppler/aberration from sim.js. The emission pattern D^{3+alpha} is revolved about the boost axis into a shaded solid of revolution (per-facet Lambert shading, viridis by intensity, painter's-algorithm depth sort) and rendered as a pseudo-3D Canvas2D scene. A photon stream is sampled isotropically in the rest frame and aberrated to the lab frame via aberratedAngle(beta, theta'); each streak is colored and brightened by its Doppler factor so the collimation into the 1/gamma headlight cone is visible directly. log(1 + I) scaling keeps backward emission perceptible.
 
 ## Controls
 
@@ -47,7 +47,7 @@ Closed-form: sample 720 angles around the full circle; compute D(theta) and D^{3
 
 ## Expected qualitative features
 
-1. gamma -> 1 (rest): polar plot is a circle (isotropic).
+1. gamma -> 1 (rest): the revolved lobe is a sphere and the photon stream is isotropic.
 2. Moderate gamma (~ 2): pattern elongates along the velocity vector.
 3. gamma >= 10: tight forward beam ~ 1/gamma; back lobe down by a factor (1+beta)^3/(1-beta)^3 ~ (2 gamma)^6 from the front.
 4. Increasing alpha sharpens the beam further (intensity scales as D^{3 + alpha}).
