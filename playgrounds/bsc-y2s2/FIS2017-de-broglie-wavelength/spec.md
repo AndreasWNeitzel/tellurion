@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s2
 primary_citation: eisberg-resnick
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Fire particles one at a time at a double slit; the interference pattern that builds up has fringes set by lambda = h/p.'
+one_paragraph: 'de Broglie duality made physical: a matter-wave double-slit experiment. Particles of the chosen species and kinetic energy are fired one at a time at a double slit and land stochastically with probability given by the two-slit intensity for lambda = h/p (from sim.js), so the interference pattern builds up dot by dot. A long-wavelength electron shows the textbook multi-fringe pattern; a proton, neutron, or carbon atom at the same energy has a far shorter lambda and the fringes collapse into a classical scatter. A compact lambda(T) log-log strip keeps the quantitative curve for all five species with the live marker and readouts. sim.js (deBroglieNm and the species table) is unchanged.'
 tags: [quantum, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -36,7 +36,7 @@ Relativistic formula above is used throughout to guarantee correctness in both l
 
 ## Numerical method
 
-Closed-form. $\lambda(T)$ is sampled at 200 logarithmically-spaced points spanning $10^{-3}$ to $10^{12}$ eV. Output rendered as $\log_{10}\lambda$ versus $\log_{10}T$.
+Closed-form $\lambda(T)$ from sim.js (unchanged). The two-slit intensity $I(\theta) = \mathrm{sinc}^2(\pi a \sin\theta/\lambda)\,\cos^2(\pi d \sin\theta/\lambda)$ uses a fixed apparatus ($d$, $a$, angular range); each incident particle is rejection-sampled from $I$ and binned, so the pattern emerges stochastically. The $\lambda(T)$ strip samples 200 log-spaced points spanning $10^{-3}$ to $10^{12}$ eV.
 
 ## Controls
 
@@ -45,10 +45,10 @@ Closed-form. $\lambda(T)$ is sampled at 200 logarithmically-spaced points spanni
 
 ## Expected qualitative features
 
-1. Below $T \sim mc^2$, each massive-particle line has slope $-1/2$ on the log-log plot.
-2. Above $T \sim mc^2$, the slope steepens to $-1$ as the particle goes ultra-relativistic.
-3. All massive-particle lines converge to the photon line at high $T$.
-4. Reference dashed lines mark the atomic scale (0.1 nm) and the nuclear scale (1 fm). The crossings are physically meaningful: electrons need about 100 eV to probe atomic structure; protons need MeV to probe nuclear structure.
+1. Single detections look random at first, then accumulate into a two-slit interference pattern under a single-slit envelope.
+2. A long-$\lambda$ electron shows several clear fringes; raising $T$ or switching to a heavier species shortens $\lambda$ and tightens the fringes.
+3. When $\lambda$ is far below the apparatus scale (proton, neutron, C-12 at the same $T$) the fringes are unresolvable and the screen reads as a classical scatter.
+4. The $\lambda(T)$ strip stays slope $-1/2$ below $T \sim mc^2$, steepens to $-1$ above it, and all species converge to the photon line at high $T$.
 
 ## Invariants and acceptance thresholds
 
