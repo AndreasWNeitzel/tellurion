@@ -73,8 +73,9 @@ DONE (committed, invariants pass, captures refreshed):
 - slow-roll-inflation: rolling inflaton + filled V(phi) + expanding-universe e-fold lattice + schematic (n_s,r) plane
 - matter-radiation-equality: expanding patch (photon gas -> equality -> matter clumps), synced rho(a) strip
 - ckm-unitarity-triangle: tip-to-tail vector-sum closure + angle arcs + CP-asymmetry payoff panel
+- friedmann-cosmography: scale factor a(t) Big Bang->decelerate->accelerate + expanding redshifting galaxy patch
 
 REMAINING boring->spatial makeovers (next sessions):
-- toy parton, Friedmann cosmography, runge-chebyshev
+- toy parton, runge-chebyshev
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static

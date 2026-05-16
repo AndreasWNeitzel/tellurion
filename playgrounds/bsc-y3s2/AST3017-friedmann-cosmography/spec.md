@@ -9,8 +9,8 @@ supporting_ucs: [MAA-CS]
 curriculum_year: bsc-y3s2
 primary_citation: liddle-cosmology
 primary_chapter: 4
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Watch the scale factor grow from the Big Bang through matter deceleration into Lambda acceleration as a galaxy patch expands.'
+one_paragraph: 'Friedmann cosmography as the expansion history itself. The scale factor a(t), built parametrically from the unchanged sim.js (ageGyr at each redshift), runs from the Big Bang through matter-era deceleration, past the acceleration onset, into the Lambda-dominated future (solid past, dashed future, today marked at a = 1). A comoving patch of galaxies expands with a(t) and redshifts as cosmic time sweeps. Omega_m and H0 reshape the whole history; t0 and the comoving distance are read out live.'
 tags: [cosmology, animation, live-readout]
 difficulty: 3
 tier: simple
