@@ -70,9 +70,13 @@ const TRAIL_MAX = 2400;    // number of (x2, y2) samples to keep (~2.4 s of moti
 const TRAIL_DECAY = 0.55;  // peak alpha at the head of the trail; linear decay toward the tail
 
 // Default IC (rad) and parameters (kg, m), per spec.
+// Chaotic regime by default: both arms well raised so the motion is
+// strongly chaotic and the 1 ppm ensemble fans apart on screen (the
+// whole point of the demo). Low-amplitude ICs are quasi-periodic and
+// never diverge.
 const DEFAULT_IC = {
-  theta1: 0.5,
-  theta2: -0.3,
+  theta1: 2.2,
+  theta2: 2.4,
   omega1: 0,
   omega2: 0,
 };
@@ -113,18 +117,37 @@ const tokens = {
 // Engine instantiation, reset, and parameter updates.
 //
 
-function rebuildEngine(ic) {
+// 10-member chaos ensemble: identical except theta1 offset by k * 1 ppm.
+// They track the primary at first, then diverge exponentially (the
+// signature of deterministic chaos / sensitive dependence).
+const ENSEMBLE_N = 10;
+const ENSEMBLE_DTHETA = 1e-6;
+// Kept as a module-scope array (not on `state`) so the existing drag and
+// phase-panel logic, which only reads state.inst, is untouched.
+let ensemble = [];
+
+function makeInst(theta1, theta2, omega1, omega2) {
   const params = { l1: state.l1, l2: state.l2 };
-  const masses = Float64Array.from([state.m1, state.m2]);
-  state.inst = engineCreate({
-    positions:  Float64Array.from([ic.theta1, ic.theta2]),
-    velocities: Float64Array.from([ic.omega1, ic.omega2]),
-    masses,
+  return engineCreate({
+    positions:  Float64Array.from([theta1, theta2]),
+    velocities: Float64Array.from([omega1, omega2]),
+    masses:     Float64Array.from([state.m1, state.m2]),
     accelerationFn:     makeAccel(params),
     energyFn:           makeEnergy(params),
     angularMomentumFn:  makeAngularMomentum(params),
     integrator: 'verlet',
   });
+}
+
+function rebuildEngine(ic) {
+  state.inst = makeInst(ic.theta1, ic.theta2, ic.omega1, ic.omega2);
+  ensemble = [];
+  for (let k = 1; k <= ENSEMBLE_N; k += 1) {
+    ensemble.push({
+      inst: makeInst(ic.theta1 + k * ENSEMBLE_DTHETA, ic.theta2, ic.omega1, ic.omega2),
+      color: `hsl(${(k * 360 / ENSEMBLE_N) | 0} 85% 62%)`,
+    });
+  }
   state.poincare.reset();
   state.trail.length      = 0;
   state.phaseTrail.length = 0;
@@ -321,6 +344,23 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   drawSupport();
   drawTrail();
+  // Chaos ensemble underneath the primary: thin colored arms + bob2,
+  // visibly fanning apart as sensitive dependence amplifies the 1 ppm
+  // offsets.
+  for (const e of ensemble) {
+    const { p1, p2 } = thetaToBobPx(e.inst.q[0], e.inst.q[1]);
+    ctx.strokeStyle = e.color;
+    ctx.globalAlpha = 0.5;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(SUPPORT_X, SUPPORT_Y);
+    ctx.lineTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+    ctx.fillStyle = e.color;
+    ctx.beginPath(); ctx.arc(p2.x, p2.y, 3, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
   const t1 = state.inst.q[0], t2 = state.inst.q[1];
   drawPendulum(t1, t2);
   drawPhasePanel();
@@ -332,6 +372,7 @@ function drawAll() {
 
 function stepOnce() {
   engineStep(state.inst, PHYSICS_DT);
+  for (const e of ensemble) engineStep(e.inst, PHYSICS_DT);
   const t1 = state.inst.q[0];
   const w1 = state.inst.qdot[0];
   state.poincare.observe(t1, w1);
