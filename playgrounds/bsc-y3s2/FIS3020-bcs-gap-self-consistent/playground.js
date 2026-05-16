@@ -7,12 +7,21 @@ const rD = document.getElementById('readout-d');
 const sN = document.getElementById('slider-N'), vN = document.getElementById('value-N');
 const sT = document.getElementById('slider-T'), vT = document.getElementById('value-T');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { N0V: 0.3, tRel: 0.3 }; let running = true; let userControlling = false;
-sN.addEventListener('input', () => { st.N0V = parseFloat(sN.value); vN.textContent = st.N0V.toFixed(2); });
-sT.addEventListener('input', () => { userControlling = true; st.tRel = parseFloat(sT.value); vT.textContent = st.tRel.toFixed(2); });
+// Default to static: temperature is purely slider-driven so the slider
+// unambiguously respects user input. Play toggles an optional auto
+// T-sweep. The old default (running = true) auto-oscillated tRel every
+// frame and fought the slider ("sliders don't respect input").
+let st = { N0V: 0.3, tRel: 0.3 }; let running = false; let userControlling = false;
+sN.addEventListener('input', () => { st.N0V = parseFloat(sN.value); vN.textContent = st.N0V.toFixed(2); render(); });
+// Dragging T sets userControlling, which pauses the autoplay step in
+// tick() (so it does not overwrite tRel). That also paused rendering, so
+// the temperature slider looked frozen while dragged. Render directly
+// here so it updates live.
+sT.addEventListener('input', () => { userControlling = true; st.tRel = parseFloat(sT.value); vT.textContent = st.tRel.toFixed(2); render(); });
 sT.addEventListener('change', () => { userControlling = false; });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+btnP.textContent = 'Play'; btnP.setAttribute('aria-pressed', 'true');   // starts static
 let sweep = 0;     // autoplay temperature sweep phase
 function render() {
   const W = canvas.width, H = canvas.height;
@@ -27,9 +36,16 @@ function render() {
   const cx = W / 2, cy = sceneH / 2;
   const Rf = Math.min(W, sceneH) * 0.32;
 
-  // Gap band: an annulus of half-width proportional to Delta(T).
-  const bandW = 4 + 46 * dRel;
-  const cold = `rgba(140, 200, 255, ${0.10 + 0.5 * dRel})`;
+  // Gap band width is proportional to the ABSOLUTE gap Delta(T, N0V) on
+  // a fixed scale (max Delta0 over the N0V slider). Using Delta/Delta0
+  // made the band the universal coupling-independent value, so the
+  // coupling slider did nothing to it. Now stronger coupling visibly
+  // widens the gap annulus.
+  const D0_REF = gapZero(0.5);
+  const gapAbs = gapAtT(tCur * Tc_v, st.N0V);
+  const dAbs = Math.min(1, gapAbs / D0_REF);
+  const bandW = 3 + 52 * dAbs;
+  const cold = `rgba(140, 200, 255, ${0.10 + 0.55 * dAbs})`;
   ctx.strokeStyle = cold;
   ctx.lineWidth = bandW;
   ctx.beginPath(); ctx.arc(cx, cy, Rf, 0, 2 * Math.PI); ctx.stroke();
@@ -41,7 +57,7 @@ function render() {
   // Lines fade with the gap and vanish above Tc.
   const pairAlpha = Math.max(0, dRel);
   for (let p = 0; p < 8; p += 1) {
-    const a = (p / 8) * Math.PI + sweep * 0.15;
+    const a = (p / 8) * Math.PI;          // static (no decorative churn)
     const x1 = cx + Rf * Math.cos(a), y1 = cy + Rf * Math.sin(a);
     const x2 = cx - Rf * Math.cos(a), y2 = cy - Rf * Math.sin(a);
     ctx.strokeStyle = `rgba(125, 211, 252, ${0.55 * pairAlpha})`;
@@ -80,8 +96,18 @@ function render() {
     if (i === 0) ctx.moveTo(xToPx(t), yToPx(d)); else ctx.lineTo(xToPx(t), yToPx(d));
   }
   ctx.stroke();
-  ctx.fillStyle = '#f472b6';
-  ctx.beginPath(); ctx.arc(xToPx(tCur), yToPx(dRel), 6, 0, 2 * Math.PI); ctx.fill();
+  // Bold full-height temperature cursor: dragging T sweeps it across the
+  // curve, an unmistakable T response (the universal Delta/Delta0 curve
+  // itself is coupling- and T-independent in shape, so without this the
+  // T slider only nudged a small marker dot).
+  const tx = xToPx(tCur);
+  ctx.fillStyle = 'rgba(244,114,182,0.10)';
+  ctx.fillRect(tx, pad.t, (W - pad.r) - tx, (H - pad.b) - pad.t);
+  ctx.strokeStyle = '#f472b6'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(tx, pad.t); ctx.lineTo(tx, H - pad.b); ctx.stroke();
+  ctx.fillStyle = '#f472b6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`T/Tc = ${tCur.toFixed(2)}`, Math.min(tx + 4, W - pad.r - 78), pad.t + 12);
+  ctx.beginPath(); ctx.arc(tx, yToPx(dRel), 6, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`N(0)V=${st.N0V.toFixed(3)}  Tc=${Tc_v.toFixed(3)}  2Δ₀/kBTc=${(2 * Delta0 / Tc_v).toFixed(3)}`, 12, H - 8);
   rD.textContent = dRel.toFixed(3);
