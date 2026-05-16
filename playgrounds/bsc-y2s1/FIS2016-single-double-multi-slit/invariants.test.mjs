@@ -9,6 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   intensity, principalMaxima, envelopeZeros, LAMBDA, A_DEF, D_DEF,
+  slitSources, farFieldFromSources,
 } from './sim.js';
 
 describe('Multi-slit: non-negative', () => {
@@ -66,5 +67,37 @@ describe('Multi-slit: large-N narrowing and brightening', () => {
     const peaks = principalMaxima();
     const m1 = peaks.find(t => Math.abs(t) > 0.01);
     expect(intensity(m1, 8)).toBeGreaterThan(intensity(m1, 2));
+  });
+});
+
+describe('Multi-slit: Huygens sub-sources match the closed form', () => {
+  it('slitSources count is N*M and centred on zero', () => {
+    for (const N of [1, 2, 4, 7]) {
+      const ys = slitSources(N, A_DEF, D_DEF, 5);
+      expect(ys.length).toBe(N * 5);
+      const mean = ys.reduce((s, y) => s + y, 0) / ys.length;
+      expect(mean).toBeCloseTo(0, 9);
+    }
+  });
+
+  it('point-source array factor revives to 1 at every principal maximum', () => {
+    for (const N of [2, 4, 6]) {
+      expect(farFieldFromSources(0, N)).toBeCloseTo(1, 9);
+      // M = 1: pure array factor, no single-slit envelope. The grating
+      // condition sin theta = m lambda / d is an exact revival to unity.
+      const peaks = principalMaxima().filter((t) => Math.abs(t) > 0.01);
+      for (const p of peaks) {
+        expect(farFieldFromSources(p, N, A_DEF, D_DEF, LAMBDA, 1)).toBeCloseTo(1, 6);
+      }
+    }
+  });
+
+  it('far-field from sources stays within [0, 1]', () => {
+    for (let i = -80; i <= 80; i += 1) {
+      const th = (i * Math.PI) / 180;
+      const v = farFieldFromSources(th, 5);
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThanOrEqual(1 + 1e-9);
+    }
   });
 });

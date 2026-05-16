@@ -1,8 +1,16 @@
 // playground.js
-// Multi-slit diffraction: I(theta) curve and screen image.
+// Single / double / multi-slit diffraction shown as real wave
+// propagation. A plane wave hits an opaque barrier with N slits; to
+// the right, the coherent Huygens superposition of sub-sources across
+// each slit propagates and interferes. The steady-state intensity on a
+// screen and the analytic Fraunhofer I(theta) are drawn below; the
+// bright fans line up with the screen peaks. sim.js carries the
+// invariant-tested physics; this file adds the field visualization.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { intensity, principalMaxima, A_DEF, D_DEF, LAMBDA } from './sim.js';
+import {
+  intensity, A_DEF, LAMBDA, envelopeZeros, principalMaxima, slitSources,
+} from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -25,11 +33,20 @@ const W = canvas.width, H = canvas.height;
 
 const state = {
   N: 4,
-  ratio: 5.0,     // d / a
+  ratio: 5.0,            // d / a
   speed: 2,
-  sweepDir: 1,
+  phase: 0,              // omega t
   playing: !DETERMINISTIC,
 };
+
+// Field panel geometry.
+const PADL = 28, PADR = 28;
+const F_TOP = 52, F_H = 300;
+const F_BOT = F_TOP + F_H;
+const XB = PADL + 86;                  // barrier x
+const X_SCREEN = W - PADR - 70;        // screen x
+const FSTEP = 3;
+const M_SUB = 5;                       // Huygens sub-sources per slit
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
 const tok = {
@@ -37,116 +54,178 @@ const tok = {
   accentWarm: cssVar('--accent-warm', '#d68a69'),
 };
 
-function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-  const a = A_DEF;
-  const d = a * state.ratio;
-  const I0 = intensity(0, state.N, a, d);
+// Map physical aperture (a, d) to pixels so N slits fill ~62% of the
+// field height; clamp so the pixel wavelength stays legible.
+function layout() {
+  const a = A_DEF, d = a * state.ratio, N = state.N;
+  const extent = Math.max((N - 1) * d + a, a);
+  let ppu = 0.62 * F_H / extent;
+  ppu = Math.max(4, Math.min(40, ppu));
+  const lamPx = Math.max(6, LAMBDA * ppu);
+  const yc = (F_TOP + F_BOT) / 2;
+  const sources = slitSources(N, a, d, M_SUB).map((y) => yc + y * ppu);
+  // Slit openings (centres and half-width) for the barrier drawing.
+  const mid = (N - 1) / 2;
+  const slits = [];
+  for (let s = 0; s < N; s += 1) slits.push({ y: yc + (s - mid) * d * ppu, h: Math.max(3, a * ppu) });
+  return { sources, lamPx, k: 2 * Math.PI / lamPx, slits, ppu };
+}
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`N = ${state.N}   d / a = ${state.ratio.toFixed(1)}   I(0) = ${I0.toFixed(1)}`, 30, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`principal max at sin(theta) = m lambda / d   envelope zeros at sin(theta) = m lambda / a`, 30, 40);
+// Signed-amplitude diverging colormap (cool -> dark -> warm), no rainbow.
+function divColor(t) {
+  const u = Math.max(-1, Math.min(1, t));
+  if (u >= 0) return [Math.round(20 + 220 * u), Math.round(20 + 130 * u), Math.round(30 + 25 * u)];
+  return [Math.round(20 - 10 * u), Math.round(20 - 90 * u), Math.round(30 - 200 * u)];
+}
 
-  const padL = 30, padR = 30;
-  const PW = W - padL - padR;
-
-  // Top: intensity curve
-  const curveY = 60, curveH = 320;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(padL, curveY, PW, curveH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padL + 0.5, curveY + 0.5, PW - 1, curveH - 1);
-  // theta range: limit by sin(theta) in [-0.5, 0.5] for visibility
-  const THETA_MAX = Math.asin(0.4);
-  function xT(theta) { return padL + 4 + (PW - 8) * (theta + THETA_MAX) / (2 * THETA_MAX); }
-  // envelope (single slit)
-  ctx.strokeStyle = 'rgba(214, 138, 105, 0.55)';
-  ctx.lineWidth = 1.0;
-  ctx.beginPath();
-  const NPTS = PW - 8;
-  let envMax = 1;
-  // envelope max is 1 at theta = 0
-  for (let i = 0; i < NPTS; i += 1) {
-    const theta = -THETA_MAX + (2 * THETA_MAX) * i / (NPTS - 1);
-    const sin_t = Math.sin(theta);
-    const beta = Math.PI * a * sin_t / LAMBDA;
-    const env = Math.abs(beta) < 1e-12 ? 1 : (Math.sin(beta) / beta) ** 2;
-    const px = padL + 4 + i;
-    const py = curveY + curveH - 6 - (curveH - 12) * env;
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
-  ctx.stroke();
-  // full pattern (normalized by N^2)
-  ctx.strokeStyle = tok.accentCool;
-  ctx.lineWidth = 1.4;
-  ctx.beginPath();
-  for (let i = 0; i < NPTS; i += 1) {
-    const theta = -THETA_MAX + (2 * THETA_MAX) * i / (NPTS - 1);
-    const I = intensity(theta, state.N, a, d) / I0;
-    const px = padL + 4 + i;
-    const py = curveY + curveH - 6 - (curveH - 12) * I;
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
-  ctx.stroke();
-  // labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(214, 138, 105, 0.75)';
-  ctx.fillText('envelope (sinc^2)', padL + 6, curveY + 14);
-  ctx.fillStyle = tok.accentCool;
-  ctx.fillText('N-slit pattern', padL + 160, curveY + 14);
-  // theta ticks
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'center';
-  for (const deg of [-20, -10, 0, 10, 20]) {
-    const theta = (deg * Math.PI) / 180;
-    if (Math.abs(theta) <= THETA_MAX) {
-      const px = xT(theta);
-      ctx.fillText(`${deg}`, px, curveY + curveH - 4);
+function drawField(L) {
+  const { sources, k } = L;
+  const fw = Math.ceil((X_SCREEN - XB) / FSTEP);
+  const fh = Math.ceil(F_H / FSTEP);
+  const img = ctx.createImageData(fw, fh);
+  const inv = 1 / Math.sqrt(sources.length);
+  for (let jy = 0; jy < fh; jy += 1) {
+    const py = F_TOP + jy * FSTEP;
+    for (let ix = 0; ix < fw; ix += 1) {
+      const px = XB + ix * FSTEP;
+      let re = 0;
+      for (let s = 0; s < sources.length; s += 1) {
+        const dx = px - XB, dy = py - sources[s];
+        const r = Math.sqrt(dx * dx + dy * dy) + 1e-3;
+        re += Math.cos(k * r - state.phase) / Math.sqrt(r);
+      }
+      const amp = re * inv * 2.4;
+      const c = divColor(amp);
+      const o = (jy * fw + ix) * 4;
+      img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255;
     }
   }
-  ctx.fillText('theta (deg)', padL + PW / 2, curveY + curveH + 14);
-
-  // Bottom: screen image strip
-  const stripY = curveY + curveH + 30;
-  const stripH = 60;
-  for (let i = 0; i < PW - 8; i += 1) {
-    const theta = -THETA_MAX + (2 * THETA_MAX) * i / (PW - 9);
-    const I = intensity(theta, state.N, a, d) / I0;
-    const v = Math.min(1, Math.sqrt(I));
-    const r = Math.round(v * 255), g = Math.round(v * 255), b = Math.round(v * 255);
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.fillRect(padL + 4 + i, stripY, 1, stripH);
-  }
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padL + 4, stripY, PW - 8, stripH);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText('screen image (intensity -> brightness)', padL + 6, stripY - 6);
+  const off = new OffscreenCanvas(fw, fh);
+  off.getContext('2d').putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(off, XB, F_TOP, X_SCREEN - XB, F_H);
 }
 
-function tickN(n) {
-  // Speed mode: cycle N from 1 to 8.
-  for (let i = 0; i < n; i += 1) {
-    state.N += state.sweepDir * 0.04;
-    if (state.N >= 8) { state.N = 8; state.sweepDir = -1; }
-    if (state.N <= 1) { state.N = 1; state.sweepDir = 1; }
+function drawIncident(L) {
+  // Plane wavefronts approaching the barrier from the left.
+  ctx.save();
+  ctx.beginPath(); ctx.rect(PADL, F_TOP, XB - PADL, F_H); ctx.clip();
+  for (let x = XB; x > PADL - L.lamPx; x -= L.lamPx) {
+    const xf = x - (state.phase / (2 * Math.PI)) * L.lamPx;
+    ctx.strokeStyle = 'rgba(127,177,216,0.5)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(xf, F_TOP); ctx.lineTo(xf, F_BOT); ctx.stroke();
   }
-  const Ni = Math.round(state.N);
-  sliderN.value = String(Ni);
-  valueN.textContent = String(Ni);
+  ctx.restore();
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('plane wave', (PADL + XB) / 2, F_BOT + 14);
 }
 
-sliderN.addEventListener('input', () => { state.N = parseInt(sliderN.value, 10); valueN.textContent = String(state.N); drawAll(); });
-sliderRatio.addEventListener('input', () => { state.ratio = parseFloat(sliderRatio.value); valueRatio.textContent = state.ratio.toFixed(1); drawAll(); });
+function drawBarrierAndScreen(L) {
+  // Opaque barrier with gaps at the slits.
+  ctx.fillStyle = '#3a3d44';
+  let y = F_TOP;
+  const gaps = L.slits.slice().sort((p, q) => p.y - q.y);
+  for (const g of gaps) {
+    const top = g.y - g.h / 2;
+    if (top > y) ctx.fillRect(XB - 5, y, 10, top - y);
+    y = g.y + g.h / 2;
+  }
+  if (y < F_BOT) ctx.fillRect(XB - 5, y, 10, F_BOT - y);
+
+  // Screen: steady-state intensity |sum exp(i k r)|^2 vs height.
+  const k = L.k, srcs = L.sources, n = srcs.length;
+  let peak = 1e-9;
+  const col = new Float64Array(Math.ceil(F_H / 2));
+  for (let i = 0; i < col.length; i += 1) {
+    const py = F_TOP + i * 2;
+    let re = 0, im = 0;
+    for (let s = 0; s < n; s += 1) {
+      const dx = X_SCREEN - XB, dy = py - srcs[s];
+      const r = Math.sqrt(dx * dx + dy * dy);
+      re += Math.cos(k * r); im += Math.sin(k * r);
+    }
+    const I = (re * re + im * im) / (n * n);
+    col[i] = I; if (I > peak) peak = I;
+  }
+  for (let i = 0; i < col.length; i += 1) {
+    const v = Math.min(1, Math.sqrt(col[i] / peak));
+    ctx.fillStyle = `rgb(${(v * 255) | 0},${(v * 255) | 0},${(v * 235) | 0})`;
+    ctx.fillRect(X_SCREEN, F_TOP + i * 2, 18, 2);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+  ctx.strokeRect(X_SCREEN, F_TOP, 18, F_H);
+  // Intensity profile curve to the right of the screen strip.
+  ctx.strokeStyle = tok.accentCool; ctx.lineWidth = 1.6; ctx.beginPath();
+  for (let i = 0; i < col.length; i += 1) {
+    const v = col[i] / peak;
+    const x = X_SCREEN + 22 + v * (W - PADR - (X_SCREEN + 22));
+    const yy = F_TOP + i * 2;
+    if (i === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('screen', X_SCREEN + 9, F_BOT + 14);
+}
+
+function drawAnalytic(a, d) {
+  const top = F_BOT + 30, h = H - top - 26;
+  const x0 = PADL, w = W - PADL - PADR;
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(x0, top, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(x0 + 0.5, top + 0.5, w - 1, h - 1);
+  const I0 = intensity(0, state.N, a, d);
+  const TM = Math.asin(0.4);
+  const NP = w - 8;
+  ctx.strokeStyle = 'rgba(214,138,105,0.6)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < NP; i += 1) {
+    const th = -TM + 2 * TM * i / (NP - 1);
+    const b = Math.PI * a * Math.sin(th) / LAMBDA;
+    const env = Math.abs(b) < 1e-12 ? 1 : (Math.sin(b) / b) ** 2;
+    const px = x0 + 4 + i, py = top + h - 4 - (h - 8) * env;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = tok.accentCool; ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let i = 0; i < NP; i += 1) {
+    const th = -TM + 2 * TM * i / (NP - 1);
+    const I = intensity(th, state.N, a, d) / I0;
+    const px = x0 + 4 + i, py = top + h - 4 - (h - 8) * I;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(214,138,105,0.8)'; ctx.fillText('single-slit envelope', x0 + 6, top + 13);
+  ctx.fillStyle = tok.accentCool; ctx.fillText('N-slit Fraunhofer I(theta)', x0 + 168, top + 13);
+}
+
+function drawAll() {
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
+  const a = A_DEF, d = a * state.ratio;
+  const L = layout();
+
+  drawField(L);
+  drawIncident(L);
+  drawBarrierAndScreen(L);
+  drawAnalytic(a, d);
+
+  const np = principalMaxima(d, LAMBDA, 8).length;
+  const z = envelopeZeros(a, LAMBDA, 1).filter((t) => t > 0);
+  const firstZeroDeg = z.length ? (z[0] * 180 / Math.PI).toFixed(1) : 'none';
+  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.textAlign = 'left';
+  ctx.fillText(
+    `N = ${state.N}   d/a = ${state.ratio.toFixed(1)}   lambda = ${LAMBDA} um   principal maxima = ${np}   1st envelope zero = ${firstZeroDeg} deg`,
+    PADL, 22);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillText('Huygens sub-sources interfere past the slits; the fans meet the screen at the Fraunhofer maxima below.', PADL, 40);
+}
+
+sliderN.addEventListener('input', () => { state.N = parseInt(sliderN.value, 10); valueN.textContent = String(state.N); if (!state.playing) drawAll(); });
+sliderRatio.addEventListener('input', () => { state.ratio = parseFloat(sliderRatio.value); valueRatio.textContent = state.ratio.toFixed(1); if (!state.playing) drawAll(); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { state.N = 4; state.sweepDir = 1; sliderN.value = '4'; valueN.textContent = '4'; drawAll(); });
+btnReset.addEventListener('click', () => { state.N = 4; state.ratio = 5.0; state.phase = 0; sliderN.value = '4'; valueN.textContent = '4'; sliderRatio.value = '5'; valueRatio.textContent = '5.0'; drawAll(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
@@ -154,19 +233,21 @@ btnPlayPause.addEventListener('click', () => {
 });
 
 function bootSync() {
+  valueN.textContent = String(state.N);
+  valueRatio.textContent = state.ratio.toFixed(1);
+  valueSpeed.textContent = String(state.speed);
   if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.N = Math.max(1, Math.round(1 + frac * 7));
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    state.N = Math.max(1, Math.round(1 + f * 5));     // 1 -> 6 slits
+    state.phase = f * 2 * Math.PI;
     sliderN.value = String(state.N); valueN.textContent = String(state.N);
     drawAll();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+        window.__simulationReady = true;
+        window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+      }));
     }
     return;
   }
@@ -175,10 +256,7 @@ function bootSync() {
 
 function tick() {
   if (state.playing) {
-    if (state.speed > 0) {
-      tickN(state.speed);
-      state.N = Math.round(state.N);   // for the intensity function we need integer
-    }
+    state.phase += 0.12 * Math.max(1, state.speed);
     drawAll();
   }
   requestAnimationFrame(tick);

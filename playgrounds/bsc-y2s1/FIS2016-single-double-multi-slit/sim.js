@@ -54,3 +54,35 @@ export function envelopeZeros(a = A_DEF, lambda = LAMBDA, mMax = 4) {
   }
   return out;
 }
+
+// Huygens sub-source transverse positions: each of N slits of width a
+// and pitch d is sampled by M coherent line sources across its width.
+// The real-space superposition of these reproduces both the array
+// factor (N, d) and the single-slit envelope (a) used above.
+export function slitSources(N, a = A_DEF, d = D_DEF, M = 5) {
+  const ys = [];
+  const mid = (N - 1) / 2;
+  for (let s = 0; s < N; s += 1) {
+    const yc = (s - mid) * d;
+    if (M <= 1) { ys.push(yc); continue; }
+    for (let q = 0; q < M; q += 1) {
+      ys.push(yc + (q / (M - 1) - 0.5) * a);
+    }
+  }
+  return ys;
+}
+
+// Far-field intensity rebuilt from the discrete Huygens sub-sources,
+// I(theta) = |sum exp(i k y_s sin theta)|^2 normalized to its peak.
+// In the M -> large, continuous-aperture limit this equals intensity().
+export function farFieldFromSources(theta, N, a = A_DEF, d = D_DEF, lambda = LAMBDA, M = 5) {
+  const ys = slitSources(N, a, d, M);
+  const k = 2 * Math.PI / lambda;
+  let re = 0, im = 0;
+  for (const y of ys) {
+    const ph = k * y * Math.sin(theta);
+    re += Math.cos(ph);
+    im += Math.sin(ph);
+  }
+  return (re * re + im * im) / (ys.length * ys.length);
+}
