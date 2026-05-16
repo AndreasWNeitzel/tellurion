@@ -15,6 +15,28 @@ const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
+
+// This template ships an empty #controls container; build the control
+// DOM here (the previous code queried elements that never existed, so
+// the first addEventListener threw null and the page never loaded).
+const controlsHost = document.getElementById('controls');
+if (controlsHost) {
+  controlsHost.innerHTML = `
+    <div class="row"><span>L / M</span>
+      <input id="slider-L" type="range" min="2.5" max="6" step="0.01" value="4.5" aria-label="angular momentum L over M">
+      <span class="value" id="value-L">4.50</span></div>
+    <div class="row"><span>mode</span>
+      <input id="slider-mode" type="range" min="0" max="1" step="1" value="0" aria-label="massive or photon">
+      <span class="value" id="value-mode">massive</span></div>
+    <div class="row"><span>speed</span>
+      <input id="slider-speed" type="range" min="0" max="6" step="1" value="2" aria-label="sweep speed">
+      <span class="value" id="value-speed">2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>`;
+}
+
 const sliderL      = document.getElementById('slider-L');
 const sliderMode   = document.getElementById('slider-mode');
 const sliderSpeed  = document.getElementById('slider-speed');
