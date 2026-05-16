@@ -86,7 +86,13 @@ function dft(path) {
       re += path[j].x * c - path[j].y * s;
       im += path[j].x * s + path[j].y * c;
     }
-    coeffs.push({ k, re: re / n, im: im / n, amp: Math.hypot(re / n, im / n) });
+    // Map bins above Nyquist to negative frequencies so each epicycle
+    // spins at its true signed rate. Without this, k near n-1 spins
+    // ~n times per period and the continuous (animated) reconstruction
+    // is a hairball that only coincides with the path at the n sample
+    // instants.
+    const kSigned = k <= n / 2 ? k : k - n;
+    coeffs.push({ k: kSigned, re: re / n, im: im / n, amp: Math.hypot(re / n, im / n) });
   }
   // Sort by amplitude descending so largest circles are drawn first (innermost).
   coeffs.sort((a, b) => b.amp - a.amp);
@@ -172,7 +178,7 @@ function frame(tSimFrac) {
 
   // Trail traced by tip.
   trail.push({ x: cx, y: cy });
-  if (trail.length > 800) trail.shift();
+  if (trail.length > PERIOD + 4) trail.shift();
   ctx.strokeStyle = '#fdb56a';
   ctx.lineWidth = 1.6;
   ctx.beginPath();
@@ -189,8 +195,12 @@ function frame(tSimFrac) {
 
 let frameNo = 0;
 let lastReadoutAt = 0;
+const PERIOD = 480;
 function tick() {
-  const tFrac = (frameNo % 480) / 480;
+  // Clear the trail at the start of each period so the closed shape is
+  // traced cleanly once per loop instead of overdrawing stale points.
+  if (frameNo % PERIOD === 0) trail.length = 0;
+  const tFrac = (frameNo % PERIOD) / PERIOD;
   frame(tFrac);
   frameNo += 1;
   if (performance.now() - lastReadoutAt > 200) {
