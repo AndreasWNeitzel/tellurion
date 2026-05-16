@@ -106,16 +106,29 @@ function drawAll() {
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  // Pen position
-  const xi = xFn(state.tNow % T, state.a, state.delta);
-  const yi = yFn(state.tNow % T, state.b);
-  ctx.fillStyle = '#f1d28a';
-  ctx.beginPath();
-  ctx.arc(ptX(xi), ptY(yi), 4.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
-  ctx.lineWidth = 1.0;
-  ctx.stroke();
+  // Pen with a glowing comet trail of its recent path.
+  const tc = state.tNow % T;
+  const pxN = ptX(xFn(tc, state.a, state.delta));
+  const pyN = ptY(yFn(tc, state.b));
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const TR = 38;
+  for (let s = TR; s >= 1; s -= 1) {
+    const tt = (((tc - s * 0.01 * T) % T) + T) % T;
+    const a = 1 - s / TR;
+    const gx = ptX(xFn(tt, state.a, state.delta));
+    const gy = ptY(yFn(tt, state.b));
+    ctx.fillStyle = `rgba(241, 210, 138, ${0.05 + 0.30 * a})`;
+    ctx.beginPath(); ctx.arc(gx, gy, 1.5 + 2.5 * a, 0, Math.PI * 2); ctx.fill();
+  }
+  const glow = ctx.createRadialGradient(pxN, pyN, 0, pxN, pyN, 14);
+  glow.addColorStop(0, 'rgba(255, 234, 170, 0.9)');
+  glow.addColorStop(1, 'rgba(255, 234, 170, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(pxN, pyN, 14, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = '#fff3c8';
+  ctx.beginPath(); ctx.arc(pxN, pyN, 4, 0, Math.PI * 2); ctx.fill();
 
   // x(t) trace
   function drawTrace(panelY, color, fn, label) {
@@ -160,7 +173,8 @@ function drawAll() {
   drawTrace(mainY + traceH + 16,         tok.accentWarm, (t) => yFn(t, state.b),              'y(t)');
 }
 
-function tickN(n) { for (let i = 0; i < n; i += 1) state.tNow += 0.04; }
+// Slowed from 0.04 so the figure draws at a followable pace.
+function tickN(n) { for (let i = 0; i < n; i += 1) state.tNow += 0.012; }
 
 sliderA.addEventListener('input',     () => { state.a = parseInt(sliderA.value, 10); valueA.textContent = String(state.a); reset(); drawAll(); });
 sliderB.addEventListener('input',     () => { state.b = parseInt(sliderB.value, 10); valueB.textContent = String(state.b); reset(); drawAll(); });
