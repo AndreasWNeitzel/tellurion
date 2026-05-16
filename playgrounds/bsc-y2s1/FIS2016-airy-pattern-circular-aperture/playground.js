@@ -53,7 +53,17 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
 
   const N = 256;
-  const xMax = 16;
+  // Fixed angular viewing window (radians). The dimensionless argument
+  // x = (pi D / lambda) sin(theta) at the window edge therefore scales
+  // with D / lambda, so changing the wavelength or aperture visibly
+  // rescales the rings: more, tighter rings for large D / short lambda;
+  // fewer, wider rings for small D / long lambda. (Without this the
+  // pattern was universal in x and the lambda and D sliders did nothing
+  // to the image.) THETA_WINDOW chosen so the default 550 nm, 1 mm view
+  // reproduces the previous x in [-16, 16] extent.
+  const THETA_WINDOW = 2.80e-3;
+  const xMax = (Math.PI * state.D / state.lambda) * THETA_WINDOW;
+  const thetaWinAS = THETA_WINDOW * 206265;
   const field = airy2DFieldWithStrehl({ N, xMax, sigmaWaves: state.sigmaWaves });
   const img = new ImageData(N, N);
   for (let i = 0; i < field.length; i += 1) {
@@ -76,7 +86,7 @@ function drawAll() {
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
-  ctx.fillText(`x = (2 pi a / lambda) sin theta, in [-${xMax.toFixed(1)}, +${xMax.toFixed(1)}]`,
+  ctx.fillText(`theta in [-${thetaWinAS.toFixed(0)}, +${thetaWinAS.toFixed(0)}] arcsec; ring size = 1.22 lambda / D`,
     HEAT_X + HEAT_W / 2, HEAT_Y + HEAT_H + 18);
 
   // 1D radial profile, plotted with first 5 Bessel zeros marked.
@@ -133,10 +143,10 @@ function drawAll() {
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('I(x) / I_0 vs x', PROF_X, PROF_Y - 8);
-  ctx.fillText('x = 0', PROF_X + 2, PROF_Y + PROF_H + 14);
+  ctx.fillText('I / I_0 vs theta', PROF_X, PROF_Y - 8);
+  ctx.fillText('0', PROF_X + 2, PROF_Y + PROF_H + 14);
   ctx.textAlign = 'right';
-  ctx.fillText('x = ' + xMax.toFixed(1), PROF_X + PROF_W - 2, PROF_Y + PROF_H + 14);
+  ctx.fillText(thetaWinAS.toFixed(0) + ' arcsec', PROF_X + PROF_W - 2, PROF_Y + PROF_H + 14);
   // First-null angular size: fixed in normalised x (3.83) but its
   // physical angle theta_1 = 1.22 lambda / D moves with the sliders, so
   // the profile reflects the lambda and D dependence directly.
