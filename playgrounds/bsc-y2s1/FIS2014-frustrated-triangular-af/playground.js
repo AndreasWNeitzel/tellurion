@@ -1,5 +1,12 @@
 // playground.js
-// Triangular AF Ising lattice render.
+// Triangular antiferromagnetic Ising (Wannier 1950). The spins never
+// order, but the *three-sublattice chirality field* does form domains
+// as the lattice cools. Each elementary triangle in an AF ground state
+// has exactly one "odd" vertex (two-up-one-down); colouring every
+// triangle by which sublattice carries that odd spin turns the raw
+// salt-and-pepper into the recognizable sqrt(3) x sqrt(3) domain
+// mosaic. Fully frustrated triangles (all three equal) are flagged.
+// sim.js is unchanged; this is purely the visualization.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createAF, sweep, magnetization, energyPerSite, frustratedFraction, setTemperature } from './sim.js';
@@ -20,8 +27,19 @@ const valueL       = document.getElementById('value-L');
 const valueSpeed   = document.getElementById('value-speed');
 const btnCold      = document.getElementById('btn-cold');
 const btnHot       = document.getElementById('btn-hot');
+const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
+const MARGIN = 20;
+// Explicit vertical budget so the field, legend and history strip
+// never overlap.
+const FIELD_TOP = 26;
+const HIST_H = 70;
+const HIST_BOT = H - MARGIN;
+const HIST_TOP = HIST_BOT - HIST_H;
+const HIST_TITLE_Y = HIST_TOP - 8;
+const LEGEND_Y = HIST_TOP - 24;
+const FIELD_BOT = LEGEND_Y - 16;
 
 const state = {
   af: null,
@@ -29,79 +47,135 @@ const state = {
   T: 0.5,
   speed: 3,
   playing: !DETERMINISTIC,
+  hist: [],                                         // [{e, ff}]
 };
+
+// Sublattice-minority hues (the three-state chirality field) + the
+// fully frustrated flag colour.
+const HUE = ['#1B6CA8', '#E8A33D', '#3FA66A'];
+const FRUST = '#F4F4F0';
 
 function rebuild(init = 'hot') {
   state.af = createAF({ L: state.L, T: state.T, seed: SEED, init });
+  state.hist = [];
+}
+
+// Triangular embedding consistent with sim.js's brick neighbour rule:
+// odd rows shifted half a cell.
+function geom() {
+  const L = state.L;
+  const dx = (W - 2 * MARGIN) / (L + 0.5);
+  const dy = (FIELD_BOT - FIELD_TOP) / L;            // fill the field band
+  return { L, dx, dy };
+}
+function px(i, j, g) { return MARGIN + i * g.dx + ((j & 1) ? 0.5 * g.dx : 0); }
+function py(j, g) { return FIELD_TOP + j * g.dy; }
+
+// Minority vertex of a 3-spin triangle: -1 if all equal (frustrated),
+// else the index (0,1,2) of the spin that differs from the other two.
+function minorityIdx(a, b, c) {
+  if (a === b && b === c) return -1;
+  if (a !== b && a !== c) return 0;     // a is the odd one
+  if (b !== a && b !== c) return 1;
+  return 2;                              // c is the odd one
+}
+
+function fillTri(p0, p1, p2, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(p0[0], p0[1]);
+  ctx.lineTo(p1[0], p1[1]);
+  ctx.lineTo(p2[0], p2[1]);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawField() {
+  const g = geom();
+  const { L } = g;
+  const sp = state.af.spins;
+  for (let j = 0; j < L - 1; j += 1) {
+    for (let i = 0; i < L - 1; i += 1) {
+      const A = [px(i, j, g), py(j, g)];
+      const B = [px(i + 1, j, g), py(j, g)];
+      const Cd = [px(i, j + 1, g), py(j + 1, g)];
+      const Dd = [px(i + 1, j + 1, g), py(j + 1, g)];
+      const sA = sp[j * L + i], sB = sp[j * L + i + 1];
+      const sC = sp[(j + 1) * L + i], sD = sp[(j + 1) * L + i + 1];
+      // Up triangle (A,B,C) and down triangle (B,C,D), each coloured by
+      // its own minority sublattice; frustrated triangles flagged white.
+      const mu = minorityIdx(sA, sB, sC);
+      fillTri(A, B, Cd, mu < 0 ? FRUST : HUE[mu]);
+      const md = minorityIdx(sB, sC, sD);
+      fillTri(B, Cd, Dd, md < 0 ? FRUST : HUE[md]);
+    }
+  }
+}
+
+function drawHistory() {
+  const top = HIST_TOP, x0 = MARGIN, w = W - 2 * MARGIN;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+  ctx.strokeRect(x0, top, w, HIST_H);
+  const hist = state.hist;
+  if (hist.length > 1) {
+    const eLo = -1.05, eHi = -0.45;                  // the AF energy band
+    const yE = (e) => top + HIST_H * (1 - (Math.max(eLo, Math.min(eHi, e)) - eLo) / (eHi - eLo));
+    ctx.strokeStyle = '#E8A33D'; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (let k = 0; k < hist.length; k += 1) {
+      const x = x0 + w * k / (hist.length - 1);
+      if (k === 0) ctx.moveTo(x, yE(hist[k].e)); else ctx.lineTo(x, yE(hist[k].e));
+    }
+    ctx.stroke();
+    const yF = (ff) => top + HIST_H * (1 - Math.min(1, ff / 0.25));
+    ctx.strokeStyle = FRUST; ctx.lineWidth = 1.4; ctx.beginPath();
+    for (let k = 0; k < hist.length; k += 1) {
+      const x = x0 + w * k / (hist.length - 1);
+      if (k === 0) ctx.moveTo(x, yF(hist[k].ff)); else ctx.lineTo(x, yF(hist[k].ff));
+    }
+    ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('energy/site -1.05..-0.45 (amber)   frustrated fraction 0..0.25 (white)', x0 + 6, HIST_TITLE_Y);
 }
 
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
-  const { L, spins } = state.af;
-  const cell = Math.floor((W - 40) / L);
-  const x0 = 20, y0 = 20;
-  // Render as flat grid (no row offset). Triangular neighbor logic lives in
-  // sim.js; the visual layout is a clean square grid for readability.
-  for (let j = 0; j < L; j += 1) {
-    for (let i = 0; i < L; i += 1) {
-      ctx.fillStyle = spins[j * L + i] === 1 ? '#1B6CA8' : '#C13B27';
-      ctx.fillRect(x0 + i * cell, y0 + j * cell, cell, cell);
-    }
-  }
-  // Frustration overlay: mark every triangular plaquette whose three
-  // spins are all equal (maximally frustrated under AF coupling). This
-  // makes the geometric frustration visible, so the low-T maze reads as
-  // a degenerate frustrated state rather than a broken "ordered" one.
-  ctx.fillStyle = 'rgba(255, 222, 89, 0.85)';
-  for (let j = 0; j < L; j += 1) {
-    const jD = (j + 1) % L;
-    for (let i = 0; i < L; i += 1) {
-      const a = spins[j * L + i];
-      const b = spins[j * L + ((i + 1) % L)];
-      const c = spins[jD * L + i];
-      if (a === b && b === c) {
-        const fx = x0 + (i + 0.5) * cell + cell * 0.33;
-        const fy = y0 + (j + 0.5) * cell + cell * 0.33;
-        const rr = Math.max(1, cell * 0.22);
-        ctx.beginPath(); ctx.arc(fx, fy, rr, 0, 2 * Math.PI); ctx.fill();
-      }
-    }
-  }
+  drawField();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(x0 + 0.5, y0 + 0.5, cell * L - 1, cell * L - 1);
-  ctx.fillStyle = 'rgba(255, 222, 89, 0.95)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText('yellow dot = frustrated plaquette (3 equal spins; AF cannot satisfy all bonds)', 20, y0 + cell * L + 16);
-
-  // Readout
   const m = magnetization(state.af);
   const e = energyPerSite(state.af);
   const ff = frustratedFraction(state.af);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  const rows = [
-    ['T',          state.T.toFixed(2)],
-    ['L',          String(state.L)],
-    ['m',          m.toFixed(3)],
-    ['e/site',     e.toFixed(3)],
-    ['same-3 plaquettes', (100 * ff).toFixed(2) + ' %'],
-  ];
-  let y = H - 80;
-  for (const [k, v] of rows) {
-    ctx.textAlign = 'left';
-    ctx.fillText(k, 20, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(v, 280, y);
-    y += 14;
+
+  // Legend.
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  const lg = [['minority = A', HUE[0]], ['B', HUE[1]], ['C', HUE[2]], ['all-equal (frustrated)', FRUST]];
+  let lx = MARGIN;
+  const ly = LEGEND_Y;
+  for (const [txt, col] of lg) {
+    ctx.fillStyle = col; ctx.fillRect(lx, ly - 9, 11, 11);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fillText(txt, lx + 16, ly);
+    lx += ctx.measureText(txt).width + 46;
   }
+
+  drawHistory();
+
+  // Live invariant readout (monospace).
+  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.textAlign = 'left';
+  ctx.fillText(
+    `T = ${state.T.toFixed(2)}   L = ${state.L}   m = ${m.toFixed(3)}   e/site = ${e.toFixed(3)}   frustrated = ${(100 * ff).toFixed(1)} %`,
+    MARGIN, MARGIN - 4);
 }
 
-function tickN(n) {
-  if (state.af) sweep(state.af, n);
+function record() {
+  const e = energyPerSite(state.af), ff = frustratedFraction(state.af);
+  state.hist.push({ e, ff });
+  if (state.hist.length > W) state.hist.shift();
 }
+
+function tickN(n) { if (state.af) { sweep(state.af, n); record(); } }
 
 sliderT.addEventListener('input', () => {
   state.T = parseFloat(sliderT.value);
@@ -119,36 +193,49 @@ sliderSpeed.addEventListener('input', () => {
 });
 btnCold.addEventListener('click', () => { rebuild('cold'); drawAll(); });
 btnHot.addEventListener('click', () => { rebuild('hot'); drawAll(); });
-const btnPlayPause = document.getElementById('btn-playpause');
 if (btnPlayPause) {
   btnPlayPause.addEventListener('click', () => {
     state.playing = !state.playing;
     btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+    btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
   });
 }
 
 function bootSync() {
   rebuild('hot');
+  valueT.textContent = state.T.toFixed(2);
+  valueL.textContent = String(state.L);
+  valueSpeed.textContent = String(state.speed);
+
   if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const Ts = [0.1, 0.5, 1.0, 2.0, 4.0];
-    state.T = Ts[Math.min(Ts.length - 1, Math.round(frac * (Ts.length - 1)))];
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    // Slow anneal: hot disordered -> cold sqrt(3) domains. Cool in
+    // steps, accumulating sweeps and the energy/frustration history so
+    // the five frames show structure forming, not a 2-cycle flicker.
+    const steps = 26;
+    const target = 1.6 - f * 1.45;                  // 1.6 down to ~0.15
+    for (let k = 0; k <= steps; k += 1) {
+      const frac = k / steps;
+      const Tk = 1.6 - frac * (1.6 - target);
+      setTemperature(state.af, Tk);
+      sweep(state.af, 14);
+      record();
+    }
+    state.T = target;
     setTemperature(state.af, state.T);
     sliderT.value = state.T.toFixed(2);
     valueT.textContent = state.T.toFixed(2);
-    sweep(state.af, 200);
     drawAll();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+        window.__simulationReady = true;
+        window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+      }));
     }
     return;
   }
+  record();
   drawAll();
 }
 
