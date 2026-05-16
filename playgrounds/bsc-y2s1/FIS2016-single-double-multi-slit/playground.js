@@ -71,54 +71,103 @@ function layout() {
   return { sources, lamPx, k: 2 * Math.PI / lamPx, slits, ppu };
 }
 
-// Signed-amplitude diverging colormap (cool -> dark -> warm), no rainbow.
-function divColor(t) {
-  const u = Math.max(-1, Math.min(1, t));
-  if (u >= 0) return [Math.round(20 + 220 * u), Math.round(20 + 130 * u), Math.round(30 + 25 * u)];
-  return [Math.round(20 - 10 * u), Math.round(20 - 90 * u), Math.round(30 - 200 * u)];
+// Smooth dark -> cyan -> warm-white ramp for the steady intensity map.
+// No rainbow; the pattern is time-averaged so it does not flash.
+function rampColor(v) {
+  const u = v < 0 ? 0 : (v > 1 ? 1 : v);
+  if (u < 0.5) {
+    const t = u / 0.5;
+    return [10 + 36 * t, 14 + 140 * t, 28 + 168 * t];
+  }
+  const t = (u - 0.5) / 0.5;
+  return [46 + 209 * t, 154 + 78 * t, 196 + 52 * t];
 }
 
-function drawField(L) {
+// The diffracted intensity |psi|^2 is independent of time, so it is
+// computed once per (N, d/a) change and cached. Animating it every
+// frame is exactly what made the old field flash.
+const fieldCache = { key: '', off: null, fw: 0, fh: 0 };
+function buildField(L) {
   const { sources, k } = L;
   const fw = Math.ceil((X_SCREEN - XB) / FSTEP);
   const fh = Math.ceil(F_H / FSTEP);
   const img = ctx.createImageData(fw, fh);
-  const inv = 1 / Math.sqrt(sources.length);
+  let peak = 1e-9;
+  const I = new Float64Array(fw * fh);
   for (let jy = 0; jy < fh; jy += 1) {
     const py = F_TOP + jy * FSTEP;
     for (let ix = 0; ix < fw; ix += 1) {
       const px = XB + ix * FSTEP;
-      let re = 0;
+      let re = 0, im = 0;
       for (let s = 0; s < sources.length; s += 1) {
         const dx = px - XB, dy = py - sources[s];
         const r = Math.sqrt(dx * dx + dy * dy) + 1e-3;
-        re += Math.cos(k * r - state.phase) / Math.sqrt(r);
+        const ph = k * r, inv = 1 / Math.sqrt(r);
+        re += Math.cos(ph) * inv; im += Math.sin(ph) * inv;
       }
-      const amp = re * inv * 2.4;
-      const c = divColor(amp);
-      const o = (jy * fw + ix) * 4;
-      img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255;
+      const v = re * re + im * im;
+      I[jy * fw + ix] = v;
+      if (v > peak) peak = v;
     }
   }
-  const off = new OffscreenCanvas(fw, fh);
-  off.getContext('2d').putImageData(img, 0, 0);
+  for (let i = 0; i < fw * fh; i += 1) {
+    // sqrt + mild gamma so the faint higher-order fringes stay visible.
+    const c = rampColor(Math.pow(I[i] / peak, 0.36));
+    const o = i * 4;
+    img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255;
+  }
+  const offc = new OffscreenCanvas(fw, fh);
+  offc.getContext('2d').putImageData(img, 0, 0);
+  fieldCache.off = offc; fieldCache.fw = fw; fieldCache.fh = fh;
+}
+
+function drawField(L) {
+  const key = `${state.N}|${state.ratio.toFixed(2)}`;
+  if (key !== fieldCache.key) { buildField(L); fieldCache.key = key; }
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(off, XB, F_TOP, X_SCREEN - XB, F_H);
+  ctx.drawImage(fieldCache.off, XB, F_TOP, X_SCREEN - XB, F_H);
+
+  // Faint Huygens wavelets travelling outward (+x) from each slit. These
+  // are the physical wavefronts whose interference builds the cached
+  // pattern; low alpha so the steady map stays dominant (not flashy).
+  ctx.save();
+  ctx.beginPath(); ctx.rect(XB, F_TOP, X_SCREEN - XB, F_H); ctx.clip();
+  const lamPx = L.lamPx, off = (state.phase / (2 * Math.PI)) * lamPx;
+  const maxR = X_SCREEN - XB + 40;
+  for (const sl of L.slits) {
+    for (let m = 0; m < 60; m += 1) {
+      const rr = (m * lamPx + off) % maxR;
+      if (rr < 6 || rr > maxR) continue;
+      const al = 0.22 * (1 - rr / maxR);
+      if (al <= 0.01) continue;
+      ctx.strokeStyle = `rgba(150,205,235,${al.toFixed(3)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(XB, sl.y, rr, -1.15, 1.15); ctx.stroke();
+    }
+  }
+  ctx.restore();
 }
 
 function drawIncident(L) {
-  // Plane wavefronts approaching the barrier from the left.
+  // Plane wavefronts travelling rightward (+x), toward the barrier.
   ctx.save();
   ctx.beginPath(); ctx.rect(PADL, F_TOP, XB - PADL, F_H); ctx.clip();
-  for (let x = XB; x > PADL - L.lamPx; x -= L.lamPx) {
-    const xf = x - (state.phase / (2 * Math.PI)) * L.lamPx;
-    ctx.strokeStyle = 'rgba(127,177,216,0.5)'; ctx.lineWidth = 2;
+  const span = XB - PADL, off = (state.phase / (2 * Math.PI)) * L.lamPx;
+  for (let m = 0; m < Math.ceil(span / L.lamPx) + 2; m += 1) {
+    const xf = PADL + ((m * L.lamPx + off) % span);
+    ctx.strokeStyle = 'rgba(150,205,235,0.45)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(xf, F_TOP); ctx.lineTo(xf, F_BOT); ctx.stroke();
   }
   ctx.restore();
+  // Direction-of-travel arrow so the incident propagation reads clearly.
   ctx.fillStyle = 'rgba(255,255,255,0.4)';
   ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('plane wave', (PADL + XB) / 2, F_BOT + 14);
+  ctx.strokeStyle = 'rgba(150,205,235,0.7)'; ctx.lineWidth = 1.4;
+  const ay = F_BOT + 24, ax0 = PADL + 10, ax1 = XB - 10;
+  ctx.beginPath(); ctx.moveTo(ax0, ay); ctx.lineTo(ax1, ay);
+  ctx.moveTo(ax1, ay); ctx.lineTo(ax1 - 6, ay - 3);
+  ctx.moveTo(ax1, ay); ctx.lineTo(ax1 - 6, ay + 3); ctx.stroke();
 }
 
 function drawBarrierAndScreen(L) {
