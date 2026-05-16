@@ -81,3 +81,58 @@ export const J1_ZEROS = [3.83170597, 7.01558667, 10.17346814, 13.32369194, 16.47
 
 // Resolving power lambda / D in angular units; angular radius of Airy disc.
 export const AIRY_FIRST_ZERO = J1_ZEROS[0];
+
+// Compute the angular radius of the Airy disc's first dark ring.
+// theta_1 = 1.22 lambda / D (radians, assuming small angles).
+// Within the numerical grid normalized by x = (2 pi a / lambda) sin(theta),
+// the first zero appears at x_1 = 3.8317, so theta_1 (in radians) = arcsin(3.8317 lambda / (2 pi a)).
+// For display, we often just use the small-angle approximation theta_1 ~ 1.22 lambda / D.
+export function rayleighResolution({ lambda = 500e-9, D = 1e-3 } = {}) {
+  return 1.22 * lambda / D;
+}
+
+// Degrade the Airy pattern by atmospheric/aberration wavefront error sigma (in waves).
+// Strehl ratio S ~ exp(-(2 pi sigma)^2). The PSF becomes a blend:
+//   I_degraded(x) = S * I_core(x) + (1 - S) * I_halo(x),
+// where I_core is the Airy intensity and I_halo is a broad Gaussian halo.
+// Here, I_halo is a simple broad Gaussian with FWHM ~ 2x the first Airy zero.
+export function airyIntensityWithStrehl({ x = 0, sigmaWaves = 0 } = {}) {
+  if (sigmaWaves <= 0) return airyIntensity(x);
+  const strehl = Math.exp(-Math.pow(2 * Math.PI * sigmaWaves, 2));
+  const core = airyIntensity(x);
+  // Halo: broad Gaussian with sigma_halo ~ Airy first zero / 1.5.
+  // Place the 1/e^2 width at ~ 2x first zero.
+  const sigmaHalo = AIRY_FIRST_ZERO / 1.2;
+  const halo = Math.exp(-0.5 * Math.pow(x / sigmaHalo, 2));
+  return strehl * core + (1 - strehl) * halo;
+}
+
+// Build a 2D field including wavefront degradation.
+export function airy2DFieldWithStrehl({ N = 256, xMax = 16, sigmaWaves = 0 } = {}) {
+  const field = new Float32Array(N * N);
+  for (let j = 0; j < N; j += 1) {
+    const v = -xMax + (2 * xMax) * (j / (N - 1));
+    for (let i = 0; i < N; i += 1) {
+      const u = -xMax + (2 * xMax) * (i / (N - 1));
+      const r = Math.hypot(u, v);
+      field[j * N + i] = airyIntensityWithStrehl({ x: r, sigmaWaves });
+    }
+  }
+  return field;
+}
+
+// 1D profile with wavefront degradation.
+export function airy1DProfileWithStrehl({ N = 400, xMax = 16, sigmaWaves = 0 } = {}) {
+  const xs = new Float64Array(N);
+  const Is = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    xs[i] = -xMax + (2 * xMax) * (i / (N - 1));
+    Is[i] = airyIntensityWithStrehl({ x: xs[i], sigmaWaves });
+  }
+  return { xs, Is };
+}
+
+// Strehl ratio for a given wavefront RMS error in waves.
+export function strehRatio({ sigmaWaves = 0 } = {}) {
+  return Math.exp(-Math.pow(2 * Math.PI * sigmaWaves, 2));
+}

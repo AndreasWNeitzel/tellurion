@@ -40,16 +40,19 @@ Closed-form evaluation. J_1(x) computed by power series for |x| < 8 (truncation 
 
 ## Controls
 
-- x_max: half-width of the field in scaled units, slider 5 - 25, default 14
-- gamma: intensity gamma for the heatmap (lower gamma = more visible rings), 0.10 - 1.00, default 0.30
-- Zoom to central disc / wide-field shortcut buttons
+- lambda: wavelength in nanometers, slider 350-900 nm, default 550 nm
+- D: aperture diameter in millimeters, slider 0.2-5 mm, default 1 mm
+- sigma_RMS: atmospheric/aberration wavefront error in waves, slider 0-0.3 waves, default 0 (diffraction-limited). Strehl ratio S = exp(-(2pi sigma)^2); degraded PSF blends the Airy core with a broad seeing halo
+- gamma: intensity gamma for the heatmap (lower gamma = more visible rings), 0.10-1.00, default 0.30
+- UV aperture / IR aperture shortcut buttons with preset (wavelength, D) pairs
 
 ## Expected qualitative features
 
 1. Bright central Airy disc surrounded by concentric dark rings.
-2. First dark ring at x ~ 3.83 (Rayleigh resolution).
+2. First dark ring at x ~ 3.83 (Rayleigh resolution), moving inward (closer to center in angular space) as wavelength decreases or aperture diameter increases (higher resolution).
 3. Secondary maxima at x ~ 5.14, 8.42, 11.62 with rapidly decreasing intensity.
-4. 83.8 percent of total integrated power is inside the central disc.
+4. 83.8 percent of total integrated power is inside the central disc in the diffraction-limited case (sigma_RMS = 0).
+5. When sigma_RMS > 0, the central core brightens and shrinks while energy redistributes into a broad halo; Strehl ratio (live readout) decreases monotonically with sigma_RMS.
 
 ## Invariants and acceptance thresholds
 
