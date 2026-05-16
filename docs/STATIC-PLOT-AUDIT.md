@@ -64,7 +64,7 @@ REMAINING boring->spatial makeovers (next sessions):
   Lane-Emden, sturm-liouville, parker solar wind, p/g-mode cavity,
   slow-roll inflation, relativistic beaming, GW-chirp 3D
 - cosmic-ray-shower: streaming incoming-particle animation
-- galaxy-rotation-curve: promote to hero (dense spiral arms)
+- galaxy-rotation-curve: DONE (dense ~8000-particle render + dark sky; arm/core balance is a noted follow-up)
 - tiny-mlp-backprop: more examples/points; clamp layers 1-3, neurons<=8
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static
