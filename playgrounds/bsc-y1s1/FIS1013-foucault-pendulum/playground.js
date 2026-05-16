@@ -1,5 +1,10 @@
 // playground.js
-// Foucault pendulum trace.
+// Foucault pendulum as the museum sand table: a hand-projected 3D scene
+// (Canvas2D, no WebGL) with a ceiling mount, suspension wire and shaded
+// bob swinging over a circular sand bed. The bob carves a slowly
+// precessing rosette into the sand and knocks over a ring of pins as
+// the swing plane rotates at -Omega sin(latitude). sim.js carries the
+// rotating-frame physics unchanged.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createFoucault, stepFoucault, omegaZ, precessionPeriod } from './sim.js';
@@ -26,112 +31,154 @@ const state = {
   speed: 3,
   sim: null,
   trail: [],
+  az: -0.7,            // camera azimuth (radians); slow live orbit
   playing: !DETERMINISTIC,
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
 const tok = {
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
+  cool: cssVar('--accent-cool', '#7fb1d8'),
+  warm: cssVar('--accent-warm', '#d68a69'),
 };
+
+// Scene scale (world units ~ pendulum amplitude 1).
+const RW = 1.45;                 // sand-bed radius (world)
+const HAP = 1.95;                // apex height (world); mount stays in frame
+const S = 138;                   // pixels per world unit
+const ELEV = 0.5;                // camera tilt (radians)
+const CX = W / 2, CY = H * 0.52;
+const NPINS = 20;
+
+function project(x, y, z) {
+  const ca = Math.cos(state.az), sa = Math.sin(state.az);
+  const ex = x * ca - y * sa;
+  const ey = x * sa + y * ca;
+  return {
+    sx: CX + ex * S,
+    sy: CY - z * S * Math.cos(ELEV) + ey * S * Math.sin(ELEV),
+    depth: ey,
+  };
+}
 
 function rebuild() {
   state.sim = createFoucault({ latDeg: state.lat, x0: 1.0, y0: 0, vx0: 0, vy0: 0 });
   state.trail = [];
 }
 
-function worldToPx(x, y) {
-  const padL = 50, padR = 50, padT = 80, padB = 80;
-  const drawW = W - padL - padR;
-  const drawH = H - padT - padB;
-  const wbox = 2.5;
-  const scale = Math.min(drawW / wbox, drawH / wbox);
-  return {
-    px: padL + drawW / 2 + x * scale,
-    py: padT + drawH / 2 - y * scale,
-  };
+function drawSandBed() {
+  // Filled ellipse from the projected rim, plus concentric grooves.
+  const rim = [];
+  for (let i = 0; i <= 64; i += 1) {
+    const a = (i / 64) * 2 * Math.PI;
+    rim.push(project(RW * Math.cos(a), RW * Math.sin(a), 0));
+  }
+  const g = ctx.createLinearGradient(0, CY - RW * S * 0.6, 0, CY + RW * S * 0.6);
+  g.addColorStop(0, '#171a1f'); g.addColorStop(1, '#0c0d11');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  rim.forEach((p, i) => (i ? ctx.lineTo(p.sx, p.sy) : ctx.moveTo(p.sx, p.sy)));
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1.2; ctx.stroke();
+  for (const rr of [0.33, 0.66]) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath();
+    for (let i = 0; i <= 64; i += 1) {
+      const a = (i / 64) * 2 * Math.PI;
+      const p = project(RW * rr * Math.cos(a), RW * rr * Math.sin(a), 0);
+      if (i === 0) ctx.moveTo(p.sx, p.sy); else ctx.lineTo(p.sx, p.sy);
+    }
+    ctx.stroke();
+  }
+}
+
+// Decorative marker pegs around the rim; the one nearest the current
+// swing-plane azimuth is highlighted so the precession reads on the rim.
+function drawPins(planeAngle) {
+  for (let i = 0; i < NPINS; i += 1) {
+    const a = (i / NPINS) * 2 * Math.PI;
+    const d = Math.abs(((a - planeAngle) % Math.PI + Math.PI + Math.PI / 2) % Math.PI - Math.PI / 2);
+    const lit = d < Math.PI / NPINS;
+    const bx = RW * 0.99 * Math.cos(a), by = RW * 0.99 * Math.sin(a);
+    const base = project(bx, by, 0);
+    const top = project(bx, by, lit ? 0.20 : 0.12);
+    ctx.strokeStyle = lit ? tok.warm : 'rgba(150,156,168,0.45)';
+    ctx.lineWidth = lit ? 3 : 2;
+    ctx.beginPath(); ctx.moveTo(base.sx, base.sy); ctx.lineTo(top.sx, top.sy); ctx.stroke();
+  }
 }
 
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
   if (!state.sim) return;
-
+  const s = state.sim;
   const Oz = omegaZ(state.lat);
   const Tp = state.lat === 0 ? Infinity : precessionPeriod(state.lat);
+  const planeAngle = -Oz * s.t;                 // swing-plane orientation
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`latitude = ${state.lat} deg   t = ${state.sim.t.toFixed(1)} (s)`, 30, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  const TpStr = isFinite(Tp) ? Tp.toFixed(1) : '(no precession)';
-  ctx.fillText(`omega_z = ${Oz.toFixed(3)}   T_precess = ${TpStr} s   pendulum period T_0 approx 2 pi`, 30, 40);
+  drawSandBed();
 
-  // Plot frame
-  const padL = 50, padR = 50, padT = 80, padB = 80;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(padL, padT, W - padL - padR, H - padT - padB);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padL + 0.5, padT + 0.5, W - padL - padR - 1, H - padT - padB - 1);
-
-  // Cross-hairs
-  const c0 = worldToPx(0, 0);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
-  ctx.beginPath();
-  ctx.moveTo(padL, c0.py); ctx.lineTo(W - padR, c0.py);
-  ctx.moveTo(c0.px, padT); ctx.lineTo(c0.px, H - padB);
-  ctx.stroke();
-
-  // Initial swing axis (dotted)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  const p1 = worldToPx(-1.05, 0), p2 = worldToPx(1.05, 0);
-  ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py);
-  ctx.stroke();
+  // Initial swing axis (dashed) on the sand.
+  ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1;
+  let p1 = project(-RW, 0, 0.001), p2 = project(RW, 0, 0.001);
+  ctx.beginPath(); ctx.moveTo(p1.sx, p1.sy); ctx.lineTo(p2.sx, p2.sy); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Trail
-  if (state.trail.length >= 2) {
-    ctx.strokeStyle = 'rgba(127, 177, 216, 0.55)';
-    ctx.lineWidth = 0.9;
-    ctx.beginPath();
-    for (let i = 0; i < state.trail.length; i += 1) {
-      const p = worldToPx(state.trail[i][0], state.trail[i][1]);
-      if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-    }
-    ctx.stroke();
+  // Carved rosette trail (older = fainter).
+  const tr = state.trail, n = tr.length;
+  for (let i = 1; i < n; i += 1) {
+    const a = project(tr[i - 1][0], tr[i - 1][1], 0.002);
+    const b = project(tr[i][0], tr[i][1], 0.002);
+    ctx.strokeStyle = `rgba(127,177,216,${0.10 + 0.55 * i / n})`;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
   }
 
-  // Current position
-  const pNow = worldToPx(state.sim.x, state.sim.y);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.beginPath();
-  ctx.arc(pNow.px, pNow.py, 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
-  ctx.lineWidth = 1.0;
-  ctx.stroke();
+  drawPins(planeAngle);
 
-  // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText('initial swing axis (dashed)', 60, H - 24);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('bob position', 270, H - 24);
-  ctx.fillStyle = 'rgba(127, 177, 216, 0.85)';
-  ctx.fillText('swept trail', 400, H - 24);
+  // Pendulum: bob at horizontal (x, y); small-angle height above the
+  // sand rho^2 / (2 L) so it skims the bottom and rises at the turns.
+  const rho2 = s.x * s.x + s.y * s.y;
+  const zb = 0.06 + rho2 / (2 * 2.6);
+  const apex = project(0, 0, HAP);
+  const bob = project(s.x, s.y, zb);
+
+  // Ceiling mount.
+  const m1 = project(-0.28, 0, HAP), m2 = project(0.28, 0, HAP);
+  ctx.strokeStyle = 'rgba(200,205,215,0.6)'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(m1.sx, m1.sy); ctx.lineTo(m2.sx, m2.sy); ctx.stroke();
+  ctx.fillStyle = '#9aa6b8'; ctx.beginPath(); ctx.arc(apex.sx, apex.sy, 4, 0, 2 * Math.PI); ctx.fill();
+
+  // Stylus drop line to the sand at the bob's ground point.
+  const gp = project(s.x, s.y, 0.002);
+  ctx.strokeStyle = 'rgba(214,138,105,0.35)'; ctx.lineWidth = 1;
+  ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(bob.sx, bob.sy); ctx.lineTo(gp.sx, gp.sy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Suspension wire + shaded bob.
+  ctx.strokeStyle = 'rgba(220,225,235,0.75)'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(apex.sx, apex.sy); ctx.lineTo(bob.sx, bob.sy); ctx.stroke();
+  const rr = 13;
+  const rg = ctx.createRadialGradient(bob.sx - 4, bob.sy - 5, 2, bob.sx, bob.sy, rr);
+  rg.addColorStop(0, '#ffffff'); rg.addColorStop(0.3, tok.warm); rg.addColorStop(1, '#241008');
+  ctx.fillStyle = rg;
+  ctx.beginPath(); ctx.arc(bob.sx, bob.sy, rr, 0, 2 * Math.PI); ctx.fill();
+
+  // Readout (monospace).
+  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.textAlign = 'left';
+  ctx.fillText(`latitude = ${state.lat} deg    t = ${s.t.toFixed(1)} s`, 24, 26);
+  const TpStr = Number.isFinite(Tp) ? `${Tp.toFixed(1)} s` : 'no precession';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillText(`omega_z = ${Oz.toFixed(3)} rad/s   T_precess = ${TpStr}   plane rotated = ${(planeAngle * 180 / Math.PI).toFixed(0)} deg`, 24, 44);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.textAlign = 'left';
+  ctx.fillText('dashed = initial swing axis    lit rim pegs mark the current swing plane', 24, H - 18);
 }
 
 function tickN(n) {
   for (let i = 0; i < n; i += 1) {
     stepFoucault(state.sim, 0.02);
-    if (state.sim.nSteps % 1 === 0) {
-      state.trail.push([state.sim.x, state.sim.y]);
-      if (state.trail.length > 6000) state.trail.shift();
-    }
+    state.trail.push([state.sim.x, state.sim.y]);
+    if (state.trail.length > 7000) state.trail.shift();
   }
 }
 
@@ -147,19 +194,19 @@ btnPlayPause.addEventListener('click', () => {
 
 function bootSync() {
   rebuild();
+  valueLat.textContent = `${state.lat} deg`;
+  valueSpeed.textContent = String(state.speed);
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const target = Math.round(frac * 2400);
-    tickN(target);
+    state.az = -0.7;                              // fixed camera for determinism
+    tickN(Math.round(frac * 2600));
     drawAll();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+        window.__simulationReady = true;
+        window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+      }));
     }
     return;
   }
@@ -169,6 +216,7 @@ function bootSync() {
 function tick() {
   if (state.playing) {
     tickN(state.speed);
+    state.az += 0.0016;                           // slow live orbit
     drawAll();
   }
   requestAnimationFrame(tick);
