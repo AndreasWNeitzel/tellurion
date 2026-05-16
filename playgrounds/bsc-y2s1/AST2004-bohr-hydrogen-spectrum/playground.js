@@ -207,13 +207,90 @@ function drawSpectrum(c, x0, y0, w, h) {
   ctx.fillText(`emission spectrum (log lambda)`, x0 + padL, y0 + 16);
 }
 
+let atomPhase = 0;
+
+function nmToColor(nm) {
+  if (nm < 380) return '#9b6cff';                  // UV
+  if (nm > 750) return '#7a1a1a';                  // IR
+  let r = 0, g = 0, b = 0;
+  if (nm < 440) { r = -(nm - 440) / 60; b = 1; }
+  else if (nm < 490) { g = (nm - 440) / 50; b = 1; }
+  else if (nm < 510) { g = 1; b = -(nm - 510) / 20; }
+  else if (nm < 580) { r = (nm - 510) / 70; g = 1; }
+  else if (nm < 645) { r = 1; g = -(nm - 645) / 65; }
+  else { r = 1; }
+  return `rgb(${(255 * r) | 0},${(255 * g) | 0},${(255 * b) | 0})`;
+}
+
+// Bohr atom: nucleus + orbit rings r ~ n^2, electron animating the
+// selected nHigh -> nLow transition with an emitted photon.
+function drawAtom(c, x0, y0, w, h) {
+  ctx.fillStyle = '#08080c'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  const cx = x0 + w / 2, cy = y0 + h / 2;
+  const lines = filteredLines();
+  const ln = lines[Math.min(lineIdx, Math.max(0, lines.length - 1))];
+  if (!ln) return;
+  const nHi = ln.nHigh, nLo = ln.nLow;
+  const Rmax = Math.min(w, h) * 0.42;
+  const rOf = (n) => Rmax * (n * n) / (nMax * nMax);
+
+  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`Bohr ${nHi}->${nLo}`, x0 + 8, y0 + 16);
+
+  for (let n = 1; n <= nMax; n += 1) {
+    ctx.strokeStyle = (n === nHi || n === nLo) ? 'rgba(255,209,102,0.55)' : 'rgba(255,255,255,0.10)';
+    ctx.lineWidth = (n === nHi || n === nLo) ? 1.4 : 1;
+    ctx.beginPath(); ctx.arc(cx, cy, rOf(n), 0, 2 * Math.PI); ctx.stroke();
+  }
+  // Nucleus.
+  const ng = ctx.createRadialGradient(cx, cy, 0, cx, cy, 9);
+  ng.addColorStop(0, '#ffd9a0'); ng.addColorStop(1, 'rgba(255,150,80,0)');
+  ctx.fillStyle = ng; ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#ff9b51'; ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, 2 * Math.PI); ctx.fill();
+
+  // Phase 0..1: electron sits at nHi (0..0.4), jumps inward (0.4..0.6),
+  // sits at nLo (0.6..1.0). Photon emitted during/after the jump.
+  const ph = atomPhase % 1;
+  let rEl;
+  if (ph < 0.4) rEl = rOf(nHi);
+  else if (ph < 0.6) { const f = (ph - 0.4) / 0.2; rEl = rOf(nHi) + (rOf(nLo) - rOf(nHi)) * f; }
+  else rEl = rOf(nLo);
+  const ang = atomPhase * 3.2;
+  const ex = cx + rEl * Math.cos(ang), ey = cy + rEl * Math.sin(ang);
+  ctx.fillStyle = '#5bc0eb';
+  ctx.beginPath(); ctx.arc(ex, ey, 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+
+  // Emitted photon: a wavy ray flying outward, coloured by wavelength.
+  if (ph >= 0.45) {
+    const pf = Math.min(1, (ph - 0.45) / 0.5);
+    const pr = rOf(nHi) + pf * (Rmax + 30);
+    const pcol = nmToColor(ln.lambdaNm);
+    ctx.strokeStyle = pcol; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let s = 0; s <= 40; s += 1) {
+      const rr = pr - 36 + s * 0.9;
+      const aa = ang + 0.5;
+      const wob = Math.sin(s * 0.9) * 4;
+      const px = cx + rr * Math.cos(aa) - wob * Math.sin(aa);
+      const py = cy + rr * Math.sin(aa) + wob * Math.cos(aa);
+      if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('orbit radius proportional to n^2; photon E = E_hi - E_lo', cx, y0 + h - 10);
+}
+
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  drawLadder(c, 0, 0, W * 0.5, H);
-  drawSpectrum(c, W * 0.5, 0, W * 0.5, H);
+  drawLadder(c, 0, 0, W * 0.34, H);
+  drawAtom(c, W * 0.34, 0, W * 0.33, H);
+  drawSpectrum(c, W * 0.67, 0, W * 0.33, H);
 }
 
 function updateReadout() {
@@ -229,6 +306,7 @@ function updateReadout() {
 }
 
 function loop() {
+  atomPhase += 0.006;
   render();
   updateReadout();
   requestAnimationFrame(loop);
@@ -249,6 +327,7 @@ function bootSync() {
   valueSeries.textContent = seriesFilter === 'all' ? 'All' : seriesFilter;
   valueNmax.textContent = String(nMax);
   updateLineSlider();
+  if (CAPTURE_NAME) atomPhase = 0.55 + 0.4 * (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0);
   render();
   updateReadout();
 
