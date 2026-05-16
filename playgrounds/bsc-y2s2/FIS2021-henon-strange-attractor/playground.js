@@ -89,24 +89,24 @@ function paintBg() {
 }
 
 function drawTrail() {
-  if (state.trail.length < 2) return;
-  // Each segment fades from accent-warm at the head to transparent at the tail.
-  for (let i = 1; i < state.trail.length; i += 1) {
-    const a = state.trail[i - 1], b = state.trail[i];
-    const t = i / state.trail.length;
-    ctx.strokeStyle = `rgba(193, 59, 39, ${(t * 0.85).toFixed(3)})`;
-    ctx.lineWidth = 1.4;
+  if (state.trail.length < 1) return;
+  // Successive Henon iterates are spatially scattered (the map is
+  // chaotic), so they must be drawn as a point cloud, NOT connected by
+  // lines. Recent iterates are bright dots fading with age over the
+  // persistent attractor stippled into the background buffer.
+  for (let i = 0; i < state.trail.length; i += 1) {
+    const t = (i + 1) / state.trail.length;
+    const p = px(state.trail[i].x, state.trail[i].y);
+    ctx.fillStyle = `rgba(193, 59, 39, ${(0.12 + 0.7 * t).toFixed(3)})`;
     ctx.beginPath();
-    const pa = px(a.x, a.y), pb = px(b.x, b.y);
-    ctx.moveTo(pa.px, pa.py); ctx.lineTo(pb.px, pb.py);
-    ctx.stroke();
+    ctx.arc(p.px, p.py, 1.6, 0, 2 * Math.PI);
+    ctx.fill();
   }
-  // current point
   const last = state.trail[state.trail.length - 1];
   const p = px(last.x, last.y);
   ctx.fillStyle = COL.warm;
   ctx.beginPath();
-  ctx.arc(p.px, p.py, 4.5, 0, 2 * Math.PI);
+  ctx.arc(p.px, p.py, 4, 0, 2 * Math.PI);
   ctx.fill();
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 0.7;

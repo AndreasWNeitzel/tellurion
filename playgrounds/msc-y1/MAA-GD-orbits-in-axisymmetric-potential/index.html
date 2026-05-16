@@ -21,14 +21,22 @@
 </style></head><body>
 <header>
   <h1 data-slot="title">Orbits in an Axisymmetric Potential</h1>
-  <div data-slot="description" class="katex-target">Playground.</div>
+  <div data-slot="description" class="katex-target">A star orbiting in a Miyamoto-Nagai axisymmetric galaxy potential, shown in the meridional $(R, z)$ plane. Set the launch radius and the radial and vertical kick; the orbit fills a box (the rosette of a non-closed axisymmetric orbit) bounded by the effective potential.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
-  <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Orbits in an Axisymmetric Potential.</figcaption>
+  <div id="readout" class="readout-panel" role="status" aria-live="polite"><span class="label">orbit:</span><span class="value" id="readout-r">R=8, z=0</span></div>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Meridional-plane orbit in a Miyamoto-Nagai potential. Source: Binney and Tremaine, Galactic Dynamics 2e (`binney-tremaine`).</figcaption>
 </figure>
-<div id="controls" class="pg-controls"></div>
+<div id="controls" class="pg-controls">
+  <div class="row"><span class="label">R0 (kpc)</span><input type="range" id="slider-R" aria-label="launch radius kpc" min="3" max="16" step="0.5" value="8"><span class="value" id="value-R">8.0</span></div>
+  <div class="row"><span class="label">vR (km/s)</span><input type="range" id="slider-v" aria-label="radial velocity km/s" min="-120" max="120" step="5" value="0"><span class="value" id="value-v">0</span></div>
+  <div class="row"><span class="label">vz (km/s)</span><input type="range" id="slider-vz" aria-label="vertical velocity km/s" min="0" max="160" step="5" value="40"><span class="value" id="value-vz">40</span></div>
+  <div class="row buttons">
+    <button id="btn-reset" type="button">Reset</button>
+    <button id="btn-pause" type="button" aria-pressed="false">Pause</button>
+  </div>
+</div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
 </body></html>
