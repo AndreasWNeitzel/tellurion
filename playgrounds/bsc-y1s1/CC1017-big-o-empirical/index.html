@@ -36,7 +36,7 @@
   <figure class="pg-figure">
     <canvas id="stage" width="760" height="500"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">N:</span><span class="value" id="readout-n">48</span>
+      <span class="label">N:</span><span class="value" id="readout-n">128</span>
       <span class="label">cmp O(N^2):</span><span class="value" id="readout-a">0</span>
       <span class="label">cmp O(N log N):</span><span class="value" id="readout-b">0</span>
       <span class="label">ratio:</span><span class="value" id="readout-ratio">-</span>
@@ -44,8 +44,8 @@
     <figcaption><span class="figure-number">Figure 1.</span> Empirical vs theoretical comparison-sort complexity. Method: instrumented bubble/insertion vs merge sort on a seeded shuffle; measured comparison counts overplotted on the asymptotic curves. Source: Cormen et al., Introduction to Algorithms 3rd ed. Ch. 2; Newman, Computational Physics Ch. 2 (`newman2013`).</figcaption>
   </figure>
   <div class="controls pg-controls" id="controls">
-    <div class="row"><span class="label">array size N</span><input aria-label="array size N" type="range" id="slider-N" min="8" max="128" step="4" value="48"><span class="value" id="value-N">48</span></div>
-    <div class="row"><span class="label">speed</span><input aria-label="replay speed, comparisons per frame" type="range" id="slider-speed" min="1" max="40" step="1" value="6"><span class="value" id="value-speed">6</span></div>
+    <div class="row"><span class="label">array size N</span><input aria-label="array size N" type="range" id="slider-N" min="8" max="256" step="4" value="128"><span class="value" id="value-N">128</span></div>
+    <div class="row"><span class="label">speed</span><input aria-label="replay speed, comparisons per frame" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
     <div class="row"><span class="label">O(N^2) sort</span><select aria-label="quadratic algorithm" id="select-algo"><option value="bubble">bubble sort</option><option value="insertion">insertion sort</option></select><span class="value" id="value-algo">bubble</span></div>
     <div class="row pg-buttons" style="grid-template-columns: 1fr;">
       <span>

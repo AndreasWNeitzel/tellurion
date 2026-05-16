@@ -251,7 +251,7 @@ function bootSync() {
 
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.N = 4 * Math.round((24 + f * 80) / 4);
+    state.N = 4 * Math.round((0.18 * NMAX + f * 0.64 * NMAX) / 4);
     valueN.textContent = String(state.N);
     rebuild();
     sweep();                                   // populate the empirical plot
