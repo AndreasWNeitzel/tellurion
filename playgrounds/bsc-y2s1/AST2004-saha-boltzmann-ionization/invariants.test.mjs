@@ -9,8 +9,33 @@
 import { describe, it, expect } from 'vitest';
 import {
   ionizationFraction, ionizationTemp, sahaRatioPerM3,
-  CHI_H_EV, KB_EV_K,
+  CHI_H_EV, KB_EV_K, boltzmannFraction, balmerStrength,
 } from './sim.js';
+
+describe('Boltzmann + Balmer', () => {
+  it('boltzmannFraction is a normalized distribution and rises with T', () => {
+    let s = 0;
+    for (let n = 1; n <= 12; n += 1) s += boltzmannFraction(n, 9000);
+    expect(s).toBeCloseTo(1, 6);
+    expect(boltzmannFraction(2, 6000)).toBeLessThan(boltzmannFraction(2, 12000));
+    expect(boltzmannFraction(1, 4000)).toBeGreaterThan(0.99); // ground dominates when cool
+  });
+
+  it('Balmer line strength peaks at intermediate (A-star) temperature', () => {
+    const n = 1e20;                                  // stellar photosphere-ish
+    const peak = balmerStrength(9500, n);
+    expect(peak).toBeGreaterThan(balmerStrength(4000, n));
+    expect(peak).toBeGreaterThan(balmerStrength(30000, n));
+    // Scan: argmax is between 7000 and 13000 K.
+    let bT = 0, bV = 0;
+    for (let T = 3000; T <= 40000; T += 250) {
+      const v = balmerStrength(T, n);
+      if (v > bV) { bV = v; bT = T; }
+    }
+    expect(bT).toBeGreaterThan(7000);
+    expect(bT).toBeLessThan(13000);
+  });
+});
 
 describe('saha-boltzmann-ionization', () => {
   it('ionization fraction is monotonic in T at fixed density', () => {

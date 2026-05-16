@@ -57,3 +57,28 @@ export function ionizationTemp(nTotPerM3, tLow = 1e3, tHigh = 1e6, tol = 1) {
   }
   return 0.5 * (lo + hi);
 }
+
+// Boltzmann population of level n in neutral hydrogen, f_n = g_n
+// exp(-DeltaE_n / kT) / Z0, with g_n = 2 n^2 and excitation energy
+// DeltaE_n = chi_H (1 - 1/n^2) from the ground state. Z0 sums n=1..NMAX.
+export function boltzmannFraction(n, tempK, nmax = 12) {
+  let Z = 0;
+  let target = 0;
+  for (let k = 1; k <= nmax; k += 1) {
+    const g = 2 * k * k;
+    const dE = CHI_H_EV * (1 - 1 / (k * k));
+    const w = g * Math.exp(-dE / (KB_EV_K * tempK));
+    Z += w;
+    if (k === n) target = w;
+  }
+  return Z > 0 ? target / Z : 0;
+}
+
+// Relative hydrogen Balmer (H-alpha etc.) line strength: an atom
+// absorbs a Balmer photon only if it is neutral (Saha) AND in n = 2
+// (Boltzmann). The product peaks near ~9500 K for stellar photospheric
+// densities, the textbook reason A stars have the strongest H lines.
+export function balmerStrength(tempK, nTotPerM3) {
+  const x = ionizationFraction(tempK, nTotPerM3);
+  return (1 - x) * boltzmannFraction(2, tempK);
+}
