@@ -16,14 +16,23 @@
 //
 // Time units: Earth's day = 86400 s. Pendulum L = 67 m (the original Paris
 // Pantheon installation), so omega_0 = sqrt(9.81 / 67) approx 0.383 rad/s,
-// period T_0 approx 16.4 s. For visualization speed we scale time so that
-// the rotation is visible quickly. We use Omega_z that produces a 24-second
-// precession period instead of 24-hour.
+// period T_0 approx 16.4 s. For visualization speed we scale time so the
+// rotation is visible quickly: Omega_z gives a 24-second precession at the
+// pole instead of 24-hour.
+//
+// The swing-to-precession frequency ratio is the only thing that controls
+// how the rosette looks. The real Pantheon pendulum makes ~5000 swings per
+// precession. The earlier OMEGA_0 = 1 gave only ~5 swings per precession,
+// so the plane visibly slewed within a single swing and the motion looked
+// forced. OMEGA_0 = 7 gives ~40 swings per precession at 45 deg: a dense,
+// physically faithful star rosette and a swing that reads as natural. This
+// is a pure time-scaling choice; every precession relationship below is
+// unchanged and the invariants test the relationships, not the magnitude.
 //
 // Reference: Marion and Thornton, Classical Dynamics 5e Ch. 10
 // (`marion-thornton`).
 
-export const OMEGA_0 = 1.0;
+export const OMEGA_0 = 7.0;
 export const T_PRECESS_REFERENCE = 24.0;   // seconds for precession at latitude 90 deg
 
 export function omegaZ(latitudeDeg) {

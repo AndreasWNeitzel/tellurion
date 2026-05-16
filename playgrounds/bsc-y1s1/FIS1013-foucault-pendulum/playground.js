@@ -35,11 +35,6 @@ const state = {
   playing: !DETERMINISTIC,
 };
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  cool: cssVar('--accent-cool', '#7fb1d8'),
-  warm: cssVar('--accent-warm', '#d68a69'),
-};
 
 // Scene scale (world units ~ pendulum amplitude 1).
 const RW = 1.45;                 // sand-bed radius (world)
@@ -65,29 +60,61 @@ function rebuild() {
   state.trail = [];
 }
 
+function ringPath(rr) {
+  ctx.beginPath();
+  for (let i = 0; i <= 72; i += 1) {
+    const a = (i / 72) * 2 * Math.PI;
+    const p = project(rr * Math.cos(a), rr * Math.sin(a), 0);
+    if (i === 0) ctx.moveTo(p.sx, p.sy); else ctx.lineTo(p.sx, p.sy);
+  }
+  ctx.closePath();
+}
+
 function drawSandBed() {
-  // Filled ellipse from the projected rim, plus concentric grooves.
+  // Museum sand table rendered as an engraved bronze astrolabe: warm
+  // sand fill, a guilloche of fine concentric rings and radial spokes,
+  // a raised lighter rim and a soft inner vignette.
   const rim = [];
-  for (let i = 0; i <= 64; i += 1) {
-    const a = (i / 64) * 2 * Math.PI;
+  for (let i = 0; i <= 72; i += 1) {
+    const a = (i / 72) * 2 * Math.PI;
     rim.push(project(RW * Math.cos(a), RW * Math.sin(a), 0));
   }
-  const g = ctx.createLinearGradient(0, CY - RW * S * 0.6, 0, CY + RW * S * 0.6);
-  g.addColorStop(0, '#171a1f'); g.addColorStop(1, '#0c0d11');
+  const cTop = project(0, -RW, 0).sy, cBot = project(0, RW, 0).sy;
+  const g = ctx.createLinearGradient(0, cTop, 0, cBot);
+  g.addColorStop(0, '#2a2118'); g.addColorStop(0.5, '#1d1711'); g.addColorStop(1, '#100c09');
   ctx.fillStyle = g;
   ctx.beginPath();
   rim.forEach((p, i) => (i ? ctx.lineTo(p.sx, p.sy) : ctx.moveTo(p.sx, p.sy)));
   ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1.2; ctx.stroke();
-  for (const rr of [0.33, 0.66]) {
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath();
-    for (let i = 0; i <= 64; i += 1) {
-      const a = (i / 64) * 2 * Math.PI;
-      const p = project(RW * rr * Math.cos(a), RW * rr * Math.sin(a), 0);
-      if (i === 0) ctx.moveTo(p.sx, p.sy); else ctx.lineTo(p.sx, p.sy);
-    }
-    ctx.stroke();
+  // Fine engraved concentric rings.
+  for (let kk = 1; kk <= 11; kk += 1) {
+    const rr = RW * kk / 11;
+    ctx.strokeStyle = `rgba(208,170,116,${kk % 2 ? 0.10 : 0.06})`;
+    ctx.lineWidth = 1; ringPath(rr); ctx.stroke();
   }
+  // Radial spokes (compass rays), clipped to the bed.
+  ctx.save();
+  ctx.beginPath();
+  rim.forEach((p, i) => (i ? ctx.lineTo(p.sx, p.sy) : ctx.moveTo(p.sx, p.sy)));
+  ctx.closePath(); ctx.clip();
+  const c0 = project(0, 0, 0);
+  for (let i = 0; i < 24; i += 1) {
+    const a = (i / 24) * 2 * Math.PI;
+    const e = project(RW * Math.cos(a), RW * Math.sin(a), 0);
+    ctx.strokeStyle = i % 6 === 0 ? 'rgba(214,170,110,0.16)' : 'rgba(208,170,116,0.06)';
+    ctx.lineWidth = i % 6 === 0 ? 1.3 : 1;
+    ctx.beginPath(); ctx.moveTo(c0.sx, c0.sy); ctx.lineTo(e.sx, e.sy); ctx.stroke();
+  }
+  // Soft inner vignette so the carved figure pops in the centre.
+  const vg = ctx.createRadialGradient(c0.sx, c0.sy, 4, c0.sx, c0.sy, RW * S);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+  // Raised outer rim, lighter on the near (lower) side.
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(228,196,140,0.45)'; ringPath(RW); ctx.stroke();
+  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = 'rgba(120,96,60,0.5)'; ringPath(RW * 0.985); ctx.stroke();
 }
 
 // Decorative marker pegs around the rim; the one nearest the current
@@ -99,10 +126,19 @@ function drawPins(planeAngle) {
     const lit = d < Math.PI / NPINS;
     const bx = RW * 0.99 * Math.cos(a), by = RW * 0.99 * Math.sin(a);
     const base = project(bx, by, 0);
-    const top = project(bx, by, lit ? 0.20 : 0.12);
-    ctx.strokeStyle = lit ? tok.warm : 'rgba(150,156,168,0.45)';
-    ctx.lineWidth = lit ? 3 : 2;
+    const top = project(bx, by, lit ? 0.22 : 0.13);
+    ctx.strokeStyle = lit ? '#e8b25a' : 'rgba(150,140,118,0.5)';
+    ctx.lineWidth = lit ? 3 : 1.8;
     ctx.beginPath(); ctx.moveTo(base.sx, base.sy); ctx.lineTo(top.sx, top.sy); ctx.stroke();
+    // Brass head bead; the lit pin glows.
+    ctx.fillStyle = lit ? '#ffd98a' : 'rgba(180,168,140,0.6)';
+    ctx.beginPath(); ctx.arc(top.sx, top.sy, lit ? 3 : 2, 0, 2 * Math.PI); ctx.fill();
+    if (lit) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = 'rgba(255,200,110,0.30)';
+      ctx.beginPath(); ctx.arc(top.sx, top.sy, 7, 0, 2 * Math.PI); ctx.fill();
+      ctx.restore();
+    }
   }
 }
 
@@ -123,14 +159,31 @@ function drawAll() {
   ctx.beginPath(); ctx.moveTo(p1.sx, p1.sy); ctx.lineTo(p2.sx, p2.sy); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Carved rosette trail (older = fainter).
+  // Carved rosette: a fine groove drawn as one continuous path (dark
+  // incision plus an additive warm highlight, recent strokes brighter)
+  // so the precessing star reads as light caught in carved sand.
   const tr = state.trail, n = tr.length;
-  for (let i = 1; i < n; i += 1) {
-    const a = project(tr[i - 1][0], tr[i - 1][1], 0.002);
-    const b = project(tr[i][0], tr[i][1], 0.002);
-    ctx.strokeStyle = `rgba(127,177,216,${0.10 + 0.55 * i / n})`;
-    ctx.lineWidth = 1.1;
-    ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
+  if (n > 1) {
+    const pts = new Array(n);
+    for (let i = 0; i < n; i += 1) pts[i] = project(tr[i][0], tr[i][1], 0.002);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(20,14,8,0.55)'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(pts[0].sx, pts[0].sy);
+    for (let i = 1; i < n; i += 1) ctx.lineTo(pts[i].sx, pts[i].sy);
+    ctx.stroke();
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const seg = Math.max(1, (n / 90) | 0);
+    for (let i = 1; i < n; i += seg) {
+      const j = Math.min(n - 1, i + seg);
+      const age = i / n;
+      ctx.strokeStyle = `rgba(255,${(170 + 60 * age) | 0},${(90 + 60 * age) | 0},${(0.05 + 0.5 * age).toFixed(3)})`;
+      ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.moveTo(pts[i - 1].sx, pts[i - 1].sy);
+      for (let q = i; q <= j; q += 1) ctx.lineTo(pts[q].sx, pts[q].sy);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   drawPins(planeAngle);
@@ -142,26 +195,44 @@ function drawAll() {
   const apex = project(0, 0, HAP);
   const bob = project(s.x, s.y, zb);
 
+  // Soft contact shadow on the sand, growing/fading with bob height.
+  const gp = project(s.x, s.y, 0.002);
+  const shR = 15 * (1 - 0.4 * Math.min(1, zb));
+  ctx.save();
+  ctx.fillStyle = `rgba(0,0,0,${(0.42 * (1 - Math.min(1, zb))).toFixed(3)})`;
+  ctx.beginPath();
+  ctx.ellipse(gp.sx, gp.sy, shR, shR * Math.sin(ELEV) * 1.1 + 2, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.restore();
+
   // Ceiling mount.
   const m1 = project(-0.28, 0, HAP), m2 = project(0.28, 0, HAP);
-  ctx.strokeStyle = 'rgba(200,205,215,0.6)'; ctx.lineWidth = 5;
+  ctx.strokeStyle = 'rgba(206,210,220,0.65)'; ctx.lineWidth = 5; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(m1.sx, m1.sy); ctx.lineTo(m2.sx, m2.sy); ctx.stroke();
-  ctx.fillStyle = '#9aa6b8'; ctx.beginPath(); ctx.arc(apex.sx, apex.sy, 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.lineCap = 'butt';
+  ctx.fillStyle = '#aab4c4'; ctx.beginPath(); ctx.arc(apex.sx, apex.sy, 4, 0, 2 * Math.PI); ctx.fill();
 
-  // Stylus drop line to the sand at the bob's ground point.
-  const gp = project(s.x, s.y, 0.002);
-  ctx.strokeStyle = 'rgba(214,138,105,0.35)'; ctx.lineWidth = 1;
+  // Faint stylus drop line to the sand at the bob's ground point.
+  ctx.strokeStyle = 'rgba(228,196,140,0.28)'; ctx.lineWidth = 1;
   ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(bob.sx, bob.sy); ctx.lineTo(gp.sx, gp.sy); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Suspension wire + shaded bob.
-  ctx.strokeStyle = 'rgba(220,225,235,0.75)'; ctx.lineWidth = 1.6;
+  // Suspension wire with a subtle sheen.
+  ctx.strokeStyle = 'rgba(225,228,236,0.8)'; ctx.lineWidth = 1.7;
   ctx.beginPath(); ctx.moveTo(apex.sx, apex.sy); ctx.lineTo(bob.sx, bob.sy); ctx.stroke();
-  const rr = 13;
-  const rg = ctx.createRadialGradient(bob.sx - 4, bob.sy - 5, 2, bob.sx, bob.sy, rr);
-  rg.addColorStop(0, '#ffffff'); rg.addColorStop(0.3, tok.warm); rg.addColorStop(1, '#241008');
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 0.7;
+  ctx.beginPath(); ctx.moveTo(apex.sx, apex.sy); ctx.lineTo(bob.sx, bob.sy); ctx.stroke();
+
+  // Shaded brass bob with a rim light and a tight specular.
+  const rr = 14;
+  const rg = ctx.createRadialGradient(bob.sx - 5, bob.sy - 6, 2, bob.sx, bob.sy, rr);
+  rg.addColorStop(0, '#fff3da'); rg.addColorStop(0.32, '#e7a356'); rg.addColorStop(0.78, '#9a5a22'); rg.addColorStop(1, '#1f0e06');
   ctx.fillStyle = rg;
   ctx.beginPath(); ctx.arc(bob.sx, bob.sy, rr, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,210,150,0.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(bob.sx, bob.sy, rr - 0.5, 0, 2 * Math.PI); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.beginPath(); ctx.arc(bob.sx - 4.5, bob.sy - 5.5, 2.3, 0, 2 * Math.PI); ctx.fill();
 
   // Readout (monospace).
   ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
