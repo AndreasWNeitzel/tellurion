@@ -60,34 +60,32 @@ function sampleHernquist() {
   return out;
 }
 
-let halo1 = { x: -3, y: 0, vx: 0,           vy:  state.vRel * 0.5 };
-let halo2 = { x:  3, y: state.impact, vx: 0, vy: -state.vRel * 0.5 };
-let tracers1 = sampleHernquist();
-let tracers2 = sampleHernquist();
+let halo1, halo2, tracers1, tracers2, elapsed = 0;
 
 function reset() {
-  halo1 = { x: -3, y: 0,            vx: 0, vy:  state.vRel * 0.5 };
-  halo2 = { x:  3, y: state.impact, vx: 0, vy: -state.vRel * 0.5 };
+  // Start well separated with a real CLOSING velocity along x, the impact
+  // parameter as a y-offset, and vRel setting the approach speed. This
+  // guarantees the galaxies actually fly into each other and merge.
+  const sep = 9, b = state.impact;
+  halo1 = { x: -sep, y: -b / 2, vx:  state.vRel, vy: 0 };
+  halo2 = { x:  sep, y:  b / 2, vx: -state.vRel, vy: 0 };
   tracers1 = sampleHernquist();
   tracers2 = sampleHernquist();
-  // Translate tracers to their host halos.
   for (const p of tracers1) { p.x += halo1.x; p.y += halo1.y; p.vx += halo1.vx; p.vy += halo1.vy; }
   for (const p of tracers2) { p.x += halo2.x; p.y += halo2.y; p.vx += halo2.vx; p.vy += halo2.vy; }
+  elapsed = 0;
 }
 reset();
 
 const dt = 0.02;
+const GM_HALO = 6;     // stronger pair attraction so they decisively merge
 function step() {
-  // Halos: feel each other (softened).
   function pairForce(a, b) {
     const dx = b.x - a.x, dy = b.y - a.y;
-    // Plummer-softening: keep the force finite for arbitrarily close approaches.
-    // (Prior code only added a constant 0.5 which still let the halos
-    // interpenetrate visually; this clamps the effective separation.)
-    const eps = 0.7;
+    const eps = 1.2;                       // softening (merged-core size)
     const r2 = dx * dx + dy * dy + eps * eps;
     const r = Math.sqrt(r2);
-    const f = G * Mh / r2;
+    const f = G * GM_HALO / r2;
     return { ax: f * dx / r, ay: f * dy / r };
   }
   const f12 = pairForce(halo1, halo2);
@@ -96,6 +94,10 @@ function step() {
   halo2.vx += f21.ax * dt; halo2.vy += f21.ay * dt;
   halo1.x  += halo1.vx * dt; halo1.y += halo1.vy * dt;
   halo2.x  += halo2.vx * dt; halo2.y += halo2.vy * dt;
+  elapsed += dt;
+  // Auto-replay: once the encounter has long finished (cores recede or it
+  // has run a while), restart so the page stays active.
+  if (elapsed > 36) reset();
   // Tracers: feel both halos.
   function update(p) {
     const a1 = aHernquist(p.x - halo1.x, p.y - halo1.y);
@@ -113,14 +115,14 @@ function render() {
   ctx.fillStyle = '#0E0E13';
   ctx.fillRect(0, 0, W, H);
   const cx = W / 2, cy = H / 2;
-  const sc = Math.min(W, H) * 0.07;
+  const sc = Math.min(W, H) * 0.045;       // fit the full 9-unit encounter
   ctx.fillStyle = '#7c9cff';
   for (const p of tracers1) {
-    ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.3, 1.3);
+    ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.6, 1.6);
   }
   ctx.fillStyle = '#fdb56a';
   for (const p of tracers2) {
-    ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.3, 1.3);
+    ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.6, 1.6);
   }
   // Halo cores.
   ctx.fillStyle = '#ffffff';
@@ -151,8 +153,9 @@ function buildControls() {
     row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
     controlsEl.appendChild(row);
   }
-  slider('impact', 'impact b',     0, 4, 0.1, state.impact, v => { state.impact = v; });
-  slider('vRel',   'v_rel',        0, 2, 0.1, state.vRel,   v => { state.vRel = v; });
+  // Dials relaunch the encounter immediately so they are not inert.
+  slider('impact', 'impact b',     0, 6, 0.1, state.impact, v => { state.impact = v; reset(); });
+  slider('vRel',   'v_rel',        0.1, 2.5, 0.1, state.vRel, v => { state.vRel = v; reset(); });
   const row = document.createElement('div'); row.className = 'row';
   const launch = document.createElement('button'); launch.type = 'button'; launch.textContent = 'Launch';
   launch.addEventListener('click', () => { reset(); state.running = true; });
@@ -161,7 +164,9 @@ function buildControls() {
 
 buildControls();
 if (DETERMINISTIC) {
-  for (let i = 0; i < 30; i += 1) step();
+  // ~12 time units of warmup so the captured frame shows the galaxies
+  // mid-encounter (tidal tails forming) rather than still far apart.
+  for (let i = 0; i < 600; i += 1) step();
   render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
