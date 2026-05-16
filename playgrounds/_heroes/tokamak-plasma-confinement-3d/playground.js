@@ -29,6 +29,17 @@ for (const k of READOUTS) {
   rEls[k] = val;
 }
 
+// Population legend: explain the three particle classes the simulation
+// produces (the user asked what the different particles are).
+const legend = document.createElement('div');
+legend.style.cssText = 'margin-top:8px;font:11px ui-monospace,monospace;line-height:1.5;color:#9aa0a6';
+legend.innerHTML = [
+  '<span style="color:#fff">white</span> co-passing: streams with the field, carries the plasma current I_p',
+  '<span style="color:#4d8cff">blue</span> counter-passing: streams against I_p (minority)',
+  '<span style="color:#f0a23a">amber</span> trapped: mirror-reflected, traces closed banana orbits on the low-field (outboard) side',
+].join('<br>');
+readoutEl.appendChild(legend);
+
 function buildSlider(label, min, max, step, value, onInput) {
   const row = document.createElement('div'); row.className = 'row';
   const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
@@ -75,7 +86,7 @@ window.__camera = camera;
 // confinement); theta/phi advance along the field; trapped particles
 // reflect at the mirror points and r_draw carries the grad-B banana
 // width so the bounce traces the classic banana in the poloidal plane.
-const NPART = 1200;
+const NPART = 12000;
 const pr = new Float32Array(NPART);
 const pth = new Float32Array(NPART);
 const pph = new Float32Array(NPART);
@@ -162,26 +173,31 @@ function stepPlasma(dt) {
     const rr = r / a;
     const q = qAxis + (qEdge - qAxis) * rr * rr;
     const iota = 1 / q;
-    // Combined curvature + grad-B vertical drift speed.
-    const vD = K_DRIFT * (vpar2 + 0.5 * vperp2) / (B * R);
-    // Parallel streaming along the helical field (dtheta/dphi = iota).
+    // Streaming along the helical field. theta and phi advance; the
+    // flux-surface label r is a conserved invariant for a collisionless
+    // guiding centre (the canonical toroidal momentum), so it is NOT
+    // integrated. The orbit only oscillates ABOUT that surface.
     const dphi = speed * (vpar / Rcyl) * dt;
-    let dth = iota * dphi;
-    // Vertical drift projected into the poloidal plane: z_hat . r_hat =
-    // sin(theta), z_hat . theta_hat = cos(theta).
-    const dr = speed * vD * Math.sin(th) * dt;
-    dth += speed * vD * Math.cos(th) / Math.max(0.02 * a, r) * dt;
-    r += dr;
-    if (r < 0.015 * a) r = 0.015 * a; else if (r > a) r = a;
-    th += dth;
-    let ph = pph[i] + dphi;
+    let th2 = th + iota * dphi;
+    // Small bounded trapped-particle toroidal precession.
+    const prec = speed * 0.05 * (vpar2 + 0.5 * vperp2) / (B * R) * dt;
+    let ph = pph[i] + dphi + prec;
     if (ph > 6.2831853) ph -= 6.2831853; else if (ph < 0) ph += 6.2831853;
-    if (th > 6.2831853) th -= 6.2831853; else if (th < 0) th += 6.2831853;
-    pr[i] = r; pth[i] = th; pph[i] = ph;
-    const Rc = R + r * Math.cos(th);
+    if (th2 > 6.2831853) th2 -= 6.2831853; else if (th2 < 0) th2 += 6.2831853;
+    pth[i] = th2; pph[i] = ph;            // pr[i] (flux surface) conserved
+    // Drift-orbit radius: flux surface plus the banana width, which is
+    // proportional to the SIGNED parallel speed and so reverses at the
+    // mirror bounce. The orbit therefore closes with zero net radial
+    // transport (the earlier sign-definite drift integrated a secular r
+    // and a trapped sub-population drifted vertically out of the device).
+    const eps = r / R;
+    const wBan = K_DRIFT * 0.12 * a * (q / Math.sqrt(eps + 0.03));
+    let rOrbit = r + wBan * vpar * Math.cos(th2);
+    if (rOrbit < 0.012 * a) rOrbit = 0.012 * a; else if (rOrbit > a) rOrbit = a;
+    const Rc = R + rOrbit * Math.cos(th2);
     const o = 3 * i;
     posBuf[o] = Rc * Math.cos(ph);
-    posBuf[o + 1] = r * Math.sin(th);
+    posBuf[o + 1] = rOrbit * Math.sin(th2);
     posBuf[o + 2] = Rc * Math.sin(ph);
     const xr = r / a;
     const bri = 0.12 + 1.05 * (1 - xr * xr);
