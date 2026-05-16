@@ -41,7 +41,25 @@ const tok = {
   accentWarm: cssVar('--accent-warm', '#d68a69'),
 };
 
-function reset() { state.tNow = 0; }
+// Decaying trails for the oscillating cursor dots (sum, y1, y2). Cleared
+// when the sweep wraps so the comet does not streak across the panel.
+const trails = { sum: [], y1: [], y2: [] };
+let lastCursor = 0;
+function pushTrail(key, x, y) {
+  const a = trails[key];
+  a.push({ x, y });
+  if (a.length > 46) a.shift();
+}
+function drawTrail(key, rgb) {
+  const a = trails[key];
+  for (let i = 1; i < a.length; i += 1) {
+    ctx.strokeStyle = `rgba(${rgb}, ${0.05 + 0.55 * (i / a.length)})`;
+    ctx.lineWidth = 1 + 1.8 * (i / a.length);
+    ctx.beginPath(); ctx.moveTo(a[i - 1].x, a[i - 1].y); ctx.lineTo(a[i].x, a[i].y); ctx.stroke();
+  }
+}
+
+function reset() { state.tNow = 0; trails.sum.length = 0; trails.y1.length = 0; trails.y2.length = 0; }
 
 function drawPanel(x, y, w, h, label) {
   ctx.fillStyle = '#0a0a0e';
@@ -165,6 +183,8 @@ function drawAll() {
 
   // Time cursor on panels 1 and 2
   const tCursor = state.tNow % T_WINDOW;
+  if (tCursor < lastCursor) { trails.sum.length = 0; trails.y1.length = 0; trails.y2.length = 0; }
+  lastCursor = tCursor;
   ctx.strokeStyle = 'rgba(241, 210, 138, 0.70)';
   ctx.lineWidth = 1.2;
   ctx.beginPath();
@@ -172,9 +192,21 @@ function drawAll() {
   ctx.moveTo(cx, panelY0);
   ctx.lineTo(cx, panelY1 + panelH);
   ctx.stroke();
-  // Cursor dot on panel 2 sum
+
+  // Oscillating dots with decaying trails: y1, y2 on panel 1 and the
+  // resultant on panel 2.
+  const y1v = y1(tCursor, state.f1), y2v = y2(tCursor, state.f2);
+  const py1 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y1v)) + 1.1) / 2.2);
+  const py2 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y2v)) + 1.1) / 2.2);
+  pushTrail('y1', cx, py1); pushTrail('y2', cx, py2);
+  drawTrail('y1', '127, 177, 216'); drawTrail('y2', '214, 138, 105');
+  ctx.fillStyle = tok.accentCool; ctx.beginPath(); ctx.arc(cx, py1, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = tok.accentWarm; ctx.beginPath(); ctx.arc(cx, py2, 3, 0, Math.PI * 2); ctx.fill();
+
   const ys = ySum(tCursor, state.f1, state.f2);
   const ydot = panelY1 + panelH * (1 - (ys - (-2.2)) / 4.4);
+  pushTrail('sum', cx, ydot);
+  drawTrail('sum', '241, 210, 138');
   ctx.fillStyle = '#f1d28a';
   ctx.beginPath();
   ctx.arc(cx, ydot, 3.5, 0, Math.PI * 2);
@@ -182,7 +214,8 @@ function drawAll() {
 }
 
 function tickN(n) {
-  for (let i = 0; i < n; i += 1) state.tNow += 0.02;
+  // Slowed an order of magnitude (was 0.02) so the beat is followable.
+  for (let i = 0; i < n; i += 1) state.tNow += 0.002;
 }
 
 sliderF1.addEventListener('input', () => { state.f1 = parseFloat(sliderF1.value); valueF1.textContent = state.f1.toFixed(2); drawAll(); });
