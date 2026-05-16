@@ -99,20 +99,49 @@ function render() {
     }
   }
 
-  // Loop.
+  // Loop, coloured by the local flux density E . n_hat (the Gauss
+  // integrand): outward flux warm/red, inward cool/blue, tangential
+  // grey. Net = sum of these = q/eps0 (inside) or 0 (outside, equal
+  // red and blue cancelling) -- the integral made visible.
   const curve = shape === 'blob' ? blob(0, 0, a, b, 0.3, 3) : ellipse(0, 0, a, b);
   const inside = (shape === 'blob') ? insideEllipse(cx, cy, 0, 0, a - 0.3, b - 0.3) : insideEllipse(cx, cy, 0, 0, a, b);
-  ctx.strokeStyle = inside ? c.accent : c.muted;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  for (let i = 0; i <= 200; i += 1) {
-    const t = 2 * Math.PI * i / 200;
-    const px = cxPx + scale * curve.x(t);
-    const py = cyPx - scale * curve.y(t);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  const N = 220;
+  const pts = [];
+  for (let i = 0; i <= N; i += 1) {
+    const t = 2 * Math.PI * i / N;
+    pts.push([curve.x(t), curve.y(t)]);
   }
-  ctx.closePath();
-  ctx.stroke();
+  const fluxColor = (v) => {
+    const m = Math.max(-1, Math.min(1, v));
+    if (m >= 0) return `rgb(${(120 + 135 * m) | 0},${(70 - 30 * m) | 0},${(80 - 40 * m) | 0})`;
+    return `rgb(${(70 + 20 * m) | 0},${(150 + 60 * -m) | 0},${(200 + 55 * -m) | 0})`;
+  };
+  ctx.lineWidth = 4;
+  for (let i = 0; i < N; i += 1) {
+    const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    let tx = x2 - x1, ty = y2 - y1;
+    let nx = ty, ny = -tx;                                  // perp
+    const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+    if (nx * mx + ny * my < 0) { nx = -nx; ny = -ny; }      // outward
+    const dx = mx - cx, dy = my - cy, r = Math.hypot(dx, dy) || 1e-6;
+    const eDotN = (dx / r) * nx + (dy / r) * ny;            // sign of E.n
+    ctx.strokeStyle = fluxColor(eDotN);
+    ctx.beginPath();
+    ctx.moveTo(cxPx + scale * x1, cyPx - scale * y1);
+    ctx.lineTo(cxPx + scale * x2, cyPx - scale * y2);
+    ctx.stroke();
+    if (i % 14 === 0) {
+      const E = Math.min(0.5, 0.35 / (r * r));
+      const px = cxPx + scale * mx, py = cyPx - scale * my;
+      ctx.strokeStyle = fluxColor(eDotN); ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(px, py);
+      ctx.lineTo(px + nx * scale * (0.12 + E) * Math.sign(eDotN || 1) * Math.abs(eDotN),
+                 py - ny * scale * (0.12 + E) * Math.sign(eDotN || 1) * Math.abs(eDotN));
+      ctx.stroke();
+      ctx.lineWidth = 4;
+    }
+  }
 
   // Charge.
   ctx.fillStyle = c.red;
