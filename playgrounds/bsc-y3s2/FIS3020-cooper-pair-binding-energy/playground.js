@@ -12,9 +12,9 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 let st = { V: 0.3, N0: 1.0, omega_D: 1.0 };
 let running = true;
 
-sV.addEventListener('input', () => { st.V = parseFloat(sV.value); vV.textContent = st.V.toFixed(2); });
-sN.addEventListener('input', () => { st.N0 = parseFloat(sN.value); vN.textContent = st.N0.toFixed(2); });
-sOD.addEventListener('input', () => { st.omega_D = parseFloat(sOD.value); vOD.textContent = st.omega_D.toFixed(2); });
+sV.addEventListener('input', () => { st.V = parseFloat(sV.value); vV.textContent = st.V.toFixed(2); render(); });
+sN.addEventListener('input', () => { st.N0 = parseFloat(sN.value); vN.textContent = st.N0.toFixed(2); render(); });
+sOD.addEventListener('input', () => { st.omega_D = parseFloat(sOD.value); vOD.textContent = st.omega_D.toFixed(2); render(); });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
@@ -52,7 +52,7 @@ function renderLeftPanel(w, h) {
   ctx.restore();
 
   const xToPx = (n) => x0 + pad.l + (n - 0.05) / 0.95 * (w - pad.l - pad.r);
-  const minLog = -20, maxLog = 0;
+  const minLog = -20, maxLog = 1;     // headroom: E_b can exceed 1 at large omega_D
   const yToPx = (l) => y0 + h - pad.b - (l - minLog) / (maxLog - minLog) * (h - pad.t - pad.b);
 
   ctx.strokeStyle = '#7fb3d5';
@@ -61,7 +61,11 @@ function renderLeftPanel(w, h) {
   ctx.beginPath();
   for (let i = 0; i <= 200; i++) {
     const n = 0.05 + 0.95 * i / 200;
-    const E = bindingEnergy(n);
+    // Pass omega_D so the whole E_b(N0V) curve shifts with the Debye
+    // slider (E_b ~ omega_D). Previously it used the sim default, so the
+    // dominant left-panel curve was omega_D-independent and the slider
+    // read as dead.
+    const E = bindingEnergy(n, st.omega_D);
     const l = Math.log10(Math.max(E, 1e-30));
     const px = xToPx(n), py = yToPx(l);
     if (i === 0) ctx.moveTo(px, py);
@@ -93,11 +97,12 @@ function renderRightPanel(x0, y0, w, h) {
 
   const N0V = st.N0 * st.V;
   const Ecur = bindingEnergy(N0V, st.omega_D);
-  // The pair amplitude g(xi) ~ 1 / (2|xi| + E_b) has characteristic
-  // width ~ E_b, which is exponentially smaller than the Debye cutoff.
-  // Zoom the axis to a few E_b so the peak and its coupling-dependent
-  // broadening are visible instead of an invisible spike in a void.
-  const xi_max = Math.min(st.omega_D, Math.max(8 * Ecur, 1e-4 * st.omega_D));
+  // FIXED xi window (absolute hbar*omega_D units). Auto-zooming to a few
+  // E_b made the plot self-similar, so the peak looked identical for
+  // every omega_D / coupling and the sliders read as dead. With a fixed
+  // window the peak visibly broadens as E_b ~ omega_D exp(-1/N0V) grows
+  // and narrows as it shrinks.
+  const xi_max = 0.12;
 
   const pad = { l: 40, r: 20, t: 30, b: 40 };
   ctx.strokeStyle = '#9aa0a6';
@@ -110,7 +115,7 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.fillStyle = '#9aa0a6';
   ctx.font = '9px ui-monospace, monospace';
   ctx.fillText('|g(ξ)|', x0 + 8, y0 + pad.t - 3);
-  ctx.fillText('ξ (zoomed to ~E_b)', x0 + w - 110, y0 + h - pad.b + 12);
+  ctx.fillText('ξ / ℏω_D (fixed window)', x0 + w - 130, y0 + h - pad.b + 12);
 
   const xToPx = (xi) => x0 + pad.l + (xi + xi_max) / (2 * xi_max) * (w - pad.l - pad.r);
   const maxG = 1 / Math.max(Math.abs(0 + Ecur), 1e-6) * 1.5;
