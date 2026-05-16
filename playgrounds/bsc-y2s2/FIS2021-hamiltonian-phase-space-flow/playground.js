@@ -50,8 +50,13 @@ function render() {
         const next = leapfrog(tr.q, tr.p, 0.05, st.system);
         tr.q = next.q; tr.p = next.p;
       }
-      if (tr.q > Math.PI) tr.q -= 2 * Math.PI;
-      if (tr.q < -Math.PI) tr.q += 2 * Math.PI;
+      // q is a periodic angle ONLY for the pendulum. Wrapping it for
+      // SHO / cubic chopped those trajectories at |q| > pi, which is why
+      // only the central x region worked for the non-pendulum systems.
+      if (st.system === 'pendulum') {
+        if (tr.q > Math.PI) tr.q -= 2 * Math.PI;
+        if (tr.q < -Math.PI) tr.q += 2 * Math.PI;
+      }
       tr.trail.push([tr.q, tr.p]); if (tr.trail.length > 2000) tr.trail.shift();
     }
     const h = hamiltonian(tr.q, tr.p, st.system);
