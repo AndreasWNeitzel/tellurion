@@ -187,7 +187,21 @@ export function setupTokamakGL(canvas) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vboPtCol);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ptCol), gl.DYNAMIC_DRAW);
 
+    dynCount = -1;          // a fresh scene drops any live particle set
     return { vesselVertexCount, lineVertexCount, pointCount: ptPos.length / 3 };
+  }
+
+  // Live plasma: replace the static point set with an externally
+  // integrated guiding-centre population (positions + colours, xyz/rgb
+  // interleaved as separate Float32Arrays). Buffers are DYNAMIC_DRAW so
+  // re-uploading every frame is cheap.
+  let dynCount = -1;
+  function setParticles(posF32, colF32) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, vboPtPos);
+    gl.bufferData(gl.ARRAY_BUFFER, posF32, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vboPtCol);
+    gl.bufferData(gl.ARRAY_BUFFER, colF32, gl.DYNAMIC_DRAW);
+    dynCount = posF32.length / 3;
   }
 
   function render(viewMat, projMat, sceneInfo) {
@@ -221,14 +235,14 @@ export function setupTokamakGL(canvas) {
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboPtCol);
     gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
-    gl.drawArrays(gl.POINTS, 0, sceneInfo.pointCount);
+    gl.drawArrays(gl.POINTS, 0, dynCount >= 0 ? dynCount : sceneInfo.pointCount);
     gl.depthMask(true);
     gl.disable(gl.BLEND);
     gl.disable(gl.DEPTH_TEST);
     post.run(sceneFBO.tex, 0.75, 0.25, 0.6);
   }
 
-  return { gl, buildScene, render };
+  return { gl, buildScene, render, setParticles };
 }
 
 function matMul(a, b) {
