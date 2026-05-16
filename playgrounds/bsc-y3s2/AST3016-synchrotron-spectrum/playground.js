@@ -1,7 +1,8 @@
-import { nu_c, singleSpec, powerLawSpec, spectralIndex } from './sim.js';
+import { nu_c, singleSpec, spectralIndex } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rA = document.getElementById('readout-a');
 const sG = document.getElementById('slider-g'), vG = document.getElementById('value-g');
@@ -18,56 +19,151 @@ btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: 50 };
-  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('log10 F', 12, pad.t + 10); ctx.fillText('log10 ν', W - 60, H - pad.b + 14);
+  const W = canvas.width, H = canvas.height;
+  const mainW = W * 0.6, rightW = W * 0.4;
+  const padL = 60, padR = 15, padT = 30, padB = 50;
   const B = Math.pow(10, st.logB) * 1e-4;
   const nu_peak = nu_c(st.gamma, B);
-  // FIXED absolute log-frequency axis so changing gamma or B visibly
-  // slides the whole spectrum, and changing p visibly tilts the slope.
-  // (Previously both axis and curve were normalized by nu_peak, which
-  // cancelled, so the plot looked identical for every slider value.)
-  const lnumin = 6, lnumax = 24;
-  const xToPx = (l) => pad.l + (l - lnumin) / (lnumax - lnumin) * (W - pad.l - pad.r);
-  // Common vertical scale: log10 F mapped over a 12-decade window with a
-  // fixed reference so slides do not auto-rescale away the motion.
-  const yRef = 2;
-  const yToPx = (lf) => H - pad.b - (lf - yRef + 12) / 12 * (H - pad.t - pad.b);
-  if (st.mode === 'single') {
-    const N = 600;
-    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
-    for (let i = 0; i < N; i += 1) {
-      const lnu = lnumin + (lnumax - lnumin) * i / (N - 1);
-      const x = Math.pow(10, lnu) / nu_peak;
-      const lf = Math.log10(singleSpec(x) + 1e-30);
-      const py = yToPx(lf);
-      if (i === 0) ctx.moveTo(xToPx(lnu), py); else ctx.lineTo(xToPx(lnu), py);
+  const alpha = spectralIndex(st.p);
+
+  // Left panel: photon spectrum F(nu) log-log
+  ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT);
+  ctx.lineTo(padL, H - padB);
+  ctx.lineTo(mainW - padR, H - padB);
+  ctx.stroke();
+
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('log F', 8, padT + 10);
+  ctx.fillText('log ν (Hz)', padL + (mainW - padL - padR) / 2 - 28, H - padB + 32);
+
+  // Build the spectrum on a log-nu grid. Single mode: one electron's
+  // F(nu/nu_c). Ensemble mode: the physically correct integral of the
+  // single-electron spectrum over N(gamma) ~ gamma^-p, which produces
+  // the low-nu nu^(1/3) rise, the nu^-((p-1)/2) power-law segment, and
+  // the exponential cutoff, all from sim.js (no hand-rolled branches).
+  const N = 500;
+  const gMax = st.gamma, gMin = gMax / 300;
+  const nuLo = st.mode === 'single' ? nu_peak * 3e-4 : nu_c(gMin, B) * 3e-3;
+  const nuHi = st.mode === 'single' ? nu_peak * 60 : nu_c(gMax, B) * 60;
+  const lnumin = Math.log10(nuLo), lnumax = Math.log10(nuHi);
+  const xToPx = (l) => padL + (l - lnumin) / (lnumax - lnumin) * (mainW - padL - padR);
+  const lf = new Float64Array(N);
+  let lmax = -1e30;
+  const NG = 56;
+  for (let i = 0; i < N; i += 1) {
+    const lnu = lnumin + (lnumax - lnumin) * i / (N - 1);
+    const nu = Math.pow(10, lnu);
+    let F;
+    if (st.mode === 'single') {
+      F = singleSpec(nu / nu_peak);
+    } else {
+      F = 0;
+      for (let k = 0; k < NG; k += 1) {
+        const g = gMin * Math.pow(gMax / gMin, k / (NG - 1));
+        F += Math.pow(g, -st.p) * singleSpec(nu / nu_c(g, B)) * g;   // * g for d(ln g)
+      }
     }
-    ctx.stroke();
-  } else {
-    const alpha = spectralIndex(st.p);
-    // Power-law: F(nu) ~ nu^-alpha with a cutoff near nu_peak. Plot on the
-    // same absolute axis so p tilts the slope and gamma/B shift the cutoff.
-    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
-    const N = 400;
-    for (let i = 0; i < N; i += 1) {
-      const lnu = lnumin + (lnumax - lnumin) * i / (N - 1);
-      const lognu_rel = lnu - Math.log10(nu_peak);
-      let lf = -alpha * (lnu - 9);
-      if (lognu_rel > 0) lf -= 2 * lognu_rel;        // exponential-ish cutoff
-      const py = yToPx(lf);
-      if (i === 0) ctx.moveTo(xToPx(lnu), py); else ctx.lineTo(xToPx(lnu), py);
-    }
-    ctx.stroke();
+    lf[i] = Math.log10(F + 1e-300);
+    if (lf[i] > lmax) lmax = lf[i];
   }
-  ctx.strokeStyle = '#5bc0eb'; ctx.setLineDash([3, 3]);
-  ctx.beginPath(); ctx.moveTo(xToPx(Math.log10(nu_peak)), pad.t); ctx.lineTo(xToPx(Math.log10(nu_peak)), H - pad.b); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#5bc0eb'; ctx.fillText(`ν_c = ${nu_peak.toExponential(2)} Hz`, xToPx(Math.log10(nu_peak)) + 4, pad.t + 14);
+  // Auto-scale: peak near the top, 8 decades of dynamic range shown.
+  const DR = 8;
+  const yToPx = (v) => {
+    let u = (v - (lmax - DR)) / DR; if (u < 0) u = 0; else if (u > 1) u = 1;
+    return H - padB - u * (H - padT - padB);
+  };
+  // Decade grid + labels on the frequency axis.
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  for (let d = Math.ceil(lnumin); d <= Math.floor(lnumax); d += 1) {
+    const px = xToPx(d);
+    ctx.strokeStyle = '#1b1b1f'; ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, H - padB); ctx.stroke();
+    if (d % 2 === 0) { ctx.fillStyle = '#6b7077'; ctx.fillText(`10^${d}`, px, H - padB + 14); }
+  }
+  ctx.textAlign = 'left';
+  // The spectrum.
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i < N; i += 1) {
+    const lnu = lnumin + (lnumax - lnumin) * i / (N - 1);
+    if (i === 0) ctx.moveTo(xToPx(lnu), yToPx(lf[i])); else ctx.lineTo(xToPx(lnu), yToPx(lf[i]));
+  }
+  ctx.stroke();
+  // Reference slope -alpha through the power-law segment so the user
+  // can read off that the slope equals -(p-1)/2 and watch it tilt with
+  // the p slider.
+  if (st.mode === 'ensemble') {
+    const la = Math.log10(nu_c(gMin, B)) + 0.6, lb = Math.log10(nu_c(gMax, B)) - 0.3;
+    const fa = lmax - 1.0;
+    ctx.strokeStyle = 'rgba(91,192,235,0.8)'; ctx.lineWidth = 1.4; ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xToPx(la), yToPx(fa));
+    ctx.lineTo(xToPx(lb), yToPx(fa - alpha * (lb - la)));
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`slope = -α = -(p-1)/2 = ${(-alpha).toFixed(2)}`, xToPx(la), yToPx(fa) - 8);
+  }
+  const lcut = Math.log10(st.mode === 'single' ? nu_peak : nu_c(gMax, B));
+  ctx.strokeStyle = '#ef476f'; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(xToPx(lcut), padT); ctx.lineTo(xToPx(lcut), H - padB); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#ef476f'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillText(`ν_c = ${Math.pow(10, lcut).toExponential(1)} Hz`, Math.min(xToPx(lcut) + 4, mainW - 120), padT + 12);
+
+  // Right panel: electron distribution N(gamma) ~ gamma^-p (ensemble mode only)
+  if (st.mode === 'ensemble') {
+    const rightPadL = mainW + 8, rightPadR = 8, rightPadT = padT, rightPadB = padB;
+    ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(rightPadL, rightPadT);
+    ctx.lineTo(rightPadL, H - rightPadB);
+    ctx.lineTo(W - rightPadR, H - rightPadB);
+    ctx.stroke();
+
+    ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText('log N', mainW + 4, rightPadT + 10);
+    ctx.fillText('log γ', mainW + (rightW - rightPadR) * 0.4, H - rightPadB + 16);
+
+    const lgmin = 0, lgmax = 4.5;
+    const xDist = (lg) => rightPadL + (lg - lgmin) / (lgmax - lgmin) * (W - rightPadR - rightPadL);
+    const refDist = 0;
+    const yDist = (ln) => H - rightPadB - (ln - refDist + 6) / 6 * (H - rightPadT - rightPadB);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(rightPadL, rightPadT, W - rightPadR - rightPadL, H - rightPadB - rightPadT);
+    ctx.clip();
+    // Normalise the line to the top-left so the chosen p only tilts the
+    // slope and the line stays inside the panel for any p.
+    ctx.strokeStyle = '#6cc24a'; ctx.lineWidth = 2; ctx.beginPath();
+    const ND = 300;
+    for (let i = 0; i < ND; i += 1) {
+      const lg = lgmin + (lgmax - lgmin) * i / (ND - 1);
+      const ln = -st.p * (lg - lgmin);
+      const py = yDist(ln + 1);
+      const px = xDist(lg);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`γ = ${st.gamma.toFixed(0)}, B = 10^${st.logB.toFixed(1)} G, α = (p-1)/2 = ${spectralIndex(st.p).toFixed(2)}`, 12, H - 14);
-  rA.textContent = spectralIndex(st.p).toFixed(2);
+  ctx.fillText(`γ = ${st.gamma.toFixed(0)}, B = 10^${st.logB.toFixed(1)} G, p = ${st.p.toFixed(2)}, α = ${alpha.toFixed(2)}`, padL + 70, 16);
+  rA.textContent = alpha.toFixed(2);
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME) {
+    // Headline view: the ensemble power-law spectrum, with p swept
+    // across frames so the goldens show the slope tilting (the slider
+    // the user reported as dead now visibly drives the spectral index).
+    st.mode = 'ensemble';
+    st.p = 1.8 + CAPTURE_FRAC * 1.6;
+    if (selM) selM.value = 'ensemble';
+    if (vP) vP.textContent = st.p.toFixed(2);
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
