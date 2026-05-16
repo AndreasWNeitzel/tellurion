@@ -177,9 +177,9 @@ function renderHTML(cards) {
   <link rel="stylesheet" href="./shared/css/tokens.css">
   <link rel="stylesheet" href="./shared/css/base.css">
   <style>
-    body { max-width: 1100px; margin: 0 auto; padding: var(--space-6) var(--space-5); }
+    body { max-width: 1480px; margin: 0 auto; padding: var(--space-6) var(--space-5); }
     h1 { margin-bottom: var(--space-4); }
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-4); }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: var(--space-4); }
     .card { border: 1px solid var(--grid); border-radius: 8px; padding: var(--space-3) var(--space-4); background: var(--surface); }
     .card h2 { font-size: 1.05rem; margin: 0 0 var(--space-2); }
     .card h2 a { text-decoration: none; color: var(--fg); }
