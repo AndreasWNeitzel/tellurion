@@ -86,7 +86,11 @@ window.__camera = camera;
 // confinement); theta/phi advance along the field; trapped particles
 // reflect at the mirror points and r_draw carries the grad-B banana
 // width so the bounce traces the classic banana in the poloidal plane.
-const NPART = 12000;
+// 12000 guiding-centre integrations plus a 72k-float GPU re-upload
+// every frame starved the render loop, so mouse-drag of the camera had
+// no time to repaint and felt lost. 4500 keeps the column dense while
+// leaving the frame budget for responsive orbit-drag.
+const NPART = 4500;
 const pr = new Float32Array(NPART);
 const pth = new Float32Array(NPART);
 const pph = new Float32Array(NPART);

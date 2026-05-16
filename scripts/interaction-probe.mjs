@@ -17,7 +17,8 @@ const ROOT = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const slug = args[args.indexOf('--playground') + 1];
 const doClick = args.includes('--click');
-if (!slug) { console.error('Usage: interaction-probe.mjs --playground <slug> [--click]'); process.exit(2); }
+const doDrag = args.includes('--drag');
+if (!slug) { console.error('Usage: interaction-probe.mjs --playground <slug> [--click] [--drag]'); process.exit(2); }
 
 function resolveDir(s) {
   const direct = path.join(ROOT, 'playgrounds', s);
@@ -160,6 +161,28 @@ try {
     const verdict = f >= okThresh ? 'OK  ' : (f > Math.max(noise * 1.5, 0.0008) ? 'WEAK' : 'DEAD');
     console.log(`${verdict}  click  #stage  (${(f * 100).toFixed(2)}% changed)`);
     if (verdict !== 'OK  ') fails.push(`click:#stage[${verdict.trim()}]`);
+  }
+  if (doDrag) {
+    // Orbit-camera drag: a real pointer press-move-release on the canvas
+    // must rotate the 3D scene. A HUD overlay with pointer-events:auto
+    // sitting over the canvas swallows the press and the view never
+    // moves; that exact regression is what this catches. Drag from a
+    // point well clear of any top-left readout panel.
+    const box = await page.locator('#stage').boundingBox();
+    const x0 = box.x + box.width * 0.6, y0 = box.y + box.height * 0.62;
+    const before = await hash();
+    await page.mouse.move(x0, y0);
+    await page.mouse.down();
+    await page.mouse.move(x0 - box.width * 0.28, y0 - box.height * 0.16, { steps: 12 });
+    await page.mouse.up();
+    await page.waitForTimeout(450);
+    const after = await hash();
+    const f = changedFrac(before, after);
+    // A camera rotation repaints almost the whole frame; require it to
+    // clear the same animation-noise threshold the other probes use.
+    const verdict = f >= okThresh ? 'OK  ' : (f > Math.max(noise * 1.5, 0.0008) ? 'WEAK' : 'DEAD');
+    console.log(`${verdict}  drag  #stage  (${(f * 100).toFixed(2)}% changed)`);
+    if (verdict !== 'OK  ') fails.push(`drag:#stage[${verdict.trim()}]`);
   }
 } finally {
   await browser.close();

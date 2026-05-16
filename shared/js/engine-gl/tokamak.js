@@ -230,7 +230,7 @@ export function setupTokamakGL(canvas) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.depthMask(false);
     gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, 'uMVP'), false, mvp);
-    gl.uniform1f(gl.getUniformLocation(pointProg, 'uPointSize'), 8);
+    gl.uniform1f(gl.getUniformLocation(pointProg, 'uPointSize'), 4);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboPtPos);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboPtCol);
