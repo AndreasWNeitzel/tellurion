@@ -26,7 +26,7 @@ btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textConten
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
 const A_IN = 2.0, A_OUT = 3.5;          // belt extent (AU)
-const GAP_HALF = 0.045;                 // resonance clearing half-width (AU)
+const GAP_HALF = 0.10;                  // resonance clearing half-width (AU)
 
 function render() {
   const W = canvas.width, H = canvas.height;
@@ -45,16 +45,23 @@ function render() {
   ctx.fillStyle = sun; ctx.beginPath(); ctx.arc(cx, cy, 16, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fill();
 
+  // Faint dark annulus at each resonance so the cleared ring is
+  // unmistakable even before the eye parses the density drop.
+  for (const r of res) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.lineWidth = 2 * GAP_HALF * PX;
+    ctx.beginPath(); ctx.arc(cx, cy, PX * r.a, 0, 2 * Math.PI); ctx.stroke();
+  }
   // Asteroid belt: deterministic seeded positions, cleared at resonances.
   const rng = makeRng(0xC0FFEE);
-  const N = 4200;
+  const N = 9000;
   for (let i = 0; i < N; i += 1) {
     // a weighted toward the belt centre; small eccentricity for realism.
     const a = A_IN + (A_OUT - A_IN) * rng();
     const th0 = rng() * 2 * Math.PI;
     let cleared = false;
     for (const r of res) if (Math.abs(a - r.a) < GAP_HALF) { cleared = true; break; }
-    if (cleared && rng() < 0.93) continue;
+    if (cleared && rng() < 0.985) continue;   // near-total clearing -> obvious dark ring
     const e = 0.02 + 0.06 * rng();
     const th = th0 + st.t * Math.pow(a, -1.5) * 0.6;     // Kepler: outer slower
     const rr = a * (1 - e * Math.cos(th));
