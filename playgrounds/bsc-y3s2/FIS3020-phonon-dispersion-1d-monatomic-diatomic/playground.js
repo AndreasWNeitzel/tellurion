@@ -2,6 +2,7 @@ import { monatomic, diatomic, gapAtZoneBoundary } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rG = document.getElementById('readout-g');
 const sM1 = document.getElementById('slider-m1'), vM1 = document.getElementById('value-m1');
@@ -14,20 +15,23 @@ sM2.addEventListener('input', () => { st.m2 = parseFloat(sM2.value); vM2.textCon
 sK.addEventListener('input', () => { st.K = parseFloat(sK.value); vK.textContent = st.K.toFixed(2); });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+// Plot occupies the top; a dedicated lattice band sits below it so the
+// atoms never overlap the axis or the readout. The y-axis uses a FIXED
+// omega scale (not auto-scaled by the data), so raising K visibly
+// pushes the branches up instead of rescaling the whole plot to look
+// unchanged. OMEGA_MAX covers the slider extremes (K=3, m=0.5).
+const PLOT_B = 150;                 // px reserved below the plot
+const LAT_TOP = () => canvas.height - 118;
+const LAT_BOT = () => canvas.height - 40;
+const OMEGA_MAX = 5.0;
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: 50 };
+  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: PLOT_B };
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('ω(k)', 12, pad.t + 10); ctx.fillText('k a / π', W - 60, H - pad.b + 14);
-  let omegaMax = 0;
-  for (let i = -100; i <= 100; i += 1) {
-    const k = i / 100 * Math.PI;
-    const d = diatomic(k, st.K, st.m1, st.m2);
-    if (d.optical > omegaMax) omegaMax = d.optical;
-  }
+  ctx.fillText('ω(k)', 12, pad.t + 10); ctx.fillText('k a / π', W - 60, H - pad.b + 16);
   const xToPx = (k) => pad.l + (k + Math.PI) / (2 * Math.PI) * (W - pad.l - pad.r);
-  const yToPx = (o) => H - pad.b - o / omegaMax * (H - pad.t - pad.b);
+  const yToPx = (o) => H - pad.b - Math.min(o, OMEGA_MAX) / OMEGA_MAX * (H - pad.t - pad.b);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.beginPath();
   for (let i = -100; i <= 100; i += 1) {
     const k = i / 100 * Math.PI;
@@ -57,7 +61,7 @@ function render() {
   ctx.fillStyle = '#06d6a0'; ctx.fillText('Acoustic', pad.l + 10, pad.t + 56);
   ctx.fillStyle = '#ffd166'; ctx.fillText('Optical', pad.l + 10, pad.t + 72);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`m₁ = ${st.m1.toFixed(2)}, m₂ = ${st.m2.toFixed(2)}, K = ${st.K.toFixed(2)}`, 12, H - 14);
+  ctx.fillText(`m₁ = ${st.m1.toFixed(2)}, m₂ = ${st.m2.toFixed(2)}, K = ${st.K.toFixed(2)}  (raise K -> branches rise)`, pad.l + 10, pad.t + 92);
   rG.textContent = (gap.high - gap.low).toFixed(2);
 }
 // Upgrade 1-A: a 24-atom strip below the dispersion curve. Clicking any
@@ -76,15 +80,10 @@ canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
   const px = (e.clientX - rect.left) * (canvas.width / rect.width);
   const py = (e.clientY - rect.top) * (canvas.height / rect.height);
-  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: 50 };
+  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: PLOT_B };
   if (px < pad.l || px > W - pad.r || py < pad.t || py > H - pad.b) return;
   const k = (px - pad.l) / (W - pad.l - pad.r) * 2 * Math.PI - Math.PI;
-  let omegaMax = 0;
-  for (let i = -100; i <= 100; i += 1) {
-    const d = diatomic(i / 100 * Math.PI, st.K, st.m1, st.m2);
-    if (d.optical > omegaMax) omegaMax = d.optical;
-  }
-  const clickedOmega = (H - pad.b - py) / (H - pad.t - pad.b) * omegaMax;
+  const clickedOmega = (H - pad.b - py) / (H - pad.t - pad.b) * OMEGA_MAX;
   const mono = monatomic(k, st.K, (st.m1 + st.m2) / 2);
   const di = diatomic(k, st.K, st.m1, st.m2);
   const cand = [
@@ -98,13 +97,20 @@ canvas.addEventListener('click', (e) => {
 });
 
 function renderLattice() {
-  const W = canvas.width, H = canvas.height;
-  const stripY = H - 26;
+  const W = canvas.width;
+  // Dedicated band well below the dispersion plot, so atoms never
+  // overlap the axis label or the parameter readout.
+  const bandTop = LAT_TOP(), bandBot = LAT_BOT();
+  const stripY = (bandTop + bandBot) / 2;
   const dx = W / (NATOMS + 4), x0 = dx * 2;
   // Scale omega so one period is ~3 s real time.
-  const tReal = (performance.now() - _t0) / 1000;
-  const omegaAnim = 2 * Math.PI / 3;             // 3 s per period
-  const phase = running ? omegaAnim * tReal : 0;
+  let phase;
+  if (CAPTURE_NAME) {
+    phase = CAPTURE_FRAC * 2 * Math.PI;          // deterministic per frame
+  } else {
+    const tReal = (performance.now() - _t0) / 1000;
+    phase = running ? (2 * Math.PI / 3) * tReal : 0;
+  }
   ctx.fillStyle = 'rgba(220,220,240,0.07)';
   ctx.fillRect(0, stripY - 16, W, 32);
   const k = selected.k;
@@ -131,5 +137,18 @@ function renderLattice() {
 }
 
 function tick() { render(); renderLattice(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME) {
+    // Vary K across capture frames so the gate exercises the now-fixed
+    // K dependence (raising K visibly lifts the branches).
+    st.K = 0.5 + CAPTURE_FRAC * 2.5;
+    vK.textContent = st.K.toFixed(2);
+    // Pick a representative mode per frame for the lattice band.
+    selected = CAPTURE_FRAC < 0.5
+      ? { k: Math.PI / 2, omega: 1, branch: 'acoustic' }
+      : { k: Math.PI / 2, omega: 1, branch: 'optical' };
+  }
+  render(); renderLattice();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
