@@ -111,3 +111,14 @@ button[data-variant="primary"] {
    the radical bar of long sqrt expressions. */
 .katex { font-size: 1em; white-space: nowrap; }
 .katex-display { white-space: normal; }
+/* The global `canvas, svg` rule below paints a surface background, box
+   shadow, border radius and max-width:100% onto KaTeX's internal radical
+   SVG, which hid the radicand of every \sqrt. Neutralise those for any
+   SVG inside KaTeX; KaTeX's own stylesheet still controls display and
+   positioning. */
+.katex svg, .katex-display svg {
+  max-width: none;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
