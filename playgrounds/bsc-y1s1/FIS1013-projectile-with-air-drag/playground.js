@@ -172,9 +172,14 @@ function bootSync() {
   drawAll();
 }
 
+// Live pacing: step the sim at ~20 Hz rather than every 60 Hz frame so
+// the flight is followable (was too fast). The deterministic capture
+// path returns before tick(), so goldens are unaffected.
+let liveFrame = 0;
 function tick() {
   if (state.playing) {
-    tickN(state.speed);
+    liveFrame += 1;
+    if (liveFrame % 3 === 0) tickN(state.speed);
     drawAll();
   }
   requestAnimationFrame(tick);
