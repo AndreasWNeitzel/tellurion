@@ -63,18 +63,29 @@ void main() {
   float dt = (t1 - t0) / float(STEPS);
   vec3 col = vec3(0.0);
   if (uMode == 1) {
-    // Isosurface: march until density first exceeds threshold, then shade Blinn-Phong.
+    // Isosurface: march to the first crossing, then a few bisection
+    // steps for a smooth (non-stairstepped) surface. Lobes are coloured
+    // by the wavefunction sign (the classic two-tone orbital look) and
+    // lit with a key + fill + a luminous fresnel rim.
     bool hit = false;
-    vec3 pHit = vec3(0.0);
+    float tPrev = t0;
+    float tHit = t0;
     for (int i = 0; i < 160; i += 1) {
-      vec3 p = ro + (t0 + (float(i) + 0.5) * dt) * rd;
-      vec3 sp = p * 0.5 + 0.5;
-      float d = texture(uVolume, sp).r;
-      if (d > uIsoThreshold) { hit = true; pHit = p; break; }
+      float tc = t0 + (float(i) + 0.5) * dt;
+      vec3 sp = (ro + tc * rd) * 0.5 + 0.5;
+      if (texture(uVolume, sp).r > uIsoThreshold) { hit = true; tHit = tc; break; }
+      tPrev = tc;
     }
     if (hit) {
+      float ta = tPrev, tb = tHit;
+      for (int b = 0; b < 6; b += 1) {
+        float tm = 0.5 * (ta + tb);
+        vec3 spm = (ro + tm * rd) * 0.5 + 0.5;
+        if (texture(uVolume, spm).r > uIsoThreshold) tb = tm; else ta = tm;
+      }
+      vec3 pHit = ro + tb * rd;
       vec3 sp = pHit * 0.5 + 0.5;
-      vec3 step3 = vec3(1.0 / 40.0);
+      vec3 step3 = vec3(1.0 / 56.0);
       float dxp = texture(uVolume, sp + vec3(step3.x, 0, 0)).r;
       float dxn = texture(uVolume, sp - vec3(step3.x, 0, 0)).r;
       float dyp = texture(uVolume, sp + vec3(0, step3.y, 0)).r;
@@ -82,13 +93,22 @@ void main() {
       float dzp = texture(uVolume, sp + vec3(0, 0, step3.z)).r;
       float dzn = texture(uVolume, sp - vec3(0, 0, step3.z)).r;
       vec3 n = normalize(-vec3(dxp - dxn, dyp - dyn, dzp - dzn));
-      vec3 L = normalize(vec3(0.5, 0.8, 0.3));
       vec3 V = normalize(uCamPos - pHit);
-      vec3 H = normalize(L + V);
-      float diff = max(0.0, dot(n, L));
-      float spec = pow(max(0.0, dot(n, H)), 24.0);
-      vec3 albedo = viridis(uIsoThreshold * 3.0);
-      col = albedo * (0.2 + 0.8 * diff) + vec3(spec) * 0.6;
+      vec3 L1 = normalize(vec3(0.5, 0.85, 0.35));
+      vec3 L2 = normalize(vec3(-0.45, -0.15, -0.6));
+      vec3 H1 = normalize(L1 + V);
+      float diff = 0.55 * max(0.0, dot(n, L1)) + 0.22 * max(0.0, dot(n, L2)) + 0.20;
+      float spec = pow(max(0.0, dot(n, H1)), 42.0) * 0.55;
+      // Sign of the wavefunction from the phase channel: opposite-sign
+      // lobes get complementary colours (gold / teal), not a flat ramp.
+      float g = texture(uVolume, sp).g;
+      float s = smoothstep(-0.18, 0.18, cos(6.2831853 * g));
+      vec3 gold = vec3(1.00, 0.74, 0.36);
+      vec3 teal = vec3(0.26, 0.78, 0.92);
+      vec3 albedo = mix(teal, gold, s);
+      float fres = pow(1.0 - max(0.0, dot(n, V)), 3.0);
+      vec3 rim = fres * mix(vec3(0.45, 0.75, 1.0), albedo, 0.4) * 0.7;
+      col = albedo * diff + vec3(spec) + rim;
     } else {
       col = vec3(0.02, 0.02, 0.03);
     }

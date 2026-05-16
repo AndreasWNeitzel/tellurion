@@ -150,7 +150,7 @@ function bootSync() {
     const settle = () => {
       render();
       warm += 1;
-      if (warm < 8) { requestAnimationFrame(settle); return; }
+      if (warm < 24) { requestAnimationFrame(settle); return; }
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     };
