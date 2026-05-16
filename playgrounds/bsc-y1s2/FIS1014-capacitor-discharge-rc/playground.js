@@ -217,7 +217,11 @@ function tick(now) {
     if (holdUntil > 0) {
       if (now >= holdUntil) { holdUntil = 0; t = 0; }
     } else {
-      t += dt;
+      // Fixed wall-clock duration for the full 0..7 tau sweep so the
+      // discharge is followable for any R, C (was real-time, which flew
+      // by whenever tau was small).
+      const SWEEP_SECONDS = 9;
+      t += dt * (7 * tau / SWEEP_SECONDS);
       if (t > 7 * tau) { t = 7 * tau; holdUntil = now + 1000; }
     }
   }
