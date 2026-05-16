@@ -7,9 +7,10 @@ const rD = document.getElementById('readout-d');
 const sN = document.getElementById('slider-N'), vN = document.getElementById('value-N');
 const sT = document.getElementById('slider-T'), vT = document.getElementById('value-T');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { N0V: 0.3, tRel: 0.3 }; let running = true;
+let st = { N0V: 0.3, tRel: 0.3 }; let running = true; let userControlling = false;
 sN.addEventListener('input', () => { st.N0V = parseFloat(sN.value); vN.textContent = st.N0V.toFixed(2); });
-sT.addEventListener('input', () => { st.tRel = parseFloat(sT.value); vT.textContent = st.tRel.toFixed(2); });
+sT.addEventListener('input', () => { userControlling = true; st.tRel = parseFloat(sT.value); vT.textContent = st.tRel.toFixed(2); });
+sT.addEventListener('change', () => { userControlling = false; });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 let sweep = 0;     // autoplay temperature sweep phase
@@ -61,27 +62,33 @@ function render() {
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('Delta(T)/Delta0', 10, pad.t + 10); ctx.fillText('T/Tc', W - 50, H - pad.b + 12);
+  ctx.fillText('Delta(T)/Delta0', 10, pad.t - 4); ctx.fillText('T/Tc', W - 46, H - pad.b + 12);
   const xToPx = (t) => pad.l + t * (W - pad.l - pad.r);
-  const yToPx = (d) => H - pad.b - d * (H - pad.t - pad.b);
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+  // 1.08 headroom so the flat Delta(T~0) ~ 1 segment does not graze the
+  // panel boundary.
+  const yToPx = (d) => H - pad.b - (d / 1.08) * (H - pad.t - pad.b);
+  for (const yt of [0, 0.5, 1]) {
+    const gy = yToPx(yt);
+    ctx.strokeStyle = '#1b1b1f'; ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(W - pad.r, gy); ctx.stroke();
+    ctx.fillStyle = '#6b7077'; ctx.fillText(yt.toFixed(1), pad.l - 28, gy + 3);
+  }
+  ctx.fillStyle = '#6b7077'; ctx.fillText('1.0', xToPx(1) - 8, H - pad.b + 12);
+  ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 100; i += 1) {
     const t = i / 100;
     const d = gapAtT(t * Tc_v, st.N0V) / Delta0;
     if (i === 0) ctx.moveTo(xToPx(t), yToPx(d)); else ctx.lineTo(xToPx(t), yToPx(d));
   }
   ctx.stroke();
-  ctx.fillStyle = '#06d6a0';
-  ctx.beginPath(); ctx.arc(xToPx(tCur), yToPx(dRel), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#f472b6';
+  ctx.beginPath(); ctx.arc(xToPx(tCur), yToPx(dRel), 6, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`N(0)V=${st.N0V.toFixed(2)}  2Delta0/kTc=${(2 * Delta0 / Tc_v).toFixed(3)}`, 12, H - 8);
+  ctx.fillText(`N(0)V=${st.N0V.toFixed(3)}  Tc=${Tc_v.toFixed(3)}  2Δ₀/kBTc=${(2 * Delta0 / Tc_v).toFixed(3)}`, 12, H - 8);
   rD.textContent = dRel.toFixed(3);
 }
 
 function tick() {
-  if (running) {
-    // Autoplay: slowly sweep temperature up and back so the gap opens and
-    // closes without user input (Q1).
+  if (running && !userControlling) {
     sweep += 0.01;
     st.tRel = 0.5 + 0.5 * Math.sin(sweep * 0.5);
     vT.textContent = st.tRel.toFixed(2);
