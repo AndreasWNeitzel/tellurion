@@ -44,6 +44,7 @@ const state = {
   L: 4.2,                  // cable length (slack); slider-controlled
   drag: null,              // 1 | 2 | null
   sway: 0,
+  speed: parseInt(sliderSpeed.value, 10) || 2,   // was undefined -> NaN sway
   playing: !DETERMINISTIC,
 };
 
