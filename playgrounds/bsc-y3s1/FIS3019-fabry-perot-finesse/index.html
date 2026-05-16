@@ -23,20 +23,21 @@
   <h1>Fabry-Perot etalon: Airy transmission</h1>
 
   <p>
-    <strong>What you are seeing:</strong> the transmission of a
-    Fabry-Perot etalon (two parallel mirrors of reflectance $R$ at
-    spacing $L$) as a function of round-trip phase
-    $\phi = 4 \pi n L \cos\theta / \lambda$. The Airy distribution
-    $T(\phi) = 1 / (1 + F \sin^2(\phi/2))$ has sharp transmission peaks
-    at $\phi = 2 \pi m$ (resonance) with width controlled by the
-    coefficient of finesse $F = 4R/(1-R)^2$.
+    <strong>What you are seeing:</strong> a scanned Fabry-Perot cavity.
+    An input beam undergoes multiple partial reflections between two
+    mirrors of reflectance $R$; as the round-trip phase
+    $\phi = 4\pi n L \cos\theta / \lambda$ is swept, the circulating
+    field builds up and the cavity flashes bright with a strong
+    transmitted beam at each resonance ($\phi = 2\pi m$), while between
+    resonances it is dark and the light is reflected.
   </p>
   <p>
-    The finesse $F_* = \pi \sqrt{R} / (1 - R)$ measures how many FWHM
-    fit inside a free spectral range. A laser cavity ($R \approx 0.99$)
-    has $F_* \approx 313$, giving extremely narrow peaks; a low-finesse
-    etalon ($R = 0.5$) has $F_* \approx 4.4$ and broad peaks. The right
-    panel zooms onto a single resonance.
+    Raising $R$ sharpens the resonances: the finesse
+    $F_* = \pi\sqrt{R}/(1-R)$ counts FWHM per free spectral range, so
+    $R \approx 0.99$ gives razor-thin peaks ($F_* \approx 313$, almost
+    always missed) and $R = 0.5$ broad ones ($F_* \approx 4.4$). A
+    synced Airy strip plots $T(\phi)$ over three FSRs with a marker
+    tracking the scan, plus the live finesse and $T_\min$.
   </p>
 
   <figure class="pg-figure">

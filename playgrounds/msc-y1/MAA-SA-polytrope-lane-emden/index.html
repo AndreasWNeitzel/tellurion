@@ -23,20 +23,22 @@
   <h1>Lane-Emden polytrope</h1>
 
   <p>
-    <strong>What you are seeing:</strong> the dimensionless density
-    profile $\theta(\xi)$ of a polytropic star satisfying
-    $\theta'' + (2/\xi) \theta' + \theta^n = 0$, with $\theta(0) = 1$
-    and $\theta'(0) = 0$. The first zero $\xi_1$ marks the stellar
-    surface. Three indices admit closed-form solutions ($n = 0, 1, 5$);
-    others including $n = 3/2$ (degenerate non-rel, brown dwarfs) and
-    $n = 3$ (relativistic-limit white dwarf, Chandrasekhar) require
-    numerical RK4.
+    <strong>What you are seeing:</strong> the Lane-Emden polytrope shown
+    as the star it describes. The dimensionless solution $\theta(\xi)$
+    of $\theta'' + (2/\xi)\theta' + \theta^n = 0$ ($\theta(0)=1$,
+    $\theta'(0)=0$) is mapped to a density-shaded sphere with
+    $\rho/\rho_c = \theta(\xi)^n$: a bright dense core fading to a faint
+    envelope, a cutaway wedge exposing the interior run, and isodensity
+    contour rings. Selecting the index $n$ restructures the star, from a
+    compact uniform $n = 0$ sphere to the huge, formally infinite,
+    diffuse $n = 5$ envelope.
   </p>
   <p>
-    The right panel marks $\xi_1$ for the chosen $n$. Known values
-    cross-checked: $\xi_1 = \sqrt{6}$ for $n = 0$, $\xi_1 = \pi$ for
-    $n = 1$, $\xi_1 \approx 3.6537$ for $n = 1.5$, $\xi_1 \approx 6.8969$
-    for $n = 3$, and $\xi_1 \to \infty$ for $n = 5$ (infinite radius).
+    A linked $\theta(\xi)$ strip with the $\xi_1$ surface marker and an
+    animated radial probe ties the 1D solution to the 2D structure.
+    Cross-checked: $\xi_1 = \sqrt{6}$ for $n = 0$, $\pi$ for $n = 1$,
+    $\approx 3.6537$ for $n = 1.5$, $\approx 6.8969$ for $n = 3$, and
+    $\xi_1 \to \infty$ for $n = 5$.
   </p>
 
   <figure class="pg-figure">

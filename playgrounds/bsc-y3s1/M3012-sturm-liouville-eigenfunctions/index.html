@@ -23,17 +23,20 @@
   <h1>Sturm-Liouville eigenfunctions on [0, pi]</h1>
 
   <p>
-    <strong>What you are seeing:</strong> the orthonormal eigenfunctions
-    $\phi_n(x) = \sqrt{2/\pi} \sin(n x)$ of $-y'' = \lambda y$ on
-    $[0, \pi]$ with $y(0) = y(\pi) = 0$. Eigenvalues are $\lambda_n = n^2$.
-    The right panel plots a target function $f(x) = x (\pi - x)$ and
-    its truncated Fourier-Sturm-Liouville reconstruction
-    $\sum_{n=1}^{N} c_n \phi_n(x)$ where $c_n = \langle \phi_n, f\rangle$.
+    <strong>What you are seeing:</strong> the Sturm-Liouville modes of
+    $-y'' = \lambda y$ on $[0, \pi]$ with $y(0) = y(\pi) = 0$ are the
+    normal modes of a clamped string. The top panel is a vibrating
+    string evolving as $y(x,t) = \sum_{n=1}^{N} c_n \phi_n(x)
+    \cos(\omega_n t)$ with $\omega_n = \sqrt{\lambda_n} = n$, so the
+    eigenvalue spectrum $\lambda_n = n^2$ becomes visible motion. The
+    lower lanes show each normal mode oscillating at its own rate
+    (mode $n$ is $n$ times faster).
   </p>
   <p>
-    As you increase $N$, the reconstruction converges to $f$. The
-    expansion uses only odd $n$ because $f$ is symmetric about $\pi/2$
-    while $\phi_n$ for even $n$ is antisymmetric there.
+    Click the string to re-pluck it (a triangular initial condition at
+    the cursor) and watch the modal mix change. The $N$ slider sets how
+    many eigenfunctions reconstruct the profile, with the maximum
+    reconstruction error read out live.
   </p>
 
   <figure class="pg-figure">
