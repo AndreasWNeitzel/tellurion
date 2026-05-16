@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Catastrophic Cancellation in 1 - cos(x)</title>
+  <title>Floating-Point Pitfalls: the Patriot Missile Failure</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
@@ -14,47 +14,62 @@
     .pg-figure { max-width: 760px; }
     .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
     .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .btns { grid-column: 1 / -1; display: flex; gap: var(--space-3); align-items: center; }
+    .pg-controls .btns button { font: inherit; padding: 6px 14px; }
+    .pg-controls .btns label { font-size: 13px; color: var(--fg-muted); display: flex; gap: 6px; align-items: center; }
   </style>
 </head>
 <body>
-  <h1>Catastrophic cancellation in floating point</h1>
+  <h1>Floating-point pitfalls: the Patriot missile failure</h1>
 
   <p>
-    <strong>What you are seeing:</strong> the relative error of the naive
-    formula $1 - \cos(x)$ as $x \to 0$ on a log-log plot, compared to
-    the algebraically identical but numerically stable
-    $2 \sin^2(x/2)$. For small $x$, $\cos(x)$ is very close to 1, and
-    subtracting them loses most of the significant digits in IEEE-754
-    double precision. The fix uses the half-angle identity to compute
-    the small quantity directly, never forming the near-equal difference.
+    <strong>What you are seeing:</strong> Dhahran, 25 February 1991. A
+    Patriot battery counts time in 0.1 s ticks and multiplies by a
+    24-bit fixed-point copy of $0.1$. Since $0.1$ is not exact in binary,
+    chopping it to 24 bits gives $209715/2097152 = 0.0999999046\ldots$,
+    so every tick is short by $\approx 9.5\times10^{-8}$ s. The error is
+    never reset while the battery is powered, so it accumulates
+    linearly. After about 100 hours of uptime the clock is off by
+    $\approx 0.34$ s.
   </p>
   <p>
-    The naive curve plummets toward the floor at $x \sim 10^{-8}$
-    (about $\sqrt{\epsilon_\text{mach}}$) and pegs at 100 percent relative
-    error around $x \sim 10^{-15}$ where it returns exactly zero. The
-    stable curve stays at machine precision throughout.
+    The radar places its <em>range gate</em> (where it expects the
+    tracked target on the next sweep) using that clock. Multiply the
+    time error by the Scud closing speed ($\approx 1676$ m/s, Mach 5)
+    and the gate is displaced by roughly half a kilometre. The incoming
+    Scud falls outside the gate, the track is dropped, no interceptor
+    is fired. Drag <em>uptime</em> up and watch the gate walk off the
+    target; toggle the patched software to see the drift vanish.
   </p>
 
   <figure class="pg-figure">
     <canvas id="stage" width="760" height="500" tabindex="0"
-            aria-label="Log-log plot of relative error of two formulae for 1 - cos(x) versus x."></canvas>
+            aria-label="Patriot range gate displaced by accumulated floating-point clock error versus uptime."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">naive vs Taylor:</span><span class="value" id="readout-naive">0</span>
-      <span class="label">stable vs Taylor:</span><span class="value" id="readout-stable">0</span>
+      <span class="label">clock error:</span><span class="value" id="readout-time">0 ms</span>
+      <span class="label">range error:</span><span class="value" id="readout-range">0 m</span>
+      <span class="label">track:</span><span class="value" id="readout-status">TRACKING</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      Catastrophic cancellation in $1 - \cos(x)$. Method: closed-form
-      evaluation of both algorithms on $x \in [10^{-16}, 1]$. Source:
-      Newman, Computational Physics Ch. 4 (`newman2013`).
+      Accumulated 24-bit fixed-point clock error displacing the Patriot
+      range gate. Method: exact IEEE chop error per 0.1 s tick times
+      uptime times closing speed. Source: GAO/IMTEC-92-26 (1992);
+      Skeel, SIAM News 25(4) 1992; Goldberg (`goldberg1991`).
     </figcaption>
   </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Sample point">
-    <div class="row"><span class="label">log10(x)</span><input aria-label="log10(x)" type="range" id="slider-logx" min="-16" max="0" step="0.05" value="-8"><span class="value" id="value-logx">-8.00</span></div>
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Scenario controls">
+    <div class="row"><span class="label">uptime (hours)</span><input aria-label="uptime in hours" type="range" id="slider-hours" min="0" max="100" step="1" value="100"><span class="value" id="value-hours">100</span></div>
+    <div class="row"><span class="label">Scud speed (m/s)</span><input aria-label="Scud closing speed" type="range" id="slider-speed" min="800" max="2000" step="4" value="1676"><span class="value" id="value-speed">1676</span></div>
+    <div class="btns">
+      <button id="btn-playpause" aria-pressed="false">Pause</button>
+      <button id="btn-reset">Reset</button>
+      <label><input type="checkbox" id="toggle-fix"> patched software (exact time)</label>
+    </div>
   </div>
 
   <script type="module" src="./playground.js"></script>

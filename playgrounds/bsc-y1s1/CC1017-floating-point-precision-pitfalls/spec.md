@@ -9,9 +9,9 @@ supporting_ucs: [FIS2018]
 curriculum_year: bsc-y1s1
 primary_citation: newman2013
 primary_chapter: 4
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
-tags: [numerics, animation, live-readout]
+hook: 'A 24-bit copy of 0.1 makes a Patriot battery clock drift 0.34 s in 100 h; the range gate walks off the Scud and 28 people die.'
+one_paragraph: 'The Patriot missile failure at Dhahran (25 Feb 1991) as a floating-point pitfall you can drive. The fire-control computer counted 0.1 s ticks and multiplied by a 24-bit fixed-point approximation of 0.1; since 0.1 is not exact in binary the clock lost about 9.5e-8 s per tick, never reset, accumulating linearly with uptime. After ~100 h the 0.34 s error times the Scud closing speed displaced the radar range gate by roughly half a kilometre, the track was dropped, no interceptor fired. Drag the uptime and watch the gate walk off the target; toggle the patched software to see the drift vanish. A lower panel shows the exact 24-bit chop and the linear error accumulation.'
+tags: [numerics, animation, live-readout, case-study]
 difficulty: 3
 tier: simple
 hero_candidate: false
@@ -20,70 +20,81 @@ estimated_engagement_minutes: 3
 share_state_keys: []
 ---
 
-# Catastrophic cancellation in 1 - cos(x)
+# Floating-point pitfalls: the Patriot missile failure
 
 ## Physical setup
-
-A pure-numerical playground that contrasts two algebraically identical formulae for $1 - \cos(x)$:
-
-- Naive: `Math.cos(x)` is computed in full IEEE-754 double, then subtracted from `1`. For $x \ll 1$, $\cos(x) \approx 1 - x^2/2$ rounds to within machine epsilon of 1 and the subtraction loses almost all significant digits ("catastrophic cancellation").
-- Stable: $1 - \cos(x) = 2 \sin^2(x/2)$ computes the small quantity directly via the half-angle identity, with no near-equal subtraction.
+Dhahran, 25 February 1991. A Patriot battery's fire-control computer
+keeps system time as an integer count of 0.1 s ticks, converted to
+seconds by multiplying by a 24-bit fixed-point constant for 0.1.
+Because 0.1 has no finite binary representation, the stored constant is
+$209715/2097152 = 0.0999999046\ldots$, short of 0.1 by
+$\varepsilon \approx 9.5\times10^{-8}$ s per tick. The error is never
+reset while the battery is powered, so the clock skews linearly with
+uptime. The radar's range gate (the predicted position of a tracked
+target on the next sweep) is computed from that clock; a skewed clock
+displaces the gate along the target track.
 
 ## Governing equations
+Accumulated clock error after uptime $T$ hours:
+$$\Delta t(T) = \frac{3600\,T}{0.1}\,\varepsilon, \qquad
+\varepsilon = 0.1 - \frac{209715}{2097152}.$$
+Range-gate displacement for a target closing at speed $v$:
+$$\Delta r = v\,\Delta t.$$
+At $T = 100$ h, $\Delta t \approx 0.34$ s; with $v \approx 1676$ m/s
+(Mach 5 Scud), $\Delta r \approx 0.57$ km. When $\Delta r$ exceeds the
+range-gate half-width the track is lost and no interceptor is fired.
 
-$$1 - \cos x = 2 \sin^2(x/2).$$
-
-For $x = 10^{-8}$, naive returns $\sim 4.9 \times 10^{-17}$ instead of the exact $5 \times 10^{-17}$, an error of order 2 percent. For $x = 10^{-10}$, naive returns 0 while the true value is $5 \times 10^{-21}$.
+This is the same finite-precision family as the secondary `sim.js`
+demonstrations kept for the invariants: catastrophic cancellation in
+$1 - \cos x = 2\sin^2(x/2)$ and the ill-conditioned quadratic formula.
 
 ## Numerical method
-
-Closed-form. The plot samples 400 logarithmically-spaced points from $10^{-16}$ to $1$ for both formulae and plots the relative error against a truncated Taylor reference ($x^2/2 - x^4/24$).
+Closed-form. The per-tick error is the exact IEEE-754 difference
+`0.1 - 209715/2097152`; accumulation is linear in uptime; the
+range error is the product with the closing speed. Deterministic, no
+RNG. The scene maps metres to pixels at a fixed scale.
 
 ## Controls
-
-- $\log_{10}(x)$ slider from $-16$ to $0$.
+- `uptime (hours)` 0..100: continuous power-on time.
+- `Scud speed (m/s)` 800..2000: closing speed (default 1676).
+- `patched software (exact time)`: removes the drift entirely.
+- Pause / Play (Scud descent), Reset.
 
 ## Expected qualitative features
-
-1. The stable curve stays near machine epsilon ($\sim 10^{-16}$) across the full $x$ range.
-2. The naive curve climbs from machine epsilon (at $x \sim 1$) up to nearly 100 percent error around $x = 10^{-15}$.
-3. The slope of the naive error is $\sim x^{-1}$ until it saturates at the no-significant-digits floor.
-4. The crossover at $x \sim \sqrt{\epsilon_\text{mach}} = 10^{-8}$ is the rule of thumb for when cancellation begins to matter.
+1. At 0 h the green range gate contains the Scud (TRACKING) and the
+   interceptor destroys it.
+2. As uptime rises the gate slides up-track behind the Scud.
+3. Past the gate half-width the box turns red, TRACK LOST, the Scud
+   reaches the barracks (impact burst), no launch.
+4. The patched toggle pins the marker at zero error: always tracking.
+5. The lower panel shows the exact 24-bit chop and a straight error
+   line with 8 h / 20 h / 100 h reference ticks.
 
 ## Invariants and acceptance thresholds
-
 | invariant | threshold | location |
-| naive vs stable agreement at $x = 1$ | within $10^{-14}$ relative | invariants test |
-| stable accurate at $x = 10^{-8}$ | rel err $< 10^{-12}$ vs Taylor | invariants test |
-| naive inaccurate at $x = 10^{-8}$ | rel err $> 10^{-3}$ | invariants test |
-| naive returns 0 at $x = 10^{-15}$ | exact | invariants test |
-| stable positive at $x = 10^{-15}$ | $> 0$, $< 10^{-29}$ | invariants test |
-| quadratic naive vs stable diverge on small root | rel err naive $> 10^{-4}$, stable $< 10^{-10}$ | invariants test |
-| both formulae return 0 at $x = 0$ | exact | invariants test |
+| per-tick chop error | $9.5\times10^{-8}<\varepsilon<9.6\times10^{-8}$ s | invariants test |
+| error zero at $T=0$, linear in $T$ | exact / rel $<10^{-9}$ | invariants test |
+| 100 h clock error | $0.34<\Delta t<0.345$ s | invariants test |
+| 100 h range error at Mach 5 | $500<\Delta r<650$ m | invariants test |
+| patched removes drift | exactly 0 | invariants test |
+| $1-\cos$ and quadratic cancellation | (original 7 tests) | invariants test |
+| visual SSIM | $>0.92$ on five deterministic frames | visual test |
 
-All confirmed in `invariants.test.mjs` (7 tests passing).
+All confirmed in `invariants.test.mjs` (12 tests passing).
 
 ## Limiting cases for verification
-
-- $x \to 1$: cancellation is irrelevant; both formulae agree to machine epsilon.
-- $x \to 0$: stable hits the smallest-positive double normally; naive truncates to zero.
-- Reformulation rule: always rewrite $a - b$ when $a \approx b$ if you can.
-
-## Visual fallback
-
-If KaTeX or Canvas2D is unavailable, the figure caption still reads as a paper sentence.
+- Patched (exact time): $\Delta t = 0$ for all uptime; always TRACKING.
+- $T \to 0$: gate centred on the Scud.
+- The 1-cos and quadratic stable forms stay at machine precision (the
+  general lesson: never form $a-b$ when $a\approx b$, and never trust a
+  constant that the hardware cannot represent).
 
 ## Citations
-
+- GAO/IMTEC-92-26, "Patriot Missile Defense: Software Problem Led to
+  System Failure at Dhahran" (1992) (`gao1992patriot`).
+- R. Skeel, "Roundoff error and the Patriot missile," SIAM News
+  25(4), 1992.
+- D. Goldberg, "What every computer scientist should know about
+  floating-point arithmetic," ACM Comput. Surv. 23 (1991)
+  (`goldberg1991`).
 - Newman, *Computational Physics*, Ch. 4 (`newman2013`).
-- Goldberg, "What every computer scientist should know about floating-point arithmetic," ACM Computing Surveys 23 (1991), is the canonical reference.
-
-## Stretch goals
-
-- Add quadratic-formula visualizer side panel.
-- Show subtractive-cancellation cliff in derivatives via finite differences.
-- Toggle to single precision to demonstrate the cliff at $\sqrt{\epsilon_\text{single}} \sim 3 \times 10^{-4}$.
-
-## Risk register
-
-- The Taylor reference $x^2/2 - x^4/24$ is good to many digits for $x \le 1$ but loses precision at $x = 1$; tolerance is set conservatively.

@@ -64,3 +64,42 @@ export function logspace(logFrom, logTo, count) {
   }
   return out;
 }
+
+// === The Patriot missile failure, Dhahran, 25 February 1991 ===
+//
+// The MIM-104 Patriot kept system time as an integer count of 0.1 s
+// ticks and multiplied by a 24-bit fixed-point approximation of 0.1 to
+// get seconds. 0.1 is not exact in binary; chopped to 24 bits it is
+// 209715 / 2097152 = 0.0999999046..., so every tick is short by
+// ~9.54e-8 s. The error is not reset while the battery is powered, so
+// it grows linearly with uptime. The Dhahran battery had run ~100 h:
+// the clock was off by ~0.34 s. The range gate (where the radar looks
+// for the next return of a tracked target) is placed using that time,
+// so it was displaced by 0.34 s times the Scud closing speed, roughly
+// half a kilometre. The interceptor was never fired; the Scud hit a
+// barracks, killing 28. Sources: GAO/IMTEC-92-26 (1992); R. Skeel,
+// "Roundoff error and the Patriot missile," SIAM News 25(4), 1992.
+
+export const PATRIOT_TICK_S = 0.1;
+// 0.1 chopped into a 24-bit fixed-point register (0.1 * 2^21 truncated).
+const CHOPPED_TENTH = 209715 / 2097152;
+export const PATRIOT_ERR_PER_TICK_S = PATRIOT_TICK_S - CHOPPED_TENTH;
+export const SCUD_SPEED_MS = 1676;          // ~Mach 5 closing speed
+
+export function patriotTicks(hoursUp) {
+  return hoursUp * 3600 / PATRIOT_TICK_S;
+}
+
+// Accumulated clock error (s) after `hoursUp` of continuous uptime.
+// `patched` models the corrected software (exact time): no drift.
+export function patriotTimeError(hoursUp, patched = false) {
+  if (patched) return 0;
+  return patriotTicks(hoursUp) * PATRIOT_ERR_PER_TICK_S;
+}
+
+// Range-gate displacement (m): how far the predicted intercept point
+// is from the true Scud position, given the clock error and closing
+// speed.
+export function rangeGateErrorMeters(hoursUp, speed = SCUD_SPEED_MS, patched = false) {
+  return patriotTimeError(hoursUp, patched) * speed;
+}

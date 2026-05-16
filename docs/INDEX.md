@@ -339,7 +339,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A uniform, self-gravitating, isothermal hydrogen medium with mass density $\rho$ and sound speed $c_s = \sqrt{k_B T / m_p}$. Linear perturbations $\propto \exp(i k x - i \omega t)$ satisfy the dispersion relation
 
 - **[Floating-Point Precision Pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/index.html)** &nbsp; (verified, verified 2026-05-13T22:59:45Z)
-  A pure-numerical playground that contrasts two algebraically identical formulae for $1 - \cos(x)$:
+  Dhahran, 25 February 1991. A Patriot battery's fire-control computer keeps system time as an integer count of 0.1 s ticks, converted to seconds by multiplying by a 24-bit fixed-point constant for 0.1. Because 0.1 has no finite binary representation, the stored constant is $209715/2097152 = 0.0999999046\ldots$, short of 0.1 by $\varepsilon \approx 9.5\times10
 
 - **[Free Fall Stokes vs Quadratic Drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/index.html)** &nbsp; (verified, verified 2026-05-13T22:56:41Z)
   Three unit-mass balls dropped from the same height $y_0$ at $t = 0$, falling under three different drag laws: vacuum, Stokes (linear in velocity), and quadratic (Newtonian). Gravity acts downward; $g = 9.81$ m/s$^2$.

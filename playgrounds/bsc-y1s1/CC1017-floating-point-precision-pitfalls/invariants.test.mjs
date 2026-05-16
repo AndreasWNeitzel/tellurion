@@ -10,6 +10,7 @@ import {
   oneMinusCosNaive, oneMinusCosStable,
   quadraticNaive, quadraticStable,
   relErr, logspace,
+  PATRIOT_ERR_PER_TICK_S, patriotTimeError, rangeGateErrorMeters,
 } from './sim.js';
 
 describe('floating-point-precision-pitfalls', () => {
@@ -65,5 +66,38 @@ describe('floating-point-precision-pitfalls', () => {
   it('1 - cos(0) is exactly 0 in both formulae', () => {
     expect(oneMinusCosNaive(0)).toBe(0);
     expect(oneMinusCosStable(0)).toBe(0);
+  });
+});
+
+describe('Patriot clock-drift model', () => {
+  it('per-tick chop error is the documented ~9.5e-8 s', () => {
+    // 0.1 (inexact double) minus 209715/2097152 (exact dyadic) is the
+    // truncation the Patriot software made; the documented figure is
+    // about 9.5e-8 s per 0.1 s tick.
+    expect(PATRIOT_ERR_PER_TICK_S).toBeGreaterThan(9.5e-8);
+    expect(PATRIOT_ERR_PER_TICK_S).toBeLessThan(9.6e-8);
+    expect(PATRIOT_ERR_PER_TICK_S).toBeCloseTo(9.5367e-8, 11);
+  });
+
+  it('error is zero at zero uptime and grows linearly', () => {
+    expect(patriotTimeError(0)).toBe(0);
+    expect(patriotTimeError(50)).toBeCloseTo(patriotTimeError(100) / 2, 12);
+    expect(patriotTimeError(1) * 100).toBeCloseTo(patriotTimeError(100), 9);
+  });
+
+  it('reproduces the GAO ~0.34 s clock error at 100 h uptime', () => {
+    expect(patriotTimeError(100)).toBeGreaterThan(0.34);
+    expect(patriotTimeError(100)).toBeLessThan(0.345);
+  });
+
+  it('range-gate error at 100 h, Mach 5, is roughly half a kilometre', () => {
+    const m = rangeGateErrorMeters(100, 1676);
+    expect(m).toBeGreaterThan(500);
+    expect(m).toBeLessThan(650);
+  });
+
+  it('patched software removes the drift entirely', () => {
+    expect(patriotTimeError(100, true)).toBe(0);
+    expect(rangeGateErrorMeters(100, 1676, true)).toBe(0);
   });
 });
