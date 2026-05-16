@@ -110,6 +110,60 @@ export function createThreeBody({ dvX = 0, masses = [1, 1, 1] } = {}) {
   return { inst, masses };
 }
 
+// Catalog of equal-mass (G = m = 1) periodic three-body orbits. The
+// Suvakov-Dmitrasinovic family uses x1 = (-1,0), x2 = (1,0), x3 = 0,
+// v1 = v2 = (p1, p2), v3 = -2 (p1, p2). Periods from Suvakov and
+// Dmitrasinovic, Phys. Rev. Lett. 110, 114301 (2013); the figure-eight
+// is Chenciner-Montgomery 2000; Lagrange is the rotating equilateral
+// triangle. These are initial data, not new physics.
+function suvakov(p1, p2) {
+  return {
+    positions: Float64Array.from([-1, 0, 1, 0, 0, 0]),
+    velocities: Float64Array.from([p1, p2, p1, p2, -2 * p1, -2 * p2]),
+  };
+}
+export const ORBIT_CATALOG = {
+  'figure-eight': { ic: () => chencinerMontgomeryIC(0), period: 6.3259, view: 1.6 },
+  'butterfly-I':  { ic: () => suvakov(0.30689, 0.12551), period: 6.2356, view: 1.7 },
+  'moth-I':       { ic: () => suvakov(0.46444, 0.39606), period: 14.8939, view: 1.7 },
+  'yin-yang-I':   { ic: () => suvakov(0.51394, 0.30474), period: 17.3284, view: 1.7 },
+  lagrange: {
+    ic: () => {
+      // Equilateral triangle radius 1, uniform rotation omega.
+      const w = Math.sqrt(Math.sqrt(3) / 3);   // omega^2 R^3 = G m sqrt3/3
+      const P = [];
+      const Vel = [];
+      for (let i = 0; i < 3; i += 1) {
+        const a = Math.PI / 2 + i * 2 * Math.PI / 3;
+        const x = Math.cos(a), y = Math.sin(a);
+        P.push(x, y);
+        Vel.push(-w * y, w * x);               // tangential
+      }
+      return { positions: Float64Array.from(P), velocities: Float64Array.from(Vel) };
+    },
+    period: 2 * Math.PI / Math.sqrt(Math.sqrt(3) / 3),
+    view: 1.5,
+  },
+};
+
+// Create a three-body instance from any catalog IC (or explicit IC).
+// Reuses the same engine, accel, energy and L diagnostics.
+export function createThreeBodyFromIC({ ic, masses = [1, 1, 1] }) {
+  const { positions, velocities } = ic;
+  const massPerDOF = new Float64Array(6);
+  for (let i = 0; i < 3; i += 1) { massPerDOF[2 * i] = masses[i]; massPerDOF[2 * i + 1] = masses[i]; }
+  const inst = engineCreate({
+    positions: positions.slice(), velocities: velocities.slice(),
+    masses: massPerDOF,
+    accelerationFn: makeAccel(masses),
+    energyFn: makeEnergy(masses),
+    angularMomentumFn: makeLz(masses),
+    integrator: 'verlet',
+  });
+  inst._momentumFn = makeMomentumMag(masses);
+  return { inst, masses };
+}
+
 export function stepThreeBody(tb, dt = DEFAULT_DT) {
   engineStep(tb.inst, dt);
 }

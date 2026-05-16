@@ -4,7 +4,8 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import {
-  createThreeBody,
+  createThreeBodyFromIC,
+  ORBIT_CATALOG,
   stepThreeBody,
   threeBodyDiagnostics,
   DEFAULT_DT,
@@ -28,19 +29,27 @@ const readouts     = {
 };
 const sliderDv     = document.getElementById('slider-dv');
 const valueDv      = document.getElementById('value-dv');
+const selOrbit     = document.getElementById('select-orbit');
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const VIEW = { xmin: -1.6, xmax: 1.6, ymin: -1.07, ymax: 1.07 };
+const ASPECT = H / W;
+let VIEW = { xmin: -1.6, xmax: 1.6, ymin: -1.07, ymax: 1.07 };
 const TRAIL_MAX = 6000;
 
 const state = {
+  orbit: 'figure-eight',
   dv: 0,
   tb: null,
   trails: [[], [], []],
+  tElapsed: 0,
   playing: !DETERMINISTIC,
 };
+
+function setView(half) {
+  VIEW = { xmin: -half, xmax: half, ymin: -half * ASPECT, ymax: half * ASPECT };
+}
 
 function cssVar(name, fallback) {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -61,8 +70,14 @@ const tokens = {
 const colors = [tokens.cat1, tokens.cat2, tokens.cat3];
 
 function rebuild() {
-  state.tb = createThreeBody({ dvX: state.dv });
+  const entry = ORBIT_CATALOG[state.orbit] || ORBIT_CATALOG['figure-eight'];
+  const ic = entry.ic();
+  ic.velocities = ic.velocities.slice();
+  ic.velocities[4] += state.dv;                 // small perturbation on body 3 vx
+  state.tb = createThreeBodyFromIC({ ic });
+  setView(entry.view);
   state.trails = [[], [], []];
+  state.tElapsed = 0;
 }
 
 function px(x, y) {
@@ -129,9 +144,10 @@ function drawAll() {
   }
 
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('Chenciner-Montgomery figure-eight (G = m_i = 1)', 20, 20);
+  const entry = ORBIT_CATALOG[state.orbit] || ORBIT_CATALOG['figure-eight'];
+  ctx.fillText(`${state.orbit}  (G = m_i = 1, T = ${entry.period.toFixed(3)})`, 20, 22);
 }
 
 function updateReadouts() {
@@ -146,12 +162,27 @@ function updateReadouts() {
   readouts.dE.classList.toggle('warn', Math.abs(d.energyDrift) > 1e-3);
 }
 
+// The Suvakov orbits have close two-body passages that fixed-step
+// velocity-Verlet under-resolves at DEFAULT_DT (the orbit then fails
+// to close). Sub-step the integrator so one visual step still advances
+// DEFAULT_DT but with SUBSTEPS finer Verlet steps. sim.js unchanged.
+const SUBSTEPS = 16;
 function stepOnce() {
-  stepThreeBody(state.tb, DEFAULT_DT);
+  const h = DEFAULT_DT / SUBSTEPS;
+  for (let k = 0; k < SUBSTEPS; k += 1) stepThreeBody(state.tb, h);
+  state.tElapsed += DEFAULT_DT;
   for (let i = 0; i < 3; i += 1) {
     const tr = state.trails[i];
     tr.push({ x: state.tb.inst.q[2 * i], y: state.tb.inst.q[2 * i + 1] });
     if (tr.length > TRAIL_MAX) tr.shift();
+  }
+  // Re-seed at each period so the delicate choreographies keep
+  // redrawing as the recognizable closed orbit instead of drifting.
+  const period = (ORBIT_CATALOG[state.orbit] || {}).period || 6.3;
+  if (state.tElapsed >= 0.985 * period) {
+    const keepOrbit = state.orbit, keepDv = state.dv;
+    state.orbit = keepOrbit; state.dv = keepDv;
+    rebuild();
   }
 }
 
@@ -164,6 +195,10 @@ function applySlider() {
 }
 
 sliderDv.addEventListener('input', applySlider);
+selOrbit.addEventListener('change', () => {
+  state.orbit = selOrbit.value;
+  rebuild(); drawAll(); updateReadouts();
+});
 btnReset.addEventListener('click', () => {
   sliderDv.value = '0';
   applySlider();
@@ -173,17 +208,23 @@ btnPlayPause.addEventListener('click', () => {
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
 });
 
-const CAPTURE_TOTAL_T = 25.3;  // ~4 periods (T = 6.326)
-
 function bootSync() {
   state.dv = parseFloat(sliderDv.value);
   valueDv.textContent = state.dv.toFixed(4);
-  rebuild();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const steps = Math.round(frac * CAPTURE_TOTAL_T / DEFAULT_DT);
+    const keys = Object.keys(ORBIT_CATALOG);
+    state.orbit = keys[Math.min(keys.length - 1, Math.round(frac * (keys.length - 1)))];
+    if (selOrbit) selOrbit.value = state.orbit;
+    rebuild();
+    const period = (ORBIT_CATALOG[state.orbit] || {}).period || 6.3;
+    // Draw just under one period: one clean closed choreography loop
+    // before truncated-IC sensitivity becomes visible.
+    const steps = Math.round(0.985 * period / DEFAULT_DT);
     for (let i = 0; i < steps; i += 1) stepOnce();
     state.playing = false;
+  } else {
+    rebuild();
   }
   drawAll();
   updateReadouts();
