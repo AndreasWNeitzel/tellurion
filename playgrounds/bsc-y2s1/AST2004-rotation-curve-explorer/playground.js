@@ -109,8 +109,19 @@ function pxPlot(R, v) {
 }
 
 function drawGalaxyPanel() {
+  // Dark sky backing: additive star blending only reads on black, and a
+  // real spiral galaxy is bright stars on a dark sky. Radial gradient so
+  // the panel edges fade into the page rather than a hard rectangle.
+  const skyR = GAL.R * 1.25;
+  const sky = ctx.createRadialGradient(GAL.cx, GAL.cy, 0, GAL.cx, GAL.cy, skyR);
+  sky.addColorStop(0, '#05060a');
+  sky.addColorStop(0.75, '#06070c');
+  sky.addColorStop(1, 'rgba(6,7,12,0)');
+  ctx.fillStyle = sky;
+  ctx.beginPath(); ctx.arc(GAL.cx, GAL.cy, skyR, 0, 2 * Math.PI); ctx.fill();
+
   // Radial grid: 5, 10, 15, 20, 25 kpc.
-  ctx.strokeStyle = tokens.grid;
+  ctx.strokeStyle = 'rgba(154,156,159,0.18)';
   ctx.lineWidth = 0.5;
   for (const Rg of [5, 10, 15, 20, 25]) {
     const pr = (Rg / 25) * GAL.R;
@@ -127,23 +138,34 @@ function drawGalaxyPanel() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // star particles
+  // Star particles. Additive blending + per-population color + brightness
+  // so the dense arm ridge, diffuse disk and warm bulge read as a real
+  // spiral galaxy rather than four bare spokes.
   const snapshot = galaxyAt(state.stars, state.t, state.model);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
   for (let i = 0; i < snapshot.length; i += 1) {
     const s = snapshot[i];
     const p = pxGal(s.x, s.y);
+    const a = Math.max(0.02, Math.min(1, s.br));
+    let col, rad;
     if (s.kind === 'bulge') {
-      ctx.fillStyle = tokens.accentWarm;
-      ctx.beginPath();
-      ctx.arc(p.px, p.py, 1.2, 0, 2 * Math.PI);
-      ctx.fill();
+      col = `rgba(255, ${210 + (s.br*30|0)}, 170, ${0.05*a+0.02})`;
+      rad = 1.0;
+    } else if (s.kind === 'disk') {
+      col = `rgba(150, 170, 220, ${0.05*a})`;
+      rad = 0.8;
     } else {
-      ctx.fillStyle = tokens.fg;
-      ctx.beginPath();
-      ctx.arc(p.px, p.py, 1.4, 0, 2 * Math.PI);
-      ctx.fill();
+      // arm: young blue-white stars
+      col = `rgba(185, 212, 255, ${0.28*a+0.05})`;
+      rad = s.br > 0.6 ? 1.3 : 0.9;
     }
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(p.px, p.py, rad, 0, 2 * Math.PI);
+    ctx.fill();
   }
+  ctx.restore();
 
   // R = 8 kpc highlight tracer: the Sun. Drawn as a five-pointed yellow star
   // with a dark outline. Per-model speed difference is visible by how quickly

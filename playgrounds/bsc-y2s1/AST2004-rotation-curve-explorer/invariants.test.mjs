@@ -129,9 +129,10 @@ describe('rotation-curve-explorer: omega and unit conversion', () => {
 });
 
 describe('rotation-curve-explorer: galaxy tracer population', () => {
-  it('buildGalaxy returns 4 arms * 80 + 140 bulge stars = 460 total', () => {
+  it('buildGalaxy returns arms + diffuse disk + bulge tracers', () => {
+    // Hero-density composition: 4 arms * 900 + 3000 disk + 550 bulge.
     const stars = buildGalaxy(0xC0FFEE);
-    expect(stars.length).toBe(4 * 80 + 140);
+    expect(stars.length).toBe(4 * 900 + 3000 + 550);
   });
 
   it('galaxyAt(t = 0) preserves radii (stars stay on their circular orbits)', () => {

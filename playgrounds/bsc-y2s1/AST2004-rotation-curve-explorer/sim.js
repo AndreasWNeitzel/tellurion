@@ -146,12 +146,14 @@ export const GALAXY_DEFAULTS = {
   Rmin:      1.0,                  // kpc, innermost arm tracer
   Rmax:      25.0,                 // kpc, outermost arm tracer
   N_arms:    4,
-  N_per_arm: 80,
+  N_per_arm: 900,                  // dense bright arm ridge
   pitch:     0.55,                 // log-spiral pitch parameter alpha; phi = alpha * ln(R/Rmin)
-  sigmaPhi:  0.07,                 // azimuthal scatter (rad)
-  sigmaR:    0.18,                 // radial scatter (kpc)
-  N_bulge:   140,
-  R_bulge:   1.5,                  // kpc, FWHM of the bulge population
+  sigmaPhi:  0.06,                 // azimuthal scatter (rad), tight ridge
+  sigmaR:    0.16,                 // radial scatter (kpc)
+  N_bulge:   550,
+  R_bulge:   1.6,                  // kpc, FWHM of the bulge population
+  N_disk:    3000,                 // diffuse inter-arm disk fill
+  diskScale: 4.5,                  // kpc, exponential disk scale length
 };
 
 export function buildGalaxy(seed = 0xC0FFEE, opts = {}) {
@@ -160,23 +162,39 @@ export function buildGalaxy(seed = 0xC0FFEE, opts = {}) {
 
   const stars = [];
 
-  // Spiral arm stars
+  // Spiral arm stars: a tight bright ridge plus a broader young-star
+  // scatter so the arms read as pronounced lanes, not thin lines.
   for (let arm = 0; arm < cfg.N_arms; arm += 1) {
     const phiArm = (2 * Math.PI * arm) / cfg.N_arms;
     for (let i = 0; i < cfg.N_per_arm; i += 1) {
       const t = i / (cfg.N_per_arm - 1);
       const R = Math.exp(Math.log(cfg.Rmin) + t * (Math.log(cfg.Rmax) - Math.log(cfg.Rmin)));
-      const phi = phiArm + cfg.pitch * Math.log(R / cfg.Rmin) + gaussian(rng, 0, cfg.sigmaPhi);
-      const Rj  = Math.max(0.3, R + gaussian(rng, 0, cfg.sigmaR));
-      stars.push({ R: Rj, phi0: phi, kind: 'arm' });
+      const wide = (i % 3 === 0);                    // 1/3 broader halo of the arm
+      const sphi = wide ? cfg.sigmaPhi * 3.2 : cfg.sigmaPhi;
+      const sr   = wide ? cfg.sigmaR * 3.0 : cfg.sigmaR;
+      const phi = phiArm + cfg.pitch * Math.log(R / cfg.Rmin) + gaussian(rng, 0, sphi);
+      const Rj  = Math.max(0.3, R + gaussian(rng, 0, sr));
+      // Brightness fades with radius; ridge stars brighter than scatter.
+      const br = (wide ? 0.4 : 1.0) * Math.exp(-Rj / 14) * (0.6 + 0.4 * rng());
+      stars.push({ R: Rj, phi0: phi, kind: 'arm', br });
     }
+  }
+
+  // Diffuse exponential disk (inter-arm fill) so the galaxy is not just
+  // four bare spokes.
+  for (let i = 0; i < cfg.N_disk; i += 1) {
+    // Inverse-CDF sample of an exponential disk Sigma ~ exp(-R/h).
+    const u = rng();
+    const R = -cfg.diskScale * Math.log(1 - u * 0.985);
+    const phi = 2 * Math.PI * rng();
+    stars.push({ R: Math.max(0.3, R), phi0: phi, kind: 'disk', br: 0.22 * Math.exp(-R / 12) * (0.5 + 0.5 * rng()) });
   }
 
   // Bulge stars: Gaussian cloud at origin, fast inner rotation.
   for (let i = 0; i < cfg.N_bulge; i += 1) {
     const Rj  = Math.abs(gaussian(rng, 0, cfg.R_bulge));
-    const phi = 2 * Math.PI * (i / cfg.N_bulge);   // deterministic angular spread
-    stars.push({ R: Math.max(0.1, Rj), phi0: phi, kind: 'bulge' });
+    const phi = 2 * Math.PI * rng();
+    stars.push({ R: Math.max(0.1, Rj), phi0: phi, kind: 'bulge', br: 0.7 * Math.exp(-Rj / 2.2) + 0.15 });
   }
 
   return stars;
@@ -190,7 +208,7 @@ export function galaxyAt(stars, t, model) {
     const s = stars[i];
     const omega = omegaModel(s.R, model);
     const phi   = s.phi0 + omega * t;
-    out[i] = { x: s.R * Math.cos(phi), y: s.R * Math.sin(phi), R: s.R, kind: s.kind };
+    out[i] = { x: s.R * Math.cos(phi), y: s.R * Math.sin(phi), R: s.R, kind: s.kind, br: s.br ?? 0.6 };
   }
   return out;
 }
