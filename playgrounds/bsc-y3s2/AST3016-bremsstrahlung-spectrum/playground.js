@@ -2,6 +2,7 @@ import { emissivity, cutoffHz, H, KB } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rC = document.getElementById('readout-c');
 const sT = document.getElementById('slider-T'), vT = document.getElementById('value-T');
@@ -14,62 +15,91 @@ btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 // Bremsstrahlung scene state: an electron repeatedly flies past an ion,
 // gets deflected, and emits an expanding radiation wavefront at periapsis.
-const scene = { t: 0, pulses: [] };
-function drawScene(W, sceneH) {
-  scene.t += 0.016;
-  const ionX = W * 0.52, ionY = sceneH * 0.5;
-  // Electron path: comes from the left, hyperbolically deflected by the ion.
-  const period = 3.2;
-  const phase = (scene.t % period) / period;          // 0..1 per flyby
-  const ex = W * 0.08 + phase * W * 0.84;
-  const b = sceneH * 0.16;                              // impact parameter
-  const dxi = ex - ionX;
-  const ey = ionY + b - 1800 / (dxi * dxi / 60 + 40) * Math.sign(dxi || 1) * 0;
-  // Smooth hyperbola-like vertical deflection peaking at periapsis.
-  const defl = 70 * Math.exp(-(dxi * dxi) / (2 * 60 * 60));
-  const eyy = ionY + b - defl;
-  // Emit a radiation pulse as the electron passes periapsis.
-  if (Math.abs(dxi) < 6 && (scene.pulses.length === 0 ||
-      scene.t - scene.pulses[scene.pulses.length - 1].t0 > period * 0.5)) {
-    scene.pulses.push({ x: ex, y: eyy, t0: scene.t });
+// A physically integrated Coulomb flyby: the electron moves under the
+// attractive 1/r^2 force of the ion, so its path is a real hyperbola
+// (asymmetric: the outgoing asymptote is rotated from the incoming
+// one, and |acceleration| peaks sharply at periapsis). Hotter plasma
+// = faster electron (v ~ sqrt(T)) = straighter path and a harder,
+// weaker kink, exactly as the slider should show. The emitted pulse
+// is the Larmor dipole: amplitude ~ sin^2(psi) about the acceleration
+// direction at periapsis, NOT an isotropic circle.
+const scene = { t: 0 };
+function integrateFlyby(W, sceneH, phase, vScale) {
+  const ionX = W * 0.52, ionY = sceneH * 0.52;
+  const b = sceneH * 0.20;                 // impact parameter (px)
+  const Kc = 9.0e5;                        // scaled Z e^2 / m strength
+  let x = W * 0.06, y = ionY - b;          // start upper-left
+  let vx = vScale, vy = 0;
+  const dt = 0.7;
+  const path = [];
+  let aMax = 0, aAtPeri = [1, 0], periPt = [x, y];
+  const span = W * 0.9;
+  const totalSteps = Math.max(1, Math.round(span / (vScale * dt)));
+  const upto = Math.floor(phase * totalSteps);
+  for (let s = 0; s <= totalSteps; s += 1) {
+    const dx = x - ionX, dy = y - ionY;
+    const r2 = dx * dx + dy * dy, r = Math.sqrt(r2) + 4;
+    const aMag = Kc / (r2 + 16);
+    const ax = -aMag * dx / r, ay = -aMag * dy / r;     // attractive
+    if (aMag > aMax) { aMax = aMag; aAtPeri = [ax / aMag, ay / aMag]; periPt = [x, y]; }
+    if (s <= upto) path.push([x, y]);
+    vx += ax * dt; vy += ay * dt;
+    x += vx * dt; y += vy * dt;
+    if (x > W * 0.97) break;
   }
-  scene.pulses = scene.pulses.filter(p => scene.t - p.t0 < 1.4);
+  const cur = path.length ? path[path.length - 1] : [x, y];
+  return { ionX, ionY, path, cur, aAtPeri, periPt, emitted: upto > totalSteps * 0.5 };
+}
+function drawScene(W, sceneH) {
+  if (!CAPTURE_NAME) scene.t += 0.016;
+  const period = 3.6;
+  const phase = (scene.t % period) / period;
+  // Electron speed from temperature: v_th ~ sqrt(T). Map the slider
+  // band to a visible px/step speed.
+  const vScale = 3.2 * Math.sqrt(Math.pow(10, st.logT - 7));
+  const fly = integrateFlyby(W, sceneH, phase, Math.max(1.4, Math.min(9, vScale)));
 
-  // Ion nucleus (with a faint Coulomb halo).
-  const g = ctx.createRadialGradient(ionX, ionY, 0, ionX, ionY, 80);
+  // Ion nucleus + Coulomb halo.
+  const g = ctx.createRadialGradient(fly.ionX, fly.ionY, 0, fly.ionX, fly.ionY, 80);
   g.addColorStop(0, 'rgba(255,150,90,0.5)'); g.addColorStop(1, 'rgba(255,150,90,0)');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ionX, ionY, 80, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(fly.ionX, fly.ionY, 80, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#ff9351';
-  ctx.beginPath(); ctx.arc(ionX, ionY, 9, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(fly.ionX, fly.ionY, 9, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('ion (Ze)', ionX + 12, ionY - 12);
+  ctx.fillText('ion (Ze)', fly.ionX + 12, fly.ionY - 12);
 
-  // Radiation wavefronts (emitted at periapsis, expand outward).
-  for (const p of scene.pulses) {
-    const age = scene.t - p.t0;
-    for (let k = 0; k < 3; k += 1) {
-      const r = (age - k * 0.12) * 260;
-      if (r <= 0) continue;
-      ctx.strokeStyle = `rgba(125,211,252,${Math.max(0, 0.5 - age * 0.35)})`;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 2 * Math.PI); ctx.stroke();
+  // Dipole radiation: lobes ~ sin^2(psi) about the periapsis
+  // acceleration direction, expanding from the periapsis point.
+  if (fly.emitted) {
+    const [nx, ny] = fly.aAtPeri;
+    const pdone = Math.max(0, (phase - 0.5) / 0.5);
+    for (let ring = 0; ring < 4; ring += 1) {
+      const rr = (pdone * 230) - ring * 26;
+      if (rr <= 4) continue;
+      ctx.beginPath();
+      for (let d = 0; d <= 72; d += 1) {
+        const th = (d / 72) * 2 * Math.PI;
+        const cx = Math.cos(th), cy = Math.sin(th);
+        const cospsi = cx * nx + cy * ny;
+        const w = 1 - cospsi * cospsi;                   // sin^2(psi)
+        const R = rr * (0.32 + 0.68 * w);
+        const X = fly.periPt[0] + cx * R, Y = fly.periPt[1] + cy * R;
+        if (d === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = `rgba(125,211,252,${Math.max(0, 0.45 - pdone * 0.32).toFixed(3)})`;
+      ctx.lineWidth = 1.4; ctx.stroke();
     }
   }
-  // Electron + its trajectory trail.
-  ctx.strokeStyle = 'rgba(124,156,255,0.4)'; ctx.lineWidth = 1;
+  // True hyperbolic trajectory + electron.
+  ctx.strokeStyle = 'rgba(124,156,255,0.45)'; ctx.lineWidth = 1.4;
   ctx.beginPath();
-  for (let s = 0; s <= 60; s += 1) {
-    const ph = s / 60;
-    const x = W * 0.08 + ph * W * 0.84;
-    const dd = x - ionX;
-    const yy = ionY + b - 70 * Math.exp(-(dd * dd) / (2 * 60 * 60));
-    if (s === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
-  }
+  fly.path.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])));
   ctx.stroke();
   ctx.fillStyle = '#7c9cff';
-  ctx.beginPath(); ctx.arc(ex, eyy, 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(fly.cur[0], fly.cur[1], 5, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#dcdde2';
-  ctx.fillText('electron, deflected -> emits bremsstrahlung at periapsis', W * 0.06, 22);
+  ctx.fillText('Coulomb flyby: hyperbola, dipole emission at periapsis (raise T -> faster, straighter)', W * 0.05, 22);
 }
 
 function render() {
@@ -114,5 +144,15 @@ function render() {
   rC.textContent = `10^${Math.log10(nu_c).toFixed(1)} Hz`;
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME) {
+    // Sweep one flyby across frames, and vary T so the gate exercises
+    // the speed/deflection coupling.
+    scene.t = 3.6 * (0.12 + CAPTURE_FRAC * 0.82);
+    st.logT = 6.5 + CAPTURE_FRAC * 1.5;
+    vT.textContent = st.logT.toFixed(2);
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
