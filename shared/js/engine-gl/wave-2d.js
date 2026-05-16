@@ -34,7 +34,13 @@ void main() {
       || uv.y < uTexelSize.y || uv.y > 1.0 - uTexelSize.y) {
     o = vec4(0.0, 0.0, 0.0, 1.0); return;
   }
-  float uNew = (2.0 * u - uPrev + uCDtSqOverDxSq * lap) / (1.0 + uDamping);
+  // Damped wave: the dissipative term acts only on the velocity
+  // (u - uPrev), not on the whole field. This matches the CPU engine
+  // exactly so the visible behaviour equals the tested behaviour; the
+  // previous /(1 + uDamping) form damped the conservative part too and
+  // killed the field for any non-tiny gamma.
+  float uNew = (2.0 * u - uPrev + uCDtSqOverDxSq * lap
+                - uDamping * (u - uPrev)) / (1.0 + uDamping * 0.001);
   o = vec4(uNew, u, 0.0, 1.0);
 }`;
 
@@ -108,8 +114,10 @@ void main() {
   vec3 lKey = normalize(vec3(0.6, 1.2, 0.4));
   vec3 lFill = normalize(vec3(-0.4, 0.3, 0.6));
   vec3 lRim = normalize(vec3(0.0, 0.2, -1.0));
-  // Map signed height to coolwarm.
-  vec3 albedo = coolwarm(clamp(vH * 0.9 + 0.5, 0.0, 1.0));
+  // Map signed height to coolwarm. High gain plus a tanh soft-clip so
+  // realistic (small) wave amplitudes are clearly coloured while large
+  // ones saturate smoothly instead of needing huge displacements.
+  vec3 albedo = coolwarm(0.5 + 0.5 * tanh(vH * 20.0));
   vec3 cKey = vec3(1.0, 0.95, 0.8), cFill = vec3(0.5, 0.7, 1.0), cRim = vec3(0.7, 0.85, 1.0);
   vec3 col = vec3(0.0);
   vec3 hVec = normalize(lKey + v);
