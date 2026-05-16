@@ -155,7 +155,9 @@ function drawAll() {
   drawTimeBar(barY + 60,      T_LINE,   tok.accentWarm,  'line');
 }
 
-function tickN(n) { for (let i = 0; i < n; i += 1) state.tNow += 0.01; }
+// Slowed ~3x (was 0.01): cycloid and line finished almost instantly,
+// so the race was unreadable.
+function tickN(n) { for (let i = 0; i < n; i += 1) state.tNow += 0.0035; }
 
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
 btnReset.addEventListener('click', () => { reset(); drawAll(); });
