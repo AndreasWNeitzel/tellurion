@@ -10,7 +10,15 @@ const sW = document.getElementById('slider-w'), vW = document.getElementById('va
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { dt: 0.05, omega: 0.5 };
 let yE, yR, yA, trailE = [], trailR = [], trailA = [], errE = [], errR = [], errA = [], E0 = 0, t = 0, running = true;
-function reset() { yE = [1, 0]; yR = [1, 0]; yA = [1, 0]; E0 = energy(yE, st.omega); trailE = []; trailR = []; trailA = []; errE = []; errR = []; errA = []; t = 0; }
+function reset() {
+  yE = [1, 0]; yR = [1, 0]; yA = [1, 0]; E0 = energy(yE, st.omega);
+  trailE = []; trailR = []; trailA = []; errE = []; errR = []; errA = []; t = 0;
+  // Pre-integrate the full window so changing dt instantly shows the
+  // complete trajectory: at large dt Euler visibly diverges and its
+  // error curve jumps, immediately, instead of creeping in 2 steps a
+  // frame (which is why the dt slider read as barely responsive).
+  for (let i = 0; i < 360; i += 1) step();
+}
 reset();
 sDT.addEventListener('input', () => { st.dt = parseFloat(sDT.value); vDT.textContent = st.dt.toFixed(2); reset(); });
 sW.addEventListener('input', () => { st.omega = parseFloat(sW.value); vW.textContent = st.omega.toFixed(2); reset(); });
