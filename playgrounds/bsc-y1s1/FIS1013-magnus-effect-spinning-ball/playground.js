@@ -29,6 +29,7 @@ const state = {
   angle: 20,
   spin: 50,
   sim: null,
+  spinAngle: 0,
   trails: { current: [], zero: [], opposite: [] },
   playing: !DETERMINISTIC,
 };
@@ -111,15 +112,39 @@ function drawAll() {
   }
   ctx.setLineDash([]);
 
-  // Animated current ball
+  // Animated current ball: a shaded pseudo-3D sphere with seam markings
+  // that rotate at the spin rate (and in the spin's direction) so the
+  // backspin/topspin that drives the Magnus force is visible.
   if (state.sim.y >= 0) {
-    const pPx = { x: xP(state.sim.x), y: yP(state.sim.y) };
-    ctx.fillStyle = tok.accentWarm;
-    ctx.beginPath();
-    ctx.arc(pPx.x, pPx.y, 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.lineWidth = 1; ctx.stroke();
+    const cx = xP(state.sim.x), cy = yP(state.sim.y), R = 11;
+    const sph = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R);
+    sph.addColorStop(0, '#ffe7c8'); sph.addColorStop(0.55, tok.accentWarm); sph.addColorStop(1, '#7a3318');
+    ctx.fillStyle = sph;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill();
+    // Two baseball-style seams, foreshortened by the spin phase so the
+    // sphere visibly rotates.
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.clip();
+    ctx.strokeStyle = 'rgba(60,20,10,0.75)'; ctx.lineWidth = 1.6;
+    for (const off of [0, Math.PI]) {
+      const ph = state.spinAngle + off;
+      ctx.beginPath();
+      for (let k = -10; k <= 10; k += 1) {
+        const u = k / 10;                       // along the seam
+        const sx = cx + R * Math.cos(ph) * 0.95 * Math.cos(u * 1.3) - R * 0.0;
+        const sy = cy + R * u * 0.95;
+        const px2 = cx + (sx - cx) * Math.cos(ph) + R * 0.25 * Math.sin(ph) * Math.sin(u * 2.0);
+        if (k === -10) ctx.moveTo(px2, sy); else ctx.lineTo(px2, sy);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
+    // Spin-direction arrow above the ball.
+    ctx.strokeStyle = tok.accentWarm; ctx.lineWidth = 1.4;
+    const dir = Math.sign(state.spin) || 1;
+    ctx.beginPath(); ctx.arc(cx, cy - R - 9, 6, -0.4 * dir, Math.PI + 0.4 * dir, dir < 0); ctx.stroke();
   }
 
   // Legend
@@ -136,9 +161,11 @@ function drawAll() {
 function tickN(n) {
   for (let i = 0; i < n; i += 1) {
     stepBall(state.sim, 0.01);
+    state.spinAngle += state.spin * 0.0009;     // visible sphere rotation
     if (state.sim.y < 0) {
       // Reset to relaunch
       state.sim = createBall({ v0: state.v0, angleDeg: state.angle, spin: state.spin });
+      state.spinAngle = 0;
     }
   }
 }
@@ -177,9 +204,12 @@ function bootSync() {
   drawAll();
 }
 
+// Slowed: was tickN(4) every frame (too fast to see the curve). Step 2
+// per frame so the flight and the visible spin are followable. Capture
+// path returns before tick(), so this does not affect goldens.
 function tick() {
   if (state.playing) {
-    tickN(4);
+    tickN(2);
     drawAll();
   }
   requestAnimationFrame(tick);
