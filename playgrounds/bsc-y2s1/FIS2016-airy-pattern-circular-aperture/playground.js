@@ -240,7 +240,6 @@ function bootSync() {
 }
 
 // Animation: cycle wavelength slowly to show how pattern changes with color.
-let animTime = 0;
 let paused = false;
 let userOverride = false;
 const userInputs = [sliderLambda, sliderD, sliderSigma, sliderGamma];
@@ -255,16 +254,11 @@ if (btnPlayPause) {
     if (!paused) userOverride = false;
   });
 }
-function tick() {
-  if (!paused && !userOverride && !CAPTURE_NAME) {
-    animTime += 0.008;
-    state.lambda = 550e-9 + 200e-9 * Math.sin(animTime);
-    sliderLambda.value = (state.lambda * 1e9).toFixed(0);
-    valueLambda.textContent = (state.lambda * 1e9).toFixed(0);
-    drawAll();
-  }
-  requestAnimationFrame(tick);
-}
+// No lambda auto-cycle: it overwrote the wavelength slider until the
+// user happened to touch a control (so the slider read as doing
+// nothing) and its sinusoid was a large per-frame noise source. The PSF
+// is now purely slider-driven; every handler already calls drawAll().
+function tick() { requestAnimationFrame(tick); }
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
