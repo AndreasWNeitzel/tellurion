@@ -15,11 +15,9 @@ uniform mat4 uMVP;
 uniform mat4 uModel;
 out vec3 vWorld;
 out vec3 vNormal;
-out vec3 vLocal;
 void main() {
   vWorld = (uModel * vec4(aPos, 1.0)).xyz;
   vNormal = (uModel * vec4(aNormal, 0.0)).xyz;
-  vLocal = aPos;
   gl_Position = uMVP * vec4(aPos, 1.0);
 }`;
 
@@ -27,7 +25,6 @@ const FS_SPHERE = `#version 300 es
 precision highp float;
 in vec3 vWorld;
 in vec3 vNormal;
-in vec3 vLocal;
 uniform vec3 uSunDir;
 out vec4 oColor;
 float hash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
@@ -49,7 +46,11 @@ void main() {
   vec3 n = normalize(vNormal);
   vec3 l = normalize(uSunDir);
   float lambert = max(0.0, dot(n, l));
-  vec3 p = normalize(vLocal);
+  // Texture in the model-rotated frame, the same vector the lighting
+  // uses, so continents spin with the diurnal rotation in lockstep with
+  // the day/night terminator (previously the texture used the un-rotated
+  // mesh frame, so the surface stayed frozen while the shadow precessed).
+  vec3 p = normalize(vWorld);
   float lat = asin(clamp(p.y, -0.999, 0.999));
   float cont = noise(p * 3.0) * 0.6 + noise(p * 7.0) * 0.3;
   float ice = smoothstep(1.10, 1.20, abs(lat));
