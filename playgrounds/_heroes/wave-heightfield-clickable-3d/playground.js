@@ -61,10 +61,16 @@ const ui = { c: 0.4, gamma: 0.05, A: 0.8, sigma: 6, t: 0, clicks: 0 };
 let running = true;
 let N = 256;
 
+ui.shape = 'point';
 buildSlider('c (speed)', 0.1, 0.7, 0.01, ui.c, v => { ui.c = v; });
-buildSlider('γ (damping)', 0, 0.5, 0.01, ui.gamma, v => { ui.gamma = v; });
+// Damping clamped to [0, 0.1]: beyond ~0.1 the field dies before any
+// wave structure is visible.
+buildSlider('γ (damping)', 0, 0.1, 0.005, ui.gamma, v => { ui.gamma = v; });
 buildSlider('A (impulse)', 0.1, 2.0, 0.05, ui.A, v => { ui.A = v; });
-buildSlider('σ (impulse)', 1, 16, 0.5, ui.sigma, v => { ui.sigma = v; });
+buildSlider('Gaussian width σ', 1, 16, 0.5, ui.sigma, v => { ui.sigma = v; });
+const selShape = buildSelect('perturbation',
+  ['point', 'ring', 'line', 'mode 1x1', 'mode 2x1', 'mode 3x2'], 'point',
+  v => { ui.shape = v; });
 const selN = buildSelect('grid N', ['128', '256', '512'], '256', v => bootEngine(parseInt(v, 10)));
 const btns = buildButtons();
 
@@ -109,6 +115,42 @@ btns.pause.addEventListener('click', () => {
   btns.pause.setAttribute('aria-pressed', String(!running));
 });
 
+// One Gaussian splat through whichever backend is active.
+function splat(i, j, amp, sig) {
+  if (engine) engine.seed(i, j, amp, sig);
+  else seedImpulse(cpu, i, j, amp, sig);
+}
+
+// Composite perturbation shapes. point/ring/line seed near the click;
+// mode MxK seeds a centered standing-wave eigenmode (alternating-sign
+// Gaussians at the antinodes of sin(M pi x) sin(K pi y)).
+function seedShape(ci, cj) {
+  const s = ui.shape, A = ui.A, sig = ui.sigma;
+  if (s === 'point') { splat(ci, cj, A, sig); return; }
+  if (s === 'ring') {
+    const R = Math.max(8, 3 * sig);
+    for (let k = 0; k < 16; k += 1) {
+      const a = (k / 16) * 2 * Math.PI;
+      splat(ci + R * Math.cos(a), cj + R * Math.sin(a), A * 0.7, sig * 0.7);
+    }
+    return;
+  }
+  if (s === 'line') {
+    for (let k = -6; k <= 6; k += 1) splat(ci + k * sig * 0.9, cj, A * 0.7, sig * 0.7);
+    return;
+  }
+  // Standing eigenmode: parse "mode MxK".
+  const m = parseInt(s[5], 10), nk = parseInt(s[7], 10);
+  for (let a = 1; a <= m; a += 1) {
+    for (let b = 1; b <= nk; b += 1) {
+      const gx = (a / (m + 1)) * N;
+      const gy = (b / (nk + 1)) * N;
+      const sign = ((a + b) % 2 === 0) ? 1 : -1;
+      splat(gx, gy, A * sign, N / (2.4 * Math.max(m, nk)));
+    }
+  }
+}
+
 // Click handling. Distinguish drag (camera) from click (seed) by movement.
 let pressX = 0, pressY = 0, pressed = false, didDrag = false;
 canvas.addEventListener('pointerdown', (e) => {
@@ -121,14 +163,16 @@ canvas.addEventListener('pointermove', (e) => {
 }, true);
 canvas.addEventListener('pointerup', (e) => {
   if (pressed && !didDrag) {
+    // screenToRay normalizes by canvas.clientWidth/clientHeight (CSS px),
+    // so pass CSS-space coordinates. Rescaling to internal canvas pixels
+    // here made the seeded impulse land down-right of the cursor.
     const rect = canvas.getBoundingClientRect();
-    const px = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
     const ray = camera.screenToRay(px, py);
     const cell = rayHeightfieldCell(ray, { halfExtent: SURFACE_HALF_EXTENT, N });
     if (cell) {
-      if (engine) engine.seed(cell.i, cell.j, ui.A, ui.sigma);
-      else seedImpulse(cpu, cell.i, cell.j, ui.A, ui.sigma);
+      seedShape(cell.i, cell.j);
       ui.clicks += 1; rEls.clicks.textContent = String(ui.clicks);
     }
   }
