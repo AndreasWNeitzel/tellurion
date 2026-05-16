@@ -9,9 +9,9 @@ const sS2 = document.getElementById('slider-s2'), vS2 = document.getElementById(
 const sS3 = document.getElementById('slider-s3'), vS3 = document.getElementById('value-s3');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { s1: 0.02, s2: 0.05, s3: 0.06 }; let running = true;
-sS1.addEventListener('input', () => { st.s1 = parseFloat(sS1.value); vS1.textContent = `${(st.s1 * 100).toFixed(1)}%`; });
-sS2.addEventListener('input', () => { st.s2 = parseFloat(sS2.value); vS2.textContent = `${(st.s2 * 100).toFixed(1)}%`; });
-sS3.addEventListener('input', () => { st.s3 = parseFloat(sS3.value); vS3.textContent = `${(st.s3 * 100).toFixed(1)}%`; });
+sS1.addEventListener('input', () => { st.s1 = parseFloat(sS1.value); vS1.textContent = `${(st.s1 * 100).toFixed(1)}%`; render(); });
+sS2.addEventListener('input', () => { st.s2 = parseFloat(sS2.value); vS2.textContent = `${(st.s2 * 100).toFixed(1)}%`; render(); });
+sS3.addEventListener('input', () => { st.s3 = parseFloat(sS3.value); vS3.textContent = `${(st.s3 * 100).toFixed(1)}%`; render(); });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function render() {
@@ -36,10 +36,22 @@ function render() {
     const x0 = pad.l + r.range[0] / lmax * (W - pad.l - pad.r);
     const x1 = pad.l + r.range[1] / lmax * (W - pad.l - pad.r);
     const y = pad.t + 100 + i * 50;
+    // Distance uncertainty drawn as an error band whose half-height is
+    // proportional to sigma, so each slider visibly fattens its rung and
+    // the Hubble-flow band (the orthogonal compounded sum) visibly grows
+    // as any upstream sigma increases. Previously sigma only changed a
+    // label digit, so the sliders read as dead.
+    const half = Math.max(2, Math.min(22, 2 + r.sigma * 190));   // capped < half the 50 px rung spacing
+    ctx.fillStyle = r.color + '33';
+    ctx.fillRect(x0, y - half, x1 - x0, 2 * half);
+    ctx.strokeStyle = r.color; ctx.lineWidth = 1; ctx.globalAlpha = 0.5;
+    ctx.strokeRect(x0, y - half, x1 - x0, 2 * half); ctx.globalAlpha = 1;
     ctx.strokeStyle = r.color; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
     ctx.fillStyle = r.color; ctx.font = '12px ui-monospace, monospace';
-    ctx.fillText(`${r.name}  σ = ${(r.sigma * 100).toFixed(1)}%`, x0, y - 6);
+    const lbl = `${r.name}  σ = ${(r.sigma * 100).toFixed(1)}%  (+-${half.toFixed(0)} px)`;
+    const lx = Math.min(x0, W - pad.r - lbl.length * 7.2);
+    ctx.fillText(lbl, Math.max(pad.l, lx), y - half - 6);
   });
   const sigma_total = ladderUncertainty([st.s1, st.s2, st.s3]);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
