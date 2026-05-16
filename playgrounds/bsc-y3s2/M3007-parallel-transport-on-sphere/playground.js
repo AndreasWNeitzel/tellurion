@@ -20,6 +20,7 @@ const valueBeta   = document.getElementById('value-beta');
 
 let alphaDeg = parseFloat(sliderAlpha.value);
 let betaDeg = parseFloat(sliderBeta.value);
+let transportPhase = 0;   // 0..1 progress of the transported vector around the loop
 
 sliderAlpha.addEventListener('input', () => { alphaDeg = parseFloat(sliderAlpha.value); valueAlpha.textContent = String(alphaDeg); });
 sliderBeta.addEventListener('input', () => { betaDeg = parseFloat(sliderBeta.value); valueBeta.textContent = String(betaDeg); });
@@ -137,6 +138,56 @@ function render() {
     ctx.beginPath(); ctx.arc(p.px, p.py, 6, 0, 2 * Math.PI); ctx.fill();
   }
 
+  // Animated parallel transport of a tangent vector around P1->P2->P3->P1.
+  // Exact on the sphere: transport along a great circle = the same
+  // rotation (about axis n = A x B) that slides the point along the
+  // geodesic, applied to the carried vector.
+  function vsub(a, b) { return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }; }
+  function vdot(a, b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+  function vcross(a, b) { return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }; }
+  function vnorm(a) { const m = Math.hypot(a.x, a.y, a.z) || 1; return { x: a.x / m, y: a.y / m, z: a.z / m }; }
+  function rodrigues(v, n, phi) {
+    const c1 = Math.cos(phi), s1 = Math.sin(phi);
+    const cx = vcross(n, v), nd = vdot(n, v) * (1 - c1);
+    return { x: v.x * c1 + cx.x * s1 + n.x * nd, y: v.y * c1 + cx.y * s1 + n.y * nd, z: v.z * c1 + cx.z * s1 + n.z * nd };
+  }
+  const legs = [[P1, P2], [P2, P3], [P3, P1]];
+  // Carry the vector forward from the loop start each render (the loop is
+  // re-walked every frame up to the animation parameter so it stays exact
+  // regardless of frame rate).
+  let v0 = vnorm(vsub(P2, { x: P1.x * vdot(P1, P2), y: P1.y * vdot(P1, P2), z: P1.z * vdot(P1, P2) }));
+  let v = v0, p = P1;
+  const sGlobal = (transportPhase % 1) * 3;          // 0..3 across the 3 legs
+  for (let L = 0; L < 3; L += 1) {
+    const A = legs[L][0], B = legs[L][1];
+    const axis = vnorm(vcross(A, B));
+    const omega = Math.acos(Math.max(-1, Math.min(1, vdot(A, B))));
+    const tLeg = Math.max(0, Math.min(1, sGlobal - L));
+    if (tLeg <= 0) break;
+    const ang = tLeg * omega;
+    p = rodrigues(A, axis, ang);
+    v = rodrigues(v, axis, ang);
+    // re-anchor: tangent-project v at p to kill numerical drift off the tangent plane
+    const vp = vdot(v, p);
+    v = vnorm({ x: v.x - vp * p.x, y: v.y - vp * p.y, z: v.z - vp * p.z });
+    if (tLeg < 1) break;
+    v0 = v0;  // keep initial reference
+  }
+  // Draw the moving frame: a short arrow tangent at p.
+  const pp = project(p, cxPx, cyPx, R);
+  const tip = project({ x: p.x + v.x * 0.32, y: p.y + v.y * 0.32, z: p.z + v.z * 0.32 }, cxPx, cyPx, R);
+  if (pp.depth > -0.05) {
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(pp.px, pp.py); ctx.lineTo(tip.px, tip.py); ctx.stroke();
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath(); ctx.arc(pp.px, pp.py, 4, 0, 2 * Math.PI); ctx.fill();
+  }
+  // Ghost of the initial vector at P1 for comparison.
+  const g0 = project(P1, cxPx, cyPx, R);
+  const g1 = project({ x: P1.x + v0.x * 0.32, y: P1.y + v0.y * 0.32, z: P1.z + v0.z * 0.32 }, cxPx, cyPx, R);
+  ctx.strokeStyle = 'rgba(220,220,240,0.4)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(g0.px, g0.py); ctx.lineTo(g1.px, g1.py); ctx.stroke();
+
   // Readout text.
   ctx.fillStyle = c.muted;
   ctx.font = '12px ui-monospace, monospace';
@@ -157,6 +208,7 @@ function updateReadout() {
 }
 
 function loop() {
+  transportPhase += 0.0022;            // ~one full loop traversal per ~7.5 s
   render();
   updateReadout();
   requestAnimationFrame(loop);
