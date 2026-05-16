@@ -1,4 +1,4 @@
-import { spectrum, wienPeakNm, LINES, planckLambda } from './sim.js';
+import { wienPeakNm, LINES, planckLambda } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -57,19 +57,38 @@ function render() {
   }
   ctx.fillText('λ (nm)', W / 2 - 30, H - 12);
   ctx.fillText('flux', 12, pad.t + 10);
-  const N = 800;
-  let yMax = 0; const samples = new Float64Array(N);
+  // The physical lines are ~0.2 nm wide; on a 1000 nm axis that is far
+  // below one pixel, so the true dips alias away to nothing. For the
+  // drawn curve only, give each line a visualization width floor so the
+  // absorption carves a clearly visible notch into the blackbody. The
+  // analytic sim.spectrum() (invariant-tested) is left exact; this is a
+  // rendering choice, and the markers still sit on the true centres.
+  const SIG_VIZ = 2.6;
+  const displayFlux = (lam) => {
+    const B = planckLambda(lam * 1e-9, st.T);
+    let a = 0;
+    for (const L of LINES) {
+      const s = Math.max(L.sigma, SIG_VIZ);
+      const z = (lam - L.lam) / s;
+      a += L.depth * st.depth * Math.exp(-(z * z));
+    }
+    return B * Math.max(0, 1 - Math.min(1, a));
+  };
+  // Dense sampling so the notches are traced cleanly.
+  const N = 2400;
+  let yMax = 0;
   for (let i = 0; i < N; i += 1) {
     const lam = lamMin + (lamMax - lamMin) * i / (N - 1);
-    samples[i] = spectrum(lam, st.T, st.depth);
-    if (samples[i] > yMax) yMax = samples[i];
+    const c = planckLambda(lam * 1e-9, st.T);
+    if (c > yMax) yMax = c;
   }
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5; ctx.beginPath();
   for (let i = 0; i < N; i += 1) {
     const lam = lamMin + (lamMax - lamMin) * i / (N - 1);
     const x = pad.l + (lam - lamMin) / (lamMax - lamMin) * (W - pad.l - pad.r);
-    let y = samples[i] / yMax;
-    if (st.scale === 'log') y = Math.log10(1 + samples[i]) / Math.log10(1 + yMax);
+    const f = displayFlux(lam);
+    let y = f / yMax;
+    if (st.scale === 'log') y = Math.log10(1 + f) / Math.log10(1 + yMax);
     const py = H - pad.b - y * (H - pad.t - pad.b);
     if (i === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
   }
