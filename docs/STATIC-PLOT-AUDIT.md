@@ -70,9 +70,10 @@ DONE (committed, invariants pass, captures refreshed):
 - fabry-perot-finesse: scanned cavity flashes bright on resonance, multiple-beam rays, synced Airy strip, finesse sharpening
 - p-g-mode-cavities: pulsating stellar cross-section, g-core/p-envelope/mixed trapping, energy-split readout, linked propagation diagram
 
+- slow-roll-inflation: rolling inflaton + filled V(phi) + expanding-universe e-fold lattice + schematic (n_s,r) plane
+
 REMAINING boring->spatial makeovers (next sessions):
 - toy parton, Friedmann cosmography,
-  runge-chebyshev, CKM, matter-radiation equality,
-  slow-roll inflation
+  runge-chebyshev, CKM, matter-radiation equality
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static
