@@ -80,22 +80,34 @@ const pr = new Float32Array(NPART);
 const pth = new Float32Array(NPART);
 const pph = new Float32Array(NPART);
 const pxi = new Float32Array(NPART);   // pitch v_par/v at the outboard midplane
+const pmu = new Float32Array(NPART);   // magnetic moment mu = v_perp^2 / (2 B), conserved
 const psgn = new Int8Array(NPART);
 const ptrap = new Uint8Array(NPART);
+const VTOT = 1;                        // |v| in code units; energy = const
 const posBuf = new Float32Array(NPART * 3);
 const colBuf = new Float32Array(NPART * 3);
 
 function initParticles() {
   const rng = mulberry32(DEFAULT_SEED >>> 0);
+  const R = st.R, B0 = st.B0;
   for (let i = 0; i < NPART; i += 1) {
     // Strongly core-peaked profile (a real tokamak plasma is a hot
     // column near the magnetic axis, not a gas filling the vessel).
-    // r = a * u^1.7 puts ~half the particles inside the inner 0.3 a.
-    pr[i] = st.a * (0.04 + 0.94 * Math.pow(rng(), 1.7));
+    const r = st.a * (0.04 + 0.94 * Math.pow(rng(), 1.7));
+    pr[i] = r;
     pth[i] = 2 * Math.PI * rng();
     pph[i] = 2 * Math.PI * rng();
-    pxi[i] = -1 + 2 * rng();
-    psgn[i] = rng() < 0.5 ? -1 : 1;
+    // Pitch at the outboard midplane (theta = 0, weakest field). The
+    // magnetic moment mu = v_perp^2 / (2 B_out) is then fixed for all
+    // time (an adiabatic invariant); energy = 1/2 |v|^2 is also fixed.
+    const xi0 = -1 + 2 * rng();
+    pxi[i] = xi0;
+    const Bout = bToroidal(R + r, B0, R);
+    pmu[i] = (VTOT * VTOT * (1 - xi0 * xi0)) / (2 * Bout);
+    // Net co-current drift: a real tokamak carries I_p, so the parallel
+    // distribution is shifted (more co- than counter-passing) rather
+    // than a symmetric pair of opposing streams.
+    psgn[i] = (xi0 >= 0 || rng() < 0.30) ? 1 : -1;
   }
 }
 initParticles();
@@ -121,53 +133,73 @@ function refreshProfile() {
   trappedCount = classifyTrapped();
 }
 
+// Guiding-centre equations of motion (Littlejohn 1983; Goedbloed-Poedts
+// Ch. 5). Per particle the magnetic moment mu and the energy 1/2|v|^2
+// are exact invariants, so v_par^2 = |v|^2 - 2 mu B(r,theta): the
+// parallel speed drops as the particle climbs the field toward the
+// inboard side and reverses at the mirror point (this IS the bounce,
+// not a scripted reflection). The guiding centre streams along the
+// helical field at v_par and drifts across it by the combined
+// curvature + grad-B drift v_d ~ (v_par^2 + v_perp^2/2)/(B R0),
+// directed vertically. Projecting that vertical drift onto the minor
+// radius is what bends trapped orbits into bananas and shifts passing
+// drift surfaces, all emergent from the physics.
+const SPEED_SCALE = 1.5;
+const K_DRIFT = 0.85;
 function stepPlasma(dt) {
   const R = st.R, a = st.a, B0 = st.B0;
-  // Transit rate grows with field strength (faster toroidal streaming).
-  const speed = 1.7 * Math.sqrt(B0 / 5.3);
+  const speed = SPEED_SCALE * Math.sqrt(B0 / 5.3);
+  const v2 = VTOT * VTOT;
   for (let i = 0; i < NPART; i += 1) {
-    const r = pr[i];
-    const Rout = R + r;                       // theta = 0, weakest field
-    const Bout = bToroidal(Rout, B0, R);
-    const Rcyl = R + r * Math.cos(pth[i]);
+    let r = pr[i], th = pth[i];
+    const Rcyl = R + r * Math.cos(th);
     const B = bToroidal(Rcyl, B0, R);
-    const xi2 = pxi[i] * pxi[i];
-    let arg = 1 - (1 - xi2) * (B / Bout);
-    if (arg <= 0) { psgn[i] = -psgn[i]; arg = 0.02; }   // mirror reflection
-    const vpar = psgn[i] * Math.sqrt(arg);
+    // Energy + mu conservation set v_par; sign flips at the mirror point.
+    let vpar2 = v2 - 2 * pmu[i] * B;
+    if (vpar2 <= 0) { psgn[i] = -psgn[i]; vpar2 = 1e-4; }
+    const vpar = psgn[i] * Math.sqrt(vpar2);
+    const vperp2 = 2 * pmu[i] * B;
     const rr = r / a;
     const q = qAxis + (qEdge - qAxis) * rr * rr;
     const iota = 1 / q;
-    const dphi = speed * vpar / Rcyl * R * dt;
-    pph[i] += dphi;
-    pth[i] += iota * dphi;
-    if (pph[i] > 6.2831853) pph[i] -= 6.2831853; else if (pph[i] < 0) pph[i] += 6.2831853;
-    if (pth[i] > 6.2831853) pth[i] -= 6.2831853; else if (pth[i] < 0) pth[i] += 6.2831853;
-    // grad-B / curvature drift gives the banana its finite radial width.
-    const eps = r / R;
-    const Wb = 0.55 * a * q * Math.sqrt(eps + 0.02);
-    let rDraw = r + Wb * vpar * (ptrap[i] ? 1.0 : 0.18);
-    if (rDraw < 0.015 * a) rDraw = 0.015 * a; else if (rDraw > a) rDraw = a;
-    const Rc = R + rDraw * Math.cos(pth[i]);
+    // Combined curvature + grad-B vertical drift speed.
+    const vD = K_DRIFT * (vpar2 + 0.5 * vperp2) / (B * R);
+    // Parallel streaming along the helical field (dtheta/dphi = iota).
+    const dphi = speed * (vpar / Rcyl) * dt;
+    let dth = iota * dphi;
+    // Vertical drift projected into the poloidal plane: z_hat . r_hat =
+    // sin(theta), z_hat . theta_hat = cos(theta).
+    const dr = speed * vD * Math.sin(th) * dt;
+    dth += speed * vD * Math.cos(th) / Math.max(0.02 * a, r) * dt;
+    r += dr;
+    if (r < 0.015 * a) r = 0.015 * a; else if (r > a) r = a;
+    th += dth;
+    let ph = pph[i] + dphi;
+    if (ph > 6.2831853) ph -= 6.2831853; else if (ph < 0) ph += 6.2831853;
+    if (th > 6.2831853) th -= 6.2831853; else if (th < 0) th += 6.2831853;
+    pr[i] = r; pth[i] = th; pph[i] = ph;
+    const Rc = R + r * Math.cos(th);
     const o = 3 * i;
-    posBuf[o] = Rc * Math.cos(pph[i]);
-    posBuf[o + 1] = rDraw * Math.sin(pth[i]);
-    posBuf[o + 2] = Rc * Math.sin(pph[i]);
-    const sp = Math.abs(vpar);
-    // Radial brightness falloff: hot bright core, faint edge, so the
-    // plasma reads as a localized luminous column instead of a fog.
+    posBuf[o] = Rc * Math.cos(ph);
+    posBuf[o + 1] = r * Math.sin(th);
+    posBuf[o + 2] = Rc * Math.sin(ph);
     const xr = r / a;
     const bri = 0.12 + 1.05 * (1 - xr * xr);
     if (ptrap[i]) {
-      // Trapped: dim warm amber banana halo on the outboard side.
-      colBuf[o] = 0.95 * bri;
-      colBuf[o + 1] = (0.50 + 0.25 * (1 - sp)) * bri;
-      colBuf[o + 2] = (0.18 + 0.12 * (1 - sp)) * bri;
+      // Trapped (banana): warm amber.
+      colBuf[o] = 0.98 * bri;
+      colBuf[o + 1] = 0.62 * bri;
+      colBuf[o + 2] = 0.24 * bri;
+    } else if (psgn[i] > 0) {
+      // Co-passing (carries I_p): white-hot core grading outward.
+      colBuf[o] = (0.60 + 0.40 * (1 - xr)) * bri;
+      colBuf[o + 1] = 0.82 * bri;
+      colBuf[o + 2] = 0.95 * bri;
     } else {
-      // Passing core: white-hot near the axis grading to cyan outward.
-      colBuf[o] = (0.55 + 0.45 * (1 - xr)) * bri;
-      colBuf[o + 1] = (0.78 + 0.20 * sp) * bri;
-      colBuf[o + 2] = bri;
+      // Counter-passing: cooler blue, the minority population.
+      colBuf[o] = 0.30 * bri;
+      colBuf[o + 1] = 0.55 * bri;
+      colBuf[o + 2] = 0.98 * bri;
     }
   }
 }
