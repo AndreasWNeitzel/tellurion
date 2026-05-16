@@ -44,7 +44,7 @@ const state = {
 function toPx(x, y) { return { px: CX + x * PX_PER_UNIT, py: CY - y * PX_PER_UNIT }; }
 
 function rebuild() {
-  state.cloud = createCloud({ N: 80, a: state.a, e: state.e, rCloud: 0.30, seed: SEED });
+  state.cloud = createCloud({ N: 1000, a: state.a, e: state.e, rCloud: 0.30, seed: SEED });
   state.trail = [];
 }
 
