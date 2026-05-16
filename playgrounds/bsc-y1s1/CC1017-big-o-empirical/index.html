@@ -16,29 +16,44 @@
     .pg-controls { display: grid; grid-template-columns: 1fr; gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 11ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-buttons { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .pg-buttons button { font: inherit; padding: 6px 14px; }
   </style>
 </head>
 <body>
   <h1>Big-O empirical scaling</h1>
   <p>
-    <strong>What you are seeing:</strong> the operation counts of four canonical
-    complexity classes plotted on a log-log axis: $N$ (linear), $N \log_2 N$
-    (typical comparison-sort), $N^2$ (naive nested loop), $N^3$ (matrix
-    multiplication or naive matrix inversion). At $N = 10^4$ the naive
-    quadratic is already $10^8$ ops, the cubic is $10^{12}$; at modern
-    CPU speeds these are tractable seconds vs days.
+    <strong>What you are seeing:</strong> the same shuffled array sorted by
+    two algorithms at once. The left panel runs an $O(N^2)$ comparison
+    sort, the right panel runs merge sort, $O(N \log_2 N)$. Every
+    comparison is counted live. The lower panel plots each finished
+    race as a point on top of the theoretical $\tfrac{1}{2}N(N-1)$ and
+    $N \log_2 N$ curves: the measured counts land on the predicted
+    curves, so the abstract complexity plot is the mechanism you just
+    watched. Press <em>Sweep</em> to fill the curve across many $N$.
   </p>
   <figure class="pg-figure">
     <canvas id="stage" width="760" height="500"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">N:</span><span class="value" id="readout-n">1000</span>
-      <span class="label">cubic time:</span><span class="value" id="readout-tc">5 ms</span>
+      <span class="label">N:</span><span class="value" id="readout-n">48</span>
+      <span class="label">cmp O(N^2):</span><span class="value" id="readout-a">0</span>
+      <span class="label">cmp O(N log N):</span><span class="value" id="readout-b">0</span>
+      <span class="label">ratio:</span><span class="value" id="readout-ratio">-</span>
     </div>
-    <figcaption><span class="figure-number">Figure 1.</span> Asymptotic complexity classes. Source: Newman, Computational Physics Ch. 2 (`newman2013`).</figcaption>
+    <figcaption><span class="figure-number">Figure 1.</span> Empirical vs theoretical comparison-sort complexity. Method: instrumented bubble/insertion vs merge sort on a seeded shuffle; measured comparison counts overplotted on the asymptotic curves. Source: Cormen et al., Introduction to Algorithms 3rd ed. Ch. 2; Newman, Computational Physics Ch. 2 (`newman2013`).</figcaption>
   </figure>
   <div class="controls pg-controls" id="controls">
-    <div class="row"><span class="label">log10 N</span><input aria-label="log10 N" type="range" id="slider-N" min="1" max="7" step="0.05" value="3"><span class="value" id="value-N">3.00</span></div>
+    <div class="row"><span class="label">array size N</span><input aria-label="array size N" type="range" id="slider-N" min="8" max="128" step="4" value="48"><span class="value" id="value-N">48</span></div>
+    <div class="row"><span class="label">speed</span><input aria-label="replay speed, comparisons per frame" type="range" id="slider-speed" min="1" max="40" step="1" value="6"><span class="value" id="value-speed">6</span></div>
+    <div class="row"><span class="label">O(N^2) sort</span><select aria-label="quadratic algorithm" id="select-algo"><option value="bubble">bubble sort</option><option value="insertion">insertion sort</option></select><span class="value" id="value-algo">bubble</span></div>
+    <div class="row pg-buttons" style="grid-template-columns: 1fr;">
+      <span>
+        <button id="btn-playpause" aria-pressed="false">Pause</button>
+        <button id="btn-reset">Reset</button>
+        <button id="btn-sweep">Sweep N</button>
+      </span>
+    </div>
   </div>
   <script type="module" src="./playground.js"></script>
 </body>
