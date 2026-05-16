@@ -63,10 +63,12 @@ DONE (committed, invariants pass, captures refreshed):
 - gravitational-wave-chirp: real 3D inspiral, barycentric Kepler orbit, spiral worldlines, GW fronts, merger flash + ringdown remnant
 - relativistic-beaming: pseudo-3D shaded solid-of-revolution lobe + aberrated photon stream collimating into the 1/gamma cone
 - sturm-liouville: vibrating-string instantiation, modes oscillating at omega_n=n, click-to-pluck
+- parker-solar-wind: radial streaming parcels, dr/dt=u(r), Mach-coloured sonic crossing + u(r) strip
+- polytrope-lane-emden: density-shaded star (cutaway wedge + isodensity), structure restructures with n, linked theta(xi) strip
 
 REMAINING boring->spatial makeovers (next sessions):
 - toy parton, Friedmann cosmography, gamow tunneling, fabry-perot,
   runge-chebyshev, de Broglie, CKM, matter-radiation equality,
-  Lane-Emden, parker solar wind, p/g-mode cavity, slow-roll inflation
+  p/g-mode cavity, slow-roll inflation
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static

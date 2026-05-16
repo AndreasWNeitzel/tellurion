@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: hansen-kawaler
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The Lane-Emden solution is a star: see the density-shaded sphere restructure as the polytropic index changes.'
+one_paragraph: 'The Lane-Emden polytrope shown as the star it describes. The dimensionless solution theta(xi) from sim.js is mapped to a density-shaded sphere with rho/rho_c = theta(xi)^n: a bright dense core fading to a faint envelope, a cutaway wedge exposing the interior density run, and isodensity contour rings. Selecting the polytropic index n restructures the star: n = 0 is a compact uniform sphere, n = 1.5 (degenerate non-relativistic) and n = 3 (Chandrasekhar-limit white dwarf) are progressively more centrally concentrated, and n = 5 is a huge, formally infinite, diffuse envelope. A linked theta(xi) strip with the xi_1 marker and an animated radial probe ties the 1D solution to the 2D structure; xi_1 and the mass proxy are read out live.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -43,7 +43,7 @@ Numerical solutions for arbitrary $n$. Two stellar-physics standards:
 
 ## Numerical method
 
-RK4 with $d\xi = 10^{-3}$, special-cased small-$\xi$ Taylor series to avoid the $1/\xi$ singularity. Trajectory truncates at the first zero crossing.
+RK4 with $d\xi = 10^{-3}$, special-cased small-$\xi$ Taylor series to avoid the $1/\xi$ singularity (sim.js, unchanged). The trajectory is interpolated to a density field $\rho/\rho_c = \theta(\xi)^n$ and rendered as a sphere-shaded disc with a cutaway wedge and isodensity contours; a common physical scale keeps the radius differences between indices visible (the formally infinite $n = 5$ is clipped where the density drops below a small floor).
 
 ## Controls
 
@@ -51,10 +51,10 @@ RK4 with $d\xi = 10^{-3}$, special-cased small-$\xi$ Taylor series to avoid the 
 
 ## Expected qualitative features
 
-1. All curves start at $\theta = 1$ with zero slope and decrease.
-2. The selected $n$ is bolded; other indices are drawn faded for context.
-3. $\xi_1$ marker drops the dashed accent line at the surface.
-4. $n = 5$ never crosses zero in the plotted range.
+1. The star is a bright dense core fading to a faint envelope; $n = 0$ is a uniform sphere, higher $n$ is more centrally concentrated.
+2. Radius grows with $n$; $n = 5$ is a large, diffuse, formally infinite envelope.
+3. The cutaway wedge shows the same density run; isodensity rings are concentric.
+4. The $\theta(\xi)$ strip bolds the selected $n$ with the $\xi_1$ dashed marker, and the radial probe stays synced between the sphere and the curve.
 
 ## Invariants and acceptance thresholds
 
