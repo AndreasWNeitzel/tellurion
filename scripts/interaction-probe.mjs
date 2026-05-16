@@ -69,6 +69,19 @@ try {
     return d / Math.max(1, n);
   };
   const hash = snap;
+  // Per-page noise floor: the change between two snapshots with NO
+  // interaction (animation jitter, antialiasing, nondeterminism). A
+  // control is judged relative to THIS, so the verdict adapts to thin
+  // line plots (tiny absolute change) versus full-field renders.
+  const nb0 = await hash(); await page.waitForTimeout(450); const nb1 = await hash();
+  const noise = changedFrac(nb0, nb1);
+  // OK if the control changes the canvas well above the per-frame
+  // animation noise floor. 2.5x (with a 0.4% absolute floor) cleanly
+  // separates every observed broken case (readout-only 0.01-0.12%) from
+  // every fixed one (line/field response 0.7-22%), including animated
+  // playgrounds where the noise floor is non-trivial.
+  const okThresh = Math.max(0.004, noise * 2.5);
+  console.log(`noise floor ${(noise * 100).toFixed(3)}%, OK threshold ${(okThresh * 100).toFixed(2)}%`);
   const controls = await page.evaluate(() => {
     const out = [];
     for (const el of document.querySelectorAll('input[type=range]')) out.push({ id: el.id || el.getAttribute('aria-label'), kind: 'range', min: +el.min, max: +el.max, step: el.step });
@@ -93,7 +106,7 @@ try {
     await page.waitForTimeout(450);
     const after = await hash();
     const f = changedFrac(before, after);
-    const verdict = f >= 0.02 ? 'OK  ' : (f > 0.0008 ? 'WEAK' : 'DEAD');
+    const verdict = f >= okThresh ? 'OK  ' : (f > Math.max(noise * 1.5, 0.0008) ? 'WEAK' : 'DEAD');
     console.log(`${verdict}  ${c.kind}  ${c.id}  (${(f * 100).toFixed(2)}% changed)`);
     if (verdict !== 'OK  ') fails.push(`${c.kind}:${c.id}[${verdict.trim()}]`);
   }
@@ -104,7 +117,7 @@ try {
     await page.waitForTimeout(450);
     const after = await hash();
     const f = changedFrac(before, after);
-    const verdict = f >= 0.02 ? 'OK  ' : (f > 0.0008 ? 'WEAK' : 'DEAD');
+    const verdict = f >= okThresh ? 'OK  ' : (f > Math.max(noise * 1.5, 0.0008) ? 'WEAK' : 'DEAD');
     console.log(`${verdict}  click  #stage  (${(f * 100).toFixed(2)}% changed)`);
     if (verdict !== 'OK  ') fails.push(`click:#stage[${verdict.trim()}]`);
   }

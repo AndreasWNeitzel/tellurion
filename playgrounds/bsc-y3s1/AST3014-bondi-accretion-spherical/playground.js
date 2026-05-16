@@ -9,9 +9,9 @@ const sC = document.getElementById('slider-c'), vC = document.getElementById('va
 const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { logM: 0, cs: 10, logn: 3, t: 0 }; let running = true;
-sM.addEventListener('input', () => { st.logM = parseFloat(sM.value); vM.textContent = st.logM.toFixed(2); });
-sC.addEventListener('input', () => { st.cs = parseFloat(sC.value); vC.textContent = st.cs.toFixed(0); });
-sN.addEventListener('input', () => { st.logn = parseFloat(sN.value); vN.textContent = st.logn.toFixed(2); });
+sM.addEventListener('input', () => { st.logM = parseFloat(sM.value); vM.textContent = st.logM.toFixed(2); render(); });
+sC.addEventListener('input', () => { st.cs = parseFloat(sC.value); vC.textContent = st.cs.toFixed(0); render(); });
+sN.addEventListener('input', () => { st.logn = parseFloat(sN.value); vN.textContent = st.logn.toFixed(2); render(); });
 btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 let last = performance.now();
@@ -23,9 +23,18 @@ function render() {
   const rS = rB * 0.5;
   const Mdot = MdotBondi(M, cs, rho_inf);
   const cx = canvas.width / 2, cy = canvas.height / 2;
-  const maxRDisplay = rB * 1.5, pixelsPerRad = 180 / maxRDisplay;
+  // FIXED length scale (px per AU). pixelsPerRad = 180/(1.5 rB) made
+  // rB_px a constant 120 px for every M and cs, so the spatial view was
+  // byte-identical and the sliders read as dead. With an absolute scale
+  // the Bondi sphere visibly grows with M and shrinks with cs (clamped
+  // at the extremes so it never overflows or vanishes).
+  const AU = 1.496e11;
+  const PX_PER_AU = 13.5;
+  const rB_px = Math.max(10, Math.min(230, (rB / AU) * PX_PER_AU));
+  const pixelsPerRad = rB_px / rB;                 // consistent for all radii
+  const maxRDisplay = rB * 1.6;
   ctx.strokeStyle = '#5bc0eb'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
-  const rB_px = rB * pixelsPerRad, rS_px = rS * pixelsPerRad;
+  const rS_px = rS * pixelsPerRad;
   ctx.beginPath(); ctx.arc(cx, cy, rB_px, 0, 2 * Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rS_px, 0, 2 * Math.PI); ctx.stroke();
   ctx.setLineDash([]);
@@ -37,6 +46,12 @@ function render() {
   // Radial inflow streamlines: each spoke carries tracers that speed up
   // as they fall in, blue while subsonic (r > r_s) and red once
   // supersonic (r < r_s), fading as they reach the centre.
+  // Ambient density sets the accretion rate Mdot ~ rho_inf, so make the
+  // inflow brightness track Mdot: the n slider then visibly thickens or
+  // thins the stream (n does not change r_B, so the geometry alone would
+  // not respond to it).
+  const MdotSun = Mdot * 3.155e7 / M_SUN;
+  const dens = Math.max(0.28, Math.min(1.35, 0.30 + 0.16 * (Math.log10(Math.max(MdotSun, 1e-30)) + 11)));
   const r_inner = rS * 0.06;
   for (let k = 0; k < 36; k += 1) {
     const ang = k * 2 * Math.PI / 36;
@@ -44,11 +59,11 @@ function render() {
       const phase = (st.t * 0.5 + k * 0.13 + m * 0.25) % 1;
       const r_now = maxRDisplay * Math.exp(-phase * Math.log(maxRDisplay / r_inner));
       const mach = Math.abs(bondiVelocityIsothermal(r_now, M, cs)) / cs;
-      const a = Math.max(0, 0.85 * (1 - phase));
+      const a = Math.max(0, 0.9 * dens * (1 - phase));
       ctx.fillStyle = mach > 1 ? `rgba(255,107,107,${a.toFixed(3)})` : `rgba(91,192,235,${a.toFixed(3)})`;
       const px = cx + r_now * pixelsPerRad * Math.cos(ang);
       const py = cy + r_now * pixelsPerRad * Math.sin(ang);
-      ctx.beginPath(); ctx.arc(px, py, mach > 1 ? 2.4 : 1.8, 0, 2 * Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(px, py, (mach > 1 ? 2.4 : 1.8) * (0.7 + 0.5 * dens), 0, 2 * Math.PI); ctx.fill();
     }
   }
   // Mach vs r inset: the transonic solution. r spans 0.08..2 r_B so the
