@@ -24,35 +24,39 @@ function render() {
   ctx.fillText('log10 F', 12, pad.t + 10); ctx.fillText('log10 ν', W - 60, H - pad.b + 14);
   const B = Math.pow(10, st.logB) * 1e-4;
   const nu_peak = nu_c(st.gamma, B);
-  const lnumin = Math.log10(nu_peak) - 4, lnumax = Math.log10(nu_peak) + 4;
+  // FIXED absolute log-frequency axis so changing gamma or B visibly
+  // slides the whole spectrum, and changing p visibly tilts the slope.
+  // (Previously both axis and curve were normalized by nu_peak, which
+  // cancelled, so the plot looked identical for every slider value.)
+  const lnumin = 6, lnumax = 24;
   const xToPx = (l) => pad.l + (l - lnumin) / (lnumax - lnumin) * (W - pad.l - pad.r);
+  // Common vertical scale: log10 F mapped over a 12-decade window with a
+  // fixed reference so slides do not auto-rescale away the motion.
+  const yRef = 2;
+  const yToPx = (lf) => H - pad.b - (lf - yRef + 12) / 12 * (H - pad.t - pad.b);
   if (st.mode === 'single') {
-    let max = 0;
-    const N = 600; const vals = new Float64Array(N);
-    for (let i = 0; i < N; i += 1) {
-      const lnu = lnumin + (lnumax - lnumin) * i / (N - 1);
-      const x = Math.pow(10, lnu) / nu_peak;
-      vals[i] = Math.log10(singleSpec(x) + 1e-30);
-      if (vals[i] > max) max = vals[i];
-    }
+    const N = 600;
     ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 0; i < N; i += 1) {
       const lnu = lnumin + (lnumax - lnumin) * i / (N - 1);
-      const py = H - pad.b - (vals[i] - max + 6) / 6 * (H - pad.t - pad.b);
+      const x = Math.pow(10, lnu) / nu_peak;
+      const lf = Math.log10(singleSpec(x) + 1e-30);
+      const py = yToPx(lf);
       if (i === 0) ctx.moveTo(xToPx(lnu), py); else ctx.lineTo(xToPx(lnu), py);
     }
     ctx.stroke();
   } else {
     const alpha = spectralIndex(st.p);
-    const lognu_min = Math.log10(nu_peak) - 2, lognu_max = Math.log10(nu_peak) + 2;
+    // Power-law: F(nu) ~ nu^-alpha with a cutoff near nu_peak. Plot on the
+    // same absolute axis so p tilts the slope and gamma/B shift the cutoff.
     ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
-    const N = 200;
-    let max = 0;
+    const N = 400;
     for (let i = 0; i < N; i += 1) {
-      const lnu = lognu_min + (lognu_max - lognu_min) * i / (N - 1);
-      const f = -alpha * lnu;
-      if (i === 0) max = f;
-      const py = H - pad.b - (f - max + 6) / 6 * (H - pad.t - pad.b);
+      const lnu = lnumin + (lnumax - lnumin) * i / (N - 1);
+      const lognu_rel = lnu - Math.log10(nu_peak);
+      let lf = -alpha * (lnu - 9);
+      if (lognu_rel > 0) lf -= 2 * lognu_rel;        // exponential-ish cutoff
+      const py = yToPx(lf);
       if (i === 0) ctx.moveTo(xToPx(lnu), py); else ctx.lineTo(xToPx(lnu), py);
     }
     ctx.stroke();
