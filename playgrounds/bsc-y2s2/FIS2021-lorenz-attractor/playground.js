@@ -1,11 +1,16 @@
 // playground.js
-// Lorenz 1963 attractor visualization. The (x, z) projection is drawn as a
-// growing trail. A live tangent-vector estimator reports the running max-
-// Lyapunov exponent.
+// A zoo of classic 3D strange attractors, hand-projected and slowly
+// rotating with a viridis-shaded fading trail. Lorenz keeps its
+// interactive sigma/rho/beta sliders and the live max-Lyapunov
+// readout; the other vector fields (Roessler, Aizawa, Thomas,
+// Halvorsen, Chen-Ueta) come from the sim.js ATTRACTORS catalog. The
+// Lorenz physics and its invariants in sim.js are unchanged.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
 import {
-  createLorenz, stepLorenz, maxLyapunov,
+  createLorenz, stepLorenz, maxLyapunov, rebuildRhs,
+  createAttractor, stepAttractor, ATTRACTORS,
   DEFAULT_DT, DEFAULT_PARAMS,
 } from './sim.js';
 
@@ -17,6 +22,7 @@ const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
+const selAttractor = document.getElementById('select-attractor');
 const sliderSigma  = document.getElementById('slider-sigma');
 const sliderRho    = document.getElementById('slider-rho');
 const sliderBeta   = document.getElementById('slider-beta');
@@ -29,199 +35,153 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-
-const VIEW = { xmin: -25, xmax: 25, zmin: 0, zmax: 50 };
-const TRAIL_MAX = 12000;
-const RESCALE_EVERY = 50;
-// Slower default: 18 steps/frame at speed=1 advances ~ 0.09 time units/frame,
-// or one Lyapunov time (~ 1.1 t.u.) every 12 frames. Speed slider now allows
-// 0.1 .. 1.5 with 1.0 as the default ceiling for clarity.
-const STEPS_PER_FRAME = 18;
-const WARMUP_STEPS = 1000;
+const CX = W / 2, CY = H / 2, ELEV = 0.34;
 
 const state = {
-  params:  { ...DEFAULT_PARAMS },
-  speed:   1.0,
-  lorenz:  null,
-  trail:   [],
+  key: 'lorenz',
+  params: { ...DEFAULT_PARAMS },
+  speed: 1.0,
+  at: null,                 // unified handle: { step(), pos(), def }
+  trail: [],
+  az: 0.6,
   playing: !DETERMINISTIC,
-  rafId:   null,
 };
 
-function cssVar(name, fallback) {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return v || fallback;
+function buildHandle() {
+  const def = ATTRACTORS[state.key] || ATTRACTORS.lorenz;
+  if (state.key === 'lorenz') {
+    const lz = createLorenz({ params: state.params, ic: def.ic, dt: DEFAULT_DT, method: 'rk4' });
+    let nStep = 0;
+    return {
+      lz, def,
+      step: () => {
+        stepLorenz(lz);
+        nStep += 1;
+        if (nStep % 50 === 0) {                    // tangent renorm (runLorenz logic)
+          const y = lz.inst.y;
+          const norm = Math.hypot(y[3], y[4], y[5]);
+          if (norm > 0) { lz.logSum += Math.log(norm); lz.nRescale += 1; y[3] /= norm; y[4] /= norm; y[5] /= norm; }
+        }
+      },
+      pos: () => [lz.inst.y[0], lz.inst.y[1], lz.inst.y[2]],
+      lyap: () => maxLyapunov(lz, 50),
+    };
+  }
+  const a = createAttractor(state.key);
+  return { def, step: () => stepAttractor(a), pos: () => [a.inst.y[0], a.inst.y[1], a.inst.y[2]], lyap: null };
 }
-
-const tokens = {
-  fg:        cssVar('--fg', '#1A1B1C'),
-  fgMuted:   cssVar('--fg-muted', '#5C5E61'),
-  accent:    cssVar('--accent', '#1B6CA8'),
-  accentWarm:cssVar('--accent-warm', '#C13B27'),
-};
 
 function rebuild() {
-  state.lorenz = createLorenz({ params: state.params, ic: [1, 1, 1], dt: DEFAULT_DT, method: 'rk4' });
+  state.at = buildHandle();
   state.trail = [];
-  for (let i = 0; i < WARMUP_STEPS; i += 1) stepLorenz(state.lorenz);
+  const warm = state.key === 'lorenz' ? 1000 : Math.round(state.at.def.steps * 0.12);
+  for (let i = 0; i < warm; i += 1) state.at.step();
 }
 
-function pxView(x, z) {
-  return {
-    px: W * (x - VIEW.xmin) / (VIEW.xmax - VIEW.xmin),
-    py: H * (1 - (z - VIEW.zmin) / (VIEW.zmax - VIEW.zmin)),
-  };
+function project(p) {
+  const c = state.at.def.center, sc = state.at.def.scale;
+  const x = (p[0] - c[0]) * sc, y = (p[1] - c[1]) * sc, z = (p[2] - c[2]) * sc;
+  const ca = Math.cos(state.az), sa = Math.sin(state.az);
+  const ex = x * ca - y * sa;
+  const ey = x * sa + y * ca;
+  return { sx: CX + ex, sy: CY - z * Math.cos(ELEV) - ey * Math.sin(ELEV) };
 }
 
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  const o = pxView(0, 0);
-  ctx.moveTo(0, o.py); ctx.lineTo(W, o.py);
-  ctx.moveTo(o.px, 0); ctx.lineTo(o.px, H);
-  ctx.stroke();
-
-  if (state.trail.length >= 2) {
-    ctx.strokeStyle = tokens.accent;
-    ctx.lineWidth = 1.0;
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    const first = pxView(state.trail[0].x, state.trail[0].z);
-    ctx.moveTo(first.px, first.py);
-    for (let i = 1; i < state.trail.length; i += 1) {
-      const p = pxView(state.trail[i].x, state.trail[i].z);
-      ctx.lineTo(p.px, p.py);
+  const tr = state.trail, n = tr.length;
+  if (n >= 2) {
+    let prev = project(tr[0]);
+    for (let i = 1; i < n; i += 1) {
+      const cur = project(tr[i]);
+      const t = i / n;
+      const col = viridis(0.1 + 0.85 * t);
+      ctx.strokeStyle = `rgba(${col.r},${col.g},${col.b},${(0.10 + 0.7 * t).toFixed(3)})`;
+      ctx.lineWidth = 0.6 + 1.4 * t;
+      ctx.beginPath(); ctx.moveTo(prev.sx, prev.sy); ctx.lineTo(cur.sx, cur.sy); ctx.stroke();
+      prev = cur;
     }
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    const last = state.trail[state.trail.length - 1];
-    const lp = pxView(last.x, last.z);
-    ctx.fillStyle = tokens.accentWarm;
-    ctx.beginPath();
-    ctx.arc(lp.px, lp.py, 3.5, 0, 2 * Math.PI);
-    ctx.fill();
+    const head = project(tr[n - 1]);
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(head.sx, head.sy, 3, 0, 2 * Math.PI); ctx.fill();
   }
 
-  drawReadout();
+  const def = state.at.def;
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(def.label, 18, 26);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px ui-monospace, monospace';
+  if (state.key === 'lorenz') {
+    const lam = state.at.lyap();
+    ctx.fillText(`sigma=${state.params.sigma.toFixed(1)} rho=${state.params.rho.toFixed(1)} beta=${state.params.beta.toFixed(3)}   max-Lyapunov ~ ${lam.toFixed(3)}`, 18, 44);
+  } else {
+    ctx.fillText('dissipative chaotic attractor; drag the speed slider, pick another from the menu', 18, 44);
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText('points ~ trail length; colour = age (viridis)', 18, H - 16);
 }
 
-function drawReadout() {
-  const lambda = maxLyapunov(state.lorenz, RESCALE_EVERY);
-  const t = state.lorenz.inst.t;
-  const rows = [
-    ['sigma',     state.params.sigma.toFixed(2)],
-    ['rho',       state.params.rho.toFixed(2)],
-    ['beta',      state.params.beta.toFixed(3)],
-    ['t',         t.toFixed(2)],
-    ['lambda_1',  lambda.toFixed(3)],
-    ['nSteps',    String(state.lorenz.inst.nSteps)],
-  ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  const xLeft = W - 200;
-  const xValue = W - 16;
-  let y = 22;
-  for (const [k, v] of rows) {
-    ctx.textAlign = 'left';
-    ctx.fillText(k, xLeft, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(v, xValue, y);
-    y += 14;
+function stepFrame() {
+  const def = state.at.def;
+  const perFrame = Math.max(1, Math.round((state.key === 'lorenz' ? 18 : def.steps / 240) * state.speed * 4));
+  for (let i = 0; i < perFrame; i += 1) {
+    state.at.step();
+    state.trail.push(state.at.pos());
+    if (state.trail.length > def.steps) state.trail.shift();
   }
 }
 
-function tickN(nSteps) {
-  if (!state.lorenz) return;
-  const y = state.lorenz.inst.y;
-  for (let i = 0; i < nSteps; i += 1) {
-    stepLorenz(state.lorenz);
-    state.trail.push({ x: y[0], y: y[1], z: y[2] });
-    if (state.trail.length > TRAIL_MAX) state.trail.shift();
-    if ((state.lorenz.inst.nSteps % RESCALE_EVERY) === 0) {
-      const tnorm = Math.hypot(y[3], y[4], y[5]);
-      if (tnorm > 0) {
-        state.lorenz.logSum += Math.log(tnorm);
-        state.lorenz.nRescale += 1;
-        y[3] /= tnorm;
-        y[4] /= tnorm;
-        y[5] /= tnorm;
-      }
-    }
-  }
-}
-
-function applyControls() {
-  state.params.sigma = parseFloat(sliderSigma.value);
-  state.params.rho   = parseFloat(sliderRho.value);
-  state.params.beta  = parseFloat(sliderBeta.value);
-  state.speed        = parseFloat(sliderSpeed.value);
-  valueSigma.textContent = state.params.sigma.toFixed(2);
-  valueRho.textContent   = state.params.rho.toFixed(2);
-  valueBeta.textContent  = state.params.beta.toFixed(3);
-  valueSpeed.textContent = state.speed.toFixed(1);
-  rebuild();
-  drawAll();
-}
-
-for (const el of [sliderSigma, sliderRho, sliderBeta]) {
-  el.addEventListener('change', applyControls);
-}
-sliderSpeed.addEventListener('input', () => {
-  state.speed = parseFloat(sliderSpeed.value);
-  valueSpeed.textContent = state.speed.toFixed(1);
-});
-
-btnReset.addEventListener('click', applyControls);
+selAttractor.addEventListener('change', () => { state.key = selAttractor.value; rebuild(); drawAll(); });
+sliderSigma.addEventListener('input', () => { state.params.sigma = parseFloat(sliderSigma.value); valueSigma.textContent = state.params.sigma.toFixed(1); if (state.key === 'lorenz') { rebuildRhs(state.at.lz, state.params); } });
+sliderRho.addEventListener('input', () => { state.params.rho = parseFloat(sliderRho.value); valueRho.textContent = state.params.rho.toFixed(1); if (state.key === 'lorenz') { rebuildRhs(state.at.lz, state.params); } });
+sliderBeta.addEventListener('input', () => { state.params.beta = parseFloat(sliderBeta.value); valueBeta.textContent = state.params.beta.toFixed(3); if (state.key === 'lorenz') { rebuildRhs(state.at.lz, state.params); } });
+sliderSpeed.addEventListener('input', () => { state.speed = parseFloat(sliderSpeed.value); valueSpeed.textContent = state.speed.toFixed(2); });
+btnReset.addEventListener('click', () => { state.key = 'lorenz'; selAttractor.value = 'lorenz'; state.params = { ...DEFAULT_PARAMS }; sliderSigma.value = '10'; sliderRho.value = '28'; sliderBeta.value = '2.6667'; valueSigma.textContent = '10.0'; valueRho.textContent = '28.0'; valueBeta.textContent = '2.667'; rebuild(); drawAll(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+  btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
 });
 
 function bootSync() {
-  rebuild();
-
+  valueSigma.textContent = state.params.sigma.toFixed(1);
+  valueRho.textContent = state.params.rho.toFixed(1);
+  valueBeta.textContent = state.params.beta.toFixed(3);
+  valueSpeed.textContent = state.speed.toFixed(2);
   if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const CAPTURE_TOTAL_STEPS = 15000;
-    const target = Math.round(frac * CAPTURE_TOTAL_STEPS);
-    tickN(target);
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    const keys = Object.keys(ATTRACTORS);
+    state.key = keys[Math.min(keys.length - 1, Math.round(f * (keys.length - 1)))];
+    selAttractor.value = state.key;
+    state.az = 0.6;
+    rebuild();
+    const def = state.at.def;
+    for (let i = 0; i < def.steps; i += 1) {
+      state.at.step();
+      state.trail.push(state.at.pos());
+      if (state.trail.length > def.steps) state.trail.shift();
+    }
     drawAll();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', {
-            detail: { capture: CAPTURE_NAME, seed: SEED, steps: target },
-          }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED, steps: target };
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.__simulationReady = true;
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null, seed: SEED } }));
+      }));
     }
     return;
   }
-
+  rebuild();
   drawAll();
 }
 
 function tick() {
-  if (state.playing) {
-    const stepsThisFrame = Math.round(STEPS_PER_FRAME * state.speed);
-    tickN(stepsThisFrame);
-    drawAll();
-  }
-  state.rafId = requestAnimationFrame(tick);
+  if (state.playing) { stepFrame(); state.az += 0.0016; drawAll(); }
+  requestAnimationFrame(tick);
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
