@@ -20,7 +20,7 @@ import { makeRng, gaussian } from '../../../shared/js/render/rng.js';
 export const NGRID = 64;
 export const L = 2 * Math.PI;        // domain length
 export const DX = L / NGRID;
-export const NPARTICLES = 2000;
+export const NPARTICLES = 10000;
 
 // Solve d^2 phi / dx^2 = -rho on a periodic grid via direct FFT-style
 // inversion. For NGRID modes, the k-th wave number contributes
