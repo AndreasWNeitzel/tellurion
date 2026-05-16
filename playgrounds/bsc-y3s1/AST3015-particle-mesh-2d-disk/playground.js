@@ -2,7 +2,7 @@
 // 2D PM disc render.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { createDisk, stepPM, totalAngularMomentum, totalMass, NGRID, L, NPARTICLES } from './sim.js';
+import { createDisk, stepPM, totalAngularMomentum, totalMass, NPARTICLES } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -28,48 +28,87 @@ const state = {
   playing: !DETERMINISTIC,
 };
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accent: cssVar('--accent', '#1B6CA8'),
-};
-
 function rebuild() {
   state.sim = createDisk({ N: NPARTICLES, M: 1.0, R: state.R, seed: SEED });
 }
 
+// Cool slow -> warm fast speed ramp (no rainbow).
+function speedColor(t) {
+  const u = t < 0 ? 0 : (t > 1 ? 1 : t);
+  if (u < 0.5) { const s = u / 0.5; return [40 + 30 * s, 90 + 90 * s, 150 + 60 * s]; }
+  const s = (u - 0.5) / 0.5;
+  return [70 + 185 * s, 180 + 30 * s, 210 - 130 * s];
+}
+
 function drawAll() {
-  ctx.fillStyle = '#060608';
+  ctx.fillStyle = '#050507';
   ctx.fillRect(0, 0, W, H);
   if (!state.sim) return;
-  // Plot region
-  const PLOT = { x: 30, y: 30, w: W - 60, h: H - 100 };
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
-  function toPx(x, y) {
-    return {
-      px: PLOT.x + PLOT.w * (x / L),
-      py: PLOT.y + PLOT.h * (1 - y / L),
-    };
-  }
+  const sim = state.sim, N = sim.N;
+  const PLOT = { x: 24, y: 30, w: W - 48, h: H - 90 };
+  const side = Math.min(PLOT.w, PLOT.h);
+  const ox = PLOT.x + (PLOT.w - side) / 2, oy = PLOT.y + (PLOT.h - side) / 2;
 
-  // Particles
-  ctx.fillStyle = tok.accent;
-  for (let p = 0; p < state.sim.N; p += 1) {
-    const x = state.sim.x[2 * p];
-    const y = state.sim.x[2 * p + 1];
+  // Zoom to the disc: a window a few scale lengths across, centred on
+  // the particle centre of mass, so the disc fills the frame instead of
+  // sitting as a speck in the periodic box.
+  let comx = 0, comy = 0;
+  for (let p = 0; p < N; p += 1) { comx += sim.x[2 * p]; comy += sim.x[2 * p + 1]; }
+  comx /= N; comy /= N;
+  const HW = 3.4 * state.R;
+  const toPx = (x, y) => ({
+    px: ox + side * (0.5 + (x - comx) / (2 * HW)),
+    py: oy + side * (0.5 - (y - comy) / (2 * HW)),
+  });
+
+  // Faint reference: one scale-length ring and the centre.
+  const c0 = toPx(comx, comy), cR = toPx(comx + state.R, comy);
+  ctx.strokeStyle = 'rgba(150,170,210,0.16)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(c0.px, c0.py, Math.abs(cR.px - c0.px), 0, 2 * Math.PI); ctx.stroke();
+
+  // Robust speed scale (track a smoothed max so the colour map is stable).
+  let vmax = 1e-6;
+  for (let p = 0; p < N; p += 1) {
+    const sx = sim.v[2 * p], sy = sim.v[2 * p + 1];
+    const sp = Math.sqrt(sx * sx + sy * sy);
+    if (sp > vmax) vmax = sp;
+  }
+  state.vmaxSmooth = state.vmaxSmooth ? 0.92 * state.vmaxSmooth + 0.08 * vmax : vmax;
+  const vs = state.vmaxSmooth * 0.85;
+
+  // Additive soft points so the spiral arms and clumps bloom where the
+  // disc is dense.
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let p = 0; p < N; p += 1) {
+    const x = sim.x[2 * p], y = sim.x[2 * p + 1];
+    const dx = x - comx, dy = y - comy;
+    if (Math.abs(dx) > HW || Math.abs(dy) > HW) continue;
+    const sx = sim.v[2 * p], sy = sim.v[2 * p + 1];
+    const sp = Math.sqrt(sx * sx + sy * sy);
+    const c = speedColor(sp / vs);
     const pt = toPx(x, y);
-    ctx.globalAlpha = 0.55;
-    ctx.fillRect(pt.px - 0.5, pt.py - 0.5, 1.4, 1.4);
+    ctx.fillStyle = `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},0.5)`;
+    ctx.beginPath(); ctx.arc(pt.px, pt.py, 1.7, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.globalAlpha = 1;
+  ctx.restore();
 
-  // Readout
-  const M = totalMass(state.sim);
-  const Lz = totalAngularMomentum(state.sim);
+  // Scale bar (1 R).
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2;
+  const b0 = ox + 14, b1 = b0 + side / (2 * HW) * state.R, by = oy + side - 14;
+  ctx.beginPath(); ctx.moveTo(b0, by); ctx.lineTo(b1, by); ctx.stroke();
+  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'left';
+  ctx.fillText('1 scale length R', b0, by - 6);
+
+  // Readout.
+  const M = totalMass(sim);
+  const Lz = totalAngularMomentum(sim);
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`t = ${state.sim.t.toFixed(2)}  N = ${state.sim.N}  R = ${state.R.toFixed(2)}  M = ${M.toFixed(3)}  L_z = ${Lz.toFixed(3)}`, 30, 18);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+  ctx.fillText(`t = ${sim.t.toFixed(2)}   N = ${N}   R = ${state.R.toFixed(2)}   M = ${M.toFixed(3)}   L_z = ${Lz.toFixed(3)}`, 24, 18);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillText('colour = orbital speed (cool slow to warm fast); view zoomed to the disc', 24, H - 14);
 }
 
 function tickN(n) {

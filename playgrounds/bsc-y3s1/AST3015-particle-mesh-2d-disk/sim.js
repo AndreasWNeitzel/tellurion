@@ -11,7 +11,7 @@
 import { makeRng, gaussian } from '../../../shared/js/render/rng.js';
 
 export const NGRID = 32;     // 32x32 grid (cheap)
-export const L = 8.0;        // domain extent
+export const L = 5.0;        // domain extent (smaller box -> disc spans more cells)
 export const DX = L / NGRID;
 export const NPARTICLES = 1500;
 export const G_GRAV = 1.0;
@@ -150,9 +150,12 @@ export function createDisk({ N = NPARTICLES, M = 1.0, R = 1.5, seed = 0xC0FFEE }
   const m = new Float64Array(N);
   // Center of domain
   const cx = L / 2, cy = L / 2;
-  // Exponential disc: r ~ -ln(1 - u) * R for surface density ~ exp(-r/R)
+  // Exponential disc: r ~ -ln(1 - u) * R for surface density ~ exp(-r/R).
+  // Truncate the long tail so the disc is compact in the periodic box.
+  const rMaxKeep = 3.4 * R;
   for (let i = 0; i < N; i += 1) {
-    const r = -Math.log(1 - rng()) * R;
+    let r = -Math.log(1 - rng()) * R;
+    if (r > rMaxKeep) r = rMaxKeep * rng();
     const theta = 2 * Math.PI * rng();
     let xi = cx + r * Math.cos(theta);
     let yi = cy + r * Math.sin(theta);
@@ -162,9 +165,27 @@ export function createDisk({ N = NPARTICLES, M = 1.0, R = 1.5, seed = 0xC0FFEE }
     while (yi >= L) yi -= L;
     x[2 * i] = xi; x[2 * i + 1] = yi;
     m[i] = M / N;
-    const vCirc = r < 0.05 ? 0 : Math.sqrt(G_GRAV * M / (r + 0.5));
-    v[2 * i] = -vCirc * Math.sin(theta);
-    v[2 * i + 1] = +vCirc * Math.cos(theta);
+  }
+  // Balance the orbital speed against the ACTUAL particle-mesh force at
+  // t = 0 (not an analytic point-mass guess, which never matched the
+  // grid-softened periodic potential and made the disc fly apart). Then
+  // add a small velocity dispersion so it settles into a warm disc with
+  // transient spiral structure instead of a cold collapsing ring.
+  const rho = depositCIC(x, m);
+  const phi = solvePoisson2D(rho);
+  const { gx, gy } = gradPhi(phi);
+  const ax0 = interpolateCIC(x, gx);
+  const ay0 = interpolateCIC(x, gy);
+  for (let i = 0; i < N; i += 1) {
+    const dx = x[2 * i] - cx, dy = x[2 * i + 1] - cy;
+    const r = Math.hypot(dx, dy) + 1e-6;
+    const ux = dx / r, uy = dy / r;
+    // Inward radial acceleration is -grad(phi) . r_hat = (gx,gy).(ux,uy).
+    const aR = ax0[i] * ux + ay0[i] * uy;
+    const vC = aR > 0 ? Math.sqrt(aR * r) : 0;
+    const sig = 0.09 * vC;
+    v[2 * i] = -vC * uy + gaussian(rng, 0, sig);
+    v[2 * i + 1] = +vC * ux + gaussian(rng, 0, sig);
   }
   return { x, v, m, N, t: 0, nSteps: 0 };
 }
@@ -179,8 +200,14 @@ export function stepPM(state, dt = 0.02) {
   for (let p = 0; p < state.N; p += 1) {
     state.v[2 * p]     -= dt * ax[p];
     state.v[2 * p + 1] -= dt * ay[p];
-    state.x[2 * p]     += dt * state.v[2 * p];
-    state.x[2 * p + 1] += dt * state.v[2 * p + 1];
+    let nx = state.x[2 * p] + dt * state.v[2 * p];
+    let ny = state.x[2 * p + 1] + dt * state.v[2 * p + 1];
+    // Periodic box: wrap positions so particles never leave the domain
+    // (the grid is periodic; unwrapped positions just drift off-screen).
+    nx -= Math.floor(nx / L) * L;
+    ny -= Math.floor(ny / L) * L;
+    state.x[2 * p]     = nx;
+    state.x[2 * p + 1] = ny;
   }
   state.t += dt;
   state.nSteps += 1;
