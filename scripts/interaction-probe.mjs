@@ -116,7 +116,32 @@ try {
     await page.waitForTimeout(450);
     const after = await hash();
     const f = changedFrac(before, after);
-    const verdict = f >= okThresh ? 'OK  ' : (f > Math.max(noise * 1.5, 0.0008) ? 'WEAK' : 'DEAD');
+    let verdict = f >= okThresh ? 'OK  ' : (f > Math.max(noise * 1.5, 0.0008) ? 'WEAK' : 'DEAD');
+    // Rate-control retry: a speed slider has no effect while paused, so
+    // it fails the quiescent test. Resume animation and check it changes
+    // the EVOLUTION RATE: the per-window change at the high setting must
+    // clearly exceed that at the low setting.
+    if (verdict !== 'OK  ' && c.kind === 'range') {
+      await page.evaluate(() => {
+        const b = [...document.querySelectorAll('button')].find(e =>
+          /play|resume|pause/i.test(e.id || '') || /play|resume|pause/i.test(e.getAttribute('aria-label') || '') || /play|resume|pause/i.test(e.textContent || ''));
+        if (b) b.click();
+      });
+      const rate = async (val) => {
+        await page.evaluate(({ id, val }) => {
+          const el = document.getElementById(id) || [...document.querySelectorAll('[aria-label]')].find(e => e.getAttribute('aria-label') === id);
+          if (!el) return; el.value = String(val);
+          el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, { id: c.id, val });
+        await page.waitForTimeout(200);
+        const s0 = await hash(); await page.waitForTimeout(650); const s1 = await hash();
+        return changedFrac(s0, s1);
+      };
+      const rHi = await rate(c.max);
+      const rLo = await rate(c.min);
+      if (rHi > Math.max(0.004, rLo * 1.6) || (rHi - rLo) > okThresh) verdict = 'OK  ';
+      console.log(`     rate-retry ${c.id}: hi=${(rHi * 100).toFixed(2)}% lo=${(rLo * 100).toFixed(2)}%`);
+    }
     console.log(`${verdict}  ${c.kind}  ${c.id}  (${(f * 100).toFixed(2)}% changed)`);
     if (verdict !== 'OK  ') fails.push(`${c.kind}:${c.id}[${verdict.trim()}]`);
   }
