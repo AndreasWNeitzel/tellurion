@@ -61,11 +61,12 @@ DONE (committed, invariants pass, captures refreshed):
 - tiny-mlp-backprop: live network graph, 1-3 layers/<=8 neurons, +circles/+gaussians, N=360
 - cosmic-ray-air-shower: animated primary entry + descending front + energy-coloured cone + lit detectors
 - gravitational-wave-chirp: real 3D inspiral, barycentric Kepler orbit, spiral worldlines, GW fronts, merger flash + ringdown remnant
+- relativistic-beaming: pseudo-3D shaded solid-of-revolution lobe + aberrated photon stream collimating into the 1/gamma cone
 
 REMAINING boring->spatial makeovers (next sessions):
 - toy parton, Friedmann cosmography, gamow tunneling, fabry-perot,
   runge-chebyshev, de Broglie, CKM, matter-radiation equality,
   Lane-Emden, sturm-liouville, parker solar wind, p/g-mode cavity,
-  slow-roll inflation, relativistic beaming
+  slow-roll inflation
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static

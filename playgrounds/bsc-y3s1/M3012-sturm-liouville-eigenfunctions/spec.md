@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s1
 primary_citation: arfken-weber
 primary_chapter: 8
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The Sturm-Liouville modes of the string operator are the normal modes of a clamped string; watch it vibrate.'
+one_paragraph: 'A vibrating-string instantiation of the regular Sturm-Liouville problem on [0, pi]. The string evolves as y(x,t) = sum c_n phi_n(x) cos(omega_n t) with omega_n = sqrt(lambda_n) = n, so the eigenvalue spectrum lambda_n = n^2 becomes visible motion: the lower lanes show each normal mode oscillating at its own rate (mode n is n times faster). Click the string to re-pluck it (triangular initial condition) and watch the modal mix change; the N slider sets how many eigenfunctions reconstruct it, with the max reconstruction error read out live.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -28,16 +28,17 @@ The simplest regular Sturm-Liouville problem: $-y'' = \lambda y$ on $[0, \pi]$ w
 
 ## Numerical method
 
-Closed-form $\phi_n$. Inner products by Simpson 1/3 with $N = 2000$ subintervals. The target $f(x) = x(\pi - x)$ has Fourier-Sturm-Liouville coefficients $c_n = \langle \phi_n, f \rangle$.
+Closed-form $\phi_n$. Inner products by Simpson 1/3 with $N = 2000$ subintervals. The initial profile (default $f(x) = x(\pi - x)$, or a triangular pluck set by clicking) has coefficients $c_n = \langle \phi_n, f \rangle$. The string is evolved as $y(x,t) = \sum c_n \phi_n(x) \cos(\omega_n t)$ with $\omega_n = \sqrt{\lambda_n}$, the standard temporal factor of the separated wave equation; sim.js (eigenfunctions, inner product, projection, reconstruction) is unchanged.
 
 ## Controls
 
 - Number of modes $N$ (1 to 20).
+- Click the string to re-pluck (triangular initial condition at the cursor).
 
 ## Expected qualitative features
 
-1. First five eigenfunctions overlaid in the top panel.
-2. Target $f(x) = x(\pi - x)$ and its truncated reconstruction in the bottom panel.
+1. A clamped string vibrating as the time-evolved modal sum in the top panel, with the static reconstruction envelope behind it.
+2. The first up-to-six normal modes in stacked lanes, each oscillating at its own $\omega_n = n$ (higher modes visibly faster).
 3. As $N$ grows, the reconstruction visibly converges; the max-error readout drops.
 4. Only odd modes contribute to $f$ because $f$ is even about $\pi/2$.
 
