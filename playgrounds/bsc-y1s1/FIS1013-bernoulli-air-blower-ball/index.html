@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bernoulli Air-Blower Ball</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; }
+    .pg-figure canvas.dragging { cursor: grabbing; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+    .pg-controls .row.buttons button { font: inherit; padding: 6px 14px; }
+  </style>
+</head>
+<body>
+  <h1>Bernoulli air-blower ball</h1>
+  <p>
+    <strong>What you are seeing:</strong> a light ball held up by a
+    turbulent air jet. The ball settles where the upward quadratic drag
+    balances gravity. It also self-centres: nudge it sideways and the
+    side nearer the fast jet core gets more drag and pushes it back, the
+    everyday Bernoulli / entrainment effect. Drag the ball and let go,
+    tilt the blower, or cut the power.
+  </p>
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="A ball levitating in a tilted turbulent air jet."></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">height:</span><span class="value" id="readout-h">0 cm</span>
+      <span class="label">off-axis:</span><span class="value" id="readout-x">0 cm</span>
+      <span class="label">state:</span><span class="value" id="readout-state">levitating</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A sphere levitated in a turbulent free jet. Method: quadratic
+      sphere drag in a Gaussian-spreading jet with centreline decay.
+      Source: Tritton, Physical Fluid Dynamics 2e (`tritton`).
+    </figcaption>
+  </figure>
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Blower controls">
+    <div class="row"><span class="label">blower power</span><input aria-label="blower power (m/s)" type="range" id="slider-power" min="9" max="30" step="0.5" value="18"><span class="value" id="value-power">18</span></div>
+    <div class="row"><span class="label">tilt (deg)</span><input aria-label="nozzle tilt" type="range" id="slider-tilt" min="-25" max="25" step="1" value="0"><span class="value" id="value-tilt">0</span></div>
+    <div class="row buttons">
+      <button id="btn-blower" type="button" aria-pressed="true">Blower: on</button>
+      <button id="btn-reset" type="button">Reset ball</button>
+    </div>
+  </div>
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

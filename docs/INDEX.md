@@ -617,6 +617,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (verified)
   Five radio telescopes plotted on a procedural world map (continent outlines, no image texture): ALMA, VLA, Effelsberg, Metsahovi, JCMT. The sky-preview panel shows a three-source model (one bright dot + two fainter). As simulated time runs (one day per 10 s), each telescope pair traces an elliptical arc in the UV plane; the dirty image panel updates via 2D i
 
+- **[Bernoulli Air-Blower Ball](../playgrounds/bsc-y1s1/FIS1013-bernoulli-air-blower-ball/index.html)** &nbsp; (verified)
+  A sphere of mass $m$ and radius $R$ sits in a turbulent free jet issuing from a nozzle whose axis can be tilted by an angle from vertical. The jet has a centreline speed that decays with distance and a Gaussian cross-section that spreads downstream.
+
 - **[Chandrasekhar Dynamical Friction](../playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/index.html)** &nbsp; (verified)
   A large perturber enters from the left through N=200 background particles drawn from a Maxwellian of dispersion sigma. Gravitational focusing pulls particles into an overdense wake trailing the perturber; the wake's pull decelerates it. The perturber speed readout decreases over time.
 
