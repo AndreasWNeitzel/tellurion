@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bouncing Balls in a Concave Bowl</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .pg-figure { max-width: 760px; }
+    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+    .pg-controls .row.buttons button { font: inherit; padding: 6px 14px; }
+  </style>
+</head>
+<body>
+  <h1>Bouncing balls in a concave bowl</h1>
+  <p>
+    <strong>What you are seeing:</strong> balls falling under gravity
+    into a bowl whose profile you choose. On each contact the velocity
+    is reflected about the local tangent and the normal component is
+    scaled by the restitution $e$. The bowl shape sets the motion: a
+    parabola gives near-simple-harmonic swings, the V-bowl piecewise
+    constant acceleration, the quartic a strongly amplitude-dependent
+    period, the arc a pendulum. With $e = 1$ the balls bounce forever.
+  </p>
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="520" tabindex="0"
+            aria-label="Balls bouncing under gravity inside a selectable concave bowl."></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">energy:</span><span class="value" id="readout-e">0</span>
+      <span class="label">max speed:</span><span class="value" id="readout-v">0</span>
+      <span class="label">state:</span><span class="value" id="readout-state">bouncing</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Gravity plus tangent-reflection with restitution in a chosen bowl
+      profile. Source: Kleppner and Kolenkow, An Introduction to
+      Mechanics 2e, ch. 4 (`kleppner`).
+    </figcaption>
+  </figure>
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Bowl controls">
+    <div class="row"><span class="label">bowl shape</span><select aria-label="bowl shape" id="select-shape"><option value="parabola">parabola</option><option value="vbowl">V-bowl</option><option value="quartic">quartic</option><option value="arc">circular arc</option><option value="cosine">cosine well</option></select><span class="value" id="value-shape">parabola</span></div>
+    <div class="row"><span class="label">restitution e</span><input aria-label="restitution" type="range" id="slider-e" min="0.4" max="1" step="0.01" value="0.85"><span class="value" id="value-e">0.85</span></div>
+    <div class="row"><span class="label">curvature a</span><input aria-label="curvature" type="range" id="slider-a" min="0.25" max="0.9" step="0.01" value="0.55"><span class="value" id="value-a">0.55</span></div>
+    <div class="row buttons">
+      <button id="btn-drop" type="button">Drop again</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
