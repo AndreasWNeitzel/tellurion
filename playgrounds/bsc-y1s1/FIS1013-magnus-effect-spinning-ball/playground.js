@@ -204,12 +204,15 @@ function bootSync() {
   drawAll();
 }
 
-// Slowed: was tickN(4) every frame (too fast to see the curve). Step 2
-// per frame so the flight and the visible spin are followable. Capture
-// path returns before tick(), so this does not affect goldens.
+// Slowed 4x further on review: one physics step every other frame
+// (~0.5 step/frame, vs the previous 2) so the curved flight and the
+// visible spin are easy to follow. Capture path returns before tick(),
+// so this does not affect goldens.
+let frameCount = 0;
 function tick() {
   if (state.playing) {
-    tickN(2);
+    frameCount += 1;
+    if (frameCount % 2 === 0) tickN(1);
     drawAll();
   }
   requestAnimationFrame(tick);
