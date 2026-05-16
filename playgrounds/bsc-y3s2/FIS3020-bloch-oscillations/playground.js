@@ -42,18 +42,19 @@ function render() {
   const xToPx2 = (tt) => pad.l + tt / tMax * (W - pad.l - pad.r);
   const yMid = (panelMid + 20 + panelBot) / 2;
   const ampX = (panelBot - panelMid - 20) / 2 - 10;
+  const ampTheory = st.W / (2 * st.F);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.5; ctx.beginPath();
   for (let i = 0; i <= 400; i += 1) {
     const tt = tMax * i / 400;
     const x = position(tt, 0, st.F, st.W);
-    const py = yMid - x / (st.W / st.F) * ampX * 0.6;
+    const py = yMid - x / ampTheory * ampX * 0.7;
     if (i === 0) ctx.moveTo(xToPx2(tt), py); else ctx.lineTo(xToPx2(tt), py);
   }
   ctx.stroke();
   const x_now = position(st.t % tMax, 0, st.F, st.W);
-  ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(xToPx2(st.t % tMax), yMid - x_now / (st.W / st.F) * ampX * 0.6, 7, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(xToPx2(st.t % tMax), yMid - x_now / ampTheory * ampX * 0.7, 7, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`T_B = ${T_B.toFixed(2)}, ω_B = ${omega_B.toFixed(2)}`, 12, H - 12);
+  ctx.fillText(`T_B = ${T_B.toFixed(2)}, amp = ${ampTheory.toFixed(2)}, ω_B = ${omega_B.toFixed(2)}`, 12, H - 12);
   rT.textContent = T_B.toFixed(2);
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt * 2; render(); requestAnimationFrame(tick); }
