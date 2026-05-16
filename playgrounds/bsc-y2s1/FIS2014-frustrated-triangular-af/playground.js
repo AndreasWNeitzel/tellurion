@@ -49,8 +49,32 @@ function drawAll() {
       ctx.fillRect(x0 + i * cell, y0 + j * cell, cell, cell);
     }
   }
+  // Frustration overlay: mark every triangular plaquette whose three
+  // spins are all equal (maximally frustrated under AF coupling). This
+  // makes the geometric frustration visible, so the low-T maze reads as
+  // a degenerate frustrated state rather than a broken "ordered" one.
+  ctx.fillStyle = 'rgba(255, 222, 89, 0.85)';
+  for (let j = 0; j < L; j += 1) {
+    const jD = (j + 1) % L;
+    for (let i = 0; i < L; i += 1) {
+      const a = spins[j * L + i];
+      const b = spins[j * L + ((i + 1) % L)];
+      const c = spins[jD * L + i];
+      if (a === b && b === c) {
+        const fx = x0 + (i + 0.5) * cell + cell * 0.33;
+        const fy = y0 + (j + 0.5) * cell + cell * 0.33;
+        const rr = Math.max(1, cell * 0.22);
+        ctx.beginPath(); ctx.arc(fx, fy, rr, 0, 2 * Math.PI); ctx.fill();
+      }
+    }
+  }
+
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(x0 + 0.5, y0 + 0.5, cell * L - 1, cell * L - 1);
+  ctx.fillStyle = 'rgba(255, 222, 89, 0.95)';
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('yellow dot = frustrated plaquette (3 equal spins; AF cannot satisfy all bonds)', 20, y0 + cell * L + 16);
 
   // Readout
   const m = magnetization(state.af);
