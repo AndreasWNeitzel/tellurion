@@ -7,6 +7,8 @@ import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? 'NaN');
+let probePhase = 0;
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
@@ -67,14 +69,23 @@ function render() {
   const cx = W * 0.35, cy = H * 0.5;
   const scale = Math.min(W * 0.3, H * 0.3) / Math.max(state.r_min * 4, 1);
 
-  // Planet circle.
-  ctx.fillStyle = '#cf7f3a';
-  ctx.beginPath(); ctx.arc(cx, cy, scale * 0.9, 0, 2 * Math.PI); ctx.fill();
-  // Subtle banding.
-  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-  for (let b = -0.6; b <= 0.6; b += 0.2) {
-    ctx.beginPath(); ctx.arc(cx, cy + b * scale * 0.9, scale * 0.9, 0, 2 * Math.PI); ctx.stroke();
+  // Planet as a clean shaded sphere with latitude bands clipped to the
+  // disc (the old code drew vertically offset full circles, which made
+  // the body look lumpy / weirdly shaped).
+  const R = scale * 0.9;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.clip();
+  const pg = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R);
+  pg.addColorStop(0, '#f0b070'); pg.addColorStop(0.6, '#cf7f3a'); pg.addColorStop(1, '#5e3413');
+  ctx.fillStyle = pg;
+  ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+  ctx.fillStyle = 'rgba(90,45,15,0.35)';
+  for (let b = -0.7; b <= 0.7; b += 0.28) {
+    ctx.fillRect(cx - R, cy + b * R - R * 0.05, 2 * R, R * 0.10);
   }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
 
   // Trajectory in planet frame.
   ctx.strokeStyle = '#7c9cff';
@@ -86,6 +97,24 @@ function render() {
     if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
   }
   ctx.stroke();
+
+  // Animated spacecraft flying the slingshot, with a comet trail.
+  const pi = Math.min(pts.length - 1, Math.max(0, Math.floor(probePhase * (pts.length - 1))));
+  ctx.lineWidth = 2.4;
+  for (let k = Math.max(1, pi - 26); k <= pi; k += 1) {
+    const a = pts[k - 1], b = pts[k];
+    ctx.strokeStyle = `rgba(124,255,170,${0.06 + 0.5 * (k - (pi - 26)) / 26})`;
+    ctx.beginPath();
+    ctx.moveTo(cx + a.x * scale, cy + a.y * scale);
+    ctx.lineTo(cx + b.x * scale, cy + b.y * scale);
+    ctx.stroke();
+  }
+  const sp = pts[pi];
+  const gx = cx + sp.x * scale, gy = cy + sp.y * scale;
+  const gl = ctx.createRadialGradient(gx, gy, 0, gx, gy, 12);
+  gl.addColorStop(0, 'rgba(170,255,200,0.95)'); gl.addColorStop(1, 'rgba(170,255,200,0)');
+  ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(gx, gy, 12, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#d9ffe6'; ctx.beginPath(); ctx.arc(gx, gy, 3.5, 0, 2 * Math.PI); ctx.fill();
 
   // Velocity arrows at entry / exit (planet frame).
   const v_in  = { x: pts[1].x - pts[0].x, y: pts[1].y - pts[0].y };
@@ -167,7 +196,15 @@ function buildControls() {
 }
 
 buildControls();
-render();
+if (CAPTURE_NAME) {
+  probePhase = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+  render();
+} else {
+  let raf;
+  function tick() { probePhase = (probePhase + 0.004) % 1; render(); raf = requestAnimationFrame(tick); }
+  render();
+  raf = requestAnimationFrame(tick);
+}
 
 if (DETERMINISTIC) {
   window.__simulationReady = true;
