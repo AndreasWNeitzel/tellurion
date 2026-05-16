@@ -63,7 +63,7 @@ All confirmed in `invariants.test.mjs` (8 tests passing).
 
 - $R = 0$: $T = 1$ everywhere (no interference).
 - $R \to 1$: peaks become delta functions; ideal high-Q laser cavity.
-- $\phi = (2m+1) \pi$: $T = T_\min$ exactly.
+- $\phi = (2m+1) \pi$: $T = T_{\min}$ exactly.
 
 ## Visual fallback
 
