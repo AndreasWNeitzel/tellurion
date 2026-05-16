@@ -1,256 +1,215 @@
 // playground.js
-// Ray diagram + Fresnel reflectance curves.
+// Brewster / Fresnel as propagating waves. Left: an incident plane
+// wave crosses a dielectric interface; the reflected wave carries
+// amplitude r and the refracted wave amplitude t with the Snell angle
+// and the n1/n2 wavelength change. For p-polarization the reflected
+// wave extinguishes at Brewster's angle. Right: the Fresnel R_s, R_p
+// curves with the live and Brewster markers. sim.js unchanged.
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { fresnelR, brewsterAngle, criticalAngle, snellRefract } from './sim.js';
+import {
+  fresnelR, fresnelAmplitudes, brewsterAngle, criticalAngle, snellRefract,
+} from './sim.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderTheta  = document.getElementById('slider-theta');
-const sliderRatio  = document.getElementById('slider-ratio');
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueTheta   = document.getElementById('value-theta');
-const valueRatio   = document.getElementById('value-ratio');
-const valueSpeed   = document.getElementById('value-speed');
-const btnReset     = document.getElementById('btn-reset');
-const btnPlayPause = document.getElementById('btn-playpause');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+const sliderTheta = document.getElementById('slider-theta');
+const sliderRatio = document.getElementById('slider-ratio');
+const sliderSpeed = document.getElementById('slider-speed');
+const selectPol   = document.getElementById('select-pol');
+const valueTheta  = document.getElementById('value-theta');
+const valueRatio  = document.getElementById('value-ratio');
+const valueSpeed  = document.getElementById('value-speed');
+const valuePol    = document.getElementById('value-pol');
+const btnReset    = document.getElementById('btn-reset');
+const btnPlay     = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-
-const state = {
-  theta_deg: 56.31,
-  ratio: 1.5,
-  speed: 2,
-  sweepDir: 1,
+const st = {
+  thetaDeg: 56.31, ratio: 1.5, pol: 'p', speed: 2, phase: 0,
   playing: !DETERMINISTIC,
 };
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
-};
+// Left scene.
+const SX = 36, SY = 70, SW = W * 0.46, SH = H - SY - 70;
+const OX = SX + SW * 0.5, IY = SY + SH * 0.52;     // interface hit point
+const BEAM = 26;                                    // beam half-width (px)
 
-function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-  const n1 = 1.0, n2 = state.ratio;
-  const theta_i = (state.theta_deg * Math.PI) / 180;
-  const { Rs, Rp, theta_t } = fresnelR(theta_i, n1, n2);
-  const tB = brewsterAngle(n1, n2);
-  const tC = criticalAngle(n1, n2);
-
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`theta_i = ${state.theta_deg.toFixed(1)} deg   n1 = 1.0, n2 = ${n2.toFixed(2)}`, 30, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`theta_B = ${(tB * 180 / Math.PI).toFixed(2)} deg   R_s = ${Rs.toFixed(3)}   R_p = ${Rp.toFixed(4)}${tC !== null ? `   theta_c = ${(tC * 180 / Math.PI).toFixed(2)} deg` : ''}`, 30, 40);
-
-  // Layout: left ray diagram, right Fresnel curves
-  const padL = 30, padR = 30, gap = 30;
-  const panelW = (W - padL - padR - gap) / 2;
-  const panelY = 60;
-  const panelH = H - panelY - 80;
-
-  // Ray diagram (left)
-  const rayX = padL;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(rayX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(rayX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
-  // Interface (horizontal line at center)
-  const ifaceY = panelY + panelH / 2;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(rayX, ifaceY); ctx.lineTo(rayX + panelW, ifaceY);
-  ctx.stroke();
-  // Region label
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'right';
-  ctx.fillText(`n1 = ${n1.toFixed(2)}`, rayX + panelW - 8, ifaceY - 8);
-  ctx.fillText(`n2 = ${n2.toFixed(2)}`, rayX + panelW - 8, ifaceY + 18);
-  // Normal (vertical dashed)
-  const cx = rayX + panelW / 2;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  ctx.moveTo(cx, panelY + 10); ctx.lineTo(cx, panelY + panelH - 10);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  // Incident ray (from upper-left to origin)
-  const Llen = Math.min(panelW, panelH) * 0.4;
-  const incEndX = cx - Llen * Math.sin(theta_i);
-  const incEndY = ifaceY - Llen * Math.cos(theta_i);
-  ctx.strokeStyle = tok.accentCool;
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.moveTo(incEndX, incEndY); ctx.lineTo(cx, ifaceY);
-  ctx.stroke();
-  // arrowhead toward origin
-  ctx.fillStyle = tok.accentCool;
-  ctx.beginPath();
-  ctx.arc(cx, ifaceY, 3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillText('incident', incEndX + 4, incEndY - 4);
-  // Reflected ray (upper-right)
-  const refLen = Llen * (1 - Math.max(Rs, Rp) * 0.5);   // shorter when low R, just for accent
-  const refEndX = cx + Llen * Math.sin(theta_i);
-  const refEndY = ifaceY - Llen * Math.cos(theta_i);
-  // Two reflected rays: s (cool) and p (warm), thickness proportional to R.
-  ctx.strokeStyle = tok.accentCool;
-  ctx.lineWidth = Math.max(1.0, 4 * Rs);
-  ctx.globalAlpha = 0.7;
-  ctx.beginPath();
-  ctx.moveTo(cx, ifaceY); ctx.lineTo(refEndX, refEndY);
-  ctx.stroke();
+function waveBeam(dir, length, amp, lamPx, color) {
+  // dir: unit (dx, dy) from the hit point O. Moving wavefront ticks
+  // perpendicular to the beam; tick length and alpha scale with |amp|.
+  const nx = -dir[1], ny = dir[0];
+  const a = Math.max(0, Math.min(1, Math.abs(amp)));
+  ctx.strokeStyle = color; ctx.globalAlpha = 0.45; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(OX, IY); ctx.lineTo(OX + dir[0] * length, IY + dir[1] * length); ctx.stroke();
   ctx.globalAlpha = 1;
-  ctx.strokeStyle = tok.accentWarm;
-  ctx.lineWidth = Math.max(1.0, 4 * Rp);
-  ctx.globalAlpha = 0.7;
-  ctx.beginPath();
-  ctx.moveTo(cx, ifaceY); ctx.lineTo(refEndX + 6, refEndY + 4);
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-  ctx.fillText(`R_s = ${Rs.toFixed(2)}`, refEndX + 12, refEndY - 8);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText(`R_p = ${Rp.toFixed(3)}`, refEndX + 12, refEndY + 12);
-  // Transmitted ray
-  if (theta_t !== null) {
-    const tEndX = cx + Llen * Math.sin(theta_t);
-    const tEndY = ifaceY + Llen * Math.cos(theta_t);
-    ctx.strokeStyle = '#f1d28a';
-    ctx.lineWidth = 1.4;
+  if (a < 0.015) return;                            // extinguished
+  const half = BEAM * (0.35 + 0.65 * a);
+  ctx.lineWidth = 2;
+  for (let s = 4; s < length; s += lamPx) {
+    const ph = s - (st.phase % lamPx);
+    if (ph < 0) continue;
+    const cx = OX + dir[0] * ph, cy = IY + dir[1] * ph;
+    ctx.globalAlpha = 0.25 + 0.75 * a;
     ctx.beginPath();
-    ctx.moveTo(cx, ifaceY); ctx.lineTo(tEndX, tEndY);
+    ctx.moveTo(cx - nx * half, cy - ny * half);
+    ctx.lineTo(cx + nx * half, cy + ny * half);
     ctx.stroke();
-    ctx.fillStyle = '#f1d28a';
-    ctx.fillText('transmitted', tEndX + 4, tEndY + 12);
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText('ray sketch', rayX + 6, panelY + 14);
+  ctx.globalAlpha = 1;
+}
 
-  // Fresnel curve panel (right)
-  const curveX = padL + panelW + gap;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(curveX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(curveX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
-  // Axes
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
-  ctx.beginPath();
-  ctx.moveTo(curveX, panelY + panelH - 4); ctx.lineTo(curveX + panelW, panelY + panelH - 4);
-  ctx.moveTo(curveX + 4, panelY); ctx.lineTo(curveX + 4, panelY + panelH);
-  ctx.stroke();
-  // Plot Rs and Rp
-  function plot(fnKey, color) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.6;
-    ctx.beginPath();
-    const NPTS = panelW - 8;
-    for (let i = 0; i < NPTS; i += 1) {
-      const t = (Math.PI / 2) * i / (NPTS - 1);
-      const r = fresnelR(t, n1, n2)[fnKey];
-      const px = curveX + 4 + i;
-      const py = panelY + panelH - 4 - (panelH - 8) * r;
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+function drawScene() {
+  const th = st.thetaDeg * Math.PI / 180;
+  const n1 = 1.0, n2 = st.ratio;
+  const amp = fresnelAmplitudes(th, n1, n2);
+  const tt = amp.theta_t;
+  const r = st.pol === 'p' ? amp.rp : amp.rs;
+  const t = st.pol === 'p' ? amp.tp : amp.ts;
+  const tir = tt === null;
+
+  // Media tints.
+  ctx.fillStyle = 'rgba(40,52,78,0.35)'; ctx.fillRect(SX, SY, SW, IY - SY);
+  ctx.fillStyle = 'rgba(70,86,120,0.55)'; ctx.fillRect(SX, IY, SW, SY + SH - IY);
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(SX, IY); ctx.lineTo(SX + SW, IY); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.setLineDash([5, 5]);
+  ctx.beginPath(); ctx.moveTo(OX, SY); ctx.lineTo(OX, SY + SH); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(SX + 0.5, SY + 0.5, SW - 1, SH - 1);
+
+  const lam1 = 26, lam2 = lam1 * (n1 / n2);
+  const di = [Math.sin(th), Math.cos(th)];          // incident (down-right)
+  const dr = [Math.sin(th), -Math.cos(th)];         // reflected (up-right)
+  const Lbeam = SH * 0.62;
+
+  // Incident: draw from up-left towards O (reverse direction ticks).
+  ctx.save();
+  ctx.beginPath(); ctx.rect(SX, SY, SW, SH); ctx.clip();
+  // incident beam (full amplitude) coming in: ticks from O back along -di
+  {
+    const dir = [-di[0], -di[1]];
+    waveBeam(dir, Lbeam, 1.0, lam1, '#7fb1d8');
+  }
+  // reflected beam
+  waveBeam(dr, Lbeam, r, lam1, st.pol === 'p' ? '#ef476f' : '#ffd166');
+  // transmitted beam
+  if (!tir) {
+    const dt = [Math.sin(tt), Math.cos(tt)];
+    waveBeam(dt, Lbeam, t, lam2, '#06d6a0');
+  } else {
+    // Evanescent hint: decaying glow just below the interface.
+    const g = ctx.createLinearGradient(0, IY, 0, IY + 50);
+    g.addColorStop(0, 'rgba(6,214,160,0.35)'); g.addColorStop(1, 'rgba(6,214,160,0)');
+    ctx.fillStyle = g; ctx.fillRect(SX, IY, SW, 50);
+  }
+  ctx.restore();
+
+  // Labels.
+  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#7fb1d8'; ctx.fillText('incident', SX + 8, SY + 16);
+  ctx.fillStyle = st.pol === 'p' ? '#ef476f' : '#ffd166';
+  ctx.fillText(`reflected (|r| = ${Math.abs(r).toFixed(3)})`, SX + 8, SY + 32);
+  ctx.fillStyle = '#06d6a0';
+  ctx.fillText(tir ? 'total internal reflection' : `refracted (|t| = ${Math.abs(t).toFixed(3)})`, SX + 8, SY + 48);
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'right';
+  ctx.fillText(`n1 = ${n1.toFixed(2)}`, SX + SW - 8, IY - 8);
+  ctx.fillText(`n2 = ${n2.toFixed(2)}`, SX + SW - 8, IY + 18);
+  const tB = brewsterAngle(n1, n2) * 180 / Math.PI;
+  if (st.pol === 'p' && Math.abs(st.thetaDeg - tB) < 1.2) {
+    ctx.fillStyle = '#ef476f'; ctx.textAlign = 'center';
+    ctx.fillText('reflected wave extinguished at Brewster', OX, SY + SH - 10);
+  }
+}
+
+function drawCurve() {
+  const n1 = 1.0, n2 = st.ratio;
+  const px = SX + SW + 34, py = SY, pw = W - px - 30, ph = SH;
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  const xOf = (d) => px + 8 + (pw - 16) * d / 90;
+  const yOf = (R) => py + ph - 18 - (ph - 30) * R;
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+  for (const d of [30, 60, 90]) { const x = xOf(d); ctx.beginPath(); ctx.moveTo(x, py + 6); ctx.lineTo(x, py + ph - 18); ctx.stroke(); }
+  const plot = (key, col, lw) => {
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath();
+    for (let i = 0; i <= 180; i += 1) {
+      const d = 89.5 * i / 180, R = fresnelR(d * Math.PI / 180, n1, n2);
+      const X = xOf(d), Y = yOf(key === 's' ? R.Rs : R.Rp);
+      if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
     }
     ctx.stroke();
-  }
-  plot('Rs', tok.accentCool);
-  plot('Rp', tok.accentWarm);
-  // Brewster vertical marker
-  const bPx = curveX + 4 + (panelW - 8) * (tB / (Math.PI / 2));
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-  ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  ctx.moveTo(bPx, panelY + 6); ctx.lineTo(bPx, panelY + panelH - 6);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'center';
-  ctx.fillText(`theta_B = ${(tB * 180 / Math.PI).toFixed(1)}`, bPx, panelY + 16);
-  // Current angle marker
-  const cPx = curveX + 4 + (panelW - 8) * (theta_i / (Math.PI / 2));
-  ctx.strokeStyle = '#f1d28a';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.moveTo(cPx, panelY + 6); ctx.lineTo(cPx, panelY + panelH - 6);
-  ctx.stroke();
-  // Axis labels
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'center';
-  for (const deg of [0, 30, 60, 90]) {
-    const px = curveX + 4 + (panelW - 8) * (deg / 90);
-    ctx.fillText(`${deg}`, px, panelY + panelH - 8);
-  }
-  ctx.fillText('theta_i (deg)', curveX + panelW / 2, panelY + panelH + 14);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillStyle = tok.accentCool;
-  ctx.fillText('R_s', curveX + 6, panelY + 14);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('R_p', curveX + 30, panelY + 14);
+  };
+  plot('s', '#7fb1d8', st.pol === 's' ? 2.6 : 1.2);
+  plot('p', '#ef476f', st.pol === 'p' ? 2.6 : 1.2);
+  const tB = brewsterAngle(n1, n2) * 180 / Math.PI;
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(xOf(tB), py + 6); ctx.lineTo(xOf(tB), py + ph - 18); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(xOf(st.thetaDeg), py + 6); ctx.lineTo(xOf(st.thetaDeg), py + ph - 18); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('R_s', px + 8, py + 16);
+  ctx.fillStyle = '#ef476f'; ctx.fillText('R_p', px + 36, py + 16);
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillText(`theta_B = ${tB.toFixed(1)}`, xOf(tB) + 4, py + 30);
+  ctx.textAlign = 'center'; ctx.fillText('theta_i (deg)', px + pw / 2, py + ph - 4);
 }
 
-function tickN(n) {
-  for (let i = 0; i < n; i += 1) {
-    state.theta_deg += state.sweepDir * 0.6;
-    if (state.theta_deg > 88) { state.theta_deg = 88; state.sweepDir = -1; }
-    if (state.theta_deg < 5)  { state.theta_deg = 5;  state.sweepDir = 1; }
-  }
-  valueTheta.textContent = `${state.theta_deg.toFixed(1)} deg`;
-  sliderTheta.value = state.theta_deg.toFixed(1);
+function render() {
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
+  const n1 = 1.0, n2 = st.ratio, th = st.thetaDeg * Math.PI / 180;
+  const R = fresnelR(th, n1, n2);
+  const tB = brewsterAngle(n1, n2) * 180 / Math.PI;
+  const tc = criticalAngle(n1, n2);
+  const tt = snellRefract(th, n1, n2);
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`theta_i = ${st.thetaDeg.toFixed(1)} deg   n1 = 1.00, n2 = ${n2.toFixed(2)}   pol = ${st.pol}`, 24, 26);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  const ttStr = tt === null ? 'TIR' : `${(tt * 180 / Math.PI).toFixed(1)} deg`;
+  const tcStr = tc === null ? '-' : `${(tc * 180 / Math.PI).toFixed(1)} deg`;
+  ctx.fillText(`theta_B = ${tB.toFixed(2)}   theta_t = ${ttStr}   theta_c = ${tcStr}   R_s = ${R.Rs.toFixed(3)}   R_p = ${R.Rp.toFixed(4)}`, 24, 44);
+  drawScene();
+  drawCurve();
 }
 
-sliderTheta.addEventListener('input', () => { state.theta_deg = parseFloat(sliderTheta.value); valueTheta.textContent = `${state.theta_deg.toFixed(1)} deg`; drawAll(); });
-sliderRatio.addEventListener('input', () => { state.ratio = parseFloat(sliderRatio.value); valueRatio.textContent = state.ratio.toFixed(2); drawAll(); });
-sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { state.theta_deg = 56.31; state.sweepDir = 1; sliderTheta.value = '56.3'; valueTheta.textContent = '56.3 deg'; drawAll(); });
-btnPlayPause.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-  btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
+sliderTheta.addEventListener('input', () => { st.thetaDeg = parseFloat(sliderTheta.value); valueTheta.textContent = `${st.thetaDeg.toFixed(1)} deg`; if (!st.playing) render(); });
+sliderRatio.addEventListener('input', () => { st.ratio = parseFloat(sliderRatio.value); valueRatio.textContent = st.ratio.toFixed(2); if (!st.playing) render(); });
+sliderSpeed.addEventListener('input', () => { st.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(st.speed); });
+selectPol.addEventListener('change', () => { st.pol = selectPol.value; valuePol.textContent = st.pol; if (!st.playing) render(); });
+btnReset.addEventListener('click', () => { st.thetaDeg = 56.31; st.ratio = 1.5; st.pol = 'p'; st.phase = 0; sliderTheta.value = '56.31'; sliderRatio.value = '1.5'; selectPol.value = 'p'; valueTheta.textContent = '56.3 deg'; valueRatio.textContent = '1.50'; valuePol.textContent = 'p'; render(); });
+btnPlay.addEventListener('click', () => {
+  st.playing = !st.playing;
+  btnPlay.textContent = st.playing ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!st.playing));
 });
 
 function bootSync() {
+  valueTheta.textContent = `${st.thetaDeg.toFixed(1)} deg`;
+  valueRatio.textContent = st.ratio.toFixed(2);
+  valueSpeed.textContent = String(st.speed);
+  valuePol.textContent = st.pol;
   if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.theta_deg = 5 + frac * 83;
-    sliderTheta.value = state.theta_deg.toFixed(1);
-    valueTheta.textContent = `${state.theta_deg.toFixed(1)} deg`;
-    drawAll();
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    st.pol = 'p'; selectPol.value = 'p'; valuePol.textContent = 'p';
+    st.thetaDeg = 20 + f * 65;                      // sweep through Brewster
+    st.phase = f * 60;
+    valueTheta.textContent = `${st.thetaDeg.toFixed(1)} deg`;
+    render();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.__simulationReady = true;
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+      }));
     }
     return;
   }
-  drawAll();
+  render();
 }
 
 function tick() {
-  if (state.playing) {
-    if (state.speed > 0) tickN(state.speed);
-    drawAll();
-  }
+  if (st.playing) { st.phase += 0.6 * Math.max(1, st.speed); render(); }
   requestAnimationFrame(tick);
 }
 

@@ -35,3 +35,20 @@ export function criticalAngle(n1, n2) {
   if (n1 <= n2) return null;
   return Math.asin(n2 / n1);
 }
+
+// Signed Fresnel amplitude coefficients (not just |r|^2). r_p changes
+// sign through Brewster's angle; that sign flip, and r_p -> 0 at
+// theta_B, is what the wave visualization shows. t = 1 + r (s) and the
+// p-form below; TIR returns total reflection with no transmission.
+export function fresnelAmplitudes(theta_i, n1, n2) {
+  const theta_t = snellRefract(theta_i, n1, n2);
+  if (theta_t === null) {
+    return { rs: 1, rp: 1, ts: 0, tp: 0, theta_t: null };
+  }
+  const ci = Math.cos(theta_i), ct = Math.cos(theta_t);
+  const rs = (n1 * ci - n2 * ct) / (n1 * ci + n2 * ct);
+  const rp = (n2 * ci - n1 * ct) / (n2 * ci + n1 * ct);
+  const ts = (2 * n1 * ci) / (n1 * ci + n2 * ct);
+  const tp = (2 * n1 * ci) / (n2 * ci + n1 * ct);
+  return { rs, rp, ts, tp, theta_t };
+}

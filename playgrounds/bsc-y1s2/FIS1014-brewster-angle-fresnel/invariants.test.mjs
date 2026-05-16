@@ -8,8 +8,35 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  fresnelR, brewsterAngle, criticalAngle, snellRefract,
+  fresnelR, brewsterAngle, criticalAngle, snellRefract, fresnelAmplitudes,
 } from './sim.js';
+
+describe('Fresnel amplitudes', () => {
+  it('|r|^2 reproduces fresnelR; r_p = 0 and flips sign across Brewster', () => {
+    const n1 = 1.0, n2 = 1.5, tB = brewsterAngle(n1, n2);
+    for (const d of [10, 30, 50, 70, 85]) {
+      const th = d * Math.PI / 180;
+      const a = fresnelAmplitudes(th, n1, n2), R = fresnelR(th, n1, n2);
+      expect(a.rs * a.rs).toBeCloseTo(R.Rs, 9);
+      expect(a.rp * a.rp).toBeCloseTo(R.Rp, 9);
+    }
+    expect(Math.abs(fresnelAmplitudes(tB, n1, n2).rp)).toBeLessThan(1e-6);
+    const below = fresnelAmplitudes(tB - 0.2, n1, n2).rp;
+    const above = fresnelAmplitudes(tB + 0.2, n1, n2).rp;
+    expect(Math.sign(below)).not.toBe(Math.sign(above));
+  });
+
+  it('transmission coefficients positive; TIR gives full reflection, no transmission', () => {
+    const a = fresnelAmplitudes(0.4, 1.0, 1.5);
+    expect(a.ts).toBeGreaterThan(0);
+    expect(a.tp).toBeGreaterThan(0);
+    const tir = fresnelAmplitudes(1.4, 1.5, 1.0);   // past critical angle
+    expect(tir.theta_t).toBeNull();
+    expect(tir.rs).toBe(1);
+    expect(tir.rp).toBe(1);
+    expect(tir.ts).toBe(0);
+  });
+});
 
 describe('Brewster: angle formula', () => {
   it('theta_B = atan(n2 / n1) exact', () => {
