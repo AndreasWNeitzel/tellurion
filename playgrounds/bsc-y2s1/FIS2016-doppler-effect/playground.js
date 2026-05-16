@@ -89,6 +89,43 @@ function drawAll() {
     ctx.fill();
   }
 
+  // Wavelength overlay: where each wavefront crosses the source axis, the
+  // FRONT crossings (xEmit + r) are bunched (compressed lambda) and the
+  // BACK crossings (xEmit - r) are spread (stretched lambda). Draw the
+  // gaps so the Doppler wavelength change is explicit and measurable.
+  {
+    const axisY = sceneCy;                       // world y = 0
+    const front = [], back = [];
+    for (const wf of state.sim.wavefronts) {
+      const r = radius(wf, state.sim.t);
+      if (r < 0.05) continue;
+      const xf = wf.xEmit + r, xb = wf.xEmit - r;
+      if (xf > -XLIM && xf < XLIM) front.push(xf);
+      if (xb > -XLIM && xb < XLIM) back.push(xb);
+    }
+    front.sort((a, b) => a - b); back.sort((a, b) => a - b);
+    const drawGaps = (xs, color) => {
+      for (let i = 1; i < xs.length; i += 1) {
+        const x0 = sceneCx + xs[i - 1] * scale, x1 = sceneCx + xs[i] * scale;
+        ctx.strokeStyle = color; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(x0, axisY); ctx.lineTo(x1, axisY); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+        for (const xx of [x0, x1]) { ctx.beginPath(); ctx.moveTo(xx, axisY - 6); ctx.lineTo(xx, axisY + 6); ctx.stroke(); }
+      }
+    };
+    // Subtle dark guide so the bars read.
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(20, axisY); ctx.lineTo(W - 20, axisY); ctx.stroke();
+    drawGaps(back, 'rgba(214,138,105,0.85)');     // stretched (warm/red)
+    drawGaps(front, 'rgba(127,177,216,0.95)');    // compressed (cool/blue)
+    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(127,177,216,0.95)';
+    ctx.fillText(`lambda_front = c/f - v/f = ${(1 - state.v).toFixed(2)} (compressed)`, 30, sceneY + sceneH - 30);
+    ctx.fillStyle = 'rgba(214,138,105,0.95)';
+    ctx.fillText(`lambda_back  = c/f + v/f = ${(1 + state.v).toFixed(2)} (stretched)`, 30, sceneY + sceneH - 14);
+  }
+
   // Source
   const sourcePx = worldToPx(state.sim.sourceX, state.sim.sourceY);
   ctx.fillStyle = tok.accentCool;
@@ -169,7 +206,25 @@ function drawAll() {
   ctx.fillText('f = 1', barX + barW - 6, yOne - 4);
 }
 
-function tickN(n) { for (let i = 0; i < n; i += 1) stepDoppler(state.sim, 0.02); }
+// Visible world half-width (px 20..W-20 maps to world -XLIM..+XLIM with
+// scale = (H-200)/8). When the source passes the right edge, recycle it
+// and every wavefront left by the full span so it re-enters from the
+// left and the pattern loops seamlessly. This is a presentation wrap;
+// sim.js (emission, observed frequency) is unchanged.
+const WRAP_SCALE = (H - 200) / 8;
+const XLIM  = (W / 2 - 20) / WRAP_SCALE;
+const XSPAN = 2 * XLIM;
+
+function stepWorld(n) {
+  for (let i = 0; i < n; i += 1) stepDoppler(state.sim, 0.02);
+  const s = state.sim;
+  while (s.sourceX > XLIM) {
+    s.sourceX -= XSPAN;
+    for (const wf of s.wavefronts) wf.xEmit -= XSPAN;
+    s.wavefronts = s.wavefronts.filter(wf => wf.xEmit > -XLIM - 22);
+  }
+}
+function tickN(n) { stepWorld(n); }
 
 sliderV.addEventListener('input', () => { state.v = parseFloat(sliderV.value); valueV.textContent = state.v.toFixed(2); rebuild(); drawAll(); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
