@@ -9,8 +9,8 @@ supporting_ucs: [AST3017]
 curriculum_year: msc-y1
 primary_citation: liddle-cosmology
 primary_chapter: 4
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Watch an expanding patch run from a hot photon gas, through matter-radiation equality, into a matter era where gravity clumps structure.'
+one_paragraph: 'Matter-radiation equality shown as the changing contents of an expanding comoving patch. Early on a hot photon gas dominates (rho_r ~ a^-4, photons redshift and dilute fastest); past a_eq = Omega_r/Omega_m matter takes over (rho_m ~ a^-3) and gravity switches on, so the matter dots clump into structure, then Lambda dominates. A synced rho(a) log-log strip shows the three components, a_eq, and a marker at the current scale factor; the Omega_m and Omega_r sliders move a_eq (and the onset of structure formation). sim.js (rhoMatter/Radiation/Lambda, aEq, zEq, HoverH0) is unchanged.'
 tags: [cosmology, animation, live-readout]
 difficulty: 3
 tier: simple

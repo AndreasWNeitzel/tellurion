@@ -71,9 +71,10 @@ DONE (committed, invariants pass, captures refreshed):
 - p-g-mode-cavities: pulsating stellar cross-section, g-core/p-envelope/mixed trapping, energy-split readout, linked propagation diagram
 
 - slow-roll-inflation: rolling inflaton + filled V(phi) + expanding-universe e-fold lattice + schematic (n_s,r) plane
+- matter-radiation-equality: expanding patch (photon gas -> equality -> matter clumps), synced rho(a) strip
 
 REMAINING boring->spatial makeovers (next sessions):
 - toy parton, Friedmann cosmography,
-  runge-chebyshev, CKM, matter-radiation equality
+  runge-chebyshev, CKM
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static
