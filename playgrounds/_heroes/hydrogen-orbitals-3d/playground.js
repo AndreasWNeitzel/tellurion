@@ -78,7 +78,7 @@ function clampNlm() {
 clampNlm();
 
 let engine = null;
-try { engine = setupOrbitalGL(canvas, 40); } catch (e) { console.warn('hydrogen GL init failed', e); }
+try { engine = setupOrbitalGL(canvas, 72); } catch (e) { console.warn('hydrogen GL init failed', e); }
 
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0],
@@ -104,7 +104,7 @@ let last = performance.now(), fpsLast = last, fpsFrames = 0;
 function render() {
   if (!engine) return;
   if (needsRebuild) { engine.fillVolume(st.n, st.l, Math.abs(st.m)); needsRebuild = false; }
-  const mode = st.view === 'iso' ? 1 : 0;
+  const mode = st.view === 'iso' ? 1 : (st.view === 'phase' ? 2 : 0);
   engine.render(st.t, mode, 0.05, camera.state.azimuthDeg, camera.state.elevationDeg, camera.state.radius);
 }
 
@@ -138,10 +138,24 @@ function bootSync() {
   rEls['∫|ψ|² dV'].textContent = '60';  // populated as FPS by tick; placeholder for capture
   rEls['n, ℓ, m'].textContent = `${st.n}, ${st.l}, ${st.m}`;
   render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
-    window.__simulationReady = true;
-    window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-  }));
+  if (DETERMINISTIC) {
+    // Deterministic capture: nothing animates here (t and camera are
+    // fixed, the rAF tick loop is not started), so render the SAME
+    // frame several times to fully settle the 3D-texture upload and
+    // the bloom ping-pong buffers. Without this warmup the first
+    // screenshot occasionally caught a partially-converged bloom pass,
+    // making the visual gate flake (5/5 then 4/5). Identical repeated
+    // renders converge to pixel-identical output every run.
+    let warm = 0;
+    const settle = () => {
+      render();
+      warm += 1;
+      if (warm < 8) { requestAnimationFrame(settle); return; }
+      window.__simulationReady = true;
+      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+    };
+    requestAnimationFrame(settle);
+  }
 }
 
 // CPU vs GPU agreement: |psi|^2 at a sample point matches the CPU reference.

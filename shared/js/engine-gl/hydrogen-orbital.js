@@ -7,7 +7,7 @@ import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
 import { createFBO } from './fbo.js';
 import { setupPostProcess } from './postprocess.js';
-import { densityAt } from '../engine/hydrogen-orbital-cpu.js';
+import { densityAt, phaseFullAt } from '../engine/hydrogen-orbital-cpu.js';
 
 const VS_QUAD = `#version 300 es
 layout(location = 0) in vec2 a;
@@ -22,10 +22,14 @@ uniform sampler3D uVolume;
 uniform mat4 uInvViewProj;
 uniform vec3 uCamPos;
 uniform float uTime;
-uniform int uMode;             // 0 = volume emission, 1 = isosurface.
+uniform int uMode;             // 0 = density emission, 1 = isosurface, 2 = phase.
 uniform float uIsoThreshold;   // density threshold for isosurface.
 out vec4 oColor;
 
+vec3 hsv2rgb(float h, float s, float v) {
+  vec3 p = abs(fract(h + vec3(0.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
+  return v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
+}
 vec3 viridis(float t) {
   t = clamp(t, 0.0, 1.0);
   return vec3(clamp(0.267 + 0.105*t - 0.330*t*t + 1.000*t*t*t, 0.0, 1.0),
@@ -55,14 +59,14 @@ void main() {
   float t0, t1;
   if (!boxIntersect(ro, rd, t0, t1)) { oColor = vec4(0.02, 0.02, 0.025, 1.0); return; }
   t0 = max(t0, 0.0);
-  int STEPS = 96;
+  int STEPS = 160;
   float dt = (t1 - t0) / float(STEPS);
   vec3 col = vec3(0.0);
   if (uMode == 1) {
     // Isosurface: march until density first exceeds threshold, then shade Blinn-Phong.
     bool hit = false;
     vec3 pHit = vec3(0.0);
-    for (int i = 0; i < 96; i += 1) {
+    for (int i = 0; i < 160; i += 1) {
       vec3 p = ro + (t0 + (float(i) + 0.5) * dt) * rd;
       vec3 sp = p * 0.5 + 0.5;
       float d = texture(uVolume, sp).r;
@@ -88,16 +92,35 @@ void main() {
     } else {
       col = vec3(0.02, 0.02, 0.03);
     }
-  } else {
-    // Volume emission (default).
+  } else if (uMode == 2) {
+    // Phase view: hue = arg(psi) (azimuthal winding + nodal sign),
+    // opacity/brightness from |psi|^2. Genuinely distinct from the
+    // density view, which is phase-independent.
     float trans = 1.0;
-    for (int i = 0; i < 96; i += 1) {
+    for (int i = 0; i < 160; i += 1) {
+      vec3 p = ro + (t0 + (float(i) + 0.5) * dt) * rd;
+      vec3 sp = p * 0.5 + 0.5;
+      vec2 rg = texture(uVolume, sp).rg;
+      float d = rg.r;
+      float dc = pow(d, 0.7);                  // contrast: crisp lobes
+      vec3 hue = hsv2rgb(rg.g, 0.85, 1.0);
+      col += trans * hue * dc * 10.0 * dt;
+      trans *= exp(-dc * 7.0 * dt);
+      if (trans < 0.01) break;
+    }
+  } else {
+    // Density emission. A contrast power on the sampled density
+    // tightens the lobes so the orbital reads sharply rather than as a
+    // fuzzy blob.
+    float trans = 1.0;
+    for (int i = 0; i < 160; i += 1) {
       vec3 p = ro + (t0 + (float(i) + 0.5) * dt) * rd;
       vec3 sp = p * 0.5 + 0.5;
       float d = texture(uVolume, sp).r;
-      float emit = d * 8.0;
-      col += trans * viridis(min(1.0, d * 12.0)) * emit * dt;
-      trans *= exp(-d * 6.0 * dt);
+      float dc = pow(d, 0.6);
+      float emit = dc * 9.0;
+      col += trans * viridis(min(1.0, dc * 1.4)) * emit * dt;
+      trans *= exp(-dc * 9.0 * dt);
       if (trans < 0.01) break;
     }
   }
@@ -113,7 +136,7 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
   // 3D texture.
   const tex = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_3D, tex);
-  gl.texImage3D(gl.TEXTURE_3D, 0, gl.R16F, gridSize, gridSize, gridSize, 0, gl.RED, gl.HALF_FLOAT, null);
+  gl.texImage3D(gl.TEXTURE_3D, 0, gl.RG16F, gridSize, gridSize, gridSize, 0, gl.RG, gl.HALF_FLOAT, null);
   gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
@@ -129,7 +152,9 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
     // The orbital mean radius scales like 1.5 n^2 a_0. Use 2.5 n^2 so the
     // density at the box wall is well below 1e-4 of peak even for n_max.
     const rmax = Math.max(12, 2.5 * n * n);
-    const data = new Float32Array(gridSize ** 3);
+    const N3 = gridSize ** 3;
+    const dens = new Float32Array(N3);
+    const ph01 = new Float32Array(N3);
     let dmax = 1e-30;
     for (let k = 0; k < gridSize; k += 1) for (let j = 0; j < gridSize; j += 1) for (let i = 0; i < gridSize; i += 1) {
       const X = ((i + 0.5) / gridSize - 0.5) * 2 * rmax;
@@ -138,17 +163,20 @@ export function setupOrbitalGL(canvas, gridSize = 32) {
       const r = Math.hypot(X, Y, Z);
       const theta = Math.acos(Math.max(-1, Math.min(1, Z / Math.max(r, 1e-6))));
       const phi = Math.atan2(Y, X);
-      const d = densityAt(r, theta, phi, n, l, m);
       const idx = k * gridSize * gridSize + j * gridSize + i;
-      data[idx] = d;
+      const d = densityAt(r, theta, phi, n, l, m);
+      dens[idx] = d;
+      ph01[idx] = phaseFullAt(r, theta, phi, n, l, m) / (2 * Math.PI);
       if (d > dmax) dmax = d;
     }
-    for (let i = 0; i < data.length; i += 1) data[i] /= dmax;
-    // Convert Float32 -> Uint16 half-floats.
-    const half = new Uint16Array(data.length);
-    for (let i = 0; i < data.length; i += 1) half[i] = floatToHalf(data[i]);
+    // Interleaved RG half-float: R = normalized density, G = phase/2pi.
+    const half = new Uint16Array(N3 * 2);
+    for (let i = 0; i < N3; i += 1) {
+      half[2 * i] = floatToHalf(dens[i] / dmax);
+      half[2 * i + 1] = floatToHalf(ph01[i]);
+    }
     gl.bindTexture(gl.TEXTURE_3D, tex);
-    gl.texSubImage3D(gl.TEXTURE_3D, 0, 0, 0, 0, gridSize, gridSize, gridSize, gl.RED, gl.HALF_FLOAT, half);
+    gl.texSubImage3D(gl.TEXTURE_3D, 0, 0, 0, 0, gridSize, gridSize, gridSize, gl.RG, gl.HALF_FLOAT, half);
   }
   function render(t, mode = 0, isoThreshold = 0.05, azDeg, elDeg, distance) {
     gl.useProgram(prog);

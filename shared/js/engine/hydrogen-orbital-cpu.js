@@ -52,6 +52,32 @@ export function densityAt(r, theta, phi, n, l, m) {
 // Phase: arg(psi) = m phi (radial and Plm are real for our convention).
 export function phaseAt(phi, m) { return m * phi; }
 
+// Signed real radial x angular part R_{nl}(r) * (angularNorm * P_l^|m|).
+// Its sign is the nodal sign of the wavefunction (Laguerre flips across
+// radial nodes, P_l^m across polar nodes); its square equals densityAt.
+export function signedAmplitudeAt(r, theta, n, l, m) {
+  if (r < 1e-3) r = 1e-3;
+  const rho = 2 * r / n;
+  const am = Math.abs(m);
+  const radialNorm = Math.sqrt(Math.pow(2 / n, 3) * FACT[n - l - 1] / (2 * n * FACT[n + l]));
+  const R = radialNorm * Math.exp(-rho / 2) * Math.pow(rho, l) * laguerre(n - l - 1, 2 * l + 1, rho);
+  const Plm = plgndr(l, am, Math.cos(theta));
+  const angularNorm = Math.sqrt((2 * l + 1) / (4 * Math.PI) * FACT[l - am] / FACT[l + am]);
+  return R * angularNorm * Plm;
+}
+
+// Full complex phase in [0, 2 pi): the azimuthal winding m*phi plus a
+// pi offset wherever the real radial/angular factor is negative (the
+// node sign). This is what the phase view colours; |psi|^2 (density)
+// is phase-independent, so the two views are genuinely distinct.
+export function phaseFullAt(r, theta, phi, n, l, m) {
+  let a = m * phi;
+  if (signedAmplitudeAt(r, theta, n, l, m) < 0) a += Math.PI;
+  a %= 2 * Math.PI;
+  if (a < 0) a += 2 * Math.PI;
+  return a;
+}
+
 // Energy eigenvalue in eV (hydrogen).
 export function energyEV(n) { return -13.605693 / (n * n); }
 
