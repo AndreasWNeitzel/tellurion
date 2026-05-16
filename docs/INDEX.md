@@ -581,7 +581,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Henon Strange Attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/index.html)** &nbsp; (verified, verified 2026-05-13T12:34:00Z)
   The Henon 1976 map x' = 1 - a x^2 + y, y' = b x. At the canonical (a=1.4, b=0.3) the iterates settle onto a strange attractor with maximum Lyapunov exponent ~ 0.4192 and box-counting dimension ~ 1.26. Tune a and b to walk through the period-doubling cascade and the Henon-Smale horseshoe regime.
 
-- **[Lorenz Attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/index.html)** &nbsp; (deprecated, verified 2026-05-13T11:36:00Z)
+- **[Strange Attractor Zoo](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/index.html)** &nbsp; (verified, verified 2026-05-13T11:36:00Z)
   The Lorenz 1963 system: a three-variable truncation of the Saltzman convection equations, written
 
 - **[MCMC Sampler Comparator](../playgrounds/msc-y1/MAA-ST-mcmc-comparator/index.html)** &nbsp; (verified, verified 2026-05-13T10:53:00Z)

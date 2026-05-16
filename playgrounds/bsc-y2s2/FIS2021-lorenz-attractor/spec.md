@@ -1,16 +1,17 @@
 ---
-title: Lorenz Attractor
+title: Strange Attractor Zoo
 slug: lorenz-attractor
-status: deprecated
-superseded_by: lorenz-attractor-3d-ensemble
+status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
-tags: [mechanics, animation, live-readout]
+primary_citation: sprott2003
+primary_chapter: 4
+hook: 'A rotating 3D zoo of six classic strange attractors; Lorenz keeps its live max-Lyapunov readout and sigma/rho/beta sliders.'
+one_paragraph: 'Six dissipative chaotic flows (Lorenz 1963, Roessler 1976, Aizawa, Thomas, Halvorsen, Chen-Ueta) integrated with RK4 and drawn as a slowly rotating, viridis age-shaded trail in a hand-projected 3D view. Lorenz keeps its interactive sigma/rho/beta sliders and a live tangent-vector max-Lyapunov estimate; the others are selected from a menu. The Lorenz core and its invariants are unchanged.'
+tags: [chaos, dynamics, 3d, animation, live-readout]
 difficulty: 3
 tier: simple
 hero_candidate: false
