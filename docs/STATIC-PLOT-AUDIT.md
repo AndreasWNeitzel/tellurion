@@ -68,10 +68,11 @@ DONE (committed, invariants pass, captures refreshed):
 - alpha-decay-gamow-tunneling: animated alpha wavefunction tunneling + nucleus emitting alphas at the Geiger-Nuttall rate
 - de-broglie-wavelength: matter-wave double-slit, stochastic single-particle interference build-up, classical limit for heavy/fast
 - fabry-perot-finesse: scanned cavity flashes bright on resonance, multiple-beam rays, synced Airy strip, finesse sharpening
+- p-g-mode-cavities: pulsating stellar cross-section, g-core/p-envelope/mixed trapping, energy-split readout, linked propagation diagram
 
 REMAINING boring->spatial makeovers (next sessions):
 - toy parton, Friedmann cosmography,
   runge-chebyshev, CKM, matter-radiation equality,
-  p/g-mode cavity, slow-roll inflation
+  slow-roll inflation
 - parallel-transport: add torus + other surfaces (sphere done)
 - chandrasekhar: already a particle sim (Phase 1-G), not static
