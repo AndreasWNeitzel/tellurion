@@ -14,16 +14,22 @@ tf.addEventListener('change', () => { st.showFlow = tf.checked; });
 btnR.addEventListener('click', () => { tracers = []; });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 btnSeed.addEventListener('click', () => { tracers = []; for (let i = -3; i <= 3; i += 1) for (let j = -3; j <= 3; j += 1) tracers.push({ q: i * 0.7, p: j * 0.6, trail: [] }); });
-function clientToWorld(cx, cy) { const rect = canvas.getBoundingClientRect(); const sx = canvas.width / rect.width, sy = canvas.height / rect.height; return { x: ((cx - rect.left) * sx - canvas.width / 2) / 70, y: -((cy - rect.top) * sy - canvas.height / 2) / 70 }; }
+function clientToWorld(cx, cy) { const rect = canvas.getBoundingClientRect(); const sx = canvas.width / rect.width, sy = canvas.height / rect.height; return { x: ((cx - rect.left) * sx - canvas.width / 2) / SC, y: -((cy - rect.top) * sy - canvas.height / 2) / SC }; }
 canvas.addEventListener('click', (e) => { const w = clientToWorld(e.clientX, e.clientY); tracers.push({ q: w.x, p: w.y, trail: [] }); });
 function colorForH(h, hmin, hmax) {
   const t = Math.min(1, Math.max(0, (h - hmin) / (hmax - hmin + 1e-9)));
   return `hsl(${260 - 260 * t}, 70%, ${50 + 20 * t}%)`;
 }
+// Fit the phase-space view to the canvas so the separatrix and orbits
+// fill the full horizontal extent. The pendulum separatrix reaches
+// q = +-pi, p = +-2; QHALF/PHALF add margin. A fixed sc=70 left the
+// structure in a small central band of the wide canvas, which read as
+// "only works in a horizontal region".
+const SC = Math.min((canvas.width / 2 - 30) / 3.4, (canvas.height / 2 - 20) / 2.5);
 let last = performance.now();
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const cx = canvas.width / 2, cy = canvas.height / 2, sc = 70;
+  const cx = canvas.width / 2, cy = canvas.height / 2, sc = SC;
   ctx.strokeStyle = '#3a3a40'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(20, cy); ctx.lineTo(canvas.width - 20, cy); ctx.moveTo(cx, 20); ctx.lineTo(cx, canvas.height - 20); ctx.stroke();
   if (st.showFlow) {
