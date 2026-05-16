@@ -22,33 +22,33 @@ share_state_keys: []
 
 ## Physical setup
 
-A small fully-connected neural network with 2 input units, H tanh hidden units, and a single sigmoid output unit. Trained by full-batch gradient descent on the binary cross-entropy loss for a 2D binary classification problem (moons, XOR, or spiral).
+A small fully-connected neural network with 2 input units, 1 to 3 stacked tanh hidden layers of up to 8 units each, and a single sigmoid output unit. Trained by full-batch gradient descent on the binary cross-entropy loss for a 2D binary classification problem (moons, XOR, spiral, circles, or gaussians). The decision surface, the network graph (edge width proportional to weight magnitude, color by sign, node glow tracking the activation of a probe point that sweeps the input plane), and the loss trace are drawn live.
 
 ## Governing equations
 
-Forward:
-  a1_i = tanh(W1_{i, :} x + b1_i)
-  p = sigmoid(sum_i W2_i a1_i + b2)
+Forward, layer l = 1..L (tanh hidden), output layer sigmoid:
+  a^(l) = tanh(W^(l) a^(l-1) + b^(l)),   a^(0) = x
+  p = sigmoid(W^(out) a^(L) + b^(out))
 
 BCE loss: L = -y log p - (1 - y) log(1 - p).
 
-Backprop (explicit, no autograd):
-  dL/dz2 = p - y
-  dL/dW2 = (p - y) a1
-  dL/da1 = (p - y) W2
-  dL/dz1 = dL/da1 * (1 - a1^2)
-  dL/dW1 = dL/dz1 * x
+Backprop (explicit, no autograd), with delta^(out) = p - y:
+  dL/dW^(l) = delta^(l) (a^(l-1))^T
+  delta^(l-1) = ((W^(l))^T delta^(l)) * (1 - (a^(l-1))^2)
 
 SGD update: W <- W - lr * (dL/dW averaged over batch).
 
+For a single hidden layer this reduces exactly to the original W1/W2 equations, and the weight-init draw order is preserved so the invariant thresholds are unchanged.
+
 ## Numerical method
 
-Pure-JS forward + backward over the full N = 200 batch each step. He initialization scaled by sqrt(2 / n_in).
+Pure-JS forward + backward over the full N = 360 batch each step. He initialization scaled by sqrt(2 / n_in), drawn out-then-in so the single-layer sequence is bit-identical to the prior implementation.
 
 ## Controls
 
-- dataset: moons, XOR, spiral
-- hidden H: 2 - 32, default 8
+- dataset: moons, XOR, spiral, circles, gaussians
+- layers: 1 - 3 hidden layers, default 1
+- neurons: 2 - 8 units per hidden layer, default 8
 - lr: 0.05 - 1.0, default 0.5
 - speed: training iters per render frame, 1 - 20, default 4
 - Reset / Single step / Play

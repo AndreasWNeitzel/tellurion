@@ -1,10 +1,15 @@
 // sim.js
-// Tiny 2-input MLP trained on a 2D binary classification task.
-// Architecture: 2 -> H -> 1 with tanh hidden activation and sigmoid output.
-// Loss: binary cross-entropy. Trained with vanilla SGD or mini-batch SGD.
+// Tiny fully-connected MLP trained on a 2D binary classification task.
+// Architecture: 2 -> [H]*L -> 1, tanh hidden activations, sigmoid output.
+// Loss: binary cross-entropy. Trained with full-batch gradient descent.
+//
+// The network generalises to L stacked hidden layers (1..3 in the UI,
+// each at most 8 units). For a single hidden layer the weight-init draw
+// order is identical to the original 2 -> H -> 1 net, so the invariant
+// thresholds are preserved exactly.
 //
 // Reference: Goodfellow-Bengio-Courville 2016 Ch. 6 (backpropagation);
-// Bishop-Bishop 2024 PRML 2e Ch. 6.
+// Bishop-Bishop 2024 Deep Learning: Foundations and Concepts Ch. 6.
 
 import { makeRng } from '../../../shared/js/render/rng.js';
 
@@ -12,72 +17,135 @@ const sigmoid = (z) => 1 / (1 + Math.exp(-z));
 const tanh = (z) => Math.tanh(z);
 const dtanh = (a) => 1 - a * a;
 
+// hidden: a positive integer (single hidden layer, back-compatible) or an
+// array of per-layer widths, e.g. [6, 6] for two hidden layers of 6 units.
 export function createNet({ hidden = 8, seed = 0xC0FFEE } = {}) {
+  const hiddenArr = Array.isArray(hidden) ? hidden.slice() : [hidden];
+  const sizes = [2, ...hiddenArr, 1];           // layer widths incl. I/O
   const rng = makeRng(seed);
   function he(n) { return (rng() * 2 - 1) * Math.sqrt(2 / n); }
-  // Input dim 2 -> hidden -> 1
-  const W1 = Array.from({ length: hidden }, () => [he(2), he(2)]);
-  const b1 = Array.from({ length: hidden }, () => 0);
-  const W2 = Array.from({ length: hidden }, () => he(hidden));
-  let b2 = 0;
-  return { hidden, W1, b1, W2, b2 };
-}
 
-export function forward(net, x) {
-  const { hidden, W1, b1, W2, b2 } = net;
-  const a1 = new Float64Array(hidden);
-  for (let i = 0; i < hidden; i += 1) {
-    a1[i] = tanh(W1[i][0] * x[0] + W1[i][1] * x[1] + b1[i]);
+  // Ws[l] is an [out][in] matrix, bs[l] an [out] vector, for the weight
+  // matrix mapping layer l activations to layer l+1 pre-activations.
+  // Drawing order (out outer, in inner) reproduces the original W1/W2
+  // sequence exactly for the single-hidden-layer case.
+  const Ws = [];
+  const bs = [];
+  for (let l = 0; l < sizes.length - 1; l += 1) {
+    const nIn = sizes[l], nOut = sizes[l + 1];
+    const Wl = Array.from({ length: nOut }, () => new Float64Array(nIn));
+    for (let o = 0; o < nOut; o += 1) {
+      for (let i = 0; i < nIn; i += 1) Wl[o][i] = he(nIn);
+    }
+    Ws.push(Wl);
+    bs.push(new Float64Array(nOut));
   }
-  let z2 = b2;
-  for (let i = 0; i < hidden; i += 1) z2 += W2[i] * a1[i];
-  return { a1, p: sigmoid(z2) };
+  return { hidden: hiddenArr[0], arch: sizes, Ws, bs };
 }
 
-// One mini-batch SGD step on the binary cross-entropy loss.
-// Returns the loss for telemetry.
-export function trainStep(net, X, y, lr = 0.1) {
-  const { hidden, W1, b1, W2 } = net;
-  let lossSum = 0;
-  // Accumulate gradients across the batch.
-  const dW1 = Array.from({ length: hidden }, () => [0, 0]);
-  const db1 = new Float64Array(hidden);
-  const dW2 = new Float64Array(hidden);
-  let db2 = 0;
-  const N = X.length;
-  for (let n = 0; n < N; n += 1) {
-    const { a1, p } = forward(net, X[n]);
-    const yn = y[n];
-    // BCE loss: -y log p - (1-y) log (1-p)
-    lossSum += -(yn * Math.log(p + 1e-12) + (1 - yn) * Math.log(1 - p + 1e-12));
-    // dL/dz2 = p - y
-    const dz2 = p - yn;
-    db2 += dz2;
-    for (let i = 0; i < hidden; i += 1) {
-      dW2[i] += dz2 * a1[i];
-      // dL/da1_i = dz2 * W2[i]
-      const da1 = dz2 * W2[i];
-      // dL/dz1_i = da1 * dtanh(a1)
-      const dz1 = da1 * dtanh(a1[i]);
-      db1[i] += dz1;
-      dW1[i][0] += dz1 * X[n][0];
-      dW1[i][1] += dz1 * X[n][1];
+// Forward pass. Returns the per-layer activations (hidden layers only) and
+// the scalar sigmoid output p. `a1` aliases the first hidden layer so any
+// older caller keeps working.
+export function forward(net, x) {
+  const { Ws, bs, arch } = net;
+  let a = Float64Array.from(x);
+  const acts = [];
+  const L = Ws.length;
+  for (let l = 0; l < L; l += 1) {
+    const W = Ws[l], b = bs[l];
+    const nOut = arch[l + 1];
+    const z = new Float64Array(nOut);
+    for (let o = 0; o < nOut; o += 1) {
+      let s = b[o];
+      const Wo = W[o];
+      for (let i = 0; i < a.length; i += 1) s += Wo[i] * a[i];
+      z[o] = s;
+    }
+    if (l < L - 1) {
+      const next = new Float64Array(nOut);
+      for (let o = 0; o < nOut; o += 1) next[o] = tanh(z[o]);
+      acts.push(next);
+      a = next;
+    } else {
+      const p = sigmoid(z[0]);
+      return { acts, a1: acts[0], p };
     }
   }
-  // Apply gradient
-  const invN = 1 / N;
-  for (let i = 0; i < hidden; i += 1) {
-    W1[i][0] -= lr * dW1[i][0] * invN;
-    W1[i][1] -= lr * dW1[i][1] * invN;
-    b1[i] -= lr * db1[i] * invN;
-    W2[i] -= lr * dW2[i] * invN;
+  // arch always has at least one hidden layer, so the loop returns above.
+  return { acts, a1: acts[0], p: 0.5 };
+}
+
+// One full-batch gradient-descent step on the binary cross-entropy loss.
+// Returns the mean loss for telemetry. lr = 0 leaves the weights untouched
+// and just reports the current loss.
+export function trainStep(net, X, y, lr = 0.1) {
+  const { Ws, bs, arch } = net;
+  const L = Ws.length;
+  const N = X.length;
+  let lossSum = 0;
+
+  const dWs = Ws.map((W) => W.map((row) => new Float64Array(row.length)));
+  const dbs = bs.map((b) => new Float64Array(b.length));
+
+  for (let n = 0; n < N; n += 1) {
+    // Forward, retaining every layer's activation (a[0] is the input).
+    const a = [Float64Array.from(X[n])];
+    for (let l = 0; l < L; l += 1) {
+      const W = Ws[l], b = bs[l], nOut = arch[l + 1];
+      const prev = a[l];
+      const cur = new Float64Array(nOut);
+      for (let o = 0; o < nOut; o += 1) {
+        let s = b[o];
+        const Wo = W[o];
+        for (let i = 0; i < prev.length; i += 1) s += Wo[i] * prev[i];
+        cur[o] = (l < L - 1) ? tanh(s) : sigmoid(s);
+      }
+      a.push(cur);
+    }
+    const p = a[L][0];
+    const yn = y[n];
+    lossSum += -(yn * Math.log(p + 1e-12) + (1 - yn) * Math.log(1 - p + 1e-12));
+
+    // Backward. delta is dL/dz for the current layer's pre-activation.
+    let delta = new Float64Array(1);
+    delta[0] = p - yn;                                  // sigmoid + BCE
+    for (let l = L - 1; l >= 0; l -= 1) {
+      const prev = a[l];
+      const dW = dWs[l], db = dbs[l];
+      for (let o = 0; o < delta.length; o += 1) {
+        db[o] += delta[o];
+        const dWo = dW[o];
+        for (let i = 0; i < prev.length; i += 1) dWo[i] += delta[o] * prev[i];
+      }
+      if (l > 0) {
+        const W = Ws[l];
+        const nIn = prev.length;
+        const next = new Float64Array(nIn);
+        for (let i = 0; i < nIn; i += 1) {
+          let s = 0;
+          for (let o = 0; o < delta.length; o += 1) s += delta[o] * W[o][i];
+          next[i] = s * dtanh(prev[i]);                 // tanh hidden
+        }
+        delta = next;
+      }
+    }
   }
-  net.b2 -= lr * db2 * invN;
+
+  const invN = 1 / N;
+  for (let l = 0; l < L; l += 1) {
+    const W = Ws[l], b = bs[l], dW = dWs[l], db = dbs[l];
+    for (let o = 0; o < W.length; o += 1) {
+      b[o] -= lr * db[o] * invN;
+      const Wo = W[o], dWo = dW[o];
+      for (let i = 0; i < Wo.length; i += 1) Wo[i] -= lr * dWo[i] * invN;
+    }
+  }
   return lossSum / N;
 }
 
-// Datasets
-export function makeMoons({ N = 200, seed = 1, noise = 0.15 } = {}) {
+// Datasets. N is the total point count; default raised so the decision
+// surface and the data cloud read clearly.
+export function makeMoons({ N = 360, seed = 1, noise = 0.15 } = {}) {
   const rng = makeRng(seed);
   const X = [], y = [];
   const half = N / 2;
@@ -94,7 +162,7 @@ export function makeMoons({ N = 200, seed = 1, noise = 0.15 } = {}) {
   return { X, y };
 }
 
-export function makeXOR({ N = 200, seed = 1, noise = 0.10 } = {}) {
+export function makeXOR({ N = 360, seed = 1, noise = 0.10 } = {}) {
   const rng = makeRng(seed);
   const X = [], y = [];
   for (let i = 0; i < N; i += 1) {
@@ -106,7 +174,7 @@ export function makeXOR({ N = 200, seed = 1, noise = 0.10 } = {}) {
   return { X, y };
 }
 
-export function makeSpiral({ N = 200, seed = 1, noise = 0.15 } = {}) {
+export function makeSpiral({ N = 360, seed = 1, noise = 0.15 } = {}) {
   const rng = makeRng(seed);
   const X = [], y = [];
   const half = N / 2;
@@ -121,8 +189,53 @@ export function makeSpiral({ N = 200, seed = 1, noise = 0.15 } = {}) {
   return { X, y };
 }
 
+// Concentric circles: a dense core (class 0) inside an annulus (class 1).
+// Not linearly separable; the network has to learn a closed boundary.
+export function makeCircles({ N = 360, seed = 1, noise = 0.10 } = {}) {
+  const rng = makeRng(seed);
+  const X = [], y = [];
+  const half = N / 2;
+  for (let i = 0; i < half; i += 1) {
+    const t = 2 * Math.PI * rng();
+    const r = 0.55 * Math.sqrt(rng());
+    X.push([r * Math.cos(t) + (rng() * 2 - 1) * noise, r * Math.sin(t) + (rng() * 2 - 1) * noise]);
+    y.push(0);
+  }
+  for (let i = 0; i < half; i += 1) {
+    const t = 2 * Math.PI * rng();
+    const r = 1.35 + 0.35 * rng();
+    X.push([r * Math.cos(t) + (rng() * 2 - 1) * noise, r * Math.sin(t) + (rng() * 2 - 1) * noise]);
+    y.push(1);
+  }
+  return { X, y };
+}
+
+// Two anisotropic Gaussian blobs. Almost linearly separable, so a tiny
+// network solves it fast: a useful contrast to moons/XOR/spiral.
+export function makeGaussians({ N = 360, seed = 1, noise = 0.0 } = {}) {
+  const rng = makeRng(seed);
+  const g = () => {
+    let s = 0;
+    for (let k = 0; k < 6; k += 1) s += rng();
+    return (s - 3) / 1.5;                                // ~N(0, 1)
+  };
+  const X = [], y = [];
+  const half = N / 2;
+  for (let i = 0; i < half; i += 1) {
+    X.push([-0.9 + 0.45 * g() + noise * g(), 0.6 + 0.30 * g()]);
+    y.push(0);
+  }
+  for (let i = 0; i < half; i += 1) {
+    X.push([1.0 + 0.45 * g() + noise * g(), -0.5 + 0.30 * g()]);
+    y.push(1);
+  }
+  return { X, y };
+}
+
 export const DATASETS = {
   moons: makeMoons,
   xor: makeXOR,
   spiral: makeSpiral,
+  circles: makeCircles,
+  gaussians: makeGaussians,
 };
