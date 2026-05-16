@@ -23,6 +23,7 @@ sP.addEventListener('input', () => { st.p = parseFloat(sP.value); vP.textContent
 selM.addEventListener('change', () => { st.mode = selM.value; render(); });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+let scenePhase = 0;            // electron-gyration animation clock (s)
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
@@ -118,38 +119,62 @@ function render() {
   ctx.fillStyle = '#ef476f'; ctx.font = '10px ui-monospace, monospace';
   ctx.fillText(`ν_c = ${Math.pow(10, lcut).toExponential(1)} Hz`, Math.min(xToPx(lcut) + 4, mainW - 120), padT + 12);
 
-  // Right panel: electron distribution N(gamma) ~ gamma^-p (ensemble mode only)
+  // Right panel: top = an animated relativistic electron gyrating in B
+  // with its 1/gamma forward-beamed emission cone (the physical origin
+  // of the spectrum: a distant observer sees a sharp pulse each time the
+  // narrow cone sweeps past, and a sharp pulse Fourier-transforms to the
+  // broad power law on the left). Bottom = N(gamma) ~ gamma^-p.
   if (st.mode === 'ensemble') {
-    const rightPadL = mainW + 8, rightPadR = 8, rightPadT = padT, rightPadB = padB;
+    const rPadL = mainW + 8, rPadR = 8;
+    const splitY = padT + (H - padT - padB) * 0.46;
+    // Emission animation sub-panel.
+    const ecx = (rPadL + W - rPadR) / 2, ecy = (padT + splitY) / 2;
+    const orbR = Math.min((W - rPadR - rPadL), (splitY - padT)) * 0.30;
+    ctx.strokeStyle = '#2c2f36'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(ecx, ecy, orbR, 0, 2 * Math.PI); ctx.stroke();
+    ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillText('relativistic electron + 1/γ beam', rPadL, padT + 10);
+    // Gyrofrequency ~ B / gamma; beam half-angle ~ 1/gamma.
+    const gyro = 0.7 + 0.5 * (st.logB + 5);
+    const ang = (scenePhase * gyro / (1 + st.gamma / 1500)) % (2 * Math.PI);
+    const ex = ecx + orbR * Math.cos(ang), ey = ecy + orbR * Math.sin(ang);
+    const vdir = ang + Math.PI / 2;                         // velocity is tangent
+    const halfBeam = Math.max(0.05, Math.min(0.6, 320 / st.gamma));
+    // Beamed emission cone (a wedge of half-angle ~1/gamma along v).
+    const grad = ctx.createRadialGradient(ex, ey, 0, ex, ey, orbR * 1.7);
+    grad.addColorStop(0, 'rgba(255,209,102,0.55)'); grad.addColorStop(1, 'rgba(255,209,102,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.moveTo(ex, ey);
+    ctx.arc(ex, ey, orbR * 1.7, vdir - halfBeam, vdir + halfBeam); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#7dd3fc';
+    ctx.beginPath(); ctx.arc(ex, ey, 4, 0, 2 * Math.PI); ctx.fill();
+    // Observer to the right; a sharp pulse strip lights when the cone
+    // points at them (this sharpness is why the spectrum is broadband).
+    const obsDir = 0;
+    let dphi = Math.abs(((vdir - obsDir + Math.PI) % (2 * Math.PI)) - Math.PI);
+    const hit = Math.exp(-(dphi * dphi) / (2 * halfBeam * halfBeam));
+    const stripY = splitY - 16, sx0 = rPadL, sx1 = W - rPadR;
+    ctx.strokeStyle = '#3a3d44'; ctx.beginPath(); ctx.moveTo(sx0, stripY); ctx.lineTo(sx1, stripY); ctx.stroke();
+    ctx.fillStyle = '#ffd166';
+    ctx.fillRect(sx1 - 4, stripY - 22 * hit, 4, 22 * hit);
+    ctx.fillStyle = '#9aa0a6'; ctx.fillText('observed pulse ->', sx0, stripY - 4);
+
+    // N(gamma) sub-panel (bottom).
+    const rPadT2 = splitY + 14;
     ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 0.5;
-    ctx.beginPath();
-    ctx.moveTo(rightPadL, rightPadT);
-    ctx.lineTo(rightPadL, H - rightPadB);
-    ctx.lineTo(W - rightPadR, H - rightPadB);
-    ctx.stroke();
-
+    ctx.beginPath(); ctx.moveTo(rPadL, rPadT2); ctx.lineTo(rPadL, H - padB); ctx.lineTo(W - rPadR, H - padB); ctx.stroke();
     ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace';
-    ctx.fillText('log N', mainW + 4, rightPadT + 10);
-    ctx.fillText('log γ', mainW + (rightW - rightPadR) * 0.4, H - rightPadB + 16);
-
+    ctx.fillText('log N', mainW + 4, rPadT2 + 10);
+    ctx.fillText('log γ', mainW + rightW * 0.4, H - padB + 16);
     const lgmin = 0, lgmax = 4.5;
-    const xDist = (lg) => rightPadL + (lg - lgmin) / (lgmax - lgmin) * (W - rightPadR - rightPadL);
-    const refDist = 0;
-    const yDist = (ln) => H - rightPadB - (ln - refDist + 6) / 6 * (H - rightPadT - rightPadB);
-
+    const xDist = (lg) => rPadL + (lg - lgmin) / (lgmax - lgmin) * (W - rPadR - rPadL);
+    const yDist = (ln) => H - padB - (ln + 6) / 6 * (H - rPadT2 - padB);
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(rightPadL, rightPadT, W - rightPadR - rightPadL, H - rightPadB - rightPadT);
-    ctx.clip();
-    // Normalise the line to the top-left so the chosen p only tilts the
-    // slope and the line stays inside the panel for any p.
+    ctx.beginPath(); ctx.rect(rPadL, rPadT2, W - rPadR - rPadL, H - padB - rPadT2); ctx.clip();
     ctx.strokeStyle = '#6cc24a'; ctx.lineWidth = 2; ctx.beginPath();
-    const ND = 300;
-    for (let i = 0; i < ND; i += 1) {
-      const lg = lgmin + (lgmax - lgmin) * i / (ND - 1);
-      const ln = -st.p * (lg - lgmin);
-      const py = yDist(ln + 1);
-      const px = xDist(lg);
+    for (let i = 0; i < 300; i += 1) {
+      const lg = lgmin + (lgmax - lgmin) * i / 299;
+      const px = xDist(lg), py = yDist(-st.p * (lg - lgmin) + 1);
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.stroke();
@@ -160,7 +185,7 @@ function render() {
   ctx.fillText(`γ = ${st.gamma.toFixed(0)}, B = 10^${st.logB.toFixed(1)} G, p = ${st.p.toFixed(2)}, α = ${alpha.toFixed(2)}`, padL + 70, 16);
   rA.textContent = alpha.toFixed(2);
 }
-function tick() { render(); requestAnimationFrame(tick); }
+function tick(ts) { if (!CAPTURE_NAME) scenePhase = (ts || 0) / 1000; render(); requestAnimationFrame(tick); }
 function bootSync() {
   if (CAPTURE_NAME) {
     // Headline view: the ensemble power-law spectrum, with p swept
@@ -170,6 +195,7 @@ function bootSync() {
     st.p = 1.8 + CAPTURE_FRAC * 1.6;
     if (selM) selM.value = 'ensemble';
     if (vP) vP.textContent = st.p.toFixed(2);
+    scenePhase = CAPTURE_FRAC * 6;          // deterministic electron phase per frame
   }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
