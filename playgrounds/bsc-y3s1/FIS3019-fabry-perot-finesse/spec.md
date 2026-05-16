@@ -9,8 +9,8 @@ supporting_ucs: [MAA-OT]
 curriculum_year: bsc-y3s1
 primary_citation: hecht2017
 primary_chapter: 9
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Scan a Fabry-Perot cavity: it flashes bright and transmits only at the razor-sharp resonances set by the mirror finesse.'
+one_paragraph: 'Fabry-Perot finesse made physical: a scanned two-mirror cavity. An input beam undergoes multiple partial reflections; as the round-trip phase is swept the circulating field builds up and the cavity flashes bright at each resonance with a strong transmitted beam, while between resonances it is dark and the light is reflected. Raising the mirror reflectance R sharpens the resonances (higher finesse F* = pi sqrt(R)/(1-R)) until they are razor thin and almost always missed. A synced Airy strip shows T(phi) over three free spectral ranges with a marker tracking the scan, plus the live finesse and T_min. sim.js (transmission, finesse, fwhmPhi) is unchanged.'
 tags: [optics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -32,7 +32,7 @@ Resonance peaks at $\phi = 2 \pi m$ (integer $m$). The finesse $F_* = \pi \sqrt{
 
 ## Numerical method
 
-Closed-form. Top panel: three FSRs at $\phi \in [-\pi, 5\pi]$; bottom panel: zoom on the $\phi = 2\pi$ peak using a window of width $3 \cdot \mathrm{FWHM}$.
+Closed-form Airy transmission from sim.js (unchanged). The scene renders the multiple-beam picture (input, bouncing rays decaying as $R^k$, intracavity standing wave whose brightness tracks the normalised transmitted intensity $T(\phi)$, reflected and transmitted beams scaling with $1-T$ and $T$). A synced strip plots $T(\phi)$ over three FSRs ($\phi \in [-\pi, 5\pi]$) with a scan marker.
 
 ## Controls
 
@@ -40,9 +40,9 @@ Closed-form. Top panel: three FSRs at $\phi \in [-\pi, 5\pi]$; bottom panel: zoo
 
 ## Expected qualitative features
 
-1. $R$ near 1: sharp narrow peaks at every multiple of $2\pi$; $T \to 0$ between them.
-2. $R$ near 0: peaks broaden and $T_\min$ approaches $1/(1+F)$, far from zero.
-3. The zoom panel reveals the FWHM width $\approx 4/\sqrt{F}$ for high $R$.
+1. On resonance the cavity is bright and the transmitted beam is strong; off resonance it is dark and the beam is reflected.
+2. $R$ near 1: razor-sharp resonances (high finesse), so the scan is almost always off them; $R$ near 0: broad peaks, easily on resonance.
+3. The Airy strip shows peak sharpening with $R$ and the FWHM $\approx 4/\sqrt{F}$, with the marker synced to the cavity state.
 4. The finesse readout grows from ~10 at $R = 0.7$ to ~313 at $R = 0.99$.
 
 ## Invariants and acceptance thresholds
