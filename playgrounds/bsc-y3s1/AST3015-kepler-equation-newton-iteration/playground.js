@@ -104,8 +104,12 @@ function drawConvergence(c, x0, y_off, w, h) {
 
   const M = meanAnomaly((typeof performance !== 'undefined' ? performance.now() : Date.now()));
   const r = solveKepler(M, e);
-  const Einf = r.E;
   const history = r.history;
+  // history holds the WRAPPED E iterates; r.E is unwrapped (sim.js adds
+  // M - Mw after the loop). Compare against the converged wrapped value
+  // (last history entry) so the residual shows true Newton convergence
+  // instead of a constant unwrap offset.
+  const Einf = history[history.length - 1];
 
   const maxIter = 12;
   function xFor(i) { return x0 + padL + plotW * (i / maxIter); }
@@ -129,22 +133,28 @@ function drawConvergence(c, x0, y_off, w, h) {
     ctx.fillText(`1e${le}`, x0 + padL - 32, y + 3);
   }
 
-  // Residual curve.
+  // Residual convergence curve. Pass 1: the polyline (one path, one
+  // stroke). Pass 2: the per-iteration dots. The previous code called
+  // beginPath() for each dot inside the loop, wiping the polyline so
+  // only the last arc was ever stroked.
+  const pts = [];
+  for (let i = 0; i < history.length; i += 1) {
+    const r_i = Math.abs(history[i] - Einf);
+    const le = Math.max(-18, Math.log10(Math.max(r_i, 1e-19)));
+    pts.push({ x: xFor(i), y: yFor(le) });
+  }
   ctx.strokeStyle = c.accent;
   ctx.lineWidth = 2;
   ctx.beginPath();
-  for (let i = 0; i < history.length; i += 1) {
-    const r_i = Math.abs(history[i] - Einf);
-    if (r_i < 1e-18) break;
-    const xx = xFor(i);
-    const yy = yFor(Math.max(-18, Math.log10(r_i)));
-    if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
-    ctx.fillStyle = c.blue;
-    ctx.beginPath(); ctx.arc(xx, yy, 4, 0, 2 * Math.PI); ctx.fill();
-    ctx.strokeStyle = c.accent;
-    ctx.lineWidth = 2;
+  for (let i = 0; i < pts.length; i += 1) {
+    if (i === 0) ctx.moveTo(pts[i].x, pts[i].y);
+    else ctx.lineTo(pts[i].x, pts[i].y);
   }
   ctx.stroke();
+  ctx.fillStyle = c.blue;
+  for (const p of pts) {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI); ctx.fill();
+  }
 
   ctx.fillStyle = c.muted;
   ctx.font = '12px ui-monospace, monospace';
