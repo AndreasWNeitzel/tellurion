@@ -45,3 +45,26 @@ Targeted enhancements:
 - cosmic-ray-shower: streaming incoming-particle animation
 - galaxy-rotation-curve: promote to hero, dense spiral-arm particle render
 - tiny-mlp-backprop: more examples + more points; clamp hidden layers 1-3, neurons<=8
+
+## Progress log (session 2026-05-16)
+
+DONE (committed, invariants pass, captures refreshed):
+- fourier-epicycle-drawing: signed DFT frequencies; presets reproduce
+- kepler-equation-newton-iteration: convergence polyline + correct residual
+- galaxy-merger-nbody: real collision, live dials, auto-replay
+- wave-heightfield hero: click offset, damping clamp 0-0.1, perturbation shapes + standing modes
+- synchrotron-spectrum: absolute frequency axis so sliders act
+- transit-mandel-agol: planet/marker phase-sync + dip width
+- bremsstrahlung-spectrum: electron-deflected-by-ion scene + EM wavefronts
+- parallel-transport-on-sphere: animated transported vector + holonomy ghost
+
+REMAINING boring->spatial makeovers (next sessions):
+- toy parton, Friedmann cosmography, gamow tunneling, fabry-perot,
+  runge-chebyshev, de Broglie, CKM, matter-radiation equality,
+  Lane-Emden, sturm-liouville, parker solar wind, p/g-mode cavity,
+  slow-roll inflation, relativistic beaming, GW-chirp 3D
+- cosmic-ray-shower: streaming incoming-particle animation
+- galaxy-rotation-curve: promote to hero (dense spiral arms)
+- tiny-mlp-backprop: more examples/points; clamp layers 1-3, neurons<=8
+- parallel-transport: add torus + other surfaces (sphere done)
+- chandrasekhar: already a particle sim (Phase 1-G), not static
