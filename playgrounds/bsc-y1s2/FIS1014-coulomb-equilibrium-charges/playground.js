@@ -54,16 +54,51 @@ function render() {
   const cx = canvas.width / 2, cy = canvas.height / 2, scale = 60;
   const C = configCharges();
   if (st.showField) {
-    const N = 28; const step = canvas.width / N;
-    for (let i = 0; i < N; i += 1) for (let j = 0; j < Math.floor(canvas.height / step); j += 1) {
-      const px = (i + 0.5) * step, py = (j + 0.5) * step;
-      const wx = (px - cx) / scale, wy = -(py - cy) / scale;
-      const f = forceAt(wx, wy, C); const mag = Math.sqrt(f.fx * f.fx + f.fy * f.fy);
-      if (mag < 1e-9) continue;
-      const u = step * 0.45;
-      const a = Math.min(0.8, 0.05 + Math.log1p(mag) * 0.15);
-      ctx.strokeStyle = `rgba(154,160,166,${a})`; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + u * f.fx / mag, py - u * f.fy / mag); ctx.stroke();
+    // Electric field lines: streamlines seeded radially around each
+    // positive charge, integrated along E until they reach a negative
+    // charge or leave the frame. Line count scales with |q|.
+    const W = canvas.width, Hc = canvas.height;
+    const inWorld = (x, y) => x > -W / (2 * scale) - 0.5 && x < W / (2 * scale) + 0.5
+                            && y > -Hc / (2 * scale) - 0.5 && y < Hc / (2 * scale) + 0.5;
+    for (const src of C) {
+      if (src.q <= 0) continue;
+      const nLines = Math.max(8, Math.round(10 * Math.abs(src.q)));
+      for (let L = 0; L < nLines; L += 1) {
+        const a0 = (L + 0.5) / nLines * 2 * Math.PI;
+        let x = src.x + 0.18 * Math.cos(a0), y = src.y + 0.18 * Math.sin(a0);
+        ctx.strokeStyle = 'rgba(255,209,102,0.45)'; ctx.lineWidth = 1.1;
+        ctx.beginPath(); ctx.moveTo(cx + x * scale, cy - y * scale);
+        let arrowAt = 26;
+        for (let s = 0; s < 520; s += 1) {
+          const f = forceAt(x, y, C);
+          const m = Math.hypot(f.fx, f.fy);
+          if (m < 1e-7) break;
+          const ds = 0.05;
+          // RK2 along the unit field direction.
+          const hx = x + 0.5 * ds * f.fx / m, hy = y + 0.5 * ds * f.fy / m;
+          const fh = forceAt(hx, hy, C); const mh = Math.hypot(fh.fx, fh.fy) || 1;
+          x += ds * fh.fx / mh; y += ds * fh.fy / mh;
+          ctx.lineTo(cx + x * scale, cy - y * scale);
+          // Terminate near any charge or off-frame.
+          let hit = false;
+          for (const ch of C) if (Math.hypot(x - ch.x, y - ch.y) < 0.16) hit = true;
+          if (hit || !inWorld(x, y)) break;
+          if (--arrowAt === 0) {
+            arrowAt = 30;
+            const px = cx + x * scale, py = cy - y * scale;
+            const ang = Math.atan2(-(fh.fy), fh.fx);
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255,209,102,0.6)';
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(px - 6 * Math.cos(ang - 0.4), py - 6 * Math.sin(ang - 0.4));
+            ctx.lineTo(px - 6 * Math.cos(ang + 0.4), py - 6 * Math.sin(ang + 0.4));
+            ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(px, py);
+          }
+        }
+        ctx.stroke();
+      }
     }
   }
   if (trace.length > 1) {
