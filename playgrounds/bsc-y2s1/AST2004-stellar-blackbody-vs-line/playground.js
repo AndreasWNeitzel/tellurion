@@ -52,7 +52,7 @@ function render() {
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
   for (let lam = 300; lam <= 1100; lam += 100) {
     const x = pad.l + (lam - lamMin) / (lamMax - lamMin) * (W - pad.l - pad.r);
-    ctx.strokeStyle = '#262626'; ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H - pad.b); ctx.stroke();
+    ctx.strokeStyle = '#1b1b1f'; ctx.lineWidth = 1; ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H - pad.b); ctx.stroke();
     ctx.fillStyle = '#9aa0a6'; ctx.fillText(lam, x - 12, H - pad.b + 14);
   }
   ctx.fillText('λ (nm)', W / 2 - 30, H - 12);
@@ -84,23 +84,35 @@ function render() {
     if (i === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
   }
   ctx.stroke();
-  // Absorption-line markers: subtle dashed verticals plus labels
-  // staggered over three rows so neighbouring lines do not overlap.
-  ctx.font = '10px ui-monospace, monospace';
+  // Absorption-line markers: each line is a thick SOLID vertical drawn
+  // in the colour of its own wavelength (UV -> violet, IR -> deep red),
+  // capped by a downward triangle glyph and a colour-matched label. This
+  // is deliberately distinct from the faint thin grey wavelength grid
+  // above so the two never read as the same kind of line.
+  ctx.font = 'bold 10px ui-monospace, monospace';
+  ctx.lineWidth = 1; ctx.setLineDash([]);
   const sorted = LINES.slice().sort((a, b) => a.lam - b.lam);
   for (let li = 0; li < sorted.length; li += 1) {
     const L = sorted[li];
     const x = xOf(L.lam);
     if (x < pad.l || x > W - pad.r) continue;
-    ctx.strokeStyle = 'rgba(91,192,235,0.28)'; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
-    ctx.beginPath(); ctx.moveTo(x, pad.t + 12); ctx.lineTo(x, H - pad.b); ctx.stroke(); ctx.setLineDash([]);
-    const rowY = pad.t + 10 + (li % 3) * 12;
-    ctx.fillStyle = '#5bc0eb'; ctx.textAlign = 'center';
+    const col = (L.lam >= 380 && L.lam <= 750)
+      ? nmToRGB(L.lam)
+      : (L.lam < 380 ? 'rgb(150,90,255)' : 'rgb(225,80,70)');
+    // Solid coloured vertical from just below the labels down to the
+    // top of the visible colour band (so it visually points at its hue).
+    ctx.strokeStyle = col; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.moveTo(x, pad.t + 16); ctx.lineTo(x, bandY); ctx.stroke();
+    // Downward triangle cap, a glyph the grid lines never have.
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(x - 4, pad.t + 16); ctx.lineTo(x + 4, pad.t + 16); ctx.lineTo(x, pad.t + 22);
+    ctx.closePath(); ctx.fill();
+    const rowY = pad.t + 12 + (li % 3) * 12;
+    ctx.fillStyle = col; ctx.textAlign = 'center';
     ctx.fillText(L.name, x, rowY);
-    ctx.strokeStyle = 'rgba(91,192,235,0.5)';
-    ctx.beginPath(); ctx.moveTo(x, rowY + 3); ctx.lineTo(x, pad.t + 12); ctx.stroke();
   }
-  ctx.textAlign = 'left';
+  ctx.lineWidth = 1; ctx.textAlign = 'left';
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
   ctx.fillText(`T = ${st.T.toFixed(0)} K, λ_peak = ${wienPeakNm(st.T).toFixed(0)} nm`, 12, H - 30);
   rPeak.textContent = `${wienPeakNm(st.T).toFixed(0)} nm`;
