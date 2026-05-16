@@ -1,8 +1,9 @@
 // playground.js
 // Live backprop on a configurable MLP: decision surface (left), the
 // network graph with weight-encoded edges and activation-lit nodes
-// (right), and the training-loss trace (bottom). A probe point sweeps
-// the input plane so the hidden units visibly respond as weights move.
+// (right), and the training-loss trace (bottom). A labelled probe input
+// is swept on a slow circle so the hidden units visibly respond as
+// weights move.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createNet, forward, trainStep, DATASETS } from './sim.js';
@@ -95,13 +96,16 @@ function computeAccuracy() {
   return ok / state.data.X.length;
 }
 
-// Probe path: a slow Lissajous sweep across the input plane so hidden
-// units light up over the whole domain rather than a single point.
+// Probe input: a single test point swept slowly on a clear circular
+// path through the input plane. The network is evaluated at this point
+// every frame so the hidden-node glow on the right shows how that test
+// input propagates through the layers. A plain circle (not a Lissajous)
+// reads as a deliberate sweep rather than random motion.
 function probePoint(rng) {
-  const t = state.probeT;
+  const t = state.probeT * 0.45;
   const cx = (rng.xmin + rng.xmax) / 2, cy = (rng.ymin + rng.ymax) / 2;
-  const ax = 0.42 * (rng.xmax - rng.xmin), ay = 0.42 * (rng.ymax - rng.ymin);
-  return [cx + ax * Math.cos(0.7 * t), cy + ay * Math.sin(1.1 * t + 0.6)];
+  const rad = 0.34 * Math.min(rng.xmax - rng.xmin, rng.ymax - rng.ymin);
+  return [cx + rad * Math.cos(t), cy + rad * Math.sin(t)];
 }
 
 function drawDecisionSurface(rng, probe) {
@@ -160,13 +164,32 @@ function drawDecisionSurface(rng, probe) {
     }
   }
 
-  // Probe marker, linking the two panels.
+  // Probe marker + its circular sweep path, labelled so its purpose
+  // (the test input feeding the network panel) is explicit.
+  const cxw = (rng.xmin + rng.xmax) / 2, cyw = (rng.ymin + rng.ymax) / 2;
+  const radw = 0.34 * Math.min(rng.xmax - rng.xmin, rng.ymax - rng.ymin);
+  const toPx = (wx, wy) => [
+    DX + DW * (wx - rng.xmin) / (rng.xmax - rng.xmin),
+    DY + DH * (1 - (wy - rng.ymin) / (rng.ymax - rng.ymin)),
+  ];
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+  ctx.beginPath();
+  for (let k = 0; k <= 64; k += 1) {
+    const a = (k / 64) * 2 * Math.PI;
+    const [qx, qy] = toPx(cxw + radw * Math.cos(a), cyw + radw * Math.sin(a));
+    if (k === 0) ctx.moveTo(qx, qy); else ctx.lineTo(qx, qy);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
   const ppx = DX + DW * (probe[0] - rng.xmin) / (rng.xmax - rng.xmin);
   const ppy = DY + DH * (1 - (probe[1] - rng.ymin) / (rng.ymax - rng.ymin));
   ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.6;
   ctx.beginPath(); ctx.arc(ppx, ppy, 6, 0, 2 * Math.PI); ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.beginPath(); ctx.arc(ppx, ppy, 2, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('probe input', ppx + 9, ppy - 7);
 
   ctx.strokeStyle = 'rgba(255,255,255,0.25)';
   ctx.strokeRect(DX + 0.5, DY + 0.5, DW - 1, DH - 1);

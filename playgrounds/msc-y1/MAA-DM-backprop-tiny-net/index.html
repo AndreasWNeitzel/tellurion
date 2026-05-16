@@ -37,10 +37,12 @@
     The right panel draws the network itself: one column of nodes per
     layer, edges whose thickness scales with weight magnitude and whose
     color encodes sign (warm = positive, blue = negative). As gradients
-    flow the edges thicken, thin, and flip sign, and the hidden-node
-    glow tracks each unit's activation for a probe point that sweeps the
-    input plane. The architecture is configurable: 1 to 3 hidden layers,
-    up to 8 units each.
+    flow the edges thicken, thin, and flip sign. The small white circle
+    on the decision surface (labelled "probe input") is a single test
+    point swept slowly on the dashed circle; the network is evaluated
+    there every frame, and the hidden-node glow on the right shows how
+    that one input propagates through the layers. The architecture is
+    configurable: 1 to 3 hidden layers, up to 8 units each.
   </p>
   <p>
     Datasets: <em>moons</em> (two interlocking arcs), <em>XOR</em> (a
