@@ -47,3 +47,8 @@ export function rk45(y, dt, omega) {
   return { y_new: y5, err_norm: err };
 }
 export function energy(y, omega) { return 0.5 * (y[1] * y[1] + omega * omega * y[0] * y[0]); }
+export function analyticSolution(t, omega, x0 = 1, v0 = 0) {
+  const x = x0 * Math.cos(omega * t) + v0 / omega * Math.sin(omega * t);
+  const v = -x0 * omega * Math.sin(omega * t) + v0 * Math.cos(omega * t);
+  return [x, v];
+}
