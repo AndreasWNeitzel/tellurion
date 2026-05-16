@@ -69,22 +69,27 @@ try {
     return d / Math.max(1, n);
   };
   const hash = snap;
-  // Pause continuous animation first (as a user would) so each control
-  // is judged against a quiescent baseline. On a continuously animated
-  // playground the per-frame evolution is itself ~1% and would mask a
-  // genuine slider response in the relative metric.
-  await page.evaluate(() => {
+  const noiseNow = async () => { const a = await hash(); await page.waitForTimeout(450); const b = await hash(); return changedFrac(a, b); };
+  const clickPause = () => page.evaluate(() => {
     const b = [...document.querySelectorAll('button')].find(e =>
       /pause/i.test(e.id || '') || /pause/i.test(e.getAttribute('aria-label') || '') || /pause/i.test(e.textContent || ''));
-    if (b) b.click();
+    if (b) { b.click(); return true; } return false;
   });
-  await page.waitForTimeout(250);
-  // Per-page noise floor: the change between two snapshots with NO
-  // interaction (animation jitter, antialiasing, nondeterminism). A
-  // control is judged relative to THIS, so the verdict adapts to thin
-  // line plots (tiny absolute change) versus full-field renders.
-  const nb0 = await hash(); await page.waitForTimeout(450); const nb1 = await hash();
-  const noise = changedFrac(nb0, nb1);
+  // Only pause if the page is actually animating, and only KEEP it
+  // paused if clicking the pause control reduced the motion. On a
+  // static-by-default playground whose pause button reads "Play",
+  // clicking it would START the animation, so unconditionally clicking
+  // it (the earlier behaviour) produced a false WEAK. Verify, revert if
+  // it made things worse.
+  let noise = await noiseNow();
+  if (noise > 0.005) {
+    const had = await clickPause();
+    if (had) {
+      await page.waitForTimeout(250);
+      const n2 = await noiseNow();
+      if (n2 <= noise) noise = n2; else { await clickPause(); await page.waitForTimeout(150); noise = await noiseNow(); }
+    }
+  }
   // OK if the control changes the canvas well above the per-frame
   // animation noise floor. 2.5x (with a 0.4% absolute floor) cleanly
   // separates every observed broken case (readout-only 0.01-0.12%) from
