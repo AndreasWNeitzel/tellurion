@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The p-n Junction](../playgrounds/bsc-y3s2/FIS3005-semiconductor-pn-junction/index.html)** &nbsp; (verified, verified 2026-05-17T10:08:13Z)
+  A step junction with acceptor density `NA` (p side) and donor density `ND` (n side), applied bias `V` (forward positive), in silicon at 300 K.
+
 - **[Crystal Structure Explorer](../playgrounds/bsc-y3s2/FIS3005-crystal-structure-3d-explorer/index.html)** &nbsp; (verified, verified 2026-05-17T09:55:11Z)
   Cubic crystals of conventional side `a`: SC (1 atom/cell), BCC (2, body centre), FCC (4, face centres), with a selectable Miller plane and an optional supercell.
 

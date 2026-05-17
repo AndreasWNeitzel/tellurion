@@ -299,9 +299,14 @@ docs/NEEDS-ATTENTION.md, move on.
   absences + powder seq 1234/2468/3 4 8 11; atoms 1/2/4; Bragg
   consistency; BZ faces 6/12/14. probe pass (sc 21.8, lat 9.4,
   view 20.6, hkl 0.48); visual 5/5 x3.
-- [ ] semiconductor-pn-junction : hero canvas2d. Band diagram, e/h
-  diffusion, depletion, bias narrows/widens, IV live. Inv: I=0 V=0;
-  I~55I0 4kT/q; W prop sqrt V 1%; neutral.
+- [x] semiconductor-pn-junction : hero canvas2d. Autoscaled band
+  diagram (or charge+field) + live I-V + operating point, bias/
+  doping sliders, depletion shading. Inv 9/9: I=0 V=0, I0(e^4-1) at
+  4kT/q, -I0 reverse; Vbi>0 grows w/ doping; W~sqrt(Vbi-V) reverse
+  widens/forward narrows/0 at Vbi; NA xp=ND xn neutral; triangular
+  E both sides + drop=Vbi-V; band gap const + bending q(Vbi-V);
+  Mott-Schottky 1/C^2 linear. probe pass (V 0.85, NA 5.22, ND 9.40,
+  view 13.71); visual 5/5 x3. Bib: sze-devices added.
 - [ ] band-structure-tight-binding : advanced canvas2d. Lattice psi_k
   plus E(k); drag EF, 2D Fermi surface. Inv: E=eps+-2t k=0,pi/a;
   W=4|t|; half-fill diamond.
