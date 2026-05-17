@@ -1,15 +1,15 @@
-// Chandrasekhar dynamical friction. A massive perturber ploughs through
-// a Maxwellian star field; gravitational focusing piles a trailing
-// overdensity (the wake) behind it, and the wake's pull decelerates it
-// by a_DF = 4 pi G^2 M rho lnLambda f(X) / V^2. The old view let the
-// velocity slider only reseed an indistinguishable star cloud (the
-// perturber was one dot among 200), so it read DEAD. Now the perturber,
-// its fading decelerating trajectory, a velocity arrow, the highlighted
-// wake and a V(t) decay panel are the dominant visuals, all driven by
-// the initial speed. The drag is non-monotonic in V (peaks near
-// V ~ sigma), so a slow and a very fast perturber both decelerate
-// little while an intermediate one is braked hard.
-// Reference: Binney and Tremaine, Galactic Dynamics (2nd ed.), Sec. 8.1.
+// Chandrasekhar dynamical friction shown as what it physically does:
+// a massive satellite (a sinking globular cluster or subhalo) spirals
+// inward through a host stellar system because the trailing
+// gravitational wake it raises pulls back on it. The view is a tilted
+// 3D star cloud with the satellite on a decaying orbit, a luminous
+// overdense wake dragged behind it, and the inspiral trail. For an
+// isothermal host (flat rotation curve V0, sigma = V0/sqrt2) the
+// sinking obeys r dr/dt proportional to -G M lnLambda f(X), so a
+// heavier satellite sinks dramatically faster and raises a bigger
+// wake. The perturber-mass slider drives the whole scene.
+// Reference: Binney and Tremaine, Galactic Dynamics (2nd ed.),
+// Sec. 8.1 (the sinking-satellite problem).
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { fOfX, chandrasekharDecel } from './sim.js';
@@ -26,158 +26,140 @@ const readoutEl = document.getElementById('readout');
 const controlsEl = document.getElementById('controls');
 
 const W = canvas.width, H = canvas.height;
-const N = 240, SIGMA = 0.6, LNLAMBDA = 3, RHO = 1.0, PXV = 90;
-let rng = makeRng(SEED);
-function gaussian() { const u1 = Math.max(rng(), 1e-9), u2 = rng(); return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); }
+const cx = W / 2, cy = H / 2 + 10, SCALE = Math.min(W, H) * 0.40;
+const INC = 1.05;                                  // view inclination (rad)
+const cI = Math.cos(INC), sI = Math.sin(INC);
+const V0 = 1.0, SIGMA = V0 / Math.SQRT2, LNL = 4, R0 = 1.0, RMIN = 0.05;
+const DEF_M = 2.0;
+const state = { M: DEF_M, t: 0 };
+let rng = makeRng(SEED), host = [], sat, trail, running = true;
+let last = performance.now();
 
-const DEF_VP = 1.5;
-const state = { vPerturber: DEF_VP, t: 0 };
-let bg, perturber, trail, vHist, running = true;
+// 3D (orbit plane = xy, z up) -> screen, tilted about x. Returns
+// [sx, sy, depth] with depth larger = nearer the viewer.
+function project(x, y, z) {
+  const yt = y * cI - z * sI, zt = y * sI + z * cI;
+  return [cx + x * SCALE, cy - yt * SCALE, zt];
+}
 
 function reset() {
-  rng = makeRng(SEED);                       // reseed: deterministic, slider-independent field
-  bg = [];
-  for (let i = 0; i < N; i += 1) bg.push({ x: rng() * W, y: rng() * H, vx: SIGMA * gaussian() * 36, vy: SIGMA * gaussian() * 36 });
-  perturber = { x: 70, y: H / 2, vx: state.vPerturber * PXV, vy: 0 };
-  trail = []; vHist = []; state.t = 0;
+  rng = makeRng(SEED);
+  host = [];
+  for (let i = 0; i < 320; i += 1) {
+    // Flattened isothermal-ish ellipsoid of field stars.
+    const u = rng() * 2 - 1, ang = rng() * 2 * Math.PI, rr = Math.cbrt(rng()) * 1.15;
+    const rho = Math.sqrt(1 - u * u);
+    host.push({ x: rr * rho * Math.cos(ang), y: rr * rho * Math.sin(ang), z: rr * u * 0.5, ph: rng() * 6.28 });
+  }
+  sat = { r: R0, phi: 0 };
+  trail = [];
+  state.t = 0;
 }
 reset();
 
 const dt = 0.02;
 function step() {
-  for (const p of bg) {
-    const dx = perturber.x - p.x, dy = perturber.y - p.y;
-    const r2 = dx * dx + dy * dy + 400, r = Math.sqrt(r2);
-    const a = 4000 / r2;
-    p.vx += a * dx / r * dt; p.vy += a * dy / r * dt;
-    p.x += p.vx * dt; p.y += p.vy * dt;
-    if (p.x < 0) p.x += W; if (p.x > W) p.x -= W;
-    if (p.y < 0) p.y += H; if (p.y > H) p.y -= H;
-  }
-  // Chandrasekhar deceleration applied gently as a speed scaling so the
-  // slowdown is gradual and visible over the crossing (the old tuning
-  // braked V=1.5 to a halt in ~0.1 s and reset). f(X)/V^2 makes a fast
-  // perturber barely slow and an intermediate one brake hardest, while
-  // f(X) -> 0 as V -> 0 lets a slow one coast rather than stop dead.
-  const Vpx = Math.hypot(perturber.vx, perturber.vy);
-  const Vphys = Vpx / PXV;
-  const aDF = chandrasekharDecel(Vphys, SIGMA, RHO, LNLAMBDA);
-  const K = 0.008;
-  const dVphys = Math.min(K * aDF * dt, 0.2 * Vphys);
-  const scale = Math.max(0, Vphys - dVphys) / Math.max(Vphys, 1e-9);
-  perturber.vx *= scale; perturber.vy *= scale;
-  perturber.x += perturber.vx * dt; perturber.y += perturber.vy * dt;
-  trail.push({ x: perturber.x, y: perturber.y });
-  if (trail.length > 260) trail.shift();
-  vHist.push(Vphys); if (vHist.length > 320) vHist.shift();
+  const r = sat.r;
+  const X = V0 / (Math.SQRT2 * SIGMA);
+  // Isothermal host: circular speed V0 is flat, so X and f(X) are
+  // constant; the friction torque drains angular momentum and
+  // r dr/dt = -K M lnLambda f(X)  =>  the satellite sinks ever faster.
+  const aDF = chandrasekharDecel(V0, SIGMA, 1.0, LNL);
+  const drdt = -0.0012 * state.M * aDF * fOfX(X) / Math.max(r, RMIN);
+  sat.r = Math.max(RMIN, sat.r + drdt * dt);
+  sat.phi += (V0 / Math.max(sat.r, RMIN)) * dt * 2.0;
+  trail.push({ r: sat.r, phi: sat.phi });
+  if (trail.length > 520) trail.shift();
   state.t += dt;
-  if (perturber.x > W - 50 || state.t > 40) reset();
+  if (sat.r <= RMIN + 1e-4) { reset(); }
 }
 
 function render() {
-  ctx.fillStyle = '#080810'; ctx.fillRect(0, 0, W, H);
-  const Vpx = Math.hypot(perturber.vx, perturber.vy), Vphys = Vpx / PXV;
-  const X = Vphys / (Math.SQRT2 * SIGMA), fX = fOfX(X);
+  ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
+  // Soft host glow.
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, SCALE * 1.2);
+  g.addColorStop(0, 'rgba(70,80,140,0.20)'); g.addColorStop(1, 'rgba(70,80,140,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
 
-  // Field, with the wake (particles just behind the perturber, in the
-  // half-space it came from) highlighted: that overdensity is the drag.
-  const ux = perturber.vx / Math.max(Vpx, 1e-6), uy = perturber.vy / Math.max(Vpx, 1e-6);
-  for (const p of bg) {
-    const rx = p.x - perturber.x, ry = p.y - perturber.y;
-    const behind = rx * ux + ry * uy < 0, near = (rx * rx + ry * ry) < 14000;
-    if (behind && near) { ctx.fillStyle = 'rgba(255,170,90,0.9)'; ctx.fillRect(p.x - 1, p.y - 1, 3, 3); }
-    else { ctx.fillStyle = 'rgba(124,156,255,0.5)'; ctx.fillRect(p.x, p.y, 2, 2); }
+  const sx = sat.r * Math.cos(sat.phi), sy = sat.r * Math.sin(sat.phi);
+  const [pSatX, pSatY, pSatD] = project(sx, sy, 0.0);
+
+  // Build a draw list: field stars, the wake clump, depth sorted so the
+  // tilt reads as 3D (near stars larger and brighter).
+  const items = [];
+  for (const s of host) {
+    const dx = sx - s.x, dy = sy - s.y, dz = -s.z;
+    const d2 = dx * dx + dy * dy + dz * dz;
+    // Stars just behind the satellite are focused into the wake.
+    const behind = (dx * -Math.sin(sat.phi) + dy * Math.cos(sat.phi));
+    const inWake = d2 < 0.10 && behind < 0;
+    const [X2, Y2, D] = project(s.x, s.y, s.z);
+    items.push({ X: X2, Y: Y2, D, wake: inWake });
+  }
+  // Dense luminous wake trailing the satellite (the overdensity that
+  // causes the drag); its richness scales with the satellite mass.
+  const nWake = Math.round(26 + 26 * state.M);
+  for (let i = 0; i < nWake; i += 1) {
+    const back = 0.04 + 0.34 * (i / nWake);
+    const jx = (rngHash(i) - 0.5) * 0.13, jy = (rngHash(i + 99) - 0.5) * 0.13;
+    const wx = sx - back * Math.cos(sat.phi) + jx, wy = sy - back * Math.sin(sat.phi) + jy;
+    const [X2, Y2, D] = project(wx, wy, (rngHash(i + 7) - 0.5) * 0.12);
+    items.push({ X: X2, Y: Y2, D, wakeStar: true });
+  }
+  items.sort((a, b) => a.D - b.D);
+  for (const it of items) {
+    const t = (it.D + 1.2) / 2.4;                       // depth 0..1
+    if (it.wakeStar) { ctx.fillStyle = `rgba(255,${170 - 60 * t | 0},${90 - 40 * t | 0},${0.5 + 0.4 * t})`; ctx.beginPath(); ctx.arc(it.X, it.Y, 1.6 + 1.6 * t, 0, 6.28); ctx.fill(); }
+    else if (it.wake) { ctx.fillStyle = `rgba(255,150,80,${0.4 + 0.4 * t})`; ctx.fillRect(it.X - 1, it.Y - 1, 3, 3); }
+    else { ctx.fillStyle = `rgba(150,170,225,${0.22 + 0.45 * t})`; ctx.fillRect(it.X, it.Y, 1 + 1.4 * t, 1 + 1.4 * t); }
   }
 
-  // Wake cone, opacity tied to f(X) (the coupling strength).
-  ctx.fillStyle = `rgba(255,150,70,${0.05 + 0.18 * fX})`;
-  ctx.beginPath();
-  ctx.moveTo(perturber.x, perturber.y);
-  ctx.lineTo(perturber.x - ux * 150 - uy * 46, perturber.y - uy * 150 + ux * 46);
-  ctx.lineTo(perturber.x - ux * 150 + uy * 46, perturber.y - uy * 150 - ux * 46);
-  ctx.closePath(); ctx.fill();
-
-  // Decelerating trajectory.
-  ctx.strokeStyle = 'rgba(6,214,160,0.7)'; ctx.lineWidth = 2; ctx.beginPath();
-  trail.forEach((q, i) => { i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); });
+  // Inspiral trail (the decaying orbit).
+  ctx.strokeStyle = 'rgba(124,200,255,0.55)'; ctx.lineWidth = 1.5; ctx.beginPath();
+  trail.forEach((q, i) => { const [tx, ty] = project(q.r * Math.cos(q.phi), q.r * Math.sin(q.phi), 0); i ? ctx.lineTo(tx, ty) : ctx.moveTo(tx, ty); });
   ctx.stroke();
 
-  // Perturber and velocity arrow.
-  ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(perturber.x, perturber.y, 11, 0, 2 * Math.PI); ctx.fill();
-  const aLen = 26 + Vphys * 60;
-  const ex = perturber.x + ux * aLen, ey = perturber.y + uy * aLen;
-  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 3; ctx.beginPath();
-  ctx.moveTo(perturber.x, perturber.y); ctx.lineTo(ex, ey); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(ex, ey);
-  ctx.lineTo(ex - ux * 12 - uy * 7, ey - uy * 12 + ux * 7);
-  ctx.lineTo(ex - ux * 12 + uy * 7, ey - uy * 12 - ux * 7);
-  ctx.closePath(); ctx.fillStyle = '#5bc0eb'; ctx.fill();
+  // Host centre.
+  ctx.fillStyle = '#ffe7a8'; ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 6.28); ctx.fill();
 
-  // Large deterministic dual panel (no particle churn, so it never
-  // masks the slider): V(t) decay on the left, the Chandrasekhar
-  // a_DF(V) law on the right with the live operating point. The drag
-  // peaks near V ~ sqrt2 sigma, so the operating point sweeping that
-  // curve as the initial speed changes is the headline physics.
-  const PH = 232, PY = H - PH, vmax = 4.3;
-  ctx.fillStyle = 'rgba(8,8,16,0.92)'; ctx.fillRect(0, PY, W, PH);
-  ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(0, PY); ctx.lineTo(W, PY); ctx.stroke();
-  const halfW = W / 2;
+  // Satellite with glow, size scaling with its mass.
+  const rad = 6 + 3.2 * state.M;
+  const gl = ctx.createRadialGradient(pSatX, pSatY, 0, pSatX, pSatY, rad * 3);
+  gl.addColorStop(0, 'rgba(255,225,150,0.85)'); gl.addColorStop(1, 'rgba(255,225,150,0)');
+  ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(pSatX, pSatY, rad * 3, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(pSatX, pSatY, rad, 0, 6.28); ctx.fill();
 
-  // Left: V(t).
-  const ax0 = 52, ax1 = halfW - 24, ay0 = PY + 30, ay1 = H - 34;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('perturber speed V(t)', ax0, PY + 20);
-  ctx.strokeStyle = '#2a2a34'; ctx.lineWidth = 1; ctx.beginPath();
-  ctx.moveTo(ax0, ay0); ctx.lineTo(ax0, ay1); ctx.lineTo(ax1, ay1); ctx.stroke();
-  ctx.fillStyle = '#6e727a'; ctx.font = '10px ui-monospace, monospace';
-  ctx.fillText(`${vmax}`, ax0 - 26, ay0 + 4); ctx.fillText('0', ax0 - 14, ay1); ctx.fillText('t', ax1 - 6, ay1 + 16);
-  if (vHist.length > 1) {
-    ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 2; ctx.beginPath();
-    vHist.forEach((v, i) => { const px = ax0 + i / 320 * (ax1 - ax0); const py = ay1 - Math.min(1, v / vmax) * (ay1 - ay0); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
-    ctx.stroke();
-  }
-  ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(ax0 + (vHist.length - 1) / 320 * (ax1 - ax0), ay1 - Math.min(1, Vphys / vmax) * (ay1 - ay0), 4, 0, 2 * Math.PI); ctx.fill();
-
-  // Right: a_DF(V) law with the operating point on it.
-  const bx0 = halfW + 40, bx1 = W - 24, by0 = PY + 30, by1 = H - 34;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('friction a_DF(V) ∝ f(X)/V²  (peaks near V≈√2σ)', bx0, PY + 20);
-  let aMax = 0; const NA = 120;
-  const adf = (vv) => chandrasekharDecel(vv, SIGMA, RHO, LNLAMBDA);
-  for (let i = 1; i <= NA; i += 1) { const a = adf(vmax * i / NA); if (a > aMax) aMax = a; }
-  ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx0, by1); ctx.lineTo(bx1, by1); ctx.stroke();
-  ctx.fillStyle = '#6e727a'; ctx.font = '10px ui-monospace, monospace'; ctx.fillText('V', bx1 - 8, by1 + 16); ctx.fillText('a_DF', bx0 - 34, by0 + 4);
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
-  for (let i = 1; i <= NA; i += 1) { const vv = vmax * i / NA; const px = bx0 + i / NA * (bx1 - bx0); const py = by1 - Math.min(1, adf(vv) / aMax) * (by1 - by0); i === 1 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); }
-  ctx.stroke();
-  const opx = bx0 + Math.min(1, Vphys / vmax) * (bx1 - bx0), opy = by1 - Math.min(1, adf(Vphys) / aMax) * (by1 - by0);
-  ctx.strokeStyle = 'rgba(91,192,235,0.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(opx, by1); ctx.lineTo(opx, opy); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(opx, opy, 6, 0, 2 * Math.PI); ctx.fill();
-
+  const X = V0 / (Math.SQRT2 * SIGMA);
   if (readoutEl) {
     readoutEl.innerHTML =
-      `<span class="label">V</span><span class="value">${Vphys.toFixed(3)}</span>` +
-      `<span class="label">X = V/√2σ</span><span class="value">${X.toFixed(3)}</span>` +
-      `<span class="label">f(X)</span><span class="value">${fX.toFixed(3)}</span>` +
-      `<span class="label">a_DF</span><span class="value">${chandrasekharDecel(Vphys, SIGMA, RHO, LNLAMBDA).toExponential(2)}</span>` +
+      `<span class="label">M_sat</span><span class="value">${state.M.toFixed(2)}</span>` +
+      `<span class="label">orbit r</span><span class="value">${sat.r.toFixed(3)} R₀</span>` +
+      `<span class="label">X=V/√2σ</span><span class="value">${X.toFixed(2)}</span>` +
+      `<span class="label">f(X)</span><span class="value">${fOfX(X).toFixed(3)}</span>` +
       `<span class="label">t</span><span class="value">${state.t.toFixed(1)}</span>`;
   }
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('satellite sinking by dynamical friction; heavier ⇒ faster inspiral, bigger wake', 16, H - 14);
 }
+
+// Cheap deterministic hash for wake jitter (stable per index, no rng
+// stream drift so capture stays reproducible).
+function rngHash(i) { const s = Math.sin(i * 12.9898 + 4.1) * 43758.5453; return s - Math.floor(s); }
 
 function buildControls() {
   controlsEl.innerHTML = '';
   const row = document.createElement('div'); row.className = 'row';
-  const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = 'vp'; lab.textContent = 'V perturber';
-  const inp = document.createElement('input'); inp.id = 'vp'; inp.type = 'range';
-  inp.min = '0.2'; inp.max = '4'; inp.step = '0.1'; inp.value = String(state.vPerturber);
-  inp.setAttribute('aria-label', 'Perturber initial velocity');
-  const val = document.createElement('span'); val.className = 'value'; val.textContent = state.vPerturber.toFixed(1);
-  inp.addEventListener('input', () => { state.vPerturber = parseFloat(inp.value); val.textContent = state.vPerturber.toFixed(1); reset(); render(); });
+  const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = 'M'; lab.textContent = 'perturber mass';
+  const inp = document.createElement('input'); inp.id = 'M'; inp.type = 'range';
+  inp.min = '0.5'; inp.max = '8'; inp.step = '0.1'; inp.value = String(state.M);
+  inp.setAttribute('aria-label', 'Perturber mass (sets the inspiral rate)');
+  const val = document.createElement('span'); val.className = 'value'; val.textContent = state.M.toFixed(1);
+  inp.addEventListener('input', () => { state.M = parseFloat(inp.value); val.textContent = state.M.toFixed(1); render(); });
   row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
   controlsEl.appendChild(row);
   const br = document.createElement('div'); br.className = 'row buttons';
   const rb = document.createElement('button'); rb.type = 'button'; rb.id = 'btn-reset'; rb.textContent = 'Reset';
-  rb.addEventListener('click', () => { state.vPerturber = DEF_VP; inp.value = String(DEF_VP); val.textContent = DEF_VP.toFixed(1); reset(); running = true; pb.textContent = 'Pause'; pb.setAttribute('aria-pressed', 'false'); startLoop(); render(); });
+  rb.addEventListener('click', () => { state.M = DEF_M; inp.value = String(DEF_M); val.textContent = DEF_M.toFixed(1); reset(); running = true; pb.textContent = 'Pause'; pb.setAttribute('aria-pressed', 'false'); startLoop(); render(); });
   const pb = document.createElement('button'); pb.type = 'button'; pb.id = 'btn-pause'; pb.textContent = 'Pause'; pb.setAttribute('aria-pressed', 'false');
   pb.addEventListener('click', () => { running = !running; pb.textContent = running ? 'Pause' : 'Play'; pb.setAttribute('aria-pressed', String(!running)); startLoop(); });
   br.appendChild(rb); br.appendChild(pb); controlsEl.appendChild(br);
@@ -189,7 +171,7 @@ function startLoop() { if (!rafOn && running && !CAPTURE_NAME) { rafOn = true; r
 
 buildControls();
 if (DETERMINISTIC) {
-  const steps = 40 + Math.round(CAPTURE_FRAC * 240);
+  const steps = 20 + Math.round(CAPTURE_FRAC * 900);
   for (let i = 0; i < steps; i += 1) step();
   render();
   window.__simulationReady = true;
