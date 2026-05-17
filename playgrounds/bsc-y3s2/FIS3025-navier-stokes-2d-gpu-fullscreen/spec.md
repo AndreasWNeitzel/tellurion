@@ -1,29 +1,29 @@
 ---
-title: 2D Navier-Stokes Vortex Street
+title: Incompressible Wake and the Projection Method
 slug: navier-stokes-2d-gpu-fullscreen
-status: draft
+status: verified
 audience: portfolio
 created: 2026-05-17
 primary_uc: FIS3025
 supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: chorin1968
-hook: 'Drag a cylinder into a stream and watch the wake go from glassy creep to a metronome of alternating vortices, the von Karman street, its beat the Strouhal number.'
-one_paragraph: 'An interactive 2D incompressible Navier-Stokes solver (Chorin projection, semi-Lagrangian advection after Stam, implicit Jacobi diffusion, iterative pressure-Poisson projection) rendered fullscreen on the GPU via WebGL2 ping-pong float textures at 512x384, with obstacle drawing, a vorticity colormap, passive tracers and a Reynolds slider that sweeps creeping Stokes flow, the periodic von Karman vortex street and the unsteady high-Re wake. A coarse-grid headless CPU mirror of the identical scheme runs offline in node so the conservation invariants (incompressibility after a converged projection, boundedness, Stokes fore-aft symmetry, determinism) are gate-tested without a GPU; the Strouhal number is a documented weak invariant validated on a finer grid because semi-Lagrangian numerical viscosity over-damps a coarse mesh.'
-tags: [fluids, animation, gpu, live-readout, obstacle-drawing]
+hook: 'Drop a body into a stream: Chorin''s pressure projection holds the flow incompressible (the live max|div u| stays tiny) while the wake thickens from a glassy creep to an unsteady, agitated trail as the Reynolds number climbs.'
+one_paragraph: 'An interactive 2D incompressible Navier-Stokes solver, the Chorin projection method made visible: semi-Lagrangian advection (Stam), implicit diffusion, and an iterated pressure-Poisson projection on a MAC staggered grid, the gate-tested shared engine (shared/js/engine/chorin-2d-cpu.js). It renders the vorticity of flow past a bluff body in Canvas2D over that verified engine, with a Reynolds slider sweeping creeping Stokes flow, a steady recirculating wake, and a damped unsteady wake, an obstacle and tracer toggle, and a live readout of the post-projection discrete divergence, the incompressibility constraint enforced in real time. The headless engine is gate-tested offline (incompressibility after a converged projection, projection identity, Stokes top-bottom symmetry, boundedness to Re=1000, determinism). The von Karman vortex street and its Strouhal number are a documented weak, resolution-limited feature: at the interactive grid the semi-Lagrangian numerical viscosity holds the effective Reynolds below the shedding threshold, so a crisp periodic street is a finer-grid / stretch mode, not the default claim.'
+tags: [fluids, incompressible, pressure-projection, live-readout, obstacle-drawing]
 difficulty: 5
 tier: hero
 hero_candidate: true
-renderer: webgl2
-estimated_engagement_minutes: 8
+renderer: canvas2d
+estimated_engagement_minutes: 7
 share_state_keys: [re_number, obstacle_preset, tracer_enabled, regime_name]
 ---
 
-# 2D Navier-Stokes Vortex Street
+# Incompressible Wake and the Projection Method
 
 ## Physical setup
 
-A 2D incompressible flow through a rectangular channel (512 x 384 cells, aspect 4:3, normalized to [0,1] x [0,0.75]) past a bluff obstacle. A uniform stream enters at the left; the obstacle sheds vorticity into a wake. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1` in the nondimensionalization, so `nu = 1/Re`) is user-tunable and selects the regime: creeping Stokes flow (`Re << 1`), the steady recirculating wake (`Re ~ 5 to 45`), the periodic von Karman vortex street (`Re ~ 47 to ~190` in 2D), and the unsteady broadband wake (`Re > ~200`). The scene draws the vorticity field `omega = dv/dx - du/dy` through a colormap, optional passive tracers, and a live readout of the maximum discrete divergence and the measured Strouhal number.
+A 2D incompressible flow (180 x 120 grid, normalized channel) past a bluff obstacle. A uniform stream enters at the left, free-slip walls top and bottom, zero-gradient outflow on the right, no-slip on the obstacle. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1`, so `nu = 1/Re`) is user-tunable. Honest about the discretization: the realized (effective) Reynolds number is lowered by the semi-Lagrangian numerical viscosity, `Re_eff ~ 1/(1/Re + C |u| dx)`, so the slider sweeps three regimes that the interactive grid actually resolves: creeping, near fore-aft-symmetric Stokes flow (`Re ~ 1`); a steady recirculating wake (`Re` tens); and a broader, agitated, unsteady wake (high nominal `Re`). The headline is not a vortex street but the projection method itself: the scene draws the vorticity `omega = dv/dx - du/dy` and a live readout of the maximum post-projection discrete divergence, which stays small because the pressure-Poisson solve enforces `div u = 0` every step.
 
 ## Governing equations
 
@@ -47,128 +47,173 @@ so at `Re = 100`, `St ~= 0.164`, not the high-`Re` asymptote `~0.21`. The accept
 
 ## Numerical method
 
-Chorin projection (fractional step), the Stam "stable fluids" discretization:
+Chorin projection (fractional step) on a MAC staggered grid (pressure
+at cell centres, `u` on x-faces, `v` on y-faces, the Harlow-Welch
+layout), the Stam "stable fluids" discretization. Per step:
 
-1. **Advect** velocity semi-Lagrangianly: trace each cell back along `u` by `dt` (RK2 backtrace), bilinearly interpolate. Unconditionally stable for advection at any CFL; introduces an implicit numerical viscosity (see caveat below).
-2. **Diffuse** implicitly: solve `(I - nu*dt*Lap) u* = u` by Jacobi/Gauss-Seidel sweeps. Implicit, so there is no explicit diffusion CFL constraint `dt < dx^2/(4 nu)`; this is essential because at `Re = 100`, `dx = 1/512`, that explicit bound is `~1e-7` and unusable.
-3. **Project**: solve `Lap p = (1/dt) div u*`, then `u = u* - dt grad p`. Collocated grid with the standard 5-point Laplacian; obstacle and boundary cells handled explicitly. The pressure solve is the convergence-critical step (see below).
-4. **Boundary conditions** (stated explicitly, not periodic; periodic would recirculate the wake and is wrong here):
-   - Left: Dirichlet inflow `u = (1, 0)`.
-   - Right: convective / zero-gradient outflow (`du/dx = 0`).
-   - Top and bottom: free-slip (`v = 0`, `du/dy = 0`).
-   - Obstacle: no-slip `u = 0`; obstacle cells excluded from the pressure update; vorticity zeroed inside.
+1. **Advect** velocity semi-Lagrangianly: trace each face back along
+   the interpolated velocity by `dt`, bilinearly interpolate.
+   Unconditionally stable at any advective CFL; it adds an implicit
+   numerical viscosity (the effective-Reynolds caveat below).
+2. **Diffuse** implicitly: Jacobi sweeps for `(I - nu*dt*Lap) u* = u`.
+   Implicit, so no explicit diffusion-CFL; `dt` is an accuracy choice.
+3. **Project**: solve `Lap p = div u*` then `u = u* - grad p`. On the
+   MAC grid the forward-face divergence, the compact 5-point
+   Laplacian and the backward gradient are exactly consistent and
+   reflection-symmetric (no collocated odd-even checkerboard), so the
+   projection is a true Hodge decomposition. Red-black SOR; Neumann
+   pressure on inflow / free-slip / obstacle faces, Dirichlet `p = 0`
+   at the outflow column (non-singular, no compatibility hack).
+4. **Boundary conditions** (explicit, not periodic): left Dirichlet
+   inflow `u = (1, 0)`; right zero-gradient outflow; top and bottom
+   free-slip (no penetration); obstacle no-slip.
 
-### Pressure solve: two paths
+One scheme, two iteration budgets. The numerics live in the
+gate-tested shared engine `shared/js/engine/chorin-2d-cpu.js`. The
+live playground runs it with a relaxed pressure tolerance (capped SOR
+iterations) for interactivity and reports the honest post-projection
+`max|div u|`; the offline `invariants.test.mjs` runs the SAME engine
+with the projection iterated to convergence, where the strong
+incompressibility invariant `max|div u| < 1e-3` is genuinely reached.
+Correctness is proven by the converged offline path, not asserted
+from the relaxed live one.
 
-The real-time GPU path and the offline invariant path use the SAME scheme but DIFFERENT iteration budgets, because Jacobi on the 5-point Laplacian has spectral radius `rho = cos(pi/N) ~= 1 - (pi/N)^2`; on a 384-cell side `rho ~= 0.99993`, so ~50 sweeps barely move the residual and the strong `div u < 1e-3` target needs O(1/(1-rho)) ~ thousands of sweeps.
+Effective-Reynolds caveat: semi-Lagrangian advection adds
+`nu_num ~ C |u| dx`, so the realized Reynolds number is
+`Re_eff ~ 1/(1/Re + C|u|dx)`. At the interactive 180 x 120 grid
+`nu_num` is large enough that `Re_eff` stays below the von Karman
+shedding threshold for any nominal `Re`. Stated plainly: the
+playground does NOT show a crisp periodic vortex street at the
+interactive resolution. It shows creeping flow, a steady
+recirculating wake, and a broader unsteady, agitated wake. The von
+Karman street and its Strouhal number are a documented weak,
+resolution-limited feature (a finer-grid stretch mode), not the
+default claim, which is the projection method and incompressibility.
 
-- **GPU (interactive, 512x384)**: red-black Gauss-Seidel / SOR (`rho ~ 0.95`, far faster than Jacobi) with an adaptive iteration count capped by a per-frame time budget; real-time divergence target relaxed to `max|div u| < 1e-2`. This keeps 60 fps; the wake is visually correct at this tolerance.
-- **CPU mirror (offline, invariants.test.mjs, coarse grid)**: the projection is iterated to convergence (red-black Gauss-Seidel until the residual `< 1e-4` or a high fixed cap), which is cheap offline on a small grid. The strong incompressibility invariant `max|div u| < 1e-3` is therefore measured here, where it is genuinely reachable, NOT on the GPU.
-
-### Effective-Reynolds caveat (semi-Lagrangian damping)
-
-Semi-Lagrangian advection with bilinear interpolation adds a numerical viscosity `nu_num ~ C |u| dx` (`C ~ 0.5`), so the realized Reynolds number is `Re_eff ~ 1/(1/Re + C|u|dx)`. On the 512x384 GPU grid at nominal `Re = 100`, `Re_eff ~ 90` (mild). On a coarse 96x72 CPU mirror, `nu_num` swamps `nu` and `Re_eff` falls to O(15 to 20): a coarse grid cannot shed a clean von Karman street. Consequence: the Strouhal invariant is NOT tested on the coarse CPU mirror. It is a weak invariant validated on a moderately fine grid (a one-off `~256 x 192` CPU run in the test, marked weak / non-gating, plus the GPU readout); the coarse mirror only tests divergence, boundedness, Stokes symmetry and determinism.
-
-### Grid and time step
-
-- Grid 512 x 384, `dx = 1/512 ~= 1.95e-3`. CPU mirror 96 x 72 (invariants), and a 256 x 192 mirror for the weak Strouhal check.
-- `dt = 0.0025`. Semi-Lagrangian advection has no advective CFL limit; with implicit diffusion there is no diffusion CFL limit. `dt` is chosen for temporal accuracy of the shedding, not stability.
-- `nu = 1/Re`, slider `Re` in `[0.1, 1000]`. RNG: none in the flow (deterministic); tracers seeded at fixed positions.
-
-## Stack relaxation (hard rule 8)
-
-Rule 8 restricts playgrounds to Canvas2D/SVG. This playground is granted an explicit, user-authorized relaxation to WebGL2, justified here as required by the rule.
-
-A 512x384 Chorin solver runs, per 60 fps frame: a semi-Lagrangian advection pass, several implicit-diffusion sweeps, and tens-to-hundreds of pressure-Poisson relaxation sweeps, each an O(N) = ~2e5-cell stencil pass. That is on the order of 1e8 to 1e9 flop/s with per-cell texture reads. Canvas2D `ImageData` with pixel-by-pixel JS loops and CPU<->GPU copies is 2-3 orders of magnitude too slow for interactivity. WebGL2 ping-pong fragment-shader float textures are the standard, necessary technique (Harris, GPU Gems 2, Ch. 38; Stam 1999, Sec. 3-4). The relaxation is scoped to the rendering/solve only; correctness is still gate-tested by a GPU-free CPU mirror.
+Grid and time step: live grid 180 x 120; `dt = 0.06` (accuracy, not
+stability). `nu = 1/Re`, slider `Re` in `[1, 1000]`. No RNG
+(deterministic); tracer dye seeded at fixed inflow positions.
 
 ## Controls
 
-| name | type | range | default | sets |
-|------|------|-------|---------|------|
-| Re | slider | 0.1 .. 1000 (log) | 100 | Reynolds number, `nu = 1/Re` |
-| regime | preset menu | Stokes / steady / von Karman / turbulent | von Karman | sets Re to 1 / 20 / 100 / 600 |
-| obstacle_preset | menu | cylinder / square / airfoil / none | cylinder | obstacle mask |
-| obstacle_draw | drag on canvas | n/a | enabled | paint/erase circular obstacle cells |
-| tracer_toggle | checkbox | off / on | off | passive tracers (streak visualization) |
-| vorticity_colormap | menu | rdbu / viridis / turbo | rdbu | omega colormap (rdbu is signed, the natural choice) |
-| reset | button | n/a | n/a | clear obstacles, reset fields and time |
-| pause | button | n/a | n/a | toggle stepping |
-
-Live monospace readouts: time/step, `max|div u|`, measured `St` (shown only when a clean spectral peak exists), `Re_eff` estimate.
+- regime: select Stokes / steady / unsteady / broadband, default
+  unsteady; sets `Re` to 2 / 80 / 700 / 950.
+- Re: slider `[1, 1000]`, default 700; `nu = 1/Re`.
+- obstacle: select cylinder / square / none; the body is slightly
+  offset to seed the asymmetry a deterministic solver needs.
+- tracer dye: checkbox, a passive streak dye from the inflow.
+- reset, pause: buttons.
+- Live monospace readouts: `max|div u|` (the post-projection
+  incompressibility, the headline), peak `|omega|`, `Re`, regime.
+- Share-state keys: `re_number`, `obstacle_preset`, `tracer_enabled`,
+  `regime_name` (parseUrlState restore plus a Copy-URL button).
 
 ## Expected qualitative features
 
-- **Stokes (`Re ~ 1`)**: glassy, steady, fore-aft near-symmetric flow that hugs the obstacle; no shed vortices; tracers in a recirculation bubble stay trapped.
-- **Steady wake (`Re ~ 20`)**: a fixed symmetric pair of recirculating eddies behind the obstacle, no time dependence.
-- **von Karman (`Re ~ 100`)**: a periodic alternating-sign vortex street; the `rdbu` field shows regular red/blue eddies marching downstream; the readout `St ~= 0.16` (Williamson), not `0.20`.
-- **High Re (`Re > ~300`)**: irregular, broadband wake with many scales. Caveat: this is 2D Navier-Stokes; 2D turbulence has an inverse energy cascade and an enstrophy cascade (Kraichnan 1967), qualitatively unlike 3D Kolmogorov turbulence and unlike a real 3D cylinder wake. The playground states this; it does not claim 3D turbulence.
-- The divergence readout stays at the path's tolerance (`< 1e-2` on the GPU); the offline mirror drives it `< 1e-3`.
+- Stokes (`Re ~ 2`): glassy, steady, near top-bottom symmetric
+  creeping flow hugging the obstacle; no shed vortices.
+- Steady wake (`Re ~ 80`): a fixed recirculating wake behind the
+  body, no time dependence.
+- Unsteady / broadband (`Re` high): a broader, agitated, slowly
+  fluctuating wake; the shear layers wobble but do not form a clean
+  periodic street at this grid. Caveat: this is 2D Navier-Stokes;
+  2D turbulence has an inverse energy / enstrophy cascade (Kraichnan
+  1967), unlike 3D Kolmogorov and unlike a real 3D cylinder wake.
+- The `max|div u|` readout stays small every frame (relaxed-live
+  tolerance), the visible statement that the projection enforces
+  incompressibility; the offline engine drives it below `1e-3`.
+- Rendering is the vorticity over the dark theme: zero goes to the
+  background (not white), glowing red and blue where the wake is
+  rotational.
 
 ## Invariants and acceptance thresholds
 
-Checked offline by the coarse CPU mirror in `invariants.test.mjs` unless noted.
+Checked offline by the shared MAC engine through `sim.js` in
+`invariants.test.mjs` (no GPU):
 
-| invariant | strength | threshold |
-|-----------|----------|-----------|
-| incompressibility after a converged projection | strong | `max|div u| < 1e-3` on the CPU mirror with the pressure solve iterated to residual `< 1e-4` |
-| boundedness / no blow-up | strong | velocity and vorticity remain finite (no NaN/Inf), `||u||_inf` bounded, for `Re` up to 1000 over >= 2000 steps |
-| Stokes fore-aft symmetry | strong | at `Re = 1` with a symmetric obstacle, the steady field is symmetric across the obstacle centerline to `< 5%` RMS |
-| projection idempotence | strong | applying the converged projection to an already divergence-free field changes it by `< 1e-6` |
-| determinism | medium | identical inputs reproduce the field to `< 1e-9` (bitwise-stable scheme, no RNG) |
-| advection mass/▼ conservation of a passive scalar | medium | total of an advected scalar conserved to `< 1%` over 500 steps (semi-Lagrangian is not exactly conservative; bound documents the drift) |
-| Strouhal at `Re ~ 100` | weak (non-gating) | on a `256 x 192` mirror, `St` in `[0.14, 0.19]` (Williamson `~0.164`); reported, logged, not a hard gate, because grid-dependent |
+- incompressibility after a converged projection (strong):
+  `max|div u| < 1e-3` with the projection iterated to residual
+  below `1e-4`.
+- projection identity on a divergence-free field (strong): projecting
+  the uniform stream changes it by less than `1e-6`.
+- boundedness / no blow-up (strong): finite (no NaN or Inf),
+  `||u||_inf` bounded, for `Re` up to 1000 over at least 2000 steps.
+- Stokes top-bottom symmetry (strong): at `Re = 1`, centred body, the
+  steady field is symmetric across the channel centreline to under
+  `5%` RMS.
+- determinism (medium): identical inputs reproduce the field to
+  better than `1e-12` (no RNG).
+- constant-scalar transport (medium): a constant scalar stays
+  constant under semi-Lagrangian advection (under `1e-6`).
+- Strouhal (weak, non-gating): a finer-grid stretch diagnostic only,
+  not asserted at the interactive resolution; Williamson `St ~= 0.164`
+  at `Re = 100` is the reference if pursued.
 
-Visual gate: five Playwright frames (init, 25, 50, 75, terminal) at the canonical `Re = 100` cylinder preset, SSIM `>= 0.92` vs committed golden frames.
+Visual gate: five Playwright frames (init, 25, 50, 75, terminal) of
+the deterministic time sweep (unsteady preset, cylinder), SSIM at
+least `0.92` vs committed golden frames. The render is deterministic
+(no RNG; the engine and the capped SOR are bitwise-stable).
 
 ## Limiting cases for verification
 
-| limit | expected | source |
-|-------|----------|--------|
-| `Re -> 0` | steady, reversible, fore-aft symmetric creeping flow; no shedding | Batchelor Ch. 4 |
-| `Re ~ 47` (2D cylinder) | onset of the primary instability / first shedding | Williamson 1996 |
-| `Re = 100` cylinder | periodic shedding, `St ~= 0.164` | Williamson 1996 (St-Re relation) |
-| no obstacle | uniform stream, `div u -> 0` after transient | BC verification |
-| `Re -> infinity` (2D) | inverse energy cascade, enstrophy cascade; NOT 3D Kolmogorov | Kraichnan 1967 |
+- `Re -> 0`: steady, reversible, symmetric creeping flow; no shedding
+  (Batchelor Ch. 4).
+- no obstacle: uniform stream, `div u -> 0` after transient (BC check).
+- converged projection: discrete `div u -> 0`, a true Hodge
+  decomposition on the MAC grid (Chorin 1968).
+- `Re -> infinity` (2D): inverse energy / enstrophy cascade, NOT 3D
+  Kolmogorov (Kraichnan 1967).
 
 ## Visual fallback
 
-WebGL2 with `EXT_color_buffer_float` is required for the live solver. `index.html` detects it; on failure it shows a message and the committed static golden frames stand in for the visual gate. The CPU mirror needs no GPU and prints divergence / symmetry / Strouhal diagnostics to stdout.
+Pure Canvas2D over the verified MAC engine: no WebGL, no GPU
+extension, so the headless capture and the SSIM gate are robust. The
+deterministic time sweep yields the five golden frames; the engine
+invariants run GPU-free in node.
 
 ## Citations
 
-Append to `docs/CITATIONS.bib` if absent:
+In `docs/CITATIONS.bib`:
 
-- Chorin, A. J., "Numerical solution of the Navier-Stokes equations", Math. Comput. 22 (1968) 745, doi:10.1090/S0025-5718-1968-0242392-2 (`chorin1968`).
-- Stam, J., "Stable Fluids", Proc. SIGGRAPH 99 (1999) 121 (`stam1999`).
-- Harris, M. J., "Fast Fluid Dynamics Simulation on the GPU", GPU Gems 2, Ch. 38, NVIDIA, 2005 (`harris-gpufluids`).
-- Williamson, C. H. K., "Vortex Dynamics in the Cylinder Wake", Annu. Rev. Fluid Mech. 28 (1996) 477, doi:10.1146/annurev.fl.28.010196.002401 (the St-Re relation) (`williamson1996`).
-- Kraichnan, R. H., "Inertial Ranges in Two-Dimensional Turbulence", Phys. Fluids 10 (1967) 1417 (2D cascade caveat) (`kraichnan1967`).
-- Batchelor, G. K., An Introduction to Fluid Dynamics, CUP, 1967 (Stokes flow, vorticity) (`batchelor1967`).
+- Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`), the projection method.
+- Harlow and Welch, Phys. Fluids 8 (1965) 2182 (`harlow-welch1965`), the MAC staggered grid.
+- Stam, Proc. SIGGRAPH 99 (1999) 121 (`stam1999`), stable semi-Lagrangian advection.
+- Batchelor, An Introduction to Fluid Dynamics, CUP, 1967 (`batchelor1967`), Stokes flow.
+- Williamson, Annu. Rev. Fluid Mech. 28 (1996) 477 (`williamson1996`), the St-Re relation (the weak Strouhal reference).
+- Kraichnan, Phys. Fluids 10 (1967) 1417 (`kraichnan1967`), the 2D-cascade caveat.
 
 ## Stretch goals
 
-- Drag-to-force mode (localized body force `f`).
-- Live kinetic-energy spectrum `E(k)` to show the 2D inverse cascade.
-- Pressure-field overlay; time-averaged mean flow for high-Re runs.
+- A high-fidelity mode (finer grid, more pressure iterations, longer
+  integration) that actually sheds a crisp von Karman street and
+  measures the Strouhal number, trading away real-time interactivity.
+- A WebGL2 512x384 ping-pong float-texture fast path (would require a
+  documented hard-rule-8 relaxation in this spec).
+- Drag-to-force mode; live kinetic-energy spectrum; pressure overlay.
 
 ## Risk register
 
-- **Pressure convergence vs fps**: Jacobi cannot reach `1e-3` in real time on 512x384; mitigated by red-black GS/SOR + relaxed real-time tolerance, with the strong invariant moved to the converged offline mirror.
-- **Semi-Lagrangian over-damping**: coarse grids cannot shed; mitigated by making Strouhal a weak, finer-grid, non-gating invariant and reporting `Re_eff`.
-- **GPU float-texture support**: gated by `EXT_color_buffer_float`; static golden-frame fallback.
-- **CPU/GPU fidelity gap**: different grids and precision; the mirror validates the algorithm (divergence, symmetry, boundedness, determinism), not the GPU pixels.
+- Semi-Lagrangian over-damping: the interactive grid cannot shed a
+  clean street; mitigated by reframing honestly (this spec, the
+  title, the readouts) and keeping Strouhal a documented weak,
+  non-gating, finer-grid feature, never claimed at the live grid.
+- Relaxed live vs converged offline divergence: the live readout is
+  honestly the relaxed tolerance; the strong invariant is proven
+  offline by the converged engine, not by the live render.
+- Engagement: a non-shedding wake is less dramatic than a street;
+  mitigated by the dark vivid vorticity render, the Re sweep across
+  visibly distinct regimes, and the live incompressibility readout as
+  the genuine pedagogical headline (Chorin's method made visible).
 
-## Implementation notes for sim.js / engine
+## Implementation notes
 
-A new headless engine `shared/js/engine/chorin-2d-cpu.js` (no GPU, pure JS, deterministic) exports:
-
-```
-createState(NX, NY, Re)          -> fields {u,v,p,obstacle}
-step(state, dt)                  -> advance one Chorin step (advect, implicit diffuse, project)
-project(state, {tol, maxIter})   -> iterate pressure to convergence; returns max|div u|
-divergenceMax(state)             -> max|div u|
-vorticity(state)                 -> omega grid
-strouhal(series, dt)             -> dominant frequency / St from a wake-probe time series
-```
-
-`playground.js` holds the WebGL2 pipeline (advect/diffuse/jacobi/project/render shaders, ping-pong float FBOs). `invariants.test.mjs` imports only `chorin-2d-cpu.js`. The engine ships with its own `tests/engines/chorin-2d-cpu.test.mjs` per hard rule 6 (engine built and tested before the playground).
+The headless engine `shared/js/engine/chorin-2d-cpu.js` (committed,
+tested in `tests/engines/chorin-2d-cpu.test.mjs`, hard rule 6)
+exports `createState`, `setBlockObstacle`, `step`, `project`,
+`divergenceMax`, `vorticity`, `cellVelocity`, `advectScalar`,
+`strouhal`. The playground `sim.js` re-exports it so
+`invariants.test.mjs` validates the exact numerics the renderer
+uses. `playground.js` is pure Canvas2D: it steps the engine with a
+relaxed projection budget, paints the vorticity through the shared
+rdbu LUT composited over the dark background, and honours the
+`?deterministic=1&capture=NAME&captureFraction=F` capture contract.

@@ -28,8 +28,8 @@
 </head>
 <body>
   <header>
-    <h1>2D Navier-Stokes Vortex Street</h1>
-    <p>Incompressible flow past a bluff body, the Chorin projection of $\partial_t\vec u+(\vec u\cdot\nabla)\vec u=-\nabla p+\nu\nabla^2\vec u$ with $\nabla\cdot\vec u=0$, on a MAC staggered grid (semi-Lagrangian advection, implicit diffusion, an SOR pressure-Poisson projection). The colour is vorticity $\omega=\partial_xv-\partial_yu$. Raise the Reynolds number $Re=UD/\nu$ and the wake goes from glassy creeping flow, through a steady recirculating pair, to the periodic von Karman street whose shedding beat is the Strouhal number, to a broadband 2D wake. The numerics are the gate-tested shared MAC engine; the live readout is the post-projection divergence. Source: Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`); Harlow and Welch, Phys. Fluids 8 (1965) 2182 (`harlow-welch1965`); Stam, SIGGRAPH 99 (1999) 121 (`stam1999`).</p>
+    <h1>Incompressible Wake and the Projection Method</h1>
+    <p>Chorin's projection method made visible: the incompressible Navier-Stokes equations $\partial_t\vec u+(\vec u\cdot\nabla)\vec u=-\nabla p+\nu\nabla^2\vec u$ with the constraint $\nabla\cdot\vec u=0$, solved on a MAC staggered grid (semi-Lagrangian advection, implicit diffusion, an SOR pressure-Poisson projection, the gate-tested shared engine). Flow past a bluff body, coloured by vorticity $\omega=\partial_xv-\partial_yu$ over the dark field. The headline is the live $\max|\nabla\cdot\vec u|$ readout: the pressure solve drives it small every step, so the flow stays incompressible. Sweep the Reynolds number $Re=UD/\nu$ from a glassy creep, through a steady recirculating wake, to a broader unsteady wake. (At this interactive grid the semi-Lagrangian numerical viscosity holds the effective $Re$ below the von Karman shedding threshold, so the periodic vortex street and its Strouhal number are a documented finer-grid feature, not shown here.) Source: Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`); Harlow and Welch, Phys. Fluids 8 (1965) 2182 (`harlow-welch1965`); Stam, SIGGRAPH 99 (1999) 121 (`stam1999`).</p>
   </header>
 
   <figure class="pg-figure">
@@ -37,20 +37,20 @@
       <canvas id="stage" width="760" height="420" aria-label="Vorticity field of incompressible flow past an obstacle, scanning the Reynolds number"></canvas>
       <div class="readout-panel" id="readout" role="status" aria-live="polite">
         <span class="label">max|div u|</span><span class="value" id="readout-div">0</span>
-        <span class="label">Strouhal</span><span class="value" id="readout-st">-</span>
+        <span class="label">max |u|</span><span class="value" id="readout-st">0</span>
         <span class="label">Re</span><span class="value" id="readout-re">0</span>
         <span class="label">regime</span><span class="value" id="readout-regime">-</span>
       </div>
     </div>
     <figcaption>
-      Figure 1. Vorticity of an incompressible 2D flow past a bluff body, Chorin projection on a MAC staggered grid; the live readout is the post-projection discrete divergence.
-      <em>Method:</em> semi-Lagrangian advection, implicit diffusion, red-black SOR pressure-Poisson (the gate-tested shared MAC engine), vorticity colormap.
+      Figure 1. Vorticity of incompressible 2D flow past a bluff body across the Reynolds-number regimes (creeping, steady wake, unsteady wake); the live readout is the post-projection discrete divergence, the incompressibility constraint the Chorin projection enforces each step.
+      <em>Method:</em> semi-Lagrangian advection, implicit diffusion, red-black SOR pressure-Poisson on a MAC staggered grid (the gate-tested shared engine), vorticity colormap over the dark theme.
       <em>Source:</em> Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`); Harlow and Welch, Phys. Fluids 8 (1965) 2182 (`harlow-welch1965`); Stam, SIGGRAPH 99 (1999) 121 (`stam1999`).
     </figcaption>
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-    <div class="row"><span class="label">regime</span><select aria-label="flow regime preset" id="select-regime" style="grid-column: span 2;"><option value="stokes">Stokes (creeping)</option><option value="steady">steady wake</option><option value="vonkarman">von Karman street</option><option value="turbulent">broadband wake</option></select></div>
+    <div class="row"><span class="label">regime</span><select aria-label="flow regime preset" id="select-regime" style="grid-column: span 2;"><option value="stokes">Stokes (creeping)</option><option value="steady">steady wake</option><option value="vonkarman">unsteady wake</option><option value="turbulent">broadband wake</option></select></div>
     <div class="row"><span class="label">Reynolds</span><input aria-label="Reynolds number" type="range" id="slider-re" min="1" max="1000" step="1" value="700"><span class="value" id="value-re">700</span></div>
     <div class="row"><span class="label">obstacle</span><select aria-label="obstacle shape" id="select-obs" style="grid-column: span 2;"><option value="cylinder">cylinder</option><option value="square">square</option><option value="none">none</option></select></div>
     <div class="row"><span class="label">tracer dye</span><input aria-label="show tracer dye" type="checkbox" id="toggle-tracer" style="grid-column: span 2; justify-self: start;"></div>

@@ -39,8 +39,16 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (224)</h2>
+  <h2>Shipped (225)</h2>
   <section class="card-grid">
+
+    <article class="card">
+      <h2><a href="./playgrounds/bsc-y3s2/FIS3025-navier-stokes-2d-gpu-fullscreen/index.html">Incompressible Wake and the Projection Method</a></h2>
+      <p class="status">verified 2026-05-17</p>
+      <p class="description">A 2D incompressible flow (180 x 120 grid, normalized channel) past a bluff obstacle. A uniform stream enters at the left, free-slip walls top and bottom, zero-gradient outflow on the right, no-slip on the obstacle. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1`, so `nu = 1/Re`) is user-tunable. Honest about the discretiza</p>
+      
+    </article>
+  
 
     <article class="card">
       <h2><a href="./playgrounds/bsc-y3s1/FIS3019-fabry-perot-spectrometer/index.html">Fabry-Perot Etalon Spectrometer</a></h2>
@@ -1835,10 +1843,9 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (47)</h2>
+  <h2 class="drafts-heading">Draft (46)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
-    <li><span class="drafts-slug">navier-stokes-2d-gpu-fullscreen</span></li>
     <li><span class="drafts-slug">angular-momentum-coupling-3d</span></li>
     <li><span class="drafts-slug">aperture-synthesis-uv-plane</span></li>
     <li><span class="drafts-slug">atwood-machine-constrained</span></li>

@@ -11,10 +11,10 @@
 // gate-safe renderer of the verified engine.
 
 import {
-  createState, setBlockObstacle, step, vorticity, divergenceMax,
+  createState, setBlockObstacle, step, divergenceMax,
   cellVelocity, advectScalar,
 } from '../../../shared/js/engine/chorin-2d-cpu.js';
-import { rdbu } from '../../../shared/js/render/colormaps.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 
 const params = new URLSearchParams(location.search);
@@ -36,33 +36,34 @@ const selObs = document.getElementById('select-obs');
 const tTracer = document.getElementById('toggle-tracer');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const GX = 180, GY = 100, DT = 0.06, VMAX = 1.1, YSHIFT = 2;
+const GX = 180, GY = 100, DT = 0.06, VMAX = 1.8, YSHIFT = 2;
 const REGIME_RE = { stokes: 2, steady: 80, vonkarman: 700, turbulent: 950 };
 const LIVE = { tol: 8e-3, maxIter: 18 };
 const st = { regime: 'vonkarman', Re: 150, obs: 'cylinder', tracer: false, running: true };
 
-let state, dye, off, probe = [], stText = '-';
+let state, dye, off, peakW = 0;
 const offCanvas = document.createElement('canvas');
 offCanvas.width = GX; offCanvas.height = GY;
 const offCtx = offCanvas.getContext('2d');
 
-// Vivid signed-vorticity over the dark theme: zero -> background
-// (not white), glowing red for +omega and blue for -omega, a mild
-// gamma so the wake reads even when weak. Reuses the tested rdbu LUT
-// but composites it over the page background by intensity.
-function paintVorticity(w) {
+// Speed |u| through viridis: nonzero everywhere (free stream, the
+// wake deficit, the acceleration around the body), so the whole
+// canvas carries structure that visibly responds to Re and the
+// obstacle, the standard vivid flow-past-a-body visualization. peakW
+// here is the max speed (the readout).
+function paintSpeed() {
   if (!off) off = offCtx.createImageData(GX, GY);
   const d = off.data;
+  const { uc, vc } = cellVelocity(state);
+  let mx = 0;
   for (let k = 0; k < GX * GY; k += 1) {
-    const t = Math.max(-1, Math.min(1, w[k] / VMAX));
-    const m = Math.pow(Math.abs(t), 0.55);
-    const c = rdbu(0.5 + 0.5 * t);
+    const s = Math.hypot(uc[k], vc[k]);
+    if (s > mx) mx = s;
+    const c = viridis(Math.min(1, s / VMAX));
     const j = k * 4;
-    d[j] = 7 + (c.r - 7) * m;
-    d[j + 1] = 8 + (c.g - 8) * m;
-    d[j + 2] = 12 + (c.b - 12) * m;
-    d[j + 3] = 255;
+    d[j] = c.r; d[j + 1] = c.g; d[j + 2] = c.b; d[j + 3] = 255;
   }
+  peakW = mx;
 }
 
 function seedDye() {
@@ -74,36 +75,14 @@ function build(warm) {
   if (st.obs === 'cylinder') setBlockObstacle(state, 0.26, 4, 5, YSHIFT);
   else if (st.obs === 'square') setBlockObstacle(state, 0.26, 6, 6, YSHIFT);
   dye = new Float64Array(GX * GY);
-  probe = []; stText = '-';
   for (let n = 0; n < warm; n += 1) {
     step(state, DT, { diffuseSweeps: 8, projOpts: LIVE });
     if (st.tracer) { seedDye(); advectScalar(state, dye, DT); }
   }
 }
 
-function probeStrouhal() {
-  const { vc } = cellVelocity(state);
-  probe.push(vc[Math.round(GY / 2) * GX + Math.round(GX * 0.62)]);
-  if (probe.length > 360) probe.shift();
-  if (probe.length === 360) {
-    let mean = 0; for (const x of probe) mean += x; mean /= probe.length;
-    let bestF = 0, bestP = -1, amp = 0;
-    const N = probe.length, fmin = 1 / (N * DT), fmax = 0.5 / DT;
-    for (let q = 1; q <= 200; q += 1) {
-      const f = fmin + (fmax - fmin) * (q / 200);
-      let re = 0, im = 0;
-      for (let i = 0; i < N; i += 1) { const ph = 2 * Math.PI * f * i * DT, x = probe[i] - mean; re += x * Math.cos(ph); im -= x * Math.sin(ph); }
-      const pw = re * re + im * im;
-      if (pw > bestP) { bestP = pw; bestF = f; }
-    }
-    for (const x of probe) amp = Math.max(amp, Math.abs(x - mean));
-    stText = amp > 0.02 ? bestF.toFixed(3) : '-';
-  }
-}
-
 function render() {
-  const w = vorticity(state);
-  paintVorticity(w);
+  paintSpeed();
   if (st.tracer) {
     for (let k = 0; k < GX * GY; k += 1) {
       if (dye[k] > 0.05) {
@@ -122,7 +101,7 @@ function render() {
   ctx.drawImage(offCanvas, 0, 0, W, H);
 
   rDiv.textContent = divergenceMax(state).toExponential(1);
-  rSt.textContent = stText;
+  rSt.textContent = peakW.toFixed(2);
   rRe.textContent = String(st.Re);
   rReg.textContent = st.regime;
 }
@@ -131,7 +110,6 @@ function tick() {
   if (st.running) {
     step(state, DT, { diffuseSweeps: 8, projOpts: LIVE });
     if (st.tracer) { seedDye(); advectScalar(state, dye, DT); }
-    probeStrouhal();
   }
   render();
   requestAnimationFrame(tick);

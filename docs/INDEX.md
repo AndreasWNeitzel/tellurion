@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Incompressible Wake and the Projection Method](../playgrounds/bsc-y3s2/FIS3025-navier-stokes-2d-gpu-fullscreen/index.html)** &nbsp; (verified, verified 2026-05-17T20:13:17Z)
+  A 2D incompressible flow (180 x 120 grid, normalized channel) past a bluff obstacle. A uniform stream enters at the left, free-slip walls top and bottom, zero-gradient outflow on the right, no-slip on the obstacle. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1`, so `nu = 1/Re`) is user-tunable. Honest about the discretiza
+
 - **[Fabry-Perot Etalon Spectrometer](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-spectrometer/index.html)** &nbsp; (verified, verified 2026-05-17T13:22:44Z)
   Two plane mirrors of reflectance `R`, spacing `d`, illuminated by the sodium doublet. Normal incidence, `n = 1`.
 
@@ -673,9 +676,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
-
-- **[2D Navier-Stokes Vortex Street](../playgrounds/bsc-y3s2/FIS3025-navier-stokes-2d-gpu-fullscreen/index.html)** &nbsp; (draft)
-  A 2D incompressible flow through a rectangular channel (512 x 384 cells, aspect 4:3, normalized to [0,1] x [0,0.75]) past a bluff obstacle. A uniform stream enters at the left; the obstacle sheds vorticity into a wake. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1` in the nondimensionalization, so `nu = 1/Re`) is user-tun
 
 - **[Adding Angular Momenta - The Vector Model](../playgrounds/bsc-y3s1/FIS3003-angular-momentum-coupling-3d/index.html)** &nbsp; (verified)
   Two angular momenta of magnitudes j1 and j2 are added; the total J is observed in the vector model and the basis change is read off the Clebsch-Gordan table.
