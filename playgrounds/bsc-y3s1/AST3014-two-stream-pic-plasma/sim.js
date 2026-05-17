@@ -172,6 +172,54 @@ export function fieldEnergy(state) {
   return W;
 }
 
+// Cold two-stream dispersion (two equal beams at +/- v0, plasma
+// frequency wp). With a = k v0 the unstable root is
+//   omega^2 = [ (2 a^2 + wp^2) - wp sqrt(8 a^2 + wp^2) ] / 2 ,
+// and the growth rate is gamma = sqrt(-omega^2) when that is
+// negative (unstable for a < wp). Maximised over a at a^2 = 3 wp^2/8
+// where gamma = wp / (2 sqrt 2) (Krall and Trivelpiece 1973).
+export function twoStreamGrowth(k, v0, wp = 1) {
+  const a2 = (k * v0) ** 2;
+  const X = (2 * a2 + wp * wp - wp * Math.sqrt(8 * a2 + wp * wp)) / 2;
+  return X < 0 ? Math.sqrt(-X) : 0;
+}
+export function twoStreamMaxGrowth(wp = 1) { return wp / (2 * Math.SQRT2); }
+
+// |rho_hat[k]| for k = 1..K (the spectrogram input).
+export function modeAmplitudes(state, K = 8) {
+  const rho = depositCharge(state.x, state.w);
+  const out = new Float64Array(K);
+  for (let k = 1; k <= K; k += 1) {
+    let re = 0, im = 0;
+    for (let n = 0; n < NGRID; n += 1) {
+      const phase = -2 * Math.PI * k * n / NGRID;
+      re += rho[n] * Math.cos(phase);
+      im += rho[n] * Math.sin(phase);
+    }
+    out[k - 1] = Math.sqrt(re * re + im * im);
+  }
+  return out;
+}
+
+// Least-squares growth rate of mode 1 over a fixed linear window.
+export function measuredGrowthRate(v0, { dt = 0.05, t0 = 3, t1 = 6, seed = 7 } = {}) {
+  const s = createTwoStream({ v0, T: 0.01, seed });
+  const ts = [], ls = [];
+  const nMax = Math.round(t1 / dt);
+  for (let n = 0; n <= nMax; n += 1) {
+    if (n > 0) stepPIC(s, dt);
+    const t = n * dt;
+    if (t >= t0 && t <= t1) { ts.push(t); ls.push(Math.log(Math.max(1e-9, modeOneAmplitude(s)))); }
+  }
+  const m = ts.length;
+  let mt = 0, ml = 0;
+  for (let i = 0; i < m; i += 1) { mt += ts[i]; ml += ls[i]; }
+  mt /= m; ml /= m;
+  let num = 0, den = 0;
+  for (let i = 0; i < m; i += 1) { num += (ts[i] - mt) * (ls[i] - ml); den += (ts[i] - mt) ** 2; }
+  return num / den;
+}
+
 // Mode 1 amplitude: log|rho_hat[1]| for tracking growth rate.
 export function modeOneAmplitude(state) {
   const rho = depositCharge(state.x, state.w);

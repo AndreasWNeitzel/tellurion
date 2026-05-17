@@ -377,7 +377,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] plasma-waves-dispersion : advanced canvas2d. log w-k modes (O/X/
   Langmuir/ion-acoustic/Alfven), cutoffs/resonances, pulse decompose.
   Inv: O-mode w=wp k=0; X stop-band; wp formula.
-- [ ] two-stream-instability-pic : advanced canvas2d. UPGRADE existing
+- [x] two-stream-instability-pic : advanced canvas2d. UPGRADE existing
   two-stream-instability-1d-pic: add E(t) spectrogram, g=wp/2sqrt2
   mark, phase-space vortex colour trails.
 

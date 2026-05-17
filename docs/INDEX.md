@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Two-Stream Instability (1D PIC)](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/index.html)** &nbsp; (verified, verified 2026-05-17T23:46:50Z)
+  Two counter-streaming electron beams at +/- v_0 against a uniform neutralizing ion background. Small density perturbations grow exponentially at the linear rate omega_p / (2 sqrt 2). The beams eventually form phase-space vortices and saturate.
+
 - **[Plasma-Wave Dispersion](../playgrounds/bsc-y3s1/AST3014-plasma-waves-dispersion/index.html)** &nbsp; (verified, verified 2026-05-17T23:35:16Z)
   A uniform plasma supports a family of waves whose frequency depends on wavenumber, the dispersion relation. The electron plasma frequency `omega_p` and the electron cyclotron frequency `omega_c` set the scales. Electromagnetic waves split into the ordinary (O) and extraordinary (X) modes; electrostatic oscillations are the Langmuir (electron) and ion-acousti
 
@@ -562,9 +565,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Particle-Mesh Self-Gravitating 2D Disk](../playgrounds/bsc-y3s1/AST3015-particle-mesh-2d-disk/index.html)** &nbsp; (verified, verified 2026-05-13T17:40:41Z)
   A flat 2D disc of 1500 self-gravitating particles in an exponential surface-density profile. Gravity solved via particle-mesh on a 32 x 32 periodic grid using cloud-in-cell (CIC) deposit and interpolation.
-
-- **[Two-Stream Instability (1D PIC)](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/index.html)** &nbsp; (verified, verified 2026-05-13T17:35:12Z)
-  Two counter-streaming electron beams at +/- v_0 against a uniform neutralizing ion background. Small density perturbations grow exponentially at the linear rate omega_p / (2 sqrt 2). The beams eventually form phase-space vortices and saturate.
 
 - **[Mean-Field VI on a Banana](../playgrounds/msc-y1/MAA-DM-mean-field-vi-on-banana/index.html)** &nbsp; (verified, verified 2026-05-13T17:30:41Z)
   Fit a mean-field Gaussian q(x, y) = N(mu_x, sigma_x^2) * N(mu_y, sigma_y^2) to a Rosenbrock-style banana target. The banana is a long curved valley; the mean-field Gaussian is axis-aligned; this gap is the canonical failure mode of variational inference.
