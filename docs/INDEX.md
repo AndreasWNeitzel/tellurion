@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The 2D Ising Phase Transition](../playgrounds/bsc-y3s1/FIS3008-ising-2d-gpu-phase-transition/index.html)** &nbsp; (verified, verified 2026-05-17T08:28:50Z)
+  An L x L periodic square lattice of spins `s_i = +-1`, energy `H = -J sum_<ij> s_i s_j` (J = 1, zero field). The control is the temperature `T = kT/J`.
+
 - **[Quantum Gas Statistics Visualizer](../playgrounds/bsc-y3s1/FIS3008-quantum-gas-statistics-visualizer/index.html)** &nbsp; (verified, verified 2026-05-17T08:10:11Z)
   A non-interacting gas of N indistinguishable particles in a 3D box, density of states `g(eps) = C sqrt(eps)`. Temperature `tau = kT` is the control; the chemical potential `mu(tau)` is whatever keeps the particle number fixed.
 

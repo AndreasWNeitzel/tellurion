@@ -227,9 +227,15 @@ docs/NEEDS-ATTENTION.md, move on.
   + Sommerfeld mu; BE mu->0 at Tc + condensate fraction; classical
   limit; closed-form MB mu and 3kT/2; N conservation 1%; BE>MB>FD
   ordering. probe pass (tau 2.09, stat 2.21); visual 5/5 x3.
-- [ ] ising-2d-gpu-phase-transition : hero webgl2. 512^2 Metropolis
-  checkerboard, domains, M(T), beta~1/8 log-log, chi peak. Inv: Tc
-  0.5% Onsager; M to +-1 T to 0; critical slowing.
+- [x] ising-2d-gpu-phase-transition : hero canvas2d (webgl2 ->
+  144^2 canvas2d per stack rule). NEW shared engine
+  shared/js/engine/lattice-mc.js (checkerboard Metropolis, Onsager
+  helpers) + tests/engines/lattice-mc.test.mjs 9/9. Live lattice +
+  Onsager m(T) curve + measured trail + chi + speed bar; quench on
+  control change. Playground inv 6/6: Tc 0.5% + exact; M->+-1 T->0,
+  E/spin->-2J; hot disorder; chi peak at Tc; |M| vs Onsager; beta=
+  1/8. probe pass (T 10.73, speed 0.96, init 10.41); visual 5/5 x3.
+  Bib: onsager1944, newman-barkema added.
 - [ ] renormalization-group-flow-1d : advanced canvas2d. (J,h) RG flow
   arrows, fixed points, separatrix, trace trajectory. Inv: 1D critical
   manifold exact; Tc fixed point 1%.
