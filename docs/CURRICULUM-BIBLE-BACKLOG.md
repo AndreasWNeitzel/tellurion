@@ -350,9 +350,7 @@ docs/NEEDS-ATTENTION.md, move on.
   composition/inverse closure; canonical!=symmetry (squeeze keeps
   {,}=1 but changes H); shoelace exact. probe pass (par 6.39, E
   11.42, map 7.66); visual 5/5 x3.
-- [ ] kam-theory-poincare-section : advanced canvas2d. Chirikov standard
-  map, tori break, Kc~0.97 golden. Inv: K=0 straight; golden width to
-  0 at Kc; det J=1.
+- [x] kam-theory-poincare-section : advanced canvas2d (FIS2021 bsc-y2s2). Chirikov standard map Poincare section, golden torus, K-sweep through Kc. Inv 9/9: det J=1; K=0 conserved+straight; invertible; golden bounded<Kc diffuses>Kc; (pi,0) elliptic 0<K<4; diffusion blocked sub-Kc; determinism. probe pass (K 11.16, orb 15.92, it 12.38); visual 5/5 x3.
 
 ## Section 12: Mecanica de Fluidos (3Y; Munson, White, Batchelor)
 

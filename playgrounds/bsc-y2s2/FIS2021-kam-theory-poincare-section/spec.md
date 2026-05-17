@@ -1,0 +1,98 @@
+---
+title: KAM Theory - The Standard Map
+slug: kam-theory-poincare-section
+status: verified
+audience: portfolio
+created: 2026-05-17
+hook: 'Crank K through 0.9716 and watch the last invariant curve, the golden torus, dissolve as the chaotic sea breaks across the cylinder.'
+one_paragraph: 'The Chirikov standard map p -> p + K sin theta, theta -> theta + p is the canonical model of the KAM transition. It is an exact area-preserving twist map (Jacobian determinant identically 1), so the Poincare section is a faithful Hamiltonian snapshot. At K = 0 the action p is conserved (horizontal tori); as K grows KAM tori break, rational ones first as island chains, and the last golden-mean torus is destroyed at Greene K_c ~ 0.9716, above which p diffuses globally. The scene iterates a seed grid of orbits, highlights the golden torus, and reports its width and the regime. The headless sim.js is gate-tested for det J = 1, K = 0 integrability, exact invertibility, the golden-torus bounded/diffusive transition near K_c, the (pi,0) elliptic island, the diffusion blockage below K_c and its large-K growth, and determinism.'
+tags: [mechanics, chaos, kam, poincare, live-readout]
+difficulty: 4
+tier: advanced
+hero_candidate: true
+renderer: canvas2d
+estimated_engagement_minutes: 6
+curriculum_year: 'L:F-2Y-2S'
+primary_uc: FIS2021
+share_state_keys: []
+---
+
+# KAM Theory - The Standard Map
+
+## Physical setup
+
+The standard map on the (theta, p) torus, stochasticity parameter
+`K`, seeded from a grid of orbits plus the golden-mean torus.
+
+## Governing equations
+
+`p' = p + K sin theta (mod 2 pi)`, `theta' = theta + p' (mod 2 pi)`.
+Jacobian `det = (1 + K cos theta) - K cos theta = 1`. Inverse
+`theta = theta' - p'`, `p = p' - K sin theta`. Greene critical
+`K_c ~ 0.9716` for the golden torus. Quasilinear diffusion
+`D ~ K^2/2` (with Rechester-White Bessel corrections).
+
+## Numerical method
+
+Direct iteration of the exact map; the Poincare section is the
+plotted point cloud; the golden-torus orbit `p0 = 2 pi phi` is
+overlaid. Deterministic (fixed seed grid, no RNG). Reference:
+Lichtenberg and Lieberman, Regular and Chaotic Dynamics (2nd ed.),
+Ch. 4 (`lichtenberg-lieberman`); Goldstein, Poole and Safko,
+Classical Mechanics (3rd ed.), Ch. 11 (`goldstein-mech`).
+
+## Controls
+
+- stochasticity K: the order-to-chaos knob.
+- orbits: number of seed tori.
+- iterations: points per orbit.
+- Reset.
+
+## Expected qualitative features
+
+- K = 0: perfectly horizontal lines (conserved p).
+- K small: gently wavy KAM curves with thin island chains.
+- K near K_c: the golden torus is the last clean curve; it breaks.
+- K > K_c: a connected chaotic sea, surviving islands embedded.
+
+## Invariants and acceptance thresholds
+
+- `det J = 1` for all `(theta, K)` (1e-12).
+- `K = 0`: `p` conserved, `theta` advances by `p`; spread `< 1e-9`.
+- The map is exactly invertible (1e-9).
+- Golden torus: `p`-spread small for `K < K_c`, `> 2 pi` (diffuses)
+  for `K > K_c`.
+- `(pi,0)` is an elliptic island for `0 < K < 4` (`|tr| < 2`),
+  hyperbolic beyond.
+- Diffusion blocked below `K_c`; grows at large `K`; quasilinear
+  `D = K^2/2` exactly.
+- Deterministic from the seed.
+
+## Limiting cases for verification
+
+- `K -> 0`: integrable, straight lines.
+- `K -> K_c^-`: the golden torus is the last survivor.
+- `K >> K_c`: global stochastic diffusion of `p`.
+
+## Visual fallback
+
+Static frame: the Poincare section at the captured `K`.
+
+## Citations
+
+- Lichtenberg and Lieberman, Regular and Chaotic Dynamics (2nd
+  ed.), Ch. 4 (`lichtenberg-lieberman`).
+- Goldstein, Poole and Safko, Classical Mechanics (3rd ed.),
+  Ch. 11 (`goldstein-mech`).
+
+## Stretch goals
+
+- Greene's residue criterion computed live for the golden orbit.
+- The accelerator modes and anomalous (Levy) diffusion windows.
+
+## Risk register
+
+- Standard-map diffusion has strong Bessel-function corrections to
+  `K^2/2`; tests assert robust trends, not a fragile ratio.
+- The golden torus is approximated by `p0 = 2 pi phi`; the true
+  noble curve needs a continued-fraction seed (out of scope).

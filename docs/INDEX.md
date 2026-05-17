@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[KAM Theory - The Standard Map](../playgrounds/bsc-y2s2/FIS2021-kam-theory-poincare-section/index.html)** &nbsp; (verified, verified 2026-05-17T11:21:55Z)
+  The standard map on the (theta, p) torus, stochasticity parameter `K`, seeded from a grid of orbits plus the golden-mean torus.
+
 - **[Canonical Transformations](../playgrounds/bsc-y2s2/FIS2021-canonical-transformation-visual/index.html)** &nbsp; (verified, verified 2026-05-17T11:12:22Z)
   A phase blob (the harmonic energy ellipse plus an interior lattice) mapped by a chosen transformation; energy `E` sets the blob size, a parameter drives the map.
 
