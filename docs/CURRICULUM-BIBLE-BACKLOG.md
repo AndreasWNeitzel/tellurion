@@ -73,7 +73,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] biot-savart-3d-explorer : advanced canvas2d 3D. Place wires, B
   glyphs viridis, presets wire/Helmholtz/solenoid/loop plus axial
   inset. Inv: divB<1e-4; Helmholtz dB/dz=0; solenoid mu0 n I 1%.
-- [ ] magnetic-hysteresis-bh-curve : medium canvas2d. BH loop traced,
+- [x] magnetic-hysteresis-bh-curve : medium canvas2d. BH loop traced,
   domain schematic, loop-area=loss. Jiles-Atherton. Inv: M=Mr at H=0;
   M=0 at |H|>Hc; area prop dissipation.
 - [ ] multipole-expansion-3d : medium canvas2d. Exact vs multipole vs
