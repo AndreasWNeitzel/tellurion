@@ -41,7 +41,7 @@
       <span class="label">theta</span><span class="value" id="readout-th">0</span>
     </div>
     <figcaption>
-      Figure 1. Gaussian-beam envelope through a thin lens by the ABCD law; the focused waist follows lambda f / (pi w0).
+      Figure 1. Gaussian-beam envelope through a thin lens by the ABCD law, with the transverse spot shown at the input waist and at the focus; the focused waist follows lambda f / (pi w0). Drag the object or the lens.
       <em>Method:</em> complex q-parameter propagated by ray-transfer matrices (free space, thin lens).
       <em>Source:</em> Siegman, Lasers (1986), Ch. 17 and 19 (`siegman1986`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).
     </figcaption>
@@ -50,6 +50,7 @@
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">input waist w0 (um)</span><input aria-label="input waist w0 micrometres" type="range" id="slider-w0" min="40" max="600" step="5" value="200"><span class="value" id="value-w0">200</span></div>
     <div class="row"><span class="label">focal length f (mm)</span><input aria-label="lens focal length mm" type="range" id="slider-f" min="20" max="400" step="5" value="120"><span class="value" id="value-f">120</span></div>
+    <div class="row"><span class="label">object z0 (mm)</span><input aria-label="input waist (object) position mm" type="range" id="slider-z0" min="10" max="240" step="5" value="60"><span class="value" id="value-z0">60</span></div>
     <div class="row"><span class="label">lens position (mm)</span><input aria-label="lens position mm" type="range" id="slider-zl" min="50" max="450" step="5" value="250"><span class="value" id="value-zl">250</span></div>
     <div class="row"><span class="label">wavelength (nm)</span><input aria-label="wavelength nm" type="range" id="slider-lam" min="400" max="1100" step="10" value="1064"><span class="value" id="value-lam">1064</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>

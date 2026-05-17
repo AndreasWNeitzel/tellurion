@@ -46,11 +46,18 @@ no RNG. Reference: Siegman, Lasers (1986), Ch. 17 and 19
 
 - input waist w0, wavelength: set the launched beam.
 - focal length f: lens strength.
-- lens position: drag the lens along the bench.
+- object z0: the input-waist (object) position; draggable, so it is
+  not static at the bench start.
+- lens position: also draggable. Dragging grabs whichever of the
+  object or the lens is nearer the cursor.
 - Reset.
 
 ## Expected qualitative features
 
+- Two transverse intensity spots (object vs focus) on one shared
+  scale, with a tighter/wider factor, so the focusing is shown, not
+  just the envelope: a short `f` collapses the focused spot well
+  below the object spot, a long `f` leaves it wider.
 - No lens region: the envelope follows the hyperbolic `w(z)`.
 - A short-`f` lens makes a tight focus close behind it; a long-`f`
   lens barely bends the beam.

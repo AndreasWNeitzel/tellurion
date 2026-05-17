@@ -25,24 +25,40 @@ const rTh = document.getElementById('readout-th');
 
 const sW0 = document.getElementById('slider-w0'), vW0 = document.getElementById('value-w0');
 const sF = document.getElementById('slider-f'), vF = document.getElementById('value-f');
+const sZ0 = document.getElementById('slider-z0'), vZ0 = document.getElementById('value-z0');
 const sZL = document.getElementById('slider-zl'), vZL = document.getElementById('value-zl');
 const sLam = document.getElementById('slider-lam'), vLam = document.getElementById('value-lam');
 const bR = document.getElementById('btn-reset');
 
 const ZTOT = 0.6;                                  // 600 mm bench
-const st = { w0_um: 200, f_mm: 120, zL_mm: 250, lam_nm: 1064 };
+const st = { w0_um: 200, f_mm: 120, z0_mm: 60, zL_mm: 250, lam_nm: 1064 };
 
 const AX0 = 40, AX1 = W - 28, AYC = H / 2, AYH = H / 2 - 92;
 const xOf = (z) => AX0 + (z / ZTOT) * (AX1 - AX0);
 
-function qAt(z, q0, zL, f) {
-  if (z <= zL) return abcdApply(M_free(z), q0);
-  return abcdApply(M_free(z - zL), abcdApply(M_lens(f), abcdApply(M_free(zL), q0)));
+// Beam waist (the object) sits at z0; q is propagated from there, so
+// before z0 the beam is converging into its waist and after the lens
+// it refocuses. Negative free-space lengths are valid ABCD.
+function qAt(z, q0, z0, zL, f) {
+  if (z <= zL) return abcdApply(M_free(z - z0), q0);
+  return abcdApply(M_free(z - zL), abcdApply(M_lens(f), abcdApply(M_free(zL - z0), q0)));
+}
+
+// A transverse Gaussian intensity spot (radial gradient), radius rPx.
+function drawSpot(cx, cy, rPx, col) {
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(2, rPx));
+  g.addColorStop(0, col); g.addColorStop(0.6, col.replace('1)', '0.5)')); g.addColorStop(1, col.replace('1)', '0)'));
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, rPx), 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = col.replace('1)', '0.7)'); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, rPx), 0, 2 * Math.PI); ctx.stroke();
 }
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const w0 = st.w0_um * 1e-6, f = st.f_mm * 1e-3, zL = st.zL_mm * 1e-3, lam = st.lam_nm * 1e-9;
+  const w0 = st.w0_um * 1e-6, f = st.f_mm * 1e-3, lam = st.lam_nm * 1e-9;
+  // the object is kept a little before the lens by the input
+  // handlers (not here: render stays pure)
+  const zL = st.zL_mm * 1e-3, z0 = st.z0_mm * 1e-3;
   const q0 = qAtWaist(w0, lam);
 
   const NP = 760;
@@ -50,7 +66,7 @@ function render() {
   let wmax = 1e-12;
   for (let i = 0; i <= NP; i += 1) {
     const z = (i / NP) * ZTOT;
-    const w = beamRadius(qAt(z, q0, zL, f), lam);
+    const w = beamRadius(qAt(z, q0, z0, zL, f), lam);
     ws[i] = w; if (w > wmax) wmax = w;
   }
   const yOf = (w) => (w / wmax) * AYH;
@@ -81,11 +97,19 @@ function render() {
   ctx.fillStyle = '#ffd166'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`lens f=${st.f_mm} mm`, lx, AYC - AYH - 14);
 
-  // markers: input waist and focused waist
-  const img = lensImage(w0, lam, f, zL);
+  // object (input waist) marker, draggable
+  const ox = xOf(z0);
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(ox, AYC - yOf(w0)); ctx.lineTo(ox, AYC + yOf(w0)); ctx.stroke();
+  ctx.fillStyle = '#5bc0eb'; ctx.beginPath();
+  ctx.moveTo(ox, AYC + AYH + 6); ctx.lineTo(ox - 6, AYC + AYH + 18); ctx.lineTo(ox + 6, AYC + AYH + 18);
+  ctx.closePath(); ctx.fill();
+  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('object (drag)', ox, AYC + AYH + 32);
+
+  // focused waist marker
+  const img = lensImage(w0, lam, f, zL - z0);
   const zFoc = zL + img.distance;
-  ctx.fillStyle = 'rgba(91,192,235,0.95)'; ctx.textAlign = 'left';
-  ctx.fillText('w0 in', xOf(0) + 4, AYC - yOf(w0) - 6);
   if (zFoc > 0 && zFoc < ZTOT) {
     const fx = xOf(zFoc);
     ctx.strokeStyle = 'rgba(91,192,235,0.6)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
@@ -94,11 +118,27 @@ function render() {
     ctx.fillText(`focus w0'=${(img.w0Out * 1e6).toFixed(1)} um`, fx, AYC + AYH + 22);
   }
 
+  // transverse intensity spots (top-right): the object spot vs the
+  // focused spot, on one shared scale, so the focusing is visible
+  const wFoc = img.w0Out;
+  const sScale = 30 / Math.max(w0, wFoc);
+  const sy = 52;
+  drawSpot(W - 190, sy, w0 * sScale, 'rgba(91,192,235,1)');
+  drawSpot(W - 70, sy, wFoc * sScale, 'rgba(255,209,102,1)');
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('object spot', W - 190, sy + 44);
+  ctx.fillText(`${(w0 * 2e6).toFixed(0)} um`, W - 190, sy + 58);
+  ctx.fillText('focused spot', W - 70, sy + 44);
+  ctx.fillText(`${(wFoc * 2e6).toFixed(0)} um`, W - 70, sy + 58);
+  const ratio = wFoc / Math.max(1e-12, w0);
+  ctx.fillStyle = ratio < 1 ? 'rgba(6,214,160,0.85)' : 'rgba(255,209,102,0.85)';
+  ctx.fillText(ratio < 1 ? `focused ${(1 / ratio).toFixed(1)}x tighter` : `${ratio.toFixed(1)}x wider`, W - 130, sy - 40);
+
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText('optical axis  z  (drag the lens)', (AX0 + AX1) / 2, H - 14);
+  ctx.fillText('optical axis  z  (drag the object or the lens)', (AX0 + AX1) / 2, H - 14);
 
   // beam size hitting the lens (just before it)
-  const wAtLens = beamRadius(abcdApply(M_free(zL), q0), lam);
+  const wAtLens = beamRadius(abcdApply(M_free(zL - z0), q0), lam);
   rZR.textContent = `${(rayleighRange(w0, lam) * 1e3).toFixed(1)} mm`;
   rW0o.textContent = `${(img.w0Out * 1e6).toFixed(2)} um`;
   rLaw.textContent = `${(lam * f / (Math.PI * wAtLens) * 1e6).toFixed(2)} um`;
@@ -108,27 +148,40 @@ function render() {
 
 function syncLabels() {
   vW0.textContent = String(st.w0_um); vF.textContent = String(st.f_mm);
-  vZL.textContent = String(st.zL_mm); vLam.textContent = String(st.lam_nm);
+  vZ0.textContent = String(st.z0_mm); vZL.textContent = String(st.zL_mm); vLam.textContent = String(st.lam_nm);
 }
-let dragging = false;
-function lensFromX(clientX) {
+let dragTarget = null;
+function dragFromX(clientX) {
   const r = canvas.getBoundingClientRect();
   const px = (clientX - r.left) * W / r.width;
-  const z = ((px - AX0) / (AX1 - AX0)) * ZTOT * 1e3;
-  st.zL_mm = Math.max(50, Math.min(450, Math.round(z / 5) * 5));
-  sZL.value = String(st.zL_mm); syncLabels(); render();
+  const zmm = ((px - AX0) / (AX1 - AX0)) * ZTOT * 1e3;
+  if (dragTarget === 'lens') {
+    st.zL_mm = Math.max(50, Math.min(450, Math.round(zmm / 5) * 5));
+    sZL.value = String(st.zL_mm);
+  } else {
+    st.z0_mm = Math.max(10, Math.min(240, Math.round(zmm / 5) * 5));
+    sZ0.value = String(st.z0_mm);
+  }
+  syncLabels(); render();
 }
-canvas.addEventListener('mousedown', (e) => { dragging = true; lensFromX(e.clientX); });
-canvas.addEventListener('mousemove', (e) => { if (dragging) lensFromX(e.clientX); });
-window.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('mousedown', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const px = (e.clientX - r.left) * W / r.width;
+  // grab whichever handle (object or lens) is nearer the cursor
+  dragTarget = Math.abs(px - xOf(st.zL_mm * 1e-3)) < Math.abs(px - xOf(st.z0_mm * 1e-3)) ? 'lens' : 'object';
+  dragFromX(e.clientX);
+});
+canvas.addEventListener('mousemove', (e) => { if (dragTarget) dragFromX(e.clientX); });
+window.addEventListener('mouseup', () => { dragTarget = null; });
 
 sW0.addEventListener('input', () => { st.w0_um = parseInt(sW0.value, 10); syncLabels(); render(); });
 sF.addEventListener('input', () => { st.f_mm = parseInt(sF.value, 10); syncLabels(); render(); });
+sZ0.addEventListener('input', () => { st.z0_mm = parseInt(sZ0.value, 10); syncLabels(); render(); });
 sZL.addEventListener('input', () => { st.zL_mm = parseInt(sZL.value, 10); syncLabels(); render(); });
 sLam.addEventListener('input', () => { st.lam_nm = parseInt(sLam.value, 10); syncLabels(); render(); });
 bR.addEventListener('click', () => {
-  st.w0_um = 200; st.f_mm = 120; st.zL_mm = 250; st.lam_nm = 1064;
-  sW0.value = '200'; sF.value = '120'; sZL.value = '250'; sLam.value = '1064'; syncLabels(); render();
+  st.w0_um = 200; st.f_mm = 120; st.z0_mm = 60; st.zL_mm = 250; st.lam_nm = 1064;
+  sW0.value = '200'; sF.value = '120'; sZ0.value = '60'; sZL.value = '250'; sLam.value = '1064'; syncLabels(); render();
 });
 
 function bootSync() {

@@ -6,21 +6,26 @@ optics is that all of that, the spot size and the wavefront
 curvature, is packed into one complex number, the beam parameter q.
 Every lens, mirror, or gap acts on q by the same 2x2 ray-transfer
 matrix that geometric optics uses for rays. This bench shows the
-beam envelope as q is propagated through a lens you can drag.
+beam envelope as q is propagated from a movable object (the input
+waist) through a lens, with the transverse spot drawn at the object
+and at the focus so you can watch it tighten or widen.
 
-What to look for: with no lens the beam just diverges along its
-natural hyperbola, set by the Rayleigh range in the readout. Add a
-short focal length and it snaps to a tight waist just behind the
-lens; the readout compares that focused waist to the textbook limit
-lambda f over pi w, and they agree. Lengthen the focal length and
-the focus moves away and fattens. Drag the lens along the axis and
-the whole downstream beam, focus position and size, follows. Change
-the wavelength and watch the diffraction limit scale with it.
+What to look for: the two disks at the top right are the beam cross
+section at the object and at the focus, on one shared scale. Add a
+short focal length and the focused disk collapses far below the
+object disk, the label flips to "focused Nx tighter", and the
+envelope snaps to a tight waist; the readout checks it against the
+textbook limit lambda f over pi w. Lengthen f and the focus fattens
+past the object ("Nx wider"). Drag the object marker along the axis
+and watch the focus track it (Gaussian imaging); drag the lens and
+the whole downstream beam follows. Change the wavelength and the
+diffraction limit scales with it.
 
 Controls: input waist and wavelength set the launched beam; focal
-length sets the lens strength; the lens-position slider (or dragging
-on the canvas) slides the lens along the bench; Reset restores the
-Nd:YAG defaults.
+length sets the lens strength; the object-z0 slider and the
+lens-position slider (or dragging the nearer of the two on the
+canvas) move them along the bench; Reset restores the Nd:YAG
+defaults.
 
 ## Reference
 
