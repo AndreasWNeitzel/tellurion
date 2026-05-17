@@ -629,6 +629,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Bouncing Shapes Concave Surface](../playgrounds/bsc-y1s1/FIS1013-bouncing-shapes-concave-surface/index.html)** &nbsp; (verified)
   Several point balls fall under uniform gravity into a concave bowl $y=f(x)$ chosen from a menu. Each contact reflects the velocity about the local tangent with a coefficient of restitution.
 
+- **[Brownian Motion and the Diffusion Law](../playgrounds/bsc-y2s1/FIS2014-brownian-motion-diffusion/index.html)** &nbsp; (verified)
+  A dilute suspension of Brownian particles released from a common origin in a two-dimensional fluid. Each particle performs an independent random walk driven by molecular collisions; one tracer is drawn large with its trail and the surrounding solvent agitation.
+
 - **[Central-Force Orbit Gallery](../playgrounds/bsc-y1s1/FIS1013-central-force-orbit-gallery/index.html)** &nbsp; (verified)
   A unit-mass particle moves in a central potential `V(r) = k r^p` (with `k` signed so the well is attractive for every `p`; `p = 0` is the logarithmic potential). The orbit is drawn about a luminous force centre with a fading trail; a secondary panel shows the effective potential and the energy.
 

@@ -97,9 +97,11 @@ docs/NEEDS-ATTENTION.md, move on.
   binodal/spinodal envelope. Inv 7/7: critical inflection 1e-9; Maxwell
   equal-area + equal end p 1e-4; binodal closure; spinodal nesting;
   mechanical stability; lever rule. probe pass; visual x3.
-- [ ] brownian-motion-diffusion : medium canvas2d. 2000 walkers, r2~t,
-  tracer buffeting, D=kT/6 pi eta r. Inv: r2/t to 4D 5%; Gaussian
-  KS<.05.
+- [x] brownian-motion-diffusion : advanced canvas2d. 1600-walker
+  diffusing cloud + buffeted tracer with trail; secondary MSD-vs-4Dt
+  and displacement-vs-Gaussian panels; Stokes-Einstein D from T/eta/r.
+  Inv 6/6: MSD=4Dt 5%; linearity; isotropy; KS<0.05; SE scaling;
+  determinism. probe pass; visual x3.
 
 ## Section 4: FIS2002 Ondas e Meios Continuos (2Y-1S; French, Crawford)
 
