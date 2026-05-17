@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest';
 import {
   potential, energyOf, turningPoints, action, period, omegaOfE,
   harmonicActionExact, energyFromAction, harmonicState, toCircle,
+  keplerRadialActionExact,
 } from './sim.js';
 
 const close = (a, b, t) => expect(Math.abs(a - b)).toBeLessThan(t);
@@ -95,6 +96,22 @@ describe('hamilton-jacobi-action-angle invariants', () => {
     const E1 = 0.5 * (p * p + w * w * q * q), J1 = E1 / w;
     expect(Math.abs((J1 - J0) / J0)).toBeLessThan(2e-2);  // J adiabatically invariant
     expect(Math.abs((E1 - E0) / E0)).toBeGreaterThan(0.4); // E is NOT (changes ~w)
+  });
+
+  it('Kepler radial action matches the closed form J_r = -L + 1/sqrt(-2E)', () => {
+    // bound orbits only: need 1 + 2 E L^2 > 0 (E above V_eff min)
+    for (const L of [0.3, 0.4, 0.5]) for (const E of [-0.8, -0.6, -0.4]) {
+      expect(1 + 2 * E * L * L).toBeGreaterThan(0);        // physically bound
+      const tp = turningPoints('kepler', E, L);
+      expect(tp).not.toBeNull();
+      const [rlo, rhi] = tp;
+      expect(rlo).toBeGreaterThan(0);
+      expect(rhi).toBeGreaterThan(rlo);
+      close(energyOf('kepler', rlo, 0, L), E, 1e-6);       // p_r = 0 at peri
+      close(energyOf('kepler', rhi, 0, L), E, 1e-6);       // and at apo
+      rel(action('kepler', E, L), keplerRadialActionExact(E, L), 1.5e-2);
+    }
+    expect(turningPoints('kepler', 0.2, 0.6)).toBeNull();  // E >= 0: unbound
   });
 
   it('turning points and potential are consistent', () => {

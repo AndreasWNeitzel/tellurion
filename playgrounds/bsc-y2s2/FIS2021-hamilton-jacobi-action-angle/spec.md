@@ -43,20 +43,28 @@ Sec. 49-50 (`landau-mechanics`).
 
 ## Controls
 
-- potential: harmonic, pendulum, quartic.
-- energy E: the orbit size.
-- omega0: the natural frequency.
-- adiabatic ramp: slowly vary w0 and watch J hold.
+- potential: harmonic, pendulum, quartic, and Kepler radial (the
+  one orbital, non-pendulum example: V_eff = -1/r + L^2/(2 r^2)).
+- energy E: the orbit size (for Kepler, the bound radial energy).
+- omega0 / L: the natural frequency, or the Kepler angular momentum.
+- ramp speed: 0 static, low adiabatic, high sudden; perturbs the
+  parameter so the action is conserved or visibly broken on demand.
 - Reset, Pause.
 
 ## Expected qualitative features
 
+- A J(t) strip: with the ramp off or slow the action trace is flat
+  on its reference (status "J conserved (adiabatic)", dJ/J ~ 1e-8);
+  ramp fast and it visibly drifts (status turns to "J drifting"),
+  the adiabatic theorem failing in real time. This is the explicit
+  demonstration that J is the conserved quantity.
 - The phase orbit and its shaded area scale with E; the readout
   `J = area/2pi`.
 - Harmonic: a circle on the right, the angle marker rotating at a
   constant rate independent of E.
-- Pendulum/quartic: the period (and the marker) slow as E grows.
-- Adiabatic ramp: `dJ/J` stays near zero while `E` swings with `w0`.
+- Pendulum/quartic/Kepler: the period (and the marker) slow as E
+  grows; the Kepler radial orbit runs between perihelion and
+  aphelion (an asymmetric phase loop).
 
 ## Invariants and acceptance thresholds
 

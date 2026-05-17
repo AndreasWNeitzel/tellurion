@@ -41,17 +41,17 @@
       <span class="label">dJ/J</span><span class="value" id="readout-dj">0</span>
     </div>
     <figcaption>
-      Figure 1. The phase orbit and its enclosed action area, beside the action-angle circle of radius sqrt(2J).
+      Figure 1. The J(t) strip (flat = the action is conserved), the phase orbit with its enclosed action area, and the action-angle loop of radius sqrt(2J). Potentials include a Kepler radial orbit; the ramp-speed slider perturbs the parameter, slow stays adiabatic, fast breaks the invariance.
       <em>Method:</em> contour action integral; velocity-Verlet evolution; the uniformly winding angle variable.
       <em>Source:</em> Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 10 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 49-50 (`landau-mechanics`).
     </figcaption>
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-    <div class="row"><span class="label">potential</span><select aria-label="potential" id="select-pot" style="grid-column: span 2;"><option value="harmonic">harmonic (isochronous)</option><option value="pendulum">pendulum (anharmonic)</option><option value="quartic">quartic</option></select></div>
+    <div class="row"><span class="label">potential</span><select aria-label="potential" id="select-pot" style="grid-column: span 2;"><option value="harmonic">harmonic (isochronous)</option><option value="pendulum">pendulum (anharmonic)</option><option value="quartic">quartic</option><option value="kepler">Kepler radial (orbital)</option></select></div>
     <div class="row"><span class="label">energy E</span><input aria-label="energy E" type="range" id="slider-e" min="0.1" max="1.8" step="0.02" value="0.6"><span class="value" id="value-e">0.60</span></div>
-    <div class="row"><span class="label">omega0</span><input aria-label="natural frequency w0" type="range" id="slider-w" min="0.5" max="2.0" step="0.05" value="1.0"><span class="value" id="value-w">1.00</span></div>
-    <div class="row"><span class="label">adiabatic ramp</span><input aria-label="adiabatic ramp of omega0" type="checkbox" id="toggle-adia" style="grid-column: span 2; justify-self: start;"></div>
+    <div class="row"><span class="label">omega0 / L</span><input aria-label="natural frequency w0 or Kepler angular momentum" type="range" id="slider-w" min="0.5" max="2.0" step="0.05" value="1.0"><span class="value" id="value-w">1.00</span></div>
+    <div class="row"><span class="label">ramp speed</span><input aria-label="parameter ramp speed: 0 static, low adiabatic, high sudden" type="range" id="slider-ramp" min="0" max="1" step="0.02" value="0"><span class="value" id="value-ramp">0.00</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
   </div>
 

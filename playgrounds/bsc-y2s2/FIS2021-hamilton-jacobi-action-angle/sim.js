@@ -11,19 +11,43 @@
 // Landau and Lifshitz, Mechanics (3rd ed.), Sec. 49-50
 // (`landau-mechanics`).
 
-// Potentials V(q) (mass = 1).
+// Potentials V(q) (mass = 1). For kind 'kepler' the coordinate is
+// the radius r and the third argument is the angular momentum L:
+// the radial effective potential V_eff(r) = -1/r + L^2/(2 r^2)
+// (gravitational parameter k = 1), the textbook orbital action-angle
+// problem and the one non-pendulum example.
 export function potential(kind, q, w0 = 1) {
   if (kind === 'pendulum') return w0 * w0 * (1 - Math.cos(q));
   if (kind === 'quartic') return 0.25 * w0 * w0 * q * q * q * q;
+  if (kind === 'kepler') { const r = Math.max(1e-9, q); return -1 / r + (w0 * w0) / (2 * r * r); }
   return 0.5 * w0 * w0 * q * q;                       // harmonic
 }
 export function energyOf(kind, q, p, w0 = 1) { return 0.5 * p * p + potential(kind, q, w0); }
 
 // Turning points of the bound orbit at energy E (libration only).
+// Kepler: a bound orbit needs E < 0; r solves 2 E r^2 + 2 r - L^2 = 0
+// so r_peri,r_apo = (-1 -+ sqrt(1 + 2 E L^2)) / (2 E).
 export function turningPoints(kind, E, w0 = 1) {
   if (kind === 'harmonic') { const a = Math.sqrt(2 * E) / w0; return [-a, a]; }
   if (kind === 'pendulum') { const c = 1 - E / (w0 * w0); if (c <= -1) return null; const a = Math.acos(Math.max(-1, c)); return [-a, a]; }
+  if (kind === 'kepler') {
+    const L = w0;
+    if (E >= 0) return null;
+    const disc = 1 + 2 * E * L * L;
+    if (disc <= 0) return null;
+    const D = Math.sqrt(disc);
+    const r1 = (-1 + D) / (2 * E), r2 = (-1 - D) / (2 * E);
+    const lo = Math.min(r1, r2), hi = Math.max(r1, r2);
+    return lo > 0 ? [lo, hi] : null;
+  }
   const a = Math.pow(4 * E / (w0 * w0), 0.25); return [-a, a];   // quartic
+}
+
+// Closed-form Kepler radial action J_r = -L + 1/sqrt(-2E)
+// (k = m = 1, bound E < 0); the orbital energy depends only on the
+// combination J_r + L (degeneracy), the classic action-angle result.
+export function keplerRadialActionExact(E, L) {
+  return E >= 0 ? Infinity : -L + 1 / Math.sqrt(-2 * E);
 }
 
 // Action J = (1/2 pi) contour p dq = (1/pi) integral_{q-}^{q+} p dq,
