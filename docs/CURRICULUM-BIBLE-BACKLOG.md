@@ -273,8 +273,14 @@ docs/NEEDS-ATTENTION.md, move on.
   exact FWHM 4 asin(1/sqrt F); FSR/order; R_p=mF* + Na resolves
   only high R with FSR>dl (caught FSR-vs-doublet subtlety); R
   sharpens. probe pass (R 5.38, d 2.59, dl 1.76); visual 5/5 x3.
-- [ ] laser-gaussian-beam-propagation : medium canvas2d. ABCD bench,
-  w(z), zR/w0/q, Gouy. Inv: lens w0'=lam f/pi w0 0.5%; q=q0+z; stable.
+- [x] laser-gaussian-beam-propagation : advanced canvas2d. ABCD
+  q-parameter bench, beam envelope through a draggable lens, focus
+  + waist markers, live zR/w0'/law/focus/theta. Inv 9/9: q=q0+z
+  1e-12 + spot law; zR landmarks w(zR)=sqrt2 w0, R=2zR; collimated
+  focus = lam f/pi w0 0.5%; ABCD composition; reversible; Gouy 0/
+  pi-4/pi; resonator stable iff |(A+D)/2|<=1 with self-consistent
+  mode; front->back focus imaging. probe pass (w0 11.66, f 24.60,
+  zl 13.84, lam 6.51); visual 5/5 x3.
 - [ ] polarization-jones-calculus : medium canvas2d. Polarization
   ellipse 3D, Jones chain, Stokes/Poincare. Inv: QWP45 lin to circ;
   HWP 2t; crossed=0; S0^2=S1^2+S2^2+S3^2.

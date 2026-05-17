@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gaussian Beam: ABCD Propagation</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; cursor: ew-resize; }
+    .readout-panel { position: absolute; top: 10px; left: 14px; background: rgba(6,6,8,0.6); padding: 6px 10px; border-radius: 4px; display: grid; grid-template-columns: 6ch 11ch; column-gap: 10px; row-gap: 1px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel span { white-space: nowrap; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 15ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gaussian Beam: ABCD Propagation</h1>
+    <p>A Gaussian beam is fully described by one complex number, the beam parameter $q$, with $1/q = 1/R - i\lambda/\pi w^2$. Any paraxial element acts on it by its ray-transfer matrix: $q\to(Aq+B)/(Cq+D)$. Free space of length $z$ gives $q\to q+z$ (so the spot follows $w(z)=w_0\sqrt{1+(z/z_R)^2}$, $z_R=\pi w_0^2/\lambda$), and a thin lens $f$ refocuses it. A collimated beam through a lens forms a new waist $w_0'\approx\lambda f/\pi w_0$ near the focal plane, the diffraction limit of focusing. Drag the lens along the bench and watch the envelope and the focused waist respond. Source: Siegman, Lasers (1986), Ch. 17 and 19 (`siegman1986`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="420" aria-label="Gaussian beam envelope propagating along an optical bench through a draggable thin lens"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">zR</span><span class="value" id="readout-zr">0</span>
+      <span class="label">w0'</span><span class="value" id="readout-w0o">0</span>
+      <span class="label">law</span><span class="value" id="readout-law">0</span>
+      <span class="label">focus</span><span class="value" id="readout-foc">0</span>
+      <span class="label">theta</span><span class="value" id="readout-th">0</span>
+    </div>
+    <figcaption>
+      Figure 1. Gaussian-beam envelope through a thin lens by the ABCD law; the focused waist follows lambda f / (pi w0).
+      <em>Method:</em> complex q-parameter propagated by ray-transfer matrices (free space, thin lens).
+      <em>Source:</em> Siegman, Lasers (1986), Ch. 17 and 19 (`siegman1986`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">input waist w0 (um)</span><input aria-label="input waist w0 micrometres" type="range" id="slider-w0" min="40" max="600" step="5" value="200"><span class="value" id="value-w0">200</span></div>
+    <div class="row"><span class="label">focal length f (mm)</span><input aria-label="lens focal length mm" type="range" id="slider-f" min="20" max="400" step="5" value="120"><span class="value" id="value-f">120</span></div>
+    <div class="row"><span class="label">lens position (mm)</span><input aria-label="lens position mm" type="range" id="slider-zl" min="50" max="450" step="5" value="250"><span class="value" id="value-zl">250</span></div>
+    <div class="row"><span class="label">wavelength (nm)</span><input aria-label="wavelength nm" type="range" id="slider-lam" min="400" max="1100" step="10" value="1064"><span class="value" id="value-lam">1064</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

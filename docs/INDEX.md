@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gaussian Beam - ABCD Propagation](../playgrounds/bsc-y3s1/FIS3019-laser-gaussian-beam-propagation/index.html)** &nbsp; (verified, verified 2026-05-17T09:28:43Z)
+  A Gaussian beam launched from a waist `w0` propagates along an optical bench and passes through a thin lens of focal length `f` at an adjustable position.
+
 - **[Fabry-Perot Etalon Spectrometer](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-spectrometer/index.html)** &nbsp; (verified, verified 2026-05-17T09:17:38Z)
   Two plane mirrors of reflectance `R`, spacing `d`, illuminated by the sodium doublet. Normal incidence, `n = 1`.
 
