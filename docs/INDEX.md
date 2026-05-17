@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fabry-Perot Etalon Spectrometer](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-spectrometer/index.html)** &nbsp; (verified, verified 2026-05-17T13:22:44Z)
+  Two plane mirrors of reflectance `R`, spacing `d`, illuminated by the sodium doublet. Normal incidence, `n = 1`.
+
 - **[Gaussian Beam - ABCD Propagation](../playgrounds/bsc-y3s1/FIS3019-laser-gaussian-beam-propagation/index.html)** &nbsp; (verified, verified 2026-05-17T13:15:03Z)
   A Gaussian beam launched from a waist `w0` propagates along an optical bench and passes through a thin lens of focal length `f` at an adjustable position.
 
@@ -55,9 +58,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[KAM Theory - The Standard Map](../playgrounds/bsc-y2s2/FIS2021-kam-theory-poincare-section/index.html)** &nbsp; (verified, verified 2026-05-17T11:21:55Z)
   The standard map on the (theta, p) torus, stochasticity parameter `K`, seeded from a grid of orbits plus the golden-mean torus.
-
-- **[Fabry-Perot Etalon Spectrometer](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-spectrometer/index.html)** &nbsp; (verified, verified 2026-05-17T09:17:38Z)
-  Two plane mirrors of reflectance `R`, spacing `d`, illuminated by the sodium doublet. Normal incidence, `n = 1`.
 
 - **[The 2D Ising Phase Transition](../playgrounds/bsc-y3s1/FIS3008-ising-2d-gpu-phase-transition/index.html)** &nbsp; (verified, verified 2026-05-17T08:28:50Z)
   An L x L periodic square lattice of spins `s_i = +-1`, energy `H = -J sum_<ij> s_i s_j` (J = 1, zero field). The control is the temperature `T = kT/J`.

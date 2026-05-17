@@ -28,13 +28,88 @@ const sDL = document.getElementById('slider-dl'), vDL = document.getElementById(
 const bR = document.getElementById('btn-reset');
 
 const st = { R: 0.6, d_um: 80, dl: 0.60 };
-const PX0 = 60, PX1 = W - 28, PY0 = 36, PY1 = H - 52;
+// the spectrum plot now sits below the physical-representation band
+const PX0 = 60, PX1 = W - 28, PY0 = 196, PY1 = H - 50;
+
+// Etalon schematic: two partial mirrors and the cascade of internal
+// reflections. Each pass loses a factor R, so the number of beams
+// that still carry appreciable intensity, and therefore the
+// sharpness of the Airy fringes, grows with R: multiple-beam
+// interference made literal.
+function drawEtalon(R) {
+  const x0 = 198, x1 = 348, yIn = 92, span = 128;
+  ctx.strokeStyle = 'rgba(150,160,180,0.9)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x0, yIn - span / 2); ctx.lineTo(x0, yIn + span / 2);
+  ctx.moveTo(x1, yIn - span / 2); ctx.lineTo(x1, yIn + span / 2); ctx.stroke();
+  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('partial mirrors  R', (x0 + x1) / 2, yIn - span / 2 - 8);
+  // incident beam
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.moveTo(x0 - 32, yIn - 24); ctx.lineTo(x0, yIn - 14); ctx.stroke();
+  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('in', x0 - 30, yIn - 30);
+  // the zig-zag inside and the transmitted partial beams out the right
+  const nB = Math.max(2, Math.min(16, Math.ceil(Math.log(0.015) / Math.log(Math.max(0.06, R)))));
+  let yhit = yIn - 14, amp = (1 - R);
+  ctx.lineWidth = 1.6;
+  for (let n = 0; n < nB; n += 1) {
+    const yNext = yhit + 16;
+    ctx.strokeStyle = `rgba(91,192,235,${Math.max(0.12, 0.85 * amp / (1 - R)).toFixed(3)})`;
+    ctx.beginPath(); ctx.moveTo(x0, yhit); ctx.lineTo(x1, yNext); ctx.stroke();      // to far mirror
+    // transmitted partial beam exits right, intensity ~ (1-R)^2 R^{2n}
+    const tA = Math.max(0.08, 0.95 * (1 - R) * (1 - R) * R ** (2 * n) / ((1 - R) * (1 - R)));
+    ctx.strokeStyle = `rgba(239,71,111,${tA.toFixed(3)})`; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.moveTo(x1, yNext); ctx.lineTo(x1 + 40, yNext + 6); ctx.stroke();
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = `rgba(91,192,235,${Math.max(0.1, 0.7 * R ** (2 * n + 1)).toFixed(3)})`;
+    ctx.beginPath(); ctx.moveTo(x1, yNext); ctx.lineTo(x0, yNext + 16); ctx.stroke();  // back to near mirror
+    yhit = yNext + 16; amp *= R;
+    if (yhit > yIn + span / 2 - 6) break;
+  }
+  ctx.fillStyle = 'rgba(239,71,111,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('transmitted', x1 + 6, yIn + span / 2 + 14);
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'left';
+  ctx.fillText(`${nB} beams interfere (> 1.5%)`, 40, yIn + span / 2 + 14);
+}
+
+// The ring fringe pattern a real Fabry-Perot spectrometer shows:
+// transmission versus angle, T(theta) = Airy(delta(theta)). The
+// rings sharpen into thin bright circles as R (the finesse) rises.
+function drawRings(R, d0, lam) {
+  const cx = 580, cy = 90, rad = 64;
+  // pick the angular fan so a fixed handful (about 5) of orders span
+  // the disk for any d, otherwise an 80 um etalon packs hundreds of
+  // fringes into the fan and they alias into a flat blank
+  const NR = 5;
+  const cosm = Math.max(-1, 1 - NR * lam / (2 * d0));
+  const thetaMax = Math.acos(cosm);
+  const img = ctx.createImageData(2 * rad, 2 * rad);
+  for (let py = 0; py < 2 * rad; py += 1) {
+    for (let px = 0; px < 2 * rad; px += 1) {
+      const dx = px - rad, dy = py - rad, rr = Math.hypot(dx, dy);
+      const j = (py * 2 * rad + px) * 4;
+      if (rr > rad) { img.data[j + 3] = 0; continue; }
+      const theta = (rr / rad) * thetaMax;
+      const T = airyT(phase(lam, d0, 1, theta), R);
+      const v = Math.round(255 * T);
+      img.data[j] = v; img.data[j + 1] = Math.round(v * 0.55); img.data[j + 2] = Math.round(v * 0.32); img.data[j + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, cx - rad, cy - rad);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.stroke();
+  ctx.fillStyle = 'rgba(150,160,180,0.78)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('ring fringes (eyepiece view)', cx, cy + rad + 15);
+  ctx.fillText('sharpen as R rises', cx, cy + rad + 28);
+}
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   const lam1 = NA_D2 * 1e-9;                       // D2 (fixed)
   const lam2 = (NA_D2 + st.dl) * 1e-9;             // second line
   const d0 = st.d_um * 1e-6;
+  drawEtalon(st.R);
+  drawRings(st.R, d0, lam1);
   const win = 1.6 * (NA_D2 * 1e-9) / 2;            // about 3 orders wide
   const dA = d0 - win, dB = d0 + win;
   const xOf = (d) => PX0 + (d - dA) / (dB - dA) * (PX1 - PX0);
@@ -78,11 +153,11 @@ function render() {
   drawCurve(lam1, '#ef476f', 2);
   drawCurve(lam2, '#5bc0eb', 2);
 
-  // legend
+  // legend (top-left inside the plot, clear of the ring panel)
   ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillStyle = '#ef476f'; ctx.fillText('D2 588.995 nm', PX1 - 200, PY0 + 14);
-  ctx.fillStyle = '#5bc0eb'; ctx.fillText(`line 2 (+${st.dl.toFixed(2)} nm)`, PX1 - 200, PY0 + 31);
-  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillText('sum / 2', PX1 - 200, PY0 + 48);
+  ctx.fillStyle = '#ef476f'; ctx.fillText('D2 588.995 nm', PX0 + 12, PY0 + 16);
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText(`line 2 (+${st.dl.toFixed(2)} nm)`, PX0 + 12, PY0 + 33);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillText('sum / 2', PX0 + 12, PY0 + 50);
 
   const Fstar = reflFinesse(st.R);
   const Rp = resolvingPower(lam1, d0, st.R);

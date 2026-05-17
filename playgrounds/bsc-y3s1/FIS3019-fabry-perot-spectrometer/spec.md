@@ -51,8 +51,15 @@ Sec. 7.6 (`born-wolf`).
 
 ## Expected qualitative features
 
-- Low R: broad Airy peaks; the two lines merge into one hump.
-- High R: razor peaks; the doublet splits into two clear lines.
+- A physical-representation band above the spectrum: an etalon
+  schematic with the cascade of internal reflections (the number of
+  beams still carrying > 1.5 percent grows with R, multiple-beam
+  interference made literal) and the concentric ring fringe pattern
+  T(theta) the eyepiece sees, both sharpening as R rises.
+- Low R: broad Airy peaks; the two lines merge into one hump; few
+  bounces; broad blurry rings.
+- High R: razor peaks; the doublet splits; many bounces; thin bright
+  rings.
 - Small d (large FSR): orders well separated; large d: orders crowd
   and eventually overlap the doublet.
 - The `resolved` readout flips yes/no exactly at the threshold.
