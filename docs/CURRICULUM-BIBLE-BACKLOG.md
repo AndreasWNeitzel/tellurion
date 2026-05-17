@@ -326,10 +326,15 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 11: Mecanica Analitica (3Y-2S; Goldstein, Landau)
 
-- [ ] lagrangian-field-sandbox : hero canvas2d. Drag masses/springs/
-  rods, symbolic L=T-V plus Euler-Lagrange, Noether CONSERVED readouts,
-  phase portrait. RK4. Inv: H 1e-3; symmetries to constants 1e-4;
-  pendulum T=2 pi sqrt(L/g) 0.5%.
+- [x] lagrangian-field-sandbox : hero canvas2d (placed FIS2021 in
+  bsc-y2s2, the real Analytical-Mechanics UC; Section 11 "3Y-2S" is
+  a backlog grouping). Pendulum/double/spring/Kepler EL systems via
+  shared RK4 (ode-rk), animated mechanism + filled phase portrait +
+  Noether readouts; pre-integrated preview, fixed phase scale, speed
+  bar. Inv 8/8: small-T pendulum 2pi sqrt(l/g) 0.5%; EL rhs exact;
+  H conserved all systems 1e-3; rot-symmetry<->L 1e-4 (broken by g);
+  double modes; reversible; libration/rotation; determinism. probe
+  pass (g 1.08, amp 4.26, speed 1.06, sys 4.21); visual 5/5 x3.
 - [ ] hamilton-jacobi-action-angle : advanced canvas2d. Phase loop, J=
   contour p dq /2pi, thetadot=omega, orbit to circle r=sqrt(2J). Inv:
   J 0.1%; theta uniform.

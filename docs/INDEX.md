@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Lagrangian Sandbox](../playgrounds/bsc-y2s2/FIS2021-lagrangian-field-sandbox/index.html)** &nbsp; (verified, verified 2026-05-17T10:52:03Z)
+  One of: simple pendulum `[th, thd]`; double pendulum `[t1, t2, w1, w2]`; elastic pendulum `[r, th, rd, thd]`; planar Kepler `[x, y, vx, vy]`. Parameters: gravity `g`, initial amplitude.
+
 - **[The Meissner Effect](../playgrounds/bsc-y3s2/FIS3005-superconductivity-meissner-3d/index.html)** &nbsp; (verified, verified 2026-05-17T10:32:56Z)
   A superconducting sphere of radius R in a uniform applied field B0, at reduced temperature T/Tc, type I or II, zero-temperature critical field Bc0.
 
