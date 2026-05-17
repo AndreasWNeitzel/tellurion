@@ -46,7 +46,9 @@ Ch. 10 (`ashcroft-mermin`).
 
 - lattice: 1D, SSH, or 2D.
 - hopping t: sets the bandwidth.
-- dimerization t2/t1: opens the SSH gap.
+- dimerization t2/t1: opens the SSH gap. Shown only for the SSH
+  lattice, since it does not enter the 1D-chain or 2D-square
+  Hamiltonian; hidden otherwise so no control looks dead.
 - Fermi level E_F: fills the band / sizes the Fermi surface.
 - Reset.
 

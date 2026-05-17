@@ -27,8 +27,14 @@ const sT = document.getElementById('slider-t'), vT = document.getElementById('va
 const sDim = document.getElementById('slider-dim'), vDim = document.getElementById('value-dim');
 const sEF = document.getElementById('slider-ef'), vEF = document.getElementById('value-ef');
 const bR = document.getElementById('btn-reset');
+const rowDim = document.getElementById('row-dim');
 
 const st = { lat: 'ssh', t: 1.0, dim: 0.5, EF: 0 };
+
+// Dimerization only enters the SSH Hamiltonian; for the 1D chain and
+// the 2D square it has no effect, so the control is hidden there
+// rather than left looking broken.
+function applyVis() { rowDim.style.display = st.lat === 'ssh' ? '' : 'none'; }
 const PX0 = 60, PX1 = 470, PY0 = 40, PY1 = H - 56;       // dispersion / heatmap box
 const DX0 = 520, DX1 = W - 24;                            // DOS box
 
@@ -145,18 +151,18 @@ function render() {
 }
 
 function syncLabels() { vT.textContent = st.t.toFixed(2); vDim.textContent = st.dim.toFixed(2); vEF.textContent = st.EF.toFixed(2); }
-selLat.addEventListener('change', () => { st.lat = selLat.value; render(); });
+selLat.addEventListener('change', () => { st.lat = selLat.value; applyVis(); render(); });
 sT.addEventListener('input', () => { st.t = parseFloat(sT.value); syncLabels(); render(); });
 sDim.addEventListener('input', () => { st.dim = parseFloat(sDim.value); syncLabels(); render(); });
 sEF.addEventListener('input', () => { st.EF = parseFloat(sEF.value); syncLabels(); render(); });
 bR.addEventListener('click', () => {
   st.lat = 'ssh'; st.t = 1.0; st.dim = 0.5; st.EF = 0;
-  selLat.value = 'ssh'; sT.value = '1.0'; sDim.value = '0.5'; sEF.value = '0'; syncLabels(); render();
+  selLat.value = 'ssh'; sT.value = '1.0'; sDim.value = '0.5'; sEF.value = '0'; syncLabels(); applyVis(); render();
 });
 
 function bootSync() {
   selLat.value = st.lat;                                 // default view = SSH
-  syncLabels();
+  syncLabels(); applyVis();
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     st.EF = -4 + f * 8;                                   // fill the band

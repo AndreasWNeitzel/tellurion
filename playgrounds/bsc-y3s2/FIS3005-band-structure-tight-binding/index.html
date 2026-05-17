@@ -50,7 +50,7 @@
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">lattice</span><select aria-label="lattice" id="select-lat" style="grid-column: span 2;"><option value="1d">1D chain</option><option value="ssh">dimerized (SSH)</option><option value="2d">2D square + Fermi surface</option></select></div>
     <div class="row"><span class="label">hopping t</span><input aria-label="hopping t" type="range" id="slider-t" min="0.2" max="2.0" step="0.05" value="1.0"><span class="value" id="value-t">1.00</span></div>
-    <div class="row"><span class="label">dimerization</span><input aria-label="dimerization t2/t1" type="range" id="slider-dim" min="0.1" max="2.0" step="0.05" value="0.5"><span class="value" id="value-dim">0.50</span></div>
+    <div class="row" id="row-dim"><span class="label">dimerization</span><input aria-label="dimerization t2/t1" type="range" id="slider-dim" min="0.1" max="2.0" step="0.05" value="0.5"><span class="value" id="value-dim">0.50</span></div>
     <div class="row"><span class="label">Fermi level E_F</span><input aria-label="Fermi level" type="range" id="slider-ef" min="-4.2" max="4.2" step="0.05" value="0"><span class="value" id="value-ef">0.00</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
