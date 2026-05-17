@@ -647,6 +647,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (verified)
   Atmosphere is drawn as a gradient from dark space to ground. A primary cosmic ray streaks in from the top; the shower front then propagates downward and the Heitler cascade fans out into a bright-cored cone, colour-coded by particle energy (white at high energy near shower maximum, gold mid-cascade, blue once below the critical energy). The descending front 
 
+- **[Elastic Waves: P and S Modes in a Solid](../playgrounds/bsc-y2s1/FIS2002-elastic-wave-modes-solid/index.html)** &nbsp; (verified)
+  A homogeneous isotropic elastic medium. A localised source (point force, explosive, or shear couple) excites body waves; a seismograph station off-axis records the ground motion.
+
 - **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified)
   Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
 

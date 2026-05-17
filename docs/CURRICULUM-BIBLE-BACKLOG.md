@@ -119,9 +119,12 @@ docs/NEEDS-ATTENTION.md, move on.
   arc (focus); sinc-envelope side panel. Inv 6/6: single-wavelet
   isotropy; sinc envelope; first min sin th=lam/a; coherent on-axis
   max; sinc symmetry; arc focusing gain. probe pass; visual x3.
-- [ ] elastic-wave-modes-solid : medium canvas2d. Spring lattice, P&S
-  waves, seismograph delay. vP=sqrt((l+2u)/rho), vS=sqrt(u/rho). Inv:
-  vP/vS 1%; pure transverse=S; u=0 no S.
+- [x] elastic-wave-modes-solid : advanced canvas2d. Leapfrog vector
+  elastodynamics; divergence map + deformed grid + analytic P/S rings;
+  seismogram side panel with P-then-S delay; source force/explosive/
+  shear. Inv 6/6: analytic speeds; P>S front; measured speeds within
+  10%; mu->0 no S; seismograph delay d(1/vS-1/vP) within 20%; CFL.
+  added landau-elasticity to bib. probe pass; visual x3.
 - [ ] normal-modes-nD-chain : medium canvas2d. N=12 masses, click mode
   bar, diatomic acoustic/optical branches plus gap. Inv: N modes;
   omega^2 formula 0.1%; gap=0 at K1=K2.
