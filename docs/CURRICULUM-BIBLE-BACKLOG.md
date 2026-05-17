@@ -49,7 +49,7 @@ docs/NEEDS-ATTENTION.md, move on.
   herpolhode trails, Dzhanibekov preset. Euler eqs RK4 dt=.005,
   quaternion qdot=0.5 q x [0,w]. Inv: E and |L|^2 conserved 1e-4 over
   1e4 steps; intermediate-axis flip under 5000 steps.
-- [ ] atwood-machine-constrained : medium canvas2d. Masses plus massive
+- [x] atwood-machine-constrained : medium canvas2d. Masses plus massive
   pulley, force arrows, v(t)/a(t). a=(m1-m2)g/(m1+m2+I/R^2). Inv: E
   1e-6; massless-limit classical 0.1%; T1=T2 massless.
 - [ ] central-force-orbit-gallery : medium canvas2d. Orbit trail, force
