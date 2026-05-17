@@ -41,15 +41,15 @@
       <span class="label">DOP</span><span class="value" id="readout-dop">1.000</span>
     </div>
     <figcaption>
-      Figure 1. The polarization ellipse and Poincare-sphere point of a Jones vector after a chain of optical elements.
-      <em>Method:</em> 2x2 complex Jones matrices; Stokes vector and ellipse parameters from the output.
+      Figure 1. An optical bench (beam through each element with the polarization ellipse at every stage), the input-versus-output ellipse, and the stage-by-stage path on the Poincare sphere.
+      <em>Method:</em> 2x2 complex Jones matrices; Stokes vector and ellipse parameters at each stage.
       <em>Source:</em> Hecht, Optics (5th ed.), Ch. 8 (`hecht2017`); Born and Wolf, Principles of Optics (7th ed.), Sec. 1.4 (`born-wolf`).
     </figcaption>
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">input</span><select aria-label="input polarization" id="select-input" style="grid-column: span 2;"><option value="lin">linear</option><option value="cr">circular right</option><option value="cl">circular left</option></select></div>
-    <div class="row"><span class="label">input angle</span><input aria-label="input linear angle degrees" type="range" id="slider-ang" min="0" max="90" step="1" value="0"><span class="value" id="value-ang">0</span></div>
+    <div class="row" id="row-ang"><span class="label">input angle</span><input aria-label="input linear angle degrees" type="range" id="slider-ang" min="0" max="90" step="1" value="0"><span class="value" id="value-ang">0</span></div>
     <div class="row"><span class="label">element 1</span><select aria-label="element 1" id="select-e1" style="grid-column: span 2;"><option value="qwp">quarter-wave</option><option value="hwp">half-wave</option><option value="pol">polarizer</option><option value="none">none</option></select></div>
     <div class="row"><span class="label">elem 1 axis</span><input aria-label="element 1 axis degrees" type="range" id="slider-a1" min="0" max="180" step="1" value="45"><span class="value" id="value-a1">45</span></div>
     <div class="row"><span class="label">element 2</span><select aria-label="element 2" id="select-e2" style="grid-column: span 2;"><option value="none">none</option><option value="pol">polarizer (0 deg)</option><option value="qwp">quarter-wave (0 deg)</option><option value="hwp">half-wave (0 deg)</option></select></div>

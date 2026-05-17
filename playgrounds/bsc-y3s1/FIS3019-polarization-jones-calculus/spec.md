@@ -45,15 +45,24 @@ Principles of Optics (7th ed.), Sec. 1.4 (`born-wolf`).
 ## Controls
 
 - input: linear (with angle) or circular R/L.
-- input angle: the linear polarization azimuth.
+- input angle: the linear polarization azimuth. Shown only for
+  linear input; circular light has no linear azimuth so the control
+  is hidden there rather than left looking dead.
 - element 1 / element 2: polarizer, QWP, HWP, none.
 - element 1 axis: the first element's fast axis.
 - Reset.
 
 ## Expected qualitative features
 
-- Linear in, QWP at 45 deg: a circle on the ellipse, a pole on the
-  sphere.
+- An optical bench across the top: the beam enters, passes element 1
+  then element 2, and the polarization ellipse is drawn at every
+  stage (input, after E1, output), so the transformation is concrete
+  rather than abstract.
+- The Poincare sphere shows the stage-by-stage path (input, mid,
+  output joined by a dashed line): each element moves the point, a
+  wave plate rotating it, a polarizer projecting it.
+- Linear in, QWP at 45 deg: a circle on the ellipse, the path runs
+  from the equator (H) to a pole (S3) on the sphere.
 - Half-wave plate: the ellipse stays linear, reflected about the
   axis (sphere point rotates on the equator).
 - Polarizer: the ellipse collapses to a line; intensity follows

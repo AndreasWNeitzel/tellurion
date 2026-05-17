@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Jones Calculus - Polarization Through Elements](../playgrounds/bsc-y3s1/FIS3019-polarization-jones-calculus/index.html)** &nbsp; (verified, verified 2026-05-17T12:23:29Z)
+  A monochromatic Jones vector `(Ex, Ey)` passes through up to two optical elements (polarizer, quarter-wave plate, half-wave plate) each at a chosen axis angle.
+
 - **[Spin on the Bloch Sphere](../playgrounds/bsc-y3s1/FIS3003-spin-bloch-sphere-dynamics/index.html)** &nbsp; (verified, verified 2026-05-17T12:15:45Z)
   A two-level system (spin-1/2, qubit) in a static magnetic field `B0 z-hat` and a circularly polarized transverse RF field of amplitude `B1` rotating at `w_rf`. The pure state is the unit Bloch vector `S = (sin th cos ph, sin th sin ph, cos th)`, with the north pole `|0>` and the south pole `|1>`.
 
@@ -37,9 +40,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Action-Angle Variables](../playgrounds/bsc-y2s2/FIS2021-hamilton-jacobi-action-angle/index.html)** &nbsp; (verified, verified 2026-05-17T11:03:07Z)
   A 1-DOF bound system: harmonic `V = 1/2 w0^2 q^2`, pendulum `w0^2 (1 - cos q)`, or quartic `1/4 w0^2 q^4`, at energy `E`.
-
-- **[Jones Calculus - Polarization Through Elements](../playgrounds/bsc-y3s1/FIS3019-polarization-jones-calculus/index.html)** &nbsp; (verified, verified 2026-05-17T09:39:16Z)
-  A monochromatic Jones vector `(Ex, Ey)` passes through up to two optical elements (polarizer, quarter-wave plate, half-wave plate) each at a chosen axis angle.
 
 - **[Gaussian Beam - ABCD Propagation](../playgrounds/bsc-y3s1/FIS3019-laser-gaussian-beam-propagation/index.html)** &nbsp; (verified, verified 2026-05-17T09:28:43Z)
   A Gaussian beam launched from a waist `w0` propagates along an optical bench and passes through a thin lens of focal length `f` at an adjustable position.

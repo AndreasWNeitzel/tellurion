@@ -3,15 +3,21 @@
 Polarization optics has an unreasonably tidy algebra. The state of a
 fully polarized beam is two complex numbers, the Jones vector; every
 polarizer and wave plate is a 2x2 matrix; and stacking elements is
-just multiplying matrices. The left panel draws the ellipse the
-electric field sweeps out; the right is the Poincare sphere, where
-every polarization is a single point and each element moves that
-point in a fixed way.
+just multiplying matrices. The strip across the top is an optical
+bench: the beam enters, passes element one then element two, and the
+polarization ellipse is drawn at every stage so you can watch the
+state change as light propagates. Below it the left panel overlays
+the input and output ellipses; the right panel is the Poincare
+sphere, where every polarization is one point and the dashed line is
+the input-to-output path the elements trace.
 
 What to look for: start with linear light and a quarter-wave plate
-at 45 degrees to it. The ellipse opens from a line into a perfect
-circle, and on the sphere the point climbs from the equator to the
-pole, that is circular polarization. Rotate the plate's axis and the
+at 45 degrees to it. On the bench the input line glyph becomes a
+circle after the plate; the left ellipse opens from a line into a
+perfect circle; and on the sphere the path runs from the equator (H)
+down to the pole (S3), that is circular polarization. Switch the
+input to circular and the azimuth slider disappears, because a
+circular state has no linear angle to set. Rotate the plate's axis and the
 output sweeps through every ellipse. Switch element one to a
 half-wave plate: the light stays linear but its plane flips about the
 plate axis. Add a polarizer as element two and the beam dims exactly
@@ -19,10 +25,10 @@ as Malus's law says, the ellipse collapsing to a line. The DOP
 readout never leaves 1.000 because a Jones vector is always fully
 polarized.
 
-Controls: the input selector picks linear (with an azimuth slider) or
-circular light; element one and element two pick the optic; the
-element-one axis slider rotates the first plate; Reset returns to the
-linear-into-QWP-at-45 case.
+Controls: the input selector picks linear (with an azimuth slider,
+shown only for linear) or circular light; element one and element two
+pick the optic; the element-one axis slider rotates the first plate;
+Reset returns to the linear-into-QWP-at-45 case.
 
 ## Reference
 
