@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fabry-Perot Etalon Spectrometer</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 62px; background: rgba(6,6,8,0.66); padding: 7px 9px; border-radius: 4px; display: grid; grid-template-columns: 6ch 8ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .label { white-space: nowrap; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 15ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Fabry-Perot Etalon Spectrometer</h1>
+    <p>Two parallel mirrors of reflectance $R$ a distance $d$ apart pass light only through multiple-beam interference, giving the Airy transmission $T=1/(1+F\sin^2(\delta/2))$ with $F=4R/(1-R)^2$ and round-trip phase $\delta=4\pi d/\lambda$. As an instrument the etalon resolves two close wavelengths when its reflectance finesse $\mathcal{F}=\pi\sqrt R/(1-R)$ makes the Airy peaks narrower than the line separation, with resolving power $R_p=m\mathcal{F}$, provided the free spectral range $\lambda^2/2d$ exceeds the separation so the orders do not overlap. Here the test source is the sodium doublet (D2 588.995 nm, D1 589.592 nm): raise $R$ and watch the single blurred peak split cleanly into two. Source: Hecht, Optics (5th ed.), Ch. 9.6 (`hecht2017`); Born and Wolf, Principles of Optics (7th ed.), Sec. 7.6 (`born-wolf`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="430" aria-label="Transmitted intensity of the sodium doublet through a Fabry-Perot etalon as the plate spacing is scanned"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">F*</span><span class="value" id="readout-fin">0.0</span>
+      <span class="label">R_p</span><span class="value" id="readout-rp">0</span>
+      <span class="label">FSR nm</span><span class="value" id="readout-fsr">0.000</span>
+      <span class="label">need</span><span class="value" id="readout-need">0</span>
+      <span class="label">resolved</span><span class="value" id="readout-res">no</span>
+    </div>
+    <figcaption>
+      Figure 1. The sodium doublet through a Fabry-Perot etalon: the Airy combs of the two D lines and their sum as the spacing is scanned.
+      <em>Method:</em> closed-form Airy multiple-beam transmission; Rayleigh resolution via finesse and free spectral range.
+      <em>Source:</em> Hecht, Optics (5th ed.), Ch. 9.6 (`hecht2017`); Born and Wolf, Principles of Optics (7th ed.), Sec. 7.6 (`born-wolf`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">reflectance R</span><input aria-label="mirror reflectance R" type="range" id="slider-r" min="0.05" max="0.99" step="0.01" value="0.60"><span class="value" id="value-r">0.60</span></div>
+    <div class="row"><span class="label">spacing d (um)</span><input aria-label="plate spacing d in micrometres" type="range" id="slider-d" min="20" max="200" step="1" value="80"><span class="value" id="value-d">80</span></div>
+    <div class="row"><span class="label">line gap dl (nm)</span><input aria-label="doublet separation in nm" type="range" id="slider-dl" min="0.05" max="2.0" step="0.01" value="0.60"><span class="value" id="value-dl">0.60</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

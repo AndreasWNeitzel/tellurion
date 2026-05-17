@@ -266,9 +266,13 @@ docs/NEEDS-ATTENTION.md, move on.
   energy-non-increasing; high-pass DC removed; mask shape. probe
   pass (rc 6.16, object 17.53, filter 1.21); visual 5/5 x3. Bib:
   goodman-fourier added.
-- [ ] fabry-perot-spectrometer : advanced canvas2d. Etalon multi-beam,
-  Airy T(d), finesse, Na doublet resolve. Inv: F*~312 R=.99; maxima
-  d=2m pi; R=0 T=1.
+- [x] fabry-perot-spectrometer : advanced canvas2d. Etalon Airy
+  T(d) scan, Na doublet (D2 + line2), R-sweep splits the doublet,
+  finesse/R_p/FSR/resolved readout. Inv 9/9: F*~312 R=.99; maxima
+  T=1 delta=2m pi, minima 1/(1+F); R=0 T=1; bounds+2pi-periodic;
+  exact FWHM 4 asin(1/sqrt F); FSR/order; R_p=mF* + Na resolves
+  only high R with FSR>dl (caught FSR-vs-doublet subtlety); R
+  sharpens. probe pass (R 5.38, d 2.59, dl 1.76); visual 5/5 x3.
 - [ ] laser-gaussian-beam-propagation : medium canvas2d. ABCD bench,
   w(z), zR/w0/q, Gouy. Inv: lens w0'=lam f/pi w0 0.5%; q=q0+z; stable.
 - [ ] polarization-jones-calculus : medium canvas2d. Polarization
