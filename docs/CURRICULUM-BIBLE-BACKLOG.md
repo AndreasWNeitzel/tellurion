@@ -257,9 +257,15 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 9: FIS3014 Optica (3Y-2S; Hecht, Born-Wolf)
 
-- [ ] fourier-optics-4f-system : hero webgl2. 4f bench, draw Fourier
-  filter, low/high-pass live; grating/aperture/text. 512^2 GPU FFT.
-  Inv: no filter image=object inv; low-pass smooth; high-pass edges.
+- [x] fourier-optics-4f-system : hero canvas2d (webgl2/512^2 ->
+  128^2 in-line radix-2 FFT per stack rule). 3 panels object |
+  Fourier-plane log|F|+filter overlay | filtered image; object
+  grating/aperture/double-slit/checker; filter none/low/high/slit.
+  Inv 9/9: FFT vs DFT 1e-9; round-trip; Parseval; Hermitian;
+  linearity; no-filter image=object 1e-7; low-pass blur+variance+
+  energy-non-increasing; high-pass DC removed; mask shape. probe
+  pass (rc 6.16, object 17.53, filter 1.21); visual 5/5 x3. Bib:
+  goodman-fourier added.
 - [ ] fabry-perot-spectrometer : advanced canvas2d. Etalon multi-beam,
   Airy T(d), finesse, Na doublet resolve. Inv: F*~312 R=.99; maxima
   d=2m pi; R=0 T=1.

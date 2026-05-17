@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The 4f Fourier-Optics Processor</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; bottom: 8px; left: 28px; background: rgba(6,6,8,0.6); padding: 6px 12px; border-radius: 4px; display: grid; grid-template-columns: repeat(4, auto); column-gap: 22px; row-gap: 0; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel span { white-space: nowrap; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>The 4f Fourier-Optics Processor</h1>
+    <p>A lens placed one focal length from an object produces, one focal length beyond it, the exact 2D Fourier transform of the object's transmittance. Put a mask in that back focal plane and a second lens transforms back: that is the 4f coherent processor. Block the outer (high-frequency) part of the spectrum and the image is low-pass filtered, blurred; block the centre (the DC and low frequencies) and only edges survive, the Abbe-Porter experiment. With no mask the second transform inverts the first and the image is the object. The middle panel is $|\mathcal{F}\{t(x,y)\}|$ on a log scale with the filter drawn on it. Source: Goodman, Introduction to Fourier Optics (4th ed.), Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="362" aria-label="Object plane, Fourier plane with the spatial filter, and the filtered image of the 4f processor"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span><span class="label">filter</span> <span class="value" id="readout-filter">none</span></span>
+      <span><span class="label">radius</span> <span class="value" id="readout-rc">0</span></span>
+      <span><span class="label">throughput</span> <span class="value" id="readout-thru">1.000</span></span>
+      <span><span class="label">RMS o-i</span> <span class="value" id="readout-rms">0.0e+0</span></span>
+    </div>
+    <figcaption>
+      Figure 1. The 4f coherent optical processor: object, Fourier plane with the filter, and the filtered image.
+      <em>Method:</em> in-line radix-2 2D FFT, frequency-domain mask, inverse FFT; intensity image.
+      <em>Source:</em> Goodman, Introduction to Fourier Optics (4th ed.), Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">object</span><select aria-label="object" id="select-object" style="grid-column: span 2;"><option value="grating">grating</option><option value="aperture">circular aperture</option><option value="doubleslit">double slit</option><option value="bars">checker pattern</option></select></div>
+    <div class="row"><span class="label">filter</span><select aria-label="spatial filter" id="select-filter" style="grid-column: span 2;"><option value="low">low-pass</option><option value="none">none</option><option value="high">high-pass</option><option value="slit">vertical slit</option></select></div>
+    <div class="row"><span class="label">filter radius</span><input aria-label="filter radius in pixels" type="range" id="slider-rc" min="1" max="40" step="1" value="10"><span class="value" id="value-rc">10</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

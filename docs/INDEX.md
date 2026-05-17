@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The 4f Fourier-Optics Processor](../playgrounds/bsc-y3s1/FIS3019-fourier-optics-4f-system/index.html)** &nbsp; (verified, verified 2026-05-17T09:07:31Z)
+  An object transmittance `t(x,y)` (grating, circular aperture, double slit, checker) in the front focal plane of lens 1. Its Fourier transform appears in the common focal plane, where a mask is placed; lens 2 inverse-transforms to the image plane.
+
 - **[Lennard-Jones Molecular Dynamics](../playgrounds/bsc-y3s1/FIS3008-md-lennard-jones-thermodynamics/index.html)** &nbsp; (verified, verified 2026-05-17T08:56:19Z)
   `N = 300` particles in a periodic `L x L` box (`rho = N/L^2`), pairwise `U(r) = 4[(1/r)^12 - (1/r)^6]`, cutoff `rc = 2.5` with the shifted-force construction so `F` and `U` vanish continuously at `rc`.
 
