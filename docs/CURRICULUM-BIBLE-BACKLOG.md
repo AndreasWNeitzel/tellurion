@@ -342,8 +342,14 @@ docs/NEEDS-ATTENTION.md, move on.
   sqrt(2J) 1e-6; theta uniform = w0 dt; pendulum anharmonic; E<->J
   inversion; J=area/2pi; adiabatic |dJ/J|<2% while |dE/E|>40%.
   probe pass (E 11.55, w0 9.15, pot 1.17); visual 5/5 x3.
-- [ ] canonical-transformation-visual : medium canvas2d. HO ellipse to
-  (Q,P) strip, {Q,P}=1. Inv: PB=1 1e-10; area conserved.
+- [x] canonical-transformation-visual : medium canvas2d (FIS2021
+  bsc-y2s2). Phase blob + image under hoScale/rotation/squeeze/
+  point/identity/pDouble, {Q,P} + area-ratio readouts, deforming
+  lattice. Inv 8/8: {Q,P}=1 canonical 1e-10 / =2 pDouble; area
+  preserved; ellipse->circle r=sqrt(2E/w); M^T J M=J 1e-12;
+  composition/inverse closure; canonical!=symmetry (squeeze keeps
+  {,}=1 but changes H); shoelace exact. probe pass (par 6.39, E
+  11.42, map 7.66); visual 5/5 x3.
 - [ ] kam-theory-poincare-section : advanced canvas2d. Chirikov standard
   map, tori break, Kc~0.97 golden. Inv: K=0 straight; golden width to
   0 at Kc; det J=1.

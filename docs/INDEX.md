@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Canonical Transformations](../playgrounds/bsc-y2s2/FIS2021-canonical-transformation-visual/index.html)** &nbsp; (verified, verified 2026-05-17T11:12:22Z)
+  A phase blob (the harmonic energy ellipse plus an interior lattice) mapped by a chosen transformation; energy `E` sets the blob size, a parameter drives the map.
+
 - **[Action-Angle Variables](../playgrounds/bsc-y2s2/FIS2021-hamilton-jacobi-action-angle/index.html)** &nbsp; (verified, verified 2026-05-17T11:03:07Z)
   A 1-DOF bound system: harmonic `V = 1/2 w0^2 q^2`, pendulum `w0^2 (1 - cos q)`, or quartic `1/4 w0^2 q^4`, at energy `E`.
 

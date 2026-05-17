@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canonical Transformations</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 16px; background: rgba(6,6,8,0.6); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 8ch 11ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Canonical Transformations</h1>
+    <p>A change of phase-space coordinates $(q,p)\to(Q,P)$ is canonical when it preserves the symplectic structure: the Poisson bracket $\{Q,P\}=\partial_qQ\,\partial_pP-\partial_pQ\,\partial_pP=1$, equivalently the Jacobian is unimodular, equivalently it preserves phase-space area (Liouville). The left panel is a blob of phase points; the right is its image under the chosen map. The harmonic scaling turns the energy ellipse into a circle; a rotation spins it; a squeeze stretches it thin but keeps the area; a deliberately non-canonical $p$-doubling balloons it to twice the area, with $\{Q,P\}=2$. A canonical map need not be a symmetry: the squeeze is canonical yet changes the Hamiltonian. Source: Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="430" aria-label="A phase-space blob and its image under a canonical transformation, with the Poisson bracket and area readouts"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">map</span><span class="value" id="readout-map">identity</span>
+      <span class="label">{Q,P}</span><span class="value" id="readout-pb">1.000</span>
+      <span class="label">area in</span><span class="value" id="readout-ai">0</span>
+      <span class="label">area out</span><span class="value" id="readout-ao">0</span>
+      <span class="label">ratio</span><span class="value" id="readout-r">1.000</span>
+    </div>
+    <figcaption>
+      Figure 1. A phase-space region and its image under a canonical (or non-canonical) transformation, with the Poisson bracket and the area ratio.
+      <em>Method:</em> analytic Jacobian Poisson bracket; shoelace phase-area; symplectic M^T J M check.
+      <em>Source:</em> Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">map</span><select aria-label="canonical map" id="select-map" style="grid-column: span 2;"><option value="hoScale">harmonic scaling (ellipse to circle)</option><option value="rotation">phase rotation</option><option value="squeeze">area-preserving squeeze</option><option value="point">point + momentum</option><option value="identity">identity</option><option value="pDouble">p-doubling (NOT canonical)</option></select></div>
+    <div class="row"><span class="label">parameter</span><input aria-label="map parameter" type="range" id="slider-par" min="0.3" max="2.6" step="0.02" value="1.7"><span class="value" id="value-par">1.70</span></div>
+    <div class="row"><span class="label">energy E</span><input aria-label="ellipse energy" type="range" id="slider-e" min="0.3" max="2.0" step="0.05" value="1.0"><span class="value" id="value-e">1.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
