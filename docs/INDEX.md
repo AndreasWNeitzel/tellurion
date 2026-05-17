@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Spin on the Bloch Sphere](../playgrounds/bsc-y3s1/FIS3003-spin-bloch-sphere-dynamics/index.html)** &nbsp; (verified, verified 2026-05-17T12:15:45Z)
+  A two-level system (spin-1/2, qubit) in a static magnetic field `B0 z-hat` and a circularly polarized transverse RF field of amplitude `B1` rotating at `w_rf`. The pure state is the unit Bloch vector `S = (sin th cos ph, sin th sin ph, cos th)`, with the north pole `|0>` and the south pole `|1>`.
+
 - **[The p-n Junction](../playgrounds/bsc-y3s2/FIS3005-semiconductor-pn-junction/index.html)** &nbsp; (verified, verified 2026-05-17T12:09:42Z)
   A step junction with acceptor density `NA` (p side) and donor density `ND` (n side), applied bias `V` (forward positive), in silicon at 300 K.
 
@@ -58,9 +61,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Quantum Gas Statistics Visualizer](../playgrounds/bsc-y3s1/FIS3008-quantum-gas-statistics-visualizer/index.html)** &nbsp; (verified, verified 2026-05-17T08:10:11Z)
   A non-interacting gas of N indistinguishable particles in a 3D box, density of states `g(eps) = C sqrt(eps)`. Temperature `tau = kT` is the control; the chemical potential `mu(tau)` is whatever keeps the particle number fixed.
-
-- **[Spin on the Bloch Sphere](../playgrounds/bsc-y3s1/FIS3003-spin-bloch-sphere-dynamics/index.html)** &nbsp; (verified, verified 2026-05-17T07:55:07Z)
-  A two-level system (spin-1/2, qubit) in a static magnetic field `B0 z-hat` and a circularly polarized transverse RF field of amplitude `B1` rotating at `w_rf`. The pure state is the unit Bloch vector `S = (sin th cos ph, sin th sin ph, cos th)`, with the north pole `|0>` and the south pole `|1>`.
 
 - **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T04:06:29Z)
   Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).

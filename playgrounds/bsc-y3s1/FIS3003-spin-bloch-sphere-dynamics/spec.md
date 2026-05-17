@@ -56,10 +56,19 @@ Introduction to Quantum Mechanics (3rd ed.), Sec. 4.4 (`griffiths-qm`).
 - frame: lab (spiralling precession) or rotating (static drive axis).
 - show trail: the recent trajectory on the sphere.
 - pi pulse / pi/2 pulse: instantaneous rotation about the RF axis.
-- Reset, Pause.
+- drag on the sphere: orbits the 3D camera (azimuth and elevation).
+- Reset (also restores the default view), Pause.
 
 ## Expected qualitative features
 
+- The purple curve is the predicted future path S(t); a ring marks
+  its start, which is the present state, so the spin arrow tip sits
+  on it and travels along it. In the lab frame the path is a Larmor
+  + Rabi spiral that follows no fixed arrow (the drive axis itself
+  rotates); in the rotating frame it is a clean precession cone
+  about the static effective field. An on-canvas line states this.
+- The view can be orbited by dragging; the projection is a plain
+  Canvas2D azimuth/elevation rotation.
 - w1 = 0: pure Larmor precession, the cone angle fixed, `Sz` fixed,
   the tip tracing a latitude circle.
 - Resonant (d = 0), w1 > 0: the vector spirals pole to pole; a

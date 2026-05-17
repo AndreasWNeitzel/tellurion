@@ -28,14 +28,16 @@ const tTrail = document.getElementById('toggle-trail');
 const bPi = document.getElementById('btn-pi'), bPih = document.getElementById('btn-pihalf');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const st = { S: [0, 0, 1], t: 0, w0: 1.2, w1: 0.5, delta: 0, frame: 'lab', trail: true, running: true, traj: [] };
+const st = { S: [0, 0, 1], t: 0, w0: 1.2, w1: 0.5, delta: 0, frame: 'lab', trail: true, running: true, traj: [], az: -0.62, el: 0.46 };
 const wrf = () => st.w0 - st.delta;
 const params3 = () => ({ w0: st.w0, w1: st.w1, wrf: wrf() });
 
-// Fixed 3D view. World axes: z up (poles |0>, |1>), x toward |+>.
-const AZ = -0.62, EL = 0.46, R = 168;
-const CX = W * 0.40, CY = H * 0.52;
-const ca = Math.cos(AZ), sa = Math.sin(AZ), ce = Math.cos(EL), se = Math.sin(EL);
+// Interactive 3D view (drag to orbit). World axes: z up (poles |0>,
+// |1>), x toward |+>. Trig is cached and refreshed on view change.
+const R = 168, CX = W * 0.40, CY = H * 0.52;
+let ca, sa, ce, se;
+function updView() { ca = Math.cos(st.az); sa = Math.sin(st.az); ce = Math.cos(st.el); se = Math.sin(st.el); }
+updView();
 function proj(v) {
   const xr = v[0] * ca - v[1] * sa;
   const yr = v[0] * sa + v[1] * ca;
@@ -134,6 +136,12 @@ function render() {
       if (prev) { ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(p.x, p.y); ctx.stroke(); }
       prev = p;
     }
+    // ring at the start of the predicted path: it is the current
+    // state, so the green spin arrow tip sits exactly here and then
+    // travels along this purple curve.
+    const p0 = proj(toFrame([pp[0][1], pp[0][2], pp[0][3]], pp[0][0]));
+    ctx.strokeStyle = 'rgba(190,140,255,0.95)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(p0.x, p0.y, 8, 0, 2 * Math.PI); ctx.stroke();
   }
 
   // trajectory trail
@@ -169,9 +177,17 @@ function render() {
 
   // legend
   ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillStyle = '#06d6a0'; ctx.fillText('spin S', W - 150, 24);
-  ctx.fillStyle = 'rgba(255,209,102,0.95)'; ctx.fillText('drive axis', W - 150, 42);
-  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.fillText(st.frame === 'rot' ? 'rotating frame' : 'lab frame', W - 150, 60);
+  ctx.fillStyle = '#06d6a0'; ctx.fillText('spin S', W - 168, 24);
+  ctx.fillStyle = 'rgba(255,209,102,0.95)'; ctx.fillText('drive axis', W - 168, 42);
+  ctx.fillStyle = 'rgba(190,140,255,0.95)'; ctx.fillText('predicted S(t)', W - 168, 60);
+  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.fillText(st.frame === 'rot' ? 'rotating frame' : 'lab frame', W - 168, 78);
+  // why the path looks the way it does, and how to look around
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText(st.frame === 'rot'
+    ? 'the spin tip rides the purple path: a precession cone about the static effective field'
+    : 'the spin tip rides the purple path: a Larmor + Rabi spiral (switch to the rotating frame for the cone)',
+  W / 2, H - 26);
+  ctx.fillText('drag the sphere to rotate the view', W / 2, H - 10);
 
   // readout
   const ang = blochAngles(st.S);
@@ -234,7 +250,24 @@ selF.addEventListener('change', () => { st.frame = selF.value; render(); });
 tTrail.addEventListener('change', () => { st.trail = tTrail.checked; render(); });
 bPi.addEventListener('click', () => pulse(Math.PI));
 bPih.addEventListener('click', () => pulse(Math.PI / 2));
-bR.addEventListener('click', () => { st.S = [0, 0, 1]; st.t = 0; st.traj = []; st.running = true; bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); render(); });
+// drag to orbit the 3D view (mouse and touch via pointer events)
+canvas.style.touchAction = 'none';
+let drag = null;
+canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; try { canvas.setPointerCapture(e.pointerId); } catch { /* not capturable */ } });
+canvas.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const sens = (2 * Math.PI) / canvas.getBoundingClientRect().width;
+  st.az -= (e.clientX - drag.x) * sens;
+  st.el = Math.max(-1.45, Math.min(1.45, st.el + (e.clientY - drag.y) * sens));
+  drag.x = e.clientX; drag.y = e.clientY; updView();
+  if (!st.running) render();
+});
+const endDrag = () => { drag = null; };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+canvas.addEventListener('pointerleave', endDrag);
+
+bR.addEventListener('click', () => { st.S = [0, 0, 1]; st.t = 0; st.traj = []; st.running = true; st.az = -0.62; st.el = 0.46; updView(); bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); render(); });
 bP.addEventListener('click', () => { st.running = !st.running; bP.textContent = st.running ? 'Pause' : 'Play'; bP.setAttribute('aria-pressed', String(!st.running)); });
 
 const TOTAL_T = 22;
