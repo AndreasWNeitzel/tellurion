@@ -52,6 +52,13 @@ Reference: Allen and Tildesley, Computer Simulation of Liquids
 
 ## Expected qualitative features
 
+- The right panel is labelled in plain words: g(r) is the local
+  neighbour density divided by the bulk density. The first
+  coordination-shell peak is annotated with its r (with a leader
+  line to the curve), the small-r region as the excluded repulsive
+  core, and the g = 1 line as the structureless ideal gas, so it is
+  not a mystery plot. A bottom caption ties the peaks to the shells
+  visible in the box.
 - Cold and dense: a triangular crystal, sharp split g(r) peaks.
 - Warm and moderate rho: a liquid, one broad first peak near
   `r = 2^{1/6}`, decaying oscillations to `g -> 1`.

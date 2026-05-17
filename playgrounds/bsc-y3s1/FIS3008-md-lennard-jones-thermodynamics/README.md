@@ -5,8 +5,11 @@ each pair pulling and pushing through the Lennard-Jones potential,
 moved by velocity-Verlet (the same verified symplectic integrator the
 orbit playgrounds use). Particles are coloured by how fast they are
 moving. The right panel is the radial distribution function g(r), the
-probability of finding another particle a distance r away relative to
-an ideal gas: it is the fingerprint of the phase.
+neighbour density at a distance r divided by the bulk density: it is
+the fingerprint of the phase. It is annotated on the canvas: the
+first coordination-shell peak (with its r), the excluded repulsive
+core at small r, and the g = 1 ideal-gas line, with a caption tying
+the peaks to the shells you can see in the box.
 
 What to look for: at the default settings the system is a liquid, so
 g(r) has one strong peak just past one diameter and a couple of
