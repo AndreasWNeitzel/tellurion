@@ -2,6 +2,18 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[2D Waves in a Drawable Geometry](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified, verified 2026-05-17T11:33:26Z)
+  A vibrating membrane (or shallow water) in a 2D box with rigid obstacles. A monochromatic point source on the left radiates toward a wall with slits or an obstacle; the far side shows diffraction and interference. The domain edges are an absorbing sponge so the pattern is not contaminated by box reflections.
+
+- **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (verified, verified 2026-05-17T11:33:26Z)
+  A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
+
+- **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified, verified 2026-05-17T11:33:26Z)
+  A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.
+
+- **[The Meissner Effect](../playgrounds/bsc-y3s2/FIS3005-superconductivity-meissner-3d/index.html)** &nbsp; (verified, verified 2026-05-17T11:33:26Z)
+  A superconducting sphere of radius R in a uniform applied field B0, at reduced temperature T/Tc, type I or II, zero-temperature critical field Bc0.
+
 - **[KAM Theory - The Standard Map](../playgrounds/bsc-y2s2/FIS2021-kam-theory-poincare-section/index.html)** &nbsp; (verified, verified 2026-05-17T11:21:55Z)
   The standard map on the (theta, p) torus, stochasticity parameter `K`, seeded from a grid of orbits plus the golden-mean torus.
 
@@ -13,9 +25,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lagrangian Sandbox](../playgrounds/bsc-y2s2/FIS2021-lagrangian-field-sandbox/index.html)** &nbsp; (verified, verified 2026-05-17T10:52:03Z)
   One of: simple pendulum `[th, thd]`; double pendulum `[t1, t2, w1, w2]`; elastic pendulum `[r, th, rd, thd]`; planar Kepler `[x, y, vx, vy]`. Parameters: gravity `g`, initial amplitude.
-
-- **[The Meissner Effect](../playgrounds/bsc-y3s2/FIS3005-superconductivity-meissner-3d/index.html)** &nbsp; (verified, verified 2026-05-17T10:32:56Z)
-  A superconducting sphere of radius R in a uniform applied field B0, at reduced temperature T/Tc, type I or II, zero-temperature critical field Bc0.
 
 - **[Tight-Binding Band Structure](../playgrounds/bsc-y3s2/FIS3005-band-structure-tight-binding/index.html)** &nbsp; (verified, verified 2026-05-17T10:17:35Z)
   A single s-band: 1D chain (uniform t), the dimerized SSH chain (alternating t1, t2), or the 2D square lattice. Units a = hbar = 1.
@@ -665,9 +674,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
 
-- **[2D Waves in a Drawable Geometry](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified)
-  A vibrating membrane (or shallow water) in a 2D box with rigid obstacles. A monochromatic point source on the left radiates toward a wall with slits or an obstacle; the far side shows diffraction and interference. The domain edges are an absorbing sponge so the pattern is not contaminated by box reflections.
-
 - **[Adding Angular Momenta - The Vector Model](../playgrounds/bsc-y3s1/FIS3003-angular-momentum-coupling-3d/index.html)** &nbsp; (verified)
   Two angular momenta of magnitudes j1 and j2 are added; the total J is observed in the vector model and the basis change is read off the Clebsch-Gordan table.
 
@@ -709,9 +715,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified)
   Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
-
-- **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (verified)
-  A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
 
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
   A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
@@ -772,9 +775,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
-
-- **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified)
-  A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.

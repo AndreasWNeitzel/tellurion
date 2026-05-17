@@ -1,0 +1,14 @@
+import { chromium } from 'playwright';
+import { startStaticServer } from '../tests/helpers/static-server.mjs';
+const path = process.argv[2];
+const { server, url } = await startStaticServer(process.cwd());
+const b = await chromium.launch(); const pg = await b.newPage();
+const errs=[];
+pg.on('console', m => { if (m.type()==='error') errs.push(m.text()); });
+pg.on('pageerror', e => errs.push('PAGEERROR: '+e.message));
+await pg.goto(url+'/'+path+'/index.html');
+await pg.waitForTimeout(1500);
+const st = await pg.evaluate(()=>{const c=document.getElementById('stage');if(!c)return 'NO CANVAS';const g=c.getContext('2d');const d=g.getImageData(0,0,c.width,c.height).data;let nz=0;for(let i=0;i<d.length;i+=4)if(d[i]>16||d[i+1]>16||d[i+2]>16)nz++;return nz<50?'BLANK':('drawn '+nz+' px');});
+console.log('errors:', errs.length?errs.join(' | '):'(none)');
+console.log('canvas:', st);
+await b.close(); await server.closePromise(); process.exit(0);

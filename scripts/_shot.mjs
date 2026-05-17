@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+import { startStaticServer } from '../tests/helpers/static-server.mjs';
+const path = process.argv[2], out = process.argv[3];
+const { server, url } = await startStaticServer(process.cwd());
+const b = await chromium.launch(); const pg = await b.newPage();
+await pg.setViewportSize({width:900,height:760});
+const errs=[]; pg.on('pageerror', e=>errs.push(e.message)); pg.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
+await pg.goto(url+'/'+path+'/index.html');
+await pg.waitForTimeout(1800);
+await pg.screenshot({ path: out, fullPage: true });
+console.log('errs:', errs.length?errs.join(' | '):'(none)');
+await b.close(); await server.closePromise(); process.exit(0);
