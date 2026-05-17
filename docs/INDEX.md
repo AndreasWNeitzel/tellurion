@@ -725,6 +725,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[The Huygens Construction](../playgrounds/bsc-y2s1/FIS2002-huygens-construction-interactive/index.html)** &nbsp; (verified)
   A wavefront (a vertical aperture or a concave arc) is discretised into N coherent secondary point sources. Each radiates a circular wavelet; the superposition is the field downstream and the envelope is the reconstructed wavefront.
 
+- **[The Photoelectric Effect](../playgrounds/bsc-y2s2/FIS2003-photoelectric-effect-simulator/index.html)** &nbsp; (verified)
+  A phototube: monochromatic light of frequency nu illuminates a metal cathode of work function phi; ejected electrons cross to an anode held at an applied voltage V, and an ammeter reads the photocurrent.
+
 - **[Thermodynamic Engine Simulator](../playgrounds/bsc-y2s1/FIS2014-thermodynamic-engine-simulator/index.html)** &nbsp; (verified)
   n moles of an ideal gas (gamma = 5/3) in a piston-cylinder, exchanging heat with hot and cold reservoirs as it runs a closed cycle. Molecule speeds scale with the live temperature; the piston position tracks the volume; the reservoirs glow when heat flows.
 

@@ -153,9 +153,12 @@ docs/NEEDS-ATTENTION.md, move on.
   series. Inv 6/6: mode transforms + A/charge conservation; SEMF B/A
   iron peak (Fe-56 3%); U-238 8a/6b -> Pb-206; chain exothermic;
   Geiger-Nuttall at fixed Zd; beta- m_n-m_H term. probe pass; visual x3.
-- [ ] photoelectric-effect-simulator : medium canvas2d. Metal plus
-  photons, Ek=hv-phi, stopping V, IV curve. Inv: Vstop prop v slope
-  h/e; none below phi/h; Ek indep intensity.
+- [x] photoelectric-effect-simulator : advanced canvas2d. Phototube
+  (beam hue~nu, dense electron field~intensity, V-tinted gap) + I-V
+  curve + Einstein line panels; 5 metals. Inv 6/6: K=hv-phi + threshold;
+  no current below nu0 at any I/V; K indep of intensity; Einstein slope
+  =h/e 1e-6 metal-indep; Isat prop intensity, cutoff indep; nu/phi
+  trends. probe pass; visual x3. Section 5 (FIS2003) complete.
 
 ## Section 6: FIS2006 Eletromagnetismo II (2Y-2S; Griffiths8+, Jackson)
 
