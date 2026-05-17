@@ -168,9 +168,12 @@ docs/NEEDS-ATTENTION.md, move on.
   electric/magnetic/antenna. Inv 7/7: pattern nulls/max/symmetry;
   Larmor=integral 0.2%; omega^4 & p0^2; 1/r^2 flux; orthogonal triad
   |E|=c|B|; D=3/2 vs antenna 1.64. probe pass; visual x3.
-- [ ] fresnel-snell-3d-interface : advanced webgl2. Interface, incident/
-  reflected/refracted packets, Brewster rp to 0, TIR plus evanescent.
-  Inv: Snell 0.01deg; rp=0 at thetaB; |r|^2=1 above thetac; E 1e-4.
+- [x] fresnel-snell-3d-interface : advanced canvas2d (webgl2 deferred
+  per blind-build stop-condition). Power-width incident/reflected/
+  refracted beams, Brewster extinction, TIR + evanescent skin,
+  polarization-state inset, Fresnel R panel. Inv 6/6: Snell 0.01deg;
+  Rp=0 at thetaB; R+T=1 1e-4; TIR R=1 + evanescent; normal-incidence
+  coincidence; grazing/no-interface limits. probe pass; visual x3.
 - [ ] waveguide-mode-animator : medium canvas2d. Rect guide TE/TM mode
   maps, cutoff bar, evanescent below cutoff. Inv: fc 0.1%; evanescent
   beta imaginary; TE10 lowest.

@@ -659,6 +659,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (verified)
   A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
 
+- **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
+  A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
+
 - **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (verified)
   Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emer
 
