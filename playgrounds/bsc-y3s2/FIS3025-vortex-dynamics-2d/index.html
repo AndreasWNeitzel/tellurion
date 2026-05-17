@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2D Point-Vortex Dynamics</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function r(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false }); else setTimeout(r, 50); } r(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 720px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.62); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 12ch 10ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>2D Point-Vortex Dynamics</h1>
+    <p>A set of ideal point vortices, each of fixed circulation $\Gamma_a$, advecting one another through the velocity each induces (the 2D Biot-Savart law $\vec v(\vec p)=\sum_a \frac{\Gamma_a}{2\pi}\,\hat z\times(\vec p-\vec r_a)/|\vec p-\vec r_a|^2$). This is a Hamiltonian system: the total circulation, the linear and angular impulse, and the Kirchhoff-Routh Hamiltonian $H=-\frac1{4\pi}\sum_{a<b}\Gamma_a\Gamma_b\ln|\vec r_a-\vec r_b|$ are all conserved (Saffman; Aref). Two vortices of equal and opposite circulation a distance $d$ apart form a dipole that travels in a straight line at exactly $v=\Gamma/2\pi d$; an equal co-rotating pair spins about its centroid; three or more give the integrable-to-chaotic vortex motion of Aref. Tracer particles ride the induced flow as streaklines. The headline readout is the relative drift of $H$, held under $10^{-3}$ by the RK4 integrator. Source: Saffman, Vortex Dynamics, CUP 1992 (`saffman1992`); Aref, Annu. Rev. Fluid Mech. 15 (1983) 345 (`aref1983`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <div style="position:relative;">
+      <canvas id="stage" width="720" height="480" aria-label="Interacting 2D point vortices with tracer streaklines"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">H drift</span><span class="value" id="readout-h">0</span>
+        <span class="label">sum Gamma</span><span class="value" id="readout-gamma">0</span>
+        <span class="label">|impulse|</span><span class="value" id="readout-p">0</span>
+        <span class="label">ang. impulse</span><span class="value" id="readout-l">0</span>
+      </div>
+    </div>
+    <figcaption>
+      Figure 1. Interacting 2D point vortices (warm = positive circulation, cool = negative) advecting one another via the Biot-Savart law; tracer particles trace the induced streaklines. A dipole translates at $v=\Gamma/2\pi d$; co-rotating vortices orbit; three or more are integrable-to-chaotic.
+      <em>Method:</em> RK4 integration of the Hamiltonian point-vortex equations (gate-tested sim.js), Canvas2D; the live readout is the relative drift of the conserved Hamiltonian.
+      <em>Source:</em> Saffman, CUP 1992 (`saffman1992`); Aref, Annu. Rev. Fluid Mech. 15 (1983) 345 (`aref1983`); Batchelor, sec. 7.3 (`batchelor1967`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">configuration</span><select aria-label="vortex preset" id="select-preset" style="grid-column: span 2;"><option value="dipole">dipole (translating pair)</option><option value="corotating">co-rotating pair</option><option value="tripole">tripole (3 vortices)</option><option value="quadrupole">quadrupole (4 vortices)</option></select></div>
+    <div class="row"><span class="label">strength</span><input aria-label="circulation strength multiplier x100" type="range" id="slider-strength" min="20" max="250" step="1" value="100"><span class="value" id="value-strength">1.00</span></div>
+    <div class="row"><span class="label">speed</span><input aria-label="time steps per frame" type="range" id="slider-speed" min="1" max="8" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js?v=20260518r1"></script>
+</body>
+</html>

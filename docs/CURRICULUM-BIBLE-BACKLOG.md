@@ -364,7 +364,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] bernoulli-venturi-interactive : medium canvas2d. Variable pipe,
   v prop 1/A, p columns, airfoil lift. Inv: Bernoulli const 0.1%; Av
   const.
-- [ ] vortex-dynamics-2d : medium canvas2d. Point vortices, dipole
+- [x] vortex-dynamics-2d : medium canvas2d. Point vortices, dipole
   translate, streamlines. Inv: circulation conserved; pair v=G/2pi d;
   H 0.1%.
 

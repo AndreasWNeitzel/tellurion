@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[2D Point-Vortex Dynamics](../playgrounds/bsc-y3s2/FIS3025-vortex-dynamics-2d/index.html)** &nbsp; (verified, verified 2026-05-17T23:15:10Z)
+  `N` ideal point vortices in an unbounded 2D inviscid fluid. Vortex `a` has a fixed circulation `Gamma_a` and position `r_a(t)`. Each vortex is passively advected by the velocity field induced by all the others (a vortex does not advect itself). The induced velocity at a point `p` is the 2D Biot-Savart sum. The resulting motion is Hamiltonian: for `N <= 3` it
+
 - **[Bernoulli and the Venturi Effect](../playgrounds/bsc-y3s2/FIS3025-bernoulli-venturi-interactive/index.html)** &nbsp; (verified, verified 2026-05-17T23:06:06Z)
   Steady, incompressible, inviscid flow along a horizontal pipe whose cross-sectional area `A(x)` varies (a smooth constriction, the Venturi). Two conservation laws fix everything. Mass conservation (continuity): the volumetric flow rate `Q = A(x) v(x)` is the same at every station, so the fluid speeds up where the pipe narrows. Bernoulli's theorem along a str
 
