@@ -1605,3 +1605,69 @@
   isbn      = {978-0387977454},
   note      = {Ch. 4: the Chirikov-Taylor standard map, the area-preserving twist, KAM-tori destruction, Greene's golden-mean critical parameter K_c ~ 0.9716, and the onset of global stochastic diffusion.}
 }
+
+@article{chorin1968,
+  author    = {Chorin, Alexandre Joel},
+  title     = {Numerical Solution of the {Navier}-{Stokes} Equations},
+  journal   = {Mathematics of Computation},
+  volume    = {22},
+  number    = {104},
+  pages     = {745--762},
+  year      = {1968},
+  doi       = {10.1090/S0025-5718-1968-0242392-2},
+  note      = {The projection (fractional-step) method: split the momentum update from the incompressibility constraint, enforcing div u = 0 by a pressure-Poisson solve.}
+}
+
+@inproceedings{stam1999,
+  author    = {Stam, Jos},
+  title     = {Stable Fluids},
+  booktitle = {Proceedings of SIGGRAPH 99},
+  pages     = {121--128},
+  year      = {1999},
+  doi       = {10.1145/311535.311548},
+  note      = {Unconditionally stable semi-Lagrangian advection plus implicit (Gauss-Seidel) diffusion and a Hodge projection; the standard real-time incompressible solver.}
+}
+
+@incollection{harris-gpufluids,
+  author    = {Harris, Mark J.},
+  title     = {Fast Fluid Dynamics Simulation on the {GPU}},
+  booktitle = {GPU Gems 2},
+  editor    = {Pharr, Matt},
+  chapter   = {38},
+  publisher = {Addison-Wesley / NVIDIA},
+  year      = {2005},
+  isbn      = {978-0321335593},
+  note      = {Ch. 38: ping-pong fragment-shader float-texture implementation of the Stam scheme (advect, diffuse, Jacobi pressure-Poisson, project) on the GPU.}
+}
+
+@article{williamson1996,
+  author    = {Williamson, C. H. K.},
+  title     = {Vortex Dynamics in the Cylinder Wake},
+  journal   = {Annual Review of Fluid Mechanics},
+  volume    = {28},
+  pages     = {477--539},
+  year      = {1996},
+  doi       = {10.1146/annurev.fl.28.010196.002401},
+  note      = {The laminar Strouhal-Reynolds relation St(Re) = -3.3265/Re + 0.1816 + 1.6e-4 Re for 47 < Re < 180 (St ~ 0.164 at Re = 100); the 0.21 value is the high-Re asymptote, not Re = 100.}
+}
+
+@article{kraichnan1967,
+  author    = {Kraichnan, Robert H.},
+  title     = {Inertial Ranges in Two-Dimensional Turbulence},
+  journal   = {Physics of Fluids},
+  volume    = {10},
+  number    = {7},
+  pages     = {1417--1423},
+  year      = {1967},
+  doi       = {10.1063/1.1762301},
+  note      = {Two-dimensional turbulence has a dual cascade: an inverse energy cascade to large scales and a forward enstrophy cascade, qualitatively unlike 3D Kolmogorov turbulence.}
+}
+
+@book{batchelor1967,
+  author    = {Batchelor, G. K.},
+  title     = {An Introduction to Fluid Dynamics},
+  publisher = {Cambridge University Press},
+  year      = {1967},
+  isbn      = {978-0521663960},
+  note      = {Ch. 4: Stokes (creeping) flow, its linearity, reversibility and fore-aft symmetry; vorticity dynamics and the energy equation.}
+}
