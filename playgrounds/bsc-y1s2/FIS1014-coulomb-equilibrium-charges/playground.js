@@ -1,4 +1,5 @@
 import { forceAt, potentialAt } from './sim.js';
+import { rdbu, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -10,8 +11,8 @@ const sq = document.getElementById('slider-q'), vq = document.getElementById('va
 const cfg = document.getElementById('select-cfg'), tf = document.getElementById('toggle-field');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause'), btnE = document.getElementById('btn-equil'), btnT = document.getElementById('btn-trace');
 let st = { Q: 1, q: 0.5, cfg: 'quad', showField: true };
-let test = { x: 0.5, y: 0.3, vx: 0, vy: 0 };
-let trace = []; let dragging = false; let running = false; let tracing = false;
+let test = { x: 0.6, y: 1.1, vx: 0, vy: 0 };
+let trace = []; let dragging = false; let running = true; let tracing = false;
 function configCharges() {
   switch (st.cfg) {
     case 'quad': return [{x:1.5,y:1.5,q:st.Q},{x:-1.5,y:1.5,q:st.Q},{x:1.5,y:-1.5,q:st.Q},{x:-1.5,y:-1.5,q:st.Q}];
@@ -25,7 +26,7 @@ sQ.addEventListener('input', () => { st.Q = parseFloat(sQ.value); vQ.textContent
 sq.addEventListener('input', () => { st.q = parseFloat(sq.value); vq.textContent = st.q.toFixed(1); });
 cfg.addEventListener('change', () => { st.cfg = cfg.value; trace = []; });
 tf.addEventListener('change', () => { st.showField = tf.checked; });
-btnR.addEventListener('click', () => { test = { x: 0.5, y: 0.3, vx: 0, vy: 0 }; trace = []; running = false; tracing = false; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); btnT.textContent = 'Trace orbit'; });
+btnR.addEventListener('click', () => { test = { x: 0.6, y: 1.1, vx: 0, vy: 0 }; trace = []; running = true; tracing = false; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); btnT.textContent = 'Trace orbit'; });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 btnE.addEventListener('click', () => {
   let r = { x: test.x, y: test.y };
@@ -35,24 +36,87 @@ btnE.addEventListener('click', () => {
 });
 btnT.addEventListener('click', () => { tracing = !tracing; running = tracing; trace = []; btnT.textContent = tracing ? 'Stop trace' : 'Trace orbit'; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function clientToWorld(cx, cy) { const rect = canvas.getBoundingClientRect(); const sx = canvas.width / rect.width, sy = canvas.height / rect.height; return { x: ((cx - rect.left) * sx - canvas.width / 2) / 60, y: -((cy - rect.top) * sy - canvas.height / 2) / 60 }; }
-canvas.addEventListener('mousedown', (e) => { dragging = true; const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; test.vx = 0; test.vy = 0; canvas.classList.add('dragging'); });
-canvas.addEventListener('mousemove', (e) => { if (dragging) { const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; trace = []; } });
+canvas.addEventListener('mousedown', (e) => { dragging = true; const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; test.vx = 0; test.vy = 0; trace = [[w.x, w.y]]; canvas.classList.add('dragging'); });
+canvas.addEventListener('mousemove', (e) => { if (dragging) { const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; trace.push([w.x, w.y]); if (trace.length > 600) trace.shift(); } });
 window.addEventListener('mouseup', () => { dragging = false; canvas.classList.remove('dragging'); });
 function colors() { return { bg: '#060608', fg: '#e8e8e8', muted: '#9aa0a6', accent: '#ffd166', pos: '#ef476f', neg: '#5bc0eb', test: '#06d6a0' }; }
 const PHYSICS_DT = 1 / 240;
 let last = performance.now(), acc = 0;
+// Force streamline through the test charge: the curve everywhere
+// tangent to F = qE. Traced at constant speed (RK2) like a field
+// line, so it is always long and smooth and never blows up. For q > 0
+// it runs along +E (the charge is pushed away from positive sources);
+// for q < 0 it runs along -E (pulled in), so the sign of the q slider
+// reverses the whole curve. Recomputed every frame, so it also tracks
+// the drag. This is the direction the charge first accelerates and
+// the path it follows in the overdamped limit.
+function predictTrajectory() {
+  const C = configCharges();
+  const sgn = st.q >= 0 ? 1 : -1;
+  let x = test.x, y = test.y;
+  const pts = [[x, y]];
+  for (let s = 0; s < 620; s += 1) {
+    const f = forceAt(x, y, C);
+    const m = Math.hypot(f.fx, f.fy); if (m < 1e-7) break;
+    const ds = 0.045;
+    const hx = x + 0.5 * ds * sgn * f.fx / m, hy = y + 0.5 * ds * sgn * f.fy / m;
+    const fh = forceAt(hx, hy, C); const mh = Math.hypot(fh.fx, fh.fy) || 1;
+    x += ds * sgn * fh.fx / mh; y += ds * sgn * fh.fy / mh;
+    pts.push([x, y]);
+    let hit = false;
+    for (const ch of C) if (Math.hypot(x - ch.x, y - ch.y) < 0.18) hit = true;
+    if (hit || Math.abs(x) > 6.6 || Math.abs(y) > 4.5) break;
+  }
+  return pts;
+}
 function step() {
   const C = configCharges();
   const f = forceAt(test.x, test.y, C);
   test.vx += st.q * f.fx * PHYSICS_DT; test.vy += st.q * f.fy * PHYSICS_DT;
   test.vx *= 0.998; test.vy *= 0.998;
   test.x += test.vx * PHYSICS_DT; test.y += test.vy * PHYSICS_DT;
-  if (tracing) { trace.push([test.x, test.y]); if (trace.length > 2000) trace.shift(); }
+  // Always keep a rolling trail so the field-driven motion is
+  // visible; Trace orbit keeps a long persistent path instead.
+  trace.push([test.x, test.y]);
+  if (trace.length > (tracing ? 4000 : 240)) trace.shift();
+}
+// Interaction-energy map U(x,y) = q V(x,y), the landscape the test
+// charge feels. Its minima/maxima/saddles are exactly the equilibria;
+// stability follows from the curvature. Drawn as a translucent
+// diverging (red-blue) background, so the whole map inverts when the
+// q slider changes sign and rescales with its magnitude and with Q.
+const EGW = 96, EGH = 64;
+const eField = new Float64Array(EGW * EGH);
+const eAbs = new Float64Array(EGW * EGH);
+let eCanvas = null, eCtx = null;
+function drawEnergy(C, cx, cy, scale) {
+  if (!eCanvas) { eCanvas = document.createElement('canvas'); eCanvas.width = EGW; eCanvas.height = EGH; eCtx = eCanvas.getContext('2d'); }
+  for (let gy = 0; gy < EGH; gy += 1) {
+    const wy = -(((gy + 0.5) / EGH * canvas.height - cy) / scale);
+    for (let gx = 0; gx < EGW; gx += 1) {
+      const wx = ((gx + 0.5) / EGW * canvas.width - cx) / scale;
+      const e = st.q * potentialAt(wx, wy, C);
+      eField[gy * EGW + gx] = e;
+      eAbs[gy * EGW + gx] = Math.abs(e);
+    }
+  }
+  // Robust scale: the median |U|, not the max, so the 1/r spikes at
+  // the source charges saturate while the saddle and well structure
+  // (the equilibria) stays visible. tanh keeps it a smooth diverging
+  // map centred at U = 0, so flipping q inverts it.
+  const med = [...eAbs].sort((a, b) => a - b)[eAbs.length >> 1] || 1e-6;
+  for (let i = 0; i < eField.length; i += 1) eField[i] = 0.5 + 0.5 * Math.tanh(eField[i] / (3 * med));
+  const img = fieldToImageData(eField, EGW, EGH, 0, 1, rdbu);
+  eCtx.putImageData(img, 0, 0);
+  ctx.globalAlpha = 0.5; ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(eCanvas, 0, 0, canvas.width, canvas.height);
+  ctx.globalAlpha = 1;
 }
 function render() {
   const c = colors(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const cx = canvas.width / 2, cy = canvas.height / 2, scale = 60;
   const C = configCharges();
+  drawEnergy(C, cx, cy, scale);
   if (st.showField) {
     // Electric field lines: streamlines seeded radially around each
     // positive charge, integrated along E until they reach a negative
@@ -101,6 +165,13 @@ function render() {
       }
     }
   }
+  {
+    const pp = predictTrajectory();
+    ctx.strokeStyle = c.test; ctx.lineWidth = 3; ctx.globalAlpha = 0.85;
+    ctx.beginPath(); ctx.moveTo(cx + pp[0][0] * scale, cy - pp[0][1] * scale);
+    for (const [x, y] of pp) ctx.lineTo(cx + x * scale, cy - y * scale);
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
   if (trace.length > 1) {
     ctx.strokeStyle = c.test; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.6;
     ctx.beginPath(); ctx.moveTo(cx + trace[0][0] * scale, cy - trace[0][1] * scale);
@@ -113,9 +184,25 @@ function render() {
     ctx.fillStyle = c.fg; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText((ch.q >= 0 ? '+' : '') + ch.q.toFixed(1), cx + ch.x * scale, cy - ch.y * scale - 12);
   }
-  ctx.fillStyle = c.test; ctx.beginPath(); ctx.arc(cx + test.x * scale, cy - test.y * scale, 7, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.stroke();
   const f = forceAt(test.x, test.y, C); const v = potentialAt(test.x, test.y, C);
+  // Force on the test charge, F = q E. The arrow scales and flips
+  // with the q slider, so its sign and magnitude are visible at rest.
+  const Fx = st.q * f.fx, Fy = st.q * f.fy, Fm = Math.hypot(Fx, Fy);
+  const tpx = cx + test.x * scale, tpy = cy - test.y * scale;
+  if (Fm > 1e-3) {
+    const Lp = (16 + 70 * Math.tanh(Fm / 3)) / Fm;
+    const hx = tpx + Fx * Lp, hy = tpy - Fy * Lp;
+    const ang = Math.atan2(-(Fy), Fx);
+    ctx.strokeStyle = c.accent; ctx.fillStyle = c.accent; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(tpx, tpy); ctx.lineTo(hx, hy); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(hx, hy);
+    ctx.lineTo(hx - 9 * Math.cos(ang - 0.42), hy - 9 * Math.sin(ang - 0.42));
+    ctx.lineTo(hx - 9 * Math.cos(ang + 0.42), hy - 9 * Math.sin(ang + 0.42));
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle = c.test; ctx.beginPath(); ctx.arc(tpx, tpy, 7, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.stroke();
   ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText(`F = (${(st.q*f.fx).toFixed(2)}, ${(st.q*f.fy).toFixed(2)})`, 12, 20);
   ctx.fillText(`V = ${v.toFixed(3)}`, 12, 38);
@@ -123,7 +210,10 @@ function render() {
 }
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.1); last = now;
-  if (running) { acc += dt; while (acc >= PHYSICS_DT) { step(); acc -= PHYSICS_DT; } }
+  // Freeze the integrator while the charge is held; on release it
+  // accelerates from rest under F = qE. acc is cleared so the release
+  // does not replay an accumulated time burst.
+  if (running && !dragging) { acc += dt; while (acc >= PHYSICS_DT) { step(); acc -= PHYSICS_DT; } } else { acc = 0; }
   render(); requestAnimationFrame(tick);
 }
 function bootSync() {
