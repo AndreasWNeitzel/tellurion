@@ -374,7 +374,7 @@ docs/NEEDS-ATTENTION.md, move on.
   B/E, presets cyclotron/ExB/grad-B/curvature/mirror, helix trail.
   F=q(E+v x B). Inv: |v| const pure B; ExB dir; mirror reflect
   vperp2/v2=B0/Bmax.
-- [ ] plasma-waves-dispersion : advanced canvas2d. log w-k modes (O/X/
+- [x] plasma-waves-dispersion : advanced canvas2d. log w-k modes (O/X/
   Langmuir/ion-acoustic/Alfven), cutoffs/resonances, pulse decompose.
   Inv: O-mode w=wp k=0; X stop-band; wp formula.
 - [ ] two-stream-instability-pic : advanced canvas2d. UPGRADE existing

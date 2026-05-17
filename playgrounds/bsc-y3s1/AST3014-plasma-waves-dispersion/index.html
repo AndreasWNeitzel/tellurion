@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plasma-Wave Dispersion</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function r(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false }); else setTimeout(r, 50); } r(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; bottom: 96px; left: 74px; background: rgba(6,6,8,0.66); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 7ch 14ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Plasma-Wave Dispersion</h1>
+    <p>The $\omega$-$k$ diagram of the basic plasma waves. The electron plasma frequency $\omega_p=\sqrt{n e^2/\varepsilon_0 m_e}$ sets the scale. The ordinary (O) mode $\omega^2=\omega_p^2+c^2k^2$ has a cutoff at $\omega=\omega_p$ (no propagation below it) and a superluminal phase speed with $v_\phi v_g=c^2$. The extraordinary (X) mode has cutoffs $\omega_{L,R}$ and an upper-hybrid resonance $\omega_{UH}=\sqrt{\omega_p^2+\omega_c^2}$, with a stop-band between the resonance and the right cutoff. The Bohm-Gross Langmuir branch is $\omega^2=\omega_p^2+3k^2v_{th}^2$; the ion-acoustic branch $\omega=kc_s/\sqrt{1+k^2\lambda_D^2}$ saturates; the Alfven wave $\omega=kv_A$ is non-dispersive. A marker sweeps the branch reporting the phase and group speed; the inset is a wave at the marked $(k,\omega)$ travelling at the phase speed. All curves are closed form (gate-tested). Source: Stix, Waves in Plasmas, AIP 1992 (`stix1992`); Swanson, Plasma Waves, 2nd ed. (`swanson2003`); Chen, ch. 4 (`chen1984`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <div style="position:relative;">
+      <canvas id="stage" width="760" height="500" aria-label="Log-log omega-k dispersion diagram of plasma waves with cutoffs and resonances"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">wp</span><span class="value" id="readout-wp">0</span>
+        <span class="label">cutoffs</span><span class="value" id="readout-cut">-</span>
+        <span class="label">v_phase</span><span class="value" id="readout-vph">0</span>
+        <span class="label">v_group</span><span class="value" id="readout-vgr">0</span>
+      </div>
+    </div>
+    <figcaption>
+      Figure 1. Log-log dispersion diagram of the plasma-wave branches with the light line, the omega = omega_p reference, and (X-mode) the cutoffs and the upper-hybrid resonance; the sweeping marker reports the phase and group speed.
+      <em>Method:</em> closed-form cold/warm fluid dispersion relations (gate-tested sim.js), Canvas2D log-log plot; the live readouts are omega_p, the cutoffs, and v_phase / v_group at the marker.
+      <em>Source:</em> Stix, AIP 1992 (`stix1992`); Swanson, 2nd ed. (`swanson2003`); Chen, ch. 4 (`chen1984`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">mode</span><select aria-label="wave mode" id="select-mode" style="grid-column: span 2;"><option value="omode">O-mode (ordinary EM)</option><option value="xmode">X-mode (extraordinary)</option><option value="langmuir">Langmuir (Bohm-Gross)</option><option value="ionacoustic">ion-acoustic</option><option value="alfven">Alfven</option></select></div>
+    <div class="row"><span class="label">omega_p (rel.)</span><input aria-label="plasma frequency relative, x100" type="range" id="slider-ne" min="40" max="200" step="1" value="100"><span class="value" id="value-ne">1.00</span></div>
+    <div class="row"><span class="label">omega_c (rel.)</span><input aria-label="cyclotron frequency relative, x100" type="range" id="slider-wc" min="10" max="200" step="1" value="60"><span class="value" id="value-wc">0.60</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js?v=20260518r1"></script>
+</body>
+</html>

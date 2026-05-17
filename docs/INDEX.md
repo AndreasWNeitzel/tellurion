@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Plasma-Wave Dispersion](../playgrounds/bsc-y3s1/AST3014-plasma-waves-dispersion/index.html)** &nbsp; (verified, verified 2026-05-17T23:35:16Z)
+  A uniform plasma supports a family of waves whose frequency depends on wavenumber, the dispersion relation. The electron plasma frequency `omega_p` and the electron cyclotron frequency `omega_c` set the scales. Electromagnetic waves split into the ordinary (O) and extraordinary (X) modes; electrostatic oscillations are the Langmuir (electron) and ion-acousti
+
 - **[Single-Particle Motion: Drifts in E and B](../playgrounds/bsc-y3s1/AST3014-single-particle-em-drift-3d/index.html)** &nbsp; (verified, verified 2026-05-17T23:25:23Z)
   One non-relativistic charged particle (charge `q`, mass `m`) moving under the Lorentz force in prescribed static `E` and `B` fields. In a uniform `B` the motion is a helix: circular gyration at the cyclotron frequency superposed on free streaming along `B`. Adding a force or a field gradient makes the guiding centre drift across `B`: a uniform `E` perpendicu
 
