@@ -64,7 +64,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 2: FIS1004 Eletromagnetismo I (1Y-2S; Griffiths, Purcell)
 
-- [ ] laplace-solver-2d-interactive : hero webgl2. Draw conductors, SOR
+- [x] laplace-solver-2d-interactive : hero webgl2. Draw conductors, SOR
   relax phi (RdBu), E streamlines. omega=1.8. Inv: parallel plate
   E=V/d 1%; coax phi=A ln r+B 0.5%; E normal at conductors.
 - [ ] poynting-vector-wave-3d : hero webgl2. Plane EM wave, E(x)/B(y)
