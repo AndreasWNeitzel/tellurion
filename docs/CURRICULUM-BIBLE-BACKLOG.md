@@ -44,7 +44,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 1: F1006 Mecanica (L:F/L:EF 1Y-1S; Marion-Thornton, Kleppner)
 
-- [ ] rigid-body-euler-3d : hero webgl2. Torque-free tumbling ellipsoid,
+- [x] rigid-body-euler-3d : hero webgl2. Torque-free tumbling ellipsoid,
   principal-axis arrows, body omega plus space L, polhode plus
   herpolhode trails, Dzhanibekov preset. Euler eqs RK4 dt=.005,
   quaternion qdot=0.5 q x [0,w]. Inv: E and |L|^2 conserved 1e-4 over
