@@ -647,6 +647,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (verified)
   Atmosphere is drawn as a gradient from dark space to ground. A primary cosmic ray streaks in from the top; the shower front then propagates downward and the Heitler cascade fans out into a bright-cored cone, colour-coded by particle energy (white at high energy near shower maximum, gold mid-cascade, blue once below the critical energy). The descending front 
 
+- **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified)
+  An oscillating electric (or magnetic) dipole, or a centre-fed half-wave antenna, at the origin with its axis vertical. The radiated power flows outward through the far zone.
+
 - **[Elastic Waves: P and S Modes in a Solid](../playgrounds/bsc-y2s1/FIS2002-elastic-wave-modes-solid/index.html)** &nbsp; (verified)
   A homogeneous isotropic elastic medium. A localised source (point force, explosive, or shear couple) excites body waves; a seismograph station off-axis records the ground motion.
 

@@ -162,9 +162,12 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 6: FIS2006 Eletromagnetismo II (2Y-2S; Griffiths8+, Jackson)
 
-- [ ] dipole-radiation-3d : hero webgl2. Oscillating dipole, near/far
-  fields, sin^2 t donut surface, Larmor P readout; E/M-dipole/antenna.
-  Inv: zero theta=0,pi; max pi/2; S~1/r^2; Larmor 1%; E perp B perp r.
+- [x] dipole-radiation-3d : hero canvas2d (3D projection; webgl2
+  deferred per blind-build stop-condition). Rotating sin^2 donut +
+  polarization texture + pulsing source + wavefronts; polar panel;
+  electric/magnetic/antenna. Inv 7/7: pattern nulls/max/symmetry;
+  Larmor=integral 0.2%; omega^4 & p0^2; 1/r^2 flux; orthogonal triad
+  |E|=c|B|; D=3/2 vs antenna 1.64. probe pass; visual x3.
 - [ ] fresnel-snell-3d-interface : advanced webgl2. Interface, incident/
   reflected/refracted packets, Brewster rp to 0, TIR plus evanescent.
   Inv: Snell 0.01deg; rp=0 at thetaB; |r|^2=1 above thetac; E 1e-4.

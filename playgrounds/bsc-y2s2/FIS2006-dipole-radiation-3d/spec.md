@@ -1,0 +1,86 @@
+---
+title: Dipole Radiation in 3D
+slug: dipole-radiation-3d
+status: verified
+audience: portfolio
+created: 2026-05-17
+hook: 'The radiation donut: nothing along the axis, everything in the equator, and the power climbing as the fourth power of the frequency.'
+one_paragraph: 'An oscillating dipole radiates with the angular pattern sin^2(theta), the toroidal donut shown here as a rotating projected surface with the pulsing source and outgoing wavefronts. The time-averaged power is the Larmor form P = mu0 p0^2 omega^4 / (12 pi c), scaling as omega^4, and in the far zone E, B and r-hat are mutually orthogonal with |E| = c|B|. Switch to a magnetic dipole (same pattern, swapped polarization) or a half-wave antenna (sharper lobes, higher directivity). The side panel is the polar angular pattern with the live Larmor power and directivity. The headless sim.js is gate-tested for the pattern shape, the Larmor integral, omega^4 scaling, 1/r^2 flux conservation, the orthogonal triad, and the directivities.'
+tags: [electromagnetism, radiation, 3d, multi-panel, live-readout]
+difficulty: 4
+tier: hero
+hero_candidate: true
+renderer: canvas2d
+estimated_engagement_minutes: 5
+curriculum_year: 'L:F-2Y-2S'
+primary_uc: FIS2006
+share_state_keys: []
+---
+
+# Dipole Radiation in 3D
+
+## Physical setup
+
+An oscillating electric (or magnetic) dipole, or a centre-fed
+half-wave antenna, at the origin with its axis vertical. The radiated
+power flows outward through the far zone.
+
+## Governing equations
+
+Hertzian dipole angular pattern `sin^2(theta)`, zero on the axis,
+maximum in the equatorial plane. Time-averaged power per solid angle
+
+`dP/dOmega = (mu0 p0^2 omega^4 / 32 pi^2 c) sin^2 theta`,
+
+integrating to the Larmor total `P = mu0 p0^2 omega^4 / (12 pi c)`.
+Far zone: `E` along theta-hat, `B` along phi-hat, `|E| = c|B|`,
+Poynting `S ~ 1/r^2`. Half-wave antenna pattern
+`[cos((pi/2) cos theta)/sin theta]^2`. Directivity `D = 4 pi
+max(pattern)/integral`: `3/2` for the dipole, `~1.64` for the antenna.
+
+## Numerical method
+
+Closed-form patterns and Larmor power; the radiation surface is a
+revolved `pattern(theta)` mesh, painter-sorted and projected with a
+rotating orthographic camera; the polar panel plots the same pattern.
+Reference: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 9
+(`jackson1998`).
+
+## Controls
+
+- source: electric dipole, magnetic dipole, half-wave antenna.
+- frequency (MHz): sets omega (power ~ omega^4) and the wavefront
+  spacing (lambda = c/f).
+- moment p0/m0: the dipole strength (charge excursion and intensity
+  ~ p0^2).
+- Reset, Pause.
+
+## Expected qualitative features
+
+- The donut has a sharp null along the axis and a maximum in the
+  equatorial plane; it rotates so the 3D shape is clear.
+- Electric and magnetic dipoles share the pattern but the E-field
+  polarization is meridional vs azimuthal (shown as the surface
+  texture).
+- The half-wave antenna lobes are narrower (higher directivity).
+- Higher frequency packs more wavefronts; larger moment widens the
+  charge oscillation and brightens the lobes.
+
+## Invariants and acceptance thresholds
+
+- `sin^2` pattern: nulls at `theta = 0, pi`, maximum at `pi/2`,
+  fore-aft symmetric.
+- Larmor total equals the angular integral within 0.2%.
+- `P ~ omega^4` and `~ p0^2` exactly.
+- Poynting flux equal through any sphere within 0.2% (1/r^2).
+- Far-zone `E, B, r-hat` mutually orthogonal, unit, `|E| = c|B|`.
+- Directivity `3/2` for the dipole, `> 3/2` and `~1.64` for the
+  half-wave antenna.
+
+## Limiting cases for verification
+
+- `theta -> 0, pi`: the radiated intensity vanishes.
+- Ideal dipole vs antenna: the antenna is strictly more directional.
+
+Source: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 9
+(`jackson1998`).
