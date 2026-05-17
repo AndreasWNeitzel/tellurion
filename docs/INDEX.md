@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The p-n Junction](../playgrounds/bsc-y3s2/FIS3005-semiconductor-pn-junction/index.html)** &nbsp; (verified, verified 2026-05-17T12:09:42Z)
+  A step junction with acceptor density `NA` (p side) and donor density `ND` (n side), applied bias `V` (forward positive), in silicon at 300 K.
+
 - **[Crystal Structure Explorer](../playgrounds/bsc-y3s2/FIS3005-crystal-structure-3d-explorer/index.html)** &nbsp; (verified, verified 2026-05-17T12:01:10Z)
   Cubic crystals of conventional side `a`: SC (1 atom/cell), BCC (2, body centre), FCC (4, face centres), with a selectable Miller plane and an optional supercell.
 
@@ -31,9 +34,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Action-Angle Variables](../playgrounds/bsc-y2s2/FIS2021-hamilton-jacobi-action-angle/index.html)** &nbsp; (verified, verified 2026-05-17T11:03:07Z)
   A 1-DOF bound system: harmonic `V = 1/2 w0^2 q^2`, pendulum `w0^2 (1 - cos q)`, or quartic `1/4 w0^2 q^4`, at energy `E`.
-
-- **[The p-n Junction](../playgrounds/bsc-y3s2/FIS3005-semiconductor-pn-junction/index.html)** &nbsp; (verified, verified 2026-05-17T10:08:13Z)
-  A step junction with acceptor density `NA` (p side) and donor density `ND` (n side), applied bias `V` (forward positive), in silicon at 300 K.
 
 - **[Jones Calculus - Polarization Through Elements](../playgrounds/bsc-y3s1/FIS3019-polarization-jones-calculus/index.html)** &nbsp; (verified, verified 2026-05-17T09:39:16Z)
   A monochromatic Jones vector `(Ex, Ey)` passes through up to two optical elements (polarizer, quarter-wave plate, half-wave plate) each at a chosen axis angle.

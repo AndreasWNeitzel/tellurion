@@ -47,16 +47,27 @@ State Physics (8th ed.), Ch. 19 (`kittel-cm`).
 
 - bias V: reverse to slight forward.
 - log NA, log ND: the two doping levels.
-- view: band diagram or space-charge + field.
+- view: selects the left panel (band diagram or space-charge +
+  field); the right panel is always the interactive device.
 - Reset.
 
 ## Expected qualitative features
 
+- The right panel is a device schematic, not a static plot: a p / n
+  bar with mobile holes and electrons in the neutral regions, the
+  fixed ionized dopant cores, and the depletion layer of exposed
+  space charge in the middle. Its width and its asymmetric split
+  (deeper into the lighter-doped side) follow the depletion
+  approximation, so every slider visibly moves it.
+- The battery polarity and the cross-junction carrier-flow arrows
+  follow the bias: forward lowers the barrier and drives diffusion
+  current, reverse widens the layer with only tiny drift.
+- A compact I-V inset keeps the diode law and the operating point;
+  it passes through the origin and saturates at `-I0` in reverse.
 - Reverse bias widens the depletion layer and tilts the bands more;
   forward narrows it and the current turns on exponentially.
-- The I-V passes through the origin, saturates at `-I0` in reverse.
-- The space-charge boxes always balance (`NA x_p = ND x_n`).
-- Heavier doping raises `V_bi` and shrinks `W`.
+- The space charge always balances (`NA x_p = ND x_n`); heavier
+  doping raises `V_bi` and shrinks `W`.
 
 ## Invariants and acceptance thresholds
 

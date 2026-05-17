@@ -41,7 +41,7 @@
       <span class="label">C</span><span class="value" id="readout-c">0</span>
     </div>
     <figcaption>
-      Figure 1. Band diagram, space-charge / field profile, and the ideal-diode I-V curve of an abrupt p-n junction.
+      Figure 1. Band diagram or space-charge / field profile (left) beside an interactive device schematic with an I-V inset (right), for an abrupt p-n junction.
       <em>Method:</em> closed-form depletion approximation; ideal-diode law; Mott-Schottky C-V.
       <em>Source:</em> Sze and Ng, Physics of Semiconductor Devices (3rd ed.), Ch. 2 (`sze-devices`); Kittel, Introduction to Solid State Physics (8th ed.), Ch. 19 (`kittel-cm`).
     </figcaption>
@@ -51,7 +51,7 @@
     <div class="row"><span class="label">bias V (V)</span><input aria-label="applied bias volts" type="range" id="slider-v" min="-8" max="0.6" step="0.05" value="0"><span class="value" id="value-v">0.00</span></div>
     <div class="row"><span class="label">log NA (m^-3)</span><input aria-label="log10 acceptor doping" type="range" id="slider-na" min="21" max="24" step="0.1" value="22"><span class="value" id="value-na">22.0</span></div>
     <div class="row"><span class="label">log ND (m^-3)</span><input aria-label="log10 donor doping" type="range" id="slider-nd" min="21" max="24" step="0.1" value="21.7"><span class="value" id="value-nd">21.7</span></div>
-    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="bands">band diagram + I-V</option><option value="charge">charge + field + I-V</option></select></div>
+    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="bands">band diagram + device</option><option value="charge">charge + field + device</option></select></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
 
