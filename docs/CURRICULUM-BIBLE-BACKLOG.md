@@ -281,9 +281,13 @@ docs/NEEDS-ATTENTION.md, move on.
   pi-4/pi; resonator stable iff |(A+D)/2|<=1 with self-consistent
   mode; front->back focus imaging. probe pass (w0 11.66, f 24.60,
   zl 13.84, lam 6.51); visual 5/5 x3.
-- [ ] polarization-jones-calculus : medium canvas2d. Polarization
-  ellipse 3D, Jones chain, Stokes/Poincare. Inv: QWP45 lin to circ;
-  HWP 2t; crossed=0; S0^2=S1^2+S2^2+S3^2.
+- [x] polarization-jones-calculus : advanced canvas2d. Polarization
+  ellipse + Poincare sphere, 2-element Jones chain, live psi/chi/
+  handed/intensity/DOP. Inv 9/9: Malus + polarizer idempotent;
+  QWP45 lin->circ; HWP reflects 2b-a; wave-plate/rotator unitary;
+  R(a)R(b)=R(a+b); S0^2=S1^2+S2^2+S3^2 DOP=1; chain=product; 2QWP=
+  HWP + full-wave identity; ellipse classification. probe pass (ang
+  0.66, a1 0.67, selects 0.72-0.84); visual 5/5 x3.
 
 ## Section 10: FIS3005 Materia Condensada (3Y-2S; Kittel, Ashcroft)
 

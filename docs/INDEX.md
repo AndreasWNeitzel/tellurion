@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Jones Calculus - Polarization Through Elements](../playgrounds/bsc-y3s1/FIS3019-polarization-jones-calculus/index.html)** &nbsp; (verified, verified 2026-05-17T09:39:16Z)
+  A monochromatic Jones vector `(Ex, Ey)` passes through up to two optical elements (polarizer, quarter-wave plate, half-wave plate) each at a chosen axis angle.
+
 - **[Gaussian Beam - ABCD Propagation](../playgrounds/bsc-y3s1/FIS3019-laser-gaussian-beam-propagation/index.html)** &nbsp; (verified, verified 2026-05-17T09:28:43Z)
   A Gaussian beam launched from a waist `w0` propagates along an optical bench and passes through a thin lens of focal length `f` at an adjustable position.
 
