@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Quantum Gas Statistics Visualizer](../playgrounds/bsc-y3s1/FIS3008-quantum-gas-statistics-visualizer/index.html)** &nbsp; (verified, verified 2026-05-17T08:10:11Z)
+  A non-interacting gas of N indistinguishable particles in a 3D box, density of states `g(eps) = C sqrt(eps)`. Temperature `tau = kT` is the control; the chemical potential `mu(tau)` is whatever keeps the particle number fixed.
+
 - **[Spin on the Bloch Sphere](../playgrounds/bsc-y3s1/FIS3003-spin-bloch-sphere-dynamics/index.html)** &nbsp; (verified, verified 2026-05-17T07:55:07Z)
   A two-level system (spin-1/2, qubit) in a static magnetic field `B0 z-hat` and a circularly polarized transverse RF field of amplitude `B1` rotating at `w_rf`. The pure state is the unit Bloch vector `S = (sin th cos ph, sin th sin ph, cos th)`, with the north pole `|0>` and the south pole `|1>`.
 

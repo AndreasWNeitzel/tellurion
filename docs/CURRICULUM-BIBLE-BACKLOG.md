@@ -220,9 +220,13 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 8: FIS3008 Fisica Estatistica (3Y-1S; Reif, Pathria, Huang)
 
-- [ ] quantum-gas-statistics-visualizer : hero webgl2. MB/FD/BE boxes,
-  occupation cells, f(eps) curves, BEC spike. Inv: FD f(EF)=1/2 T to 0;
-  BE mu to 0 at Tc; MB Maxwell; N 1%.
+- [x] quantum-gas-statistics-visualizer : hero canvas2d (webgl2 ->
+  canvas2d per stack rule). Autoscaled occupied g(e)n(e) curves for
+  MB/FD/BE, Fermi sea, BEC spike + condensate bar, occupation-cells
+  cartoon, cooling sweep through Tc. Inv 9/9: FD n(mu)=1/2; T->0 step
+  + Sommerfeld mu; BE mu->0 at Tc + condensate fraction; classical
+  limit; closed-form MB mu and 3kT/2; N conservation 1%; BE>MB>FD
+  ordering. probe pass (tau 2.09, stat 2.21); visual 5/5 x3.
 - [ ] ising-2d-gpu-phase-transition : hero webgl2. 512^2 Metropolis
   checkerboard, domains, M(T), beta~1/8 log-log, chi peak. Inv: Tc
   0.5% Onsager; M to +-1 T to 0; critical slowing.

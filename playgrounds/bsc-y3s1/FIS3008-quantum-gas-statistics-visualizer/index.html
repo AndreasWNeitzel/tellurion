@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quantum Gas Statistics</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 6px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 5ch 9ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quantum Gas Statistics</h1>
+    <p>An ideal gas of $N$ particles in 3D, density of states $g(\varepsilon)\propto\sqrt\varepsilon$. The mean occupation of a state at energy $\varepsilon$ is $e^{-(\varepsilon-\mu)/kT}$ (Maxwell-Boltzmann), $1/(e^{(\varepsilon-\mu)/kT}+1)$ (Fermi-Dirac, one particle per state), or $1/(e^{(\varepsilon-\mu)/kT}-1)$ (Bose-Einstein). The chemical potential $\mu(T)$ is fixed by $N=\int g\,n\,d\varepsilon$. As $T\to0$ the Fermi gas fills sharply to $E_F$; the Bose gas drives $\mu\to0$ at $T_c$ and below it a macroscopic fraction $1-(T/T_c)^{3/2}$ collapses into the ground state. Cool through $T_c$ and watch the condensate spike grow. Source: Pathria and Beale, Statistical Mechanics (3rd ed.), Ch. 7-8 (`pathria`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" aria-label="Occupation curves for Maxwell-Boltzmann, Fermi-Dirac and Bose-Einstein statistics, with the condensate spike and an occupation-cells cartoon"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">N</span><span class="value" id="readout-n">1.0000</span>
+      <span class="label">mu</span><span class="value" id="readout-mu">+0.000</span>
+      <span class="label">N0/N</span><span class="value" id="readout-cond">0.000</span>
+      <span class="label">T/Tc</span><span class="value" id="readout-ttc">1.000</span>
+    </div>
+    <figcaption>
+      Figure 1. Maxwell-Boltzmann, Fermi-Dirac and Bose-Einstein occupation versus energy, with Bose-Einstein condensation.
+      <em>Method:</em> chemical potential solved from fixed N by bisection over Simpson-integrated occupation; condensate fraction in closed form.
+      <em>Source:</em> Pathria and Beale, Statistical Mechanics (3rd ed.), Ch. 7-8 (`pathria`); Reif, Fundamentals of Statistical and Thermal Physics, Ch. 9 (`reif`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">temperature tau</span><input aria-label="temperature tau = kT" type="range" id="slider-tau" min="0.12" max="2.0" step="0.01" value="0.9"><span class="value" id="value-tau">0.90</span></div>
+    <div class="row"><span class="label">statistics</span><select aria-label="statistics shown" id="select-stat" style="grid-column: span 2;"><option value="all">all three</option><option value="MB">Maxwell-Boltzmann</option><option value="FD">Fermi-Dirac</option><option value="BE">Bose-Einstein</option></select></div>
+    <div class="row"><span class="label">occupied g n</span><input aria-label="show occupied spectral density g(eps) n(eps)" type="checkbox" id="toggle-occupied" checked style="grid-column: span 2; justify-self: start;"></div>
+    <div class="row buttons"><button id="btn-cool" type="button">Cool through Tc</button><button id="btn-reset" type="button">Reset</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
