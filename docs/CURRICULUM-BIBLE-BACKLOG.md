@@ -361,7 +361,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] rayleigh-benard-convection : advanced webgl2. Heated layer, rolls
   above Ra_c=1707, Nu. Boussinesq. Inv: no convection Ra<Rac; rolls
   just above; Nu to 1 at Rac.
-- [ ] bernoulli-venturi-interactive : medium canvas2d. Variable pipe,
+- [x] bernoulli-venturi-interactive : medium canvas2d. Variable pipe,
   v prop 1/A, p columns, airfoil lift. Inv: Bernoulli const 0.1%; Av
   const.
 - [ ] vortex-dynamics-2d : medium canvas2d. Point vortices, dipole

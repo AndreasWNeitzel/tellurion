@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Bernoulli and the Venturi Effect](../playgrounds/bsc-y3s2/FIS3025-bernoulli-venturi-interactive/index.html)** &nbsp; (verified, verified 2026-05-17T23:06:06Z)
+  Steady, incompressible, inviscid flow along a horizontal pipe whose cross-sectional area `A(x)` varies (a smooth constriction, the Venturi). Two conservation laws fix everything. Mass conservation (continuity): the volumetric flow rate `Q = A(x) v(x)` is the same at every station, so the fluid speeds up where the pipe narrows. Bernoulli's theorem along a str
+
 - **[Rayleigh-Benard Convection: Onset of Instability](../playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html)** &nbsp; (verified, verified 2026-05-17T22:55:43Z)
   A fluid layer of depth `d` heated from below (hot plate `T = 1` at the bottom) and cooled from above (cold plate `T = 0` at the top). Buoyancy drives motion; viscosity and thermal diffusion damp it. The competition is the Rayleigh number `Ra = g alpha Delta T d^3 / (nu kappa)`. Below a critical `Ra_c` the layer is motionless and heat crosses by conduction; a
 

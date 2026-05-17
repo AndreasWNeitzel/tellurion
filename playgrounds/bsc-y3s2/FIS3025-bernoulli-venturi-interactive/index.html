@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bernoulli and the Venturi Effect</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function r(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false }); else setTimeout(r, 50); } r(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.62); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 13ch 11ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 15ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bernoulli and the Venturi Effect</h1>
+    <p>Steady incompressible flow through a pipe with a constriction. Mass conservation forces $Q = A(x)\,v(x) = \text{const}$, so the fluid speeds up where the pipe narrows; Bernoulli's theorem $p + \tfrac12\rho v^2 = \text{const}$ (horizontal pipe) then forces the static pressure down exactly where the speed is up. The piezometer columns make this visible: they are tall in the wide sections and dip at the throat, the Venturi effect. Tracer particles accelerate through the throat ($v \propto 1/A$). The same principle is the cartoon airfoil: faster flow over the curved top means lower pressure and net upward lift. The headline readouts are the two invariants, the relative spread of the Bernoulli constant and of the flux $A v$ along the pipe, both held below $10^{-3}$ because the model is the exact algebra, not a simulation. Source: Tritton, Physical Fluid Dynamics, 2nd ed., ch. 5 (`tritton`); Batchelor, An Introduction to Fluid Dynamics, sec. 3.5 (`batchelor1967`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <div style="position:relative;">
+      <canvas id="stage" width="760" height="430" aria-label="Flow through a Venturi pipe with pressure columns and an airfoil lift cartoon"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">Bernoulli spread</span><span class="value" id="readout-bern">0</span>
+        <span class="label">A*v spread</span><span class="value" id="readout-flux">0</span>
+        <span class="label">v throat</span><span class="value" id="readout-vthroat">0</span>
+        <span class="label">p throat</span><span class="value" id="readout-pthroat">0</span>
+      </div>
+    </div>
+    <figcaption>
+      Figure 1. Steady incompressible flow in a variable-area pipe: continuity ($A v$ constant) accelerates the flow at the throat and Bernoulli ($p + \tfrac12\rho v^2$ constant) drops the static pressure there, shown by the dipping piezometer columns; the inset is the same principle producing airfoil lift.
+      <em>Method:</em> closed-form continuity and Bernoulli (no simulation), Canvas2D; the live readouts are the relative spread of the two conserved quantities.
+      <em>Source:</em> Tritton, ch. 5 (`tritton`); Batchelor, sec. 3.5 (`batchelor1967`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">throat ratio</span><input aria-label="throat area as a fraction of inlet, x100" type="range" id="slider-ratio" min="15" max="100" step="1" value="40"><span class="value" id="value-ratio">0.40</span></div>
+    <div class="row"><span class="label">flow rate Q</span><input aria-label="volumetric flow rate x100" type="range" id="slider-q" min="20" max="200" step="1" value="70"><span class="value" id="value-q">0.70</span></div>
+    <div class="row"><span class="label">density rho</span><input aria-label="fluid density x10" type="range" id="slider-rho" min="5" max="30" step="1" value="12"><span class="value" id="value-rho">1.2</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js?v=20260518r1"></script>
+</body>
+</html>
