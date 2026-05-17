@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The 4f Fourier-Optics Processor](../playgrounds/bsc-y3s1/FIS3019-fourier-optics-4f-system/index.html)** &nbsp; (verified, verified 2026-05-17T12:52:42Z)
+  An object transmittance `t(x,y)` (grating, circular aperture, double slit, checker) in the front focal plane of lens 1. Its Fourier transform appears in the common focal plane, where a mask is placed; lens 2 inverse-transforms to the image plane.
+
 - **[Lennard-Jones Molecular Dynamics](../playgrounds/bsc-y3s1/FIS3008-md-lennard-jones-thermodynamics/index.html)** &nbsp; (verified, verified 2026-05-17T12:47:22Z)
   `N = 300` particles in a periodic `L x L` box (`rho = N/L^2`), pairwise `U(r) = 4[(1/r)^12 - (1/r)^6]`, cutoff `rc = 2.5` with the shifted-force construction so `F` and `U` vanish continuously at `rc`.
 
@@ -52,9 +55,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Fabry-Perot Etalon Spectrometer](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-spectrometer/index.html)** &nbsp; (verified, verified 2026-05-17T09:17:38Z)
   Two plane mirrors of reflectance `R`, spacing `d`, illuminated by the sodium doublet. Normal incidence, `n = 1`.
-
-- **[The 4f Fourier-Optics Processor](../playgrounds/bsc-y3s1/FIS3019-fourier-optics-4f-system/index.html)** &nbsp; (verified, verified 2026-05-17T09:07:31Z)
-  An object transmittance `t(x,y)` (grating, circular aperture, double slit, checker) in the front focal plane of lens 1. Its Fourier transform appears in the common focal plane, where a mask is placed; lens 2 inverse-transforms to the image plane.
 
 - **[1D Ising Renormalization-Group Flow](../playgrounds/bsc-y3s1/FIS3008-renormalization-group-flow-1d/index.html)** &nbsp; (verified, verified 2026-05-17T08:41:36Z)
   The 1D Ising chain `H = -J sum s_i s_{i+1} - H sum s_i`, reduced couplings `K = beta J`, `h = beta H`. Coarse-grain by summing out every other spin (decimation, rescale factor `b = 2`).

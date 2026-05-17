@@ -47,12 +47,18 @@ Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13
 
 - object: grating, circular aperture, double slit, checker.
 - filter: none, low-pass, high-pass, vertical slit.
-- filter radius: the mask size in Fourier-plane pixels.
+- filter radius: the mask size in Fourier-plane pixels. Hidden for
+  the "none" filter (the identity system, where it has no effect)
+  rather than left inert.
 - Reset.
 
 ## Expected qualitative features
 
-- No filter: the image is the object (4f identity).
+- The readout is anchored to the canvas, not the figure, so it no
+  longer overlaps the caption.
+- No filter: the image is the object (4f identity); the RMS
+  object-image difference is at machine precision (~1e-16),
+  confirming the forward then inverse transform is exact.
 - Low-pass: fine detail gone, the image blurs; below the grating
   fundamental only a uniform patch survives.
 - High-pass: a dark field with bright edges, the mean removed.

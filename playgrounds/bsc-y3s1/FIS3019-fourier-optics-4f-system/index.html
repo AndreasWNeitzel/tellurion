@@ -14,6 +14,7 @@
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .stage-wrap { position: relative; }
     .readout-panel { position: absolute; bottom: 8px; left: 28px; background: rgba(6,6,8,0.6); padding: 6px 12px; border-radius: 4px; display: grid; grid-template-columns: repeat(4, auto); column-gap: 22px; row-gap: 0; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
     .readout-panel span { white-space: nowrap; }
     .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
@@ -32,12 +33,14 @@
   </header>
 
   <figure class="pg-figure">
-    <canvas id="stage" width="760" height="362" aria-label="Object plane, Fourier plane with the spatial filter, and the filtered image of the 4f processor"></canvas>
-    <div class="readout-panel" id="readout" role="status" aria-live="polite">
-      <span><span class="label">filter</span> <span class="value" id="readout-filter">none</span></span>
-      <span><span class="label">radius</span> <span class="value" id="readout-rc">0</span></span>
-      <span><span class="label">throughput</span> <span class="value" id="readout-thru">1.000</span></span>
-      <span><span class="label">RMS o-i</span> <span class="value" id="readout-rms">0.0e+0</span></span>
+    <div class="stage-wrap">
+      <canvas id="stage" width="760" height="362" aria-label="Object plane, Fourier plane with the spatial filter, and the filtered image of the 4f processor"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span><span class="label">filter</span> <span class="value" id="readout-filter">none</span></span>
+        <span><span class="label">radius</span> <span class="value" id="readout-rc">0</span></span>
+        <span><span class="label">throughput</span> <span class="value" id="readout-thru">1.000</span></span>
+        <span><span class="label">RMS o-i</span> <span class="value" id="readout-rms">0.0e+0</span></span>
+      </div>
     </div>
     <figcaption>
       Figure 1. The 4f coherent optical processor: object, Fourier plane with the filter, and the filtered image.
@@ -49,7 +52,7 @@
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">object</span><select aria-label="object" id="select-object" style="grid-column: span 2;"><option value="grating">grating</option><option value="aperture">circular aperture</option><option value="doubleslit">double slit</option><option value="bars">checker pattern</option></select></div>
     <div class="row"><span class="label">filter</span><select aria-label="spatial filter" id="select-filter" style="grid-column: span 2;"><option value="low">low-pass</option><option value="none">none</option><option value="high">high-pass</option><option value="slit">vertical slit</option></select></div>
-    <div class="row"><span class="label">filter radius</span><input aria-label="filter radius in pixels" type="range" id="slider-rc" min="1" max="40" step="1" value="10"><span class="value" id="value-rc">10</span></div>
+    <div class="row" id="row-rc"><span class="label">filter radius</span><input aria-label="filter radius in pixels" type="range" id="slider-rc" min="1" max="40" step="1" value="10"><span class="value" id="value-rc">10</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
 

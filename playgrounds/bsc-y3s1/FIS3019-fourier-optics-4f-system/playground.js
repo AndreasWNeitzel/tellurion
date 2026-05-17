@@ -25,10 +25,15 @@ const rRms = document.getElementById('readout-rms');
 const selO = document.getElementById('select-object');
 const selF = document.getElementById('select-filter');
 const sRc = document.getElementById('slider-rc'), vRc = document.getElementById('value-rc');
+const rowRc = document.getElementById('row-rc');
 const bR = document.getElementById('btn-reset');
 
 const N = 128;
 const st = { object: 'grating', filter: 'low', rc: 10 };
+
+// The filter radius does nothing with no mask (none = the identity
+// 4f system), so the control is hidden there rather than left inert.
+function applyVis() { rowRc.style.display = st.filter === 'none' ? 'none' : ''; }
 
 const PANE = 232, GAP = 16, TOP = 40;
 const X0 = 24, X1 = X0 + PANE + GAP, X2 = X1 + PANE + GAP;
@@ -94,15 +99,15 @@ function render() {
 }
 
 selO.addEventListener('change', () => { st.object = selO.value; render(); });
-selF.addEventListener('change', () => { st.filter = selF.value; render(); });
+selF.addEventListener('change', () => { st.filter = selF.value; applyVis(); render(); });
 sRc.addEventListener('input', () => { st.rc = parseInt(sRc.value, 10); vRc.textContent = String(st.rc); render(); });
 bR.addEventListener('click', () => {
   st.object = 'grating'; st.filter = 'low'; st.rc = 10;
-  selO.value = 'grating'; selF.value = 'low'; sRc.value = '10'; vRc.textContent = '10'; render();
+  selO.value = 'grating'; selF.value = 'low'; sRc.value = '10'; vRc.textContent = '10'; applyVis(); render();
 });
 
 function bootSync() {
-  vRc.textContent = String(st.rc);
+  vRc.textContent = String(st.rc); applyVis();
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     st.rc = Math.max(1, Math.round(2 + f * 36));     // low-pass opens up across frames

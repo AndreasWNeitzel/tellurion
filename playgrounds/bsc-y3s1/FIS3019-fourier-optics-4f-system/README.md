@@ -21,8 +21,9 @@ rotates the fringes.
 Controls: the object selector picks the input (grating, circular
 aperture, double slit, checker); the filter selector picks none,
 low-pass, high-pass, or a vertical slit; the radius slider sets the
-mask size in the Fourier plane; Reset returns to the default
-low-pass grating. The throughput and RMS readouts quantify how much
+mask size in the Fourier plane (it is hidden for the "none" filter,
+where it would do nothing); Reset returns to the default low-pass
+grating. The throughput and RMS readouts quantify how much
 energy the filter passes and how far the image has moved from the
 object.
 
