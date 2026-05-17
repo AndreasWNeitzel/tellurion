@@ -76,7 +76,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] magnetic-hysteresis-bh-curve : medium canvas2d. BH loop traced,
   domain schematic, loop-area=loss. Jiles-Atherton. Inv: M=Mr at H=0;
   M=0 at |H|>Hc; area prop dissipation.
-- [ ] multipole-expansion-3d : medium canvas2d. Exact vs multipole vs
+- [x] multipole-expansion-3d : medium canvas2d. Exact vs multipole vs
   error colormaps. Inv: error to 0 large r; monopole dominates q!=0;
   quadrupole r^-3.
 
