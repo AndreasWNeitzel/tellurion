@@ -3,29 +3,58 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Navier Stokes 2d Gpu Fullscreen</title>
+  <title>2D Navier-Stokes Vortex Street</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .stage-wrap { position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.62); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 9ch 12ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
 </head>
 <body>
-  <h1>Navier Stokes 2d Gpu Fullscreen</h1>
+  <header>
+    <h1>2D Navier-Stokes Vortex Street</h1>
+    <p>Incompressible flow past a bluff body, the Chorin projection of $\partial_t\vec u+(\vec u\cdot\nabla)\vec u=-\nabla p+\nu\nabla^2\vec u$ with $\nabla\cdot\vec u=0$, on a MAC staggered grid (semi-Lagrangian advection, implicit diffusion, an SOR pressure-Poisson projection). The colour is vorticity $\omega=\partial_xv-\partial_yu$. Raise the Reynolds number $Re=UD/\nu$ and the wake goes from glassy creeping flow, through a steady recirculating pair, to the periodic von Karman street whose shedding beat is the Strouhal number, to a broadband 2D wake. The numerics are the gate-tested shared MAC engine; the live readout is the post-projection divergence. Source: Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`); Harlow and Welch, Phys. Fluids 8 (1965) 2182 (`harlow-welch1965`); Stam, SIGGRAPH 99 (1999) 121 (`stam1999`).</p>
+  </header>
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">...</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
+  <figure class="pg-figure">
+    <div class="stage-wrap">
+      <canvas id="stage" width="760" height="420" aria-label="Vorticity field of incompressible flow past an obstacle, scanning the Reynolds number"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">max|div u|</span><span class="value" id="readout-div">0</span>
+        <span class="label">Strouhal</span><span class="value" id="readout-st">-</span>
+        <span class="label">Re</span><span class="value" id="readout-re">0</span>
+        <span class="label">regime</span><span class="value" id="readout-regime">-</span>
+      </div>
     </div>
     <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      Figure 1. Vorticity of an incompressible 2D flow past a bluff body, Chorin projection on a MAC staggered grid; the live readout is the post-projection discrete divergence.
+      <em>Method:</em> semi-Lagrangian advection, implicit diffusion, red-black SOR pressure-Poisson (the gate-tested shared MAC engine), vorticity colormap.
+      <em>Source:</em> Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`); Harlow and Welch, Phys. Fluids 8 (1965) 2182 (`harlow-welch1965`); Stam, SIGGRAPH 99 (1999) 121 (`stam1999`).
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">regime</span><select aria-label="flow regime preset" id="select-regime" style="grid-column: span 2;"><option value="stokes">Stokes (creeping)</option><option value="steady">steady wake</option><option value="vonkarman">von Karman street</option><option value="turbulent">broadband wake</option></select></div>
+    <div class="row"><span class="label">Reynolds</span><input aria-label="Reynolds number" type="range" id="slider-re" min="1" max="1000" step="1" value="700"><span class="value" id="value-re">700</span></div>
+    <div class="row"><span class="label">obstacle</span><select aria-label="obstacle shape" id="select-obs" style="grid-column: span 2;"><option value="cylinder">cylinder</option><option value="square">square</option><option value="none">none</option></select></div>
+    <div class="row"><span class="label">tracer dye</span><input aria-label="show tracer dye" type="checkbox" id="toggle-tracer" style="grid-column: span 2; justify-self: start;"></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

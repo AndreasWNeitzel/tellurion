@@ -36,13 +36,19 @@ export function createState(NX, NY, Re) {
   return s;
 }
 
-// Centred rectangular bluff body, built symmetric about the exact
-// top-bottom mirror axis j <-> NY-1-j.
-export function setBlockObstacle(s, fracX = 0.30, w = 4, h = 6) {
+// Rectangular bluff body. With yShift = 0 it is exactly symmetric
+// about the top-bottom mirror axis j <-> NY-1-j (the Stokes-symmetry
+// invariant relies on this default). A small nonzero yShift breaks
+// that symmetry on purpose, the perturbation a deterministic solver
+// needs to grow the supercritical von Karman instability into an
+// alternating vortex street (a real cylinder sheds because of
+// ambient perturbations; here we seed one).
+export function setBlockObstacle(s, fracX = 0.30, w = 4, h = 6, yShift = 0) {
   const { NX, NY } = s;
   const ci = Math.round(fracX * NX);
+  const cj2 = (NY - 1) + 2 * yShift;                 // 2 * mirror centre
   for (let j = 1; j < NY - 1; j += 1) {
-    if (Math.abs(2 * j - (NY - 1)) > 2 * h) continue;
+    if (Math.abs(2 * j - cj2) > 2 * h) continue;
     for (let i = ci - w; i <= ci + w; i += 1) {
       if (i > 0 && i < NX - 1) s.obstacle[Pi(NX, i, j)] = 1;
     }
