@@ -174,9 +174,12 @@ docs/NEEDS-ATTENTION.md, move on.
   polarization-state inset, Fresnel R panel. Inv 6/6: Snell 0.01deg;
   Rp=0 at thetaB; R+T=1 1e-4; TIR R=1 + evanescent; normal-incidence
   coincidence; grazing/no-interface limits. probe pass; visual x3.
-- [ ] waveguide-mode-animator : medium canvas2d. Rect guide TE/TM mode
-  maps, cutoff bar, evanescent below cutoff. Inv: fc 0.1%; evanescent
-  beta imaginary; TE10 lowest.
+- [x] waveguide-mode-animator : advanced canvas2d. TE/TM transverse
+  field map + longitudinal travelling/evanescent strip + cutoff
+  spectrum panel. Inv 7/7: fc formula 0.1%; TE10 dominant (TE20=2x);
+  propagating/evanescent/beta=0-at-cutoff; lambda_g divergence; TE/TM
+  existence (TM11 lowest); wall BCs; size scaling. probe pass; visual
+  x3. Section 6 (FIS2006) complete.
 
 ## Section 7: FIS3003 Mecanica Quantica I (3Y-1S; Griffiths, CT, Sakurai)
 

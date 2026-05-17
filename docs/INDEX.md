@@ -713,6 +713,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Radioactive Decay Chain](../playgrounds/bsc-y2s2/FIS2003-nuclear-decay-chain-animation/index.html)** &nbsp; (verified)
   A radioactive parent nucleus decays through a chain of alpha and beta-minus steps until it reaches a stable lead isotope. The nucleus is drawn as a packed cluster of protons and neutrons; the Segre chart records the path in the (N, Z) plane.
 
+- **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
+  A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
+
 - **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified)
   A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.
 
