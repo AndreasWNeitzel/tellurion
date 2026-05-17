@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spin on the Bloch Sphere</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 7ch 13ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 15ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Spin on the Bloch Sphere</h1>
+    <p>A spin-1/2 state is a unit Bloch vector $\vec S$. In a static field $B_0\hat z$ it precesses about $\hat z$ at the Larmor rate $\omega_0=\gamma B_0$ (the cone angle is fixed). Add a circularly polarized RF field of amplitude $B_1$ at frequency $\omega_{\mathrm{rf}}$ and the vector also nutates: on resonance ($\omega_{\mathrm{rf}}=\omega_0$) it sweeps pole to pole, so a $\pi$-pulse inverts $|0\rangle\to|1\rangle$ and a $\pi/2$-pulse builds an equal superposition. Off resonance the inversion is incomplete, capped at $\omega_1^2/(\omega_1^2+\Delta^2)$. The motion is the torque equation $\dot{\vec S}=\vec\Omega(t)\times\vec S$, integrated by exact rotations so $|\vec S|=1$ holds to machine precision. Source: Sakurai and Napolitano, Modern Quantum Mechanics (3rd ed.), Sec. 2.1 (`sakurai-qm`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" aria-label="Bloch sphere with the spin vector, its trajectory, and the drive axis"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">|S|</span><span class="value" id="readout-norm">1.000000</span>
+      <span class="label">S_z</span><span class="value" id="readout-sz">+1.000</span>
+      <span class="label">theta</span><span class="value" id="readout-theta">0.0 deg</span>
+      <span class="label">regime</span><span class="value" id="readout-regime">Larmor</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Larmor precession and Rabi flopping of a spin-1/2 on the Bloch sphere.
+      <em>Method:</em> torque equation integrated by exact (Rodrigues) rotations, midpoint axis.
+      <em>Source:</em> Sakurai and Napolitano, Modern Quantum Mechanics (3rd ed.), Sec. 2.1 (`sakurai-qm`); Griffiths, Introduction to Quantum Mechanics (3rd ed.), Sec. 4.4 (`griffiths-qm`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">Larmor w0</span><input aria-label="Larmor frequency w0" type="range" id="slider-w0" min="0.2" max="2.5" step="0.05" value="1.20"><span class="value" id="value-w0">1.20</span></div>
+    <div class="row"><span class="label">Rabi w1</span><input aria-label="Rabi frequency w1" type="range" id="slider-w1" min="0" max="1.5" step="0.02" value="0.50"><span class="value" id="value-w1">0.50</span></div>
+    <div class="row"><span class="label">detuning d</span><input aria-label="detuning delta = w0 - w_rf" type="range" id="slider-delta" min="-2" max="2" step="0.05" value="0.00"><span class="value" id="value-delta">0.00</span></div>
+    <div class="row"><span class="label">frame</span><select aria-label="reference frame" id="select-frame" style="grid-column: span 2;"><option value="lab">lab frame</option><option value="rot">rotating frame</option></select></div>
+    <div class="row"><span class="label">show trail</span><input aria-label="show trajectory trail" type="checkbox" id="toggle-trail" checked style="grid-column: span 2; justify-self: start;"></div>
+    <div class="row buttons"><button id="btn-pi" type="button">pi pulse</button><button id="btn-pihalf" type="button">pi/2 pulse</button><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

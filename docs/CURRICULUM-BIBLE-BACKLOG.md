@@ -209,8 +209,14 @@ docs/NEEDS-ATTENTION.md, move on.
   orthonormal 1e-9; M=m1+m2 selection; Condon-Shortley tabulated
   values; exchange symmetry; vector-model geometry. probe pass;
   visual x3.
-- [ ] spin-bloch-sphere-dynamics : medium webgl2. Bloch sphere, Larmor
-  precession, Rabi/RF, inversion. Inv: |S|=const; pi-pulse inverts.
+- [x] spin-bloch-sphere-dynamics : advanced canvas2d (webgl2 ->
+  canvas2d 3D projection per stack rule). 3D Bloch sphere, Larmor
+  precession, circularly polarized RF, detuned Rabi, instantaneous
+  pi/pi-half pulses, predicted-orbit preview, lab/rotating frame.
+  Inv 8/8: Rodrigues correctness; |S| 1e-9; free Larmor Sz/cone/phi;
+  resonant pi inverts; pi/2 to equator; generalized off-resonance
+  Rabi 2e-3; deepest-inversion bound; time-reversibility. probe pass
+  (w0 2.97, w1 2.96, delta 2.24, frame 2.29); visual 5/5 x3.
 
 ## Section 8: FIS3008 Fisica Estatistica (3Y-1S; Reif, Pathria, Huang)
 
