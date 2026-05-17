@@ -197,9 +197,12 @@ docs/NEEDS-ATTENTION.md, move on.
   Inv 7/7: Gaussian =1/2 (2%); all >=1/2; non-Gaussian strictly above;
   squeeze tradeoff const product; FT unitary 1e-6; shift/boost
   invariance; scaling. probe pass; visual x3.
-- [ ] hydrogen-atom-stark-zeeman : advanced canvas2d. H levels n=1..4,
-  Stark/Zeeman split, selection rules, synthetic spectrum. Inv: no
-  1st-order Stark n=1; Zeeman prop B 0.1%.
+- [x] hydrogen-atom-stark-zeeman : advanced canvas2d. Term diagram
+  (n=1..4 fanning, auto-normalised) + synthetic spectrum (Zeeman
+  triplet / Stark multiplet) + transition selector. Inv 8/8: Rydberg
+  ladder; no 1st-order Stark n=1 (quadratic only); n=2 +/-3 e a0 F;
+  Zeeman mu_B B linear; Lorentz triplet; dl=+-1 |dm|<=1; zero-field
+  degeneracy; Balmer-alpha triplet. probe pass; visual x3.
 - [ ] angular-momentum-coupling-3d : medium canvas2d. J1,J2 precession
   cones, J sum, CG table. Inv: CG unitary; triangle ineq.
 - [ ] spin-bloch-sphere-dynamics : medium webgl2. Bloch sphere, Larmor

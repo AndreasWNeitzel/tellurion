@@ -677,6 +677,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (verified)
   A Jupiter-scale planet orbits a central star. A spacecraft enters on a hyperbolic trajectory; the user drags the periapsis distance and the relative approach angle. Inset shows the symmetric hyperbola in the planet rest frame; main panel shows the asymmetric solar-system-frame trajectory. Velocity arrows before and after make the energy change explicit. Pres
 
+- **[Hydrogen in Electric and Magnetic Fields](../playgrounds/bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman/index.html)** &nbsp; (verified)
+  A hydrogen atom in a uniform magnetic field (Zeeman) and a uniform electric field (Stark), with a chosen emission transition observed in a synthetic spectrometer.
+
 - **[Interactive 2D Heat Equation](../playgrounds/bsc-y2s1/FIS2014-heat-equation-2d-gpu/index.html)** &nbsp; (verified)
   A square slab of material with spatially varying thermal diffusivity `kappa(x, y)`, conducting heat between painted hot and cold regions or internal sources. The temperature field `T(x, y, t)` is the primary physical scene; conductive-flux streamlines `q = -kappa grad T` show where and how fast heat flows.
 
