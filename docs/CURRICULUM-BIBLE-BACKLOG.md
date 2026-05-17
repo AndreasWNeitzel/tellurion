@@ -335,9 +335,13 @@ docs/NEEDS-ATTENTION.md, move on.
   H conserved all systems 1e-3; rot-symmetry<->L 1e-4 (broken by g);
   double modes; reversible; libration/rotation; determinism. probe
   pass (g 1.08, amp 4.26, speed 1.06, sys 4.21); visual 5/5 x3.
-- [ ] hamilton-jacobi-action-angle : advanced canvas2d. Phase loop, J=
-  contour p dq /2pi, thetadot=omega, orbit to circle r=sqrt(2J). Inv:
-  J 0.1%; theta uniform.
+- [x] hamilton-jacobi-action-angle : advanced canvas2d (FIS2021
+  bsc-y2s2). Phase orbit + shaded action area beside the
+  action-angle circle r=sqrt(2J), Verlet, adiabatic ramp. Inv 9/9:
+  harmonic J=E/w0 contour 0.1%; isochronous omega=w0; circle
+  sqrt(2J) 1e-6; theta uniform = w0 dt; pendulum anharmonic; E<->J
+  inversion; J=area/2pi; adiabatic |dJ/J|<2% while |dE/E|>40%.
+  probe pass (E 11.55, w0 9.15, pot 1.17); visual 5/5 x3.
 - [ ] canonical-transformation-visual : medium canvas2d. HO ellipse to
   (Q,P) strip, {Q,P}=1. Inv: PB=1 1e-10; area conserved.
 - [ ] kam-theory-poincare-section : advanced canvas2d. Chirikov standard

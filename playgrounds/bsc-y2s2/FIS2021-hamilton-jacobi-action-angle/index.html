@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Action-Angle Variables</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 16px; background: rgba(6,6,8,0.6); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 7ch 11ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Action-Angle Variables</h1>
+    <p>For a bound one-degree-of-freedom system the natural coordinates are not position and momentum but the action $J=\tfrac1{2\pi}\oint p\,dq$ (the phase-space area the orbit encloses, divided by $2\pi$) and an angle $\theta$ that simply winds at the constant rate $\dot\theta=\omega(J)=\partial H/\partial J$. The left panel is the phase orbit with that enclosed area shaded; the right is the action-angle picture, where the harmonic orbit becomes a circle of radius $\sqrt{2J}$ swept uniformly. The harmonic oscillator is isochronous ($\omega=\omega_0$ for every amplitude); the pendulum is anharmonic ($\omega$ falls as the swing grows). Ramp $\omega_0$ slowly and $J$ barely moves while the energy tracks $\omega$: adiabatic invariance. Source: Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 10 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 49-50 (`landau-mechanics`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="440" aria-label="Phase orbit with the shaded action area beside the action-angle circle"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">J (action)</span><span class="value" id="readout-j">0</span>
+      <span class="label">E</span><span class="value" id="readout-e">0</span>
+      <span class="label">omega(J)</span><span class="value" id="readout-w">0</span>
+      <span class="label">theta</span><span class="value" id="readout-th">0</span>
+      <span class="label">dJ/J</span><span class="value" id="readout-dj">0</span>
+    </div>
+    <figcaption>
+      Figure 1. The phase orbit and its enclosed action area, beside the action-angle circle of radius sqrt(2J).
+      <em>Method:</em> contour action integral; velocity-Verlet evolution; the uniformly winding angle variable.
+      <em>Source:</em> Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 10 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 49-50 (`landau-mechanics`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">potential</span><select aria-label="potential" id="select-pot" style="grid-column: span 2;"><option value="harmonic">harmonic (isochronous)</option><option value="pendulum">pendulum (anharmonic)</option><option value="quartic">quartic</option></select></div>
+    <div class="row"><span class="label">energy E</span><input aria-label="energy E" type="range" id="slider-e" min="0.1" max="1.8" step="0.02" value="0.6"><span class="value" id="value-e">0.60</span></div>
+    <div class="row"><span class="label">omega0</span><input aria-label="natural frequency w0" type="range" id="slider-w" min="0.5" max="2.0" step="0.05" value="1.0"><span class="value" id="value-w">1.00</span></div>
+    <div class="row"><span class="label">adiabatic ramp</span><input aria-label="adiabatic ramp of omega0" type="checkbox" id="toggle-adia" style="grid-column: span 2; justify-self: start;"></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

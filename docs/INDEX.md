@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Action-Angle Variables](../playgrounds/bsc-y2s2/FIS2021-hamilton-jacobi-action-angle/index.html)** &nbsp; (verified, verified 2026-05-17T11:03:07Z)
+  A 1-DOF bound system: harmonic `V = 1/2 w0^2 q^2`, pendulum `w0^2 (1 - cos q)`, or quartic `1/4 w0^2 q^4`, at energy `E`.
+
 - **[Lagrangian Sandbox](../playgrounds/bsc-y2s2/FIS2021-lagrangian-field-sandbox/index.html)** &nbsp; (verified, verified 2026-05-17T10:52:03Z)
   One of: simple pendulum `[th, thd]`; double pendulum `[t1, t2, w1, w2]`; elastic pendulum `[r, th, rd, thd]`; planar Kepler `[x, y, vx, vy]`. Parameters: gravity `g`, initial amplitude.
 
