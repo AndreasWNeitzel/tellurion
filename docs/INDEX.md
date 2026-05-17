@@ -614,6 +614,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-13T01:23:11Z)
   The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical constructio
 
+- **[2D Waves in a Drawable Geometry](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified)
+  A vibrating membrane (or shallow water) in a 2D box with rigid obstacles. A monochromatic point source on the left radiates toward a wall with slits or an obstacle; the far side shows diffraction and interference. The domain edges are an absorbing sponge so the pattern is not contaminated by box reflections.
+
 - **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (verified)
   Five radio telescopes plotted on a procedural world map (continent outlines, no image texture): ALMA, VLA, Effelsberg, Metsahovi, JCMT. The sky-preview panel shows a three-source model (one bright dot + two fainter). As simulated time runs (one day per 10 s), each telescope pair traces an elliptical arc in the UV plane; the dirty image panel updates via 2D i
 

@@ -105,10 +105,14 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 4: FIS2002 Ondas e Meios Continuos (2Y-1S; French, Crawford)
 
-- [ ] wave-2d-complex-geometry : hero webgl2. 512^2 wave eq, draw
-  walls/slits, water aesthetic, double-slit/obstacle presets. 9-pt FD,
-  PML. Inv: J0 circular; double-slit d sin t=m lam 2deg; damp e^-gt
-  2%; hard-wall phase invert.
+- [x] wave-2d-complex-geometry : advanced canvas2d (5-pt leapfrog +
+  sponge; webgl2/9-pt deferred per blind-build stop-condition). Shared
+  wave-2d-cpu engine extended (barriers/slits/sponge/source) with zero
+  hero regression; tanh water map; free/single/double/obstacle presets;
+  screen-intensity panel. Engine inv 6/6 (wave speed, CFL, damped
+  energy, slit-vs-wall, double-slit central+symmetry, hard-wall phase
+  invert) + scene inv 6/6 (circular isotropy, transmission, obstacle
+  shadow, damping). probe pass; visual x3.
 - [ ] huygens-construction-interactive : medium canvas2d. Wavelets
   envelope, N sources 1..100. Inv: far field sinc^2; point isotropic.
 - [ ] elastic-wave-modes-solid : medium canvas2d. Spring lattice, P&S
