@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crystal Structure Explorer</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 16px; background: rgba(6,6,8,0.62); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 8ch 12ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Crystal Structure Explorer</h1>
+    <p>The three cubic Bravais lattices, simple (SC), body-centred (BCC) and face-centred (FCC), with their conventional cells, a chosen Miller plane $(hkl)$ at spacing $d=a/\sqrt{h^2+k^2+l^2}$, and the powder X-ray pattern. The atom basis sets the geometric structure factor, so some reflections vanish: BCC needs $h+k+l$ even, FCC needs $h,k,l$ all even or all odd, which is why their powder lines follow the sequences 2,4,6,8 and 3,4,8,11. The reciprocal lattice (defined by $\vec b_i\cdot\vec a_j=2\pi\delta_{ij}$) is FCC for a BCC crystal and BCC for an FCC one, so the first Brillouin zones are the rhombic dodecahedron (12 faces) and the truncated octahedron (14 faces). Source: Kittel, Introduction to Solid State Physics (8th ed.), Ch. 1-2 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 4-6 (`ashcroft-mermin`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="440" aria-label="Rotating cubic crystal cell with a Miller plane and the powder X-ray diffraction pattern"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">lattice</span><span class="value" id="readout-lat">FCC</span>
+      <span class="label">atoms/cell</span><span class="value" id="readout-nat">4</span>
+      <span class="label">d_hkl/a</span><span class="value" id="readout-d">0.000</span>
+      <span class="label">BZ faces</span><span class="value" id="readout-bz">14</span>
+      <span class="label">1st line</span><span class="value" id="readout-l1">111</span>
+    </div>
+    <figcaption>
+      Figure 1. Cubic crystal cell with a Miller plane, the reciprocal lattice / Brillouin-zone face count, and the powder XRD pattern.
+      <em>Method:</em> closed-form lattice and reciprocal vectors; structure-factor selection rules; Bragg powder lines.
+      <em>Source:</em> Kittel, Introduction to Solid State Physics (8th ed.), Ch. 1-2 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 4-6 (`ashcroft-mermin`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">lattice</span><select aria-label="lattice type" id="select-lat" style="grid-column: span 2;"><option value="fcc">face-centred (FCC)</option><option value="bcc">body-centred (BCC)</option><option value="sc">simple cubic (SC)</option></select></div>
+    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="crystal">crystal + Miller plane</option><option value="recip">reciprocal lattice</option></select></div>
+    <div class="row"><span class="label">Miller (hkl)</span><select aria-label="Miller indices" id="select-hkl" style="grid-column: span 2;"><option value="1,1,1">(111)</option><option value="1,0,0">(100)</option><option value="1,1,0">(110)</option><option value="2,0,0">(200)</option></select></div>
+    <div class="row"><span class="label">supercell</span><input aria-label="supercell repeats" type="range" id="slider-sc" min="1" max="3" step="1" value="1"><span class="value" id="value-sc">1</span></div>
+    <div class="row buttons" style="grid-template-columns: 1fr 1fr;"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

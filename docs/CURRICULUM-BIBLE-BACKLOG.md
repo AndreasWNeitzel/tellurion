@@ -291,10 +291,14 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 10: FIS3005 Materia Condensada (3Y-2S; Kittel, Ashcroft)
 
-- [ ] crystal-structure-3d-explorer : hero webgl2. Unit cell Phong
-  spheres, supercell, reciprocal lattice plus BZ wireframe, Miller
-  planes, powder XRD. Inv: FCC trunc-oct/BCC rhombic-dodec BZ;
-  d100/d110/d111; bi.aj=2pi dij 1e-10.
+- [x] crystal-structure-3d-explorer : hero canvas2d (webgl2 ->
+  hand-rolled 3D per stack rule). Rotating SC/BCC/FCC cell, shaded
+  spheres, Miller plane, supercell, reciprocal view + G_hkl vector +
+  BZ face label, powder XRD with selected-line highlight. Inv 9/9:
+  bi.aj=2pi dij 1e-10; Vrec=(2pi)^3/Vdir; d100/110/111; SC/BCC/FCC
+  absences + powder seq 1234/2468/3 4 8 11; atoms 1/2/4; Bragg
+  consistency; BZ faces 6/12/14. probe pass (sc 21.8, lat 9.4,
+  view 20.6, hkl 0.48); visual 5/5 x3.
 - [ ] semiconductor-pn-junction : hero canvas2d. Band diagram, e/h
   diffusion, depletion, bias narrows/widens, IV live. Inv: I=0 V=0;
   I~55I0 4kT/q; W prop sqrt V 1%; neutral.
