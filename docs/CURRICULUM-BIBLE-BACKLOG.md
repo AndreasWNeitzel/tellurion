@@ -67,7 +67,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] laplace-solver-2d-interactive : hero webgl2. Draw conductors, SOR
   relax phi (RdBu), E streamlines. omega=1.8. Inv: parallel plate
   E=V/d 1%; coax phi=A ln r+B 0.5%; E normal at conductors.
-- [ ] poynting-vector-wave-3d : hero webgl2. Plane EM wave, E(x)/B(y)
+- [x] poynting-vector-wave-3d : hero webgl2. Plane EM wave, E(x)/B(y)
   ribbons, white S axis; linear/circular/standing. Inv: E perp B
   1e-12; |E|=c|B| 1e-6; S parallel k; standing nodes kz=n pi.
 - [ ] biot-savart-3d-explorer : advanced canvas2d 3D. Place wires, B
