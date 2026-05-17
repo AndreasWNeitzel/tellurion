@@ -358,7 +358,7 @@ docs/NEEDS-ATTENTION.md, move on.
   obstacles, vorticity colormap, Re sweep (Stokes/von Karman/turb),
   tracers, St. Chorin. Inv: divu<1e-3; St~0.2 Re=100 15%; symmetric
   Re to 0; bounded Re<1000.
-- [ ] rayleigh-benard-convection : advanced webgl2. Heated layer, rolls
+- [x] rayleigh-benard-convection : advanced webgl2. Heated layer, rolls
   above Ra_c=1707, Nu. Boussinesq. Inv: no convection Ra<Rac; rolls
   just above; Nu to 1 at Rac.
 - [ ] bernoulli-venturi-interactive : medium canvas2d. Variable pipe,

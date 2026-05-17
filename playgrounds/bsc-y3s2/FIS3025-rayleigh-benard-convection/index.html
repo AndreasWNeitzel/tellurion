@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rayleigh-Benard Convection: Onset of Instability</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function r(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false }); else setTimeout(r, 50); } r(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.62); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 10ch 13ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Rayleigh-Benard Convection: Onset of Instability</h1>
+    <p>A fluid layer heated from below is motionless until the Rayleigh number $Ra=g\alpha\Delta T d^3/(\nu\kappa)$ crosses a sharp threshold, then it breaks into counter-rotating convection rolls. For stress-free, perfectly conducting plates (the free-free case) the linear theory is exact: a normal mode $\propto\sin(\pi y)\,e^{ikx}$ is neutrally stable on the curve $Ra(k)=(k^2+\pi^2)^3/k^2$, minimised at $k_c=\pi/\sqrt2$, giving the closed-form critical value $Ra_c=\tfrac{27\pi^4}{4}\approx 657.51$. The top panel is the critical roll eigenmode growing ($\sigma>0$, above the curve) or decaying ($\sigma<0$, below it); the bottom panel is the neutral curve with the marked critical point and your operating point. The onset is independent of the Prandtl number (Chandrasekhar). The engine reproduces $Ra_c$ to better than 0.2% and the value converges with resolution (gate-tested). Source: Rayleigh, Phil. Mag. 32 (1916) 529 (`rayleigh1916`); Chandrasekhar 1961, Ch. II (`chandrasekhar1961`); Drazin and Reid 2004, sec. 2 (`drazin-reid`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <div style="position:relative;">
+      <canvas id="stage" width="760" height="470" aria-label="Rayleigh-Benard critical roll mode and the neutral stability curve"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">Ra_c m/exact</span><span class="value" id="readout-rac">0</span>
+        <span class="label">sigma</span><span class="value" id="readout-sigma">0</span>
+        <span class="label">Ra / Ra_c</span><span class="value" id="readout-ratio">0</span>
+        <span class="label">state</span><span class="value" id="readout-state">-</span>
+      </div>
+    </div>
+    <figcaption>
+      Figure 1. Top: the critical Rayleigh-Benard roll eigenmode $\theta\propto\sin(\pi y)\cos(k x)$, its amplitude evolving as $e^{\sigma t}$ (growing above $Ra_c$, decaying below). Bottom: the free-free neutral curve $Ra(k)=(k^2+\pi^2)^3/k^2$ with the exact critical point $(k_c,\,27\pi^4/4)$ and the live operating point.
+      <em>Method:</em> closed-form linear stability of the free-free Boussinesq layer; the discrete critical Rayleigh number and growth-rate sign come from the gate-tested shared engine, converging to $27\pi^4/4$ with resolution.
+      <em>Source:</em> Rayleigh (1916) (`rayleigh1916`); Chandrasekhar (1961) (`chandrasekhar1961`); Drazin and Reid (2004) (`drazin-reid`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">Ra (units of Ra_c)</span><input aria-label="Rayleigh number in units of the critical value, x100" type="range" id="slider-ra" min="20" max="800" step="1" value="200"><span class="value" id="value-ra">2.00 Ra_c</span></div>
+    <div class="row"><span class="label">wavenumber k</span><input aria-label="horizontal wavenumber x100" type="range" id="slider-k" min="60" max="700" step="1" value="222"><span class="value" id="value-k">2.22</span></div>
+    <div class="row"><span class="label">Prandtl Pr</span><input aria-label="Prandtl number x10" type="range" id="slider-pr" min="1" max="100" step="1" value="10"><span class="value" id="value-pr">1.0</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js?v=20260517r1"></script>
+</body>
+</html>

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Rayleigh-Benard Convection: Onset of Instability](../playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html)** &nbsp; (verified, verified 2026-05-17T22:55:43Z)
+  A fluid layer of depth `d` heated from below (hot plate `T = 1` at the bottom) and cooled from above (cold plate `T = 0` at the top). Buoyancy drives motion; viscosity and thermal diffusion damp it. The competition is the Rayleigh number `Ra = g alpha Delta T d^3 / (nu kappa)`. Below a critical `Ra_c` the layer is motionless and heat crosses by conduction; a
+
 - **[Incompressible Wake and the Projection Method](../playgrounds/bsc-y3s2/FIS3025-navier-stokes-2d-gpu-fullscreen/index.html)** &nbsp; (verified, verified 2026-05-17T22:20:36Z)
   A 2D incompressible flow (120 x 76 live grid, normalized channel) past a bluff obstacle. A uniform stream enters at the left, free-slip walls top and bottom, zero-gradient outflow on the right, no-slip on the obstacle. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1`, so `nu = 1/Re`) is user-tunable. The live path runs the 
 
@@ -775,9 +778,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Radioactive Decay Chain](../playgrounds/bsc-y2s2/FIS2003-nuclear-decay-chain-animation/index.html)** &nbsp; (verified)
   A radioactive parent nucleus decays through a chain of alpha and beta-minus steps until it reaches a stable lead isotope. The nucleus is drawn as a packed cluster of protons and neutrons; the Segre chart records the path in the (N, Z) plane.
-
-- **[Rayleigh-Benard Convection and the Onset of Instability](../playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html)** &nbsp; (draft)
-  A 2D fluid layer of depth `d`, heated from below (hot plate, temperature `T = T_hot`) and cooled from above (cold plate, `T = T_cold`), `Delta T = T_hot - T_cold > 0`, gravity `g` pointing down. In the Boussinesq approximation density varies only in the buoyancy term, `rho = rho_0 (1 - alpha (T - T_0))`, with `alpha` the thermal expansion coefficient. The co
 
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
