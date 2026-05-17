@@ -55,7 +55,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] central-force-orbit-gallery : medium canvas2d. Orbit trail, force
   centre, V_eff(r) with E line/turning pts; r^alpha slider. Symplectic
   Verlet. Inv: 1/r closed ellipse; E,L 1e-4; virial T=-V/2.
-- [ ] projectile-drag-magnus-3d : medium canvas2d 3D-proj. Vacuum/drag/
+- [x] projectile-drag-magnus-3d : medium canvas2d 3D-proj. Vacuum/drag/
   drag+Magnus, spin axis. F=-mg-c|v|v+cM(w x v) RK4. Inv: vacuum=
   analytic parabola; Magnus perp v,w under 1e-12.
 - [ ] collision-scattering-lab : medium canvas2d. Lab vs CM frames,
