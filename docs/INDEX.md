@@ -117,7 +117,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3 (`griffiths-particles`).
 
 - **[Cooper Pair Binding Energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/index.html)** &nbsp; (verified, verified 2026-05-14T01:51:56Z)
-  $E_{bind} = 2\hbar\omega_D \exp(-2/N(0)V)$. Exponentially small at weak coupling. Source: Ashcroft-Mermin Ch. 34 (`ashcroft-mermin`).
+  Two electrons added to a filled Fermi sea form a bound pair via an attractive phonon-mediated interaction. The binding energy is exponentially small in the weak-coupling regime,
 
 - **[BCS Gap, Self-Consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/index.html)** &nbsp; (verified, verified 2026-05-14T01:50:54Z)
   $\Delta(T)$ from the BCS gap equation; universal ratio $2\Delta_0 / k_B T_c \approx 3.53$. Source: Ashcroft-Mermin Ch. 34 (`ashcroft-mermin`).
@@ -617,11 +617,20 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (verified)
   Five radio telescopes plotted on a procedural world map (continent outlines, no image texture): ALMA, VLA, Effelsberg, Metsahovi, JCMT. The sky-preview panel shows a three-source model (one bright dot + two fainter). As simulated time runs (one day per 10 s), each telescope pair traces an elliptical arc in the UV plane; the dirty image panel updates via 2D i
 
+- **[Atwood Machine with a Massive Pulley](../playgrounds/bsc-y1s1/FIS1013-atwood-machine-constrained/index.html)** &nbsp; (verified)
+  Two masses `m1`, `m2` hang from an inextensible massless rope over a pulley of mass `M`, radius `R` and moment of inertia `I`. The rope does not slip, so both masses share one coordinate and the pulley angular speed is `v/R`. Weight and tension force arrows (length proportional to force) are drawn on each block; the pulley carries a spinning spoke and its dr
+
 - **[Bernoulli Air-Blower Ball](../playgrounds/bsc-y1s1/FIS1013-bernoulli-air-blower-ball/index.html)** &nbsp; (verified)
   A sphere of mass $m$ and radius $R$ sits in a turbulent free jet issuing from a nozzle whose axis can be tilted by an angle from vertical. The jet has a centreline speed that decays with distance and a Gaussian cross-section that spreads downstream.
 
+- **[Biot-Savart 3D Field Explorer](../playgrounds/bsc-y1s2/FIS1014-biot-savart-3d-explorer/index.html)** &nbsp; (verified)
+  Current-carrying wires (a straight wire, a loop, Helmholtz coils, a solenoid) sit in 3D. The magnetic field is computed at a lattice of sample points and drawn as arrow glyphs coloured by `|B|`, with field lines traced by integrating along `B` and the on-axis `Bz(z)` profile in a side panel. The wire is dashed and animated to show the current.
+
 - **[Bouncing Shapes Concave Surface](../playgrounds/bsc-y1s1/FIS1013-bouncing-shapes-concave-surface/index.html)** &nbsp; (verified)
   Several point balls fall under uniform gravity into a concave bowl $y=f(x)$ chosen from a menu. Each contact reflects the velocity about the local tangent with a coefficient of restitution.
+
+- **[Central-Force Orbit Gallery](../playgrounds/bsc-y1s1/FIS1013-central-force-orbit-gallery/index.html)** &nbsp; (verified)
+  A unit-mass particle moves in a central potential `V(r) = k r^p` (with `k` signed so the well is attractive for every `p`; `p = 0` is the logarithmic potential). The orbit is drawn about a luminous force centre with a fading trail; a secondary panel shows the effective potential and the energy.
 
 - **[Chandrasekhar Dynamical Friction](../playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/index.html)** &nbsp; (verified)
   A large perturber enters from the left through N=200 background particles drawn from a Maxwellian of dispersion sigma. Gravitational focusing pulls particles into an overdense wake trailing the perturber; the wake's pull decelerates it. The perturber speed readout decreases over time.
@@ -653,8 +662,26 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (verified)
   A Jupiter-scale planet orbits a central star. A spacecraft enters on a hyperbolic trajectory; the user drags the periapsis distance and the relative approach angle. Inset shows the symmetric hyperbola in the planet rest frame; main panel shows the asymmetric solar-system-frame trajectory. Velocity arrows before and after make the energy change explicit. Pres
 
+- **[Interactive 2D Heat Equation](../playgrounds/bsc-y2s1/FIS2014-heat-equation-2d-gpu/index.html)** &nbsp; (verified)
+  A square slab of material with spatially varying thermal diffusivity `kappa(x, y)`, conducting heat between painted hot and cold regions or internal sources. The temperature field `T(x, y, t)` is the primary physical scene; conductive-flux streamlines `q = -kappa grad T` show where and how fast heat flows.
+
+- **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
+  A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
+
+- **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
+  A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
+
+- **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
+  A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.
+
 - **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified)
   A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.
+
+- **[Poynting Vector: a Plane EM Wave in 3D](../playgrounds/bsc-y1s2/FIS1014-poynting-vector-wave-3d/index.html)** &nbsp; (verified)
+  A monochromatic plane wave propagates along z. `E` oscillates in one transverse plane, `B` in the orthogonal one, and the Poynting vector `S = E x B / mu0` points along the propagation direction. Units are `c = 1`, `mu0 = 1`.
+
+- **[Projectile with Drag and the Magnus Force in 3D](../playgrounds/bsc-y1s1/FIS1013-projectile-drag-magnus-3d/index.html)** &nbsp; (verified)
+  A unit-mass ball is launched from the origin. Three copies fly simultaneously over an oblique-projected ground grid: vacuum (grey dashed), quadratic drag (amber) and drag plus Magnus (cyan). A spinning ball with a spin-axis arrow rides the Magnus path; landing markers show where each lands.
 
 - **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (verified)
   Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
@@ -673,3 +700,12 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified)
   A torque-free rigid body with principal moments of inertia $I_1 < I_2 < I_3$. The angular velocity in the body frame obeys Euler's equations; the orientation is carried by a unit quaternion.
+
+- **[Thermodynamic Engine Simulator](../playgrounds/bsc-y2s1/FIS2014-thermodynamic-engine-simulator/index.html)** &nbsp; (verified)
+  n moles of an ideal gas (gamma = 5/3) in a piston-cylinder, exchanging heat with hot and cold reservoirs as it runs a closed cycle. Molecule speeds scale with the live temperature; the piston position tracks the volume; the reservoirs glow when heat flows.
+
+- **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified)
+  A rigid body rotates freely in space with no applied torque. Its inertia tensor is diagonal in the body frame with principal moments `I1, I2, I3`. The body is drawn as the corresponding uniform-density inertia ellipsoid; the three principal axes are colour-coded arrows (red I1, green I2, blue I3). The angular-velocity vector omega is white, the conserved ang
+
+- **[Two-Body Collision: Lab and CM Frames](../playgrounds/bsc-y1s1/FIS1013-collision-scattering-lab/index.html)** &nbsp; (verified)
+  A projectile of mass `m1` scatters off a target `m2` initially at rest. The two-body problem reduces to one body of reduced mass `mu = m1 m2 / (m1+m2)` in a central potential. The CM-frame encounter is the primary scene; the lab trajectory, the potential profile and the differential cross-section are secondary panels.

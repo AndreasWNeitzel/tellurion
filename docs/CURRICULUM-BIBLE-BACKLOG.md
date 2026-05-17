@@ -86,9 +86,11 @@ docs/NEEDS-ATTENTION.md, move on.
   molecules (T-coloured), live PV, Sankey eta; Carnot/Otto/Diesel/
   Stirling; reverse=fridge. Inv: dU=Q-W <1e-3/cycle; eta<=1-Tc/Th;
   eta=0 at Tc=Th; Otto 0.5%.
-- [ ] heat-equation-2d-gpu : hero webgl2. Paint kappa regions, sources,
-  inferno T, flux streamlines, CFL shown. Inv: heat conserved 0.1%;
-  high-kappa faster; steady to Laplace 1%.
+- [x] heat-equation-2d-gpu : advanced canvas2d (viridis; webgl2 deferred
+  per blind-build stop-condition). Paint kappa/source/heat/cold, flux
+  streamlines, T(x) panel, CFL shown. Inv: heat conserved 0.1%;
+  high-kappa faster at equal physical time; steady to Laplace 1%;
+  composite gradient ratio; CFL bound. 6/6; probe pass; visual x3.
 - [ ] van-der-waals-maxwell-construction : advanced canvas2d. PV with
   S-curve plus equal-area Maxwell line, T-sweep binodal/spinodal. Inv:
   Tc d2p/dV2=dp/dV=0 at Vc 0.1%; Maxwell areas 1e-4.
