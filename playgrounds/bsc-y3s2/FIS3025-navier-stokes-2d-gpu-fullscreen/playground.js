@@ -42,12 +42,16 @@ const sSpd = document.getElementById('slider-speed'), vSpd = document.getElement
 const tTracer = document.getElementById('toggle-tracer');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-// Smaller grid + fewer solver sweeps than a converged run: the live
-// path trades pressure tolerance for a smooth 60 fps (correctness is
-// the converged offline invariant, the spec's two-path design). The
-// speed slider sets physics steps per frame.
-const GX = 120, GY = 76, DT = 0.10, VMAX = 1.8, YSHIFT = 4, DIFF = 6, CONF = 0.08;
-const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 3e-3, maxIter: 28 }, bfecc: true, confine: CONF };
+// Higher-resolution grid. To afford ~3x the cells at 60 fps on the
+// CPU, BFECC (3 advection passes) is dropped; the finer grid itself
+// cuts numerical diffusion, and a small, cheap vorticity confinement
+// keeps the wake sharp and Reynolds-sensitive. The speed slider
+// scales the timestep (constant work per frame), so it genuinely
+// speeds the evolution instead of piling unaffordable steps into a
+// frame that then just runs slower.
+const GX = 220, GY = 140, DT = 0.09, VMAX = 1.8, YSHIFT = 6, DIFF = 4, CONF = 0.06;
+const SUBSTEPS = 2;
+const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 4e-3, maxIter: 20 }, bfecc: false, confine: CONF };
 const REGIME_RE = { stokes: 8, steady: 60, vonkarman: 300, turbulent: 600 };
 const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: true };
 
@@ -82,8 +86,8 @@ function seedDye() {
 
 function build(warm) {
   state = createState(GX, GY, st.Re);
-  if (st.obs === 'cylinder') setDiskObstacle(state, 0.22, 9, YSHIFT);
-  else if (st.obs === 'square') setBlockObstacle(state, 0.22, 8, 8, YSHIFT);
+  if (st.obs === 'cylinder') setDiskObstacle(state, 0.22, 17, YSHIFT);
+  else if (st.obs === 'square') setBlockObstacle(state, 0.22, 15, 15, YSHIFT);
   dye = new Float64Array(GX * GY);
   for (let n = 0; n < warm; n += 1) {
     step(state, DT, STEP_OPTS);
@@ -116,11 +120,18 @@ function render() {
   rReg.textContent = st.regime;
 }
 
+// Fixed work per frame (always SUBSTEPS steps), with the timestep
+// scaled by the speed slider. Semi-Lagrangian advection and implicit
+// diffusion are unconditionally stable, so a larger dt advances more
+// simulated time per frame at constant cost. Speed N is therefore
+// genuinely ~N times faster than speed 1, and the frame rate does
+// not collapse at high speed.
 function tick() {
   if (st.running) {
-    for (let s = 0; s < st.speed; s += 1) {
-      step(state, DT, STEP_OPTS);
-      if (st.tracer) { seedDye(); advectScalar(state, dye, DT); }
+    const dt = DT * st.speed / SUBSTEPS;
+    for (let s = 0; s < SUBSTEPS; s += 1) {
+      step(state, dt, STEP_OPTS);
+      if (st.tracer) { seedDye(); advectScalar(state, dye, dt); }
     }
   }
   render();
@@ -165,7 +176,7 @@ function bootSync() {
     st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false;
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state = createState(GX, GY, st.Re);
-    setDiskObstacle(state, 0.22, 9, YSHIFT);
+    setDiskObstacle(state, 0.22, 17, YSHIFT);
     dye = new Float64Array(GX * GY);
     const steps = Math.round(40 + f * 820);
     for (let n = 0; n < steps; n += 1) step(state, DT, STEP_OPTS);
