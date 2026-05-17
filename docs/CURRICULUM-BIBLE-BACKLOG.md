@@ -203,8 +203,12 @@ docs/NEEDS-ATTENTION.md, move on.
   ladder; no 1st-order Stark n=1 (quadratic only); n=2 +/-3 e a0 F;
   Zeeman mu_B B linear; Lorentz triplet; dl=+-1 |dm|<=1; zero-field
   degeneracy; Balmer-alpha triplet. probe pass; visual x3.
-- [ ] angular-momentum-coupling-3d : medium canvas2d. J1,J2 precession
-  cones, J sum, CG table. Inv: CG unitary; triangle ineq.
+- [x] angular-momentum-coupling-3d : advanced canvas2d. 3D vector-
+  model precession cones (J1+J2=J) + Clebsch-Gordan table (Racah) +
+  allowed-J ladder. Inv 8/8: triangle+dimension; CG col & row
+  orthonormal 1e-9; M=m1+m2 selection; Condon-Shortley tabulated
+  values; exchange symmetry; vector-model geometry. probe pass;
+  visual x3.
 - [ ] spin-bloch-sphere-dynamics : medium webgl2. Bloch sphere, Larmor
   precession, Rabi/RF, inversion. Inv: |S|=const; pi-pulse inverts.
 

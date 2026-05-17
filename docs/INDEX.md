@@ -617,6 +617,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[2D Waves in a Drawable Geometry](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified)
   A vibrating membrane (or shallow water) in a 2D box with rigid obstacles. A monochromatic point source on the left radiates toward a wall with slits or an obstacle; the far side shows diffraction and interference. The domain edges are an absorbing sponge so the pattern is not contaminated by box reflections.
 
+- **[Adding Angular Momenta - The Vector Model](../playgrounds/bsc-y3s1/FIS3003-angular-momentum-coupling-3d/index.html)** &nbsp; (verified)
+  Two angular momenta of magnitudes j1 and j2 are added; the total J is observed in the vector model and the basis change is read off the Clebsch-Gordan table.
+
 - **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (verified)
   Five radio telescopes plotted on a procedural world map (continent outlines, no image texture): ALMA, VLA, Effelsberg, Metsahovi, JCMT. The sky-preview panel shows a three-source model (one bright dot + two fainter). As simulated time runs (one day per 10 s), each telescope pair traces an elliptical arc in the UV plane; the dirty image panel updates via 2D i
 
