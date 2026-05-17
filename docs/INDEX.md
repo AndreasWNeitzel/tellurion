@@ -683,6 +683,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.
 
+- **[Normal Modes of a Mass-Spring Chain](../playgrounds/bsc-y2s1/FIS2002-normal-modes-nd-chain/index.html)** &nbsp; (verified)
+  A 1D chain of N point masses joined by springs with fixed ends. The monatomic chain has one spring constant; the diatomic chain alternates two spring constants along the chain (a two-atom basis).
+
 - **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified)
   A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.
 

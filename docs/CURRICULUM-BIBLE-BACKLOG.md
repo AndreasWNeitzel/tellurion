@@ -125,9 +125,12 @@ docs/NEEDS-ATTENTION.md, move on.
   shear. Inv 6/6: analytic speeds; P>S front; measured speeds within
   10%; mu->0 no S; seismograph delay d(1/vS-1/vP) within 20%; CFL.
   added landau-elasticity to bib. probe pass; visual x3.
-- [ ] normal-modes-nD-chain : medium canvas2d. N=12 masses, click mode
-  bar, diatomic acoustic/optical branches plus gap. Inv: N modes;
-  omega^2 formula 0.1%; gap=0 at K1=K2.
+- [x] normal-modes-nd-chain : advanced canvas2d. Oscillating N-mass
+  chain (mono/diatomic) + clickable dispersion panel with shaded band
+  gap; mode slider spans acoustic+optical. Inv 7/7: N ordered modes;
+  omega_n closed form 0.1%; mode-shape nodes; Verlet matches omega 1%;
+  energy conserved; diatomic endpoints exact; gap closes at K1=K2.
+  probe pass; visual x3. Section 4 (FIS2002) complete.
 
 ## Section 5: FIS2003 Fisica Moderna (2Y-2S; Eisberg-Resnick, Tipler)
 
