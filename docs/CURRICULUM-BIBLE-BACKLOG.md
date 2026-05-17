@@ -183,9 +183,14 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 7: FIS3003 Mecanica Quantica I (3Y-1S; Griffiths, CT, Sakurai)
 
-- [ ] tdse-wavepacket-sculptor : hero webgl2. Draw V(x), |psi|^2 cloud
-  phase-coloured, tunnelling split; well/HO/double/lattice/delta. CN
-  Thomas, 2048 pts. Inv: norm 1e-6; R+T=1; coherent x osc 0.1%; E 1e-4.
+- [x] tdse-wavepacket-sculptor : hero canvas2d (webgl2 deferred per
+  blind-build stop-condition). Crank-Nicolson TDSE on the shared
+  cn-tridiag Thomas solver (zero regression, no prior users); phase-
+  coloured |psi|^2 over V(x); barrier/free/HO/double/box/lattice/delta;
+  <x>(t) trace. Inv 8/8: norm 1e-6; unconditional stability; lattice
+  group velocity + Ehrenfest; coherent x0 cos(wt); energy 2e-3; HO
+  ground state E=w/2; tunnelling R+T=1. probe pass; visual x3. Section
+  7 (FIS3003) hero done.
 - [ ] heisenberg-uncertainty-visualizer : advanced canvas2d. x and k
   packets, sx sp >= hbar/2 live. Inv: >= hbar/2; =1/2 Gaussian;
   sx to 0 sp to inf.

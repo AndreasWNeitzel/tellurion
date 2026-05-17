@@ -728,6 +728,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Stellar Oscillation Modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/index.html)** &nbsp; (verified)
   A stellar disk breathes, rings, and ripples according to the chosen spherical-harmonic mode $Y_l^m(\theta, \phi) \cos(\omega t)$. Sliders for radial order $n$, degree $l$, azimuthal order $m$ morph the surface pattern. Side panel shows the propagation diagram (Brunt-Vaisala and Lamb frequencies vs radius for an $n = 3$ polytrope) with the current mode freque
 
+- **[TDSE Wavepacket Sculptor](../playgrounds/bsc-y3s1/FIS3003-tdse-wavepacket-sculptor/index.html)** &nbsp; (verified)
+  A Gaussian wavepacket of chosen mean momentum launched into a chosen 1D potential: free space, infinite box, harmonic well, double well, periodic lattice, rectangular tunnelling barrier, or a delta spike.
+
 - **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified)
   A torque-free rigid body with principal moments of inertia $I_1 < I_2 < I_3$. The angular velocity in the body frame obeys Euler's equations; the orientation is carried by a unit quaternion.
 
