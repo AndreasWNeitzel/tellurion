@@ -314,9 +314,15 @@ docs/NEEDS-ATTENTION.md, move on.
   2|t1-t2| chiral + 2x2 eigenvalue; 2D -4t/+4t/saddle 0; DOS
   norm+divergence; filling 0/1/half; 2D FS half-fill diamond.
   probe pass (t 1.20, dim 1.30, EF 10.31, lat 1.81); visual 5/5 x3.
-- [ ] superconductivity-meissner-3d : medium webgl2. SC sphere expels
-  B, lambdaL shell, Type-II Abrikosov vortices. Inv: B_in=0 T<Tc B<Bc;
-  divB=0; sharp Tc.
+- [x] superconductivity-meissner-3d : medium canvas2d (webgl2 ->
+  hand-rolled per stack rule). Field-line cross-section expelled
+  around the SC sphere, Bc(T) phase diagram (type II: Bc1/Bc2 +
+  vortex region), Abrikosov vortices, fixed B axis + B0-scaled line
+  density. Inv 9/9: B=0 inside; normal=B0 uniform; Br(R)=0 &
+  |Bt|=3/2 B0 sin; far->B0; Bc parabola; London exp; Phi0=h/2e;
+  type I/II kappa=1/sqrt2 Bc1<Bc2; Abrikosov 1 Phi0/cell ~B^-1/2.
+  probe pass (T 21.8, B 12.1, bc0 1.22, type 1.80); visual 5/5 x3.
+  Bib: tinkham added.
 
 ## Section 11: Mecanica Analitica (3Y-2S; Goldstein, Landau)
 

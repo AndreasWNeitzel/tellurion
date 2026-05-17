@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The Meissner Effect](../playgrounds/bsc-y3s2/FIS3005-superconductivity-meissner-3d/index.html)** &nbsp; (verified, verified 2026-05-17T10:32:56Z)
+  A superconducting sphere of radius R in a uniform applied field B0, at reduced temperature T/Tc, type I or II, zero-temperature critical field Bc0.
+
 - **[Tight-Binding Band Structure](../playgrounds/bsc-y3s2/FIS3005-band-structure-tight-binding/index.html)** &nbsp; (verified, verified 2026-05-17T10:17:35Z)
   A single s-band: 1D chain (uniform t), the dimerized SSH chain (alternating t1, t2), or the 2D square lattice. Units a = hbar = 1.
 
