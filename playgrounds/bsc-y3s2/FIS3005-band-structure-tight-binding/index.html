@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tight-Binding Band Structure</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 16px; background: rgba(6,6,8,0.6); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 8ch 10ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 15ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tight-Binding Band Structure</h1>
+    <p>The simplest model of a solid: one orbital per site, an on-site energy, and a hopping amplitude $t$ to neighbours. Bloch's theorem turns it into a band $E(k)=\varepsilon_0-2t\cos ka$ for the 1D chain (width $4t$), the curvature at the bottom fixing the effective mass $m^*=\hbar^2/2ta^2$. Dimerize the chain (alternating $t_1,t_2$) and a gap $2|t_1-t_2|$ opens at the zone boundary, the SSH insulator. On the 2D square lattice $E=-2t(\cos k_xa+\cos k_ya)$ has a van Hove saddle and a Fermi surface that you can fill by dragging $E_F$. Source: Kittel, Introduction to Solid State Physics (8th ed.), Ch. 7-9 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 10 (`ashcroft-mermin`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="450" aria-label="Tight-binding dispersion E(k) with the filled states, density of states, and the 2D Fermi surface"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">lattice</span><span class="value" id="readout-lat">1D</span>
+      <span class="label">bandwidth</span><span class="value" id="readout-bw">0</span>
+      <span class="label">gap</span><span class="value" id="readout-gap">0</span>
+      <span class="label">E_F</span><span class="value" id="readout-ef">0</span>
+      <span class="label">filling</span><span class="value" id="readout-fill">0</span>
+    </div>
+    <figcaption>
+      Figure 1. Tight-binding dispersion with the filled states and density of states (1D / SSH), or the 2D band and Fermi surface.
+      <em>Method:</em> closed-form Bloch dispersion; SSH 2x2 Hamiltonian; 2D Fermi-surface contouring.
+      <em>Source:</em> Kittel, Introduction to Solid State Physics (8th ed.), Ch. 7-9 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 10 (`ashcroft-mermin`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">lattice</span><select aria-label="lattice" id="select-lat" style="grid-column: span 2;"><option value="1d">1D chain</option><option value="ssh">dimerized (SSH)</option><option value="2d">2D square + Fermi surface</option></select></div>
+    <div class="row"><span class="label">hopping t</span><input aria-label="hopping t" type="range" id="slider-t" min="0.2" max="2.0" step="0.05" value="1.0"><span class="value" id="value-t">1.00</span></div>
+    <div class="row"><span class="label">dimerization</span><input aria-label="dimerization t2/t1" type="range" id="slider-dim" min="0.1" max="2.0" step="0.05" value="0.5"><span class="value" id="value-dim">0.50</span></div>
+    <div class="row"><span class="label">Fermi level E_F</span><input aria-label="Fermi level" type="range" id="slider-ef" min="-4.2" max="4.2" step="0.05" value="0"><span class="value" id="value-ef">0.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

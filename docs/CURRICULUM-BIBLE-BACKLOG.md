@@ -307,9 +307,13 @@ docs/NEEDS-ATTENTION.md, move on.
   E both sides + drop=Vbi-V; band gap const + bending q(Vbi-V);
   Mott-Schottky 1/C^2 linear. probe pass (V 0.85, NA 5.22, ND 9.40,
   view 13.71); visual 5/5 x3. Bib: sze-devices added.
-- [ ] band-structure-tight-binding : advanced canvas2d. Lattice psi_k
-  plus E(k); drag EF, 2D Fermi surface. Inv: E=eps+-2t k=0,pi/a;
-  W=4|t|; half-fill diamond.
+- [x] band-structure-tight-binding : advanced canvas2d. 1D / SSH /
+  2D dispersion, filled-to-EF + DOS / Fermi-surface, fixed energy
+  axis, SSH default. Inv 9/9: E=eps+-2t k=0/pi W=4t; 2pi-periodic
+  even; v_g=0 edges + numeric dE/dk; m*=hbar^2/2ta^2; SSH gap
+  2|t1-t2| chiral + 2x2 eigenvalue; 2D -4t/+4t/saddle 0; DOS
+  norm+divergence; filling 0/1/half; 2D FS half-fill diamond.
+  probe pass (t 1.20, dim 1.30, EF 10.31, lat 1.81); visual 5/5 x3.
 - [ ] superconductivity-meissner-3d : medium webgl2. SC sphere expels
   B, lambdaL shell, Type-II Abrikosov vortices. Inv: B_in=0 T<Tc B<Bc;
   divB=0; sharp Tc.

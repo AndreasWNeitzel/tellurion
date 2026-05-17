@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Tight-Binding Band Structure](../playgrounds/bsc-y3s2/FIS3005-band-structure-tight-binding/index.html)** &nbsp; (verified, verified 2026-05-17T10:17:35Z)
+  A single s-band: 1D chain (uniform t), the dimerized SSH chain (alternating t1, t2), or the 2D square lattice. Units a = hbar = 1.
+
 - **[The p-n Junction](../playgrounds/bsc-y3s2/FIS3005-semiconductor-pn-junction/index.html)** &nbsp; (verified, verified 2026-05-17T10:08:13Z)
   A step junction with acceptor density `NA` (p side) and donor density `ND` (n side), applied bias `V` (forward positive), in silicon at 300 K.
 
