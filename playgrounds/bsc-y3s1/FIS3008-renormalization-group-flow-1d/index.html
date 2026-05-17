@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1D Ising Renormalization-Group Flow</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; cursor: crosshair; }
+    .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.66); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 8ch 12ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>1D Ising Renormalization-Group Flow</h1>
+    <p>Decimate every other spin of the 1D Ising chain and the remaining spins obey the same model with renormalized couplings. The transformation is exact: $K'=\tfrac14\ln\frac{\cosh(2K+h)\cosh(2K-h)}{\cosh^2 h}$, $h'=h+\tfrac12\ln\frac{\cosh(2K+h)}{\cosh(2K-h)}$, with $K=\beta J$, $h=\beta H$. Iterating this map is the renormalization group. The plane is $(u=\tanh K,\;h)$, so $K=0$ (infinite temperature) is the left edge and $K\to\infty$ (zero temperature) the right. Every trajectory flows left into the disordered sink at the origin: there is no finite-temperature fixed point, the exact statement that the 1D Ising chain has no phase transition. The only critical point sits at $T=0$ ($u=1$), and it is unstable. Summing the per-step free-energy constants reconstructs the exact transfer-matrix free energy. Source: Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" aria-label="Renormalization-group flow field in the (tanh K, h) plane with a traced trajectory and the zero-field decimation map"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">K, h</span><span class="value" id="readout-kh">0, 0</span>
+      <span class="label">after N</span><span class="value" id="readout-khn">0, 0</span>
+      <span class="label">xi</span><span class="value" id="readout-xi">0.0</span>
+      <span class="label">f RG</span><span class="value" id="readout-frg">0.000000</span>
+      <span class="label">f exact</span><span class="value" id="readout-fex">0.000000</span>
+    </div>
+    <figcaption>
+      Figure 1. Exact decimation RG flow of the 1D Ising chain in a field; all flow to the disordered sink (no finite-T transition).
+      <em>Method:</em> exact real-space decimation (b = 2); free energy reconstructed from the per-step constants.
+      <em>Source:</em> Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">start K</span><input aria-label="initial coupling K0" type="range" id="slider-k0" min="0.1" max="6.0" step="0.05" value="3.00"><span class="value" id="value-k0">3.00</span></div>
+    <div class="row"><span class="label">start h</span><input aria-label="initial field h0" type="range" id="slider-h0" min="-1.5" max="1.5" step="0.02" value="0.00"><span class="value" id="value-h0">0.00</span></div>
+    <div class="row"><span class="label">RG steps</span><input aria-label="number of RG steps traced" type="range" id="slider-n" min="0" max="14" step="1" value="9"><span class="value" id="value-n">9</span></div>
+    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="flow">flow plane (tanh K, h)</option><option value="cobweb">zero-field map cobweb</option></select></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

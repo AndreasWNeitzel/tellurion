@@ -236,9 +236,15 @@ docs/NEEDS-ATTENTION.md, move on.
   E/spin->-2J; hot disorder; chi peak at Tc; |M| vs Onsager; beta=
   1/8. probe pass (T 10.73, speed 0.96, init 10.41); visual 5/5 x3.
   Bib: onsager1944, newman-barkema added.
-- [ ] renormalization-group-flow-1d : advanced canvas2d. (J,h) RG flow
-  arrows, fixed points, separatrix, trace trajectory. Inv: 1D critical
-  manifold exact; Tc fixed point 1%.
+- [x] renormalization-group-flow-1d : advanced canvas2d. Exact 1D
+  Ising decimation RG (Goldenfeld Ch.9 recursion), (u=tanh K, h)
+  flow field + fixed points + draggable trace + zero-field cobweb +
+  live f_RG vs f_exact. Inv 8/8: zero-field K'=1/2 ln cosh 2K;
+  brute-force decimation match 1e-10; (0,0) super-stable; K->0 no
+  finite-T transition; T=0 unstable K'~K-ln2/2, h'~2h; xi halves
+  (b=2); RG free energy = exact transfer matrix 1e-9. probe pass
+  (k0 0.57, h0 0.63, n 0.54, view 2.55); visual 5/5 x3. Bib:
+  goldenfeld, nelson-fisher1975 added.
 - [ ] md-lennard-jones-thermodynamics : advanced canvas2d. 300 LJ disks
   KE-coloured, T/P(virial)/g(r). Verlet. Inv: E 1e-3; g(r) to 1; no
   overlap.
