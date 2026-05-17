@@ -1,17 +1,22 @@
 // 2D Navier-Stokes vortex street (Canvas2D). The flow is the
 // gate-tested shared MAC Chorin engine
 // (shared/js/engine/chorin-2d-cpu.js, invariants in
-// invariants.test.mjs); this file renders its vorticity field and
-// wires the controls. The live solve uses a relaxed pressure
-// tolerance for interactivity (the spec's two-path design: the
-// strong incompressibility invariant is proven offline by the
-// converged engine; the live readout reports the relaxed
-// post-projection divergence honestly). A WebGL2 512x384 fast path
-// is a documented stretch goal; this Canvas2D path is the shippable,
-// gate-safe renderer of the verified engine.
+// invariants.test.mjs); this file renders its speed field and wires
+// the controls. The live path enables the engine's BFECC
+// low-dissipation advection and Steinhoff vorticity confinement
+// (both default-off in the engine, so the offline invariants run on
+// the unmodified first-order scheme): these cut the semi-Lagrangian
+// numerical viscosity so the effective Reynolds number tracks the
+// nominal one, the wake genuinely sheds a periodic von Karman
+// street, and the regime presets are visibly distinct. A small grid
+// with a large dt and few steps per frame keeps it at 60 fps. The
+// live solve uses a relaxed pressure tolerance for interactivity
+// (the spec's two-path design: the strong incompressibility
+// invariant is proven offline by the converged engine; the live
+// readout reports the relaxed post-projection divergence honestly).
 
 import {
-  createState, setBlockObstacle, step, divergenceMax,
+  createState, setBlockObstacle, setDiskObstacle, step, divergenceMax,
   cellVelocity, advectScalar,
 } from '../../../shared/js/engine/chorin-2d-cpu.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
@@ -33,13 +38,18 @@ const rReg = document.getElementById('readout-regime');
 const selReg = document.getElementById('select-regime');
 const sRe = document.getElementById('slider-re'), vRe = document.getElementById('value-re');
 const selObs = document.getElementById('select-obs');
+const sSpd = document.getElementById('slider-speed'), vSpd = document.getElementById('value-speed');
 const tTracer = document.getElementById('toggle-tracer');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const GX = 180, GY = 100, DT = 0.06, VMAX = 1.8, YSHIFT = 2;
-const REGIME_RE = { stokes: 2, steady: 80, vonkarman: 700, turbulent: 950 };
-const LIVE = { tol: 8e-3, maxIter: 18 };
-const st = { regime: 'vonkarman', Re: 150, obs: 'cylinder', tracer: false, running: true };
+// Smaller grid + fewer solver sweeps than a converged run: the live
+// path trades pressure tolerance for a smooth 60 fps (correctness is
+// the converged offline invariant, the spec's two-path design). The
+// speed slider sets physics steps per frame.
+const GX = 120, GY = 76, DT = 0.10, VMAX = 1.8, YSHIFT = 4, DIFF = 6, CONF = 0.08;
+const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 3e-3, maxIter: 28 }, bfecc: true, confine: CONF };
+const REGIME_RE = { stokes: 8, steady: 60, vonkarman: 300, turbulent: 600 };
+const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: true };
 
 let state, dye, off, peakW = 0;
 const offCanvas = document.createElement('canvas');
@@ -72,11 +82,11 @@ function seedDye() {
 
 function build(warm) {
   state = createState(GX, GY, st.Re);
-  if (st.obs === 'cylinder') setBlockObstacle(state, 0.26, 4, 5, YSHIFT);
-  else if (st.obs === 'square') setBlockObstacle(state, 0.26, 6, 6, YSHIFT);
+  if (st.obs === 'cylinder') setDiskObstacle(state, 0.22, 9, YSHIFT);
+  else if (st.obs === 'square') setBlockObstacle(state, 0.22, 8, 8, YSHIFT);
   dye = new Float64Array(GX * GY);
   for (let n = 0; n < warm; n += 1) {
-    step(state, DT, { diffuseSweeps: 8, projOpts: LIVE });
+    step(state, DT, STEP_OPTS);
     if (st.tracer) { seedDye(); advectScalar(state, dye, DT); }
   }
 }
@@ -108,14 +118,16 @@ function render() {
 
 function tick() {
   if (st.running) {
-    step(state, DT, { diffuseSweeps: 8, projOpts: LIVE });
-    if (st.tracer) { seedDye(); advectScalar(state, dye, DT); }
+    for (let s = 0; s < st.speed; s += 1) {
+      step(state, DT, STEP_OPTS);
+      if (st.tracer) { seedDye(); advectScalar(state, dye, DT); }
+    }
   }
   render();
   requestAnimationFrame(tick);
 }
 
-function syncLabels() { vRe.textContent = String(st.Re); }
+function syncLabels() { vRe.textContent = String(st.Re); vSpd.textContent = String(st.speed); }
 selReg.addEventListener('change', () => {
   st.regime = selReg.value; st.Re = REGIME_RE[st.regime] ?? st.Re;
   sRe.value = String(st.Re); syncLabels(); build(80); render();
@@ -125,10 +137,11 @@ sRe.addEventListener('input', () => {
   syncLabels(); build(60); render();
 });
 selObs.addEventListener('change', () => { st.obs = selObs.value; build(80); render(); });
+sSpd.addEventListener('input', () => { st.speed = parseInt(sSpd.value, 10); syncLabels(); });
 tTracer.addEventListener('change', () => { st.tracer = tTracer.checked; build(60); render(); });
 bR.addEventListener('click', () => {
-  st.regime = 'vonkarman'; st.Re = 700; st.obs = 'cylinder'; st.tracer = false; st.running = true;
-  selReg.value = 'vonkarman'; sRe.value = "700"; selObs.value = 'cylinder'; tTracer.checked = false;
+  st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.speed = 2; st.running = true;
+  selReg.value = 'vonkarman'; sRe.value = '300'; selObs.value = 'cylinder'; sSpd.value = '2'; tTracer.checked = false;
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); syncLabels(); build(80); render();
 });
 bP.addEventListener('click', () => { st.running = !st.running; bP.textContent = st.running ? 'Pause' : 'Play'; bP.setAttribute('aria-pressed', String(!st.running)); });
@@ -149,13 +162,13 @@ function bootSync() {
   restoreState(); syncLabels();
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
-    st.regime = 'vonkarman'; st.Re = 700; st.obs = 'cylinder'; st.tracer = false;
+    st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false;
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state = createState(GX, GY, st.Re);
-    setBlockObstacle(state, 0.26, 4, 5, YSHIFT);
+    setDiskObstacle(state, 0.22, 9, YSHIFT);
     dye = new Float64Array(GX * GY);
     const steps = Math.round(40 + f * 820);
-    for (let n = 0; n < steps; n += 1) step(state, DT, { diffuseSweeps: 8, projOpts: LIVE });
+    for (let n = 0; n < steps; n += 1) step(state, DT, STEP_OPTS);
     render();
   } else {
     build(80); render();

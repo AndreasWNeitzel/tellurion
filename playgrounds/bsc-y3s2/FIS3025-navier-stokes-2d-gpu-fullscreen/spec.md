@@ -8,8 +8,8 @@ primary_uc: FIS3025
 supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: chorin1968
-hook: 'Drop a body into a stream: Chorin''s pressure projection holds the flow incompressible (the live max|div u| stays tiny) while the wake thickens from a glassy creep to an unsteady, agitated trail as the Reynolds number climbs.'
-one_paragraph: 'An interactive 2D incompressible Navier-Stokes solver, the Chorin projection method made visible: semi-Lagrangian advection (Stam), implicit diffusion, and an iterated pressure-Poisson projection on a MAC staggered grid, the gate-tested shared engine (shared/js/engine/chorin-2d-cpu.js). It renders the vorticity of flow past a bluff body in Canvas2D over that verified engine, with a Reynolds slider sweeping creeping Stokes flow, a steady recirculating wake, and a damped unsteady wake, an obstacle and tracer toggle, and a live readout of the post-projection discrete divergence, the incompressibility constraint enforced in real time. The headless engine is gate-tested offline (incompressibility after a converged projection, projection identity, Stokes top-bottom symmetry, boundedness to Re=1000, determinism). The von Karman vortex street and its Strouhal number are a documented weak, resolution-limited feature: at the interactive grid the semi-Lagrangian numerical viscosity holds the effective Reynolds below the shedding threshold, so a crisp periodic street is a finer-grid / stretch mode, not the default claim.'
+hook: 'Drop a body into a stream: Chorin''s pressure projection holds the flow incompressible (the live max|div u| stays tiny) while the wake goes from a glassy creep, through a steady recirculating bubble, to a shedding von Karman vortex street as the Reynolds number climbs.'
+one_paragraph: 'An interactive 2D incompressible Navier-Stokes solver, the Chorin projection method made visible: semi-Lagrangian advection (Stam), implicit diffusion, and an iterated pressure-Poisson projection on a MAC staggered grid, the gate-tested shared engine (shared/js/engine/chorin-2d-cpu.js). It renders the speed field of flow past a bluff body in Canvas2D over that verified engine, with a Reynolds slider sweeping creeping Stokes flow, a steady recirculating wake, and a genuinely shedding von Karman street, an obstacle and tracer toggle, and a live readout of the post-projection discrete divergence, the incompressibility constraint enforced in real time. The headless engine is gate-tested offline (incompressibility after a converged projection, projection identity, Stokes top-bottom symmetry, boundedness to Re=1000, determinism) on the unmodified first-order scheme. The live path additionally switches on the engine''s BFECC low-dissipation advection (Selle/Fedkiw) and Steinhoff vorticity confinement, both default-off so the offline invariants are unaffected: these cut the semi-Lagrangian numerical viscosity so the effective Reynolds tracks the nominal one and the wake sheds a genuine, if coarse, periodic vortex street whose period sets an approximate (non-gate-claimed) Strouhal number.'
 tags: [fluids, incompressible, pressure-projection, live-readout, obstacle-drawing]
 difficulty: 5
 tier: hero
@@ -23,7 +23,7 @@ share_state_keys: [re_number, obstacle_preset, tracer_enabled, regime_name]
 
 ## Physical setup
 
-A 2D incompressible flow (180 x 120 grid, normalized channel) past a bluff obstacle. A uniform stream enters at the left, free-slip walls top and bottom, zero-gradient outflow on the right, no-slip on the obstacle. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1`, so `nu = 1/Re`) is user-tunable. Honest about the discretization: the realized (effective) Reynolds number is lowered by the semi-Lagrangian numerical viscosity, `Re_eff ~ 1/(1/Re + C |u| dx)`, so the slider sweeps three regimes that the interactive grid actually resolves: creeping, near fore-aft-symmetric Stokes flow (`Re ~ 1`); a steady recirculating wake (`Re` tens); and a broader, agitated, unsteady wake (high nominal `Re`). The headline is not a vortex street but the projection method itself: the scene draws the vorticity `omega = dv/dx - du/dy` and a live readout of the maximum post-projection discrete divergence, which stays small because the pressure-Poisson solve enforces `div u = 0` every step.
+A 2D incompressible flow (120 x 76 live grid, normalized channel) past a bluff obstacle. A uniform stream enters at the left, free-slip walls top and bottom, zero-gradient outflow on the right, no-slip on the obstacle. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1`, so `nu = 1/Re`) is user-tunable. The live path runs the engine's BFECC low-dissipation advection plus Steinhoff vorticity confinement, which cut the semi-Lagrangian numerical viscosity so the effective Reynolds tracks the nominal one. The slider then sweeps four visibly distinct regimes: creeping, near fore-aft-symmetric Stokes flow (`Re ~ 8`); a steady recirculating bubble (`Re` tens); a genuine periodic von Karman street of alternating shed vortices convecting downstream (`Re ~ 300`); and a broader, agitated, broadband wake (`Re ~ 600`). The headline twin is the projection method itself: the scene draws the speed `|u|` (free stream, the bright acceleration around the body, the dark wake deficit and the discrete shed cores) and a live readout of the maximum post-projection discrete divergence, which stays small because the pressure-Poisson solve enforces `div u = 0` every step.
 
 ## Governing equations
 
@@ -68,6 +68,20 @@ layout), the Stam "stable fluids" discretization. Per step:
    inflow `u = (1, 0)`; right zero-gradient outflow; top and bottom
    free-slip (no penetration); obstacle no-slip.
 
+Two advection schemes, one engine. The default `advect` is the
+first-order semi-Lagrangian step above; this is the path the offline
+invariants exercise. The engine also exports a BFECC self-advection
+(`selle2008-bfecc`: forward semi-Lagrangian, backward semi-Lagrangian,
+the error-corrected restart `phi_bar = phi0 + 0.5(phi0 - phi2)`, a
+final forward step clamped to the first-pass min/max so no new extrema
+appear, so boundedness is preserved) and a Steinhoff vorticity
+confinement body force (`steinhoff1994`: `f = eps * (N x omega)` with
+`N = grad|omega| / |grad|omega||`, re-sharpening the eddies coarse-grid
+diffusion smears). Both are `step()` options that default OFF, so the
+gate-tested engine and `invariants.test.mjs` run the unmodified
+first-order scheme; the live playground turns them ON for a
+low-dissipation, genuinely shedding flow.
+
 One scheme, two iteration budgets. The numerics live in the
 gate-tested shared engine `shared/js/engine/chorin-2d-cpu.js`. The
 live playground runs it with a relaxed pressure tolerance (capped SOR
@@ -78,53 +92,70 @@ incompressibility invariant `max|div u| < 1e-3` is genuinely reached.
 Correctness is proven by the converged offline path, not asserted
 from the relaxed live one.
 
-Effective-Reynolds caveat: semi-Lagrangian advection adds
-`nu_num ~ C |u| dx`, so the realized Reynolds number is
-`Re_eff ~ 1/(1/Re + C|u|dx)`. At the interactive 180 x 120 grid
-`nu_num` is large enough that `Re_eff` stays below the von Karman
-shedding threshold for any nominal `Re`. Stated plainly: the
-playground does NOT show a crisp periodic vortex street at the
-interactive resolution. It shows creeping flow, a steady
-recirculating wake, and a broader unsteady, agitated wake. The von
-Karman street and its Strouhal number are a documented weak,
-resolution-limited feature (a finer-grid stretch mode), not the
-default claim, which is the projection method and incompressibility.
+Effective-Reynolds note: first-order semi-Lagrangian advection adds
+`nu_num ~ C |u| dx`, so with it alone the realized Reynolds is
+`Re_eff ~ 1/(1/Re + C|u|dx)`, pinned subcritical at a coarse
+interactive grid (no shedding, the symmetric steady bubble). The live
+path removes this: BFECC roughly halves the advective `C`, and
+Steinhoff confinement re-injects the small amount of vortical energy
+the coarse grid still diffuses, so `Re_eff` tracks the nominal `Re`
+and a genuine, if coarse, periodic von Karman street forms above the
+shedding threshold. The shed period gives an approximate Strouhal
+number; it is a qualitative diagnostic, not gate-asserted at this
+resolution (the precise `St(Re)` is the documented finer-grid
+quantity, Williamson the reference). The confinement strength is small
+(`eps ~ 0.08`) on a clean BFECC base; an over-large `eps` amplifies
+grid-scale noise, so it is tuned and visually verified, not free.
 
-Grid and time step: live grid 180 x 120; `dt = 0.06` (accuracy, not
-stability). `nu = 1/Re`, slider `Re` in `[1, 1000]`. No RNG
-(deterministic); tracer dye seeded at fixed inflow positions.
+Grid and time step: live grid 120 x 76; `dt = 0.10` (accuracy, not
+stability); BFECC self-advection plus Steinhoff confinement
+(`eps = 0.08`) on the live path; a small grid with a large `dt` and
+one to a few physics steps per frame keeps it a smooth 60 fps. `nu =
+1/Re`, slider `Re` in `[1, 1000]`. No RNG (deterministic); tracer dye
+seeded at fixed inflow positions.
 
 ## Controls
 
-- regime: select Stokes / steady / unsteady / broadband, default
-  unsteady; sets `Re` to 2 / 80 / 700 / 950.
-- Re: slider `[1, 1000]`, default 700; `nu = 1/Re`.
-- obstacle: select cylinder / square / none; the body is slightly
-  offset to seed the asymmetry a deterministic solver needs.
+- regime: select Stokes / steady / von Karman / broadband, default
+  von Karman; sets `Re` to 8 / 60 / 300 / 600.
+- Re: slider `[1, 1000]`, default 300; `nu = 1/Re`.
+- obstacle: select cylinder / square / none. "cylinder" is a real
+  circular disk (a 2D cylinder cross-section, so the label is
+  honest, not a mislabelled rectangle); "square" is the rectangular
+  block. The body is slightly offset to seed the asymmetry a
+  deterministic solver needs.
+- speed: slider, physics steps per frame `[1, 6]` (default 2), so
+  the evolution rate is user-controllable and the live loop stays a
+  smooth 60 fps on a modest grid.
 - tracer dye: checkbox, a passive streak dye from the inflow.
 - reset, pause: buttons.
 - Live monospace readouts: `max|div u|` (the post-projection
-  incompressibility, the headline), peak `|omega|`, `Re`, regime.
+  incompressibility, the headline), `max|u|`, `Re`, regime.
 - Share-state keys: `re_number`, `obstacle_preset`, `tracer_enabled`,
   `regime_name` (parseUrlState restore plus a Copy-URL button).
 
 ## Expected qualitative features
 
-- Stokes (`Re ~ 2`): glassy, steady, near top-bottom symmetric
+- Stokes (`Re ~ 8`): glassy, steady, near top-bottom symmetric
   creeping flow hugging the obstacle; no shed vortices.
-- Steady wake (`Re ~ 80`): a fixed recirculating wake behind the
-  body, no time dependence.
-- Unsteady / broadband (`Re` high): a broader, agitated, slowly
-  fluctuating wake; the shear layers wobble but do not form a clean
-  periodic street at this grid. Caveat: this is 2D Navier-Stokes;
-  2D turbulence has an inverse energy / enstrophy cascade (Kraichnan
-  1967), unlike 3D Kolmogorov and unlike a real 3D cylinder wake.
+- Steady wake (`Re ~ 60`): a fixed, closed, symmetric recirculating
+  bubble behind the body, no time dependence.
+- von Karman (`Re ~ 300`): a genuine periodic street, alternating
+  shed vortices that detach from each side and convect downstream,
+  the near wake visibly asymmetric and time-dependent; visibly,
+  unmistakably different from the steady bubble.
+- Broadband (`Re ~ 600`): a broader, more agitated, less regular
+  wake. Caveat: this is 2D Navier-Stokes; 2D turbulence has an
+  inverse energy / enstrophy cascade (Kraichnan 1967), unlike 3D
+  Kolmogorov and unlike a real 3D cylinder wake.
 - The `max|div u|` readout stays small every frame (relaxed-live
-  tolerance), the visible statement that the projection enforces
-  incompressibility; the offline engine drives it below `1e-3`.
-- Rendering is the vorticity over the dark theme: zero goes to the
-  background (not white), glowing red and blue where the wake is
-  rotational.
+  tolerance, order `1e-2`), the visible statement that the projection
+  enforces incompressibility; the offline converged engine drives it
+  below `1e-3`.
+- Rendering is the speed `|u|` through viridis over the dark theme:
+  the uniform stream, the bright acceleration over the shoulders of
+  the body, the dark low-speed wake deficit, and the discrete shed
+  cores; the obstacle is drawn as the solid dark body.
 
 ## Invariants and acceptance thresholds
 
@@ -145,14 +176,23 @@ Checked offline by the shared MAC engine through `sim.js` in
   better than `1e-12` (no RNG).
 - constant-scalar transport (medium): a constant scalar stays
   constant under semi-Lagrangian advection (under `1e-6`).
-- Strouhal (weak, non-gating): a finer-grid stretch diagnostic only,
-  not asserted at the interactive resolution; Williamson `St ~= 0.164`
-  at `Re = 100` is the reference if pursued.
+- Strouhal (weak, non-gating): the live BFECC + confinement path
+  sheds a coarse periodic street whose period gives an approximate
+  `St`; this is a qualitative diagnostic, not gate-asserted at the
+  interactive resolution. The precise `St(Re)` is the documented
+  finer-grid quantity; Williamson `St ~= 0.164` at `Re = 100` is the
+  literature reference.
+
+These six strong/medium invariants run the engine with its defaults
+(first-order advection, no confinement), so the live BFECC +
+confinement path does not weaken any of them; it is a separate,
+visually verified live mode (the spec's two-path design).
 
 Visual gate: five Playwright frames (init, 25, 50, 75, terminal) of
-the deterministic time sweep (unsteady preset, cylinder), SSIM at
-least `0.92` vs committed golden frames. The render is deterministic
-(no RNG; the engine and the capped SOR are bitwise-stable).
+the deterministic time sweep (von Karman preset `Re = 300`, cylinder
+disk, BFECC + confinement as in the live path), SSIM at least `0.92`
+vs committed golden frames. The render is deterministic (no RNG; the
+engine, BFECC, confinement and the capped SOR are bitwise-stable).
 
 ## Limiting cases for verification
 
@@ -181,39 +221,52 @@ In `docs/CITATIONS.bib`:
 - Batchelor, An Introduction to Fluid Dynamics, CUP, 1967 (`batchelor1967`), Stokes flow.
 - Williamson, Annu. Rev. Fluid Mech. 28 (1996) 477 (`williamson1996`), the St-Re relation (the weak Strouhal reference).
 - Kraichnan, Phys. Fluids 10 (1967) 1417 (`kraichnan1967`), the 2D-cascade caveat.
+- Selle, Fedkiw, Kim, Liu, Rossignac, J. Sci. Comput. 35 (2008) 350 (`selle2008-bfecc`), the BFECC low-dissipation advection.
+- Steinhoff and Underhill, Phys. Fluids 6 (1994) 2738 (`steinhoff1994`), vorticity confinement.
 
 ## Stretch goals
 
-- A high-fidelity mode (finer grid, more pressure iterations, longer
-  integration) that actually sheds a crisp von Karman street and
-  measures the Strouhal number, trading away real-time interactivity.
+- A high-fidelity, quantitative mode (finer grid, more pressure
+  iterations, longer integration) that measures `St(Re)` from the
+  near-wake spectrum and checks it against Williamson, trading away
+  real-time interactivity for a gate-assertable Strouhal number.
 - A WebGL2 512x384 ping-pong float-texture fast path (would require a
   documented hard-rule-8 relaxation in this spec).
 - Drag-to-force mode; live kinetic-energy spectrum; pressure overlay.
 
 ## Risk register
 
-- Semi-Lagrangian over-damping: the interactive grid cannot shed a
-  clean street; mitigated by reframing honestly (this spec, the
-  title, the readouts) and keeping Strouhal a documented weak,
-  non-gating, finer-grid feature, never claimed at the live grid.
+- Confinement over-energizing: too large an `eps` amplifies
+  grid-scale (checkerboard) noise into salt-and-pepper artefacts;
+  mitigated by a clean low-dissipation BFECC base, a deliberately
+  small `eps = 0.08`, a tighter live projection (more SOR iterations),
+  and visual verification of the captured frames (the noise failure
+  mode is obvious and was caught and tuned out, not assumed away).
+- BFECC boundedness: the error-corrected restart is clamped to the
+  first-pass min/max so no new extrema appear; the engine boundedness
+  invariant (still on the default path) and the bounded live frames
+  confirm no blow-up.
 - Relaxed live vs converged offline divergence: the live readout is
-  honestly the relaxed tolerance; the strong invariant is proven
-  offline by the converged engine, not by the live render.
-- Engagement: a non-shedding wake is less dramatic than a street;
-  mitigated by the dark vivid vorticity render, the Re sweep across
-  visibly distinct regimes, and the live incompressibility readout as
-  the genuine pedagogical headline (Chorin's method made visible).
+  honestly the relaxed tolerance (order `1e-2`); the strong invariant
+  `< 1e-3` is proven offline by the converged default engine, not by
+  the live render. The six invariants run engine defaults, so the
+  live BFECC + confinement mode cannot weaken them.
+- Engagement: addressed; the wake now genuinely sheds a periodic
+  von Karman street and the regimes are visibly, unmistakably
+  distinct, with the live incompressibility readout as the
+  pedagogical headline (Chorin's method made visible).
 
 ## Implementation notes
 
 The headless engine `shared/js/engine/chorin-2d-cpu.js` (committed,
 tested in `tests/engines/chorin-2d-cpu.test.mjs`, hard rule 6)
-exports `createState`, `setBlockObstacle`, `step`, `project`,
-`divergenceMax`, `vorticity`, `cellVelocity`, `advectScalar`,
-`strouhal`. The playground `sim.js` re-exports it so
+exports `createState`, `setBlockObstacle`, `setDiskObstacle`,
+`step` (with `bfecc` and `confine` options, both default-off),
+`project`, `divergenceMax`, `vorticity`, `cellVelocity`,
+`advectScalar`, `strouhal`. The playground `sim.js` re-exports it so
 `invariants.test.mjs` validates the exact numerics the renderer
 uses. `playground.js` is pure Canvas2D: it steps the engine with a
-relaxed projection budget, paints the vorticity through the shared
-rdbu LUT composited over the dark background, and honours the
+relaxed projection budget and the live BFECC + confinement options,
+paints the speed `|u|` through the shared viridis LUT composited over
+the dark background, and honours the
 `?deterministic=1&capture=NAME&captureFraction=F` capture contract.

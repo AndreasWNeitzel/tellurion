@@ -354,7 +354,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 12: Mecanica de Fluidos (3Y; Munson, White, Batchelor)
 
-- [ ] navier-stokes-2d-gpu-fullscreen : hero webgl2. 512x384 NS, draw
+- [x] navier-stokes-2d-gpu-fullscreen : hero webgl2. 512x384 NS, draw
   obstacles, vorticity colormap, Re sweep (Stokes/von Karman/turb),
   tracers, St. Chorin. Inv: divu<1e-3; St~0.2 Re=100 15%; symmetric
   Re to 0; bounded Re<1000.

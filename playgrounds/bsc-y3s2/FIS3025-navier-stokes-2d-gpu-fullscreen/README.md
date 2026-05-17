@@ -13,23 +13,29 @@ numerically. The numerics are the shared engine
 `tests/engines/chorin-2d-cpu.test.mjs`.
 
 What to look for: pick the Stokes regime and the flow is a glassy,
-near-symmetric creep that hugs the body. Raise the Reynolds number
-(or pick the steady / unsteady presets) and the wake lengthens and
-then starts to fluctuate, the low-speed deficit growing and the
-shear layers around it sharpening. Throughout, `max|div u|` stays
-small: the projection is enforcing incompressibility in real time.
-Honest limitation: at this interactive grid the semi-Lagrangian
-numerical viscosity holds the effective Reynolds number below the
-von Karman shedding threshold, so a crisp periodic vortex street and
-its Strouhal number are a documented finer-grid feature, not shown
-here; the playground does not claim a street it cannot produce.
+near-symmetric creep that hugs the body. Steady wake gives a fixed,
+closed, symmetric recirculating bubble. von Karman is the payoff: the
+wake goes unstable and sheds a periodic street of alternating
+vortices that detach from each side and convect downstream, the near
+wake visibly asymmetric and time-dependent, unmistakably different
+from the steady bubble. Broadband is a wider, more agitated wake.
+Throughout, `max|div u|` stays small: the projection is enforcing
+incompressibility in real time. How it sheds at an interactive grid:
+the live path switches on the engine's BFECC low-dissipation
+advection and Steinhoff vorticity confinement (both default-off, so
+the offline invariants run the unmodified first-order scheme), which
+cut the semi-Lagrangian numerical viscosity so the effective Reynolds
+tracks the nominal one. The shed period gives an approximate Strouhal
+number; the precise `St(Re)` stays a documented finer-grid quantity,
+not asserted at this resolution.
 
 Controls: the regime selector jumps between creeping, steady and
 unsteady presets; the Reynolds slider tunes `nu = 1/Re`; the obstacle
-selector picks a cylinder, a square or none (the body is offset
-slightly to seed the asymmetry a deterministic solver needs); the
-tracer-dye toggle adds passive streaks; Reset and Pause behave as
-labelled. Copy URL shares the current state. Motion is the evolving
+selector picks a cylinder (a real circular disk, not a mislabelled
+rectangle), a square or none (the body is offset slightly to seed the
+asymmetry a deterministic solver needs); the speed slider sets physics
+steps per frame so you can run it faster or slower; the tracer-dye
+toggle adds passive streaks; Reset and Pause behave as labelled. Copy URL shares the current state. Motion is the evolving
 flow; Pause freezes it.
 
 ## Reference
@@ -38,7 +44,10 @@ Primary citation: Chorin, *Numerical Solution of the Navier-Stokes
 Equations*, Math. Comput. 22 (1968) 745 (`chorin1968`); the MAC
 staggered grid is Harlow and Welch, Phys. Fluids 8 (1965) 2182
 (`harlow-welch1965`); semi-Lagrangian advection is Stam, SIGGRAPH 99
-(1999) 121 (`stam1999`).
+(1999) 121 (`stam1999`); the BFECC low-dissipation advection is
+Selle, Fedkiw, Kim, Liu and Rossignac, J. Sci. Comput. 35 (2008) 350
+(`selle2008-bfecc`); vorticity confinement is Steinhoff and Underhill,
+Phys. Fluids 6 (1994) 2738 (`steinhoff1994`).
 
 ## Verification
 

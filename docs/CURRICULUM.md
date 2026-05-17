@@ -8,25 +8,27 @@ See `docs/BUILD_ORDER.md` for the engineering-priority view (which playground an
 
 ## Summary
 
-Total playgrounds: 220
+Total playgrounds: 271
 
 | Status | Count |
 |---|---|
 | draft | 0 |
 | in-progress | 0 |
 | implemented | 0 |
-| verified | 216 |
+| verified | 268 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
 
-27 playgrounds.
+31 playgrounds.
 
 ### FIS1013 Mechanics
 
-19 primary; supporting use of this UC appears elsewhere when listed.
+22 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Beats from Superposition of Close Frequencies** ([FIS1013-beats-superposition](../playgrounds/bsc-y1s1/FIS1013-beats-superposition/)). Status: `verified`. `crawford-waves` ch ? (supporting: FIS2016).
+- **Bernoulli Air-Blower Ball** ([FIS1013-bernoulli-air-blower-ball](../playgrounds/bsc-y1s1/FIS1013-bernoulli-air-blower-ball/)). Status: `verified`. `tritton` ch 11.
+- **Bouncing Shapes Concave Surface** ([FIS1013-bouncing-shapes-concave-surface](../playgrounds/bsc-y1s1/FIS1013-bouncing-shapes-concave-surface/)). Status: `verified`. `kleppner` ch 4.
 - **Brachistochrone: Why the Cycloid Wins** ([FIS1013-brachistochrone-cycloid](../playgrounds/bsc-y1s1/FIS1013-brachistochrone-cycloid/)). Status: `verified`. `marion-thornton` ch 6 (supporting: FIS2021).
 - **Catenary: Shape of a Hanging Chain** ([FIS1013-catenary-hanging-chain](../playgrounds/bsc-y1s1/FIS1013-catenary-hanging-chain/)). Status: `verified`. `lemos-analytical` ch 2 (supporting: FIS2021).
 - **Coupled Pendulums and Normal Modes** ([FIS1013-coupled-pendulums-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/)). Status: `verified`. `french-waves` ch 5 (supporting: FIS2016).
@@ -45,6 +47,7 @@ Total playgrounds: 220
 - **Pendulum on a Moving Cart** ([FIS1013-pendulum-on-moving-cart](../playgrounds/bsc-y1s1/FIS1013-pendulum-on-moving-cart/)). Status: `verified`. `marion-thornton` ch 7 (supporting: FIS2021).
 - **Projectile Motion with Air Drag** ([FIS1013-projectile-with-air-drag](../playgrounds/bsc-y1s1/FIS1013-projectile-with-air-drag/)). Status: `verified`. `marion-thornton` ch 2.
 - **Tautochrone: Cycloid Isochronism** ([FIS1013-tautochrone-isochronism](../playgrounds/bsc-y1s1/FIS1013-tautochrone-isochronism/)). Status: `verified`. `huygens1673` ch ? (supporting: FIS2021).
+- **Tennis Racket Theorem** ([FIS1013-tennis-racket-theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/)). Status: `verified`. `goldstein-mech` ch 5.
 
 ### M1017 Real Analysis I
 
@@ -64,10 +67,11 @@ Total playgrounds: 220
 
 ### CC1017 Programming I
 
-2 primary; supporting use of this UC appears elsewhere when listed.
+3 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Big-O Empirical Scaling** ([CC1017-big-o-empirical](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/)). Status: `verified`. `newman2013` ch 4 (supporting: FIS2018).
 - **Floating-Point Precision Pitfalls** ([CC1017-floating-point-precision-pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/)). Status: `verified`. `newman2013` ch 4 (supporting: FIS2018).
+- **Pathfinding Dijkstra Astar** ([CC1017-pathfinding-dijkstra-astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/)). Status: `verified`. `cormen2009` ch 24.
 
 ## BSc Year 1 Semester 2
 
@@ -203,7 +207,7 @@ Total playgrounds: 220
 - **Lagrangian vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `verified`. `lemos-mech` ch 2.
 - **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `verified`. `strogatz2015` ch ?.
 - **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `verified`. `strogatz2015` ch ? (supporting: FIS2018).
-- **Lorenz Attractor** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `deprecated`. `strogatz2015` ch ?.
+- **Strange Attractor Zoo** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `verified`. `sprott2003` ch 4.
 - **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `verified`. `benettin1980` ch ?.
 - **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `verified`. `newman2013` ch ? (supporting: FIS2018).
 - **Noether's Theorem: Symmetry to Conservation** ([FIS2021-noether-symmetry-to-conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/)). Status: `verified`. `lemos-mech` ch 4.
@@ -258,7 +262,7 @@ Total playgrounds: 220
 
 ## BSc Year 3 Semester 2 (Astrophysics profile)
 
-44 playgrounds.
+45 playgrounds.
 
 ### AST3016 Radiative Processes in Astrophysics
 
@@ -442,3 +446,9 @@ Total playgrounds: 220
 - **PSF and Strehl Ratio** ([MAA-OT-point-spread-function-strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/)). Status: `verified`. `born-wolf` ch 8.
 - **Pulsar Dispersion Measure Dedispersion** ([MAA-OT-pulsar-dispersion-measure](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/)). Status: `verified`. `lorimer-kramer` ch ? (supporting: MAA-AS).
 - **Atmospheric Speckle Statistics** ([MAA-OT-speckle-pattern-statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/)). Status: `verified`. `born-wolf` ch 10.
+
+## Orphans
+
+Playgrounds without parseable frontmatter or curriculum mapping. Run Phase 1 tagging to resolve.
+
+- FIS3025-rayleigh-benard-convection: missing primary_uc or curriculum_year

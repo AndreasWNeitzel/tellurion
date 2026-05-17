@@ -55,6 +55,19 @@ export function setBlockObstacle(s, fracX = 0.30, w = 4, h = 6, yShift = 0) {
   }
 }
 
+// A circular bluff body (a real 2D cylinder cross-section, so the
+// "cylinder" label is honest). Centre at (fracX*NX, mid + yShift),
+// radius r cells; yShift seeds the wake asymmetry as above.
+export function setDiskObstacle(s, fracX = 0.28, r = 6, yShift = 0) {
+  const { NX, NY } = s;
+  const ci = Math.round(fracX * NX), cj = (NY - 1) / 2 + yShift;
+  for (let j = 1; j < NY - 1; j += 1) {
+    for (let i = 1; i < NX - 1; i += 1) {
+      if ((i - ci) ** 2 + (j - cj) ** 2 <= r * r) s.obstacle[Pi(NX, i, j)] = 1;
+    }
+  }
+}
+
 function applyBC(s) {
   const { NX, NY, u, v, obstacle } = s;
   for (let j = 0; j < NY; j += 1) {
@@ -88,6 +101,8 @@ function bilerp(f, W, H, x, y) {
 function uAt(s, x, y) { return bilerp(s._u, s.NX + 1, s.NY, x, y - 0.5); }
 function vAt(s, x, y) { return bilerp(s._v, s.NX, s.NY + 1, x - 0.5, y); }
 
+// Plain first-order semi-Lagrangian self-advection (the default;
+// the gate-tested path the invariants run on; unchanged behaviour).
 function advect(s, dt) {
   const { NX, NY, u, v, _u, _v } = s;
   _u.set(u); _v.set(v);
@@ -105,6 +120,88 @@ function advect(s, dt) {
       const px = x - dt * uAt(s, x, y), py = y - dt * vAt(s, x, y);
       v[Vi(NX, i, j)] = vAt(s, Math.max(0.5, Math.min(NX - 0.5, px)),
         Math.max(0.5, Math.min(NY - 0.5, py)));
+    }
+  }
+  applyBC(s);
+}
+
+// Semi-Lagrangian transport of (fU,fV) along the frozen velocity
+// (velU=s._u, velV=s._v) by step h, into (oU,oV). Used by BFECC.
+function slTransport(s, h, fU, fV, oU, oV) {
+  const { NX, NY } = s;
+  const fuAt = (x, y) => bilerp(fU, NX + 1, NY, x, y - 0.5);
+  const fvAt = (x, y) => bilerp(fV, NX, NY + 1, x - 0.5, y);
+  for (let j = 0; j < NY; j += 1) {
+    for (let i = 1; i < NX; i += 1) {
+      const px = i - h * uAt(s, i, j + 0.5), py = (j + 0.5) - h * vAt(s, i, j + 0.5);
+      oU[Ui(NX, i, j)] = fuAt(Math.max(0.5, Math.min(NX - 0.5, px)), Math.max(0.5, Math.min(NY - 0.5, py)));
+    }
+  }
+  for (let j = 1; j < NY; j += 1) {
+    for (let i = 0; i < NX; i += 1) {
+      const px = (i + 0.5) - h * uAt(s, i + 0.5, j), py = j - h * vAt(s, i + 0.5, j);
+      oV[Vi(NX, i, j)] = fvAt(Math.max(0.5, Math.min(NX - 0.5, px)), Math.max(0.5, Math.min(NY - 0.5, py)));
+    }
+  }
+}
+
+// BFECC self-advection: forward, backward, error-correct, forward
+// again, clamped to the first-pass range so no new extrema appear
+// (boundedness preserved). Roughly halves the semi-Lagrangian
+// numerical viscosity, so the effective Reynolds tracks the nominal
+// one and vortices actually shed at a coarse interactive grid.
+function advectBFECC(s, dt) {
+  const { NX, NY, u, v, _u, _v } = s;
+  _u.set(u); _v.set(v);                              // frozen advecting velocity
+  const nU = (NX + 1) * NY, nV = NX * (NY + 1);
+  s._p1u ||= new Float64Array(nU); s._p1v ||= new Float64Array(nV);
+  s._p2u ||= new Float64Array(nU); s._p2v ||= new Float64Array(nV);
+  s._bbu ||= new Float64Array(nU); s._bbv ||= new Float64Array(nV);
+  const o1u = s._p1u, o1v = s._p1v, o2u = s._p2u, o2v = s._p2v, bu = s._bbu, bv = s._bbv;
+  slTransport(s, dt, _u, _v, o1u, o1v);              // phi1 = A(phi0)
+  slTransport(s, -dt, o1u, o1v, o2u, o2v);           // phi2 = A^{-1}(phi1)
+  for (let k = 0; k < nU; k += 1) bu[k] = _u[k] + 0.5 * (_u[k] - o2u[k]);
+  for (let k = 0; k < nV; k += 1) bv[k] = _v[k] + 0.5 * (_v[k] - o2v[k]);
+  slTransport(s, dt, bu, bv, u, v);                  // phi_new = A(phi_bar)
+  // clamp to the first-pass (monotone) result so no new extrema grow
+  for (let k = 0; k < nU; k += 1) {
+    const lo = Math.min(_u[k], o1u[k]), hi = Math.max(_u[k], o1u[k]);
+    u[k] = Math.max(lo, Math.min(hi, u[k]));
+  }
+  for (let k = 0; k < nV; k += 1) {
+    const lo = Math.min(_v[k], o1v[k]), hi = Math.max(_v[k], o1v[k]);
+    v[k] = Math.max(lo, Math.min(hi, v[k]));
+  }
+  applyBC(s);
+}
+
+// Steinhoff vorticity confinement: a body force that pushes velocity
+// back toward vorticity maxima, re-sharpening the eddies coarse-grid
+// numerical diffusion smears out. eps = 0 disables it (the default,
+// so the invariants are unaffected).
+function confine(s, eps, dt) {
+  if (!(eps > 0)) return;
+  const { NX, NY, u, v, obstacle } = s;
+  const { uc, vc } = cellVelocity(s);
+  const w = new Float64Array(NX * NY);
+  for (let j = 1; j < NY - 1; j += 1) {
+    for (let i = 1; i < NX - 1; i += 1) {
+      const c = Pi(NX, i, j);
+      w[c] = 0.5 * (vc[c + 1] - vc[c - 1]) - 0.5 * (uc[c + NX] - uc[c - NX]);
+    }
+  }
+  for (let j = 2; j < NY - 2; j += 1) {
+    for (let i = 2; i < NX - 2; i += 1) {
+      const c = Pi(NX, i, j);
+      if (obstacle[c]) continue;
+      const gx = 0.5 * (Math.abs(w[c + 1]) - Math.abs(w[c - 1]));
+      const gy = 0.5 * (Math.abs(w[c + NX]) - Math.abs(w[c - NX]));
+      const m = Math.hypot(gx, gy) + 1e-12;
+      const Nx = gx / m, Ny = gy / m;
+      const fx = eps * (Ny * w[c]);                  // (N x omega zhat)
+      const fy = eps * (-Nx * w[c]);
+      u[Ui(NX, i, j)] += dt * fx; u[Ui(NX, i + 1, j)] += dt * fx;
+      v[Vi(NX, i, j)] += dt * fy; v[Vi(NX, i, j + 1)] += dt * fy;
     }
   }
   applyBC(s);
@@ -239,9 +336,14 @@ export function vorticity(s) {
   return w;
 }
 
-export function step(s, dt, { diffuseSweeps = 20, projOpts } = {}) {
-  advect(s, dt);
+// Defaults (bfecc=false, confine=0) reproduce the original
+// first-order scheme exactly, so the gate-tested invariants are
+// unchanged. The live playground opts into bfecc+confine for a
+// low-dissipation, vortex-shedding, Re-sensitive flow.
+export function step(s, dt, { diffuseSweeps = 20, projOpts, bfecc = false, confine: eps = 0 } = {}) {
+  if (bfecc) advectBFECC(s, dt); else advect(s, dt);
   diffuse(s, dt, diffuseSweeps);
+  if (eps > 0) confine(s, eps, dt);
   return project(s, projOpts);
 }
 
