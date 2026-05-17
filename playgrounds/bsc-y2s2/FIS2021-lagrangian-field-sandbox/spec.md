@@ -33,7 +33,10 @@ pair; elastic pendulum `rdd = r thd^2 - (k/m)(r-l0) + g cos th`,
 `thdd = (-g sin th - 2 rd thd)/r`; Kepler `r-ddot = -mu r/|r|^3`.
 Energy `H = T + V`; angular momentum `L = x vy - y vx` (Kepler) or
 `r^2 thd` (spring), conserved iff the potential is rotationally
-symmetric.
+symmetric. The drawn level set is, for the pendulum,
+`thd = +-sqrt(2(E0 + m g l cos th)/(m l^2))`, and for Kepler radial
+motion `r-dot^2 = 2(E0 + mu/r - L0^2/(2 r^2))` with turning points at
+peri- and apoapsis.
 
 ## Numerical method
 
@@ -47,18 +50,33 @@ Landau and Lifshitz, Mechanics (3rd ed.), Sec. 1-7
 ## Controls
 
 - system: pendulum, double, elastic, Kepler.
-- gravity g: the field strength.
+- gravity g: the field strength. For Kepler it sets the gravitational
+  parameter `mu = g/9.81`; the planet is launched at a fixed fraction
+  of the local circular speed so the orbit shape is fixed by
+  amplitude and gravity changes only the period (Kepler's third law),
+  which keeps the ellipse bound and in the panel for every `g`.
 - amplitude: the initial displacement / orbit eccentricity.
 - speed: time scaling.
 - Reset, Pause.
 
 ## Expected qualitative features
 
+- Two named panels: configuration space `q(t)` (the body in real
+  space) and phase space `(q, q-dot)`; the on-canvas line states the
+  point of having both.
 - Pendulum: small swings are near-harmonic; large ones slow at the
   top; above the separatrix it rotates (the phase loop opens).
 - Double pendulum: chaotic thrashing, yet `H` barely moves.
 - Elastic pendulum: a beating exchange between swing and stretch.
-- Kepler: a closed ellipse; the phase point traces a loop.
+- Kepler: a closed ellipse with the Sun drawn at the focus and the
+  true Cartesian orbit traced; raising gravity shortens the period
+  without changing the orbit's shape (Kepler III); the radial phase
+  point rides the effective-potential contour between peri- and
+  apoapsis.
+- For the one-degree-of-freedom systems (pendulum, Kepler radial
+  motion) the exact conserved-energy level set `H = E0` is drawn as a
+  dashed gold curve; the trajectory never leaves it, which is
+  Noether's theorem made geometric.
 - The `dH/H` readout stays near zero throughout.
 
 ## Invariants and acceptance thresholds

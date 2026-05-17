@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Lagrangian Sandbox](../playgrounds/bsc-y2s2/FIS2021-lagrangian-field-sandbox/index.html)** &nbsp; (verified, verified 2026-05-17T11:46:21Z)
+  One of: simple pendulum `[th, thd]`; double pendulum `[t1, t2, w1, w2]`; elastic pendulum `[r, th, rd, thd]`; planar Kepler `[x, y, vx, vy]`. Parameters: gravity `g`, initial amplitude.
+
 - **[2D Waves in a Drawable Geometry](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified, verified 2026-05-17T11:33:26Z)
   A vibrating membrane (or shallow water) in a 2D box with rigid obstacles. A monochromatic point source on the left radiates toward a wall with slits or an obstacle; the far side shows diffraction and interference. The domain edges are an absorbing sponge so the pattern is not contaminated by box reflections.
 
@@ -22,9 +25,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Action-Angle Variables](../playgrounds/bsc-y2s2/FIS2021-hamilton-jacobi-action-angle/index.html)** &nbsp; (verified, verified 2026-05-17T11:03:07Z)
   A 1-DOF bound system: harmonic `V = 1/2 w0^2 q^2`, pendulum `w0^2 (1 - cos q)`, or quartic `1/4 w0^2 q^4`, at energy `E`.
-
-- **[Lagrangian Sandbox](../playgrounds/bsc-y2s2/FIS2021-lagrangian-field-sandbox/index.html)** &nbsp; (verified, verified 2026-05-17T10:52:03Z)
-  One of: simple pendulum `[th, thd]`; double pendulum `[t1, t2, w1, w2]`; elastic pendulum `[r, th, rd, thd]`; planar Kepler `[x, y, vx, vy]`. Parameters: gravity `g`, initial amplitude.
 
 - **[Tight-Binding Band Structure](../playgrounds/bsc-y3s2/FIS3005-band-structure-tight-binding/index.html)** &nbsp; (verified, verified 2026-05-17T10:17:35Z)
   A single s-band: 1D chain (uniform t), the dimerized SSH chain (alternating t1, t2), or the 2D square lattice. Units a = hbar = 1.
