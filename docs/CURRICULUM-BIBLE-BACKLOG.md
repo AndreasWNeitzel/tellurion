@@ -191,9 +191,12 @@ docs/NEEDS-ATTENTION.md, move on.
   group velocity + Ehrenfest; coherent x0 cos(wt); energy 2e-3; HO
   ground state E=w/2; tunnelling R+T=1. probe pass; visual x3. Section
   7 (FIS3003) hero done.
-- [ ] heisenberg-uncertainty-visualizer : advanced canvas2d. x and k
-  packets, sx sp >= hbar/2 live. Inv: >= hbar/2; =1/2 Gaussian;
-  sx to 0 sp to inf.
+- [x] heisenberg-uncertainty-visualizer : advanced canvas2d. Dual-
+  space |psi(x)|^2 + |phi(k)|^2 packets with width bars + breathing
+  seesaw + sx*sp gauge vs hbar/2 floor; gaussian/box/triangle/double.
+  Inv 7/7: Gaussian =1/2 (2%); all >=1/2; non-Gaussian strictly above;
+  squeeze tradeoff const product; FT unitary 1e-6; shift/boost
+  invariance; scaling. probe pass; visual x3.
 - [ ] hydrogen-atom-stark-zeeman : advanced canvas2d. H levels n=1..4,
   Stark/Zeeman split, selection rules, synthetic spectrum. Inv: no
   1st-order Stark n=1; Zeeman prop B 0.1%.

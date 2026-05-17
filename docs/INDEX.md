@@ -734,6 +734,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified)
   A torque-free rigid body with principal moments of inertia $I_1 < I_2 < I_3$. The angular velocity in the body frame obeys Euler's equations; the orientation is carried by a unit quaternion.
 
+- **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified)
+  A normalised wavepacket of a chosen shape (Gaussian, box, triangle, double bump) presented simultaneously in position space and in momentum space, with a live squeeze.
+
 - **[The Huygens Construction](../playgrounds/bsc-y2s1/FIS2002-huygens-construction-interactive/index.html)** &nbsp; (verified)
   A wavefront (a vertical aperture or a concave arc) is discretised into N coherent secondary point sources. Each radiates a circular wavelet; the superposition is the field downstream and the envelope is the reconstructed wavefront.
 
