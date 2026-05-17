@@ -134,9 +134,13 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 5: FIS2003 Fisica Moderna (2Y-2S; Eisberg-Resnick, Tipler)
 
-- [ ] special-relativity-spacetime-lab : hero canvas2d. Minkowski
-  diagram (live boost grid) plus length-contraction train plus twin
-  clocks. Inv: s^2 invariant; L=L0/2 at b=.866; twins dt=2L/gv 0.1%.
+- [x] special-relativity-spacetime-lab : hero canvas2d. Physical
+  contracting rod-train + twin clocks (round trip) primary; Minkowski
+  diagram (light cone, simultaneity grid, bent twin worldline)
+  secondary. Inv 8/8: gamma refs; s^2 invariant 1e-10; L=L0/2 at
+  beta=.866; time dilation; twin gap exact; velocity addition + c
+  invariant; Doppler reciprocity; relativity of simultaneity. added
+  taylor-wheeler to bib. probe pass; visual x3.
 - [ ] quantum-double-slit-accumulator : advanced canvas2d. One-by-one
   dots build fringes; which-path kills them. Born sampling. Inv:
   dy=lam L/d 1%; visibility to 0 with detector, to 1 without.
