@@ -41,8 +41,8 @@
       <span class="label">ratio</span><span class="value" id="readout-r">1.000</span>
     </div>
     <figcaption>
-      Figure 1. A phase-space region and its image under a canonical (or non-canonical) transformation, with the Poisson bracket and the area ratio.
-      <em>Method:</em> analytic Jacobian Poisson bracket; shoelace phase-area; symplectic M^T J M check.
+      Figure 1. A phase-space grid and blob (left) and their image under a canonical (or non-canonical) transformation morphed continuously from the identity (right), with the Poisson bracket and the area ratio.
+      <em>Method:</em> analytic Jacobian Poisson bracket; shoelace phase-area; symplectic M^T J M check; one-parameter morph from identity.
       <em>Source:</em> Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).
     </figcaption>
   </figure>
@@ -50,8 +50,9 @@
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">map</span><select aria-label="canonical map" id="select-map" style="grid-column: span 2;"><option value="hoScale">harmonic scaling (ellipse to circle)</option><option value="rotation">phase rotation</option><option value="squeeze">area-preserving squeeze</option><option value="point">point + momentum</option><option value="identity">identity</option><option value="pDouble">p-doubling (NOT canonical)</option></select></div>
     <div class="row"><span class="label">parameter</span><input aria-label="map parameter" type="range" id="slider-par" min="0.3" max="2.6" step="0.02" value="1.7"><span class="value" id="value-par">1.70</span></div>
+    <div class="row"><span class="label">morph t</span><input aria-label="morph from identity to the full map" type="range" id="slider-t" min="0" max="1" step="0.01" value="1"><span class="value" id="value-t">1.00</span></div>
     <div class="row"><span class="label">energy E</span><input aria-label="ellipse energy" type="range" id="slider-e" min="0.3" max="2.0" step="0.05" value="1.0"><span class="value" id="value-e">1.00</span></div>
-    <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
+    <div class="row buttons" style="grid-template-columns: 1fr 1fr;"><button id="btn-play" type="button" aria-pressed="false">Play morph</button><button id="btn-reset" type="button">Reset</button></div>
   </div>
 
   <script type="module" src="./playground.js"></script>

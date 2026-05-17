@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Canonical Transformations](../playgrounds/bsc-y2s2/FIS2021-canonical-transformation-visual/index.html)** &nbsp; (verified, verified 2026-05-17T12:59:05Z)
+  A phase blob (the harmonic energy ellipse plus an interior lattice) mapped by a chosen transformation; energy `E` sets the blob size, a parameter drives the map.
+
 - **[The 4f Fourier-Optics Processor](../playgrounds/bsc-y3s1/FIS3019-fourier-optics-4f-system/index.html)** &nbsp; (verified, verified 2026-05-17T12:52:42Z)
   An object transmittance `t(x,y)` (grating, circular aperture, double slit, checker) in the front focal plane of lens 1. Its Fourier transform appears in the common focal plane, where a mask is placed; lens 2 inverse-transforms to the image plane.
 
@@ -46,9 +49,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[KAM Theory - The Standard Map](../playgrounds/bsc-y2s2/FIS2021-kam-theory-poincare-section/index.html)** &nbsp; (verified, verified 2026-05-17T11:21:55Z)
   The standard map on the (theta, p) torus, stochasticity parameter `K`, seeded from a grid of orbits plus the golden-mean torus.
-
-- **[Canonical Transformations](../playgrounds/bsc-y2s2/FIS2021-canonical-transformation-visual/index.html)** &nbsp; (verified, verified 2026-05-17T11:12:22Z)
-  A phase blob (the harmonic energy ellipse plus an interior lattice) mapped by a chosen transformation; energy `E` sets the blob size, a parameter drives the map.
 
 - **[Gaussian Beam - ABCD Propagation](../playgrounds/bsc-y3s1/FIS3019-laser-gaussian-beam-propagation/index.html)** &nbsp; (verified, verified 2026-05-17T09:28:43Z)
   A Gaussian beam launched from a waist `w0` propagates along an optical bench and passes through a thin lens of focal length `f` at an adjustable position.

@@ -4,23 +4,28 @@ Hamiltonian mechanics is invariant under a special class of coordinate
 changes: the canonical ones, which keep the structure of phase space
 intact. The test is beautifully simple: the Poisson bracket {Q,P}
 must equal one, which is the same as saying the transformation
-preserves area in phase space (Liouville's theorem). This playground
-shows a blob of phase points on the left and its image under a chosen
-map on the right, with both numbers on screen.
+preserves area in phase space (Liouville's theorem). The left panel
+is a Cartesian grid and a blob in (q,p); the right is their image,
+which you can morph continuously from the identity to the full map
+and watch the whole grid deform, with the original underlaid faintly,
+the map equation written out, and a colour-coded canonical / not
+status.
 
-What to look for: the harmonic scaling turns the energy ellipse into
-a perfect circle without changing its area, the geometric heart of
-action-angle variables. The rotation spins the blob rigidly. The
-squeeze is the striking one: it stretches the blob into a thin sliver
-yet the area readout does not budge and {Q,P} stays exactly one,
-that is a canonical map that is not a symmetry. Then pick the
-p-doubling map: the blob balloons to twice the area and the readouts
-honestly report {Q,P} = 2 and ratio = 2, this map is not canonical
-and Hamilton's equations would not survive it.
+What to look for: drag morph t (or press Play) and watch the grid
+bend. The harmonic scaling turns the energy circle into an ellipse of
+the same area, the geometric heart of action-angle variables; the
+rotation spins the grid rigidly; the squeeze stretches it into a thin
+sliver yet the area readout never budges and {Q,P} stays exactly one,
+a canonical map that is not a symmetry. Through every one of those
+the area holds the entire way along the morph, because each
+intermediate is itself canonical. Then pick p-doubling: as you scrub
+t the grid stretches and the area grows smoothly from one to two, the
+status flips to red, and Hamilton's equations would not survive it.
 
 Controls: the map selector chooses the transformation; the parameter
 slider drives its free parameter (scale, angle, or squeeze factor);
-energy sets the blob size; Reset restores the harmonic scaling.
+morph t deforms from the identity to the full map and Play animates
+it; energy sets the blob size; Reset restores the harmonic scaling.
 
 ## Reference
 

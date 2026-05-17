@@ -46,11 +46,23 @@ Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).
 
 - map: which transformation.
 - parameter: the map's free parameter (w, angle, lambda).
+- morph t: continuously deform from the identity (t=0) to the full
+  map (t=1); for the linear canonical maps every intermediate is
+  itself canonical, so the area holds the whole way.
+- Play: animate the morph back and forth.
 - energy E: the blob size.
 - Reset.
 
 ## Expected qualitative features
 
+- Both panels carry a Cartesian grid as well as the blob, so the
+  deformation of all of phase space is visible, not just one
+  ellipse; the image panel underlays the undeformed shape faintly
+  for comparison and shows the map equation and a colour-coded
+  canonical / not-canonical status.
+- Scrubbing morph t (or Play) deforms the grid and blob smoothly;
+  for the canonical maps the area readout stays put across the whole
+  morph, for p-doubling it grows continuously 1 -> 2.
 - hoScale: the ellipse becomes a circle, same area, `{Q,P} = 1`.
 - rotation: the blob spins rigidly, area fixed.
 - squeeze: the blob stretches thin yet the area readout holds.
