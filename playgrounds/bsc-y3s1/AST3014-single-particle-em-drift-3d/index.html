@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Single-Particle Motion: Drifts in E and B</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function r(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false }); else setTimeout(r, 50); } r(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 720px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.62); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 8ch 11ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Single-Particle Motion: Drifts in E and B</h1>
+    <p>A charged particle obeying $m\dot{\vec v}=q(\vec E+\vec v\times\vec B)$, integrated with the Boris pusher, a time-reversible leapfrog that conserves the speed exactly in a pure magnetic field. In a uniform $\vec B$ the orbit is a helix at the cyclotron frequency $\omega_c=|q|B/m$. Add a perpendicular $\vec E$ and the guiding centre drifts at $\vec v_d=\vec E\times\vec B/B^2$, the same for every charge and mass. A gradient or curvature of $\vec B$ gives the grad-B and curvature drifts; a converging field (a magnetic bottle) reflects the particle, conserving the adiabatic invariant $\mu=mv_\perp^2/2B$. The trail is the real 3D orbit drawn in an orthographic Canvas2D projection (deterministic and gate-robust; the 3D motion is honestly a projection, not a WebGL scene). The headline readouts are $|\vec v|$ (constant to $10^{-9}$ in pure $\vec B$) and $\mu$. Source: Chen, Introduction to Plasma Physics and Controlled Fusion, 2nd ed., ch. 2 (`chen1984`); Northrop, The Adiabatic Motion of Charged Particles (`northrop1963`); Boris (1970) (`boris1970`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <div style="position:relative;">
+      <canvas id="stage" width="720" height="470" aria-label="3D orbit of a charged particle drifting in electric and magnetic fields"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">|v|</span><span class="value" id="readout-v">0</span>
+        <span class="label">mu</span><span class="value" id="readout-mu">0</span>
+        <span class="label">omega_c</span><span class="value" id="readout-wc">0</span>
+        <span class="label">aux</span><span class="value" id="readout-extra">-</span>
+      </div>
+    </div>
+    <figcaption>
+      Figure 1. Boris-pushed orbit of a charged particle in static E and B fields, orthographically projected: a cyclotron helix, the E x B drift, grad-B and curvature drifts, and magnetic-mirror reflection with the conserved adiabatic invariant.
+      <em>Method:</em> Boris leapfrog integration of the Lorentz force (gate-tested sim.js); Canvas2D orthographic projection of the 3D trajectory; the live readouts are the conserved speed and magnetic moment.
+      <em>Source:</em> Chen, ch. 2 (`chen1984`); Northrop (`northrop1963`); Boris (1970) (`boris1970`); Jackson, Classical Electrodynamics (`jackson1998`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">preset</span><select aria-label="field preset" id="select-preset" style="grid-column: span 2;"><option value="cyclotron">cyclotron (uniform B)</option><option value="exb">E x B drift</option><option value="gradB">grad-B drift</option><option value="curvature">curvature drift</option><option value="mirror">magnetic mirror</option></select></div>
+    <div class="row"><span class="label">B strength</span><input aria-label="magnetic field strength x100" type="range" id="slider-b" min="30" max="300" step="1" value="100"><span class="value" id="value-b">1.00</span></div>
+    <div class="row"><span class="label">charge</span><select aria-label="charge sign" id="select-charge" style="grid-column: span 2;"><option value="1">positive (q = +1)</option><option value="-1">negative (q = -1)</option></select></div>
+    <div class="row"><span class="label">speed</span><input aria-label="steps per frame" type="range" id="slider-speed" min="1" max="8" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js?v=20260518r1"></script>
+</body>
+</html>

@@ -370,7 +370,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 13: FIS3007 Plasmas (3Y opt; Bittencourt, Freidberg)
 
-- [ ] single-particle-em-drift-3d : hero webgl2. Charged particle in
+- [x] single-particle-em-drift-3d : hero webgl2. Charged particle in
   B/E, presets cyclotron/ExB/grad-B/curvature/mirror, helix trail.
   F=q(E+v x B). Inv: |v| const pure B; ExB dir; mirror reflect
   vperp2/v2=B0/Bmax.
