@@ -91,9 +91,12 @@ docs/NEEDS-ATTENTION.md, move on.
   streamlines, T(x) panel, CFL shown. Inv: heat conserved 0.1%;
   high-kappa faster at equal physical time; steady to Laplace 1%;
   composite gradient ratio; CFL bound. 6/6; probe pass; visual x3.
-- [ ] van-der-waals-maxwell-construction : advanced canvas2d. PV with
-  S-curve plus equal-area Maxwell line, T-sweep binodal/spinodal. Inv:
-  Tc d2p/dV2=dp/dV=0 at Vc 0.1%; Maxwell areas 1e-4.
+- [x] van-der-waals-maxwell-construction : advanced canvas2d, primary
+  scene is a piston-cylinder with condensing molecules and a lever-rule
+  meniscus; secondary p-V panel has the S-curve, Maxwell line and
+  binodal/spinodal envelope. Inv 7/7: critical inflection 1e-9; Maxwell
+  equal-area + equal end p 1e-4; binodal closure; spinodal nesting;
+  mechanical stability; lever rule. probe pass; visual x3.
 - [ ] brownian-motion-diffusion : medium canvas2d. 2000 walkers, r2~t,
   tracer buffeting, D=kT/6 pi eta r. Inv: r2/t to 4D 5%; Gaussian
   KS<.05.

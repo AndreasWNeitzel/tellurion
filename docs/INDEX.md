@@ -709,3 +709,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Two-Body Collision: Lab and CM Frames](../playgrounds/bsc-y1s1/FIS1013-collision-scattering-lab/index.html)** &nbsp; (verified)
   A projectile of mass `m1` scatters off a target `m2` initially at rest. The two-body problem reduces to one body of reduced mass `mu = m1 m2 / (m1+m2)` in a central potential. The CM-frame encounter is the primary scene; the lab trajectory, the potential profile and the differential cross-section are secondary panels.
+
+- **[Van der Waals Condensation and the Maxwell Construction](../playgrounds/bsc-y2s1/FIS2014-van-der-waals-maxwell-construction/index.html)** &nbsp; (verified)
+  A fixed amount of a van der Waals fluid in a piston-cylinder, held at a chosen reduced temperature, compressed and expanded along an isotherm. Below the critical point the fluid splits into coexisting liquid and vapour; the molecule rendering and the meniscus track the lever-rule liquid fraction.
