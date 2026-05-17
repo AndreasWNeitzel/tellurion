@@ -52,7 +52,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] atwood-machine-constrained : medium canvas2d. Masses plus massive
   pulley, force arrows, v(t)/a(t). a=(m1-m2)g/(m1+m2+I/R^2). Inv: E
   1e-6; massless-limit classical 0.1%; T1=T2 massless.
-- [ ] central-force-orbit-gallery : medium canvas2d. Orbit trail, force
+- [x] central-force-orbit-gallery : medium canvas2d. Orbit trail, force
   centre, V_eff(r) with E line/turning pts; r^alpha slider. Symplectic
   Verlet. Inv: 1/r closed ellipse; E,L 1e-4; virial T=-V/2.
 - [ ] projectile-drag-magnus-3d : medium canvas2d 3D-proj. Vacuum/drag/
