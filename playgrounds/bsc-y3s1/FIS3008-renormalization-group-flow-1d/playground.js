@@ -9,6 +9,7 @@ import {
   rgStep, rgFlow, exactFreeEnergy, rgFreeEnergy, correlationLength,
   uOfK, kOfU,
 } from './sim.js';
+import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -146,9 +147,66 @@ function renderCobweb() {
   ctx.fillText('K* = 0 (only fixed point at finite T)', xOfK(0) + 12, yOfK(0) - 10);
 }
 
+// A deterministic representative Ising chain at coupling K, field h:
+// nearest-neighbour same-sign probability (1 + tanh K)/2, with a
+// mild bias toward sign(h). Seeded so each RG level is reproducible.
+function makeChain(K, h, len, seed) {
+  const rng = makeRng(seed);
+  const pSame = 0.5 * (1 + Math.tanh(Math.max(0, K)));
+  const bias = Math.tanh(h);
+  const s = new Int8Array(len);
+  s[0] = rng() < 0.5 + 0.5 * bias ? 1 : -1;
+  for (let i = 1; i < len; i += 1) {
+    let v = rng() < pSame ? s[i - 1] : -s[i - 1];
+    if (bias !== 0 && rng() < Math.abs(bias) * 0.5) v = bias > 0 ? 1 : -1;
+    s[i] = v;
+  }
+  return s;
+}
+
+// Real-space decimation cascade: each RG step integrates out every
+// other spin; the chain halves and the coupling renormalizes by the
+// exact 1D recursion (sim.js rgStep). At any finite T the coupling
+// flows to 0, so the cascade ends in a disordered (random) chain:
+// the concrete statement that 1D Ising has no finite-T order.
+function renderChain() {
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('real-space decimation (b = 2): keep every other block; K flows toward 0 (disorder)', W / 2, 24);
+  const rows = Math.min(st.N + 1, 11);
+  const traj = rgFlow(st.K0, st.h0, rows - 1);
+  const x0 = 150, x1 = W - 30, top = 44, bot = H - 60;
+  const rowH = (bot - top) / rows;
+  const L0 = 96;
+  for (let n = 0; n < rows; n += 1) {
+    const { K, h } = traj[n];
+    const len = Math.max(3, Math.round(L0 / 2 ** n));
+    const chain = makeChain(K, h, len, DEFAULT_SEED + n * 1009);
+    const yc = top + n * rowH + rowH / 2;
+    const cellW = (x1 - x0) / len, hh = Math.min(22, rowH - 12);
+    for (let i = 0; i < len; i += 1) {
+      ctx.fillStyle = chain[i] > 0 ? '#ef476f' : '#5bc0eb';
+      ctx.fillRect(x0 + i * cellW, yc - hh / 2, Math.max(1, cellW - 0.6), hh);
+    }
+    ctx.strokeStyle = 'rgba(150,160,180,0.35)'; ctx.lineWidth = 1;
+    ctx.strokeRect(x0, yc - hh / 2, x1 - x0, hh);
+    ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.fillText(`n=${n}  K=${K.toFixed(2)}`, x0 - 10, yc + 4);
+    if (n > 0) {
+      ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(x0 - 64, top + (n - 1) * rowH + rowH / 2 + 10); ctx.lineTo(x0 - 64, yc - 10); ctx.stroke();
+    }
+  }
+  ctx.fillStyle = 'rgba(91,192,235,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('blue = spin down', x0, bot + 22);
+  ctx.fillStyle = 'rgba(239,71,111,0.9)'; ctx.textAlign = 'left';
+  ctx.fillText('red = spin up', x0 + 150, bot + 22);
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'right';
+  ctx.fillText('top: correlated domains   bottom: disordered sink', x1, bot + 22);
+}
+
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  if (st.view === 'cobweb') renderCobweb(); else renderFlow();
+  if (st.view === 'cobweb') renderCobweb(); else if (st.view === 'chain') renderChain(); else renderFlow();
   const tj = rgFlow(st.K0, st.h0, st.N);
   const last = tj[tj.length - 1];
   const fRG = rgFreeEnergy(st.K0, st.h0), fEx = exactFreeEnergy(st.K0, st.h0);

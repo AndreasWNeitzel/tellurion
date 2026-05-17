@@ -50,11 +50,19 @@ Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975)
 
 - start K, start h: the initial couplings (also drag in the plane).
 - RG steps: how many decimations to trace.
-- view: the flow plane or the zero-field cobweb.
+- view: the flow plane, the spin-chain decimation cascade, or the
+  zero-field cobweb.
 - Reset.
 
 ## Expected qualitative features
 
+- Chain decimation view: a stack of representative seeded spin
+  chains, one per RG level. Each step halves the chain and
+  renormalizes K by the exact recursion (sim.js); a high start K
+  begins with long correlated domains and disorders down the
+  cascade, a low start K is disordered from the top. Either way the
+  bottom is a random (disordered-sink) chain, the concrete statement
+  that 1D Ising has no finite-T order.
 - Every trajectory flows left to the `K = 0` sink: no finite-T
   transition (the headline 1D result).
 - `h = 0` is an invariant line; the unstable point sits at `u = 1`

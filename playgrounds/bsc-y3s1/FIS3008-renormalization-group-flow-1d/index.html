@@ -40,8 +40,8 @@
       <span class="label">f exact</span><span class="value" id="readout-fex">0.000000</span>
     </div>
     <figcaption>
-      Figure 1. Exact decimation RG flow of the 1D Ising chain in a field; all flow to the disordered sink (no finite-T transition).
-      <em>Method:</em> exact real-space decimation (b = 2); free energy reconstructed from the per-step constants.
+      Figure 1. Exact decimation RG of the 1D Ising chain in a field: the flow plane (tanh K, h), the spin-chain decimation cascade, or the zero-field cobweb; all flow to the disordered sink (no finite-T transition).
+      <em>Method:</em> exact real-space decimation (b = 2); free energy reconstructed from the per-step constants; representative seeded chains at each renormalized coupling.
       <em>Source:</em> Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).
     </figcaption>
   </figure>
@@ -50,7 +50,7 @@
     <div class="row"><span class="label">start K</span><input aria-label="initial coupling K0" type="range" id="slider-k0" min="0.1" max="6.0" step="0.05" value="3.00"><span class="value" id="value-k0">3.00</span></div>
     <div class="row"><span class="label">start h</span><input aria-label="initial field h0" type="range" id="slider-h0" min="-1.5" max="1.5" step="0.02" value="0.00"><span class="value" id="value-h0">0.00</span></div>
     <div class="row"><span class="label">RG steps</span><input aria-label="number of RG steps traced" type="range" id="slider-n" min="0" max="14" step="1" value="9"><span class="value" id="value-n">9</span></div>
-    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="flow">flow plane (tanh K, h)</option><option value="cobweb">zero-field map cobweb</option></select></div>
+    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="flow">flow plane (tanh K, h)</option><option value="chain">spin chain decimation</option><option value="cobweb">zero-field map cobweb</option></select></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
 

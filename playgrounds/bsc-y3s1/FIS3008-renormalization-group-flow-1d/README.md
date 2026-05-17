@@ -14,16 +14,23 @@ There is no fixed point at any finite temperature, which is the exact
 statement that the 1D Ising chain has no phase transition: cool it as
 much as you like and decimation still washes the order away. The only
 special point is the unstable red one at the right edge, the
-zero-temperature transition. Switch to the cobweb view to see the
-zero-field map K' = 1/2 ln cosh 2K staircase monotonically down to
-zero. The free-energy readouts are the check: summing the per-step
-constants along the flow reproduces the exact transfer-matrix free
-energy to six figures.
+zero-temperature transition. Switch to the spin-chain decimation view
+to see this concretely: a stack of chains, each the decimation of the
+one above with its coupling renormalized by the exact map. Start at a
+large K and the top chain is long ordered domains that break up step
+by step into a random salt-and-pepper chain at the bottom; start
+small and it is disordered from the top. Either way the bottom is the
+disordered sink, the same no-transition result you can touch. The
+cobweb view shows the zero-field map K' = 1/2 ln cosh 2K staircasing
+to zero, and the free-energy readouts check that summing the per-step
+constants reproduces the exact transfer-matrix free energy to six
+figures.
 
 Controls: start K and start h set the initial couplings (or drag in
-the plane); RG steps sets how far the trajectory is traced; the view
-selector switches between the flow plane and the cobweb; Reset
-restores the default.
+the plane, in the flow view); RG steps sets how far the trajectory
+and the chain cascade go; the view selector switches between the flow
+plane, the spin-chain decimation, and the cobweb; Reset restores the
+default.
 
 ## Reference
 
