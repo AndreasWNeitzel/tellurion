@@ -70,7 +70,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] poynting-vector-wave-3d : hero webgl2. Plane EM wave, E(x)/B(y)
   ribbons, white S axis; linear/circular/standing. Inv: E perp B
   1e-12; |E|=c|B| 1e-6; S parallel k; standing nodes kz=n pi.
-- [ ] biot-savart-3d-explorer : advanced canvas2d 3D. Place wires, B
+- [x] biot-savart-3d-explorer : advanced canvas2d 3D. Place wires, B
   glyphs viridis, presets wire/Helmholtz/solenoid/loop plus axial
   inset. Inv: divB<1e-4; Helmholtz dB/dz=0; solenoid mu0 n I 1%.
 - [ ] magnetic-hysteresis-bh-curve : medium canvas2d. BH loop traced,
