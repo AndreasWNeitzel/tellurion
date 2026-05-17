@@ -707,6 +707,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified)
   A torque-free rigid body with principal moments of inertia $I_1 < I_2 < I_3$. The angular velocity in the body frame obeys Euler's equations; the orientation is carried by a unit quaternion.
 
+- **[The Huygens Construction](../playgrounds/bsc-y2s1/FIS2002-huygens-construction-interactive/index.html)** &nbsp; (verified)
+  A wavefront (a vertical aperture or a concave arc) is discretised into N coherent secondary point sources. Each radiates a circular wavelet; the superposition is the field downstream and the envelope is the reconstructed wavefront.
+
 - **[Thermodynamic Engine Simulator](../playgrounds/bsc-y2s1/FIS2014-thermodynamic-engine-simulator/index.html)** &nbsp; (verified)
   n moles of an ideal gas (gamma = 5/3) in a piston-cylinder, exchanging heat with hot and cold reservoirs as it runs a closed cycle. Molecule speeds scale with the live temperature; the piston position tracks the volume; the reservoirs glow when heat flows.
 

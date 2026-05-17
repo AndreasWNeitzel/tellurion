@@ -113,8 +113,12 @@ docs/NEEDS-ATTENTION.md, move on.
   energy, slit-vs-wall, double-slit central+symmetry, hard-wall phase
   invert) + scene inv 6/6 (circular isotropy, transmission, obstacle
   shadow, damping). probe pass; visual x3.
-- [ ] huygens-construction-interactive : medium canvas2d. Wavelets
-  envelope, N sources 1..100. Inv: far field sinc^2; point isotropic.
+- [x] huygens-construction-interactive : advanced canvas2d. N=1..100
+  secondary wavelets, 2D superposition field + swept Huygens circles +
+  reconstructed wavefront; flat aperture (sinc diffraction) vs concave
+  arc (focus); sinc-envelope side panel. Inv 6/6: single-wavelet
+  isotropy; sinc envelope; first min sin th=lam/a; coherent on-axis
+  max; sinc symmetry; arc focusing gain. probe pass; visual x3.
 - [ ] elastic-wave-modes-solid : medium canvas2d. Spring lattice, P&S
   waves, seismograph delay. vP=sqrt((l+2u)/rho), vS=sqrt(u/rho). Inv:
   vP/vS 1%; pure transverse=S; u=0 no S.
