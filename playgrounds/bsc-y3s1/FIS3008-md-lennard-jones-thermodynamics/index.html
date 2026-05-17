@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lennard-Jones Molecular Dynamics</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 760px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; top: 10px; right: 12px; background: rgba(6,6,8,0.82); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 7ch 9ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Lennard-Jones Molecular Dynamics</h1>
+    <p>300 disks in a periodic box interacting through the Lennard-Jones potential $U(r)=4\varepsilon[(\sigma/r)^{12}-(\sigma/r)^{6}]$ (reduced units $\sigma=\varepsilon=m=k_B=1$), integrated by velocity-Verlet (the verified shared symplectic engine) with a shifted-force cutoff so energy is conserved. Particles are coloured by kinetic energy. The temperature is read from the kinetic energy by equipartition, the pressure from the virial, and the structure from the radial distribution $g(r)$: a flat $g(r)\to1$ for a gas, a strong first peak near $r=2^{1/6}\sigma$ for a dense liquid. Set it cold and dense and it freezes into a triangular lattice; heat it and it melts. Source: Allen and Tildesley, Computer Simulation of Liquids (2nd ed.), Ch. 1-3 (`allen-tildesley`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <canvas id="stage" width="760" height="500" aria-label="Lennard-Jones particles coloured by kinetic energy with the live radial distribution function"></canvas>
+    <div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">T</span><span class="value" id="readout-t">0.000</span>
+      <span class="label">Pvir</span><span class="value" id="readout-p">0.000</span>
+      <span class="label">E/N</span><span class="value" id="readout-e">0.000</span>
+      <span class="label">dE/N</span><span class="value" id="readout-de">0.0e+0</span>
+      <span class="label">rho</span><span class="value" id="readout-rho">0.000</span>
+    </div>
+    <figcaption>
+      Figure 1. Lennard-Jones molecular dynamics: particles coloured by kinetic energy, with the live radial distribution function.
+      <em>Method:</em> shifted-force LJ, velocity-Verlet (shared symplectic engine), virial pressure, g(r) from pair histograms.
+      <em>Source:</em> Allen and Tildesley, Computer Simulation of Liquids (2nd ed.), Ch. 1-3 (`allen-tildesley`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">temperature T</span><input aria-label="thermostat temperature T" type="range" id="slider-temp" min="0.2" max="3.0" step="0.02" value="1.00"><span class="value" id="value-temp">1.00</span></div>
+    <div class="row"><span class="label">density rho</span><input aria-label="number density rho" type="range" id="slider-rho" min="0.1" max="0.95" step="0.01" value="0.55"><span class="value" id="value-rho">0.55</span></div>
+    <div class="row"><span class="label">steps / frame</span><input aria-label="integration steps per frame" type="range" id="slider-speed" min="1" max="12" step="1" value="4"><span class="value" id="value-speed">4</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

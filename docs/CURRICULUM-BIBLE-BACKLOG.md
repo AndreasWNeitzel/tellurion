@@ -245,9 +245,15 @@ docs/NEEDS-ATTENTION.md, move on.
   (b=2); RG free energy = exact transfer matrix 1e-9. probe pass
   (k0 0.57, h0 0.63, n 0.54, view 2.55); visual 5/5 x3. Bib:
   goldenfeld, nelson-fisher1975 added.
-- [ ] md-lennard-jones-thermodynamics : advanced canvas2d. 300 LJ disks
-  KE-coloured, T/P(virial)/g(r). Verlet. Inv: E 1e-3; g(r) to 1; no
-  overlap.
+- [x] md-lennard-jones-thermodynamics : advanced canvas2d. 300 LJ
+  disks KE-coloured (viridis), periodic box, live g(r) + T + virial
+  P + dE/N, reuses shared symplectic velocity-Verlet, shifted-force
+  cutoff, melt sweep. Inv 8/8: LJ landmarks + shifted-force
+  continuity; per-particle E drift 1e-3 (caught a real force-law
+  bug: r^-2 vs r^-1); momentum 1e-8; no overlap >0.7; kinetic T;
+  g(r) core/peak/->1; P=rho T 1e-9 no-interaction; determinism.
+  probe pass (T 20.57, rho 15.63, speed 0.76); visual 5/5 x3. Bib:
+  allen-tildesley added.
 
 ## Section 9: FIS3014 Optica (3Y-2S; Hecht, Born-Wolf)
 
