@@ -147,9 +147,12 @@ docs/NEEDS-ATTENTION.md, move on.
   Inv 6/6: fringe dy=lam L/d (zero-to-zero, bias-free) 1%; visibility
   1->0 ~ gamma; Born KS<0.02 + seed-determinism; envelope zeros;
   symmetry; lam/L/d scaling. probe pass; visual x3.
-- [ ] nuclear-decay-chain-animation : medium canvas2d. Shell-model
-  nucleus, a/b/g events, ZN-chart path, half-life/Q. Gamow. Inv: Z,N
-  per mode; Q>0; daughter mass table.
+- [x] nuclear-decay-chain-animation : advanced canvas2d. Packed
+  proton/neutron nucleus transmuting + emitted alpha/beta; Segre-chart
+  path; SEMF Q-values + Geiger-Nuttall half-life; U-238 & Th-232
+  series. Inv 6/6: mode transforms + A/charge conservation; SEMF B/A
+  iron peak (Fe-56 3%); U-238 8a/6b -> Pb-206; chain exothermic;
+  Geiger-Nuttall at fixed Zd; beta- m_n-m_H term. probe pass; visual x3.
 - [ ] photoelectric-effect-simulator : medium canvas2d. Metal plus
   photons, Ek=hv-phi, stopping V, IV curve. Inv: Vstop prop v slope
   h/e; none below phi/h; Ek indep intensity.
