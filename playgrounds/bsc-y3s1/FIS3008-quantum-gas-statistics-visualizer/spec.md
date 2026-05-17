@@ -56,6 +56,15 @@ Fundamentals of Statistical and Thermal Physics, Ch. 9 (`reif`).
 
 ## Expected qualitative features
 
+- The occupation cells (right) draw one column per shown statistic
+  (all three when `all` is selected, not just one): each row is an
+  energy level `eps_k`, each dot a particle, the dot count
+  proportional to `g(eps_k) n(eps_k)` on a scale shared across the
+  columns so the Fermi sea, the dilute Boltzmann gas and the Bose
+  pile-up are directly comparable. The same `eps_k` are ticked on the
+  curve's energy axis, tying the discrete picture to the continuous
+  one. The FD column carries the `E_F` level; the BE column carries
+  the condensate (`N0/N`) bar below `Tc`.
 - High tau: the three curves coincide (classical, non-degenerate).
 - Low tau, FD: a near-step filled up to `E_F`, `n(E_F) = 1/2`.
 - BE approaching tau_c: `mu -> 0`, the low-energy occupation diverges.

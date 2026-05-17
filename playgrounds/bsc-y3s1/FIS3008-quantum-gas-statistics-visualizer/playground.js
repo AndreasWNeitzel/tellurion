@@ -56,39 +56,77 @@ function series(stat, mu, tau, occupied) {
   return pts;
 }
 
+const CELL_LV = 8;
+// The sampled level energies, shared by the cells and the x-axis
+// ticks so the two representations are visibly the same energies.
+function cellEnergies() {
+  const es = [];
+  for (let k = 0; k < CELL_LV; k += 1) es.push((k + 0.5) / CELL_LV * EMAX);
+  return es;
+}
+
+// Discrete-occupation cartoon. Each row is one energy level eps_k
+// (low at the bottom, the same energies marked on the curve's x
+// axis); each dot is a particle, the dot count proportional to the
+// occupied weight g(eps_k) n(eps_k) on a scale shared across the
+// columns so the Fermi sea, the dilute Boltzmann gas and the Bose
+// pile-up are directly comparable. When all three are selected, all
+// three are drawn side by side, not just one.
 function drawCells(tau) {
-  // Discrete-level cartoon: levels e_k filled by the selected rule,
-  // dot count proportional to g(e_k) n(e_k) so it shows the Fermi
-  // sea filling and the Bose pile-up. Deterministic.
-  const x0 = PX1 + 40, w = 150, lv = 7;
-  const stat = st.stat === 'all' ? 'FD' : st.stat;
-  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = COL.axis; ctx.textAlign = 'left';
-  ctx.fillText(`cells: ${stat}`, x0, PY0 - 12);
-  const muC = solveMu(stat, tau);
-  let scaleD = 0;
-  const occk = [];
-  for (let k = 0; k < lv; k += 1) {
-    const e = (k + 0.5) / lv * 2.6;
-    let nk = occ(stat, e, muC, tau); if (!Number.isFinite(nk)) nk = 50;
-    const w8 = gDOS(e) * nk; occk.push(w8); scaleD = Math.max(scaleD, w8);
-  }
-  for (let k = 0; k < lv; k += 1) {
-    const y = PY1 - (k / (lv - 1)) * (PY1 - PY0);
-    ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + w, y); ctx.stroke();
-    const dots = Math.max(0, Math.min(8, Math.round(8 * occk[k] / (scaleD || 1))));
-    for (let d = 0; d < dots; d += 1) {
-      ctx.fillStyle = stat === 'FD' ? COL.FD : stat === 'BE' ? COL.BE : COL.MB;
-      ctx.beginPath(); ctx.arc(x0 + 12 + d * 16, y - 7, 5, 0, 2 * Math.PI); ctx.fill();
+  const stats = st.stat === 'all' ? ['MB', 'FD', 'BE'] : [st.stat];
+  const es = cellEnergies();
+  const XC0 = PX1 + 22, XC1 = W - 12, region = XC1 - XC0;
+  const colW = region / stats.length, dotsMax = stats.length === 1 ? 8 : 5;
+
+  // shared scale: the largest finite occupied weight across every
+  // shown column and level (the BE eps->0 divergence is excluded; it
+  // is represented by the condensate bar instead)
+  const mu = {}, wgt = {};
+  let scale = 1e-9;
+  for (const s of stats) {
+    mu[s] = solveMu(s, tau); wgt[s] = [];
+    for (const e of es) {
+      let nk = occ(s, e, mu[s], tau); if (!Number.isFinite(nk)) nk = 0;
+      const w8 = gDOS(e) * nk; wgt[s].push(w8);
+      if (e > 0.06) scale = Math.max(scale, w8);
     }
   }
-  if (stat === 'BE' && tau < TC) {
-    ctx.fillStyle = COL.BE; ctx.font = 'bold 12px ui-monospace, monospace';
-    ctx.fillText('condensate', x0, PY1 + 22);
-    const cf = condensateFraction(tau);
-    ctx.fillRect(x0, PY1 + 28, w * cf, 10);
-    ctx.strokeStyle = COL.axis; ctx.strokeRect(x0, PY1 + 28, w, 10);
-  }
+
+  ctx.font = 'bold 12px ui-monospace, monospace'; ctx.fillStyle = COL.axis; ctx.textAlign = 'center';
+  ctx.fillText('occupation cells', (XC0 + XC1) / 2, 18);
+  ctx.font = '10px ui-monospace, monospace'; ctx.fillStyle = 'rgba(150,160,180,0.62)';
+  ctx.fillText('row eps_k, dot = particle', (XC0 + XC1) / 2, PY1 + 44);
+
+  stats.forEach((s, ci) => {
+    const cx0 = XC0 + ci * colW;
+    ctx.fillStyle = COL[s]; ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillText(s, cx0 + colW / 2, PY0 - 6);
+    for (let k = 0; k < CELL_LV; k += 1) {
+      const y = PY1 - (k / (CELL_LV - 1)) * (PY1 - PY0);
+      ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx0 + 4, y); ctx.lineTo(cx0 + colW - 6, y); ctx.stroke();
+      const dots = Math.max(0, Math.min(dotsMax, Math.round(dotsMax * wgt[s][k] / scale)));
+      const r = stats.length === 1 ? 5 : 3.4, dx = (colW - 14) / dotsMax;
+      for (let d = 0; d < dots; d += 1) {
+        ctx.fillStyle = COL[s];
+        ctx.beginPath(); ctx.arc(cx0 + 8 + d * dx + dx / 2, y - 6, r, 0, 2 * Math.PI); ctx.fill();
+      }
+    }
+    // E_F level marker on the Fermi column
+    if (s === 'FD') {
+      const yF = PY1 - (EF / EMAX) * (PY1 - PY0);
+      ctx.strokeStyle = 'rgba(91,192,235,0.7)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx0 + 2, yF); ctx.lineTo(cx0 + colW - 4, yF); ctx.stroke(); ctx.setLineDash([]);
+    }
+    // Bose condensate: the macroscopic ground-state pile, as a bar
+    if (s === 'BE' && tau < TC) {
+      const cf = condensateFraction(tau);
+      ctx.fillStyle = COL.BE; ctx.font = 'bold 10px ui-monospace, monospace'; ctx.textAlign = 'center';
+      ctx.fillText('BEC ground', cx0 + colW / 2, PY1 + 18);
+      ctx.fillRect(cx0 + 4, PY1 + 24, (colW - 10) * cf, 9);
+      ctx.strokeStyle = COL.axis; ctx.lineWidth = 1; ctx.strokeRect(cx0 + 4, PY1 + 24, colW - 10, 9);
+    }
+  });
 }
 
 function render() {
@@ -121,6 +159,18 @@ function render() {
     ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(PX0, yy); ctx.lineTo(PX1, yy); ctx.stroke();
     ctx.fillStyle = 'rgba(150,160,180,0.55)'; ctx.fillText((NMAX * g / 4).toFixed(2), PX0 - 6, yy + 4);
   }
+
+  // the discrete cell levels marked on the energy axis, so the
+  // curve and the cells cartoon are visibly the same energies
+  ctx.fillStyle = 'rgba(150,160,180,0.7)';
+  for (const e of cellEnergies()) {
+    const X = xOf(e);
+    ctx.fillRect(X - 0.5, PY1, 1, 6);
+    ctx.beginPath(); ctx.arc(X, PY1 + 12, 2, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(150,160,180,0.6)';
+  ctx.fillText('ticks = the cell levels eps_k', PX0 + 4, PY1 + 22);
 
   // E_F marker
   ctx.strokeStyle = 'rgba(91,192,235,0.5)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;

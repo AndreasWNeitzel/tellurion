@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Quantum Gas Statistics Visualizer](../playgrounds/bsc-y3s1/FIS3008-quantum-gas-statistics-visualizer/index.html)** &nbsp; (verified, verified 2026-05-17T12:30:44Z)
+  A non-interacting gas of N indistinguishable particles in a 3D box, density of states `g(eps) = C sqrt(eps)`. Temperature `tau = kT` is the control; the chemical potential `mu(tau)` is whatever keeps the particle number fixed.
+
 - **[Jones Calculus - Polarization Through Elements](../playgrounds/bsc-y3s1/FIS3019-polarization-jones-calculus/index.html)** &nbsp; (verified, verified 2026-05-17T12:23:29Z)
   A monochromatic Jones vector `(Ex, Ey)` passes through up to two optical elements (polarizer, quarter-wave plate, half-wave plate) each at a chosen axis angle.
 
@@ -58,9 +61,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[The 2D Ising Phase Transition](../playgrounds/bsc-y3s1/FIS3008-ising-2d-gpu-phase-transition/index.html)** &nbsp; (verified, verified 2026-05-17T08:28:50Z)
   An L x L periodic square lattice of spins `s_i = +-1`, energy `H = -J sum_<ij> s_i s_j` (J = 1, zero field). The control is the temperature `T = kT/J`.
-
-- **[Quantum Gas Statistics Visualizer](../playgrounds/bsc-y3s1/FIS3008-quantum-gas-statistics-visualizer/index.html)** &nbsp; (verified, verified 2026-05-17T08:10:11Z)
-  A non-interacting gas of N indistinguishable particles in a 3D box, density of states `g(eps) = C sqrt(eps)`. Temperature `tau = kT` is the control; the chemical potential `mu(tau)` is whatever keeps the particle number fixed.
 
 - **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T04:06:29Z)
   Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
