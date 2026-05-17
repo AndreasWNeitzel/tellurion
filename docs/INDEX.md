@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Quantum Confinement in Nanostructures](../playgrounds/bsc-y3s2/FIS3029-quantum-confinement-nanostructure/index.html)** &nbsp; (verified, verified 2026-05-17T23:55:26Z)
+  A particle of effective mass `m` confined by an infinite square well of side `L` in `d_c` of the three spatial directions and free in the rest: `d_c = 0` is the 3D bulk, `1` a 2D quantum well, `2` a 1D quantum wire, `3` a 0D quantum dot. Confinement quantises the energy in the confined directions and leaves a free-particle continuum in the others; the interp
+
 - **[Two-Stream Instability (1D PIC)](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/index.html)** &nbsp; (verified, verified 2026-05-17T23:46:50Z)
   Two counter-streaming electron beams at +/- v_0 against a uniform neutralizing ion background. Small density perturbations grow exponentially at the linear rate omega_p / (2 sqrt 2). The beams eventually form phase-space vortices and saturate.
 

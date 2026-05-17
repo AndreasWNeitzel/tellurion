@@ -383,7 +383,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 14: M:EF Nanotech (M:EF-1Y; Callister, Kittel)
 
-- [ ] quantum-confinement-nanostructure : advanced canvas2d. well/wire/
+- [x] quantum-confinement-nanostructure : advanced canvas2d. well/wire/
   dot 3D box plus DOS (E^.5/step/spike/delta) plus absorption.
   En=hbar2 pi2 n2/2mL2. Inv: L to inf bulk DOS; E2-E1=3E1; gap up L
   down.
