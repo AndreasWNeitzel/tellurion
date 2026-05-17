@@ -58,7 +58,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] projectile-drag-magnus-3d : medium canvas2d 3D-proj. Vacuum/drag/
   drag+Magnus, spin axis. F=-mg-c|v|v+cM(w x v) RK4. Inv: vacuum=
   analytic parabola; Magnus perp v,w under 1e-12.
-- [ ] collision-scattering-lab : medium canvas2d. Lab vs CM frames,
+- [x] collision-scattering-lab : medium canvas2d. Lab vs CM frames,
   dsigma/dOmega polar, Rutherford overlay. mu reduction. Inv: p,E
   conserved; hard-sphere isotropic R^2/4; Rutherford 0.1%.
 
