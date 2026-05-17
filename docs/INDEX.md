@@ -698,6 +698,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (verified)
   Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
 
+- **[Quantum Double Slit, One Particle at a Time](../playgrounds/bsc-y2s2/FIS2003-quantum-double-slit-accumulator/index.html)** &nbsp; (verified)
+  A source emits particles one at a time toward a barrier with two slits; each is detected as a single localised dot on a screen. An optional which-path detector at the slits records which path was taken.
+
 - **[Quantum vs Classical Random Walk](../playgrounds/bsc-y3s2/FIS3029-quantum-random-walk/index.html)** &nbsp; (verified)
   Side-by-side: classical (binomial) on the left, Hadamard quantum walk on the right, both on a 101-site 1D lattice. The classical distribution is a Gaussian widening as $\sqrt{N}$; the quantum is the characteristic double-peaked distribution widening as $N$. Quantum amplitudes drawn with hue from phase, brightness from $|\psi|^2$. Bottom panel overlays both h
 

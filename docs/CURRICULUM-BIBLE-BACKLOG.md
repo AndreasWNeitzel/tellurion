@@ -141,9 +141,12 @@ docs/NEEDS-ATTENTION.md, move on.
   beta=.866; time dilation; twin gap exact; velocity addition + c
   invariant; Doppler reciprocity; relativity of simultaneity. added
   taylor-wheeler to bib. probe pass; visual x3.
-- [ ] quantum-double-slit-accumulator : advanced canvas2d. One-by-one
-  dots build fringes; which-path kills them. Born sampling. Inv:
-  dy=lam L/d 1%; visibility to 0 with detector, to 1 without.
+- [x] quantum-double-slit-accumulator : hero canvas2d. One-by-one
+  Born-sampled dots accumulate into fringes on a physical detection
+  screen; which-path detector erases them; histogram-vs-|psi|^2 panel.
+  Inv 6/6: fringe dy=lam L/d (zero-to-zero, bias-free) 1%; visibility
+  1->0 ~ gamma; Born KS<0.02 + seed-determinism; envelope zeros;
+  symmetry; lam/L/d scaling. probe pass; visual x3.
 - [ ] nuclear-decay-chain-animation : medium canvas2d. Shell-model
   nucleus, a/b/g events, ZN-chart path, half-life/Q. Gamow. Inv: Z,N
   per mode; Q>0; daughter mass table.
