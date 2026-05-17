@@ -82,7 +82,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 3: FIS2001 Fisica Termica (2Y-1S; Callen, Reif)
 
-- [ ] thermodynamic-engine-simulator : hero canvas2d. Piston plus 200
+- [x] thermodynamic-engine-simulator : hero canvas2d. Piston plus 200
   molecules (T-coloured), live PV, Sankey eta; Carnot/Otto/Diesel/
   Stirling; reverse=fridge. Inv: dU=Q-W <1e-3/cycle; eta<=1-Tc/Th;
   eta=0 at Tc=Th; Otto 0.5%.
