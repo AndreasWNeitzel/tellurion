@@ -1,8 +1,11 @@
 // Crystal structure explorer (Canvas2D, no WebGL: a hand-rolled 3D
-// projection per the stack rule). A rotating cubic cell with shaded
-// atom spheres and a Miller plane, a reciprocal-lattice view, and
-// the powder XRD pattern. sim.js is the gate-tested crystallography
-// engine.
+// projection per the stack rule). A rotating cubic cell drawn as a
+// ball-and-stick model with nearest-neighbour bonds, the atoms that
+// lie on the chosen Miller plane highlighted, a reciprocal-lattice
+// view, and the powder XRD pattern. The view auto-fits its content
+// by the rotation-invariant bounding radius, so no supercell,
+// lattice or rotation can push it out of the frame or into the XRD
+// panel. sim.js is the gate-tested crystallography engine.
 
 import {
   basis, atomsPerConventionalCell, dSpacing, primitiveVectors,
@@ -30,16 +33,33 @@ const sSC = document.getElementById('slider-sc'), vSC = document.getElementById(
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const st = { lat: 'fcc', view: 'crystal', hkl: [1, 1, 1], sc: 1, yaw: 0.6, running: true };
-const CX = 270, CY = 200, SCALE = 150, PITCH = 0.5;
 
-function proj([x, y, z]) {
+// 3D viewport: a box that stays clear of the readout overlay and
+// strictly above the XRD strip (which starts at H-110).
+const VCX = 400, VCY = 176, HALFW = 322, HALFH = 128, PITCH = 0.5;
+let VS = 150;                                            // set by fit()
+
+const NN = { sc: 1, bcc: Math.sqrt(3) / 2, fcc: Math.SQRT2 / 2 };
+const COL = { fcc: [91, 192, 235], bcc: [239, 71, 111], sc: [6, 214, 160] };
+
+function projRaw([x, y, z]) {
   const cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
-  let X = x * cy + z * sy;
-  let Zd = -x * sy + z * cy;
+  const X = x * cy + z * sy;
+  const Zd = -x * sy + z * cy;
   const cp = Math.cos(PITCH), sp = Math.sin(PITCH);
   const Y = y * cp - Zd * sp;
   const depth = y * sp + Zd * cp;
-  return { px: CX + X * SCALE, py: CY - Y * SCALE, d: depth };
+  return { X, Y, d: depth };
+}
+function proj(p) { const r = projRaw(p); return { px: VCX + r.X * VS, py: VCY - r.Y * VS, d: r.d }; }
+
+// Rotation-invariant fit: the projected coordinates of a centred
+// point never exceed its 3D radius, so fitting the largest radius
+// guarantees the whole structure stays in the box for every yaw.
+function fit(points, marginPx) {
+  let rmax = 1e-6;
+  for (const p of points) rmax = Math.max(rmax, Math.hypot(p[0], p[1], p[2]));
+  VS = (Math.min(HALFW, HALFH) - marginPx) / rmax;
 }
 
 function sphere(p, r, rgb) {
@@ -48,87 +68,133 @@ function sphere(p, r, rgb) {
   g.addColorStop(1, `rgb(${rgb.join(',')})`);
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.px, p.py, r, 0, 2 * Math.PI); ctx.fill();
 }
-
 function edge(a, b, col, lw) {
   const pa = proj(a), pb = proj(b);
   ctx.strokeStyle = col; ctx.lineWidth = lw;
   ctx.beginPath(); ctx.moveTo(pa.px, pa.py); ctx.lineTo(pb.px, pb.py); ctx.stroke();
 }
+function norm(v) { const n = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / n, v[1] / n, v[2] / n]; }
+function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
 
-function drawCrystal() {
+// Atoms + bond pairs are recomputed only when the structure changes
+// (lattice or supercell), not every animation frame.
+let cache = { key: '', atoms: [], bonds: [] };
+function buildStructure() {
   const N = st.sc, b = basis(st.lat), c = N / 2;
-  const cube = [[0, 0, 0], [N, 0, 0], [N, N, 0], [0, N, 0], [0, 0, N], [N, 0, N], [N, N, N], [0, N, N]]
-    .map((v) => [v[0] - c, v[1] - c, v[2] - c]);
-  const E = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
-  for (const [i, j] of E) edge(cube[i], cube[j], 'rgba(150,160,180,0.4)', 1);
-
-  // Atoms over the supercell. Include the outer boundary sites (far
-  // corners/faces) so the conventional cell is the recognizable
-  // textbook picture; dedupe by a rounded key.
+  const key = `${st.lat}|${N}`;
+  if (cache.key === key) return cache;
   const atoms = [], seen = new Set();
   for (let i = 0; i <= N; i += 1) for (let j = 0; j <= N; j += 1) for (let k = 0; k <= N; k += 1) {
     for (const [bx, by, bz] of b) {
       const x = i + bx, y = j + by, z = k + bz;
       if (x > N + 1e-9 || y > N + 1e-9 || z > N + 1e-9) continue;
-      const key = `${Math.round(x * 4)},${Math.round(y * 4)},${Math.round(z * 4)}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
+      const kk = `${Math.round(x * 4)},${Math.round(y * 4)},${Math.round(z * 4)}`;
+      if (seen.has(kk)) continue;
+      seen.add(kk);
       atoms.push([x - c, y - c, z - c]);
     }
   }
-  const aR = Math.max(4, Math.min(18, (SCALE * 0.12) / N));
-  // Miller plane through the cell centre
+  const dnn = NN[st.lat], tol = dnn * 1.06, bonds = [];
+  for (let p = 0; p < atoms.length; p += 1) {
+    for (let q = p + 1; q < atoms.length; q += 1) {
+      const dx = atoms[p][0] - atoms[q][0], dy = atoms[p][1] - atoms[q][1], dz = atoms[p][2] - atoms[q][2];
+      if (Math.hypot(dx, dy, dz) <= tol) bonds.push([p, q]);
+    }
+  }
+  cache = { key, atoms, bonds };
+  return cache;
+}
+
+function drawCrystal() {
+  const N = st.sc, c = N / 2;
+  const { atoms, bonds } = buildStructure();
+  const cube = [[0, 0, 0], [N, 0, 0], [N, N, 0], [0, N, 0], [0, 0, N], [N, 0, N], [N, N, N], [0, N, N]]
+    .map((v) => [v[0] - c, v[1] - c, v[2] - c]);
+  fit(atoms.concat(cube), 18);
+
+  const E = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+  for (const [i, j] of E) edge(cube[i], cube[j], 'rgba(150,160,180,0.35)', 1);
+
+  // atoms on the chosen (hkl) plane through the centre are gold
   const [h, k, l] = st.hkl, nn = Math.hypot(h, k, l);
-  let millerQuad = null;
-  if (st.view === 'crystal' && nn > 0) {
-    const n = [h / nn, k / nn, l / nn];
-    // build two in-plane axes
-    const t = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
-    const u = norm(cross(n, t)), w = cross(n, u);
-    const R = N * 0.74;
-    millerQuad = [[-R, -R], [R, -R], [R, R], [-R, R]].map(([s1, s2]) => [
+  const nvec = nn > 0 ? [h / nn, k / nn, l / nn] : [0, 0, 1];
+  const onPlane = (a) => Math.abs(a[0] * nvec[0] + a[1] * nvec[1] + a[2] * nvec[2]) < 0.06;
+
+  const aR = Math.max(3.5, Math.min(15, VS * 0.12));
+  const base = COL[st.lat];
+  // bonds first (depth-agnostic sticks), then depth-sorted atoms
+  ctx.lineCap = 'round';
+  for (const [p, q] of bonds) edge(atoms[p], atoms[q], 'rgba(150,160,180,0.5)', Math.max(1.5, aR * 0.34));
+  const order = atoms.map((a, idx) => idx).sort((i, j) => proj(atoms[i]).d - proj(atoms[j]).d);
+  for (const idx of order) {
+    const a = atoms[idx];
+    sphere(proj(a), aR, onPlane(a) ? [255, 209, 102] : base);
+  }
+
+  // the Miller plane itself
+  if (nn > 0) {
+    const t = Math.abs(nvec[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    const u = norm(cross(nvec, t)), w = cross(nvec, u);
+    const R = N * 0.72;
+    const quad = [[-R, -R], [R, -R], [R, R], [-R, R]].map(([s1, s2]) => [
       u[0] * s1 + w[0] * s2, u[1] * s1 + w[1] * s2, u[2] * s1 + w[2] * s2,
     ]);
-  }
-  atoms.sort((p, q) => proj(p).d - proj(q).d);
-  for (const a of atoms) sphere(proj(a), aR, st.lat === 'fcc' ? [91, 192, 235] : st.lat === 'bcc' ? [239, 71, 111] : [6, 214, 160]);
-  // Miller plane on top of the atoms so its orientation is clear
-  if (millerQuad) {
-    ctx.fillStyle = 'rgba(255,209,102,0.34)'; ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.6;
+    ctx.fillStyle = 'rgba(255,209,102,0.20)'; ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.4;
     ctx.beginPath();
-    millerQuad.forEach((q, idx) => { const p = proj(q); if (idx === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py); });
+    quad.forEach((qq, i) => { const p = proj(qq); if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py); });
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    const lab = proj(millerQuad[1]);
+    const lab = proj(quad[1]);
     ctx.fillStyle = '#ffd166'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
-    ctx.fillText(`(${st.hkl.join('')})`, lab.px + 6, lab.py);
+    ctx.fillText(`(${st.hkl.join('')})  d = a/${Math.sqrt(h * h + k * k + l * l).toFixed(2)}`, lab.px + 6, lab.py);
   }
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`${st.lat.toUpperCase()} ball-and-stick  |  gold atoms lie on the (${st.hkl.join('')}) plane`, VCX, VCY + HALFH + 14);
 }
 
 function drawReciprocal() {
   const Brec = reciprocalVectors(primitiveVectors(st.lat));
-  // reciprocal lattice points (scaled to fit), painter-sorted
   const pts = [];
-  const sc = 0.22;
   for (let i = -2; i <= 2; i += 1) for (let j = -2; j <= 2; j += 1) for (let m = -2; m <= 2; m += 1) {
     pts.push([
-      sc * (i * Brec[0][0] + j * Brec[1][0] + m * Brec[2][0]),
-      sc * (i * Brec[0][1] + j * Brec[1][1] + m * Brec[2][1]),
-      sc * (i * Brec[0][2] + j * Brec[1][2] + m * Brec[2][2]),
+      i * Brec[0][0] + j * Brec[1][0] + m * Brec[2][0],
+      i * Brec[0][1] + j * Brec[1][1] + m * Brec[2][1],
+      i * Brec[0][2] + j * Brec[1][2] + m * Brec[2][2],
       i === 0 && j === 0 && m === 0,
     ]);
   }
-  pts.sort((p, q) => proj(p).d - proj(q).d);
-  for (const p of pts) sphere(proj(p), p[3] ? 9 : 5, p[3] ? [255, 209, 102] : [150, 160, 180]);
-  // selected reciprocal vector G_hkl = h b1 + k b2 + l b3 (normal to
-  // the (hkl) planes); reorients strongly with the Miller selector
   const [hh, kk, ll] = st.hkl;
   const G = [
-    sc * (hh * Brec[0][0] + kk * Brec[1][0] + ll * Brec[2][0]),
-    sc * (hh * Brec[0][1] + kk * Brec[1][1] + ll * Brec[2][1]),
-    sc * (hh * Brec[0][2] + kk * Brec[1][2] + ll * Brec[2][2]),
+    hh * Brec[0][0] + kk * Brec[1][0] + ll * Brec[2][0],
+    hh * Brec[0][1] + kk * Brec[1][1] + ll * Brec[2][1],
+    hh * Brec[0][2] + kk * Brec[1][2] + ll * Brec[2][2],
   ];
+  // Bragg plane: the perpendicular bisector of G is the
+  // Brillouin-zone boundary that this reciprocal vector contributes
+  // (Bragg condition k.G = G^2/2). It reorients strongly with (hkl).
+  const gmag = Math.hypot(G[0], G[1], G[2]) || 1;
+  const gh = [G[0] / gmag, G[1] / gmag, G[2] / gmag];
+  const tt = Math.abs(gh[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+  const uu = norm(cross(gh, tt)), ww = cross(gh, uu);
+  const half = G.map((v) => v / 2);
+  const PR = gmag * 0.62;
+  const bragg = [[-PR, -PR], [PR, -PR], [PR, PR], [-PR, PR]].map(([s1, s2]) => [
+    half[0] + uu[0] * s1 + ww[0] * s2, half[1] + uu[1] * s1 + ww[1] * s2, half[2] + uu[2] * s1 + ww[2] * s2,
+  ]);
+  // fit over everything that gets drawn so nothing exits the frame
+  fit(pts.map((p) => [p[0], p[1], p[2]]).concat([G], bragg), 22);
+
+  pts.sort((p, q) => proj(p).d - proj(q).d);
+  for (const p of pts) sphere(proj(p), p[3] ? 9 : 5, p[3] ? [255, 209, 102] : [150, 160, 180]);
+  ctx.fillStyle = 'rgba(91,192,235,0.30)'; ctx.strokeStyle = 'rgba(120,205,245,0.95)'; ctx.lineWidth = 2.6;
+  ctx.beginPath();
+  bragg.forEach((qq, i) => { const p = proj(qq); if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py); });
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(120,205,245,0.95)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  const bc = proj(half); ctx.fillText('Bragg plane (BZ face)', bc.px, bc.py - 6);
+  // the reciprocal lattice point at G, the (hkl) reflection itself
+  sphere(proj(G), 8, [255, 209, 102]);
   const o = proj([0, 0, 0]), g = proj(G);
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3.5;
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3.2;
   ctx.beginPath(); ctx.moveTo(o.px, o.py); ctx.lineTo(g.px, g.py); ctx.stroke();
   const ang = Math.atan2(g.py - o.py, g.px - o.px);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.moveTo(g.px, g.py);
@@ -138,38 +204,34 @@ function drawReciprocal() {
   ctx.font = 'bold 13px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText(`G(${st.hkl.join('')})`, g.px + 8, g.py);
   ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
-  const name = st.lat === 'fcc' ? 'BZ: truncated octahedron (14)' : st.lat === 'bcc' ? 'BZ: rhombic dodecahedron (12)' : 'BZ: cube (6)';
-  ctx.fillText(`reciprocal lattice  |  ${name}`, CX, CY + 170);
+  const name = st.lat === 'fcc' ? 'BZ: truncated octahedron (14 faces)' : st.lat === 'bcc' ? 'BZ: rhombic dodecahedron (12)' : 'BZ: cube (6 faces)';
+  ctx.fillText(`reciprocal lattice  |  ${name}`, VCX, VCY + HALFH + 14);
 }
 
 function drawXRD() {
-  const x0 = 40, x1 = W - 24, y0 = H - 110, y1 = H - 40;
+  const x0 = 40, x1 = W - 24, y0 = H - 104, y1 = H - 38;
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText('powder XRD:  intensity vs  2 theta  (Cu K-alpha, a = 4 A)', (x0 + x1) / 2, H - 16);
+  ctx.fillText('powder XRD:  intensity vs  2 theta  (Cu K-alpha, a = 4 A)', (x0 + x1) / 2, H - 14);
   const lines = powderLines(st.lat, 4.0, 1.5406, 24);
-  const tmax = Math.PI;                                   // 2 theta up to 180 deg
+  const tmax = Math.PI;
   const selS = st.hkl[0] ** 2 + st.hkl[1] ** 2 + st.hkl[2] ** 2;
   for (const ln of lines) {
     const x = x0 + (ln.twoTheta / tmax) * (x1 - x0);
-    const sel = ln.s === selS;                            // the chosen plane's line
+    const sel = ln.s === selS;
     ctx.strokeStyle = sel ? '#ffd166' : '#5bc0eb'; ctx.lineWidth = sel ? 4 : 2;
-    ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, sel ? y0 - 16 : y0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, sel ? y0 - 14 : y0); ctx.stroke();
     if (ln.s <= 8 || sel) {
       ctx.fillStyle = sel ? '#ffd166' : 'rgba(150,160,180,0.75)';
       ctx.font = `${sel ? 'bold ' : ''}11px ui-monospace, monospace`; ctx.textAlign = 'center';
-      ctx.fillText(ln.hkl.join(''), x, (sel ? y0 - 22 : y0 - 6));
+      ctx.fillText(ln.hkl.join(''), x, (sel ? y0 - 20 : y0 - 6));
     }
   }
-  // selected-plane tag (also shown when the line is forbidden/absent)
   ctx.fillStyle = '#ffd166'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
   const onList = lines.some((ln) => ln.s === selS);
   ctx.fillText(`(${st.hkl.join('')}) ${onList ? 'allowed' : 'forbidden'}`, x0 + 4, y0 - 2);
 }
-
-function norm(v) { const n = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / n, v[1] / n, v[2] / n]; }
-function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);

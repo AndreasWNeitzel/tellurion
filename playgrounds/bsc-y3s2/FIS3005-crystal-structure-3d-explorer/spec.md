@@ -47,18 +47,28 @@ Ch. 4-6 (`ashcroft-mermin`).
 
 - lattice: SC, BCC, FCC.
 - view: crystal + Miller plane, or the reciprocal lattice.
-- Miller (hkl): the highlighted plane and reported spacing.
-- supercell: 1-3 repeats.
+- Miller (hkl): the highlighted plane, the gold on-plane atoms, the
+  reported spacing, and (in the reciprocal view) the G vector and its
+  Bragg plane.
+- supercell: 1-3 repeats; the view rescales so it always fits.
 - Reset.
 
 ## Expected qualitative features
 
-- The cell fills with the correct atom count; the Miller plane tilts
-  with (hkl).
+- A ball-and-stick model: atoms with nearest-neighbour bonds (SC
+  along the axes, BCC body-centre to corner, FCC face-centre to
+  corner), so each lattice is recognizable as a structure.
+- The atoms lying on the chosen (hkl) plane are highlighted gold and
+  the translucent plane tilts with (hkl); the d-spacing is labelled.
+- The view auto-fits its content by the rotation-invariant bounding
+  radius, so no supercell (1-3), lattice, or rotation pushes the
+  structure out of the frame or into the XRD strip below it.
+- The reciprocal view shows the lattice, the G(hkl) vector, and its
+  Bragg plane (the Brillouin-zone face from the perpendicular
+  bisector of G); it labels the BZ polyhedron (6/12/14 faces).
 - The XRD sticks march out in the lattice's allowed sequence; BCC
-  and FCC are missing the SC lines.
-- The reciprocal view labels the BZ polyhedron (6/12/14 faces).
-- Rotating shows the 3D arrangement and the plane orientation.
+  and FCC are missing the SC lines; the selected (hkl) is tagged
+  allowed or forbidden.
 
 ## Invariants and acceptance thresholds
 
