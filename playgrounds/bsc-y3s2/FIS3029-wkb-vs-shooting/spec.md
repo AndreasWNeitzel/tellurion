@@ -20,6 +20,59 @@ share_state_keys: []
 
 # WKB Bohr-Sommerfeld vs exact eigenvalues
 
+## Explainer
+
+### What you are looking at
+
+The WKB approximation estimates quantum energy levels from a single
+classical integral, no Schrodinger equation solved. The playground
+pits it against the exact levels for a harmonic well (where WKB is
+perfect) and a quartic well (where it is close but not exact), so you
+see exactly when the semiclassical shortcut works.
+
+### Bohr-Sommerfeld quantization
+
+WKB says a bound state exists when the classical action enclosed in one
+oscillation is a half-integer number of $h$:
+
+$$\int_{x_L}^{x_R}\sqrt{2m\big(E - V(x)\big)}\,dx
+  = \left(n + \tfrac12\right)\pi\hbar,
+  \qquad n = 0, 1, 2,\dots$$
+
+The integral runs between the classical turning points $x_L, x_R$ where
+$E = V(x)$. The $+\tfrac12$ is the Maslov correction (a $\pi/2$ phase
+loss at each soft turning point). Solving for $E$ at each $n$ (here by
+bisecting on $E$) gives the WKB spectrum.
+
+### When it is exact, and when it is not
+
+For the harmonic oscillator $V = x^2/2$ the WKB integral is elementary
+and yields $E_n = n + \tfrac12$, the *exact* answer for every level.
+That is special: WKB is exact for the harmonic potential. For the
+quartic well $V \propto x^4$ there is no such luck; WKB gives a good
+estimate that improves with $n$ (semiclassical limit) but always
+differs from the true Bender-Wu numerical levels by a small amount,
+largest for the ground state where the action is smallest and the
+"many wavelengths in the well" assumption is weakest. The playground
+overlays WKB and exact for both wells so the systematic error is
+visible.
+
+### Things to try
+
+- Pick the harmonic well ($p=2$) and confirm WKB nails every level
+  exactly ($E_n = n+1/2$).
+- Pick the quartic well ($p=4$) and watch the small WKB error,
+  largest at $n=0$, shrinking as $n$ grows.
+- Note WKB needs only a classical integral: no wavefunction is ever
+  solved.
+
+### Where this comes from
+
+The Bohr-Sommerfeld quantization condition, the Maslov $+1/2$, and the
+harmonic-exactness follow Griffiths, *Introduction to Quantum
+Mechanics*, Chapter 8, with the quartic reference levels from Bender
+and Wu (1969).
+
 ## Physical setup
 
 Bound-state energies for a 1D particle in a power-law well V(x) = |x|^p / p, hbar = m = 1. Compare the Bohr-Sommerfeld (WKB) approximation to the "exact" reference levels for the harmonic oscillator (p = 2; closed form E_n = n + 1/2) and quartic anharmonic oscillator (p = 4; Bender-Wu 1969 numerical levels).
