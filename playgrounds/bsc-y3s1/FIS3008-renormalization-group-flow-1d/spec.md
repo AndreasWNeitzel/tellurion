@@ -19,6 +19,62 @@ share_state_keys: []
 
 # 1D Ising Renormalization-Group Flow
 
+## Explainer
+
+### What you are looking at
+
+Take an Ising chain, then squint: average out every other spin and ask
+what coupling the remaining spins effectively have. Repeat. Where the
+coupling flows under this zooming-out is the renormalization group, the
+idea that earned a Nobel Prize and explains why utterly different
+systems share the same critical behavior.
+
+### Decimation
+
+For the 1D Ising chain with reduced couplings $K = \beta J$,
+$h = \beta H$, sum out every other spin exactly. The remaining spins
+obey the same form but with renormalized couplings:
+
+$$K' = \tfrac14\ln\!\frac{\cosh(2K+h)\cosh(2K-h)}{\cosh^2 h},$$
+
+$$h' = h + \tfrac12\ln\!\frac{\cosh(2K+h)}{\cosh(2K-h)},$$
+
+plus a constant that accumulates the free energy. At zero field this
+collapses to the clean recursion $K' = \tfrac12\ln\cosh 2K$.
+
+### Reading the RG flow
+
+Iterate the map and watch where $(K, h)$ goes. Its fixed points and the
+flow between them are the whole story:
+
+- $K^* = 0$ (infinite temperature): a stable fixed point. Every finite
+  $K$ flows to it.
+- $K^* = \infty$ (zero temperature): the only other fixed point.
+
+Because the only stable fixed point at finite temperature is the
+disordered one, the 1D Ising chain has no phase transition at any
+$T > 0$, exactly the known exact result, now seen as a property of the
+RG flow rather than computed by hand. In two or more dimensions a new,
+unstable fixed point appears at finite $K$: that critical fixed point,
+and the way the flow is repelled from it, is what produces a phase
+transition and universal critical exponents. The playground iterates
+the decimation and shows the coupling flowing to its fixed point.
+
+### Things to try
+
+- Start at any finite $K$ and watch it flow to $K^* = 0$: no order
+  survives coarse-graining, hence no transition in 1D.
+- Add a field $h$ and watch it grow under the flow (the field is a
+  relevant perturbation).
+- Note the free energy assembling from the constants shed at each
+  decimation step.
+
+### Where this comes from
+
+The exact 1D Ising decimation recursion and the RG-flow / fixed-point
+picture follow Kardar, *Statistical Physics of Fields*, and Goldenfeld,
+*Lectures on Phase Transitions and the Renormalization Group*.
+
 ## Physical setup
 
 The 1D Ising chain `H = -J sum s_i s_{i+1} - H sum s_i`, reduced
