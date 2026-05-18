@@ -62,7 +62,22 @@ function gauss(rng) {
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
 
-function buildDisk(rng, n, cx, cy, Rd) {
+function buildDisk(rng, n, cx, cy, Rd, spiral = true) {
+  if (!spiral) {
+    // Diffuse (dwarf-spheroidal-like) galaxy: a smooth centrally
+    // concentrated blob, uniform random azimuth, no arms. Paired with
+    // isotropic random velocities (set in reset) it is pressure-supported,
+    // the realistic Gaia-Enceladus / Sausage progenitor.
+    const xs = new Float64Array(2 * n);
+    for (let i = 0; i < n; i += 1) {
+      let r = -Rd * Math.log(1 - rng()) * 0.9;
+      if (r > 3.0 * Rd) r = 3.0 * Rd * rng();
+      const th = 2 * Math.PI * rng();
+      xs[2 * i] = cx + r * Math.cos(th);
+      xs[2 * i + 1] = cy + r * Math.sin(th);
+    }
+    return xs;
+  }
   // Exponential disk r ~ -Rd ln(1-u) (surface density exp(-r/Rd)), with the
   // azimuth concentrated on N_ARMS trailing logarithmic spiral arms
   // phi = ln(r/Rd)/tan(PITCH) + arm*2pi/N_ARMS plus a Gaussian spread, on a
@@ -122,8 +137,8 @@ function reset() {
   const Rd1 = 0.8, Rd2 = 0.8 * Math.sqrt(state.M2 / state.M1);
   const c1 = { x: L / 2 - sep / 2, y: L / 2 - b / 2, vx: +state.vRel, vy: 0, spin: +1 };
   const c2 = { x: L / 2 + sep / 2, y: L / 2 + b / 2, vx: -state.vRel, vy: 0, spin: +1 };
-  const d1 = buildDisk(rng, nd1, c1.x, c1.y, Rd1);
-  const d2 = buildDisk(rng, nd2, c2.x, c2.y, Rd2);
+  const d1 = buildDisk(rng, nd1, c1.x, c1.y, Rd1, true);   // primary: spiral
+  const d2 = buildDisk(rng, nd2, c2.x, c2.y, Rd2, false);  // satellite: diffuse
   const h1 = buildHalo(rng, nh1, c1.x, c1.y, HALO_A * Rd1);
   const h2 = buildHalo(rng, nh2, c2.x, c2.y, HALO_A * Rd2);
   // Per-particle masses: stellar disk carries F_DISK of the galaxy mass,
@@ -162,11 +177,14 @@ function reset() {
     const r = Math.hypot(dx, dy) + 1e-6;
     const ux = dx / r, uy = dy / r;
     const aR = ax0[p] * ux + ay0[p] * uy;          // inward grad-phi . r_hat
-    if (KIND[p] < 2) {                              // stellar disk: rotate
+    if (KIND[p] === 0) {                            // PRIMARY disk: rotation
       const vC = aR > 0 ? Math.sqrt(aR * r) : 0;
       V[2 * p]     = c.spin * (-vC * uy) + c.vx + gaussian(rng, 0, 0.07 * vC);
       V[2 * p + 1] = c.spin * (+vC * ux) + c.vy + gaussian(rng, 0, 0.07 * vC);
-    } else {                                        // dark halo: isotropic
+    } else {
+      // Dark halo AND the diffuse satellite's stars: isotropic random
+      // (pressure-supported) velocities from the 2D Jeans estimate, so the
+      // secondary is a dispersion-supported dwarf, not a rotating disk.
       const sig = aR > 0 ? Math.sqrt(0.5 * aR * r) : 0;
       V[2 * p]     = c.vx + gaussian(rng, 0, sig);
       V[2 * p + 1] = c.vy + gaussian(rng, 0, sig);

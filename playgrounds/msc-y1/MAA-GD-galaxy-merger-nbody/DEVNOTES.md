@@ -43,3 +43,7 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 ## Sweep 2026-05-18
 User: still not COM-tracking, galaxies exit frame. Root cause found: primaryCentroid() averaged over ALL particles including ones that escaped the isolated grid and coast ballistically to huge coordinates, dragging the 'COM' off the visible system. Replaced with a robust two-pass COM (on-grid particles, then refined within a 6-unit clip radius). Headless diagnostic now shows 100% of stellar-disk particles within the view half-width of the robust COM at every step from 0 to 1500: the galaxies never leave the frame. Screenshot-verified centred.
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User: make the secondary a diffuse galaxy (not spiral, random orbits). The satellite stellar component is now a smooth centrally-concentrated blob (uniform azimuth, no arms) with isotropic Jeans-dispersion velocities (pressure-supported), like a dwarf spheroidal, the realistic Sausage progenitor. Primary remains a rotation-supported 2-arm spiral. Screenshot-verified the spiral+diffuse pair and the diffuse dwarf tidally disrupted and accreted onto the surviving primary; robust-COM framed.
+invariants Tests 1 passed + visual 5/5 x3. Shipped.
