@@ -20,6 +20,70 @@ share_state_keys: []
 
 # Coupled springs and normal modes
 
+## Explainer
+
+### What you are looking at
+
+Couple two oscillators and a generic motion looks like a mess: energy
+sloshes back and forth between them. But there are exactly two
+special patterns, the normal modes, in which both masses oscillate at
+a single frequency. Every possible motion is just a sum of those two.
+The playground lets you excite either mode or a mix and watch the
+energy beat between the masses.
+
+### The equations of motion
+
+Two equal masses on a track joined by three identical springs (the
+ends fixed) obey
+
+$$m\ddot x_1 = -k x_1 + k (x_2 - x_1),
+  \qquad
+  m\ddot x_2 = -k x_2 - k (x_2 - x_1).$$
+
+These are coupled: $x_1$ depends on $x_2$. The trick is to change
+variables to combinations that decouple.
+
+### The normal modes
+
+Add and subtract the equations and the symmetric/antisymmetric
+coordinates $x_\pm = x_1 \pm x_2$ separate into two independent
+oscillators:
+
+$$\ddot x_+ = -\frac{k}{m}\,x_+,
+  \qquad
+  \ddot x_- = -\frac{3k}{m}\,x_-,$$
+
+giving the two normal-mode frequencies
+
+$$\omega_1 = \sqrt{\frac{k}{m}}\ \ (\text{in phase}),
+  \qquad
+  \omega_2 = \sqrt{\frac{3k}{m}}\ \ (\text{out of phase}).$$
+
+In mode 1 the masses move together and the middle spring never
+stretches; in mode 2 they move oppositely and the middle spring works
+hardest, so it is faster. Any initial condition is a superposition of
+these two. Start one mass moving and you excite both modes at once;
+their slightly different frequencies make the amplitude transfer
+periodically from one mass to the other, the beat phenomenon, the
+mechanical analogue of two coupled pendulums and of energy exchange
+in molecules. The playground shows the two masses, lets you pick the
+mode mix, and plots the energy in each.
+
+### Things to try
+
+- Excite the in-phase mode (push both the same way) and see a single
+  clean frequency, the middle spring slack.
+- Excite the out-of-phase mode (push them oppositely) and see the
+  higher frequency $\sqrt{3}$ times faster.
+- Displace just one mass and watch the energy beat fully back and
+  forth between the two (a sum of both modes).
+
+### Where this comes from
+
+Coupled oscillators, normal modes, and the beating of a mixed state
+follow French, *Vibrations and Waves*, Chapter 5, and Taylor,
+*Classical Mechanics*, Chapter 11.
+
 ## Physical setup
 
 Two equal masses on a frictionless track, connected by three identical
