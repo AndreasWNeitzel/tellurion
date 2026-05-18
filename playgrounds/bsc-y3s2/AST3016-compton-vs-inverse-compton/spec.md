@@ -9,8 +9,8 @@ supporting_ucs: [MAA-HE]
 curriculum_year: bsc-y3s2
 primary_citation: rybickilightman1979
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A photon hitting a slow electron loses energy; a photon hit by a fast electron gains a factor gamma-squared. Same physics, opposite direction.'
+one_paragraph: 'Compton scattering exchanges energy between photons and electrons, and which way it flows depends on who moves faster. In ordinary forward Compton scattering a photon strikes a nearly-at-rest electron and loses energy, capped at E'' = E / (1 + 2E/m_e c^2) for a head-on bounce. In inverse Compton a relativistic electron of Lorentz factor gamma hits a low-energy photon and boosts it by roughly gamma^2, to E_typ ~ (4/3) gamma^2 E in the Thomson limit. The playground puts both channels on one energy axis as you vary photon energy and gamma, flagging when Klein-Nishina suppression sets in. Inverse Compton powers much of the X-ray and gamma-ray sky. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 7.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
