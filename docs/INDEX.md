@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Inflation: Slow Roll, Superhorizon Fluctuations, n_s](../playgrounds/msc-y1/MF-GR-inflation-quantum-fluctuations/index.html)** &nbsp; (verified, verified 2026-05-18T03:22:07Z)
+  A scalar inflaton field slowly rolls down a nearly flat potential, driving an exponential expansion (about 60 e-folds). Quantum fluctuations of the field are stretched by the expansion: once a mode is larger than the Hubble horizon it freezes, becoming a classical perturbation that later seeds the cosmic microwave background and galaxies. The statistics of t
+
 - **[Friedmann Expansion: Radiation, Matter and Lambda Eras](../playgrounds/msc-y1/MF-GR-friedmann-expansion-multicomponent/index.html)** &nbsp; (verified, verified 2026-05-18T03:11:39Z)
   A spatially flat universe filled with radiation, pressureless matter and a cosmological constant. Each component dilutes differently as the universe expands (radiation as a^-4, matter as a^-3, Lambda constant), so the universe passes through a radiation era, a matter era and a dark-energy era, and the expansion switches from decelerating to accelerating.
 
@@ -803,14 +806,14 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Hydrogen in Electric and Magnetic Fields](../playgrounds/bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman/index.html)** &nbsp; (verified)
   A hydrogen atom in a uniform magnetic field (Zeeman) and a uniform electric field (Stark), with a chosen emission transition observed in a synthetic spectrometer.
 
-- **[Inflation: Slow Roll, Superhorizon Fluctuations, n_s](../playgrounds/msc-y1/MF-GR-inflation-quantum-fluctuations/index.html)** &nbsp; (verified)
-  A scalar inflaton field slowly rolls down a nearly flat potential, driving an exponential expansion (about 60 e-folds). Quantum fluctuations of the field are stretched by the expansion: once a mode is larger than the Hubble horizon it freezes, becoming a classical perturbation that later seeds the cosmic microwave background and galaxies. The statistics of t
-
 - **[Interactive 2D Heat Equation](../playgrounds/bsc-y2s1/FIS2014-heat-equation-2d-gpu/index.html)** &nbsp; (verified)
   A square slab of material with spatially varying thermal diffusivity `kappa(x, y)`, conducting heat between painted hot and cold regions or internal sources. The temperature field `T(x, y, t)` is the primary physical scene; conductive-flux streamlines `q = -kappa grad T` show where and how fast heat flows.
 
 - **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
   A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
+
+- **[Klein-Gordon Wave Packet: Mass, Dispersion and the Light Cone](../playgrounds/msc-y1/MF-QFT-klein-gordon-wavepacket-mass/index.html)** &nbsp; (verified)
+  A free relativistic scalar field obeys the Klein-Gordon equation, so a wave packet is a superposition of modes with omega(k) = sqrt(k^2 + m^2). Mass makes the dispersion nonlinear, so the packet both moves slower than light and spreads; a massless field is dispersion-free and propagates exactly on the light cone. The superluminal phase velocity transmits no 
 
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.

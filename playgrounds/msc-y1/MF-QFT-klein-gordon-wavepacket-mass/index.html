@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Klein-Gordon Wave Packet: Mass, Dispersion and the Light Cone</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Klein-Gordon Wave Packet: Mass, Dispersion and the Light Cone</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Klein-Gordon packet propagation, the dispersion relation, and the centroid and width">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">v_g:</span><span class="value" id="readout-vg">0.80</span>
+      <span class="label">v_p:</span><span class="value" id="readout-vp">1.25</span>
+      <span class="label">width/w0:</span><span class="value" id="readout-w">1.00</span>
+      <span class="label">centroid:</span><span class="value" id="readout-c">0.00</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A Klein-Gordon wave packet: with mass the group velocity v_g = pc^2/E is sub-luminal and the packet disperses; massless it is dispersion-free and rides the light cone. The phase velocity exceeds c but carries no signal.
+      <em>Method:</em> Fourier synthesis with omega = sqrt(k^2 + m^2); Canvas2D, deterministic.
+      <em>Source:</em> Peskin and Schroeder; Greiner, Relativistic Quantum Mechanics.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">mass m</span><input aria-label="mass, x100" type="range" id="slider-m" min="0" max="500" step="10" value="150"><span class="value" id="value-m">1.50</span></div>
+    <div class="row"><span class="label">momentum k0</span><input aria-label="mean momentum, x100" type="range" id="slider-k" min="50" max="600" step="10" value="200"><span class="value" id="value-k">2.00</span></div>
+    <div class="row"><span class="label">packet width sigma0</span><input aria-label="initial width, x100" type="range" id="slider-w" min="50" max="250" step="10" value="100"><span class="value" id="value-w">1.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

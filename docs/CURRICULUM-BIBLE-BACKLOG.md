@@ -454,7 +454,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 19: M:F QFT (Peskin, Srednicki, Zee)
 
-- [ ] klein-gordon-wavepacket-mass : medium canvas2d. KG packet, vg=
+- [x] klein-gordon-wavepacket-mass : medium canvas2d. KG packet, vg=
   pc^2/E<c, w^2=k^2+m^2. Inv: vg<1; causal; m=0 dispersion-free.
 - [ ] casimir-effect-zero-point-energy : medium canvas2d. Plates, allowed
   modes, missing modes red, F~d^-4 log-log. Inv: F prop d^-4 0.1%;
