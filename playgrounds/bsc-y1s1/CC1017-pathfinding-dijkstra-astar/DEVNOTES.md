@@ -59,6 +59,41 @@ to appreciate the result."
   unaffected (5/5) - sim.js search logic unchanged, only map density.
 - Removed the now-unused DEFAULT_SEED import from playground.js.
 
+## Follow-up (2026-05-18, three more complaints)
+
+User: "(a) many seeds give a straight line directly to the goal, very
+bad. (b) the bolt should fire as soon as EITHER algorithm reaches its
+goal, not both. (c) track steps vs path length (Dijkstra slower but
+presumably shorter path?)."
+
+- (a) The old connectivity fallback cleared a STRAIGHT mid-row corridor
+  and start/goal shared the mid row, so disconnected seeds were trivial.
+  Iterated several geometries (headless seed sweeps 1..40 each time):
+  * diagonal corners + meander carve -> still ~Manhattan (15-38/40).
+  * full-height comb barriers + serpentine carve -> winding (len ~2.4x
+    Manhattan) but A*/Dijkstra ratio collapsed to ~1.16x (a single
+    forced corridor removes the heuristic's whole advantage; that is
+    the playground's entire pedagogy, so rejected).
+  * FINAL: organic block maze + a SINGLE river bridge on the bank
+    opposite a same-band start/goal. The only crossing is far from the
+    direct line, so every seed takes a deep V detour (len min/avg/max
+    77/143/155 vs Manhattan ~71; 39/40 clearly winding) while the open
+    banks keep A*'s pruning (ratio min/avg/max 1.3/1.8/5.5x). cost
+    equality A*==Dijkstra 40/40. The meander carve remains only as a
+    defensive net (one open bridge means it ~never fires).
+- (b) rebuild() now caches st.firstGoal = min(order.indexOf(goal)) over
+  the two searches and st.firstName; searchEnd() returns firstGoal, so
+  the existing k>=searchEnd() transition fires the bolt the moment the
+  first (almost always A*) reaches the goal.
+- (c) Bottom info strip (dark backdrop, no overlap): during search a
+  live "Dijkstra N settled  A* M settled" line; in flash/rest two lines
+  giving "X reached first", the identical optimal path length+cost, and
+  "Dijkstra Nd  A* Na  (R x fewer for the identical route)" -- which
+  also corrects the misconception: both return the SAME optimal path
+  (admissible heuristic), A* just settles fewer. Removed the redundant
+  per-panel "cells settled" label that was overlapping the strip.
+- Re-verified: invariants 5/5, frames inspected, visual gate 5/5 x3.
+
 ## Gate commands
 - node --check playground.js sim.js
 - npx vitest run invariants.test.mjs   (5 tests)

@@ -53,8 +53,14 @@ function rebuild() {
   st.dj = dijkstra(st.g);
   st.as = astar(st.g);
   st.k = 0; st.phase = 'search'; st.flashT = 0; st.restT = 0;
+  // Fire the bolt as soon as the FIRST search reaches the goal, not
+  // when both finish. A* almost always settles its goal first.
+  const gD = st.dj.order.indexOf(st.g.goal);
+  const gA = st.as.order.indexOf(st.g.goal);
+  st.firstGoal = Math.min(gD < 0 ? Infinity : gD, gA < 0 ? Infinity : gA) + 1;
+  st.firstName = (gA >= 0 && (gD < 0 || gA <= gD)) ? 'A*' : 'Dijkstra';
 }
-const searchEnd = () => Math.max(st.dj.order.length, st.as.order.length);
+const searchEnd = () => st.firstGoal;
 
 function pathPx(x0, res) {
   const g = st.g;
@@ -142,8 +148,6 @@ function drawPanel(x0, title, res, color) {
     const cx = x0 + (node % g.cols) * CS + CS / 2, cy = TOP + ((node / g.cols) | 0) * CS + CS / 2;
     ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, cy, CS * 0.7, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.fillStyle = color; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`${Math.min(revealed, res.expanded)} cells settled`, x0, TOP + ROWS * CS + 14);
   return revealed;
 }
 
@@ -153,15 +157,33 @@ function render() {
   const ra = drawPanel(PAD + PANEL_W + GAP, 'A* (Manhattan heuristic)', st.as, '#f4a261');
   readoutD.textContent = String(Math.min(rd, st.dj.expanded));
   readoutA.textContent = String(Math.min(ra, st.as.expanded));
-  readoutCost.textContent = Number.isFinite(st.dj.cost) ? st.dj.cost.toFixed(0) : 'inf';
-  if (st.phase === 'rest') {
-    const frac = 1 - st.restT / REST_DUR;
-    ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
-    ctx.fillText(`shortest path solved   cost ${Number.isFinite(st.dj.cost) ? st.dj.cost.toFixed(0) : 'inf'}   new map in ${(st.restT / 60).toFixed(1)} s`, W / 2, H - 10);
-    ctx.strokeStyle = 'rgba(255,209,102,0.5)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(W / 2 - 90, H - 22); ctx.lineTo(W / 2 - 90 + 180 * frac, H - 22); ctx.stroke();
-    ctx.textAlign = 'left';
+  const costTxt = Number.isFinite(st.dj.cost) ? st.dj.cost.toFixed(0) : 'inf';
+  const pathLen = st.dj.path.length;
+  readoutCost.textContent = `${costTxt}  (path ${pathLen} cells)`;
+  // Bottom info strip (dark backdrop so it stays legible over the grid).
+  ctx.fillStyle = 'rgba(6,7,11,0.82)'; ctx.fillRect(0, H - 34, W, 34);
+  ctx.textAlign = 'center';
+  const dSet = st.dj.expanded, aSet = st.as.expanded;
+  if (st.phase === 'search') {
+    const dLive = Math.min(rd, dSet), aLive = Math.min(ra, aSet);
+    ctx.fillStyle = 'rgba(160,200,255,0.85)'; ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText(`Dijkstra ${dLive} settled    A* ${aLive} settled    (A* drives a beam, Dijkstra floods)`, W / 2, H - 12);
+  } else {
+    // Teaching point: both return the SAME optimal path; A* just
+    // settles far fewer nodes. (Admissible heuristic, so A* is optimal,
+    // and Dijkstra's path is not shorter.)
+    const ratio = aSet > 0 ? (dSet / aSet).toFixed(1) : '--';
+    ctx.fillStyle = 'rgba(255,209,102,0.92)'; ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText(`${st.firstName} reached the goal first    same optimal path: ${pathLen} cells, cost ${costTxt}`, W / 2, H - 21);
+    ctx.fillStyle = 'rgba(160,200,255,0.88)';
+    ctx.fillText(`Dijkstra settled ${dSet}    A* settled ${aSet}    (${ratio}x fewer for the identical route)`, W / 2, H - 7);
+    if (st.phase === 'rest') {
+      const frac = 1 - st.restT / REST_DUR;
+      ctx.strokeStyle = 'rgba(255,209,102,0.4)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(W / 2 - 90, H - 1); ctx.lineTo(W / 2 - 90 + 180 * frac, H - 1); ctx.stroke();
+    }
   }
+  ctx.textAlign = 'left';
 }
 
 sliderSpeed.addEventListener('input', () => { st.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(st.speed); });

@@ -18,9 +18,10 @@ export function buildCity(cols, rows, seed = DEFAULT_SEED) {
   const rng = makeRng(seed);
   const cost = new Float64Array(cols * rows).fill(1);
   const at = (x, y) => y * cols + x;
-  // Building blocks: rectangular wall clusters. Denser than a sparse
-  // map so the flood has to work around real obstructions.
-  const nBlocks = Math.floor(cols * rows / 26);
+  // Building blocks: rectangular wall clusters. Dense enough that the
+  // flood has to work around real obstructions, but not so dense that
+  // most seeds disconnect and fall back to the carved corridor.
+  const nBlocks = Math.floor(cols * rows / 30);
   for (let b = 0; b < nBlocks; b += 1) {
     const bw = 2 + Math.floor(rng() * 4), bh = 2 + Math.floor(rng() * 4);
     const bx = 1 + Math.floor(rng() * (cols - bw - 2));
@@ -32,9 +33,22 @@ export function buildCity(cols, rows, seed = DEFAULT_SEED) {
     const rx = Math.round((0.32 + 0.28 * y / rows) * cols);
     for (let dx = -1; dx <= 1; dx += 1) { const x = rx + dx; if (x >= 0 && x < cols) cost[at(x, y)] = WALL; }
   }
-  for (const by of [Math.floor(rows * 0.28), Math.floor(rows * 0.72)]) {
+  // A SINGLE bridge on the bank OPPOSITE the start/goal band (see
+  // below: both endpoints sit in one horizontal band, the bridge in
+  // the other). The only river crossing is then far from the direct
+  // line, so every seed forces a large V-shaped detour (path length
+  // well above Manhattan, never a straight shot) while the banks stay
+  // open so A*'s heuristic still vastly out-prunes Dijkstra. Side and
+  // jitter are seed-chosen for variety.
+  const topBand = Math.floor(seed) % 2 === 0;          // endpoints band
+  const bridgeY = topBand
+    ? rows - 4 - Math.floor(rng() * 4)                 // bridge at bottom
+    : 3 + Math.floor(rng() * 4);                       // bridge at top
+  for (let dy = -1; dy <= 1; dy += 1) {
+    const by = bridgeY + dy;
+    if (by < 0 || by >= rows) continue;
     const rx = Math.round((0.32 + 0.28 * by / rows) * cols);
-    for (let dx = -2; dx <= 2; dx += 1) { const x = rx + dx; if (x >= 0 && x < cols) cost[at(x, by)] = 1; }
+    for (let dx = -3; dx <= 3; dx += 1) { const x = rx + dx; if (x >= 0 && x < cols) cost[at(x, by)] = 1; }
   }
   // Slow piazzas (cost 4): scaled to the map so a larger city has more
   // of them, which makes Dijkstra's uniform-cost flood visibly bulge.
@@ -44,14 +58,40 @@ export function buildCity(cols, rows, seed = DEFAULT_SEED) {
     const px = 2 + Math.floor(rng() * (cols - pw - 3)), py = 2 + Math.floor(rng() * (rows - ph - 3));
     for (let y = py; y < py + ph; y += 1) for (let x = px; x < px + pw; x += 1) if (cost[at(x, y)] !== WALL) cost[at(x, y)] = 4;
   }
-  const start = at(1, Math.floor(rows / 2));
-  const goal = at(cols - 2, Math.floor(rows / 2));
+  // Start and goal in the SAME horizontal band (both near the top, or
+  // both near the bottom, opposite the bridge). With the only river
+  // crossing on the far bank, the optimal route is a deep V: out to
+  // the bridge and back, never a straight line, for every seed.
+  const band = topBand ? 0.14 : 0.86;
+  const sx = 1, sy = Math.floor(rows * band);
+  const gx = cols - 2, gy = Math.floor(rows * (topBand ? band + 0.06 : band - 0.06));
+  const start = at(sx, sy);
+  const goal = at(gx, gy);
   cost[start] = 1; cost[goal] = 1;
-  // Guarantee connectivity: BFS from start; if goal unreachable, clear
-  // a straight maintenance corridor along the mid-row.
+  // Clear a small apron around the endpoints so a random block can
+  // never seal the start or goal cell itself.
+  for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+    const ax = sx + dx, ay = sy + dy, bx2 = gx + dx, by2 = gy + dy;
+    if (ax >= 0 && ax < cols && ay >= 0 && ay < rows) cost[at(ax, ay)] = Math.min(cost[at(ax, ay)], 1);
+    if (bx2 >= 0 && bx2 < cols && by2 >= 0 && by2 < rows) cost[at(bx2, by2)] = Math.min(cost[at(bx2, by2)], 1);
+  }
+  // Guarantee connectivity. If the single bridge or the blocks happen
+  // to disconnect the goal, carve a MEANDERING goal-biased corridor
+  // (never the old straight mid-row line). Rare with one open bridge.
   if (!reachable(cost, cols, rows, start, goal)) {
-    const my = Math.floor(rows / 2);
-    for (let x = 0; x < cols; x += 1) cost[at(x, my)] = Math.min(cost[at(x, my)], 1);
+    let x = sx, y = sy, guard = 0;
+    const maxG = cols * rows * 6;
+    while ((x !== gx || y !== gy) && guard < maxG) {
+      guard += 1;
+      cost[at(x, y)] = Math.min(cost[at(x, y)], 1);
+      const tX = Math.sign(gx - x), tY = Math.sign(gy - y);
+      let dx = 0, dy = 0;
+      if (rng() < 0.62) { if (tX && (rng() < 0.5 || !tY)) dx = tX; else if (tY) dy = tY; else dx = tX || 1; }
+      else if (rng() < 0.5) dx = rng() < 0.5 ? -1 : 1; else dy = rng() < 0.5 ? -1 : 1;
+      x = Math.max(0, Math.min(cols - 1, x + dx));
+      y = Math.max(0, Math.min(rows - 1, y + dy));
+    }
+    cost[goal] = 1;
   }
   return { cols, rows, cost, start, goal };
 }
