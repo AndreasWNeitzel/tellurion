@@ -1,1 +1,3 @@
-verified-at: 2026-05-14T00:46:47Z
+verified-at: 2026-05-18T19:52:25Z
+invariants: Tests  5 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); comprehensive ## Explainer added; render-neutral (overlay outside #stage, goldens unchanged)
