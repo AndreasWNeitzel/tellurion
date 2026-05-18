@@ -48,3 +48,7 @@ the uptime for the 5 reference frames.
 ## Sweep 2026-05-18
 Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
 invariants Tests  12 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User feedback: scene looked like a children's drawing, interceptor was a green line, uninteresting. Rebuilt the rendering (deterministic): sky gradient + stars, fire-control radar rings + sweep, dune terrain, Scud and a real launched PAC-2 interceptor as detailed missiles with exhaust plumes and smoke trails, acquisition-gate corner brackets (green locked vs flashing-red empty 'tracking a ghost'), layered expanding fireball + shock ring + debris + screen red-alert on the historically-accurate gate-miss impact (no launch, Scud strikes the barracks; a 'misfire' is NOT what happened and the scene shows the real failure). Physics, capture contract and cause panel unchanged; screenshot-verified intercept and Dhahran-miss frames.
+invariants Tests passed + visual 5/5 x3. Shipped.

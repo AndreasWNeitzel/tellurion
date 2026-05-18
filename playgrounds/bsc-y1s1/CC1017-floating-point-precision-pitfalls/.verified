@@ -1,3 +1,3 @@
-verified-at: 2026-05-18T18:53:24Z
-invariants: Tests  12 passed (npx vitest run invariants.test.mjs)
-visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); comprehensive ## Explainer added; render-neutral (overlay outside #stage, goldens unchanged)
+verified-at: 2026-05-18T19:26:21Z
+invariants: Tests passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); richer radar-scope scene: night sky, radar rings, detailed Scud + launched PAC-2 interceptor with exhaust/trail, layered fireball + red alert on the historically-accurate gate-miss impact; deterministic; 5 frames screenshot-verified (intercept vs Dhahran miss)
