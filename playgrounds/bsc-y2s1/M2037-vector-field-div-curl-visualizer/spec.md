@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s1
 primary_citation: riley-hobson
 primary_chapter: 10
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Divergence asks how much a field spreads out of a point; curl asks how much it swirls around it. Pick a field and watch both numbers light up.'
+one_paragraph: 'Divergence and curl are the two local derivatives of a vector field: divergence measures the net outflow from a point, curl measures the local rotation. The playground draws four parameterized families as an arrow grid (a pure source with divergence 2a and zero curl, a pure rotation with curl 2a and zero divergence, a shear, and a mix) and reports the analytic divergence and curl as you tune the parameter. Seeing the arrows splay versus circulate while the two numbers update makes the operators concrete instead of formulas. They are the building blocks of Maxwell''s equations and of fluid flow. Reference: Riley and Hobson, Mathematical Methods, Ch. 10.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
