@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-18T05:03:07Z)
+  A self-gravitating sphere in hydrostatic equilibrium with a polytropic equation of state P = K rho^{(n+1)/n}, n = 3 (the Eddington standard model: pressure is the sum of ideal-gas and radiation pressure with a constant ratio beta). The dimensionless structure is universal (the Lane-Emden function theta(xi)); scaling it with a chosen mass M and radius R gives
+
 - **[FODO Synchrotron: Betatron Tune, Emittance and Stop Bands](../playgrounds/msc-y1/MF-PP-particle-accelerator-betatron/index.html)** &nbsp; (verified, verified 2026-05-18T04:46:07Z)
   A circular accelerator built from identical FODO cells: a focusing quadrupole, a drift, a defocusing quadrupole, a drift (alternating-gradient strong focusing). Transverse motion in one plane is described by the phase-space vector (x, x'), propagated element by element by 2x2 transfer matrices. The ring is a periodic lattice; its one-turn matrix determines w
 
@@ -788,6 +791,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Chandrasekhar Dynamical Friction](../playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/index.html)** &nbsp; (verified)
   A large perturber enters from the left through N=200 background particles drawn from a Maxwellian of dispersion sigma. Gravitational focusing pulls particles into an overdense wake trailing the perturber; the wake's pull decelerates it. The perturber speed readout decreases over time.
 
+- **[Close Binary: Roche Lobes and Conservative Mass Transfer](../playgrounds/msc-y1/MAA-SE-binary-star-mass-transfer/index.html)** &nbsp; (verified)
+  Two stars on a circular orbit, viewed in the corotating frame. The effective (Roche) potential is the sum of both gravitational potentials and the centrifugal term. Its critical equipotential through the inner Lagrange point L1 is the figure-eight that defines each star's Roche lobe; a star that fills its lobe loses mass through L1 to its companion. When the
+
 - **[Cosmic Distance Ladder Journey](../playgrounds/msc-y1/MAA-CO-cosmic-distance-ladder/index.html)** &nbsp; (verified)
   Click through four rungs of the distance ladder. Parallax: a nearby star swings against background, baseline 2 AU. Cepheid period-luminosity: a pulsating star with period 30 d, M_V from the Leavitt law. Type Ia: standard candle M_V = -19.3. Hubble flow: galaxy at z = 0.5, distance from D = cz/H_0.
 
@@ -871,9 +877,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Stellar Oscillation Modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/index.html)** &nbsp; (verified)
   A stellar disk breathes, rings, and ripples according to the chosen spherical-harmonic mode $Y_l^m(\theta, \phi) \cos(\omega t)$. Sliders for radial order $n$, degree $l$, azimuthal order $m$ morph the surface pattern. Side panel shows the propagation diagram (Brunt-Vaisala and Lamb frequencies vs radius for an $n = 3$ polytrope) with the current mode freque
-
-- **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified)
-  A self-gravitating sphere in hydrostatic equilibrium with a polytropic equation of state P = K rho^{(n+1)/n}, n = 3 (the Eddington standard model: pressure is the sum of ideal-gas and radiation pressure with a constant ratio beta). The dimensionless structure is universal (the Lane-Emden function theta(xi)); scaling it with a chosen mass M and radius R gives
 
 - **[TDSE Wavepacket Sculptor](../playgrounds/bsc-y3s1/FIS3003-tdse-wavepacket-sculptor/index.html)** &nbsp; (verified)
   A Gaussian wavepacket of chosen mean momentum launched into a chosen 1D potential: free space, infinite box, harmonic well, double well, periodic lattice, rectangular tunnelling barrier, or a delta spike.

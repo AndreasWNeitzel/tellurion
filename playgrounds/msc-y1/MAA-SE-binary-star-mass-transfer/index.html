@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Close Binary: Roche Lobes and Conservative Mass Transfer</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Close Binary: Roche Lobes and Conservative Mass Transfer</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="The Roche figure-eight with Lagrange points and the overflow stream, the orbital separation and period under conservative transfer, and the mass-transfer stability map">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">q (M1/M2):</span><span class="value" id="readout-q">2.00</span>
+      <span class="label">R/R_L:</span><span class="value" id="readout-fill">0.80</span>
+      <span class="label">P:</span><span class="value" id="readout-p">0.75 d</span>
+      <span class="label">state:</span><span class="value" id="readout-state">detached</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      The corotating Roche potential of a close binary: the figure-eight critical surface through the inner Lagrange point L1, the volume-equivalent lobe radius from the Eggleton formula, and conservative mass transfer that holds the total mass and orbital angular momentum fixed while the separation and period change. Transfer from the more massive star shrinks the orbit (runaway, common envelope); from the less massive star it widens (stable).
+      <em>Method:</em> closed-form Roche potential, Lagrange roots and conservative-transfer scaling; Canvas2D, deterministic.
+      <em>Source:</em> Eggleton 1983; Frank, King and Raine, Accretion Power in Astrophysics.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">donor M1 (Msun)</span><input aria-label="donor mass, solar masses x10" type="range" id="slider-m1" min="3" max="200" step="1" value="20"><span class="value" id="value-m1">2.0</span></div>
+    <div class="row"><span class="label">accretor M2 (Msun)</span><input aria-label="accretor mass, solar masses x10" type="range" id="slider-m2" min="3" max="200" step="1" value="10"><span class="value" id="value-m2">1.0</span></div>
+    <div class="row"><span class="label">donor fill R/R_L</span><input aria-label="donor radius over Roche-lobe radius x100" type="range" id="slider-fill" min="40" max="115" step="1" value="80"><span class="value" id="value-fill">0.80</span></div>
+    <div class="row"><span class="label">transferred dM (Msun)</span><input aria-label="cumulative transferred mass, solar masses x100" type="range" id="slider-dm" min="0" max="80" step="1" value="0"><span class="value" id="value-dm">0.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

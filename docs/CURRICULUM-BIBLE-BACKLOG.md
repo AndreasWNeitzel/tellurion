@@ -481,7 +481,7 @@ docs/NEEDS-ATTENTION.md, move on.
   radiative/convective bubbling/photosphere) plus T,rho,P,L profiles
   plus eps(r) pp/CNO/3a plus HR dot on ZAMS. Shooting. Inv: P0~1e16Pa
   x2; T0~1.5e7K 20%; L=Lsun 5%; Schwarzschild gradient.
-- [ ] binary-star-mass-transfer : advanced canvas2d. Roche lobes fig-8,
+- [x] binary-star-mass-transfer : advanced canvas2d. Roche lobes fig-8,
   overflow stream/disk, period change; stable/CE/detached. Inv:
   Eggleton rL 0.5%; J conserved 1%.
 - [ ] neutron-star-tov-equation : advanced canvas2d. TOV integrate, EOS
