@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2016
 supporting_ucs: [AST2004]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Wavefronts pile up ahead of a moving source and stretch out behind it; that is why an approaching siren is higher pitched than a receding one.'
+one_paragraph: 'A source emits one wavefront every period, and each spreads outward at the wave speed. When the source moves, successive fronts leave from shifted positions, so they bunch up ahead (a higher observed frequency) and spread out behind (a lower one). The playground animates the expanding circular fronts and the moving source and reports the observed frequency ahead of and behind it as you change the speed, including the shock cone that forms once the source outruns its own waves. This is the everyday Doppler shift, and carried over to light it is the basis of astronomical redshift. Reference: French, Vibrations and Waves.'
 tags: [waves, animation, live-readout]
 difficulty: 3
 tier: simple

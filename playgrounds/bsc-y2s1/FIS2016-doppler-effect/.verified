@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T18:06:30Z
-invariants: 7/7 (v=0 trivial, front and back special angles, perpendicular = f, reciprocal, wavefront radius, subsonic stability)
-visual: SSIM > 0.92 across 5 frames showing source advance and Doppler-asymmetric wavefronts
+verified-at: 2026-05-18T14:35:54Z
+invariants: 7/7 (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs; goldens refreshed (render drift vs stale set), screenshot-verified Doppler wavefronts/f_obs
