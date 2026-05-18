@@ -21,3 +21,62 @@ share_state_keys: []
 ---
 # Fermi vs Gamow-Teller beta decay
 Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9 (`krane-nuclear`).
+
+## Explainer
+
+### What you are looking at
+
+In beta decay a nucleus emits an electron and a (anti)neutrino that
+share the released energy, so the electron energy spectrum is a smooth
+continuous curve, not a line. The playground shows that spectrum, the
+two decay channels (Fermi and Gamow-Teller), and the Kurie plot trick
+that turns the messy curve into a straight line you can read.
+
+### The continuous spectrum
+
+The decay rate per electron energy follows Fermi's golden rule with
+three-body phase space:
+
+$$\frac{dN}{dE} \;\propto\; F(Z,E)\;p\,E\,(Q-E)^2,$$
+
+where $p, E$ are the electron momentum and energy, $Q$ is the total
+released energy (endpoint), and $F(Z,E)$ is the Coulomb (Fermi)
+correction. The $(Q-E)^2$ factor is the neutrino phase space; it forces
+the spectrum to zero at the endpoint $E=Q$.
+
+### Fermi vs Gamow-Teller
+
+Two ways the lepton pair can carry off angular momentum:
+
+- Fermi: electron and neutrino spins antiparallel (singlet), they
+  carry no spin. Selection rule $\Delta J = 0$, no parity change.
+- Gamow-Teller: spins parallel (triplet), they carry one unit.
+  Selection rule $\Delta J = 0, \pm1$ (not $0\to0$).
+
+Which dominates depends on the nuclear states; most decays mix both.
+
+### The Kurie plot
+
+Rearrange the spectrum: plotting
+
+$$\sqrt{\frac{dN/dE}{F(Z,E)\,p\,E}} \;\propto\; (Q - E)$$
+
+gives a straight line that hits zero exactly at the endpoint $Q$. That
+linearization is how the endpoint energy is measured precisely, and how
+experiments bound the neutrino mass: a nonzero neutrino mass bends the
+Kurie line down near the endpoint. The playground shows the spectrum
+and its Kurie straight line, with the endpoint marked.
+
+### Things to try
+
+- Watch the spectrum rise then fall to zero at the endpoint $Q$ (the
+  $(Q-E)^2$ neutrino phase space).
+- Switch the Fermi/Gamow-Teller mix and see the selection rules change
+  which transitions are allowed.
+- Read the Kurie plot: a straight line whose x-intercept is $Q$.
+
+### Where this comes from
+
+The beta spectrum shape, the Fermi and Gamow-Teller selection rules,
+and the Kurie plot follow Krane, *Introductory Nuclear Physics*,
+Chapter 9.
