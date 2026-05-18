@@ -20,6 +20,68 @@ share_state_keys: []
 
 # Particle-mesh 2D self-gravitating disk
 
+## Explainer
+
+### What you are looking at
+
+A flat disk of 1500 stars, each pulling on every other by gravity. Done
+naively that is 1500-squared force calculations per step. The
+particle-mesh trick does it in near-linear time by routing gravity
+through a grid, and the disk it evolves spontaneously grows spiral
+arms, the same way model galaxies do.
+
+### The physics
+
+Each particle obeys Newtonian gravity from the collective potential:
+
+$$m_i\,\ddot{\mathbf x}_i = -\nabla\phi(\mathbf x_i),
+  \qquad \nabla^2\phi = 4\pi G\rho.$$
+
+Solving Poisson's equation for every particle pair is the expensive
+part.
+
+### The particle-mesh method
+
+Instead of summing pairs, four cheap steps:
+
+1. Deposit each particle's mass onto a grid by cloud-in-cell (each
+   particle smeared over its 4 nearest cells).
+2. Solve $\nabla^2\phi = 4\pi G\rho$ on the grid in one shot with
+   FFTs (Poisson is trivial in Fourier space: $\hat\phi_k =
+   -4\pi G\hat\rho_k / k^2$).
+3. Finite-difference the grid potential to get the force.
+4. Interpolate the force back to the particles and leapfrog them
+   forward.
+
+Cost scales as $N + N_\text{grid}\log N_\text{grid}$ instead of
+$N^2$, which is why cosmological simulations use this scheme for
+billions of particles. The trade-off is resolution: forces are softened
+at the grid scale.
+
+### Why spiral arms appear
+
+A cold, rotating, self-gravitating disk is not perfectly stable. Small
+density ripples get sheared by differential rotation and amplified by
+self-gravity (swing amplification), so the disk spontaneously grows
+transient trailing spiral arms, the same mechanism invoked for real
+galactic spirals. The playground evolves the disk and you watch arms
+form, wind up, and dissolve.
+
+### Things to try
+
+- Watch transient spiral patterns grow and shear away, not a rigid
+  fixed spiral.
+- Note the arms are a collective gravitational instability, not stars
+  on fixed tracks.
+- Recall the cost: this is N-body gravity made affordable by the grid.
+
+### Where this comes from
+
+The particle-mesh Poisson solve follows Hockney and Eastwood,
+*Computer Simulation Using Particles*; the swing-amplification origin
+of spiral arms follows Binney and Tremaine, *Galactic Dynamics*, 2nd
+ed.
+
 ## Physical setup
 
 A flat 2D disc of 1500 self-gravitating particles in an exponential surface-density profile. Gravity solved via particle-mesh on a 32 x 32 periodic grid using cloud-in-cell (CIC) deposit and interpolation.
