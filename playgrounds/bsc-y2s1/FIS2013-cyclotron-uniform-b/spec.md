@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2013
 supporting_ucs: [MAA-PL]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A charge in a uniform magnetic field never speeds up or slows down; the force only turns it, locking it onto a circle at a frequency that does not depend on its speed.'
+one_paragraph: 'The magnetic force q v x B is always perpendicular to the velocity, so it does no work: a charged particle in a uniform field circles at constant speed. The radius r = m v / (q B) grows with speed, but the cyclotron frequency omega = q B / m does not, the property that makes cyclotrons and ion-trap mass spectrometry work. The playground integrates the motion and shows the circular orbit with its live radius and period as you vary the field strength and the launch speed, so you can check directly that doubling v doubles the radius while leaving the period untouched. Reference: Griffiths, Introduction to Electrodynamics, Ch. 5.'
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
