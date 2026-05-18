@@ -19,6 +19,55 @@ share_state_keys: []
 
 # Adding Angular Momenta - The Vector Model
 
+## Explainer
+
+### What you are looking at
+
+Two quantum angular momenta (two spins, or orbit plus spin) add, but
+not like ordinary vectors: the total comes in a discrete ladder of
+allowed magnitudes. The playground shows the vector model picture and
+the Clebsch-Gordan table that translates between "the two separately"
+and "the combined total".
+
+### The triangle rule
+
+Couple $j_1$ and $j_2$ and the total $J$ can only take the values
+
+$$|j_1 - j_2| \le J \le j_1 + j_2,$$
+
+in integer steps. That is the quantum analogue of "the resultant of
+two vectors lies between their difference and their sum", but quantized.
+In the vector model each has length $\sqrt{j(j+1)}$, and the angle
+between $\mathbf J_1$ and the resultant follows from the law of cosines:
+
+$$\mathbf J\!\cdot\!\mathbf J_1
+  = \tfrac12\big[J(J+1) + j_1(j_1+1) - j_2(j_2+1)\big].$$
+
+### Clebsch-Gordan: the basis change
+
+There are two natural bases: the uncoupled
+$|j_1 m_1\rangle|j_2 m_2\rangle$ (each known separately) and the
+coupled $|J M\rangle$ (total known). The Clebsch-Gordan coefficients
+$\langle j_1 m_1\, j_2 m_2 | J M\rangle$ are the unitary matrix between
+them. They vanish unless $M = m_1 + m_2$ and the triangle rule holds,
+and the dimensions match: $\sum_J (2J+1) = (2j_1+1)(2j_2+1)$. This
+bookkeeping is exactly what builds atomic term symbols, nuclear spins,
+and particle multiplets. The playground shows the allowed $J$ ladder
+and the Clebsch-Gordan table updating as you change $j_1, j_2$.
+
+### Things to try
+
+- Set $j_1 = j_2 = 1/2$: the total is $J = 0$ (singlet) or $J = 1$
+  (triplet), dimensions $1 + 3 = 4 = 2\times2$.
+- Change $j_2$ and watch the $J$ ladder lengthen by the triangle rule.
+- Read a Clebsch-Gordan column and confirm it is a unit vector
+  (unitary basis change).
+
+### Where this comes from
+
+The triangle rule, the vector model, and the Clebsch-Gordan
+coefficients follow Sakurai, *Modern Quantum Mechanics*, Chapter 3.
+
 ## Physical setup
 
 Two angular momenta of magnitudes j1 and j2 are added; the total J is
