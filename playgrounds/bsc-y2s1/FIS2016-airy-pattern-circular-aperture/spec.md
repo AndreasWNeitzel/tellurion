@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2016
 supporting_ucs: [FIS3019, MAA-OT]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A perfect lens cannot focus a star to a point; a round aperture always smears it into a bright disk ringed by faint halos, and that sets the resolution limit.'
+one_paragraph: 'The far-field diffraction pattern of a uniformly lit circular aperture is the Airy pattern, I/I_0 = [2 J_1(x)/x]^2: a bright central disk surrounded by fading rings. Its angular size scales as wavelength over aperture diameter, which is the fundamental resolution limit of every telescope, microscope, and eye. The playground draws the pattern and its radial profile as you change the aperture size and wavelength, marking the first dark ring (the Rayleigh criterion for resolving two close sources). It shows directly why a larger aperture sees finer detail. Reference: Hecht, Optics, Ch. 10.'
 tags: [waves, animation, live-readout]
 difficulty: 3
 tier: simple
