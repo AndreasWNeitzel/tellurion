@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Track how a tiny error grows along a strange attractor and you measure chaos as a number; the two exponents must sum to ln|b| exactly, which proves the method.'
+one_paragraph: 'Lyapunov exponents quantify chaos: the rates at which nearby trajectories separate (positive) or contract (negative). The playground computes the full spectrum for the Henon map with the Benettin QR algorithm, evolving the orbit together with an orthonormal frame and re-orthonormalizing each step to accumulate the log stretch in each direction. The live readout shows both exponents and their sum, which must equal ln|b|, the log Jacobian determinant, an exact invariant that validates the computation. The left panel shows the banana-shaped strange attractor; dragging (a, b) morphs it. Reference: Benettin et al. 1980; Strogatz, Nonlinear Dynamics and Chaos, Ch. 10.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
