@@ -22,6 +22,54 @@ share_state_keys: []
 
 # RC discharge
 
+## Explainer
+
+### What you are looking at
+
+A charged capacitor is connected across a resistor and allowed to drain.
+The voltage does not fall at a steady rate and does not fall off a
+cliff: it decays smoothly, fast at first and ever slower, the
+exponential that governs everything from camera flashes to nerve cells.
+
+### The equation
+
+Kirchhoff's voltage law around the loop says the resistor drop plus the
+capacitor voltage is zero. With charge $Q$ on the capacitor and current
+$I = \dot Q$:
+
+$$R\,\dot Q + \frac{Q}{C} = 0.$$
+
+This is a first-order linear ODE: the rate of change of $Q$ is
+proportional to $Q$ itself, the defining property of exponential decay.
+Its solution is
+
+$$V_C(t) = V_0\,e^{-t/\tau}, \qquad \tau = RC.$$
+
+### The time constant
+
+The single number that sets the pace is $\tau = RC$, the time for the
+voltage to fall to $1/e \approx 37\%$ of its value. After $\tau$ it is
+at 37 percent, after $2\tau$ about 14 percent, after $5\tau$
+essentially zero. The current follows the same curve,
+$I(t) = (V_0/R)\,e^{-t/\tau}$. Bigger $R$ or bigger $C$ means a slower
+drain. All the energy initially stored,
+$U_C(0) = \tfrac12 C V_0^2$, ends up as heat in the resistor.
+
+### Things to try
+
+- Increase $R$ or $C$ and watch the decay stretch out; $\tau = RC$
+  scales linearly with each.
+- Mark where the curve crosses $0.37 V_0$: that time is exactly
+  $\tau$, independent of $V_0$.
+- Note the current has the same shape as the voltage, just scaled by
+  $1/R$.
+
+### Where this comes from
+
+Kirchhoff's law, the first-order ODE, and the $e^{-t/RC}$ solution
+follow Griffiths, *Introduction to Electrodynamics*, 5th ed.,
+Chapter 7.
+
 ## Physical setup
 
 A capacitor of capacitance $C$ charged to $V_0$ is suddenly connected across a resistor of resistance $R$. Kirchhoff's voltage law gives the first-order linear ODE

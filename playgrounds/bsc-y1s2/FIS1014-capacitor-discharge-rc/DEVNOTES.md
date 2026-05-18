@@ -16,3 +16,7 @@ Canvas2D. RC circuit + V(t)=V0 e^{-t/RC} decay curve with a t=tau
 
 ## Gate: node --check; vitest invariants; build-index; visual gate
   only if #stage changes (text-only sweep).
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
