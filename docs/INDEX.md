@@ -186,7 +186,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   An L x L periodic square lattice of spins `s_i = +-1`, energy `H = -J sum_<ij> s_i s_j` (J = 1, zero field). The control is the temperature `T = kT/J`.
 
 - **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-14T04:06:29Z)
-  Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
+  A black hole bends the paths of light rays so strongly that some rays loop around it before escaping and others are swallowed. Looking at a black hole surrounded by a glowing accretion disk, you do not see a disk with a hole punched in it; you see the near side directly, the far side lensed up and over the top, and a second image of the far side wrapped arou
 
 - **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:56:05Z)
   Earth is an oblate spinning top: it bulges at the equator. The Sun and Moon pull harder on the near side of that bulge than the far side, producing a gravitational torque. A non-spinning body would simply tip over; a fast-spinning one instead responds at right angles, so the spin axis sweeps out a cone rather than falling. This is lunisolar axial precession.

@@ -9,6 +9,7 @@ import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const readoutEl = document.getElementById('readout');
@@ -127,6 +128,14 @@ function bootSync() {
   // Accumulate TAA history across multiple frames so the captured still
   // benefits from the same banding-suppression the live demo gets.
   if (CAPTURE_NAME) {
+    // Vary the scene deterministically with the capture fraction so the
+    // five reference frames are distinct: orbit the camera 60 deg in
+    // azimuth and advance disk-rotation time. Without this every frame
+    // is captured at the identical fixed pose and t=0, so the goldens
+    // are pixel-identical and the gate cannot detect a frozen render.
+    const fr = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    camera.setAzimuthDeg(DEFAULTS.azimuthDeg + fr * 60);
+    st.t = fr * 24;
     // Deeper TAA convergence in capture mode. The geodesic iteration cap
     // is now 500 (was 220) for sharper photon-ring + lensed-background
     // accuracy, so capture-frame count is dropped from 16 to 8 to keep
