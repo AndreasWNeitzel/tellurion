@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Three equations with a single quadratic term spiral out flat then fold once into the third dimension; raise one knob and the spiral period-doubles into a strange attractor.'
+one_paragraph: 'Rossler''s 1976 system is the minimal continuous-time chaos: dx/dt = -y - z, dy/dt = x + a y, dz/dt = b + z(x - c), with only one nonlinear term. Trajectories spiral outward in a near-plane, then the z-equation lifts and reinjects them, giving a single-fold attractor cleaner than Lorenz. As c rises the system runs a period-doubling cascade into a strange attractor, and past c around 5.7 it grows the vertical lobe that names the funnel. The playground integrates it and shows the attractor alongside a bifurcation view. It is the cleanest minimal route to continuous chaos. Reference: Rossler 1976; Strogatz, Nonlinear Dynamics and Chaos, Ch. 12.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
