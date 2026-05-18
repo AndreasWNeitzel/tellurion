@@ -402,7 +402,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] jaynes-cummings-model : advanced canvas2d. 2-level atom in cavity,
   Rabi collapse/revival, Wigner, P(n). Inv: collapse/revival Eberly 1%;
   Pg+Pe=1; On=g sqrt(n+1).
-- [ ] nonlinear-optics-shg : advanced canvas2d. SHG growth, phase match
+- [x] nonlinear-optics-shg : advanced canvas2d. SHG growth, phase match
   dk=0 z^2 vs coherence length, Sellmeier. Inv: photon conserved; dk=0
   I2w prop z^2; eta<100%.
 - [ ] optical-fiber-modes-dispersion : medium canvas2d. Fiber modes

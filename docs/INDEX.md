@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Jaynes-Cummings Model: Collapse and Revival](../playgrounds/bsc-y3s2/FIS4035-jaynes-cummings-model/index.html)** &nbsp; (verified, verified 2026-05-18T01:01:20Z)
+  A single two-level atom sits in a lossless optical cavity supporting one quantised mode, on exact resonance (atomic transition frequency equal to the mode frequency). The atom starts in its excited state and the field starts in a coherent state of mean photon number `nbar`. The atom and field exchange a single quantum of excitation coherently; the observable
+
 - **[Laser Rate-Equation Dynamics](../playgrounds/bsc-y3s2/FIS4035-laser-rate-equations-dynamics/index.html)** &nbsp; (verified, verified 2026-05-18T00:46:39Z)
   A gain medium (a two-level inversion) sits in an optical resonator. An external pump builds the population inversion `n`; the inversion decays on the upper-state lifetime and is depleted by stimulated emission into the cavity photon number `p`. Photons grow when the round-trip gain exceeds the cavity loss and leave through the output coupler. A small fixed s
 
@@ -773,9 +776,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
   A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
 
-- **[Jaynes-Cummings Model: Collapse and Revival](../playgrounds/bsc-y3s2/FIS4035-jaynes-cummings-model/index.html)** &nbsp; (verified)
-  A single two-level atom sits in a lossless optical cavity supporting one quantised mode, on exact resonance (atomic transition frequency equal to the mode frequency). The atom starts in its excited state and the field starts in a coherent state of mean photon number `nbar`. The atom and field exchange a single quantum of excitation coherently; the observable
-
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
 
@@ -808,6 +808,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
+
+- **[Second-Harmonic Generation: Phase Matching and Conversion](../playgrounds/bsc-y3s2/FIS4035-nonlinear-optics-shg/index.html)** &nbsp; (verified)
+  A fundamental beam at frequency w propagates through a crystal with a second-order nonlinearity and generates a second-harmonic beam at 2w. The two waves accumulate phase at different rates unless their wave vectors satisfy k_2w = 2 k_w; the residual mismatch dk = k_2w - 2 k_w controls everything. Two standard regimes are shown: small conversion (undepleted 
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
