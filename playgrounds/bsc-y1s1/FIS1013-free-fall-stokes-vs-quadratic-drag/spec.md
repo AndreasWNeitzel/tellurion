@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: marion-thornton
 primary_chapter: 2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Drop three identical balls: one in vacuum, one through a fluid that drags in proportion to speed, one through air that drags as speed squared. The vacuum ball never stops speeding up; the other two coast to two different terminal speeds."
+one_paragraph: "Three objects fall from the same height under three force laws. In vacuum only gravity acts and the speed climbs without limit (v = g t). With Stokes (linear) drag, the regime for slow, small or very viscous flow, the drag is proportional to v and the body relaxes exponentially to a terminal speed where drag balances gravity. With quadratic drag, the regime for fast everyday motion in air, the drag goes as v squared, so the approach to terminal speed is faster and (for the same coefficient) the terminal speed is lower. The left panel shows the three falling; the right panel plots v(t) for all three with a dashed line at the Stokes terminal velocity, so one curve keeps rising while the other two flatten at different heights. The readout gives the two terminal velocities. Which drag law applies is set by the Reynolds number of the flow, not by the object itself."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
