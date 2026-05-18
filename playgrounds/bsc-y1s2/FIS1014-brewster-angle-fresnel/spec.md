@@ -20,6 +20,70 @@ share_state_keys: []
 
 # Brewster angle and the Fresnel reflectance
 
+## Explainer
+
+### What you are looking at
+
+Light hitting glass partly reflects and partly refracts. How much
+reflects depends on the angle and on the polarization, and at one
+special angle (Brewster's angle) one polarization does not reflect at
+all. That is why polarized sunglasses kill glare off water and roads.
+
+### Snell first
+
+The refracted ray bends according to Snell's law,
+
+$$n_1 \sin\theta_i = n_2 \sin\theta_t,$$
+
+with $\theta_i$ the incidence angle and $\theta_t$ the transmitted
+angle. Everything else needs both angles.
+
+### The Fresnel equations
+
+The fraction of amplitude reflected differs for light polarized in the
+plane of incidence (p) and perpendicular to it (s):
+
+$$r_s = \frac{n_1\cos\theta_i - n_2\cos\theta_t}
+  {n_1\cos\theta_i + n_2\cos\theta_t}, \qquad
+  r_p = \frac{n_2\cos\theta_i - n_1\cos\theta_t}
+  {n_2\cos\theta_i + n_1\cos\theta_t}.$$
+
+The reflected power (reflectance) is the square of these,
+$R_s = r_s^2$ and $R_p = r_p^2$. The playground plots both against the
+incidence angle.
+
+### Brewster and the critical angle
+
+Set the numerator of $r_p$ to zero and you find the Brewster angle,
+
+$$\theta_B = \arctan(n_2/n_1),$$
+
+where $R_p = 0$: p-polarized light is perfectly transmitted, so the
+reflection is purely s-polarized. A polarizing filter aligned to block
+s then removes the glare entirely. Going from a dense to a rare medium
+($n_1 > n_2$) there is also a total-internal-reflection threshold, the
+critical angle
+
+$$\theta_c = \arcsin(n_2/n_1),$$
+
+beyond which $R = 1$ for both polarizations. Both special angles fall
+straight out of the Fresnel formulas as you sweep the slider.
+
+### Things to try
+
+- Sweep to $\theta_B = \arctan(1.5/1.0) \approx 56^\circ$ for air-glass
+  and watch the $R_p$ curve touch zero.
+- Compare $R_s$ and $R_p$: they only agree at normal incidence and at
+  grazing incidence.
+- Flip to $n_1 > n_2$ and find the critical angle where reflection
+  becomes total.
+
+### Where this comes from
+
+Snell's law, the Fresnel amplitude coefficients, and the Brewster and
+critical angles follow Hecht, *Optics*, 5th ed., Chapter 4, and Born
+and Wolf, *Principles of Optics*, Chapter 1.
+
 ## Physical setup
 
 Plane wave from medium 1 (index n_1) incident on the planar interface with

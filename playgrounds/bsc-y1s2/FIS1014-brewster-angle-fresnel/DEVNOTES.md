@@ -17,3 +17,7 @@ arctan(n2/n1)). Readout: theta_i, n1, n2, theta_B, theta_t, R_s, R_p.
 
 ## Gate: node --check; vitest invariants; build-index; visual gate
   only if #stage changes (text-only sweep).
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
