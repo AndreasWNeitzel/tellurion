@@ -1,0 +1,96 @@
+---
+title: "MRI: the Bloch Equations, the FID and k-Space Imaging"
+slug: mri-bloch-equations-k-space
+status: verified
+audience: portfolio
+created: 2026-05-18
+primary_uc: MFM-MP
+supporting_ucs: []
+curriculum_year: msc-y1
+primary_citation: bloch1946
+hook: 'A magnetization vector precessing and relaxing on the Bloch sphere, the free induction decay and its Lorentzian spectrum, and a brain phantom imaged by spin echo or gradient echo and reconstructed from k-space by the 2D inverse Fourier transform, with the contrast set by TR and TE.'
+one_paragraph: 'An MRI physics playground (Bloch 1946; Liang and Lauterbur 2000). The Bloch equations are solved analytically in the rotating frame: after a 90-degree pulse the magnetization precesses while the transverse component decays with T2 and the longitudinal component recovers to M0 with T1, tracing a spiral on the Bloch sphere and producing the free induction decay whose Fourier transform is a Lorentzian. A brain-like phantom is imaged with the spin-echo equation S ~ rho (1 - e^{-TR/T1}) e^{-TE/T2} or the spoiled gradient-echo Ernst-angle equation; the image is transformed to k-space and reconstructed by a radix-2 2D inverse FFT, and discarding the outer k-space lines blurs it. Panel A is the Bloch sphere, Panel B the FID and spectrum, Panel C the image and its k-space. The numerics are the gate-tested closed-form sim.js: deterministic, no RNG. Invariants check FFT unitarity, conservation of |M| under pure precession and the T1/T2 relaxation laws, the spin-echo signal limits, the Ernst angle, the T1/T2 contrast inversion, and the partial-k-space blur.'
+tags: [medical-physics, mri, bloch, k-space, live-readout]
+difficulty: 5
+tier: hero
+hero_candidate: true
+renderer: canvas2d
+estimated_engagement_minutes: 6
+share_state_keys: [w, seq, kf]
+---
+
+# MRI: the Bloch Equations, the FID and k-Space Imaging
+
+## Physical setup
+
+Nuclear magnetic resonance imaging. Spins in a static field B0 are tipped by a radio-frequency pulse; their net magnetization then precesses and relaxes according to the Bloch equations. The decaying transverse magnetization is the measured signal (the free induction decay); its Fourier transform is the spectrum. An image is formed by encoding position into the precession frequency and phase so that the acquired data are samples of the image's 2D Fourier transform (k-space); the inverse transform reconstructs the image, and the contrast between tissues is controlled by the repetition time TR and echo time TE.
+
+## Governing equations
+
+Bloch (rotating frame, on resonance offset omega):
+
+  M_xy(t) = M_xy(0) e^{-t/T2} e^{i omega t},   M_z(t) = M0 + (M_z(0) - M0) e^{-t/T1}.
+
+Pure precession (T1, T2 -> infinity) is a rotation and conserves |M|. Spin-echo signal (Liang and Lauterbur):
+
+  S = rho (1 - e^{-TR/T1}) e^{-TE/T2},
+
+and spoiled gradient echo S = rho sin(a)(1 - E1)/(1 - cos(a) E1) e^{-TE/T2*}, E1 = e^{-TR/T1}, maximised at the Ernst angle a = arccos(E1). The image and k-space are related by the 2D discrete Fourier transform.
+
+## Numerical method
+
+The Bloch solution and the signal equations are evaluated analytically. The FID spectrum and the image/k-space transforms use an iterative radix-2 Cooley-Tukey FFT (rows then columns); partial acquisition zeroes the k-space lines outside a central square. The phantom is a 64 x 64 brain model with literature T1/T2 at ~1.5 T. The image, k-space and reconstruction are recomputed only on a control change and cached. Deterministic; seed not applicable.
+
+## Controls
+
+- `w`: weighting preset, T2 (long TR, long TE) / T1 (short TR, short TE) / proton density (long TR, short TE).
+- `seq`: pulse sequence, spin echo or gradient echo (Ernst-angle flip).
+- `kf`: percentage of k-space acquired, 6 to 100. Below 100 the image blurs (low-pass).
+- Reset, Pause/Play. Pause freezes the Bloch precession and FID sweep; the image is static.
+
+## Expected qualitative features
+
+- The magnetization spiralling on the Bloch sphere: transverse decay then longitudinal recovery to the pole.
+- A decaying-sinusoid FID and a single Lorentzian spectral peak.
+- T2 weighting making CSF bright; T1 weighting inverting the contrast so CSF is dark.
+- Discarding outer k-space blurring the image with Gibbs ringing.
+
+## Invariants and acceptance thresholds
+
+`invariants.test.mjs` (vitest, offline):
+
+1. The 2D FFT is unitary (inverse recovers the image to 1e-9); FFT of a delta is flat.
+2. Pure precession conserves |M| to 1e-10; Mz -> M0 and Mxy -> 0 under relaxation; |Mxy| = e^{-t/T2}.
+3. Spin-echo signal: TR>>T1, TE=0 -> rho; -> rho e^{-TE/T2}; increasing in TR, decreasing in TE; linear in rho.
+4. The spoiled gradient echo is maximised at the Ernst angle; -> 90 degrees as TR>>T1.
+5. T2 weighting makes CSF the brightest tissue; T1 weighting makes it the darkest (contrast inversion).
+6. The FID is a decaying sinusoid; its spectrum has a finite peak.
+7. Partial k-space reduces image energy (Parseval) and measurably changes the image.
+8. Determinism.
+
+Visual gate: SSIM > 0.92 against committed golden frames at 60 fps.
+
+## Limiting cases for verification
+
+- T1, T2 -> infinity: pure precession, |M| constant.
+- t >> T1: Mz -> M0; t >> T2: Mxy -> 0.
+- TR >> T1: the saturation factor (1 - e^{-TR/T1}) -> 1; the Ernst angle -> 90 degrees.
+- Full k-space: exact reconstruction; central-only k-space: a blurred image.
+
+## Visual fallback
+
+The FID, spectrum, image and k-space are static reads; the Bloch precession and FID sweep are animation only.
+
+## Citations
+
+- Bloch, F., Nuclear Induction, Phys. Rev. 70, 460 (1946): the Bloch equations.
+- Liang and Lauterbur, Principles of Magnetic Resonance Imaging (2000): the signal equations and k-space.
+
+## Stretch goals
+
+- Add slice-selective excitation and a gradient-echo EPI readout trajectory.
+- Add chemical-shift artefact and B0 inhomogeneity (T2 versus T2*).
+
+## Risk register
+
+- The phantom uses representative 1.5 T relaxation values, not a specific subject; the contrast ordering (and its T1/T2 inversion) is the load-bearing physical check, not absolute pixel values.

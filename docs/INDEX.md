@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[CT Reconstruction: Radon, Filtered Back-Projection and MLEM](../playgrounds/msc-y1/MFM-MP-ct-reconstruction-lab/index.html)** &nbsp; (verified, verified 2026-05-18T05:42:17Z)
+  X-ray computed tomography measures line integrals of the attenuation coefficient through the body at many angles (the Radon transform, displayed as the sinogram) and inverts them to recover the cross-sectional image. Two reconstruction routes are shown: analytic filtered back-projection, the workhorse of clinical CT, and the statistical MLEM iteration used i
+
 - **[Neutron Stars: the TOV Equation and the Mass-Radius Diagram](../playgrounds/msc-y1/MAA-SE-neutron-star-tov-equation/index.html)** &nbsp; (verified, verified 2026-05-18T05:29:48Z)
   A cold, static, spherically symmetric star in general relativity. Hydrostatic equilibrium is the Tolman-Oppenheimer-Volkoff equation; closing it needs an equation of state P(epsilon). Four are offered: an ideal degenerate free-neutron Fermi gas (the Oppenheimer-Volkoff 1939 model), a stiff and a soft polytrope anchored at nuclear saturation density, and self
 
@@ -803,9 +806,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (verified)
   Atmosphere is drawn as a gradient from dark space to ground. A primary cosmic ray streaks in from the top; the shower front then propagates downward and the Heitler cascade fans out into a bright-cored cone, colour-coded by particle energy (white at high energy near shower maximum, gold mid-cascade, blue once below the critical energy). The descending front 
 
-- **[CT Reconstruction: Radon, Filtered Back-Projection and MLEM](../playgrounds/msc-y1/MFM-MP-ct-reconstruction-lab/index.html)** &nbsp; (verified)
-  X-ray computed tomography measures line integrals of the attenuation coefficient through the body at many angles (the Radon transform, displayed as the sinogram) and inverts them to recover the cross-sectional image. Two reconstruction routes are shown: analytic filtered back-projection, the workhorse of clinical CT, and the statistical MLEM iteration used i
-
 - **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified)
   An oscillating electric (or magnetic) dipole, or a centre-fed half-wave antenna, at the origin with its axis vertical. The radiated power flows outward through the far zone.
 
@@ -844,6 +844,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
+
+- **[MRI: the Bloch Equations, the FID and k-Space Imaging](../playgrounds/msc-y1/MFM-MP-mri-bloch-equations-k-space/index.html)** &nbsp; (verified)
+  Nuclear magnetic resonance imaging. Spins in a static field B0 are tipped by a radio-frequency pulse; their net magnetization then precesses and relaxes according to the Bloch equations. The decaying transverse magnetization is the measured signal (the free induction decay); its Fourier transform is the spectrum. An image is formed by encoding position into 
 
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.

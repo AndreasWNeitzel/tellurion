@@ -494,7 +494,7 @@ docs/NEEDS-ATTENTION.md, move on.
   sinogram fill, FBP progressive (5 vs 180 angles), filter selector,
   vs MLEM. Radon/FBP Ram-Lak. Inv: Radon linear; FBP exact point;
   SNR~sqrt N; MLEM converges.
-- [ ] mri-bloch-equations-k-space : hero canvas2d. Bloch sphere spin,
+- [x] mri-bloch-equations-k-space : hero canvas2d. Bloch sphere spin,
   FID plus spectrum, k-space fill, 2D iFFT image; T1/T2 presets, SE vs
   GE. Inv: TR>>T1 Mz to M0; S prop rho e^-TE/T2 (1-e^-TR/T1); |M|
   1e-10.
