@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: jackson1998
 primary_chapter: 11
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Move toward a light source and it blueshifts; move away and it redshifts; move sideways and it still redshifts, a purely relativistic effect with no classical analogue.'
+one_paragraph: 'The relativistic Doppler effect combines the classical frequency shift with time dilation. Head-on the observed frequency is f_obs/f_s = sqrt((1+beta)/(1-beta)), the maximum blueshift; directly receding it is the reciprocal, the maximum redshift; and at 90 degrees there is still a redshift by 1/gamma, the transverse Doppler effect, which is pure time dilation and has no classical counterpart. The playground sweeps the source speed and viewing angle and shows the shifted spectrum and relativistic beaming. It underlies relativistic-jet brightness and cosmological-redshift intuition. Reference: Griffiths, Introduction to Electrodynamics, Ch. 12.'
 tags: [relativity, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -21,6 +21,61 @@ share_state_keys: []
 ---
 
 # Relativistic Doppler effect
+
+## Explainer
+
+### What you are looking at
+
+A moving light source shifts color, like sound pitch, but relativity
+adds a twist no classical wave has: even a source moving exactly
+sideways is redshifted, purely from time dilation. The playground
+sweeps the source speed and viewing angle and shows the shifted
+spectrum and the relativistic headlight beaming.
+
+### The relativistic Doppler factor
+
+For a source moving at $\beta = v/c$ seen at angle $\theta$ from its
+velocity, the observed frequency is
+
+$$\frac{f_\text{obs}}{f_s}
+  = \frac{1}{\gamma\,(1 - \beta\cos\theta)},
+  \qquad \gamma = (1-\beta^2)^{-1/2}.$$
+
+The $1/(1-\beta\cos\theta)$ is the classical wavefront-bunching factor;
+the extra $1/\gamma$ is time dilation, the relativistic piece.
+
+### Three named cases
+
+- Approaching head-on ($\theta=0$):
+  $f_\text{obs}/f_s = \sqrt{(1+\beta)/(1-\beta)}$, the maximum
+  blueshift.
+- Receding ($\theta=\pi$): the reciprocal,
+  $\sqrt{(1-\beta)/(1+\beta)}$, the maximum redshift.
+- Transverse ($\theta=\pi/2$): $f_\text{obs}/f_s = 1/\gamma < 1$. A
+  classical source moving sideways shows no shift; the relativistic
+  one is *redshifted* purely by time dilation, the transverse Doppler
+  effect, a direct experimental test of special relativity (Ives-
+  Stilwell).
+
+At high $\beta$ the same factor also beams the emission strongly
+forward (relativistic headlight). The playground shows all three
+regimes as you move the angle and speed.
+
+### Things to try
+
+- Sweep to head-on at high $\beta$ and watch the blueshift diverge as
+  $\sqrt{(1+\beta)/(1-\beta)}$.
+- Set $\theta=90^\circ$ and watch the pure $1/\gamma$ redshift appear
+  (no classical analogue).
+- Compare front vs back: the asymmetry is the basis of relativistic
+  beaming in jets.
+
+### Where this comes from
+
+The relativistic Doppler factor and the longitudinal/transverse limits
+follow Griffiths, *Introduction to Electrodynamics*, 5th ed.,
+Chapter 12, and Rindler, *Relativity: Special, General, and
+Cosmological*.
 
 ## Physical setup
 
