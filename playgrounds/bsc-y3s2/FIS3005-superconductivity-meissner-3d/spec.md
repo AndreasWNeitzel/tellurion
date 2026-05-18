@@ -19,6 +19,68 @@ share_state_keys: []
 
 # The Meissner Effect
 
+## Explainer
+
+### What you are looking at
+
+Cool a sphere below its superconducting transition in a magnetic field
+and it actively expels the field from its interior, the field lines
+bend around it as if it were a perfect diamagnet. This Meissner effect,
+not just "zero resistance", is the defining signature of
+superconductivity, and it is what levitates magnets over cooled
+samples.
+
+### Field expelled, with a thin skin
+
+A bulk superconductor enforces $\mathbf B = 0$ inside (it is not merely
+a perfect conductor; it expels even a pre-existing field). For a sphere
+of radius $R$ in a uniform field $B_0$ the exterior field is the
+perfect-diamagnet solution
+
+$$B_r = B_0\cos\theta\left(1 - \frac{R^3}{r^3}\right),
+  \qquad
+  B_\theta = -B_0\sin\theta\left(1 + \frac{R^3}{2r^3}\right),$$
+
+with $B = 0$ for $r < R$, exactly the pattern of a sphere with an
+induced opposing dipole. The expulsion is not perfectly abrupt: the
+field penetrates a thin surface layer and decays as
+
+$$B(x) = B_s\,e^{-x/\lambda},$$
+
+over the London penetration depth $\lambda$, where screening
+supercurrents flow.
+
+### Critical field and type I vs II
+
+Superconductivity is destroyed if the field exceeds a temperature-
+dependent critical field
+
+$$B_c(T) = B_{c0}\left[1 - (T/T_c)^2\right].$$
+
+Type I superconductors expel field completely up to $B_c$ then go
+normal abruptly. Type II admit quantized flux tubes (each carrying one
+flux quantum $\Phi_0 = h/2e$) in a vortex lattice between two critical
+fields, which is what lets them stay superconducting to very high
+fields (the basis of MRI and accelerator magnets). The playground
+shows the bent exterior field, the field-free core with its London
+skin, and the $B_c(T)$ boundary.
+
+### Things to try
+
+- Cool below $T_c$ in a field and watch the lines expelled, bending
+  around the sphere (the Meissner state).
+- Raise the field toward $B_c(T)$ and watch superconductivity collapse
+  (field floods in).
+- Switch to type II and watch quantized vortices thread the sample
+  between the two critical fields.
+
+### Where this comes from
+
+The Meissner expulsion, the perfect-diamagnet sphere solution, the
+London penetration depth, and the critical field follow Tinkham,
+*Introduction to Superconductivity*, and Ashcroft and Mermin, *Solid
+State Physics*, Chapter 34.
+
 ## Physical setup
 
 A superconducting sphere of radius R in a uniform applied field B0,
