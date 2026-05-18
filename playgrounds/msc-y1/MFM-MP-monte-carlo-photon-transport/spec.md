@@ -21,6 +21,60 @@ share_state_keys: [e, L, n]
 
 # Monte Carlo Photon Transport in a Tissue Slab
 
+## Explainer
+
+### What you are looking at
+
+X-rays entering tissue do not just attenuate, the dose actually rises
+for the first centimeter before falling, because scattered electrons
+carry energy forward. The only honest way to predict that is to follow
+millions of individual photons by Monte Carlo. The playground traces
+photon histories and tallies the depth-dose, the workhorse of medical
+physics.
+
+### Sampling the photon path
+
+Between interactions a photon flies a free path drawn from the
+exponential attenuation law (invert the Beer-Lambert CDF):
+
+$$s = -\frac{\ln U}{\mu}, \qquad U \sim \mathrm{Uniform}(0,1),$$
+
+with $\mu$ the linear attenuation coefficient. At each interaction it
+picks photoelectric absorption ($\propto E^{-3}$), Compton scattering,
+or Rayleigh scattering ($\propto E^{-2}$) in proportion to their cross
+sections, which is why the dominant process changes with energy.
+
+### Compton scattering and the dose build-up
+
+A Compton scatter shifts the photon to
+
+$$E' = \frac{E}{1 + (E/m_ec^2)(1 - \cos\theta)},$$
+
+with the angle drawn from the Klein-Nishina distribution (Kahn
+rejection). The recoil electron is not deposited at the interaction
+point; it ranges forward over the CSDA range
+$R \approx 0.412\,E_\mathrm{MeV}^{1.27}$ g/cm$^2$, depositing dose
+slightly downstream. That forward energy transport is exactly why the
+depth-dose curve builds up to a maximum before the uncollided fluence
+$e^{-\mu x}$ pulls it back down, the clinically crucial "skin-sparing"
+build-up region. Energy is booked exactly into deposited, transmitted,
+backscattered and leaked channels (a conservation check).
+
+### Things to try
+
+- Watch the depth-dose rise to a peak then fall (build-up then
+  attenuation), not a pure exponential.
+- Lower the energy and watch photoelectric absorption take over
+  (sharper, shallower dose); raise it and Compton dominates.
+- Confirm the energy tallies sum to the incident energy (Monte Carlo
+  conservation).
+
+### Where this comes from
+
+Monte Carlo photon transport, Klein-Nishina sampling, and the CSDA
+build-up follow Attix, *Introduction to Radiological Physics*, and
+Bielajew, *Fundamentals of the Monte Carlo Method*.
+
 ## Physical setup
 
 A pencil beam of monoenergetic photons normally incident on a slab of water (tissue equivalent). Each photon is transported by Monte Carlo: it travels a randomly sampled distance, then interacts by photoelectric absorption, Compton scattering or Rayleigh scattering, chosen in proportion to the cross sections. Compton scattering reduces the photon energy and changes its direction; the energy given to electrons is deposited slightly downstream, which is why the dose builds up before it attenuates. The relative importance of the three processes is strongly energy dependent.
