@@ -21,6 +21,62 @@ share_state_keys: [regime, dk, gamma]
 
 # Second-Harmonic Generation: Phase Matching and Conversion
 
+## Explainer
+
+### What you are looking at
+
+Shine intense red light into the right crystal and green comes out:
+second-harmonic generation, two photons of frequency $\omega$ fused
+into one at $2\omega$. Whether you get a strong green beam or almost
+nothing hinges on phase matching. The playground shows the conversion
+build up (or wash out) along the crystal.
+
+### The coupled waves
+
+A second-order nonlinearity couples the fundamental ($\omega$) and
+second-harmonic ($2\omega$) envelopes. In the undepleted-pump limit the
+generated $2\omega$ power along a crystal of length $L$ is
+
+$$P_{2\omega} \;\propto\; L^2\,
+  \mathrm{sinc}^2\!\left(\frac{\Delta k\,L}{2}\right),
+  \qquad \Delta k = k_{2\omega} - 2k_\omega.$$
+
+Everything is controlled by the wavevector mismatch $\Delta k$, which
+is nonzero because the crystal's refractive index differs at $\omega$
+and $2\omega$ (dispersion).
+
+### Phase matching
+
+If $\Delta k\ne0$ the two waves drift out of phase: the
+second-harmonic generated in the first half of the crystal is
+destructively cancelled by that from the second half, so the output
+oscillates with a tiny coherence length and stays weak. Make
+$\Delta k = 0$ (phase matching, achieved with birefringent crystals or
+periodic poling) and the contributions add in phase: the power grows as
+$L^2$, and with pump depletion the exact solution is
+
+$$P_{2\omega}(L) \propto \tanh^2(\kappa L),$$
+
+so the fundamental can be almost fully converted. The playground shows
+both regimes: the $\mathrm{sinc}^2$ ripple at finite mismatch, and the
+monotonic $\tanh^2$ rise (with the pump draining) at perfect phase
+matching.
+
+### Things to try
+
+- Set a finite $\Delta k$ and watch the green power oscillate with
+  depth and stay small (coherence-length-limited).
+- Tune to $\Delta k = 0$ and watch it grow as $L^2$, then saturate as
+  $\tanh^2$ when the pump depletes.
+- Increase the input intensity and see conversion efficiency rise (it
+  is a nonlinear, intensity-dependent process).
+
+### Where this comes from
+
+The coupled-wave equations, the $\mathrm{sinc}^2$ mismatch factor, and
+the phase-matched $\tanh^2$ conversion follow Armstrong et al. (1962)
+and Boyd, *Nonlinear Optics*, Chapter 2.
+
 ## Physical setup
 
 A fundamental beam at frequency w propagates through a crystal with a
