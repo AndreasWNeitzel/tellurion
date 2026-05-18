@@ -19,6 +19,65 @@ share_state_keys: []
 
 # Spin on the Bloch Sphere
 
+## Explainer
+
+### What you are looking at
+
+Every two-level quantum system (a spin, a qubit) is a unit arrow on a
+sphere, the Bloch sphere: north pole is state |0>, south pole is |1>,
+the equator is equal superpositions. A magnetic field makes that arrow
+precess; a resonant radio pulse tips it from pole to pole. This is the
+geometry behind NMR, MRI, and every gate on a qubit.
+
+### The equation of motion
+
+A static field $B_0\hat z$ plus a transverse RF field of amplitude
+$B_1$ rotating at $\omega_\text{rf}$ drives the Bloch vector
+$\mathbf S$ by
+
+$$\frac{d\mathbf S}{dt} = \boldsymbol\Omega(t)\times\mathbf S,
+  \qquad \boldsymbol\Omega = (\omega_1\cos\omega_\text{rf}t,\
+  \omega_1\sin\omega_\text{rf}t,\ \omega_0),$$
+
+with the Larmor frequency $\omega_0 = \gamma B_0$ and the Rabi
+frequency $\omega_1 = \gamma B_1$. Because the right side is a cross
+product, it is always perpendicular to $\mathbf S$, so $|\mathbf S|$ is
+exactly conserved: the state stays a pure state on the sphere, it only
+rotates.
+
+### Rabi oscillations and resonance
+
+Go into the frame rotating at $\omega_\text{rf}$ and the messy
+time-dependent field becomes a static effective field
+$(\omega_1, 0, \Delta)$ with detuning $\Delta = \omega_0 -
+\omega_\text{rf}$. Starting from the north pole, the population
+oscillates as
+
+$$S_z(t) = \frac{\Delta^2 + \omega_1^2\cos(\Omega_R t)}{\Omega_R^2},
+  \qquad \Omega_R = \sqrt{\omega_1^2 + \Delta^2}.$$
+
+On resonance ($\Delta = 0$) this is simply $S_z = \cos(\omega_1 t)$:
+the spin flips fully between |0> and |1> at the Rabi frequency, a
+clean qubit rotation. Off resonance the flip is incomplete and faster.
+A pulse of the right duration is a quantum gate (a $\pi$ pulse flips
+the bit, a $\pi/2$ pulse makes a superposition).
+
+### Things to try
+
+- Tune to resonance and watch the Bloch vector swing pole to pole
+  (full Rabi flopping).
+- Add detuning and watch the precession tighten into a small cone that
+  never reaches the south pole.
+- Stop an on-resonance drive after a quarter period: a $\pi/2$ pulse
+  leaving the spin on the equator (a superposition).
+
+### Where this comes from
+
+The Bloch equation, the rotating-frame reduction, and the Rabi
+formula follow Sakurai, *Modern Quantum Mechanics* (spin precession and
+magnetic resonance), and the standard NMR treatment in Griffiths,
+*Introduction to Quantum Mechanics*.
+
 ## Physical setup
 
 A two-level system (spin-1/2, qubit) in a static magnetic field
