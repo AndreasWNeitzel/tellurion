@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Schrodinger vs Dirac levels, fine-structure scaling, and Zitterbewegung"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">Z:</span><span class="value" id="readout-z">1</span>
+      <span class="label">1S Dirac:</span><span class="value" id="readout-e1">0</span>
+      <span class="label">FS n=2:</span><span class="value" id="readout-fs">0</span>
+      <span class="label">Z alpha:</span><span class="value" id="readout-za">0.007</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Hydrogen-like levels from the nonrelativistic Schrodinger equation against the exact Dirac-Coulomb spectrum: the relativistic levels are deeper and split by total angular momentum j (the fine structure, of order (Z alpha)^4), and a free Dirac packet trembles (Zitterbewegung) at angular frequency 2 m c^2 / hbar.
+      <em>Method:</em> closed-form Schrodinger and exact Dirac (Sommerfeld) levels; deterministic.
+      <em>Source:</em> Dirac 1928; Bjorken and Drell 1964; Schrodinger 1930; Sakurai.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">nuclear charge Z</span><input aria-label="atomic number Z" type="range" id="slider-z" min="1" max="118" step="1" value="50"><span class="value" id="value-z">50</span></div>
+    <div class="row"><span class="label">packet momentum p (mc)</span><input aria-label="momentum in mc, x100" type="range" id="slider-p" min="0" max="300" step="5" value="60"><span class="value" id="value-p">0.60</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -427,7 +427,7 @@ docs/NEEDS-ATTENTION.md, move on.
   Incident plane wave plus scattered spherical, dsigma/dOmega surface
   of revolution, partial-wave bars, delta_l, sigma_tot. Inv: optical
   thm Im f(0)=k sig/4pi 0.1%; hard-sphere sig to pi a^2; Born=FT[V].
-- [ ] dirac-equation-relativistic-hydrogen : advanced canvas2d.
+- [x] dirac-equation-relativistic-hydrogen : advanced canvas2d.
   Schrodinger vs Dirac levels, fine structure, Z slider,
   Zitterbewegung. Inv: ground -13.6eV 0.01%; FS prop a^4 prop Z^4.
 - [ ] second-quantization-bosons-fermions : advanced canvas2d. Level

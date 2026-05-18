@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Scattering Theory: Differential Cross Section and Partial Waves](../playgrounds/msc-y1/MF-AQM-scattering-theory-differential-cross-section/index.html)** &nbsp; (verified, verified 2026-05-18T02:09:13Z)
+  A monoenergetic beam (plane wave `e^{ikz}`) hits a fixed central potential and scatters into an outgoing spherical wave `f(theta) e^{ikr}/r`. The measured quantity is the differential cross section `dsigma/dOmega = |f(theta)|^2`, axially symmetric about the beam. For a hard sphere it is built from the partial-wave phase shifts; for a weak smooth potential th
+
 - **[Solar Cell: I-V, Fill Factor and the Shockley-Queisser Limit](../playgrounds/bsc-y3s2/FIS4026-solar-cell-generation-iv/index.html)** &nbsp; (verified, verified 2026-05-18T01:54:14Z)
   A p-n junction solar cell under illumination: photons with energy above the bandgap create electron-hole pairs, driving a photocurrent `I_L`. The cell behaves as a current source in parallel with a diode; the external load sets the operating voltage. Short circuit (`V = 0`) gives the full photocurrent; open circuit (`I = 0`) gives the maximum voltage `V_oc`;
 
@@ -824,8 +827,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
 
-- **[Scattering Theory: Differential Cross Section and Partial Waves](../playgrounds/msc-y1/MF-AQM-scattering-theory-differential-cross-section/index.html)** &nbsp; (verified)
-  A monoenergetic beam (plane wave `e^{ikz}`) hits a fixed central potential and scatters into an outgoing spherical wave `f(theta) e^{ikr}/r`. The measured quantity is the differential cross section `dsigma/dOmega = |f(theta)|^2`, axially symmetric about the beam. For a hard sphere it is built from the partial-wave phase shifts; for a weak smooth potential th
+- **[Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung](../playgrounds/msc-y1/MF-AQM-dirac-equation-relativistic-hydrogen/index.html)** &nbsp; (verified)
+  A hydrogen-like ion of nuclear charge `Z`. The Schrodinger equation gives a degenerate `-Ry Z^2/n^2` ladder; the Dirac equation adds the relativistic kinetic correction, spin-orbit coupling and the Darwin term, deepening every level and splitting it by the total angular momentum `j`. A free Dirac wave packet also exhibits Zitterbewegung, a rapid trembling of
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
