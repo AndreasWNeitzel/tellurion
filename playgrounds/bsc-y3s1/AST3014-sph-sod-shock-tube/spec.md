@@ -20,6 +20,67 @@ share_state_keys: []
 
 # SPH 1D Sod shock tube
 
+## Explainer
+
+### What you are looking at
+
+A tube with a membrane: dense high-pressure gas on the left, thin
+low-pressure gas on the right. Pop the membrane and three distinct
+features race apart at once. The exact answer is known, so the Sod
+shock tube is the pass/fail exam every fluid code must take. Here it is
+solved with smoothed-particle hydrodynamics (SPH) and overlaid on the
+analytic truth.
+
+### The equations
+
+The gas obeys the 1D Euler equations (mass, momentum, energy
+conservation):
+
+$$\partial_t\rho + \partial_x(\rho v) = 0,$$
+
+$$\partial_t(\rho v) + \partial_x(\rho v^2 + P) = 0,$$
+
+$$\partial_t(\rho E) + \partial_x\big[(\rho E + P)v\big] = 0,$$
+
+closed by the ideal-gas law $P = (\gamma-1)\rho u$ with
+$\gamma = 1.4$, starting from $(\rho,P) = (1, 1)$ on the left and
+$(0.125, 0.1)$ on the right.
+
+### The three waves
+
+Removing the membrane launches a Riemann problem whose exact solution
+has, left to right:
+
+- a rarefaction fan (the dense gas smoothly expands and accelerates),
+- a contact discontinuity (a jump in density but not pressure, the
+  original interface, carried along), and
+- a shock (an abrupt jump in density, pressure, and velocity plowing
+  into the thin gas).
+
+A good solver must place all three correctly. SPH represents the fluid
+as moving particles; it captures the shock and rarefaction well but
+tends to smear the contact discontinuity, which is exactly the kind of
+behavior this benchmark is designed to expose. The playground evolves
+the particles and draws the analytic solution underneath so the match
+(and the smearing) is visible.
+
+### Things to try
+
+- Watch the shock move fastest to the right, the contact behind it,
+  the rarefaction fanning left.
+- Compare the SPH density to the analytic curve at the contact: the
+  smoothing length sets how sharp it can be.
+- Note pressure is continuous across the contact but density is not,
+  the defining signature of a contact discontinuity.
+
+### Where this comes from
+
+The Euler equations, the Sod initial data, and the exact
+rarefaction-contact-shock Riemann solution follow Sod (1978) and Toro,
+*Riemann Solvers and Numerical Methods for Fluid Dynamics*, with the
+SPH method from Monaghan, *Smoothed Particle Hydrodynamics* (ARAA
+1992).
+
 ## Physical setup
 
 The Sod shock tube is the canonical compressible-fluid benchmark. A membrane
