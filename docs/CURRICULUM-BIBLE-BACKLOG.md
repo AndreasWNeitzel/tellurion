@@ -465,7 +465,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 20: M:F Particle Physics (Griffiths, Halzen-Martin)
 
-- [ ] standard-model-particle-zoo : hero canvas2d. SM chart, click cards
+- [x] standard-model-particle-zoo : hero canvas2d. SM chart, click cards
   (mass/spin/charge/lifetime), force toggle, decay-chain animator. PDG
   embedded. Inv: charge/lepton/baryon conserved; PDG matched.
 - [ ] feynman-diagram-builder-qed : advanced canvas2d. Draw vertices/

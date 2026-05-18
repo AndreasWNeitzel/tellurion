@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Standard Model Particle Zoo: PDG Data and Conservation Laws</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Standard Model Particle Zoo: PDG Data and Conservation Laws</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Standard Model chart, the selected particle card, and a decay-chain conservation check">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">particle:</span><span class="value" id="readout-p">electron</span>
+      <span class="label">mass:</span><span class="value" id="readout-m">0.511 MeV</span>
+      <span class="label">Q:</span><span class="value" id="readout-q">-1</span>
+      <span class="label">decay:</span><span class="value" id="readout-d">allowed</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      The Standard Model: six quarks and six leptons in three generations, the gauge bosons and the Higgs, with PDG masses, charges and spins; a decay-chain checker confirms electric charge, baryon number and lepton flavour are conserved and the decay is kinematically allowed.
+      <em>Method:</em> embedded PDG 2024 data plus an additive-quantum-number checker; Canvas2D, deterministic.
+      <em>Source:</em> PDG 2024 (Navas et al.); Griffiths; Halzen and Martin.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">force filter</span><select aria-label="highlight particles feeling a force" id="select-force" style="grid-column: span 2;"><option value="none">no filter</option><option value="strong">strong</option><option value="em">electromagnetic</option><option value="weak">weak</option></select></div>
+    <div class="row"><span class="label">decay</span><select aria-label="decay chain to check" id="select-decay" style="grid-column: span 2;"></select></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

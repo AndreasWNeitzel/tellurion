@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Spontaneous Symmetry Breaking: the Mexican-Hat Potential](../playgrounds/msc-y1/MF-QFT-symmetry-breaking-mexican-hat/index.html)** &nbsp; (verified, verified 2026-05-18T03:58:43Z)
+  A complex scalar field `phi` with a wine-bottle potential. The symmetric point `phi = 0` is an unstable maximum, so the field rolls down to the circular trough (the brim) and settles at one phase, spontaneously breaking the rotational `U(1)` symmetry. The radial oscillation costs energy (the Higgs); the free slide around the brim costs none (the massless Gol
+
 - **[Casimir Effect: Zero-Point Modes and the d^-4 Pressure](../playgrounds/msc-y1/MF-QFT-casimir-effect-zero-point-energy/index.html)** &nbsp; (verified, verified 2026-05-18T03:43:33Z)
   Two parallel perfectly conducting plates a distance d apart in vacuum. The electromagnetic field still has zero-point energy in every mode, but the plates only permit modes whose half-integer wavelengths fit the gap. Removing the excluded long-wavelength modes lowers the energy between the plates relative to outside, and the imbalance is a real attractive pr
 
@@ -854,8 +857,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
 
-- **[Spontaneous Symmetry Breaking: the Mexican-Hat Potential](../playgrounds/msc-y1/MF-QFT-symmetry-breaking-mexican-hat/index.html)** &nbsp; (verified)
-  A complex scalar field `phi` with a wine-bottle potential. The symmetric point `phi = 0` is an unstable maximum, so the field rolls down to the circular trough (the brim) and settles at one phase, spontaneously breaking the rotational `U(1)` symmetry. The radial oscillation costs energy (the Higgs); the free slide around the brim costs none (the massless Gol
+- **[Standard Model Particle Zoo: PDG Data and Conservation Laws](../playgrounds/msc-y1/MF-PP-standard-model-particle-zoo/index.html)** &nbsp; (verified)
+  The Standard Model has twelve matter fermions (six quarks and six leptons in three generations), four gauge bosons and the Higgs. Each carries fixed quantum numbers; a decay is permitted only if every additive number (electric charge, baryon number, the three lepton-flavour numbers) is conserved and the products are lighter than the parent.
 
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified)
   Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.
