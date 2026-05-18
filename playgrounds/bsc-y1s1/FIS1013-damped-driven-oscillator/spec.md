@@ -20,6 +20,77 @@ share_state_keys: []
 
 # Damped, driven oscillator and the resonance curve
 
+## Explainer
+
+### What you are looking at
+
+A mass on a spring, with friction, pushed by a steady sinusoidal force.
+Sweep the push frequency and the steady swing amplitude rises to a
+sharp peak then falls away. That peak is resonance, the reason a swing
+goes high when you push it in time and the reason bridges, glasses, and
+circuits have frequencies you must not hit.
+
+### The equation
+
+Newton's law for the displacement $x$ gives a driven, damped
+oscillator:
+
+$$\ddot x + 2\gamma\,\dot x + \omega_0^2\,x = F_0\cos(\omega t).$$
+
+The terms are: $\omega_0^2 x$ the spring restoring force (natural
+frequency $\omega_0$), $2\gamma\dot x$ the friction (damping rate
+$\gamma$), and $F_0\cos(\omega t)$ the external push at frequency
+$\omega$.
+
+### The steady-state response
+
+After transients die, the mass oscillates at the *drive* frequency
+$\omega$, not its own, with amplitude
+
+$$A(\omega) = \frac{F_0}
+  {\sqrt{(\omega_0^2 - \omega^2)^2 + (2\gamma\omega)^2}},$$
+
+and it lags the force by
+
+$$\varphi(\omega) = \operatorname{atan2}\!\big(2\gamma\omega,\;
+  \omega_0^2 - \omega^2\big).$$
+
+When the drive is slow the mass moves with the force (small lag). Near
+$\omega_0$ the denominator of $A$ gets small and the amplitude spikes.
+Well above $\omega_0$ the mass cannot keep up and lags by half a cycle.
+
+### Resonance and the quality factor
+
+The amplitude peak is not exactly at $\omega_0$ but slightly below, at
+
+$$\omega_r = \omega_0\sqrt{1 - 2(\gamma/\omega_0)^2},$$
+
+and the sharpness of the peak is set by the quality factor
+
+$$Q = \frac{\omega_0}{2\gamma}.$$
+
+High $Q$ (weak damping) gives a tall, narrow resonance that rings for
+a long time; low $Q$ gives a broad, flat hump. The playground draws
+$A(\omega)$ and $\varphi(\omega)$ live as you change $\gamma$, so you
+watch the peak sharpen and the phase flip through $90^\circ$ at
+resonance.
+
+### Things to try
+
+- Lower the damping and watch the resonance peak grow tall and narrow
+  (high $Q$).
+- Drive exactly at $\omega_0$ and note the response lags the force by
+  a quarter cycle ($90^\circ$).
+- Drive far above $\omega_0$ and see the amplitude collapse with a
+  half-cycle lag.
+
+### Where this comes from
+
+The driven-damped equation, the amplitude and phase response, the
+resonance frequency, and the quality factor follow Marion and
+Thornton, *Classical Dynamics of Particles and Systems*, Chapter 3,
+and Strogatz, *Nonlinear Dynamics and Chaos*, 2nd ed., Chapter 7.
+
 ## Physical setup
 
 A single mass on a spring with linear damping, driven sinusoidally:

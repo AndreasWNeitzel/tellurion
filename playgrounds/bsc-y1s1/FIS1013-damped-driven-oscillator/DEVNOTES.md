@@ -22,3 +22,7 @@ of the ODE + analytic steady-state curve. Pure local sim.js.
 - npx vitest run invariants.test.mjs   (6 tests)
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was text-only).
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
