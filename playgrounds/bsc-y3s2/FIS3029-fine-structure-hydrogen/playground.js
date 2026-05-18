@@ -2,12 +2,19 @@ import { bohrEnergy, fineStructureDelta, fsLevel } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rF = document.getElementById('readout-f');
 const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
 const sM = document.getElementById('slider-m'), vM = document.getElementById('value-m');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { nMax: 3, mag: 3000 }; let running = true;
+// Reference capture: this is a static diagram (no time evolution), so the five
+// golden frames must differ by the pedagogically central variable. Sweep the
+// fine-structure magnification from nearly-unresolved to wide-open so the
+// alpha^2 j-splitting fans apart frame by frame. Render-neutral to live use
+// (only active when ?capture= is set).
+if (CAPTURE_NAME) { st.mag = Math.round(1000 + CAPTURE_FRAC * 8000); }
 sN.addEventListener('input', () => { st.nMax = parseInt(sN.value); vN.textContent = st.nMax; });
 sM.addEventListener('input', () => { st.mag = parseInt(sM.value); vM.textContent = st.mag; });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
