@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Tidal disruption near a massive primary
 
+## Explainer
+
+### What you are looking at
+
+A loosely bound clump (a comet, a small moon) swings close to a massive
+body. Far out it holds itself together by its own gravity; inside a
+critical distance the planet's tidal pull wins and shreds it into a
+stream. This is how Shoemaker-Levy 9 was torn into a string of
+fragments before hitting Jupiter, and how Saturn's rings stay rings.
+
+### Why tides pull things apart
+
+Gravity weakens with distance, so the near side of the clump is pulled
+toward the primary harder than the far side. That difference, the tidal
+force, stretches the clump along the line to the primary. It is
+balanced by the clump's own self-gravity holding it together. The
+playground integrates 80 mutually attracting particles on an eccentric
+orbit:
+
+$$\ddot{\mathbf r}_i = -\frac{G M_p\,\mathbf r_i}{|\mathbf r_i|^3}
+  \; - \; \text{(softened self-gravity toward the cloud centre)},$$
+
+with a softening length so particles do not collapse to a singular
+point.
+
+### The Roche limit
+
+Set the tidal stretching equal to the self-gravity at the clump's
+surface and you get a critical distance, the Roche limit. For an
+equal-density fluid satellite,
+
+$$r_R \approx 2.44\,R_\text{primary}.$$
+
+Inside $r_R$ the clump cannot hold together no matter how it is shaped;
+outside it survives. The playground puts the clump on an orbit that
+dips inside and back out, so you watch it stretch into a tidal stream
+near perihelion and (if it stays outside) re-gather. It is why no large
+moon orbits within a few planetary radii and why ring systems sit where
+they do.
+
+### Things to try
+
+- Start the orbit so perihelion is just outside $r_R$: the clump
+  survives, only mildly distorted.
+- Lower perihelion inside $r_R = 2.44$ and watch it draw out into a
+  stream that does not recombine.
+- Note the stream leads and trails along the orbit, exactly the
+  Shoemaker-Levy 9 morphology.
+
+### Where this comes from
+
+The tidal-versus-self-gravity balance and the Roche limit follow
+Roche (1849) and Binney and Tremaine, *Galactic Dynamics*, 2nd ed.,
+Section 8.2, with the tidal-disruption framework in Hurley and Tout
+(1998).
+
 ## Physical setup
 
 A cloud of 80 self-gravitating test particles ("a fluid satellite") on an eccentric orbit around a heavy point-mass primary. When the orbit takes the cloud inside the Roche radius, the tidal force from the primary overwhelms the satellite's self-gravity and stretches it into a stream. Outside the Roche radius the cloud holds together.
