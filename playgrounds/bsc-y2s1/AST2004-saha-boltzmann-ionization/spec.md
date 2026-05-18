@@ -9,8 +9,8 @@ supporting_ucs: [MAA-SP]
 curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 8
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Hydrogen does not wait until kT reaches 13.6 eV to ionize; the sheer number of free-electron states tips it over at a far lower temperature.'
+one_paragraph: 'Ionization is a contest between binding energy and entropy: there are vastly more ways to be a free electron plus an ion than a single bound atom. The Saha equation captures that balance, and with charge neutrality it gives a simple quadratic for the ionized fraction of pure hydrogen in equilibrium. The playground solves it as you vary temperature and density and sweeps the fraction from neutral, through the steep transition, to fully ionized. The half-ionization point sits near 0.05 times chi/kB rather than chi/kB, because the phase-space prefactor T^(3/2)/n strongly favours dissociation, which is why stellar photospheres ionize at a few thousand kelvin instead of 158000. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 8.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
