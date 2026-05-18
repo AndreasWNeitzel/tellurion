@@ -20,6 +20,66 @@ share_state_keys: []
 
 # Runge phenomenon and the Chebyshev cure
 
+## Explainer
+
+### What you are looking at
+
+The natural instinct, fit more points with a higher-degree polynomial
+to get a better approximation, can spectacularly backfire. The
+playground interpolates the same smooth function on evenly spaced
+points and watches the fit explode near the edges, then fixes it by
+moving the points, not raising the degree.
+
+### The Runge phenomenon
+
+Interpolate the deceptively gentle Runge function
+
+$$f(x) = \frac{1}{1 + 25 x^2}, \qquad x\in[-1,1],$$
+
+with a degree-$n$ polynomial through $n+1$ equally spaced nodes. As
+$n$ grows the polynomial does not converge: it develops violent
+oscillations near $\pm1$ whose amplitude diverges. The reason is the
+interpolation error formula
+
+$$f(x)-p_n(x)
+  = \frac{f^{(n+1)}(\xi)}{(n+1)!}\prod_{i}(x-x_i),$$
+
+where the node polynomial $\prod(x-x_i)$ for equispaced nodes grows
+exponentially toward the interval ends (the Lebesgue constant blows
+up like $2^n/n$). More points make it worse, not better.
+
+### The Chebyshev cure
+
+The fix is not a higher degree or a different polynomial; it is where
+you sample. Put the nodes at the Chebyshev points
+
+$$x_k = \cos\!\frac{(2k+1)\pi}{2(n+1)},$$
+
+which cluster near the endpoints. This is exactly the node
+distribution that minimizes the maximum of $|\prod(x-x_i)|$
+(equioscillation), so the Lebesgue constant grows only like
+$\log n$ and the interpolant converges uniformly for any smooth $f$.
+The playground overlays the equispaced fit (wild edge oscillations)
+and the Chebyshev fit (clean convergence) at the same degree, the
+canonical lesson that node placement, not polynomial order, controls
+interpolation, and the basis of spectral methods.
+
+### Things to try
+
+- Raise the degree with equispaced nodes and watch the edge
+  oscillations grow without bound (Runge).
+- Switch to Chebyshev nodes at the same degree and watch the fit
+  hug the curve everywhere.
+- Compare the node-spacing: equispaced uniform vs Chebyshev clustered
+  at the ends.
+
+### Where this comes from
+
+The Runge phenomenon, the Lebesgue constant and Chebyshev
+interpolation follow Trefethen, *Approximation Theory and
+Approximation Practice*, and Press et al., *Numerical Recipes*,
+Chapter 3.
+
 ## Physical setup
 
 Polynomial interpolation of the Runge function
