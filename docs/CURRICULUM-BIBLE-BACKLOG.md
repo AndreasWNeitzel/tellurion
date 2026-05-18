@@ -459,7 +459,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] casimir-effect-zero-point-energy : medium canvas2d. Plates, allowed
   modes, missing modes red, F~d^-4 log-log. Inv: F prop d^-4 0.1%;
   1.3e-3 Pa at 1um 1%.
-- [ ] symmetry-breaking-mexican-hat : medium webgl2. V(|phi|) 3D, ball
+- [x] symmetry-breaking-mexican-hat : medium webgl2. V(|phi|) 3D, ball
   rolls to brim, Goldstone vs Higgs, T restores symmetry. Inv: min at
   v=sqrt(mu2/2lam) 0.1%; mH=sqrt(2 mu2).
 

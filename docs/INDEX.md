@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Casimir Effect: Zero-Point Modes and the d^-4 Pressure](../playgrounds/msc-y1/MF-QFT-casimir-effect-zero-point-energy/index.html)** &nbsp; (verified, verified 2026-05-18T03:43:33Z)
+  Two parallel perfectly conducting plates a distance d apart in vacuum. The electromagnetic field still has zero-point energy in every mode, but the plates only permit modes whose half-integer wavelengths fit the gap. Removing the excluded long-wavelength modes lowers the energy between the plates relative to outside, and the imbalance is a real attractive pr
+
 - **[Klein-Gordon Wave Packet: Mass, Dispersion and the Light Cone](../playgrounds/msc-y1/MF-QFT-klein-gordon-wavepacket-mass/index.html)** &nbsp; (verified, verified 2026-05-18T03:31:56Z)
   A free relativistic scalar field obeys the Klein-Gordon equation, so a wave packet is a superposition of modes with omega(k) = sqrt(k^2 + m^2). Mass makes the dispersion nonlinear, so the packet both moves slower than light and spreads; a massless field is dispersion-free and propagates exactly on the light cone. The superluminal phase velocity transmits no 
 
@@ -767,9 +770,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Brownian Motion and the Diffusion Law](../playgrounds/bsc-y2s1/FIS2014-brownian-motion-diffusion/index.html)** &nbsp; (verified)
   A dilute suspension of Brownian particles released from a common origin in a two-dimensional fluid. Each particle performs an independent random walk driven by molecular collisions; one tracer is drawn large with its trail and the surrounding solvent agitation.
 
-- **[Casimir Effect: Zero-Point Modes and the d^-4 Pressure](../playgrounds/msc-y1/MF-QFT-casimir-effect-zero-point-energy/index.html)** &nbsp; (verified)
-  Two parallel perfectly conducting plates a distance d apart in vacuum. The electromagnetic field still has zero-point energy in every mode, but the plates only permit modes whose half-integer wavelengths fit the gap. Removing the excluded long-wavelength modes lowers the energy between the plates relative to outside, and the imbalance is a real attractive pr
-
 - **[Central-Force Orbit Gallery](../playgrounds/bsc-y1s1/FIS1013-central-force-orbit-gallery/index.html)** &nbsp; (verified)
   A unit-mass particle moves in a central potential `V(r) = k r^p` (with `k` signed so the well is attractive for every `p`; `p = 0` is the logarithmic potential). The orbit is drawn about a luminous force centre with a fading trail; a secondary panel shows the effective potential and the energy.
 
@@ -853,6 +853,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
+
+- **[Spontaneous Symmetry Breaking: the Mexican-Hat Potential](../playgrounds/msc-y1/MF-QFT-symmetry-breaking-mexican-hat/index.html)** &nbsp; (verified)
+  A complex scalar field `phi` with a wine-bottle potential. The symmetric point `phi = 0` is an unstable maximum, so the field rolls down to the circular trough (the brim) and settles at one phase, spontaneously breaking the rotational `U(1)` symmetry. The radial oscillation costs energy (the Higgs); the free slide around the brim costs none (the massless Gol
 
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified)
   Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spontaneous Symmetry Breaking: the Mexican-Hat Potential</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Spontaneous Symmetry Breaking: the Mexican-Hat Potential</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Mexican-hat potential surface, the radial slice with the Higgs and Goldstone modes, and the order parameter vs temperature">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">v:</span><span class="value" id="readout-v">1.41</span>
+      <span class="label">m_H:</span><span class="value" id="readout-mh">2.00</span>
+      <span class="label">m_G:</span><span class="value" id="readout-mg">0</span>
+      <span class="label">T/T_c:</span><span class="value" id="readout-t">0.00</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A complex scalar with V = -mu^2 |phi|^2 + lambda |phi|^4: the field rolls off the unstable peak to the brim at v = sqrt(mu^2/2 lambda), picking a phase (spontaneous symmetry breaking). The radial mode is the Higgs (m_H = sqrt(2) mu) and the flat angular mode is the massless Goldstone; heating restores the symmetry at T_c.
+      <em>Method:</em> closed-form potential and vacuum, Canvas2D pseudo-3D surface (no WebGL; see spec); deterministic.
+      <em>Source:</em> Goldstone 1961; Higgs 1964; Peskin and Schroeder Ch. 11.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">mu^2</span><input aria-label="mu squared, x100" type="range" id="slider-mu" min="50" max="500" step="10" value="200"><span class="value" id="value-mu">2.00</span></div>
+    <div class="row"><span class="label">lambda</span><input aria-label="quartic coupling, x100" type="range" id="slider-lam" min="20" max="200" step="5" value="50"><span class="value" id="value-lam">0.50</span></div>
+    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="roll">roll to the brim (break symmetry)</option><option value="heat">heat up (restore symmetry)</option></select></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
