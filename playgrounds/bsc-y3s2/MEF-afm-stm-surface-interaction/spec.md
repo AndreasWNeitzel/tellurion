@@ -21,6 +21,62 @@ share_state_keys: [spm_mode, gap, work_function]
 
 # AFM and STM: Tip-Surface Interaction
 
+## Explainer
+
+### What you are looking at
+
+Drag a needle-sharp tip a few atoms above a surface and you can map
+individual atoms, because two signals (the tip-sample force, and the
+quantum tunneling current) change enormously over an angstrom. That
+ferocious distance sensitivity is what gives scanning-probe microscopes
+their atomic resolution. The playground shows both contrast mechanisms
+versus tip height.
+
+### STM: exponential tunneling current
+
+A bias voltage drives electrons to tunnel across the vacuum gap of
+width $d$. The barrier is classically forbidden, so the current decays
+exponentially with gap:
+
+$$I \;\propto\; V\,e^{-2\kappa d},
+  \qquad \kappa = \frac{\sqrt{2m\phi}}{\hbar},$$
+
+with $\phi$ the work function. For a typical $\phi$, the current
+changes by about a factor of 10 per angstrom of height. That single
+exponential is why STM resolves single atoms: a one-atom bump under the
+tip swamps everything else in the current.
+
+### AFM: the tip-sample force
+
+When tunneling is not available (insulators), atomic-force microscopy
+measures the mechanical interaction, a Lennard-Jones-like force,
+long-range van der Waals attraction turning to hard Pauli repulsion on
+contact:
+
+$$F(d) \;\propto\; \left(\frac{\sigma}{d}\right)^{13}
+  - \left(\frac{\sigma}{d}\right)^{7}.$$
+
+A cantilever senses this; in tapping/non-contact mode the resonance
+frequency shifts with the force gradient $dF/dd$, again steeply
+distance-dependent. The playground sweeps the tip height and shows the
+tunneling current and the force/force-gradient, so the exponential and
+the LJ well are explicit.
+
+### Things to try
+
+- Lower the tip and watch the STM current rise exponentially (a
+  decade per angstrom): the basis of constant-current imaging.
+- Approach in AFM mode and watch attraction switch to steep repulsion
+  through the LJ minimum.
+- Compare the two: STM needs a conductor; AFM works on anything but
+  reads force, not current.
+
+### Where this comes from
+
+The exponential tunneling current and the Lennard-Jones tip-sample
+force follow the scanning-probe treatment in Binnig and Rohrer's STM
+work (1982) and Sarid, *Scanning Force Microscopy*.
+
 ## Physical setup
 
 A sharp probe tip is brought within angstroms of a surface and
