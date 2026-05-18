@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Kuramoto oscillators and synchronization
 
+## Explainer
+
+### What you are looking at
+
+A crowd of oscillators, each ticking at its own natural rate, weakly
+pulled toward the group. Below a coupling threshold they drift
+independently (noise). Above it they suddenly snap into lockstep. This
+is the Kuramoto model, the canonical explanation for spontaneous
+synchronization: fireflies flashing together, pacemaker cells, clapping
+audiences, power grids.
+
+### The model
+
+Each oscillator $i$ has a phase $\theta_i$ and an intrinsic frequency
+$\omega_i$ (drawn from a Lorentzian of width $\gamma$). It is nudged by
+the sine of its phase difference with every other:
+
+$$\dot\theta_i = \omega_i
+  + \frac{K}{N}\sum_{j}\sin(\theta_j - \theta_i).$$
+
+Coherence is measured by the order parameter
+
+$$r\,e^{i\psi} = \frac1N\sum_j e^{i\theta_j},
+  \qquad 0 \le r \le 1,$$
+
+where $r = 0$ means total disorder and $r = 1$ means perfect
+synchrony. Using $r$ and the mean phase $\psi$, the coupling rewrites
+cleanly as $\dot\theta_i = \omega_i + K r\sin(\psi - \theta_i)$: every
+oscillator feels the mean field, with a pull proportional to the
+current coherence $r$ itself.
+
+### The synchronization transition
+
+That self-consistency ($r$ drives the coupling, the coupling sets $r$)
+produces a sharp phase transition at a critical coupling $K_c$
+proportional to the frequency spread $\gamma$. Below $K_c$ the only
+solution is $r = 0$ (incoherence). Above $K_c$ a synchronized cluster
+nucleates and $r$ grows continuously from zero, exactly like an order
+parameter in a second-order phase transition. The playground sweeps
+$K$ so you watch $r$ jump from near zero to near one as the population
+locks.
+
+### Things to try
+
+- Set $K$ low and watch the phases smear uniformly, $r \approx 0$.
+- Raise $K$ through $K_c$ and watch a synchronized arc form, $r$
+  climbing toward 1.
+- Widen the frequency spread $\gamma$ and see $K_c$ rise: more diverse
+  oscillators are harder to synchronize.
+
+### Where this comes from
+
+The Kuramoto model, the order parameter, the mean-field reduction, and
+the synchronization transition follow Strogatz, *Nonlinear Dynamics and
+Chaos*, 2nd ed. (synchronization), after Kuramoto (1975).
+
 ## Physical setup
 
 N = 128 phase oscillators with intrinsic frequencies omega_i drawn from a
