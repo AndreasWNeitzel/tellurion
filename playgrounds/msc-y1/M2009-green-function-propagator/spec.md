@@ -21,6 +21,71 @@ share_state_keys: [src, p, xp]
 
 # Green's Function: Building a Solution from Tent Responses
 
+## Explainer
+
+### What you are looking at
+
+A Green's function is the answer to one simple question: how does the
+system respond to a single pinprick? Once you know the response to a
+spike at every location, you can build the response to any load at all
+by adding up scaled copies. The playground shows the tent-shaped spike
+response and how a general source is assembled from those tents.
+
+### The defining problem
+
+Take the steady-state equation with fixed ends:
+
+$$-u''(x) = f(x), \qquad u(0) = u(L) = 0.$$
+
+The Green's function $G(x,x')$ is the solution when the source is a
+unit impulse at one point $x'$:
+
+$$-\frac{\partial^2 G}{\partial x^2} = \delta(x - x'),
+  \qquad G(0,x') = G(L,x') = 0.$$
+
+Solving gives a tent: two straight lines that are zero at both walls
+and meet at a kink at $x'$,
+
+$$G(x,x') = \begin{cases}
+  \dfrac{x\,(L - x')}{L}, & x \le x',\\[2mm]
+  \dfrac{x'\,(L - x)}{L}, & x \ge x'.
+\end{cases}$$
+
+The unit-slope jump in $\partial G/\partial x$ across $x'$ is exactly
+the delta source; the function is symmetric, $G(x,x') = G(x',x)$
+(reciprocity, the same physics whether you push at A and measure at B
+or vice versa).
+
+### Superposition: the whole point
+
+Because the operator is linear, an arbitrary source is just a
+continuous pile of impulses, so the solution is the same pile of
+tents weighted by the local source strength:
+
+$$u(x) = \int_0^L G(x,x')\,f(x')\,dx'.$$
+
+This is the universal trick behind propagators in field theory,
+impulse responses in signals, and inverse problems: solve once for a
+point source, integrate for everything else. The playground lets you
+move the source point and shape $f$, and watch the solution rebuild
+itself as the superposition integral.
+
+### Things to try
+
+- Move the impulse location $x'$ and watch the kink in the tent track
+  it while the ends stay pinned at zero.
+- Swap a localized $f$ for a broad one and watch the solution become
+  the weighted sum of tents.
+- Note the symmetry $G(x,x') = G(x',x)$: source and observation point
+  are interchangeable.
+
+### Where this comes from
+
+The Green's function for the boundary-value problem, its reciprocity,
+and the superposition integral follow Arfken and Weber, *Mathematical
+Methods for Physicists*, Chapter 10, and Morse and Feshbach, *Methods
+of Theoretical Physics*.
+
 ## Physical setup
 
 The boundary-value problem -u'' = f on [0, L] with u(0) = u(L) = 0. The Green's function G(x, x') is the solution when the source is a single unit spike at x'. It is the tent that is zero at both walls and has a kink at x'. Because the operator is linear, the solution for any source is the superposition of these tents weighted by the source value at each point, u(x) = integral G(x, x') f(x') dx'.
