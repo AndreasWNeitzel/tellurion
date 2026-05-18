@@ -1468,8 +1468,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Compton vs Inverse Compton
 `playgrounds/bsc-y3s2/AST3016-compton-vs-inverse-compton` | AST3016 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Two photon-electron scattering channels on the same energy axis.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Compton scattering exchanges energy between photons and electrons, and which way it flows depends on who moves faster. In ordinary forward Compton scattering a photon strikes a nearly-at-rest electron and loses energy, capped at E'' = E / (1 + 2E/m_e c^2) for a head-on bounce. In inverse Compton a relativistic electron of Lorentz factor gamma hits a low-energy photon and boosts it by roughly gamma^2, to E_typ ~ (4/3) gamma^2 E in the Thomson limit. The playground puts both channels on one energy axis as you vary photon energy and gamma, flagging when Klein-Nishina suppression sets in. Inverse Compton powers much of the X-ray and gamma-ray sky. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 7.
+- Hook: A photon hitting a slow electron loses energy; a photon hit by a fast electron gains a factor gamma-squared. Same physics, opposite direction.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [blocker] spec.md contains placeholder markers: hook and one_paragraph = 'STATUS: needs_hook/needs_paragraph'. Replace with actual text.
@@ -1479,8 +1479,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### 1D Radiative Transfer (Uniform Slab)
 `playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab` | AST3016 | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Slab with constant $S$ and finite $\tau$; closed-form $I(\tau) = I_{in} e^{-\tau} + S(1-e^{-\tau})$. Source: Rybicki-Lightman Ch. 1 (`rybickilightman1979`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The equation of radiative transfer for a uniform slab with constant source function S and optical depth tau has a clean closed form: I(tau) = I_in e^(-tau) + S(1 - e^(-tau)). The emerging intensity interpolates between the background I_in (transparent slab, tau much less than 1) and the slab''s own source function S (opaque slab, tau much greater than 1). The playground sweeps tau and the source contrast and shows the line going into emission or absorption, which is exactly why a spectral line appears bright or dark depending on the temperature structure. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 1.
+- Hook: Look through a glowing slab: what you see is the background dimmed by absorption plus the slab''s own glow, blended by how thick it is.
 - Review verdict: [first-pass] CONFIRMED CODE FIX + RECAPTURE
 
 ### Relativistic Beaming Pattern
@@ -1495,22 +1495,22 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Synchrotron Spectrum
 `playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum` | AST3016 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A relativistic electron gyrating in a magnetic field beams synchrotron radiation into a narrow forward cone, producing a single broad spectral hump peaking near its critical frequency. Real sources hold a power-law distribution of electron energies, and summing their humps gives a power-law radio spectrum whose slope maps directly onto the electron energy slope. The playground shows the single-electron spectrum and the ensemble power-law as you change the field strength and the electron distribution. This is the emission of radio galaxies, supernova remnants, and pulsar wind nebulae. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 6.
+- Hook: One electron spiralling in a magnetic field radiates a single broad hump; a power-law swarm of them radiates a power-law spectrum, the fingerprint of cosmic-ray sources.
 - Review verdict: [first-pass] CONFIRMED CODE FIX + RECAPTURE
 
 ### BBN Light-Element Abundances
 `playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy` | AST3017 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11 (`liddle-cosmology`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Big Bang nucleosynthesis forged the light elements in the first few minutes. Their final abundances, the helium mass fraction Y_p, deuterium D/H, and lithium-7, depend almost entirely on one parameter: the baryon-to-photon ratio eta. The playground shows empirical fits of these abundances against eta_10, so you can dial the baryon density and watch helium barely move while deuterium drops steeply, then see where all three curves agree, the consistency test that pins down the cosmic baryon content. The stubborn lithium mismatch is the standing lithium problem. Reference: Liddle, An Introduction to Modern Cosmology, Ch. 11.
+- Hook: The first three minutes set the universe''s helium and deuterium; both are fixed by a single number, the baryon-to-photon ratio.
 - Review verdict: [first-pass] NEEDS CODE FIX + RECAPTURE
 
 ### Cosmic Distance Ladder
 `playgrounds/bsc-y3s2/AST3017-distance-ladder-toy` | AST3017 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Four-rung overlap and error propagation. Source: Carroll-Ostlie Ch. 24 (`carroll-ostlie`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Cosmic distances are measured by a ladder: parallax calibrates nearby stars, those calibrate Cepheid variables, Cepheids calibrate Type Ia supernovae, and supernovae reach cosmological distances. Each rung is anchored in the overlap region of the one below it, so its zero-point error feeds forward. The playground builds a four-rung ladder and propagates the uncertainty up it, showing how a small calibration shift at the bottom moves the inferred Hubble constant at the top. That error budget is the core of the current Hubble-tension debate. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 24.
+- Hook: No single method reaches across the universe; you bootstrap from parallax to Cepheids to supernovae, and the errors compound at every handoff.
 - Review verdict: [first-pass] NEEDS CODE FIX + RECAPTURE
 
 ### Friedmann Cosmography
@@ -1545,8 +1545,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Gravitational Redshift in Schwarzschild
 `playgrounds/bsc-y3s2/AST3017-gravitational-redshift` | AST3017 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: A photon emitted at radius r_em outside a Schwarzschild black hole of mass M (geometric units G = c = 1) is observed at infinity with frequency f_obs = f_em sqrt(1 - 2M / r_em). At the horizon r = 2M the redshift factor vanishes, corresponding to infinite redshift.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A photon emitted at radius r outside a Schwarzschild mass M climbs out of the gravitational potential and reaches a distant observer at lower frequency: f_obs = f_em sqrt(1 - 2M/r) in geometric units. The shift grows as the emission point approaches the horizon r = 2M, where it diverges and the photon is infinitely redshifted, the spectral signature of the horizon itself. The playground moves the emission radius and shows the redshift factor and the shifted line. The same effect, tiny but measured, makes orbiting GPS clocks run fast relative to the ground. Reference: Hartle, Gravity: An Introduction to Einstein''s General Relativity, Ch. 9.
+- Hook: Climbing out of a gravity well costs a photon energy; light leaving near a black hole arrives redder, and at the horizon it never arrives at all.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY + CRITICAL: MISSING READOUT
 
 ### Gravitational-Wave Chirp Sonification
@@ -1571,8 +1571,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Schwarzschild Light Bending
 `playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics` | AST3017 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by the impact parameter $b = L / E$; photons with $|b| < b_\text{crit} \equiv 3 \sqrt{3} \approx 5.196$ cross the photon sphere at $r = 3$ and are swallowed by the horizon at $r = 2$, while photons with $|b| > b_\text{crit}$ are deflected. Photons with $|b|$ just above $b_\text{crit}$ loop the photon sphere multiple times before escaping; photons with $|b|$ far above $b_\text{crit}$ are weakly deflected by $\sim 4M/b$ rad.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Light in Schwarzschild geometry follows null geodesics fixed entirely by the impact parameter b = L/E. The playground fires a plane wave of photons past a non-rotating black hole: rays with b above the critical value 3 sqrt 3 (about 5.2 M) bend and escape, weakly deflected by about 4M/b far out; rays below it cross the photon sphere at r = 3M and fall through the horizon. Rays just above critical loop the photon sphere several times before escaping, the origin of the bright photon ring in black-hole images. It is integrated symplectically so the conserved energy and angular momentum stay clean. Reference: Hartle, Gravity: An Introduction to Einstein''s General Relativity, Ch. 9.
+- Hook: Aim a light ray near a black hole: outside a critical impact parameter it bends and escapes, inside it spirals through the photon sphere and is swallowed.
 - Review verdict: [first-pass] NEEDS CODE FIX + RECAPTURE
 
 ### Shapiro Time Delay
