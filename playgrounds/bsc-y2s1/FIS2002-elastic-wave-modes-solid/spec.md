@@ -19,6 +19,63 @@ share_state_keys: []
 
 # Elastic Waves: P and S Modes in a Solid
 
+## Explainer
+
+### What you are looking at
+
+Strike a solid and two different waves race out from the impact: a fast
+push-pull wave (P) and a slower shake-sideways wave (S). A detector off
+to the side records the P arrival first, then the S arrival some time
+later. That P-minus-S delay is exactly how seismologists locate
+earthquakes.
+
+### The equation
+
+An isotropic elastic solid obeys the Navier-Cauchy elastodynamic
+equation:
+
+$$\rho\,\ddot{\mathbf u} = (\lambda + \mu)\,\nabla(\nabla\cdot\mathbf u)
+  + \mu\,\nabla^2\mathbf u,$$
+
+where $\mathbf u$ is the displacement and $\lambda, \mu$ are the Lame
+elastic constants. Split the motion into its divergence part and its
+curl part and it separates into two independent waves.
+
+### Two wave speeds
+
+- P (primary, compressional): carries $\nabla\cdot\mathbf u$, the
+  material is pushed and pulled along the travel direction. Speed
+  $v_P = \sqrt{(\lambda + 2\mu)/\rho}$, the faster one.
+- S (secondary, shear): carries $\nabla\times\mathbf u$, the material
+  shakes transverse to travel. Speed $v_S = \sqrt{\mu/\rho}$, always
+  slower (and zero in a fluid, which is why fluids transmit no S
+  waves).
+
+At a station a distance $d$ away the shear arrival lags the
+compressional one by
+
+$$\Delta t = d\left(\frac{1}{v_S} - \frac{1}{v_P}\right).$$
+
+Read $\Delta t$ off a single seismogram and you get the distance $d$ to
+the source; combine several stations and you triangulate the
+epicenter. The playground excites a source and shows the expanding P
+and S fronts and the station record.
+
+### Things to try
+
+- Watch the P front outrun the S front, the gap widening with
+  distance.
+- Change the Lame parameters and see both speeds shift while
+  $v_P > v_S$ always holds.
+- Note the station trace: a first P kick, then a larger S arrival,
+  separated by $\Delta t$.
+
+### Where this comes from
+
+The Navier-Cauchy equation and the P and S wave speeds follow Landau
+and Lifshitz, *Theory of Elasticity* (Course of Theoretical Physics,
+Vol. 7), Sections 22 to 24.
+
 ## Physical setup
 
 A homogeneous isotropic elastic medium. A localised source (point
