@@ -21,6 +21,72 @@ share_state_keys: [pot, n, lam]
 
 # Inflation: Slow Roll, Superhorizon Fluctuations, n_s
 
+## Explainer
+
+### What you are looking at
+
+The galaxies we see grew from quantum jitter. During inflation,
+microscopic quantum fluctuations of the inflaton field were stretched
+to cosmic size and frozen in, becoming the seeds of all structure.
+The playground rolls the inflaton, stretches a fluctuation past the
+horizon, and shows the predicted spectrum landing on the CMB
+constraint plane.
+
+### Slow roll
+
+The inflaton $\phi$ rolls down a flat potential under Hubble
+friction:
+
+$$\ddot\phi + 3H\dot\phi + V'(\phi) = 0,
+  \qquad
+  H^2 \approx \frac{V(\phi)}{3 M_\mathrm{Pl}^2}.$$
+
+While the potential is flat the field creeps and the universe
+inflates quasi-exponentially. Flatness is quantified by the
+slow-roll parameters
+
+$$\epsilon = \frac{M_\mathrm{Pl}^2}{2}
+  \left(\frac{V'}{V}\right)^2,
+  \qquad
+  \eta = M_\mathrm{Pl}^2\,\frac{V''}{V},$$
+
+with inflation ending when $\epsilon\to1$.
+
+### Freezing fluctuations and the spectrum
+
+Each Fourier mode of the quantum field oscillates while its
+wavelength is smaller than the Hubble radius. As inflation stretches
+it, the mode crosses outside the horizon ($k = aH$) and freezes: its
+amplitude becomes a classical, nearly constant perturbation. Modes
+that exit earlier are stretched more, so the frozen amplitude depends
+weakly on scale, giving a nearly scale-invariant power spectrum with
+tilt and tensor ratio
+
+$$n_s = 1 - 6\epsilon + 2\eta,
+  \qquad
+  r = 16\,\epsilon.$$
+
+These are exactly the numbers Planck measures ($n_s\approx0.965$,
+$r<0.06$), so different potentials predict different $(n_s,r)$ points
+and inflation becomes testable. The playground sweeps the potential
+shape and shows the field rolling, a mode being stretched and frozen,
+and the predicted $(n_s,r)$ on the observational plane.
+
+### Things to try
+
+- Watch a fluctuation oscillate, then freeze the instant its
+  wavelength is stretched past the horizon.
+- Change the potential and watch the predicted $(n_s,r)$ move into
+  or out of the Planck-allowed region.
+- Steepen the potential (larger $\epsilon$) and watch $r$ rise (more
+  primordial gravitational waves).
+
+### Where this comes from
+
+Slow-roll inflation, horizon-exit freezing, and the $(n_s,r)$
+predictions follow Baumann, *Cosmology* (2022), and Mukhanov,
+*Physical Foundations of Cosmology*.
+
 ## Physical setup
 
 A scalar inflaton field slowly rolls down a nearly flat potential,
