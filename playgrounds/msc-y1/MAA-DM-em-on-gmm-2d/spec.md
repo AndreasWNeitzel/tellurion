@@ -20,6 +20,74 @@ share_state_keys: []
 
 # EM on a 2D Gaussian mixture
 
+## Explainer
+
+### What you are looking at
+
+You are given a cloud of points that is secretly a blend of a few
+overlapping Gaussian blobs, but you are told neither which point came
+from which blob nor the blobs' shapes. Expectation-Maximization
+recovers both by a chicken-and-egg loop: guess the blobs, softly
+assign points, refit the blobs, repeat. The playground animates the
+ellipses snapping onto the data.
+
+### The model
+
+The data is modeled as a Gaussian mixture: each point comes from one
+of $K$ Gaussians chosen with probability $\pi_k$,
+
+$$p(\mathbf x) = \sum_{k=1}^{K}\pi_k\,
+  \mathcal N\!\big(\mathbf x \mid \boldsymbol\mu_k,\Sigma_k\big).$$
+
+We want the parameters $\{\pi_k,\boldsymbol\mu_k,\Sigma_k\}$ that
+maximize the data likelihood, but the hidden assignment of points to
+components makes the direct maximization intractable.
+
+### The EM loop
+
+EM iterates two steps that each strictly increase the likelihood:
+
+E-step (soft assignment): given current parameters, compute the
+responsibility of component $k$ for point $i$,
+
+$$\gamma_{ik}
+  = \frac{\pi_k\,\mathcal N(\mathbf x_i\mid
+  \boldsymbol\mu_k,\Sigma_k)}
+  {\sum_{j}\pi_j\,\mathcal N(\mathbf x_i\mid
+  \boldsymbol\mu_j,\Sigma_j)}.$$
+
+M-step (refit): re-estimate each component as a responsibility-
+weighted fit, with $N_k=\sum_i\gamma_{ik}$,
+
+$$\boldsymbol\mu_k = \frac{1}{N_k}\sum_i\gamma_{ik}\mathbf x_i,
+  \quad
+  \Sigma_k = \frac{1}{N_k}\sum_i\gamma_{ik}
+  (\mathbf x_i-\boldsymbol\mu_k)(\mathbf x_i-\boldsymbol\mu_k)^\top,
+  \quad
+  \pi_k = \frac{N_k}{N}.$$
+
+The log-likelihood is guaranteed to increase (or stay equal) every
+iteration, so the ellipses converge, but only to a local optimum,
+which is why the result depends on the initialization (a key
+practical caveat, and why k-means++ style seeding matters). The
+playground shows the soft responsibilities as point coloring and the
+covariance ellipses tightening onto the true blobs.
+
+### Things to try
+
+- Watch the ellipses start as round guesses and converge to the true
+  tilted, scaled blobs as the log-likelihood climbs monotonically.
+- Re-initialize from a bad guess and watch EM get stuck in a poor
+  local optimum (label-swapped or merged components).
+- Note the soft (not hard) assignment: points between two blobs are
+  colored a blend, unlike k-means.
+
+### Where this comes from
+
+The EM algorithm for Gaussian mixtures and its monotone-likelihood
+guarantee follow Dempster, Laird and Rubin (1977) and Bishop,
+*Pattern Recognition and Machine Learning*, Chapter 9.
+
 ## Physical setup
 
 A 2D scatter of N = 600 points drawn from a 3-component Gaussian mixture with known means, covariances, and mixing weights. The EM algorithm tries to recover those parameters using only the data, alternating soft cluster assignment (E-step) and parameter refit (M-step).
