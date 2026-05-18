@@ -22,6 +22,57 @@ share_state_keys: []
 
 # Parallel transport on a sphere
 
+## Explainer
+
+### What you are looking at
+
+Carry an arrow around a triangle drawn on a globe, always keeping it
+"as parallel as possible" to itself. On a flat plane it returns
+unchanged. On the sphere it comes back rotated, by an angle exactly
+equal to the area you enclosed. That rotation-from-curvature is the
+geometric heart of gauge theory and general relativity.
+
+### Parallel transport and holonomy
+
+Parallel transport moves a vector along a path without turning it
+relative to the surface (zero covariant derivative along the path). On
+a curved surface a round trip leaves a leftover rotation, the holonomy.
+For a spherical triangle with one vertex at the pole, the other two at
+colatitude $\alpha$ separated by longitude $\beta$, the rotation is the
+enclosed solid angle
+
+$$\Omega = (1 - \cos\alpha)\,\beta.$$
+
+### Gauss-Bonnet: curvature = angle excess
+
+This is the Gauss-Bonnet theorem in miniature. A triangle's interior
+angles sum to more than $\pi$ on a sphere, and that excess equals the
+integrated curvature over the enclosed region:
+
+$$A + B + C - \pi = \iint K\,dA = \Omega,$$
+
+which on the unit sphere ($K = 1$) is simply the enclosed area. So the
+arrow's leftover rotation, the triangle's angle excess, and the
+enclosed area are all the same number. Flat space has zero excess and
+zero holonomy; the deviation measures curvature intrinsically. The same
+idea (a vector rotated by transport around a loop) is how curvature is
+defined in general relativity and how the Berry phase arises in quantum
+mechanics. The playground transports a vector around an adjustable
+spherical triangle and shows the holonomy match the area.
+
+### Things to try
+
+- Shrink the triangle: the holonomy shrinks toward zero (small patches
+  look flat).
+- Grow it toward a hemisphere and watch the rotation approach a large
+  fraction of a full turn.
+- Confirm the leftover rotation equals the angle excess $A+B+C-\pi$.
+
+### Where this comes from
+
+Parallel transport, holonomy, and the Gauss-Bonnet angle-excess result
+follow Carroll, *Spacetime and Geometry*, Chapter 3.
+
 ## Physical setup
 
 A spherical triangle on the unit sphere with one vertex at the north pole and the other two at colatitude $\alpha$ separated by longitude $\beta$. Parallel-transporting a vector around the triangle rotates it by the enclosed solid angle
