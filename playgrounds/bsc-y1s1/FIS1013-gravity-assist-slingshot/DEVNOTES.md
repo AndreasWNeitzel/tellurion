@@ -30,3 +30,7 @@ Mueller, White, Fundamentals of Astrodynamics, Ch. 8.
 - npx vitest run invariants.test.mjs
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was caption-only).
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  1 passed + visual 5/5 x3. Shipped.
