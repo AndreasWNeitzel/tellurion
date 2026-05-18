@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: ashcroft-mermin
 primary_chapter: 8
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Fill a square-lattice band with electrons and the Fermi surface morphs: a small pocket at low filling, a perfectly nested square at half-filling, an inverted pocket when full.'
+one_paragraph: 'Tight-binding electrons on a square lattice have the dispersion E(k) = -2t (cos k_x + cos k_y). The Fermi surface, the constant-energy contour at the filling level, changes shape dramatically as electrons are added: a small closed loop around the zone centre at low filling, the perfectly nested square diagonal at half-filling (the nesting that drives antiferromagnetism in the Hubbard model), then an inverted pocket near the zone corner when nearly full. The playground samples the band and draws the Fermi surface and the density of states as you tune the filling. Reference: Ashcroft and Mermin, Solid State Physics, Ch. 10.'
 tags: [solid-state, animation, live-readout]
 difficulty: 3
 tier: simple
