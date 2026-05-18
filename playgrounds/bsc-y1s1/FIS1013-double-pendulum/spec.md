@@ -20,6 +20,140 @@ share_state_keys: []
 
 # Double Pendulum Phase Portrait and Energy Conservation
 
+## Explainer
+
+### What you are looking at
+
+Hang a rod from a pin so it can swing. Now hang a second rod from the
+free end of the first. Give the pair a push. The lower rod whips around
+in a way that never quite repeats, and if you start it twice from
+almost-identical positions the two motions look completely different
+after only a few seconds. That sensitivity is the whole point: the
+double pendulum is the simplest everyday machine that is genuinely
+chaotic.
+
+The left panel is the physical pendulum. The right panel is the *phase
+portrait*: instead of plotting the angle against time, it plots the
+first angle $\theta_1$ against how fast that angle is changing,
+$\dot\theta_1$. A smooth closed loop there means orderly, repeating
+motion; a smeared cloud means chaos.
+
+### The one idea: energy decides the motion
+
+Two numbers describe the configuration: $\theta_1$, the angle of the
+top rod from straight down, and $\theta_2$, the angle of the bottom
+rod from straight down. The motion is driven entirely by a competition
+between two energies.
+
+The potential energy is just gravity bookkeeping, how high each mass
+sits:
+
+$$V = -(m_1 + m_2)\,g\,l_1 \cos\theta_1 \; - \; m_2\,g\,l_2 \cos\theta_2$$
+
+Lower is more negative, so the system always tries to fall. The
+kinetic energy is the energy of motion. It has the two pieces you
+expect (each mass moving) plus a cross term, because the bottom rod is
+bolted to the swinging top rod and the two motions add:
+
+$$T = \tfrac{1}{2}(m_1 + m_2) l_1^2 \dot\theta_1^2
+   + \tfrac{1}{2} m_2 l_2^2 \dot\theta_2^2
+   + m_2 l_1 l_2 \dot\theta_1 \dot\theta_2 \cos(\theta_1 - \theta_2)$$
+
+That last term, the one with $\cos(\theta_1-\theta_2)$, is the coupling.
+It is the reason the two rods cannot be treated separately and the
+reason the system is hard.
+
+### Where the equations of motion come from
+
+You do not guess the equations; you derive them. Write down the
+Lagrangian $L = T - V$ and apply the Euler-Lagrange equation once for
+each angle:
+
+$$\frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot\theta_i}\right)
+  - \frac{\partial L}{\partial \theta_i} = 0,
+  \qquad i = 1, 2.$$
+
+Grinding through the derivatives gives two coupled second-order
+equations. Solving them for the accelerations (the quantities the
+computer needs) yields:
+
+$$\ddot\theta_1 = \frac{m_2 l_2 \sin(\theta_1-\theta_2)\big(\dot\theta_1^2 l_1
+  + \dot\theta_2^2 l_2 \cos(\theta_1-\theta_2)\big)
+  - (m_1+m_2) g \sin\theta_1 + m_2 g \sin\theta_2 \cos(\theta_1-\theta_2)}
+  {l_1\big(m_1 + m_2 \sin^2(\theta_1-\theta_2)\big)}$$
+
+$$\ddot\theta_2 = \frac{(m_1+m_2)\big(g \sin\theta_1 \cos(\theta_1-\theta_2)
+  - l_1 \dot\theta_1^2\big)
+  - m_2 l_2 \sin(\theta_1-\theta_2)\,\dot\theta_2^2 \cos(\theta_1-\theta_2)
+  - (m_1+m_2) g \sin\theta_2}
+  {l_2\big(m_1 + m_2 \sin^2(\theta_1-\theta_2)\big)}$$
+
+These look fearsome, but every term is one of three kinds: a gravity
+term (has $g$), a centrifugal-type term (has $\dot\theta^2$), or the
+coupling (has $\theta_1-\theta_2$). The denominator never hits zero
+because $m_1 + m_2 \sin^2(\theta_1-\theta_2) \ge m_1 > 0$.
+
+### Why it is chaotic
+
+Nothing here is random. The equations are exact and deterministic. The
+trouble is that the right-hand sides are nonlinear (sines, cosines,
+squared speeds), so two trajectories that start a hair apart are pulled
+apart exponentially fast. Quantitatively, a small separation
+$\delta(t)$ grows like
+
+$$\delta(t) \sim \delta(0)\, e^{\lambda t}$$
+
+with $\lambda > 0$ (a positive Lyapunov exponent) once the energy is
+high enough. Below that energy the motion is quasi-periodic and the
+phase portrait is a clean band; above it, chaotic windows open and the
+band breaks into a cloud. Same equations, different energy.
+
+### What conserves and what does not
+
+With no friction, total energy is exactly constant:
+
+$$E = T + V = \text{const}.$$
+
+This is the honesty check. Angular momentum about the pin is **not**
+conserved, because gravity supplies an external torque (it singles out
+the downward direction and breaks rotational symmetry). The live
+readout shows both, so you can watch $E$ hold while $L_z$ wanders.
+
+### How the computer solves it, and why the energy readout matters
+
+There is no formula for $\theta_1(t)$; you step the equations forward
+in tiny time slices $\Delta t$ with a velocity-Verlet integrator (a
+time-reversible scheme that, unlike naive Euler stepping, does not
+secretly pump energy into or out of the system). The honest test of a
+chaos simulation is whether the conserved quantity stays conserved, so
+the panel displays the relative energy drift $|\Delta E / E|$ live. It
+holds near $10^{-5}$ to $10^{-3}$ for sensible starts. If you drag a
+bob far out and force the energy past the playground cap, that number
+climbs and turns warm-colored, which is the simulation telling you it
+no longer trusts its own answer. The chaos you see is real only while
+that number stays small.
+
+### Things to try
+
+- Start the two rods nearly straight down and watch the smooth band in
+  the phase portrait: this is the orderly, near-linear regime, with two
+  normal-mode frequencies $\omega_\pm = \sqrt{g\,(2 \pm \sqrt{2})}$ for
+  the equal-mass, equal-length case.
+- Drag the lower bob outward to raise the energy and watch the band
+  dissolve into a cloud as the chaotic regime takes over.
+- Shrink $m_2$ toward zero: the coupling term vanishes and the device
+  collapses to a single simple pendulum of period
+  $T = 2\pi\sqrt{l_1/g}$.
+
+### Where this comes from
+
+The problem statement and reference implementation follow Newman,
+*Computational Physics* (2013), Exercise 8.15, "The double pendulum."
+The phase-portrait reading, the linearization that gives the
+small-amplitude normal modes, and the energy-as-conserved-quantity
+picture follow Strogatz, *Nonlinear Dynamics and Chaos*, 2nd ed.
+(2015), Sections 6.3, 6.5, and 6.7.
+
 ## Physical setup
 
 A planar double pendulum consists of two rigid massless rods of lengths l1 and l2, joined at a pivot, with point masses m1 and m2 hanging from the free end of each rod. The system is suspended from a fixed support and evolves under gravity in two dimensions (the plane of the page). The state is described by two generalized coordinates: theta1, the angle of the first rod from the downward vertical, and theta2, the angle of the second rod from the downward vertical. This system is a canonical nonlinear dynamical system: at low energies the motion is quasi-periodic, threading a 2D torus in phase space; at intermediate energies chaotic windows appear; at high energies, one or both rods rotate fully over the support.

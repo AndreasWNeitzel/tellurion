@@ -42,3 +42,7 @@ count.
 - live-readout check: HTTP-serve (tests/helpers/static-server.mjs),
   not file:// (ES modules CORS-block); read #readout-* textContent.
 - visual gate only if #stage changes (this sweep was text-only).
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
