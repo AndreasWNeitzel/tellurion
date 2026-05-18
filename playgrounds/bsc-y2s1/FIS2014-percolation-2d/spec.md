@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2014
 supporting_ucs: [FIS2018, MAA-NM]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Fill a grid one random site at a time; nothing connects across it until a sharp threshold, then a single cluster suddenly spans the whole thing.'
+one_paragraph: 'Each site of the lattice is occupied independently with probability p. Below the critical p_c (about 0.5927 for the square lattice) only small isolated clusters exist; right at p_c a giant cluster first spans the system and the size of the largest cluster jumps sharply. The playground occupies sites, labels the connected clusters, and highlights the largest as you tune p, so the percolation transition and the scale-free critical cluster appear directly. Percolation is the minimal model of a connectivity transition, from fluid through porous rock to the robustness of networks and the spread of fire. Reference: Stauffer and Aharony, Introduction to Percolation Theory; Newman and Ziff 2000.'
 tags: [thermodynamics, statistical-physics, animation, live-readout]
 difficulty: 3
 tier: simple
