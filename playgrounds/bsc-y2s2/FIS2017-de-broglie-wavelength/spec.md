@@ -22,6 +22,59 @@ share_state_keys: []
 
 # de Broglie wavelength vs kinetic energy
 
+## Explainer
+
+### What you are looking at
+
+Every particle has a wavelength. A slow electron has one comparable to
+an atom (so it diffracts off crystals); a thrown baseball has one
+absurdly tiny (so it never does). The playground plots that wavelength
+against kinetic energy for five species on log-log axes, and shows the
+double-slit pattern emerging dot by dot.
+
+### The de Broglie relation
+
+A particle of momentum $p$ has wavelength
+
+$$\lambda = \frac{h}{p} = \frac{hc}{pc},
+  \qquad pc = \sqrt{(T + mc^2)^2 - (mc^2)^2}.$$
+
+The relativistic momentum is used so the formula is correct in both
+limits:
+
+- Non-relativistic ($T \ll mc^2$): $p \approx \sqrt{2mT}$, so
+  $\lambda \propto T^{-1/2}$, a line of slope $-1/2$ on the log-log
+  plot.
+- Ultra-relativistic ($T \gg mc^2$): $\lambda \to hc/T$, the massless
+  photon limit, slope $-1$.
+
+The bend between the two regimes happens at $T \sim mc^2$, which is why
+the electron (rest energy 0.511 MeV) and the proton (938 MeV) curves
+turn over at very different energies.
+
+### Why it is real
+
+It is not a formal analogy: rejection-sampling incident particles
+through a fixed double slit, the binned hits build up the interference
+pattern $I(\theta) = \operatorname{sinc}^2(\pi a\sin\theta/\lambda)\,
+\cos^2(\pi d\sin\theta/\lambda)$, the exact same fringes light makes.
+Each particle lands as a single dot, yet the statistics trace out the
+wave. That is the heart of wave-particle duality.
+
+### Things to try
+
+- Lower the electron energy and watch $\lambda$ grow up toward atomic
+  scale (the regime electron microscopes and Davisson-Germer use).
+- Compare the photon (massless, slope $-1$ everywhere) to the
+  electron (slope $-1/2$ then bending to $-1$).
+- Watch the slit pattern build stochastically from single hits.
+
+### Where this comes from
+
+The de Broglie relation, the relativistic momentum, and the
+non-relativistic / photon limits follow Eisberg and Resnick,
+*Quantum Physics*, 2nd ed., Chapter 3, after de Broglie (1924).
+
 ## Physical setup
 
 A particle of rest mass $m$ and kinetic energy $T$ has a quantum wavelength
