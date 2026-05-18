@@ -21,3 +21,59 @@ share_state_keys: []
 ---
 # Engine cycle explorer
 Four idealized cycles on the PV plane: Otto, Diesel, Carnot, Stirling. Source: Callen Ch. 4-5 (`callen`).
+
+## Explainer
+
+### What you are looking at
+
+A heat engine takes a gas around a closed loop on the pressure-volume
+plane, taking in heat, doing work, dumping the rest. The playground
+draws four textbook loops (Otto, Diesel, Carnot, Stirling) so you can
+compare their shapes and efficiencies on the same axes. The area inside
+each loop is the net work per cycle.
+
+### The common rule
+
+For any closed cycle, the first law gives the net work as the enclosed
+area and the efficiency as work over heat absorbed:
+
+$$W = \oint P\,dV, \qquad \eta = \frac{W}{Q_\text{in}}
+  = 1 - \frac{Q_\text{out}}{Q_\text{in}}.$$
+
+No engine working between a hot reservoir $T_H$ and a cold one $T_C$
+can beat the Carnot bound
+
+$$\eta_\text{Carnot} = 1 - \frac{T_C}{T_H},$$
+
+a hard limit set by the second law, not by engineering.
+
+### The four cycles
+
+- Otto (gasoline engine): two adiabats and two constant-volume steps.
+  Efficiency $\eta = 1 - r^{1-\gamma}$ depends only on the compression
+  ratio $r$.
+- Diesel: adiabatic compression, constant-pressure heat addition; runs
+  at higher compression than Otto, hence its real-world efficiency.
+- Carnot: two isotherms and two adiabats; the rectangle in the
+  temperature-entropy plane, and the unbeatable efficiency ceiling.
+- Stirling: two isotherms and two constant-volume steps with a
+  regenerator; ideally also reaches the Carnot efficiency.
+
+The playground lets you change the operating parameters and watch the
+loop area (the work) and the efficiency change, and see every real
+cycle sit below the Carnot line.
+
+### Things to try
+
+- Raise the Otto compression ratio and watch the loop fatten and
+  efficiency climb toward, but never reach, Carnot.
+- Compare Carnot and Stirling at the same reservoirs: both touch the
+  $1 - T_C/T_H$ ceiling.
+- Note no loop ever encloses more work than the Carnot rectangle for
+  the same temperatures.
+
+### Where this comes from
+
+The cycle constructions, the work-as-area result, and the Carnot
+efficiency bound follow Callen, *Thermodynamics and an Introduction to
+Thermostatistics*, 2nd ed., Chapters 4 to 5.
