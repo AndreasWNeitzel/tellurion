@@ -20,6 +20,60 @@ share_state_keys: []
 
 # Perihelion precession in a Schwarzschild-like potential
 
+## Explainer
+
+### What you are looking at
+
+In Newtonian gravity a planet retraces the exact same ellipse forever.
+General relativity adds a tiny extra pull that makes the ellipse
+slowly rotate, so the point of closest approach (perihelion) creeps
+around. This is the famous anomalous precession of Mercury, the first
+triumph of general relativity. The playground exaggerates the effect
+so you can watch the orbit rosette.
+
+### Why a pure 1/r orbit closes
+
+For an inverse-square force the bound orbit is a closed ellipse: the
+radial oscillation period equals the orbital period exactly, so after
+one lap the planet is back where it started. Bertrand's theorem says
+only two central potentials ($\propto 1/r$ and $\propto r^2$) close
+like this; any other shape makes the orbit fail to close and precess.
+
+### The relativistic correction
+
+The orbit-averaged Schwarzschild metric adds an effective
+$1/r^3$ term to the potential, breaking the perfect $1/r$ form. The
+radial period no longer matches the angular period, and the
+perihelion advances by
+
+$$\Delta\varpi
+  = \frac{6\pi G M}{c^2\,a\,(1-e^2)}
+  \quad\text{per orbit},$$
+
+largest for orbits that are small ($a$), eccentric ($e\to1$), and
+close to a massive body. For Mercury this is 43 arcseconds per
+century, exactly the unexplained residual that Einstein's theory
+accounted for in 1915. The playground lets you dial up the
+correction strength and the eccentricity and watch the ellipse
+precess into a rosette, the same mechanism as any non-Keplerian
+central force.
+
+### Things to try
+
+- Turn the relativistic term off and confirm the orbit is a fixed,
+  closed ellipse (pure Kepler).
+- Turn it on and watch the perihelion advance each lap, tracing a
+  rosette.
+- Increase the eccentricity and watch the precession per orbit grow
+  (the $1/(1-e^2)$ factor): why Mercury, not the Earth, showed it
+  first.
+
+### Where this comes from
+
+The perihelion-precession formula and Bertrand's closed-orbit theorem
+follow Carroll and Ostlie, *An Introduction to Modern Astrophysics*,
+Chapter 4, and Hartle, *Gravity*, Chapter 9.
+
 ## Physical setup
 
 In pure Newtonian gravity, Bertrand's theorem says that the only closed bound orbits in central potentials are those of V(r) ~ 1/r and V(r) ~ r^2. Any departure from these forms causes the orbit to fail to close: the perihelion moves around with each revolution. The 1PN correction in the orbit-averaged Schwarzschild metric introduces an effective extra 1/r^3 term that breaks the 1/r form and produces a perihelion advance.
