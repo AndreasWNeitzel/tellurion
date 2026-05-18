@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Green's Function: Building a Solution from Tent Responses</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Green's Function: Building a Solution from Tent Responses</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="The source and the solution it produces, the draggable Green tent and the superposition that builds the solution, and the equation residual">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">source:</span><span class="value" id="readout-src">sine</span>
+      <span class="label">tent x':</span><span class="value" id="readout-xp">0.50</span>
+      <span class="label">residual:</span><span class="value" id="readout-res">0</span>
+      <span class="label">BC:</span><span class="value" id="readout-bc">0, 0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      To solve -u'' = f you can first solve it for a single spike at one point x'. That answer is the Green's function, a tent that is zero at both walls and has a kink where the spike sits. Any source is just a pile of spikes, so the full solution is the same pile of tents, each scaled by how strong the source is there: u(x) = integral G(x, x') f(x') dx'.
+      <em>Method:</em> closed-form tent Green's function, trapezoidal superposition, shared tridiagonal reference solve; Canvas2D, deterministic.
+      <em>Source:</em> Arfken, Weber and Harris, Mathematical Methods for Physicists.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">source f(x)</span><select aria-label="source profile" id="select-src" style="grid-column: span 2;"><option value="sine">sine mode</option><option value="box">box pulse</option><option value="point">point-like bump</option><option value="twobumps">two bumps</option></select></div>
+    <div class="row"><span class="label">source parameter</span><input aria-label="source parameter" type="range" id="slider-p" min="1" max="9" step="1" value="2"><span class="value" id="value-p">2</span></div>
+    <div class="row"><span class="label">tent position x'</span><input aria-label="Green tent source position, x100" type="range" id="slider-xp" min="4" max="96" step="1" value="50"><span class="value" id="value-xp">0.50</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

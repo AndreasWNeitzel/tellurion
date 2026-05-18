@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fourier Series: Convergence, Epicycles and the Gibbs Overshoot](../playgrounds/msc-y1/M2009-fourier-series-convergence-gibb/index.html)** &nbsp; (verified, verified 2026-05-18T07:20:47Z)
+  Any periodic function is a sum of sines and cosines. This playground takes a square, sawtooth or triangle wave on [-pi, pi], builds its N-term Fourier partial sum, and shows the same sum three ways: as a curve compared to the target, as a chain of rotating vectors whose tip traces it, and through its convergence behaviour (the Parseval energy and the Gibbs o
+
 - **[PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers](../playgrounds/msc-y1/M2009-pde-zoo-interactive/index.html)** &nbsp; (verified, verified 2026-05-18T07:03:19Z)
   One shared 1D grid on [0, 1] solving five canonical partial differential equations, each with the numerical scheme that suits it: the wave equation (hyperbolic, energy-conserving), the heat equation (parabolic, dissipative), the Laplace/Poisson equation (elliptic, steady), the time-dependent Schrodinger equation (dispersive, unitary) and Burgers' equation (n
 
@@ -830,9 +833,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified)
   Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
 
-- **[Fourier Series: Convergence, Epicycles and the Gibbs Overshoot](../playgrounds/msc-y1/M2009-fourier-series-convergence-gibb/index.html)** &nbsp; (verified)
-  Any periodic function is a sum of sines and cosines. This playground takes a square, sawtooth or triangle wave on [-pi, pi], builds its N-term Fourier partial sum, and shows the same sum three ways: as a curve compared to the target, as a chain of rotating vectors whose tip traces it, and through its convergence behaviour (the Parseval energy and the Gibbs o
-
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
   A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
 
@@ -850,6 +850,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (verified)
   A Jupiter-scale planet orbits a central star. A spacecraft enters on a hyperbolic trajectory; the user drags the periapsis distance and the relative approach angle. Inset shows the symmetric hyperbola in the planet rest frame; main panel shows the asymmetric solar-system-frame trajectory. Velocity arrows before and after make the energy change explicit. Pres
+
+- **[Green's Function: Building a Solution from Tent Responses](../playgrounds/msc-y1/M2009-green-function-propagator/index.html)** &nbsp; (verified)
+  The boundary-value problem -u'' = f on [0, L] with u(0) = u(L) = 0. The Green's function G(x, x') is the solution when the source is a single unit spike at x'. It is the tent that is zero at both walls and has a kink at x'. Because the operator is linear, the solution for any source is the superposition of these tents weighted by the source value at each poi
 
 - **[Hydrogen in Electric and Magnetic Fields](../playgrounds/bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman/index.html)** &nbsp; (verified)
   A hydrogen atom in a uniform magnetic field (Zeeman) and a uniform electric field (Stark), with a chosen emission transition observed in a synthetic spectrometer.

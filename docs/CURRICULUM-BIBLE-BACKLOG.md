@@ -516,7 +516,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] fourier-series-convergence-gibb : medium canvas2d. Target vs
   N-term sum plus epicycles, Gibbs 8.9% arrow. Inv: Parseval 0.1%;
   Gibbs 8.9% 1%.
-- [ ] green-function-propagator : advanced canvas2d. Source f(x), u=
+- [x] green-function-propagator : advanced canvas2d. Source f(x), u=
   integral G f, draggable tent G(x,x'), Dirichlet. Inv: G symmetric;
   G(0)=G(L)=0; ODE 1e-4.
 
@@ -552,3 +552,28 @@ NOT mean done; this phase is mandatory and is itself backlog work.
   Commit per playground (or small batch) with factual messages. Never
   stop until every playground is swept. See memory
   feedback-approachable-text-and-devnotes.
+
+  EXECUTION MODEL (third user directive 2026-05-18): this sweep MUST be
+  automated and parallelised, not a serial manual pass. For each
+  playground, spawn an ensemble of Opus 4.7 reviewer agents IN PARALLEL,
+  each writing its own structured per-playground report by
+  cross-checking {cited source material, sim.js, spec/DEVNOTES,
+  captured screenshots}: physics-skeptic (physics fidelity to the
+  source), visual-reviewer (overlap, out-of-bounds, glitch, broken
+  KaTeX, non-loop, text-vs-graphics mismatch on the frames),
+  code-reviewer + adversarial-reviewer (dead sliders, non-looping rAF,
+  bounds, load failure), citation-validator, aesthetics-reviewer, and a
+  pedagogy/approachability reviewer (first-exposure-undergrad clarity).
+  Then synthesise the reports and FIX every defect (emphasis: fix, not
+  just report - the user states errors are common: broken latex,
+  overlapped visuals, escaping objects, glitched sims, dead sliders,
+  non-loading pages, dense unfriendly text, non-looping animations,
+  visuals not matching text, false physics, incongruent plots),
+  re-run invariants + recapture + visual x3, and iterate a bounded loop
+  until no finding >= medium remains. Parallelise ACROSS playgrounds
+  with git-worktree isolation (no shared/ edits in parallel, serialise
+  the visual/GPU gate, never the bypass; see memory
+  feedback-gate-bypass-and-parallelism) using the principal-orchestrator
+  pattern and CLAUDE.md 12.7 model routing. Automate the
+  self-criticism-and-correction mechanism; the human cannot review 300+
+  by hand.
