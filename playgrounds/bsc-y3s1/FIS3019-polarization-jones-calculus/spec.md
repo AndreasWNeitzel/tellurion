@@ -19,6 +19,60 @@ share_state_keys: []
 
 # Jones Calculus - Polarization Through Elements
 
+## Explainer
+
+### What you are looking at
+
+Polarized light is a 2-vector; each polarizer or wave plate is a 2x2
+matrix; sending light through optics is just matrix multiplication.
+That is the Jones calculus. The playground sends a beam through up to
+two elements and shows the polarization ellipse and Stokes parameters
+that come out.
+
+### The vector and the matrices
+
+The light is a Jones vector $(E_x, E_y)$ of complex amplitudes (the
+phase between them sets linear vs circular vs elliptical). Each element
+is a matrix applied in turn:
+
+$$\mathbf E_\text{out} = M_2\,M_1\,\mathbf E_\text{in}.$$
+
+On its own axis a polarizer is $\operatorname{diag}(1, 0)$ (it kills
+one component); a retarder is $\operatorname{diag}(1, e^{-i\delta})$
+(it delays one component by $\delta$: a quarter-wave plate has
+$\delta = \pi/2$, a half-wave plate $\delta = \pi$). For an element
+rotated to angle $\theta$ you conjugate by the rotation,
+$M(\theta) = R(-\theta)\,M\,R(\theta)$.
+
+### Reading the output
+
+The output ellipse is summarized by the Stokes parameters
+
+$$S_0 = |E_x|^2 + |E_y|^2,\quad S_1 = |E_x|^2 - |E_y|^2,$$
+$$S_2 = 2\,\mathrm{Re}(E_x^* E_y),\quad S_3 = -2\,\mathrm{Im}(E_x^* E_y),$$
+
+from which the ellipse orientation is
+$\psi = \tfrac12\operatorname{atan2}(S_2, S_1)$ and the ellipticity is
+$\chi = \tfrac12\arcsin(S_3/S_0)$. So a quarter-wave plate at
+$45^\circ$ turns linear into circular ($S_3$ maxed); two polarizers at
+$90^\circ$ give darkness ($S_0\to0$); inserting a third between them
+lets light through again, the classic surprise. The playground updates
+the ellipse and Stokes vector live as you set the elements.
+
+### Things to try
+
+- Cross two polarizers (extinction), then rotate a wave plate between
+  them and watch light reappear.
+- Send linear light through a quarter-wave plate at $45^\circ$ and
+  watch it become circular ($\chi \to 45^\circ$).
+- Read the Stokes parameters and confirm $S_1^2+S_2^2+S_3^2 = S_0^2$
+  for fully polarized light.
+
+### Where this comes from
+
+The Jones vector and matrices, the rotation conjugation, and the
+Stokes parameters follow Hecht, *Optics*, 5th ed., Chapter 8.
+
 ## Physical setup
 
 A monochromatic Jones vector `(Ex, Ey)` passes through up to two
