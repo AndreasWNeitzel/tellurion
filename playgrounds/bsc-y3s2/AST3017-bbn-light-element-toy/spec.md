@@ -21,3 +21,54 @@ share_state_keys: []
 ---
 # BBN light-element abundances
 Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11 (`liddle-cosmology`).
+
+## Explainer
+
+### What you are looking at
+
+In the universe's first few minutes, nuclear reactions forged the
+light elements. How much helium, deuterium, and lithium were made
+depends on essentially one number: how many baryons there were per
+photon. The playground sweeps that number and shows the three
+abundances respond, and where they agree, which is one of the strongest
+tests of the hot Big Bang.
+
+### The one parameter
+
+Big Bang nucleosynthesis (BBN) is controlled by the baryon-to-photon
+ratio, usually quoted as $\eta_{10} = 10^{10}\,n_b/n_\gamma$. More
+baryons (higher $\eta$) means reactions run faster and more completely.
+The yields are summarized by empirical fits:
+
+- Helium mass fraction $Y_p \approx 0.247 + 0.014\log_{10}\eta_{10}$:
+  almost flat, because nearly all neutrons end up in helium-4 once
+  deuterium forms.
+- Deuterium $D/H$: steeply decreasing in $\eta$ (deuterium is fragile,
+  more baryons burn more of it away), so it is the best "baryometer".
+- Lithium-7 $^7\mathrm{Li}/H$: a non-monotonic dip-and-rise.
+
+### Why this is a pillar of cosmology
+
+These three curves are predicted with no free parameters once $\eta$ is
+fixed. They must all agree at one value of $\eta$, and they do, near
+$\eta_{10}\approx 6$, which independently matches the baryon density
+measured from the cosmic microwave background. That concordance from
+totally different physics (nuclear reactions at $t\sim$ minutes vs.
+photon physics at $t\sim$ 380,000 yr) is a triumph of the standard
+model. The one wrinkle the playground also shows: the predicted and
+observed lithium disagree by a factor of about three, the unresolved
+"primordial lithium problem".
+
+### Things to try
+
+- Slide $\eta$ and watch deuterium plunge while helium barely moves
+  (why D is the baryometer).
+- Find the $\eta$ where D and helium agree; note it matches the CMB
+  value, the concordance.
+- Compare the lithium curve to the observed band and see the standing
+  factor-of-3 discrepancy.
+
+### Where this comes from
+
+The BBN abundance fits versus $\eta_{10}$ and the concordance argument
+follow Liddle, *An Introduction to Modern Cosmology*, Chapter 11.
