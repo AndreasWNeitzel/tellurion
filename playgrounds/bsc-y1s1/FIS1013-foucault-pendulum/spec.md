@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: []
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "A pendulum does not know the Earth is turning, so it keeps swinging in a fixed plane while the floor rotates underneath. From the ground the swing plane appears to precess: slowly at the equator, once a day at a pole. Foucault hung one in the Pantheon in 1851 to prove the Earth spins."
+one_paragraph: "A long pendulum swings in a plane fixed in space, but the Earth turns beneath it, so an observer on the ground sees the swing plane slowly rotate. The rate is Omega sin(latitude), where Omega is Earth's rotation rate: zero at the equator (the plane never precesses) and a full turn per sidereal day at a pole; at 45 degrees it is a few degrees per hour. The top-down view traces the rosette the bob sweeps out, a dashed line marks the original swing axis, and the lit rim pegs mark the current swing plane, so the precession is read off the drift between them. The readout gives the latitude, the local vertical rotation rate omega_z, the precession period and how far the plane has turned. This is the first laboratory proof, due to Leon Foucault in 1851, that the Earth rotates, no astronomy required."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
