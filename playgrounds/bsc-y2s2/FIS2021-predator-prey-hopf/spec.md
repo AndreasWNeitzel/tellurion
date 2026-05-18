@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Predator-prey and the Hopf bifurcation
 
+## Explainer
+
+### What you are looking at
+
+Predators and prey. Give the prey more food (raise their carrying
+capacity) and intuition says the system gets healthier. Instead, the
+stable balance suddenly collapses into wild boom-and-bust cycles. This
+is the paradox of enrichment, and it falls straight out of a Hopf
+bifurcation.
+
+### The model
+
+The Rosenzweig-MacArthur equations: logistic prey $x$, predators $y$
+with a saturating (Holling type II) appetite:
+
+$$\dot x = r\,x\!\left(1 - \frac{x}{K}\right)
+  - \frac{a\,x\,y}{b + x},$$
+
+$$\dot y = \frac{e\,a\,x\,y}{b + x} - d\,y.$$
+
+The $a x y/(b+x)$ term is the key: each predator can only eat so fast,
+so its kill rate saturates as prey become abundant. $K$ is the prey
+carrying capacity, the "enrichment" knob.
+
+### The Hopf bifurcation
+
+There is an interior equilibrium where prey and predator coexist at
+fixed numbers $x^* = bd/(ea - d)$, $y^* = \ldots$. For small $K$ it is
+a stable spiral: perturb it and the populations spiral back to balance.
+Raise $K$ past the Hopf threshold
+
+$$K_H = b + 2x^* = 0.7\ \text{(for the default parameters)},$$
+
+and that equilibrium loses stability. A stable limit cycle is born
+around it: the populations now orbit forever in large amplitude
+oscillations. Enriching the prey did not stabilize the system, it
+destabilized it. The playground shows the phase plane with its
+nullclines and the time series, so you watch the inward spiral turn
+into a sustained cycle as $K$ crosses $K_H$.
+
+### Things to try
+
+- Set $K$ below 0.7 and watch the populations spiral into the stable
+  coexistence point.
+- Raise $K$ past 0.7 and watch a limit cycle appear, predator and prey
+  swinging between booms and crashes.
+- Push $K$ very high and see the cycle nearly graze extinction
+  (deep crashes), the practical danger of the paradox.
+
+### Where this comes from
+
+The Rosenzweig-MacArthur model, the Holling type II response, and the
+Hopf bifurcation / paradox of enrichment follow Strogatz, *Nonlinear
+Dynamics and Chaos*, 2nd ed. (Hopf bifurcation), and Murray,
+*Mathematical Biology*.
+
 ## Physical setup
 
 Rosenzweig-MacArthur predator-prey model with Holling Type II response:
