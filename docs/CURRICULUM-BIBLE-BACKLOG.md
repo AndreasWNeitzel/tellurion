@@ -448,7 +448,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] friedmann-expansion-multicomponent : medium canvas2d. Expanding
   galaxy grid, H(t), Omega bands, eras, horizons. Inv: a=1 H=H0 0.01%;
   age 13.8Gyr 1%.
-- [ ] inflation-quantum-fluctuations : advanced canvas2d. Inflaton field
+- [x] inflation-quantum-fluctuations : advanced canvas2d. Inflaton field
   plus fluctuations stretched superhorizon, V(phi) roll, P_s(k). Inv:
   ns~0.965 1%; near scale-invariant.
 

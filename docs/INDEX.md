@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Friedmann Expansion: Radiation, Matter and Lambda Eras](../playgrounds/msc-y1/MF-GR-friedmann-expansion-multicomponent/index.html)** &nbsp; (verified, verified 2026-05-18T03:11:39Z)
+  A spatially flat universe filled with radiation, pressureless matter and a cosmological constant. Each component dilutes differently as the universe expands (radiation as a^-4, matter as a^-3, Lambda constant), so the universe passes through a radiation era, a matter era and a dark-energy era, and the expansion switches from decelerating to accelerating.
+
 - **[Gravitational-Wave Detector: Inspiral Chirp and Matched Filter](../playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html)** &nbsp; (verified, verified 2026-05-18T03:00:53Z)
   Two compact objects (black holes / neutron stars) spiral together, radiating gravitational waves that carry away orbital energy so the orbit shrinks and the wave frequency and amplitude chirp upward to merger. A kilometre-scale Michelson interferometer (LIGO) measures the passing strain as a differential change in its two arm lengths, then a matched filter e
 
@@ -782,9 +785,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
   A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
 
-- **[Friedmann Expansion: Radiation, Matter and Lambda Eras](../playgrounds/msc-y1/MF-GR-friedmann-expansion-multicomponent/index.html)** &nbsp; (verified)
-  A spatially flat universe filled with radiation, pressureless matter and a cosmological constant. Each component dilutes differently as the universe expands (radiation as a^-4, matter as a^-3, Lambda constant), so the universe passes through a radiation era, a matter era and a dark-energy era, and the expansion switches from decelerating to accelerating.
-
 - **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (verified)
   Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emer
 
@@ -802,6 +802,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Hydrogen in Electric and Magnetic Fields](../playgrounds/bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman/index.html)** &nbsp; (verified)
   A hydrogen atom in a uniform magnetic field (Zeeman) and a uniform electric field (Stark), with a chosen emission transition observed in a synthetic spectrometer.
+
+- **[Inflation: Slow Roll, Superhorizon Fluctuations, n_s](../playgrounds/msc-y1/MF-GR-inflation-quantum-fluctuations/index.html)** &nbsp; (verified)
+  A scalar inflaton field slowly rolls down a nearly flat potential, driving an exponential expansion (about 60 e-folds). Quantum fluctuations of the field are stretched by the expansion: once a mode is larger than the Hubble horizon it freezes, becoming a classical perturbation that later seeds the cosmic microwave background and galaxies. The statistics of t
 
 - **[Interactive 2D Heat Equation](../playgrounds/bsc-y2s1/FIS2014-heat-equation-2d-gpu/index.html)** &nbsp; (verified)
   A square slab of material with spatially varying thermal diffusivity `kappa(x, y)`, conducting heat between painted hot and cold regions or internal sources. The temperature field `T(x, y, t)` is the primary physical scene; conductive-flux streamlines `q = -kappa grad T` show where and how fast heat flows.

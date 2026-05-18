@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inflation: Slow Roll, Superhorizon Fluctuations, n_s</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Inflation: Slow Roll, Superhorizon Fluctuations, n_s</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Inflaton potential, modes stretched past the horizon, and the scalar power spectrum"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">N:</span><span class="value" id="readout-n">57</span>
+      <span class="label">n_s:</span><span class="value" id="readout-ns">0.965</span>
+      <span class="label">r:</span><span class="value" id="readout-r">0.003</span>
+      <span class="label">epsilon:</span><span class="value" id="readout-eps">0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Single-field slow-roll inflation: the inflaton rolls down a flat potential while quantum fluctuations are stretched exponentially past the nearly constant Hubble horizon and freeze, seeding a nearly scale-invariant scalar spectrum with tilt n_s ~ 0.965.
+      <em>Method:</em> slow-roll parameters from V(phi), e-fold integral, P_s(k) ~ k^{n_s-1}; Canvas2D, deterministic.
+      <em>Source:</em> Mukhanov; Baumann, Cosmology; Starobinsky 1980; Planck 2018.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">potential</span><select aria-label="inflaton potential" id="select-pot" style="grid-column: span 2;"><option value="starobinsky">Starobinsky plateau (Planck-favoured)</option><option value="quadratic">quadratic m^2 phi^2</option></select></div>
+    <div class="row"><span class="label">e-folds N</span><input aria-label="number of e-folds" type="range" id="slider-n" min="45" max="65" step="1" value="57"><span class="value" id="value-n">57</span></div>
+    <div class="row"><span class="label">mode wavelength</span><input aria-label="comoving wavelength, log", type="range" id="slider-lam" min="0" max="40" step="1" value="14"><span class="value" id="value-lam">1.0e-3</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
