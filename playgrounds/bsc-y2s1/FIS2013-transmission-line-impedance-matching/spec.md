@@ -22,6 +22,64 @@ share_state_keys: []
 
 # Transmission line impedance matching
 
+## Explainer
+
+### What you are looking at
+
+Send a signal down a cable into a load that does not "match" and part
+of it bounces straight back, setting up standing waves that waste
+power and can destroy a transmitter. The playground shows the
+forward and reflected waves on a transmission line and how matching
+the impedance kills the reflection.
+
+### Reflection at a mismatch
+
+A line of characteristic impedance $Z_0$ terminated in a load $Z_L$
+reflects a fraction of the incident wave set by the reflection
+coefficient
+
+$$\Gamma = \frac{Z_L - Z_0}{Z_L + Z_0}.$$
+
+Matched ($Z_L=Z_0$): $\Gamma=0$, nothing reflects, all power
+delivered. Open or short ($Z_L\to\infty$ or $0$): $|\Gamma|=1$,
+total reflection. The forward and reflected waves superpose into a
+standing-wave pattern whose peak-to-trough ratio is the standing-wave
+ratio
+
+$$\mathrm{SWR} = \frac{1+|\Gamma|}{1-|\Gamma|},$$
+
+1 when matched, infinite when fully reflected.
+
+### Matching with a quarter-wave transformer
+
+Because the line transforms impedance along its length, a section of
+line a quarter-wavelength long turns a load into
+
+$$Z_\mathrm{in} = \frac{Z_0^2}{Z_L},$$
+
+so inserting a quarter-wave section of impedance
+$Z_0' = \sqrt{Z_0 Z_L}$ between line and load makes the line "see"
+$Z_0$ and the reflection vanishes (at that frequency). This is the
+quarter-wave transformer, the same idea as anti-reflection optical
+coatings and acoustic horn matching. The playground lets you set
+$Z_L$ and the matching section and watch $\Gamma$, the SWR, and the
+standing-wave envelope collapse to flat when matched.
+
+### Things to try
+
+- Set $Z_L=Z_0$ and see a flat travelling wave (SWR = 1, no
+  reflection).
+- Open- or short-circuit the load and watch a full standing wave
+  (SWR to infinity, nulls fixed in place).
+- Insert the $\sqrt{Z_0 Z_L}$ quarter-wave section and watch the
+  reflection cancel and the line go flat again.
+
+### Where this comes from
+
+The reflection coefficient, SWR, and the quarter-wave transformer
+follow Pozar, *Microwave Engineering*, Chapter 2, and Griffiths,
+*Introduction to Electrodynamics*, Chapter 9.
+
 ## Physical setup
 
 A coaxial transmission line of characteristic impedance $Z_0 = 50\,\Omega$ terminated by a resistive load $Z_L$. The forward and reflected voltage waves superpose into a standing pattern whose amplitude envelope depends on the mismatch.
