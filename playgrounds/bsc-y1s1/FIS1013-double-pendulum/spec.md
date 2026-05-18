@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Two rods, one pinned to the end of the other, swinging under gravity. Start two of them a hair apart and within seconds their paths are nothing alike. This is deterministic chaos in the simplest mechanical system that shows it."
+one_paragraph: "A double pendulum is two rigid rods with masses, the second hanging off the end of the first, swinging in a plane under gravity. The Lagrangian gives coupled, strongly nonlinear equations of motion. At low energy the motion is quasi-periodic, tracing a smooth closed band in the phase portrait (theta1 against its angular velocity); raise the energy and chaotic windows open, where the tiniest change in the start leads to a completely different trajectory a few seconds later. A symplectic integrator keeps the energy essentially constant (the readout shows |dE/E| holding near 1e-5), which is what makes the chaos trustworthy rather than a numerical artifact. Drag a bob to set its initial angle, double-click to freeze the velocities, and watch the lower bob trace its path while the phase portrait fills in. The live readout shows theta1, theta2, the energy and its drift, and a Poincare counter."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
