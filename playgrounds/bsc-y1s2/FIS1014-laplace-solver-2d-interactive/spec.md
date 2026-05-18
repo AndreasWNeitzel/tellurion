@@ -19,6 +19,63 @@ share_state_keys: []
 
 # Interactive Laplace Solver
 
+## Explainer
+
+### What you are looking at
+
+Paint some conductors at fixed voltages inside a grounded box and the
+playground fills in the electric potential everywhere else, with field
+lines that meet the conductors at right angles. There are no charges in
+the empty space; the potential there is fixed entirely by the
+boundaries. You are watching a boundary-value problem relax to its
+solution.
+
+### The equation
+
+In a charge-free region the electrostatic potential obeys Laplace's
+equation:
+
+$$\nabla^2\varphi = 0.$$
+
+It has a strong physical meaning: the value at any point is the average
+of its surroundings. There are no local peaks or valleys in empty space
+(the maximum principle); extremes can only sit on the conductors. The
+boundary condition is Dirichlet: $\varphi$ is pinned to the painted
+voltage on every conductor, and the field is $\mathbf E = -\nabla\varphi$,
+which is why field lines hit conductors perpendicularly.
+
+### How it is solved
+
+Discretize the box into a grid. The averaging property becomes: each
+cell should equal the mean of its four neighbors. Iterating that
+directly (Jacobi or Gauss-Seidel) converges slowly, so the playground
+uses successive over-relaxation, which overshoots each correction by a
+factor $\omega$:
+
+$$\varphi_{ij} \leftarrow (1-\omega)\,\varphi_{ij}
+  + \frac{\omega}{4}\big(\varphi_{i+1,j} + \varphi_{i-1,j}
+  + \varphi_{i,j+1} + \varphi_{i,j-1}\big),$$
+
+with $\omega \approx 1.9$ and a red-black update order so the sweep
+parallelizes cleanly. A handful of sweeps per frame and the field
+visibly settles in about a second. The Dirichlet cells are re-imposed
+every sweep so the boundaries never drift.
+
+### Things to try
+
+- Paint two opposite plates and watch the field become uniform
+  between them (a parallel-plate capacitor emerging from the solver).
+- Make a sharp conductor corner and see the field crowd there, the
+  reason lightning rods are pointed.
+- Note streamlines always strike conductors at right angles: a
+  conductor surface is an equipotential.
+
+### Where this comes from
+
+Laplace's equation, the boundary-value setup, the mean-value and
+maximum principles, and the relaxation/SOR solution follow Griffiths,
+*Introduction to Electrodynamics*, 5th ed., Chapters 2 and 3.
+
 ## Physical setup
 
 A grounded box encloses user-painted conductors. The electrostatic
