@@ -60,3 +60,29 @@ side traces. Pure local sim.js, no shared engine, no GL.
 - npx vitest run invariants.test.mjs   (6 tests)
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was caption-only).
+
+## Double-mode drag fix + smaller blocks (2026-05-18, #255)
+
+User: "double Atwood physics seems broken, especially drag and
+release" and later "make the masses half size, it feels cramped."
+
+- Root cause of the "broken" double drag: pointermove/endDrag mapped
+  screen pixels to metres with PX (150, the single-rig scale) while
+  the compound rig is drawn at PXD (64). So a double-mode drag moved
+  the wrong distance and released a velocity off by PX/PXD ~ 2.3x with
+  the wrong feel. Fixed: drag now uses `sPx = mode==='double' ? PXD :
+  PX` for both the position delta and drag.v.
+- Second bug: clampStops only bounded q1, never q2, so m2/m3 (the
+  generalized coord q2) diverged while the render pinned them at the
+  floor (looked frozen, numbers exploded, release threw garbage).
+  Added LLIM2 = 0.85 bound on q2 with v2 -> 0 and a hard stop.
+- PXD promoted to a module const (was local in renderDouble) so the
+  drag handler can use it. doubleAccel signs re-checked against the
+  render (y1 up with q1, yB down with -q1, y2/y3 with +-q2): the ODE
+  was already correct (energy 5e-9, balanced a1=0); only the drag
+  scale and the q2 bound were wrong.
+- blockSize 26+20*cbrt(m) -> 13+10*cbrt(m) (halved): both modes were
+  visually cramped; now there is room around the rig and arrows.
+- Invariants 9/9 unchanged (sim.js untouched). Both modes inspected
+  directly: single uncramped, double pulleys distinct and bounded,
+  T=2T2; visual gate 5/5 x3.

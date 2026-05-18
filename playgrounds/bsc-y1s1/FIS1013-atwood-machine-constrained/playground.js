@@ -40,6 +40,8 @@ const FLOOR_Y = H - 54;
 // that half-travel in metres (symmetric about the rest position).
 const ROPE0 = (FLOOR_Y - PULLEY_Y) / PX / 2;
 const LLIM = ROPE0 - 0.16;
+const PXD = 64;                 // px per metre for the compound rig
+const LLIM2 = 0.85;             // travel bound for the m2/m3 pair (q2)
 
 const DEF = { m1: 3, m2: 2, M: 0, R: 0.4, kind: 'disk' };
 const DEFD = { m1: 4, m2: 2, m3: 1 };
@@ -102,7 +104,7 @@ bReset.addEventListener('click', () => {
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
 applyModeUI();
 
-const blockSize = (m) => 26 + 20 * Math.cbrt(m);
+const blockSize = (m) => 13 + 10 * Math.cbrt(m);   // halved: the rig was cramped
 const clampF = (px) => Math.max(-150, Math.min(150, px));
 
 function arrow(x, y, dx, dy, col, w = 4) {
@@ -181,7 +183,6 @@ function renderSingle() {
 
 function renderDouble() {
   const { T, T2, a1 } = doubleAccel(s);
-  const PXD = 64;                                  // gentle scale for the compound rig
   const cxA = 200, RA = 22;
   ctx.fillStyle = '#6d86bf'; ctx.beginPath(); ctx.arc(cxA, PULLEY_Y, RA, 0, 6.28); ctx.fill();
   ctx.strokeStyle = '#5a5f6a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(cxA, PULLEY_Y - RA); ctx.lineTo(cxA, 22); ctx.stroke();
@@ -257,7 +258,10 @@ function render() {
 const PHYS_DT = 0.002;
 function clampStops() {
   if (mode === 'double') {
+    // m1 / movable pulley reach a hard stop -> the whole rig rests.
     if (Math.abs(s.q1) >= LLIM) { s.q1 = Math.sign(s.q1) * LLIM; s.v1 = 0; s.v2 = 0; s.stopped = true; }
+    // m2 / m3 bottom out on the floor or meet pulley B.
+    if (Math.abs(s.q2) >= LLIM2) { s.q2 = Math.sign(s.q2) * LLIM2; s.v2 = 0; s.stopped = true; }
   } else if (Math.abs(s.x) >= LLIM) { s.x = Math.sign(s.x) * LLIM; s.v = 0; s.stopped = true; }
 }
 function advance(dtSim) {
@@ -294,13 +298,17 @@ canvas.addEventListener('pointermove', (ev) => {
   if (!drag.active) return;
   const p = canvasPos(ev);
   const now = performance.now(); const dtm = Math.max(1e-3, (now - drag.lastT) / 1000);
-  const dMetres = (p.y - drag.lastY) / PX;
-  drag.v = (p.y - drag.lastY) / PX / dtm;
+  // Map screen pixels to metres with the SAME scale the active rig is
+  // drawn at (single uses PX, the compound rig uses PXD). Using PX for
+  // both made the double-mode drag and the released velocity wrong.
+  const sPx = mode === 'double' ? PXD : PX;
+  const dMetres = (p.y - drag.lastY) / sPx;
+  drag.v = (p.y - drag.lastY) / sPx / dtm;
   // m1 down is +; dragging m2/m3 down pulls m1 up (sign per block).
   const signFor = (w) => (w === 1 ? 1 : -1);
   if (mode === 'double') {
     if (drag.which === 1) s.q1 = Math.max(-LLIM, Math.min(LLIM, s.q1 + dMetres));
-    else s.q2 = Math.max(-LLIM, Math.min(LLIM, s.q2 + dMetres * (drag.which === 2 ? 1 : -1)));
+    else s.q2 = Math.max(-LLIM2, Math.min(LLIM2, s.q2 + dMetres * (drag.which === 2 ? 1 : -1)));
   } else {
     s.x = Math.max(-LLIM, Math.min(LLIM, s.x + dMetres * signFor(drag.which)));
   }
