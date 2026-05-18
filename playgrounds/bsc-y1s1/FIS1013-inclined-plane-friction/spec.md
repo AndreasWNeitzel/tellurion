@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: marion-thornton
 primary_chapter: 2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Tilt a ramp under a block. Nothing happens, nothing happens, then at one critical angle it suddenly slides and keeps speeding up. Friction is a threshold, not a brake: it holds completely until it lets go completely."
+one_paragraph: "A block sits on a ramp of adjustable angle with Coulomb friction (static coefficient mu_s, kinetic mu_k). While the slope angle theta stays below the critical angle (tan theta_c = mu_s) static friction exactly cancels the downslope pull and the block does not move at all. Past theta_c it breaks free and slides with constant acceleration a = g (sin theta - mu_k cos theta), so the speed grows linearly. The block changes colour and label at the static-to-sliding transition; the side panel plots the numerical v(t) on top of the analytic prediction so you can see they coincide (a check on the integrator), and the readout gives the critical angle and the relative error. The lesson is that friction is a threshold law: it adjusts itself up to a maximum and only then gives way, which is why you can park on a steep hill but not on ice."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
