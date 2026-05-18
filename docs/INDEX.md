@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section](../playgrounds/msc-y1/MF-PP-feynman-diagram-builder-qed/index.html)** &nbsp; (verified, verified 2026-05-18T04:28:49Z)
+  The reaction is electron-positron annihilation into a muon pair, e+ e- -> mu+ mu-, in the centre-of-mass frame. At leading order in QED a single Feynman diagram contributes: the e+ e- pair annihilates at a vertex into a virtual photon (the s-channel propagator, with q^2 = s), which materialises into the mu+ mu- pair at a second vertex. The muon is treated as
+
 - **[Standard Model Particle Zoo: PDG Data and Conservation Laws](../playgrounds/msc-y1/MF-PP-standard-model-particle-zoo/index.html)** &nbsp; (verified, verified 2026-05-18T04:09:30Z)
   The Standard Model has twelve matter fermions (six quarks and six leptons in three generations), four gauge bosons and the Higgs. Each carries fixed quantum numbers; a decay is permitted only if every additive number (electric charge, baryon number, the three lepton-flavour numbers) is conserved and the products are lighter than the parent.
 
@@ -797,6 +800,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified)
   Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
 
+- **[FODO Synchrotron: Betatron Tune, Emittance and Stop Bands](../playgrounds/msc-y1/MF-PP-particle-accelerator-betatron/index.html)** &nbsp; (verified)
+  A circular accelerator built from identical FODO cells: a focusing quadrupole, a drift, a defocusing quadrupole, a drift (alternating-gradient strong focusing). Transverse motion in one plane is described by the phase-space vector (x, x'), propagated element by element by 2x2 transfer matrices. The ring is a periodic lattice; its one-turn matrix determines w
+
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
   A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
 
@@ -844,9 +850,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (verified)
   Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
-
-- **[QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section](../playgrounds/msc-y1/MF-PP-feynman-diagram-builder-qed/index.html)** &nbsp; (verified)
-  The reaction is electron-positron annihilation into a muon pair, e+ e- -> mu+ mu-, in the centre-of-mass frame. At leading order in QED a single Feynman diagram contributes: the e+ e- pair annihilates at a vertex into a virtual photon (the s-channel propagator, with q^2 = s), which materialises into the mu+ mu- pair at a second vertex. The muon is treated as
 
 - **[Quantum Double Slit, One Particle at a Time](../playgrounds/bsc-y2s2/FIS2003-quantum-double-slit-accumulator/index.html)** &nbsp; (verified)
   A source emits particles one at a time toward a barrier with two slits; each is detected as a single localised dot on a screen. An optional which-path detector at the slits records which path was taken.

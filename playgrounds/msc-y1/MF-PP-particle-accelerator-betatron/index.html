@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FODO Synchrotron: Betatron Tune, Emittance and Stop Bands</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>FODO Synchrotron: Betatron Tune, Emittance and Stop Bands</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="The FODO ring with circulating bunch and beta function, the transverse phase-space emittance ellipse, and the tune stability diagram">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">tune Q:</span><span class="value" id="readout-q">1.72</span>
+      <span class="label">emittance:</span><span class="value" id="readout-e">0</span>
+      <span class="label">stability:</span><span class="value" id="readout-stab">stable</span>
+      <span class="label">B rho:</span><span class="value" id="readout-rho">0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A thin-lens FODO synchrotron. Alternating-gradient quadrupoles give 2x2 symplectic transfer matrices; the one-turn map sets the betatron tune from cos(mu) = trace(M)/2, a Courant-Snyder ellipse whose area (the emittance) is conserved turn after turn, and stop bands where the cell goes unstable and integer or half-integer tunes resonate. Dipole bending obeys d p / d t = q v B with B rho = p / (0.299792458 q).
+      <em>Method:</em> closed-form transfer matrices and Twiss analysis; Canvas2D, deterministic.
+      <em>Source:</em> Courant and Snyder 1958; Wiedemann, Particle Accelerator Physics.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">quad focal f (m)</span><input aria-label="quadrupole focal length, metres x10" type="range" id="slider-f" min="18" max="140" step="1" value="40"><span class="value" id="value-f">4.0</span></div>
+    <div class="row"><span class="label">FODO cells</span><input aria-label="number of FODO cells in the ring" type="range" id="slider-nc" min="4" max="24" step="1" value="8"><span class="value" id="value-nc">8</span></div>
+    <div class="row"><span class="label">dipole B (T)</span><input aria-label="dipole field, tesla x10" type="range" id="slider-b" min="5" max="90" step="1" value="12"><span class="value" id="value-b">1.2</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

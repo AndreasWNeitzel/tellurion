@@ -471,7 +471,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] feynman-diagram-builder-qed : advanced canvas2d. Draw vertices/
   lines, topology plus alpha power plus Feynman rules, |M|^2, sigma.
   Inv: sigma to 0 threshold; s+t+u=sum mi^2.
-- [ ] particle-accelerator-betatron : medium canvas2d. Synchrotron,
+- [x] particle-accelerator-betatron : medium canvas2d. Synchrotron,
   dipole/quad/RF, phase-space emittance ellipse, tune resonance. Inv:
   Q=integer unstable; emittance conserved symplectic; dp/dt=qvB.
 
