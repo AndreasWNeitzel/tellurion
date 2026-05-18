@@ -44,3 +44,7 @@ collision animation."
 - Capture cycles coulomb / hard / yukawa so the goldens prove all
   three render (incl. the sharp hard-sphere bounce and the
   no-longer-laggy Yukawa). Frames inspected directly; gate 5/5 x3.
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  7 passed + visual 5/5 x3. Shipped.

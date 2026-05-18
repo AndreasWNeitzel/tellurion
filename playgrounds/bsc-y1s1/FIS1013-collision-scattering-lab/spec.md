@@ -19,6 +19,65 @@ share_state_keys: []
 
 # Two-Body Collision: Lab and CM Frames
 
+## Explainer
+
+### What you are looking at
+
+The same collision looks completely different depending on where you
+stand. In the lab a fast projectile hits a stationary target and both
+fly off forward; in the centre-of-mass frame the two simply approach,
+bounce, and recede symmetrically. The playground shows both views of
+one collision side by side, which is the key trick for analysing
+scattering.
+
+### Conservation laws set the outcome
+
+A collision conserves total momentum always, and kinetic energy only
+if it is elastic. For a projectile $m_1$ at speed $v_0$ hitting a
+target $m_2$ at rest, momentum and (for elastic) energy give the 1D
+result
+
+$$v_1' = \frac{m_1 - m_2}{m_1 + m_2}\,v_0,
+  \qquad
+  v_2' = \frac{2 m_1}{m_1 + m_2}\,v_0.$$
+
+Equal masses: the projectile stops and the target leaves with $v_0$
+(Newton's cradle). Heavy onto light: the projectile barely slows,
+the target rockets off at up to $2v_0$. Light onto heavy: the
+projectile bounces back.
+
+### Why the CM frame is the natural one
+
+Transform to the centre-of-mass frame, moving at
+$V_\mathrm{cm} = m_1 v_0/(m_1+m_2)$. There the total momentum is zero,
+so the two particles always move oppositely, and in an elastic
+collision each simply reverses with its speed unchanged: the whole
+collision is a single scattering angle $\theta_\mathrm{cm}$. Every
+lab-frame quantity is then just that simple CM picture boosted back
+by $V_\mathrm{cm}$, which is why particle physics quotes
+cross-sections in the CM frame. The inelastic case keeps momentum but
+converts a fraction $1-e^2$ of the CM kinetic energy into heat (the
+coefficient of restitution $e$); a perfectly inelastic hit ($e=0$)
+loses the most while still conserving momentum. The playground lets
+you set the masses and $e$ and shows the lab and CM trajectories,
+velocities, and the energy ledger together.
+
+### Things to try
+
+- Set $m_1=m_2$ elastic and watch the projectile stop dead while the
+  target leaves with the full speed.
+- Switch to the CM frame and see the symmetric approach/recede that
+  any elastic collision reduces to.
+- Lower the restitution $e$ toward 0 and watch CM kinetic energy
+  drain to heat while momentum stays exactly conserved.
+
+### Where this comes from
+
+The lab/CM transformation, elastic and inelastic collisions, and the
+reduced-mass reduction follow Kleppner and Kolenkow, *An Introduction
+to Mechanics*, Chapter 4, and Taylor, *Classical Mechanics*,
+Chapter 14.
+
 ## Physical setup
 
 A projectile of mass `m1` scatters off a target `m2` initially at
