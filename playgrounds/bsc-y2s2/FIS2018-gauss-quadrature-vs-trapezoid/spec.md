@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2018
 supporting_ucs: [M3012, MAA-NM]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The trapezoid rule needs hundreds of points where Gauss-Legendre nails a smooth integral with a handful, just by choosing where to sample.'
+one_paragraph: 'Both rules approximate an integral as a weighted sum of samples, but they differ in where the samples go. The trapezoid rule uses n + 1 equispaced points and converges slowly; Gauss-Legendre places n nodes at the roots of the Legendre polynomial and integrates polynomials up to degree 2n - 1 exactly, so for smooth functions it converges far faster. The playground evaluates both on several test integrands and plots the error against the number of points, so the gap, and where Gauss loses its edge (on non-smooth functions like sqrt|x|), is explicit. Reference: Press et al., Numerical Recipes, Ch. 4.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple

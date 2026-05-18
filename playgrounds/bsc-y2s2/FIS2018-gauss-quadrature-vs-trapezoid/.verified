@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T19:41:10Z
-invariants: 6/6 (nodes symmetric, weights sum=2, exact on polynomials 2n-1, GL << trap on cos, n=16 machine precision, trap h^2)
-visual: SSIM > 0.92 across 5 frames sweeping n
+verified-at: 2026-05-18T14:47:23Z
+invariants: 6/6 (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); text-only, render unchanged
