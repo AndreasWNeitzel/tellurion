@@ -165,3 +165,7 @@ trade-off needs a non-admissible (greedy / weighted) heuristic.
   w=2.5 over 20 seeds -> 12/20 suboptimal, 20/20 strictly fewer cells
   than admissible A*). Live default stays w=1. Inspected directly;
   visual gate 5/5 x3.
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  7 passed + visual 5/5 x3. Shipped.
