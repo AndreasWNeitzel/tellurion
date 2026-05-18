@@ -21,6 +21,69 @@ share_state_keys: [drift_preset, b_field, charge]
 
 # Single-Particle Motion: Drifts in E and B
 
+## Explainer
+
+### What you are looking at
+
+A single charged particle in electric and magnetic fields does not just
+circle: its gyration center slowly drifts sideways, and a converging
+field can bounce it back. These guiding-center drifts and the magnetic
+mirror are how the Van Allen belts, the aurora, and magnetic-
+confinement fusion work.
+
+### The equation
+
+Just the Lorentz force, integrated:
+
+$$m\,\dot{\mathbf v} = q\,(\mathbf E + \mathbf v\times\mathbf B),
+  \qquad \dot{\mathbf r} = \mathbf v.$$
+
+In a uniform $\mathbf B$ alone the solution is a helix: fast circular
+gyration at the cyclotron frequency $\omega_c = qB/m$ plus free
+streaming along $\mathbf B$.
+
+### Guiding-center drifts
+
+Split the motion into the fast gyration plus a slowly moving guiding
+center. Any steady transverse force $\mathbf F$, or a gradient or
+curvature of $\mathbf B$, pushes that center sideways:
+
+$$\mathbf v_{E\times B} = \frac{\mathbf E\times\mathbf B}{B^2},
+  \qquad
+  \mathbf v_{\nabla B}\ \propto\ \frac{\nabla B\times\mathbf B}{B^3}.$$
+
+The $\mathbf E\times\mathbf B$ drift is charge-independent (whole
+plasmas move together); the grad-B and curvature drifts separate
+charges and drive ring currents. These slow drifts are why confined
+plasma still leaks across field lines.
+
+### The magnetic mirror
+
+Where $\mathbf B$ converges, the perpendicular speed must rise to keep
+the adiabatic invariant
+
+$$\mu = \frac{m\,v_\perp^2}{2B}$$
+
+constant. Since total kinetic energy is fixed, the parallel speed drops
+and can reverse: the particle is reflected. Two such mirrors make a
+magnetic bottle (and the loss cone that lets steep-pitch particles
+escape, the aurora). The playground lets you switch on $\mathbf E$,
+field gradients, and a mirror and watch the helix drift and bounce.
+
+### Things to try
+
+- Uniform $\mathbf B$ only: a clean helix.
+- Add perpendicular $\mathbf E$ and watch the guiding center slide at
+  $\mathbf E\times\mathbf B/B^2$.
+- Switch on a converging field and watch the particle mirror back,
+  with $\mu = m v_\perp^2/2B$ held constant.
+
+### Where this comes from
+
+The Lorentz force, guiding-center drifts, and the magnetic-mirror
+adiabatic invariant follow Chen, *Introduction to Plasma Physics and
+Controlled Fusion*, Chapter 2.
+
 ## Physical setup
 
 One non-relativistic charged particle (charge `q`, mass `m`) moving
