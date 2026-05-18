@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'One equation, z -> z^2 + c, iterated for every point of the plane, draws the most intricate object in mathematics, infinitely detailed at every zoom.'
+one_paragraph: 'The Mandelbrot set is the set of complex numbers c for which the iteration z -> z^2 + c, started at z = 0, stays bounded forever. The playground colours every pixel (a value of c) by how fast its orbit escapes the disc |z| <= 2; points that never escape form the black body of the set. Its boundary is a fractal of unlimited complexity, with miniature copies of the whole set buried at every scale, so zooming in never simplifies it. This single quadratic recurrence is the canonical demonstration that trivial rules can generate infinite structure. Reference: Mandelbrot, The Fractal Geometry of Nature.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
