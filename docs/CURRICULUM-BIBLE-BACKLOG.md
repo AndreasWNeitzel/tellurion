@@ -414,7 +414,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] mosfet-operation-animated : advanced canvas2d. MOSFET x-section,
   inversion channel, pinch-off, ID-VDS regions. Inv: ID<1e-6 Isat
   below Vth; lin/sat boundary VDS=VGS-Vth 0.1%.
-- [ ] gmr-spin-valve-simulator : advanced canvas2d. FM/NM/FM two-current,
+- [x] gmr-spin-valve-simulator : advanced canvas2d. FM/NM/FM two-current,
   P low-R AP high-R, GMR hysteresis, TMR Julliere. Inv: P<AP; GMR>0;
   Julliere 1%.
 - [ ] solar-cell-generation-iv : medium canvas2d. Cell, photon rain,

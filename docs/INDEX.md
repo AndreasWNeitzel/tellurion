@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[MOSFET Operation: Channel, Pinch-off and I-V Regions](../playgrounds/bsc-y3s2/FIS4026-mosfet-operation-animated/index.html)** &nbsp; (verified, verified 2026-05-18T01:31:47Z)
+  An n-channel enhancement MOSFET: a gate over a thin oxide above a p-type body, with n+ source and drain. Raising the gate voltage past the threshold V_th inverts the surface into an n-type channel connecting source and drain. The drain-source voltage then drives a current whose behaviour splits into three regions (cutoff, triode, saturation), with the channe
+
 - **[Optical Fiber: LP Modes, Dispersion and Pulse Broadening](../playgrounds/bsc-y3s2/FIS4035-optical-fiber-modes-dispersion/index.html)** &nbsp; (verified, verified 2026-05-18T01:23:36Z)
   A step-index fibre has a core of index n1 and radius a inside a cladding of index n2 (n1 only slightly above n2: weakly guiding). The guided fields are the linearly polarised LP_lm modes. The normalised frequency V = a k0 sqrt(n1^2 - n2^2) decides how many modes the fibre supports; below V = 2.405 only the fundamental LP01 propagates (single-mode operation),
 
@@ -785,9 +788,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
 
-- **[MOSFET Operation: Channel, Pinch-off and I-V Regions](../playgrounds/bsc-y3s2/FIS4026-mosfet-operation-animated/index.html)** &nbsp; (verified)
-  An n-channel enhancement MOSFET: a gate over a thin oxide above a p-type body, with n+ source and drain. Raising the gate voltage past the threshold V_th inverts the surface into an n-type channel connecting source and drain. The drain-source voltage then drives a current whose behaviour splits into three regions (cutoff, triode, saturation), with the channe
-
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.
 
@@ -820,6 +820,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
+
+- **[Spin Valve: GMR/TMR Hysteresis and the Two-Current Model](../playgrounds/bsc-y3s2/FIS4026-gmr-spin-valve-simulator/index.html)** &nbsp; (verified)
+  A spin valve is two ferromagnetic layers separated by a non-magnetic spacer: a metal (giant magnetoresistance, GMR) or a thin insulating barrier (tunnel magnetoresistance, TMR). One layer is soft (the free layer) and follows the applied field; the other is pinned by an adjacent antiferromagnet (exchange bias). The device resistance is low when the two magnet
 
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified)
   Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.
