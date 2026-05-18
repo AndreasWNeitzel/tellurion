@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: rybickilightman1979
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Hot electrons swerving past ions radiate a spectrum that is flat up to the thermal energy kT, then drops exponentially: the glow of a million-degree plasma.'
+one_paragraph: 'Thermal bremsstrahlung (braking radiation) is emitted when free electrons in a hot ionized gas are deflected by ions. Summed over a Maxwellian electron distribution, the emitted spectrum is nearly flat in power per unit frequency up to photon energies h nu around kT, then cuts off exponentially as exp(-h nu / kT). The playground sweeps the plasma temperature and shows the spectrum with its flat part and exponential knee, the diagnostic that gives the temperature of galaxy-cluster gas and accretion plasmas from their X-ray spectra. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 5.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
