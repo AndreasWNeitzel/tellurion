@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST2004
 supporting_ucs: [AST3017]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Add a small 1/r^3 nudge to Newtonian gravity and the ellipse stops closing: perihelion creeps around into a slow rosette, the effect that fixed Mercury''s missing 43 arcseconds.'
+one_paragraph: 'Bertrand''s theorem says only the 1/r and r^2 central potentials give closed orbits; anything else makes the ellipse precess. General relativity adds, to leading post-Newtonian order, an effective 1/r^3 term to the orbit, and that breaks the exact 1/r form, so perihelion advances a little each lap. For Mercury the real advance is 43 arcseconds per century, far too slow to watch, so the playground keeps the exact functional form of the correction but lets you dial its strength up until the rosette turns in seconds. You are watching the same mechanism Einstein used to account for the one piece of Mercury''s orbit Newton could not. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 4 (general relativity).'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
