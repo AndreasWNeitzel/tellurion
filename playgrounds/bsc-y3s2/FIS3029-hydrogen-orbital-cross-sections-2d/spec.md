@@ -8,8 +8,8 @@ created: 2026-05-13
 primary_uc: FIS3029
 supporting_ucs: [FIS2017]
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Slice the hydrogen atom through the nucleus and the (n, l, m) orbitals show their real shapes: shells, lobes, and angular nodes.'
+one_paragraph: 'The bound states of hydrogen are psi_nlm = R_nl(r) Y_l^m(theta, phi). The playground plots the probability density |psi_nlm|^2 in the x-z plane through the nucleus, the standard textbook orbital cross section, as you pick n, l, m. You see the n - l - 1 radial nodes, the angular nodes from the spherical harmonic, and how s, p, d shapes emerge. It turns the quantum numbers into something concrete instead of abstract labels. Reference: Griffiths, Introduction to Quantum Mechanics, Ch. 4.'
 tags: [quantum, atomic-molecular, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -20,6 +20,66 @@ share_state_keys: []
 ---
 
 # Hydrogen orbital cross sections in the (x, z) plane
+
+## Explainer
+
+### What you are looking at
+
+The hydrogen atom's electron does not orbit; it occupies standing-wave
+clouds set by three integers. The playground slices the probability
+cloud through the nucleus so you see the real shapes, spherical shells,
+dumbbells, cloverleaves, and where they have nodes, as you dial the
+quantum numbers.
+
+### The wavefunction
+
+Each stationary state factors into a radial part and an angular part:
+
+$$\psi_{n\ell m}(r,\theta,\phi)
+  = R_{n\ell}(r)\,Y_\ell^m(\theta,\phi),$$
+
+with
+
+$$R_{n\ell}(r) \propto e^{-r/n}\,(2r/n)^\ell\,
+  L^{2\ell+1}_{n-\ell-1}(2r/n),$$
+
+where $L$ is an associated Laguerre polynomial and $Y_\ell^m$ a (real)
+spherical harmonic. The displayed image is the probability density
+$|\psi_{n\ell m}|^2$ in the plane $y=0$ that contains the $z$ axis, the
+standard textbook cross section.
+
+### Reading the quantum numbers off the picture
+
+Every feature is one quantum number:
+
+- $n$ (principal): sets the overall size ($\langle r\rangle\sim n^2$)
+  and the total node count.
+- $\ell$ (orbital): the number of angular lobes. $\ell=0$ is spherical
+  ($s$), $\ell=1$ two lobes ($p$), $\ell=2$ four ($d$).
+- $m$ (magnetic): how those lobes are oriented about the $z$ axis.
+
+The number of radial nodes is $n-\ell-1$ and the number of angular
+nodes is $\ell$; their sum is always $n-1$. So the quantum numbers are
+not abstract labels, they are literally the count of spherical and
+planar nodes you can see in the slice. This node structure is what sets
+chemical bonding and spectral selection rules. The playground lets you
+step $(n,\ell,m)$ and watch the shells and lobes appear.
+
+### Things to try
+
+- Fix $\ell=0$ and raise $n$: concentric spherical shells, $n-1$
+  radial nodes.
+- Set $\ell=1$ ($p$ orbital): two lobes with a planar node through the
+  nucleus.
+- Increase $\ell$ toward $n-1$: pure angular structure, no radial
+  nodes (the circular states).
+
+### Where this comes from
+
+The hydrogen wavefunctions $R_{n\ell}Y_\ell^m$, the Laguerre radial
+part, and the node-counting rules follow Griffiths, *Introduction to
+Quantum Mechanics*, Chapter 4, and Sakurai, *Modern Quantum
+Mechanics*, Section 3.6.
 
 ## Physical setup
 
