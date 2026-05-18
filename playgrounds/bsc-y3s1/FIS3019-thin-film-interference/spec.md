@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS3019
 supporting_ucs: []
 curriculum_year: bsc-y3s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The colours in an oil slick or a soap bubble are not pigment: the two reflections off a thin film interfere, and which colour survives depends on the thickness.'
+one_paragraph: 'A thin transparent film reflects light from its top and bottom surfaces; those two beams interfere with a path difference set by the film thickness and refractive index, plus a half-wave phase flip at a low-to-high index reflection. In white light some wavelengths cancel and others reinforce, so the reflected colour shifts with thickness and viewing angle, the iridescence of soap bubbles, oil films, and beetle shells. The playground sweeps the film thickness and shows the reflected spectrum and the resulting colour. Reference: Hecht, Optics, Ch. 9.'
 tags: [optics, animation, live-readout]
 difficulty: 3
 tier: simple
