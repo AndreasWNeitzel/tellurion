@@ -21,6 +21,71 @@ share_state_keys: [na, filt, meth]
 
 # CT Reconstruction: Radon, Filtered Back-Projection and MLEM
 
+## Explainer
+
+### What you are looking at
+
+A CT scanner only ever measures shadows: X-ray attenuation along lines
+through the body, at many angles. The playground builds those shadows
+(the sinogram) from a phantom, then reconstructs the slice two ways,
+filtered back-projection and iterative MLEM, and shows the error fall
+as you add angles.
+
+### The Radon transform
+
+Each projection is the line integral of the attenuation $\mu(x,y)$
+along rays at angle $\theta$:
+
+$$p(\theta, s) = \int \mu(x,y)\,\delta(x\cos\theta + y\sin\theta - s)\,
+  dx\,dy.$$
+
+Stacking $p(\theta,s)$ over all angles is the sinogram (a point in the
+object traces a sinusoid in it, hence the name). Reconstruction is the
+inverse problem: recover $\mu$ from its projections.
+
+### Filtered back-projection
+
+Naively smearing each projection back across the image (back-
+projection) gives a blurred result, because the projection-slice
+theorem says each projection fills one radial line of the 2D Fourier
+transform, and those lines are denser near the origin. Correct it by
+ramp-filtering each projection before back-projecting:
+
+$$\mu(x,y) = \int_0^\pi \big[\,p(\theta,\cdot)\ast h_\text{ramp}\,\big]
+  (x\cos\theta + y\sin\theta)\ d\theta,$$
+
+with $|\,\omega\,|$ the Ram-Lak filter (Shepp-Logan apodization tames
+its noise). Exact in the limit of infinitely many noiseless angles;
+streak artifacts appear with too few.
+
+### Iterative MLEM
+
+When the data are Poisson-noisy (few photons), maximum-likelihood
+expectation-maximization instead iterates
+
+$$\mu^{(k+1)}_j = \frac{\mu^{(k)}_j}{\sum_i A_{ij}}
+  \sum_i A_{ij}\,
+  \frac{p_i}{\sum_{j'} A_{ij'}\mu^{(k)}_{j'}},$$
+
+multiplicatively driving the forward-projected estimate toward the
+measured data. It is slower but handles noise and missing angles far
+better, the basis of modern PET/SPECT reconstruction. The playground
+shows FBP vs MLEM and the error versus number of angles and iterations.
+
+### Things to try
+
+- Add projection angles and watch FBP sharpen from streaky to clean
+  (it needs many angles).
+- Switch the ramp filter off and watch the back-projection blur
+  return.
+- Use few noisy angles and watch MLEM beat FBP as iterations proceed.
+
+### Where this comes from
+
+The Radon transform, the projection-slice theorem, filtered
+back-projection, and MLEM follow Kak and Slaney, *Principles of
+Computerized Tomographic Imaging* (1988), and Shepp and Vardi (1982).
+
 ## Physical setup
 
 X-ray computed tomography measures line integrals of the attenuation coefficient through the body at many angles (the Radon transform, displayed as the sinogram) and inverts them to recover the cross-sectional image. Two reconstruction routes are shown: analytic filtered back-projection, the workhorse of clinical CT, and the statistical MLEM iteration used in emission tomography. The test object is the standard Shepp-Logan head phantom.
