@@ -9,8 +9,8 @@ supporting_ucs: [AST3015]
 curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Six numbers fix an orbit completely: its size, its shape, and three angles that tilt and spin its plane in space. Turn each dial and watch which part of the ellipse moves.'
+one_paragraph: 'Any Keplerian orbit is pinned down by six classical elements. The semi-major axis a sets the size and the eccentricity e the shape of the ellipse; the inclination i, longitude of ascending node Omega, argument of periapsis omega, and true anomaly nu orient and place the body on it. The playground draws the 3D orbit and redraws it as you vary each element, so you see exactly what each one controls: e flattens the ellipse, i tips the plane, Omega swings the line where the plane crosses the reference plane, omega rotates periapsis within the plane, and nu walks the body around. This is the element language every ephemeris and mission plan is written in. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
