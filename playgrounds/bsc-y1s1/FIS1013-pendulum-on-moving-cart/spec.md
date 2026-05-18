@@ -20,6 +20,68 @@ share_state_keys: []
 
 # Pendulum on a moving cart
 
+## Explainer
+
+### What you are looking at
+
+Hang a pendulum from a cart that is free to roll, and the two move
+together: the swinging bob shoves the cart back and forth, and the
+cart's recoil changes how the bob swings. The playground shows this
+coupled dance and the conserved quantities that govern it, a textbook
+two-degree-of-freedom system.
+
+### Two coupled coordinates
+
+The state is the cart position $x$ and the pendulum angle $\theta$.
+There is no external horizontal force, so the total horizontal
+momentum is conserved: if the system starts at rest the centre of
+mass never moves horizontally, the cart always recoils opposite the
+bob. The equations of motion, from the Lagrangian
+$L = \tfrac12(M+m)\dot x^2 + m\,\ell\,\dot x\dot\theta\cos\theta
++ \tfrac12 m\ell^2\dot\theta^2 + m g\ell\cos\theta$, are
+
+$$(M+m)\ddot x + m\ell\big(\ddot\theta\cos\theta
+  - \dot\theta^2\sin\theta\big) = 0,$$
+
+$$\ell\ddot\theta + \ddot x\cos\theta + g\sin\theta = 0.$$
+
+The cross term $m\ell\,\ddot x\cos\theta$ is the coupling: the cart's
+acceleration acts like an effective gravity on the pendulum and vice
+versa.
+
+### Small oscillations and the mass ratio
+
+For small swings this linearizes to a single oscillator with a
+shifted frequency:
+
+$$\omega = \sqrt{\frac{g}{\ell}\,\frac{M+m}{M}}.$$
+
+A free cart makes the pendulum swing faster than the fixed-pivot
+$\sqrt{g/\ell}$, and the lighter the cart the larger the effect (as
+$M\to\infty$ the cart is immovable and the ordinary pendulum is
+recovered; as $M\to0$ the frequency diverges). Energy is conserved
+and continually trades between cart translation and pendulum
+swing. This is the same physics as the recoil of a launcher and the
+basis of the inverted-pendulum control problem. The playground sweeps
+the mass ratio and length and shows the coupled motion, the conserved
+momentum, and the energy exchange.
+
+### Things to try
+
+- Start the bob to one side and watch the cart recoil so the centre
+  of mass stays fixed (momentum conservation).
+- Make the cart very heavy and recover the ordinary
+  $\sqrt{g/\ell}$ pendulum; make it light and watch the swing speed
+  up.
+- Watch energy slosh between cart kinetic energy and pendulum
+  swing while the total stays constant.
+
+### Where this comes from
+
+The cart-pendulum Lagrangian, momentum conservation, and the
+mass-ratio frequency shift follow Taylor, *Classical Mechanics*,
+Chapter 11, and Goldstein, *Classical Mechanics*, Chapter 1.
+
 ## Physical setup
 
 Frictionless cart of mass M = 2 on a horizontal rail, with a rigid
