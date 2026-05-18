@@ -27,3 +27,7 @@ User-directed rebuild: replaced analytic cores + Chandrasekhar/merge/damping hac
 
 ## Sweep 2026-05-18
 User feedback: particles teleporting (periodic wrap) + cores too weak. Added isolated (vacuum) BCs to the shared PM engine via zero-padded Green-function convolution + a radix-2 FFT (30x faster, Poisson still exact to 1e-9). NGRID 64, no wrap: particles that leave just leave, galaxies strongly attract and merge. Screenshot-verified t-000/t-100; Sausage E-Lz preserved; 60fps. PM engine tests 9/9.
+
+## Sweep 2026-05-18
+User: secondary passed through and exited, primary disintegrated. Headless diagnostic showed a single isolated disk IS stable (engine sound) but the two-galaxy orbit was UNBOUND, so the secondary flew off the finite isolated grid (artificial escape). Fixed the initial conditions to a bound compact encounter (sep0=4, vRel=0.14, Rd=0.8), diagnostic-verified to stay grid-confined and coalesce with 100% of particles retained. Screenshot-verified the bound merger, surviving primary + accreted gold stream, Sausage E-Lz; no teleport/disintegration.
+invariants Tests 1 passed + visual 5/5 x3. Shipped.

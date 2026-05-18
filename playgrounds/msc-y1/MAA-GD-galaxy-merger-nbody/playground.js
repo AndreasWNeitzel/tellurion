@@ -43,8 +43,10 @@ const dt    = 0.03;
 const state = {
   M1: 1.0,        // primary total mass
   M2: 0.45,       // satellite total mass (it gets tidally shredded)
-  impact: 1.4,    // impact parameter
-  vRel: 0.34,     // closing speed (bound encounter)
+  impact: 1.0,    // impact parameter
+  vRel: 0.14,     // closing speed: a BOUND, compact orbit (verified by the
+                  // headless diagnostic to stay well inside the grid and
+                  // coalesce, so nothing escapes off the finite domain)
   running: !DETERMINISTIC,
 };
 
@@ -70,9 +72,9 @@ function reset() {
   n1 = Math.max(400, Math.min(NTOT - 400, n1));
   const n2 = NTOT - n1;
   const mPer = Mt / NTOT;                 // equal-mass particles
-  const sep = 5.2, b = state.impact;
-  const Rd1 = 0.95;
-  const Rd2 = 0.95 * Math.sqrt(state.M2 / state.M1);
+  const sep = 4.0, b = state.impact;
+  const Rd1 = 0.8;
+  const Rd2 = 0.8 * Math.sqrt(state.M2 / state.M1);
   const c1 = { x: L / 2 - sep / 2, y: L / 2 - b / 2, vx: +state.vRel, vy: 0, spin: +1 };
   const c2 = { x: L / 2 + sep / 2, y: L / 2 + b / 2, vx: -state.vRel, vy: 0, spin: +1 };
   const d1 = buildDisk(rng, n1, c1.x, c1.y, Rd1);
@@ -254,7 +256,7 @@ if (DETERMINISTIC) {
   // tidal tails, dynamical-friction inspiral, coalesced relaxed remnant).
   // captureFraction 0..1 maps to ~40..900 PM steps; the merger emerges
   // from self-gravity so the progression is fully continuous.
-  const warm = CAPTURE_NAME ? Math.round(40 + CAPTURE_FRAC * 860) : 260;
+  const warm = CAPTURE_NAME ? Math.round(40 + CAPTURE_FRAC * 1060) : 260;
   physFrame(warm);
   render();
   window.__simulationReady = true;
