@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [AST3014]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "A spinning ball curves. The spin drags air around with it, the flow is faster on one side than the other, and the pressure difference pushes the ball sideways. That is the Magnus force, the physics of a curveball, a topspin forehand and a banana free kick."
+one_paragraph: "A ball moving through air while spinning feels a Magnus force perpendicular to both its velocity and its spin axis, on top of gravity and quadratic drag. The playground fires the same launch with three spins: no spin (the reference arc), the chosen spin, and the opposite spin, so the trajectory visibly bends up, down or sideways relative to the reference. Topspin makes the ball dive and shortens the range; backspin lifts it and stretches the range; sidespin curves it laterally. The ball is drawn spinning with a spin-direction arrow, and the readout reports the range with and without spin so the effect is quantified. The force grows with spin rate and speed, which is why a fast, heavily spun ball curves most. This is the mechanism behind a baseball curveball, a tennis topspin lob and a football knuckleball."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
