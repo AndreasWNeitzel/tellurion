@@ -22,6 +22,75 @@ share_state_keys: []
 
 # Lane-Emden polytrope
 
+## Explainer
+
+### What you are looking at
+
+Before computers, the entire run of stellar structure could be
+captured by one tidy ordinary differential equation, the Lane-Emden
+equation, by assuming pressure is a simple power of density. It still
+gives the right intuition: how centrally concentrated a star is, and
+the famous result that a white dwarf has a maximum mass. The
+playground integrates it for any polytropic index and shows the
+density profile and global properties.
+
+### The polytrope assumption
+
+Replace the full thermodynamics by a polytropic relation between
+pressure and density,
+
+$$P = K\,\rho^{\,1 + 1/n},$$
+
+where $n$ is the polytropic index. Combining this with hydrostatic
+equilibrium and Poisson's equation, and writing the density as
+$\rho = \rho_c\,\theta^{\,n}$ with a dimensionless radius $\xi$,
+collapses everything to the Lane-Emden equation:
+
+$$\frac{1}{\xi^2}\frac{d}{d\xi}
+  \left(\xi^2\frac{d\theta}{d\xi}\right)
+  = -\,\theta^{\,n},
+  \qquad
+  \theta(0)=1,\ \ \theta'(0)=0.$$
+
+Integrating outward, $\theta$ falls to zero at the first root
+$\xi_1$, which is the stellar surface.
+
+### What the index controls
+
+The single parameter $n$ tunes the structure from uniform to
+extremely centrally condensed:
+
+- $n=0$: constant density (incompressible), $\theta=1-\xi^2/6$.
+- $n=1$: $\theta=\sin\xi/\xi$, an exact analytic solution.
+- $n=1.5$: an adiabatic monatomic gas, the model for fully
+  convective stars and non-relativistic white dwarfs.
+- $n=3$: the Eddington standard model and relativistic white
+  dwarfs; here the mass becomes independent of the central density,
+  which is precisely the origin of the Chandrasekhar limiting mass.
+- $n\to5$: infinite radius (the structure becomes unbound).
+
+Global quantities follow from $\xi_1$ and $\theta'(\xi_1)$, for
+example the central-to-mean density ratio
+$\rho_c/\bar\rho = -\xi_1 / [3\,\theta'(\xi_1)]$, which grows sharply
+with $n$ (more centrally concentrated). The playground sweeps $n$
+and shows the profile, the surface $\xi_1$, and these derived
+numbers.
+
+### Things to try
+
+- Set $n=1$ and confirm the analytic $\sin\xi/\xi$ profile with
+  surface at $\xi_1=\pi$.
+- Increase $n$ toward 5 and watch the star become extremely
+  centrally concentrated and the radius diverge.
+- Read the $n=3$ case: the mass-density degeneracy behind the
+  Chandrasekhar mass.
+
+### Where this comes from
+
+The polytropic relation and the Lane-Emden equation follow Chandrasekhar,
+*An Introduction to the Study of Stellar Structure*, Chapter 4, and
+Hansen, Kawaler and Trimble, *Stellar Interiors*, Chapter 7.
+
 ## Physical setup
 
 A self-gravitating sphere with equation of state $P = K \rho^{1 + 1/n}$. The dimensionless density profile $\theta(\xi) = (\rho/\rho_c)^{1/n}$ satisfies the Lane-Emden equation
