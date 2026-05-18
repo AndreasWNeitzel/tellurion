@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2013
 supporting_ucs: [MAA-PL]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Cross an electric and a magnetic field and a charge released from rest does not fly along E; it loops in cycloids and drifts sideways at exactly E/B.'
+one_paragraph: 'In crossed uniform fields a charge starting from rest accelerates along E until the growing v x B force curls it back, then repeats: the path is a cycloid, like a point on the rim of a rolling wheel. Averaged over one loop the particle marches steadily perpendicular to both fields at the velocity (E x B) / B^2, independent of its charge, mass, and sign. The playground integrates the exact motion and overlays that drift velocity, so you see the looping micro-motion and the clean sideways march it averages to, the building block of plasma E x B transport. Reference: Griffiths, Introduction to Electrodynamics, Ch. 5.'
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
