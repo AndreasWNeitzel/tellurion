@@ -21,6 +21,64 @@ share_state_keys: [vortex_preset, strength]
 
 # 2D Point-Vortex Dynamics
 
+## Explainer
+
+### What you are looking at
+
+Idealize a 2D fluid's swirl into a handful of point vortices, each a
+pure spin of fixed strength. They do not spin themselves; each is
+carried by the flow of all the others. Two opposite vortices shoot off
+in a straight line (a smoke ring's cross-section); a pile of like
+vortices waltzes; four or more go chaotic.
+
+### The equations of motion
+
+Each vortex $a$ has circulation $\Gamma_a$ and position
+$\mathbf r_a$. The velocity it feels is the 2D Biot-Savart sum of all
+the others (never itself):
+
+$$\dot{\mathbf r}_a = \sum_{b\ne a}
+  \frac{\Gamma_b}{2\pi}\,
+  \frac{\hat z\times(\mathbf r_a - \mathbf r_b)}
+  {|\mathbf r_a - \mathbf r_b|^2}.$$
+
+Remarkably this is a Hamiltonian system: the conjugate "coordinates"
+are the vortex positions themselves, weighted by circulation, and the
+Hamiltonian is the interaction energy
+$H = -\tfrac{1}{4\pi}\sum_{a<b}\Gamma_a\Gamma_b\ln|\mathbf r_a-
+\mathbf r_b|$.
+
+### Integrable, then chaotic
+
+Because it is Hamiltonian with conserved total circulation, linear
+impulse, and angular impulse, the dynamics is integrable for
+$N\le3$ vortices and generically chaotic for $N\ge4$ (Aref). Two
+clean cases the playground showcases:
+
+- A vortex dipole (equal and opposite $\Gamma$) self-propels in a
+  straight line at constant speed, exactly the way a vortex ring
+  translates.
+- A co-rotating pair (equal same-sign $\Gamma$) orbits its centroid at
+  fixed radius.
+
+Add a fourth vortex and the trajectories become sensitively dependent
+and tangle, deterministic chaos in an ideal fluid. The playground lets
+you place vortices and watch dipoles cruise, pairs orbit, and the
+four-vortex tangle.
+
+### Things to try
+
+- Make a $+\Gamma/-\Gamma$ dipole and watch it translate in a straight
+  line (the vortex-ring mechanism).
+- Make two same-sign vortices and watch them orbit their midpoint.
+- Add a fourth vortex and watch the motion go chaotic (Aref).
+
+### Where this comes from
+
+The point-vortex Biot-Savart dynamics, its Hamiltonian structure, and
+the integrable/chaotic boundary follow Aref (1983) and Saffman,
+*Vortex Dynamics*.
+
 ## Physical setup
 
 `N` ideal point vortices in an unbounded 2D inviscid fluid. Vortex
