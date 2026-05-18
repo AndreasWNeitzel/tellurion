@@ -1,10 +1,11 @@
 // playground.js
-// Balls dropped into a selectable concave bowl. The chosen profile is
-// drawn as a filled curve; shaded balls bounce with restitution,
-// leaving fading trails. sim.js holds the physics.
+// Up to 1800 balls released at rest in the outline of a shape, then
+// shattered by gravity into a selectable concave bowl. The chosen
+// profile is drawn as a filled curve. sim.js holds the physics; this
+// file only arranges, renders and wires the controls.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { createSystem, step, SHAPES, totalEnergy, diagnostics } from './sim.js';
+import { createSystem, step, SHAPES, ARRANGEMENTS, diagnostics } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const SEED = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -18,11 +19,15 @@ const readoutE = document.getElementById('readout-e');
 const readoutV = document.getElementById('readout-v');
 const readoutState = document.getElementById('readout-state');
 const selectShape = document.getElementById('select-shape');
+const selectArr = document.getElementById('select-arrange');
 const sliderE = document.getElementById('slider-e');
 const sliderA = document.getElementById('slider-a');
+const sliderN = document.getElementById('slider-n');
 const valueShape = document.getElementById('value-shape');
+const valueArr = document.getElementById('value-arrange');
 const valueE = document.getElementById('value-e');
 const valueA = document.getElementById('value-a');
+const valueN = document.getElementById('value-n');
 const btnDrop = document.getElementById('btn-drop');
 const btnPlay = document.getElementById('btn-playpause');
 
@@ -32,16 +37,22 @@ const VX = 3.3, Y_LO = -0.15, Y_HI = 3.7;
 const toPx = (x, y) => ({ px: W * (x + VX) / (2 * VX), py: H * (1 - (y - Y_LO) / (Y_HI - Y_LO)) });
 
 const COLORS = ['#5bc0eb', '#f4a261', '#06d6a0', '#ef476f', '#ffd166', '#b08bd8'];
-const st = { shape: 'parabola', a: 0.55, e: 0.85, sys: null, trails: [], playing: !DETERMINISTIC };
+const st = {
+  shape: 'parabola', a: 0.55, e: 0.85, arrangement: 'star', n: 1200,
+  sys: null, trails: [], playing: !DETERMINISTIC,
+};
 
-function rebuild(reseed = true) {
-  st.sys = createSystem({ shape: st.shape, a: st.a, e: st.e, mu: 0.02, n: 6, seed: SEED });
-  st.trails = st.sys.balls.map(() => []);
+function rebuild() {
+  st.sys = createSystem({
+    shape: st.shape, a: st.a, e: st.e, mu: 0.02,
+    n: st.n, seed: SEED, arrangement: st.arrangement,
+  });
+  // Per-ball fading trails are only legible (and only affordable) for a
+  // handful of balls; the shape modes draw thousands of solid dots.
+  st.trails = st.n <= 32 ? st.sys.balls.map(() => []) : null;
 }
 
-function draw() {
-  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
-  // Bowl: filled region below y = f(x).
+function drawBowl() {
   const f = SHAPES[st.shape].f;
   ctx.beginPath();
   let first = true;
@@ -62,41 +73,68 @@ function draw() {
     if (first) { ctx.moveTo(p.px, p.py); first = false; } else ctx.lineTo(p.px, p.py);
   }
   ctx.stroke();
+}
 
-  // Trails + balls.
-  st.sys.balls.forEach((b, i) => {
-    const tr = st.trails[i];
-    tr.push([b.x, b.y]);
-    if (tr.length > 90) tr.shift();
-    ctx.strokeStyle = COLORS[i % COLORS.length]; ctx.lineWidth = 1.4;
-    for (let k = 1; k < tr.length; k += 1) {
-      ctx.globalAlpha = 0.05 + 0.4 * k / tr.length;
-      const a0 = toPx(tr[k - 1][0], tr[k - 1][1]), a1 = toPx(tr[k][0], tr[k][1]);
-      ctx.beginPath(); ctx.moveTo(a0.px, a0.py); ctx.lineTo(a1.px, a1.py); ctx.stroke();
+function draw() {
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
+  drawBowl();
+
+  const balls = st.sys.balls;
+  if (st.trails) {
+    // Few-ball mode: glossy spheres with fading trails (original look).
+    balls.forEach((b, i) => {
+      const tr = st.trails[i];
+      tr.push([b.x, b.y]);
+      if (tr.length > 90) tr.shift();
+      ctx.strokeStyle = COLORS[i % COLORS.length]; ctx.lineWidth = 1.4;
+      for (let k = 1; k < tr.length; k += 1) {
+        ctx.globalAlpha = 0.05 + 0.4 * k / tr.length;
+        const a0 = toPx(tr[k - 1][0], tr[k - 1][1]), a1 = toPx(tr[k][0], tr[k][1]);
+        ctx.beginPath(); ctx.moveTo(a0.px, a0.py); ctx.lineTo(a1.px, a1.py); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      const p = toPx(b.x, b.y), r = 9;
+      const rg = ctx.createRadialGradient(p.px - 3, p.py - 4, 2, p.px, p.py, r);
+      rg.addColorStop(0, '#ffffff'); rg.addColorStop(0.35, COLORS[i % COLORS.length]); rg.addColorStop(1, '#10131a');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(p.px, p.py, r, 0, 2 * Math.PI); ctx.fill();
+    });
+  } else {
+    // Many-ball mode: one batched path per colour, solid dots. Radius
+    // shrinks with count so a 1800-ball figure stays crisp at 60 fps.
+    const r = Math.max(1.6, Math.min(4.5, 64 / Math.sqrt(st.n)));
+    for (let c = 0; c < COLORS.length; c += 1) {
+      ctx.beginPath();
+      for (let i = 0; i < balls.length; i += 1) {
+        if (balls[i].ci !== c) continue;
+        const p = toPx(balls[i].x, balls[i].y);
+        ctx.moveTo(p.px + r, p.py);
+        ctx.arc(p.px, p.py, r, 0, 2 * Math.PI);
+      }
+      ctx.fillStyle = COLORS[c];
+      ctx.globalAlpha = 0.92;
+      ctx.fill();
     }
     ctx.globalAlpha = 1;
-    const p = toPx(b.x, b.y), r = 9;
-    const rg = ctx.createRadialGradient(p.px - 3, p.py - 4, 2, p.px, p.py, r);
-    rg.addColorStop(0, '#ffffff'); rg.addColorStop(0.35, COLORS[i % COLORS.length]); rg.addColorStop(1, '#10131a');
-    ctx.fillStyle = rg;
-    ctx.beginPath(); ctx.arc(p.px, p.py, r, 0, 2 * Math.PI); ctx.fill();
-  });
+  }
 
   const d = diagnostics(st.sys);
   readoutE.textContent = d.E.toFixed(2);
   readoutV.textContent = d.maxSpeed.toFixed(2);
   readoutState.textContent = d.maxSpeed < 0.4 ? 'settled' : (st.e >= 0.999 ? 'bouncing (lossless)' : 'bouncing');
   ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillText(`${SHAPES[st.shape].label}   e = ${st.e.toFixed(2)}   a = ${st.a.toFixed(2)}`, 16, 24);
+  ctx.fillText(`${SHAPES[st.shape].label}   ${ARRANGEMENTS[st.arrangement].label}   n = ${st.n}   e = ${st.e.toFixed(2)}`, 16, 24);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.fillText('shape sets the motion; e = 1 bounces forever, e < 1 settles', 16, H - 14);
+  ctx.fillText('every ball obeys the same law, so the figure dissolves into the bowl motion', 16, H - 14);
 }
 
 function physFrame(n) { for (let k = 0; k < n; k += 1) step(st.sys, PHYS_DT); }
 
 selectShape.addEventListener('change', () => { st.shape = selectShape.value; valueShape.textContent = st.shape; rebuild(); draw(); });
+selectArr.addEventListener('change', () => { st.arrangement = selectArr.value; valueArr.textContent = ARRANGEMENTS[st.arrangement].label; rebuild(); draw(); });
 sliderE.addEventListener('input', () => { st.e = parseFloat(sliderE.value); valueE.textContent = st.e.toFixed(2); st.sys.e = st.e; });
 sliderA.addEventListener('input', () => { st.a = parseFloat(sliderA.value); valueA.textContent = st.a.toFixed(2); st.sys.a = st.a; });
+sliderN.addEventListener('input', () => { st.n = parseInt(sliderN.value, 10); valueN.textContent = String(st.n); rebuild(); draw(); });
 btnDrop.addEventListener('click', () => { rebuild(); draw(); });
 btnPlay.addEventListener('click', () => {
   st.playing = !st.playing;
@@ -113,19 +151,24 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+function syncControls() {
+  selectShape.value = st.shape; valueShape.textContent = st.shape;
+  selectArr.value = st.arrangement; valueArr.textContent = ARRANGEMENTS[st.arrangement].label;
+  sliderE.value = String(st.e); valueE.textContent = st.e.toFixed(2);
+  sliderA.value = String(st.a); valueA.textContent = st.a.toFixed(2);
+  sliderN.value = String(st.n); valueN.textContent = String(st.n);
+}
+
 function bootSync() {
-  valueShape.textContent = st.shape;
-  valueE.textContent = st.e.toFixed(2);
-  valueA.textContent = st.a.toFixed(2);
   if (CAPTURE_NAME) {
+    // Deterministic gallery: a 1200-ball star released into the parabola,
+    // stepped through release -> shatter -> settle so the five reference
+    // frames are visually distinct and dramatic.
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const keys = Object.keys(SHAPES);
-    st.shape = keys[Math.min(keys.length - 1, Math.round(f * (keys.length - 1)))];
-    selectShape.value = st.shape; valueShape.textContent = st.shape;
+    st.shape = 'parabola'; st.arrangement = 'star'; st.n = 1200;
+    syncControls();
     rebuild();
-    physFrame(Math.round((0.6 + f * 3.4) / PHYS_DT));
-    // Build a few trail points so the motion reads in a still.
-    for (let i = 0; i < 90; i += 1) { physFrame(2); st.sys.balls.forEach((b, j) => { st.trails[j].push([b.x, b.y]); if (st.trails[j].length > 90) st.trails[j].shift(); }); }
+    physFrame(Math.round((f * 1.7) / PHYS_DT));
     draw();
     if (DETERMINISTIC) {
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -135,8 +178,8 @@ function bootSync() {
     }
     return;
   }
+  syncControls();
   rebuild();
-  physFrame(160);
   draw();
 }
 

@@ -25,16 +25,76 @@ export const SHAPES = {
 
 export const G = 9.81;
 
+// Initial-arrangement presets. Each is an inside-test on normalized
+// (u, v) in [-1, 1]^2 (v up). createSystem rejection-samples n points
+// inside the figure, drops them above the bowl at rest, and gravity
+// shatters the shape into the chosen profile. 'scatter' is the original
+// sparse line of balls (small-n single-ball pedagogy preserved).
+function inPoly(poly, u, v) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i, i += 1) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if (((yi > v) !== (yj > v)) && (u < ((xj - xi) * (v - yi)) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+function segDist(u, v, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay;
+  const t = Math.max(0, Math.min(1, ((u - ax) * dx + (v - ay) * dy) / (dx * dx + dy * dy || 1)));
+  return Math.hypot(u - (ax + t * dx), v - (ay + t * dy));
+}
+const STAR = (() => {
+  const p = [];
+  for (let k = 0; k < 10; k += 1) {
+    const ang = Math.PI / 2 + (k * Math.PI) / 5;
+    const rad = k % 2 === 0 ? 1.0 : 0.40;
+    p.push([rad * Math.cos(ang), rad * Math.sin(ang)]);
+  }
+  return p;
+})();
+// Asymmetric, recognizable: a lightning bolt. No horizontal or vertical
+// mirror symmetry.
+const BOLT = [
+  [0.25, 0.95], [-0.45, 0.08], [-0.05, 0.08],
+  [-0.30, -0.95], [0.45, 0.0], [0.05, 0.0],
+];
+export const ARRANGEMENTS = {
+  scatter: { label: 'scatter (line)' },
+  square:  { label: 'square',         inside: (u, v) => Math.abs(u) <= 0.8 && Math.abs(v) <= 0.8 },
+  ball:    { label: 'ball (disk)',    inside: (u, v) => u * u + v * v <= 0.85 * 0.85 },
+  star:    { label: '5-pointed star', inside: (u, v) => inPoly(STAR, u, v) },
+  heart:   { label: 'heart',          inside: (u, v) => { const X = u / 0.92, Y = v / 0.92; return (X * X + Y * Y - 1) ** 3 - X * X * Y * Y * Y < 0; } },
+  letterA: { label: 'letter A',       inside: (u, v) => segDist(u, v, -0.62, -0.9, 0, 0.92) <= 0.16 || segDist(u, v, 0.62, -0.9, 0, 0.92) <= 0.16 || segDist(u, v, -0.30, -0.10, 0.30, -0.10) <= 0.16 },
+  bolt:    { label: 'lightning bolt', inside: (u, v) => inPoly(BOLT, u, v) },
+};
+
 export function createSystem({
-  shape = 'parabola', a = 0.55, e = 0.85, mu = 0.02, n = 6, seed = DEFAULT_SEED,
+  shape = 'parabola', a = 0.55, e = 0.85, mu = 0.02, n = 6,
+  seed = DEFAULT_SEED, arrangement = 'scatter',
 } = {}) {
   const rng = makeRng(seed);
   const balls = [];
-  for (let i = 0; i < n; i += 1) {
-    const x = -2.4 + 4.8 * (i + 0.5) / n + (rng() - 0.5) * 0.2;
-    balls.push({ x, y: 3.0 + rng() * 0.6, vx: (rng() - 0.5) * 0.4, vy: 0, alive: true });
+  const arr = ARRANGEMENTS[arrangement];
+  if (arrangement === 'scatter' || !arr || !arr.inside) {
+    for (let i = 0; i < n; i += 1) {
+      const x = -2.4 + 4.8 * (i + 0.5) / n + (rng() - 0.5) * 0.2;
+      balls.push({ x, y: 3.0 + rng() * 0.6, vx: (rng() - 0.5) * 0.4, vy: 0, ci: i, alive: true });
+    }
+  } else {
+    const test = arr.inside;
+    let made = 0, guard = 0;
+    while (made < n && guard < n * 400) {
+      guard += 1;
+      const u = 2 * rng() - 1, v = 2 * rng() - 1;
+      if (!test(u, v)) continue;
+      balls.push({
+        x: 1.75 * u, y: 2.5 + 1.05 * v, vx: 0, vy: 0,
+        ci: Math.max(0, Math.min(5, Math.floor((u + 1) * 3))), alive: true,
+      });
+      made += 1;
+    }
   }
-  return { shape, a, e, mu, balls, t: 0, E0: null };
+  return { shape, a, e, mu, arrangement, balls, t: 0, E0: null };
 }
 
 function surfaceY(s, x) { return SHAPES[s.shape].f(x, s.a); }

@@ -24,10 +24,14 @@
 <body>
   <h1>Bouncing balls in a concave bowl</h1>
   <p>
-    <strong>What you are seeing:</strong> balls falling under gravity
-    into a bowl whose profile you choose. On each contact the velocity
-    is reflected about the local tangent and the normal component is
-    scaled by the restitution $e$. The bowl shape sets the motion: a
+    <strong>What you are seeing:</strong> up to 1800 balls released at
+    rest in the outline of a shape (a star, a heart, the letter A, a
+    lightning bolt), then shattered by gravity into a bowl whose profile
+    you choose. On each contact the velocity is reflected about the
+    local tangent and the normal component is scaled by the restitution
+    $e$. The recognizable figure survives for a moment, then collapses:
+    every ball follows the same simple law, so the shape dissolves into
+    the bowl's natural motion. The bowl profile sets that motion: a
     parabola gives near-simple-harmonic swings, the V-bowl piecewise
     constant acceleration, the quartic a strongly amplitude-dependent
     period, the arc a pendulum. With $e = 1$ the balls bounce forever.
@@ -51,6 +55,8 @@
     <div class="row"><span class="label">bowl shape</span><select aria-label="bowl shape" id="select-shape"><option value="parabola">parabola</option><option value="vbowl">V-bowl</option><option value="quartic">quartic</option><option value="arc">circular arc</option><option value="cosine">cosine well</option></select><span class="value" id="value-shape">parabola</span></div>
     <div class="row"><span class="label">restitution e</span><input aria-label="restitution" type="range" id="slider-e" min="0.4" max="1" step="0.01" value="0.85"><span class="value" id="value-e">0.85</span></div>
     <div class="row"><span class="label">curvature a</span><input aria-label="curvature" type="range" id="slider-a" min="0.25" max="0.9" step="0.01" value="0.55"><span class="value" id="value-a">0.55</span></div>
+    <div class="row"><span class="label">arrangement</span><select aria-label="initial arrangement" id="select-arrange"><option value="scatter">scatter (line)</option><option value="star" selected>5-pointed star</option><option value="heart">heart</option><option value="square">square</option><option value="letterA">letter A</option><option value="ball">ball (disk)</option><option value="bolt">lightning bolt</option></select><span class="value" id="value-arrange">star</span></div>
+    <div class="row"><span class="label">particles</span><input aria-label="particle count" type="range" id="slider-n" min="6" max="1800" step="2" value="1200"><span class="value" id="value-n">1200</span></div>
     <div class="row buttons">
       <button id="btn-drop" type="button">Drop again</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>

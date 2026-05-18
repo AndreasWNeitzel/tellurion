@@ -41,6 +41,10 @@ penetration test and tangent reflection.
 
 ## Controls
 - `bowl shape`: parabola / V-bowl / quartic / circular arc / cosine.
+- `arrangement`: scatter / 5-pointed star / heart / square / letter A /
+  ball / lightning bolt (the bolt is the asymmetric figure: no
+  horizontal or vertical mirror symmetry).
+- `particles` (6..1800): count released; shape modes default to 1200.
 - `restitution e` (0.4..1) and `curvature a` (0.25..0.9).
 - Drop again; Pause / Play.
 
@@ -51,6 +55,9 @@ penetration test and tangent reflection.
 3. Quartic: flat bottom, period grows with amplitude.
 4. Arc: pendulum-like swing.
 5. $e=1$: perpetual bouncing; $e<1$: balls settle to the bottom.
+6. Shape arrangement: the figure (e.g. a 1200-ball star) is crisp at
+   release, then dissolves into the bowl motion because every ball
+   obeys the same law; the colour bands persist through the collapse.
 
 ## Invariants and acceptance thresholds
 | invariant | threshold | location |
