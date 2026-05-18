@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T19:45:30Z
-invariants: 6/6 (T(R_in)=0, peak at 49/36 R_in, far-edge r^(-3/4), monotonic decrease, bare scaling, ratio formula)
-visual: SSIM > 0.92 across 5 frames sweeping profile to disc views
+verified-at: 2026-05-18T18:35:53Z
+invariants: Tests  6 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); comprehensive ## Explainer added; render-neutral (overlay outside #stage, goldens unchanged)

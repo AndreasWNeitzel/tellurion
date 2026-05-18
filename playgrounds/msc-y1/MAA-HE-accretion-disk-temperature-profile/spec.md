@@ -20,6 +20,66 @@ share_state_keys: []
 
 # Shakura-Sunyaev accretion disc temperature profile
 
+## Explainer
+
+### What you are looking at
+
+Gas spiraling onto a black hole or neutron star cannot fall straight
+in: it forms a disk, and friction between adjacent rings heats it
+until it glows. The playground computes how hot each radius gets and
+the spectrum that results, the model behind the blue glow of cataclysmic
+variables and the UV bump of quasars.
+
+### Where the heat comes from
+
+In a steady, optically thick, geometrically thin disk, gas at radius
+$R$ orbits at the local Keplerian rate and slowly drifts inward,
+releasing gravitational energy. Viscous torques transport angular
+momentum outward and dissipate that energy locally. Balancing the
+released power against blackbody emission from both faces gives the
+Shakura-Sunyaev temperature profile
+
+$$T(R) = \left[\frac{3 G M \dot M}{8\pi\sigma R^3}
+  \left(1 - \sqrt{\frac{R_\mathrm{in}}{R}}\right)\right]^{1/4},$$
+
+with $M$ the central mass, $\dot M$ the accretion rate,
+$R_\mathrm{in}$ the inner edge (e.g. the innermost stable circular
+orbit), and $\sigma$ the Stefan-Boltzmann constant. Far from the
+inner edge this is the famous $T\propto R^{-3/4}$ law; the bracket
+forces $T\to0$ at $R_\mathrm{in}$ (the zero-torque boundary), so the
+temperature actually peaks slightly outside the inner edge.
+
+### The multicolor blackbody spectrum
+
+Each annulus radiates as a blackbody at its own $T(R)$. Summing
+nested rings gives the disk's integrated spectrum,
+
+$$L_\nu \;\propto\; \int_{R_\mathrm{in}}^{R_\mathrm{out}}
+  2\pi R\;B_\nu\big(T(R)\big)\,dR,$$
+
+which has a characteristic shape: a Rayleigh-Jeans
+($L_\nu\propto\nu^2$) tail at low frequency, a broad flat
+$L_\nu\propto\nu^{1/3}$ middle from the range of ring temperatures,
+and a Wien cutoff set by the hottest inner ring. Raising $\dot M$
+slides the whole spectrum up and blueward. The playground sweeps
+$\dot M$ and $M$ and shows $T(R)$ and the multicolor-disk spectrum
+respond.
+
+### Things to try
+
+- Confirm the $T\propto R^{-3/4}$ falloff away from the inner edge,
+  and the turnover to zero at $R_\mathrm{in}$.
+- Increase $\dot M$ and watch the temperature and the spectral peak
+  rise (hotter, bluer disk).
+- Identify the $\nu^{1/3}$ flat segment between the Rayleigh-Jeans
+  rise and the Wien cutoff (the multicolor signature).
+
+### Where this comes from
+
+The thin-disk temperature profile and the multicolor blackbody
+spectrum follow Shakura and Sunyaev, A&A 24, 337 (1973), and Frank,
+King and Raine, *Accretion Power in Astrophysics*, Chapter 5.
+
 ## Physical setup
 
 Steady, optically thick, geometrically thin accretion disc around a
