@@ -419,8 +419,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Coulomb Equilibrium of Charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/index.html)** &nbsp; (verified, verified 2026-05-14T00:57:36Z)
   Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths E&M Ch. 2 (`griffiths-em`).
 
-- **[Elastic and Inelastic Collisions in 1D](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (verified, verified 2026-05-14T00:52:02Z)
-  Two balls collide head-on with closed-form post-collision velocities parameterized by restitution $e$. Momentum is conserved for any $e$; KE is lost for $e < 1$. Source: Marion-Thornton Ch. 9 (`marion-thornton`).
+- **[Elastic and Inelastic Collisions in 2D](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (verified, verified 2026-05-14T00:52:02Z)
+  Two disks collide obliquely on a frictionless plane. The hit is parameterised by the impact parameter b (the perpendicular offset between the incoming line of motion and the target centre) and the coefficient of restitution e. Resolving the collision along the contact normal: the normal relative-velocity component reverses scaled by e, the tangential compone
 
 - **[Multiple Integral Fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/index.html)** &nbsp; (verified, verified 2026-05-14T00:50:39Z)
   Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
