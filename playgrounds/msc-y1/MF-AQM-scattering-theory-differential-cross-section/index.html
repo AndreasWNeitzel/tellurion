@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scattering Theory: Differential Cross Section and Partial Waves</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Scattering Theory: Differential Cross Section and Partial Waves</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Differential cross-section surface of revolution, partial-wave phase shifts, and polar cross-section"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">ka:</span><span class="value" id="readout-ka">3.00</span>
+      <span class="label">sigma_tot:</span><span class="value" id="readout-sig">0.0</span>
+      <span class="label">optical check:</span><span class="value" id="readout-opt">0.0%</span>
+      <span class="label">l_max:</span><span class="value" id="readout-lmax">0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Quantum elastic scattering: the incident plane wave plus the outgoing spherical wave give an axially symmetric differential cross section, shown as a rotating surface of revolution about the beam axis, with the partial-wave phase shifts and the polar pattern; the optical theorem and the hard-sphere limits are gate-tested.
+      <em>Method:</em> partial-wave expansion (hard sphere via spherical Bessel) and the Born approximation as the Fourier transform of the potential; deterministic.
+      <em>Source:</em> Sakurai and Napolitano Ch. 6; Griffiths QM Ch. 11; Taylor 1972.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">target</span><select aria-label="scattering target" id="select-target" style="grid-column: span 2;"><option value="hard">hard sphere (partial waves)</option><option value="yukawa">Yukawa (Born)</option><option value="well">square well (Born)</option></select></div>
+    <div class="row"><span class="label">ka (size x energy)</span><input aria-label="k times a, x100" type="range" id="slider-ka" min="20" max="1400" step="10" value="300"><span class="value" id="value-ka">3.00</span></div>
+    <div class="row"><span class="label">strength</span><input aria-label="potential strength, x100" type="range" id="slider-str" min="20" max="500" step="10" value="200"><span class="value" id="value-str">2.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

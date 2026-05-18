@@ -423,7 +423,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 17: M:F Adv QM (Sakurai, CT II, Merzbacher)
 
-- [ ] scattering-theory-differential-cross-section : hero canvas2d 3D.
+- [x] scattering-theory-differential-cross-section : hero canvas2d 3D.
   Incident plane wave plus scattered spherical, dsigma/dOmega surface
   of revolution, partial-wave bars, delta_l, sigma_tot. Inv: optical
   thm Im f(0)=k sig/4pi 0.1%; hard-sphere sig to pi a^2; Born=FT[V].
