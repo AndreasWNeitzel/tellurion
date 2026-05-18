@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS3029
 supporting_ucs: [FIS3020]
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Line up identical potential spikes in a row and the electron''s allowed energies split into bands separated by forbidden gaps: where insulators, metals, and semiconductors come from.'
+one_paragraph: 'The Kronig-Penney model is the simplest crystal: a periodic row of delta-function potential spikes. Requiring a traveling Bloch wave forces the condition cos(ka) = cos(qa) + (P/qa) sin(qa). Wherever the right side stays within [-1, 1] a real wavevector k exists and the energy is allowed; wherever it exceeds 1 in magnitude there is no propagating state and the energy lies in a band gap. The playground sweeps the spike strength P and draws the bands narrowing and the gaps widening. This band-gap structure is the entire basis for why solids are metals, insulators, or semiconductors. Reference: Kittel, Introduction to Solid State Physics, Ch. 7.'
 tags: [quantum, atomic-molecular, animation, live-readout]
 difficulty: 3
 tier: simple
