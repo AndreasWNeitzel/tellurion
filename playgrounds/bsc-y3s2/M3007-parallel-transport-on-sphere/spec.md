@@ -9,8 +9,8 @@ supporting_ucs: [AST3017]
 curriculum_year: bsc-y3s2
 primary_citation: carroll2019
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Carry an arrow around a triangle on a globe, always keeping it parallel, and it comes back rotated by exactly the area you enclosed.'
+one_paragraph: 'Parallel transport slides a vector along a path without ever turning it relative to the surface. On a flat plane a round trip returns it unchanged; on a sphere it comes back rotated, and the rotation angle equals the solid angle (area) enclosed by the loop. For a spherical triangle this is the angle excess A + B + C - pi, the Gauss-Bonnet theorem made tactile. The playground transports a vector around a spherical triangle and shows the leftover rotation (the holonomy). This rotation-from-curvature is the geometric core of gauge theory and general relativity. Reference: Carroll, Spacetime and Geometry, Ch. 3.'
 tags: [relativity, animation, live-readout]
 difficulty: 3
 tier: simple
