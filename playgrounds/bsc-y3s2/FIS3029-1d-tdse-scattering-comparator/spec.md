@@ -20,6 +20,65 @@ share_state_keys: []
 
 # 1D TDSE wavepacket scattering off a barrier
 
+## Explainer
+
+### What you are looking at
+
+Fire a quantum particle at a barrier and it does not simply bounce or
+pass: part of the wavefunction reflects and part tunnels through,
+even when the particle has less energy than the barrier is tall. The
+playground launches a Gaussian wavepacket at a barrier, step, or well
+and shows the probability splitting into reflected and transmitted
+parts in real time.
+
+### The time-dependent Schrodinger equation
+
+The packet evolves under
+
+$$i\hbar\,\frac{\partial\psi}{\partial t}
+  = -\frac{\hbar^2}{2m}\,\frac{\partial^2\psi}{\partial x^2}
+  + V(x)\,\psi,$$
+
+starting as a minimum-uncertainty Gaussian of mean momentum $k_0$.
+Its norm $\int|\psi|^2dx = 1$ is conserved (probability is never lost),
+and $|\psi(x)|^2$ is the probability density of finding the particle.
+
+### Tunnelling and the transmission coefficient
+
+When the packet meets a rectangular barrier of height $V_0$ and width
+$a$ with particle energy $E<V_0$, the wavefunction does not vanish
+inside; it decays exponentially, and a reduced-amplitude oscillation
+emerges on the far side. The transmitted fraction is, to leading
+exponential order,
+
+$$T \;\sim\; \exp\!\big(-2\kappa a\big),
+  \qquad
+  \kappa = \frac{\sqrt{2m\,(V_0 - E)}}{\hbar},$$
+
+so transmission is exponentially sensitive to the barrier width and
+height: this is quantum tunnelling, the mechanism behind alpha decay,
+the scanning tunnelling microscope, and tunnel diodes. At $E\gtrsim
+V_0$ you instead see resonant transmission (Ramsauer-Townsend dips
+and peaks) from interference of the reflections at the two edges. The
+playground integrates with Crank-Nicolson (unitary, norm-preserving
+by construction) and reports the reflected and transmitted
+probabilities as the packet scatters.
+
+### Things to try
+
+- Send a packet with $E<V_0$ at a thin barrier and watch a small but
+  nonzero transmitted packet emerge (tunnelling).
+- Widen the barrier and watch transmission collapse exponentially.
+- Raise the energy above the barrier and watch resonant
+  transmission/reflection oscillations appear.
+
+### Where this comes from
+
+The time-dependent Schrodinger equation, tunnelling, and the
+Crank-Nicolson scheme follow Griffiths, *Introduction to Quantum
+Mechanics*, Chapter 2, and Press et al., *Numerical Recipes*, on the
+Crank-Nicolson method.
+
 ## Physical setup
 
 A 1D Gaussian wavepacket initially at x_0 = -15 with momentum k_0 moves to the right and scatters off a potential (rectangular barrier, step, or square well). Computed with Crank-Nicolson on a uniform grid; norm-preserving by construction.
