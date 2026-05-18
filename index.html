@@ -43,6 +43,14 @@
   <section class="card-grid">
 
     <article class="card">
+      <h2><a href="./playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/index.html">Thermal Bremsstrahlung Spectrum</a></h2>
+      <p class="status">verified 2026-05-18</p>
+      <p class="description">Flat below $h\nu = kT$, exponential cutoff above. Source: Rybicki-Lightman Ch. 5 (`rybickilightman1979`).</p>
+      
+    </article>
+  
+
+    <article class="card">
       <h2><a href="./playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab/index.html">1D Radiative Transfer (Uniform Slab)</a></h2>
       <p class="status">verified 2026-05-18</p>
       <p class="description">Slab with constant $S$ and finite $\tau$; closed-form $I(\tau) = I_{in} e^{-\tau} + S(1-e^{-\tau})$. Source: Rybicki-Lightman Ch. 1 (`rybickilightman1979`).</p>
@@ -1307,14 +1315,6 @@
   
 
     <article class="card">
-      <h2><a href="./playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/index.html">Thermal Bremsstrahlung Spectrum</a></h2>
-      <p class="status">verified 2026-05-18</p>
-      <p class="description">Flat below $h\nu = kT$, exponential cutoff above. Source: Rybicki-Lightman Ch. 5 (`rybickilightman1979`).</p>
-      
-    </article>
-  
-
-    <article class="card">
       <h2><a href="./playgrounds/bsc-y2s2/FIS2021-standard-map-kam/index.html">Chirikov Standard Map - KAM Tori</a></h2>
       <p class="status">verified 2026-05-18</p>
       <p class="description">The standard map is the discrete-time area-preserving map p_{n+1} = p_n + K sin(theta_n) (mod 2 pi) theta_{n+1} = theta_n + p_{n+1} (mod 2 pi) on the torus (theta, p) in [0, 2 pi)^2. It is the Poincare section of a periodically kicked rotator. At K = 0 the dynamics is integrable; at finite K the KAM theorem guarantees that sufficiently irrational tori surviv</p>
@@ -1709,7 +1709,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MFM-MP-ct-reconstruction-lab/index.html">CT Reconstruction: Radon, Filtered Back-Projection and MLEM</a></h2>
       <p class="status">verified 2026-05-18</p>
-      <p class="description">X-ray computed tomography measures line integrals of the attenuation coefficient through the body at many angles (the Radon transform, displayed as the sinogram) and inverts them to recover the cross-sectional image. Two reconstruction routes are shown: analytic filtered back-projection, the workhorse of clinical CT, and the statistical MLEM iteration used i</p>
+      <p class="description">A CT scanner only ever measures shadows: X-ray attenuation along lines through the body, at many angles. The playground builds those shadows (the sinogram) from a phantom, then reconstructs the slice two ways, filtered back-projection and iterative MLEM, and shows the error fall as you add angles.</p>
       
     </article>
   
@@ -1829,7 +1829,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MF-AQM-dirac-equation-relativistic-hydrogen/index.html">Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung</a></h2>
       <p class="status">verified 2026-05-18</p>
-      <p class="description">A hydrogen-like ion of nuclear charge `Z`. The Schrodinger equation gives a degenerate `-Ry Z^2/n^2` ladder; the Dirac equation adds the relativistic kinetic correction, spin-orbit coupling and the Darwin term, deepening every level and splitting it by the total angular momentum `j`. A free Dirac wave packet also exhibits Zitterbewegung, a rapid trembling of</p>
+      <p class="description">Schrodinger's hydrogen levels depend only on $n$. Dirac's relativistic treatment splits them by total angular momentum $j$ (the fine structure) and predicts a strange jitter of the electron's position (Zitterbewegung). The playground stacks the two level ladders, magnifies the relativistic gap, and shows the trembling, with everything growing as the nuclear </p>
       
     </article>
   
@@ -1837,7 +1837,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MF-AQM-scattering-theory-differential-cross-section/index.html">Scattering Theory: Differential Cross Section and Partial Waves</a></h2>
       <p class="status">verified 2026-05-18</p>
-      <p class="description">A monoenergetic beam (plane wave `e^{ikz}`) hits a fixed central potential and scatters into an outgoing spherical wave `f(theta) e^{ikr}/r`. The measured quantity is the differential cross section `dsigma/dOmega = |f(theta)|^2`, axially symmetric about the beam. For a hard sphere it is built from the partial-wave phase shifts; for a weak smooth potential th</p>
+      <p class="description">Fire a quantum beam at a target and count where particles come out. The angular pattern, the differential cross section, encodes the potential. The playground shows the incident plane wave, the outgoing scattered wave, the phase shifts each angular-momentum channel picks up, and the polar $d\sigma/d\Omega$ pattern, with the optical theorem as a built-in cons</p>
       
     </article>
   
