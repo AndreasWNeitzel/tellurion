@@ -41,7 +41,7 @@ const CS = Math.min(PANEL_W / COLS, (H - TOP - 20) / ROWS);
 const FLASH_SWEEP = 26;
 const FLASH_GLOW = 32;
 const FLASH_DUR = FLASH_SWEEP + FLASH_GLOW;
-const REST_DUR = 220;
+const REST_DUR = 300;          // 5 s hold so the result is readable
 
 const st = {
   seed: 7, speed: 6, k: 0, g: null, dj: null, as: null,
@@ -52,15 +52,21 @@ function rebuild() {
   st.g = buildCity(COLS, ROWS, st.seed);
   st.dj = dijkstra(st.g);
   st.as = astar(st.g);
-  st.k = 0; st.phase = 'search'; st.flashT = 0; st.restT = 0;
-  // Fire the bolt as soon as the FIRST search reaches the goal, not
-  // when both finish. A* almost always settles its goal first.
+  st.k = 0; st.phase = 'search'; st.restT = 0;
+  // Per-search arrival index (cells settled when each reached the
+  // goal). Each panel reveals at its own pace: A* finishes early and
+  // its panel sits solved while Dijkstra is still visibly flooding, so
+  // the effort asymmetry is on screen, not hidden by a joint finish.
   const gD = st.dj.order.indexOf(st.g.goal);
   const gA = st.as.order.indexOf(st.g.goal);
-  st.firstGoal = Math.min(gD < 0 ? Infinity : gD, gA < 0 ? Infinity : gA) + 1;
-  st.firstName = (gA >= 0 && (gD < 0 || gA <= gD)) ? 'A*' : 'Dijkstra';
+  st.djGoal = (gD < 0 ? st.dj.order.length : gD) + 1;
+  st.asGoal = (gA < 0 ? st.as.order.length : gA) + 1;
+  st.firstName = st.asGoal <= st.djGoal ? 'A*' : 'Dijkstra';
+  st.fullEnd = Math.max(st.djGoal, st.asGoal);
+  // Per-panel bolt timers: -1 until that search reaches its goal, then
+  // counts up through FLASH_DUR (sweep then decay to a steady line).
+  st.djFlashT = -1; st.asFlashT = -1;
 }
-const searchEnd = () => st.firstGoal;
 
 function pathPx(x0, res) {
   const g = st.g;
@@ -82,12 +88,16 @@ function strokePath(pts, lo, hi, width, style) {
   ctx.stroke();
 }
 
-function drawBolt(pts) {
-  if (pts.length < 2) return;
+// Each panel owns its bolt, driven by ft = frames since THAT search
+// reached its goal (ft < 0: not yet; 0..SWEEP: head races the path;
+// SWEEP..DUR: glow decays; >= DUR: steady line). So A* flashes the
+// instant it finishes while Dijkstra is still flooding, and Dijkstra
+// flashes later when it finishes; the two are never coupled.
+function drawBolt(pts, ft) {
+  if (pts.length < 2 || ft < 0) return;
   const P = pts.length - 1;
-  if (st.phase === 'flash' && st.flashT < FLASH_SWEEP) {
-    // Attack: a white-hot head racing from start to goal.
-    const head = Math.max(1, Math.round((st.flashT / FLASH_SWEEP) * P));
+  if (ft < FLASH_SWEEP) {
+    const head = Math.max(1, Math.round((ft / FLASH_SWEEP) * P));
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     strokePath(pts, 0, head, Math.max(3, CS * 0.9), 'rgba(255,170,40,0.5)');
@@ -101,9 +111,7 @@ function drawBolt(pts) {
     ctx.beginPath(); ctx.arc(hx, hy, CS * 3.2, 0, 2 * Math.PI); ctx.fill();
     ctx.restore();
   } else {
-    // Decay: whole path blazes, additive glow fades to a steady line.
-    const since = st.phase === 'flash' ? st.flashT - FLASH_SWEEP : FLASH_GLOW;
-    const I = Math.exp(-since / 11);
+    const I = Math.exp(-(ft - FLASH_SWEEP) / 11);
     strokePath(pts, 0, P, Math.max(2, CS * 0.42), 'rgba(255,196,84,0.92)');
     if (I > 0.02) {
       ctx.save();
@@ -115,11 +123,14 @@ function drawBolt(pts) {
   }
 }
 
-function drawPanel(x0, title, res, color) {
+function drawPanel(x0, title, res, ft) {
   const g = st.g;
   ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText(title, x0, TOP - 12);
-  const revealed = st.phase === 'search' ? Math.min(res.order.length, st.k) : res.order.length;
+  // Once this search has reached its goal (ft >= 0) its panel holds the
+  // full settled field while the other may still be flooding.
+  const reachedHere = ft >= 0;
+  const revealed = reachedHere ? res.order.length : Math.min(res.order.length, st.k);
   const rank = new Int32Array(g.cols * g.rows).fill(-1);
   for (let i = 0; i < revealed; i += 1) rank[res.order[i]] = i;
   for (let y = 0; y < g.rows; y += 1) {
@@ -138,23 +149,32 @@ function drawPanel(x0, title, res, color) {
     }
   }
   const goalRank = res.order.indexOf(g.goal);
-  const reached = goalRank >= 0 && revealed > goalRank && res.path.length > 1;
-  if (st.phase === 'search' && reached) {
-    strokePath(pathPx(x0, res), 0, res.path.length - 1, Math.max(2, CS * 0.4), 'rgba(255,209,102,0.7)');
-  } else if (st.phase !== 'search' && res.path.length > 1) {
-    drawBolt(pathPx(x0, res));
-  }
+  if (reachedHere && res.path.length > 1) drawBolt(pathPx(x0, res), ft);
   for (const [node, c] of [[g.start, '#06d6a0'], [g.goal, '#ef476f']]) {
     const cx = x0 + (node % g.cols) * CS + CS / 2, cy = TOP + ((node / g.cols) | 0) * CS + CS / 2;
     ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, cy, CS * 0.7, 0, 2 * Math.PI); ctx.fill();
   }
+  // Per-panel status by the title: this is where the asymmetry shows.
+  // The instant A* reaches its goal it reads "reached" and flashes
+  // while Dijkstra still says "scanning...".
+  const settledHere = Math.min(revealed, res.expanded);
+  const arrival = goalRank >= 0 ? goalRank + 1 : res.expanded;
+  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'right';
+  if (reachedHere) {
+    ctx.fillStyle = '#9be19b';
+    ctx.fillText(`done ${arrival} -> path ${res.path.length}`, x0 + PANEL_W, TOP - 12);
+  } else {
+    ctx.fillStyle = 'rgba(160,200,255,0.85)';
+    ctx.fillText(`scan ${settledHere}`, x0 + PANEL_W, TOP - 12);
+  }
+  ctx.textAlign = 'left';
   return revealed;
 }
 
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
-  const rd = drawPanel(PAD, 'Dijkstra (uniform-cost flood)', st.dj, '#5bc0eb');
-  const ra = drawPanel(PAD + PANEL_W + GAP, 'A* (Manhattan heuristic)', st.as, '#f4a261');
+  const rd = drawPanel(PAD, 'Dijkstra (flood)', st.dj, st.djFlashT);
+  const ra = drawPanel(PAD + PANEL_W + GAP, 'A* (heuristic)', st.as, st.asFlashT);
   readoutD.textContent = String(Math.min(rd, st.dj.expanded));
   readoutA.textContent = String(Math.min(ra, st.as.expanded));
   const costTxt = Number.isFinite(st.dj.cost) ? st.dj.cost.toFixed(0) : 'inf';
@@ -164,19 +184,24 @@ function render() {
   ctx.fillStyle = 'rgba(6,7,11,0.82)'; ctx.fillRect(0, H - 34, W, 34);
   ctx.textAlign = 'center';
   const dSet = st.dj.expanded, aSet = st.as.expanded;
-  if (st.phase === 'search') {
+  const bothReached = st.djFlashT >= 0 && st.asFlashT >= 0;
+  if (!bothReached) {
     const dLive = Math.min(rd, dSet), aLive = Math.min(ra, aSet);
-    ctx.fillStyle = 'rgba(160,200,255,0.85)'; ctx.font = '12px ui-monospace, monospace';
-    ctx.fillText(`Dijkstra ${dLive} settled    A* ${aLive} settled    (A* drives a beam, Dijkstra floods)`, W / 2, H - 12);
+    const aDone = st.asFlashT >= 0, dDone = st.djFlashT >= 0;
+    let tail = '(A* drives a beam, Dijkstra floods)';
+    if (aDone && !dDone) tail = '(A* solved; Dijkstra still flooding)';
+    else if (dDone && !aDone) tail = '(Dijkstra solved; A* still searching)';
+    ctx.fillStyle = 'rgba(160,200,255,0.9)'; ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText(`Dijkstra ${dLive} scanned    A* ${aLive} scanned    ${tail}`, W / 2, H - 12);
   } else {
-    // Teaching point: both return the SAME optimal path; A* just
-    // settles far fewer nodes. (Admissible heuristic, so A* is optimal,
-    // and Dijkstra's path is not shorter.)
+    // Both find the SAME optimal path (admissible heuristic). The
+    // honest comparison is effort, not path length: A* reached it
+    // first having scanned far fewer cells.
     const ratio = aSet > 0 ? (dSet / aSet).toFixed(1) : '--';
     ctx.fillStyle = 'rgba(255,209,102,0.92)'; ctx.font = '12px ui-monospace, monospace';
-    ctx.fillText(`${st.firstName} reached the goal first    same optimal path: ${pathLen} cells, cost ${costTxt}`, W / 2, H - 21);
-    ctx.fillStyle = 'rgba(160,200,255,0.88)';
-    ctx.fillText(`Dijkstra settled ${dSet}    A* settled ${aSet}    (${ratio}x fewer for the identical route)`, W / 2, H - 7);
+    ctx.fillText(`Both found the SAME shortest path: ${pathLen} cells, cost ${costTxt}`, W / 2, H - 21);
+    ctx.fillStyle = 'rgba(160,200,255,0.9)';
+    ctx.fillText(`A* reached it scanning ${aSet} cells; Dijkstra needed ${dSet} (${ratio}x more work)`, W / 2, H - 7);
     if (st.phase === 'rest') {
       const frac = 1 - st.restT / REST_DUR;
       ctx.strokeStyle = 'rgba(255,209,102,0.4)'; ctx.lineWidth = 2;
@@ -188,21 +213,27 @@ function render() {
 
 sliderSpeed.addEventListener('input', () => { st.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(st.speed); });
 sliderSeed.addEventListener('input', () => { st.seed = parseInt(sliderSeed.value, 10); valueSeed.textContent = String(st.seed); rebuild(); });
-btnRestart.addEventListener('click', () => { st.k = 0; st.phase = 'search'; st.flashT = 0; st.restT = 0; });
+btnRestart.addEventListener('click', () => { st.k = 0; st.phase = 'search'; st.djFlashT = -1; st.asFlashT = -1; st.restT = 0; });
 btnPlay.addEventListener('click', () => {
   st.playing = !st.playing;
   btnPlay.textContent = st.playing ? 'Pause' : 'Play';
   btnPlay.setAttribute('aria-pressed', String(!st.playing));
 });
 
+function advanceFlash(key, goal) {
+  if (st.k > goal && st[key] < 0) st[key] = 0;
+  else if (st[key] >= 0 && st[key] < FLASH_DUR) st[key] += 1;
+}
 function tick() {
   if (st.playing) {
     if (st.phase === 'search') {
       st.k += st.speed;
-      if (st.k >= searchEnd()) { st.k = searchEnd(); st.phase = 'flash'; st.flashT = 0; }
-    } else if (st.phase === 'flash') {
-      st.flashT += 1;
-      if (st.flashT >= FLASH_DUR) { st.phase = 'rest'; st.restT = REST_DUR; }
+      // Each panel's bolt fires the instant THAT search reaches its
+      // own goal, independently: A* flashes while Dijkstra is still
+      // flooding, then Dijkstra flashes when it finishes.
+      advanceFlash('djFlashT', st.djGoal);
+      advanceFlash('asFlashT', st.asGoal);
+      if (st.djFlashT >= FLASH_DUR && st.asFlashT >= FLASH_DUR) { st.phase = 'rest'; st.restT = REST_DUR; }
     } else {
       st.restT -= 1;
       if (st.restT <= 0) { st.seed = (st.seed % 40) + 1; valueSeed.textContent = String(st.seed); sliderSeed.value = String(st.seed); rebuild(); }
@@ -219,12 +250,18 @@ function bootSync() {
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     const i = Math.max(0, Math.min(4, Math.round(f * 4)));
-    const end = searchEnd();
-    if (i === 0) { st.phase = 'search'; st.k = Math.round(0.10 * end); }
-    else if (i === 1) { st.phase = 'search'; st.k = Math.round(0.55 * end); }
-    else if (i === 2) { st.phase = 'search'; st.k = end; }
-    else if (i === 3) { st.phase = 'flash'; st.flashT = FLASH_SWEEP; }
-    else { st.phase = 'rest'; st.restT = REST_DUR - 30; }
+    const a = st.asGoal, d = st.djGoal;
+    if (i === 0) {                                  // both still flooding
+      st.phase = 'search'; st.k = Math.round(0.35 * Math.min(a, d));
+    } else if (i === 1) {                           // A* bolt; Dijkstra floods
+      st.phase = 'search'; st.k = a + 4; st.asFlashT = FLASH_SWEEP; st.djFlashT = -1;
+    } else if (i === 2) {                           // A* solved & idle; Dijkstra floods
+      st.phase = 'search'; st.k = Math.round((a + d) / 2); st.asFlashT = FLASH_DUR; st.djFlashT = -1;
+    } else if (i === 3) {                           // Dijkstra bolt; A* steady
+      st.phase = 'search'; st.k = d + 4; st.djFlashT = FLASH_SWEEP; st.asFlashT = FLASH_DUR;
+    } else {                                        // rest, both steady
+      st.phase = 'rest'; st.restT = REST_DUR - 40; st.k = st.fullEnd; st.djFlashT = FLASH_DUR; st.asFlashT = FLASH_DUR;
+    }
     render();
     if (DETERMINISTIC) {
       requestAnimationFrame(() => requestAnimationFrame(() => {

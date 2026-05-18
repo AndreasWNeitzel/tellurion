@@ -102,3 +102,34 @@ presumably shorter path?)."
   bsc-y1s1/CC1017-pathfinding-dijkstra-astar --deterministic
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3)
 - node scripts/build-index.mjs
+
+## Per-panel independent bolts + 5s rest (2026-05-18)
+
+User: "(a) you made both finish together, hiding that one scans far
+more; (b) the thunder should fire per panel as soon as THAT search
+finishes, not wait for the other; (c) rest is too fast, make 5s;
+(d) I cannot see which has the shortest path."
+
+- Replaced the single global flash phase with two per-panel timers
+  st.djFlashT / st.asFlashT (-1 until that search reaches its goal,
+  then 0..FLASH_DUR). drawBolt(pts, ft) is parameterised on the
+  panel's own ft. A panel reveals its FULL settled field once it has
+  reached (ft>=0) while the other is still min(order,k): A* solves and
+  flashes while Dijkstra is visibly still flooding, then Dijkstra
+  flashes when it finishes. searchEnd()/the 'flash' phase removed;
+  search -> rest when both timers complete.
+- REST_DUR 220 -> 300 frames (5 s).
+- Per-panel header status (right-aligned, shortened so it no longer
+  collides with the shortened titles "Dijkstra (flood)" /
+  "A* (heuristic)"): "scan N" while flooding, "done A -> path L" once
+  reached. Bottom strip switches to the comparison the moment BOTH
+  have reached: same optimal path length+cost, and the effort gap
+  (A* scanned Na, Dijkstra Nd, ratio x more work). The honest point
+  is effort, not path length (admissible heuristic -> identical path).
+- Capture: 5 frames = flood / A*-bolt-while-Dijkstra-floods /
+  A*-steady-while-Dijkstra-floods / Dijkstra-bolt / 5s rest. Inspected
+  directly; invariants 5/5 (sim untouched); visual gate 5/5 x3.
+- NOTE for #256 still open: with an admissible heuristic A* returns the
+  SAME optimal path as Dijkstra by construction; a heuristic-weight
+  (greedy / weighted A*) control is needed to show the genuine
+  speed-vs-optimality trade-off.
