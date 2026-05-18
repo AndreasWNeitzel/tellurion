@@ -20,6 +20,66 @@ share_state_keys: []
 
 # BTW sandpile and self-organized criticality
 
+## Explainer
+
+### What you are looking at
+
+Add sand one grain at a time to a pile and most grains do nothing,
+but occasionally one triggers an avalanche, and those avalanches come
+in all sizes with no typical scale. The system tunes itself to the
+critical point with no parameter adjustment. The playground is the
+Bak-Tang-Wiesenfeld sandpile, the original model of
+self-organized criticality.
+
+### The toppling rule
+
+Each cell of a grid holds an integer height. Drop a grain on a random
+cell; whenever a cell reaches the threshold (4 on a square lattice)
+it topples, sending one grain to each of its four neighbours:
+
+$$z_i \ge 4 \;\Longrightarrow\;
+  z_i \to z_i - 4,\quad
+  z_{\text{nbr}} \to z_{\text{nbr}} + 1,$$
+
+and grains that fall off the boundary leave the system. Toppling can
+push neighbours over threshold, so one grain can set off a chain
+reaction, an avalanche, before the pile is stable again. (The rule is
+"abelian": the final stable configuration does not depend on the
+order in which unstable cells are relaxed.)
+
+### Self-organized criticality
+
+Driven slowly and dissipating at the edges, the pile drives itself to
+a stationary critical state with no tuning. The signature is that the
+avalanche sizes $s$ follow a power law,
+
+$$P(s) \sim s^{-\tau},$$
+
+with no characteristic size: most events are tiny, but events of
+every magnitude up to system-spanning occur, and the distribution is
+scale-free (a straight line on log-log). This is fundamentally
+different from a tuned phase transition: nothing sets the control
+parameter, the dynamics finds the critical point itself. The same
+idea is invoked for earthquakes (Gutenberg-Richter), neuronal
+avalanches, and forest fires. The playground drops grains, animates
+the avalanches, and accumulates the size distribution so you watch
+the power law build up.
+
+### Things to try
+
+- Drop grains and watch most do nothing while rare ones trigger
+  large cascades.
+- Build up the avalanche-size histogram and see it straighten into a
+  power law on log-log (scale-free).
+- Note the pile self-tunes to criticality: you never set a
+  parameter, it finds it.
+
+### Where this comes from
+
+The BTW sandpile, abelian toppling, and self-organized criticality
+follow Bak, Tang and Wiesenfeld, Phys. Rev. Lett. 59, 381 (1987),
+and Jensen, *Self-Organized Criticality*.
+
 ## Physical setup
 
 32 x 32 lattice of integer heights. Drop a grain at a random site;
