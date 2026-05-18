@@ -21,6 +21,62 @@ share_state_keys: [dimensionality, box_size, eff_mass]
 
 # Quantum Confinement in Nanostructures
 
+## Explainer
+
+### What you are looking at
+
+Shrink a piece of semiconductor in one, two, or three directions and
+its electronic character changes qualitatively, not just
+quantitatively. The playground takes the same particle and confines it
+in 0, 1, 2, or 3 directions (bulk, quantum well, wire, dot) and shows
+how the density of states reshapes, the physics behind quantum-dot
+displays and laser diodes.
+
+### Confinement quantizes some directions
+
+A particle of effective mass $m$ in an infinite well of size $L$ in
+the confined directions has quantized energies there,
+
+$$E_n = \frac{\hbar^2\pi^2 n^2}{2 m L^2},$$
+
+while the unconfined directions keep a free-particle continuum
+$\hbar^2 k^2/2m$. The total energy is the sum: discrete sub-bands, each
+with a continuum riding on top, and the number of confined directions
+$d_c$ sets everything.
+
+### The density of states by dimension
+
+The shape of the density of states $g(E)$ (how many states per energy)
+is the fingerprint of dimensionality:
+
+- 3D bulk ($d_c=0$): $g(E)\propto\sqrt E$, smooth.
+- 2D well ($d_c=1$): a staircase, constant within each sub-band,
+  stepping up at each confined level.
+- 1D wire ($d_c=2$): a series of $1/\sqrt{E-E_n}$ spikes (van Hove
+  singularities) at each sub-band edge.
+- 0D dot ($d_c=3$): pure delta functions, a discrete atomic-like
+  spectrum (a quantum dot is an "artificial atom").
+
+Because optical absorption and gain track $g(E)$, this is directly why
+quantum-well lasers have sharp thresholds and quantum dots emit pure,
+size-tunable colors. The playground switches $d_c$ and shows $g(E)$
+morph from the bulk square-root to the dot's spikes.
+
+### Things to try
+
+- Step through bulk -> well -> wire -> dot and watch $g(E)$ go
+  $\sqrt E$ -> staircase -> $1/\sqrt{}$ spikes -> delta lines.
+- Shrink $L$ and watch the confined levels push apart as $1/L^2$
+  (smaller dot, bluer emission).
+- Note the dot's discrete spectrum: an artificial atom you can tune by
+  size.
+
+### Where this comes from
+
+The particle-in-a-box quantization and the dimensionality-dependent
+density of states follow Davies, *The Physics of Low-Dimensional
+Semiconductors*, and Ashcroft and Mermin, *Solid State Physics*.
+
 ## Physical setup
 
 A particle of effective mass `m` confined by an infinite square well
