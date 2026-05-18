@@ -37,8 +37,13 @@ const L     = 16;
 const G     = 1;
 const EPS   = 1.5 * L / NGRID;
 const PM    = { NGRID, L, G, isolated: true, eps: EPS };
-const NTOT  = 3600;          // dense: reads as a real galaxy, holds 60 fps
+const NTOT  = 16000;         // dense, reads as a real galaxy (PM cost is
+                             // grid-bound via the radix-2 FFT, so the
+                             // per-particle work stays cheap at 60 fps)
 const dt    = 0.03;
+const N_ARMS = 2;            // two trailing logarithmic spiral arms
+const PITCH  = 0.35;         // arm pitch (rad); tan() sets the winding
+const ARM_W  = 0.40;         // azimuthal arm half-width (Gaussian scatter)
 
 const state = {
   M1: 1.0,        // primary total mass
@@ -52,13 +57,30 @@ const state = {
 
 let X, V, M, ORIG, NP, phiGrid, elapsed = 0;
 
+function gauss(rng) {
+  const u = Math.max(rng(), 1e-9), v = rng();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
 function buildDisk(rng, n, cx, cy, Rd) {
-  // Exponential disk: r ~ -Rd ln(1-u) so the surface density is exp(-r/Rd).
+  // Exponential disk r ~ -Rd ln(1-u) (surface density exp(-r/Rd)), with the
+  // azimuth concentrated on N_ARMS trailing logarithmic spiral arms
+  // phi = ln(r/Rd)/tan(PITCH) + arm*2pi/N_ARMS plus a Gaussian spread, on a
+  // faint smooth inter-arm background, so the galaxy visibly reads as a
+  // spiral. Coherent rotation (set in reset) then shears these into trailing
+  // tidal arms during the encounter.
   const xs = new Float64Array(2 * n);
   for (let i = 0; i < n; i += 1) {
     let r = -Rd * Math.log(1 - rng());
     if (r > 3.2 * Rd) r = 3.2 * Rd * rng();
-    const th = 2 * Math.PI * rng();
+    let th;
+    if (rng() < 0.80) {
+      const arm = Math.floor(rng() * N_ARMS);
+      th = Math.log(Math.max(r, 1e-3) / Rd) / Math.tan(PITCH)
+         + arm * (2 * Math.PI / N_ARMS) + ARM_W * gauss(rng);
+    } else {
+      th = rng() * 2 * Math.PI;
+    }
     xs[2 * i]     = cx + r * Math.cos(th);
     xs[2 * i + 1] = cy + r * Math.sin(th);
   }

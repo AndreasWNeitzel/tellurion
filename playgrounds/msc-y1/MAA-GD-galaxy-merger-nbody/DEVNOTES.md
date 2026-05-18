@@ -31,3 +31,7 @@ User feedback: particles teleporting (periodic wrap) + cores too weak. Added iso
 ## Sweep 2026-05-18
 User: secondary passed through and exited, primary disintegrated. Headless diagnostic showed a single isolated disk IS stable (engine sound) but the two-galaxy orbit was UNBOUND, so the secondary flew off the finite isolated grid (artificial escape). Fixed the initial conditions to a bound compact encounter (sep0=4, vRel=0.14, Rd=0.8), diagnostic-verified to stay grid-confined and coalesce with 100% of particles retained. Screenshot-verified the bound merger, surviving primary + accreted gold stream, Sausage E-Lz; no teleport/disintegration.
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User: more particles + galaxies do not look spiral. Raised NTOT 3600 -> 16000 (PM cost is grid-bound via the radix-2 FFT so per-particle work stays cheap at 60fps) and gave each disk a two-arm trailing logarithmic-spiral azimuth on a smooth background. Screenshot-verified two dense visibly-spiral galaxies at t-000 and a correct bound merger at t-100 (accreted stream + surviving primary, Sausage E-Lz, no escape/teleport/disintegration); rAF 16.6ms.
+invariants Tests 1 passed + visual 5/5 x3. Shipped.
