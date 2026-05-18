@@ -22,6 +22,64 @@ share_state_keys: []
 
 # Elastic and inelastic 2D collisions
 
+## Explainer
+
+### What you are looking at
+
+A real collision is not head-on; the balls strike off-center and
+scatter sideways. The playground fires one disk at another at an
+adjustable impact parameter and shows how the outgoing directions and
+the energy ledger depend on the offset and on how bouncy the
+collision is.
+
+### Momentum always, energy only if elastic
+
+Total linear momentum is conserved in every collision (no external
+force during contact):
+
+$$m_1\mathbf v_1 + m_2\mathbf v_2
+  = m_1\mathbf v_1' + m_2\mathbf v_2'.$$
+
+Kinetic energy is conserved only when the collision is perfectly
+elastic. The degree of bounce is the coefficient of restitution $e$,
+which scales the relative velocity along the line of centres:
+
+$$(\mathbf v_2' - \mathbf v_1')\cdot\hat{\mathbf n}
+  = -\,e\,(\mathbf v_2 - \mathbf v_1)\cdot\hat{\mathbf n},$$
+
+with $e=1$ elastic, $e=0$ perfectly inelastic (the disks stick), and
+the fraction $1-e^2$ of the along-normal kinetic energy lost to heat.
+
+### The geometry: impact parameter and the normal
+
+For disks the collision impulse acts only along the line joining the
+centres at contact, the normal $\hat{\mathbf n}$; the tangential
+velocity components pass through untouched. So the impact parameter
+$b$ (the sideways offset) sets the scattering angle: a head-on hit
+($b=0$) is the 1D case, while a glancing hit ($b$ near the sum of
+radii) barely deflects the projectile and gives the target a small
+sideways kick. A classic elastic result drops out for equal masses
+with one target at rest: the two outgoing velocities are always
+perpendicular (the right-angle billiard rule). The playground sweeps
+the impact parameter, the mass ratio and $e$, drawing the velocity
+vectors and the conserved-momentum and kinetic-energy bars so you
+watch energy leak away as $e$ drops while momentum stays fixed.
+
+### Things to try
+
+- Set $e=1$, equal masses, one at rest: confirm the outgoing paths
+  are exactly $90^\circ$ apart for any nonzero impact parameter.
+- Sweep the impact parameter from head-on to glancing and watch the
+  scattering angle shrink.
+- Lower $e$ to 0 and watch the disks stick and move together, with
+  the kinetic-energy bar dropping while momentum is unchanged.
+
+### Where this comes from
+
+Two-dimensional elastic and inelastic collisions, the coefficient of
+restitution, and the equal-mass right-angle rule follow Kleppner and
+Kolenkow, *An Introduction to Mechanics*, Chapter 4.
+
 ## Physical setup
 
 Two disks collide obliquely on a frictionless plane. The hit is parameterised by the impact parameter b (the perpendicular offset between the incoming line of motion and the target centre) and the coefficient of restitution e. Resolving the collision along the contact normal: the normal relative-velocity component reverses scaled by e, the tangential component is unchanged.

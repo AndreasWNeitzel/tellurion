@@ -29,3 +29,7 @@ e, b, post speeds, KE loss %, conserved p_x. Pure local sim.js.
 - npx vitest run invariants.test.mjs
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was text-only).
+
+## Sweep 2026-05-18
+Recaptured stale golden frames (deterministic across two runs); screenshot-verified physically correct (2D oblique collision, momentum conserved, restitution KE loss, bodies separating along outgoing vectors). Added comprehensive ## Explainer.
+invariants Tests passed + visual 5/5 x3. Shipped.
