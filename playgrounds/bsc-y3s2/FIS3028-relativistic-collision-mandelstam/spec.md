@@ -21,3 +21,59 @@ share_state_keys: []
 ---
 # Mandelstam $s$: fixed-target vs collider
 $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3 (`griffiths-particles`).
+
+## Explainer
+
+### What you are looking at
+
+To create heavy new particles you need energy in the centre-of-mass
+frame. Fire a beam at a stationary target and most of that energy is
+wasted carrying the debris forward; collide two beams head-on and none
+is. The playground plots the usable energy versus beam energy for both
+setups, and the gap is enormous, which is why every modern machine is a
+collider.
+
+### The Mandelstam variable
+
+The relevant quantity is the Mandelstam variable $s$, the squared total
+four-momentum. Its square root $\sqrt s$ is the energy available in the
+centre of mass, the most massive thing a collision can make. For two
+particles of mass $m$:
+
+- Fixed target (beam energy $E_\text{lab}$ onto a particle at rest):
+
+$$s = 2 m^2 c^4 + 2 m c^2 E_\text{lab}
+  \;\Longrightarrow\; \sqrt s \;\propto\; \sqrt{E_\text{lab}}.$$
+
+- Symmetric collider (two beams of energy $E_\text{lab}$ head-on):
+
+$$s = 4 E_\text{lab}^2
+  \;\Longrightarrow\; \sqrt s = 2 E_\text{lab}
+  \;\propto\; E_\text{lab}.$$
+
+### Why the scaling decides everything
+
+Fixed-target $\sqrt s$ grows only as the *square root* of beam energy:
+to double the reach you must quadruple the beam, then nine-fold, an
+exponentially losing game (most of the lab energy goes into the
+forward motion of the centre of mass, momentum conservation, not into
+making particles). Collider $\sqrt s$ grows *linearly*: every joule of
+beam energy becomes available energy. That single contrast is why the
+LHC collides two proton beams instead of hitting a fixed target. The
+playground shows the two curves diverging as you raise the beam
+energy.
+
+### Things to try
+
+- Slide the beam energy up and watch the collider curve (linear)
+  pull far above the fixed-target curve (square-root).
+- Read off the energy you would need in a fixed-target machine to
+  match a modest collider: it is absurd.
+- Note both curves agree only at very low energy, where rest mass
+  dominates.
+
+### Where this comes from
+
+The Mandelstam $s$, and the $\sqrt s \propto \sqrt{E_\text{lab}}$
+(fixed target) versus $\propto E_\text{lab}$ (collider) scalings follow
+Griffiths, *Introduction to Elementary Particles*, Chapter 3.
