@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: arfken-weber
 primary_chapter: 1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "A sequence converges if its tail eventually fits inside any band you choose, however thin. Pick an epsilon, watch the band shrink, and see how far out you must go before every later term is trapped inside it."
+one_paragraph: "A sequence is Cauchy if, for every tolerance epsilon, there is an index N beyond which all terms lie within epsilon of each other; for real numbers this is exactly convergence. The playground plots a sequence on a number line with an epsilon tube around its limit and reports the smallest N(epsilon) for which the entire tail stays inside. Convergent examples (a geometric sequence, the Leibniz partial sums for arctan) show the tube tightening and the tail captured; the harmonic sequence is shown as a counterexample whose tail no finite tube ever traps (it diverges). The readout gives the tail diameter, the current epsilon and N. The point is operational: convergence is not a vague approach but a precise promise. Name your epsilon and the monitor names the N that delivers it."
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
