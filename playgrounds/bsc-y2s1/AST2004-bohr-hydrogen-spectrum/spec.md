@@ -9,8 +9,8 @@ supporting_ucs: [FIS2017]
 curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'One quantization rule turns the smear of hydrogen light into a few clean ladders of lines: Lyman in the UV, Balmer in the visible, Paschen in the infrared.'
+one_paragraph: 'Bohr''s single rule, that the electron''s angular momentum comes in integer units of hbar, forces it onto discrete orbits with energies E_n = -13.6 eV / n^2. Every downward jump from a higher level n_h to a lower n_l emits a photon whose wavelength follows the Rydberg formula. The playground lets you pick the transition and places the emitted line on a spectrum, grouped into the named series (Lyman to n=1, Balmer to n=2, Paschen to n=3, and on), each crowding toward its series limit. It connects one postulate directly to the bright lines a prism would actually show. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 5.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
