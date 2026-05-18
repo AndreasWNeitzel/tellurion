@@ -20,6 +20,63 @@ share_state_keys: []
 
 # Relativistic beaming pattern
 
+## Explainer
+
+### What you are looking at
+
+A source that glows equally in all directions in its own frame looks
+utterly different when it moves near light speed: nearly all its light
+is swept into a narrow forward cone and hugely brightened. The
+playground sweeps the source speed and shows the isotropic glow
+collapse into a headlight beam, the effect behind blazars and AGN jets.
+
+### Aberration: the headlight cone
+
+Boosting to the lab frame, the emission angles transform (relativistic
+aberration). Photons emitted sideways in the rest frame are thrown
+forward, so isotropic emission becomes a cone of half-angle
+
+$$\theta \sim \frac{1}{\gamma},$$
+
+with $\gamma$ the Lorentz factor. At $\gamma = 10$ essentially all the
+light is within $\sim 6^\circ$ of the motion.
+
+### Doppler boosting
+
+How bright it appears at lab angle $\theta$ is set by the Doppler
+factor
+
+$$D(\theta) = \frac{1}{\gamma\,(1-\beta\cos\theta)}
+  = \frac{\sqrt{1-\beta^2}}{1-\beta\cos\theta}.$$
+
+For an isotropic source the observed intensity scales as a strong power
+of it:
+
+$$I_\text{obs}(\theta) = D^{\,3+\alpha}\,I_\text{emit},$$
+
+with $\alpha$ the spectral index. Because $D$ can be $\gg 1$ head-on
+and the exponent is $3+\alpha$, a jet pointed near the line of sight is
+brightened by enormous factors, while the same source pointed away is
+dimmed to near invisibility. That single $D^{3+\alpha}$ explains why
+blazars flare so violently and why we see one-sided AGN jets even when
+the outflow is intrinsically two-sided. The playground shows the polar
+brightness pattern sharpen and intensify as $\gamma$ rises.
+
+### Things to try
+
+- Raise $\gamma$ and watch the emission collapse into a forward cone
+  of half-angle $\sim 1/\gamma$.
+- Look head-on ($\theta\to0$) and watch the intensity boosted by
+  $D^{3+\alpha}$; look from behind and watch it vanish.
+- Note the asymmetry: a small viewing-angle change near $\theta=0$
+  swings the brightness by orders of magnitude (blazar variability).
+
+### Where this comes from
+
+Relativistic aberration, the Doppler factor, and the $D^{3+\alpha}$
+intensity boost for an isotropic source follow Rybicki and Lightman,
+*Radiative Processes in Astrophysics*, Section 4.8.
+
 ## Physical setup
 
 A monochromatic source that emits isotropically in its rest frame. When the source moves at relativistic speed, the lab-frame emission is concentrated into a forward cone of half-angle ~ 1/gamma. The textbook beaming effect; it explains blazar variability and the brightness of AGN jets pointed near our line of sight.
