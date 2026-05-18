@@ -22,6 +22,62 @@ share_state_keys: []
 
 # Fabry-Perot etalon: Airy transmission and finesse
 
+## Explainer
+
+### What you are looking at
+
+Two parallel partial mirrors a fixed gap apart. Light bounces between
+them many times, and the many reflections interfere. The result is
+that the cavity transmits almost nothing except at razor-sharp resonant
+wavelengths. This is the Fabry-Perot etalon, the heart of laser
+cavities, optical filters, and gravitational-wave detectors.
+
+### Multiple-beam interference
+
+Each round trip adds a phase
+
+$$\phi = \frac{4\pi n L\cos\theta}{\lambda}.$$
+
+Summing the infinite series of partially-reflected beams (a geometric
+series) gives the Airy transmission
+
+$$T(\phi) = \frac{1}{1 + F\sin^2(\phi/2)},
+  \qquad F = \frac{4R}{(1-R)^2}.$$
+
+Transmission is 1 only when $\phi = 2\pi m$ (an integer number of
+half-wavelengths fits the cavity); everywhere else the many beams
+destructively interfere and the etalon is dark.
+
+### Finesse: how sharp the peaks are
+
+The coefficient $F$ grows steeply as the mirror reflectance $R\to1$, so
+the transmission peaks become extremely narrow. The sharpness is
+measured by the finesse:
+
+$$\mathcal F = \frac{\pi\sqrt R}{1-R},$$
+
+the number of resolvable peaks per free spectral range. High
+reflectance, high finesse, ultra-narrow lines, which is exactly what
+makes a Fabry-Perot a precision wavelength filter and what lets a laser
+cavity select a single mode. The playground shows the bouncing beams
+decaying as $R^k$, the intracavity standing wave brightening at
+resonance, and the Airy curve sharpening as you raise $R$.
+
+### Things to try
+
+- Raise the mirror reflectance $R$ and watch the transmission peaks
+  collapse to spikes (finesse climbing).
+- Scan the phase and see transmission near zero except at the sharp
+  resonances.
+- Lower $R$ and watch the peaks broaden into gentle humps (low
+  finesse).
+
+### Where this comes from
+
+The Airy multiple-beam transmission, the coefficient of finesse, and
+the finesse $\mathcal F = \pi\sqrt R/(1-R)$ follow Hecht, *Optics*,
+5th ed., Chapter 9.
+
 ## Physical setup
 
 Two parallel partial mirrors of intensity reflectance $R$ at spacing $L$ form a Fabry-Perot etalon. Light incident at angle $\theta$ inside the cavity (refractive index $n$) accumulates round-trip phase $\phi = 4 \pi n L \cos\theta / \lambda$. Multiple-beam interference gives the Airy transmission
