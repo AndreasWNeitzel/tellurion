@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s1
 primary_citation: arfken-weber
 primary_chapter: 9
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Solve the equation for a single point poke and you can build the response to any load by adding up pokes: that point response is the Green''s function.'
+one_paragraph: 'A Green''s function is the response of a linear operator to a unit point source. For the 1D Laplacian with Dirichlet boundary conditions it is a simple tent-shaped function G(x, x_0), zero at both ends and kinked at the source point. Once you have it, the solution for any forcing f is just the convolution u(x) = integral G(x, x'') f(x'') dx'', superposing the responses to every infinitesimal piece of the load. The playground lets you move the source and pick a forcing and watch the solution assemble. It is the master tool for inhomogeneous linear problems. Reference: Arfken and Weber, Mathematical Methods for Physicists, Ch. 9.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
