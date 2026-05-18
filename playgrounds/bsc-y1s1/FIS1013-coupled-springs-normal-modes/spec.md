@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2016, FIS2021]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Two carts between three springs. Push them the same way and they march in step; push them apart and they bounce against each other faster. Every possible motion is just these two patterns added together."
+one_paragraph: "Two equal masses sit on a frictionless track joined by three identical springs (wall, mass, mass, wall). This is the textbook small-oscillation problem, and everything follows from diagonalising the 2x2 stiffness matrix into two normal modes: the symmetric mode (both masses move together, the middle spring never deforms, the lower frequency) and the antisymmetric mode (they move oppositely, the middle spring is doubly loaded, higher by a factor sqrt(3) here). A general start is a superposition, so the displacements show beats: energy trades between the two masses at the difference frequency. The playground draws the spring chain, the x1(t) and x2(t) traces, and a phase portrait that collapses to a straight eigen-line for a pure mode and fills a quasi-periodic orbit for a mixed one. The readout reports the two mode frequencies and the conserved energy."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
