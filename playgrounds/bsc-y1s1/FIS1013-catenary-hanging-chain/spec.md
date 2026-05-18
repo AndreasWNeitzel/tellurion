@@ -20,6 +20,68 @@ share_state_keys: []
 
 # Catenary: shape of a hanging chain
 
+## Explainer
+
+### What you are looking at
+
+A chain held at both ends hangs in a graceful curve. People often guess
+it is a parabola; it is not. It is the catenary, a hyperbolic cosine.
+Drag the towers and the chain re-hangs through the new endpoints with
+its length fixed. Hang a cable from anything (a power line, a suspension
+bridge cable carrying only itself) and this is the shape.
+
+### Where the shape comes from
+
+Look at a short element of the chain. Nothing accelerates (it just
+hangs), so the forces balance. The horizontal pull is the same
+everywhere along the chain,
+
+$$T_x = \text{constant} = T_0,$$
+
+while the vertical pull must support the weight of the chain below it,
+so it grows along the chain. Writing $dy/dx = T_y/T_x$ and using the
+weight balance gives a differential equation for the shape:
+
+$$\frac{d^2 y}{dx^2} = \frac{1}{a}\sqrt{1 + \left(\frac{dy}{dx}\right)^2},
+  \qquad a = \frac{T_0}{\mu g}.$$
+
+The single parameter $a$ is the ratio of horizontal tension to weight
+per length. Its solution is the catenary:
+
+$$y(x) = a\,\cosh\!\frac{x}{a} - a.$$
+
+A taut cable (large $T_0$, large $a$) is nearly straight; a slack one
+(small $a$) sags deeply. It only looks like a parabola when it is
+barely sagging.
+
+### What follows from the shape
+
+Differentiating gives the quantities the playground shows:
+
+$$\text{arc length } s(x) = a\,\sinh\!\frac{x}{a},
+  \qquad \text{slope } \frac{dy}{dx} = \sinh\!\frac{x}{a},$$
+
+$$\text{tension } T(x) = T_0 + \mu g\,y.$$
+
+The last line is the practical punchline: the tension is largest at the
+supports (where $y$ is greatest), which is exactly where a real cable
+or chain breaks.
+
+### Things to try
+
+- Drag the towers apart: the chain pulls taut, $a$ grows, the curve
+  flattens toward (but never becomes) a straight line.
+- Bring them together: the chain sags, $a$ shrinks, the cosh deepens.
+- Note that the tension readout peaks at the towers, never at the
+  lowest point.
+
+### Where this comes from
+
+The force-balance derivation and the catenary as the solution (also
+obtainable by minimizing the potential energy of the hanging cable)
+follow Lemos, *Analytical Mechanics*, Chapter 2, and Goldstein,
+*Classical Mechanics*, Chapter 2 (the Euler-Lagrange formulation).
+
 ## Physical setup
 
 A perfectly flexible, uniform cable hangs under gravity between two
