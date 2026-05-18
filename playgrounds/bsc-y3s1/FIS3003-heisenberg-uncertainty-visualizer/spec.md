@@ -19,6 +19,58 @@ share_state_keys: []
 
 # The Heisenberg Uncertainty Seesaw
 
+## Explainer
+
+### What you are looking at
+
+A quantum wavepacket shown twice at once: its shape in position and its
+shape in momentum. Squeeze it narrow in position and it spreads wide in
+momentum, and vice versa. You cannot make both narrow. That is the
+Heisenberg uncertainty principle, and here it is a literal seesaw you
+operate.
+
+### Why the two are linked
+
+The momentum-space wavefunction is the Fourier transform of the
+position-space one:
+
+$$\phi(k) = \frac{1}{\sqrt{2\pi}}\int \psi(x)\,e^{-ikx}\,dx.$$
+
+A basic fact of Fourier transforms is that you cannot localize a
+function and its transform simultaneously: a narrow $\psi(x)$ has a
+broad $\phi(k)$. Quantifying the widths by their standard deviations
+gives the exact bound
+
+$$\sigma_x\,\sigma_p \ge \frac{\hbar}{2},$$
+
+with equality only for a Gaussian. So the principle is not about clumsy
+measurement; it is a theorem about waves.
+
+### The seesaw
+
+Squeeze $\psi(x)$ by a factor $s$ and $\sigma_x \to s\,\sigma_x$ while
+$\sigma_p \to \sigma_p/s$: the product is pinned. Shifting the packet
+in $x$ or boosting it by $k_0$ moves only the means, never the widths,
+so the bound is untouched. Non-Gaussian shapes (box, triangle, double
+bump) sit strictly above the bound, $\sigma_x\sigma_p > \hbar/2$. The
+playground shows both densities and the live product as you squeeze,
+shift, and reshape, and the product never drops below $\hbar/2$.
+
+### Things to try
+
+- Pick a Gaussian and squeeze it: watch one density narrow while the
+  other widens, the product frozen at exactly $\hbar/2$.
+- Switch to a box or triangle and see the product sit above the bound
+  (Gaussian is optimal).
+- Shift or boost the packet and confirm the widths, hence the
+  product, do not change.
+
+### Where this comes from
+
+The Fourier-pair argument and the $\sigma_x\sigma_p \ge \hbar/2$ bound
+(saturated by the Gaussian) follow Griffiths, *Introduction to Quantum
+Mechanics*, Chapter 3.
+
 ## Physical setup
 
 A normalised wavepacket of a chosen shape (Gaussian, box, triangle,
