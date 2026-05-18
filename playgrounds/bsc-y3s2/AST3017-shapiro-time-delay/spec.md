@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Shapiro time delay
 
+## Explainer
+
+### What you are looking at
+
+Bounce a radar pulse off a planet on the far side of the Sun and the
+echo comes back late, by up to a couple of hundred microseconds. The
+light did not slow down locally; the spacetime it crossed is curved, so
+the path is longer. This is the Shapiro delay, the fourth classical
+test of general relativity, and the playground shows the extra
+round-trip time grow as the ray grazes closer to the mass.
+
+### The delay
+
+For a signal passing a mass $M$ (geometric units $G=c=1$) at impact
+parameter $b$, with emitter and receiver at distances $r_E, r_R$, the
+extra time relative to flat space is, to leading order,
+
+$$\delta t = 2M\ln\!\frac{4\,r_E\,r_R}{b^2},$$
+
+and exactly (Schwarzschild)
+
+$$\delta t = 2M\ln\!\frac{\big(r_E+\sqrt{r_E^2-b^2}\big)
+  \big(r_R+\sqrt{r_R^2-b^2}\big)}{b^2}.$$
+
+The key feature is the logarithm of $1/b^2$: the delay grows without
+bound (logarithmically) as the ray passes closer to the mass, which is
+why the effect is largest for a signal grazing the Sun's limb.
+
+### Why it happens
+
+In curved spacetime the coordinate speed of light is reduced near the
+mass (equivalently, the spatial path is stretched). Integrating that
+along the trajectory gives the logarithmic excess above. It is not a
+force on the photon and not a frequency shift; it is pure geometry,
+the same metric that bends starlight also delays radar. Irwin Shapiro
+proposed and measured it (Venus radar, 1968), and today pulsar timing
+uses the companion star's Shapiro delay to weigh neutron stars to high
+precision. The playground varies $b$ and shows $\delta t$ rising as the
+ray approaches the body.
+
+### Things to try
+
+- Decrease the impact parameter $b$ toward the body and watch the
+  delay climb (logarithmically, the $\ln(1/b^2)$).
+- Increase the mass $M$ and watch the whole delay scale linearly with
+  it.
+- Note the delay is largest for a grazing ray: the origin of the
+  superior-conjunction radar experiments.
+
+### Where this comes from
+
+The leading-order PPN and exact Schwarzschild Shapiro-delay formulae
+follow Will, *Theory and Experiment in Gravitational Physics*, and the
+standard treatment in Hartle, *Gravity*, Chapter 10 (after Shapiro
+1964).
+
 ## Physical setup
 
 A light signal travels past a massive body (Schwarzschild M = 1 in
