@@ -21,6 +21,67 @@ share_state_keys: [w, seq, kf]
 
 # MRI: the Bloch Equations, the FID and k-Space Imaging
 
+## Explainer
+
+### What you are looking at
+
+An MRI scanner does not photograph the body; it listens to spinning
+protons and reconstructs the image from their radio signal. The
+playground walks the whole chain: tip the spins, watch them precess
+and relax (the Bloch equations), record the decaying signal, and fill
+k-space to form the image.
+
+### The Bloch equations
+
+Protons in a static field $B_0$ have a net magnetization $\mathbf M$.
+A radio pulse tips it into the transverse plane, after which it obeys
+the Bloch equations:
+
+$$\frac{d\mathbf M}{dt}
+  = \gamma\,\mathbf M\times\mathbf B
+  - \frac{M_x\hat x + M_y\hat y}{T_2}
+  - \frac{(M_z - M_0)\hat z}{T_1}.$$
+
+The first term is precession at the Larmor frequency
+$\omega_0 = \gamma B_0$; $T_1$ is how fast the magnetization
+regrows along $B_0$ (spin-lattice relaxation) and $T_2$ how fast the
+transverse part dephases (spin-spin relaxation). Different tissues
+have different $T_1,T_2$, which is the entire source of MRI contrast.
+
+### k-space imaging
+
+The decaying transverse signal is the free induction decay; its
+Fourier transform is the spectrum. To make an image, magnetic-field
+gradients make the Larmor frequency and phase depend on position, so
+the received signal at gradient setting $(k_x,k_y)$ is
+
+$$S(k_x,k_y)
+  = \iint M(x,y)\,
+  e^{-i 2\pi (k_x x + k_y y)}\,dx\,dy.$$
+
+That is, the scanner directly samples the 2D Fourier transform of the
+image. Filling this "k-space" by stepping the gradients and inverse-
+transforming reconstructs the picture: the center of k-space carries
+contrast and the edges carry fine detail. The sequence timing (TR
+between excitations, TE to the echo) weights the image toward
+$T_1$ or $T_2$ contrast. The playground lets you set the sequence and
+watch the FID, k-space filling, and the reconstructed image.
+
+### Things to try
+
+- Tip the spins and watch the magnetization precess and the FID
+  decay with $T_2$, then regrow with $T_1$.
+- Fill k-space and watch the image sharpen as the high-frequency
+  (edge) samples come in.
+- Change TR/TE and watch the tissue contrast flip between
+  $T_1$-weighted and $T_2$-weighted.
+
+### Where this comes from
+
+The Bloch equations, relaxation, and k-space reconstruction follow
+Nishimura, *Principles of Magnetic Resonance Imaging*, and Haacke et
+al., *Magnetic Resonance Imaging: Physical Principles*.
+
 ## Physical setup
 
 Nuclear magnetic resonance imaging. Spins in a static field B0 are tipped by a radio-frequency pulse; their net magnetization then precesses and relaxes according to the Bloch equations. The decaying transverse magnetization is the measured signal (the free induction decay); its Fourier transform is the spectrum. An image is formed by encoding position into the precession frequency and phase so that the acquired data are samples of the image's 2D Fourier transform (k-space); the inverse transform reconstructs the image, and the contrast between tissues is controlled by the repetition time TR and echo time TE.
