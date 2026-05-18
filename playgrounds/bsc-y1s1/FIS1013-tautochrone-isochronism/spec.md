@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Drop beads onto a cycloid-shaped bowl from wildly different heights. They all reach the bottom at exactly the same instant. The cycloid is the tautochrone: the curve on which the period does not depend on the amplitude."
+one_paragraph: "On a circular pendulum the period drifts as the swing grows; on a cycloid it does not. Beads released from rest at different heights on a cycloid track all reach the lowest point after the same time, T/4 = pi sqrt(R/g), independent of where they started. The playground releases five beads from different heights at once: at the quarter period they all pass through the bottom together, and at the full period they all return to their starting points. A progress bar marks the quarter, half and three-quarter points so the simultaneity is unmistakable. This isochronism is why Huygens built cycloidal pendulum clocks: forcing the bob onto a cycloid keeps the clock on time even as the swing decays. The same curve is also the brachistochrone, the path of fastest descent."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
