@@ -22,6 +22,68 @@ share_state_keys: []
 
 # Semi-empirical mass formula (Bethe-Weizsacker)
 
+## Explainer
+
+### What you are looking at
+
+Treat the nucleus as a charged liquid drop and five simple terms
+predict the binding energy of every nucleus, why iron is the most
+bound, why heavy nuclei fission and light ones fuse, and where the
+stable isotopes lie. The playground sweeps $Z$ and $A$ and shows each
+term's contribution.
+
+### The Bethe-Weizsacker formula
+
+The binding energy is
+
+$$B(A,Z) = a_V A
+  - a_S A^{2/3}
+  - a_C\frac{Z(Z-1)}{A^{1/3}}
+  - a_A\frac{(N-Z)^2}{A}
+  \pm \frac{a_P}{\sqrt A},$$
+
+with the Wapstra coefficients ($a_V=15.8$, $a_S=18.3$, $a_C=0.714$,
+$a_A=23.2$, $a_P=12.0$ MeV). Each term is one piece of physics:
+
+- Volume $+a_V A$: every nucleon bonds to its neighbors (short-range
+  strong force), so binding grows with the number of nucleons.
+- Surface $-a_S A^{2/3}$: surface nucleons have fewer neighbors, a
+  deficit scaling with surface area.
+- Coulomb $-a_C Z(Z-1)/A^{1/3}$: proton-proton electrostatic
+  repulsion, growing with $Z^2$ and the more so for small nuclei.
+- Asymmetry $-a_A(N-Z)^2/A$: the Pauli principle penalizes unequal
+  proton and neutron numbers.
+- Pairing $\pm a_P/\sqrt A$: like nucleons pair up, favoring
+  even-even, disfavoring odd-odd.
+
+### What it predicts
+
+Binding energy per nucleon $B/A$ rises, peaks near $A\approx56$
+(iron/nickel), then declines, which is exactly why fusing light nuclei
+and fissioning heavy ones both release energy. At fixed $A$ the most
+bound charge (the valley of stability) is
+
+$$Z^* \approx \frac{A}{2 + \tfrac12 a_C A^{2/3}/a_A},$$
+
+which bends below $Z=A/2$ for heavy nuclei because Coulomb repulsion
+favors extra neutrons. The playground shows the $B/A$ curve and the
+valley as you vary $Z, A$.
+
+### Things to try
+
+- Sweep $A$ and watch $B/A$ peak near iron: the master curve of
+  nuclear energy.
+- At fixed heavy $A$, vary $Z$ and find the valley minimum shifted
+  neutron-rich (the Coulomb term at work).
+- Toggle even-even vs odd-odd and see the pairing term shift the
+  binding.
+
+### Where this comes from
+
+The liquid-drop terms, the Wapstra coefficients, and the valley of
+stability follow Krane, *Introductory Nuclear Physics*, Chapter 3
+(the Bethe-Weizsacker semi-empirical mass formula).
+
 ## Physical setup
 
 The nuclear binding energy is the sum of five terms:
