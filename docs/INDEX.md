@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Neutron Stars: the TOV Equation and the Mass-Radius Diagram](../playgrounds/msc-y1/MAA-SE-neutron-star-tov-equation/index.html)** &nbsp; (verified, verified 2026-05-18T05:29:48Z)
+  A cold, static, spherically symmetric star in general relativity. Hydrostatic equilibrium is the Tolman-Oppenheimer-Volkoff equation; closing it needs an equation of state P(epsilon). Four are offered: an ideal degenerate free-neutron Fermi gas (the Oppenheimer-Volkoff 1939 model), a stiff and a soft polytrope anchored at nuclear saturation density, and self
+
 - **[Close Binary: Roche Lobes and Conservative Mass Transfer](../playgrounds/msc-y1/MAA-SE-binary-star-mass-transfer/index.html)** &nbsp; (verified, verified 2026-05-18T05:15:48Z)
   Two stars on a circular orbit, viewed in the corotating frame. The effective (Roche) potential is the sum of both gravitational potentials and the centrifugal term. Its critical equipotential through the inner Lagrange point L1 is the figure-eight that defines each star's Roche lobe; a star that fills its lobe loses mass through L1 to its companion. When the
 
@@ -841,9 +844,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.
-
-- **[Neutron Stars: the TOV Equation and the Mass-Radius Diagram](../playgrounds/msc-y1/MAA-SE-neutron-star-tov-equation/index.html)** &nbsp; (verified)
-  A cold, static, spherically symmetric star in general relativity. Hydrostatic equilibrium is the Tolman-Oppenheimer-Volkoff equation; closing it needs an equation of state P(epsilon). Four are offered: an ideal degenerate free-neutron Fermi gas (the Oppenheimer-Volkoff 1939 model), a stiff and a soft polytrope anchored at nuclear saturation density, and self
 
 - **[Normal Modes of a Mass-Spring Chain](../playgrounds/bsc-y2s1/FIS2002-normal-modes-nd-chain/index.html)** &nbsp; (verified)
   A 1D chain of N point masses joined by springs with fixed ends. The monatomic chain has one spring constant; the diatomic chain alternates two spring constants along the chain (a two-atom basis).

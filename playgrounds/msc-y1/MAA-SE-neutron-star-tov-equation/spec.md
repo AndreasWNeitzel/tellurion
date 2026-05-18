@@ -12,8 +12,8 @@ hook: 'The Tolman-Oppenheimer-Volkoff equation integrated for four equations of 
 one_paragraph: 'A neutron-star structure playground built on the relativistic hydrostatic-equilibrium (TOV) equation (Tolman 1939; Oppenheimer and Volkoff 1939; Shapiro and Teukolsky Ch. 5). The TOV system is integrated by RK4 from the centre to the surface for four equations of state: an ideal degenerate free-neutron Fermi gas (which reproduces the historic Oppenheimer-Volkoff maximum mass of 0.71 M_sun at about 9 km), a stiff and a soft polytrope anchored at nuclear density, and self-bound MIT-bag quark matter. Sweeping the central density traces the mass-radius diagram, whose turning point is the maximum mass; only equations of state whose maximum exceeds the observed two-solar-mass pulsars (J0740, J0348) survive. Panel A is the mass-radius diagram for all four equations of state with the 2 M_sun line; Panel B is the selected star interior (pressure, energy density, enclosed mass) with a density-shaded cross-section; Panel C is the equation of state itself on a log-log pressure-density plane. The numerics are the gate-tested closed-form sim.js: deterministic, no RNG. Invariants check the Oppenheimer-Volkoff maximum mass, the soft-versus-stiff ordering, the zero-central-density limit, the Fermi-gas non-relativistic and ultra-relativistic slopes, the self-bound quark relation and the stability turning point.'
 tags: [neutron-star, tov, equation-of-state, mass-radius, live-readout]
 difficulty: 5
-tier: hero
-hero_candidate: true
+tier: standard
+hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 6
 share_state_keys: [eos, rho]
