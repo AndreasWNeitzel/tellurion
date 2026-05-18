@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST2004
 supporting_ucs: [MAA-HE]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Send a self-gravitating cloud too close to a heavy mass and tides win: it shears into a long stream the moment it crosses the Roche limit.'
+one_paragraph: 'A satellite held together by its own gravity survives only while that self-gravity beats the tidal stretch from a nearby massive body. The Roche limit marks the crossover, near 2.44 primary radii for an equal-density fluid. The playground flies a cloud of 80 mutually attracting test particles on an eccentric orbit around a point-mass primary. Outside the Roche radius the cloud stays a blob; dip inside it on the close approach and the differential pull tears it into a tidal stream, the same process that grinds out ring systems and disrupts comets that stray too close. Reference: Roche 1849; Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 19.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
