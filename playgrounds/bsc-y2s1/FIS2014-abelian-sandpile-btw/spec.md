@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2014
 supporting_ucs: [FIS2018, MAA-NM]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Drop sand one grain at a time and the pile organizes itself onto a knife edge where a single grain can trigger an avalanche of any size.'
+one_paragraph: 'The Bak-Tang-Wiesenfeld sandpile is the original model of self-organized criticality. Grains drop on a lattice; a site holding four or more topples, handing one grain to each neighbour and possibly toppling them in turn, while grains at the edge fall off. With no tuning at all, the pile drives itself to a critical state where avalanche sizes follow a power law P(s) ~ s^(-tau) with tau about 1.21 in 2D: scale-free, with no typical avalanche size. The playground runs the dynamics and builds the avalanche-size histogram live so the power law appears on its own. This is the prototype for earthquakes, forest fires, and neuronal cascades. Reference: Bak, Tang and Wiesenfeld 1987.'
 tags: [thermodynamics, statistical-physics, animation, live-readout]
 difficulty: 3
 tier: simple
