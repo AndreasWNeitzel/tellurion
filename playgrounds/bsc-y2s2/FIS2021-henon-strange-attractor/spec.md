@@ -20,6 +20,65 @@ share_state_keys: []
 
 # Henon Strange Attractor
 
+## Explainer
+
+### What you are looking at
+
+Iterate one of the simplest possible nonlinear maps and the points do
+not fill an area or settle to a cycle: they pile up on a delicate,
+infinitely-layered curve, a strange attractor. The playground iterates
+the Henon map and lets you zoom in to see the self-similar fractal
+structure that captures the essence of dissipative chaos.
+
+### The map
+
+The Henon (1976) map is a 2D quadratic recurrence:
+
+$$x_{n+1} = 1 - a\,x_n^2 + y_n,
+  \qquad
+  y_{n+1} = b\,x_n.$$
+
+At the classic parameters $a=1.4$, $b=0.3$ almost every starting
+point is drawn onto the same attractor. It is the cleanest model of
+the stretch-and-fold mechanism behind chaos.
+
+### Why it is "strange"
+
+Two properties make the attractor strange:
+
+- Sensitive dependence: nearby points separate exponentially (a
+  positive Lyapunov exponent $\approx 0.42$), so long-term prediction
+  is impossible even though the map is deterministic.
+- Fractal geometry with area contraction. The Jacobian determinant is
+  constant, $|J| = b$, so each iteration shrinks any area by the
+  factor $b$ (here $0.3$): the attractor has zero area. Yet the
+  stretching keeps the dynamics from collapsing to a point, so the
+  set has a non-integer (fractal) dimension $\approx 1.26$. Zooming
+  in reveals the same striated layering at every scale, the visual
+  signature of the stretch-fold (a baker's map with dissipation).
+
+This combination, contracting volume but exponentially diverging
+trajectories on a fractal set, is exactly what defines a dissipative
+chaotic attractor (the Lorenz system is the continuous-time cousin).
+The playground iterates millions of points, lets you change $a,b$,
+and zooms to expose the self-similar leaves.
+
+### Things to try
+
+- Iterate and watch points scatter, then converge onto the same thin
+  boomerang attractor regardless of start.
+- Zoom into a "thick" band and find it is really many finer bands
+  (self-similarity, fractal dimension ~1.26).
+- Lower $b$ (more contraction) and watch the attractor thin toward a
+  curve; raise $a$ and watch it lose stability (period-doubling to
+  chaos).
+
+### Where this comes from
+
+The Henon map, its strange attractor, fractal dimension and Lyapunov
+exponent follow Henon, Commun. Math. Phys. 50, 69 (1976), and
+Strogatz, *Nonlinear Dynamics and Chaos*, Chapter 12.
+
 ## Physical setup
 
 The Henon map is a 2D quadratic recurrence, introduced by Michel Henon
