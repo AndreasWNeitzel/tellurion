@@ -20,71 +20,80 @@ share_state_keys: []
 
 # Galaxy Merger N-Body
 
-Two coherently-rotating spiral disks (7000 tracer particles each, two trailing logarithmic spiral arms, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Because the disks actually rotate, the encounter produces proper tidal bridges and trailing tails, captured stars, and a phase-mixed debris field.
+Two coherently-rotating exponential spiral disks (7000 tracer particles each, color-coded by initial galaxy) of user-set masses M1, M2 approach at chosen impact parameter and relative velocity. Each tracer feels the live combined Hernquist potential of both halos; the nuclei integrate as an unequal-mass Newtonian two-body with exact Chandrasekhar dynamical friction, so the orbit decays and the cores coalesce into one phase-mixed remnant. A second panel plots every star in the centre-of-mass energy vs angular-momentum plane, color-coded by origin, where the disrupted lighter galaxy forms the Gaia-Enceladus / Sausage clump.
 
 ## Explainer
 
 ### What you are looking at
 
-When two spiral galaxies pass close, gravity does something dramatic:
-it flings stars from the rotating disks into long tidal tails and a
-connecting bridge, and stirs the two stellar populations together.
-The playground is a restricted N-body model (two rotating spiral
-disks of 7000 stars each) that reproduces all of this from the choice
-of impact parameter and
-approach speed.
+Two spiral galaxies fall together, shred each other into tidal tails,
+and coalesce into a single relaxed remnant. The left panel is the
+encounter in space; the right panel is the same stars in the
+energy vs angular-momentum plane, the diagram galactic archaeologists
+actually use, where the disrupted galaxy leaves the Gaia-Enceladus /
+"Sausage" fingerprint. Two sliders set the galaxy masses.
 
-### The restricted N-body setup
+### The galaxies and their potential
 
-Following two full galaxies' worth of self-gravity is expensive, so
-the model uses a standard simplification. Each galaxy is an analytic
-Hernquist halo whose potential is
+Each galaxy is a rotating exponential stellar disk (surface density
+$\Sigma\propto e^{-R/R_d}$, the Freeman 1970 law) of 7000 tracer
+stars, embedded in an analytic Hernquist halo of mass $M$:
 
-$$\Phi(r) = -\frac{G M}{r + a},$$
+$$\Phi(r) = -\frac{G M}{r + a},
+  \qquad
+  \rho(r) = \frac{M\,a}{2\pi\,r\,(r+a)^3}.$$
 
-with scale length $a$. The two halo centers integrate as a softened
-two-body problem,
+The two nuclei integrate as a Newtonian two-body of unequal masses
+$M_1, M_2$ (set by the sliders); each star feels the live combined
+potential $\Phi_1 + \Phi_2$ of both halos. This restricted scheme
+makes 14000 stars cheap to integrate while keeping the tidal
+dynamics exact.
 
-$$\ddot{\mathbf r} = -\,\frac{G(M_1+M_2)}{(|\mathbf r|^2+\epsilon^2)
-  ^{3/2}}\,\mathbf r,$$
+### Why they actually coalesce: dynamical friction
 
-and each massless tracer star feels the combined live potential of
-both halos:
+A clean two-body orbit never decays, so on its own the pair would
+just fly past. Real galaxies merge because each massive halo plows
+through the other's matter and drags on its own gravitational wake.
+This is Chandrasekhar dynamical friction, included here exactly (no
+fudge factor):
 
-$$\ddot{\mathbf x}_i = -\nabla\big[\Phi_1(\mathbf x_i - \mathbf r_1)
-  + \Phi_2(\mathbf x_i - \mathbf r_2)\big].$$
+$$\frac{d\mathbf v}{dt}\Big|_{\rm DF}
+  = -\,\frac{4\pi G^2 M\,\rho\,\ln\Lambda}{v^3}
+  \Big[\mathrm{erf}(X) - \tfrac{2X}{\sqrt\pi}e^{-X^2}\Big]\,\mathbf v,
+  \quad X=\frac{v}{\sqrt2\,\sigma}.$$
 
-The tracers do not pull back on the halos (hence "restricted"), which
-is what makes hundreds of stars cheap to integrate live while still
-showing the right tidal dynamics.
+It drains orbital energy, so the lighter satellite spirals in (the
+heavier primary barely moves), and once the nuclei are within a scale
+length they coalesce into a single nucleus at the mass-weighted
+centre of mass. The stars then violently relax into one phase-mixed
+remnant.
 
-### Why tails and bridges form
+### The integrals-of-motion panel and the Sausage
 
-Stars on the far side of each galaxy are less bound and get
-differentially stretched by the companion's tide into a long thin
-tidal tail; stars on the near side are pulled across into a bridge
-and captured. The two colors interpenetrate and phase-mix into a
-diffuse, well-stirred debris field. This is the Toomre and Toomre
-(1972) mechanism for tidal tails and bridges, the morphological
-fingerprint of an interaction. One honest caveat about the restricted
-model: because the tracers do not pull back on the halos, there is no
-dynamical friction, so the two halo centers follow a fixed two-body
-orbit and do not spiral together on their own. A true coalescence
-into a single bound elliptical remnant requires that friction (or a
-bound, decaying orbit), which a live full N-body code adds; here you
-see the encounter dynamics (approach, tidal distortion, tails and
-bridges, dispersed mixed debris) faithfully, which is the part the
-restricted model gets right.
+For each star the playground computes, in the centre-of-mass frame,
+the specific angular momentum and orbital energy
+
+$$L_z = x\,v_y - y\,v_x,
+  \qquad
+  E = \tfrac12 v^2 + \Phi_1 + \Phi_2,$$
+
+and plots $E$ against $L_z$, colour-coded by galaxy of origin. These
+are near-conserved labels (adiabatic invariants), so debris from the
+disrupted galaxy stays clustered there long after it is spatially
+mixed. A lower-mass accreted galaxy on a radial orbit lands as a
+distinct blob at low $|L_z|$ and intermediate $E$: exactly the
+signature of the Gaia-Enceladus / Sausage merger found in the Milky
+Way halo (Helmi et al. 2018; Belokurov et al. 2018). Change the mass
+ratio and watch the accreted clump's position and prominence shift.
 
 ### Things to try
 
-- Use a grazing prograde encounter and watch two long symmetric
-  tidal tails and a connecting bridge form (the Antennae morphology).
-- Increase the relative velocity to a fast flyby: the galaxies pass
-  through with only mild distortion.
-- Run a slow, low-impact encounter and watch the two colors
-  interpenetrate and phase-mix into a diffuse stirred debris field
-  (the part the frictionless restricted model captures).
+- Watch the two disks spiral in (dynamical friction) and coalesce
+  into one relaxed remnant, not a flyby.
+- Read the right panel: the accreted (gold) galaxy forms a distinct
+  low-$L_z$ clump, the Sausage analogue, separate from the primary.
+- Set $M_1=M_2$ for a major merger, or a large ratio for a minor one,
+  and watch the integrals-of-motion structure change.
 
 ### Where this comes from
 
