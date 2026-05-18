@@ -19,6 +19,62 @@ share_state_keys: []
 
 # Lennard-Jones Molecular Dynamics
 
+## Explainer
+
+### What you are looking at
+
+A box of atoms that attract weakly when far apart and repel hard when
+squeezed together. Just that one pair force, integrated for hundreds of
+atoms, produces gas, liquid, and solid, and lets you read off
+temperature and pressure from the motion itself. This is molecular
+dynamics, the in-silico microscope of statistical physics.
+
+### The interaction
+
+Every pair feels the Lennard-Jones potential
+
+$$U(r) = 4\left[\left(\tfrac1r\right)^{12}
+  - \left(\tfrac1r\right)^{6}\right],$$
+
+a steep $r^{-12}$ repulsion (electron clouds cannot overlap) and a
+gentler $r^{-6}$ attraction (van der Waals). It is truncated at
+$r_c = 2.5$ with a shifted-force form so the force and energy go
+continuously to zero there (no spurious kicks at the cutoff). Atoms
+move by velocity-Verlet, the same time-reversible symplectic stepper
+used throughout, so total energy is conserved over long runs.
+
+### Reading thermodynamics off the motion
+
+The macroscopic state variables are statistical averages over the
+microscopic trajectories:
+
+$$T = \frac{\langle\text{KE}\rangle}{N}\ \text{(2D)},
+  \qquad P = \rho T + \frac{1}{2V}\Big\langle
+  \sum_{i<j}\mathbf r_{ij}\!\cdot\!\mathbf F_{ij}\Big\rangle,$$
+
+the second being the virial pressure. The radial distribution function
+$g(r)$ (the probability of finding a neighbor at distance $r$)
+fingerprints the phase: a gas is nearly flat, a liquid has a broad
+first shell, a solid has sharp periodic peaks. The playground shows the
+particles, $g(r)$, and the live $T, P$ so you watch a gas condense and
+freeze as you cool it.
+
+### Things to try
+
+- Cool the box and watch a disordered gas condense into a liquid drop
+  and then crystallize, with $g(r)$ growing sharp peaks.
+- Compress it and watch the virial pressure climb (the repulsive core
+  dominating).
+- Confirm the conserved total energy holds while kinetic and potential
+  trade.
+
+### Where this comes from
+
+The Lennard-Jones potential, shifted-force truncation, velocity-Verlet
+integration, and virial/$g(r)$ diagnostics follow Allen and Tildesley,
+*Computer Simulation of Liquids*, and Frenkel and Smit, *Understanding
+Molecular Simulation*.
+
 ## Physical setup
 
 `N = 300` particles in a periodic `L x L` box (`rho = N/L^2`),
