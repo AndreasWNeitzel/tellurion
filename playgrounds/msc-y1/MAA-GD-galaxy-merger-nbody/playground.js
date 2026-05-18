@@ -176,18 +176,35 @@ function reset() {
   phiGrid = phi0;
 }
 
-// Global mass-weighted centre of mass and bulk velocity over ALL particles
-// (disk + halo, both galaxies). Robust even when the primary is disrupted,
-// so the view always follows the system and never drifts off-screen.
+// ROBUST mass-weighted centre of mass of the BOUND system. A naive COM over
+// all particles is corrupted by the handful that have escaped the isolated
+// grid and keep coasting ballistically to huge coordinates: one runaway at
+// large x drags the mean far from the visible galaxies, so the "COM-locked"
+// view drifts off-screen. Two passes fix this: a crude COM over on-grid
+// particles, then a refined COM over particles within a clip radius of it.
+// The view and the E-Lz frame both use this, so the system stays centred.
 function primaryCentroid() {
   let mx = 0, my = 0, mvx = 0, mvy = 0, ms = 0;
   for (let p = 0; p < NP; p += 1) {
+    const x = X[2 * p], y = X[2 * p + 1];
+    if (x < 1 || x > L - 1 || y < 1 || y > L - 1) continue;   // skip escapers
     const w = M[p];
-    mx += w * X[2 * p]; my += w * X[2 * p + 1];
-    mvx += w * V[2 * p]; mvy += w * V[2 * p + 1];
-    ms += w;
+    mx += w * x; my += w * y; mvx += w * V[2 * p]; mvy += w * V[2 * p + 1]; ms += w;
   }
-  return { x: mx / ms, y: my / ms, vx: mvx / ms, vy: mvy / ms };
+  if (ms === 0) return { x: L / 2, y: L / 2, vx: 0, vy: 0 };
+  const c0x = mx / ms, c0y = my / ms;
+  // Pass 2: tighten onto the bound body, rejecting far outliers.
+  const RCLIP = 6.0;
+  let nx = 0, ny = 0, nvx = 0, nvy = 0, ns = 0;
+  for (let p = 0; p < NP; p += 1) {
+    const x = X[2 * p], y = X[2 * p + 1];
+    const dx = x - c0x, dy = y - c0y;
+    if (dx * dx + dy * dy > RCLIP * RCLIP) continue;
+    const w = M[p];
+    nx += w * x; ny += w * y; nvx += w * V[2 * p]; nvy += w * V[2 * p + 1]; ns += w;
+  }
+  if (ns === 0) return { x: c0x, y: c0y, vx: mvx / ms, vy: mvy / ms };
+  return { x: nx / ns, y: ny / ns, vx: nvx / ns, vy: nvy / ns };
 }
 
 function physFrame(nsub) {

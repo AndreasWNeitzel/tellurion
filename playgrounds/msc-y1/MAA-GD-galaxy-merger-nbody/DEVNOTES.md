@@ -39,3 +39,7 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 ## Sweep 2026-05-18
 User: disk stripped naked / no merger / out of screen / distrust E-Lz. Rebuilt each galaxy as the literature-standard multi-component model: dominant Hernquist dark-matter halo (82%, binds the disk and carries dynamical friction) + exponential 2-arm spiral disk (18%), all live PM particles. Headless diagnostic confirms a bound friction-decaying orbit, the primary disk SURVIVES (RMS ~1->2, ~92% stays bound, not stripped) and thickens (realistic merger heating). View locked to the global mass-weighted COM and zoomed so the halo stays in frame (no exit-screen). E-Lz now plots only stars with a valid PM potential (out-of-grid garbage excluded) so it matches the screen. Refs Hernquist 1990, Springel ICs, B&T Ch.8.
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User: still not COM-tracking, galaxies exit frame. Root cause found: primaryCentroid() averaged over ALL particles including ones that escaped the isolated grid and coast ballistically to huge coordinates, dragging the 'COM' off the visible system. Replaced with a robust two-pass COM (on-grid particles, then refined within a 6-unit clip radius). Headless diagnostic now shows 100% of stellar-disk particles within the view half-width of the robust COM at every step from 0 to 1500: the galaxies never leave the frame. Screenshot-verified centred.
+invariants Tests 1 passed + visual 5/5 x3. Shipped.
