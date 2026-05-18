@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Poke a resting neuron model gently and nothing happens; poke it past a threshold and it fires a full spike, every time the same size.'
+one_paragraph: 'FitzHugh-Nagumo is the two-variable cartoon of the Hodgkin-Huxley neuron: a fast voltage v with a cubic nonlinearity and a slow recovery variable w. Below threshold a perturbation just decays back to rest; above it the trajectory makes a large all-or-nothing excursion (a spike) before recovering, and a steady injected current turns that into a repetitive spike train through a Hopf bifurcation. The playground shows the phase plane with its nullclines and the v(t) trace, so you watch sub-threshold decay versus the all-or-nothing firing directly. This is the minimal model of nerve excitability. Reference: FitzHugh 1961; Izhikevich, Dynamical Systems in Neuroscience.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
