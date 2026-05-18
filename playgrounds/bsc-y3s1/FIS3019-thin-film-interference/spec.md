@@ -20,6 +20,64 @@ share_state_keys: []
 
 # Thin-film interference and iridescent colors
 
+## Explainer
+
+### What you are looking at
+
+A soap bubble or an oil slick is colorless material, yet it shimmers
+with color. The color is not pigment: it is interference between the
+light reflected off the top of a thin film and the light reflected off
+its bottom. Change the thickness and the color changes. The playground
+sweeps the film thickness and shows the reflected spectrum and the
+resulting hue.
+
+### The two reflections
+
+Light hits a film of index $n_\text{film}$ and thickness $d$. Part
+reflects at the top surface, part travels through, reflects at the
+bottom, and comes back out having traveled an extra optical path. The
+phase difference between the two emerging beams is
+
+$$\delta = \frac{4\pi\,n_\text{film}\,d}{\lambda},$$
+
+plus a half-wave ($\pi$) flip at any reflection going from lower to
+higher index. The full two-interface reflectance is the Airy formula
+
+$$R = \frac{|r_{12} + r_{23}e^{-i\delta}|^2}
+  {|1 + r_{12}r_{23}e^{-i\delta}|^2},$$
+
+with Fresnel coefficients $r_{12}, r_{23}$ at the two surfaces.
+
+### Why it makes color
+
+For white light, $\delta$ depends on wavelength, so some colors
+interfere constructively and others destructively. For a film between
+air and a denser substrate, constructive reflection occurs at
+
+$$\lambda = \frac{2\,n_\text{film}\,d}{m}, \qquad m = 1, 2, 3,\dots$$
+
+and destructive halfway between. As the thickness $d$ changes, the
+reinforced wavelength sweeps through the spectrum, which is why a
+draining soap film shows moving colored bands and an oil slick is
+iridescent. The same effect, by design, makes anti-reflection lens
+coatings and dichroic mirrors.
+
+### Things to try
+
+- Sweep the thickness and watch the reflected color cycle through the
+  spectrum.
+- Make the film very thin ($d \ll \lambda$): it goes dark (the two
+  reflections cancel because of the half-wave flip), the black spot on
+  a draining soap film.
+- Change the film index and watch the fringe spacing and contrast
+  shift.
+
+### Where this comes from
+
+The Airy two-interface reflectance, the thin-film phase, and the
+constructive/destructive conditions follow Hecht, *Optics*, 5th ed.,
+Chapter 9.
+
 ## Physical setup
 
 A thin layer of refractive index n_film and thickness d sits on a substrate.
