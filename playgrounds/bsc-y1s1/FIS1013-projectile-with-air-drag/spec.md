@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: []
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "In a vacuum a thrown ball traces a perfect, symmetric parabola. Add air and the truth is messier: the path is shorter, the descent steeper than the climb, and the best launch angle drops below 45 degrees."
+one_paragraph: "Three projectiles are launched identically: one in vacuum, one with Stokes (linear in v) drag, one with quadratic (v squared) drag. The vacuum ball follows the textbook symmetric parabola with the longest range. Drag bleeds energy continuously, so the drag arcs are shorter and asymmetric, rising less steeply than they fall, and the heavier quadratic drag (the right model for everyday speeds in air) shortens the range most. The three trajectories are drawn together with a moving marker on each and a header readout of the launch parameters and the vacuum range, so the gap between the ideal parabola and the real drag paths is immediate. Which drag law applies is set by the flow regime (the Reynolds number), not by the projectile. This is why ballistics tables never use the vacuum formula."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple

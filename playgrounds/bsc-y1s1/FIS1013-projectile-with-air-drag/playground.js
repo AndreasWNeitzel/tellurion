@@ -2,7 +2,7 @@
 // Three projectiles fired simultaneously with different drag laws.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { createProjectile, stepProjectile, vacuumRange, vacuumPeak } from './sim.js';
+import { createProjectile, stepProjectile, vacuumRange, vacuumPeak, G } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -155,7 +155,14 @@ function bootSync() {
   rebuild();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const target = Math.round(frac * 600);
+    // Span the vacuum (longest) flight, not a fixed 600 steps: the
+    // projectile lands well before 600, so frac >= 0.5 used to give
+    // three pixel-identical post-landing frames. t_f = 2 v0 sin/g;
+    // 0.96 keeps frac=1.0 just before touchdown so all five frames
+    // are distinct and in-flight.
+    const tFlight = 2 * state.v0 * Math.sin(state.angle * Math.PI / 180) / G;
+    const stepsLand = Math.max(1, Math.round(tFlight / 0.01));
+    const target = Math.round(frac * stepsLand * 0.96);
     tickN(target);
     drawAll();
     if (DETERMINISTIC) {
