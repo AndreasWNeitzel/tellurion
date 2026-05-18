@@ -20,6 +20,66 @@ share_state_keys: []
 
 # Beats from superposition of close frequencies
 
+## Explainer
+
+### What you are looking at
+
+Play two notes that are almost, but not quite, in tune and you hear
+the loudness pulse, wah-wah-wah. Those are beats, and they are pure
+wave addition: two steady tones summing to one tone whose volume
+throbs. The playground sums two close frequencies and shows the
+combined wave and its slow amplitude envelope.
+
+### The superposition
+
+Add two equal-amplitude harmonic signals of nearby frequencies
+$f_1,f_2$:
+
+$$y(t) = \cos(2\pi f_1 t) + \cos(2\pi f_2 t).$$
+
+A sum-to-product identity rewrites this as a single fast oscillation
+times a slow envelope:
+
+$$y(t) = 2\,
+  \underbrace{\cos\!\big(2\pi f_\mathrm{beat}\,t\big)}
+  _{\text{slow envelope}}\;
+  \underbrace{\cos\!\big(2\pi \bar f\,t\big)}
+  _{\text{fast carrier}},$$
+
+with the carrier at the average frequency $\bar f=(f_1+f_2)/2$ and
+the envelope at the half-difference $f_\mathrm{beat}=|f_1-f_2|/2$.
+
+### Why you hear a beat frequency of |f1 - f2|
+
+The ear responds to loudness, which tracks the envelope's magnitude
+$|\cos(2\pi f_\mathrm{beat}t)|$. Because the absolute value folds the
+envelope, the loudness peaks twice per envelope cycle, so the audible
+beat rate is the full frequency difference:
+
+$$f_\mathrm{beats} = |f_1 - f_2|.$$
+
+This is exactly how a musician tunes by ear: detune until the beats
+slow to zero (the frequencies match). It is also the same math as
+amplitude modulation in radio and the moire/aliasing you see when two
+gratings overlap. The playground lets you set $f_1$ and $f_2$ and
+watch the carrier, the envelope, and the beat rate change as the two
+frequencies approach.
+
+### Things to try
+
+- Bring $f_2$ toward $f_1$ and watch the beats slow down, then
+  vanish at exact unison (the tuning principle).
+- Separate the frequencies and watch the beat rate equal $|f_1-f_2|$
+  exactly.
+- Note the fast carrier sits at the average frequency while only the
+  slow envelope changes with the detuning.
+
+### Where this comes from
+
+The superposition of close frequencies and the beat phenomenon follow
+French, *Vibrations and Waves*, Chapter 5, and Halliday, Resnick and
+Walker, *Fundamentals of Physics*, Chapter 17.
+
 ## Physical setup
 
 Two harmonic signals of nearby frequencies, summed:
