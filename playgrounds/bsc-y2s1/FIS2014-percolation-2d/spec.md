@@ -20,6 +20,66 @@ share_state_keys: []
 
 # 2D site percolation
 
+## Explainer
+
+### What you are looking at
+
+Fill the squares of a grid at random, each occupied with probability
+$p$. At low $p$ you get scattered islands; at high $p$ one giant blob
+spans the whole grid. The switch is not gradual: it happens abruptly at
+one critical $p$. This is percolation, the simplest model of a phase
+transition, and it describes everything from coffee brewing to forest
+fires to conductivity of mixtures.
+
+### The setup
+
+Each of the $L^2$ sites is independently occupied with probability $p$.
+Occupied neighbors (sharing an edge) belong to the same cluster. The
+order parameter is the fraction of the lattice in the largest cluster:
+
+$$P_\infty(p) = \frac{\text{size of largest cluster}}{L^2}.$$
+
+### The critical point
+
+Below a critical occupation $p_c$, every cluster is finite and
+$P_\infty \to 0$ in a large lattice. Above it, a single spanning
+cluster appears that reaches from one side to the other and
+$P_\infty > 0$. For the 2D square lattice with site percolation,
+
+$$p_c = 0.59274621\ldots$$
+
+Right at $p_c$ the clusters are fractal at every scale (scale
+invariance, the hallmark of a critical point). The playground colors
+the largest cluster as you sweep $p$ so you watch it suddenly
+percolate across the grid near $p_c$. Cluster labeling uses the
+union-find Hoshen-Kopelman algorithm, which is linear in the number of
+sites.
+
+### Why it is a phase transition
+
+$P_\infty(p)$ behaves exactly like an order parameter in
+thermodynamics: zero in one phase, rising continuously from zero past a
+sharp threshold, with a power-law shape near $p_c$ governed by
+universal critical exponents that do not care about lattice details.
+Percolation is the cleanest place to see universality without any
+temperature or energy at all, just geometry and probability.
+
+### Things to try
+
+- Sweep $p$ up slowly through 0.59 and watch a spanning cluster snap
+  into existence.
+- Sit exactly at $p_c$ and note the largest cluster is ramified and
+  fractal, not compact.
+- Increase the lattice size and see the transition sharpen toward a
+  true step (finite-size scaling).
+
+### Where this comes from
+
+Site percolation, the order parameter, $p_c$, and the universality
+picture follow Stauffer and Aharony, *Introduction to Percolation
+Theory*, Chapter 2, with the high-precision $p_c$ from Newman and Ziff
+(2000) and labeling from Hoshen and Kopelman (1976).
+
 ## Physical setup
 
 Each site of an L x L square lattice is independently occupied with probability p (the "site occupation probability"). We label all connected clusters of occupied sites (4-neighbor connectivity) and highlight the largest cluster. As p crosses the critical value p_c = 0.59274621, a giant spanning cluster appears (Newman-Ziff 2000).
