@@ -20,6 +20,66 @@ share_state_keys: []
 
 # Projectile motion with air drag
 
+## Explainer
+
+### What you are looking at
+
+The textbook says a projectile traces a clean parabola and the
+optimal launch angle is exactly 45 degrees. Add air drag and both
+statements break: the path becomes a lopsided arc that falls steeper
+than it rose, and the best angle drops below 45. The playground fires
+projectiles with and without drag side by side so the difference is
+unmistakable.
+
+### Drag-free case
+
+With gravity alone the motion separates: constant horizontal velocity,
+uniform vertical acceleration. The path is the symmetric parabola and
+the range is maximized at $45^\circ$:
+
+$$R = \frac{v_0^2\sin 2\theta}{g}.$$
+
+### Adding air resistance
+
+A real projectile feels a drag force opposing its velocity. At the
+speeds of thrown or batted objects it is quadratic in speed:
+
+$$m\frac{d\mathbf v}{dt}
+  = m\mathbf g - \tfrac12\,\rho\,C_D A\,|\mathbf v|\,\mathbf v.$$
+
+This couples the horizontal and vertical motions (drag depends on the
+full speed), so there is no closed-form solution; the playground
+integrates it numerically. The consequences are systematic:
+
+- The trajectory loses fore-aft symmetry: the descent is steeper and
+  shorter than the ascent, because the projectile is slower coming
+  down so drag bites differently.
+- The range collapses well below the vacuum value, and the
+  range-maximizing launch angle shifts down to roughly $35$ to
+  $40^\circ$ (less time aloft losing speed to drag is worth more than
+  height).
+- At high speed a projectile approaches terminal-velocity behaviour,
+  where drag nearly balances gravity.
+
+This is why ballistics, athletics, and rocketry never use the naive
+$45^\circ$ result. The playground sweeps speed, angle and drag
+coefficient and overlays the drag and vacuum paths.
+
+### Things to try
+
+- Compare the drag and no-drag arcs from the same launch: note the
+  asymmetric, shortened drag trajectory.
+- Sweep the launch angle and find the drag-optimal angle sitting
+  below $45^\circ$.
+- Increase the drag coefficient (or speed) and watch the descent
+  steepen toward near-vertical (terminal fall).
+
+### Where this comes from
+
+Quadratic air drag and its effect on projectile range and the optimal
+angle follow Taylor, *Classical Mechanics*, Chapter 2, and Halliday,
+Resnick and Walker, *Fundamentals of Physics*, Chapter 4.
+
 ## Physical setup
 
 Three projectiles of equal mass m = 1 kg fired simultaneously at the same

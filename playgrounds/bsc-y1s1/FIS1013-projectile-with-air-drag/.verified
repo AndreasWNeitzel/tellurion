@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T18:52:40Z
-invariants: 8/8 (vacuum range, drag shortens range Stokes and quadratic, Stokes vt, quadratic vt, 45 deg max, peak height)
-visual: SSIM > 0.92 across 5 frames showing three trajectories with drag asymmetry
+verified-at: 2026-05-18T19:52:25Z
+invariants: Tests  8 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); comprehensive ## Explainer added; render-neutral (overlay outside #stage, goldens unchanged)
