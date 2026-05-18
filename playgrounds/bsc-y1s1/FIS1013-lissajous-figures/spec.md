@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS1015]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Feed one sine wave to the x-axis and another to the y-axis. If their frequencies are in a simple ratio the dot traces a closed figure; nudge the phase and the figure morphs. These are Lissajous curves, the patterns an oscilloscope draws."
+one_paragraph: "Two perpendicular harmonic motions, x = A sin(a t + delta) and y = B sin(b t), combine into a Lissajous figure. When the frequency ratio a:b is a ratio of small integers the curve closes into a stable looped pattern (3:5 gives three lobes one way, five the other); an irrational ratio never closes and slowly fills a box. The phase delta continuously morphs the shape, turning a circle into a line through an ellipse. The main panel traces the curve with a moving pen while two side strips show the underlying x(t) and y(t) sinusoids, so you can count how many cycles each axis completes per figure. The readout gives a, b, the phase, the ratio and the period. This is exactly how an XY oscilloscope compares two signals: a still, simple Lissajous figure means the two frequencies are locked in a known ratio."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
