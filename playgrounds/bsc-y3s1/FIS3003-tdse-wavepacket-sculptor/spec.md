@@ -19,6 +19,65 @@ share_state_keys: []
 
 # TDSE Wavepacket Sculptor
 
+## Explainer
+
+### What you are looking at
+
+A quantum particle is a spread-out wavepacket, not a dot. Launch it
+into different potentials, a wall, a box, a spring, a barrier, a
+crystal, and watch it disperse, bounce, tunnel, and refocus. The
+playground integrates the actual Schrodinger equation, so the
+probability stays exactly normalized while all this happens.
+
+### The equation and the scheme
+
+The time-dependent Schrodinger equation (units $\hbar = m = 1$):
+
+$$i\,\frac{\partial\psi}{\partial t}
+  = \left[-\tfrac12\frac{\partial^2}{\partial x^2}
+  + V(x)\right]\psi.$$
+
+It is stepped with Crank-Nicolson,
+
+$$\left(I + \tfrac{i\,dt}{2}H\right)\psi^{n+1}
+  = \left(I - \tfrac{i\,dt}{2}H\right)\psi^{n},$$
+
+whose update (the Cayley transform) is exactly unitary. That matters:
+it conserves $\int|\psi|^2 dx = 1$ to machine precision, so the
+displayed probability is trustworthy, not slowly leaking, the headline
+honesty check for any quantum simulation.
+
+### What the potentials show
+
+- Free space: the packet drifts at its group velocity $k_0$ and
+  spreads (dispersion: faster components outrun slower ones).
+- Harmonic well: a coherent state sloshes rigidly,
+  $\langle x\rangle(t) = x_0\cos(\omega t)$, no spreading, the
+  quantum-classical correspondence.
+- Barrier higher than the mean energy: part of the packet tunnels
+  through ($0 < T < 1$) and part reflects, with $R + T = 1$ exactly.
+- Periodic lattice: the packet splits into Bloch-like sub-beams (band
+  structure in action).
+
+The live norm readout stays at 1 throughout; that is the proof the
+scheme is unitary and the tunneling/reflection you see is physical.
+
+### Things to try
+
+- Fire the packet at a barrier taller than its energy and watch a
+  piece tunnel through while the norm stays exactly 1.
+- Drop a coherent state into the harmonic well and watch it slosh
+  without spreading.
+- Free space: watch the packet broaden over time (dispersion), centre
+  moving at $k_0$.
+
+### Where this comes from
+
+The TDSE, the unitary Crank-Nicolson (Cayley) propagator, and the
+tunneling/coherent-state behavior follow Griffiths, *Introduction to
+Quantum Mechanics*, Chapter 2, with the numerical scheme from Press et
+al., *Numerical Recipes*, Chapter 19.
+
 ## Physical setup
 
 A Gaussian wavepacket of chosen mean momentum launched into a chosen
