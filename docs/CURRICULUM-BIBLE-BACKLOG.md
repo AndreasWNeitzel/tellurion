@@ -456,7 +456,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 - [x] klein-gordon-wavepacket-mass : medium canvas2d. KG packet, vg=
   pc^2/E<c, w^2=k^2+m^2. Inv: vg<1; causal; m=0 dispersion-free.
-- [ ] casimir-effect-zero-point-energy : medium canvas2d. Plates, allowed
+- [x] casimir-effect-zero-point-energy : medium canvas2d. Plates, allowed
   modes, missing modes red, F~d^-4 log-log. Inv: F prop d^-4 0.1%;
   1.3e-3 Pa at 1um 1%.
 - [ ] symmetry-breaking-mexican-hat : medium webgl2. V(|phi|) 3D, ball

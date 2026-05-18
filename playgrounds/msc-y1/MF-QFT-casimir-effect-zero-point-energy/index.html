@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Casimir Effect: Zero-Point Modes and the d^-4 Pressure</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Casimir Effect: Zero-Point Modes and the d^-4 Pressure</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Casimir plates with allowed and excluded modes, the d^-4 pressure law, and the energy">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">d:</span><span class="value" id="readout-d">1.00 um</span>
+      <span class="label">P:</span><span class="value" id="readout-p">1.30e-3 Pa</span>
+      <span class="label">E/A:</span><span class="value" id="readout-e">-4.3e-10</span>
+      <span class="label">modes:</span><span class="value" id="readout-n">0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Two perfectly conducting plates exclude the long-wavelength vacuum modes that do not fit between them; the surviving zero-point pressure imbalance pulls the plates together with P = pi^2 hbar c / 240 d^4, about 1.3 mPa at 1 micron.
+      <em>Method:</em> mode counting plus the zeta-regularised Casimir energy and pressure; Canvas2D, deterministic.
+      <em>Source:</em> Casimir 1948; Milonni, The Quantum Vacuum; Lamoreaux 1997.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">plate separation d (nm)</span><input aria-label="plate separation, nm" type="range" id="slider-d" min="80" max="3000" step="20" value="1000"><span class="value" id="value-d">1000</span></div>
+    <div class="row"><span class="label">mode cutoff index</span><input aria-label="highest mode index drawn" type="range" id="slider-nm" min="4" max="14" step="1" value="8"><span class="value" id="value-nm">8</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Klein-Gordon Wave Packet: Mass, Dispersion and the Light Cone](../playgrounds/msc-y1/MF-QFT-klein-gordon-wavepacket-mass/index.html)** &nbsp; (verified, verified 2026-05-18T03:31:56Z)
+  A free relativistic scalar field obeys the Klein-Gordon equation, so a wave packet is a superposition of modes with omega(k) = sqrt(k^2 + m^2). Mass makes the dispersion nonlinear, so the packet both moves slower than light and spreads; a massless field is dispersion-free and propagates exactly on the light cone. The superluminal phase velocity transmits no 
+
 - **[Inflation: Slow Roll, Superhorizon Fluctuations, n_s](../playgrounds/msc-y1/MF-GR-inflation-quantum-fluctuations/index.html)** &nbsp; (verified, verified 2026-05-18T03:22:07Z)
   A scalar inflaton field slowly rolls down a nearly flat potential, driving an exponential expansion (about 60 e-folds). Quantum fluctuations of the field are stretched by the expansion: once a mode is larger than the Hubble horizon it freezes, becoming a classical perturbation that later seeds the cosmic microwave background and galaxies. The statistics of t
 
@@ -764,6 +767,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Brownian Motion and the Diffusion Law](../playgrounds/bsc-y2s1/FIS2014-brownian-motion-diffusion/index.html)** &nbsp; (verified)
   A dilute suspension of Brownian particles released from a common origin in a two-dimensional fluid. Each particle performs an independent random walk driven by molecular collisions; one tracer is drawn large with its trail and the surrounding solvent agitation.
 
+- **[Casimir Effect: Zero-Point Modes and the d^-4 Pressure](../playgrounds/msc-y1/MF-QFT-casimir-effect-zero-point-energy/index.html)** &nbsp; (verified)
+  Two parallel perfectly conducting plates a distance d apart in vacuum. The electromagnetic field still has zero-point energy in every mode, but the plates only permit modes whose half-integer wavelengths fit the gap. Removing the excluded long-wavelength modes lowers the energy between the plates relative to outside, and the imbalance is a real attractive pr
+
 - **[Central-Force Orbit Gallery](../playgrounds/bsc-y1s1/FIS1013-central-force-orbit-gallery/index.html)** &nbsp; (verified)
   A unit-mass particle moves in a central potential `V(r) = k r^p` (with `k` signed so the well is attractive for every `p`; `p = 0` is the logarithmic potential). The orbit is drawn about a luminous force centre with a fading trail; a secondary panel shows the effective potential and the energy.
 
@@ -811,9 +817,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
   A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
-
-- **[Klein-Gordon Wave Packet: Mass, Dispersion and the Light Cone](../playgrounds/msc-y1/MF-QFT-klein-gordon-wavepacket-mass/index.html)** &nbsp; (verified)
-  A free relativistic scalar field obeys the Klein-Gordon equation, so a wave packet is a superposition of modes with omega(k) = sqrt(k^2 + m^2). Mass makes the dispersion nonlinear, so the packet both moves slower than light and spreads; a massless field is dispersion-free and propagates exactly on the light cone. The superluminal phase velocity transmits no 
 
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
