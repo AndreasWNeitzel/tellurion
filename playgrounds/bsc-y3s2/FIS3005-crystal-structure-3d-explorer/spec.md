@@ -19,6 +19,67 @@ share_state_keys: []
 
 # Crystal Structure Explorer
 
+## Explainer
+
+### What you are looking at
+
+A crystal is a lattice plus a basis. The playground builds the cubic
+lattices (simple, body-centered, face-centered), lets you slice them
+with any Miller plane, and shows which X-ray reflections are allowed.
+This is how the atomic arrangement of a solid is actually determined.
+
+### Lattice planes and reciprocal space
+
+A family of parallel atomic planes is labeled by Miller indices
+$(hkl)$; for a cubic lattice their spacing is
+
+$$d_{hkl} = \frac{a}{\sqrt{h^2 + k^2 + l^2}}.$$
+
+The natural space for diffraction is the reciprocal lattice, with
+basis vectors
+
+$$\mathbf b_i = 2\pi\,
+  \frac{\mathbf a_j\times\mathbf a_k}{\mathbf a_1\cdot
+  (\mathbf a_2\times\mathbf a_3)},
+  \qquad \mathbf b_i\cdot\mathbf a_j = 2\pi\,\delta_{ij}.$$
+
+Its Wigner-Seitz cell is the first Brillouin zone, the stage for all
+band-structure physics.
+
+### Bragg and the structure factor
+
+X-rays reflect strongly only when Bragg's law is met:
+
+$$2\,d_{hkl}\sin\theta = \lambda.$$
+
+But not every $(hkl)$ that satisfies Bragg actually appears. The basis
+atoms interfere through the structure factor
+
+$$F_{hkl} = \sum_\text{basis} e^{2\pi i (h x + k y + l z)},$$
+
+and $|F_{hkl}| = 0$ gives systematic absences: BCC kills reflections
+with $h+k+l$ odd; FCC kills those with mixed-parity $h,k,l$. Reading
+which reflections are present versus absent is exactly how
+crystallographers distinguish SC, BCC, and FCC. The playground shows
+the lattice, a chosen Miller plane, and the allowed/forbidden
+reflections.
+
+### Things to try
+
+- Switch SC -> BCC -> FCC and watch the systematic absences change
+  (the structure-factor extinction rules).
+- Pick different $(hkl)$ and see the plane spacing follow
+  $a/\sqrt{h^2+k^2+l^2}$.
+- Note the reciprocal lattice of FCC is BCC and vice versa (the
+  Brillouin-zone shapes swap).
+
+### Where this comes from
+
+Miller indices, the reciprocal lattice, Bragg's law, and the
+structure-factor absences follow Kittel, *Introduction to Solid State
+Physics*, Chapter 2, and Ashcroft and Mermin, *Solid State Physics*,
+Chapter 6.
+
 ## Physical setup
 
 Cubic crystals of conventional side `a`: SC (1 atom/cell), BCC
