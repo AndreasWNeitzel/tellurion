@@ -21,3 +21,56 @@ share_state_keys: []
 ---
 # Fubini's theorem in 2D
 Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
+
+## Explainer
+
+### What you are looking at
+
+To integrate a function of two variables over a rectangle you can sweep
+in $x$ first then $y$, or in $y$ first then $x$. Fubini's theorem says
+you get the same number either way. The playground computes both orders
+on $f(x,y) = \sin x\cos y$ and shows the running totals converging to
+the same value, so a 2D integral is just two ordinary 1D integrals
+done in sequence.
+
+### The statement
+
+For a continuous $f$ on a rectangle $[a,b]\times[c,d]$,
+
+$$\iint_R f\,dA
+  = \int_a^b\!\left(\int_c^d f(x,y)\,dy\right)dx
+  = \int_c^d\!\left(\int_a^b f(x,y)\,dx\right)dy.$$
+
+The double integral is the volume under the surface; each iterated
+form builds that volume out of slices, one taking $y$-slices, the other
+$x$-slices. They have to agree because they measure the same volume.
+
+### The worked example
+
+With $f = \sin x\cos y$ the inner and outer integrals separate cleanly.
+Integrating $\cos y$ over $[c,d]$ gives $\sin d - \sin c$; integrating
+$\sin x$ over $[a,b]$ gives $\cos a - \cos b$; the double integral is
+their product. Doing it in the other order multiplies the same two
+factors in the opposite sequence, which is the same number. The
+playground evaluates both numerically and the two running sums land on
+the same value, the theorem made concrete.
+
+### When it can fail
+
+Fubini needs the function to be well behaved (absolutely integrable).
+For a continuous function on a bounded rectangle, like this one, it
+always holds; the order is purely a matter of convenience, and you pick
+whichever inner integral is easier.
+
+### Things to try
+
+- Watch both running totals converge to the same limit.
+- Change the rectangle and confirm the two orders still agree.
+- Note that picking the easier inner variable is the whole practical
+  payoff of the theorem.
+
+### Where this comes from
+
+Fubini's theorem and iterated double integrals follow Riley, Hobson
+and Bence, *Mathematical Methods for Physics and Engineering*, 3rd ed.,
+Chapter 10.
