@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Enrich a predator-prey system and a stable coexistence point gives way to permanent boom-and-bust cycles: the paradox of enrichment.'
+one_paragraph: 'The Rosenzweig-MacArthur model adds a saturating (Holling type II) predator response to logistic prey. For some parameters predator and prey settle to a stable coexistence equilibrium; raise the prey carrying capacity and that equilibrium loses stability through a Hopf bifurcation, replaced by a stable limit cycle of large population swings. The playground shows the phase plane with its nullclines and the time series as you tune parameters, so the spiral-in equilibrium visibly turns into a sustained cycle. This is the ecological paradox of enrichment: more food destabilizes the system. Reference: Strogatz, Nonlinear Dynamics and Chaos; Murray, Mathematical Biology.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
