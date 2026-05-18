@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CT Reconstruction: Radon, Filtered Back-Projection and MLEM</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>CT Reconstruction: Radon, Filtered Back-Projection and MLEM</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="The phantom and its sinogram, the reconstructed image, and the reconstruction error versus the number of projection angles and MLEM iterations">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">angles:</span><span class="value" id="readout-na">90</span>
+      <span class="label">method:</span><span class="value" id="readout-meth">FBP ram-lak</span>
+      <span class="label">RMSE:</span><span class="value" id="readout-rmse">0.000</span>
+      <span class="label">SNR:</span><span class="value" id="readout-snr">0.0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A Shepp-Logan phantom, its Radon transform (the sinogram) filled by a rotating gantry, and the image recovered by filtered back-projection with the Ram-Lak ramp filter or by the iterative MLEM algorithm. With few angles the back-projection is streaky; the error falls as the number of projections grows and as MLEM iterates.
+      <em>Method:</em> Radon transform, discrete Ram-Lak FBP and Shepp-Vardi MLEM; Canvas2D, deterministic.
+      <em>Source:</em> Kak and Slaney 1988; Shepp and Vardi 1982.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">projection angles</span><input aria-label="number of projection angles" type="range" id="slider-na" min="3" max="180" step="1" value="90"><span class="value" id="value-na">90</span></div>
+    <div class="row"><span class="label">FBP filter</span><select aria-label="reconstruction filter" id="select-filt" style="grid-column: span 2;"><option value="ramlak">Ram-Lak ramp</option><option value="shepp">Shepp-Logan</option><option value="none">none (unfiltered)</option></select></div>
+    <div class="row"><span class="label">method</span><select aria-label="reconstruction method" id="select-meth" style="grid-column: span 2;"><option value="fbp">filtered back-projection</option><option value="mlem">MLEM (iterative)</option></select></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -490,7 +490,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 22: M:FM Medical Physics (Khan, Bushberg, Podgorsak)
 
-- [ ] ct-reconstruction-lab : hero canvas2d. Phantom, rotating gantry
+- [x] ct-reconstruction-lab : hero canvas2d. Phantom, rotating gantry
   sinogram fill, FBP progressive (5 vs 180 angles), filter selector,
   vs MLEM. Radon/FBP Ram-Lak. Inv: Radon linear; FBP exact point;
   SNR~sqrt N; MLEM converges.

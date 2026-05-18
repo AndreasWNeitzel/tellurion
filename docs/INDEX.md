@@ -803,6 +803,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (verified)
   Atmosphere is drawn as a gradient from dark space to ground. A primary cosmic ray streaks in from the top; the shower front then propagates downward and the Heitler cascade fans out into a bright-cored cone, colour-coded by particle energy (white at high energy near shower maximum, gold mid-cascade, blue once below the critical energy). The descending front 
 
+- **[CT Reconstruction: Radon, Filtered Back-Projection and MLEM](../playgrounds/msc-y1/MFM-MP-ct-reconstruction-lab/index.html)** &nbsp; (verified)
+  X-ray computed tomography measures line integrals of the attenuation coefficient through the body at many angles (the Radon transform, displayed as the sinogram) and inverts them to recover the cross-sectional image. Two reconstruction routes are shown: analytic filtered back-projection, the workhorse of clinical CT, and the statistical MLEM iteration used i
+
 - **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified)
   An oscillating electric (or magnetic) dipole, or a centre-fed half-wave antenna, at the origin with its axis vertical. The radiated power flows outward through the far zone.
 
