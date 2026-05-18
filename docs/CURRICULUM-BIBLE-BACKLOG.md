@@ -504,7 +504,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] monte-carlo-photon-transport : advanced canvas2d. Tissue slab,
   photon histories (Compton/PE/Rayleigh colours), dose map, Web Worker.
   Inv: high-E Compton, low-E PE; lambda 2%; build-up.
-- [ ] radiation-dosimetry-detector : medium canvas2d. Ion chamber,
+- [x] radiation-dosimetry-detector : medium canvas2d. Ion chamber,
   Compton recoil e, ion pairs drift, Q, Bragg-Gray. Inv: W ICRU 1%;
   collection to 1 high V; D prop QW.
 

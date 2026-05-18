@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Monte Carlo Photon Transport in a Tissue Slab](../playgrounds/msc-y1/MFM-MP-monte-carlo-photon-transport/index.html)** &nbsp; (verified, verified 2026-05-18T06:31:21Z)
+  A pencil beam of monoenergetic photons normally incident on a slab of water (tissue equivalent). Each photon is transported by Monte Carlo: it travels a randomly sampled distance, then interacts by photoelectric absorption, Compton scattering or Rayleigh scattering, chosen in proportion to the cross sections. Compton scattering reduces the photon energy and 
+
 - **[Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak](../playgrounds/msc-y1/MFM-MP-proton-therapy-bragg-peak/index.html)** &nbsp; (verified, verified 2026-05-18T06:15:20Z)
   A proton beam slowing down in tissue. Unlike photons, charged particles deposit most of their energy near the end of their range, where the stopping power diverges, producing the Bragg peak. The depth of the peak is set by the beam energy through the Bragg-Kleeman range-energy relation. A clinical treatment spreads the peak over the tumour by stacking pristi
 
@@ -848,11 +851,11 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
   A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
 
+- **[Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray](../playgrounds/msc-y1/MFM-MP-radiation-dosimetry-detector/index.html)** &nbsp; (verified)
+  An ionization chamber: a small gas cavity between two electrodes at a collecting voltage. Photons Compton-scatter in the gas; the recoil electrons strip electrons off gas molecules, creating ion pairs at a fixed average cost of W per pair (33.97 eV in air). The applied field sweeps the ions to the electrodes, where the collected charge is measured. At low vo
+
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
-
-- **[Monte Carlo Photon Transport in a Tissue Slab](../playgrounds/msc-y1/MFM-MP-monte-carlo-photon-transport/index.html)** &nbsp; (verified)
-  A pencil beam of monoenergetic photons normally incident on a slab of water (tissue equivalent). Each photon is transported by Monte Carlo: it travels a randomly sampled distance, then interacts by photoelectric absorption, Compton scattering or Rayleigh scattering, chosen in proportion to the cross sections. Compton scattering reduces the photon energy and 
 
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.

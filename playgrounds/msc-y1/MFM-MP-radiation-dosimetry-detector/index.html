@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="An ion chamber with recoil electrons and drifting ion pairs, the recombination saturation curve, and the charge-to-dose chain">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">voltage:</span><span class="value" id="readout-v">300 V</span>
+      <span class="label">collection f:</span><span class="value" id="readout-f">0.999</span>
+      <span class="label">charge:</span><span class="value" id="readout-q">0 C</span>
+      <span class="label">D_medium:</span><span class="value" id="readout-d">0 Gy</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Photons Compton-scatter in the cavity gas; the recoil electrons create ion pairs at one pair per W = 33.97 eV; the pairs drift to the electrodes under the collecting voltage, where recombination at low voltage reduces the collected charge (the Boag saturation curve). The dose follows from D = (Q/m)(W/e), converted to medium dose by the Bragg-Gray stopping-power ratio.
+      <em>Method:</em> seeded Monte Carlo recoil sampling plus the Boag and Bragg-Gray relations; Canvas2D, deterministic.
+      <em>Source:</em> ICRU Report 90; Boag 1950; Attix 1986.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">photon energy (keV)</span><input aria-label="photon energy in keV" type="range" id="slider-e" min="30" max="600" step="10" value="100"><span class="value" id="value-e">100</span></div>
+    <div class="row"><span class="label">collecting voltage (V)</span><input aria-label="collecting voltage in volts, log scale x100" type="range" id="slider-v" min="100" max="350" step="2" value="248"><span class="value" id="value-v">300</span></div>
+    <div class="row"><span class="label">dose rate (rel.)</span><input aria-label="relative dose rate" type="range" id="slider-dr" min="1" max="12" step="1" value="1"><span class="value" id="value-dr">1</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
