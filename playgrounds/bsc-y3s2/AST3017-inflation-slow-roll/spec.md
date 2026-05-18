@@ -9,8 +9,8 @@ supporting_ucs: [MAA-CS]
 curriculum_year: bsc-y3s2
 primary_citation: mukhanov-cosmology
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Inflation stretches quantum jitters into the seeds of every galaxy. Each model of the early universe predicts a different pair of numbers, the tilt of the primordial spectrum n_s and the gravitational-wave amount r; plot them and watch which models Planck has already ruled out."
+one_paragraph: "A scalar inflaton rolling slowly down its potential V(phi) makes two slow-roll parameters, epsilon = (M_Pl^2/2)(V'/V)^2 and eta = M_Pl^2 V''/V, which fix the two observables: the scalar spectral index n_s = 1 - 6 epsilon + 2 eta and the tensor-to-scalar ratio r = 16 epsilon. For large-field power-law potentials V ~ phi^p with N e-folds before inflation ends, this collapses to closed forms, n_s = 1 - (p+2)/(2N) and r = 4p/N, so phi^2 gives (1 - 2/N, 8/N), phi^4 gives (1 - 3/N, 16/N); natural and Starobinsky R^2 inflation sit elsewhere. The playground plots each model's track on the (n_s, r) plane with the Planck 2018 box overlaid, so you see directly that phi^2 and phi^4 are excluded while Starobinsky lands comfortably inside. Vary N to slide along each track."
 tags: [cosmology, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -30,8 +30,8 @@ $$n_s = 1 - 6\epsilon + 2\eta, \qquad r = 16\epsilon.$$
 
 Four models tracked, each yielding $(n_s, r)$ trajectories parameterized by the number of e-folds $N$ before the end of inflation:
 
-- $\phi^2$ chaotic: $n_s = 1 - 4/N$, $r = 8/N$. Strongly excluded by Planck.
-- $\phi^4$ chaotic: $n_s = 1 - 5/N$, $r = 16/N$. Far excluded.
+- $\phi^2$ chaotic: $n_s = 1 - 2/N$, $r = 8/N$ (from $n_s = 1 - (p+2)/(2N)$, $r = 4p/N$ with $p=2$). Excluded by Planck on $r$.
+- $\phi^4$ chaotic: $n_s = 1 - 3/N$, $r = 16/N$ ($p=4$). Far excluded.
 - Natural inflation (for $f = 2 M_\text{Pl}$): $n_s = 1 - 2/N - 1/f^2$, $r = 8/N$.
 - Starobinsky $R^2$ inflation: $n_s = 1 - 2/N$, $r = 12/N^2$. Comfortably within Planck.
 

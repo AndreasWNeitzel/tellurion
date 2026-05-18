@@ -26,20 +26,15 @@ export const MODELS = ['phi2', 'phi4', 'natural', 'starobinsky'];
 
 export function nsR(model, N) {
   switch (model) {
-    case 'phi2': // V = phi^2
-      return { ns: 1 - 4 / (2 * N) - 2 / N, r: 8 / N };
-    case 'phi4':
-      return { ns: 1 - 6 / (2 * N) - 2 / N, r: 16 / N };
+    case 'phi2': // V ~ phi^2 (p=2): n_s = 1 - (p+2)/(2N) = 1 - 2/N, r = 4p/N = 8/N
+      return { ns: 1 - 2 / N, r: 8 / N };
+    case 'phi4': // V ~ phi^4 (p=4): n_s = 1 - (p+2)/(2N) = 1 - 3/N, r = 4p/N = 16/N
+      return { ns: 1 - 3 / N, r: 16 / N };
     case 'natural': {
-      // Approximation for f = 2 M_Pl: see Mukhanov eq 9.78-ish.
-      // Just hard-code a reasonable point for the demo.
+      // Natural inflation V = Lambda^4 (1 + cos(phi/f)). Large-f
+      // approximation (f = 2 M_Pl): n_s = 1 - 2/N - 1/f^2, r = 8/N.
       const f = 2;
-      const arg = N / (f * f);
-      const ns = 1 - (1 / (f * f)) * (1 + 2 / Math.cos(Math.sqrt(2 * arg) * 0));
-      // Cleaner: use the standard formulas valid for large f:
-      const ns2 = 1 - 2 / N - 1 / (f * f);
-      const r = 8 / N;
-      return { ns: ns2, r };
+      return { ns: 1 - 2 / N - 1 / (f * f), r: 8 / N };
     }
     case 'starobinsky':
       return { ns: 1 - 2 / N, r: 12 / (N * N) };

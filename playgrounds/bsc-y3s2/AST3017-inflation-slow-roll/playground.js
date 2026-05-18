@@ -162,8 +162,15 @@ function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     const models = ['phi2', 'phi4', 'natural', 'starobinsky'];
-    model = models[Math.min(models.length - 1, Math.floor(frac * models.length))];
+    // Five distinct reference frames: cycle the model and sweep N over
+    // the full slider range [40,80]. The previous floor(frac*4) clamped
+    // frames 4 and 5 both to starobinsky, so the t-075 and t-100 goldens
+    // were pixel-identical (SSIM 1.000); this makes all five differ.
+    const i = Math.max(0, Math.min(4, Math.round(frac * 4)));
+    model = models[i % models.length];
+    N = 40 + 10 * i;
     selectM.value = model;
+    sliderN.value = String(N);
   }
   valueN.textContent = String(N);
   valueM.textContent = model;

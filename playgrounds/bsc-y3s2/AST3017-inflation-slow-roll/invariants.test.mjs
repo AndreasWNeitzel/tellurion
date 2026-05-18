@@ -1,14 +1,29 @@
-// Slow-roll invariants.
-// (a) phi^4 at N = 60: n_s ~ 0.93, r ~ 0.27. Excluded by Planck.
-// (b) phi^2 at N = 60: n_s ~ 0.95, r ~ 0.13. Excluded but marginal.
-// (c) Starobinsky at N = 50-60: n_s ~ 0.96, r ~ 0.004. Comfortably within Planck.
-// (d) r scales as 1/N for chaotic models.
-// (e) n_s monotonic toward 1 as N grows.
+// Slow-roll invariants. Closed forms for large-field V ~ phi^p:
+//   n_s = 1 - (p+2)/(2N),  r = 4p/N.
+// (a) phi^2 (p=2) at N=60: n_s = 1 - 2/60 = 0.9667, r = 8/60 = 0.133.
+// (b) phi^4 (p=4) at N=60: n_s = 1 - 3/60 = 0.95,   r = 16/60 = 0.267. Excluded.
+// (c) Starobinsky at N=50-60: n_s ~ 1 - 2/N, r = 12/N^2 ~ 0.004. Within Planck.
+// (d) r scales as 1/N for chaotic models; n_s monotonic toward 1 as N grows.
 
 import { describe, it, expect } from 'vitest';
 import { nsR, withinPlanckBox, MODELS, PLANCK_NS } from './sim.js';
 
 describe('inflation-slow-roll', () => {
+  it('phi^2 closed form: n_s = 1 - 2/N, r = 8/N', () => {
+    for (const N of [50, 60, 100]) {
+      const { ns, r } = nsR('phi2', N);
+      expect(ns).toBeCloseTo(1 - 2 / N, 12);
+      expect(r).toBeCloseTo(8 / N, 12);
+    }
+  });
+
+  it('phi^4 closed form: n_s = 1 - 3/N, r = 16/N', () => {
+    for (const N of [50, 60, 100]) {
+      const { ns, r } = nsR('phi4', N);
+      expect(ns).toBeCloseTo(1 - 3 / N, 12);
+      expect(r).toBeCloseTo(16 / N, 12);
+    }
+  });
   it('Starobinsky at N = 60 is within Planck box', () => {
     const { ns, r } = nsR('starobinsky', 60);
     expect(withinPlanckBox(ns, r)).toBe(true);

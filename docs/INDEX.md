@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Slow-Roll Inflation](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (verified, verified 2026-05-18T10:45:00Z)
+  A scalar inflaton field $\phi$ with potential $V(\phi)$ in slow-roll regime ($\epsilon, |\eta| \ll 1$). The slow-roll parameters are $\epsilon = (M_\text{Pl}^2 / 2)(V'/V)^2$ and $\eta = M_\text{Pl}^2 V''/V$. Observables to leading order:
+
 - **[Green's Function: Building a Solution from Tent Responses](../playgrounds/msc-y1/M2009-green-function-propagator/index.html)** &nbsp; (verified, verified 2026-05-18T07:33:53Z)
   The boundary-value problem -u'' = f on [0, L] with u(0) = u(L) = 0. The Green's function G(x, x') is the solution when the source is a single unit spike at x'. It is the tent that is zero at both walls and has a kink at x'. Because the operator is linear, the solution for any source is the superposition of these tents weighted by the source value at each poi
 
@@ -439,9 +442,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Big-O Empirical Scaling](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/index.html)** &nbsp; (verified, verified 2026-05-14T00:43:57Z)
   The same seeded shuffle of $[1..N]$ is sorted twice at once: an $O(N^2)$ comparison sort (bubble or insertion) on the left, merge sort $O(N\log_2 N)$ on the right. Both are replayed from a recorded event stream (compare / swap / write), so replay speed is independent of the algorithm. The lower panel accumulates one measured point per finished race on top of
-
-- **[Slow-Roll Inflation](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (verified, verified 2026-05-14T00:40:46Z)
-  A scalar inflaton field $\phi$ with potential $V(\phi)$ in slow-roll regime ($\epsilon, |\eta| \ll 1$). The slow-roll parameters are $\epsilon = (M_\text{Pl}^2 / 2)(V'/V)^2$ and $\eta = M_\text{Pl}^2 V''/V$. Observables to leading order:
 
 - **[Inverse-Compton Cooling](../playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling/index.html)** &nbsp; (verified, verified 2026-05-14T00:37:25Z)
   Relativistic electrons (Lorentz factor $\gamma$) immersed in a soft-photon bath (energy density $U_\text{ph}$) lose energy by inverse-Compton up-scattering of the photons. In the Thomson limit the cooling time is $$t_\text{IC} = \frac{3 m_e c}{4 \sigma_T \gamma U_\text{ph}}.$$
