@@ -21,6 +21,60 @@ share_state_keys: [model, P, hc]
 
 # Spin Valve: GMR/TMR Hysteresis and the Two-Current Model
 
+## Explainer
+
+### What you are looking at
+
+Stack two magnetic layers with a thin spacer. The electrical resistance
+depends on whether their magnetizations are parallel or antiparallel,
+by a large margin. Sweep an external field and the resistance traces a
+hysteresis loop. This giant magnetoresistance is how every hard-disk
+read head works (2007 Nobel Prize).
+
+### The two-current model
+
+In a ferromagnet, spin-up and spin-down electrons scatter at different
+rates (one spin channel "sees" a matched magnetization, the other
+does not). Treat conduction as two independent spin channels in
+parallel. When the two layers are parallel, one spin channel has a
+low-resistance path through both layers (short circuit); when
+antiparallel, every electron is strongly scattered in one layer or the
+other, so both channels are high-resistance. Hence
+
+$$R_\text{AP} > R_\text{P},
+  \qquad
+  \text{MR} = \frac{R_\text{AP} - R_\text{P}}{R_\text{P}},$$
+
+tens of percent for metallic GMR, and far larger for a tunnel barrier
+(TMR), where the tunnel conductance depends on the relative
+magnetization angle through the spin polarizations.
+
+### Why it makes a hysteresis loop
+
+One layer is soft (the free layer) and flips at a low field; the other
+is pinned by an adjacent antiferromagnet (exchange bias) and flips only
+at a much larger field. Sweeping the field up and down, the two layers
+switch at different points, so there is a window where they are
+antiparallel (high R) and windows where parallel (low R), tracing a
+characteristic resistance-vs-field hysteresis loop. Reading the
+resistance state reads back the stored bit. The playground sweeps the
+field and shows the layer magnetizations switching and the R(H) loop.
+
+### Things to try
+
+- Sweep the field and watch the soft layer flip first, opening the
+  antiparallel high-resistance plateau.
+- Compare GMR (metal spacer, tens of percent) with TMR (insulating
+  barrier, much larger MR).
+- Note the loop is offset by the exchange-bias field that pins the
+  hard layer.
+
+### Where this comes from
+
+The two-current model, GMR/TMR, and exchange-biased spin-valve
+hysteresis follow the Nobel work of Fert and Grunberg (1988) and the
+treatment in Coey, *Magnetism and Magnetic Materials*.
+
 ## Physical setup
 
 A spin valve is two ferromagnetic layers separated by a non-magnetic
