@@ -19,6 +19,60 @@ share_state_keys: []
 
 # Fabry-Perot Etalon Spectrometer
 
+## Explainer
+
+### What you are looking at
+
+Sodium light is not one yellow line but two, 0.6 nm apart. A
+Fabry-Perot spectrometer resolves that doublet by squeezing light
+between two mirrors so only razor-sharp resonant wavelengths get
+through. The playground scans the mirror spacing and shows the doublet
+splitting into separated peaks, with the trade-offs that limit any
+spectrometer.
+
+### The instrument
+
+Two mirrors of reflectance $R$, spacing $d$, transmit via multiple-beam
+interference with the Airy function
+
+$$T = \frac{1}{1 + F\sin^2(\delta/2)},
+  \qquad F = \frac{4R}{(1-R)^2},
+  \qquad \delta = \frac{4\pi d}{\lambda}.$$
+
+Transmission peaks where the round-trip phase is a multiple of
+$2\pi$, i.e. at order $m = 2d/\lambda$.
+
+### The three numbers that decide everything
+
+- Free spectral range, the wavelength gap between adjacent orders:
+  $\mathrm{FSR} = \lambda^2/2d$. Two features further apart than the
+  FSR overlap into the next order (ambiguous).
+- Finesse, the peak sharpness: $\mathcal F = \pi\sqrt R/(1-R)$, the
+  number of resolvable peaks per FSR. High $R$, sharp peaks.
+- Resolving power: $R_p = m\,\mathcal F$.
+
+The sodium doublet of separation $\Delta\lambda$ is cleanly resolved
+only when $R_p \ge \lambda/\Delta\lambda$ (peaks narrow enough to
+separate) and $\mathrm{FSR} > \Delta\lambda$ (no order overlap). That
+twin condition is the central lesson: raising $R$ sharpens peaks but
+you must also keep the spacing $d$ small enough to avoid order
+confusion. The playground sweeps $d$ and $R$ so you see the doublet
+resolve and the order overlap appear.
+
+### Things to try
+
+- Raise $R$ and watch the doublet peaks sharpen and separate (finesse
+  up).
+- Increase $d$ and watch the FSR shrink until adjacent orders collide
+  (overlap).
+- Find the regime where both conditions hold: that is a usable
+  spectrometer setting.
+
+### Where this comes from
+
+The Airy transmission, finesse, free spectral range, and resolving
+power follow Hecht, *Optics*, 5th ed., Chapter 9.
+
 ## Physical setup
 
 Two plane mirrors of reflectance `R`, spacing `d`, illuminated by the
