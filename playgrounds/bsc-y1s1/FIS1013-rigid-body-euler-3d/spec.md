@@ -19,6 +19,69 @@ share_state_keys: []
 
 # Torque-Free Rigid Body (Euler's Equations) 3D
 
+## Explainer
+
+### What you are looking at
+
+A solid body tumbles in space with nothing pushing on it. The white
+arrow is its instantaneous spin axis $\boldsymbol\omega$; the gold
+arrow is the angular momentum $\mathbf L$, which stays fixed in space
+because there is no torque. Watch the spin axis trace a closed curve
+on the body (the polhode) while the body's own axes wander around the
+fixed gold arrow. This is the full geometry of free rotation, the
+thing that makes tossed objects tumble.
+
+### The equations
+
+In the body frame, with principal moments $I_1, I_2, I_3$, the spin
+obeys Euler's equations:
+
+$$I_1\dot\omega_1 = (I_2 - I_3)\,\omega_2\omega_3,$$
+
+$$I_2\dot\omega_2 = (I_3 - I_1)\,\omega_3\omega_1,$$
+
+$$I_3\dot\omega_3 = (I_1 - I_2)\,\omega_1\omega_2.$$
+
+The right-hand sides are the gyroscopic coupling: unless the body spins
+exactly about one principal axis, the three components continuously
+trade. The body's orientation is carried by a unit quaternion with
+$\dot q = \tfrac12\,q \otimes [0, \boldsymbol\omega_\text{body}]$.
+Two conserved quantities,
+
+$$E = \tfrac12\sum_k I_k\omega_k^2, \qquad
+  |\mathbf L|^2 = \sum_k (I_k\omega_k)^2,$$
+
+constrain $\boldsymbol\omega$ to the intersection of an energy
+ellipsoid and a momentum sphere. That intersection is the polhode
+curve.
+
+### Polhode and herpolhode
+
+- The polhode is the path of the $\boldsymbol\omega$ tip drawn on the
+  body (it is painted on the ellipsoid here). Closed loops around the
+  long and short axes, a separatrix through the middle axis.
+- The herpolhode is the same tip seen in the fixed lab frame; it lies
+  in the invariable plane perpendicular to the constant $\mathbf L$.
+
+Together they say a free body does not spin about a fixed line: the
+axis itself moves, on the body and in space, in a fully determined way.
+
+### Things to try
+
+- Spin near the long or short axis: tight closed polhode loop, steady
+  tumble.
+- Spin near the intermediate axis: the polhode runs along the
+  separatrix and the body flips (the same instability as the
+  tennis-racket theorem).
+- Watch the gold $\mathbf L$ arrow stay rigidly fixed while everything
+  else moves: conservation of angular momentum, visible.
+
+### Where this comes from
+
+Euler's equations, the inertia ellipsoid, and the polhode and
+herpolhode construction follow Goldstein, Poole and Safko, *Classical
+Mechanics*, 3rd ed., Chapter 5 (rigid-body motion).
+
 ## Physical setup
 
 A rigid body rotates freely in space with no applied torque. Its
