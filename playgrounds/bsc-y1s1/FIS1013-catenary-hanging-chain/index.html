@@ -24,19 +24,23 @@
   <h1>Catenary: shape of a hanging chain</h1>
 
   <p>
-    <strong>What you are seeing:</strong> a uniform, perfectly flexible chain
-    suspended between two fixed pegs at $(\pm 1, 0)$. The shape is
-    $y(x) = a \cosh(x / a) - a$, where $a = T_0 / (\mu g)$ is the catenary
-    parameter (horizontal tension $T_0$, linear mass density $\mu$, gravity
-    $g$). As $a$ grows the chain is pulled taut and the cosh flattens
-    toward a parabola $y \approx x^2 / 2a$; as $a$ shrinks the chain sags
-    more.
+    <strong>What you are seeing:</strong> a uniform, perfectly flexible
+    cable hung as a suspension bridge between two towers. Carrying only its
+    own weight it takes the catenary $y(x) = a \cosh(x / a) - a$, where
+    $a = T_0 / (\mu g)$ is the catenary parameter (horizontal tension
+    $T_0$, linear mass density $\mu$, gravity $g$). A small $a$ is a deep,
+    slack, low-tension sag; a large $a$ is a shallow, taut, nearly straight
+    cable. The readout shows $a$, the cable length, span, sag and the peak
+    tension (largest at the supports).
   </p>
   <p>
-    The orange dashed line shows the parabolic approximation $y = x^2 / 2a$
-    for the same $a$. For small sag the two curves agree; for large sag
-    (small $a$) the parabola underestimates the chain shape because cosh
-    grows faster than its quadratic Taylor expansion.
+    Drag either tower: the cable length is fixed, so the catenary
+    re-solves through the new supports. Pull the towers far enough apart
+    that the cable cannot reach and it snaps taut to a straight line. A
+    shallow cable looks almost parabolic, $y \approx x^2 / 2a$ (the
+    classical suspension-bridge approximation), but the computed shape is
+    always the exact cosh, which grows faster than that quadratic for
+    deep sag.
   </p>
 
   <figure class="pg-figure">
@@ -44,9 +48,10 @@
             aria-label="Hanging chain with catenary curve and parabolic approximation."></canvas>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      Catenary. Method: closed-form $y = a \cosh(x/a) - a$ with animated
-      sweep over $a$ from 0.4 to 3.0. Source: Lemos, Analytical Mechanics
-      Ch. 2 (`lemos-analytical`).
+      Catenary suspension bridge: a fixed-length cable $y = a\cosh(x/a) - a$
+      re-solved between two draggable towers. Method: closed-form catenary
+      with a two-point arc-length solve. Source: Lemos, Analytical
+      Mechanics, Ch. 2.
     </figcaption>
   </figure>
 

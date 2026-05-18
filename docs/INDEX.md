@@ -645,7 +645,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A uniform string of length L is fixed at both ends. The normal modes of small transverse oscillation are y_n(x, t) = sin(n pi x / L) cos(2 pi f_n t),  f_n = n c / (2 L).
 
 - **[Catenary: Shape of a Hanging Chain](../playgrounds/bsc-y1s1/FIS1013-catenary-hanging-chain/index.html)** &nbsp; (verified, verified 2026-05-13T18:15:10Z)
-  A perfectly flexible, uniform chain hangs under gravity between two pegs at (plus minus 1, 0). The hanging shape is the catenary y(x) = a cosh(x / a) - a
+  A perfectly flexible, uniform cable hangs under gravity between two support towers. Carrying only its own weight, its equilibrium shape is the catenary
 
 - **[Brachistochrone: Why the Cycloid Wins](../playgrounds/bsc-y1s1/FIS1013-brachistochrone-cycloid/index.html)** &nbsp; (verified, verified 2026-05-13T18:11:40Z)
   Three frictionless beads of equal mass slide from A = (0, 0) to B = (4, -2) under uniform gravity g = 9.81. The paths are: - Cycloid: x = R (theta - sin theta), y = -R (1 - cos theta), with R fixed by the endpoint. - Straight line. - Circular arc through A, tangent to the horizontal at A, passing through B.
