@@ -22,6 +22,58 @@ share_state_keys: []
 
 # Bohr hydrogen energy levels and emission spectrum
 
+## Explainer
+
+### What you are looking at
+
+Hydrogen does not glow in every color. It emits a few sharp lines at
+fixed wavelengths, the barcode that lets us read the composition of
+stars. Bohr's 1913 model explains exactly where those lines sit. The
+playground draws the energy ladder and the resulting line spectrum.
+
+### The quantization
+
+Bohr's one bold assumption: the electron's angular momentum is
+quantized, $L = n\hbar$ for integer $n \ge 1$. Feeding that into the
+Coulomb orbit gives discrete energy levels
+
+$$E_n = -\frac{E_R}{n^2}, \qquad E_R = 13.606\ \text{eV},$$
+
+negative (bound), crowding together as $n$ grows, and converging to 0
+(ionization) as $n\to\infty$.
+
+### The spectral lines
+
+The atom emits a photon only when the electron drops from a higher
+level $n_h$ to a lower one $n_\ell$, and the photon carries exactly the
+energy difference:
+
+$$h\nu = E_R\left(\frac{1}{n_\ell^2} - \frac{1}{n_h^2}\right),
+  \qquad \frac{1}{\lambda} = R_H\left(\frac{1}{n_\ell^2}
+  - \frac{1}{n_h^2}\right).$$
+
+Grouping by the lower level gives the named series: Lyman
+($n_\ell=1$, ultraviolet), Balmer ($n_\ell=2$, the visible lines you
+see in a hydrogen lamp), Paschen, Brackett, Pfund (infrared). Each
+series piles up toward a series limit at $\lambda = n_\ell^2/R_H$ as
+$n_h\to\infty$. The playground colors each series and marks its limit.
+
+### Things to try
+
+- Watch the Balmer lines fall in the visible band: this is the red
+  H-alpha and blue-green H-beta of glowing hydrogen.
+- Note each series crowds toward its limit, the levels getting closer
+  as $1/n^2$.
+- See that the same level spacing produces UV (Lyman) and IR
+  (Paschen) lines from one simple formula.
+
+### Where this comes from
+
+The Bohr quantization, the $E_n = -E_R/n^2$ ladder, and the Rydberg
+series formula follow Carroll and Ostlie, *An Introduction to Modern
+Astrophysics*, 2nd ed., Chapter 5, with the fuller derivation in
+Eisberg and Resnick, *Quantum Physics*, 2nd ed., Chapter 5.
+
 ## Physical setup
 
 A single electron orbits a proton in a Coulomb potential. The Bohr quantization condition $L = n \hbar$ pins discrete orbits indexed by integer $n \ge 1$ with energies $E_n = -E_R / n^2$, where $E_R = 13.605693$ eV is the (infinite-mass) Rydberg energy. Transitions between levels emit photons of wavelength
