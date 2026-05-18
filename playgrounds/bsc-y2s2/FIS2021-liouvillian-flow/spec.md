@@ -20,6 +20,67 @@ share_state_keys: []
 
 # Liouvillian Flow on the Pendulum Phase Space
 
+## Explainer
+
+### What you are looking at
+
+Drop a blob of identical pendulums, each started slightly differently,
+into phase space and let them all evolve. The blob stretches into a
+long thin filament and wraps around, but its area never changes. That
+incompressibility, Liouville's theorem, underlies statistical
+mechanics, and the playground shows it happening on the pendulum.
+
+### The Hamiltonian flow
+
+The pendulum is the simplest nontrivial Hamiltonian system: one
+coordinate $\theta$, one momentum $p$, with
+
+$$H(\theta,p) = \frac{p^2}{2} - \omega^2\cos\theta.$$
+
+Hamilton's equations $\dot\theta=\partial H/\partial p$,
+$\dot p=-\partial H/\partial\theta$ move each point. The motion
+separates into three regions visible in the $(\theta,p)$ plane: small
+oscillations (libration) around the stable point, the separatrix
+through the unstable point at $\theta=\pi$, and rotation (the
+pendulum going over the top) above and below it.
+
+### Liouville's theorem
+
+The phase-space velocity field of any Hamiltonian system is
+divergence-free,
+
+$$\frac{\partial\dot\theta}{\partial\theta}
+  + \frac{\partial\dot p}{\partial p}
+  = \frac{\partial^2 H}{\partial\theta\,\partial p}
+  - \frac{\partial^2 H}{\partial p\,\partial\theta} = 0,$$
+
+so the flow is incompressible: a cloud of tracers behaves like an
+ideal fluid of fixed volume. The blob can be stretched and folded
+arbitrarily (especially when it straddles the separatrix, where
+nearby points have very different periods, so it filaments
+dramatically) but its area is conserved exactly. This is why
+phase-space density is conserved along trajectories, the basis of the
+microcanonical ensemble and of why you must integrate Hamiltonian
+systems with a symplectic (area-preserving) scheme (here
+velocity-Verlet from the shared engine) rather than a generic ODE
+solver that would spuriously inflate or shrink the blob.
+
+### Things to try
+
+- Drop a small blob in the libration region and watch it orbit and
+  shear while keeping its area.
+- Drop one straddling the separatrix and watch it stretch into a
+  long filament that wraps the unstable point (strong shear, area
+  still fixed).
+- Compare libration vs rotation regions: different periods, same
+  area-preservation.
+
+### Where this comes from
+
+Hamiltonian flow, Liouville's theorem and the pendulum phase portrait
+follow Lemos, *Analytical Mechanics*, Chapter 8, and Goldstein,
+*Classical Mechanics*, Chapter 9.
+
 ## Physical setup
 
 A 1D pendulum is the simplest non-trivial Hamiltonian system: one degree of freedom, two-dimensional phase space (theta, p). Under Hamiltonian flow, phase-space volumes are preserved (Liouville's theorem), so an initial cloud of tracer particles traces out an evolving region whose area is invariant in time. The playground integrates N independent tracers under the pendulum Hamiltonian $H(\theta, p) = p^2/2 - \omega^2 \cos(\theta)$ using the velocity-Verlet integrator from `shared/js/engine/symplectic.js`. The viewer can drop an initial Gaussian blob of tracers at any point in phase space and watch the blob orbit, stretch, and filament without changing area. Three phase-space regions are visible: the libration region around the stable equilibrium (theta=0, p=0), the separatrix passing through the unstable equilibrium (theta=pi, p=0), and the rotation region above and below the separatrix.
