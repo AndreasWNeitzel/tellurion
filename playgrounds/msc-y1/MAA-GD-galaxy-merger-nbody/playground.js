@@ -8,6 +8,7 @@ const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
@@ -164,9 +165,16 @@ function buildControls() {
 
 buildControls();
 if (DETERMINISTIC) {
-  // ~12 time units of warmup so the captured frame shows the galaxies
-  // mid-encounter (tidal tails forming) rather than still far apart.
-  for (let i = 0; i < 600; i += 1) step();
+  // Reference capture: the merger is the pedagogically central variable, so
+  // the five golden frames must sweep simulation time (approach -> first
+  // passage -> tidal tails -> coalescence -> relaxed remnant) rather than
+  // freezing at one instant. captureFraction 0..1 maps to ~250..1100 warmup
+  // steps. Without a capture name (e.g. the physics self-check) keep the
+  // original ~12-time-unit warmup. Render-neutral to interactive use.
+  const warmup = CAPTURE_NAME
+    ? Math.round(250 + CAPTURE_FRAC * 850)
+    : 600;
+  for (let i = 0; i < warmup; i += 1) step();
   render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
