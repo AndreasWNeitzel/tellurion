@@ -22,6 +22,59 @@ share_state_keys: []
 
 # Nuclear shell model and magic numbers
 
+## Explainer
+
+### What you are looking at
+
+Nuclei with 2, 8, 20, 28, 50, 82, or 126 protons or neutrons are
+unusually tightly bound and stable, the nuclear "magic numbers", the
+analogue of noble-gas electron shells. They do not come out of a naive
+potential; you need a strong spin-orbit force. The playground fills
+nucleon levels and lights up the closures.
+
+### Independent particles in an average well
+
+Treat each nucleon as moving independently in the average potential of
+all the others (a Woods-Saxon / harmonic-oscillator well). Solving it
+gives single-particle levels $|n\ell j\rangle$, each holding $2j+1$
+nucleons; protons and neutrons fill separately (they are distinct
+fermions). Filling from the bottom, a closed shell occurs at a large
+energy gap.
+
+### Why plain shells give the wrong numbers
+
+A pure harmonic-oscillator (or square) well predicts closures at
+2, 8, 20, 40, 70, ..., which is right only up to 20 and then wrong.
+Mayer and Jensen's fix (1949) was a strong spin-orbit term
+
+$$H_\text{so} \propto -\,\xi(r)\,\boldsymbol\ell\cdot\mathbf s,$$
+
+which splits each $\ell$ level into $j = \ell+\tfrac12$ and
+$j = \ell-\tfrac12$, with the *higher-$j$* state pushed *down* a lot
+(opposite sign and much larger than the atomic case). That depression
+drops high-$j$ intruder levels into the shell below, opening big gaps
+exactly at
+
+$$2,\ 8,\ 20,\ 28,\ 50,\ 82,\ 126,$$
+
+the observed magic numbers. The playground fills to a chosen nucleon
+count and highlights when a cumulative total hits a closure, with the
+spin-orbit-shifted level order.
+
+### Things to try
+
+- Fill toward 28, 50, 82: watch the big gap appear right at the magic
+  number (a closed shell).
+- Note the high-$j$ intruder levels dropping into the shell below,
+  the spin-orbit signature that fixes 28, 50, 82, 126.
+- Compare with the no-spin-orbit order (correct only up to 20).
+
+### Where this comes from
+
+The independent-particle shell model, the strong spin-orbit term, and
+the magic numbers follow Krane, *Introductory Nuclear Physics*,
+Chapter 5, after Mayer (1949) and Jensen (1949).
+
 ## Physical setup
 
 Nucleons (protons and neutrons separately) fill single-particle levels of an average nuclear potential. The harmonic-oscillator-with-strong-spin-orbit model of Mayer and Jensen (1949) gives shell closures at $2, 8, 20, 28, 50, 82, 126$ that match the observed extra binding (Hartree-Fock confirmation came decades later).
