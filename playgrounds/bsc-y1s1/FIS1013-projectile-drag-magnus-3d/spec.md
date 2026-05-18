@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Put sidespin on the ball and it does not just fall short, it swerves out of the plane entirely.'
-one_paragraph: 'A ball launched in 3D under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4. Three trajectories fly at once over a perspective ground grid: vacuum, drag only, and drag plus Magnus. Because the Magnus force is perpendicular to both velocity and spin, sidespin curves the flight laterally while backspin adds lift and topspin cuts the range.'
+one_paragraph: 'A ball launched in 3D under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4. Three trajectories fly at once over a perspective ground grid, each casting a shadow on the plane: vacuum, drag only, and drag plus Magnus. The camera orbits the scene (auto or by slider) so the lateral Magnus swerve reads as genuine depth rather than a flat plot. Because the Magnus force is perpendicular to both velocity and spin, sidespin curves the flight laterally while backspin adds lift and topspin cuts the range.'
 tags: [mechanics, animation, live-readout]
 difficulty: 2
 tier: medium
@@ -45,6 +45,8 @@ RK4 on `(p, v)` with `dt = 0.002`, terminating at the ground crossing
 - launch speed, elevation, spin-rate sliders.
 - spin-axis selector (sidespin, backspin, topspin, knuckle); Reset,
   Pause.
+- camera azimuth and height sliders; auto-orbit on/off. The camera is
+  a true perspective pinhole; the orbit is the primary depth cue.
 
 ## Expected qualitative features
 
