@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Lyapunov Spectrum of the Henon Map
 
+## Explainer
+
+### What you are looking at
+
+"This system is chaotic" is a quantitative statement: nearby
+trajectories diverge exponentially, and the exponent that measures it
+is the Lyapunov exponent. The playground actually computes the full
+Lyapunov spectrum of the Henon map live, with a built-in exact check
+that proves the algorithm is right.
+
+### Lyapunov exponents
+
+Track an infinitesimal perturbation $\delta_n$ along an orbit. On
+average it grows or shrinks geometrically, $|\delta_n|\sim
+e^{\lambda n}$, and the rates $\lambda_1\ge\lambda_2$ are the
+Lyapunov exponents. Their signs classify the dynamics:
+
+- $\lambda_1>0$: chaos (exponential sensitivity, the formal
+  definition).
+- All $\lambda_i<0$: a stable fixed point or cycle (perturbations
+  decay).
+- $\lambda_1=0$: a quasi-periodic / marginal orbit.
+
+### Computing them: the Benettin QR method
+
+A single perturbation just aligns with the fastest-growing direction,
+so to get the whole spectrum you evolve an orthonormal frame under
+the map's Jacobian and re-orthonormalize (Gram-Schmidt / QR) every
+step, accumulating the log stretch of each frame vector. For the
+Henon map $x_{n+1}=1-ax_n^2+y_n$, $y_{n+1}=bx_n$ the Jacobian
+determinant is the constant $b$, which forces an exact identity:
+
+$$\lambda_1 + \lambda_2 = \ln|b|.$$
+
+The playground displays both exponents and their sum against
+$\ln|b|$; the sum locking onto $\ln|b|$ to many digits is a strong
+invariant that validates the computation in real time (a rare case
+where you can prove your chaos estimate is correct). Drag the
+$(a,b)$ handle and watch $\lambda_1$ cross zero exactly where the
+attractor transitions between periodic and chaotic.
+
+### Things to try
+
+- Sit at the canonical $(1.4,0.3)$ and read $\lambda_1>0$ (chaos)
+  with $\lambda_1+\lambda_2=\ln 0.3$ exactly.
+- Drag $(a,b)$ into a periodic window and watch $\lambda_1$ go
+  negative (the attractor becomes a cycle).
+- Watch the sum invariant hold to many digits everywhere: the
+  correctness check.
+
+### Where this comes from
+
+Lyapunov exponents, the Benettin QR algorithm and the
+sum-equals-$\ln|J|$ identity follow Benettin et al., Meccanica 15, 9
+(1980), and Strogatz, *Nonlinear Dynamics and Chaos*, Chapter 9.
+
 ## Physical setup
 
 The playground visualizes the full spectrum of Lyapunov exponents for the canonical Henon map, a 2D quadratic recurrence that is the archetypal discrete-time chaotic system. The map exhibits a strange attractor with complex mixing and sensitive dependence on initial conditions. Two panels display complementary views: the left panel shows the scatter of attractor points in phase space (x, y), revealing the classic banana-shaped structure at the canonical parameter values; the right panel is a small parameter (a, b) grid where the user drags a handle to control the map coefficients and watch the attractor morph in real time. The playground computes the full Lyapunov spectrum using the Benettin QR algorithm: simultaneously tracking the orbit and a 2x2 orthonormal frame tangent to the manifold, re-orthonormalizing at each step via Gram-Schmidt, and accumulating the log-magnitudes of the frame columns. The live readout displays both exponents, their sum (which must equal ln|b|, an exact dynamical invariant), and the iteration count; this sum-equals-determinant relationship is a strong invariant and validates the algorithm's correctness.
