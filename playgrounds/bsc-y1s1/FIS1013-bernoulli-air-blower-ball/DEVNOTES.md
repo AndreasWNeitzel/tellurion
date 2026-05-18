@@ -27,3 +27,7 @@ self-recentres. Pure local sim.js, no shared engine, no GL.
 ## Sweep 2026-05-18
 Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
 invariants Tests  7 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User feedback: blower emitter and jet stream tilted in opposite directions. sim.js jet axis is (sin a, cos a); playground.js emitter used ctx.rotate(-a) (opposite) and spawned the streak sheet along a non-perpendicular vector. Fixed emitter to rotate(+a) and the spawn sheet to the true perpendicular (cos a, -sin a). Screenshot-verified emitter and jet now tilt together at both tilt extremes; recaptured goldens.
+invariants Tests 7 passed + visual 5/5 x3. Shipped.

@@ -42,7 +42,9 @@ function spawnStreaks(n) {
   for (let i = 0; i < n; i += 1) {
     const r = (rng() - 0.5) * 2 * sim.w0;
     const a = (sim.tiltDeg * Math.PI) / 180;
-    streaks.push({ x: sim.nozzle.x + r * Math.cos(a), y: sim.nozzle.y + r * Math.sin(a) + 0.005, age: 0, life: 0.7 + rng() * 0.6 });
+    // Spawn across the nozzle mouth: the sheet is perpendicular to the jet
+    // axis (sin a, cos a), i.e. along (cos a, -sin a).
+    streaks.push({ x: sim.nozzle.x + r * Math.cos(a), y: sim.nozzle.y - r * Math.sin(a) + 0.005, age: 0, life: 0.7 + rng() * 0.6 });
   }
 }
 function advanceStreaks(dt) {
@@ -67,7 +69,10 @@ function draw() {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, NZ_PX.y); ctx.lineTo(W, NZ_PX.y); ctx.stroke();
   const a = (sim.tiltDeg * Math.PI) / 180;
-  ctx.save(); ctx.translate(NZ_PX.x, NZ_PX.y); ctx.rotate(-a);
+  // Emitter tilts WITH the jet: the physics jet axis is (sin a, cos a),
+  // which in screen space (y-up) needs a clockwise canvas rotation of +a so
+  // the nozzle mouth points along the actual stream, not opposite it.
+  ctx.save(); ctx.translate(NZ_PX.x, NZ_PX.y); ctx.rotate(a);
   ctx.fillStyle = '#3a3f48'; ctx.fillRect(-26, 0, 52, 40);
   ctx.fillStyle = '#5b6472'; ctx.fillRect(-16, -10, 32, 12);
   ctx.restore();
