@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s2
 primary_citation: riley-hobson
 primary_chapter: 10
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Add up a function over a rectangle column by column, or row by row; Fubini''s theorem promises the same total, and here both orders are computed side by side.'
+one_paragraph: 'A double integral over a rectangle can be done as an iterated integral in either order: integrate over x first then y, or y first then x. Fubini''s theorem guarantees the two agree when the integrand is well behaved. The playground evaluates both orders numerically for f(x, y) = sin x cos y over an adjustable rectangle and shows the running partial sums converging to the same value. Watching the two accumulations fill the region in different directions yet meet at the same answer makes the theorem concrete instead of a line taken on faith. Reference: Riley and Hobson, Mathematical Methods, Ch. 10.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
