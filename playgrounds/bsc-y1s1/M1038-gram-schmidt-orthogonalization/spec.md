@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: arfken-weber
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Take a set of skewed vectors and straighten them into a perpendicular frame without changing the space they span. Subtract off the part that overlaps what you already have; what is left is orthogonal. That is Gram-Schmidt."
+one_paragraph: "Gram-Schmidt turns any basis into an orthonormal one. Keep the first vector; for the next, subtract its projection onto everything already accepted so only the perpendicular remainder survives, then normalise. The playground shows the input vectors, the projection being removed (dashed) and the resulting residual, then the clean orthonormal output u1, u2; as the input skew changes you watch the residual shrink toward zero when two inputs become nearly parallel (the ill-conditioned case where the modified algorithm matters). The readout reports |u1 . u2| (the orthogonality check, near zero) and the residual length. This is the algorithm behind the QR decomposition and behind constructing orthogonal polynomials."
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
