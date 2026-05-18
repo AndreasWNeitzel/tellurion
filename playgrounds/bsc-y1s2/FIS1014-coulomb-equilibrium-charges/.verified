@@ -1,1 +1,3 @@
-verified-at: 2026-05-14T00:57:36Z
+verified-at: 2026-05-18T19:46:55Z
+invariants: Tests passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); stale goldens recaptured (deterministic A==B, !=old); comprehensive ## Explainer added; screenshot-verified (4-charge field, test charge slides off central saddle, Earnshaw)

@@ -31,3 +31,7 @@ descent. Readout (#readout, HTML below #stage): F, V.
 - npx vitest run invariants.test.mjs
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was text-only).
+
+## Sweep 2026-05-18
+Recaptured stale golden frames (deterministic across two runs); screenshot-verified physically correct (quadrupole field-line topology, test charge departing the unstable central equilibrium). Added comprehensive ## Explainer.
+invariants Tests passed + visual 5/5 x3. Shipped.

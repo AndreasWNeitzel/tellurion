@@ -21,3 +21,58 @@ share_state_keys: []
 ---
 # Coulomb equilibrium of charges
 Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths, Introduction to Electrodynamics, Ch. 2.
+
+## Explainer
+
+### What you are looking at
+
+Drop a test charge into the field of several fixed charges and it is
+pushed and pulled until it either settles at a balance point or is
+flung away. The playground lets you release the test charge and watch
+it flow along the force, revealing where the field cancels, and the
+surprising fact that no such balance point is ever truly stable.
+
+### Coulomb's law and superposition
+
+Each fixed charge $q_i$ exerts on a test charge $q$ at position
+$\mathbf r$ the Coulomb force
+
+$$\mathbf F_i = \frac{1}{4\pi\varepsilon_0}\,
+  \frac{q\,q_i}{|\mathbf r - \mathbf r_i|^2}\,
+  \hat{\mathbf r}_{i},$$
+
+and forces simply add (superposition):
+$\mathbf F = \sum_i \mathbf F_i = q\,\mathbf E(\mathbf r)$. An
+equilibrium is a point where the total field $\mathbf E$ vanishes, so
+the net force is zero and the test charge can sit at rest.
+
+### Earnshaw's theorem: why it cannot be stable
+
+You can find points where $\mathbf E = 0$, but they are always
+saddle points, never minima of the potential energy. The reason is
+fundamental: in charge-free space the electrostatic potential obeys
+Laplace's equation
+
+$$\nabla^2\phi = 0,$$
+
+and a harmonic function has no local maximum or minimum in the
+interior. So at any equilibrium the potential rises in some
+directions and falls in others: stable in one axis, unstable in
+another. This is Earnshaw's theorem, and it is why you cannot
+levitate a charge with static charges alone (and why atoms are not
+little electrostatic solar systems). The playground shows the test
+charge balancing momentarily at a null then sliding off along the
+unstable direction.
+
+### Things to try
+
+- Release the test charge near a field null and watch it pause, then
+  escape along the unstable (saddle) direction.
+- Move the fixed charges and watch the null points relocate or merge.
+- Confirm no placement gives a truly stable trap (Earnshaw): there is
+  always an escape direction.
+
+### Where this comes from
+
+Coulomb's law, superposition, and Earnshaw's theorem follow
+Griffiths, *Introduction to Electrodynamics*, Chapters 2 and 3.
