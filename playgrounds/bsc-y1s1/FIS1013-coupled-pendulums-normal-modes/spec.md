@@ -9,8 +9,8 @@ supporting_ucs: [FIS2016]
 curriculum_year: bsc-y1s1
 primary_citation: french-waves
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Tie two identical pendulums together with a weak spring, start only one swinging, and within seconds the first is still while the second swings. The energy sloshes back and forth: normal modes and beats made visible."
+one_paragraph: "Two identical pendulums are linked by a weak spring. Coupled, the system has two normal modes: a symmetric one (both swing together, the spring never stretches, frequency sqrt(g/L)) and an antisymmetric one (they swing exactly opposite, the spring works hardest, a higher frequency). Any motion is a mix of the two. Start just one pendulum moving and it is an equal blend of both modes; because the modes have slightly different frequencies they drift in and out of step, so the energy beats fully from one pendulum to the other and back, with period 2 pi / (omega_minus - omega_plus). The panels show the two pendulums, an energy-share bar (watch it slosh), a phase portrait that is a straight line for a pure mode and a Lissajous loop for the mix, and the angle traces under their slow beat envelope. Stiffer coupling or longer pendulums change the beat period."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
