@@ -22,6 +22,72 @@ share_state_keys: []
 
 # Divergence and curl of a 2D vector field
 
+## Explainer
+
+### What you are looking at
+
+Divergence and curl are the two local questions you can ask of any
+flow: is fluid being created here, and is it spinning here? The
+playground draws a 2D vector field and a probe that reports both at
+the point you place it, turning the formulas into something you can
+see by dropping a tiny paddlewheel into the stream.
+
+### Divergence: sources and sinks
+
+The divergence measures the net outflow per unit area:
+
+$$\nabla\cdot\mathbf F
+  = \frac{\partial F_x}{\partial x}
+  + \frac{\partial F_y}{\partial y}.$$
+
+Positive divergence is a source (arrows on net pointing outward, a
+faucet); negative is a sink (arrows converging, a drain); zero means
+whatever flows into a small box also flows out (incompressible). By
+the divergence theorem the local divergence integrated over a region
+equals the total flux through its boundary.
+
+### Curl: rotation
+
+The (2D, $z$-component of the) curl measures the local circulation
+per unit area:
+
+$$(\nabla\times\mathbf F)_z
+  = \frac{\partial F_y}{\partial x}
+  - \frac{\partial F_x}{\partial y}.$$
+
+Nonzero curl means a paddlewheel placed there would spin; its sign is
+the spin direction. A field can have zero curl everywhere yet still
+circulate globally only if the domain has a hole (the basis of
+conservative vs non-conservative fields). By Stokes' theorem the curl
+integrated over a region equals the line integral (circulation)
+around its boundary.
+
+### Why the split matters
+
+The Helmholtz decomposition says any well-behaved field is the sum of
+a curl-free part (a gradient, like an electrostatic field) and a
+divergence-free part (a rotation, like a magnetic field). Divergence
+and curl are exactly the two probes that separate them, which is why
+Maxwell's equations are written entirely in terms of div and curl.
+The playground lets you pick a field (source, vortex, shear, saddle)
+and move the probe to read $\nabla\cdot\mathbf F$ and
+$(\nabla\times\mathbf F)_z$ with a little expanding/spinning glyph.
+
+### Things to try
+
+- Put the probe in a radial source field: large positive divergence,
+  zero curl.
+- Put it in a vortex field: zero divergence, large curl (the
+  paddlewheel spins).
+- Find a saddle/shear where one is zero and the other is not, and a
+  point where both vanish.
+
+### Where this comes from
+
+Divergence, curl, and the divergence/Stokes theorems follow Griffiths,
+*Introduction to Electrodynamics*, Chapter 1, and Arfken and Weber,
+*Mathematical Methods for Physicists*, Chapter 3.
+
 ## Physical setup
 
 A parameterized 2D vector field $\mathbf{F}(x, y; a)$ visualized as a grid of arrows on a $\pm 3 \times \pm 2$ region. Four families:
