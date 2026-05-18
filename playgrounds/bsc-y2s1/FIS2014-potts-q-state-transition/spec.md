@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2014
 supporting_ucs: [FIS2018, MAA-NM]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Generalize the Ising magnet to q colours and one dial flips the phase transition from a smooth second-order one to an abrupt first-order jump.'
+one_paragraph: 'In the q-state Potts model each site picks one of q colours and a bond lowers the energy only when its two sites match. It generalizes the Ising model (q = 2) and orders below T_c = 1 / ln(1 + sqrt(q)). The character of the transition depends only on q: for q up to 4 it is continuous (second order), while for q of 5 or more it turns first order, with a latent-heat jump and coexisting phases. The playground runs Metropolis dynamics through T_c and shows the order parameter and energy, so the continuous-versus-abrupt distinction is visible as you change q. Reference: Wu 1982, Rev. Mod. Phys. 54, 235.'
 tags: [thermodynamics, statistical-physics, animation, live-readout]
 difficulty: 3
 tier: simple
