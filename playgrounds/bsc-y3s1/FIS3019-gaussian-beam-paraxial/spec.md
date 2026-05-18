@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS3019
 supporting_ucs: []
 curriculum_year: bsc-y3s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A laser beam is not a pencil ray: it has a narrowest waist, then spreads as a hyperbola, and the tighter you focus it the faster it diverges.'
+one_paragraph: 'The fundamental TEM_00 laser mode is a Gaussian beam, not a ray. It is narrowest at the waist (1/e^2 radius w_0) and spreads hyperbolically: the spot radius is w(z) = w_0 sqrt(1 + (z/z_R)^2), set by the Rayleigh range z_R = pi w_0^2 / lambda, while the wavefront curvature goes from flat at the waist to spherical far away. The tighter the waist, the shorter z_R and the faster the beam diverges, which is the diffraction limit you cannot beat. The playground sweeps w_0 and wavelength and draws the envelope, waist, and wavefronts. Reference: Saleh and Teich, Fundamentals of Photonics, Ch. 3.'
 tags: [optics, animation, live-readout]
 difficulty: 3
 tier: simple
