@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Aim a light ray near a black hole: outside a critical impact parameter it bends and escapes, inside it spirals through the photon sphere and is swallowed.'
+one_paragraph: 'Light in Schwarzschild geometry follows null geodesics fixed entirely by the impact parameter b = L/E. The playground fires a plane wave of photons past a non-rotating black hole: rays with b above the critical value 3 sqrt 3 (about 5.2 M) bend and escape, weakly deflected by about 4M/b far out; rays below it cross the photon sphere at r = 3M and fall through the horizon. Rays just above critical loop the photon sphere several times before escaping, the origin of the bright photon ring in black-hole images. It is integrated symplectically so the conserved energy and angular momentum stay clean. Reference: Hartle, Gravity: An Introduction to Einstein''s General Relativity, Ch. 9.'
 tags: [cosmology, animation, live-readout]
 difficulty: 3
 tier: simple
