@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Optical Fiber: LP Modes, Dispersion and Pulse Broadening</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Optical Fiber: LP Modes, Dispersion and Pulse Broadening</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="b-V dispersion diagram, LP mode cross-section, and GVD pulse broadening"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">V:</span><span class="value" id="readout-v">3.80</span>
+      <span class="label">modes:</span><span class="value" id="readout-modes">2</span>
+      <span class="label">b:</span><span class="value" id="readout-b">0.000</span>
+      <span class="label">T/T0:</span><span class="value" id="readout-tt">1.00</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Step-index weakly guiding fibre: the b-V dispersion curves with the single-mode region V &lt; 2.405, the selected LP mode intensity cross-section, and group-velocity-dispersion broadening of a Gaussian pulse along the fibre.
+      <em>Method:</em> LP eigenvalue root-find with Abramowitz-Stegun Bessel functions; T(z) = T0 sqrt(1 + (z/L_D)^2); deterministic.
+      <em>Source:</em> Gloge 1971; Snyder and Love 1983; Agrawal 2019.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">mode</span><select aria-label="LP mode" id="select-mode" style="grid-column: span 2;"><option value="0,1">LP01 (fundamental)</option><option value="1,1">LP11</option><option value="2,1">LP21</option><option value="0,2">LP02</option></select></div>
+    <div class="row"><span class="label">V-number</span><input aria-label="normalised frequency, x100" type="range" id="slider-v" min="60" max="900" step="5" value="380"><span class="value" id="value-v">3.80</span></div>
+    <div class="row"><span class="label">dispersion L_D</span><input aria-label="dispersion length, x10" type="range" id="slider-ld" min="5" max="80" step="1" value="20"><span class="value" id="value-ld">2.0</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

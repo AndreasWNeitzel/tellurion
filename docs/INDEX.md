@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Second-Harmonic Generation: Phase Matching and Conversion](../playgrounds/bsc-y3s2/FIS4035-nonlinear-optics-shg/index.html)** &nbsp; (verified, verified 2026-05-18T01:10:46Z)
+  A fundamental beam at frequency w propagates through a crystal with a second-order nonlinearity and generates a second-harmonic beam at 2w. The two waves accumulate phase at different rates unless their wave vectors satisfy k_2w = 2 k_w; the residual mismatch dk = k_2w - 2 k_w controls everything. Two standard regimes are shown: small conversion (undepleted 
+
 - **[Jaynes-Cummings Model: Collapse and Revival](../playgrounds/bsc-y3s2/FIS4035-jaynes-cummings-model/index.html)** &nbsp; (verified, verified 2026-05-18T01:01:20Z)
   A single two-level atom sits in a lossless optical cavity supporting one quantised mode, on exact resonance (atomic transition frequency equal to the mode frequency). The atom starts in its excited state and the field starts in a coherent state of mean photon number `nbar`. The atom and field exchange a single quantum of excitation coherently; the observable
 
@@ -785,6 +788,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Normal Modes of a Mass-Spring Chain](../playgrounds/bsc-y2s1/FIS2002-normal-modes-nd-chain/index.html)** &nbsp; (verified)
   A 1D chain of N point masses joined by springs with fixed ends. The monatomic chain has one spring constant; the diatomic chain alternates two spring constants along the chain (a two-atom basis).
 
+- **[Optical Fiber: LP Modes, Dispersion and Pulse Broadening](../playgrounds/bsc-y3s2/FIS4035-optical-fiber-modes-dispersion/index.html)** &nbsp; (verified)
+  A step-index fibre has a core of index n1 and radius a inside a cladding of index n2 (n1 only slightly above n2: weakly guiding). The guided fields are the linearly polarised LP_lm modes. The normalised frequency V = a k0 sqrt(n1^2 - n2^2) decides how many modes the fibre supports; below V = 2.405 only the fundamental LP01 propagates (single-mode operation),
+
 - **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified)
   A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.
 
@@ -808,9 +814,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
-
-- **[Second-Harmonic Generation: Phase Matching and Conversion](../playgrounds/bsc-y3s2/FIS4035-nonlinear-optics-shg/index.html)** &nbsp; (verified)
-  A fundamental beam at frequency w propagates through a crystal with a second-order nonlinearity and generates a second-harmonic beam at 2w. The two waves accumulate phase at different rates unless their wave vectors satisfy k_2w = 2 k_w; the residual mismatch dk = k_2w - 2 k_w controls everything. Two standard regimes are shown: small conversion (undepleted 
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.

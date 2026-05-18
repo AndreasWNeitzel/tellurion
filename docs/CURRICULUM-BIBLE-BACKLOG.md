@@ -405,7 +405,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] nonlinear-optics-shg : advanced canvas2d. SHG growth, phase match
   dk=0 z^2 vs coherence length, Sellmeier. Inv: photon conserved; dk=0
   I2w prop z^2; eta<100%.
-- [ ] optical-fiber-modes-dispersion : medium canvas2d. Fiber modes
+- [x] optical-fiber-modes-dispersion : medium canvas2d. Fiber modes
   |E|^2, beta-w, V<2.405 single-mode, GVD pulse broaden. Inv: LP11
   cutoff V=2.405 0.1%.
 
