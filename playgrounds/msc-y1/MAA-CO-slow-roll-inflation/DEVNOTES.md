@@ -52,3 +52,7 @@ exercise the real physics headlessly.
 5 deterministic frames cycle model in {phi2, phi4, starobinsky} and sweep
 N; all 5 distinct (adjacent SSIM 0.876 / 0.723 / 0.885 / 0.693), no
 frozen-frame defect. Visual gate 5/5 across 3 deterministic re-runs.
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  7 passed + visual 5/5 x3. Shipped.
