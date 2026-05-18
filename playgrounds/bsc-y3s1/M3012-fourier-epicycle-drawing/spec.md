@@ -22,6 +22,55 @@ share_state_keys: [n_epicycles]
 
 A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
 
+## Explainer
+
+### What you are looking at
+
+A chain of spinning circles, each riding on the tip of the last, with
+the final tip tracing a target shape (a silhouette, a signature). Add
+more circles and the drawing gets sharper. This is the discrete Fourier
+transform made visible: any closed curve is a sum of rotations.
+
+### Treating the path as a complex signal
+
+Sample the target curve as $N$ points and write each as a complex
+number $z_j = x_j + i y_j$. Its discrete Fourier transform is
+
+$$C_k = \frac1N\sum_{j=0}^{N-1} z_j\,e^{-2\pi i k j/N}.$$
+
+Each coefficient $C_k$ is one circle: its magnitude $|C_k|$ is the
+radius, its phase is the starting angle, and $k$ is how many turns it
+makes per loop. Reconstructing the path is just adding the circles back
+up:
+
+$$z(t) = \sum_k C_k\,e^{2\pi i k t/N}.$$
+
+### Why more circles means a better drawing
+
+Sort the circles by radius $|C_k|$ and chain them largest first. With
+one circle you get a blob; each extra circle adds a finer harmonic that
+carves in more detail, and the RMS error to the original path shrinks
+monotonically as you include more terms. This is exactly Fourier
+series convergence: low frequencies set the gross shape, high
+frequencies the sharp corners. It is the same math behind JPEG, audio
+compression, and orbital epicycles, here drawn as literal rotating
+arms.
+
+### Things to try
+
+- Start with 1 epicycle (a circle) and slide the count up: watch the
+  sketch resolve from blob to exact outline.
+- Watch the largest circles set the overall shape and the tiny fast
+  ones add the corners.
+- Note the error curve falling monotonically with the number of
+  epicycles, Fourier convergence.
+
+### Where this comes from
+
+The discrete Fourier transform, the epicycle (Fourier-series)
+reconstruction, and its convergence follow Folland, *Fourier Analysis
+and Its Applications*, Chapter 2.
+
 ## Physical setup
 
 For $N$ complex sample points $z_j = x_j + i y_j$ on the path, the DFT is

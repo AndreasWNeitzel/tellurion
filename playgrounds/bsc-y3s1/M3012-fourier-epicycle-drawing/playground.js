@@ -9,6 +9,7 @@ const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
@@ -247,6 +248,18 @@ function buildControls() {
 
 buildControls();
 if (DETERMINISTIC) {
+  // Reference capture sweeps the epicycle count M on the letter-A
+  // preset (piecewise-linear, sharp corners, slow Fourier convergence
+  // with visible Gibbs ringing) so each added epicycle visibly sharpens
+  // the drawing and the five golden frames are clearly distinct. The
+  // smooth 'earth' default converges in a few terms and would make the
+  // high-M frames identical.
+  if (CAPTURE_NAME) {
+    state.preset = 'letter-A';
+    state.path   = samplePath('letter-A', N);
+    state.coeffs = dft(state.path);
+    state.M      = 1 + Math.round(CAPTURE_FRAC * 40); // 1, 11, 21, 31, 41
+  }
   for (let f = 0; f < 240; f += 1) { frameNo = f; frame((f % 480) / 480); }
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
