@@ -55,10 +55,35 @@
   text-transform: uppercase;
   color: #ffd166;
 }
+.explainer-body h4 {
+  margin: 18px 0 4px;
+  font-size: 15.5px;
+  color: #ffe49a;
+}
+.explainer-body h5 {
+  margin: 14px 0 4px;
+  font-size: 14px;
+  color: #cfd3da;
+}
 .explainer-body p { margin: 8px 0; color: #eef0f4; }
-.explainer-body p.eq { overflow-x: auto; text-align: center; }
-.explainer-body ul { margin: 8px 0; padding-left: 20px; }
+.explainer-body p.eq { overflow-x: auto; text-align: center; margin: 12px 0; }
+.explainer-body ul, .explainer-body ol { margin: 8px 0; padding-left: 22px; }
 .explainer-body li { margin: 4px 0; }
+.explainer-main { margin-top: 6px; }
+.explainer-more {
+  margin-top: 18px;
+  border-top: 1px solid #2f3440;
+  padding-top: 10px;
+}
+.explainer-more > summary {
+  cursor: pointer;
+  font: 600 12px/1.4 var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.04em;
+  color: #9aa0a6;
+  list-style: revert;
+}
+.explainer-more > summary:hover { color: #eef0f4; }
+.explainer-more[open] > summary { margin-bottom: 8px; }
 .explainer-body code {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.92em;

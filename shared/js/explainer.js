@@ -47,24 +47,51 @@ function esc(s) {
 }
 
 // Markdown-lite to HTML, preserving $...$ / $$...$$ for KaTeX. Handles
-// paragraphs, bullet lists, `code`, **bold**, and fenced code blocks.
+// paragraphs, ###/#### subheadings, ordered and bullet lists, `code`,
+// **bold**, fenced code blocks, and multi-line display-equation blocks.
+// The comprehensive "## Explainer" section relies on all of these.
 function mdToHtml(md) {
   const blocks = md.split(/\n{2,}/);
   const html = [];
-  for (let blk of blocks) {
-    blk = blk.trim();
+  for (const raw of blocks) {
+    const blk = raw.trim();
     if (!blk) continue;
     if (blk.startsWith('```')) {
       html.push(`<pre><code>${esc(blk.replace(/```[a-z]*\n?/gi, '').replace(/```$/, ''))}</code></pre>`);
       continue;
     }
-    if (/^(\$\$)[\s\S]*\1$/.test(blk)) { html.push(`<p class="eq">${blk}</p>`); continue; }
-    if (/^[-*]\s+/m.test(blk) && blk.split('\n').every((l) => /^[-*]\s+|^\s+/.test(l) || !l.trim())) {
-      const items = blk.split(/\n(?=[-*]\s+)/).map((l) => inline(l.replace(/^[-*]\s+/, '').trim()));
-      html.push(`<ul>${items.map((x) => `<li>${x}</li>`).join('')}</ul>`);
-      continue;
+    // A block can bundle a "### Heading" with the prose that follows it
+    // when no blank line separates them. Walk lines, splitting headings
+    // out and flushing the buffered run with the right block rule.
+    let buf = [];
+    const flush = () => {
+      const t = buf.join('\n').trim();
+      buf = [];
+      if (!t) return;
+      if (/^(\$\$)[\s\S]*\1$/.test(t)) { html.push(`<p class="eq">${t}</p>`); return; }
+      if (/^\d+\.\s+/.test(t) && t.split('\n').every((l) => /^\d+\.\s+|^\s+/.test(l) || !l.trim())) {
+        const items = t.split(/\n(?=\d+\.\s+)/).map((l) => inline(l.replace(/^\d+\.\s+/, '').trim()));
+        html.push(`<ol>${items.map((x) => `<li>${x}</li>`).join('')}</ol>`);
+        return;
+      }
+      if (/^[-*]\s+/.test(t) && t.split('\n').every((l) => /^[-*]\s+|^\s+/.test(l) || !l.trim())) {
+        const items = t.split(/\n(?=[-*]\s+)/).map((l) => inline(l.replace(/^[-*]\s+/, '').trim()));
+        html.push(`<ul>${items.map((x) => `<li>${x}</li>`).join('')}</ul>`);
+        return;
+      }
+      html.push(`<p>${inline(t.replace(/\n/g, ' '))}</p>`);
+    };
+    for (const ln of blk.split('\n')) {
+      const h = ln.match(/^(#{3,5})\s+(.*)$/);
+      if (h) {
+        flush();
+        const lvl = h[1].length <= 3 ? 'h4' : 'h5';
+        html.push(`<${lvl}>${inline(h[2].trim())}</${lvl}>`);
+      } else {
+        buf.push(ln);
+      }
     }
-    html.push(`<p>${inline(blk.replace(/\n/g, ' '))}</p>`);
+    flush();
   }
   return html.join('');
 }
@@ -89,7 +116,11 @@ function inline(s) {
     } else {
       let j = i;
       while (j < s.length && s[j] !== '$' && s[j] !== '`') j += 1;
-      parts.push(esc(s.slice(i, j)).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'));
+      parts.push(
+        esc(s.slice(i, j))
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*([^*\n]+)\*/g, '<em>$1</em>'),
+      );
       i = j;
     }
   }
@@ -128,6 +159,12 @@ async function build() {
   const { fm, body } = parseFrontmatter(text);
   const title = fm.title || document.title || 'This playground';
   const plain = fm.one_paragraph || fm.description || '';
+  // The long-form, simple-language, equation-complete walkthrough. When
+  // present it is the primary panel content; the terser peer-review
+  // sections below it become supporting reference detail.
+  const explainer = section(body, 'Explainer')
+    || section(body, 'In plain words')
+    || section(body, 'In plain language');
   const setup = section(body, 'Physical setup');
   const eqs = section(body, 'Governing equations') || section(body, 'Equations');
   const numerics = section(body, 'Numerical method');
@@ -144,7 +181,7 @@ async function build() {
     const ct = cap && cap.textContent.match(/(?:Source|Reference)\s*[:.][^.]+\.?/i);
     if (ct) cites = ct[0].trim();
   }
-  if (!plain && !setup && !eqs) return;
+  if (!plain && !setup && !eqs && !explainer) return;
 
   const btn = document.createElement('button');
   btn.type = 'button';
@@ -155,14 +192,28 @@ async function build() {
   const dlg = document.createElement('dialog');
   dlg.className = 'explainer-dialog';
   dlg.setAttribute('aria-label', `Explanation: ${title}`);
+  // With a dedicated Explainer section, that is the whole story (it
+  // carries its own subheadings, equations and worked steps); the
+  // peer-review sections are folded into a collapsed "Reference detail"
+  // so they stay available without crowding the primary read. Without
+  // one, fall back to the assembled section view.
+  const refDetail = [
+    setup ? `<h4>Physical setup</h4>${mdToHtml(setup)}` : '',
+    eqs ? `<h4>Governing equations</h4>${mdToHtml(eqs)}` : '',
+    numerics ? `<h4>How it is computed</h4>${mdToHtml(numerics)}` : '',
+  ].join('');
+  const main = explainer
+    ? `<section class="explainer-main">${mdToHtml(explainer)}</section>
+       ${refDetail ? `<details class="explainer-more"><summary>Reference detail (setup, equations, numerics)</summary>${refDetail}</details>` : ''}`
+    : `${plain ? `<section><h3>The idea, in plain language</h3>${mdToHtml(plain)}</section>` : ''}
+       ${setup ? `<section><h3>Physical setup</h3>${mdToHtml(setup)}</section>` : ''}
+       ${eqs ? `<section><h3>The equations</h3>${mdToHtml(eqs)}</section>` : ''}
+       ${numerics ? `<section><h3>How it is computed</h3>${mdToHtml(numerics)}</section>` : ''}`;
   dlg.innerHTML = `
     <article class="explainer-body">
       <button class="explainer-close" type="button" aria-label="Close">close</button>
       <h2>${esc(title)}</h2>
-      ${plain ? `<section><h3>The idea, in plain language</h3>${mdToHtml(plain)}</section>` : ''}
-      ${setup ? `<section><h3>Physical setup</h3>${mdToHtml(setup)}</section>` : ''}
-      ${eqs ? `<section><h3>The equations</h3>${mdToHtml(eqs)}</section>` : ''}
-      ${numerics ? `<section><h3>How it is computed</h3>${mdToHtml(numerics)}</section>` : ''}
+      ${main}
       ${cites ? `<section><h3>Where this comes from</h3>${mdToHtml(cites)}</section>` : ''}
     </article>`;
 
