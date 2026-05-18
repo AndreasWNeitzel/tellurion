@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Climbing out of a gravity well costs a photon energy; light leaving near a black hole arrives redder, and at the horizon it never arrives at all.'
+one_paragraph: 'A photon emitted at radius r outside a Schwarzschild mass M climbs out of the gravitational potential and reaches a distant observer at lower frequency: f_obs = f_em sqrt(1 - 2M/r) in geometric units. The shift grows as the emission point approaches the horizon r = 2M, where it diverges and the photon is infinitely redshifted, the spectral signature of the horizon itself. The playground moves the emission radius and shows the redshift factor and the shifted line. The same effect, tiny but measured, makes orbiting GPS clocks run fast relative to the ground. Reference: Hartle, Gravity: An Introduction to Einstein''s General Relativity, Ch. 9.'
 tags: [cosmology, animation, live-readout]
 difficulty: 3
 tier: simple

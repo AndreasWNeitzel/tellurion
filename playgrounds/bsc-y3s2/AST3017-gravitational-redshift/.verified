@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T19:23:25Z
-invariants: 7/7 (weak field, horizon, clock-rate formula, reciprocity, weak-field expansion, z definition, horizon-trapped photon)
-visual: SSIM > 0.92 across 5 frames sweeping r_em from horizon to far-field
+verified-at: 2026-05-18T15:15:53Z
+invariants:  (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); text-only, render unchanged
