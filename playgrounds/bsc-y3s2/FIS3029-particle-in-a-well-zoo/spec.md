@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS3029
 supporting_ucs: [FIS2017]
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Three textbook quantum wells side by side: the infinite box, the finite box that leaks, and the harmonic trap with its perfectly even ladder.'
+one_paragraph: 'Solving the time-independent Schrodinger equation in a potential well quantizes the energy. The playground puts the three canonical cases on one axis: the infinite square well (E_n proportional to n^2, hard walls, no leakage), the finite well (a few bound states whose wavefunctions tunnel into the walls, found from a transcendental matching condition), and the harmonic oscillator (an exactly evenly spaced ladder, E_n = n + 1/2). Comparing them shows how the well shape sets the spectrum and how a wavefunction penetrates a finite barrier. Reference: Griffiths, Introduction to Quantum Mechanics, Ch. 2.'
 tags: [quantum, atomic-molecular, animation, live-readout]
 difficulty: 3
 tier: simple
