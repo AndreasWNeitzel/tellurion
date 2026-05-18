@@ -19,6 +19,65 @@ share_state_keys: []
 
 # The Huygens Construction
 
+## Explainer
+
+### What you are looking at
+
+Huygens' idea, from 1678: every point on a wavefront acts as a tiny
+source of its own circular wavelet, and the next wavefront is just the
+envelope of all those wavelets. The playground chops a wavefront into
+many point sources, lets each radiate, and adds them up. Diffraction
+through a slit and focusing by a curved front both fall out of this
+single construction.
+
+### The construction
+
+Discretize the wavefront into $N$ coherent point sources. Each radiates
+a circular wavelet; in 2D its contribution is
+
+$$\frac{\cos(k r - \omega t)}{\sqrt r},$$
+
+and the downstream field is the coherent sum over all sources. Where
+the wavelets arrive in phase they reinforce; where they are out of
+phase they cancel. That interference is the whole of wave optics.
+
+### The slit: a sinc pattern
+
+For a uniformly illuminated straight aperture of width $a$, summing the
+wavelets gives the Fraunhofer far-field amplitude
+
+$$E(\theta) \propto \operatorname{sinc}\!\left(
+  \frac{\pi a \sin\theta}{\lambda}\right),$$
+
+so the intensity is a $\operatorname{sinc}^2$ with dark fringes exactly
+where
+
+$$\sin\theta = \frac{m\lambda}{a}, \qquad m = 1, 2, \dots$$
+
+A narrower slit (or longer wavelength) spreads the pattern wider: the
+diffraction limit, derived from nothing but adding wavelets.
+
+### Focusing a curved front
+
+If instead the equal-phase sources lie on a concave arc of radius $R$,
+their wavelets all arrive together at the centre of curvature: the
+construction predicts a focus. The same rule that spreads light at a
+slit concentrates it from a curved mirror or lens.
+
+### Things to try
+
+- Narrow the aperture and watch the central diffraction lobe widen,
+  with zeros marching to larger angles per $\sin\theta = m\lambda/a$.
+- Increase the source count $N$ and see the envelope converge to the
+  smooth $\operatorname{sinc}^2$.
+- Switch to the concave arc and watch the wavelets build a focal spot.
+
+### Where this comes from
+
+The Huygens-Fresnel construction, the single-slit
+$\operatorname{sinc}^2$ pattern, and the curved-front focus follow
+Hecht, *Optics*, 5th ed., Sections 10.1 to 10.2.
+
 ## Physical setup
 
 A wavefront (a vertical aperture or a concave arc) is discretised into
