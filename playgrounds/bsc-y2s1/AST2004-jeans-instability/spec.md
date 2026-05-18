@@ -22,6 +22,63 @@ share_state_keys: []
 
 # Jeans instability: dispersion relation and length scale
 
+## Explainer
+
+### What you are looking at
+
+A cloud of gas in space is caught between two effects: its own gravity
+pulling it inward and its pressure pushing back. The playground shows
+which one wins as a function of the size of the disturbance. Small
+ripples just bounce as sound waves; ripples larger than a critical
+length collapse. That threshold is why gas clouds turn into stars.
+
+### The dispersion relation
+
+Perturb a uniform self-gravitating gas with a wave
+$\propto e^{i(kx - \omega t)}$ and linearizing the fluid equations
+gives a remarkably simple result:
+
+$$\omega^2 = c_s^2 k^2 - 4\pi G\rho,$$
+
+where $c_s = \sqrt{k_B T/m_p}$ is the sound speed and $\rho$ the
+density. The first term is pressure (it resists compression, like a
+sound wave); the second is self-gravity (it always pulls in).
+
+### Stable sound versus runaway collapse
+
+Read off the sign of $\omega^2$:
+
+- Short wavelengths (large $k$): pressure dominates, $\omega^2 > 0$,
+  so $\omega$ is real and the perturbation oscillates as a stable
+  sound wave.
+- Long wavelengths (small $k$): gravity dominates, $\omega^2 < 0$,
+  so $\omega$ is imaginary and the perturbation grows exponentially,
+  gravitational collapse.
+
+The crossover is the Jeans length, where $\omega^2 = 0$:
+
+$$\lambda_J = \sqrt{\frac{\pi c_s^2}{G\rho}}.$$
+
+Any clump bigger than $\lambda_J$ cannot hold itself up and collapses.
+The mass inside it, the Jeans mass (about 50 solar masses for a cold
+molecular cloud), sets the characteristic scale of star formation.
+
+### Things to try
+
+- Sweep the wavenumber and watch $\omega^2$ cross zero at $k_J$:
+  sound on one side, collapse on the other.
+- Raise the temperature (higher $c_s$): the Jeans length grows, so it
+  takes a bigger cloud to collapse, warm gas resists star formation.
+- Raise the density: $\lambda_J$ shrinks, denser gas fragments more
+  easily.
+
+### Where this comes from
+
+The linearized dispersion relation, the Jeans length and mass, and the
+collapse criterion follow Carroll and Ostlie, *An Introduction to
+Modern Astrophysics*, 2nd ed., Chapter 12, and Binney and Tremaine,
+*Galactic Dynamics*, 2nd ed., Chapter 4.
+
 ## Physical setup
 
 A uniform, self-gravitating, isothermal hydrogen medium with mass density $\rho$ and sound speed $c_s = \sqrt{k_B T / m_p}$. Linear perturbations $\propto \exp(i k x - i \omega t)$ satisfy the dispersion relation
