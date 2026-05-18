@@ -1,6 +1,7 @@
-// Galaxy-merger N-body. Two Hernquist halos sampled as tracer particles
-// orbit each other. Each tracer feels the analytic potential of BOTH halos;
-// the halo centers integrate as a softened 2-body. Tidal tails appear.
+// Galaxy-merger N-body. Two coherently-rotating spiral disks (7000 tracers
+// each, two trailing log-spiral arms) orbit each other. Each tracer feels the
+// analytic potential of BOTH halos; the halo centers integrate as a softened
+// 2-body. The disk rotation drives proper tidal bridges and tails.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
@@ -20,9 +21,13 @@ const W = canvas.width, H = canvas.height;
 const rng = makeRng(SEED);
 
 const G  = 1;          // toy units
-const N  = 600;        // tracers per galaxy
+const N  = 7000;       // tracers per galaxy (dense disk, > 10x the old 600)
 const Mh = 1;          // halo mass each
 const aH = 1.0;        // Hernquist scale length
+const R_DISK = 2.6;    // disk truncation radius (a real disk, not a spheroid)
+const N_ARMS = 2;      // two-armed spiral
+const PITCH  = 0.32;   // arm pitch (rad); tan sets how tightly wound
+const ARM_W  = 0.42;   // azimuthal arm half-width (rad), spread around each arm
 
 const state = {
   impact:   1.5,
@@ -39,24 +44,42 @@ function aHernquist(rx, ry) {
   return { ax: -dphidr * rx / r, ay: -dphidr * ry / r };
 }
 
-function sampleHernquist() {
-  // Hernquist cumulative DF in 1D radius: r = a * sqrt(q) / (1 - sqrt(q)).
+function gauss() {
+  // Box-Muller, for the azimuthal scatter around each spiral arm.
+  const u = Math.max(rng(), 1e-9), v = rng();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function sampleSpiralDisk(spin) {
+  // A rotating exponential-ish DISK with N_ARMS trailing logarithmic spiral
+  // arms (not a spherical blob): radius from the truncated Hernquist DF,
+  // azimuth concentrated on log-spiral arms phi = ln(r/aH)/tan(PITCH) with a
+  // Gaussian spread, plus a faint smooth inter-arm background. Rotation is
+  // COHERENT (single handedness `spin`) so the disk actually spins and the
+  // tidal encounter produces proper trailing tails.
   const out = [];
-  for (let i = 0; i < N; i += 1) {
+  while (out.length < N) {
     const q = rng();
     const r = aH * Math.sqrt(q) / Math.max(1 - Math.sqrt(q), 1e-4);
-    const theta = rng() * 2 * Math.PI;
-    out.push({ x: r * Math.cos(theta), y: r * Math.sin(theta), vx: 0, vy: 0 });
-  }
-  // Circular velocity from M(<r) / r at each radius.
-  for (const p of out) {
-    const r = Math.hypot(p.x, p.y) + 1e-6;
-    const M_enc = Mh * r * r / ((r + aH) ** 2);
-    const v_circ = Math.sqrt(G * M_enc / r);
-    // Random direction in tangent.
-    const dir = rng() > 0.5 ? 1 : -1;
-    p.vx = -dir * v_circ * p.y / r;
-    p.vy =  dir * v_circ * p.x / r;
+    if (r > R_DISK || r < 0.04) continue;          // truncate to a disk
+    let theta;
+    if (rng() < 0.78) {                            // 78% in the arms
+      const arm = Math.floor(rng() * N_ARMS);
+      const base = Math.log(r / aH) / Math.tan(PITCH)
+                 + arm * (2 * Math.PI / N_ARMS);
+      theta = base + ARM_W * gauss();
+    } else {                                       // 22% smooth disk
+      theta = rng() * 2 * Math.PI;
+    }
+    const r2d = Math.hypot(r * Math.cos(theta), r * Math.sin(theta)) || r;
+    const M_enc = Mh * r2d * r2d / ((r2d + aH) ** 2);
+    const v_circ = Math.sqrt(G * M_enc / r2d);
+    const ct = Math.cos(theta), st = Math.sin(theta);
+    out.push({
+      x: r2d * ct, y: r2d * st,
+      vx: -spin * v_circ * st,                     // coherent rotation
+      vy:  spin * v_circ * ct,
+    });
   }
   return out;
 }
@@ -70,8 +93,9 @@ function reset() {
   const sep = 9, b = state.impact;
   halo1 = { x: -sep, y: -b / 2, vx:  state.vRel, vy: 0 };
   halo2 = { x:  sep, y:  b / 2, vx: -state.vRel, vy: 0 };
-  tracers1 = sampleHernquist();
-  tracers2 = sampleHernquist();
+  // Both disks prograde to the orbit: the canonical strong-tail case.
+  tracers1 = sampleSpiralDisk(+1);
+  tracers2 = sampleSpiralDisk(+1);
   for (const p of tracers1) { p.x += halo1.x; p.y += halo1.y; p.vx += halo1.vx; p.vy += halo1.vy; }
   for (const p of tracers2) { p.x += halo2.x; p.y += halo2.y; p.vx += halo2.vx; p.vy += halo2.vy; }
   elapsed = 0;

@@ -20,17 +20,18 @@ share_state_keys: []
 
 # Galaxy Merger N-Body
 
-Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emerge naturally.
+Two coherently-rotating spiral disks (7000 tracer particles each, two trailing logarithmic spiral arms, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Because the disks actually rotate, the encounter produces proper tidal bridges and trailing tails, captured stars, and a phase-mixed debris field.
 
 ## Explainer
 
 ### What you are looking at
 
-When two galaxies pass close, gravity does something dramatic: it
-flings stars into long tidal tails, captures stars from the other
-galaxy, and (over a few passes) merges the pair into a single
-featureless elliptical. The playground is a restricted N-body model
-that reproduces all of this from the choice of impact parameter and
+When two spiral galaxies pass close, gravity does something dramatic:
+it flings stars from the rotating disks into long tidal tails and a
+connecting bridge, and stirs the two stellar populations together.
+The playground is a restricted N-body model (two rotating spiral
+disks of 7000 stars each) that reproduces all of this from the choice
+of impact parameter and
 approach speed.
 
 ### The restricted N-body setup
