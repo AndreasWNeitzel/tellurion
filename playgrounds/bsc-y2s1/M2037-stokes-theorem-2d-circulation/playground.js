@@ -55,7 +55,16 @@ function render() {
 function updateReadout() { readoutC.textContent = circulationRect(field, 0, 0, w, h).toFixed(3); readoutA.textContent = (w * h).toFixed(3); }
 function loop() { render(); updateReadout(); requestAnimationFrame(loop); }
 function bootSync() {
-  if (CAPTURE_NAME) { const fields = ['unit', 'shear', 'conservative']; field = fields[Math.min(2, Math.floor((CAPTURE_FRAC || 0) * fields.length))]; selectF.value = field; }
+  if (CAPTURE_NAME) {
+    const f = CAPTURE_FRAC || 0;
+    const fields = ['unit', 'shear', 'conservative'];
+    field = fields[Math.min(2, Math.floor(f * 2.999))]; selectF.value = field;
+    // Also sweep the loop so every frame differs (3 fields alone gave
+    // only 3 distinct frames out of 5) and the circulation = double
+    // integral of curl relation is shown at several loop sizes.
+    w = 0.7 + f * 3.0; h = 0.6 + f * 2.2;
+    sliderW.value = String(w); sliderH.value = String(h);
+  }
   valueF.textContent = field; valueW.textContent = w.toFixed(2); valueH.textContent = h.toFixed(2);
   render(); updateReadout();
   if (DETERMINISTIC) { requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
