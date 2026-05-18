@@ -21,6 +21,68 @@ share_state_keys: [mu, lam, view]
 
 # Spontaneous Symmetry Breaking: the Mexican-Hat Potential
 
+## Explainer
+
+### What you are looking at
+
+Sometimes the laws are symmetric but the world is not: a pencil
+balanced on its tip obeys rotationally symmetric physics yet must
+fall in one direction. Spontaneous symmetry breaking is that idea in
+field theory, and it is how particles get mass (the Higgs mechanism).
+The playground shows the Mexican-hat potential and what happens when
+the field rolls off the top.
+
+### The Mexican-hat potential
+
+A complex scalar field $\phi$ has the potential
+
+$$V(\phi) = -\,\mu^2\,|\phi|^2
+  + \lambda\,|\phi|^4.$$
+
+For $\mu^2<0$ the minimum is at $\phi=0$ (a symmetric bowl). But for
+$\mu^2>0$ the origin becomes a hilltop and the minima form a circular
+valley (the wine-bottle / sombrero shape) at
+
+$$|\phi| = v = \sqrt{\frac{\mu^2}{2\lambda}}.$$
+
+The Lagrangian is still perfectly symmetric under the phase rotation
+$\phi\to e^{i\alpha}\phi$, but the field must settle at one point on
+the circle, picking a direction and breaking the symmetry.
+
+### Goldstone and Higgs
+
+Expanding around the chosen vacuum splits the field's two real
+components into two very different excitations:
+
+- A radial mode (climbing the steep wall of the valley): massive,
+  this is the Higgs boson, with $m_H^2 = 2\mu^2$.
+- An angular mode (running freely around the flat circular valley):
+  massless, the Goldstone boson, one for every broken continuous
+  symmetry (Goldstone's theorem).
+
+If the broken symmetry is gauged, that would-be massless Goldstone
+mode is "eaten" by the gauge field, which thereby acquires a mass:
+the Higgs mechanism, the reason the $W$ and $Z$ are heavy while the
+photon stays massless. The playground sweeps $\mu^2$ and $\lambda$
+and shows the potential change shape, the vacuum move onto the
+circle, and the radial-vs-angular mode masses.
+
+### Things to try
+
+- Sweep $\mu^2$ through zero and watch the single central minimum
+  split into a circular valley (the symmetry breaking).
+- Identify the steep radial direction (massive Higgs) versus the
+  flat angular direction (massless Goldstone).
+- Increase $\lambda$ and watch the vacuum radius $v$ shrink while
+  the Higgs mass changes.
+
+### Where this comes from
+
+The Mexican-hat potential, Goldstone's theorem, and the Higgs
+mechanism follow Peskin and Schroeder, *An Introduction to Quantum
+Field Theory*, Chapters 11 and 20, and Goldstone, Salam and Weinberg,
+Phys. Rev. 127, 965 (1962).
+
 ## Physical setup
 
 A complex scalar field `phi` with a wine-bottle potential. The
