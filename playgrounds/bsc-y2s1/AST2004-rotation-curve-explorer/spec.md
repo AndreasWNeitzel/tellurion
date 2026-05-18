@@ -20,6 +20,57 @@ share_state_keys: []
 
 # Rotation Curve Explorer
 
+## Explainer
+
+### What you are looking at
+
+Measure how fast stars orbit at different distances from a galaxy's
+center and plot speed versus radius: the rotation curve. Newtonian
+gravity from the visible stars and gas predicts the speed should fall
+off at large radius. It does not, it stays flat. That single stubborn
+fact is the strongest everyday evidence for dark matter, and the
+playground lets you fit the three competing models to mock data.
+
+### The expected falloff
+
+If all the mass were the visible matter concentrated centrally, then
+outside it the speed would be Keplerian, like a planet:
+
+$$v(R) = \sqrt{\frac{G M_\text{vis}}{R}}\ \propto\ \frac{1}{\sqrt R},$$
+
+falling as you go out. Even with a realistic bulge and disk
+(Hernquist + Miyamoto-Nagai profiles) the visible-only curve still
+turns over and declines past the disk scale.
+
+### Adding a dark halo
+
+Add an NFW dark-matter halo and its contribution is
+
+$$v_h^2(R) = \frac{G M_{200}}{R}\,
+  \frac{\ln(1+x) - x/(1+x)}{\ln(1+c) - c/(1+c)},
+  \qquad x = R/r_s,$$
+
+which keeps rising where the visible matter has run out. Sum the
+components ($v^2 = v_b^2 + v_d^2 + v_h^2$) and the total curve goes
+flat at large $R$, exactly the observed behavior. The playground
+overlays mock observations (drawn from the halo model with realistic
+noise) and you see only the visible+dark model fits beyond about
+10 kpc.
+
+### Things to try
+
+- Toggle the Keplerian and visible-only models and watch them fall
+  below the data at large radius.
+- Switch on the dark halo and watch the curve flatten onto the points.
+- Note all three models share the same visible mass: the data, not
+  the stars, demand the halo.
+
+### Where this comes from
+
+The Hernquist bulge, Miyamoto-Nagai disk, and NFW halo rotation-curve
+contributions follow Binney and Tremaine, *Galactic Dynamics*, 2nd ed.,
+Chapter 2, with the NFW profile from Navarro, Frenk and White (1997).
+
 ## Physical setup
 
 A face-on synthetic spiral galaxy with a Hernquist bulge ($M_b = 10^{10} M_\odot$, $a_b = 0.5$ kpc) and a Miyamoto-Nagai disk ($M_d = 6 \times 10^{10} M_\odot$, $a_d = 4$ kpc, $b_d = 0.3$ kpc), seen from above. The same visible mass is present in all three models; what changes is the assumption about unseen mass.
