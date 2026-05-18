@@ -22,6 +22,68 @@ share_state_keys: []
 
 # Inverse-Compton cooling
 
+## Explainer
+
+### What you are looking at
+
+In ordinary Compton scattering a photon gives energy to an electron.
+Reverse it: a fast electron slamming into a low-energy photon kicks
+the photon up to X-ray or gamma-ray energies, and the electron cools.
+This inverse-Compton process is how relativistic electrons in jets
+and the cosmic web produce high-energy radiation. The playground
+follows the electron's energy bleeding away.
+
+### The cooling rate
+
+A relativistic electron of Lorentz factor $\gamma$ moving through a
+radiation field of energy density $U_\mathrm{rad}$ scatters photons
+and loses energy at the rate
+
+$$-\frac{dE}{dt}
+  = \frac{4}{3}\,\sigma_T\,c\,\gamma^2\beta^2\,U_\mathrm{rad},$$
+
+where $\sigma_T$ is the Thomson cross section and $\beta=v/c$. The
+crucial feature is the $\gamma^2$: the most energetic electrons cool
+fastest. Each scattering boosts a seed photon's energy by roughly a
+factor $\gamma^2$, so a $\gamma\sim10^4$ electron turns an optical
+photon into a gamma ray.
+
+### The cooling time and the cooling break
+
+Since $E=\gamma m_ec^2$, integrating gives a cooling time that
+shortens with energy,
+
+$$t_\mathrm{cool}
+  = \frac{E}{|dE/dt|}
+  \;\propto\;\frac{1}{\gamma\,U_\mathrm{rad}},$$
+
+so a population of electrons injected with a power-law spectrum
+develops a "cooling break": above the energy where $t_\mathrm{cool}$
+equals the source age, electrons have already radiated away their
+energy and the spectrum steepens by exactly one power. This break is
+a direct clock on the source. Inverse Compton competes with
+synchrotron loss; their ratio is just $U_\mathrm{rad}/U_B$ (the
+Compton dominance), which is why the same electrons make both a
+synchrotron and an inverse-Compton spectral hump in blazars. The
+playground sweeps $\gamma$ and $U_\mathrm{rad}$ and shows the energy
+decay and the $\gamma^2$ acceleration of cooling.
+
+### Things to try
+
+- Double $\gamma$ and watch the cooling rate quadruple (the
+  $\gamma^2$ law) and the cooling time halve.
+- Raise the radiation energy density and watch the electron cool
+  proportionally faster.
+- Note how a high-$\gamma$ electron drops quickly then lingers at
+  low energy (the cooling break in a population).
+
+### Where this comes from
+
+The inverse-Compton power, the $\gamma^2$ scaling, and the cooling
+break follow Rybicki and Lightman, *Radiative Processes in
+Astrophysics*, Chapter 7, and Blumenthal and Gould, Rev. Mod. Phys.
+42, 237 (1970).
+
 ## Physical setup
 
 Relativistic electrons (Lorentz factor $\gamma$) immersed in a soft-photon bath (energy density $U_\text{ph}$) lose energy by inverse-Compton up-scattering of the photons. In the Thomson limit the cooling time is
