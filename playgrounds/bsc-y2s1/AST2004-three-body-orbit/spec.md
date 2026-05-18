@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST2004
 supporting_ucs: [FIS2021, FIS1013]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Three equal stars can chase each other forever around a single figure-eight, the most elegant exact solution of the three-body problem; nudge one and the dance falls apart.'
+one_paragraph: 'The general three-body problem has no closed-form solution, but special periodic choreographies exist. The most famous, found by Chenciner and Montgomery in 2000, sends three equal masses around one shared figure-eight curve, each a third of a period behind the next. The playground integrates it with a symplectic step so the energy and momenta stay flat and the orbit repeats indefinitely. A slider adds a tiny kick to one body''s velocity: at zero it loops forever, and even a small perturbation slowly tears the figure-eight apart, a hands-on look at how special and how fragile these solutions are. Reference: Chenciner and Montgomery 2000; Carroll and Ostlie, Ch. 23.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
