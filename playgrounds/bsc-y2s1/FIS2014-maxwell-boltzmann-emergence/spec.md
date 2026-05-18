@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2014
 supporting_ucs: []
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Start every disk at the same speed and let them collide; within moments the speeds spread into the bell-shaped Maxwell-Boltzmann curve and stay there.'
+one_paragraph: 'A box of identical hard disks all begin with the same speed but random directions. Elastic collisions conserve total energy and momentum, yet they reshuffle speed among the disks until the speed histogram relaxes to the Maxwell-Boltzmann distribution and then holds, fluctuating gently around it. The playground runs the gas and overlays the live histogram on the analytic 2D Maxwell-Boltzmann curve, so you watch an ordered state (a single sharp speed) decay into the universal thermal distribution. This is the microscopic origin of temperature and of the second law''s arrow. Reference: Reif, Fundamentals of Statistical and Thermal Physics, Ch. 7.'
 tags: [thermodynamics, statistical-physics, animation, live-readout]
 difficulty: 3
 tier: simple
