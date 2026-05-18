@@ -47,6 +47,7 @@
     </figcaption>
   </figure>
   <div class="controls pg-controls" id="controls" role="group" aria-label="Rigid-body controls">
+    <div class="row"><span class="label">object</span><select aria-label="object" id="select-object"><option value="thandle" selected>T-handle (Dzhanibekov)</option><option value="racket">tennis racket</option><option value="phone">smartphone</option><option value="book">hardback book</option></select><span class="value" id="value-object">T-handle</span></div>
     <div class="row"><span class="label">spin axis</span><select aria-label="spin axis" id="select-axis"><option value="0">major (stable)</option><option value="1" selected>intermediate (flips)</option><option value="2">minor (stable)</option></select><span class="value" id="value-axis">intermediate</span></div>
     <div class="row"><span class="label">spin rate</span><input aria-label="spin rate" type="range" id="slider-spin" min="3" max="10" step="0.5" value="6"><span class="value" id="value-spin">6</span></div>
     <div class="row"><span class="label">perturbation</span><input aria-label="perturbation" type="range" id="slider-perturb" min="0.005" max="0.12" step="0.005" value="0.04"><span class="value" id="value-perturb">0.040</span></div>

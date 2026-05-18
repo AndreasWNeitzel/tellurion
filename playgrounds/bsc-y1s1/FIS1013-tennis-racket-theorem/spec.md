@@ -41,9 +41,12 @@ RK4 on $\boldsymbol\omega$ at $\Delta t = 1/480\,$s; explicit
 quaternion update with renormalisation each step.
 
 ## Controls
+- `object`: T-handle / tennis racket / smartphone / hardback book
+  (each with its true principal moments computed from the geometry).
 - `spin axis`: major / intermediate / minor.
 - `spin rate` (3..10) and `perturbation` (0.005..0.12).
 - Pause / Play, Reset.
+- Side panel: body-frame omega(t) with conserved I, E, |L|.
 
 ## Expected qualitative features
 1. Major- and minor-axis spins are visibly steady.
