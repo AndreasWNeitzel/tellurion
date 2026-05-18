@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s1
 primary_citation: jackson1998
 primary_chapter: 8
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Terminate a cable with the wrong resistance and part of every signal bounces back; match the impedance and the reflection vanishes.'
+one_paragraph: 'On a transmission line the forward and reflected voltage waves add into a standing-wave pattern set by the load mismatch. The reflection coefficient Gamma = (Z_L - Z_0) / (Z_L + Z_0) controls everything downstream: the standing-wave ratio, the fraction of power actually delivered (1 - |Gamma|^2), and the return loss in dB. The playground draws the standing-wave envelope and these numbers as you vary the load: a matched load Z_L = Z_0 gives Gamma = 0 and full power transfer, while an open or a short reflects all of it. This is the everyday reason antennas and RF chains are impedance-matched. Reference: Jackson, Classical Electrodynamics, Ch. 8.'
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
