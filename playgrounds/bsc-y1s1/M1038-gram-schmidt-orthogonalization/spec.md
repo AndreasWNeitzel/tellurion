@@ -22,6 +22,67 @@ share_state_keys: []
 
 # Gram-Schmidt orthogonalization in 2D
 
+## Explainer
+
+### What you are looking at
+
+Gram-Schmidt turns any set of independent vectors into a clean
+orthonormal set spanning the same space, by repeatedly subtracting
+off the part of each vector that already lies along the directions
+chosen so far. The playground shows two skewed vectors being
+straightened into a perpendicular, unit-length pair, step by step.
+
+### The procedure
+
+Start with linearly independent vectors $\mathbf v_1,\mathbf v_2$.
+Keep the first direction, then remove from $\mathbf v_2$ its
+projection onto the first:
+
+$$\mathbf u_1 = \mathbf v_1,
+  \qquad
+  \mathbf u_2 = \mathbf v_2
+  - \frac{\langle \mathbf v_2,\mathbf u_1\rangle}
+         {\langle \mathbf u_1,\mathbf u_1\rangle}\,\mathbf u_1,$$
+
+then normalize: $\mathbf e_i = \mathbf u_i/\|\mathbf u_i\|$. The
+subtraction is the key idea: $\mathbf u_2$ is exactly the component
+of $\mathbf v_2$ orthogonal to $\mathbf u_1$ (the projection theorem),
+so $\langle\mathbf u_2,\mathbf u_1\rangle = 0$ by construction. In
+$n$ dimensions you repeat, subtracting the projections onto all
+previously fixed directions.
+
+### Why it matters
+
+The output spans the same subspace as the input but in an orthonormal
+basis, where geometry becomes trivial: coordinates are just inner
+products, lengths and angles are read off directly, and the
+change-of-basis matrix is its own inverse (orthogonal). This is the
+constructive proof that every finite-dimensional inner-product space
+has an orthonormal basis, and the algorithm behind the QR
+decomposition $A = QR$ (the engine of least-squares fitting and
+eigenvalue solvers). A practical caveat the visual hints at: if the
+input vectors are nearly parallel, the subtracted vector is tiny and
+dividing by its small norm amplifies rounding error, which is why
+numerically one uses modified Gram-Schmidt or Householder
+reflections. The playground animates the projection-and-subtract for
+two vectors and shows the resulting right-angled unit frame.
+
+### Things to try
+
+- Watch $\mathbf u_2$ form by removing $\mathbf v_2$'s shadow along
+  $\mathbf u_1$, leaving a right angle.
+- Drag the input vectors nearly parallel and see $\mathbf u_2$ shrink
+  toward zero (the ill-conditioned case).
+- Confirm the final pair is orthonormal (perpendicular, unit length)
+  and spans the same plane.
+
+### Where this comes from
+
+The Gram-Schmidt process, the projection theorem, and its link to
+the QR decomposition follow Strang, *Introduction to Linear
+Algebra*, Chapter 4, and Trefethen and Bau, *Numerical Linear
+Algebra*, Lecture 7.
+
 ## Physical setup
 
 Two input vectors $v_1, v_2$ in the plane, set by polar (angle, length) sliders. The playground displays the inputs (faded), the projection of $v_2$ onto $u_1 = v_1 / |v_1|$ (dashed), the residual $v_2 - \langle v_2, u_1 \rangle u_1$ (orange dashed), and the resulting orthonormal pair $u_1, u_2$ (bold accent and red).
