@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: ashcroft-mermin
 primary_chapter: 22
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A chain of identical masses carries only sound-like waves; alternate two masses and a second, high-frequency optical branch appears with a forbidden gap between them.'
+one_paragraph: 'Lattice vibrations of a 1D spring-mass chain have a dispersion relation set by the unit cell. A monatomic chain gives a single acoustic branch: long waves are ordinary sound, and the frequency saturates at the zone boundary. A diatomic chain of two alternating masses splits this into an acoustic branch and a higher optical branch, with a frequency gap at the zone edge where no traveling waves exist. The playground draws both dispersions and animates the chosen normal mode atom by atom, so you see acoustic motion (atoms moving together) versus optical (neighbours moving against each other). Reference: Ashcroft and Mermin, Solid State Physics, Ch. 22.'
 tags: [solid-state, animation, live-readout]
 difficulty: 3
 tier: simple
