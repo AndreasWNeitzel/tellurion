@@ -21,6 +21,66 @@ share_state_keys: [force, decay]
 
 # Standard Model Particle Zoo: PDG Data and Conservation Laws
 
+## Explainer
+
+### What you are looking at
+
+Every known elementary particle and every force except gravity fits
+into one compact table, the Standard Model. The playground is that
+table made interactive: it shows the matter fermions, the force
+carriers, the Higgs, and, crucially, which decays are allowed by the
+conservation laws and which are forbidden.
+
+### The contents
+
+The matter content is three generations of fermions:
+
+- 6 quarks (up/down, charm/strange, top/bottom), which feel the
+  strong force and carry color charge,
+- 6 leptons (electron, muon, tau and their neutrinos).
+
+Interactions are mediated by gauge bosons: the photon
+(electromagnetism), $W^\pm$ and $Z$ (weak), eight gluons (strong),
+plus the Higgs boson, whose field gives the others mass through
+electroweak symmetry breaking. The gauge structure is the group
+$\mathrm{SU(3)}_C\times\mathrm{SU(2)}_L\times\mathrm{U(1)}_Y$.
+
+### What decides whether a decay happens
+
+Whether a particle can decay to a given final state is fixed by
+conservation laws, which the playground checks for you:
+
+- Always conserved: energy-momentum, electric charge $Q$, color,
+  baryon number $B$, and each lepton flavor number
+  ($L_e,L_\mu,L_\tau$).
+- The decay rate scales with available phase space and the relevant
+  coupling: strong decays are fast ($10^{-23}$ s), electromagnetic
+  intermediate, weak decays slow (long lifetimes), which is why the
+  weak force, despite being "weak", is what lets heavy quarks and the
+  muon decay at all.
+
+So a muon must decay as $\mu^-\to e^-\bar\nu_e\nu_\mu$ (lepton
+numbers balanced) and never $\mu^-\to e^-\gamma$ (would violate
+flavor); a proton is stable because baryon number plus energy
+forbids any lighter $B=1$ state. The playground lets you pick a
+particle and a candidate decay and shows which conservation law
+permits or vetoes it, with PDG masses and lifetimes.
+
+### Things to try
+
+- Select the muon and test $e^-\bar\nu_e\nu_\mu$ (allowed) versus
+  $e^-\gamma$ (forbidden by lepton flavor).
+- Compare lifetimes across the strong/EM/weak hierarchy (23 orders
+  of magnitude).
+- Check why the proton and the lightest neutrino are stable (no
+  lighter state conserving all charges).
+
+### Where this comes from
+
+The Standard Model content, gauge structure, and conservation laws
+follow Griffiths, *Introduction to Elementary Particles*, and the
+Particle Data Group, *Review of Particle Physics* (2024).
+
 ## Physical setup
 
 The Standard Model has twelve matter fermions (six quarks and six
