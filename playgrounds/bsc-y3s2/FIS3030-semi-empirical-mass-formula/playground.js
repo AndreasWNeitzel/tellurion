@@ -9,6 +9,7 @@ import { COEFFS } from './sim.js';
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas      = document.getElementById('stage');
 const ctx         = canvas.getContext('2d', { alpha: false });
@@ -156,6 +157,13 @@ buildControls();
 let raf;
 function loop() { render(); raf = requestAnimationFrame(loop); }
 if (DETERMINISTIC) {
+  // Reference capture sweeps the guessed coefficients from zero toward
+  // the canonical Wapstra values, so the five golden frames are
+  // distinct: the "Your fit" panel fills in and the residual fades as
+  // the SEMF terms reconstruct the binding-energy surface.
+  if (CAPTURE_NAME) {
+    for (const k of Object.keys(guess)) guess[k] = CAPTURE_FRAC * TARGET[k];
+  }
   render();
   requestAnimationFrame(() => requestAnimationFrame(() => {
     window.__simulationReady = true;

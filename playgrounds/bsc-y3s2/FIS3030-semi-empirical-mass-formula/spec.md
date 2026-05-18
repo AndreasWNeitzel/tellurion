@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: krane-nuclear
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Treat the nucleus as a charged liquid drop and five simple terms predict the binding energy of every nucleus, and which ones fission or fuse.'
+one_paragraph: 'The semi-empirical mass formula models the nucleus as a charged liquid drop. The binding energy is a volume term (a_V A) minus a surface term (a_S A^2/3), minus Coulomb repulsion, minus a proton-neutron asymmetry term, plus a pairing term. Together they reproduce the binding-energy-per-nucleon curve that peaks near iron, which is why light nuclei release energy by fusion and heavy nuclei by fission. The playground sweeps Z and A and shows each term''s contribution to the total. Reference: Krane, Introductory Nuclear Physics, Ch. 3.'
 tags: [nuclear-particle, animation, live-readout]
 difficulty: 3
 tier: simple
