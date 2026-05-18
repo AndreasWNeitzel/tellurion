@@ -192,7 +192,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Earth is an oblate spinning top: it bulges at the equator. The Sun and Moon pull harder on the near side of that bulge than the far side, producing a gravitational torque. A non-spinning body would simply tip over; a fast-spinning one instead responds at right angles, so the spin axis sweeps out a cone rather than falling. This is lunisolar axial precession.
 
 - **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:54:59Z)
-  Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
+  Fusion needs a plasma at roughly 100 million kelvin, far too hot for any solid wall. A tokamak holds it with magnetic fields shaped into a torus. Field-aligned charged particles spiral tightly around field lines and drift slowly across them, so a suitably shaped field cages the plasma. Two field components combine: a toroidal field from external coils and a 
 
 - **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:48:06Z)
   A hydrogen atom is one electron bound to one proton by the Coulomb attraction. Quantum mechanics says the electron does not follow a path; it is described by a wavefunction psi, and |psi|^2 is the probability density of finding it at a given point. Solving the Schrodinger equation for the Coulomb potential gives a discrete family of solutions labelled by thr

@@ -21,12 +21,12 @@
 </style></head><body>
 <header>
   <h1 data-slot="title">Tokamak Plasma Confinement 3D (Hero)</h1>
-  <div data-slot="description" class="katex-target">Toroidal vacuum vessel + helical magnetic field lines colored by $|B|$ + glowing Planck-temperature plasma core + a handful of trapped (banana) particle trails. Drag to orbit, scroll to zoom.</div>
+  <div data-slot="description" class="katex-target">A tokamak holds a 100-million-degree fusion plasma with magnetic fields instead of walls. A toroidal vessel carries helical field lines coloured by strength $|B|$; charged particles either spiral freely along the field (passing) or get mirror-trapped on the weak-field outboard side and trace the classic banana orbits. A glowing core marks the confined plasma. Drag to orbit, scroll to zoom.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Tokamak field-line confinement with banana-orbit particles. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).</figcaption>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Tokamak magnetic confinement: helical field lines coloured by $|B|$, a glowing plasma core, and co-passing, counter-passing and trapped (banana-orbit) particle populations. Method: $1/R$ toroidal field plus a current-driven poloidal twist (safety factor $q$), guiding-centre particle classification. Source: Goedbloed and Poedts, Principles of Magnetohydrodynamics, Ch. 5.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
