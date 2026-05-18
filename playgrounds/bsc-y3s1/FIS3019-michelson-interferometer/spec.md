@@ -22,6 +22,58 @@ share_state_keys: []
 
 # Michelson interferometer: visibility and coherence length
 
+## Explainer
+
+### What you are looking at
+
+Split a beam, send the halves down two mirror arms, recombine them. As
+you slide one mirror the detector brightens and dims through fringes.
+How far you can slide before the fringes wash out measures how
+"coherent" the light is, which is the same as measuring its spectral
+purity. This is the instrument behind Fourier spectroscopy and
+gravitational-wave detectors.
+
+### The fringe pattern
+
+Moving one mirror by $d$ changes the path difference by $L = 2d$. The
+recombined intensity is
+
+$$I(L) = \tfrac12\big[\,1 + V(L)\cos(2\pi L/\lambda)\,\big].$$
+
+The cosine is the fringe (one full cycle per wavelength of path
+change). $V(L)$ is the visibility (fringe contrast), and it does not
+stay at 1.
+
+### Coherence length sets the envelope
+
+Real light is not a perfect single frequency; it is a band. Different
+frequencies drift out of step as the path difference grows, so the
+fringe contrast decays:
+
+$$V(L) = e^{-(L/L_c)^2},$$
+
+where $L_c$ is the coherence length. Equivalently it measures the
+source bandwidth, $\Delta\nu \approx 0.44\,c/L_c$. A laser has
+$L_c$ of kilometers (kHz bandwidth, fringes for a very long slide);
+sunlight has $L_c$ under a micron (fringes vanish almost immediately).
+Measuring how the contrast falls off is a direct measurement of the
+spectrum (the Wiener-Khinchin idea behind FTIR spectroscopy). The
+playground sweeps $L$ and shows $I(L)$ under its decaying envelope.
+
+### Things to try
+
+- Increase the coherence length and watch the fringes survive to much
+  larger path differences.
+- Shrink it (broadband source) and watch the envelope collapse near
+  $L = 0$.
+- Note the fringe spacing is always one wavelength; only the contrast
+  envelope changes.
+
+### Where this comes from
+
+The Michelson fringe intensity, the visibility-coherence relation, and
+the bandwidth link follow Hecht, *Optics*, 5th ed., Chapter 9.
+
 ## Physical setup
 
 A Michelson interferometer with one moving mirror produces a path difference $L = 2d$ between the two arms. The detector intensity is
