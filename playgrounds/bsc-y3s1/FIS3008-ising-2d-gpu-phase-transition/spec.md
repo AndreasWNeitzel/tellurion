@@ -19,6 +19,61 @@ share_state_keys: []
 
 # The 2D Ising Phase Transition
 
+## Explainer
+
+### What you are looking at
+
+A grid of magnetic spins, each up or down, each preferring to match its
+neighbors. Cool it and the whole sheet spontaneously magnetizes; heat
+it and the order melts. The switch is razor-sharp at one critical
+temperature. The 2D Ising model is the simplest system with a true
+phase transition, and one of the few solved exactly.
+
+### The model
+
+Spins $s_i = \pm1$ on a periodic lattice with energy
+
+$$H = -J\sum_{\langle ij\rangle} s_i s_j, \qquad J = 1,$$
+
+(neighbors aligned lowers energy). It is simulated by Metropolis Monte
+Carlo: propose a flip, compute $\Delta E = 2 s_i\sum_\text{nb} s_j$,
+accept with probability $\min(1, e^{-\Delta E/T})$. A checkerboard
+update order makes this exact and parallel because each sublattice
+couples only to the other.
+
+### The exact phase transition
+
+Onsager solved this in 1944. There is a critical temperature
+
+$$T_c = \frac{2J}{\ln(1+\sqrt2)} \approx 2.269,$$
+
+below which the system has a spontaneous magnetization
+
+$$m(T) = \left[1 - \sinh^{-4}(2J/T)\right]^{1/8} \quad (T < T_c),$$
+
+and zero above. The exponent $1/8$ is exact and universal: it does not
+depend on lattice details, only on dimensionality and symmetry. Near
+$T_c$ the susceptibility (magnetization fluctuations) diverges and
+domains appear at every size, the scale invariance that defines
+criticality. The playground sweeps $T$ and shows the spin field
+ordering, the magnetization curve, and the fluctuation peak at $T_c$.
+
+### Things to try
+
+- Cool below $T_c \approx 2.27$ and watch one spin direction take over
+  (spontaneous symmetry breaking).
+- Sit right at $T_c$ and watch domains of all sizes flicker, the
+  critical scale invariance.
+- Heat above $T_c$ and watch the magnetization vanish into thermal
+  noise.
+
+### Where this comes from
+
+The Ising energy, Metropolis dynamics, and the exact Onsager
+$T_c$ and $\beta = 1/8$ results follow Newman and Barkema, *Monte Carlo
+Methods in Statistical Physics*, with the exact solution from Onsager
+(1944) and Yang (1952).
+
 ## Physical setup
 
 An L x L periodic square lattice of spins `s_i = +-1`, energy
