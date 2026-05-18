@@ -20,6 +20,65 @@ share_state_keys: []
 
 # Electric field lines from point charges
 
+## Explainer
+
+### What you are looking at
+
+Field lines are the picture Faraday invented to make an invisible
+force field visible: lines that start on positive charges, end on
+negative ones, and whose density tells you the field strength. The
+playground draws them live for a handful of point charges you can
+move around.
+
+### The field and superposition
+
+Each point charge contributes a Coulomb field, and the total is the
+vector sum (superposition):
+
+$$\mathbf E(\mathbf r) = \frac{1}{4\pi\varepsilon_0}
+  \sum_i q_i\,
+  \frac{\mathbf r - \mathbf r_i}{|\mathbf r - \mathbf r_i|^3}.$$
+
+A field line is a curve everywhere tangent to $\mathbf E$; the
+playground traces it by integrating $d\mathbf r/ds = \hat{\mathbf E}$
+outward from each charge.
+
+### What the picture encodes
+
+The drawing rules carry real physics:
+
+- Lines begin on $+$ charges and end on $-$ charges (or run to
+  infinity); the number attached to a charge is proportional to its
+  magnitude, so a $2q$ charge sprouts twice as many lines.
+- Line density is proportional to $|\mathbf E|$: where lines crowd,
+  the field is strong; where they spread, it is weak. This is Gauss's
+  law made visual, the flux through any closed surface counts the
+  enclosed charge.
+- Field lines never cross (the field has one direction at each
+  point), and they meet conductors at right angles.
+- Points where the field vanishes (between like charges) are null
+  points where lines split: separatrices of the flow.
+
+Equipotential surfaces are everywhere perpendicular to the lines, so
+the same picture also shows how the potential is organized. The
+playground updates the lines, nulls, and equipotentials in real time
+as you drag the charges, turning the abstract $1/r^2$ law into a
+readable flow.
+
+### Things to try
+
+- Make a dipole ($+$ and $-$) and see the classic curved lines from
+  plus to minus.
+- Set two equal positive charges and find the null point between
+  them where lines avoid and split.
+- Increase one charge's magnitude and watch proportionally more
+  lines emanate from it (the flux/Gauss bookkeeping).
+
+### Where this comes from
+
+The field-line construction, superposition, and the link to Gauss's
+law follow Griffiths, *Introduction to Electrodynamics*, Chapter 2.
+
 ## Physical setup
 
 A small set of point charges in the plane. The electric field is
