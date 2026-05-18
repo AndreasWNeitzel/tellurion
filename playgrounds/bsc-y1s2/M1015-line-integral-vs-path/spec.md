@@ -22,6 +22,63 @@ share_state_keys: []
 
 # Line integrals and path independence
 
+## Explainer
+
+### What you are looking at
+
+Push something from A to B through a force field and add up the work
+done along the way. For some fields the answer depends only on A and B;
+for others it depends on the route you took. The playground walks two
+paths between the same endpoints (a straight chord and a semicircular
+arc) and shows the work each accumulates. When they disagree, the field
+is not conservative.
+
+### The line integral
+
+The work along a path is the line integral
+
+$$\int_A^B \mathbf F\cdot d\mathbf r
+  = \int_A^B \big(P\,dx + Q\,dy\big).$$
+
+A field is conservative if this is path-independent, which happens
+exactly when $\mathbf F$ is the gradient of a potential, $\mathbf F =
+\nabla\phi$. Then the integral collapses to $\phi(B) - \phi(A)$ and the
+route does not matter. The playground includes two conservative fields,
+$\mathbf F = (2xy, x^2)$ with potential $x^2 y$, and $\mathbf F = (x, y)$
+with potential $\tfrac12(x^2+y^2)$, where the chord and arc give
+identical work.
+
+### The closed loop and Green's theorem
+
+Go A to B along one path and back along the other: that closed loop
+measures the disagreement. Green's theorem (Stokes in 2D) turns the
+loop into an area integral of the curl:
+
+$$\oint \mathbf F\cdot d\mathbf r
+  = \iint_S\left(\frac{\partial Q}{\partial x}
+  - \frac{\partial P}{\partial y}\right)dA.$$
+
+For the rotation field $\mathbf F = (-y, x)$ the curl is $2$ and the
+enclosed half-disk has area $\pi/2$, so the closed loop integral is
+exactly $\pi$, nonzero, the precise statement that this field is not
+conservative. The shear field $\mathbf F = (y, 0)$ has curl $-1$ and
+likewise fails path-independence.
+
+### Things to try
+
+- Pick a conservative field and confirm the chord and arc give the
+  same work (closed loop = 0).
+- Pick the rotation field and watch the two paths disagree, with the
+  loop integral equal to $\pi$.
+- Connect it to physics: a conservative force has a potential energy;
+  a non-conservative one (like a magnetic-style swirl) does not.
+
+### Where this comes from
+
+Line integrals, path independence, conservative fields, and Green's
+theorem follow Riley, Hobson and Bence, *Mathematical Methods for
+Physics and Engineering*, 3rd ed., Chapter 10.
+
 ## Physical setup
 
 A 2D vector field $\mathbf{F} = (P, Q)$ in the plane, with two paths from $A = (-1, 0)$ to $B = (1, 0)$: the straight chord and the upper semicircular arc. Simpson quadrature evaluates $\int_A^B \mathbf{F} \cdot d\mathbf{r}$ along each path; the closed-loop integral (straight forward, arc reversed) measures the failure of path-independence.
