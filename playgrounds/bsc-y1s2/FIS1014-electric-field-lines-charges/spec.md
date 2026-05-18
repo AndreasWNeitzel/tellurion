@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1014
 supporting_ucs: []
 curriculum_year: bsc-y1s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Electric field lines make the invisible field visible: each line is everywhere tangent to E, and where the lines crowd together the field is strong. Watch the classic patterns appear, a dipole's bridge, two like charges pushing apart, the four-lobed quadrupole, a lone charge's starburst."
+one_paragraph: "The field of a set of point charges is the vector sum E = sum_i q_i (r - r_i) / |r - r_i|^3. This draws its field lines as the curves everywhere tangent to E, seeded around each charge: they stream out of positive charges and into negative ones, and by Gauss's law their local density tracks the field strength. Step through four canonical layouts (dipole, two like charges, quadrupole, a single monopole) or drag any charge and the lines retrace live. Shoot a test charge from the left and it follows F = qE, accelerating toward unlike charges and recoiling from like ones. The invariants pin the physics: one charge's far field falls as 1/r^2, the dipole midpoint field is purely axial, two equal like charges give a zero-field point at their midpoint, and higher multipoles fall off faster."
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
