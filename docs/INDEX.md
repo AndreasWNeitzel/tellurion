@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW](../playgrounds/msc-y1/MF-GR-geodesics-curved-spacetime-3d/index.html)** &nbsp; (verified, verified 2026-05-18T02:49:30Z)
+  Three spacetimes share one idea: free particles follow geodesics. Around a Schwarzschild black hole, null geodesics are captured, whirled at the photon sphere, or deflected, depending on the impact parameter; timelike circular orbits are stable only outside the ISCO. Kerr adds rotation: a smaller horizon, the ergosphere, and frame dragging. FLRW is the expan
+
 - **[Second Quantization: Fock States, Ladder Operators, (Anti)commutators](../playgrounds/msc-y1/MF-AQM-second-quantization-bosons-fermions/index.html)** &nbsp; (verified, verified 2026-05-18T02:34:16Z)
   A single field mode in the occupation-number (Fock) representation. The number states |n> form the basis; the ladder operators add or remove one quantum. Bosons can pile up arbitrarily many quanta in the mode; fermions are limited to occupation 0 or 1 by the Pauli principle. The bosonic coherent state, the eigenstate of the annihilation operator, has a Poiss
 
@@ -779,9 +782,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (verified)
   Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emer
 
-- **[Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW](../playgrounds/msc-y1/MF-GR-geodesics-curved-spacetime-3d/index.html)** &nbsp; (verified)
-  Three spacetimes share one idea: free particles follow geodesics. Around a Schwarzschild black hole, null geodesics are captured, whirled at the photon sphere, or deflected, depending on the impact parameter; timelike circular orbits are stable only outside the ISCO. Kerr adds rotation: a smaller horizon, the ergosphere, and frame dragging. FLRW is the expan
-
 - **[Gravitational Lensing Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/index.html)** &nbsp; (verified)
   Drag up to four point-mass lenses; caustic curves (in amber) and critical curves (in white) are drawn analytically. A source position marker in the source-plane creates 2, 3, or 4 multiply-lensed images that update in real time. A background dot grid shears according to the lens map.
 
@@ -790,6 +790,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Gravitational-Wave Chirp Sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/index.html)** &nbsp; (verified)
   A compact-binary inspiral. A compact strain $h(t)$ strip scrolls the chirp waveform (clamped so the post-Newtonian divergence near merger cannot flood the panel) and an $f(t)$ strip tracks the rising frequency. The main panel is a 3D inspiral: two perspective-shaded spheres orbit on an inclined plane at the barycentric Kepler separation $a \propto f_\mathrm{
+
+- **[Gravitational-Wave Detector: Inspiral Chirp and Matched Filter](../playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html)** &nbsp; (verified)
+  Two compact objects (black holes / neutron stars) spiral together, radiating gravitational waves that carry away orbital energy so the orbit shrinks and the wave frequency and amplitude chirp upward to merger. A kilometre-scale Michelson interferometer (LIGO) measures the passing strain as a differential change in its two arm lengths, then a matched filter e
 
 - **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (verified)
   A Jupiter-scale planet orbits a central star. A spacecraft enters on a hyperbolic trajectory; the user drags the periapsis distance and the relative approach angle. Inset shows the symmetric hyperbola in the planet rest frame; main panel shows the asymmetric solar-system-frame trajectory. Velocity arrows before and after make the energy change explicit. Pres

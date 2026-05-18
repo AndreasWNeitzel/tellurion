@@ -442,7 +442,7 @@ docs/NEEDS-ATTENTION.md, move on.
   0.1%; ISCO 6M; E,L conserved; FLRW v=H0 d 1%. NB per memory
   feedback-bh-no-2d-fbm-under-lensing: NO 2D FBM in (x,z)/equirect;
   procedural stars plus pure-azimuthal disk noise.
-- [ ] gravitational-wave-detector : advanced canvas2d. LIGO arms, h(t)
+- [x] gravitational-wave-detector : advanced canvas2d. LIGO arms, h(t)
   strain, chirp, matched filter peak. Inv: chirp mass 0.1%; h~1e-21
   30+30Msun 400Mpc.
 - [ ] friedmann-expansion-multicomponent : medium canvas2d. Expanding

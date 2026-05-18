@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gravitational-Wave Detector: Inspiral Chirp and Matched Filter</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Gravitational-Wave Detector: Inspiral Chirp and Matched Filter</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="LIGO interferometer, the inspiral chirp strain, and the matched-filter SNR"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">M_chirp:</span><span class="value" id="readout-mc">26.1</span>
+      <span class="label">f_GW:</span><span class="value" id="readout-f">0</span>
+      <span class="label">h_peak:</span><span class="value" id="readout-h">0</span>
+      <span class="label">MF SNR:</span><span class="value" id="readout-snr">0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A compact-binary inspiral seen by a LIGO-type interferometer: the chirp strain stretches one 4 km arm and squeezes the other by h L / 2 (about 2e-18 m), and a matched filter recovers the chirp mass from the rising-frequency waveform.
+      <em>Method:</em> quadrupole / leading-PN inspiral, antenna response, matched filter; Canvas2D, deterministic.
+      <em>Source:</em> Peters 1964; Maggiore, Gravitational Waves Vol. 1; Abbott et al. 2016.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">m1 (Msun)</span><input aria-label="primary mass, solar masses" type="range" id="slider-m1" min="5" max="80" step="1" value="30"><span class="value" id="value-m1">30</span></div>
+    <div class="row"><span class="label">m2 (Msun)</span><input aria-label="secondary mass, solar masses" type="range" id="slider-m2" min="5" max="80" step="1" value="30"><span class="value" id="value-m2">30</span></div>
+    <div class="row"><span class="label">distance (Mpc)</span><input aria-label="luminosity distance, Mpc" type="range" id="slider-d" min="50" max="1500" step="10" value="400"><span class="value" id="value-d">400</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
