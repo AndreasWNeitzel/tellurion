@@ -21,6 +21,73 @@ share_state_keys: [re_number, obstacle_preset, tracer_enabled, regime_name]
 
 # Incompressible Wake and the Projection Method
 
+## Explainer
+
+### What you are looking at
+
+Flow past a blunt obstacle does completely different things depending
+on one number, the Reynolds number: it can creep around smoothly,
+form a steady trapped bubble, shed a regular train of alternating
+vortices (the von Karman street you see behind bridge piers and
+chimneys), or break up into broadband turbulence. The playground
+solves the real incompressible Navier-Stokes equations and sweeps
+those regimes.
+
+### The equations
+
+An incompressible Newtonian fluid obeys momentum balance plus a
+divergence-free constraint:
+
+$$\frac{\partial \mathbf u}{\partial t}
+  + (\mathbf u\cdot\nabla)\mathbf u
+  = -\nabla p + \nu\,\nabla^2\mathbf u,
+  \qquad
+  \nabla\cdot\mathbf u = 0.$$
+
+Nondimensionalizing with the inflow speed $U$ and obstacle size $D$
+leaves a single control parameter, the Reynolds number
+
+$$\mathrm{Re} = \frac{U D}{\nu},$$
+
+the ratio of inertial to viscous forces. Low $\mathrm{Re}$ is
+viscous and smooth; high $\mathrm{Re}$ is inertial and unstable.
+
+### The projection method
+
+The pressure has no evolution equation; its job is purely to keep the
+flow divergence-free. Chorin's projection method does this in two
+steps each tick: advect and diffuse the velocity ignoring pressure to
+get an intermediate $\mathbf u^*$, then subtract the gradient of a
+pressure found from the pressure-Poisson equation
+
+$$\nabla^2 p = \frac{1}{\Delta t}\,\nabla\cdot\mathbf u^*,
+  \qquad
+  \mathbf u^{n+1} = \mathbf u^* - \Delta t\,\nabla p,$$
+
+which is exactly the Helmholtz projection onto the
+divergence-free subspace. The live readout shows the maximum
+post-projection divergence staying near zero: the constraint is
+enforced every step. Low-dissipation BFECC advection plus vorticity
+confinement keep the numerical viscosity from swamping the physical
+$\nu$, so the effective Reynolds number tracks the slider. Sweeping
+$\mathrm{Re}$ walks through creeping flow, a steady recirculation
+bubble, the periodic von Karman street, and a turbulent wake.
+
+### Things to try
+
+- Set a low $\mathrm{Re}$ and see nearly fore-aft symmetric creeping
+  flow with no wake.
+- Raise it into the hundreds and watch the regular alternating
+  vortex shedding (the von Karman street) switch on.
+- Push higher for a broad, agitated, broadband turbulent wake; watch
+  the divergence readout stay tiny throughout (the projection works).
+
+### Where this comes from
+
+The incompressible Navier-Stokes equations, the Reynolds-number
+regimes, and Chorin's projection method follow Chorin, Math. Comp.
+22, 745 (1968), and Pozrikidis, *Fluid Dynamics*.
+
 ## Physical setup
 
 A 2D incompressible flow (120 x 76 live grid, normalized channel) past a bluff obstacle. A uniform stream enters at the left, free-slip walls top and bottom, zero-gradient outflow on the right, no-slip on the obstacle. The Reynolds number `Re = U D / nu` (reference speed `U = 1`, obstacle size `D = 1`, so `nu = 1/Re`) is user-tunable. The live path runs the engine's BFECC low-dissipation advection plus Steinhoff vorticity confinement, which cut the semi-Lagrangian numerical viscosity so the effective Reynolds tracks the nominal one. The slider then sweeps four visibly distinct regimes: creeping, near fore-aft-symmetric Stokes flow (`Re ~ 8`); a steady recirculating bubble (`Re` tens); a genuine periodic von Karman street of alternating shed vortices convecting downstream (`Re ~ 300`); and a broader, agitated, broadband wake (`Re ~ 600`). The headline twin is the projection method itself: the scene draws the speed `|u|` (free stream, the bright acceleration around the body, the dark wake deficit and the discrete shed cores) and a live readout of the maximum post-projection discrete divergence, which stays small because the pressure-Poisson solve enforces `div u = 0` every step.
