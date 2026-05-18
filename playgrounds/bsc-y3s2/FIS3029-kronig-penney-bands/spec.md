@@ -20,6 +20,60 @@ share_state_keys: []
 
 # Kronig-Penney band structure
 
+## Explainer
+
+### What you are looking at
+
+A crystal is a periodic potential. Solve the Schrodinger equation in
+one and the allowed electron energies are not a continuum and not
+sharp atomic levels: they clump into bands separated by forbidden
+gaps. The Kronig-Penney model gets this with the simplest possible
+periodic potential, a row of delta spikes, and the playground shows
+the bands open and the gaps widen as you turn up the spike strength.
+
+### The model and its condition
+
+Periodic delta spikes of dimensionless strength $P$ at spacing $a$.
+Demanding a valid Bloch wave (a plane wave times a periodic part)
+yields one transcendental condition:
+
+$$\cos(ka) = \cos(qa) + \frac{P}{qa}\sin(qa),
+  \qquad q = \frac{\sqrt{2mE}}{\hbar}.$$
+
+Call the right-hand side $f(qa)$. Since the left side is $\cos(ka)$, a
+real crystal wavevector $k$ exists only where
+
+$$-1 \le f(qa) \le 1.$$
+
+### Bands and gaps fall straight out
+
+Sweep the energy (equivalently $qa$). Wherever $f(qa)$ stays within
+$[-1, 1]$ there is a propagating Bloch state: an allowed band.
+Wherever $|f(qa)| > 1$ no real $k$ solves the equation: a forbidden
+band gap, energies an electron in the crystal simply cannot have.
+Stronger spikes (larger $P$) push $f$ further outside $[\pm1]$, so the
+allowed bands narrow and the gaps widen; as $P\to0$ the gaps close and
+you recover the free-electron parabola. This single picture, allowed
+bands and forbidden gaps from periodicity, is why some solids are
+metals (partly filled band), insulators (filled band below a big gap),
+and semiconductors (small gap). The playground draws $f(qa)$ with the
+$\pm1$ rails and the resulting $\varepsilon(ka)$ band structure.
+
+### Things to try
+
+- Start with small $P$ and watch nearly-free-electron bands with tiny
+  gaps at the zone boundaries.
+- Increase $P$ and watch the gaps widen and the bands flatten toward
+  atomic-like levels.
+- Read the $f(qa)$ curve: every excursion outside $[-1,1]$ is a gap.
+
+### Where this comes from
+
+The Kronig-Penney delta-comb model, the Bloch condition, and the
+allowed-band/forbidden-gap criterion follow Kittel, *Introduction to
+Solid State Physics*, Chapter 7, and Ashcroft and Mermin, *Solid State
+Physics*, Chapter 8.
+
 ## Physical setup
 
 A 1D crystal with delta-function spikes on a periodic lattice (period a, dimensionless strength P). The energy spectrum splits into allowed bands and forbidden gaps. The simplest textbook model in solid-state physics that produces a band structure.
