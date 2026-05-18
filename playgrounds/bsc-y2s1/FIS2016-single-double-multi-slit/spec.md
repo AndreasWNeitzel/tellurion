@@ -20,6 +20,66 @@ share_state_keys: []
 
 # Single, double, and multi-slit diffraction
 
+## Explainer
+
+### What you are looking at
+
+Light through slits does not make slit-shaped bright bands; it makes a
+pattern of fringes whose spacing and sharpness depend on the slit
+width, their spacing, and how many there are. The playground sweeps
+from one slit to two to many and shows how the pattern is the product
+of two effects.
+
+### Two factors: interference times diffraction
+
+For $N$ identical slits of width $a$ and centre-to-centre spacing $d$,
+illuminated at wavelength $\lambda$, the far-field intensity is the
+product of a single-slit diffraction envelope and an $N$-slit
+interference grating term:
+
+$$I(\theta) = I_0\,
+  \underbrace{\left[\frac{\sin\beta}{\beta}\right]^2}
+  _{\text{single-slit envelope}}\;
+  \underbrace{\left[\frac{\sin(N\gamma)}{\sin\gamma}\right]^2}
+  _{N\text{-slit interference}},$$
+
+with $\beta = \dfrac{\pi a}{\lambda}\sin\theta$ and
+$\gamma = \dfrac{\pi d}{\lambda}\sin\theta$.
+
+### Reading the pattern
+
+Each piece has a clear job:
+
+- The diffraction envelope (slit width $a$) sets the overall
+  brightness falloff; its first zero is at $\sin\theta = \lambda/a$.
+  Narrower slits spread the envelope wider.
+- The interference term (spacing $d$, count $N$) puts bright maxima
+  where $d\sin\theta = m\lambda$. Two slits give broad cosine
+  fringes; increasing $N$ sharpens them into narrow lines with
+  $N-2$ faint secondary maxima between, the diffraction grating that
+  makes high-resolution spectroscopy possible.
+- Some interference maxima can land on an envelope zero and vanish
+  (missing orders), occurring when $d/a$ is an integer.
+
+So one slit is pure diffraction, two slits is Young's experiment, and
+many slits is a grating; they are all the same formula with $N$
+changed. The playground sweeps $N$, $a$, $d$ and $\lambda$ and shows
+the envelope, the fringes, and missing orders.
+
+### Things to try
+
+- Start with $N=1$ (pure diffraction envelope), go to $N=2$ (Young
+  fringes), then large $N$ (sharp grating lines).
+- Narrow the slit width $a$ and watch the diffraction envelope widen.
+- Set $d=2a$ and find the missing orders where a grating line sits on
+  an envelope zero.
+
+### Where this comes from
+
+The single-slit diffraction envelope, the $N$-slit grating factor,
+and missing orders follow Hecht, *Optics*, Chapter 10, and Born and
+Wolf, *Principles of Optics*, Chapter 8.
+
 ## Physical setup
 
 N identical slits of width a and center-to-center separation d,
