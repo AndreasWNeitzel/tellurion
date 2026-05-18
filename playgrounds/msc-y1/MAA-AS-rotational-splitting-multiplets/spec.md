@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: aerts-asteroseism
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A non-rotating star''s oscillation modes are degenerate; spin the star and each splits into a frequency multiplet whose spacing measures the rotation rate.'
+one_paragraph: 'Without rotation, a stellar oscillation mode of degree l has 2l+1 components (the azimuthal orders m) at one shared frequency. Rotation lifts that degeneracy: prograde and retrograde modes shift in opposite directions, splitting the mode into an evenly spaced multiplet with spacing proportional to m(1 - C_nl)Omega, where Omega is the rotation rate and C_nl the Ledoux constant. The playground fans the (2l+1) multiplet out as you spin the star. Measuring that splitting in Kepler light curves is how the internal rotation of red giants and subgiants was determined. Reference: Aerts, Christensen-Dalsgaard and Kurtz, Asteroseismology, Ch. 3.8.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
