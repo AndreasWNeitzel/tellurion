@@ -20,6 +20,64 @@ share_state_keys: []
 
 # Tautochrone: cycloid isochronism
 
+## Explainer
+
+### What you are looking at
+
+Release several beads from different heights on the same special
+curve, and they all reach the bottom at exactly the same instant,
+no matter where they started. That curve is the cycloid, and this
+"same-time" property (the tautochrone) is one of the most beautiful
+results in mechanics. The playground releases beads from different
+points and they arrive together.
+
+### Why a circular bowl is not isochronous
+
+A bead sliding in a bowl is a pendulum. For a circular arc the
+restoring force is $\propto\sin\theta$, only approximately linear, so
+the period grows with amplitude: beads released higher take longer.
+True isochronism needs the restoring force to be exactly linear in
+the arc length travelled.
+
+### The cycloid solves it exactly
+
+Parametrize the inverted cycloid by
+$x = R(\phi-\sin\phi)$, $y = -R(1-\cos\phi)$. Measure arc length $s$
+from the lowest point; one can show
+
+$$s = 4R\cos\frac{\phi}{2}
+  \quad\Longrightarrow\quad
+  \ddot s = -\frac{g}{4R}\,s.$$
+
+That is a perfect simple-harmonic-oscillator equation in $s$, with no
+amplitude dependence at all. So every bead, whatever its starting
+point, oscillates with the identical period
+
+$$T = 2\pi\sqrt{\frac{4R}{g}} = 4\pi\sqrt{\frac{R}{g}},$$
+
+and reaches the bottom in the same quarter-period. Huygens used
+exactly this to design a pendulum clock whose period does not drift
+with swing amplitude (the cycloidal cheeks), and it is the same
+"brachistochrone/tautochrone" cycloid of the calculus of variations.
+The playground releases beads from different heights and shows them
+converging on the bottom simultaneously, with the circular-arc case
+for contrast (which does not).
+
+### Things to try
+
+- Release beads from very different heights and watch them all reach
+  the bottom at the same instant.
+- Switch to a circular bowl and watch the higher beads lag (period
+  grows with amplitude).
+- Note the motion in arc length $s$ is a pure sinusoid regardless of
+  amplitude (perfect SHM).
+
+### Where this comes from
+
+The cycloid tautochrone, the linear $\ddot s = -(g/4R)s$ reduction,
+and Huygens's clock follow Taylor, *Classical Mechanics*, Chapter 6,
+and Lanczos, *The Variational Principles of Mechanics*.
+
 ## Physical setup
 
 Five frictionless beads on a single inverted cycloid bowl, released from
