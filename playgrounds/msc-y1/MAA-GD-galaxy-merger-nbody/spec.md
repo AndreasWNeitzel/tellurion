@@ -20,119 +20,115 @@ share_state_keys: []
 
 # Galaxy Merger N-Body
 
-Two coherently-rotating exponential spiral disks (7000 tracer particles each, color-coded by initial galaxy) of user-set masses M1, M2 approach at chosen impact parameter and relative velocity. Each tracer feels the live combined Hernquist potential of both halos; the nuclei integrate as an unequal-mass Newtonian two-body with exact Chandrasekhar dynamical friction, so the orbit decays and the cores coalesce into one phase-mixed remnant. A second panel plots every star in the energy vs angular-momentum plane measured in the primary galaxy core's rest frame (the Galactocentric analogue), color-coded by origin, where the disrupted lighter galaxy forms the Gaia-Enceladus / Sausage clump.
+Two dense rotating exponential disks (about 3600 equal-mass particles total, split by the mass-ratio sliders, color-coded by origin) fall together as a true self-gravitating system. Gravity is solved self-consistently on a periodic grid with the shared particle-mesh engine; there are no analytic cores and no special-case forces, so the in-fall, tidal tails, dynamical friction, coalescence and phase-mixing all emerge from the particle dynamics. A second panel plots every particle in the energy vs angular-momentum plane in the rest frame of the surviving primary's density centroid (the Galactocentric analogue), where the disrupted lighter galaxy forms the Gaia-Enceladus / Sausage clump.
 
 ## Explainer
 
 ### What you are looking at
 
-Two spiral galaxies fall together, shred each other into tidal tails,
-and coalesce into a single relaxed remnant. The left panel is the
-encounter in space; the right panel is the same stars in the
-energy vs angular-momentum plane, the diagram galactic archaeologists
-actually use, where the disrupted galaxy leaves the Gaia-Enceladus /
-"Sausage" fingerprint. Two sliders set the galaxy masses.
+Two galaxies fall together, tidally shred, and settle into a single
+relaxed remnant with stripped debris. The left panel is the encounter
+in space; the right panel is the same particles in the energy vs
+angular-momentum plane, the diagram galactic archaeologists actually
+use, where the disrupted galaxy leaves the Gaia-Enceladus / "Sausage"
+fingerprint. Sliders set the two galaxy masses, the impact parameter
+and the closing speed.
 
-### The galaxies and their potential
+### A true self-gravitating particle mesh
 
-Each galaxy is a rotating exponential stellar disk (surface density
-$\Sigma\propto e^{-R/R_d}$, the Freeman 1970 law) of 7000 tracer
-stars, embedded in an analytic Hernquist halo of mass $M$:
+Each galaxy is a dense rotating exponential disk (surface density
+$\Sigma\propto e^{-R/R_d}$, the Freeman 1970 law) of equal-mass
+particles. Crucially there are no point-mass cores and no prescribed
+potential: gravity is computed from the particles themselves with a
+particle-mesh (PM) solver. Each step deposits the particle masses on
+a grid (cloud-in-cell), solves the Poisson equation by FFT,
 
-$$\Phi(r) = -\frac{G M}{r + a},
+$$\nabla^2\Phi = 4\pi G\,\rho,
   \qquad
-  \rho(r) = \frac{M\,a}{2\pi\,r\,(r+a)^3}.$$
+  \Phi_{\mathbf k} = -\,\frac{4\pi G\,\rho_{\mathbf k}}{|\mathbf k|^2},$$
 
-The two nuclei integrate as a Newtonian two-body of unequal masses
-$M_1, M_2$ (set by the sliders); each star feels the live combined
-potential $\Phi_1 + \Phi_2$ of both halos. This restricted scheme
-makes 14000 stars cheap to integrate while keeping the tidal
-dynamics exact.
+and interpolates the force $-\nabla\Phi$ back to each particle, which
+is then advanced by a kick-drift-kick leapfrog (Hockney and Eastwood
+1988). Because the field is built from the actual particle
+distribution and fed back to them, the self-gravity is fully
+self-consistent.
 
-### Why they actually coalesce: dynamical friction
+### Why coalescence is now automatic
 
-A clean two-body orbit never decays, so on its own the pair would
-just fly past. Real galaxies merge because each massive halo plows
-through the other's matter and drags on its own gravitational wake.
-This is Chandrasekhar dynamical friction, included here exactly (no
-fudge factor):
-
-$$\frac{d\mathbf v}{dt}\Big|_{\rm DF}
-  = -\,\frac{4\pi G^2 M\,\rho\,\ln\Lambda}{v^3}
-  \Big[\mathrm{erf}(X) - \tfrac{2X}{\sqrt\pi}e^{-X^2}\Big]\,\mathbf v,
-  \quad X=\frac{v}{\sqrt2\,\sigma}.$$
-
-It drains orbital energy, so the lighter satellite spirals in (the
-heavier primary barely moves), and once the nuclei are within a scale
-length they coalesce into a single nucleus at the mass-weighted
-centre of mass. The stars then violently relax into one phase-mixed
-remnant.
+Nothing special is added to make the galaxies merge. Dynamical
+friction arises by itself: as the lighter galaxy plows through the
+primary it raises a trailing density wake (visible in the particle
+field) whose pull decelerates it, draining orbital energy. The
+satellite sinks, is tidally stripped into tails and streams, and the
+debris violently relaxes around the survivor. There is no two-body
+core integration, no Chandrasekhar drag term, no merge teleport and
+no damping: the previous artifacts (kiss-and-freeze, the discrete
+energy jump at coalescence) are gone because the dynamics is one
+continuous self-consistent system from start to finish.
 
 ### The integrals-of-motion panel and the Sausage
 
-For each star the playground computes, in the rest frame of the
-PRIMARY (more massive) galaxy's core, the specific angular momentum
-and orbital energy
+For each particle the playground computes, in the rest frame of the
+primary galaxy's mass-weighted density centroid, the specific angular
+momentum and the real (PM-potential) orbital energy
 
 $$L_z = x\,v_y - y\,v_x,
   \qquad
-  E = \tfrac12 v^2 + \Phi_1 + \Phi_2,$$
+  E = \tfrac12 v^2 + \Phi_\mathrm{PM}(\mathbf x),$$
 
-with positions and velocities taken relative to that core. This is
-the Galactocentric analogue: the real Gaia-Enceladus / Sausage
-integrals of motion are measured relative to the surviving Milky Way,
-not the system barycentre, so the surviving primary disk is the
-natural zero-point. Both panels share this primary-core frame, and
-because the heavy primary barely moves it also keeps the encounter
-centred on the survivor. While the two nuclei are still
-orbiting the potential is time-dependent and the points churn
-violently (each pericentre passage reshuffles $E$ and $L_z$, the
-visible signature of violent relaxation). Once the nuclei coalesce
-the potential becomes static and $E, L_z$ become genuine conserved
-integrals, so the scatter settles and stops moving. That settling is
-not a numerical artefact, it is the entire reason this diagram is
-used: the substructure is frozen in for billions of years, which is
-how a lower-mass accreted galaxy on a radial orbit is still
-recognizable today as a distinct low-$|L_z|$ clump, the Gaia-Enceladus
-/ Sausage signature found in the Milky Way halo (Helmi et al. 2018;
-Belokurov et al. 2018). Change the mass ratio and watch the accreted
-clump's position and prominence shift.
+with positions and velocities relative to that centroid. The centroid
+is a continuous function of the particle positions, so the reference
+frame never jumps. This is the Galactocentric analogue: the real
+Gaia-Enceladus / Sausage integrals are measured relative to the
+surviving Milky Way, not the system barycentre. While the galaxies
+interact the potential is time-dependent and the points churn (violent
+relaxation); as the remnant relaxes the potential becomes nearly
+stationary and $E, L_z$ become near-conserved labels, so the accreted
+debris stays clustered in a distinct low-$|L_z|$, radial locus, the
+Gaia-Enceladus / Sausage signature found in the Milky Way halo (Helmi
+et al. 2018; Belokurov et al. 2018). Change the mass ratio and watch
+the accreted clump's position and prominence shift.
 
 ### Things to try
 
-- Watch the two disks spiral in (dynamical friction) and coalesce
-  into one relaxed remnant, not a flyby.
-- Read the right panel: the accreted (gold) galaxy forms a distinct
-  low-$L_z$ clump, the Sausage analogue, separate from the primary.
-- Set $M_1=M_2$ for a major merger, or a large ratio for a minor one,
-  and watch the integrals-of-motion structure change.
+- Watch the lighter galaxy raise a trailing wake, sink, and tidally
+  shred into streams while the primary survives.
+- Read the right panel: the accreted (gold) debris forms a distinct
+  low-$L_z$ locus separate from the primary's rotation sequence.
+- Set $M_1=M_2$ for a major merger (both disrupted), or a large ratio
+  for a minor one (clean Sausage), and watch the structure change.
 
 ### Where this comes from
 
-The restricted N-body merger model, tidal tails, and elliptical
-remnant follow Toomre and Toomre, ApJ 178, 623 (1972), and Binney
-and Tremaine, *Galactic Dynamics*, 2nd ed., Chapters 2 and 8.
+The particle-mesh method follows Hockney and Eastwood, *Computer
+Simulation Using Particles* (1988), Chapters 5 to 7; emergent
+dynamical friction and tidal disruption follow Binney and Tremaine,
+*Galactic Dynamics* 2e, Chapter 8; the integrals-of-motion Sausage
+diagnostic follows Helmi et al., Nature 563, 85 (2018), and Belokurov
+et al., MNRAS 478, 611 (2018).
 
 ## Physical setup
 
-Hernquist (1990) density and DF, sampled analytically so the tracers start in equilibrium. Gravity on each tracer: $\mathbf{a} = -\nabla(\Phi_1 + \Phi_2)$ from both halo centers. Halo centers: leapfrog with softening. Units: $M_\odot$, kpc, km/s.
+Two exponential stellar disks of equal-mass particles, total mass set by the M1, M2 sliders (about 3600 particles split by mass ratio). Self-gravity is solved with the shared 2D particle-mesh engine (`shared/js/engine/particle-mesh-2d.js`): cloud-in-cell mass deposit on a 48 x 48 periodic grid, FFT Poisson solve, CIC force interpolation, kick-drift-kick leapfrog. Disk rotation is balanced against the actual t=0 PM force (not an analytic guess) plus a small warm dispersion. No analytic cores, no Chandrasekhar term, no merge event: dynamical friction, tidal disruption and coalescence are emergent.
 
 ## Controls
 
-- Impact-parameter slider, relative-velocity slider, Launch button
-- Preset encounters: direct hit, grazing pass, retrograde, minor merger (3:1)
-- Zoom + pan
+- M1 (primary mass), M2 (accreted mass), impact parameter, closing speed.
+- Relaunch (re-seed the encounter), Pause/Play.
 
 ## Invariants
 
-- Total halo-center energy conserved within 0.1% per 1000 steps.
-- Isolated galaxy retains velocity dispersion profile within 5% after 500 steps.
-- Head-on merger: > 90% of stars from each galaxy remain bound.
+`invariants.test.mjs` plus the shared engine tests in `tests/engines/particle-mesh-2d.test.mjs`:
 
-## Status note
+- The periodic PM Poisson solve recovers a single Fourier mode to 1e-9.
+- The leapfrog conserves total momentum to < 1e-6 over 200 steps.
+- A cold blob self-gravitates inward (RMS radius shrinks).
+- Determinism: identical inputs reproduce the state bit-for-bit.
 
-Scaffolded with Hernquist DF spec; analytic DF sampler + leapfrog + remnant-classification readout not yet implemented.
+Visual gate: SSIM > 0.92 against the five committed golden frames.
 
 ## Citations
 
-Hernquist 1990, ApJ 356, 359 (`hernquist1990`).
+- Hockney and Eastwood, *Computer Simulation Using Particles* (1988), Chs. 5 to 7: the particle-mesh method (`hockney-eastwood1988`).
+- Binney and Tremaine, *Galactic Dynamics*, 2nd ed., Ch. 8: dynamical friction and tidal disruption (`binney-tremaine`).
+- Helmi et al., Nature 563, 85 (2018); Belokurov et al., MNRAS 478, 611 (2018): the Gaia-Enceladus / Sausage integrals-of-motion signature.

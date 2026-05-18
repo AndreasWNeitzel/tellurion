@@ -21,3 +21,6 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 ## Sweep 2026-05-18
 User request: compute the integrals of motion in the primary core's rest frame from now on. Replaced the mass-weighted COM reference with the more-massive core's position/velocity for both the E-Lz panel and the spatial centering (the Galactocentric analogue: the real Gaia-Enceladus/Sausage integrals are measured relative to the surviving Milky Way, not the barycentre). Labels and Explainer updated; screenshot-verified the survivor stays centered and the accreted Sausage clump is anchored on the primary.
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User-directed rebuild: replaced analytic cores + Chandrasekhar/merge/damping hacks with a true self-gravitating particle-mesh N-body on the new shared engine. Merger, dynamical friction, tidal disruption, coalescence and the Sausage E-Lz signature all emergent and continuous; screenshot-verified t-000/t-050/t-100; 60fps at 3600 particles. Tests 1 passed + PM engine 6/6.
