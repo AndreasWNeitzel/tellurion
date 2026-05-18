@@ -21,6 +21,64 @@ share_state_keys: [e, mode, pw]
 
 # Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak
 
+## Explainer
+
+### What you are looking at
+
+The reason proton therapy can hit a deep tumor while sparing the
+tissue in front of and behind it comes down to one curve: a proton
+dumps almost all its energy in a sharp spike right at the end of its
+range, the Bragg peak. The playground shows that peak, how its depth
+tracks the beam energy, and how stacking energies builds a flat dose
+over a tumor.
+
+### Why charged particles peak
+
+As a proton slows in tissue it loses energy by ionization at the
+rate given (in magnitude) by the Bethe stopping power,
+
+$$-\frac{dE}{dx}
+  \;\propto\; \frac{z^2}{v^2}\,
+  \ln\!\frac{2 m_e v^2}{I}.$$
+
+The crucial factor is $1/v^2$: as the proton slows, it loses energy
+ever faster, so the energy deposition is small at the entrance and
+diverges just before the proton stops. Integrating gives the
+approximate Bragg-Kleeman range-energy relation
+
+$$R \;\approx\; \alpha\,E_0^{\,p},
+  \qquad p \approx 1.77\ \text{(water)},$$
+
+so the peak's depth is set, controllably, by the beam energy alone.
+
+### The spread-out Bragg peak
+
+A single pristine peak is too narrow to cover a tumor, so a clinical
+plan superposes many peaks of decreasing energy and weight to build a
+flat, uniform dose across the target depth, the spread-out Bragg peak,
+with a sharp distal falloff. Contrast this with a megavoltage photon
+beam, whose dose builds up to a shallow maximum and then keeps
+irradiating everything beyond the tumor exponentially. That is the
+entire physical case for proton therapy: dose conformity and minimal
+exit dose. The playground sweeps the beam energy and shows the peak
+move, and toggles the SOBP build-up versus a photon depth-dose for
+comparison.
+
+### Things to try
+
+- Sweep the proton energy and watch the Bragg peak move deeper as
+  $R\propto E^{1.77}$, with little entrance dose.
+- Build the spread-out Bragg peak by stacking energies and watch a
+  flat plateau form with a sharp distal edge.
+- Toggle the photon depth-dose and see it keep depositing beyond the
+  target (no distal sparing): the clinical contrast.
+
+### Where this comes from
+
+The Bethe stopping power, the Bragg-Kleeman range relation, and the
+spread-out Bragg peak follow Podgorsak, *Radiation Physics for
+Medical Physicists*, and Paganetti, *Proton Therapy Physics*.
+
 ## Physical setup
 
 A proton beam slowing down in tissue. Unlike photons, charged particles deposit most of their energy near the end of their range, where the stopping power diverges, producing the Bragg peak. The depth of the peak is set by the beam energy through the Bragg-Kleeman range-energy relation. A clinical treatment spreads the peak over the tumour by stacking pristine peaks of decreasing energy and weight (the spread-out Bragg peak). The contrast with a megavoltage photon beam, which builds up to a shallow maximum and then keeps irradiating, is the physical basis of proton therapy.
