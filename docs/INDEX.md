@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[AFM and STM: Tip-Surface Interaction](../playgrounds/bsc-y3s2/MEF-afm-stm-surface-interaction/index.html)** &nbsp; (verified, verified 2026-05-18T00:15:44Z)
+  A sharp probe tip is brought within angstroms of a surface and scanned across it. Two contrast mechanisms: the mechanical tip-sample force (atomic force microscopy) and the quantum-mechanical tunnelling current across the vacuum gap (scanning tunnelling microscopy). Both are extraordinarily sensitive to the tip-sample separation, which is what lets a scannin
+
 - **[Optical Lithography Resolution](../playgrounds/bsc-y3s2/MEF-nanofabrication-lithography-resolution/index.html)** &nbsp; (verified, verified 2026-05-18T00:06:43Z)
   A projection scanner images a reticle (photomask) onto a wafer through a reduction lens. Diffraction at the mask spreads the light into spatial frequencies; the finite lens pupil collects only those with `|f| <= NA / lambda`, discarding the rest. The printed aerial image is therefore a low-pass-filtered version of the mask, and the smallest line/space that s
 

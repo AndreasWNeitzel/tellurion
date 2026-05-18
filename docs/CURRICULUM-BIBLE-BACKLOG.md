@@ -390,7 +390,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] nanofabrication-lithography-resolution : medium canvas2d. Reticle
   to aerial image FFT, lam EUV/DUV/i-line, Rayleigh k1 lam/NA. Inv:
   Rayleigh 5%; smaller lam sharper.
-- [ ] afm-stm-surface-interaction : medium canvas2d. Tip scans surface,
+- [x] afm-stm-surface-interaction : medium canvas2d. Tip scans surface,
   LJ V(d), tapping amplitude, STM I prop e^-2kd. Inv: STM x10 per 1A.
 
 ## Section 15: M:EF Optical/Lasers (FIS4035/4027/4036; Saleh-Teich)
