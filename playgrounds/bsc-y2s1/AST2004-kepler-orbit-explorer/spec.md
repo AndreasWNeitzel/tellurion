@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST2004
 supporting_ucs: []
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Set the size and shape of an orbit and watch it close perfectly, lap after lap; the energy, angular momentum, and the arrow pointing at perihelion never drift.'
+one_paragraph: 'The Kepler problem is the textbook two-body orbit: a test particle under inverse-square gravity. Set the semi-major axis a and eccentricity e and the playground launches the particle from apastron and integrates it with a symplectic velocity-Verlet step, so the total energy, the angular momentum, and the Laplace-Runge-Lenz vector stay flat over thousands of laps. The LRL arrow is the special signature of the 1/r force: it points at perihelion and does not rotate, which is exactly why the ellipse closes. Crank e up and the orbit stretches into a thin cigar with a fast whip around the focus, while the conserved-quantity readouts show nothing is lost. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
