@@ -22,6 +22,65 @@ share_state_keys: []
 
 # Drake equation explorer
 
+## Explainer
+
+### What you are looking at
+
+The Drake equation is not a prediction; it is a bookkeeping device
+that turns the question "how many civilizations could we talk to" into
+a product of seven factors you can argue about one at a time. The
+playground lets you set each factor and watch the estimate swing over
+many orders of magnitude, which is the real lesson.
+
+### The equation
+
+The number of communicating civilizations in the Galaxy is the chain
+product
+
+$$N = R_* \cdot f_p \cdot n_e \cdot f_l \cdot f_i \cdot f_c \cdot L,$$
+
+reading left to right:
+
+- $R_*$: the rate of suitable star formation (stars per year).
+- $f_p$: the fraction of those stars with planets.
+- $n_e$: the number of habitable planets per such system.
+- $f_l$: the fraction of habitable planets where life starts.
+- $f_i$: the fraction of those where intelligence arises.
+- $f_c$: the fraction that develop detectable communication.
+- $L$: how long, in years, such a civilization broadcasts.
+
+The first three factors are now constrained by astronomy (Kepler and
+radial-velocity surveys pinned $f_p$ near 1 and $n_e$ to order unity);
+the last four are essentially unknown and span many decades each.
+
+### Why the answer is a range, not a number
+
+Because $N$ is a product, the total uncertainty is the product of the
+individual uncertainties: multiply seven factors each uncertain by an
+order of magnitude and $N$ is uncertain by many orders. The single
+term that dominates the modern estimate is $L$: if civilizations last
+decades, $N$ is tiny; if millennia, $N$ is large. The playground makes
+this concrete by letting you drag each factor on a log scale and
+watching $N$ slide from "we are alone" to "the Galaxy is crowded". The
+value of the equation is not its output but the structure it imposes
+on the debate.
+
+### Things to try
+
+- Hold the astronomically-known factors fixed and sweep only $L$:
+  watch $N$ track it almost linearly (the dominant unknown).
+- Set the biological factors pessimistically and watch $N$ collapse
+  below 1 (the "rare Earth" regime).
+- Note how a one-decade change in any single factor moves $N$ by a
+  full decade: the multiplicative uncertainty.
+
+### Where this comes from
+
+The Drake equation and its factor decomposition follow Drake's 1961
+formulation as presented in Shklovskii and Sagan, *Intelligent Life
+in the Universe*, and the modern factor constraints in current
+exoplanet-occurrence reviews.
+
 ## Physical setup
 
 The Drake equation
