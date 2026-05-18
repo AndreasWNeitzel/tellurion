@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Hang a pendulum from a cart that is free to roll. Swing the pendulum and the cart slides the other way: with no outside push the centre of mass cannot move, so the two trade momentum back and forth."
+one_paragraph: "A pendulum hangs from a cart that rolls without friction on a horizontal rail, a coupled two-degree-of-freedom system. With no external horizontal force the total horizontal momentum is conserved (zero here), so every time the bob swings one way the cart recoils the other and the centre of mass stays put. The fast pendulum swing and the slow cart drift are coupled through the rod, giving a nonlinear exchange that the phase portrait (cart position against pendulum angle) shows as a structured orbit. The readout tracks the angle, the cart position, the conserved p_x (which stays at zero to machine precision) and the energy drift. A heavy cart barely recoils; a light cart does most of the moving. This is the same momentum bookkeeping as a person walking on a free raft or a rocket recoiling from its exhaust."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
