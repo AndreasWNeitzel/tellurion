@@ -1,1 +1,3 @@
-verified-at: 2026-05-13T23:23:33Z
+verified-at: 2026-05-18T18:35:25Z
+invariants: Tests 7 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); stale goldens recaptured (deterministic A==B, !=old golden); comprehensive ## Explainer added; 5 distinct frames screenshot-verified (radiation-dom a=1e-6 -> Lambda-dom a=1.58; rho slopes a^-4/a^-3/flat; matter clumps)

@@ -22,6 +22,71 @@ share_state_keys: []
 
 # Matter, radiation, and dark energy: equality and dominance
 
+## Explainer
+
+### What you are looking at
+
+The universe has had three landlords in turn: radiation, then matter,
+now dark energy. Each dilutes differently as space expands, so whoever
+dominates changes with time, and each handover leaves a fingerprint
+(the start of structure growth, the onset of acceleration). The
+playground plots the three densities against the scale factor and
+marks the crossover points.
+
+### How each component dilutes
+
+As the universe expands by scale factor $a$, the energy densities
+fall at different rates:
+
+$$\rho_r \propto a^{-4}, \qquad
+  \rho_m \propto a^{-3}, \qquad
+  \rho_\Lambda \propto a^{0}.$$
+
+Matter just spreads out ($a^{-3}$); radiation spreads out and is
+additionally redshifted, losing one extra power of $a$ ($a^{-4}$);
+the cosmological constant has constant energy density. Because the
+slopes differ, whichever line is on top changes as $a$ grows.
+
+### The two equality epochs
+
+Setting pairs equal gives the handover points. Matter-radiation
+equality:
+
+$$\frac{\rho_m}{\rho_r}
+  = \frac{\Omega_{m,0}}{\Omega_{r,0}}\,a = 1
+  \;\Longrightarrow\;
+  1 + z_\mathrm{eq} = \frac{\Omega_{m,0}}{\Omega_{r,0}}
+  \approx 3400.$$
+
+Before this, radiation dominates and density perturbations stall;
+after it, matter dominates and structure can finally grow (so
+$z_\mathrm{eq}$ sets the turnover scale in the matter power
+spectrum). Much later, matter-$\Lambda$ equality occurs near
+$z\approx0.3$, after which expansion accelerates. The whole expansion
+history follows from the Friedmann equation with all three terms,
+
+$$H^2(a) = H_0^2\big[\Omega_{r,0}a^{-4}
+  + \Omega_{m,0}a^{-3} + \Omega_{\Lambda,0}\big].$$
+
+The playground sweeps the density parameters and shows the three
+curves and where they cross, including how $z_\mathrm{eq}$ moves when
+you change $\Omega_m$.
+
+### Things to try
+
+- Read off the two crossings: radiation-matter near $z\sim3400$ and
+  matter-$\Lambda$ near $z\sim0.3$.
+- Raise $\Omega_m$ and watch matter-radiation equality move to
+  higher redshift (earlier).
+- Note the steep $a^{-4}$ radiation line: it dominates the far past
+  but vanishes fastest.
+
+### Where this comes from
+
+The component scalings, the equality epochs, and the multicomponent
+Friedmann equation follow Ryden, *Introduction to Cosmology*,
+Chapters 5 and 6, and Dodelson, *Modern Cosmology*.
+
 ## Physical setup
 
 A flat Friedmann universe with three energy components: matter ($\rho_m \propto a^{-3}$), radiation ($\rho_r \propto a^{-4}$), and a cosmological constant ($\rho_\Lambda$ = const). The playground plots all three on a log-log scale against the scale factor $a$ (today $a = 1$) and marks the matter-radiation equality at $a_\text{eq} = \Omega_r / \Omega_m$.
