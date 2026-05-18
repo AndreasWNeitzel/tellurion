@@ -2,6 +2,7 @@ import { fixedTargetS, colliderS, sqrtS } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rS = document.getElementById('readout-s');
 const sM1 = document.getElementById('slider-m1'), vM1 = document.getElementById('value-m1');
@@ -53,5 +54,17 @@ function render() {
   rS.textContent = `${sqrtS(sc).toExponential(1)} GeV`;
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  // Reference capture sweeps the beam energy: the two markers slide
+  // along the fixed-target and collider curves, so the five golden
+  // frames are distinct and show sqrt(s) growing as sqrt(E) versus
+  // linearly in E.
+  if (CAPTURE_NAME) {
+    st.logE = 0.3 + CAPTURE_FRAC * 4.4;
+    sE.value = String(st.logE);
+    vE.textContent = st.logE.toFixed(2);
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
