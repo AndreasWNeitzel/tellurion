@@ -21,6 +21,66 @@ share_state_keys: []
 ---
 # p- and g-mode cavities
 
+## Explainer
+
+### What you are looking at
+
+A star rings in two different ways at once: sound waves bouncing in
+the envelope (pressure modes) and buoyancy waves sloshing in the deep
+core (gravity modes). Each kind can only live in the region of the
+star where the local physics supports it. The playground draws the
+star's "propagation diagram" and shows which cavity a mode of a given
+frequency is trapped in, and when the two couple.
+
+### Two characteristic frequencies
+
+At each radius the star has two natural frequencies that fence off the
+cavities:
+
+- The Lamb frequency $S_\ell$, the acoustic cutoff for degree
+  $\ell$:
+$$S_\ell^2 = \frac{\ell(\ell+1)\,c_s^2}{r^2},$$
+  with $c_s$ the local sound speed.
+- The Brunt-Vaisala (buoyancy) frequency $N$, the natural frequency
+  of a displaced blob bobbing under gravity:
+$$N^2 = g\left(\frac{1}{\Gamma_1 P}\frac{dP}{dr}
+  - \frac{1}{\rho}\frac{d\rho}{dr}\right).$$
+
+### Where each mode can propagate
+
+A mode of angular frequency $\omega$ is oscillatory only where it
+beats both fences the right way; elsewhere it is evanescent
+(exponentially decaying):
+
+- Acoustic (p) cavity: $\omega > \max(N, S_\ell)$, in the envelope.
+- Gravity (g) cavity: $\omega < \min(N, S_\ell)$, in the radiative
+  core.
+
+A high-frequency mode lives purely in the envelope (a p-mode); a
+low-frequency mode is locked in the core (a g-mode). At intermediate
+frequencies a mode has both an acoustic outer cavity and a gravity
+inner cavity separated by a thin evanescent zone; it tunnels through
+and becomes a mixed mode that carries information from the core out
+to the surface where we can see it. Mixed modes are the reason
+asteroseismology can weigh stellar cores at all. The playground
+sweeps $\omega$ and $\ell$ and shows the turning points, the
+evanescent gap, and the transition from pure p, to mixed, to pure g.
+
+### Things to try
+
+- Raise $\omega$ until both turning points vanish: a pure p-mode in
+  the envelope.
+- Lower $\omega$ into the core: a pure g-mode trapped below the
+  evanescent zone.
+- Tune $\omega$ to the intermediate band and watch the two cavities
+  appear with a thin evanescent gap (the mixed-mode regime).
+
+### Where this comes from
+
+The propagation diagram, the Lamb and Brunt-Vaisala frequencies, and
+mode trapping / mixed modes follow Aerts, Christensen-Dalsgaard and
+Kurtz, *Asteroseismology*, Chapter 3.
+
 ## Physical setup
 
 A stellar oscillation of angular frequency $\omega$ and degree $\ell$ propagates only where it is above the Lamb frequency $S_\ell$ and the buoyancy frequency $N$ is on the appropriate side: the acoustic (p) cavity requires $\omega > \max(N, S_\ell)$, the gravity (g) cavity requires $\omega < \min(N, S_\ell)$. A low-$\omega$ mode is trapped in the radiative core, a high-$\omega$ mode in the envelope, and an intermediate one is a mixed mode coupling both through the evanescent zone. Source: Aerts, Christensen-Dalsgaard and Kurtz Ch. 3 (`aerts-asteroseism`).
