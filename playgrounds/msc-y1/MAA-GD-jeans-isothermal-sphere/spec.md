@@ -21,3 +21,62 @@ share_state_keys: []
 ---
 # Singular isothermal sphere
 $\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).
+
+## Explainer
+
+### What you are looking at
+
+The simplest model that explains why galaxy rotation curves are flat
+(the original dynamical evidence for dark matter) is the singular
+isothermal sphere: a self-gravitating ball of "gas" where the
+particle speeds are the same everywhere. The playground shows its
+density, enclosed mass, and the resulting flat rotation curve.
+
+### The model
+
+Treat the stars (or dark matter) as an isothermal self-gravitating
+fluid: constant velocity dispersion $\sigma$ acting like a constant
+"temperature". Hydrostatic equilibrium against the body's own gravity
+(equivalently the isotropic Jeans equation) has the exact singular
+solution
+
+$$\rho(r) = \frac{\sigma^2}{2\pi G\,r^2}.$$
+
+The $r^{-2}$ density falloff is the key: density drops outward but
+mass keeps accumulating.
+
+### Why the rotation curve is flat
+
+Integrate the density to get the mass inside radius $r$:
+
+$$M(<r) = \int_0^r 4\pi r'^2\rho\,dr'
+  = \frac{2\sigma^2}{G}\,r,$$
+
+which grows linearly with radius forever. The circular speed of a
+test star is then
+
+$$v_c(r) = \sqrt{\frac{G\,M(<r)}{r}}
+  = \sqrt{2}\,\sigma = \text{constant}.$$
+
+The radius cancels: the rotation curve is flat at $v_c=\sqrt2\,\sigma$
+at all radii. That is exactly the behavior observed in real galaxies
+far beyond the visible disk, and it requires mass that keeps growing
+($M\propto r$) where there is little light, the halo. The cost of
+the model is that the central density diverges (hence "singular"),
+fixed in practice by a finite core. The playground sweeps $\sigma$
+and shows $\rho\propto r^{-2}$, $M\propto r$, and the flat
+$v_c=\sqrt2\,\sigma$.
+
+### Things to try
+
+- Confirm the rotation curve is flat at all radii (the dark-matter
+  signature) rather than Keplerian $v\propto r^{-1/2}$.
+- Change $\sigma$ and watch the flat level move as $\sqrt2\,\sigma$.
+- Note the enclosed mass rising linearly with $r$ while the density
+  falls as $r^{-2}$.
+
+### Where this comes from
+
+The singular isothermal sphere, its $r^{-2}$ density, and the flat
+$v_c=\sqrt2\,\sigma$ rotation curve follow Binney and Tremaine,
+*Galactic Dynamics*, 2nd ed., Chapter 4.

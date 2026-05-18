@@ -75,6 +75,14 @@
   
 
     <article class="card">
+      <h2><a href="./playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html">Jeans Isothermal Sphere</a></h2>
+      <p class="status">verified 2026-05-18</p>
+      <p class="description">$\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).</p>
+      
+    </article>
+  
+
+    <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-DM-mean-field-vi-on-banana/index.html">Mean-Field VI on a Banana</a></h2>
       <p class="status">verified 2026-05-18</p>
       <p class="description">Variational inference turns Bayesian inference into optimization: instead of sampling the true posterior, pick the closest member of a simple family of distributions. The playground does exactly that, fitting an axis-aligned Gaussian to a curved &quot;banana&quot; posterior, and the visible mismatch is the whole lesson about what VI gets wrong.</p>
@@ -2171,14 +2179,6 @@
   
 
     <article class="card">
-      <h2><a href="./playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html">Jeans Isothermal Sphere</a></h2>
-      <p class="status">verified 2026-05-14</p>
-      <p class="description">$\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).</p>
-      
-    </article>
-  
-
-    <article class="card">
       <h2><a href="./playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/index.html">Coulomb Equilibrium of Charges</a></h2>
       <p class="status">verified 2026-05-14</p>
       <p class="description">Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths, Introduction to Electrodynamics, Ch. 2.</p>
@@ -2373,7 +2373,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-ST-maxent-distribution-zoo/index.html">Maximum-Entropy Distributions Zoo</a></h2>
       <p class="status">verified 2026-05-13</p>
-      <p class="description">A 1D probability density on a continuous support. The maximum-entropy principle (Jaynes 1957) selects the density that maximizes differential entropy h(p) = -integral p ln p dx subject to fixed moments (or other linear functionals of p). The result depends entirely on the choice of constraints; this playground enumerates four canonical cases.</p>
+      <p class="description">If all you know about a quantity is a few facts (its range, its mean, its variance), which probability distribution should you assume? The maximum-entropy principle says: the one that is maximally noncommittal, that adds no information you do not have. Strikingly, the familiar textbook distributions all fall out of this single rule depending on the constrain</p>
       
     </article>
   
@@ -2381,7 +2381,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-ST-mutual-information-2d/index.html">Mutual Information of a Bivariate Gaussian</a></h2>
       <p class="status">verified 2026-05-13</p>
-      <p class="description">A static, exact, no-integration example: two correlated Gaussian random variables (X, Y) with covariance Sigma. The joint density p(x, y) is rendered as a heatmap; the marginals p(x) and p(y) are drawn above and beside it. Mutual information I(X; Y) is the area you can carve out of the joint by knowing the marginals; for a Gaussian it admits a closed form -0</p>
+      <p class="description">Mutual information answers &quot;how much does knowing $X$ tell you about $Y$?&quot; in bits, capturing any dependence, not just linear correlation. For two correlated Gaussians it has a clean closed form, so the playground can show the joint cloud, its marginals, and the exact mutual information as you tighten the correlation.</p>
       
     </article>
   
@@ -2421,7 +2421,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-ST-mcmc-comparator/index.html">MCMC Sampler Comparator</a></h2>
       <p class="status">verified 2026-05-13</p>
-      <p class="description">A 2D target density rendered as a contour map, with three Markov-chain Monte Carlo samplers running in parallel and laying down their accepted-state traces on the same plot. The user picks the target from a small bank (Gaussian, banana, Gaussian mixture, Neal's funnel) and the sampler triplet from {random-walk Metropolis, adaptive RWM, MALA, HMC}. A live rea</p>
+      <p class="description">To do Bayesian inference you need samples from a probability distribution you can evaluate but not sample directly. Markov-chain Monte Carlo builds a random walk whose long-run visiting frequency is exactly that distribution. The playground runs several MCMC samplers side by side on the same target so you can see why some explore well and some get stuck.</p>
       <p class="citation"><em>MacKay, D. J. C.. &quot;Information Theory, Inference, and Learning Algorithms&quot;, 2003. Bib key `mackay2003`. Sections 29.4 (Metropolis-Hastings), 29.5 (Gibbs sampling), 30.1 (HMC).</em></p>
     </article>
   
