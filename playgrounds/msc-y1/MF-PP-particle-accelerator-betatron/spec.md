@@ -21,6 +21,67 @@ share_state_keys: [f, nc, B]
 
 # FODO Synchrotron: Betatron Tune, Emittance and Stop Bands
 
+## Explainer
+
+### What you are looking at
+
+A particle in a circular accelerator must be steered around the ring
+millions of times without drifting into the wall. It is kept on
+course by alternating focusing and defocusing magnets, the same trick
+as alternating-gradient "strong focusing". The playground propagates a
+particle through a FODO lattice and shows whether the motion is
+stable, its oscillation frequency (the tune), and the beam ellipse.
+
+### Transfer matrices and the FODO cell
+
+Transverse motion in one plane is the phase-space vector $(x, x')$
+(position and angle). Each magnet or drift acts as a $2\times2$
+transfer matrix; for example a thin quadrupole of focal length $f$
+and a drift of length $L$ are
+
+$$Q = \begin{pmatrix}1 & 0\\ \mp 1/f & 1\end{pmatrix},
+  \qquad
+  D = \begin{pmatrix}1 & L\\ 0 & 1\end{pmatrix}.$$
+
+A FODO cell is focus-drift-defocus-drift; multiplying the matrices
+gives the one-cell map $M$.
+
+### Stability and the tune
+
+A quadrupole that focuses in $x$ defocuses in $y$, so no single lens
+confines both planes. Alternating them does: the one-turn matrix $M$
+keeps the motion bounded only if
+
+$$\big|\tfrac12\,\mathrm{Tr}\,M\big| < 1,$$
+
+which is the stability condition. When it holds, the particle
+oscillates around the ring (betatron oscillation) with a phase
+advance $\cos\mu = \tfrac12\mathrm{Tr}\,M$ per cell; the number of
+such oscillations per turn is the betatron tune $\nu$. The invariant
+ellipse the trajectory traces (the Courant-Snyder / Twiss ellipse)
+has area $\pi\varepsilon$, the emittance, a conserved beam-quality
+measure. The catch: if the tune hits a low-order rational
+($\nu = p/q$), small magnet errors add up coherently turn after turn
+and the beam is lost, a resonance stop band. The playground sweeps
+the quadrupole strength and shows the stable/unstable boundary, the
+tune, and the matched ellipse.
+
+### Things to try
+
+- Weaken the quadrupoles until $|\tfrac12\mathrm{Tr}\,M|>1$ and watch
+  the motion blow up (loss of strong focusing).
+- Tune the lattice and watch the betatron tune $\nu$ change; park it
+  on a half-integer and watch the resonance stop band.
+- Note the phase-space ellipse rotating but keeping constant area
+  (emittance conservation).
+
+### Where this comes from
+
+The transfer-matrix formalism, the FODO stability condition, the
+betatron tune and emittance follow Wiedemann, *Particle Accelerator
+Physics*, Chapters 5 and 6, and Courant and Snyder, Ann. Phys. 3, 1
+(1958).
+
 ## Physical setup
 
 A circular accelerator built from identical FODO cells: a focusing quadrupole, a drift, a defocusing quadrupole, a drift (alternating-gradient strong focusing). Transverse motion in one plane is described by the phase-space vector (x, x'), propagated element by element by 2x2 transfer matrices. The ring is a periodic lattice; its one-turn matrix determines whether the betatron motion is bounded (stable) and, if so, its tune and beam ellipse. Dipoles bend the closed orbit with a radius set by the momentum and field. Lengths are in metres, momentum p in GeV/c, dipole field B in tesla, q in units of e.
