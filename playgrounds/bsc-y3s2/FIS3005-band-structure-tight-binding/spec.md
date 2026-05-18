@@ -19,6 +19,60 @@ share_state_keys: []
 
 # Tight-Binding Band Structure
 
+## Explainer
+
+### What you are looking at
+
+Let one electron orbital sit on each atom of a chain and let electrons
+hop between neighbors. The allowed energies are no longer sharp atomic
+levels but a continuous band. Dimerize the chain and a gap opens with
+protected edge states. This tight-binding picture is the simplest route
+to band structure, insulators, and topology.
+
+### The 1D chain
+
+With on-site energy $\epsilon_0$ and nearest-neighbor hopping $t$, the
+dispersion is a single cosine band:
+
+$$E_{1D}(k) = \epsilon_0 - 2t\cos(ka).$$
+
+Everything physical reads off it: the group velocity is the slope
+$v = 2ta\sin(ka)$, the effective mass is set by the curvature
+($m^* = \hbar^2/2ta^2$ at the band bottom), and the density of states
+$g(E) = 1/[\pi\sqrt{(2t)^2-(E-\epsilon_0)^2}]$ diverges at the band
+edges (1D van Hove singularities). The band is exactly $4t$ wide.
+
+### The SSH chain: a gap and topology
+
+Alternate two hoppings $t_1, t_2$ (the Su-Schrieffer-Heeger model) and
+the single band splits into two:
+
+$$E(k) = \pm\sqrt{t_1^2 + t_2^2 + 2 t_1 t_2\cos ka},$$
+
+with a gap of $2|t_1 - t_2|$ at the zone boundary. The gap closes only
+when $t_1 = t_2$ (back to the uniform chain). Which bond is stronger
+distinguishes two topologically different insulators; the
+"topological" one carries protected zero-energy states at its ends.
+The 2D square lattice generalizes to
+$E = -2t(\cos k_x a + \cos k_y a)$, whose Fermi surface morphs from a
+pocket to a nested square to an inverted pocket as you fill it.
+
+### Things to try
+
+- Watch the 1D band as a cosine; note the flat spots (zero group
+  velocity) at the band edges and the DOS spikes there.
+- Dimerize ($t_1 \ne t_2$) and watch a gap open; set $t_1 = t_2$ and
+  watch it close.
+- Switch to 2D and fill the band: the Fermi surface goes pocket ->
+  nested square (at half-filling) -> inverted pocket.
+
+### Where this comes from
+
+The tight-binding dispersion, group velocity and effective mass, the
+SSH gap, and the 2D band follow Ashcroft and Mermin, *Solid State
+Physics*, Chapter 10, with the SSH model from Su, Schrieffer and
+Heeger (1979).
+
 ## Physical setup
 
 A single s-band: 1D chain (uniform t), the dimerized SSH chain
