@@ -4,8 +4,8 @@ slug: atwood-machine-constrained
 status: verified
 audience: portfolio
 created: 2026-05-17
-hook: 'The pulley is not just a frictionless point: give it mass and the two rope tensions stop being equal.'
-one_paragraph: 'A physical Atwood machine with a pulley of finite moment of inertia. The rope constraint plus the pulley torque equation give a = (m1-m2)g/(m1+m2+I/R^2) and unequal tensions T1 = m1(g-a), T2 = m2(g+a). Sliders, a disk/ring selector and a zero-mass pulley make the inertia correction visible; v(t) and a(t) trace in a side panel.'
+hook: 'Two weights, one rope: the same gravity acts on both, yet the rope tension is exactly what keeps the lighter one from simply falling.'
+one_paragraph: 'An Atwood machine focused on the gravity-versus-tension balance. With an ideal (massless) pulley the rope tension is equal on both sides and a = (m1-m2)g/(m1+m2): each block carries a weight arrow m g down and a tension arrow T up, and the net (m1-m2)g is what accelerates the pair. A block stops when it reaches the pulley or the floor (no teleport reset), and you can grab and tug either block with the mouse. A toggle switches to the double (compound) machine, where a movable pulley carrying m2 and m3 hangs opposite m1 and the rope tensions satisfy T = 2 T2. An optional pulley-mass slider is the advanced case where the moment of inertia splits the tensions, T1 = m1(g-a), T2 = m2(g+a).'
 tags: [mechanics, animation, live-readout]
 difficulty: 2
 tier: medium
@@ -44,13 +44,24 @@ integrator). The rig loops when travel exceeds 1.5 m.
 
 ## Controls
 
-- `m1`, `m2`, pulley `M` sliders; disk/ring selector; Reset, Pause.
+- `machine` selector: single Atwood / double (compound).
+- `m1`, `m2` (and `m3` in double mode) sliders.
+- `pulley M` slider (advanced; default 0 = ideal massless pulley with
+  equal tensions).
+- Reset, Pause. Grab and tug any block with the mouse or touch.
 
 ## Expected qualitative features
 
-- Unequal masses accelerate immediately (autoplay).
-- A massive pulley measurably reduces `a` and splits `T1 != T2`.
-- A ring brakes harder than a disk of the same mass.
+- Ideal pulley: equal tensions, a = (m1-m2)g/(m1+m2); the weight and
+  tension arrows make the gravity-versus-tension balance explicit.
+- A block stops at the pulley or the floor and stays there (no
+  teleport reset); Reset or a tug restarts it.
+- Dragging a block moves the other oppositely (inextensible rope);
+  releasing hands the tugged velocity back to the dynamics.
+- Double machine: m1 against a movable pulley carrying m2, m3; the
+  rope tensions satisfy T = 2 T2; balancing m1 against the lower pair
+  freezes the rig.
+- Advanced: a massive pulley reduces `a` and splits `T1 != T2`.
 - Equal masses give a static, balanced rig.
 
 ## Invariants and acceptance thresholds

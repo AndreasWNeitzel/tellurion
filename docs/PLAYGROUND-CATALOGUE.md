@@ -76,8 +76,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Atwood Machine with a Massive Pulley
 `playgrounds/bsc-y1s1/FIS1013-atwood-machine-constrained` | F1006 | SHIPPED | swept | tier:medium
 
-- What it does / physics / visuals: A physical Atwood machine with a pulley of finite moment of inertia. The rope constraint plus the pulley torque equation give a = (m1-m2)g/(m1+m2+I/R^2) and unequal tensions T1 = m1(g-a), T2 = m2(g+a). Sliders, a disk/ring selector and a zero-mass pulley make the inertia correction visible; v(t) and a(t) trace in a side panel.
-- Hook: The pulley is not just a frictionless point: give it mass and the two rope tensions stop being equal.
+- What it does / physics / visuals: An Atwood machine focused on the gravity-versus-tension balance. With an ideal (massless) pulley the rope tension is equal on both sides and a = (m1-m2)g/(m1+m2): each block carries a weight arrow m g down and a tension arrow T up, and the net (m1-m2)g is what accelerates the pair. A block stops when it reaches the pulley or the floor (no teleport reset), and you can grab and tug either block with the mouse. A toggle switches to the double (compound) machine, where a movable pulley carrying m2 and m3 hangs opposite m1 and the rope tensions satisfy T = 2 T2. An optional pulley-mass slider is the advanced case where the moment of inertia splits the tensions, T1 = m1(g-a), T2 = m2(g+a).
+- Hook: Two weights, one rope: the same gravity acts on both, yet the rope tension is exactly what keeps the lighter one from simply falling.
 - Review verdict: (not yet reviewed)
 
 ### Beats from Superposition of Close Frequencies

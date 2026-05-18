@@ -60,4 +60,62 @@ export function energy(s) {
   return KE + PE;
 }
 
+// Double (compound) Atwood, ideal (massless rope and pulleys).
+// m1 hangs on one side of the fixed pulley; the other side carries a
+// massless movable pulley that itself carries m2 and m3. With rope
+// tension T over the fixed pulley and T2 over the movable one, a
+// massless movable pulley forces T = 2 T2. Solving Newton on the three
+// masses with the rope constraints gives, with g down positive,
+//   T2 = 4 g / (1/m2 + 1/m3 + 4/m1),  T = 2 T2,
+//   a1 = g - 2 T2/m1   (m1, down +)
+//   a2 = g -   T2/m2   (m2, down +)
+//   a3 = g -   T2/m3   (m3, down +)
+// and the movable pulley accelerates at -a1. q1 = m1 drop, q2 = m2
+// drop relative to the movable pulley; both second derivatives are
+// state-independent, so the motion is exact under the update below.
+// Reference: Morin, Introduction to Classical Mechanics, Ch. 3
+// (the double Atwood machine).
+export function doubleAccel({ m1, m2, m3 }) {
+  const T2 = 4 * G / (1 / m2 + 1 / m3 + 4 / m1);
+  const T = 2 * T2;
+  const a1 = G - 2 * T2 / m1;
+  const a2 = G - T2 / m2;
+  const a3 = G - T2 / m3;
+  const aP = -a1;                 // movable pulley (down +)
+  return { T, T2, a1, a2, a3, aP, q1dd: a1, q2dd: a2 - aP };
+}
+
+export function createDouble(p = {}) {
+  return {
+    mode: 'double',
+    m1: p.m1 ?? 4, m2: p.m2 ?? 2, m3: p.m3 ?? 1,
+    q1: 0, v1: 0,        // m1 drop and its rate
+    q2: 0, v2: 0,        // m2 drop relative to the movable pulley
+    t: 0,
+  };
+}
+
+export function stepDouble(s, dt) {
+  const { q1dd, q2dd } = doubleAccel(s);
+  s.q1 += s.v1 * dt + 0.5 * q1dd * dt * dt; s.v1 += q1dd * dt;
+  s.q2 += s.v2 * dt + 0.5 * q2dd * dt * dt; s.v2 += q2dd * dt;
+  s.t += dt;
+  return s;
+}
+
+// Absolute vertical velocities (down +) from the generalized rates.
+export function doubleVels(s) {
+  const vP = -s.v1;
+  return { v1: s.v1, vP, v2: vP + s.v2, v3: vP - s.v2 };
+}
+
+// Total mechanical energy of the ideal double Atwood (conserved; the
+// invariant test probes this). y measured down, PE = -m g (drop).
+export function energyDouble(s) {
+  const { v1, v2, v3 } = doubleVels(s);
+  const KE = 0.5 * s.m1 * v1 * v1 + 0.5 * s.m2 * v2 * v2 + 0.5 * s.m3 * v3 * v3;
+  const PE = -G * (s.m1 * s.q1 + s.m2 * (-s.q1 + s.q2) + s.m3 * (-s.q1 - s.q2));
+  return KE + PE;
+}
+
 export { G };

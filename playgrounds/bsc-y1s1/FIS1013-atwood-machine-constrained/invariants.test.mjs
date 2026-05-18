@@ -2,7 +2,8 @@
 // limit, and the tension split for a massive pulley.
 
 import { describe, it, expect } from 'vitest';
-import { createAtwood, step, energy, acceleration, tensions, pulleyInertia, G } from './sim.js';
+import { createAtwood, step, energy, acceleration, tensions, pulleyInertia, G,
+  createDouble, stepDouble, doubleAccel, energyDouble } from './sim.js';
 
 describe('atwood-machine-constrained invariants', () => {
   it('total mechanical energy conserved within 1e-6 over 1e4 steps', () => {
@@ -43,5 +44,27 @@ describe('atwood-machine-constrained invariants', () => {
     for (const m1 of [1, 5, 20]) for (const m2 of [1, 3, 9]) {
       expect(Math.abs(acceleration({ m1, m2, M: 1, R: 0.4, kind: 'disk' }))).toBeLessThan(G);
     }
+  });
+
+  it('double Atwood: T = 2 T2, and m1 = effective(m2,m3) gives a1 = 0', () => {
+    const r = doubleAccel({ m1: 4, m2: 2, m3: 1 });
+    expect(r.T).toBeCloseTo(2 * r.T2, 12);
+    // m1 balanced against the movable pulley when 1/m1 = (1/m2+1/m3)/4
+    // (the reduced mass of the lower pair seen through the 2:1 pulley).
+    const mEff = 4 / (1 / 2 + 1 / 1);
+    const bal = doubleAccel({ m1: mEff, m2: 2, m3: 1 });
+    expect(Math.abs(bal.a1)).toBeLessThan(1e-9);
+  });
+
+  it('double Atwood: total mechanical energy conserved over 1e4 steps', () => {
+    const d = createDouble({ m1: 4, m2: 2, m3: 1 });
+    const E0 = energyDouble(d);
+    for (let i = 0; i < 10000; i += 1) stepDouble(d, 0.001);
+    expect(Math.abs(energyDouble(d) - E0)).toBeLessThan(1e-5);
+  });
+
+  it('double Atwood: equal lower masses make m3 mirror m2 (a2 = -a3 about the pulley)', () => {
+    const r = doubleAccel({ m1: 4, m2: 2, m3: 2 });
+    expect(r.a2 - r.aP).toBeCloseTo(-(r.a3 - r.aP), 12);
   });
 });
