@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Maxwell-Boltzmann emergence from hard-disk collisions
 
+## Explainer
+
+### What you are looking at
+
+Start every disk in a box with the *same* speed and only random
+directions. Let them collide. Within seconds the speeds spread out into
+a smooth bell-like distribution and stay there. No one imposed that
+distribution; it emerges from collisions alone. This is the
+microscopic origin of temperature and the Maxwell-Boltzmann law.
+
+### The setup
+
+$N$ equal hard disks in a box, walls reflecting, all starting at speed
+$v_0$ so the initial speed distribution is a spike,
+$\delta(|v| - v_0)$. Between collisions disks fly straight; an elastic
+collision between equal masses simply swaps the velocity components
+along the line of contact and leaves the tangential parts alone:
+
+$$v_n^{(i)},\,v_n^{(j)} \;\longrightarrow\; v_n^{(j)},\,v_n^{(i)},
+  \qquad v_t \text{ unchanged}.$$
+
+Energy and momentum are conserved at every collision; nothing is
+random except the initial directions.
+
+### Why a unique distribution emerges
+
+Collisions shuffle energy between disks. A fast disk hitting a slow one
+tends to even them out, but statistically the only speed distribution
+that is left unchanged by further collisions (the equilibrium, maximum-
+entropy state at fixed total energy) is the 2D Maxwell-Boltzmann
+distribution:
+
+$$p(v) = \frac{v}{\sigma^2}\,e^{-v^2/2\sigma^2},
+  \qquad \sigma^2 = \frac{v_0^2}{2}.$$
+
+The playground histograms the live speeds and overlays this curve; the
+spike relaxes onto it and then stays, fluctuating but stable. The width
+$\sigma$ is exactly what we call temperature. This is the H-theorem in
+miniature: a reversible microscopic rule producing irreversible
+relaxation to equilibrium.
+
+### Things to try
+
+- Watch the speed histogram start as a single bar and spread into the
+  Maxwell-Boltzmann shape within a few collision times.
+- Confirm it then stays put: equilibrium is stable under more
+  collisions.
+- Note total kinetic energy is conserved throughout; the distribution
+  changes shape, not its mean energy.
+
+### Where this comes from
+
+The hard-disk collision rule, the relaxation to equilibrium, and the
+Maxwell-Boltzmann distribution follow Reif, *Fundamentals of
+Statistical and Thermal Physics*, Chapter 1.
+
 ## Physical setup
 
 A 2D box of side L = 8 containing N = 80 hard disks (radius 0.15) initially
