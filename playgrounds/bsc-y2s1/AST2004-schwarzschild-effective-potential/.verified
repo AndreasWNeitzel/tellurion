@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T19:28:30Z
-invariants: 6/6 (photon peak r=3M, photon peak value, ISCO at 6M, far-field Newtonian, V(2M) = -1/2, turning-point formula)
-visual: SSIM > 0.92 across 5 frames sweeping L
+verified-at: 2026-05-18T20:26:43Z
+invariants: Tests  6 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); comprehensive ## Explainer added; render-neutral (overlay outside #stage, goldens unchanged)

@@ -20,6 +20,69 @@ share_state_keys: []
 
 # Schwarzschild effective potential and the ISCO
 
+## Explainer
+
+### What you are looking at
+
+Orbits around a black hole are not just Newtonian ellipses with a
+twist: general relativity adds a term that, close in, overwhelms the
+centrifugal barrier, so there is a smallest stable circular orbit
+(the ISCO) and, inside it, an inescapable plunge. The playground plots
+the effective potential and a ball rolling in it so you can see the
+ISCO and the capture region appear.
+
+### The effective potential
+
+For a test particle outside a Schwarzschild black hole of mass $M$,
+the radial motion reduces to a 1D problem with a conserved energy and
+angular momentum $\tilde L$:
+
+$$\Big(\frac{dr}{d\tau}\Big)^2 = \tilde E^2 - V_\mathrm{eff}(r),
+  \qquad
+  V_\mathrm{eff}(r) = \Big(1 - \frac{2GM}{r c^2}\Big)
+  \Big(1 + \frac{\tilde L^2}{r^2 c^2}\Big).$$
+
+Expanded, this is the Newtonian potential plus the centrifugal term
+plus a new, purely relativistic $-2GM\tilde L^2/(c^2 r^3)$ term.
+
+### The ISCO and capture
+
+That $1/r^3$ term is attractive and steep, so close to the hole it
+beats the $1/r^2$ centrifugal barrier:
+
+- For large $\tilde L$ the potential still has a minimum (stable
+  circular orbit) and a maximum (unstable). As $\tilde L$ decreases
+  the two merge: at $\tilde L^2 = 12\,(GM/c)^2$ the inflection point
+  is the innermost stable circular orbit,
+$$r_\mathrm{ISCO} = \frac{6GM}{c^2} = 3\,r_s.$$
+- Inside the ISCO no stable circular orbit exists; a particle with
+  too little angular momentum slides over the centrifugal barrier and
+  is captured (the plunge). There is also a photon sphere at
+  $1.5\,r_s$.
+
+This is why accretion disks have an inner edge at the ISCO (setting
+black-hole spin measurements and radiative efficiency) and why "you
+can orbit a black hole" is only true outside $6GM/c^2$. The
+playground sweeps $\tilde L$ and energy and shows the potential
+reshaping, the ISCO forming, and orbits that bind, precess, or
+plunge.
+
+### Things to try
+
+- Lower the angular momentum and watch the potential minimum and
+  maximum merge at the ISCO, then vanish (capture for any energy).
+- Set a bound orbit just outside the ISCO and watch strong
+  perihelion precession (the relativistic rosette).
+- Raise the energy above the barrier maximum and watch the particle
+  plunge through the horizon.
+
+### Where this comes from
+
+The Schwarzschild effective potential, the ISCO at $6GM/c^2$, and the
+photon sphere follow Hartle, *Gravity: An Introduction to Einstein's
+General Relativity*, Chapter 9, and Misner, Thorne and Wheeler,
+*Gravitation*, Chapter 25.
+
 ## Physical setup
 
 Effective radial potential for geodesics outside a Schwarzschild black
