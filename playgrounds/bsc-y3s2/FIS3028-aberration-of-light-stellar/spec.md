@@ -22,6 +22,62 @@ share_state_keys: []
 
 # Stellar aberration of light
 
+## Explainer
+
+### What you are looking at
+
+Move through a field of stars and they all shift toward the direction
+you are heading, like rain slanting onto your windshield. The
+playground places stars evenly in their rest frame and boosts the
+observer, watching the whole sky bunch forward. For Earth's orbit the
+shift is tiny (about 20 arcseconds), the effect Bradley used in 1728 to
+prove the Earth moves.
+
+### The aberration formula
+
+A star at angle $\theta_\text{rest}$ from the direction of motion is
+seen by an observer moving at $\beta = v/c$ at the angle
+
+$$\cos\theta_\text{obs}
+  = \frac{\cos\theta_\text{rest} + \beta}
+  {1 + \beta\cos\theta_\text{rest}}.$$
+
+It is a pure consequence of the relativistic velocity transformation
+applied to the light ray's direction. Read it: stars ahead bunch only
+slightly, stars to the side ($\theta=\pi/2$) shift the most, and the
+maximum displacement is
+
+$$\Delta\theta_\text{max} \approx \beta \quad(\text{small }\beta).$$
+
+For Earth's $v = 29.8$ km/s, $\beta \approx 10^{-4}$ radian
+$\approx 20.5''$, exactly the observed annual aberration ellipse.
+
+### Why it is relativistic but visible classically
+
+The leading $\beta$ term is the same as the naive "tilt your umbrella"
+classical aberration; the relativistic content is the denominator,
+which only matters at large $\beta$. Crank the speed toward $c$ in the
+playground and the entire sky crushes into a tiny forward spot, the
+relativistic headlight effect that brightens jets pointed at us
+(see relativistic beaming). At everyday speeds it is just the small
+forward lean of every star.
+
+### Things to try
+
+- Set $\beta = 10^{-4}$ (Earth) and note the $\sim20''$ maximum shift,
+  largest for stars at $90^\circ$.
+- Crank $\beta\to1$ and watch the whole star field collapse into a
+  forward cone (the headlight effect).
+- Reverse the motion and watch the bunching point flip to the other
+  side.
+
+### Where this comes from
+
+The relativistic aberration formula and the annual stellar aberration
+follow Griffiths, *Introduction to Electrodynamics*, 5th ed.,
+Chapter 12, and Rindler, *Relativity: Special, General, and
+Cosmological*.
+
 ## Physical setup
 
 Stars at uniform angular positions in their rest frame; the observer moves at velocity $\beta c$ along $+x$. Lorentz aberration
