@@ -87,67 +87,104 @@ function buildDisk(rng, n, cx, cy, Rd) {
   return xs;
 }
 
+// KIND codes: 0 = primary stellar disk, 1 = satellite stellar disk,
+// 2 = primary dark-matter halo, 3 = satellite dark-matter halo.
+let KIND;
+const F_DISK = 0.18;          // stellar disk is ~18% of each galaxy's mass
+const HALO_A = 2.6;           // Hernquist halo scale (in disk-scale units)
+
+// Hernquist (1990) sphere, sampled by the analytic inverse CDF
+// r = a sqrt(q)/(1-sqrt(q)); the dominant dark mass that binds the disk
+// and against which dynamical friction sinks the companion.
+function buildHalo(rng, n, cx, cy, ah) {
+  const xs = new Float64Array(2 * n);
+  for (let i = 0; i < n; i += 1) {
+    const q = rng();
+    let r = ah * Math.sqrt(q) / Math.max(1 - Math.sqrt(q), 1e-3);
+    if (r > 7 * ah) r = 7 * ah * rng();
+    const th = 2 * Math.PI * rng();
+    xs[2 * i] = cx + r * Math.cos(th);
+    xs[2 * i + 1] = cy + r * Math.sin(th);
+  }
+  return xs;
+}
+
 function reset() {
   const rng = makeRng(SEED);
   const Mt = state.M1 + state.M2;
-  let n1 = Math.round(NTOT * state.M1 / Mt);
-  n1 = Math.max(400, Math.min(NTOT - 400, n1));
-  const n2 = NTOT - n1;
-  const mPer = Mt / NTOT;                 // equal-mass particles
+  // Particle budget split by galaxy mass, then disk vs halo within each.
+  let nG1 = Math.round(NTOT * state.M1 / Mt);
+  nG1 = Math.max(2000, Math.min(NTOT - 2000, nG1));
+  const nG2 = NTOT - nG1;
+  const nd1 = Math.round(0.42 * nG1), nh1 = nG1 - nd1;
+  const nd2 = Math.round(0.42 * nG2), nh2 = nG2 - nd2;
   const sep = 4.0, b = state.impact;
-  const Rd1 = 0.8;
-  const Rd2 = 0.8 * Math.sqrt(state.M2 / state.M1);
+  const Rd1 = 0.8, Rd2 = 0.8 * Math.sqrt(state.M2 / state.M1);
   const c1 = { x: L / 2 - sep / 2, y: L / 2 - b / 2, vx: +state.vRel, vy: 0, spin: +1 };
   const c2 = { x: L / 2 + sep / 2, y: L / 2 + b / 2, vx: -state.vRel, vy: 0, spin: +1 };
-  const d1 = buildDisk(rng, n1, c1.x, c1.y, Rd1);
-  const d2 = buildDisk(rng, n2, c2.x, c2.y, Rd2);
+  const d1 = buildDisk(rng, nd1, c1.x, c1.y, Rd1);
+  const d2 = buildDisk(rng, nd2, c2.x, c2.y, Rd2);
+  const h1 = buildHalo(rng, nh1, c1.x, c1.y, HALO_A * Rd1);
+  const h2 = buildHalo(rng, nh2, c2.x, c2.y, HALO_A * Rd2);
+  // Per-particle masses: stellar disk carries F_DISK of the galaxy mass,
+  // the dark halo the remaining (1-F_DISK) and so dominates the potential.
+  const md1 = F_DISK * state.M1 / nd1, mh1 = (1 - F_DISK) * state.M1 / nh1;
+  const md2 = F_DISK * state.M2 / nd2, mh2 = (1 - F_DISK) * state.M2 / nh2;
 
-  NP = n1 + n2;
+  NP = nG1 + nG2;
   X = new Float64Array(2 * NP);
   V = new Float64Array(2 * NP);
   M = new Float64Array(NP);
   ORIG = new Uint8Array(NP);
-  for (let i = 0; i < n1; i += 1) {
-    X[2 * i] = d1[2 * i]; X[2 * i + 1] = d1[2 * i + 1];
-    M[i] = mPer; ORIG[i] = 0;
-  }
-  for (let i = 0; i < n2; i += 1) {
-    const k = n1 + i;
-    X[2 * k] = d2[2 * i]; X[2 * k + 1] = d2[2 * i + 1];
-    M[k] = mPer; ORIG[k] = 1;
-  }
-  // Balance rotation against the ACTUAL t=0 particle-mesh force (not an
-  // analytic guess), then add a small dispersion so each disk is warm.
+  KIND = new Uint8Array(NP);
+  let k = 0;
+  const put = (src, i, mass, kind, orig) => {
+    X[2 * k] = src[2 * i]; X[2 * k + 1] = src[2 * i + 1];
+    M[k] = mass; KIND[k] = kind; ORIG[k] = orig; k += 1;
+  };
+  for (let i = 0; i < nd1; i += 1) put(d1, i, md1, 0, 0);
+  for (let i = 0; i < nd2; i += 1) put(d2, i, md2, 1, 1);
+  for (let i = 0; i < nh1; i += 1) put(h1, i, mh1, 2, 0);
+  for (let i = 0; i < nh2; i += 1) put(h2, i, mh2, 3, 1);
+
+  // One self-consistent t=0 force solve. Disk particles get the local
+  // circular speed (rotation support); halo particles get an isotropic
+  // velocity dispersion from the 2D Jeans estimate sigma^2 ~ |a_R| r / 2,
+  // so each galaxy starts in approximate equilibrium in its own field.
   const rho = depositCICOpen(X, M, NP, NGRID, L);
   const phi0 = solvePoissonIsolated2D(rho, NGRID, L, G, EPS);
   const { gx, gy } = gradPhiOpen(phi0, NGRID, L);
   const ax0 = interpolateCICOpen(X, gx, NP, NGRID, L);
   const ay0 = interpolateCICOpen(X, gy, NP, NGRID, L);
-  for (let k = 0; k < NP; k += 1) {
-    const c = ORIG[k] === 0 ? c1 : c2;
-    const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
+  for (let p = 0; p < NP; p += 1) {
+    const c = ORIG[p] === 0 ? c1 : c2;
+    const dx = X[2 * p] - c.x, dy = X[2 * p + 1] - c.y;
     const r = Math.hypot(dx, dy) + 1e-6;
     const ux = dx / r, uy = dy / r;
-    const aR = ax0[k] * ux + ay0[k] * uy;          // inward (grad phi).r_hat
-    const vC = aR > 0 ? Math.sqrt(aR * r) : 0;
-    const sig = 0.08 * vC;
-    V[2 * k]     = c.spin * (-vC * uy) + c.vx + gaussian(rng, 0, sig);
-    V[2 * k + 1] = c.spin * (+vC * ux) + c.vy + gaussian(rng, 0, sig);
+    const aR = ax0[p] * ux + ay0[p] * uy;          // inward grad-phi . r_hat
+    if (KIND[p] < 2) {                              // stellar disk: rotate
+      const vC = aR > 0 ? Math.sqrt(aR * r) : 0;
+      V[2 * p]     = c.spin * (-vC * uy) + c.vx + gaussian(rng, 0, 0.07 * vC);
+      V[2 * p + 1] = c.spin * (+vC * ux) + c.vy + gaussian(rng, 0, 0.07 * vC);
+    } else {                                        // dark halo: isotropic
+      const sig = aR > 0 ? Math.sqrt(0.5 * aR * r) : 0;
+      V[2 * p]     = c.vx + gaussian(rng, 0, sig);
+      V[2 * p + 1] = c.vy + gaussian(rng, 0, sig);
+    }
   }
   elapsed = 0;
   phiGrid = phi0;
 }
 
-// Mass-weighted centroid and bulk velocity of the primary population: the
-// surviving galaxy's "core", defined continuously from the particles
-// themselves (no special core object, so no discrete jumps).
+// Global mass-weighted centre of mass and bulk velocity over ALL particles
+// (disk + halo, both galaxies). Robust even when the primary is disrupted,
+// so the view always follows the system and never drifts off-screen.
 function primaryCentroid() {
   let mx = 0, my = 0, mvx = 0, mvy = 0, ms = 0;
-  for (let k = 0; k < NP; k += 1) {
-    if (ORIG[k] !== 0) continue;
-    const w = M[k];
-    mx += w * X[2 * k]; my += w * X[2 * k + 1];
-    mvx += w * V[2 * k]; mvy += w * V[2 * k + 1];
+  for (let p = 0; p < NP; p += 1) {
+    const w = M[p];
+    mx += w * X[2 * p]; my += w * X[2 * p + 1];
+    mvx += w * V[2 * p]; mvy += w * V[2 * p + 1];
     ms += w;
   }
   return { x: mx / ms, y: my / ms, vx: mvx / ms, vy: mvy / ms };
@@ -170,11 +207,24 @@ function render() {
   const c = primaryCentroid();
   const Wl = W * SPLIT;
   const cx = Wl / 2, cy = H / 2;
-  const sc = Math.min(Wl, H) * 0.085;        // units to px in the spatial panel
-  // Spatial panel, in the primary-centroid frame. Isolated boundaries: NO
-  // periodic wrap. A particle flung far just leaves the panel (clipped),
-  // which is honest, rather than teleporting to the opposite edge.
+  // Zoomed out enough that the extended dark halo and tidal debris stay in
+  // frame as the encounter evolves; the view is locked to the global COM
+  // (c) every frame so the system never drifts off-screen.
+  const sc = Math.min(Wl, H) * 0.052;        // units to px in the spatial panel
+  // Spatial panel, in the global centre-of-mass frame. Isolated boundaries:
+  // NO periodic wrap. The dark-matter halo is drawn as a faint haze (it is
+  // dark) and the stellar disks bright, so the visible galaxies are the
+  // spirals while the dominant gravitating mass is the halo.
   for (let k = 0; k < NP; k += 1) {
+    if (KIND[k] < 2) continue;                 // halo first (under the disk)
+    const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
+    const px = cx + dx * sc, py = cy + dy * sc;
+    if (px < 2 || px > Wl - 2 || py < 2 || py > H - 2) continue;
+    ctx.fillStyle = ORIG[k] === 0 ? 'rgba(120,130,170,0.16)' : 'rgba(180,150,110,0.16)';
+    ctx.fillRect(px, py, 1.3, 1.3);
+  }
+  for (let k = 0; k < NP; k += 1) {
+    if (KIND[k] >= 2) continue;                 // bright stellar disks on top
     const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
     const px = cx + dx * sc, py = cy + dy * sc;
     if (px < 2 || px > Wl - 2 || py < 2 || py > H - 2) continue;
@@ -182,13 +232,13 @@ function render() {
     ctx.fillRect(px, py, 1.5, 1.5);
   }
   ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('merger (self-gravitating PM, primary-core frame)', 12, 20);
+  ctx.fillText('merger (PM: dark halo + stellar disk, COM frame)', 12, 20);
 
-  // Integrals of motion in the primary-centroid rest frame: E uses the PM
-  // grid potential interpolated at each particle, so it is the real
-  // self-consistent energy. These settle to conserved values once the
-  // remnant relaxes, which is why the accreted clump persists (the Sausage
-  // diagnostic).
+  // Integrals of motion in the global COM frame, STELLAR particles only
+  // (the Sausage is a stellar-debris diagnostic). E uses the PM grid
+  // potential interpolated at each star, so it is the real self-consistent
+  // energy; these settle to conserved values once the remnant relaxes,
+  // which is why the accreted clump persists (the Sausage diagnostic).
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
   ctx.beginPath(); ctx.moveTo(Wl, 0); ctx.lineTo(Wl, H); ctx.stroke();
   const phiAt = interpolateCICOpen(X, phiGrid, NP, NGRID, L);
@@ -196,6 +246,13 @@ function render() {
   let lzMax = 1e-6, eLo = 1e30, eHi = -1e30;
   const pts = [];
   for (let k = 0; k < NP; k += ELZ_SKIP) {
+    if (KIND[k] >= 2) continue;                 // stars only, not dark halo
+    // Only stars with a valid PM potential (well inside the grid). Particles
+    // that have left the grid have phi = 0 from the open interpolator, which
+    // would be a meaningless energy, so they are excluded: the plot then
+    // honestly shows the bound population, matching what is on screen.
+    const gx2 = X[2 * k], gy2 = X[2 * k + 1];
+    if (gx2 < 2 || gx2 > L - 2 || gy2 < 2 || gy2 > L - 2) continue;
     const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
     const vx = V[2 * k] - c.vx, vy = V[2 * k + 1] - c.vy;
     const Lz = dx * vy - dy * vx;
@@ -219,7 +276,7 @@ function render() {
     ctx.fillRect(X1, Y1, 1.4, 1.4);
   }
   ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('integrals of motion (primary-core frame)', px0, 22);
+  ctx.fillText('integrals of motion (stars, COM frame)', px0, 22);
   ctx.fillText('L_z  (angular momentum)', px0 + 60, H - 16);
   ctx.save();
   ctx.translate(Wl + 18, (py0 + py1) / 2); ctx.rotate(-Math.PI / 2);

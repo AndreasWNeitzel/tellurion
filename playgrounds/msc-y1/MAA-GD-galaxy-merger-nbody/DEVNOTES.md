@@ -35,3 +35,7 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 ## Sweep 2026-05-18
 User: more particles + galaxies do not look spiral. Raised NTOT 3600 -> 16000 (PM cost is grid-bound via the radix-2 FFT so per-particle work stays cheap at 60fps) and gave each disk a two-arm trailing logarithmic-spiral azimuth on a smooth background. Screenshot-verified two dense visibly-spiral galaxies at t-000 and a correct bound merger at t-100 (accreted stream + surviving primary, Sausage E-Lz, no escape/teleport/disintegration); rAF 16.6ms.
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User: disk stripped naked / no merger / out of screen / distrust E-Lz. Rebuilt each galaxy as the literature-standard multi-component model: dominant Hernquist dark-matter halo (82%, binds the disk and carries dynamical friction) + exponential 2-arm spiral disk (18%), all live PM particles. Headless diagnostic confirms a bound friction-decaying orbit, the primary disk SURVIVES (RMS ~1->2, ~92% stays bound, not stripped) and thickens (realistic merger heating). View locked to the global mass-weighted COM and zoomed so the halo stays in frame (no exit-screen). E-Lz now plots only stars with a valid PM potential (out-of-grid garbage excluded) so it matches the screen. Refs Hernquist 1990, Springel ICs, B&T Ch.8.
+invariants Tests 1 passed + visual 5/5 x3. Shipped.
