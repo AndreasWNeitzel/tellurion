@@ -20,6 +20,56 @@ share_state_keys: []
 
 # Cyclotron motion in a uniform magnetic field
 
+## Explainer
+
+### What you are looking at
+
+A charged particle moving through a uniform magnetic field does not go
+straight and does not speed up: it circles, forever, at a fixed
+frequency. That single fact runs particle accelerators, mass
+spectrometers, plasma confinement, and the aurora.
+
+### The equation
+
+The magnetic force is always perpendicular to the velocity,
+$\mathbf F = q\,\mathbf v \times \mathbf B$. With
+$\mathbf B = B\hat z$ out of the page, that gives (for $q=m=1$)
+
+$$\frac{d\mathbf v}{dt} = \frac{qB}{m}\,(v_y,\, -v_x).$$
+
+Because the force is always at right angles to the motion it does no
+work, so the speed is constant; it only steers. The result is uniform
+circular motion.
+
+### The cyclotron frequency
+
+Solving gives a circle of radius and period
+
+$$r = \frac{m v}{q B}, \qquad
+  \omega_c = \frac{q B}{m}, \qquad
+  T = \frac{2\pi m}{q B}.$$
+
+The remarkable part: the angular frequency $\omega_c$ does not depend
+on the speed. A fast particle traces a big circle, a slow one a small
+circle, but both complete a lap in the same time. That speed-independent
+timing is what lets a cyclotron accelerate particles with a fixed-
+frequency drive. The radius, in contrast, scales with momentum, which
+is how a mass spectrometer separates ions.
+
+### Things to try
+
+- Increase the speed and watch the radius grow while the orbit period
+  stays the same (constant $\omega_c$).
+- Increase $B$ and watch the circle tighten and the frequency rise.
+- Note the speed never changes: a magnetic field steers but never
+  does work.
+
+### Where this comes from
+
+The Lorentz force, the circular solution, and the cyclotron frequency
+$\omega_c = qB/m$ follow Jackson, *Classical Electrodynamics*, 3rd ed.,
+Chapter 12.
+
 ## Physical setup
 
 A charged particle (q = m = 1) in a uniform, out-of-page magnetic field

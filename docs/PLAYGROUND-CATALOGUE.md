@@ -2123,8 +2123,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### CMB Power Spectrum (Toy)
 `playgrounds/msc-y1/MAA-CS-cmb-power-spectrum-toy` | MAA-CS | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Three free parameters: first-peak position, damping scale, amplitude. Source: Liddle Ch. 12 (`liddle-cosmology`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The cosmic microwave background is nearly uniform, but its tiny temperature fluctuations, decomposed by angular scale, form a power spectrum with a characteristic series of acoustic peaks. The first peak''s position fixes the spatial geometry (flat, open, or closed); the relative peak heights weigh baryons against dark matter; small-scale damping reflects photon diffusion. The playground exposes these three controls so you see how each reshapes the curve. Fitting this spectrum is how the cosmological parameters were measured to percent precision. Reference: Liddle, An Introduction to Modern Cosmology, Ch. 12.
+- Hook: The temperature ripples of the cosmic microwave background, sorted by angular size, form a series of acoustic peaks that pin down the universe''s geometry and contents.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill per template. Reference: Liddle Ch. 12 (CMB anisotropy, acoustic peaks).
@@ -2134,8 +2134,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Linear Perturbation Growth in LCDM
 `playgrounds/msc-y1/MAA-CS-linear-perturbation-growth` | MAA-CS | SHIPPED | tier:simple
 
-- What it does / physics / visuals: $\delta \propto a$ in matter era; Lambda saturates growth. Source: Liddle Ch. 12 (`liddle-cosmology`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Cosmic structure forms because gravity amplifies small initial density contrasts. In the matter-dominated era the linear growing mode is simple: the density contrast delta grows in direct proportion to the scale factor a. When dark energy (Lambda) comes to dominate, accelerated expansion outruns gravitational collapse and growth saturates, so structure formation effectively shuts off. The playground integrates the linear growth equation through the matter and Lambda eras so you watch delta(a) rise and then flatten. Reference: Liddle, An Introduction to Modern Cosmology, Ch. 12.
+- Hook: Tiny density bumps in the early universe grow under gravity in proportion to the scale factor, until dark energy takes over and freezes structure formation.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill per template. Reference: Liddle Ch. 12 (growth of linear density perturbations in LCDM).
@@ -2163,8 +2163,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Backprop on a Tiny MLP
 `playgrounds/msc-y1/MAA-DM-backprop-tiny-net` | MAA-DM | SHIPPED | tier:simple
 
-- What it does / physics / visuals: A small fully-connected neural network with 2 input units, 1 to 3 stacked tanh hidden layers of up to 8 units each, and a single sigmoid output unit. Trained by full-batch gradient descent on the binary cross-entropy loss for a 2D binary classification problem (moons, XOR, spiral, circles, or gaussians). The decision surface, the network graph (edge width proportional to weight magnitude, color by sign, node glow tracking the activation of a probe point that sweeps the input plane), and the loss trace are drawn live.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A small fully-connected network maps 2D points to a class probability through tanh hidden layers and a sigmoid output. Training is gradient descent on the binary cross-entropy loss, with the gradients computed by backpropagation (the chain rule applied layer by layer). The playground draws the decision surface, the weight graph (edge width is weight magnitude, color its sign), and the loss curve live as the network learns moons, XOR, spirals, or blobs. It turns the abstract training loop into something you watch converge. Reference: Goodfellow, Bengio and Courville, Deep Learning, Ch. 6.
+- Hook: Watch a tiny neural network learn a 2D boundary: the decision surface bends, the weights thicken, and the loss falls, all driven by one rule, backpropagation.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with network architecture (e.g., 2-4-1 MLP), loss function (MSE on synthetic data), forward pass, backprop equations, learning rate control, what invarian
