@@ -20,6 +20,72 @@ share_state_keys: []
 
 # Advection scheme shootout
 
+## Explainer
+
+### What you are looking at
+
+The simplest PDE in existence, "move this shape to the right at
+constant speed", is brutally hard to solve numerically without
+wrecking the shape. The playground races four classic schemes on the
+same moving square pulse so you see each one's characteristic failure:
+smearing, ringing, or instability.
+
+### The equation and the exact answer
+
+Linear advection on a periodic line,
+
+$$\frac{\partial u}{\partial t} + c\,\frac{\partial u}{\partial x} = 0,$$
+
+has the exact solution $u(x,t)=u_0(x-ct)$: the initial profile
+translates rigidly, unchanged, forever. Any deviation a scheme shows
+is pure numerical error, which is why this is the standard test bed.
+
+### Four schemes, three failure modes
+
+Discretizing space and time, the schemes differ in their truncation
+error:
+
+- First-order upwind: stable (for Courant number
+  $\nu=c\,\Delta t/\Delta x\le1$) but its leading error term is
+  diffusive, so the sharp pulse smears into a blob (numerical
+  viscosity).
+- Lax-Wendroff (second order): its leading error is dispersive, so
+  it keeps the pulse sharp but trails spurious oscillations
+  (over/undershoots) behind the discontinuity, the Gibbs-like
+  ringing.
+- Centered / FTCS: unconditionally unstable for advection; the
+  solution blows up regardless of how small $\Delta t$ is.
+- A flux-limited / higher-order scheme: stays sharp and largely
+  monotone by blending high and low order near the jump (the modern
+  compromise).
+
+### The CFL condition and Godunov's lesson
+
+Every stable explicit scheme requires the Courant-Friedrichs-Lewy
+condition $\nu = c\,\Delta t/\Delta x \le 1$: information must not
+cross more than one cell per step. And Godunov's theorem says no
+linear scheme can be both second-order and oscillation-free at a
+discontinuity, exactly the smearing-versus-ringing trade-off you see,
+which is why nonlinear flux limiters exist. The playground overlays
+the four numerical solutions on the exact translating pulse and lets
+you push the Courant number past 1 to watch stability break.
+
+### Things to try
+
+- Watch upwind smear the square into a hump while Lax-Wendroff keeps
+  it sharp but rings behind it.
+- Push the time step until $\nu>1$ and watch the stable schemes blow
+  up (the CFL limit).
+- Compare against the dashed exact pulse: no linear scheme keeps it
+  both sharp and clean (Godunov).
+
+### Where this comes from
+
+Linear advection, upwind/Lax-Wendroff, the CFL condition and
+Godunov's theorem follow LeVeque, *Finite Volume Methods for
+Hyperbolic Problems*, Chapters 4 and 6, and Press et al., *Numerical
+Recipes*, Chapter 20.
+
 ## Physical setup
 
 1D linear advection u_t + c u_x = 0 on a periodic domain [0, 1] with a square pulse initial condition. Four numerical schemes solve the same problem side-by-side; the dashed green line is the analytic solution (pure translation of the pulse).
