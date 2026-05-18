@@ -21,6 +21,69 @@ share_state_keys: [stat, mode, alpha]
 
 # Second Quantization: Fock States, Ladder Operators, (Anti)commutators
 
+## Explainer
+
+### What you are looking at
+
+Second quantization stops tracking which particle is in which state
+and instead just counts how many quanta occupy each mode. The whole
+difference between bosons and fermions then comes down to one sign in
+one commutation relation. The playground shows the Fock ladder, the
+ladder operators acting, and how that sign forces Pauli exclusion or
+lets bosons pile up.
+
+### Fock states and ladder operators
+
+A single mode is described by occupation-number (Fock) states
+$|n\rangle$, with creation and annihilation operators that step the
+count:
+
+$$\hat a^\dagger|n\rangle = \sqrt{n+1}\,|n+1\rangle,
+  \qquad
+  \hat a|n\rangle = \sqrt{n}\,|n-1\rangle,
+  \qquad
+  \hat N = \hat a^\dagger\hat a,\ \ \hat N|n\rangle = n|n\rangle.$$
+
+The vacuum $|0\rangle$ is annihilated, $\hat a|0\rangle = 0$.
+
+### The one sign that splits the world
+
+The statistics live entirely in the (anti)commutator:
+
+$$[\hat a,\hat a^\dagger] = 1\ \ (\text{bosons}),
+  \qquad
+  \{\hat a,\hat a^\dagger\} = 1\ \ (\text{fermions}).$$
+
+For bosons the commutator allows the ladder to climb without bound:
+any number of quanta can share the mode, $n=0,1,2,\dots$ For fermions
+the anticommutator forces $(\hat a^\dagger)^2 = 0$, so $\hat
+a^\dagger|1\rangle = 0$: the mode holds at most one quantum. That is
+the Pauli exclusion principle, derived from a sign rather than
+postulated. The bosonic coherent state $|\alpha\rangle =
+e^{-|\alpha|^2/2}\sum_n \alpha^n/\sqrt{n!}\,|n\rangle$ is the
+eigenstate of $\hat a$ with a Poissonian occupation, the most
+classical-like light. The playground lets you pick boson/fermion,
+apply $\hat a^\dagger$ and $\hat a$, and tune $\alpha$, showing the
+ladder truncate at 1 for fermions and the Poisson profile for the
+coherent state.
+
+### Things to try
+
+- Repeatedly apply $\hat a^\dagger$ as a boson and watch the count
+  climb without limit; switch to fermion and watch it refuse to
+  exceed 1 (Pauli).
+- Apply $\hat a$ to the vacuum and get exactly zero (the floor of
+  the ladder).
+- Tune the coherent-state $\alpha$ and watch the occupation become a
+  Poisson distribution with mean $|\alpha|^2$.
+
+### Where this comes from
+
+Fock states, ladder operators, the (anti)commutators, and coherent
+states follow Sakurai and Napolitano, *Modern Quantum Mechanics*,
+Chapter 7, and Fetter and Walecka, *Quantum Theory of Many-Particle
+Systems*, Chapter 1.
+
 ## Physical setup
 
 A single field mode in the occupation-number (Fock) representation.
