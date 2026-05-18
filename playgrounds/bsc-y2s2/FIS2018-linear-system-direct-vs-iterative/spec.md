@@ -21,3 +21,65 @@ share_state_keys: []
 ---
 # Direct vs iterative linear-system solvers
 Poisson 1D problem; Thomas tridiagonal direct solver vs Jacobi, Gauss-Seidel, CG. Source: Villate Ch. 6 (`villate-vpython`).
+
+## Explainer
+
+### What you are looking at
+
+Discretize almost any PDE and you get a big linear system
+$A\mathbf x=\mathbf b$ to solve. There are two philosophies: solve it
+exactly in one shot (direct), or sneak up on the answer by repeated
+correction (iterative). The playground solves the same 1D Poisson
+problem every way and shows the error history so the trade-offs are
+explicit.
+
+### The test problem
+
+The 1D Poisson equation $-u''=f$ with fixed ends, discretized, gives a
+tridiagonal system
+
+$$\frac{-u_{i-1}+2u_i-u_{i+1}}{h^2} = f_i,$$
+
+i.e. $A\mathbf u=\mathbf f$ with $A$ symmetric, sparse and
+tridiagonal.
+
+### Direct vs iterative
+
+- Thomas algorithm (direct): Gaussian elimination specialized to
+  tridiagonal $A$. It returns the exact solution (to roundoff) in
+  $O(N)$ operations, one pass, no iteration. For this structure it is
+  unbeatable; for dense or 3D problems direct factorization costs
+  $O(N^3)$ and memory blows up, which is why iteration exists.
+- Jacobi / Gauss-Seidel (stationary iterative): repeatedly relax
+  $x_i$ toward consistency with its neighbours. The error decays
+  geometrically with a rate set by the spectral radius of the
+  iteration matrix; Gauss-Seidel (using updated values immediately)
+  converges about twice as fast as Jacobi, but both slow to a crawl
+  as $N$ grows because low-frequency error modes are damped weakly.
+- Conjugate gradient (Krylov): for symmetric positive-definite $A$
+  it minimizes the error in the energy norm over an expanding
+  subspace and converges in at most $N$ steps (far fewer in
+  practice, governed by the condition number $\sqrt\kappa$),
+  dramatically faster than the stationary methods and the workhorse
+  for large sparse systems.
+
+The lesson: choose the solver by the matrix structure and size. Direct
+for small/banded, iterative (ideally Krylov + a preconditioner) for
+large sparse. The playground plots the residual versus iteration for
+each method so you watch CG plunge while Jacobi crawls, and the
+Thomas solver finish in one step.
+
+### Things to try
+
+- Watch Thomas return the exact answer immediately while the
+  iterative residuals decay step by step.
+- Compare Jacobi vs Gauss-Seidel vs CG residual curves: each is
+  steeper than the last (CG by far).
+- Increase $N$ and watch the stationary methods slow dramatically
+  while CG and Thomas scale gracefully.
+
+### Where this comes from
+
+The Thomas algorithm, stationary iterations and conjugate gradient
+follow Press et al., *Numerical Recipes*, Chapter 2, and Saad,
+*Iterative Methods for Sparse Linear Systems*.
