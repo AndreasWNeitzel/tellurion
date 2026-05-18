@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s2
 primary_citation: griffiths-em
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A charge above a grounded metal sheet feels a pull, exactly as if a mirror-image charge of opposite sign sat the same distance below the surface.'
+one_paragraph: 'Finding the field of a charge near a grounded conductor looks hard: the induced surface charge rearranges itself until the metal is an equipotential. The method of images replaces that entire induced distribution with one fictitious charge, equal and opposite, mirrored below the plane. The two-charge field is trivial to write down and, above the plane, is identical to the real one. The playground draws the field lines and equipotentials, marks the dashed image charge, and integrates the induced surface charge along the conductor; it always sums to exactly minus the real charge, the check that the trick is exact rather than an approximation. Drag the charge and watch the image track it while the attractive force grows like q^2 / (2d)^2 as it nears the plane.'
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
