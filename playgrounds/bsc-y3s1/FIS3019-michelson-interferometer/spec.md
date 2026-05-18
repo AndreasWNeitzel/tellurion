@@ -9,8 +9,8 @@ supporting_ucs: [MAA-OT]
 curriculum_year: bsc-y3s1
 primary_citation: hecht2017
 primary_chapter: 9
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Slide one mirror of a Michelson interferometer and the fringes march by; how far they stay sharp measures the light''s coherence length.'
+one_paragraph: 'A Michelson interferometer splits a beam, sends the halves down two arms, and recombines them; moving one mirror by d changes the path difference by L = 2d and sweeps the detector through bright and dark fringes spaced by the wavelength. The fringe contrast does not last forever: its visibility falls as the path difference approaches the source coherence length L_c, here as exp(-(L/L_c)^2), which is equivalent to measuring the spectral bandwidth Delta nu ~ 0.44 c / L_c. A laser stays coherent over kilometres, sunlight over under a micron. The playground sweeps L and shows I(L) with the visibility envelope. Reference: Hecht, Optics, Ch. 9.'
 tags: [optics, animation, live-readout]
 difficulty: 3
 tier: simple
