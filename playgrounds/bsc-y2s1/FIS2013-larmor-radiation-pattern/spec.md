@@ -21,3 +21,58 @@ share_state_keys: []
 ---
 # Larmor radiation pattern
 Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11 (`griffiths-em`).
+
+## Explainer
+
+### What you are looking at
+
+An electric charge moving at constant velocity does not radiate. The
+instant you accelerate it, it throws off electromagnetic waves, and not
+equally in all directions: nothing goes straight along the
+acceleration, and the most goes sideways. The playground draws this
+doughnut-shaped radiation pattern and the total power. It is why
+antennas, X-ray tubes, and synchrotrons work.
+
+### The angular pattern
+
+For a non-relativistic charge with acceleration $\mathbf a$, the power
+radiated per unit solid angle is
+
+$$\frac{dP}{d\Omega} = \frac{q^2 a^2}{16\pi^2\epsilon_0 c^3}\,
+  \sin^2\theta,$$
+
+where $\theta$ is measured from the acceleration direction. The
+$\sin^2\theta$ is the whole story: zero along the axis
+($\theta = 0,\pi$), maximum broadside ($\theta = \pi/2$), giving the
+familiar two-lobed (toroidal) pattern. A dipole antenna radiates
+exactly this shape.
+
+### Total power: the Larmor formula
+
+Integrate $\sin^2\theta$ over all directions ($\int\sin^2\theta\,
+d\Omega = 8\pi/3$) and you get the total radiated power, the Larmor
+formula:
+
+$$P = \frac{q^2 a^2}{6\pi\epsilon_0 c^3}.$$
+
+It scales as acceleration squared, so hard kicks radiate
+disproportionately. This single result explains why a classical
+electron spiralling into a nucleus would radiate away its energy in
+$\sim 10^{-11}$ s, the catastrophe that forced quantum mechanics, and
+why bending a relativistic beam in a synchrotron produces intense
+light.
+
+### Things to try
+
+- Rotate the acceleration vector and watch the two-lobed pattern
+  swing with it, always nulling along the axis.
+- Increase the acceleration and watch the total power grow as its
+  square (Larmor).
+- Note the pattern is fore-aft symmetric here; the relativistic
+  version beams it sharply forward instead.
+
+### Where this comes from
+
+The $\sin^2\theta$ angular distribution and the Larmor total-power
+formula follow Griffiths, *Introduction to Electrodynamics*, 5th ed.,
+Chapter 11.
