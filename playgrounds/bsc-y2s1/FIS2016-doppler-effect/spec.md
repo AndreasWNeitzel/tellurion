@@ -20,6 +20,58 @@ share_state_keys: []
 
 # Doppler effect from a moving source
 
+## Explainer
+
+### What you are looking at
+
+A source moving while it emits waves bunches them up ahead of itself
+and stretches them out behind. That is why a passing siren drops in
+pitch as it goes by. The playground draws each wavefront as an
+expanding circle emitted from where the source was at that instant, so
+you see the crowding in front and the spreading behind directly.
+
+### The equation
+
+For a source moving at speed $v$ through a medium where waves travel at
+$c$, a stationary observer at angle $\theta$ from the source's velocity
+hears
+
+$$f_\text{obs} = \frac{f}{1 - (v/c)\cos\theta}.$$
+
+The geometry is the whole story. Each wavefront is a circle expanding
+at $c$, but each is centered on a different point because the source
+moved between emissions. Ahead ($\theta = 0$) the circles pile up and
+the wavelength shortens; behind ($\theta = \pi$) they spread and it
+lengthens.
+
+### The three cases
+
+- Directly ahead, $\theta = 0$: $f_\text{obs} = f/(1 - v/c)$, the
+  maximum blueshift (pitch up).
+- Directly behind, $\theta = \pi$: $f_\text{obs} = f/(1 + v/c)$, the
+  maximum redshift (pitch down).
+- Abreast, $\theta = \pi/2$: $f_\text{obs} = f$, no shift at the
+  instant of closest geometric approach.
+
+As $v \to c$ the forward wavefronts stack onto a single cone, the sonic
+boom (Mach cone). This is the classical (medium) Doppler effect; the
+relativistic light version replaces it with the Lorentz factor and adds
+a transverse shift.
+
+### Things to try
+
+- Raise $v/c$ toward 1 and watch the forward wavefronts bunch into a
+  cone (the shock front).
+- Compare the pitch heard in front versus behind as the source passes.
+- Note the perpendicular direction shows no shift in this classical
+  case, unlike the relativistic one.
+
+### Where this comes from
+
+The moving-source Doppler formula and the wavefront construction follow
+Crawford, *Waves and Oscillations* (Berkeley Physics Course), Chapter 4,
+and French, *Vibrations and Waves*, Chapter 7.
+
 ## Physical setup
 
 A point source moves with constant velocity v in the +x direction. In its
