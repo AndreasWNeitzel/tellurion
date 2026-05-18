@@ -21,6 +21,63 @@ share_state_keys: [throat_ratio, flow_rate, density]
 
 # Bernoulli and the Venturi Effect
 
+## Explainer
+
+### What you are looking at
+
+Push fluid through a pipe that narrows. It speeds up in the throat, and
+(the surprising part) the pressure there drops. That pressure drop is
+why a Venturi meter measures flow, why a carburettor draws fuel, and,
+in essence, why a wing lifts. The playground lets you reshape the
+constriction and watch speed and pressure trade off.
+
+### Two conservation laws
+
+For steady, incompressible, inviscid flow in a horizontal pipe of
+varying area $A(x)$:
+
+- Continuity (mass): the volume flow rate is constant,
+
+$$Q = A(x)\,v(x) = \text{const}
+  \;\Longrightarrow\; v \propto \frac1A.$$
+
+  Narrow the pipe and the fluid must speed up.
+
+- Bernoulli (energy along a streamline, no gravity term for a
+  horizontal pipe):
+
+$$p + \tfrac12\rho v^2 = \text{const}.$$
+
+### The Venturi effect
+
+Combine them: where $A$ is smallest, $v$ is largest, so $p$ is
+*lowest*. The throat is the fastest, lowest-pressure point. The
+pressure difference between the wide section and the throat is
+
+$$\Delta p = \tfrac12\rho\big(v_\text{throat}^2 - v_\text{wide}^2\big),$$
+
+which (via continuity) depends only on the area ratio and the flow
+rate, so measuring $\Delta p$ gives $Q$, the Venturi flowmeter. The
+same "faster flow, lower pressure" is the textbook account of lift over
+a cambered airfoil. The playground sweeps the throat area and shows the
+speed rise and pressure dip in lockstep.
+
+### Things to try
+
+- Narrow the throat and watch the speed spike and the static pressure
+  fall there (lowest $p$ at the narrowest point).
+- Hold area, raise the flow rate $Q$, and watch $\Delta p$ grow as
+  $Q^2$.
+- Note the pressure recovers downstream where the pipe widens again
+  (ideal, lossless flow).
+
+### Where this comes from
+
+Continuity, Bernoulli's theorem, and the Venturi pressure drop follow
+the standard treatment in Feynman, *Lectures on Physics* Vol. II,
+Chapter 40, and any fluid-mechanics text (e.g., Faber, *Fluid Dynamics
+for Physicists*).
+
 ## Physical setup
 
 Steady, incompressible, inviscid flow along a horizontal pipe whose
