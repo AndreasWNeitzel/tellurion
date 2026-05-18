@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Kick a rotor harder and harder: orderly invariant curves survive at first, then the last golden torus breaks and chaos floods the phase space.'
+one_paragraph: 'The Chirikov standard map is the Poincare section of a periodically kicked rotor and the paradigm of Hamiltonian chaos. At kick strength K = 0 the motion is integrable, every orbit on an invariant curve. As K grows the KAM theorem says sufficiently irrational tori persist while rational ones shatter into resonance island chains; the most robust, the golden-mean torus, breaks last, at K_crit around 0.9716. The playground iterates many initial conditions on the (theta, p) torus so you watch invariant curves dissolve and a chaotic sea spread as you raise K. Reference: Chirikov 1979; Greene 1979.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
