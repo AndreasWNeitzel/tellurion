@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-DM
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Watch a tiny neural network learn a 2D boundary: the decision surface bends, the weights thicken, and the loss falls, all driven by one rule, backpropagation.'
+one_paragraph: 'A small fully-connected network maps 2D points to a class probability through tanh hidden layers and a sigmoid output. Training is gradient descent on the binary cross-entropy loss, with the gradients computed by backpropagation (the chain rule applied layer by layer). The playground draws the decision surface, the weight graph (edge width is weight magnitude, color its sign), and the loss curve live as the network learns moons, XOR, spirals, or blobs. It turns the abstract training loop into something you watch converge. Reference: Goodfellow, Bengio and Courville, Deep Learning, Ch. 6.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
