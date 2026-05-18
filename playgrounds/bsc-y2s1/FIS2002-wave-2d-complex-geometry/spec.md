@@ -19,6 +19,66 @@ share_state_keys: []
 
 # 2D Waves in a Drawable Geometry
 
+## Explainer
+
+### What you are looking at
+
+Put obstacles in the path of a wave and it does not just stop: it
+bends around corners, squeezes through gaps and spreads on the far
+side, and forms interference patterns behind two slits. The
+playground solves the real 2D wave equation on a geometry you draw,
+so diffraction and interference emerge from the physics rather than
+being faked.
+
+### The wave equation
+
+The membrane (or shallow-water) displacement $u(x,y,t)$ obeys
+
+$$\frac{\partial^2 u}{\partial t^2}
+  = c^2\,\nabla^2 u,$$
+
+with $c$ the wave speed. Rigid obstacles impose $u=0$ on their
+boundaries (a hard wall reflects); open edges absorb. A monochromatic
+point source drives one corner at frequency $f$, so the wavelength is
+$\lambda = c/f$.
+
+### Why geometry produces diffraction
+
+The single rule that explains everything you see is Huygens's
+principle: every point of a wavefront re-emits a little spherical
+wavelet, and the new front is their envelope. Near an obstacle the
+wavelets are no longer cancelled symmetrically, so the wave bends.
+The amount of bending is set by the ratio of wavelength to feature
+size:
+
+- A gap much wider than $\lambda$ passes a near-collimated beam with
+  only edge diffraction.
+- A gap comparable to $\lambda$ acts as a fresh point source: the
+  wave spreads in a broad fan (strong diffraction).
+- Two such gaps give a two-source interference pattern, with maxima
+  where the path difference is $m\lambda$, the Young double-slit
+  result, here arising naturally from the simulated field.
+
+This is why you can hear around a corner (sound's metre wavelength
+diffracts) but not see around it (light's sub-micron wavelength does
+not). The playground updates the field as you draw walls and slits
+and change the frequency, with a live readout of the maximum
+post-step amplitude to confirm the scheme is stable.
+
+### Things to try
+
+- Open a slit much wider than $\lambda$ and see a near-straight beam;
+  narrow it to $\sim\lambda$ and watch it fan out (diffraction).
+- Cut two slits and watch the interference fringes form behind them.
+- Raise the frequency (shorten $\lambda$) and watch all the
+  diffraction and bending diminish.
+
+### Where this comes from
+
+The 2D wave equation, Huygens's principle, and slit
+diffraction/interference follow Hecht, *Optics*, Chapters 9 and 10,
+and French, *Vibrations and Waves*, Chapter 7.
+
 ## Physical setup
 
 A vibrating membrane (or shallow water) in a 2D box with rigid
