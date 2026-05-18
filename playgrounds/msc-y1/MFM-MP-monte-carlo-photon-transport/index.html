@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monte Carlo Photon Transport in a Tissue Slab</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Monte Carlo Photon Transport in a Tissue Slab</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Photon histories in a tissue slab coloured by interaction type, the depth-dose with build-up, and the interaction fractions versus energy">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">energy:</span><span class="value" id="readout-e">1000 keV</span>
+      <span class="label">mu:</span><span class="value" id="readout-mu">0.07 /cm</span>
+      <span class="label">d_max:</span><span class="value" id="readout-dmax">1.8 cm</span>
+      <span class="label">deposited:</span><span class="value" id="readout-dep">0%</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Monoenergetic photons enter a water slab and are tracked by Monte Carlo: each is transported a sampled free path 1/mu, then absorbed (photoelectric), Compton-scattered or Rayleigh-scattered by the energy-dependent cross sections. The released electrons deposit dose a short distance forward, giving the characteristic build-up before the exponential falloff.
+      <em>Method:</em> seeded Monte Carlo with Klein-Nishina Compton sampling; Canvas2D, deterministic.
+      <em>Source:</em> Klein and Nishina 1929; Attix 1986.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">photon energy (keV)</span><input aria-label="photon energy in keV, log scale x100" type="range" id="slider-e" min="120" max="370" step="2" value="300"><span class="value" id="value-e">1000</span></div>
+    <div class="row"><span class="label">slab thickness (cm)</span><input aria-label="slab thickness, cm" type="range" id="slider-l" min="4" max="30" step="1" value="15"><span class="value" id="value-l">15</span></div>
+    <div class="row"><span class="label">histories (x1000)</span><input aria-label="number of photon histories, thousands" type="range" id="slider-n" min="2" max="20" step="1" value="8"><span class="value" id="value-n">8</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

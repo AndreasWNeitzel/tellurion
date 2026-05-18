@@ -501,7 +501,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] proton-therapy-bragg-peak : advanced canvas2d. Proton depth-dose
   Bragg peak vs X-ray, SOBP superposition. Bethe-Bloch R prop E^1.77.
   Inv: R prop E0^1.77 2%; peak at range 1mm; no dose beyond.
-- [ ] monte-carlo-photon-transport : advanced canvas2d. Tissue slab,
+- [x] monte-carlo-photon-transport : advanced canvas2d. Tissue slab,
   photon histories (Compton/PE/Rayleigh colours), dose map, Web Worker.
   Inv: high-E Compton, low-E PE; lambda 2%; build-up.
 - [ ] radiation-dosimetry-detector : medium canvas2d. Ion chamber,

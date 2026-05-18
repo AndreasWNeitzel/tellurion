@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak](../playgrounds/msc-y1/MFM-MP-proton-therapy-bragg-peak/index.html)** &nbsp; (verified, verified 2026-05-18T06:15:20Z)
+  A proton beam slowing down in tissue. Unlike photons, charged particles deposit most of their energy near the end of their range, where the stopping power diverges, producing the Bragg peak. The depth of the peak is set by the beam energy through the Bragg-Kleeman range-energy relation. A clinical treatment spreads the peak over the tumour by stacking pristi
+
 - **[MRI: the Bloch Equations, the FID and k-Space Imaging](../playgrounds/msc-y1/MFM-MP-mri-bloch-equations-k-space/index.html)** &nbsp; (verified, verified 2026-05-18T05:53:43Z)
   Nuclear magnetic resonance imaging. Spins in a static field B0 are tipped by a radio-frequency pulse; their net magnetization then precesses and relaxes according to the Bloch equations. The decaying transverse magnetization is the measured signal (the free induction decay); its Fourier transform is the spectrum. An image is formed by encoding position into 
 
@@ -848,6 +851,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
 
+- **[Monte Carlo Photon Transport in a Tissue Slab](../playgrounds/msc-y1/MFM-MP-monte-carlo-photon-transport/index.html)** &nbsp; (verified)
+  A pencil beam of monoenergetic photons normally incident on a slab of water (tissue equivalent). Each photon is transported by Monte Carlo: it travels a randomly sampled distance, then interacts by photoelectric absorption, Compton scattering or Rayleigh scattering, chosen in proportion to the cross sections. Compton scattering reduces the photon energy and 
+
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.
 
@@ -862,9 +868,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Projectile with Drag and the Magnus Force in 3D](../playgrounds/bsc-y1s1/FIS1013-projectile-drag-magnus-3d/index.html)** &nbsp; (verified)
   A unit-mass ball is launched from the origin. Three copies fly simultaneously over an oblique-projected ground grid: vacuum (grey dashed), quadratic drag (amber) and drag plus Magnus (cyan). A spinning ball with a spin-axis arrow rides the Magnus path; landing markers show where each lands.
-
-- **[Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak](../playgrounds/msc-y1/MFM-MP-proton-therapy-bragg-peak/index.html)** &nbsp; (verified)
-  A proton beam slowing down in tissue. Unlike photons, charged particles deposit most of their energy near the end of their range, where the stopping power diverges, producing the Bragg peak. The depth of the peak is set by the beam energy through the Bragg-Kleeman range-energy relation. A clinical treatment spreads the peak over the tumour by stacking pristi
 
 - **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (verified)
   Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
