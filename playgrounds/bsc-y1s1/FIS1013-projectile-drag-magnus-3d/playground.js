@@ -113,7 +113,11 @@ function render() {
 
   // Ball travelling the Magnus path, with a spin-axis arrow.
   const mp = traj.mag.pts;
-  const idx = Math.min(mp.length - 1, Math.floor(((st.t * 0.5) % 1) * mp.length));
+  // phase wrapped to [0,1) even for negative or non-finite t, index
+  // clamped into range so mp[idx] is always a valid point.
+  const tt = Number.isFinite(st.t) ? st.t : 0;
+  const phase = (((tt * 0.5) % 1) + 1) % 1;
+  const idx = Math.max(0, Math.min(mp.length - 1, Math.floor(phase * mp.length)));
   const bp = project(mp[idx], sc, ox, oy);
   const gl = ctx.createRadialGradient(bp[0], bp[1], 0, bp[0], bp[1], 12);
   gl.addColorStop(0, '#eaf6ff'); gl.addColorStop(1, 'rgba(120,200,255,0)');
@@ -150,7 +154,7 @@ function render() {
 
 let last = performance.now();
 function tick(now) {
-  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  const dt = Math.min(Math.max((now - last) / 1000, 0), 0.05); last = now;
   if (running) st.t += dt;
   render();
   requestAnimationFrame(tick);

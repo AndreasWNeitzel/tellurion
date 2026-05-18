@@ -40,11 +40,24 @@ export function mountShareButton(container, getState, options = {}) {
   btn.style.marginInlineStart = '8px';
   btn.addEventListener('click', async () => {
     const state = getState();
-    const url = `${window.location.origin}${window.location.pathname}${encodeState(state)}`;
-    if (navigator.clipboard) await navigator.clipboard.writeText(url);
+    const hash = encodeState(state);
+    const url = `${window.location.origin}${window.location.pathname}${hash}`;
+    // Always reflect the state in the address bar so the link is
+    // shareable even when the clipboard API is unavailable (insecure
+    // context, denied permission, headless, unfocused window).
+    let copied = false;
+    try {
+      window.history.replaceState(null, '', hash);
+    } catch (e) { /* ignore: file: URL or restricted history */ }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+        copied = true;
+      }
+    } catch (e) { copied = false; }
     const prev = btn.textContent;
-    btn.textContent = 'Copied';
-    setTimeout(() => { btn.textContent = prev; }, 1200);
+    btn.textContent = copied ? 'Copied' : 'URL in address bar';
+    setTimeout(() => { btn.textContent = prev; }, 1400);
   });
   container.appendChild(btn);
   return btn;
