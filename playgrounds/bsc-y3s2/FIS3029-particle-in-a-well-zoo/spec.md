@@ -20,6 +20,67 @@ share_state_keys: []
 
 # Particle in a well: a quantum zoo
 
+## Explainer
+
+### What you are looking at
+
+Confine a quantum particle and its energy can no longer be anything:
+only a discrete ladder of levels is allowed, each with a standing-wave
+shape. The playground puts the three textbook traps side by side so
+you can compare how the shape of the potential sets the spacing of
+the levels and the form of the wavefunctions.
+
+### The eigenvalue problem
+
+For a fixed potential $V(x)$ the stationary states solve the
+time-independent Schrodinger equation
+
+$$-\frac{\hbar^2}{2m}\,\frac{d^2\psi_n}{dx^2}
+  + V(x)\,\psi_n = E_n\,\psi_n,$$
+
+a boundary-value problem whose normalizable solutions exist only for
+a discrete set of energies $E_n$ (the quantization), each with $n-1$
+internal nodes.
+
+### The three wells
+
+- Infinite square well (rigid box of width $L$): $\psi_n\propto
+  \sin(n\pi x/L)$ and
+$$E_n = \frac{n^2\pi^2\hbar^2}{2mL^2}\;\propto\;n^2,$$
+  so levels spread apart as $n^2$ and the wavefunction is exactly
+  zero at the walls.
+- Finite square well (depth $V_0$): only a finite number of bound
+  states; the wavefunction leaks exponentially into the classically
+  forbidden walls (evanescent tails), and the levels sit slightly
+  below the infinite-well values.
+- Harmonic oscillator ($V=\tfrac12 m\omega^2x^2$): equally spaced
+  levels
+$$E_n = \hbar\omega\left(n+\tfrac12\right),$$
+  with a nonzero ground-state (zero-point) energy $\tfrac12\hbar\omega$
+  and Gaussian-modulated Hermite wavefunctions.
+
+The comparison is the lesson: harder confinement (steeper walls)
+pushes levels up and apart, the well's shape dictates whether the
+spacing grows ($n^2$), stays constant ($n$), or the spectrum is
+finite, and quantum particles always penetrate soft walls and always
+retain zero-point motion. The playground overlays the potentials,
+levels, and $|\psi_n|^2$ on shared axes.
+
+### Things to try
+
+- Compare the level spacing: $n^2$ growth (infinite well) versus
+  even rungs (oscillator).
+- Shrink the finite well and watch bound states disappear one by one
+  out the top.
+- Look at the finite-well wavefunctions leaking past the walls
+  (tunnelling tails) while the infinite well is hard-zero there.
+
+### Where this comes from
+
+The three canonical wells and their spectra follow Griffiths,
+*Introduction to Quantum Mechanics*, Chapter 2, and Cohen-Tannoudji,
+Diu and Laloe, *Quantum Mechanics*, Vol. 1.
+
 ## Physical setup
 
 Three canonical 1D quantum bound-state problems plotted on the same axes for comparison: infinite square well, finite square well, and harmonic oscillator. In each, V(x) is fixed and we solve the time-independent Schrodinger equation for energy eigenstates.
