@@ -21,6 +21,63 @@ share_state_keys: []
 ---
 # Parker solar wind
 
+## Explainer
+
+### What you are looking at
+
+The Sun's corona is so hot it cannot stay put: it streams outward as a
+supersonic wind that fills the solar system. Parker predicted this in
+1958 against fierce skepticism, and the spacecraft that went looking
+found exactly his transonic flow. The playground integrates parcels
+along his solution and colors them by Mach number.
+
+### The wind equation
+
+For a steady, isothermal, spherically symmetric outflow, mass and
+momentum conservation combine into one equation for the speed $u(r)$:
+
+$$\left(\frac{u^2}{c_s^2} - 1\right)\frac{1}{u}\frac{du}{dr}
+  = \frac{2}{r}\left(1 - \frac{r_c}{r}\right),$$
+
+where $c_s$ is the (constant) sound speed and
+
+$$r_c = \frac{GM}{2 c_s^2}$$
+
+is the critical (sonic) radius. The structure of this equation is the
+whole story: the left side changes sign at $u = c_s$, the right side at
+$r = r_c$.
+
+### Why the wind must go transonic
+
+There is a family of solutions, but almost all are unphysical: some are
+everywhere subsonic and do not reach the observed high speeds, some are
+double-valued. Only one special solution threads the singular point,
+passing through exactly $u = c_s$ at exactly $r = r_c$. That is the
+solar wind: subsonic and slowly accelerating near the Sun, crossing
+sound speed at the critical radius, and supersonic forever after. A
+static atmosphere is impossible because the corona's pressure cannot
+match the (near-zero) interstellar pressure at infinity; it must blow
+off. The playground solves the transonic root and advects parcels by
+$dr/dt = u(r)$, with a logarithmic radial map so you can see the slow
+subsonic launch and the fast supersonic escape together.
+
+### Things to try
+
+- Watch a parcel crawl out subsonically, accelerate through the sonic
+  point at $r_c$, then race away supersonically (the Mach color
+  crossing 1).
+- Raise the coronal temperature (sound speed): $r_c$ moves inward and
+  the wind launches faster.
+- Note no choice of parameters gives a static corona: the wind is
+  forced.
+
+### Where this comes from
+
+Parker's isothermal-wind equation, the critical radius, and the unique
+transonic solution follow Shu, *The Physics of Astrophysics Vol. II*,
+Chapter 17, and Frank, King and Raine, *Accretion Power in
+Astrophysics*, Chapter 2 (after Parker 1958).
+
 ## Physical setup
 
 Parker (1958) isothermal solar wind. The velocity satisfies $(u^2/c_s^2 - 1)\,u^{-1}\,du/dr = (2/r)(1 - r_c/r)$ with sonic crossing at $r_c = GM/(2 c_s^2)$; the unique transonic branch passes through $u = c_s$ at $r = r_c$ and is supersonic beyond. Source: Shu Vol II Ch. 17 (`shu-vol2`); Frank-King-Raine Ch. 2 (`frank-king-raine`).
