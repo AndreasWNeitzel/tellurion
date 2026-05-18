@@ -21,6 +21,69 @@ share_state_keys: [eq, p]
 
 # PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers
 
+## Explainer
+
+### What you are looking at
+
+Almost all of classical and quantum physics is one of a handful of
+partial differential equations. The playground runs five of them on
+the same 1D grid so you can watch, side by side, how each one moves
+information: waves travel, heat smears, Laplace relaxes, Schrodinger
+disperses, Burgers steepens into a shock.
+
+### The five canonical equations
+
+Each PDE has a distinct character (its type) that dictates its
+behavior and the right numerical scheme:
+
+- Wave equation (hyperbolic, energy-conserving): a disturbance
+  propagates at fixed speed without losing shape,
+$$\partial_t^2 u = c^2\,\partial_x^2 u.$$
+- Heat equation (parabolic, dissipative): gradients smooth out,
+  sharp features decay fastest,
+$$\partial_t u = D\,\partial_x^2 u.$$
+- Laplace / Poisson (elliptic, steady): no time at all, the solution
+  is the smoothest field matching the boundaries,
+$$\partial_x^2 u = -\rho.$$
+- Schrodinger (dispersive, unitary): a complex wavepacket whose
+  norm is conserved but whose components travel at different speeds,
+$$i\hbar\,\partial_t \psi = -\frac{\hbar^2}{2m}\,\partial_x^2 \psi
+  + V\psi.$$
+- Burgers (nonlinear, shock-forming): the 1D analogue of fluid flow,
+  where the solution carries itself and steepens into a shock,
+$$\partial_t u + u\,\partial_x u = \nu\,\partial_x^2 u.$$
+
+### Why the scheme must match the type
+
+The lesson is that you cannot use one solver for all of them. The
+wave equation needs a scheme that conserves energy (an explicit
+leapfrog respecting the CFL limit $c\,\Delta t \le \Delta x$); the
+heat equation needs one that is stable under diffusion
+($D\,\Delta t \le \tfrac12\Delta x^2$ explicitly, or an implicit
+step); Laplace is solved by iterative relaxation to a fixed point;
+Schrodinger needs a unitary (norm-preserving) integrator or the
+probability leaks; Burgers needs an upwind/conservative scheme or the
+shock smears or blows up. Where an exact solution exists the
+playground overlays it and plots the error, so you see each scheme
+succeed only on its own equation.
+
+### Things to try
+
+- Switch equations and watch the same initial bump do five
+  completely different things (travel, decay, relax, disperse,
+  shock).
+- Push the time step past the CFL/diffusion limit and watch the
+  unstable scheme blow up.
+- Check the Schrodinger norm and the wave energy staying constant
+  while the heat solution's energy decays.
+
+### Where this comes from
+
+The classification of PDEs and the matched numerical schemes follow
+Strauss, *Partial Differential Equations: An Introduction*, and
+LeVeque, *Finite Difference Methods for Ordinary and Partial
+Differential Equations*.
+
 ## Physical setup
 
 One shared 1D grid on [0, 1] solving five canonical partial differential equations, each with the numerical scheme that suits it: the wave equation (hyperbolic, energy-conserving), the heat equation (parabolic, dissipative), the Laplace/Poisson equation (elliptic, steady), the time-dependent Schrodinger equation (dispersive, unitary) and Burgers' equation (nonlinear, shock-forming, the 1D Navier-Stokes analogue). Where a closed-form solution exists it is shown behind the numeric solution and the error between them is plotted.
