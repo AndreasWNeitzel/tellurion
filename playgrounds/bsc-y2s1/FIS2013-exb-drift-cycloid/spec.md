@@ -20,6 +20,60 @@ share_state_keys: []
 
 # E x B drift and the cycloid
 
+## Explainer
+
+### What you are looking at
+
+Cross an electric field with a magnetic field and a charged particle
+released from rest does something surprising: it does not run along the
+electric field. It loops in cycloid arcs and, on average, drifts
+sideways, perpendicular to both fields, at a speed that does not depend
+on its charge or mass. This E-cross-B drift moves plasma in the
+magnetosphere, Hall thrusters, and fusion devices.
+
+### The equations
+
+With $\mathbf B = B\hat z$ out of the page and $\mathbf E = E\hat x$,
+the Lorentz force gives (for $q=m=1$)
+
+$$\dot v_x = E + v_y B, \qquad \dot v_y = -v_x B.$$
+
+Starting from rest the exact solution is a cycloid: a circular
+cyclotron loop of radius $E/B^2$ riding on a steady drift. Decompose
+the velocity into the drift plus a circular part and the drift comes
+out as
+
+$$\mathbf v_d = \frac{\mathbf E\times\mathbf B}{B^2},
+  \qquad |\mathbf v_d| = \frac{E}{B},$$
+
+directed along $-\hat y$ here. The cyclotron loop has period
+$T_c = 2\pi m/(qB)$.
+
+### Why the drift is charge-independent
+
+A positive and a negative charge curl in opposite senses, but they
+also accelerate in opposite directions under $E$, and the two effects
+combine so that both drift the *same* way at the *same* speed
+$E/B$. Mass and charge cancel out of $\mathbf v_d$ entirely. That is
+why an $\mathbf E\times\mathbf B$ drift moves a whole quasi-neutral
+plasma bodily, without separating charge, the basis of plasma
+transport and of crossed-field velocity selectors.
+
+### Things to try
+
+- Release from rest and watch the cycloid: tight loops that march
+  steadily sideways, not along $\mathbf E$.
+- Change $E$ or $B$ and confirm the drift speed tracks $E/B$ while the
+  loop size tracks $E/B^2$.
+- Note the drift direction is set by $\mathbf E\times\mathbf B$, not
+  by the sign of the charge.
+
+### Where this comes from
+
+The crossed-field equations of motion, the cycloid solution, and the
+$\mathbf E\times\mathbf B/B^2$ drift follow Jackson, *Classical
+Electrodynamics*, 3rd ed., Chapter 12.
+
 ## Physical setup
 
 A charged particle (q = m = 1) in crossed uniform fields B = B z-hat (out
