@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2018
 supporting_ucs: [MAA-NM, MAA-ST]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Estimate an integral by random darts and the error falls only as 1/sqrt(N); aim the darts well and the same N gets you far closer.'
+one_paragraph: 'Monte Carlo integration averages the integrand at random points; by the central limit theorem its error shrinks like 1/sqrt(N) regardless of dimension, which is why it wins in high dimensions but converges slowly. The playground estimates a known integral two ways, plain uniform sampling and importance sampling with a Beta proposal that concentrates points where the integrand is largest, and plots the running estimate and its error band against N. You watch both obey the 1/sqrt(N) law while importance sampling rides a much smaller constant. Reference: Press et al., Numerical Recipes, Ch. 7.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
