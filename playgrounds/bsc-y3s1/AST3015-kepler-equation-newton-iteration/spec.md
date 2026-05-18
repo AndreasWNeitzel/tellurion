@@ -9,8 +9,8 @@ supporting_ucs: [AST2004]
 curriculum_year: bsc-y3s1
 primary_citation: carroll-ostlie
 primary_chapter: 2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'To find where a planet is at a given time you must solve M = E - e sin E, which has no closed form; Newton''s method nails it in a handful of steps.'
+one_paragraph: 'Kepler''s equation, M = E - e sin E, links the uniformly ticking mean anomaly M to the eccentric anomaly E that fixes the planet''s position on its ellipse. It is transcendental, so there is no formula for E; you iterate. The playground solves it by Newton''s method from the seed E_0 = M + e sin M and shows the iteration converging quadratically, the error roughly squaring each step, in 4-6 iterations for mild eccentricity and slowing only as e approaches 1. It is the workhorse calculation behind every ephemeris and transit prediction. Reference: Murray and Dermott, Solar System Dynamics, Ch. 2.'
 tags: [exoplanets, numerics, animation, live-readout]
 difficulty: 3
 tier: simple
