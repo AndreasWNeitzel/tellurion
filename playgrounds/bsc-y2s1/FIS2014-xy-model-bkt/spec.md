@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2014
 supporting_ucs: [FIS2018, MAA-NM]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The 2D XY magnet never develops true long-range order, yet it still has a phase transition: bound vortex pairs unbind at the Kosterlitz-Thouless temperature.'
+one_paragraph: 'Continuous spins on a 2D lattice cannot spontaneously order at any finite temperature (Mermin-Wagner), so the XY model has no ordinary critical point. Berezinskii, Kosterlitz and Thouless found instead a topological transition near T = 0.893 J: below it, vortices and antivortices are locked in neutral pairs and correlations decay as slow power laws; above it the pairs unbind into free vortices and correlations decay exponentially. The playground evolves the spins and tracks the vortices, so you watch pairs stay bound below the BKT temperature and proliferate above it. This unbinding mechanism earned the 2016 Nobel Prize in Physics. Reference: Kosterlitz and Thouless 1973; Hasenbusch 2005.'
 tags: [thermodynamics, statistical-physics, animation, live-readout]
 difficulty: 3
 tier: simple
