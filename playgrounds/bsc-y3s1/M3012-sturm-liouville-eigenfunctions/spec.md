@@ -22,6 +22,68 @@ share_state_keys: []
 
 # Sturm-Liouville eigenfunctions on [0, pi]
 
+## Explainer
+
+### What you are looking at
+
+Pluck a string fixed at both ends and it rings in a sum of pure modes,
+each a sine, each with its own frequency. The playground projects any
+starting shape onto those modes and evolves it. The point is general:
+those modes are the eigenfunctions of a Sturm-Liouville operator, and
+they form a complete orthonormal basis, the engine behind every Fourier
+expansion in physics.
+
+### The eigenproblem
+
+The simplest regular Sturm-Liouville problem is
+
+$$-y'' = \lambda\,y \quad\text{on }[0,\pi],
+  \qquad y(0) = y(\pi) = 0.$$
+
+The boundary conditions only admit discrete solutions:
+
+$$\lambda_n = n^2, \qquad
+  \phi_n(x) = \sqrt{\tfrac2\pi}\,\sin(n x),
+  \qquad n = 1, 2, 3,\dots$$
+
+The $\lambda_n$ are the eigenvalues (squared mode frequencies), the
+$\phi_n$ the eigenfunctions (the standing-wave shapes).
+
+### Orthonormality and projection
+
+The eigenfunctions are orthonormal under the inner product
+$\langle f, g\rangle = \int_0^\pi f g\,dx$, so any starting shape
+$f(x)$ is decomposed by simple projection:
+
+$$c_n = \langle \phi_n, f\rangle,
+  \qquad f(x) = \sum_n c_n\,\phi_n(x).$$
+
+Each mode then just oscillates at its own frequency
+$\omega_n = \sqrt{\lambda_n} = n$, so the full motion is
+
+$$y(x, t) = \sum_n c_n\,\phi_n(x)\,\cos(\omega_n t).$$
+
+This is exactly why separation of variables works for the wave and heat
+equations: the spatial operator's eigenfunctions diagonalize the
+problem, and the messy PDE becomes a list of independent oscillators.
+The playground lets you pluck a shape, see its mode coefficients, and
+watch the reconstruction evolve.
+
+### Things to try
+
+- Pluck a triangular shape and watch its sine-mode coefficients
+  $c_n$ fall off (sharp corner, slow decay).
+- Keep only the first few modes and see the reconstruction smooth out
+  the corner (Fourier truncation).
+- Note higher modes oscillate faster ($\omega_n = n$): the string's
+  overtones.
+
+### Where this comes from
+
+The regular Sturm-Liouville problem, its discrete orthonormal
+eigenfunctions, and the eigenfunction-expansion solution follow Arfken
+and Weber, *Mathematical Methods for Physicists*, 7th ed., Chapter 8.
+
 ## Physical setup
 
 The simplest regular Sturm-Liouville problem: $-y'' = \lambda y$ on $[0, \pi]$ with $y(0) = y(\pi) = 0$. The eigenvalues are $\lambda_n = n^2$ and the eigenfunctions are $\phi_n(x) = \sqrt{2/\pi} \sin(n x)$, orthonormal under $\langle f, g \rangle = \int_0^\pi f g\,dx$.
