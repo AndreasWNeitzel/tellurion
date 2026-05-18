@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Iterate x -> r x (1 - x) and a single knob takes you from a steady value, through period-doubling, into full chaos with windows of order inside it.'
+one_paragraph: 'The logistic map is the simplest equation that goes chaotic. The playground shows two views: a cobweb diagram that staircases the iteration between the parabola y = r x (1 - x) and the diagonal y = x so you see convergence, cycles, or chaos directly, and a bifurcation diagram that scatters the long-term attractor against the parameter r. As r rises the fixed point splits to period 2, 4, 8, ... at the Feigenbaum accumulation r ~ 3.5699, beyond which lies the chaotic sea threaded by periodic windows. It is the canonical route to chaos. Reference: Strogatz, Nonlinear Dynamics and Chaos, Ch. 10.'
 tags: [mechanics, animation, interactive-drag, live-readout, multi-panel]
 difficulty: 2
 tier: advanced
