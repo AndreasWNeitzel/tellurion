@@ -21,6 +21,75 @@ share_state_keys: [om, h0, or]
 
 # Friedmann Expansion: Radiation, Matter and Lambda Eras
 
+## Explainer
+
+### What you are looking at
+
+The entire expansion history of the universe, from the radiation
+fireball through the matter era to today's accelerating dark-energy
+era, follows from one ordinary differential equation, the Friedmann
+equation, fed by three ingredients. The playground integrates it and
+shows the scale factor and which component is in charge at each
+epoch.
+
+### The Friedmann equation
+
+For a spatially flat universe, the expansion rate
+$H = \dot a/a$ is set by the total energy density:
+
+$$H^2 = \left(\frac{\dot a}{a}\right)^2
+  = \frac{8\pi G}{3}\,\rho_\mathrm{tot}.$$
+
+The three components dilute differently as the scale factor $a$
+grows (radiation also redshifts, matter just spreads, $\Lambda$
+stays constant):
+
+$$\rho_\mathrm{tot}(a)
+  = \rho_{r,0}\,a^{-4}
+  + \rho_{m,0}\,a^{-3}
+  + \rho_{\Lambda}.$$
+
+Dividing by the critical density gives the practical form
+
+$$H(a) = H_0\sqrt{\Omega_{r,0}a^{-4}
+  + \Omega_{m,0}a^{-3} + \Omega_{\Lambda,0}},
+  \qquad
+  \sum\Omega_i = 1\ (\text{flat}).$$
+
+### Three eras and the acceleration switch
+
+Because the three terms scale as different powers of $a$, each
+dominates in turn and the expansion law changes accordingly:
+
+- Radiation era (small $a$): $\rho\propto a^{-4}$, so
+  $a(t)\propto t^{1/2}$.
+- Matter era: $\rho\propto a^{-3}$, so $a(t)\propto t^{2/3}$.
+- $\Lambda$ era (large $a$): constant density, so
+  $a(t)\propto e^{H_0\sqrt{\Omega_\Lambda}\,t}$, exponential and
+  accelerating.
+
+The transition from deceleration to acceleration happens when
+$\ddot a=0$, i.e. when $\Lambda$ overtakes matter near $z\sim0.6$;
+this is the observable that supernova surveys used to discover dark
+energy. The playground sweeps $\Omega_m$, $\Omega_r$ and $H_0$ and
+shows $a(t)$, the dominant component, and the deceleration-to-
+acceleration turnover move.
+
+### Things to try
+
+- Watch the slope of $a(t)$ change from $t^{1/2}$ to $t^{2/3}$ to
+  exponential as the dominant component changes.
+- Increase $\Omega_\Lambda$ (decrease $\Omega_m$) and watch
+  acceleration begin earlier.
+- Set $\Omega_\Lambda=0$ and watch the expansion only ever
+  decelerate (no late-time speed-up).
+
+### Where this comes from
+
+The multicomponent Friedmann equation and the era scalings follow
+Ryden, *Introduction to Cosmology*, Chapters 5 and 6, and Dodelson,
+*Modern Cosmology*.
+
 ## Physical setup
 
 A spatially flat universe filled with radiation, pressureless matter
