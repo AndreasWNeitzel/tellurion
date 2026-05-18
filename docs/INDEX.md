@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[FODO Synchrotron: Betatron Tune, Emittance and Stop Bands](../playgrounds/msc-y1/MF-PP-particle-accelerator-betatron/index.html)** &nbsp; (verified, verified 2026-05-18T04:46:07Z)
+  A circular accelerator built from identical FODO cells: a focusing quadrupole, a drift, a defocusing quadrupole, a drift (alternating-gradient strong focusing). Transverse motion in one plane is described by the phase-space vector (x, x'), propagated element by element by 2x2 transfer matrices. The ring is a periodic lattice; its one-turn matrix determines w
+
 - **[QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section](../playgrounds/msc-y1/MF-PP-feynman-diagram-builder-qed/index.html)** &nbsp; (verified, verified 2026-05-18T04:28:49Z)
   The reaction is electron-positron annihilation into a muon pair, e+ e- -> mu+ mu-, in the centre-of-mass frame. At leading order in QED a single Feynman diagram contributes: the e+ e- pair annihilates at a vertex into a virtual photon (the s-channel propagator, with q^2 = s), which materialises into the mu+ mu- pair at a second vertex. The muon is treated as
 
@@ -800,9 +803,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified)
   Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
 
-- **[FODO Synchrotron: Betatron Tune, Emittance and Stop Bands](../playgrounds/msc-y1/MF-PP-particle-accelerator-betatron/index.html)** &nbsp; (verified)
-  A circular accelerator built from identical FODO cells: a focusing quadrupole, a drift, a defocusing quadrupole, a drift (alternating-gradient strong focusing). Transverse motion in one plane is described by the phase-space vector (x, x'), propagated element by element by 2x2 transfer matrices. The ring is a periodic lattice; its one-turn matrix determines w
-
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
   A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
 
@@ -871,6 +871,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Stellar Oscillation Modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/index.html)** &nbsp; (verified)
   A stellar disk breathes, rings, and ripples according to the chosen spherical-harmonic mode $Y_l^m(\theta, \phi) \cos(\omega t)$. Sliders for radial order $n$, degree $l$, azimuthal order $m$ morph the surface pattern. Side panel shows the propagation diagram (Brunt-Vaisala and Lamb frequencies vs radius for an $n = 3$ polytrope) with the current mode freque
+
+- **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified)
+  A self-gravitating sphere in hydrostatic equilibrium with a polytropic equation of state P = K rho^{(n+1)/n}, n = 3 (the Eddington standard model: pressure is the sum of ideal-gas and radiation pressure with a constant ratio beta). The dimensionless structure is universal (the Lane-Emden function theta(xi)); scaling it with a chosen mass M and radius R gives
 
 - **[TDSE Wavepacket Sculptor](../playgrounds/bsc-y3s1/FIS3003-tdse-wavepacket-sculptor/index.html)** &nbsp; (verified)
   A Gaussian wavepacket of chosen mean momentum launched into a chosen 1D potential: free space, infinite box, harmonic well, double well, periodic lattice, rectangular tunnelling barrier, or a delta spike.

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stellar Structure: the Eddington Standard Model</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Stellar Structure: the Eddington Standard Model</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="A sliced star with its burning core, radiative and convective zones and photosphere, the run of temperature, density, pressure and luminosity, the nuclear energy generation and the HR position on the ZAMS">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">M:</span><span class="value" id="readout-m">1.00 Msun</span>
+      <span class="label">Tc:</span><span class="value" id="readout-tc">1.22e7 K</span>
+      <span class="label">Pc:</span><span class="value" id="readout-pc">1.2e16 Pa</span>
+      <span class="label">L:</span><span class="value" id="readout-l">1.00 Lsun</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      An n = 3 polytrope (Eddington standard model) from the Lane-Emden equation, scaled to the chosen mass and composition: the run of temperature, density, pressure and luminosity, the pp / CNO / triple-alpha energy generation, the Schwarzschild convective test and the resulting HR position on the zero-age main sequence.
+      <em>Method:</em> RK4 Lane-Emden integration plus polytropic scaling; Canvas2D pseudo-3D slice (no WebGL; see spec Stack note); deterministic.
+      <em>Source:</em> Carroll and Ostlie Ch. 10; Hansen and Kawaler; Chandrasekhar 1939.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">mass (Msun)</span><input aria-label="stellar mass in solar masses, log scale x100" type="range" id="slider-m" min="-70" max="148" step="1" value="0"><span class="value" id="value-m">1.00</span></div>
+    <div class="row"><span class="label">hydrogen X</span><input aria-label="hydrogen mass fraction x100" type="range" id="slider-x" min="50" max="90" step="1" value="70"><span class="value" id="value-x">0.70</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

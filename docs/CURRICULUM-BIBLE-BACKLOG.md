@@ -477,7 +477,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 21: M:A_ASTR Stellar (Carroll-Ostlie, Kippenhahn)
 
-- [ ] stellar-structure-full-model : hero webgl2. 3D sliced star (core/
+- [x] stellar-structure-full-model : hero webgl2. 3D sliced star (core/
   radiative/convective bubbling/photosphere) plus T,rho,P,L profiles
   plus eps(r) pp/CNO/3a plus HR dot on ZAMS. Shooting. Inv: P0~1e16Pa
   x2; T0~1.5e7K 20%; L=Lsun 5%; Schwarzschild gradient.
