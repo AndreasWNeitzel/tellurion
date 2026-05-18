@@ -22,6 +22,62 @@ share_state_keys: []
 
 # Kepler equation: Newton iteration converges quadratically
 
+## Explainer
+
+### What you are looking at
+
+To say where a planet is at a given time you must solve one equation
+that has no closed-form answer. Newton's method finds it in a handful
+of steps, and the playground shows the error squaring at each
+iteration: the textbook picture of quadratic convergence.
+
+### Kepler's equation
+
+Time enters the orbit through the mean anomaly $M$ (it ticks
+uniformly, $2\pi$ per period). The geometry enters through the
+eccentric anomaly $E$ (the planet's angle on the auxiliary circle).
+They are linked by
+
+$$M = E - e\,\sin E,$$
+
+with $e$ the eccentricity. Once $E$ is known the position follows
+directly: $\big(a(\cos E - e),\ a\sqrt{1-e^2}\,\sin E\big)$. The
+equation is transcendental, $E$ cannot be isolated, so it is solved
+numerically every time an ephemeris is computed.
+
+### Newton iteration and quadratic convergence
+
+Define $f(E) = E - e\sin E - M$ and apply Newton's method:
+
+$$E_{n+1} = E_n - \frac{E_n - e\sin E_n - M}{1 - e\cos E_n},$$
+
+from the robust seed $E_0 = M + e\sin M$. Near the root the error obeys
+
+$$|E_{n+1} - E_\infty| \sim |E_n - E_\infty|^2,$$
+
+so the number of correct digits roughly doubles every step: 4-6
+iterations suffice for $e \le 0.9$, growing to 10-15 only as
+$e \to 0.99$ (the cosine in the denominator gets small near
+perihelion of a near-parabolic orbit). The playground plots the
+shrinking residual so the squaring is visible as a steepening
+straight line on a log axis.
+
+### Things to try
+
+- Set a modest eccentricity and watch the residual drop by orders of
+  magnitude per step (quadratic).
+- Push $e$ toward 0.99 and watch convergence slow, more steps needed
+  near perihelion.
+- Note the seed $E_0 = M + e\sin M$ already lands close: a good
+  initial guess is half the battle.
+
+### Where this comes from
+
+Kepler's equation, the orbit position, and the Newton iteration with
+quadratic convergence follow Carroll and Ostlie, *An Introduction to
+Modern Astrophysics*, 2nd ed., Chapter 2, and Curtis, *Orbital
+Mechanics for Engineering Students*, Chapter 3.
+
 ## Physical setup
 
 The Kepler equation $M = E - e \sin E$ relates the mean anomaly $M$ (the linear angular coordinate that ticks at $2\pi$ per orbital period) to the eccentric anomaly $E$ (the angle of the planet on the auxiliary circle of the ellipse). Position on the orbit follows from $(a(\cos E - e), \, a\sqrt{1-e^2} \sin E)$. The equation is transcendental, so we solve it numerically.
