@@ -21,3 +21,59 @@ share_state_keys: []
 ---
 # Toy aperture photometry
 Synthetic Moffat PSF on a CCD; aperture + sky annulus recovers true flux. Source: Howell CCD Handbook (`howell-ccd`).
+
+## Explainer
+
+### What you are looking at
+
+A star on a CCD frame is a fuzzy blob sitting on a noisy sky. To turn
+it into a brightness you draw a circle, add up the counts inside,
+estimate the sky from a ring around it, and subtract. The playground
+synthesizes a star, lets you size the aperture and annulus, and shows
+the measured flux chase the true value, with the trade-off every
+observer lives with.
+
+### The star and the sky
+
+A real point source is smeared by the atmosphere and optics into a
+point-spread function. A good model is the Moffat profile
+
+$$I(r) = I_0\left[1 + \left(\frac{r}{\alpha}\right)^2\right]^{-\beta},$$
+
+which has the broad wings real seeing produces (a Gaussian falls off
+too fast). It sits on a roughly flat sky background plus shot noise.
+
+### Aperture photometry
+
+The measured flux is
+
+$$F = \sum_{\text{aperture}} C_i \;-\; n_\text{ap}\,\bar b,$$
+
+the total counts inside the aperture minus the per-pixel sky level
+$\bar b$ (estimated robustly from a surrounding annulus that excludes
+the star) times the number of aperture pixels. The headline trade-off:
+
+- Aperture too small: you miss the Moffat wings, the flux is
+  systematically low.
+- Aperture too large: you capture all the star but also pile in sky
+  shot noise, so the measurement gets noisier.
+
+There is a sweet spot (roughly a couple of seeing radii) that maximizes
+signal-to-noise. The playground shows the recovered flux converging to
+truth as you widen the aperture, then the noise growing, exactly the
+balance a real observer optimizes.
+
+### Things to try
+
+- Shrink the aperture and watch the measured flux fall below the true
+  value (lost wings).
+- Widen it and watch the flux reach truth but the scatter grow (sky
+  noise).
+- Move the sky annulus onto the star and watch the background
+  over-subtract: the flux goes wrong.
+
+### Where this comes from
+
+The Moffat PSF, aperture-plus-annulus photometry, and the aperture
+size signal-to-noise trade-off follow Howell, *Handbook of CCD
+Astronomy*.
