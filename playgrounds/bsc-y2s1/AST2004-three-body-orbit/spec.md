@@ -20,6 +20,68 @@ share_state_keys: []
 
 # Three-Body Figure-Eight Choreography
 
+## Explainer
+
+### What you are looking at
+
+The three-body problem has no general solution: three masses pulling on
+each other usually move chaotically. But hidden inside that chaos are
+rare, exact periodic solutions. The most beautiful is the figure-eight:
+three equal stars chasing each other forever along a single
+figure-eight curve. The playground runs it, and a slider lets you
+nudge it to watch the perfection fall apart.
+
+### The equations
+
+Pure Newtonian gravity, three bodies, in units $G = m_i = 1$:
+
+$$\ddot{\vec r}_i = \sum_{j\ne i}
+  \frac{\vec r_j - \vec r_i}{|\vec r_j - \vec r_i|^3}.$$
+
+There is no closed-form orbit; you integrate. Three quantities are
+conserved and act as the honesty check: total energy $E$, total linear
+momentum $\vec P$, and total angular momentum $L$.
+
+### The figure-eight choreography
+
+In 2000 Chenciner and Montgomery proved a remarkable special solution
+exists in which all three masses travel the *same* closed curve, evenly
+spaced in time. It requires a precise starting condition:
+
+$$\vec r_1 = (0.97000436,\,-0.24308753),\quad
+  \vec r_2 = -\vec r_1,\quad \vec r_3 = 0,$$
+
+$$\vec v_3 = (-0.93240737,\,-0.86473146),\quad
+  \vec v_1 = \vec v_2 = -\tfrac12\vec v_3,$$
+
+with period $T \approx 6.326$. It is a "choreography": one track, three
+dancers. The simulation uses a symplectic integrator so energy and
+momentum stay flat over many periods and the eight does not numerically
+drift apart.
+
+### Stable, but only exactly
+
+The figure-eight is linearly stable, but it sits in a sea of chaos.
+The slider adds a tiny velocity kick $\delta v$ to body 3. At
+$\delta v = 0$ the eight repeats indefinitely; at any $\delta v > 0$
+the orbits slowly diverge and the pattern disintegrates into a chaotic
+tangle, sensitive dependence on initial conditions, live.
+
+### Things to try
+
+- Run at $\delta v = 0$ and watch all three trails overlap onto one
+  figure-eight, period after period.
+- Add a small $\delta v$ and watch the eight smear and then break up.
+- Note the conserved-quantity readouts stay flat even as the orbit
+  goes chaotic: chaos is not energy loss.
+
+### Where this comes from
+
+The N-body equations and conserved quantities are standard Newtonian
+mechanics; the figure-eight choreography and its initial condition are
+from Chenciner and Montgomery (2000), integrated here with the
+project's symplectic velocity-Verlet engine.
+
 ## Physical setup
 
 Three equal masses $m_1 = m_2 = m_3 = 1$ interact under Newtonian gravity in 2D with $G = 1$. At the Chenciner-Montgomery initial condition (2000) the three masses chase one another on a single closed figure-eight curve, with period $T \approx 6.3259$. This is the most famous "choreography" solution of the planar three-body problem. The playground integrates the system with the symplectic engine and renders the three trails. A slider perturbs the initial velocity of body 3 by a small amount $\delta v$; at $\delta v = 0$ the choreography is stable indefinitely, and at $\delta v > 0$ the system slowly destabilizes.

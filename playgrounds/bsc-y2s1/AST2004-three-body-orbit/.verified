@@ -1,2 +1,3 @@
-verified-at: 2026-05-13T06:59:03Z
-commit=219a6acaacf44719b8329254bc0f97237b173df4 invariants=5/5 visual=5/5 aesthetic=PASS citation=PASS
+verified-at: 2026-05-18T16:30:14Z
+invariants:  (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); text-only, render unchanged
