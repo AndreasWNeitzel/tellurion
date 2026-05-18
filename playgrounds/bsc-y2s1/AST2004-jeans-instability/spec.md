@@ -9,8 +9,8 @@ supporting_ucs: [MAA-GD]
 curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 12
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Gravity wants a gas cloud to collapse; pressure pushes back. Above the Jeans length gravity wins and the cloud runs away into a star.'
+one_paragraph: 'Small perturbations of a uniform self-gravitating gas obey the dispersion relation omega^2 = c_s^2 k^2 - 4 pi G rho. Short-wavelength modes (large k) keep omega^2 > 0 and merely oscillate as sound waves; long-wavelength modes flip omega^2 < 0 and grow exponentially, the runaway that starts star formation. The crossover is the Jeans length lambda_J = sqrt(pi c_s^2 / (G rho)). The playground plots the dispersion relation as you vary density and temperature, shading the stable and unstable bands and reporting the Jeans mass for cold-cloud conditions (tens of solar masses for a dense core). It pins down exactly when self-gravity beats pressure. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 12.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
