@@ -21,6 +21,63 @@ share_state_keys: [mode, V, ld]
 
 # Optical Fiber: LP Modes, Dispersion and Pulse Broadening
 
+## Explainer
+
+### What you are looking at
+
+An optical fiber guides light by total internal reflection in a glass
+core. Only certain transverse field patterns (modes) propagate, and a
+single number decides how many. Make the fiber thin enough and only one
+survives, single-mode telecom fiber. A pulse still spreads in time
+because different frequencies travel at slightly different speeds. The
+playground shows the LP modes and the pulse broadening.
+
+### The mode count: the V number
+
+A weakly-guiding step-index fiber (core index $n_1$ barely above
+cladding $n_2$) supports linearly-polarized $\mathrm{LP}_{\ell m}$
+modes. Whether a mode is guided is set by the normalized frequency
+
+$$V = a\,k_0\sqrt{n_1^2 - n_2^2},$$
+
+with $a$ the core radius and $k_0 = 2\pi/\lambda$. The fundamental
+$\mathrm{LP}_{01}$ has no cutoff; the next mode turns on at
+$V = 2.405$ (the first zero of $J_0$). So
+
+$$V < 2.405 \;\Longrightarrow\; \text{single-mode},$$
+
+which is exactly the regime of telecom fiber (small core, near 1.5 um).
+Above that, the number of modes grows roughly as $V^2/2$.
+
+### Why pulses spread: dispersion
+
+Even a single mode broadens a pulse because the propagation constant
+$\beta(\omega)$ is not linear in frequency. The group velocity
+$v_g = (d\beta/d\omega)^{-1}$ varies across the pulse spectrum, so the
+pulse width grows with distance $L$ as
+
+$$\Delta t \approx |D|\,L\,\Delta\lambda,$$
+
+with $D$ the group-velocity-dispersion parameter. This pulse spreading
+is what limits the bit rate of a fiber link, and why dispersion-shifted
+fibers and compensation exist. The playground sweeps $V$ to add/remove
+modes and shows an input pulse broadening as it propagates.
+
+### Things to try
+
+- Lower $V$ below 2.405 and confirm only $\mathrm{LP}_{01}$ survives
+  (single-mode).
+- Raise $V$ and watch higher $\mathrm{LP}_{\ell m}$ modes switch on at
+  their cutoffs.
+- Send a pulse down a long fiber and watch it broaden by $|D|L\Delta
+  \lambda$ (the bandwidth limit).
+
+### Where this comes from
+
+The LP-mode weak-guidance approximation, the $V<2.405$ single-mode
+condition, and group-velocity dispersion follow Hecht, *Optics*, 5th
+ed., and Saleh and Teich, *Fundamentals of Photonics*, Chapter 8.
+
 ## Physical setup
 
 A step-index fibre has a core of index n1 and radius a inside a
