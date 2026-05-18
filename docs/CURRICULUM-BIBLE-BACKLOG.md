@@ -395,7 +395,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 15: M:EF Optical/Lasers (FIS4035/4027/4036; Saleh-Teich)
 
-- [ ] laser-rate-equations-dynamics : hero canvas2d. Medium plus levels,
+- [x] laser-rate-equations-dynamics : hero canvas2d. Medium plus levels,
   N1/N2 bars, photon phi(t), 3 regimes, resonator, P-vs-pump kink,
   Q-switch giant pulse. Inv: below thr phi to 0; above N2-N1=1/sct 1%;
   Q-switch energy prop inversion 5%.

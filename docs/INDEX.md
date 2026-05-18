@@ -770,6 +770,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
   A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
 
+- **[Laser Rate-Equation Dynamics](../playgrounds/bsc-y3s2/FIS4035-laser-rate-equations-dynamics/index.html)** &nbsp; (verified)
+  A gain medium (a two-level inversion) sits in an optical resonator. An external pump builds the population inversion `n`; the inversion decays on the upper-state lifetime and is depleted by stimulated emission into the cavity photon number `p`. Photons grow when the round-trip gain exceeds the cavity loss and leave through the output coupler. A small fixed s
+
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
 
