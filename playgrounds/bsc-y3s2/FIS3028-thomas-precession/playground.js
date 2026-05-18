@@ -7,6 +7,7 @@ import { gamma, thomasFactor } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const rW = document.getElementById('readout-w');
@@ -123,6 +124,17 @@ function tick(now) {
 }
 
 function bootSync() {
+  // Reference capture sweeps the orbital speed beta: the (gamma-1)
+  // marker climbs its curve, the gyroscope advances around the orbit,
+  // and the accumulated spin-axis angle grows, so the five golden
+  // frames are distinct and tell the Thomas-precession story.
+  if (CAPTURE_NAME) {
+    st.beta = 0.1 + CAPTURE_FRAC * 0.85;
+    st.t = CAPTURE_FRAC * T_ORBIT;
+    st.precess = thomasFactor(st.beta) * 2 * Math.PI * (1 + 3 * CAPTURE_FRAC);
+    if (sB) { sB.value = String(st.beta); }
+    if (vB) { vB.textContent = st.beta.toFixed(2); }
+  }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
     window.__simulationReady = true;
