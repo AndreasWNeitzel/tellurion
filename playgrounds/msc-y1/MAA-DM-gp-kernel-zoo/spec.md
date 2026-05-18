@@ -20,6 +20,69 @@ share_state_keys: []
 
 # Gaussian process kernel zoo
 
+## Explainer
+
+### What you are looking at
+
+A Gaussian process is a probability distribution not over numbers but
+over whole functions. Before you see data it is a fog of plausible
+curves; show it a few points and the fog collapses to curves that pass
+through them, with calibrated uncertainty (wide between points, tight
+on them). The playground lets you pick the kernel and watch prior and
+posterior.
+
+### What a GP is
+
+Assume any finite set of function values is jointly Gaussian with mean
+zero and covariance set by a kernel $k(x,x')$:
+
+$$f(x) \sim \mathcal{GP}\big(0,\ k(x,x')\big).$$
+
+The kernel encodes your prior beliefs about the function: how smooth,
+how wiggly, how periodic. Conditioning on noisy observations $y$ at
+inputs $X$ gives a closed-form Gaussian posterior at any test point
+$x_\*$:
+
+$$\mu(x_\*) = k(x_\*,X)\big[K + \sigma_n^2 I\big]^{-1} y,$$
+
+$$\mathrm{var}(x_\*) = k(x_\*,x_\*)
+  - k(x_\*,X)\big[K + \sigma_n^2 I\big]^{-1} k(X,x_\*).$$
+
+That single linear-algebra line is exact Bayesian regression: a
+predictive mean and an honest error bar everywhere.
+
+### The kernel is the model
+
+The playground's five kernels show how the kernel choice is the
+modeling choice:
+
+- RBF (squared-exponential): infinitely smooth, gentle curves.
+- Matern 3/2, 5/2: rougher, more realistic for physical signals.
+- Periodic: enforces a repeating structure.
+- Linear: GP reduces to Bayesian linear regression.
+
+The length scale sets how fast correlations decay (how wiggly the
+samples are); the amplitude sets their vertical spread; the noise
+$\sigma_n$ sets how tightly the posterior must hit the data. The error
+band widening away from observations is the headline feature: the model
+knows what it does not know. GPs are the backbone of Bayesian
+optimization and emulation of expensive simulators.
+
+### Things to try
+
+- Draw prior samples (no data) and watch the kernel's character: RBF
+  smooth, Matern rough, periodic repeating.
+- Add observations and watch the posterior collapse onto them with the
+  error band pinching at the points and ballooning between.
+- Shrink the length scale and watch the samples get wigglier and the
+  posterior less confident far from data.
+
+### Where this comes from
+
+The GP prior, the conditioning equations, and the kernel zoo follow
+Rasmussen and Williams, *Gaussian Processes for Machine Learning*
+(2006).
+
 ## Physical setup
 
 A 1D Gaussian Process: a probability distribution over functions. Five kernels (RBF, Matern 3/2, Matern 5/2, periodic, linear) parameterized by length scale and amplitude. Top panel: prior samples (no data). Bottom panel: posterior conditioned on observations with noise sigma_n.

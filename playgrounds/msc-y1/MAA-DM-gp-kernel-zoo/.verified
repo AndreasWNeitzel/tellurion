@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T17:25:58Z
-invariants: 5/5 (Cholesky factors, zero-mean prior, exact interpolation, std monotone, k(x,x) = sigma_f^2)
-visual: SSIM > 0.92 across 5 frames sweeping kernels
+verified-at: 2026-05-18T18:08:09Z
+invariants: invariants pass (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); comprehensive ## Explainer added; render-neutral (overlay outside #stage, goldens unchanged)
