@@ -19,6 +19,67 @@ share_state_keys: []
 
 # Action-Angle Variables
 
+## Explainer
+
+### What you are looking at
+
+For a bound oscillator there is a magic change of coordinates that
+makes the motion trivial: one variable (the action) stays perfectly
+constant, and the other (the angle) just advances at a steady rate.
+The playground shows any 1D bound system in both its messy phase
+portrait and its clean action-angle form.
+
+### The action and the angle
+
+For a 1-degree-of-freedom system with Hamiltonian $H(q,p)$, a bound
+orbit is a closed loop in the $(q,p)$ plane. Define the action as the
+phase-space area it encloses (divided by $2\pi$):
+
+$$J = \frac{1}{2\pi}\oint p\,dq.$$
+
+$J$ depends only on the energy, so along any single orbit it is an
+exact constant of the motion. Its conjugate angle $\theta$ then obeys
+
+$$\dot\theta = \frac{\partial H}{\partial J} = \omega(J)
+  = \text{const},$$
+
+so $\theta$ winds uniformly from $0$ to $2\pi$ once per period. In
+action-angle variables every bound oscillator is just a point
+circling at constant angular speed; all the dynamics is in the single
+function $\omega(J)$.
+
+### Why this is powerful
+
+- $J$ is an adiabatic invariant: change a parameter slowly and $J$
+  stays fixed even though $E$ does not (the basis of the old quantum
+  theory, $J=n\hbar$, and of why a slowly shortened pendulum keeps
+  its action).
+- It linearizes the problem and is the natural starting point for
+  canonical perturbation theory and KAM theory (tori labelled by
+  their actions).
+- The frequency $\omega(J)=dE/dJ$ exposes the anharmonicity: it is
+  constant for the harmonic oscillator (isochronous) but decreases
+  with amplitude for the pendulum and increases for the quartic well.
+
+The playground draws the orbit in $(q,p)$, shades the enclosed action
+area, and shows the angle advancing uniformly while $J$ stays pinned,
+across the harmonic, pendulum and quartic potentials.
+
+### Things to try
+
+- Pick the harmonic well and confirm $\omega$ is independent of
+  amplitude (equal-area annuli, isochronous).
+- Switch to the pendulum and watch $\omega(J)$ drop as the amplitude
+  (and $J$) grows, slowing near the separatrix.
+- Vary the energy and watch the orbit change while $\theta$ always
+  advances uniformly and $J$ equals the enclosed area.
+
+### Where this comes from
+
+Action-angle variables, the adiabatic invariant and $\omega=dH/dJ$
+follow Goldstein, *Classical Mechanics*, Chapter 10, and Landau and
+Lifshitz, *Mechanics*, Section 49.
+
 ## Physical setup
 
 A 1-DOF bound system: harmonic `V = 1/2 w0^2 q^2`, pendulum
