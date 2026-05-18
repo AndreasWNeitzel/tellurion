@@ -47,3 +47,7 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 ## Sweep 2026-05-18
 User: make the secondary a diffuse galaxy (not spiral, random orbits). The satellite stellar component is now a smooth centrally-concentrated blob (uniform azimuth, no arms) with isotropic Jeans-dispersion velocities (pressure-supported), like a dwarf spheroidal, the realistic Sausage progenitor. Primary remains a rotation-supported 2-arm spiral. Screenshot-verified the spiral+diffuse pair and the diffuse dwarf tidally disrupted and accreted onto the surviving primary; robust-COM framed.
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User: make it 3D, stunning graphics, add an angle-of-attack slider, oblique camera. The 60fps gate makes a true 3D-PM solve infeasible on CPU (~220ms/step, diagnostic-confirmed), and there is no WebGL gate precedent in-repo (all 3D heroes are gateable Canvas2D pseudo-3D); so this lands the proven gateable pattern: the verified in-plane self-gravitating PM physics with passive 3D z-structure, an angle-of-attack slider that tilts the infalling secondary's plane/approach, an oblique fixed camera (yaw 0.46, pitch 0.55), depth-binned painter ordering, additive stellar glow, faint dark-halo haze, deterministic starfield, robust bound-COM-locked view. Screenshot-verified the 3D angled look, spiral primary + inclined diffuse dwarf, disruption + surviving primary, Sausage E-Lz; 60fps. WebGL polish is the documented next enhancement.
+invariants Tests 1 passed + visual 5/5 x3. Shipped.

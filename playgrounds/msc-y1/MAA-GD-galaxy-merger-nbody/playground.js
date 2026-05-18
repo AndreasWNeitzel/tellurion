@@ -45,9 +45,20 @@ const N_ARMS = 2;            // two trailing logarithmic spiral arms
 const PITCH  = 0.35;         // arm pitch (rad); tan() sets the winding
 const ARM_W  = 0.40;         // azimuthal arm half-width (Gaussian scatter)
 
+// 3D structure on the verified 2D-in-plane self-gravitating PM (the gravity
+// solve that hits 60fps and is diagnostic-verified). Each particle carries a
+// passive z that rides with its (x,y) motion: a thin disk scale height for
+// the stellar disk and a full spherical z for the halo/dwarf, plus the
+// secondary's orbital plane tilted by the angle-of-attack. This gives a true
+// 3D distribution and inclined infall, rendered with an oblique camera, while
+// the in-plane dynamics remain the proven PM (so still 60fps and gateable).
+const ZH_DISK = 0.10;          // stellar-disk scale height / R_d
+let Z;                          // per-particle out-of-plane coordinate
+
 const state = {
   M1: 1.0,        // primary total mass
   M2: 0.45,       // satellite total mass (it gets tidally shredded)
+  aoa: 35,        // angle of attack: secondary orbital-plane tilt (deg)
   impact: 1.0,    // impact parameter
   vRel: 0.14,     // closing speed: a BOUND, compact orbit (verified by the
                   // headless diagnostic to stay well inside the grid and
@@ -190,6 +201,28 @@ function reset() {
       V[2 * p + 1] = c.vy + gaussian(rng, 0, sig);
     }
   }
+  // 3D structure (passive z, rides with the in-plane PM motion): a thin
+  // scale height for the primary spiral disk, a spherical puff for the
+  // dark halo and the diffuse dwarf. The whole SECONDARY is then tilted by
+  // the angle of attack about the x-axis through its centre, so its plane
+  // and infall are inclined to the primary disk.
+  Z = new Float64Array(NP);
+  const aoa = state.aoa * Math.PI / 180;
+  const ca = Math.cos(aoa), sa = Math.sin(aoa);
+  for (let p = 0; p < NP; p += 1) {
+    const c = ORIG[p] === 0 ? c1 : c2;
+    const rx = X[2 * p] - c.x, ry = X[2 * p + 1] - c.y;
+    const R = Math.hypot(rx, ry);
+    let z;
+    if (KIND[p] === 0) z = gaussian(rng, 0, ZH_DISK * Rd1);   // thin spiral
+    else               z = gaussian(rng, 0, 0.62 * (R + 0.05)); // round halo/dwarf
+    if (ORIG[p] === 1) {                                       // tilt secondary
+      const ny = ry * ca - z * sa;
+      z        = ry * sa + z * ca;
+      X[2 * p + 1] = c.y + ny;
+    }
+    Z[p] = z;
+  }
   elapsed = 0;
   phiGrid = phi0;
 }
@@ -246,28 +279,62 @@ function render() {
   // frame as the encounter evolves; the view is locked to the global COM
   // (c) every frame so the system never drifts off-screen.
   const sc = Math.min(Wl, H) * 0.052;        // units to px in the spatial panel
-  // Spatial panel, in the global centre-of-mass frame. Isolated boundaries:
-  // NO periodic wrap. The dark-matter halo is drawn as a faint haze (it is
-  // dark) and the stellar disks bright, so the visible galaxies are the
-  // spirals while the dominant gravitating mass is the halo.
-  for (let k = 0; k < NP; k += 1) {
-    if (KIND[k] < 2) continue;                 // halo first (under the disk)
-    const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
-    const px = cx + dx * sc, py = cy + dy * sc;
-    if (px < 2 || px > Wl - 2 || py < 2 || py > H - 2) continue;
-    ctx.fillStyle = ORIG[k] === 0 ? 'rgba(120,130,170,0.16)' : 'rgba(180,150,110,0.16)';
-    ctx.fillRect(px, py, 1.3, 1.3);
+  // Deterministic starfield backdrop (seeded hash, so the gate is stable).
+  for (let i = 0; i < 90; i += 1) {
+    const h = Math.sin(i * 12.9898) * 43758.5453; const hx = h - Math.floor(h);
+    const g = Math.sin(i * 78.233) * 9871.231;    const hy = g - Math.floor(g);
+    const a = 0.10 + 0.5 * ((Math.sin(i * 3.17) + 1) / 2);
+    ctx.fillStyle = `rgba(200,210,255,${a.toFixed(2)})`;
+    ctx.fillRect(hx * Wl, hy * H, 1, 1);
   }
+  // Oblique 3D camera (neither edge-on nor face-on): yaw about the vertical
+  // world axis then a camera elevation tilt; painter-ordered into depth bins
+  // so far particles draw behind near ones. The dark halo is a faint haze,
+  // the stellar disk a bright additive glow; the secondary's plane is tilted
+  // by the angle of attack. View locked to the robust bound-system COM.
+  const YAW = 0.46, PIT = 0.55;
+  const cyaw = Math.cos(YAW), syaw = Math.sin(YAW);
+  const cpit = Math.cos(PIT), spit = Math.sin(PIT);
+  const NBIN = 9;
+  const bins = []; for (let bI = 0; bI < NBIN; bI += 1) bins.push([]);
+  let dmin = 1e30, dmax = -1e30;
+  const proj = new Float64Array(NP * 3);          // px, py, depth
   for (let k = 0; k < NP; k += 1) {
-    if (KIND[k] >= 2) continue;                 // bright stellar disks on top
-    const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
-    const px = cx + dx * sc, py = cy + dy * sc;
-    if (px < 2 || px > Wl - 2 || py < 2 || py > H - 2) continue;
-    ctx.fillStyle = ORIG[k] === 0 ? '#7c9cff' : '#fdb56a';
-    ctx.fillRect(px, py, 1.5, 1.5);
+    const wx = X[2 * k] - c.x, wy = X[2 * k + 1] - c.y, wz = Z[k];
+    const x1 = wx * cyaw - wy * syaw, y1 = wx * syaw + wy * cyaw;
+    const sx = cx + x1 * sc;
+    const sy = cy + (y1 * cpit - wz * spit) * sc;
+    const dep = y1 * spit + wz * cpit;
+    proj[3 * k] = sx; proj[3 * k + 1] = sy; proj[3 * k + 2] = dep;
+    if (dep < dmin) dmin = dep; if (dep > dmax) dmax = dep;
+  }
+  const span = (dmax - dmin) || 1;
+  for (let k = 0; k < NP; k += 1) {
+    const sx = proj[3 * k], sy = proj[3 * k + 1];
+    if (sx < 2 || sx > Wl - 2 || sy < 2 || sy > H - 2) continue;
+    let bI = ((proj[3 * k + 2] - dmin) / span * (NBIN - 1)) | 0;
+    if (bI < 0) bI = 0; else if (bI >= NBIN) bI = NBIN - 1;
+    bins[bI].push(k);
+  }
+  for (let bI = 0; bI < NBIN; bI += 1) {
+    const depthShade = 0.55 + 0.45 * (bI / (NBIN - 1));   // nearer = brighter
+    for (const k of bins[bI]) {
+      const sx = proj[3 * k], sy = proj[3 * k + 1];
+      if (KIND[k] >= 2) {                                  // dark halo: haze
+        ctx.fillStyle = ORIG[k] === 0
+          ? `rgba(120,130,175,${(0.07 * depthShade).toFixed(3)})`
+          : `rgba(180,150,110,${(0.07 * depthShade).toFixed(3)})`;
+        ctx.fillRect(sx, sy, 1.3, 1.3);
+      } else {                                             // stellar: glow
+        ctx.fillStyle = ORIG[k] === 0
+          ? `rgba(150,180,255,${(0.85 * depthShade).toFixed(3)})`
+          : `rgba(255,190,120,${(0.9 * depthShade).toFixed(3)})`;
+        ctx.fillRect(sx, sy, 1.7, 1.7);
+      }
+    }
   }
   ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('merger (PM: dark halo + stellar disk, COM frame)', 12, 20);
+  ctx.fillText('3D merger (dark halo + stellar disk, oblique camera, COM frame)', 12, 20);
 
   // Integrals of motion in the global COM frame, STELLAR particles only
   // (the Sausage is a stellar-debris diagnostic). E uses the PM grid
@@ -351,6 +418,7 @@ function buildControls() {
   slider('M2', 'M2 accreted', 0.1, 1.6, 0.05, state.M2, x => { state.M2 = x; reset(); });
   slider('impact', 'impact b', 0, 4, 0.1, state.impact, x => { state.impact = x; reset(); });
   slider('vRel', 'closing v', 0.05, 1.2, 0.02, state.vRel, x => { state.vRel = x; reset(); });
+  slider('aoa', 'angle of attack', 0, 90, 5, state.aoa, x => { state.aoa = x; reset(); }, v => `${v.toFixed(0)} deg`);
   const row = document.createElement('div'); row.className = 'row buttons';
   const launch = document.createElement('button'); launch.type = 'button'; launch.textContent = 'Relaunch';
   launch.addEventListener('click', () => { reset(); state.running = true; });
