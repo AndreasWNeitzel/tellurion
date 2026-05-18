@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Null geodesics around a black hole, the effective potential, and FLRW Hubble flow"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">mode:</span><span class="value" id="readout-mode">Schwarzschild</span>
+      <span class="label">b_c (M):</span><span class="value" id="readout-bc">5.196</span>
+      <span class="label">r_ISCO (M):</span><span class="value" id="readout-isco">6.00</span>
+      <span class="label">E,L drift:</span><span class="value" id="readout-drift">0</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Null and timelike geodesics: Schwarzschild photons captured below the critical impact parameter b_c = 3 sqrt(3) M and whirling at the photon sphere, the Kerr ergosphere and frame dragging, and the FLRW Hubble flow with the particle horizon; the conserved first integral, b_c, the ISCO and v = H0 d are gate-tested.
+      <em>Method:</em> RK4 orbit-equation geodesics (shared gate-tested CPU engine) and FLRW quadrature; Canvas2D, deterministic.
+      <em>Source:</em> Carroll, Spacetime and Geometry; Shapiro and Teukolsky Ch. 12; Hubble 1929; Friedmann 1922.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">spacetime</span><select aria-label="spacetime" id="select-mode" style="grid-column: span 2;"><option value="schw">Schwarzschild (photon sphere, b_c, ISCO)</option><option value="kerr">Kerr (ergosphere, frame drag)</option><option value="flrw">FLRW (expansion, Hubble flow)</option></select></div>
+    <div class="row"><span class="label">impact b / spin a / Omega_m</span><input aria-label="primary parameter, x100" type="range" id="slider-p" min="10" max="100" step="1" value="52"><span class="value" id="value-p">5.20</span></div>
+    <div class="row"><span class="label">secondary (a/M or H0)</span><input aria-label="secondary parameter, x100" type="range" id="slider-q" min="0" max="100" step="1" value="0"><span class="value" id="value-q">0.00</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

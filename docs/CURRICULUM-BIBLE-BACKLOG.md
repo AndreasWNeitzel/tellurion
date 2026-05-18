@@ -436,7 +436,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 18: M:F GR and Cosmology (Carroll, MTW, Wald)
 
-- [ ] geodesics-curved-spacetime-3d : hero webgl2. Schwarzschild (photon
+- [x] geodesics-curved-spacetime-3d : hero webgl2. Schwarzschild (photon
   sphere 3M, ISCO 6M, capture)/Kerr (frame drag, ergosphere, Penrose)/
   FLRW (expansion, horizon). Geodesic Gamma eqn. Inv: bc=3 sqrt3 M
   0.1%; ISCO 6M; E,L conserved; FLRW v=H0 d 1%. NB per memory

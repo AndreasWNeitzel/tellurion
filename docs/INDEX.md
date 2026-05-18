@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Second Quantization: Fock States, Ladder Operators, (Anti)commutators](../playgrounds/msc-y1/MF-AQM-second-quantization-bosons-fermions/index.html)** &nbsp; (verified, verified 2026-05-18T02:34:16Z)
+  A single field mode in the occupation-number (Fock) representation. The number states |n> form the basis; the ladder operators add or remove one quantum. Bosons can pile up arbitrarily many quanta in the mode; fermions are limited to occupation 0 or 1 by the Pauli principle. The bosonic coherent state, the eigenstate of the annihilation operator, has a Poiss
+
 - **[Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung](../playgrounds/msc-y1/MF-AQM-dirac-equation-relativistic-hydrogen/index.html)** &nbsp; (verified, verified 2026-05-18T02:23:49Z)
   A hydrogen-like ion of nuclear charge `Z`. The Schrodinger equation gives a degenerate `-Ry Z^2/n^2` ladder; the Dirac equation adds the relativistic kinetic correction, spin-orbit coupling and the Darwin term, deepening every level and splitting it by the total angular momentum `j`. A free Dirac wave packet also exhibits Zitterbewegung, a rapid trembling of
 
@@ -776,6 +779,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (verified)
   Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emer
 
+- **[Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW](../playgrounds/msc-y1/MF-GR-geodesics-curved-spacetime-3d/index.html)** &nbsp; (verified)
+  Three spacetimes share one idea: free particles follow geodesics. Around a Schwarzschild black hole, null geodesics are captured, whirled at the photon sphere, or deflected, depending on the impact parameter; timelike circular orbits are stable only outside the ISCO. Kerr adds rotation: a smaller horizon, the ergosphere, and frame dragging. FLRW is the expan
+
 - **[Gravitational Lensing Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/index.html)** &nbsp; (verified)
   Drag up to four point-mass lenses; caustic curves (in amber) and critical curves (in white) are drawn analytically. A source position marker in the source-plane creates 2, 3, or 4 multiply-lensed images that update in real time. A background dot grid shears according to the lens map.
 
@@ -829,9 +835,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
-
-- **[Second Quantization: Fock States, Ladder Operators, (Anti)commutators](../playgrounds/msc-y1/MF-AQM-second-quantization-bosons-fermions/index.html)** &nbsp; (verified)
-  A single field mode in the occupation-number (Fock) representation. The number states |n> form the basis; the ladder operators add or remove one quantum. Bosons can pile up arbitrarily many quanta in the mode; fermions are limited to occupation 0 or 1 by the Pauli principle. The bosonic coherent state, the eigenstate of the annihilation operator, has a Poiss
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
