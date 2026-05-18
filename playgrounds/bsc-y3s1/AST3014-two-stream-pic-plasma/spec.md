@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Two-stream instability via 1D-1V PIC
 
+## Explainer
+
+### What you are looking at
+
+Shoot two electron beams through each other. The smooth counter-flow is
+unstable: tiny density ripples feed on the beam energy and grow
+explosively, then roll up into swirls in phase space and saturate. This
+two-stream instability is a foundational plasma effect and a classic
+test of particle-in-cell simulation.
+
+### The model
+
+Electrons move under the self-consistent electric field; the field
+comes from their own charge via Poisson's equation:
+
+$$m\,\ddot x_i = -e\,E(x_i, t), \qquad
+  \frac{\partial^2\phi}{\partial x^2} = -\frac{\rho}{\epsilon_0},
+  \qquad E = -\frac{\partial\phi}{\partial x}.$$
+
+There is no external drive; the instability is purely self-generated. A
+uniform ion background keeps the system neutral on average.
+
+### Why it blows up, and how it saturates
+
+Linearize around two cold beams at $\pm v_0$ and a perturbation
+$\propto e^{i(kx-\omega t)}$ has, for the most unstable wavenumber, a
+complex frequency with positive imaginary part: the perturbation grows
+as $e^{\gamma t}$ with maximum rate
+
+$$\gamma_\text{max} = \frac{\omega_p}{2\sqrt2} \approx 0.354\,\omega_p,$$
+
+where $\omega_p$ is the plasma frequency. Free energy in the relative
+streaming feeds the wave. Growth cannot continue forever: when the
+field is strong enough to turn particles around, the beams roll up into
+phase-space vortices (electron holes) and the instability saturates
+into a turbulent but bounded state. The playground runs a
+particle-in-cell scheme (deposit charge to a grid, solve Poisson by
+FFT, push particles by leapfrog) and shows the phase-space rollup.
+
+### Things to try
+
+- Watch the initially smooth two-stream phase space develop a growing
+  ripple at the linear rate, then curl into vortices.
+- Note the growth is exponential early (straight line on a log energy
+  plot) then flattens at saturation.
+- See that nothing external drives it: the streaming free energy is
+  the fuel.
+
+### Where this comes from
+
+The Vlasov-Poisson two-stream instability, the
+$\gamma_\text{max} = \omega_p/2\sqrt2$ growth rate, and the
+particle-in-cell method follow Krall and Trivelpiece, *Principles of
+Plasma Physics* (1973), and Birdsall and Langdon, *Plasma Physics via
+Computer Simulation*.
+
 ## Physical setup
 
 Two counter-streaming electron beams at +/- v_0 against a uniform neutralizing ion background. Small density perturbations grow exponentially at the linear rate omega_p / (2 sqrt 2). The beams eventually form phase-space vortices and saturate.
