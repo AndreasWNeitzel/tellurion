@@ -20,6 +20,69 @@ share_state_keys: []
 
 # q-state Potts model on a 2D square lattice
 
+## Explainer
+
+### What you are looking at
+
+The Ising model has two states per site; the Potts model generalizes
+to $q$ states, and that one number changes the very nature of the
+phase transition: continuous for small $q$, abruptly first-order for
+large $q$. The playground runs the 2D Potts model and lets you watch
+order appear, and the transition change character, as you vary $q$
+and temperature.
+
+### The model
+
+Each site of a periodic square lattice carries a spin
+$s_i\in\{0,\dots,q-1\}$. Neighbours that match lower the energy:
+
+$$E = -J\sum_{\langle i j\rangle}\delta_{s_i,s_j},$$
+
+with $\delta$ the Kronecker delta. It is simulated by Metropolis (or
+Wolff-cluster) Monte Carlo at temperature $T$: at high $T$ entropy
+wins and the lattice is a disordered rainbow; at low $T$ energy wins
+and one colour takes over (spontaneous symmetry breaking among the
+$q$ equivalent states).
+
+### Why q changes the transition order
+
+The 2D Potts model has an exactly known critical temperature
+
+$$\frac{k_BT_c}{J} = \frac{1}{\ln(1+\sqrt{q})},$$
+
+and, crucially, the order of the transition depends on $q$:
+
+- $q\le 4$: a continuous (second-order) transition. The order
+  parameter rises smoothly from zero; correlations diverge with
+  universal critical exponents ($q=2$ is exactly the Ising
+  universality class).
+- $q\ge 5$: a first-order transition. The order parameter jumps
+  discontinuously, ordered and disordered phases coexist at $T_c$
+  with latent heat and metastable hysteresis, just like
+  liquid-vapour.
+
+So $q=4$ is the marginal boundary between two qualitatively different
+kinds of phase transition, a clean, exactly-solvable laboratory for
+the difference between continuous and first-order critical behaviour
+(and the model behind grain growth, foams and image segmentation).
+The playground sweeps $q$ and $T$ and shows the domains, the energy,
+and the order parameter through $T_c$.
+
+### Things to try
+
+- Set $q=2$ and watch a smooth Ising-like continuous ordering as $T$
+  drops through $T_c$.
+- Set $q=10$ and watch the transition snap: coexisting ordered and
+  disordered patches and hysteresis (first order).
+- Read $T_c=J/\ln(1+\sqrt q)$ off the ordering temperature as you
+  change $q$.
+
+### Where this comes from
+
+The Potts model, its exact $T_c$ and the $q=4$ order-of-transition
+boundary follow Wu, Rev. Mod. Phys. 54, 235 (1982), and Binney et
+al., *The Theory of Critical Phenomena*.
+
 ## Physical setup
 
 Each site of an L x L periodic square lattice holds a discrete spin s in {0, 1, ..., q - 1}. Energy:
