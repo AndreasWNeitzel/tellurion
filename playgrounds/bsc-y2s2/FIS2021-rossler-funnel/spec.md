@@ -20,6 +20,60 @@ share_state_keys: []
 
 # Rossler funnel attractor
 
+## Explainer
+
+### What you are looking at
+
+The Rossler system is the minimal recipe for chaos: a flat spiral
+plus a single fold. It strips chaos down to its essence so you can
+literally watch the stretch-and-fold mechanism, and watch it arrive
+through a clean period-doubling cascade as you turn one knob.
+
+### The equations
+
+Three first-order ODEs with a single quadratic term:
+
+$$\dot x = -y - z,
+  \qquad
+  \dot y = x + a y,
+  \qquad
+  \dot z = b + z(x - c).$$
+
+The first two equations spiral the trajectory outward in the
+near-planar $(x,y)$ disc; the $z$ equation is dormant until $x$
+exceeds $c$, at which point $z$ shoots up, yanks the trajectory out
+of the plane, and drops it back near the centre. Spiral out, fold up
+and back: that single fold is the entire chaos engine.
+
+### Period doubling to a strange attractor
+
+The control parameter $c$ tunes the fold. As $c$ increases the closed
+orbit period-doubles: a 1-loop cycle becomes 2, then 4, 8, ...,
+accumulating (at a rate governed by the universal Feigenbaum constant
+$\delta\approx4.669$) onto a chaotic strange attractor. Past
+$c\approx5.7$ the attractor grows a tall vertical lobe, the "funnel".
+Because the dynamics is essentially a 1D stretch-and-fold return map
+lifted into 3D, Rossler is the cleanest demonstration that the
+logistic-map period-doubling route to chaos also governs continuous
+flows: same Feigenbaum universality, same fractal attractor, with the
+geometry simple enough to see by eye. The playground sweeps $c$ and
+shows the orbit period-double and then fill the funnel.
+
+### Things to try
+
+- Set $c$ small and see a simple closed loop; raise it and watch the
+  loop split to period 2, 4, 8 (the cascade).
+- Push past the accumulation point and watch the orbit fill a
+  strange attractor that never repeats.
+- Increase $c$ further to grow the vertical "funnel" lobe.
+
+### Where this comes from
+
+The Rossler system, the single-fold mechanism and the
+period-doubling route to chaos follow Rossler, Phys. Lett. A 57, 397
+(1976), and Strogatz, *Nonlinear Dynamics and Chaos*, Chapters 10
+and 12.
+
 ## Physical setup
 
 Otto Rossler's 1976 minimal continuous-time chaotic system. Three coupled first-order ODEs in (x, y, z) with one quadratic nonlinearity (z times x). Compared to Lorenz, the geometry is simpler: a near-planar spiral on the (x, y) plane with a single fold that lifts trajectories in z and drops them back near the origin. As the control parameter c increases, the system undergoes a period-doubling cascade culminating in a strange attractor; past c ~ 5.7 the attractor develops a vertical lobe that gives it the "funnel" name.
