@@ -21,3 +21,57 @@ share_state_keys: []
 ---
 # Diffraction grating resolving power
 $N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10 (`hecht2017`).
+
+## Explainer
+
+### What you are looking at
+
+A diffraction grating is many parallel slits. Light through it forms
+sharp bright orders, and the more slits you illuminate, the sharper
+those orders get. Sharper orders mean you can tell two nearly identical
+wavelengths apart. The playground sweeps the slit count and you watch
+broad fuzzy peaks tighten until two close spectral lines separate.
+
+### Where the orders are
+
+Constructive interference (a bright principal maximum) occurs when the
+path difference between adjacent slits of spacing $d$ is a whole
+wavelength:
+
+$$d\sin\theta = m\lambda, \qquad m = 0, 1, 2, \dots$$
+
+The order $m$ positions do not depend on the number of slits. The
+*width* of each order does.
+
+### The intensity pattern and resolving power
+
+For $N$ slits the intensity is the grating function
+
+$$I(\theta) = \left[\frac{\sin(N\phi)}{\sin\phi}\right]^2,
+  \qquad \phi = \frac{\pi d\sin\theta}{\lambda},$$
+
+a tall principal maximum of height $N^2$ flanked by $N-2$ tiny
+subsidiary peaks. The principal maximum's angular width scales as
+$1/N$: more slits, sharper line. Two wavelengths are just resolvable
+(Rayleigh) when one's maximum sits on the other's first zero, which
+gives the resolving power
+
+$$R = \frac{\lambda}{\Delta\lambda} = m\,N.$$
+
+So resolution is simply the order times the number of illuminated
+lines. A spectrograph grating works in high order with thousands of
+lines for exactly this reason. The playground sweeps $N$ from 2 (broad,
+unresolved) to ~40 (razor peaks, the two test wavelengths split).
+
+### Things to try
+
+- Start at $N = 2$: broad cosine fringes, $R = 2$, the two
+  wavelengths blurred together.
+- Raise $N$ and watch the peaks narrow and the two colors separate, as
+  $R = mN$ grows.
+- Go to a higher order $m$ and note the resolution improves there too.
+
+### Where this comes from
+
+The grating condition, the $[\sin(N\phi)/\sin\phi]^2$ pattern, and the
+$R = mN$ resolving power follow Hecht, *Optics*, 5th ed., Chapter 10.
