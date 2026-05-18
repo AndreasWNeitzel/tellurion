@@ -90,3 +90,7 @@ depth-true 3D splat for extra visual supremacy.
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3) ONLY
   if the #stage render changes; this sweep was text-only so it was not
   rerun (6/6 visual-reviewer confirmed the existing goldens).
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
