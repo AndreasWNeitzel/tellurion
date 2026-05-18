@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: riley-hobson
 primary_chapter: 26
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A sphere curves the same way everywhere, a cylinder not at all, a saddle the opposite way: one number, the Gaussian curvature, captures the difference.'
+one_paragraph: 'Gaussian curvature K measures how a surface bends in two directions at once: positive where it domes (a sphere), zero where it can be unrolled flat (a cylinder), negative where it saddles (the hyperbolic plane), and varying in sign across a torus. It is intrinsic, a flat creature living in the surface could measure it without ever leaving, which is the content of Gauss''s Theorema Egregium. The playground shows K across these four surfaces. It is the foundation of differential geometry and of general relativity''s curved spacetime. Reference: Riley, Hobson and Bence, Mathematical Methods, Ch. 26.'
 tags: [relativity, animation, live-readout]
 difficulty: 3
 tier: simple
