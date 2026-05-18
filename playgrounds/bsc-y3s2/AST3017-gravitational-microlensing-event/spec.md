@@ -22,6 +22,61 @@ share_state_keys: []
 
 Top half is a 200-star procedural field; one star is the source (with a faint Einstein-radius ring), another is the lens moving across the field. As the lens approaches the source the user sees the two distorted images flanking it, an Einstein ring flash at zero impact parameter, and the characteristic Paczynski bump in the bottom-half light curve. A binary-lens toggle adds caustic-crossing spikes.
 
+## Explainer
+
+### What you are looking at
+
+A foreground star drifts in front of a background star. Its gravity
+bends the light, splitting and magnifying the background star so it
+temporarily brightens, then fades, a smooth symmetric bump. No light is
+created; the same flux is just focused toward us. This is how dark,
+planet-mass objects are detected across the Galaxy.
+
+### The magnification
+
+The lens deflects light so the background star appears as two images on
+either side of the Einstein ring (angular radius $\theta_E$). Their
+combined brightness, relative to unlensed, depends only on the
+projected separation $u$ (in units of $\theta_E$):
+
+$$A(u) = \frac{u^2 + 2}{u\sqrt{u^2 + 4}}.$$
+
+As the lens passes, $u$ traces
+
+$$u(t) = \sqrt{u_\min^2 + \left(\frac{t - t_\text{peak}}{t_E}\right)^2},$$
+
+so the light curve is the symmetric Paczynski bump: peak magnification
+$A(u_\min)$ at closest approach, width set by the Einstein crossing
+time $t_E$. A smaller minimum impact parameter $u_\min$ gives a higher,
+sharper peak; $u_\min\to0$ gives a brief full Einstein-ring flash.
+
+### Why it matters, and the binary case
+
+The bump is achromatic (same in every color) and symmetric, which
+distinguishes microlensing from intrinsic variable stars. It probes
+otherwise-invisible masses (brown dwarfs, free-floating planets, MACHO
+dark matter). A binary lens (a star with a planet) adds caustics,
+closed curves of formally infinite magnification, so the light curve
+picks up sharp extra spikes when the source crosses them: that is how
+microlensing finds exoplanets. The playground animates the lens
+crossing, the split images and Einstein ring, the Paczynski light
+curve, and the binary caustic spikes.
+
+### Things to try
+
+- Lower $u_\min$ toward 0 and watch the peak shoot up and an Einstein
+  ring flash appear.
+- Change $t_E$ and watch the bump widen or narrow (longer crossing
+  time, broader event).
+- Toggle the binary lens and catch the sharp caustic-crossing spikes,
+  the planet signature.
+
+### Where this comes from
+
+The point-lens magnification $A(u)$, the Einstein radius, and the
+Paczynski light curve follow Paczynski (1986), ApJ 304, 1, and
+Schneider, Ehlers and Falco, *Gravitational Lenses*.
+
 ## Physical setup
 
 Single-lens magnification $A(u) = (u^2 + 2)/(u\sqrt{u^2 + 4})$ with $u(t) = \sqrt{u_\min^2 + ((t-t_\mathrm{peak})/t_E)^2}$. Image positions $\theta_\pm = \tfrac{1}{2}(u \pm \sqrt{u^2 + 4}) \theta_E$. Binary lens: Chang-Refsdal in the $q \ll 1$ limit; full Newton iteration on the complex polynomial for general $q$.
