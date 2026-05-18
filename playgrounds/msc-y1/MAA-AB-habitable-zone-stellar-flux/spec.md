@@ -9,8 +9,8 @@ supporting_ucs: [AST2004]
 curriculum_year: msc-y1
 primary_citation: carroll-ostlie
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Too close and the oceans boil, too far and they freeze; the habitable zone is the orbital band where a planet could keep liquid water.'
+one_paragraph: 'A star''s luminosity follows from Stefan-Boltzmann, L = 4 pi R^2 sigma T_eff^4, and the flux on a planet falls as S(d) = L / (4 pi d^2). The habitable zone is the range of orbital distances where that flux keeps a planet between a runaway greenhouse at the inner edge (about 1.37 solar constants) and a maximum greenhouse at the outer edge (about 0.35). The playground sweeps the star''s temperature and radius and shows the zone shifting: hotter, larger stars push it outward. It is the first-cut filter for where to search for life. Reference: Kasting, Whitmire and Reynolds 1993.'
 tags: [exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
