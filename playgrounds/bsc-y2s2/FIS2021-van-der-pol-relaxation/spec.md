@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: [FIS1013]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Add damping that is negative for small swings and positive for large ones and any start spirals onto the same loop; crank it up and the loop becomes a jerky relaxation tick.'
+one_paragraph: 'The Van der Pol oscillator has nonlinear damping that pumps energy in when the amplitude is small and drains it when large, so every trajectory converges onto a single self-sustained limit cycle no matter how it starts. For small mu the cycle is nearly sinusoidal; as mu grows it deforms into a relaxation oscillation, slow charging punctuated by fast jumps, like a heartbeat or a flashing neon tube. The playground shows the phase portrait and the waveform as you sweep mu from harmonic to strongly relaxational. It is the textbook self-oscillator. Reference: Strogatz, Nonlinear Dynamics and Chaos, Ch. 7.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
