@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Optical Lithography Resolution](../playgrounds/bsc-y3s2/MEF-nanofabrication-lithography-resolution/index.html)** &nbsp; (verified, verified 2026-05-18T00:06:43Z)
+  A projection scanner images a reticle (photomask) onto a wafer through a reduction lens. Diffraction at the mask spreads the light into spatial frequencies; the finite lens pupil collects only those with `|f| <= NA / lambda`, discarding the rest. The printed aerial image is therefore a low-pass-filtered version of the mask, and the smallest line/space that s
+
 - **[Quantum Confinement in Nanostructures](../playgrounds/bsc-y3s2/FIS3029-quantum-confinement-nanostructure/index.html)** &nbsp; (verified, verified 2026-05-17T23:55:26Z)
   A particle of effective mass `m` confined by an infinite square well of side `L` in `d_c` of the three spatial directions and free in the rest: `d_c = 0` is the 3D bulk, `1` a 2D quantum well, `2` a 1D quantum wire, `3` a 0D quantum dot. Confinement quantises the energy in the confined directions and leaves a free-particle continuum in the others; the interp
 

@@ -387,7 +387,7 @@ docs/NEEDS-ATTENTION.md, move on.
   dot 3D box plus DOS (E^.5/step/spike/delta) plus absorption.
   En=hbar2 pi2 n2/2mL2. Inv: L to inf bulk DOS; E2-E1=3E1; gap up L
   down.
-- [ ] nanofabrication-lithography-resolution : medium canvas2d. Reticle
+- [x] nanofabrication-lithography-resolution : medium canvas2d. Reticle
   to aerial image FFT, lam EUV/DUV/i-line, Rayleigh k1 lam/NA. Inv:
   Rayleigh 5%; smaller lam sharper.
 - [ ] afm-stm-surface-interaction : medium canvas2d. Tip scans surface,

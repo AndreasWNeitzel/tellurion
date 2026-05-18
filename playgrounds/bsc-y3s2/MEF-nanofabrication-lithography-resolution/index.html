@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Optical Lithography Resolution</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { function r(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false }); else setTimeout(r, 50); } r(); });</script>
+  <style>
+    body { padding: var(--space-4); }
+    .pg-figure { max-width: 860px; position: relative; }
+    .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
+    .readout-panel { position: absolute; bottom: 14px; right: 18px; background: rgba(6,6,8,0.72); padding: 7px 10px; border-radius: 4px; display: grid; grid-template-columns: 9ch 11ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+    .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+    .readout-panel span { white-space: nowrap; }
+    figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Optical Lithography Resolution</h1>
+    <p>How small a feature a projection scanner can print. A reticle (mask) pattern is imaged through a lens of numerical aperture $\mathrm{NA}$ at wavelength $\lambda$. The lens pupil passes only spatial frequencies $|f|\le \mathrm{NA}/\lambda$, so the aerial image is $I(x)=\big|\,\mathcal F^{-1}[\,\mathrm{pupil}(f)\,\mathcal F\{t\}(f)\,]\big|^2$ and the resolvable half-pitch is the Rayleigh limit $R=k_1\lambda/\mathrm{NA}$. The reticle here is a line/space test pattern whose half-pitch shrinks left to right; in the aerial image the coarse zones print crisply and the zones finer than $R$ blur to flat grey. The bottom bars are the per-zone contrast (red once a zone is below the Rayleigh limit). Switch the wavelength from i-line (365 nm) through DUV/ArF (193 nm) to EUV (13.5 nm) and watch the resolvable pitch collapse: smaller $\lambda$ is sharper. Everything is closed form (gate-tested). Source: Goodman, Introduction to Fourier Optics (`goodman-fourier`); Born and Wolf, Principles of Optics (`born-wolf`); Mack, Fundamental Principles of Optical Lithography, Wiley 2007 (`mack2007`).</p>
+  </header>
+
+  <figure class="pg-figure">
+    <div style="position:relative;">
+      <canvas id="stage" width="860" height="520" aria-label="Reticle, pupil-filtered aerial image, and per-zone contrast across pitch"></canvas>
+      <div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">lambda</span><span class="value" id="readout-lam">0</span>
+        <span class="label">cutoff</span><span class="value" id="readout-cut">0</span>
+        <span class="label">Rayleigh R</span><span class="value" id="readout-ray">0</span>
+        <span class="label">min pitch</span><span class="value" id="readout-res">0</span>
+      </div>
+    </div>
+    <figcaption>
+      Figure 1. A multi-pitch line/space reticle (top), its pupil-filtered coherent aerial image (middle), and the per-zone Michelson contrast (bottom); zones finer than the Rayleigh limit R = k1 lambda / NA blur out (bars turn red).
+      <em>Method:</em> closed-form Fourier-optics imaging (DFT, pupil low-pass at NA/lambda) plus the Rayleigh formula (gate-tested sim.js), Canvas2D; the live readouts are lambda, the cutoff, R, and the finest resolved pitch.
+      <em>Source:</em> Goodman (`goodman-fourier`); Born and Wolf (`born-wolf`); Mack, Wiley 2007 (`mack2007`).
+    </figcaption>
+  </figure>
+
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">wavelength</span><select aria-label="exposure wavelength" id="select-lam" style="grid-column: span 2;"><option value="iline">i-line 365 nm</option><option value="krf">KrF DUV 248 nm</option><option value="arf">ArF 193 nm</option><option value="euv">EUV 13.5 nm</option></select></div>
+    <div class="row"><span class="label">NA</span><input aria-label="numerical aperture, x100" type="range" id="slider-na" min="40" max="135" step="1" value="100"><span class="value" id="value-na">1.00</span></div>
+    <div class="row"><span class="label">k1 factor</span><input aria-label="k1 process factor, x100" type="range" id="slider-k1" min="25" max="80" step="1" value="50"><span class="value" id="value-k1">0.50</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js?v=20260518r1"></script>
+</body>
+</html>
