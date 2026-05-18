@@ -417,7 +417,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2 (`griffiths-em`).
 
 - **[Coulomb Equilibrium of Charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/index.html)** &nbsp; (verified, verified 2026-05-14T00:57:36Z)
-  Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths E&M Ch. 2 (`griffiths-em`).
+  Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths, Introduction to Electrodynamics, Ch. 2.
 
 - **[Elastic and Inelastic Collisions in 2D](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/index.html)** &nbsp; (verified, verified 2026-05-14T00:52:02Z)
   Two disks collide obliquely on a frictionless plane. The hit is parameterised by the impact parameter b (the perpendicular offset between the incoming line of motion and the target centre) and the coefficient of restitution e. Resolving the collision along the contact normal: the normal relative-velocity component reverses scaled by e, the tangential compone
