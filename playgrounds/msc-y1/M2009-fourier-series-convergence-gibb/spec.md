@@ -21,6 +21,65 @@ share_state_keys: [tgt, n]
 
 # Fourier Series: Convergence, Epicycles and the Gibbs Overshoot
 
+## Explainer
+
+### What you are looking at
+
+Any repeating signal, no matter how jagged, can be built by stacking
+pure sine waves. The playground takes a square, sawtooth or triangle
+wave and rebuilds it from $N$ sines, three ways at once: the
+reconstructed curve against the true wave, a chain of spinning vectors
+whose tip draws it, and the leftover error as you add terms. It also
+exposes the famous Gibbs overshoot at the jumps.
+
+### The Fourier series
+
+A $2\pi$-periodic function is written as a sum of harmonics:
+
+$$f(x) = \frac{a_0}{2}
+  + \sum_{n=1}^{\infty}\big[a_n\cos nx + b_n\sin nx\big],$$
+
+with the coefficients picked out by orthogonality (project $f$ onto
+each harmonic):
+
+$$a_n = \frac1\pi\int_{-\pi}^{\pi} f(x)\cos nx\,dx,\qquad
+  b_n = \frac1\pi\int_{-\pi}^{\pi} f(x)\sin nx\,dx.$$
+
+Truncating at $N$ terms gives the partial sum $S_N(x)$. Each pair
+$(a_n,b_n)$ is one rotating vector of frequency $n$; summing the
+vectors tip-to-tail and tracing the tip is exactly the epicycle
+picture (the same math as a Fourier "drawing machine").
+
+### Parseval and the Gibbs overshoot
+
+Energy is conserved between the signal and its spectrum (Parseval):
+
+$$\frac1\pi\int_{-\pi}^{\pi} f^2\,dx
+  = \frac{a_0^2}{2} + \sum_{n=1}^{\infty}(a_n^2 + b_n^2),$$
+
+so the partial-sum energy climbs monotonically toward the total as
+$N$ grows, and the missing energy is the truncation error. But near a
+jump discontinuity the partial sum always overshoots by about 9% of
+the jump no matter how large $N$ is (the Gibbs phenomenon): the
+overshoot does not shrink, it only narrows. That is why a square wave
+reconstructed from many sines still has a stubborn ringing at its
+edges, the central lesson for any truncated spectral method.
+
+### Things to try
+
+- Raise $N$ and watch $S_N$ hug the target everywhere except at the
+  jumps, where the ~9% overshoot refuses to die.
+- Watch the epicycle chain: low harmonics set the shape, high
+  harmonics sharpen the corners.
+- Read the Parseval bar climbing toward 100% as the error falls.
+
+### Where this comes from
+
+The Fourier series, the orthogonality coefficients, Parseval's
+theorem and the Gibbs phenomenon follow Boas, *Mathematical Methods
+in the Physical Sciences*, Chapter 7, and Arfken and Weber,
+*Mathematical Methods for Physicists*.
+
 ## Physical setup
 
 Any periodic function is a sum of sines and cosines. This playground takes a square, sawtooth or triangle wave on [-pi, pi], builds its N-term Fourier partial sum, and shows the same sum three ways: as a curve compared to the target, as a chain of rotating vectors whose tip traces it, and through its convergence behaviour (the Parseval energy and the Gibbs overshoot versus N).
