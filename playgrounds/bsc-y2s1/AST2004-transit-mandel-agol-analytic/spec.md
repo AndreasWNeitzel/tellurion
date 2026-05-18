@@ -21,3 +21,60 @@ share_state_keys: []
 ---
 # Mandel-Agol transit
 Analytic transit light curve; uniform-source closed form plus quadratic limb darkening via ring decomposition. Source: Mandel & Agol 2002 (`mandelagol2002`).
+
+## Explainer
+
+### What you are looking at
+
+When a planet crosses in front of its star it blocks a sliver of
+light, producing a small periodic dip. The exact shape of that dip
+encodes the planet's size, orbit, and the star's brightness profile.
+The playground draws the transit geometry and the resulting light
+curve, computed with the standard analytic Mandel and Agol model.
+
+### The uniform-star transit
+
+Model the star as a disk of radius $R_\star$ and the planet as an
+opaque disk of radius $R_p$; let $p = R_p/R_\star$ and let $z(t)$ be
+their projected centre separation in stellar radii. The blocked
+fraction is just the overlap area of two circles, so the relative
+flux is
+
+$$\frac{F(t)}{F_0} = 1 - \frac{A_\mathrm{overlap}(z,p)}{\pi}.$$
+
+The depth at mid-transit is $\approx p^2 = (R_p/R_\star)^2$, so the
+dip directly measures the planet-to-star size ratio. The ingress and
+egress durations set the impact parameter and the orbital geometry.
+
+### Limb darkening: why the floor is curved
+
+A real star is brighter at the centre of its disk than at the limb
+(the grey-atmosphere law). Mandel and Agol handle this by decomposing
+the star into concentric rings of intensity $I(\mu)$ and integrating
+the uniform-disk result over them, with the quadratic law
+
+$$I(\mu)/I(1) = 1 - u_1(1-\mu) - u_2(1-\mu)^2,
+  \qquad \mu = \sqrt{1 - r^2}.$$
+
+The visible consequence: the transit floor is not flat but
+"U-shaped", deepest at mid-transit when the planet covers the bright
+centre and shallower near ingress/egress when it covers the dim limb.
+Fitting that curvature is how limb-darkening coefficients and precise
+radii are extracted from Kepler and TESS light curves. The playground
+sweeps $p$, the impact parameter and the limb-darkening coefficients
+and shows the geometry and the analytic curve together.
+
+### Things to try
+
+- Increase the planet radius and watch the transit depth grow as
+  $p^2$.
+- Raise the impact parameter toward 1 and watch the transit shorten
+  and become more V-shaped (a grazing transit).
+- Turn limb darkening on and watch the flat bottom curve into a
+  rounded U.
+
+### Where this comes from
+
+The analytic transit model, the overlap-area formula, and the
+limb-darkened ring decomposition follow Mandel and Agol, ApJ 580,
+L171 (2002), and Winn, "Transits and Occultations" (2010).

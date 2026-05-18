@@ -71,5 +71,8 @@ function render() {
   rD.textContent = `${((1 - fluxWithLimb(st.p, st.b, st.u1, st.u2)) * 100).toFixed(2)}%`;
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
-function bootSync() { st.t = CAPTURE_FRAC * 5; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+// Capture: map the fraction to t so the phase ((t*0.2)%1)-0.5 sweeps the
+// transit monotonically WITHOUT wrapping (4.8 not 5, so frac=1 lands at
+// phase +0.46, not back at -0.5); all five frames are then distinct.
+function bootSync() { st.t = CAPTURE_FRAC * 4.8; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }

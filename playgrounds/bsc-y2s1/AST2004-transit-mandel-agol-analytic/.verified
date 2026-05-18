@@ -1,1 +1,3 @@
-verified-at: 2026-05-14T01:19:15Z
+verified-at: 2026-05-18T20:39:28Z
+invariants: Tests passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); fixed wrapping capture sweep (CAPTURE_FRAC*4.8 not *5); deterministic D==E and matches goldens; visual 5/5 x3; comprehensive ## Explainer added
