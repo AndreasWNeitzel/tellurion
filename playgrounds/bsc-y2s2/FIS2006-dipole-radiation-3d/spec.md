@@ -19,6 +19,59 @@ share_state_keys: []
 
 # Dipole Radiation in 3D
 
+## Explainer
+
+### What you are looking at
+
+An oscillating charge (a dipole antenna) does not radiate equally in
+all directions. It throws no power straight along its axis and the most
+broadside, giving a doughnut-shaped radiation pattern. This is why a
+whip antenna is mounted vertically and why you rotate it for the best
+signal.
+
+### The angular pattern
+
+For a Hertzian (short) dipole of moment $p_0$ oscillating at frequency
+$\omega$, the time-averaged power per unit solid angle is
+
+$$\frac{dP}{d\Omega} =
+  \frac{\mu_0\,p_0^2\,\omega^4}{32\pi^2 c}\,\sin^2\theta,$$
+
+with $\theta$ measured from the dipole axis. The $\sin^2\theta$ is the
+whole shape: a null along the axis ($\theta = 0,\pi$), a maximum in the
+equatorial plane, the toroidal pattern. The strong $\omega^4$ is why
+the sky is blue (higher-frequency light scatters far more) and why
+efficient antennas are not tiny.
+
+### Total power and the fields
+
+Integrate over all directions and you recover the Larmor total
+
+$$P = \frac{\mu_0\,p_0^2\,\omega^4}{12\pi c}.$$
+
+In the far zone the radiation is a clean transverse wave: $\mathbf E$
+along $\hat\theta$, $\mathbf B$ along $\hat\phi$, $|\mathbf E| =
+c|\mathbf B|$, and the Poynting flux falls as $1/r^2$ (energy
+conserved through expanding spheres). A real half-wave antenna sharpens
+the lobe slightly, pattern
+$[\cos(\tfrac\pi2\cos\theta)/\sin\theta]^2$, raising the directivity
+from $3/2$ (Hertzian) to about $1.64$.
+
+### Things to try
+
+- Rotate the dipole and watch the doughnut swing with it, always
+  nulling along the axis.
+- Switch to the half-wave antenna and see the lobe narrow (higher
+  directivity).
+- Note the $1/r^2$ falloff of the Poynting flux: total radiated power
+  is the same through any sphere.
+
+### Where this comes from
+
+The dipole $\sin^2\theta$ pattern, the radiated-power formula, the
+far-zone fields, and antenna directivity follow Griffiths,
+*Introduction to Electrodynamics*, 5th ed., Chapter 11.
+
 ## Physical setup
 
 An oscillating electric (or magnetic) dipole, or a centre-fed
