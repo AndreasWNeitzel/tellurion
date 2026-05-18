@@ -21,6 +21,63 @@ share_state_keys: [nbar, g]
 
 # Jaynes-Cummings Model: Collapse and Revival
 
+## Explainer
+
+### What you are looking at
+
+One atom, one quantized light mode, exchanging a single quantum of
+energy. If the field were classical the atom would flip up and down
+forever (Rabi flopping). Because the field is quantum, those
+oscillations collapse to silence and then, remarkably, revive. That
+collapse-and-revival is direct evidence the electromagnetic field is
+quantized.
+
+### The model
+
+The Jaynes-Cummings Hamiltonian (rotating-wave approximation, exact
+resonance) couples the atom to the cavity mode with strength $g$:
+
+$$H = \hbar\omega\,a^\dagger a
+  + \tfrac{\hbar\omega}{2}\sigma_z
+  + \hbar g\,(a^\dagger\sigma_- + a\,\sigma_+).$$
+
+For a definite photon number $n$ the excited-state probability
+oscillates at the quantum Rabi frequency $\Omega_n = 2g\sqrt{n+1}$:
+each photon number rings at its *own* speed.
+
+### Collapse and revival
+
+Start the atom excited and the field in a coherent state of mean
+photon number $\bar n$ (a Poisson spread of photon numbers). The atomic
+inversion $W = P_e - P_g$ is then a sum of many Rabi oscillations at
+incommensurate frequencies $2g\sqrt{n+1}$:
+
+$$W(t) = \sum_n P(n)\cos\!\big(2g\sqrt{n+1}\,t\big).$$
+
+Early on they dephase and the oscillation *collapses* to near zero
+(timescale set by the spread of $\sqrt{n}$). Much later the
+discreteness of the photon ladder makes them rephase and the
+oscillation *revives*, at $t_\text{rev}\approx 2\pi\sqrt{\bar n}/g$. A
+classical field (continuous $n$) would never revive; the revival is a
+purely quantum signature of field quantization, and it has been seen in
+cavity-QED experiments. The playground evolves $W(t)$ and shows the
+collapse and the later revival.
+
+### Things to try
+
+- Watch the inversion ring, collapse to flat, then revive as a beat
+  packet much later.
+- Increase $\bar n$ and watch the collapse get faster and the revival
+  push out to later time ($\propto\sqrt{\bar n}$).
+- Note a single Fock state ($P(n)=\delta$) gives clean unending Rabi
+  flopping: the collapse needs the photon-number spread.
+
+### Where this comes from
+
+The Jaynes-Cummings Hamiltonian, the $2g\sqrt{n+1}$ Rabi frequencies,
+and collapse-and-revival follow Gerry and Knight, *Introductory Quantum
+Optics*, and Scully and Zubairy, *Quantum Optics*.
+
 ## Physical setup
 
 A single two-level atom sits in a lossless optical cavity supporting
