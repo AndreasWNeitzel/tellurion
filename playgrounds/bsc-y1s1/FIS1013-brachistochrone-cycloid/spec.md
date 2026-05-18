@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "The fastest slide between two points is not the straight line. Release three beads at once down a ramp, a circular arc and a cycloid: the cycloid wins every time, because diving steeply early buys speed that more than pays back the longer path."
+one_paragraph: "Three frictionless beads start together at the top point A and slide under gravity to a lower point B, one on a straight line, one on a circular arc, and one on a cycloid (the curve a point on a rolling wheel traces). The straight line is the shortest path but not the quickest: the cycloid bead drops steeply at the start, picks up speed early, and reaches B first even though it travels farther. That curve is the brachistochrone (Greek for shortest time), the answer to the problem Johann Bernoulli posed in 1696 that helped launch the calculus of variations. The race here is exact: energy conservation fixes the speed v = sqrt(2 g y) at depth y, the cycloid has a closed-form solution (its angle grows linearly in time), the straight line is uniformly accelerated, and the arc is integrated numerically; a finish time is shown for each path. Watch the cycloid pull ahead immediately and never be caught."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
