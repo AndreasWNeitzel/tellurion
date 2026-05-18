@@ -21,6 +21,67 @@ share_state_keys: [e, th, order]
 
 # QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section
 
+## Explainer
+
+### What you are looking at
+
+A Feynman diagram is not just a cartoon: it is a precise recipe for a
+number, the probability amplitude of a particle process. The
+playground builds the simplest QED diagram, electron-positron
+annihilation into a muon pair, turns it into a formula, and computes
+the cross section that collider experiments actually measure.
+
+### The diagram and its amplitude
+
+In $e^+e^-\to\mu^+\mu^-$ at leading order, one diagram contributes:
+the $e^+e^-$ annihilate into a virtual photon (an s-channel
+propagator carrying $q^2=s$, the squared center-of-mass energy),
+which then creates the $\mu^+\mu^-$ pair. The Feynman rules translate
+the picture directly into the amplitude
+
+$$\mathcal M = \bar v(e^+)\,(ie\gamma^\mu)\,u(e^-)\;
+  \frac{-i g_{\mu\nu}}{s}\;
+  \bar u(\mu^-)\,(ie\gamma^\nu)\,v(\mu^+),$$
+
+with one vertex factor $ie\gamma^\mu$ per junction
+($e=\sqrt{4\pi\alpha}$) and the $1/s$ photon propagator.
+
+### From amplitude to cross section
+
+Squaring, averaging over initial spins and summing over final ones
+gives (in the high-energy limit)
+
+$$\frac{d\sigma}{d\Omega}
+  = \frac{\alpha^2}{4s}\,\big(1 + \cos^2\theta\big),
+  \qquad
+  \sigma_\mathrm{tot}
+  = \frac{4\pi\alpha^2}{3s}.$$
+
+Two robust predictions fall out: the angular distribution is
+$1+\cos^2\theta$ (a direct consequence of the photon being spin-1 and
+the fermions spin-1/2), and the total cross section falls as $1/s$,
+the famous "$1/E^2$" scaling that the muon-pair data confirm
+beautifully. Each extra order in perturbation theory adds factors of
+$\alpha\approx1/137$, which is why the leading diagram already gives
+a few-percent answer. The playground lets you set the beam energy and
+angle and shows the diagram, $|\mathcal M|^2$, and $\sigma$.
+
+### Things to try
+
+- Sweep the scattering angle and confirm the $1+\cos^2\theta$
+  shape (forward-backward symmetric, minimum at $90^\circ$).
+- Raise the beam energy and watch the total cross section fall as
+  $1/s$.
+- Note that going to next order multiplies corrections by
+  $\alpha\sim1\%$ (why QED converges so fast).
+
+### Where this comes from
+
+The QED Feynman rules, the $e^+e^-\to\mu^+\mu^-$ amplitude, and the
+$1/s$ cross section follow Peskin and Schroeder, *An Introduction to
+Quantum Field Theory*, Chapter 5, and Halzen and Martin, *Quarks and
+Leptons*.
+
 ## Physical setup
 
 The reaction is electron-positron annihilation into a muon pair, e+ e- -> mu+ mu-, in the centre-of-mass frame. At leading order in QED a single Feynman diagram contributes: the e+ e- pair annihilates at a vertex into a virtual photon (the s-channel propagator, with q^2 = s), which materialises into the mu+ mu- pair at a second vertex. The muon is treated as a structureless Dirac particle; the only interaction is the QED vertex, coupling e = sqrt(4 pi alpha). Energies are in GeV (natural units); the cross section is reported in nanobarns using 1 GeV^-2 = 0.389 mb.
