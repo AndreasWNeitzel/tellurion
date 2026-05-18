@@ -20,6 +20,63 @@ share_state_keys: []
 
 # Schwarzschild Light Bending
 
+## Explainer
+
+### What you are looking at
+
+Fire a sheet of light rays past a black hole. Rays that pass far away
+bend slightly; rays that come in close swing around; and rays inside a
+critical aim are swallowed. Right at the boundary, light can loop the
+hole many times before escaping, the origin of the bright photon ring
+in black-hole images.
+
+### One number decides each ray's fate
+
+Light follows null geodesics in the Schwarzschild metric, with two
+conserved quantities (energy $E$, angular momentum $L$). The whole
+trajectory depends only on their ratio, the impact parameter
+$b = L/E$. The radial motion is a 1D energy problem,
+
+$$\tfrac12 p_r^2 + V_\text{null}(r) = \tfrac12 E^2,
+  \qquad V_\text{null}(r) = \frac{L^2}{2 r^2}
+  \left(1 - \frac{2}{r}\right),$$
+
+(geometric units $G=c=M=1$). The angle advances as
+$d\varphi/d\lambda = L/r^2$.
+
+### The photon sphere and critical impact parameter
+
+$V_\text{null}$ has a single maximum at $r = 3$ (the photon sphere),
+the unstable circular-light orbit. A ray gets over that barrier and is
+captured if its energy is high enough, which works out to a sharp
+threshold in $b$:
+
+$$|b| < b_\text{crit} = 3\sqrt3 \approx 5.196
+  \;\Rightarrow\; captured\ (falls through r=2),$$
+
+while $|b| > b_\text{crit}$ rays are deflected and escape. Far out the
+bend is the familiar weak-field value $\sim 4M/b$ (twice the Newtonian
+prediction, the 1919 eclipse test). Rays with $|b|$ just above
+$b_\text{crit}$ orbit the photon sphere several times before escaping,
+producing the nested photon rings seen by the Event Horizon Telescope.
+The playground integrates many rays symplectically (conserved $E, L$
+stay flat) and shows the capture, the deflection, and the loopers.
+
+### Things to try
+
+- Aim a ray with $|b|$ just below $3\sqrt3$ and watch it spiral
+  through the horizon (capture).
+- Aim just above and watch it whirl around the photon sphere a few
+  times then escape (the photon ring).
+- Aim far out and confirm the gentle $\sim 4M/b$ deflection.
+
+### Where this comes from
+
+The null-geodesic effective potential, the photon sphere at $r=3M$,
+the critical $b = 3\sqrt3\,M$, and the $4M/b$ deflection follow Hartle,
+*Gravity: An Introduction to Einstein's General Relativity*,
+Chapter 9.
+
 ## Physical setup
 
 A horizontal plane wave of photons enters from the left and encounters a non-rotating black hole of mass $M = 1$ in the equatorial plane. Geometric units $G = c = M = 1$. Each photon is a null geodesic with two conserved quantities (Killing vectors of the Schwarzschild metric): energy $E$ and angular momentum $L$. The orbital fate is determined entirely by the impact parameter $b = L / E$; photons with $|b| < b_\text{crit} \equiv 3 \sqrt{3} \approx 5.196$ cross the photon sphere at $r = 3$ and are swallowed by the horizon at $r = 2$, while photons with $|b| > b_\text{crit}$ are deflected. Photons with $|b|$ just above $b_\text{crit}$ loop the photon sphere multiple times before escaping; photons with $|b|$ far above $b_\text{crit}$ are weakly deflected by $\sim 4M/b$ rad.
