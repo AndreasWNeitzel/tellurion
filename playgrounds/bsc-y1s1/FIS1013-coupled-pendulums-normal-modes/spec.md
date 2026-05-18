@@ -22,6 +22,79 @@ share_state_keys: []
 
 # Coupled pendulums and normal modes
 
+## Explainer
+
+### What you are looking at
+
+Two identical pendulums hang side by side, joined by a light spring.
+Pull one aside and let go: it swings, the spring nudges the other, and
+within a few seconds the first pendulum is nearly still while the
+second swings hard. Then the energy sloshes back. That slow trading of
+energy is the headline result of all coupled-oscillator physics, and it
+comes entirely from two special motions called normal modes.
+
+### The equations
+
+Each pendulum of length $L$ feels gravity pulling it back plus a spring
+force that depends on the *difference* between the two angles. For
+small swings:
+
+$$m L^2 \ddot\theta_1 = -m g L\,\theta_1 - k d^2 (\theta_1 - \theta_2),$$
+
+$$m L^2 \ddot\theta_2 = -m g L\,\theta_2 - k d^2 (\theta_2 - \theta_1).$$
+
+These two equations are tangled: $\theta_1$ depends on $\theta_2$ and
+the other way round. The trick is to watch their sum and difference
+instead, which untangles them into two independent oscillators.
+
+### The two normal modes
+
+A normal mode is a way of starting the system so that both pendulums
+oscillate at a single shared frequency forever.
+
+- Push both the same way, $\theta_1 = \theta_2$. The spring never
+  stretches, so it does nothing, and the pair swings at the bare
+  pendulum frequency:
+
+$$\omega_+ = \sqrt{g/L}.$$
+
+- Push them oppositely, $\theta_1 = -\theta_2$. Now the spring is
+  worked hardest and stiffens the motion, raising the frequency:
+
+$$\omega_- = \sqrt{\,g/L + 2 k d^2 / (m L^2)\,}.$$
+
+Every possible motion is a sum of these two modes. That is the whole
+idea: a hard, coupled problem becomes two easy, separate ones.
+
+### Why the energy beats back and forth
+
+Start asymmetrically, $\theta_1 = A$, $\theta_2 = 0$. That start is an
+equal mix of both modes. They run at slightly different frequencies
+$\omega_+$ and $\omega_-$, so they drift in and out of step. When they
+are in step the first pendulum carries all the motion; half a beat
+later they are out of step and the second pendulum does. The full
+exchange repeats with the beat period
+
+$$T_\text{beat} = \frac{2\pi}{\omega_- - \omega_+}.$$
+
+A weaker spring makes $\omega_-$ closer to $\omega_+$ and the beats
+slower; a stiffer spring speeds them up.
+
+### Things to try
+
+- Start both pendulums together and watch them stay locked: the pure
+  $\omega_+$ mode, spring idle.
+- Start them exactly opposite for the faster pure $\omega_-$ mode.
+- Start one alone and watch the energy pour back and forth with period
+  $T_\text{beat}$.
+
+### Where this comes from
+
+The coupled equations, the sum-and-difference normal-mode trick, and
+the beat picture follow French, *Vibrations and Waves* (MIT
+Introductory Physics Series), Chapter 5, and Crawford, *Waves*
+(Berkeley Physics Course, Vol. 3), Chapters 1 to 2.
+
 ## Physical setup
 
 Two identical pendulums of length $L$ and mass $m$, coupled by a spring of constant $k$ attached at distance $d$ from each pivot. Small-angle linearized EOM:
