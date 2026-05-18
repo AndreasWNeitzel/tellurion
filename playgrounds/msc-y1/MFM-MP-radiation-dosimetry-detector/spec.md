@@ -21,6 +21,74 @@ share_state_keys: [e, v, dr]
 
 # Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray
 
+## Explainer
+
+### What you are looking at
+
+How do you measure a radiation dose? The standard tool is an
+ionization chamber: radiation rips electrons off gas molecules, an
+electric field sweeps the charges to electrodes, and the collected
+charge is the measurement. The playground shows the ionization, the
+charge-vs-voltage curve, and the cavity theory that turns the reading
+into a tissue dose.
+
+### Charge and the W value
+
+Photons Compton-scatter in the gas; the recoil electrons ionize gas
+molecules, creating ion pairs at a fixed average energy cost $W$ per
+pair ($W=33.97$ eV in air). So the charge collected directly counts
+the energy deposited in the gas:
+
+$$D_\mathrm{gas}
+  = \frac{Q}{m}\cdot\frac{W}{e},$$
+
+with $Q$ the collected charge, $m$ the gas mass, and $e$ the
+elementary charge. The constancy of $W$ is what makes the chamber a
+calorimeter for ionizing radiation.
+
+### Recombination and the saturation curve
+
+Not all ion pairs are collected. At low collecting voltage the slow
+ions recombine before reaching the electrodes, so the chamber
+under-reads; as the voltage rises the collection efficiency climbs to
+a plateau (saturation), and the true charge is obtained by a
+near-saturation correction (the two-voltage method). This
+voltage-vs-charge curve is the chamber's signature, and reading on
+the saturated plateau is essential for accurate dosimetry.
+
+### Bragg-Gray cavity theory
+
+The chamber measures dose to the gas, but the clinic needs dose to
+tissue. If the cavity is small enough not to perturb the electron
+field crossing it, Bragg-Gray theory relates the two by the ratio of
+mass collision stopping powers:
+
+$$D_\mathrm{medium}
+  = D_\mathrm{gas}\,
+  \left(\frac{S/\rho\big|_\mathrm{medium}}
+  {S/\rho\big|_\mathrm{gas}}\right).$$
+
+That single stopping-power ratio is the bridge from a charge reading
+to an absorbed dose in water or tissue, the foundation of clinical
+reference dosimetry. The playground sweeps the beam energy and the
+collecting voltage and shows the ion-pair creation, the saturation
+curve, and the Bragg-Gray conversion.
+
+### Things to try
+
+- Raise the collecting voltage and watch the collected charge climb
+  from recombination losses up to the saturation plateau.
+- Confirm the dose-to-gas scales linearly with collected charge
+  through $W/e$.
+- Change the surrounding medium and watch the Bragg-Gray
+  stopping-power ratio rescale the dose.
+
+### Where this comes from
+
+The $W$ value, recombination/saturation, and Bragg-Gray cavity
+theory follow Attix, *Introduction to Radiological Physics*, and
+Podgorsak, *Radiation Physics for Medical Physicists*.
+
 ## Physical setup
 
 An ionization chamber: a small gas cavity between two electrodes at a collecting voltage. Photons Compton-scatter in the gas; the recoil electrons strip electrons off gas molecules, creating ion pairs at a fixed average cost of W per pair (33.97 eV in air). The applied field sweeps the ions to the electrodes, where the collected charge is measured. At low voltage some ions recombine before they arrive (the chamber under-reads); at high voltage essentially all are collected (saturation). The charge gives the dose to the gas, and Bragg-Gray cavity theory converts that to the dose in the surrounding medium.
