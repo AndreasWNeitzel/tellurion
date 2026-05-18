@@ -20,6 +20,60 @@ share_state_keys: []
 
 # Wave on a string: fixed vs free-end reflection
 
+## Explainer
+
+### What you are looking at
+
+A pulse running down a string bounces off the end, but how it bounces
+depends entirely on what the end is attached to. A fixed end flips the
+pulse upside down; a free end reflects it upright. The playground runs
+both cases on parallel strings so the difference is unmistakable.
+
+### The wave and its boundary conditions
+
+Each string carries the 1D wave equation
+$\partial_t^2 y = c^2\,\partial_x^2 y$, so a pulse travels
+undistorted at speed $c$. What happens at the end is set by the
+boundary condition there:
+
+- Fixed end: the displacement must stay zero, $y(L,t)=0$. The only
+  way an incoming pulse $f(x-ct)$ can keep the end pinned is if a
+  reflected, inverted, reversed pulse $-f(\,-x-ct)$ is added. The
+  pulse comes back upside down (reflection coefficient $-1$, a
+  $\pi$ phase flip).
+- Free end: the slope must vanish, $\partial_x y(L,t)=0$ (nothing
+  resists transverse motion). The matching reflected pulse is
+  upright (reflection coefficient $+1$, no phase flip), and the end
+  briefly swings to twice the pulse amplitude.
+
+### Why it matters
+
+This sign is the whole story behind standing waves and resonance: a
+fixed-fixed string forces a node at each end (hence $f_n=n c/2L$,
+the harmonic series of a guitar), while a fixed-free pipe (like a
+clarinet) forces a node at one end and an antinode at the other,
+giving only odd harmonics $f_n=(2n-1)c/4L$. The same hard-vs-soft
+boundary logic governs impedance mismatch on transmission lines and
+optical reflection off denser vs rarer media (the half-wave loss).
+The playground sends identical pulses into a fixed and a free end so
+you watch the inversion appear on one and not the other.
+
+### Things to try
+
+- Send a pulse at the fixed end and watch it return inverted (the
+  $\pi$ phase flip).
+- Send the same pulse at the free end and watch it return upright,
+  with the end overshooting to ~2x amplitude.
+- Let pulses reflect repeatedly and see the fixed-end string build a
+  node-ended standing pattern.
+
+### Where this comes from
+
+Reflection at fixed and free boundaries, the reflection coefficient,
+and the resulting harmonic series follow French, *Vibrations and
+Waves*, Chapter 7, and Crawford, *Waves* (Berkeley Physics Course,
+Vol. 3).
+
 ## Physical setup
 
 Two parallel 1D strings of length L = 4 with c = 1, each with a Gaussian
