@@ -2,6 +2,7 @@ import { intensity, resolvingPower, principalMaxAngle } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rR = document.getElementById('readout-r');
 const ids = ['N','d','a','l','dl'];
@@ -61,5 +62,17 @@ function render() {
   rR.textContent = R;
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  // Reference capture sweeps the slit count N (resolving power R = mN):
+  // the principal maxima visibly narrow and the two close wavelengths
+  // separate as N grows, so the five golden frames are distinct and
+  // tell the resolving-power story.
+  if (CAPTURE_NAME) {
+    st.N = Math.round(2 + CAPTURE_FRAC * 38);
+    const sN = sliders.find((x) => x.k === 'N');
+    if (sN) { sN.s.value = String(st.N); sN.v.textContent = st.N.toString(); }
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
