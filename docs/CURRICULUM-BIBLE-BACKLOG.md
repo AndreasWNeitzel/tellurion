@@ -411,7 +411,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 16: M:EF Semiconductors/Spintronics (F4029/FIS4026; Neamen)
 
-- [ ] mosfet-operation-animated : advanced canvas2d. MOSFET x-section,
+- [x] mosfet-operation-animated : advanced canvas2d. MOSFET x-section,
   inversion channel, pinch-off, ID-VDS regions. Inv: ID<1e-6 Isat
   below Vth; lin/sat boundary VDS=VGS-Vth 0.1%.
 - [ ] gmr-spin-valve-simulator : advanced canvas2d. FM/NM/FM two-current,

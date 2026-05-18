@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Optical Fiber: LP Modes, Dispersion and Pulse Broadening](../playgrounds/bsc-y3s2/FIS4035-optical-fiber-modes-dispersion/index.html)** &nbsp; (verified, verified 2026-05-18T01:23:36Z)
+  A step-index fibre has a core of index n1 and radius a inside a cladding of index n2 (n1 only slightly above n2: weakly guiding). The guided fields are the linearly polarised LP_lm modes. The normalised frequency V = a k0 sqrt(n1^2 - n2^2) decides how many modes the fibre supports; below V = 2.405 only the fundamental LP01 propagates (single-mode operation),
+
 - **[Second-Harmonic Generation: Phase Matching and Conversion](../playgrounds/bsc-y3s2/FIS4035-nonlinear-optics-shg/index.html)** &nbsp; (verified, verified 2026-05-18T01:10:46Z)
   A fundamental beam at frequency w propagates through a crystal with a second-order nonlinearity and generates a second-harmonic beam at 2w. The two waves accumulate phase at different rates unless their wave vectors satisfy k_2w = 2 k_w; the residual mismatch dk = k_2w - 2 k_w controls everything. Two standard regimes are shown: small conversion (undepleted 
 
@@ -782,14 +785,14 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
 
+- **[MOSFET Operation: Channel, Pinch-off and I-V Regions](../playgrounds/bsc-y3s2/FIS4026-mosfet-operation-animated/index.html)** &nbsp; (verified)
+  An n-channel enhancement MOSFET: a gate over a thin oxide above a p-type body, with n+ source and drain. Raising the gate voltage past the threshold V_th inverts the surface into an n-type channel connecting source and drain. The drain-source voltage then drives a current whose behaviour splits into three regions (cutoff, triode, saturation), with the channe
+
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.
 
 - **[Normal Modes of a Mass-Spring Chain](../playgrounds/bsc-y2s1/FIS2002-normal-modes-nd-chain/index.html)** &nbsp; (verified)
   A 1D chain of N point masses joined by springs with fixed ends. The monatomic chain has one spring constant; the diatomic chain alternates two spring constants along the chain (a two-atom basis).
-
-- **[Optical Fiber: LP Modes, Dispersion and Pulse Broadening](../playgrounds/bsc-y3s2/FIS4035-optical-fiber-modes-dispersion/index.html)** &nbsp; (verified)
-  A step-index fibre has a core of index n1 and radius a inside a cladding of index n2 (n1 only slightly above n2: weakly guiding). The guided fields are the linearly polarised LP_lm modes. The normalised frequency V = a k0 sqrt(n1^2 - n2^2) decides how many modes the fibre supports; below V = 2.405 only the fundamental LP01 propagates (single-mode operation),
 
 - **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified)
   A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.

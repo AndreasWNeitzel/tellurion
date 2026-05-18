@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MOSFET Operation: Channel, Pinch-off and I-V Regions</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>MOSFET Operation: Channel, Pinch-off and I-V Regions</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="MOSFET output characteristics, device cross-section, and transfer curve"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">V_GS:</span><span class="value" id="readout-vgs">3.00</span>
+      <span class="label">V_DS:</span><span class="value" id="readout-vds">0.00</span>
+      <span class="label">I_D:</span><span class="value" id="readout-id">0.00</span>
+      <span class="label">region:</span><span class="value" id="readout-region">cutoff</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      n-channel enhancement MOSFET: the inversion channel forms above threshold, tapers along the device and pinches off at the drain when V_DS reaches V_GS - V_th, separating the triode and saturation regions of the I_D-V_DS characteristic.
+      <em>Method:</em> square-law (level-1 / Shichman-Hodges) model with a subthreshold tail; deterministic.
+      <em>Source:</em> Neamen 2012, Ch. 10-11; Shichman and Hodges 1968; Sze and Ng.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">gate V_GS</span><input aria-label="gate-source voltage, x100" type="range" id="slider-vgs" min="0" max="500" step="5" value="300"><span class="value" id="value-vgs">3.00</span></div>
+    <div class="row"><span class="label">threshold V_th</span><input aria-label="threshold voltage, x100" type="range" id="slider-vth" min="20" max="250" step="5" value="100"><span class="value" id="value-vth">1.00</span></div>
+    <div class="row"><span class="label">channel-length mod lambda</span><input aria-label="channel-length modulation, x1000" type="range" id="slider-lam" min="0" max="120" step="2" value="0"><span class="value" id="value-lam">0.000</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
