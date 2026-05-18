@@ -20,6 +20,74 @@ share_state_keys: []
 
 # Backpropagation on a tiny MLP
 
+## Explainer
+
+### What you are looking at
+
+A neural network "learns" by one idea: nudge every weight a little
+in the direction that most reduces the error. Backpropagation is just
+the chain rule applied systematically to compute all those nudges at
+once. The playground trains a tiny network on a 2D classification
+toy and shows the decision boundary, the weight graph, and the loss
+falling, all live.
+
+### Forward pass
+
+The network maps an input $\mathbf x$ through layers. Each layer
+takes a weighted sum and a nonlinearity:
+
+$$\mathbf z^{(l)} = W^{(l)}\mathbf a^{(l-1)} + \mathbf b^{(l)},
+  \qquad
+  \mathbf a^{(l)} = \sigma\big(\mathbf z^{(l)}\big),$$
+
+with $\sigma=\tanh$ in the hidden layers and a logistic
+$\sigma(z)=1/(1+e^{-z})$ at the output. The training signal is the
+binary cross-entropy loss
+
+$$\mathcal L = -\big[y\log\hat y + (1-y)\log(1-\hat y)\big].$$
+
+### Backward pass: the chain rule
+
+To improve, we need $\partial\mathcal L/\partial W^{(l)}$ for every
+layer. Backpropagation computes them from the output backward by
+reusing one quantity, the error signal
+$\boldsymbol\delta^{(l)} = \partial\mathcal L/\partial\mathbf z^{(l)}$:
+
+$$\boldsymbol\delta^{(L)} = \hat y - y,
+  \qquad
+  \boldsymbol\delta^{(l)}
+  = \big(W^{(l+1)\top}\boldsymbol\delta^{(l+1)}\big)
+  \odot \sigma'\big(\mathbf z^{(l)}\big),$$
+
+and then the weight gradient at each layer is just an outer product:
+
+$$\frac{\partial\mathcal L}{\partial W^{(l)}}
+  = \boldsymbol\delta^{(l)}\,\mathbf a^{(l-1)\top}.$$
+
+Gradient descent applies the nudge $W \leftarrow W - \eta\,
+\partial\mathcal L/\partial W$ with learning rate $\eta$. The key
+insight is that the same backward pass that propagates
+$\boldsymbol\delta$ gives every gradient in one sweep, which is what
+makes deep learning computationally feasible. The playground draws
+edge width by weight magnitude and color by sign, so you watch the
+weights organize as the boundary forms.
+
+### Things to try
+
+- Watch the decision surface bend from a line into a curved
+  boundary as the hidden layers learn (the role of depth and
+  $\tanh$ nonlinearity).
+- Pick the XOR or spiral dataset and see why a single layer cannot
+  solve it but two can.
+- Raise the learning rate until the loss oscillates or diverges (the
+  stability limit of gradient descent).
+
+### Where this comes from
+
+The forward/backward equations and gradient descent follow Rumelhart,
+Hinton and Williams, Nature 323, 533 (1986), and Goodfellow, Bengio
+and Courville, *Deep Learning*, Chapter 6.
+
 ## Physical setup
 
 A small fully-connected neural network with 2 input units, 1 to 3 stacked tanh hidden layers of up to 8 units each, and a single sigmoid output unit. Trained by full-batch gradient descent on the binary cross-entropy loss for a 2D binary classification problem (moons, XOR, spiral, circles, or gaussians). The decision surface, the network graph (edge width proportional to weight magnitude, color by sign, node glow tracking the activation of a probe point that sweeps the input plane), and the loss trace are drawn live.
