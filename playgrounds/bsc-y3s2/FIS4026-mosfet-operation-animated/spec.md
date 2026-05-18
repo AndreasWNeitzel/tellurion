@@ -21,6 +21,65 @@ share_state_keys: [vgs, vth, lam]
 
 # MOSFET Operation: Channel, Pinch-off and I-V Regions
 
+## Explainer
+
+### What you are looking at
+
+The MOSFET is the transistor inside essentially every chip. A voltage
+on an insulated gate conjures a conducting channel between source and
+drain; the drain voltage then drives a current that saturates once the
+channel "pinches off". The playground animates the channel forming and
+pinching and the three operating regions on the I-V curve.
+
+### Forming the channel
+
+The gate sits on a thin oxide over p-type silicon. Raise the gate
+voltage past the threshold $V_{th}$ and it repels holes and attracts
+electrons, inverting the surface into a thin n-type channel that
+connects the n+ source and drain. The amount of channel charge is set
+by the overdrive
+
+$$V_{ov} = V_{GS} - V_{th}.$$
+
+Below threshold ($V_{ov}<0$) there is no channel: cutoff, no current.
+
+### The three regions (square-law model)
+
+With the channel present, the drain-source voltage $V_{DS}$ decides the
+behavior:
+
+- Triode (ohmic), $V_{DS} < V_{ov}$: the channel spans source to drain
+  and acts like a voltage-controlled resistor,
+
+$$I_D = k\left[(V_{ov})V_{DS} - \tfrac12 V_{DS}^2\right].$$
+
+- Pinch-off at $V_{DS} = V_{ov}$: the channel charge at the drain end
+  goes to zero (the gate-to-channel voltage there equals $V_{th}$).
+- Saturation, $V_{DS} > V_{ov}$: the pinch point detaches from the
+  drain; current stops growing and is set by the gate alone,
+
+$$I_D = \tfrac12\,k\,V_{ov}^2.$$
+
+That flat saturation current, controlled by $V_{GS}$ and nearly
+independent of $V_{DS}$, is what makes the MOSFET an amplifier and a
+clean digital switch. The playground sweeps $V_{GS}$ and $V_{DS}$ and
+shows the channel pinch and the I-V curve flatten into saturation.
+
+### Things to try
+
+- Hold $V_{GS}$ and ramp $V_{DS}$: watch the channel pinch at the
+  drain when $V_{DS}=V_{ov}$ and the current flatten.
+- Below $V_{th}$: confirm no channel and no current (cutoff, the
+  digital "off").
+- Step $V_{GS}$ up and watch the saturation current rise as
+  $V_{ov}^2$.
+
+### Where this comes from
+
+The inversion-channel picture and the square-law triode/saturation
+equations follow the Shichman-Hodges (level-1) model and Neamen,
+*Microelectronics: Circuit Analysis and Design*.
+
 ## Physical setup
 
 An n-channel enhancement MOSFET: a gate over a thin oxide above a
