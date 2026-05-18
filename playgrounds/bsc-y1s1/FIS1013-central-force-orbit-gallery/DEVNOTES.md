@@ -82,3 +82,7 @@ and t-050 inspected directly.
   --playground FIS1013-central-force-orbit-gallery --deterministic
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3)
 - node scripts/build-index.mjs
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
