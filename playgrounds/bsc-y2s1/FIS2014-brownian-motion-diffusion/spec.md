@@ -19,6 +19,61 @@ share_state_keys: []
 
 # Brownian Motion and the Diffusion Law
 
+## Explainer
+
+### What you are looking at
+
+A speck of pollen in water jitters endlessly, kicked by invisible
+molecules. Release a cloud of such specks from one point and they
+spread, not at constant speed, but with the cloud's width growing as
+the square root of time. Einstein realized in 1905 that watching this
+proves atoms exist and measures their size.
+
+### The equations
+
+Each particle takes independent random kicks. Per axis, in a time step
+$dt$, the displacement is a Gaussian of variance $2D\,dt$ (overdamped
+Langevin dynamics). Summing independent kicks, the mean-squared
+displacement grows linearly in time:
+
+$$\langle r^2\rangle = 4 D t \quad (\text{in 2D}),$$
+
+and the cloud is a spreading Gaussian, $\mathcal N(0, 2Dt)$ per axis.
+The width therefore grows as $\sqrt{t}$, not $t$: diffusion is slow,
+which is why stirring beats waiting. The diffusion coefficient is set by
+the Stokes-Einstein relation,
+
+$$D = \frac{k_B T}{6\pi\eta r},$$
+
+linking the visible spreading to temperature $T$, fluid viscosity
+$\eta$, and particle radius $r$. Measuring $D$ from the cloud and
+inverting this gave the first good value of Avogadro's number.
+
+### Why it matters
+
+This connects a microscopic cause (molecular collisions) to a
+macroscopic law (the diffusion equation), and the bridge is the
+fluctuation-dissipation idea: the same collisions that slow a particle
+(drag) also kick it (noise). The playground integrates the exact
+Gaussian increments, so there is no discretization error; the cloud you
+see is the true $\mathcal N(0,2Dt)$.
+
+### Things to try
+
+- Watch the cloud radius grow as $\sqrt{t}$, fast at first, then
+  slowing, never linear.
+- Raise the temperature (or shrink the particle) and see $D$ rise via
+  Stokes-Einstein; the cloud spreads faster.
+- Follow the highlighted tracer: its path is jagged at every zoom, a
+  random walk.
+
+### Where this comes from
+
+The random-walk picture, the $\langle r^2\rangle = 4Dt$ law, and the
+Stokes-Einstein relation follow Reif, *Fundamentals of Statistical and
+Thermal Physics*, Chapter 1 and Sections 15.5 to 15.6 (the Einstein
+relation).
+
 ## Physical setup
 
 A dilute suspension of Brownian particles released from a common
