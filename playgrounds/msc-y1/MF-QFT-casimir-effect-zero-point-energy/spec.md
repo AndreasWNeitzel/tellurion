@@ -21,6 +21,63 @@ share_state_keys: [d, nm]
 
 # Casimir Effect: Zero-Point Modes and the d^-4 Pressure
 
+## Explainer
+
+### What you are looking at
+
+Empty space is not empty: the quantum vacuum hums with zero-point
+field fluctuations. Put two metal plates close together and they
+exclude some of those fluctuations from the gap, so the vacuum
+outside pushes harder than the vacuum inside and the plates attract.
+That is the Casimir force, a measurable consequence of the vacuum
+energy. The playground shows the allowed modes and the resulting
+pressure.
+
+### Zero-point energy and the boundary
+
+Every electromagnetic mode of frequency $\omega$ has a ground-state
+energy $\tfrac12\hbar\omega$. Conducting plates a distance $d$ apart
+force the field to vanish on them, so only modes with a perpendicular
+wavenumber $k_\perp = n\pi/d$ survive between the plates, while
+outside the spectrum is continuous. Both the confined sum and the
+free continuum are individually infinite, but their regularized
+difference is finite, the renormalized vacuum energy per unit area:
+
+$$\frac{E(d)}{A} = -\,\frac{\pi^2\hbar c}{720\,d^3}.$$
+
+### The d^-4 pressure
+
+Differentiating the energy with respect to the plate separation gives
+an attractive pressure
+
+$$P(d) = -\frac{\partial}{\partial d}\frac{E}{A}
+  = -\,\frac{\pi^2\hbar c}{240\,d^4}.$$
+
+The headline is the steep $d^{-4}$ scaling: halving the gap multiplies
+the force sixteenfold, which is why the effect is negligible at
+microns but dominant at nanometers (it is a real nuisance in MEMS
+devices). The force depends only on $\hbar$, $c$, and geometry, with
+no material constants, which is what makes it such a clean signature
+of vacuum energy; it was confirmed to a few percent by Lamoreaux
+(1997). The playground sweeps the plate separation and the number of
+retained modes and shows the mode comb and the $d^{-4}$ pressure.
+
+### Things to try
+
+- Halve the separation and watch the pressure jump by $\sim16\times$
+  (the $d^{-4}$ law).
+- Increase the number of modes and watch the regularized energy
+  converge to the finite Casimir value (the cancellation of
+  infinities).
+- Note the force is always attractive and independent of plate
+  material (pure vacuum geometry).
+
+### Where this comes from
+
+The zero-point mode sum, the regularized vacuum energy, and the
+$d^{-4}$ Casimir pressure follow Milonni, *The Quantum Vacuum*, and
+Casimir, Proc. K. Ned. Akad. Wet. 51, 793 (1948).
+
 ## Physical setup
 
 Two parallel perfectly conducting plates a distance d apart in
