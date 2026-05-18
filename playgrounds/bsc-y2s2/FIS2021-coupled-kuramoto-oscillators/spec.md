@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A crowd of oscillators each ticking at its own rate suddenly locks into one rhythm once the coupling crosses a critical strength.'
+one_paragraph: 'The Kuramoto model is the canonical model of spontaneous synchronization: N oscillators with spread-out natural frequencies, each nudged toward the average phase with coupling strength K. Below a critical K they drift incoherently and the order parameter stays near zero; above it a macroscopic fraction locks to a common frequency and the order parameter jumps up. The playground evolves the phases on a circle and plots the order parameter as you turn K, so the synchronization transition appears as the population condensing into one rotating arc. This is the math behind firefly flashing, neural rhythms, and power-grid stability. Reference: Strogatz, Sync; Kuramoto 1975.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple

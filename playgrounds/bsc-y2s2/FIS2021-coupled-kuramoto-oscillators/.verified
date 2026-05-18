@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T19:04:40Z
-invariants: 5/5 (r in [0,1], K=0 incoherent, K=4 synchronized, K_c formula, N exported)
-visual: SSIM > 0.92 across 5 frames showing unit-circle dots and r(t) trace
+verified-at: 2026-05-18T14:55:15Z
+invariants: 5/5 (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); text-only, render unchanged
