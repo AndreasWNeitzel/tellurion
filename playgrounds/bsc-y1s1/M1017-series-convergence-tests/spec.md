@@ -21,3 +21,54 @@ share_state_keys: []
 ---
 # Series convergence tests
 Four series (geometric, p-series 2, harmonic, alternating Leibniz) with partial sums plotted and the limit as a dashed line where finite. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
+
+## Explainer
+
+### What you are looking at
+
+Whether an infinite sum settles on a number or grows without bound is
+decided by how fast its terms shrink. The playground plots the
+running partial sums of four classic series so you can watch two
+level off at a finite limit and one wander off to infinity even
+though its terms go to zero.
+
+### The partial sums and the convergence tests
+
+A series $\sum a_n$ converges if its partial sums
+$s_N=\sum_{n=1}^{N}a_n$ approach a limit. The four series each
+illustrate a standard test:
+
+- Geometric $\sum r^n = \dfrac{1}{1-r}$ for $|r|<1$ (ratio test):
+  terms shrink geometrically, $s_N$ races to the limit.
+- $p$-series $\sum 1/n^p$ converges iff $p>1$ (integral test). With
+  $p=2$ it converges to $\zeta(2)=\pi^2/6$, but slowly (the tail
+  falls only as $1/N$).
+- Harmonic $\sum 1/n$ is the $p=1$ borderline: it diverges, $s_N\sim
+  \ln N$, the canonical proof that $a_n\to 0$ does not imply
+  convergence.
+- Alternating Leibniz $\sum(-1)^{n+1}/(2n+1)\to\pi/4$ (alternating-
+  series test): the partial sums oscillate around the limit with the
+  error bounded by the first omitted term. This converges
+  conditionally; its absolute version (the harmonic-like
+  $\sum 1/(2n+1)$) diverges, the distinction between absolute and
+  conditional convergence.
+
+The dashed line marks the limit where finite, so you see geometric
+snap onto it, $p=2$ creep up to it, Leibniz spiral into it, and
+harmonic climb past any line you draw.
+
+### Things to try
+
+- Compare how fast each converging series reaches its dashed limit:
+  geometric (fast), $p=2$ (slow), Leibniz (oscillating, medium).
+- Watch the harmonic partial sum keep rising past every level (it
+  diverges like $\ln N$).
+- Note Leibniz converging while its terms are the same size as the
+  divergent $\sum 1/(2n+1)$: alternation is what saves it.
+
+### Where this comes from
+
+The convergence tests (ratio, integral, alternating series) and
+absolute vs conditional convergence follow Rudin, *Principles of
+Mathematical Analysis*, Chapter 3, and Arfken and Weber,
+*Mathematical Methods for Physicists*, Chapter 1.
