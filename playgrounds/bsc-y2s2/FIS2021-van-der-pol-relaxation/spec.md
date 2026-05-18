@@ -20,6 +20,64 @@ share_state_keys: []
 
 # Van der Pol: limit cycle to relaxation oscillator
 
+## Explainer
+
+### What you are looking at
+
+An oscillator that pumps itself. When its swing is small a built-in
+negative damping feeds energy in; when the swing is large the damping
+turns positive and bleeds energy out. The result: every starting
+condition spirals onto the *same* loop and stays there. Turn one knob
+up and that smooth loop becomes a jerky stop-go tick, the relaxation
+oscillation behind heartbeats and blinking circuits.
+
+### The equation
+
+$$\ddot x - \mu\,(1 - x^2)\,\dot x + x = 0.$$
+
+Look at the damping coefficient $-\mu(1 - x^2)$: for $|x| < 1$ it is
+negative (anti-damping, energy in); for $|x| > 1$ it is positive
+(energy out). As the first-order system
+$\dot x = v,\ \dot v = \mu(1 - x^2)v - x$.
+
+### Why a unique limit cycle
+
+Because energy is injected at small amplitude and removed at large
+amplitude, there is exactly one amplitude where injection balances
+removal over a cycle. That closed orbit is a stable limit cycle: start
+inside it and you spiral out to it, start outside and you spiral in.
+The motion is self-sustained, requiring no external drive, and
+forgetting the initial condition entirely. This is the defining
+behavior of self-oscillators (clocks, lasers, pacemaker cells).
+
+### From sine to relaxation
+
+The single parameter $\mu$ sets the character:
+
+- $\mu \to 0$: the term vanishes and the system is a plain harmonic
+  oscillator; the limit cycle is a near-perfect circle, motion nearly
+  sinusoidal.
+- $\mu \gg 1$: the dynamics splits into slow charging followed by fast
+  jumps, a relaxation oscillation, with period growing roughly as
+  $\mu$. The phase portrait becomes a sharp, distorted loop.
+
+The playground sweeps $\mu$ so you watch the circle deform into the
+stop-go relaxation cycle.
+
+### Things to try
+
+- Start several different initial conditions and watch them all land
+  on the same limit cycle.
+- Set $\mu$ small for a near-sinusoid; raise it for the jerky
+  relaxation waveform.
+- Note nothing drives it: the oscillation is self-sustained.
+
+### Where this comes from
+
+The Van der Pol equation, the unique stable limit cycle, and the
+relaxation-oscillation limit follow Strogatz, *Nonlinear Dynamics and
+Chaos*, 2nd ed., Chapter 7, after van der Pol (1926).
+
 ## Physical setup
 
 The Van der Pol equation:
