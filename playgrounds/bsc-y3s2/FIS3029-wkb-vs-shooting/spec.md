@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS3029
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The old quantum rule, fit a whole number of half-waves into the well, nails the harmonic oscillator exactly, yet misses the quartic well''s ground state by a factor of three.'
+one_paragraph: 'Before the Schrodinger equation, Bohr and Sommerfeld quantised a bound state by demanding that the action integral over one classical oscillation equal (n + 1/2) times Planck''s constant. This playground puts that rule head to head with the exact energy levels found by numerically shooting the Schrodinger equation, for a tunable power-law well V(x) = |x|^p / p. Slide p: at p = 2 (the harmonic oscillator) the Bohr-Sommerfeld levels sit exactly on the exact ones; at p = 4 (the quartic) the rule undershoots the ground state badly because the wavefunction leaks into the classically forbidden region the old rule ignores. Climb to higher levels and the two ladders converge, a direct picture of the correspondence principle: semiclassical quantisation becomes accurate when many wavelengths fit inside the well.'
 tags: [quantum, atomic-molecular, animation, live-readout]
 difficulty: 3
 tier: simple
