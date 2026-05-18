@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neutron Stars: the TOV Equation and the Mass-Radius Diagram</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Neutron Stars: the TOV Equation and the Mass-Radius Diagram</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="The mass-radius diagram for four equations of state with the two-solar-mass line, the interior structure of the selected star, and the equation of state itself">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">EOS:</span><span class="value" id="readout-eos">free Fermi</span>
+      <span class="label">M:</span><span class="value" id="readout-m">0.00 Msun</span>
+      <span class="label">R:</span><span class="value" id="readout-r">0.0 km</span>
+      <span class="label">M_max:</span><span class="value" id="readout-mmax">0.71 Msun</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      The Tolman-Oppenheimer-Volkoff equation integrated for four equations of state: an ideal free-neutron Fermi gas (the 0.71 solar-mass Oppenheimer-Volkoff limit), a stiff and a soft polytrope, and MIT-bag quark matter. Sweeping the central density traces the mass-radius diagram; only equations of state whose maximum mass exceeds the observed two-solar-mass pulsars survive.
+      <em>Method:</em> RK4 integration of the relativistic hydrostatic equations; Canvas2D, deterministic.
+      <em>Source:</em> Tolman 1939; Oppenheimer and Volkoff 1939; Shapiro and Teukolsky Ch. 5.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">equation of state</span><select aria-label="equation of state" id="select-eos" style="grid-column: span 2;"><option value="fermi">free neutron Fermi gas</option><option value="stiff">stiff polytrope</option><option value="soft">soft polytrope</option><option value="quark">MIT-bag quark matter</option></select></div>
+    <div class="row"><span class="label">log central density</span><input aria-label="log10 central rest-mass density, kg per cubic metre" type="range" id="slider-rho" min="170" max="192" step="1" value="183"><span class="value" id="value-rho">3.5e18</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -484,7 +484,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] binary-star-mass-transfer : advanced canvas2d. Roche lobes fig-8,
   overflow stream/disk, period change; stable/CE/detached. Inv:
   Eggleton rL 0.5%; J conserved 1%.
-- [ ] neutron-star-tov-equation : advanced canvas2d. TOV integrate, EOS
+- [x] neutron-star-tov-equation : advanced canvas2d. TOV integrate, EOS
   stiff/soft/quark, M-R diagram, 2Msun line. Inv: soft Mmax<stiff;
   rhoc to 0 M to 0; free Fermi 0.71Msun 5%.
 

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Close Binary: Roche Lobes and Conservative Mass Transfer](../playgrounds/msc-y1/MAA-SE-binary-star-mass-transfer/index.html)** &nbsp; (verified, verified 2026-05-18T05:15:48Z)
+  Two stars on a circular orbit, viewed in the corotating frame. The effective (Roche) potential is the sum of both gravitational potentials and the centrifugal term. Its critical equipotential through the inner Lagrange point L1 is the figure-eight that defines each star's Roche lobe; a star that fills its lobe loses mass through L1 to its companion. When the
+
 - **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-18T05:03:07Z)
   A self-gravitating sphere in hydrostatic equilibrium with a polytropic equation of state P = K rho^{(n+1)/n}, n = 3 (the Eddington standard model: pressure is the sum of ideal-gas and radiation pressure with a constant ratio beta). The dimensionless structure is universal (the Lane-Emden function theta(xi)); scaling it with a chosen mass M and radius R gives
 
@@ -791,9 +794,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Chandrasekhar Dynamical Friction](../playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/index.html)** &nbsp; (verified)
   A large perturber enters from the left through N=200 background particles drawn from a Maxwellian of dispersion sigma. Gravitational focusing pulls particles into an overdense wake trailing the perturber; the wake's pull decelerates it. The perturber speed readout decreases over time.
 
-- **[Close Binary: Roche Lobes and Conservative Mass Transfer](../playgrounds/msc-y1/MAA-SE-binary-star-mass-transfer/index.html)** &nbsp; (verified)
-  Two stars on a circular orbit, viewed in the corotating frame. The effective (Roche) potential is the sum of both gravitational potentials and the centrifugal term. Its critical equipotential through the inner Lagrange point L1 is the figure-eight that defines each star's Roche lobe; a star that fills its lobe loses mass through L1 to its companion. When the
-
 - **[Cosmic Distance Ladder Journey](../playgrounds/msc-y1/MAA-CO-cosmic-distance-ladder/index.html)** &nbsp; (verified)
   Click through four rungs of the distance ladder. Parallax: a nearby star swings against background, baseline 2 AU. Cepheid period-luminosity: a pulsating star with period 30 d, M_V from the Leavitt law. Type Ia: standard candle M_V = -19.3. Hubble flow: galaxy at z = 0.5, distance from D = cz/H_0.
 
@@ -841,6 +841,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Multipole Expansion: Exact vs Truncated Potential](../playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d/index.html)** &nbsp; (verified)
   A small cluster of point charges. Three maps of the `z = 0` potential slice are shown: the exact Coulomb sum, the multipole expansion truncated at the selected order, and the absolute error.
+
+- **[Neutron Stars: the TOV Equation and the Mass-Radius Diagram](../playgrounds/msc-y1/MAA-SE-neutron-star-tov-equation/index.html)** &nbsp; (verified)
+  A cold, static, spherically symmetric star in general relativity. Hydrostatic equilibrium is the Tolman-Oppenheimer-Volkoff equation; closing it needs an equation of state P(epsilon). Four are offered: an ideal degenerate free-neutron Fermi gas (the Oppenheimer-Volkoff 1939 model), a stiff and a soft polytrope anchored at nuclear saturation density, and self
 
 - **[Normal Modes of a Mass-Spring Chain](../playgrounds/bsc-y2s1/FIS2002-normal-modes-nd-chain/index.html)** &nbsp; (verified)
   A 1D chain of N point masses joined by springs with fixed ends. The monatomic chain has one spring constant; the diatomic chain alternates two spring constants along the chain (a two-atom basis).
