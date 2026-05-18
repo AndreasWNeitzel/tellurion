@@ -21,6 +21,65 @@ share_state_keys: [wave_mode, wp_rel, wc_rel]
 
 # Plasma-Wave Dispersion
 
+## Explainer
+
+### What you are looking at
+
+A plasma is not like air: it carries a whole zoo of waves at once,
+because the charged particles couple to electric and magnetic fields.
+The playground plots the dispersion relations, frequency versus
+wavenumber, for each branch, and marks where waves cannot propagate
+(cutoffs) and where they pile up (resonances). Reading this diagram is
+how radio communication, the ionosphere, and fusion heating are
+understood.
+
+### The scales
+
+Two frequencies set everything: the electron plasma frequency
+(how fast the electron sea sloshes) and the electron cyclotron
+frequency (how fast electrons gyrate in the magnetic field):
+
+$$\omega_p = \sqrt{\frac{n e^2}{\varepsilon_0 m_e}},
+  \qquad \omega_c = \frac{eB}{m_e}.$$
+
+### The branches
+
+Each wave type has its own $\omega(k)$:
+
+- Electromagnetic O-mode:
+  $\omega^2 = \omega_p^2 + c^2 k^2$. It cannot propagate below
+  $\omega_p$, which is exactly why AM radio bounces off the ionosphere
+  and why a dense plasma is opaque to low frequencies.
+- Langmuir (electron plasma) wave:
+  $\omega^2 = \omega_p^2 + 3 k^2 v_{th}^2$, an electrostatic
+  oscillation of the electron fluid.
+- Ion-acoustic wave: a low-frequency sound-like branch carried by the
+  ions with electron pressure.
+- Alfven wave: the low-frequency magnetized branch, the magnetic
+  field line vibrating like a string.
+
+A cutoff is where $k\to0$ (the wave reflects; nothing propagates
+below); a resonance is where $k\to\infty$ (the wave is absorbed, used
+to deposit heating power in fusion devices). The playground draws all
+branches with their cutoffs and resonances as you change density and
+field.
+
+### Things to try
+
+- Raise the density and watch the O-mode cutoff $\omega_p$ climb:
+  a denser plasma blocks higher frequencies.
+- Find the Langmuir branch flattening to $\omega \approx \omega_p$ at
+  long wavelength.
+- Lower the frequency to the Alfven branch, the magnetized string
+  wave.
+
+### Where this comes from
+
+The plasma and cyclotron frequencies and the O-mode, Langmuir,
+ion-acoustic, and Alfven dispersion relations follow Chen,
+*Introduction to Plasma Physics and Controlled Fusion*, and
+Goedbloed and Poedts, *Principles of Magnetohydrodynamics*.
+
 ## Physical setup
 
 A uniform plasma supports a family of waves whose frequency depends
