@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s2
 primary_citation: riley-hobson
 primary_chapter: 10
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Walk a force field from A to B along a straight line, then along a curved detour. For some fields the work is identical; for others the gap is exactly the curl you enclosed.'
+one_paragraph: 'The work done by a vector field along a path is a line integral. For a conservative field it depends only on the endpoints, so the straight chord and the curved arc from A to B give the same value and the closed loop is zero. For a non-conservative field the two paths disagree, and by Green''s theorem the closed-loop integral equals the curl integrated over the enclosed area. The playground evaluates F.dr by Simpson quadrature along both paths for four selectable fields (two conservative, two with constant curl) and shows the loop integral matching the analytic curl-times-area. It turns path-independence from a definition into something you watch succeed or fail. Reference: Riley and Hobson, Mathematical Methods, Ch. 10.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
