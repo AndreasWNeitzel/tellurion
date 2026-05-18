@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Standard Model Particle Zoo: PDG Data and Conservation Laws](../playgrounds/msc-y1/MF-PP-standard-model-particle-zoo/index.html)** &nbsp; (verified, verified 2026-05-18T04:09:30Z)
+  The Standard Model has twelve matter fermions (six quarks and six leptons in three generations), four gauge bosons and the Higgs. Each carries fixed quantum numbers; a decay is permitted only if every additive number (electric charge, baryon number, the three lepton-flavour numbers) is conserved and the products are lighter than the parent.
+
 - **[Spontaneous Symmetry Breaking: the Mexican-Hat Potential](../playgrounds/msc-y1/MF-QFT-symmetry-breaking-mexican-hat/index.html)** &nbsp; (verified, verified 2026-05-18T03:58:43Z)
   A complex scalar field `phi` with a wine-bottle potential. The symmetric point `phi = 0` is an unstable maximum, so the field rolls down to the circular trough (the brim) and settles at one phase, spontaneously breaking the rotational `U(1)` symmetry. The radial oscillation costs energy (the Higgs); the free slide around the brim costs none (the massless Gol
 
@@ -842,6 +845,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (verified)
   Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
 
+- **[QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section](../playgrounds/msc-y1/MF-PP-feynman-diagram-builder-qed/index.html)** &nbsp; (verified)
+  The reaction is electron-positron annihilation into a muon pair, e+ e- -> mu+ mu-, in the centre-of-mass frame. At leading order in QED a single Feynman diagram contributes: the e+ e- pair annihilates at a vertex into a virtual photon (the s-channel propagator, with q^2 = s), which materialises into the mu+ mu- pair at a second vertex. The muon is treated as
+
 - **[Quantum Double Slit, One Particle at a Time](../playgrounds/bsc-y2s2/FIS2003-quantum-double-slit-accumulator/index.html)** &nbsp; (verified)
   A source emits particles one at a time toward a barrier with two slits; each is detected as a single localised dot on a screen. An optional which-path detector at the slits records which path was taken.
 
@@ -856,9 +862,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
-
-- **[Standard Model Particle Zoo: PDG Data and Conservation Laws](../playgrounds/msc-y1/MF-PP-standard-model-particle-zoo/index.html)** &nbsp; (verified)
-  The Standard Model has twelve matter fermions (six quarks and six leptons in three generations), four gauge bosons and the Higgs. Each carries fixed quantum numbers; a decay is permitted only if every additive number (electric charge, baryon number, the three lepton-flavour numbers) is conserved and the products are lighter than the parent.
 
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified)
   Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.

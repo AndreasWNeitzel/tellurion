@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="QED Feynman diagram, the cross section vs energy, and the Mandelstam invariants and angular distribution">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">sqrt(s):</span><span class="value" id="readout-e">1.00 GeV</span>
+      <span class="label">sigma:</span><span class="value" id="readout-s">0 nb</span>
+      <span class="label">|M|^2 ~:</span><span class="value" id="readout-m">alpha^2</span>
+      <span class="label">s+t+u:</span><span class="value" id="readout-stu">OK</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      The s-channel QED process e+e- to mu+mu-: two vertices give an amplitude proportional to alpha and a cross section proportional to alpha^2; it vanishes at the muon-pair threshold, peaks just above it and falls as 1/s, with a forward-backward-symmetric 1 + cos^2 angular distribution and the exact identity s + t + u = sum m_i^2.
+      <em>Method:</em> closed-form tree-level QED matrix element and phase space; Canvas2D, deterministic.
+      <em>Source:</em> Peskin and Schroeder Ch. 5; Halzen and Martin; Feynman 1949.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">sqrt(s) (GeV)</span><input aria-label="centre-of-mass energy, x100" type="range" id="slider-e" min="22" max="2000" step="2" value="100"><span class="value" id="value-e">1.00</span></div>
+    <div class="row"><span class="label">scattering angle (deg)</span><input aria-label="scattering angle, degrees" type="range" id="slider-th" min="5" max="175" step="5" value="60"><span class="value" id="value-th">60</span></div>
+    <div class="row"><span class="label">diagram order</span><select aria-label="diagram order" id="select-order" style="grid-column: span 2;"><option value="tree">tree (2 vertices, alpha^2)</option><option value="loop">one-loop (4 vertices, alpha^4)</option></select></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

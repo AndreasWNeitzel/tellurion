@@ -468,7 +468,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] standard-model-particle-zoo : hero canvas2d. SM chart, click cards
   (mass/spin/charge/lifetime), force toggle, decay-chain animator. PDG
   embedded. Inv: charge/lepton/baryon conserved; PDG matched.
-- [ ] feynman-diagram-builder-qed : advanced canvas2d. Draw vertices/
+- [x] feynman-diagram-builder-qed : advanced canvas2d. Draw vertices/
   lines, topology plus alpha power plus Feynman rules, |M|^2, sigma.
   Inv: sigma to 0 threshold; s+t+u=sum mi^2.
 - [ ] particle-accelerator-betatron : medium canvas2d. Synchrotron,
