@@ -160,7 +160,17 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 function bootSync() {
-  if (CAPTURE_NAME) advance(1.0 + CAPTURE_FRAC * 6.0);
+  if (CAPTURE_NAME) {
+    // Step through the preset gallery across the five reference frames so
+    // the goldens show the contrast (closed Kepler ellipse, harmonic
+    // ellipse, precessing rosette, unbound escape, near-circular), which
+    // is the whole point of a gallery. Deterministic, fraction-driven.
+    const names = Object.keys(PRESETS);
+    const idx = Math.max(0, Math.min(names.length - 1, Math.round(CAPTURE_FRAC * (names.length - 1))));
+    Object.assign(st, PRESETS[names[idx]]);
+    rebuild();
+    advance(6.0);
+  }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
