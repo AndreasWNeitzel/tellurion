@@ -20,6 +20,65 @@ share_state_keys: []
 
 # KL divergence asymmetry: mass-covering vs mode-seeking
 
+## Explainer
+
+### What you are looking at
+
+The KL divergence measures how different one distribution is from
+another, but it is not symmetric: $\mathrm{KL}(P\|Q)$ and
+$\mathrm{KL}(Q\|P)$ are different numbers and, more importantly, they
+want different answers when you fit a simple $Q$ to a complex $P$.
+The playground fits one Gaussian to a two-bump target both ways and
+shows the qualitatively opposite results.
+
+### The two divergences
+
+For a target $P$ and an approximation $Q$,
+
+$$\mathrm{KL}(P\,\|\,Q) = \int P\log\frac{P}{Q},
+  \qquad
+  \mathrm{KL}(Q\,\|\,P) = \int Q\log\frac{Q}{P}.$$
+
+Both are $\ge 0$ and zero only when $P=Q$, but they penalize
+mismatches differently because of which distribution does the
+weighting.
+
+### Mass-covering vs mode-seeking
+
+- Forward KL, $\mathrm{KL}(P\|Q)$ (used in maximum likelihood): the
+  integral is weighted by $P$, so $Q$ is punished wherever $P$ has
+  mass but $Q$ is near zero. To avoid the infinite penalty $Q$ must
+  cover all of $P$. Fitting one Gaussian to a bimodal $P$ gives a
+  wide Gaussian straddling both bumps (mass-covering, mean-seeking).
+- Reverse KL, $\mathrm{KL}(Q\|P)$ (used in variational inference):
+  weighted by $Q$, so $Q$ is punished for putting mass where $P$ is
+  small. The safe move is to collapse onto one bump and ignore the
+  other (mode-seeking, zero-forcing), which underestimates the
+  spread.
+
+This single asymmetry explains why maximum-likelihood-trained models
+hedge and blur while variational and many generative objectives
+produce sharp but mode-dropping fits. The playground lets you move
+and widen $Q$ and watch the two KL curves: their minima land in
+qualitatively different places (one straddling, one on a single
+mode).
+
+### Things to try
+
+- Minimize forward KL and watch $Q$ become a broad Gaussian covering
+  both modes (and sitting in the empty valley between them).
+- Minimize reverse KL and watch $Q$ snap onto one mode, ignoring the
+  other entirely.
+- Increase the mode separation and watch the contrast between the
+  two solutions sharpen.
+
+### Where this comes from
+
+The KL divergence, its asymmetry, and the mass-covering vs
+mode-seeking behavior follow Cover and Thomas, *Elements of
+Information Theory*, Chapter 2, and Bishop, *Pattern Recognition and
+Machine Learning*, Chapter 10.
+
 ## Physical setup
 
 Two probability densities on a 1D axis. Target P is a bimodal mixture of two Gaussians at +/- sep; approximation Q is a single Gaussian with controllable (mu_q, sigma_q). The playground computes the two directions of KL divergence and shows how their argmins differ qualitatively.
