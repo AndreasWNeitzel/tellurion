@@ -2,6 +2,7 @@ import { bondiRadius, MdotBondi, bondiVelocityIsothermal, M_SUN, G } from './sim
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rM = document.getElementById('readout-m');
 const sM = document.getElementById('slider-M'), vM = document.getElementById('value-M');
@@ -105,5 +106,5 @@ function render() {
   rM.textContent = `${(Mdot * 3.155e7 / M_SUN).toExponential(1)} M⊙/yr`;
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
-function bootSync() { st.t = 1; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() { if (CAPTURE_NAME) { st.logM = CAPTURE_FRAC * 6; st.t = 1.4; sM.value = String(st.logM); vM.textContent = st.logM.toFixed(2); } render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
