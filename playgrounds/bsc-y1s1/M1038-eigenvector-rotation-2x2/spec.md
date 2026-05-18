@@ -22,6 +22,64 @@ share_state_keys: []
 
 # Eigenvectors of a 2x2 matrix as you drag the entries
 
+## Explainer
+
+### What you are looking at
+
+A matrix turns every vector into another vector. Almost all of them
+get rotated, but a special few come out pointing the same way, only
+scaled. Those are the eigenvectors, and their scale factors are the
+eigenvalues. The playground lets you drag the four matrix entries and
+watch which directions stay fixed.
+
+### Eigenvectors and eigenvalues
+
+For a $2\times2$ matrix $A$, an eigenvector $\mathbf v$ satisfies
+
+$$A\mathbf v = \lambda\,\mathbf v,$$
+
+so $A$ acts on that direction as pure stretching by the eigenvalue
+$\lambda$. The eigenvalues solve the characteristic equation
+
+$$\lambda^2 - (\mathrm{tr}\,A)\,\lambda + \det A = 0,$$
+
+whose roots depend on the discriminant $(\mathrm{tr}A)^2-4\det A$:
+
+- Two real eigenvalues: two invariant directions; the unit circle
+  maps to an ellipse aligned with them (if symmetric, exactly
+  orthogonal: the spectral theorem).
+- Complex pair: no real invariant direction, the map is a rotation
+  plus scaling (a spiral), the eigenvectors are complex.
+- Repeated eigenvalue: a single (defective) direction, a shear.
+
+### Why it matters
+
+Eigen-directions are the natural axes of a linear map: in them the
+dynamics decouple. $\det A=\lambda_1\lambda_2$ is the area scale
+factor and $\mathrm{tr}\,A=\lambda_1+\lambda_2$; the signs of the
+eigenvalues classify a linear system's fixed point (node, saddle,
+spiral, centre), which is the entire basis of stability analysis,
+principal-component axes, and normal modes. The playground draws the
+unit circle and its image ellipse, marks the eigen-directions where
+input and output are parallel, and reports $\lambda$, trace and
+determinant live as you drag the entries through the real/complex
+transitions.
+
+### Things to try
+
+- Drag toward a symmetric matrix and watch the two eigenvectors
+  become exactly perpendicular (spectral theorem).
+- Push the discriminant negative and watch the eigenvectors vanish
+  (complex pair, the map becomes a spiral).
+- Make the determinant negative and find the saddle: one stretching,
+  one flipping direction.
+
+### Where this comes from
+
+Eigenvalues, eigenvectors and the characteristic equation follow
+Strang, *Introduction to Linear Algebra*, Chapter 6, and Lay,
+*Linear Algebra and Its Applications*, Chapter 5.
+
 ## Physical setup
 
 Real 2x2 matrix $M = \begin{pmatrix}a & b \\ c & d\end{pmatrix}$ visualized as a linear transformation of the unit circle in $\mathbb{R}^2$. Sliders set each of the four matrix entries. The image of the unit circle is generally an ellipse; the eigenvectors (when real) point along directions that $M$ leaves invariant up to scaling by an eigenvalue.

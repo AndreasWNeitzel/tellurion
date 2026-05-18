@@ -20,3 +20,7 @@ eigenvector. Readout (#readout): lambda_1,lambda_2; det,tr.
 
 ## Gate: node --check; vitest invariants; build-index; visual gate
   only if #stage changes (text-only sweep).
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  7 passed + visual 5/5 x3. Shipped.
