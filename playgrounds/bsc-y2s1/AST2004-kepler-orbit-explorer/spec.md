@@ -20,6 +20,60 @@ share_state_keys: []
 
 # Kepler Orbit Explorer
 
+## Explainer
+
+### What you are looking at
+
+A planet orbits a star. Set the size and the shape with two sliders and
+watch the closed ellipse it traces, with live readouts of the three
+quantities that never change: energy, angular momentum, and a third,
+less famous one (the Laplace-Runge-Lenz vector) that points along the
+orbit and explains why the ellipse does not slowly rotate.
+
+### The equations
+
+In units where $GM = 1$, the inverse-square law of gravity gives
+
+$$\ddot x = -\frac{x}{r^3}, \qquad \ddot y = -\frac{y}{r^3},
+  \qquad r = \sqrt{x^2 + y^2}.$$
+
+Three conserved quantities pin the orbit down:
+
+$$E = \tfrac12 v^2 - \frac1r, \qquad L = x v_y - y v_x,
+  \qquad \vec A = \vec v \times \vec L - \hat r.$$
+
+$E$ (energy) fixes the size, $a = -1/(2E)$. $L$ (angular momentum) sets
+how round it is. The Laplace-Runge-Lenz vector $\vec A$ points from the
+focus to perihelion and has magnitude equal to the eccentricity,
+$|\vec A| = e$. Its constancy is special to the $1/r$ force, which is
+exactly why Kepler orbits are closed ellipses and not precessing
+rosettes (Bertrand's theorem again).
+
+### Why the readouts matter
+
+The simulation integrates the motion with a symplectic velocity-Verlet
+scheme, which is built to conserve energy and angular momentum over
+thousands of orbits rather than letting them creep. The live $|dE/E|$
+and $|dL/L|$ are tiny, which is the honesty check: the closed,
+non-drifting ellipse you see is the real physics, not a numerical
+artifact. Watch $\vec A$ stay frozen in direction; that frozen arrow is
+the deep reason the orbit closes.
+
+### Things to try
+
+- Raise the eccentricity and watch the orbit elongate, fast at
+  perihelion, slow at aphelion (Kepler's second law in action).
+- Confirm $a$ tracks $-1/(2E)$ and $|\vec A|$ tracks $e$ in the
+  readouts as you move the sliders.
+- Note the LRL arrow never rotates: pure $1/r$ gravity, no precession.
+
+### Where this comes from
+
+The dimensionless Kepler problem, the conserved $E$, $L$, and
+Laplace-Runge-Lenz vector, and the velocity-Verlet integration follow
+Newman, *Computational Physics* (2013), Exercise 8.12, with the LRL
+treatment standard in Goldstein, *Classical Mechanics*, Chapter 3.
+
 ## Physical setup
 
 A test particle orbits a fixed central mass under inverse-square gravity in 2D. The system is the Newtonian Kepler problem in geometric units $GM = 1$ with the central mass at the origin and the test particle at $(x, y)$. The orbit is integrated by the velocity-Verlet branch of `shared/js/engine/symplectic.js`, which conserves total energy and angular momentum to high precision over thousands of periods. The user sets the orbit by adjusting two sliders for semi-major axis $a$ and eccentricity $e$; the playground initializes the particle at apastron with the corresponding velocity and renders the resulting closed orbit alongside the live energy, angular momentum, and Laplace-Runge-Lenz (LRL) vector readouts. At low $e$ the orbit is a near-circle; at high $e$ it is a sharply elongated ellipse with rapid perihelion passage.
