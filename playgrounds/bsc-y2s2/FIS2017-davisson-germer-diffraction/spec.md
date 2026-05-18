@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s2
 primary_citation: eisberg-resnick
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Fire electrons at a nickel crystal and they diffract like waves; the angle of the bright spot pins down the de Broglie wavelength exactly.'
+one_paragraph: 'Davisson and Germer scattered low-energy electrons off a nickel crystal and saw an interference maximum where particles alone should make none. The atomic rows act as a grating, with constructive interference at D sin theta = n lambda and the electron wavelength fixed by de Broglie, lambda = h / p. The playground sweeps the accelerating voltage and moves the diffraction angle accordingly, reproducing the 1927 result (54 V gives lambda about 0.167 nm and a peak near 51 degrees). It is the cleanest direct demonstration that matter has a wavelength. Reference: Eisberg and Resnick, Quantum Physics, Ch. 3.'
 tags: [quantum, animation, live-readout]
 difficulty: 3
 tier: simple
