@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: carroll-ostlie
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Multiply seven uncertain numbers and you estimate how many civilizations we could hear right now: the Drake equation, with the uncertainty made explicit.'
+one_paragraph: 'The Drake equation multiplies a star-formation rate by a chain of fractions (planets, habitability, life, intelligence, communication, lifetime) to estimate the number of currently detectable civilizations in the Galaxy. The factors span many orders of magnitude and are deeply uncertain, so a single product is meaningless. The playground runs a 2000-trial Monte Carlo, drawing each factor log-uniformly around the slider settings, and shows the resulting distribution of N rather than one point estimate. It makes the spread, not the headline number, the real lesson. Reference: Drake 1961.'
 tags: [exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
