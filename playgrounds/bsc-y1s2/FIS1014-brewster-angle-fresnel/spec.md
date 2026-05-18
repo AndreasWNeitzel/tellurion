@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1014
 supporting_ucs: [FIS3019]
 curriculum_year: bsc-y1s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Light hitting glass at one special angle reflects only one polarization; the other passes straight through. That is Brewster's angle, why polarized sunglasses kill glare and why laser windows are cut at a slant."
+one_paragraph: "When light crosses a boundary between two media the Fresnel equations give how much reflects for each polarization. The s-polarization (perpendicular to the plane of incidence) always reflects something, but the p-polarization (in the plane) has a reflectance that drops exactly to zero at the Brewster angle, theta_B = arctan(n2/n1), where the reflected and refracted rays are 90 degrees apart. The playground sweeps the incidence angle: the left panel shows the incident, reflected and refracted rays with line widths scaled to reflectance, the right panel plots R_s and R_p versus angle with the Brewster dip marked. The readout gives theta_B, the refraction angle and the live reflectances. This is the physics of glare-killing polarized sunglasses, Brewster-window lasers and the polarization of skylight."
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
