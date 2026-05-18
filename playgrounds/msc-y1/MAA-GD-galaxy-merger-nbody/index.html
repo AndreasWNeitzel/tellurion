@@ -21,12 +21,12 @@
 </style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Galaxy Merger N-Body</h1>
-  <div data-slot="description" class="katex-target">Two disk galaxies on a closing orbit fall together and merge under restricted N-body gravity (Plummer-softened halos plus test-particle disks). Tidal forces draw out bridges and tails, the cores sink by dynamical friction and coalesce, and the system relaxes into a single remnant before the encounter auto-replays. Sliders set the mass ratio, impact parameter and disk size.</div>
+  <div data-slot="description" class="katex-target">Two multi-component galaxies (a dominant dark Hernquist halo plus a stellar disk each) fall together as one true self-gravitating system. The in-plane gravity is solved self-consistently with an isolated (vacuum) FFT particle-mesh Poisson solver; every particle also has a real dynamical vertical motion (the isothermal-sheet field), so the disk is a genuine 3D body that thickens when the encounter shocks it, shown with an inclined perspective camera. Dynamical friction, tidal tails and coalescence all emerge from the particle dynamics, with no analytic cores or merge events. The right panel tracks the stars in the energy vs angular-momentum plane in the surviving primary's frame, where the shredded companion leaves the Gaia-Enceladus / Sausage signature. Sliders set the two masses, the impact parameter, the closing speed and the angle of attack; the encounter only restarts when you press Relaunch.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Galaxy Merger N-Body.</figcaption>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Self-gravitating galaxy merger. Method: isolated-boundary particle-mesh FFT Poisson solver for the in-plane self-gravity, with an isothermal-sheet vertical mode (PM-derived vertical frequency) and an inclined perspective render; integrals of motion in the primary's frame. Source: Hockney and Eastwood 1988; Binney and Tremaine 2e, Ch. 4 and 8; Helmi et al. 2018.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>

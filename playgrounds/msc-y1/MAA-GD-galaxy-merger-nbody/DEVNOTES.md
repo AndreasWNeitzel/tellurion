@@ -51,3 +51,8 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 ## Sweep 2026-05-18
 User: make it 3D, stunning graphics, add an angle-of-attack slider, oblique camera. The 60fps gate makes a true 3D-PM solve infeasible on CPU (~220ms/step, diagnostic-confirmed), and there is no WebGL gate precedent in-repo (all 3D heroes are gateable Canvas2D pseudo-3D); so this lands the proven gateable pattern: the verified in-plane self-gravitating PM physics with passive 3D z-structure, an angle-of-attack slider that tilts the infalling secondary's plane/approach, an oblique fixed camera (yaw 0.46, pitch 0.55), depth-binned painter ordering, additive stellar glow, faint dark-halo haze, deterministic starfield, robust bound-COM-locked view. Screenshot-verified the 3D angled look, spiral primary + inclined diffuse dwarf, disruption + surviving primary, Sausage E-Lz; 60fps. WebGL polish is the documented next enhancement.
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User feedback round: not 3D / no visual gain / slow merge / vertical jets / secondary escapes / single-core looked more definitive.
+Fixes: real dynamical Spitzer-sheet vertical mode (nu^2=2piG Sigma/H from PM surface density, kills the |a_R|/R-proxy vertical jets); inclined perspective camera + drag-orbit/wheel-zoom/shift-pan; heavier bound concentrated companion (M1=1.1,M2=0.7,sep=2.6,vRel=0.07,EPS=1.2c) so dynamical friction sinks it decisively (headless: 1st passage ~248, merged ~294, secondary 100% bound, jetFrac=0, t=0 vertical equilibrium); solid-disc core glow (rasterizer-stable); accurate card text; full spec rewrite. Golden sweep = reproducible in-fall (chaotic post-merger shown live).
+invariants 1 passed + visual 5/5 x3. Shipped.
