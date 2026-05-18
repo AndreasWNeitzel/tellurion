@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T20:23:00Z
-invariants: 5/5 (fixed-end BC, free-end BC, fixed inverts, free preserves, CFL)
-visual: SSIM > 0.92 across 5 frames showing pulse propagation and reflection
+verified-at: 2026-05-18T14:39:12Z
+invariants: 5/5 (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); text-only, render unchanged

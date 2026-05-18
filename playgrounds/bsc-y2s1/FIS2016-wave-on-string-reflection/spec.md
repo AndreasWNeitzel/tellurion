@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2016
 supporting_ucs: []
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Send a pulse down a string: it flips upside-down when it hits a clamped end, and bounces back upright from a free one.'
+one_paragraph: 'A travelling pulse reflects when it reaches a boundary, and the boundary condition sets its sign. A fixed end (y = 0) forces an inverted reflection; a free end (zero slope) reflects it upright. The playground launches the same Gaussian pulse on two strings, one with fixed ends and one with free ends, so you watch them reflect side by side and see the inversion appear only on the clamped string. This is the same sign rule that sets the half-wave phase change on optical reflection and the open-versus-closed-pipe harmonics. Reference: French, Vibrations and Waves.'
 tags: [waves, animation, live-readout]
 difficulty: 3
 tier: simple
