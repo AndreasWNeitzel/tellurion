@@ -20,6 +20,65 @@ share_state_keys: []
 
 # Binary symmetric channel and the repetition code
 
+## Explainer
+
+### What you are looking at
+
+If a communication channel randomly corrupts your bits, how much
+information can you still send reliably? Shannon's answer is exact and
+surprising: there is a hard ceiling (the capacity), and below it you
+can drive the error rate to zero with clever coding. The playground
+uses the simplest channel, the binary symmetric channel, and the
+simplest code, repetition, to make this concrete.
+
+### The channel and its capacity
+
+The binary symmetric channel (BSC) flips each transmitted bit
+independently with probability $p$. Shannon's channel capacity is
+
+$$C(p) = 1 - H(p),
+  \qquad
+  H(p) = -p\log_2 p - (1-p)\log_2(1-p),$$
+
+where $H(p)$ is the binary entropy (the uncertainty the noise
+injects). $C$ is the maximum bits of real information per channel use:
+
+- $p=0$: perfect channel, $C=1$ bit/use.
+- $p=0.5$: every bit is a coin flip, $H=1$, $C=0$, the output is
+  independent of the input and nothing can be sent.
+- $C$ is symmetric about $p=0.5$ ($p$ and $1-p$ are equivalent up to
+  relabeling).
+
+### The repetition code and the coding theorem
+
+The intuitive defense is to send each bit $n$ times and majority-vote.
+That does drive the error down, but the rate collapses to $1/n$: the
+naive code pays for reliability by sending almost nothing. Shannon's
+noisy-channel coding theorem says you do not have to make that trade:
+for any rate $R<C$ there exist codes with error probability
+$\to 0$, while for $R>C$ reliable communication is impossible. So the
+repetition code is a concrete demonstration of the problem (reliability
+vs rate) and the capacity $C(p)$ is the line that good codes can
+actually approach. The playground sweeps $p$ and the repetition count
+$n$ and shows the post-decoding error, the rate $1/n$, and the
+capacity ceiling $C(p)$.
+
+### Things to try
+
+- Sweep $p$ from 0 to 0.5 and watch $C(p)$ fall to zero (a 50%-flip
+  channel carries nothing).
+- Increase the repetition $n$ and watch the error drop but the rate
+  collapse as $1/n$ (the naive trade-off).
+- Compare the repetition rate to $C(p)$: the gap is what good codes
+  recover (the coding theorem).
+
+### Where this comes from
+
+The binary symmetric channel, the capacity $C=1-H(p)$, and the
+noisy-channel coding theorem follow Shannon, Bell Syst. Tech. J. 27,
+379 (1948), and Cover and Thomas, *Elements of Information Theory*,
+Chapter 7.
+
 ## Physical setup
 
 A BSC flips each transmitted bit with probability p. Shannon's capacity
