@@ -30,3 +30,7 @@ RK4 dt=1/240. Pure local sim.js.
 - live-readout check: HTTP-serve (tests/helpers/static-server.mjs),
   read #readout-* textContent; not file:// (ESM CORS).
 - visual gate only if #stage changes (this sweep was text-only).
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.

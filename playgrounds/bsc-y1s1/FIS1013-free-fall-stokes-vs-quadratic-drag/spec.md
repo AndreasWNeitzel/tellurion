@@ -22,6 +22,76 @@ share_state_keys: []
 
 # Free fall under vacuum, Stokes drag, and quadratic drag
 
+## Explainer
+
+### What you are looking at
+
+Three identical balls are dropped from the same height at the same
+instant. One falls in vacuum, one through a fluid that resists it in
+proportion to its speed, and one through air, where resistance grows
+with the square of the speed. They separate immediately, and each
+settles into a different steady fall. This is the difference between
+"no drag", "slow/small-object drag", and "everyday air drag", side by
+side.
+
+### The three equations of motion
+
+For a unit mass falling (taking downward as negative $v$), gravity is
+constant and drag opposes motion:
+
+$$\dot v = -g \quad \text{(vacuum)},$$
+
+$$\dot v = -g - b\,v \quad \text{(Stokes, linear)},$$
+
+$$\dot v = -g - c\,|v|\,v \quad \text{(quadratic, Newtonian)}.$$
+
+Stokes drag $-bv$ describes slow flow past small objects (a bead in
+honey, a fog droplet). Quadratic drag $-c|v|v$ describes fast flow
+where the object throws air aside (a skydiver, a baseball). The
+absolute value keeps the quadratic force pointing opposite the motion.
+
+### Terminal velocity: where gravity and drag cancel
+
+Each drag law has a speed at which the drag exactly balances gravity,
+so $\dot v = 0$ and the ball stops accelerating:
+
+$$v_t^{(S)} = \frac{m g}{b}, \qquad
+  v_t^{(Q)} = \sqrt{\frac{m g}{c}}.$$
+
+The vacuum ball never has one; it speeds up forever. The two drag laws
+even have a crossover speed $v_c = b/c$ above which the quadratic term
+wins.
+
+### The exact fall curves
+
+These equations can be solved in closed form from rest, which is the
+exact answer the simulation must match:
+
+$$v_S(t) = -v_t^{(S)}\left(1 - e^{-b t / m}\right),$$
+
+$$v_Q(t) = -v_t^{(Q)} \tanh\!\left(\frac{g t}{v_t^{(Q)}}\right).$$
+
+Stokes approaches terminal velocity as a decaying exponential;
+quadratic approaches it as a $\tanh$, which is flatter early and turns
+over more sharply. Watching the velocity readouts you can see the
+exponential and the $\tanh$ pull away from the straight vacuum line.
+
+### Things to try
+
+- Let it run until the two drag balls flatten out at their terminal
+  speeds while the vacuum ball keeps accelerating.
+- Raise the Stokes coefficient $b$: the linear ball reaches a lower,
+  earlier terminal speed.
+- Compare early time (all three almost together, drag still weak) with
+  late time (drag dominant, speeds locked).
+
+### Where this comes from
+
+The three drag laws, the terminal-velocity expressions, and the closed
+-form solutions follow Marion and Thornton, *Classical Dynamics of
+Particles and Systems*, 5th ed., Chapter 2. The 2D version is the
+companion playground `projectile-with-air-drag`.
+
 ## Physical setup
 
 Three unit-mass balls dropped from the same height $y_0$ at $t = 0$, falling under three different drag laws: vacuum, Stokes (linear in velocity), and quadratic (Newtonian). Gravity acts downward; $g = 9.81$ m/s$^2$.
