@@ -22,6 +22,61 @@ share_state_keys: []
 
 # Davisson-Germer electron diffraction
 
+## Explainer
+
+### What you are looking at
+
+Fire electrons (particles) at a crystal and they come back in sharp
+bright beams at specific angles, exactly the way X-rays diffract. That
+1927 result by Davisson and Germer was the first direct proof that
+matter has a wavelength. The playground reproduces their nickel
+experiment and lets you dial the voltage.
+
+### The de Broglie wavelength
+
+An electron accelerated through voltage $V$ gains kinetic energy
+$T = eV$ and therefore a momentum, and de Broglie says it has a
+wavelength
+
+$$\lambda = \frac{h}{p}, \qquad
+  pc = \sqrt{T^2 + 2T\,m_e c^2}.$$
+
+At $V = 54$ V this is about 0.167 nm, comparable to atomic spacings,
+which is why a crystal can diffract it.
+
+### The diffraction condition
+
+The crystal surface is a grating of atomic rows spaced
+$D = 0.215$ nm. Constructive interference (a bright beam) occurs when
+the path difference between adjacent rows is a whole wavelength:
+
+$$D\sin\theta = n\lambda.$$
+
+For many parallel rows the intensity is the standard $N$-slit grating
+pattern
+
+$$I(\theta) = \left[\frac{\sin(N\phi)}{\sin\phi}\right]^2,
+  \qquad \phi = \frac{\pi D\sin\theta}{\lambda},$$
+
+with tall principal maxima of height $N^2$ at $\sin\theta_n =
+n\lambda/D$. At $V = 54$ V the first maximum lands at
+$\theta \approx 51^\circ$, exactly the angle Davisson and Germer
+measured.
+
+### Things to try
+
+- Set $V = 54$ V and find the famous $\sim 51^\circ$ peak.
+- Raise $V$: the electrons get more momentum, $\lambda$ shrinks, and
+  the diffraction peaks move to smaller angles.
+- Note the peaks are sharp and at grating angles, the signature of a
+  wave, from particles.
+
+### Where this comes from
+
+The de Broglie relation, the relativistic momentum, and the grating
+diffraction condition follow Eisberg and Resnick, *Quantum Physics*,
+2nd ed., Chapter 3, after Davisson and Germer (1927).
+
 ## Physical setup
 
 Electrons accelerated through a voltage $V$ are scattered off the (111) face of a nickel crystal. The atomic row spacing on that surface is $D = 0.215$ nm. Constructive interference appears at angle $\theta$ from the normal satisfying
