@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Laser Rate-Equation Dynamics](../playgrounds/bsc-y3s2/FIS4035-laser-rate-equations-dynamics/index.html)** &nbsp; (verified, verified 2026-05-18T00:46:39Z)
+  A gain medium (a two-level inversion) sits in an optical resonator. An external pump builds the population inversion `n`; the inversion decays on the upper-state lifetime and is depleted by stimulated emission into the cavity photon number `p`. Photons grow when the round-trip gain exceeds the cavity loss and leave through the output coupler. A small fixed s
+
 - **[AFM and STM: Tip-Surface Interaction](../playgrounds/bsc-y3s2/MEF-afm-stm-surface-interaction/index.html)** &nbsp; (verified, verified 2026-05-18T00:15:44Z)
   A sharp probe tip is brought within angstroms of a surface and scanned across it. Two contrast mechanisms: the mechanical tip-sample force (atomic force microscopy) and the quantum-mechanical tunnelling current across the vacuum gap (scanning tunnelling microscopy). Both are extraordinarily sensitive to the tip-sample separation, which is what lets a scannin
 
@@ -770,8 +773,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
   A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
 
-- **[Laser Rate-Equation Dynamics](../playgrounds/bsc-y3s2/FIS4035-laser-rate-equations-dynamics/index.html)** &nbsp; (verified)
-  A gain medium (a two-level inversion) sits in an optical resonator. An external pump builds the population inversion `n`; the inversion decays on the upper-state lifetime and is depleted by stimulated emission into the cavity photon number `p`. Photons grow when the round-trip gain exceeds the cavity loss and leave through the output coupler. A small fixed s
+- **[Jaynes-Cummings Model: Collapse and Revival](../playgrounds/bsc-y3s2/FIS4035-jaynes-cummings-model/index.html)** &nbsp; (verified)
+  A single two-level atom sits in a lossless optical cavity supporting one quantised mode, on exact resonance (atomic transition frequency equal to the mode frequency). The atom starts in its excited state and the field starts in a coherent state of mean photon number `nbar`. The atom and field exchange a single quantum of excitation coherently; the observable
 
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.

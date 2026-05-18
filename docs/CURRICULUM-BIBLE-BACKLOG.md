@@ -399,7 +399,7 @@ docs/NEEDS-ATTENTION.md, move on.
   N1/N2 bars, photon phi(t), 3 regimes, resonator, P-vs-pump kink,
   Q-switch giant pulse. Inv: below thr phi to 0; above N2-N1=1/sct 1%;
   Q-switch energy prop inversion 5%.
-- [ ] jaynes-cummings-model : advanced canvas2d. 2-level atom in cavity,
+- [x] jaynes-cummings-model : advanced canvas2d. 2-level atom in cavity,
   Rabi collapse/revival, Wigner, P(n). Inv: collapse/revival Eberly 1%;
   Pg+Pe=1; On=g sqrt(n+1).
 - [ ] nonlinear-optics-shg : advanced canvas2d. SHG growth, phase match
