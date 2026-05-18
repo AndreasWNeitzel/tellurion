@@ -2,6 +2,36 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Atwood Machine with a Massive Pulley](../playgrounds/bsc-y1s1/FIS1013-atwood-machine-constrained/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  Two masses `m1`, `m2` hang from an inextensible massless rope over a pulley of mass `M`, radius `R` and moment of inertia `I`. The rope does not slip, so both masses share one coordinate and the pulley angular speed is `v/R`. Weight and tension force arrows (length proportional to force) are drawn on each block; the pulley carries a spinning spoke and its dr
+
+- **[Bernoulli Air-Blower Ball](../playgrounds/bsc-y1s1/FIS1013-bernoulli-air-blower-ball/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  A sphere of mass $m$ and radius $R$ sits in a turbulent free jet issuing from a nozzle whose axis can be tilted by an angle from vertical. The jet has a centreline speed that decays with distance and a Gaussian cross-section that spreads downstream.
+
+- **[Biot-Savart 3D Field Explorer](../playgrounds/bsc-y1s2/FIS1014-biot-savart-3d-explorer/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  Current-carrying wires (a straight wire, a loop, Helmholtz coils, a solenoid) sit in 3D. The magnetic field is computed at a lattice of sample points and drawn as arrow glyphs coloured by `|B|`, with field lines traced by integrating along `B` and the on-axis `Bz(z)` profile in a side panel. The wire is dashed and animated to show the current.
+
+- **[Bouncing Shapes Concave Surface](../playgrounds/bsc-y1s1/FIS1013-bouncing-shapes-concave-surface/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  Several point balls fall under uniform gravity into a concave bowl $y=f(x)$ chosen from a menu. Each contact reflects the velocity about the local tangent with a coefficient of restitution.
+
+- **[Central-Force Orbit Gallery](../playgrounds/bsc-y1s1/FIS1013-central-force-orbit-gallery/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  A unit-mass particle moves in a central potential `V(r) = k r^p` (with `k` signed so the well is attractive for every `p`; `p = 0` is the logarithmic potential). The orbit is drawn about a luminous force centre with a fading trail; a secondary panel shows the effective potential and the energy.
+
+- **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.
+
+- **[Projectile with Drag and the Magnus Force in 3D](../playgrounds/bsc-y1s1/FIS1013-projectile-drag-magnus-3d/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  A unit-mass ball is launched from the origin. Three copies fly simultaneously over an oblique-projected ground grid: vacuum (grey dashed), quadratic drag (amber) and drag plus Magnus (cyan). A spinning ball with a spin-axis arrow rides the Magnus path; landing markers show where each lands.
+
+- **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  A torque-free rigid body with principal moments of inertia $I_1 < I_2 < I_3$. The angular velocity in the body frame obeys Euler's equations; the orientation is carried by a unit quaternion.
+
+- **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  A rigid body rotates freely in space with no applied torque. Its inertia tensor is diagonal in the body frame with principal moments `I1, I2, I3`. The body is drawn as the corresponding uniform-density inertia ellipsoid; the three principal axes are colour-coded arrows (red I1, green I2, blue I3). The angular-velocity vector omega is white, the conserved ang
+
+- **[Two-Body Collision: Lab and CM Frames](../playgrounds/bsc-y1s1/FIS1013-collision-scattering-lab/index.html)** &nbsp; (verified, verified 2026-05-18T10:52:00Z)
+  A projectile of mass `m1` scatters off a target `m2` initially at rest. The two-body problem reduces to one body of reduced mass `mu = m1 m2 / (m1+m2)` in a central potential. The CM-frame encounter is the primary scene; the lab trajectory, the potential profile and the differential cross-section are secondary panels.
+
 - **[Slow-Roll Inflation](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (verified, verified 2026-05-18T10:45:00Z)
   A scalar inflaton field $\phi$ with potential $V(\phi)$ in slow-roll regime ($\epsilon, |\eta| \ll 1$). The slow-roll parameters are $\epsilon = (M_\text{Pl}^2 / 2)(V'/V)^2$ and $\eta = M_\text{Pl}^2 V''/V$. Observables to leading order:
 
@@ -800,23 +830,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Aperture Synthesis on the UV Plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/index.html)** &nbsp; (verified)
   Five radio telescopes plotted on a procedural world map (continent outlines, no image texture): ALMA, VLA, Effelsberg, Metsahovi, JCMT. The sky-preview panel shows a three-source model (one bright dot + two fainter). As simulated time runs (one day per 10 s), each telescope pair traces an elliptical arc in the UV plane; the dirty image panel updates via 2D i
 
-- **[Atwood Machine with a Massive Pulley](../playgrounds/bsc-y1s1/FIS1013-atwood-machine-constrained/index.html)** &nbsp; (verified)
-  Two masses `m1`, `m2` hang from an inextensible massless rope over a pulley of mass `M`, radius `R` and moment of inertia `I`. The rope does not slip, so both masses share one coordinate and the pulley angular speed is `v/R`. Weight and tension force arrows (length proportional to force) are drawn on each block; the pulley carries a spinning spoke and its dr
-
-- **[Bernoulli Air-Blower Ball](../playgrounds/bsc-y1s1/FIS1013-bernoulli-air-blower-ball/index.html)** &nbsp; (verified)
-  A sphere of mass $m$ and radius $R$ sits in a turbulent free jet issuing from a nozzle whose axis can be tilted by an angle from vertical. The jet has a centreline speed that decays with distance and a Gaussian cross-section that spreads downstream.
-
-- **[Biot-Savart 3D Field Explorer](../playgrounds/bsc-y1s2/FIS1014-biot-savart-3d-explorer/index.html)** &nbsp; (verified)
-  Current-carrying wires (a straight wire, a loop, Helmholtz coils, a solenoid) sit in 3D. The magnetic field is computed at a lattice of sample points and drawn as arrow glyphs coloured by `|B|`, with field lines traced by integrating along `B` and the on-axis `Bz(z)` profile in a side panel. The wire is dashed and animated to show the current.
-
-- **[Bouncing Shapes Concave Surface](../playgrounds/bsc-y1s1/FIS1013-bouncing-shapes-concave-surface/index.html)** &nbsp; (verified)
-  Several point balls fall under uniform gravity into a concave bowl $y=f(x)$ chosen from a menu. Each contact reflects the velocity about the local tangent with a coefficient of restitution.
-
 - **[Brownian Motion and the Diffusion Law](../playgrounds/bsc-y2s1/FIS2014-brownian-motion-diffusion/index.html)** &nbsp; (verified)
   A dilute suspension of Brownian particles released from a common origin in a two-dimensional fluid. Each particle performs an independent random walk driven by molecular collisions; one tracer is drawn large with its trail and the surrounding solvent agitation.
-
-- **[Central-Force Orbit Gallery](../playgrounds/bsc-y1s1/FIS1013-central-force-orbit-gallery/index.html)** &nbsp; (verified)
-  A unit-mass particle moves in a central potential `V(r) = k r^p` (with `k` signed so the well is attractive for every `p`; `p = 0` is the logarithmic potential). The orbit is drawn about a luminous force centre with a fading trail; a secondary panel shows the effective potential and the energy.
 
 - **[Chandrasekhar Dynamical Friction](../playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/index.html)** &nbsp; (verified)
   A large perturber enters from the left through N=200 background particles drawn from a Maxwellian of dispersion sigma. Gravitational focusing pulls particles into an overdense wake trailing the perturber; the wake's pull decelerates it. The perturber speed readout decreases over time.
@@ -872,14 +887,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Normal Modes of a Mass-Spring Chain](../playgrounds/bsc-y2s1/FIS2002-normal-modes-nd-chain/index.html)** &nbsp; (verified)
   A 1D chain of N point masses joined by springs with fixed ends. The monatomic chain has one spring constant; the diatomic chain alternates two spring constants along the chain (a two-atom basis).
 
-- **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified)
-  A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.
-
 - **[Poynting Vector: a Plane EM Wave in 3D](../playgrounds/bsc-y1s2/FIS1014-poynting-vector-wave-3d/index.html)** &nbsp; (verified)
   A monochromatic plane wave propagates along z. `E` oscillates in one transverse plane, `B` in the orthogonal one, and the Poynting vector `S = E x B / mu0` points along the propagation direction. Units are `c = 1`, `mu0 = 1`.
-
-- **[Projectile with Drag and the Magnus Force in 3D](../playgrounds/bsc-y1s1/FIS1013-projectile-drag-magnus-3d/index.html)** &nbsp; (verified)
-  A unit-mass ball is launched from the origin. Three copies fly simultaneously over an oblique-projected ground grid: vacuum (grey dashed), quadratic drag (amber) and drag plus Magnus (cyan). A spinning ball with a spin-axis arrow rides the Magnus path; landing markers show where each lands.
 
 - **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (verified)
   Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
@@ -908,9 +917,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[TDSE Wavepacket Sculptor](../playgrounds/bsc-y3s1/FIS3003-tdse-wavepacket-sculptor/index.html)** &nbsp; (verified)
   A Gaussian wavepacket of chosen mean momentum launched into a chosen 1D potential: free space, infinite box, harmonic well, double well, periodic lattice, rectangular tunnelling barrier, or a delta spike.
 
-- **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified)
-  A torque-free rigid body with principal moments of inertia $I_1 < I_2 < I_3$. The angular velocity in the body frame obeys Euler's equations; the orientation is carried by a unit quaternion.
-
 - **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified)
   A normalised wavepacket of a chosen shape (Gaussian, box, triangle, double bump) presented simultaneously in position space and in momentum space, with a live squeeze.
 
@@ -922,12 +928,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Thermodynamic Engine Simulator](../playgrounds/bsc-y2s1/FIS2014-thermodynamic-engine-simulator/index.html)** &nbsp; (verified)
   n moles of an ideal gas (gamma = 5/3) in a piston-cylinder, exchanging heat with hot and cold reservoirs as it runs a closed cycle. Molecule speeds scale with the live temperature; the piston position tracks the volume; the reservoirs glow when heat flows.
-
-- **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified)
-  A rigid body rotates freely in space with no applied torque. Its inertia tensor is diagonal in the body frame with principal moments `I1, I2, I3`. The body is drawn as the corresponding uniform-density inertia ellipsoid; the three principal axes are colour-coded arrows (red I1, green I2, blue I3). The angular-velocity vector omega is white, the conserved ang
-
-- **[Two-Body Collision: Lab and CM Frames](../playgrounds/bsc-y1s1/FIS1013-collision-scattering-lab/index.html)** &nbsp; (verified)
-  A projectile of mass `m1` scatters off a target `m2` initially at rest. The two-body problem reduces to one body of reduced mass `mu = m1 m2 / (m1+m2)` in a central potential. The CM-frame encounter is the primary scene; the lab trajectory, the potential profile and the differential cross-section are secondary panels.
 
 - **[Van der Waals Condensation and the Maxwell Construction](../playgrounds/bsc-y2s1/FIS2014-van-der-waals-maxwell-construction/index.html)** &nbsp; (verified)
   A fixed amount of a van der Waals fluid in a piston-cylinder, held at a chosen reduced temperature, compressed and expanded along an isotherm. Below the critical point the fluid splits into coexisting liquid and vapour; the molecule rendering and the meniscus track the lever-rule liquid fraction.
