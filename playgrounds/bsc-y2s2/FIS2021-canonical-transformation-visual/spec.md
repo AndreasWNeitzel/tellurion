@@ -19,6 +19,69 @@ share_state_keys: []
 
 # Canonical Transformations
 
+## Explainer
+
+### What you are looking at
+
+You can change coordinates in Hamiltonian mechanics, but only special
+"canonical" changes keep the equations of motion in Hamiltonian form.
+Their defining property is geometric: they preserve area in phase
+space. The playground maps a blob of phase points through different
+transformations so you see which ones preserve area (canonical) and
+which distort it (not).
+
+### What makes a transformation canonical
+
+A change of variables $(q,p)\to(Q,P)$ is canonical if it preserves
+the symplectic structure, equivalently if its Jacobian has unit
+determinant:
+
+$$\{Q,P\}_{q,p}
+  = \frac{\partial Q}{\partial q}\frac{\partial P}{\partial p}
+  - \frac{\partial Q}{\partial p}\frac{\partial P}{\partial q}
+  = 1.$$
+
+Then Hamilton's equations $\dot q=\partial H/\partial p$,
+$\dot p=-\partial H/\partial q$ keep their form in the new
+coordinates, and any phase-space area is conserved (Liouville's
+theorem). The playground draws a phase blob (a harmonic energy
+ellipse plus an interior lattice) and applies:
+
+- A rotation / scaling pair $Q=\lambda q$, $P=p/\lambda$: area
+  preserved (canonical), the blob stretches one way and squeezes the
+  other.
+- The harmonic time-evolution map itself: a rotation of phase space,
+  canonical, area exactly preserved.
+- A deliberately non-canonical map (e.g. $Q=q$, $P=p+f(q,p)$ with
+  bad Jacobian): the lattice area visibly grows or shrinks, the
+  signature of a forbidden transformation.
+
+### Why it matters
+
+Canonical transformations are the engine of advanced mechanics:
+action-angle variables, the Hamilton-Jacobi method, perturbation
+theory and the symplectic integrators used to evolve orbits for
+billions of years all rely on staying canonical. Liouville's
+area-preservation is also why phase-space density is conserved (the
+foundation of statistical mechanics). The playground makes the
+abstract condition concrete: watch the lattice cell areas to judge
+canonicality at a glance.
+
+### Things to try
+
+- Apply the scaling map and confirm every lattice cell keeps its
+  area while changing shape (canonical).
+- Apply the harmonic flow and watch the blob rigidly rotate (a
+  canonical rotation, energy ellipse invariant).
+- Apply the non-canonical map and watch the cell areas inflate or
+  collapse (Liouville violated).
+
+### Where this comes from
+
+Canonical transformations, the symplectic condition and Liouville's
+theorem follow Goldstein, *Classical Mechanics*, Chapter 9, and
+Taylor, *Classical Mechanics*, Chapter 13.
+
 ## Physical setup
 
 A phase blob (the harmonic energy ellipse plus an interior lattice)
