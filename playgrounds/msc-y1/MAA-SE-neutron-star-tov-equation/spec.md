@@ -21,6 +21,67 @@ share_state_keys: [eos, rho]
 
 # Neutron Stars: the TOV Equation and the Mass-Radius Diagram
 
+## Explainer
+
+### What you are looking at
+
+A neutron star packs more than the Sun's mass into a 12 km ball. At
+that density Newtonian gravity is wrong; you need general relativity,
+and the structure equation is the TOV equation. Its solutions form a
+mass-radius curve with a maximum mass: push past it and the star
+collapses to a black hole. The playground integrates the TOV equation
+for different nuclear equations of state and traces that curve.
+
+### The TOV equation
+
+Newtonian hydrostatic equilibrium is $dP/dr=-G m\rho/r^2$. General
+relativity adds three correction factors (pressure also gravitates,
+spacetime is curved):
+
+$$\frac{dP}{dr}
+  = -\,\frac{G\,(\epsilon + P/c^2)\,
+  \big(m + 4\pi r^3 P/c^2\big)}
+  {r^2\,\big(1 - 2Gm/rc^2\big)},
+  \qquad
+  \frac{dm}{dr} = 4\pi r^2 \frac{\epsilon}{c^2}.$$
+
+Every extra factor strengthens gravity relative to the Newtonian
+case, which is why a relativistic star has a hard upper mass limit
+that no Newtonian polytrope has.
+
+### The equation of state and the maximum mass
+
+The TOV system is not closed until you specify how pressure depends
+on density, the equation of state $P(\epsilon)$, which encodes the
+unknown physics of matter above nuclear density. The playground
+offers several: an ideal degenerate neutron gas, stiff and soft
+nuclear polytropes, and self-bound quark matter. For each, sweeping
+the central density $\rho_c$ traces a one-parameter family of stars.
+The mass-radius locus rises, turns over at a maximum mass
+$M_\mathrm{max}$, and the branch beyond ($dM/d\rho_c<0$) is unstable
+to collapse. A stiffer equation of state resists compression and
+gives a larger $M_\mathrm{max}$ and radius. Measuring real neutron-
+star masses and radii therefore directly constrains the dense-matter
+equation of state, the central goal of NICER and gravitational-wave
+observations. The playground shows the profile and where the star
+sits on the M-R curve.
+
+### Things to try
+
+- Sweep the central density and watch the M-R point climb to the
+  maximum mass then turn back (the unstable branch).
+- Switch equations of state and watch a stiffer one push
+  $M_\mathrm{max}$ and the radius up.
+- Compare the GR maximum mass to a Newtonian polytrope, which has
+  none: relativity is what creates the limit.
+
+### Where this comes from
+
+The TOV equation, the role of the equation of state, and the maximum
+mass follow Oppenheimer and Volkoff, Phys. Rev. 55, 374 (1939), and
+Shapiro and Teukolsky, *Black Holes, White Dwarfs, and Neutron
+Stars*, Chapter 5.
+
 ## Physical setup
 
 A cold, static, spherically symmetric star in general relativity. Hydrostatic equilibrium is the Tolman-Oppenheimer-Volkoff equation; closing it needs an equation of state P(epsilon). Four are offered: an ideal degenerate free-neutron Fermi gas (the Oppenheimer-Volkoff 1939 model), a stiff and a soft polytrope anchored at nuclear saturation density, and self-bound MIT-bag quark matter. Sweeping the central density gives a one-parameter family whose mass-radius locus turns over at the maximum mass; stars beyond it are unstable. SI units; radius in metres, mass in kilograms, reported in km and M_sun.
