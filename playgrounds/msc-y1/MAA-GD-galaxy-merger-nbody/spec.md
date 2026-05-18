@@ -77,14 +77,21 @@ $$L_z = x\,v_y - y\,v_x,
   \qquad
   E = \tfrac12 v^2 + \Phi_1 + \Phi_2,$$
 
-and plots $E$ against $L_z$, colour-coded by galaxy of origin. These
-are near-conserved labels (adiabatic invariants), so debris from the
-disrupted galaxy stays clustered there long after it is spatially
-mixed. A lower-mass accreted galaxy on a radial orbit lands as a
-distinct blob at low $|L_z|$ and intermediate $E$: exactly the
-signature of the Gaia-Enceladus / Sausage merger found in the Milky
-Way halo (Helmi et al. 2018; Belokurov et al. 2018). Change the mass
-ratio and watch the accreted clump's position and prominence shift.
+and plots $E$ against $L_z$, colour-coded by galaxy of origin. Both
+panels share one centre-of-mass frame, so an unequal-mass primary
+cannot drag the encounter off-screen. While the two nuclei are still
+orbiting the potential is time-dependent and the points churn
+violently (each pericentre passage reshuffles $E$ and $L_z$, the
+visible signature of violent relaxation). Once the nuclei coalesce
+the potential becomes static and $E, L_z$ become genuine conserved
+integrals, so the scatter settles and stops moving. That settling is
+not a numerical artefact, it is the entire reason this diagram is
+used: the substructure is frozen in for billions of years, which is
+how a lower-mass accreted galaxy on a radial orbit is still
+recognizable today as a distinct low-$|L_z|$ clump, the Gaia-Enceladus
+/ Sausage signature found in the Milky Way halo (Helmi et al. 2018;
+Belokurov et al. 2018). Change the mass ratio and watch the accreted
+clump's position and prominence shift.
 
 ### Things to try
 

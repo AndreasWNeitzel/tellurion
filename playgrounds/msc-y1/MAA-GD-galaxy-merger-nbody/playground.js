@@ -133,7 +133,11 @@ function sampleSpiralDisk(spin, Mgal) {
 }
 
 let halo1, halo2, tracers1, tracers2, elapsed = 0, merged = false;
-const MERGE_R = 0.9 * A_DYN;   // cores within ~a coalesce into one nucleus
+// Small merge radius so dynamical friction drags the pair through several
+// decaying passages (each pericentre is a burst of violent relaxation that
+// reshuffles E and L_z) before the nuclei finally coalesce, rather than an
+// instantaneous snap that makes the integrals-of-motion plane freeze at once.
+const MERGE_R = 0.32 * A_DYN;
 
 function reset() {
   // Start well separated with a real CLOSING velocity along x, the impact
@@ -243,22 +247,26 @@ function render() {
   const Wl = W * SPLIT;
   const cx = Wl / 2, cy = H / 2;
   const sc = Math.min(Wl, H) * 0.07;       // fit the encounter in the left panel
+  // Render the spatial panel in the centre-of-mass frame: subtract the
+  // system COM so an unequal-mass primary cannot carry the whole encounter
+  // off-screen (and so the spatial view and the E-Lz panel share one frame).
+  const com = comFrame();
   ctx.fillStyle = '#7c9cff';
-  for (const p of tracers1) ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.5, 1.5);
+  for (const p of tracers1) ctx.fillRect(cx + (p.x - com.x) * sc, cy + (p.y - com.y) * sc, 1.5, 1.5);
   ctx.fillStyle = '#fdb56a';
-  for (const p of tracers2) ctx.fillRect(cx + p.x * sc, cy + p.y * sc, 1.5, 1.5);
+  for (const p of tracers2) ctx.fillRect(cx + (p.x - com.x) * sc, cy + (p.y - com.y) * sc, 1.5, 1.5);
   // Nuclei.
   ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.arc(cx + halo1.x * sc, cy + halo1.y * sc, 3, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + (halo1.x - com.x) * sc, cy + (halo1.y - com.y) * sc, 3, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#ffd57f';
-  ctx.beginPath(); ctx.arc(cx + halo2.x * sc, cy + halo2.y * sc, 3, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + (halo2.x - com.x) * sc, cy + (halo2.y - com.y) * sc, 3, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('merger (spatial)', 12, 20);
+  ctx.fillText('merger (spatial, COM frame)', 12, 20);
 
   // Integrals-of-motion panel: E versus L_z in the COM frame, colour-coded
   // by galaxy of origin. The shredded lighter galaxy lands in a distinct
   // low-|Lz| (radial) clump, the Gaia-Enceladus / "Sausage" analogue.
-  const com = comFrame();
+  // (com computed above; the spatial panel and this panel share it.)
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
   ctx.beginPath(); ctx.moveTo(Wl, 0); ctx.lineTo(Wl, H); ctx.stroke();
   const px0 = Wl + 54, px1 = W - 18, py0 = 40, py1 = H - 40;
