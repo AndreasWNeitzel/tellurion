@@ -51,3 +51,7 @@ kept shipped legitimately, NOT via the heartbeat fast-ship bypass).
   --playground AST3017-inflation-slow-roll --deterministic
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3)
 - node scripts/build-index.mjs ; then write .verified ONLY after gates pass
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.

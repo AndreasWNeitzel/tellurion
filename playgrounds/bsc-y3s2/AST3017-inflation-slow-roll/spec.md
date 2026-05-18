@@ -22,6 +22,71 @@ share_state_keys: []
 
 # Slow-roll inflation: $n_s$ vs $r$
 
+## Explainer
+
+### What you are looking at
+
+The early universe is thought to have inflated, expanded exponentially,
+driven by a scalar field rolling slowly down its potential. Different
+potential shapes predict different patterns in the cosmic microwave
+background. The playground plots each model's prediction on the
+$(n_s, r)$ plane that Planck actually measured, so you see which
+survive and which are ruled out.
+
+### Slow roll
+
+If a field $\phi$ rolls slowly down $V(\phi)$ (kinetic energy tiny
+compared to potential), the expansion is nearly exponential. "Slowly"
+is quantified by two dimensionless slow-roll parameters built from the
+shape of the potential:
+
+$$\epsilon = \frac{M_\text{Pl}^2}{2}\left(\frac{V'}{V}\right)^2,
+  \qquad
+  \eta = M_\text{Pl}^2\,\frac{V''}{V},$$
+
+with inflation requiring $\epsilon, |\eta| \ll 1$ and ending when
+$\epsilon \to 1$.
+
+### The two observables
+
+To leading order the primordial fluctuations are characterized by the
+scalar spectral tilt and the tensor-to-scalar ratio:
+
+$$n_s = 1 - 6\epsilon + 2\eta,
+  \qquad r = 16\,\epsilon.$$
+
+$n_s$ slightly below 1 means the fluctuation spectrum is nearly but not
+exactly scale-invariant; $r$ measures primordial gravitational waves.
+Each potential traces a curve in the $(n_s, r)$ plane parameterized by
+$N$, the number of e-folds before inflation ends (observable scales
+left the horizon at $N\approx 50$ to 60):
+
+- $\phi^2$ chaotic: $n_s = 1 - 2/N$, $r = 8/N$ (Planck excludes this
+  $r$).
+- $\phi^4$ chaotic: $r = 16/N$, far excluded.
+- Natural inflation: $n_s = 1 - 2/N - 1/f^2$, $r = 8/N$.
+- Starobinsky $R^2$: $n_s = 1 - 2/N$, $r = 12/N^2$ (tiny $r$,
+  comfortably allowed).
+
+The playground overlays these trajectories on the Planck contour so the
+verdict (ruled in or out) is visual.
+
+### Things to try
+
+- Slide $N$ from 50 to 60 and watch each model's point move along its
+  $(n_s,r)$ track.
+- Compare $\phi^2/\phi^4$ (high $r$, outside the data) with Starobinsky
+  ($r\sim 1/N^2$, well inside).
+- Note all viable models predict $n_s$ slightly less than 1, exactly
+  what is observed.
+
+### Where this comes from
+
+The slow-roll parameters, the $n_s = 1-6\epsilon+2\eta$ and
+$r = 16\epsilon$ relations, and the model trajectories follow Liddle,
+*An Introduction to Modern Cosmology*, Chapter 13, and Baumann,
+*Cosmology*.
+
 ## Physical setup
 
 A scalar inflaton field $\phi$ with potential $V(\phi)$ in slow-roll regime ($\epsilon, |\eta| \ll 1$). The slow-roll parameters are $\epsilon = (M_\text{Pl}^2 / 2)(V'/V)^2$ and $\eta = M_\text{Pl}^2 V''/V$. Observables to leading order:
