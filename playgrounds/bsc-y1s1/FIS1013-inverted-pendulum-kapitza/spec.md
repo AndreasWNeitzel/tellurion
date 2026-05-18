@@ -20,6 +20,59 @@ share_state_keys: []
 
 # Kapitza inverted pendulum
 
+## Explainer
+
+### What you are looking at
+
+A pendulum normally hangs down; balanced upside down it falls over at
+the slightest nudge. But shake the pivot up and down fast enough and
+the upside-down position becomes stable: the pendulum stands on end and
+stays there, returning if you push it. This is the Kapitza pendulum,
+and it is the principle behind ion traps and vibration-stabilized
+systems.
+
+### The equation of motion
+
+With the pivot driven vertically as $y_p(t) = a\cos(\omega t)$, the
+angle $\theta$ from the straight-up position obeys
+
+$$\ddot\theta = \frac{g - a\,\omega^2 \cos(\omega t)}{l}\,\sin\theta.$$
+
+The $g$ term is ordinary gravity, which by itself makes the inverted
+state ($\theta = 0$ up) unstable. The $a\omega^2\cos(\omega t)$ term is
+the shaking. It averages to zero, so intuitively it should do nothing,
+yet it changes everything.
+
+### Why fast shaking creates stability
+
+Split the motion into a slow lean plus a tiny fast wiggle at the drive
+frequency. Averaging over the fast wiggle leaves the slow angle moving
+in an *effective* potential with an extra term from the shaking. That
+extra term creates a minimum at $\theta = 0$ (straight up) provided the
+shaking is strong enough. The condition is the Kapitza criterion:
+
+$$a^2 \omega^2 > 2\,g\,l.$$
+
+Above it, the upright position is a genuine stable equilibrium and the
+pendulum oscillates about vertical. Below it, gravity wins and it
+topples as usual. The playground lets you cross that threshold and
+watch the upside-down pendulum snap from unstable to stable.
+
+### Things to try
+
+- Start below the criterion and watch the inverted pendulum fall.
+- Raise the drive amplitude or frequency past $a^2\omega^2 = 2gl$ and
+  watch it lock upright, wiggling slightly but not falling.
+- Push the stabilized pendulum and watch it return: it is a real
+  potential well now.
+
+### Where this comes from
+
+The driven equation of motion, the slow-plus-fast averaging, the
+effective potential, and the $a^2\omega^2 > 2gl$ stability criterion
+follow Landau and Lifshitz, *Mechanics*, 3rd ed., Section 30, and the
+original analysis by Kapitza (1951).
+
 ## Physical setup
 
 Rigid pendulum of length l = 1 with pivot driven vertically at
