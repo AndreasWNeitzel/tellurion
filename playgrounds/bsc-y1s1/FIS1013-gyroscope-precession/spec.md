@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "A spinning top should fall over, but it does not: gravity's torque, instead of toppling it, swings its axis sideways in a slow circle. Spin it faster and it precesses slower. That is angular momentum refusing to point where the force pushes."
+one_paragraph: "A fast-spinning gyroscope tilted from the vertical has a large spin angular momentum L along its axis. Gravity applies a torque tau = r x W (weight times the lever arm to the pivot) that points perpendicular to L, so instead of changing L's length it swings its direction: the axis sweeps a cone at the precession rate Omega_p = M g r / (I_s omega_s). Counter-intuitively, a faster spin gives a slower precession (the 1/omega_s curve in the side panel). The scene draws the spinning disc, the spin axis (L, gold), the weight (W, red), the gravitational torque (tau, green) and the cone the axis traces; the readout gives omega_s, the tilt, Omega_p and the precession period. This steady-precession picture (valid when the spin is fast compared with the precession) is why a bicycle stays up, how a gyrocompass finds north, and why bullets and footballs are spun."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
