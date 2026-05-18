@@ -20,6 +20,56 @@ share_state_keys: []
 
 # Gravitational redshift in Schwarzschild spacetime
 
+## Explainer
+
+### What you are looking at
+
+A photon climbing out of a gravity well loses energy and arrives
+redder, the deeper it started, the redder it gets, diverging to
+infinite redshift right at a black hole's horizon. The playground moves
+the emission radius and shows the shifted spectral line and the
+redshift factor.
+
+### The redshift factor
+
+For a photon emitted by a static source at radius $r$ outside a
+Schwarzschild mass $M$ (geometric units $G=c=1$) and received far away,
+
+$$f_\text{obs} = f_\text{em}\,\sqrt{1 - \frac{2M}{r}},
+  \qquad
+  1 + z = \frac{1}{\sqrt{1 - 2M/r}}.$$
+
+The factor $\sqrt{1-2M/r}$ is the gravitational time-dilation of the
+emitting clock: a clock deeper in the well ticks slower as seen from
+infinity, so the light it sends is stretched to lower frequency.
+
+### Why it diverges at the horizon
+
+As $r \to 2M$ (the Schwarzschild radius) the factor $\sqrt{1-2M/r}\to0$,
+so $f_\text{obs}\to0$ and $z\to\infty$: a photon emitted at the horizon
+is infinitely redshifted and never arrives. That divergence is one
+operational meaning of an event horizon. Far from the mass
+($r\gg 2M$) the shift reduces to the weak-field result
+$z \approx M/r = GM/rc^2$, tiny but real: it makes a clock on a
+mountaintop run faster than one at sea level and is corrected for in
+GPS satellites every day. The playground sweeps the emission radius and
+shows the line marching redward, diverging at $r=2M$.
+
+### Things to try
+
+- Move the emitter from far out toward $r=2M$ and watch the line
+  redshift, slowly at first, then runaway near the horizon.
+- Read off the weak-field regime ($r\gg 2M$): the tiny $\sim M/r$ shift
+  (the GPS/Pound-Rebka effect).
+- Note $z\to\infty$ exactly at $r=2M$: light from the horizon never
+  reaches you.
+
+### Where this comes from
+
+The Schwarzschild time-dilation redshift factor $\sqrt{1-2M/r}$ and
+its horizon divergence follow Hartle, *Gravity: An Introduction to
+Einstein's General Relativity*, Chapter 9.
+
 ## Physical setup
 
 A photon emitted at radius r_em outside a Schwarzschild black hole of
