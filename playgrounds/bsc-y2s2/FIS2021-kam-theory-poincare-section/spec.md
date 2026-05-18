@@ -19,6 +19,65 @@ share_state_keys: []
 
 # KAM Theory - The Standard Map
 
+## Explainer
+
+### What you are looking at
+
+When you perturb an integrable system (a clockwork of nested
+invariant tori), the tori do not all dissolve at once. KAM theory
+says the most irrational ones survive longest while resonant ones
+shred into island chains and chaos. The playground iterates the
+Chirikov standard map and you watch, in the Poincare section, order
+give way to chaos as the perturbation grows.
+
+### The standard map
+
+The kicked-rotor stroboscopic map on the $(\theta, p)$ cylinder:
+
+$$p_{n+1} = p_n + K\sin\theta_n,
+  \qquad
+  \theta_{n+1} = \theta_n + p_{n+1}\pmod{2\pi},$$
+
+with one knob, the stochasticity parameter $K$. It is the universal
+local model for a perturbed Hamiltonian near a resonance; each
+plotted point is one return to the section.
+
+### KAM and the route to global chaos
+
+- $K=0$: integrable. $p$ is conserved, every orbit is a horizontal
+  line, a smooth invariant torus.
+- Small $K$: most tori merely deform and survive (the KAM theorem):
+  the section is mostly smooth curves, with thin chaotic layers and
+  island chains at the rational (resonant) tori, the resonances that
+  KAM's small-divisor condition excludes.
+- Larger $K$: tori break in order of how rational their winding
+  number is. The very last barrier to survive is the torus with the
+  most-irrational (golden-mean) winding number; it is destroyed at
+  the critical $K_c\approx0.9716$ (Greene). Above that, no rotational
+  torus spans the cylinder and chaotic orbits diffuse in $p$
+  without bound (global chaos).
+
+This is the canonical picture of the transition to Hamiltonian chaos
+and underlies particle-accelerator dynamic aperture, planetary
+long-term stability, and tokamak field-line confinement. The
+playground seeds many orbits plus the golden torus and sweeps $K$ so
+you see the islands, the breakup order, and the last-torus threshold.
+
+### Things to try
+
+- Set $K=0$ then small: watch smooth curves with islands appear at
+  resonances while most tori survive (KAM).
+- Push $K$ toward $\sim0.97$ and watch the golden-mean torus, the
+  last barrier, finally break and chaos connect across the cylinder.
+- Above $K_c$ follow one chaotic orbit and watch $p$ diffuse with no
+  bound (global stochasticity).
+
+### Where this comes from
+
+The standard map, the KAM theorem and the last-torus / Greene
+threshold follow Lichtenberg and Lieberman, *Regular and Chaotic
+Dynamics*, and Strogatz, *Nonlinear Dynamics and Chaos*, Chapter 12.
+
 ## Physical setup
 
 The standard map on the (theta, p) torus, stochasticity parameter
