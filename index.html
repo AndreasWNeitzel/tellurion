@@ -39,13 +39,21 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (297)</h2>
+  <h2>Shipped (298)</h2>
   <section class="card-grid">
 
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-DM-backprop-tiny-net/index.html">Backprop on a Tiny MLP</a></h2>
       <p class="status">verified 2026-05-18</p>
       <p class="description">A neural network &quot;learns&quot; by one idea: nudge every weight a little in the direction that most reduces the error. Backpropagation is just the chain rule applied systematically to compute all those nudges at once. The playground trains a tiny network on a 2D classification toy and shows the decision boundary, the weight graph, and the loss falling, all live.</p>
+      
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/index.html">Chandrasekhar Dynamical Friction</a></h2>
+      <p class="status">verified 2026-05-18</p>
+      <p class="description">A large perturber enters from the left through N=200 background particles drawn from a Maxwellian of dispersion sigma. Gravitational focusing pulls particles into an overdense wake trailing the perturber; the wake's pull decelerates it. The perturber speed readout decreases over time.</p>
       
     </article>
   
@@ -2301,7 +2309,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-ST-channel-capacity-bsc/index.html">Binary Symmetric Channel and the Repetition Code</a></h2>
       <p class="status">verified 2026-05-13</p>
-      <p class="description">A BSC flips each transmitted bit with probability p. Shannon's capacity C(p) = 1 - H(p), with H(p) = -p log2 p - (1 - p) log2 (1 - p). At p = 0.5 the channel is useless; at p = 0 or 1 the channel is noiseless.</p>
+      <p class="description">If a communication channel randomly corrupts your bits, how much information can you still send reliably? Shannon's answer is exact and surprising: there is a hard ceiling (the capacity), and below it you can drive the error rate to zero with clever coding. The playground uses the simplest channel, the binary symmetric channel, and the simplest code, repetit</p>
       
     </article>
   
@@ -2419,11 +2427,10 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (13)</h2>
+  <h2 class="drafts-heading">Draft (12)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">aperture-synthesis-uv-plane</span></li>
-    <li><span class="drafts-slug">chandrasekhar-dynamical-friction</span></li>
     <li><span class="drafts-slug">fresnel-snell-3d-interface</span></li>
     <li><span class="drafts-slug">galaxy-merger-nbody</span></li>
     <li><span class="drafts-slug">gravitational-lensing-caustics</span></li>
