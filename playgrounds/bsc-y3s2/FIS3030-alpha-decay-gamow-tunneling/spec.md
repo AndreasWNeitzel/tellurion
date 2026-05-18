@@ -21,6 +21,61 @@ share_state_keys: []
 ---
 # Alpha decay: Gamow tunneling
 
+## Explainer
+
+### What you are looking at
+
+An alpha particle is trapped inside a nucleus by a Coulomb barrier
+taller than its own energy. Classically it can never get out. Quantum-
+mechanically it tunnels, and because tunneling probability is
+exponentially sensitive to the barrier, half-lives span 30 orders of
+magnitude for a tiny change in decay energy. That extreme sensitivity
+is the Geiger-Nuttall law, and the playground shows it.
+
+### The barrier and the tunneling factor
+
+A preformed alpha sits in the nuclear well and faces the Coulomb
+barrier $V(r) = 1.44\,Z'/r$ MeV (with $Z'$ the daughter charge,
+$r$ in fm). It escapes with energy $Q < V_\max$ only by tunneling. The
+WKB (Gamow) penetration probability is $T = e^{-2G}$ with the Gamow
+factor
+
+$$G \;\propto\; \frac{Z'}{\sqrt Q},$$
+
+obtained by integrating $\sqrt{2m(V-E)}$ across the classically
+forbidden region. The decay constant is the barrier-assault frequency
+times this exponentially tiny factor.
+
+### The Geiger-Nuttall law
+
+Taking the log turns the exponential into a straight line:
+
+$$\log_{10} T_{1/2} \;=\; a + b\,\frac{Z}{\sqrt Q},$$
+
+(textbook $a \approx -46.83$, $b \approx 1.61$ with $Q$ in MeV). The
+$1/\sqrt Q$ in the exponent is the punchline: nudge the decay energy
+$Q$ up by a little and the half-life plummets by many orders of
+magnitude. That is why naturally occurring alpha emitters range from
+microseconds to billions of years with $Q$ varying by only a few MeV.
+The playground shows the schematic wavefunction (standing wave in the
+well, exponential decay across the barrier, small transmitted wave) and
+the Geiger-Nuttall line.
+
+### Things to try
+
+- Raise the decay energy $Q$ slightly and watch $\log_{10}T_{1/2}$
+  drop steeply (the $Z/\sqrt Q$ exponent).
+- Increase the daughter charge $Z'$ and watch the barrier thicken and
+  the half-life lengthen enormously.
+- Note the wavefunction: large in the well, exponentially suppressed
+  through the barrier, tiny but nonzero outside, tunneling made
+  visible.
+
+### Where this comes from
+
+The Gamow WKB penetration factor and the Geiger-Nuttall law follow
+Krane, *Introductory Nuclear Physics*, Chapter 8 (after Gamow 1928).
+
 ## Physical setup
 
 A preformed alpha particle is bound in the nuclear well and must tunnel the Coulomb barrier $V(r) = 1.44 Z'/r$ (MeV, fm) to escape with energy $Q$. The semiclassical penetration factor gives $\log_{10} T_{1/2} = a + b\,Z/\sqrt{Q}$, the Geiger-Nuttall law (textbook $a = -46.83$, $b = 1.61$ with $Z$ the daughter charge and $Q$ in MeV). Source: Krane Nuclear Physics Ch. 8 (`krane-nuclear`).
