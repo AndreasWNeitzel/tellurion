@@ -22,6 +22,62 @@ share_state_keys: []
 
 # Photoelectric effect: $KE_{max}$ vs photon frequency
 
+## Explainer
+
+### What you are looking at
+
+Shine light on a metal and electrons fly off, but only if the light's
+frequency is high enough, no matter how bright it is. That single
+fact killed the wave-only picture of light and won Einstein the Nobel
+Prize. The playground sweeps the photon frequency and shows the
+sharp threshold and the straight-line energy law.
+
+### Einstein's photon equation
+
+Light delivers energy in quanta of $E=hf$. One photon ejects one
+electron, paying first the work function $\phi$ (the energy binding
+the electron to the metal); whatever is left becomes kinetic energy:
+
+$$KE_\mathrm{max} = h f - \phi.$$
+
+The consequences, all visible in the playground, are exactly what
+classical wave theory cannot explain:
+
+- There is a threshold frequency $f_0 = \phi/h$. Below it, no
+  electrons are emitted however intense the beam (a wave would
+  eventually shake them loose; a photon either has enough energy or
+  it does not).
+- Above threshold, $KE_\mathrm{max}$ rises linearly with frequency,
+  a straight line of slope $h$ (Planck's constant, read straight off
+  the graph) and intercept $-\phi$.
+- Intensity sets only the number of electrons (the current), never
+  their energy; emission is essentially instantaneous.
+
+### Why it mattered
+
+The stopping voltage $V_s = KE_\mathrm{max}/e$ that just halts the
+current gives $V_s = (h/e)f - \phi/e$: Millikan measured this line
+and got $h$ to high precision, confirming the photon. The same
+quantization underlies every photodetector, solar cell and
+photomultiplier. The playground sweeps $f$ across $f_0$ and a metal
+selector (different $\phi$) and shows the threshold and the slope-$h$
+line.
+
+### Things to try
+
+- Increase intensity below threshold: still zero current (the
+  classical-wave-killer).
+- Cross $f_0$ and watch emission switch on, then $KE_\mathrm{max}$
+  climb linearly with $f$.
+- Change the metal (work function) and watch the threshold shift but
+  the slope stay $h$.
+
+### Where this comes from
+
+The photon hypothesis and $KE_\mathrm{max}=hf-\phi$ follow Einstein
+(1905) as presented in Eisberg and Resnick, *Quantum Physics*,
+Chapter 2, and Tipler and Llewellyn, *Modern Physics*, Chapter 3.
+
 ## Physical setup
 
 Monochromatic light of frequency $\nu$ illuminates a clean metal cathode with work function $\phi$. Einstein 1905: each photon delivers exactly $h\nu$ of energy to a bound electron. Electrons appear only if $h\nu \ge \phi$. The maximum kinetic energy of the ejected electron is
