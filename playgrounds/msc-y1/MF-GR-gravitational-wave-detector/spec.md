@@ -21,6 +21,71 @@ share_state_keys: [m1, m2, d]
 
 # Gravitational-Wave Detector: Inspiral Chirp and Matched Filter
 
+## Explainer
+
+### What you are looking at
+
+When two black holes spiral together they shake spacetime itself,
+sending out a gravitational wave whose frequency sweeps upward into a
+"chirp". LIGO digs that chirp out of detector noise with a matched
+filter. The playground generates the inspiral waveform and shows how
+matched filtering recovers it even when it is buried below the noise.
+
+### The inspiral chirp
+
+As the binary loses energy to gravitational radiation the orbit
+shrinks and speeds up, so the wave frequency rises ever faster. To
+leading (post-Newtonian) order the frequency evolves as
+
+$$\frac{df}{dt}
+  = \frac{96}{5}\,\pi^{8/3}
+  \left(\frac{G\mathcal M}{c^3}\right)^{5/3}
+  f^{11/3},$$
+
+and the strain amplitude grows as $h\propto f^{2/3}/d$. Everything
+depends on one combination of the masses, the chirp mass
+
+$$\mathcal M = \frac{(m_1 m_2)^{3/5}}{(m_1+m_2)^{1/5}},$$
+
+so simply timing how fast the chirp sweeps measures $\mathcal M$
+directly, and the amplitude gives the distance $d$ (a "standard
+siren").
+
+### Matched filtering
+
+The signal is far weaker than the detector noise, so you cannot just
+look at it. Matched filtering cross-correlates the data $d(t)$ with a
+template $h(t)$ weighted by the noise spectrum $S_n(f)$:
+
+$$\rho^2 \;\propto\;
+  \frac{\big|\langle d\,|\,h\rangle\big|^2}
+  {\langle h\,|\,h\rangle},
+  \qquad
+  \langle a|b\rangle
+  = 4\,\mathrm{Re}\!\int_0^\infty
+  \frac{\tilde a(f)\,\tilde b^*(f)}{S_n(f)}\,df.$$
+
+When the template matches the true waveform the correlation builds up
+coherently into a sharp signal-to-noise spike; a wrong template gives
+nothing. This is why a buried chirp becomes a confident detection.
+The playground sweeps the masses and distance and shows the chirp,
+the noisy data, and the matched-filter SNR peak.
+
+### Things to try
+
+- Increase the masses and watch the chirp shorten and sweep up
+  faster (larger chirp mass).
+- Move the source farther away and watch the strain amplitude drop
+  as $1/d$ while the chirp shape is unchanged.
+- Compare the matched-filter output for the correct template versus
+  a mismatched one: a tall SNR spike versus noise.
+
+### Where this comes from
+
+The inspiral chirp, the chirp mass, and matched filtering follow
+Maggiore, *Gravitational Waves, Vol. 1*, Chapters 4 and 7, and the
+LIGO discovery paper, Abbott et al., PRL 116, 061102 (2016).
+
 ## Physical setup
 
 Two compact objects (black holes / neutron stars) spiral together,
