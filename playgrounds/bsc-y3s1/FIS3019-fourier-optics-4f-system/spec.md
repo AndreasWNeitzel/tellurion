@@ -19,6 +19,59 @@ share_state_keys: []
 
 # The 4f Fourier-Optics Processor
 
+## Explainer
+
+### What you are looking at
+
+A lens does a Fourier transform. Put a transparency one focal length in
+front of a lens and its spatial-frequency spectrum appears one focal
+length behind. A second lens transforms back, reconstructing the image.
+Put a mask in the middle and you edit the image by editing its
+frequencies, the optical ancestor of every image filter.
+
+### The Fourier-transform property of a lens
+
+A thin lens, in the Fraunhofer regime, maps the field in its front
+focal plane to its own Fourier transform in the back focal plane:
+
+$$U_f(f_x, f_y) \;\propto\; \mathcal F\{t\}(f_x, f_y).$$
+
+Low spatial frequencies (broad features) land near the optical axis;
+high frequencies (fine detail, sharp edges) land far out. So the common
+focal plane of the 4f system literally displays the image's spectrum.
+
+### Spatial filtering
+
+Place a mask $M$ there, multiply, and the second lens inverse-
+transforms:
+
+$$U_f' = M\cdot U_f, \qquad U_i = \mathcal F^{-1}\{U_f'\},
+  \qquad \text{recorded } |U_i|^2.$$
+
+With no mask, $\mathcal F^{-1}\mathcal F\,t = t$: the image is
+faithfully reproduced. Block the center (high-pass) and only edges
+survive (edge enhancement). Pass only the center (low-pass) and the
+image blurs, fine structure removed. A small off-axis stop removes a
+periodic grating. This is exactly convolution by a point-spread
+function, done at the speed of light, and it is the conceptual basis
+of phase-contrast microscopy and optical correlators. The computation
+uses a 2D FFT to mimic the optics.
+
+### Things to try
+
+- No mask: confirm the image comes out identical (the transform and
+  its inverse cancel).
+- Low-pass (small central hole): watch the image blur as edges are
+  removed.
+- High-pass (central block): watch only the outlines survive (edge
+  detection).
+
+### Where this comes from
+
+The lens Fourier-transform property and 4f spatial filtering follow
+Goodman, *Introduction to Fourier Optics*, and Hecht, *Optics*, 5th
+ed., Chapter 11.
+
 ## Physical setup
 
 An object transmittance `t(x,y)` (grating, circular aperture, double
