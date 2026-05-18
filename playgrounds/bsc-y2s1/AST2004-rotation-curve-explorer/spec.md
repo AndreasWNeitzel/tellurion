@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST2004
 supporting_ucs: [MAA-GD]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Plot a galaxy''s rotation speed against radius: the visible matter predicts a falling curve, the data stays flat, and only a dark halo bridges the gap.'
+one_paragraph: 'If a galaxy''s mass were only its visible bulge and disk, orbital speeds in the outskirts should fall off like a Kepler curve. The playground builds a synthetic galaxy (a Hernquist bulge plus a Miyamoto-Nagai disk) and pits three rotation-curve models against a noisy mock observation: a point-mass Keplerian curve, visible-matter-only, and visible plus an NFW dark-matter halo. The same visible mass sits in all three; only the halo model tracks the data beyond about 10 kpc, where the measured curve refuses to fall. This is the single cleanest classroom argument for dark matter. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 24; Navarro, Frenk and White 1996.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
