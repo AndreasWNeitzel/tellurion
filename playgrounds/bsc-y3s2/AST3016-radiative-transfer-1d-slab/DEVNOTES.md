@@ -9,3 +9,7 @@ Recaptured; 5 golden frames now distinct (screenshot-verified). invariants 6/6 +
 ## Sweep 2026-05-18
 Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
 invariants  + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
