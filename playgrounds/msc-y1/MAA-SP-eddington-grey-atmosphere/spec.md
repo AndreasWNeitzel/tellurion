@@ -22,6 +22,65 @@ share_state_keys: []
 
 # Eddington grey atmosphere
 
+## Explainer
+
+### What you are looking at
+
+The light leaving a star is not emitted from a surface but from a
+fuzzy layer where the gas goes from opaque to transparent. The
+Eddington grey atmosphere is the simplest model of that layer, and it
+predicts where the photosphere is and why the spectrum looks slightly
+hotter at the disk center than the edge (limb darkening). The
+playground shows the temperature run and the emergent intensity.
+
+### The grey assumption and the temperature law
+
+"Grey" means the opacity is independent of wavelength, so a single
+optical depth $\tau$ measures how far in you can see (the surface is
+$\tau=0$; $\tau=1$ is roughly one mean free path deep). Solving
+radiative transfer in this layer with the Eddington approximation
+(treating the radiation as nearly isotropic) gives the temperature
+structure
+
+$$T^4(\tau) = \frac{3}{4}\,T_\mathrm{eff}^4
+  \left(\tau + \tfrac{2}{3}\right),$$
+
+with $T_\mathrm{eff}$ the effective temperature. A key consequence:
+$T=T_\mathrm{eff}$ exactly at $\tau=2/3$, so the photosphere (the
+layer we see) sits at optical depth $2/3$, not at $\tau=0$.
+
+### Limb darkening
+
+The emergent intensity at angle $\theta$ from the surface normal
+($\mu=\cos\theta$) is the source function integrated along that line
+of sight, giving the linear limb-darkening law
+
+$$\frac{I(\mu)}{I(1)} = \frac{2 + 3\mu}{5}.$$
+
+Looking at the disk center ($\mu=1$) you see deep, hot gas; looking
+near the limb ($\mu\to0$) your slanted sightline only reaches
+shallow, cooler gas, so the star fades toward its edge by a factor of
+$2/5$. This is directly measured in eclipsing binaries and exoplanet
+transits and is the standard check of stellar-atmosphere models. The
+playground shows $T(\tau)$, the $\tau=2/3$ photosphere, and the
+$I(\mu)$ limb-darkening curve.
+
+### Things to try
+
+- Confirm $T=T_\mathrm{eff}$ at $\tau=2/3$ (the photosphere is not
+  the $\tau=0$ surface).
+- Read the limb-darkening curve: center-to-edge intensity ratio
+  $5:2$.
+- Change $T_\mathrm{eff}$ and watch the whole temperature profile
+  scale as $T^4\propto\tau+2/3$.
+
+### Where this comes from
+
+The grey-atmosphere temperature law and the linear limb-darkening
+relation follow Mihalas, *Stellar Atmospheres*, Chapter 3, and
+Rybicki and Lightman, *Radiative Processes in Astrophysics*,
+Chapter 1.
+
 ## Physical setup
 
 A grey (frequency-independent opacity) stellar atmosphere in radiative equilibrium. The temperature profile follows
