@@ -22,6 +22,60 @@ share_state_keys: []
 
 # Fermi surface on a 2D square lattice
 
+## Explainer
+
+### What you are looking at
+
+The Fermi surface is the boundary in momentum space between filled and
+empty electron states. Its shape decides almost every electronic
+property of a metal. The playground fills a simple square-lattice band
+and shows the Fermi surface morph as you add electrons, including the
+special nested shape at half filling that drives magnetism.
+
+### The band
+
+Tight-binding electrons hopping between nearest neighbors on a square
+lattice have the dispersion
+
+$$E(k_x,k_y) = -2t\big(\cos k_x + \cos k_y\big),$$
+
+a band of total width $8t$ running from $-4t$ at the zone center
+($\Gamma$) to $+4t$ at the corner ($M$). Fill states up to the Fermi
+energy $E_F$ set by the electron count.
+
+### How the Fermi surface changes with filling
+
+- Low filling: only states near the band bottom are occupied, so the
+  Fermi surface is a small closed loop around $\Gamma$, nearly
+  circular (free-electron-like).
+- Half filling ($E_F = 0$): the Fermi surface is the square joining the
+  zone-edge midpoints. It is *perfectly nested*, large parallel
+  segments connected by a single wavevector $\mathbf Q = (\pi,\pi)$.
+  That nesting makes the electron gas unstable to a
+  $(\pi,\pi)$ density modulation, the origin of antiferromagnetism in
+  the half-filled Hubbard model and a key idea in cuprate
+  superconductivity.
+- High filling: the surface inverts to a small closed loop around the
+  corner $M$ (now it bounds the empty states, a hole pocket).
+
+The playground sweeps the filling and draws the Fermi surface and the
+density of states (which has a logarithmic van Hove spike exactly at
+half filling). Reading the Fermi-surface shape is how real metals'
+conduction and instabilities are understood.
+
+### Things to try
+
+- Low filling: a small $\Gamma$-centered pocket, free-electron-like.
+- Tune to half filling and see the nested square and the van Hove DOS
+  spike.
+- Overfill and watch the surface flip to an $M$-centered hole pocket.
+
+### Where this comes from
+
+The tight-binding square-lattice dispersion, the Fermi-surface
+evolution, nesting, and the van Hove singularity follow Ashcroft and
+Mermin, *Solid State Physics*, Chapter 8.
+
 ## Physical setup
 
 Tight-binding electrons on a square lattice with nearest-neighbor hopping. Dispersion $E(k_x, k_y) = -2t (\cos k_x + \cos k_y)$ over the Brillouin zone $(k_x, k_y) \in [-\pi, \pi]^2$. The bandwidth is $8t$ from $-4t$ (Gamma point) to $+4t$ (M point).
