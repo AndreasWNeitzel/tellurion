@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST2004
 supporting_ucs: [AST3017]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Add general relativity''s extra 1/r^3 term to the orbital potential and a new feature appears: an innermost stable circular orbit, below which everything must fall in.'
+one_paragraph: 'For a massive particle outside a Schwarzschild black hole the radial motion follows an effective potential V_eff(r) that adds a relativistic -1/r^3 term to the usual Newtonian centrifugal-plus-gravity well. Circular orbits sit at its extrema: a minimum is stable, a maximum unstable. Lower the angular momentum and the minimum and maximum slide together and merge at r = 6M, the innermost stable circular orbit. Inside the ISCO no stable circular orbit exists and matter spirals in, which is why accretion disks have a sharp inner edge and a fixed maximum efficiency. The playground plots V_eff with the energy level, turning points, and the ISCO marked as you vary L. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 17.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
