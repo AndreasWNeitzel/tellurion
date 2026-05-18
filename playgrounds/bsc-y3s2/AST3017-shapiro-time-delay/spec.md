@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Radar a planet across the Sun and the echo comes back late; the curved spacetime near the Sun literally lengthens the path light takes.'
+one_paragraph: 'The Shapiro delay is the fourth classical test of general relativity: light passing close to a mass takes measurably longer than it would in flat space, not because it slows locally but because the spacetime it crosses is curved. The leading-order delay grows logarithmically with how closely the ray grazes the body, delta t = 2M ln(4 r_E r_R / b^2). The playground varies the impact parameter and shows the extra round-trip time, the effect Irwin Shapiro measured by bouncing radar off Venus and that pulsar timing now uses to weigh neutron stars. Reference: Hartle, Gravity, Ch. 10.'
 tags: [cosmology, animation, live-readout]
 difficulty: 3
 tier: simple
