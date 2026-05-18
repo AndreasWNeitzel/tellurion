@@ -20,6 +20,64 @@ share_state_keys: []
 
 # Monte Carlo integration and 1/sqrt(N) convergence
 
+## Explainer
+
+### What you are looking at
+
+You can estimate an integral by throwing random darts and averaging.
+The estimate wobbles toward the true value, and its error shrinks, but
+slowly: only as $1/\sqrt N$. The playground races two dart-throwing
+strategies against the exact answer so you see both the slow
+convergence and how a smarter sampling lowers the error.
+
+### The method
+
+To estimate $\int_0^1 f(x)\,dx$, draw random points and average:
+
+$$\hat I_\text{plain} = \frac1N\sum_{i=1}^N f(U_i),
+  \qquad U_i \sim \mathrm{Uniform}(0,1).$$
+
+By the central limit theorem this estimator is unbiased and its
+standard error is
+
+$$\mathrm{SE} = \frac{\sigma}{\sqrt N},$$
+
+independent of dimension. That dimension-independence is why Monte
+Carlo wins for high-dimensional integrals (where grid methods fail),
+and the $1/\sqrt N$ is why it is slow: cutting the error by 10 needs
+100 times more samples.
+
+### Importance sampling
+
+You can keep the same $1/\sqrt N$ law but shrink the constant $\sigma$
+by sampling more where $f$ is large. Draw from a proposal $q$ and
+reweight:
+
+$$\hat I_\text{IS} = \frac1N\sum_{i=1}^N \frac{f(X_i)}{q(X_i)},
+  \qquad X_i \sim q.$$
+
+The variance is minimized when $q \propto |f|$. The playground uses a
+Beta(2,2) proposal; for this particular $f$ (which peaks at the
+endpoints) the Beta misses the action, so it is a deliberately
+instructive example that a poorly chosen $q$ can be worse than plain
+sampling. The running estimate and its $1/\sqrt N$ error band are
+plotted live for both.
+
+### Things to try
+
+- Watch the error band shrink as $1/\sqrt N$: a straight line of
+  slope $-1/2$ on log-log axes.
+- Compare the two estimators and note importance sampling only helps
+  if the proposal matches where $f$ is big.
+- Quadruple $N$ and confirm the error roughly halves, not quarters.
+
+### Where this comes from
+
+Monte Carlo integration, the $1/\sqrt N$ error law, and importance
+sampling follow MacKay, *Information Theory, Inference, and Learning
+Algorithms*, Chapter 29, and Press et al., *Numerical Recipes*, 3rd
+ed., Chapter 7.
+
 ## Physical setup
 
 Estimate integral_{0}^{1} f(x) dx with f(x) = 1 + 10 (x - 1/2)^4. Exact
