@@ -20,6 +20,62 @@ share_state_keys: []
 
 # Magnus effect on a spinning ball
 
+## Explainer
+
+### What you are looking at
+
+A spinning ball curves in flight: that is the banana free kick, the
+curveball, the topspin dip. The playground launches a ball with
+adjustable speed and spin and shows the trajectory bending, plus the
+drag that always shortens the flight.
+
+### The Magnus force
+
+A spinning ball drags air around with it, so the airflow is faster on
+one side and slower on the other. By Bernoulli the pressure is lower
+on the fast side, giving a sideways lift force perpendicular to both
+the velocity and the spin axis:
+
+$$\mathbf F_M = S\,\boldsymbol\omega \times \mathbf v,$$
+
+with $\boldsymbol\omega$ the spin and $S$ a coefficient set by the
+ball's size and the air density. Backspin lifts (the ball "floats"),
+topspin pushes it down (a sharp dip), sidespin curves it laterally.
+The force is always at right angles to the motion, so it bends the
+path without doing work.
+
+### Competing with gravity and drag
+
+The full equation of motion adds gravity and quadratic air drag:
+
+$$m\frac{d\mathbf v}{dt}
+  = m\mathbf g
+  - \tfrac12\rho C_D A\,|\mathbf v|\,\mathbf v
+  + S\,\boldsymbol\omega\times\mathbf v.$$
+
+Drag is antiparallel to $\mathbf v$ and grows with speed, so it
+always shortens the range and is why a real trajectory is not the
+textbook parabola. The Magnus term competes with gravity: enough
+backspin can flatten or even loft the arc; topspin makes it plunge
+well short of the no-spin parabola. The playground sweeps launch
+speed, angle and spin and overlays the spinning path against the
+drag-only and ideal-parabola references so the Magnus deflection is
+explicit.
+
+### Things to try
+
+- Add backspin and watch the trajectory flatten and carry farther
+  than the no-spin curve.
+- Switch to topspin and watch it dip sharply and fall short.
+- Crank the speed and see drag bend the path away from the ideal
+  parabola even with zero spin.
+
+### Where this comes from
+
+The Magnus force, quadratic drag, and projectile flight follow
+Halliday, Resnick and Walker, *Fundamentals of Physics*, Chapters 4
+and 6, and Adair, *The Physics of Baseball*.
+
 ## Physical setup
 
 A baseball-like ball (m = 0.15 kg) launched with initial speed v_0 and
