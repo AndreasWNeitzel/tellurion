@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gravitational-Wave Detector: Inspiral Chirp and Matched Filter](../playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html)** &nbsp; (verified, verified 2026-05-18T03:00:53Z)
+  Two compact objects (black holes / neutron stars) spiral together, radiating gravitational waves that carry away orbital energy so the orbit shrinks and the wave frequency and amplitude chirp upward to merger. A kilometre-scale Michelson interferometer (LIGO) measures the passing strain as a differential change in its two arm lengths, then a matched filter e
+
 - **[Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW](../playgrounds/msc-y1/MF-GR-geodesics-curved-spacetime-3d/index.html)** &nbsp; (verified, verified 2026-05-18T02:49:30Z)
   Three spacetimes share one idea: free particles follow geodesics. Around a Schwarzschild black hole, null geodesics are captured, whirled at the photon sphere, or deflected, depending on the impact parameter; timelike circular orbits are stable only outside the ISCO. Kerr adds rotation: a smaller horizon, the ergosphere, and frame dragging. FLRW is the expan
 
@@ -779,6 +782,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
   A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
 
+- **[Friedmann Expansion: Radiation, Matter and Lambda Eras](../playgrounds/msc-y1/MF-GR-friedmann-expansion-multicomponent/index.html)** &nbsp; (verified)
+  A spatially flat universe filled with radiation, pressureless matter and a cosmological constant. Each component dilutes differently as the universe expands (radiation as a^-4, matter as a^-3, Lambda constant), so the universe passes through a radiation era, a matter era and a dark-energy era, and the expansion switches from decelerating to accelerating.
+
 - **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (verified)
   Two Hernquist galaxies (800 tracer particles each, color-coded by initial galaxy) approach at user-chosen impact parameter and relative velocity. Each tracer feels the analytic potential of BOTH halos, while the halo centers integrate as a softened 2-body problem. Tidal tails, captured stars, bar instabilities, and a final mixed-color elliptical remnant emer
 
@@ -790,9 +796,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Gravitational-Wave Chirp Sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/index.html)** &nbsp; (verified)
   A compact-binary inspiral. A compact strain $h(t)$ strip scrolls the chirp waveform (clamped so the post-Newtonian divergence near merger cannot flood the panel) and an $f(t)$ strip tracks the rising frequency. The main panel is a 3D inspiral: two perspective-shaded spheres orbit on an inclined plane at the barycentric Kepler separation $a \propto f_\mathrm{
-
-- **[Gravitational-Wave Detector: Inspiral Chirp and Matched Filter](../playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html)** &nbsp; (verified)
-  Two compact objects (black holes / neutron stars) spiral together, radiating gravitational waves that carry away orbital energy so the orbit shrinks and the wave frequency and amplitude chirp upward to merger. A kilometre-scale Michelson interferometer (LIGO) measures the passing strain as a differential change in its two arm lengths, then a matched filter e
 
 - **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (verified)
   A Jupiter-scale planet orbits a central star. A spacecraft enters on a hyperbolic trajectory; the user drags the periapsis distance and the relative approach angle. Inset shows the symmetric hyperbola in the planet rest frame; main panel shows the asymmetric solar-system-frame trajectory. Velocity arrows before and after make the energy change explicit. Pres

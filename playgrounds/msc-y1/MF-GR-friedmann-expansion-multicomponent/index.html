@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Friedmann Expansion: Radiation, Matter and Lambda Eras</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Friedmann Expansion: Radiation, Matter and Lambda Eras</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Expanding galaxy grid, scale factor and Hubble parameter, and the density-fraction eras"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">a:</span><span class="value" id="readout-a">1.00</span>
+      <span class="label">age:</span><span class="value" id="readout-age">13.8 Gyr</span>
+      <span class="label">era:</span><span class="value" id="readout-era">Lambda</span>
+      <span class="label">q0:</span><span class="value" id="readout-q">-0.53</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A flat multicomponent FLRW universe: the comoving galaxy grid expands through the radiation, matter and dark-energy eras, the Hubble parameter falls toward the de Sitter floor, and the expansion turns from decelerating to accelerating; the age is 13.8 Gyr and H = H0 at a = 1.
+      <em>Method:</em> multicomponent Friedmann equation, RK4 scale factor, Simpson age integral; Canvas2D, deterministic.
+      <em>Source:</em> Friedmann 1922; Ryden, Introduction to Cosmology; Planck 2018.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">Omega_m</span><input aria-label="matter density parameter, x1000" type="range" id="slider-om" min="50" max="950" step="5" value="315"><span class="value" id="value-om">0.315</span></div>
+    <div class="row"><span class="label">H0 (km/s/Mpc)</span><input aria-label="Hubble constant" type="range" id="slider-h0" min="55" max="80" step="1" value="67"><span class="value" id="value-h0">67</span></div>
+    <div class="row"><span class="label">Omega_r (x1e5)</span><input aria-label="radiation density parameter, x1e5" type="range" id="slider-or" min="0" max="50" step="1" value="9"><span class="value" id="value-or">9.0e-5</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

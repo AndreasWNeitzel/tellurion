@@ -445,7 +445,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] gravitational-wave-detector : advanced canvas2d. LIGO arms, h(t)
   strain, chirp, matched filter peak. Inv: chirp mass 0.1%; h~1e-21
   30+30Msun 400Mpc.
-- [ ] friedmann-expansion-multicomponent : medium canvas2d. Expanding
+- [x] friedmann-expansion-multicomponent : medium canvas2d. Expanding
   galaxy grid, H(t), Omega bands, eras, horizons. Inv: a=1 H=H0 0.01%;
   age 13.8Gyr 1%.
 - [ ] inflation-quantum-fluctuations : advanced canvas2d. Inflaton field
