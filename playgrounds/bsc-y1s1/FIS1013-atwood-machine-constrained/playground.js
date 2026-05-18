@@ -41,7 +41,7 @@ const FLOOR_Y = H - 54;
 const ROPE0 = (FLOOR_Y - PULLEY_Y) / PX / 2;
 const LLIM = ROPE0 - 0.16;
 const PXD = 64;                 // px per metre for the compound rig
-const LLIM2 = 0.85;             // travel bound for the m2/m3 pair (q2)
+const LLIM2 = 1.4;              // travel bound for the m2/m3 pair (q2)
 
 const DEF = { m1: 3, m2: 2, M: 0, R: 0.4, kind: 'disk' };
 const DEFD = { m1: 4, m2: 2, m3: 1 };
@@ -201,9 +201,13 @@ function renderDouble() {
   const y2 = Math.max(yB + RB + 8, Math.min(FLOOR_Y, yB + RB + (0.9 + s.q2) * PXD));
   const y3 = Math.max(yB + RB + 8, Math.min(FLOOR_Y, yB + RB + (0.9 - s.q2) * PXD));
   ctx.strokeStyle = '#c9cdd4'; ctx.lineWidth = 2;
+  // Rope 2 drapes OVER the top of the movable pulley: it leaves the
+  // side tangent points (y = yB) straight down to m2 / m3, and the
+  // visible arc is the TOP half (PI..2PI in screen coords, like the
+  // fixed pulley). It was 0..PI, which drew the rope wrapping under.
   ctx.beginPath(); ctx.moveTo(xB1, yB); ctx.lineTo(xB1, y2); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(xB2, yB); ctx.lineTo(xB2, y3); ctx.stroke();
-  ctx.beginPath(); ctx.arc(cxB, yB, RB, 0, Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cxB, yB, RB, Math.PI, 2 * Math.PI); ctx.stroke();
 
   blockHit = [];
   for (const [bx, by, m, name, col, w] of [[xL, y1, s.m1, 'm₁', '#ff9d6e', 1], [xB1, y2, s.m2, 'm₂', '#7cc6ff', 2], [xB2, y3, s.m3, 'm₃', '#a0e0a0', 3]]) {
@@ -258,10 +262,13 @@ function render() {
 const PHYS_DT = 0.002;
 function clampStops() {
   if (mode === 'double') {
-    // m1 / movable pulley reach a hard stop -> the whole rig rests.
+    // Only m1 reaching the floor / fixed pulley is a true full stop.
     if (Math.abs(s.q1) >= LLIM) { s.q1 = Math.sign(s.q1) * LLIM; s.v1 = 0; s.v2 = 0; s.stopped = true; }
-    // m2 / m3 bottom out on the floor or meet pulley B.
-    if (Math.abs(s.q2) >= LLIM2) { s.q2 = Math.sign(s.q2) * LLIM2; s.v2 = 0; s.stopped = true; }
+    // m2 / m3 hitting their travel limit just pins THAT pair (clamp,
+    // zero its rate); the machine keeps running on the q1 degree of
+    // freedom. The old code froze the whole rig here, which made it
+    // stop at seemingly random times.
+    else if (Math.abs(s.q2) >= LLIM2) { s.q2 = Math.sign(s.q2) * LLIM2; s.v2 = 0; }
   } else if (Math.abs(s.x) >= LLIM) { s.x = Math.sign(s.x) * LLIM; s.v = 0; s.stopped = true; }
 }
 function advance(dtSim) {

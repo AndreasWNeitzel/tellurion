@@ -86,3 +86,27 @@ release" and later "make the masses half size, it feels cramped."
 - Invariants 9/9 unchanged (sim.js untouched). Both modes inspected
   directly: single uncramped, double pulleys distinct and bounded,
   T=2T2; visual gate 5/5 x3.
+
+## Double: random stop + cable-under-pulley (2026-05-18, #257)
+
+User: "double Atwood stops at random times (feels like the masses'
+hitboxes collide)" and "the smaller pulley's cable goes under the
+machine instead of over."
+
+- Random stop: my #255 q2 clamp set s.stopped=true whenever |q2|
+  reached LLIM2 (0.85). q2 (the m2/m3 differential) has a constant
+  nonzero acceleration in general, so it hit the bound quickly and
+  froze the WHOLE rig at seemingly random times. Fix: only q1 (m1
+  reaching the floor / fixed pulley) is a true full stop; the q2 bound
+  now just pins that pair (clamp q2, v2 -> 0) via an else-if and does
+  NOT set s.stopped, so the machine keeps running on the q1 DOF.
+  LLIM2 widened 0.85 -> 1.4 so m2/m3 have visible travel. There is no
+  block-block hitbox logic; clampStops was the only stop, so this
+  fully removes the spurious freezes.
+- Cable under: renderDouble drew the movable-pulley arc with
+  `arc(cxB, yB, RB, 0, Math.PI)` = the BOTTOM half in screen coords
+  (y down), so rope 2 appeared to wrap under B. Changed to
+  `Math.PI, 2*Math.PI` (top half, matching the fixed pulley); rope 2
+  now drapes over the top with m2/m3 hanging from the side tangents.
+- Invariants 9/9 (sim.js untouched). Double frame inspected: rope over
+  B, blocks on the sides; gate 5/5 x3.
