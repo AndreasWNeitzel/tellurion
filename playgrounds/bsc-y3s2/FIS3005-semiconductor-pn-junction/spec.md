@@ -19,6 +19,68 @@ share_state_keys: []
 
 # The p-n Junction
 
+## Explainer
+
+### What you are looking at
+
+Join p-type and n-type silicon and something remarkable happens at the
+seam: carriers diffuse across, leave behind charged dopant ions, and
+build a self-limiting electric field. That depletion region and its
+one-way conduction are the diode, the foundational device of all
+electronics. The playground lets you set doping and bias and watch the
+band bending, depletion width, and I-V curve respond.
+
+### The built-in potential
+
+Electrons flood from n to p and holes the other way until diffusion is
+balanced by the field of the exposed ions. The equilibrium step in
+potential is
+
+$$V_\text{bi} = \frac{kT}{q}\ln\!\frac{N_A N_D}{n_i^2},$$
+
+set by the doping levels $N_A, N_D$ and the intrinsic carrier density
+$n_i$.
+
+### Depletion region
+
+Solving Poisson's equation across the junction (depletion
+approximation: fully ionized, carrier-free) gives a depletion width
+
+$$W = \sqrt{\frac{2\varepsilon\,(V_\text{bi}-V)}{q}
+  \left(\frac{1}{N_A}+\frac{1}{N_D}\right)},$$
+
+a triangular field peaking at $E_\text{max}=qN_D x_n/\varepsilon$, and
+a junction capacitance $C = \varepsilon/W$. Forward bias $V>0$ shrinks
+$W$; reverse bias widens it.
+
+### One-way current
+
+Lowering the barrier by forward bias lets diffusion current flood
+across exponentially; reverse bias chokes it to a tiny saturation
+leak. That is the ideal diode law
+
+$$I = I_0\big(e^{qV/kT} - 1\big),$$
+
+current that grows exponentially one way and clamps the other, the
+rectification every power supply and logic gate relies on. The
+playground sweeps doping and bias and shows the depletion width, field,
+band bending, and the exponential I-V together.
+
+### Things to try
+
+- Increase the doping and watch $V_\text{bi}$ rise (logarithmically)
+  and the depletion width shrink.
+- Reverse-bias and watch $W$ widen and the capacitance fall ($C \propto
+  1/W$): the varactor effect.
+- Forward-bias past $\sim V_\text{bi}$ and watch the current turn on
+  exponentially.
+
+### Where this comes from
+
+The built-in potential, depletion-approximation width and field, and
+the ideal-diode equation follow Sze and Ng, *Physics of Semiconductor
+Devices*, and Neamen, *Semiconductor Physics and Devices*.
+
 ## Physical setup
 
 A step junction with acceptor density `NA` (p side) and donor
