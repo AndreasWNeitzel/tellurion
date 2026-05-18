@@ -22,6 +22,60 @@ share_state_keys: []
 
 # Friedmann cosmography in flat LCDM
 
+## Explainer
+
+### What you are looking at
+
+The whole expansion history of a flat universe is set by one number,
+the matter fraction $\Omega_m$ (the rest is the cosmological constant).
+The playground dials it and shows how the expansion rate, the age of
+the universe, and distances to far galaxies all change, the cosmography
+behind every "how old / how far" number in cosmology.
+
+### The Friedmann equation
+
+For a flat FLRW universe the Hubble rate as a function of redshift $z$
+is
+
+$$E(z) \equiv \frac{H(z)}{H_0}
+  = \sqrt{\Omega_m(1+z)^3 + \Omega_\Lambda},
+  \qquad \Omega_\Lambda = 1 - \Omega_m.$$
+
+Matter dilutes as $(1+z)^3$ so it dominates early (decelerating
+expansion); the constant $\Omega_\Lambda$ takes over late
+(accelerating expansion). Everything else is an integral of $E(z)$.
+
+### Age and distance
+
+The cosmic age and the comoving distance to redshift $z$ are
+
+$$t_0 = \frac{1}{H_0}\!\int_0^1\!\frac{da}{\sqrt{\Omega_m/a +
+  \Omega_\Lambda a^2}},
+  \qquad
+  D_C(z) = \frac{c}{H_0}\!\int_0^z\!\frac{dz'}{E(z')}.$$
+
+So lowering $\Omega_m$ (more dark energy) lengthens the age (the
+expansion was faster in the past for a given $H_0$) and stretches
+distances. The Hubble time $1/H_0 \approx 977.8/H_0$ Gyr sets the
+overall scale. The playground integrates these and shows the age and
+distance respond as you slide $\Omega_m$ and $H_0$, the standard
+$\Lambda$CDM cosmography.
+
+### Things to try
+
+- Set $\Omega_m=1$ (no dark energy): a younger, decelerating universe;
+  raise $\Omega_\Lambda$ and watch the age grow.
+- Change $H_0$ and watch every distance and the age scale by
+  $1/H_0$ (the Hubble-tension lever).
+- Follow $E(z)$: matter-like $(1+z)^{3/2}$ at high $z$, flattening to
+  constant at low $z$ (the onset of acceleration).
+
+### Where this comes from
+
+The flat-FLRW Friedmann equation, the age integral, and the comoving
+distance follow Hogg, "Distance measures in cosmology" (1999), and
+Liddle, *An Introduction to Modern Cosmology*.
+
 ## Physical setup
 
 A flat Friedmann-Lemaitre-Robertson-Walker universe with matter density parameter $\Omega_m$, cosmological constant $\Omega_\Lambda = 1 - \Omega_m$, and Hubble constant $H_0$. The dimensionless Hubble function and cosmic age follow from the Friedmann equation.

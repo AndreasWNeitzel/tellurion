@@ -1,1 +1,3 @@
-verified-at: 2026-05-14T00:11:04Z
+verified-at: 2026-05-18T18:21:26Z
+invariants: Tests 8 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); stale goldens recaptured (deterministic A==B, !=old golden); comprehensive ## Explainer added; 5 distinct frames screenshot-verified (z=1/a-1 exact, comoving patch dilutes with a)
