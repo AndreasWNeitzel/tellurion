@@ -19,6 +19,63 @@ share_state_keys: []
 
 # Projectile with Drag and the Magnus Force in 3D
 
+## Explainer
+
+### What you are looking at
+
+The clean parabola of school physics is a vacuum fiction. The
+playground fires three identical balls at once, in vacuum, with air
+drag, and with drag plus spin, over a 3D ground grid, so you see
+exactly how much air and spin bend a real trajectory and why a
+sideways-spinning ball curves out of its launch plane.
+
+### The three forces
+
+Each ball obeys
+
+$$m\frac{d\mathbf v}{dt}
+  = m\mathbf g
+  - \tfrac12\rho C_D A\,|\mathbf v|\,\mathbf v
+  + S\,\boldsymbol\omega\times\mathbf v.$$
+
+- Gravity alone gives the symmetric vacuum parabola, range maximal at
+  $45^\circ$.
+- Quadratic drag $-\tfrac12\rho C_D A|\mathbf v|\mathbf v$ always
+  opposes motion, so it shortens the range, makes the descent
+  steeper than the ascent (broken symmetry), and lowers the optimal
+  launch angle below $45^\circ$. There is no closed form; it is
+  integrated numerically.
+- The Magnus force $S\,\boldsymbol\omega\times\mathbf v$ from spin is
+  perpendicular to both the velocity and the spin axis, so a vertical
+  spin axis curves the ball sideways, lifting it out of the launch
+  plane entirely. This is genuinely 3D: the trajectory is a space
+  curve, not a planar arc, which is why the scene is drawn with an
+  oblique 3D camera.
+
+### Why it matters
+
+This is the physics of every curved free kick, slider, and topspin
+lob: drag sets the reach, the Magnus force sets the curve, and the
+spin-axis orientation chooses which way (lift, dip, or sideways
+bend). The 3D view makes the out-of-plane Magnus deflection obvious,
+which a 2D plot hides. The playground sweeps speed, angle, drag and
+spin and shows all three balls diverge from the vacuum parabola.
+
+### Things to try
+
+- Compare the vacuum vs drag balls: the drag one falls short with an
+  asymmetric, steeper descent.
+- Add sidespin and watch the third ball curve out of the launch
+  plane (the 3D Magnus deflection).
+- Flip the spin axis to backspin/topspin and watch the ball float or
+  dip instead of curving sideways.
+
+### Where this comes from
+
+Quadratic drag and the Magnus force on a spinning projectile follow
+Halliday, Resnick and Walker, *Fundamentals of Physics*, Chapters 4
+and 6, and Adair, *The Physics of Baseball*.
+
 ## Physical setup
 
 A unit-mass ball is launched from the origin. Three copies fly
