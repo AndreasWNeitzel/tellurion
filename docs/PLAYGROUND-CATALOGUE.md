@@ -2295,7 +2295,7 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Shakura-Sunyaev Accretion Disc Temperature
 `playgrounds/msc-y1/MAA-HE-accretion-disk-temperature-profile` | MAA-HE | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Steady, optically thick, geometrically thin accretion disc around a non-rotating compact object. Shakura-Sunyaev (1973) temperature profile:
+- What it does / physics / visuals: Gas spiraling onto a black hole or neutron star cannot fall straight in: it forms a disk, and friction between adjacent rings heats it until it glows. The playground computes how hot each radius gets and the spectrum that results, the model behind the blue glow of cataclysmic variables and the UV bump of quasars.
 - Hook: (placeholder hook, flagged)
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
