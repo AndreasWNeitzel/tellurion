@@ -19,6 +19,60 @@ share_state_keys: []
 
 # Gaussian Beam - ABCD Propagation
 
+## Explainer
+
+### What you are looking at
+
+A laser beam moving down an optical bench and through a lens. It does
+not stay a thin pencil: it has a narrowest waist, diverges as a
+hyperbola, and a lens refocuses it to a new waist. The trick is that
+the whole thing reduces to multiplying one complex number by 2x2
+matrices, the same ray-transfer matrices used for simple rays.
+
+### The complex beam parameter
+
+Encode the beam in a single complex number $q$:
+
+$$\frac1q = \frac1R - i\,\frac{\lambda}{\pi w^2},$$
+
+where $R$ is the wavefront radius of curvature and $w$ the spot size.
+Then any optical element acts by the same ABCD bilinear map used for
+rays:
+
+$$q \;\longrightarrow\; \frac{A q + B}{C q + D}.$$
+
+Free space of length $z$ is $\begin{psmallmatrix}1&z\\0&1\end{psmallmatrix}$
+(so $q \to q + z$); a thin lens of focal length $f$ is
+$\begin{psmallmatrix}1&0\\-1/f&1\end{psmallmatrix}$. Chaining elements is
+just multiplying matrices, then reading $w$ and $R$ back out of $q$.
+
+### What follows
+
+From $q$ you get the Rayleigh range $z_R = \pi w_0^2/\lambda$, the
+hyperbolic spread $w(z) = w_0\sqrt{1 + (z/z_R)^2}$, the far-field
+divergence $\theta = \lambda/\pi w_0$, and the Gouy phase
+$\psi = \arctan(z/z_R)$. A collimated beam through a lens focuses to a
+new waist $w_0' = \lambda f/(\pi w_\text{lens})$, the basis of laser
+focusing. For a two-mirror cavity the same matrices give the
+stability condition $0 \le g_1 g_2 \le 1$ with $g_i = 1 - L/R_i$. The
+playground lets you slide the lens and watch the waist move and
+resize.
+
+### Things to try
+
+- Move the lens and watch the focused waist position and size track
+  $w_0' = \lambda f/(\pi w_\text{lens})$.
+- Tighten the input waist and watch divergence grow ($\theta \propto
+  1/w_0$): you cannot focus tight and stay collimated.
+- Set up a two-mirror cavity and cross the $g_1 g_2 = 1$ stability
+  edge: the mode blows up.
+
+### Where this comes from
+
+The complex beam parameter, the ABCD propagation law, and the cavity
+stability criterion follow Saleh and Teich, *Fundamentals of
+Photonics*, Chapter 3, and Hecht, *Optics*, 5th ed.
+
 ## Physical setup
 
 A Gaussian beam launched from a waist `w0` propagates along an
