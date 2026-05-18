@@ -21,3 +21,59 @@ share_state_keys: []
 ---
 # Stellar blackbody + lines
 Planck continuum plus Balmer / Ca II / Na D absorption lines. Source: Carroll-Ostlie Ch. 3 (`carroll-ostlie`).
+
+## Explainer
+
+### What you are looking at
+
+A star's spectrum is a smooth glowing background with dark notches
+cut into it. The background is thermal (blackbody) radiation that
+tells you the temperature; the notches are absorption lines that tell
+you the composition. The playground builds both: a Planck continuum
+you can set the temperature of, with Balmer, Ca II and Na D lines
+carved on top.
+
+### The continuum: Planck's law
+
+A hot opaque gas radiates the blackbody spectrum
+
+$$B_\lambda(T) = \frac{2hc^2}{\lambda^5}\,
+  \frac{1}{e^{hc/\lambda k_B T} - 1}.$$
+
+Two consequences set the look of a star: the peak wavelength obeys
+Wien's law $\lambda_\mathrm{max}T = 2.9\times10^{-3}$ m K (hot stars
+peak blue, cool stars red), and the total power scales as
+Stefan-Boltzmann $\propto T^4$. Sliding $T$ slides the colour and
+brightness of the continuum.
+
+### The lines: absorption by atoms
+
+Cooler gas in the star's outer layers absorbs photons at the exact
+wavelengths that bump its atoms between energy levels (Bohr:
+$\Delta E = hc/\lambda$), removing light there and leaving dark
+lines. The strength of a line depends on how many atoms are in the
+right lower level, which is itself temperature-dependent (Boltzmann
+and Saha): the hydrogen Balmer lines peak around 9000 K and weaken
+for very hot or very cool stars, which is precisely why the spectral
+sequence O B A F G K M is a temperature sequence, not a composition
+one. The line shape is a Voigt profile (thermal Doppler core plus
+pressure-broadened wings) and its area (equivalent width) measures
+the abundance. The playground overlays Balmer, Ca II and Na D on the
+Planck curve and lets you watch the continuum colour and the line
+strengths respond to temperature.
+
+### Things to try
+
+- Raise $T$ and watch the continuum peak shift blueward (Wien) and
+  brighten steeply (Stefan-Boltzmann $T^4$).
+- Tune $T$ near 9000 K and watch the hydrogen Balmer lines reach
+  maximum strength, then fade at higher and lower $T$.
+- Compare the deep narrow Na D doublet against the broad Balmer
+  lines (different broadening and abundances).
+
+### Where this comes from
+
+Planck's law, Wien and Stefan-Boltzmann, and the temperature
+dependence of stellar absorption lines follow Carroll and Ostlie,
+*An Introduction to Modern Astrophysics*, Chapters 3 and 8, and
+Gray, *The Observation and Analysis of Stellar Photospheres*.
