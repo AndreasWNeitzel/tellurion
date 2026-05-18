@@ -20,6 +20,60 @@ share_state_keys: []
 
 # Airy diffraction pattern from a circular aperture
 
+## Explainer
+
+### What you are looking at
+
+Shine light through a round hole and on a distant screen you do not get
+a sharp dot but a bright central disk ringed by faint halos: the Airy
+pattern. Every telescope, microscope, and eye has a round pupil, so
+this pattern sets the ultimate limit on how fine a detail any of them
+can resolve.
+
+### The equation
+
+For a uniformly lit circular aperture of radius $a$, the far-field
+(Fraunhofer) intensity at angle $\theta$ is
+
+$$\frac{I(\theta)}{I_0} = \left[\frac{2 J_1(x)}{x}\right]^2,
+  \qquad x = \frac{2\pi a}{\lambda}\,\sin\theta,$$
+
+where $J_1$ is a Bessel function (the circular-aperture analogue of the
+sinc that a slit produces). Most of the energy is in the central
+Airy disk; the first dark ring is where $J_1(x)$ first returns to zero,
+at $x_1 = 3.8317$.
+
+### The resolution limit
+
+Convert that first dark ring to an angle and you get the Rayleigh
+criterion: two point sources are just resolvable when one sits on the
+other's first dark ring,
+
+$$\theta_1 = 1.22\,\frac{\lambda}{D}, \qquad D = 2a.$$
+
+This is why a bigger aperture $D$ (or shorter wavelength $\lambda$)
+sees finer detail: it is the reason large telescopes are built and why
+electron microscopes (tiny $\lambda$) beat light ones. The playground
+draws the 2D rings with gamma correction so the faint outer halos are
+visible, and lets you shrink the aperture to watch the disk swell and
+resolution degrade.
+
+### Things to try
+
+- Shrink the aperture and watch the central disk widen: smaller pupil,
+  worse resolution.
+- Note where the first dark ring sits and connect it to
+  $\theta_1 = 1.22\lambda/D$.
+- Compare two close sources merging as the aperture shrinks: the
+  Rayleigh limit in action.
+
+### Where this comes from
+
+The Airy pattern, the $[2J_1(x)/x]^2$ form, and the
+$1.22\lambda/D$ Rayleigh criterion follow Hecht, *Optics*, 5th ed.,
+Section 10.2.5, and Born and Wolf, *Principles of Optics*, 7th ed.,
+Section 8.6.2.
+
 ## Physical setup
 
 The Fraunhofer far-field intensity from a uniformly illuminated circular aperture of radius a. This is the classical resolution-limiting pattern for any optical instrument with a round pupil: telescopes, microscopes, eyes.
