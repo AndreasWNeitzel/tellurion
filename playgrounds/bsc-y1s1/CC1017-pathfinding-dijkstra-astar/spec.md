@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s1
 primary_citation: cormen2009
 primary_chapter: 24
 hook: 'Same city, same destination: Dijkstra floods every street while A* drives a tight beam to the goal, both finding the identical optimal route.'
-one_paragraph: 'A procedural city grid (streets cost 1, piazzas cost 4, buildings and a diagonal river are walls) is searched by Dijkstra and by A* with an admissible Manhattan heuristic, side by side. Settled cells are painted in the order they were removed from the priority queue (viridis), so Dijkstra''s uniform-cost flood and A*''s goal-directed beam are visible at a glance; when a search reaches the goal its optimal path flashes. Both return the same optimal cost, but A* expands far fewer cells, the counts are live. Map seed and animation speed are adjustable.'
+one_paragraph: 'A procedural city grid (streets cost 1, piazzas cost 4, buildings and a diagonal river are walls) is searched by Dijkstra and by A* with an admissible Manhattan heuristic, side by side. Settled cells are painted in the order they were removed from the priority queue (viridis), so Dijkstra''s uniform-cost flood and A*''s goal-directed beam are visible at a glance; when a search reaches the goal its optimal path flashes. At heuristic weight 1 both return the same optimal cost while A* expands far fewer cells; pushing the weight above 1 turns A* greedy, reaching the goal with even fewer scans but a suboptimal (longer) path, the classic speed-versus-optimality trade-off, while Dijkstra always proves the true optimum. Each panel fires its own bolt the instant that search reaches the goal, so A* can finish while Dijkstra is still flooding. Map seed, animation speed and the heuristic weight are adjustable.'
 tags: [algorithms, pathfinding, animation, live-readout, interactive]
 difficulty: 3
 tier: simple
@@ -41,6 +41,9 @@ animation replays the recorded settle order.
 ## Controls
 - `speed`: cells revealed per frame.
 - `map seed`: regenerates the city.
+- `A* heuristic weight` (1..3): 1 = admissible (optimal, same path as
+  Dijkstra); >1 = weighted/greedy A* (scans fewer cells but the
+  returned path can be suboptimal). The speed-versus-optimality knob.
 - Restart search; Pause / Play.
 
 ## Expected qualitative features

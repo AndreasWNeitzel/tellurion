@@ -133,3 +133,35 @@ finishes, not wait for the other; (c) rest is too fast, make 5s;
   SAME optimal path as Dijkstra by construction; a heuristic-weight
   (greedy / weighted A*) control is needed to show the genuine
   speed-vs-optimality trade-off.
+
+## Heuristic-weight: speed-vs-optimality (2026-05-18, #256)
+
+User: "they always find the same path; surely there are maps that show
+the pros and cons." Correct: with an admissible heuristic A* is optimal
+by construction, so it can only ever match Dijkstra's path. The genuine
+trade-off needs a non-admissible (greedy / weighted) heuristic.
+
+- sim.js: search(g, useHeuristic) -> search(g, hWeight). f = g +
+  hWeight*Manhattan. hWeight 0 = Dijkstra, 1 = admissible A* (optimal),
+  >1 = weighted/greedy A* (fewer cells, possibly SUBOPTIMAL path).
+  dijkstra()=search(g,0), astar()=search(g,1) kept so the original
+  invariants are unchanged; added astarWeighted(g,w).
+- Bug found while adding the weighted invariant: weighted A* (an
+  inconsistent heuristic) was relaxing already-settled nodes, so
+  prev[]/dist[goal] disagreed with the reconstructed path
+  (validatePath: sum 81 vs cost 83). Fix: `if (... || settled[v])
+  continue;` in the relaxation (no reopening). Dijkstra and admissible
+  A* have consistent heuristics so they never reopened anyway -> their
+  6 invariants are bit-identical; the weighted path cost is now
+  consistent with the drawn path. 7/7.
+- playground.js: heuristic-weight slider [1..3] step 0.25. Right panel
+  = astarWeighted(g, w). Title "A* (optimal)" at w=1 else
+  "A* greedy w=W". When both reach and the greedy cost exceeds the
+  Dijkstra optimum the strip turns orange: "greedy A* path cost Ca vs
+  Dijkstra optimum Cd (+P% longer) / but it scanned only Na cells vs
+  Nd (Rx less): speed traded for optimality"; at w=1 it keeps the
+  "same optimal path, A* just cheaper to compute" message.
+- Capture uses w=2 so the five goldens headline the trade-off (probe:
+  w=2.5 over 20 seeds -> 12/20 suboptimal, 20/20 strictly fewer cells
+  than admissible A*). Live default stays w=1. Inspected directly;
+  visual gate 5/5 x3.

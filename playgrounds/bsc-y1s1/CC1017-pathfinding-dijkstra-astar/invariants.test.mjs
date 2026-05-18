@@ -3,7 +3,7 @@
 // nodes, and the returned path must be valid on the city grid.
 
 import { describe, it, expect } from 'vitest';
-import { buildCity, dijkstra, astar, WALL } from './sim.js';
+import { buildCity, dijkstra, astar, astarWeighted, WALL } from './sim.js';
 
 function validatePath(g, res) {
   const p = res.path;
@@ -49,6 +49,34 @@ describe('pathfinding: optimality and admissibility', () => {
     const g = buildCity(40, 26, 42);
     validatePath(g, dijkstra(g));
     validatePath(g, astar(g));
+  });
+});
+
+describe('pathfinding: weighted / greedy A* trade-off', () => {
+  it('astarWeighted(g, 1) reproduces admissible A* (same cost and path)', () => {
+    for (const seed of [1, 7, 42]) {
+      const g = buildCity(40, 26, seed);
+      const a1 = astarWeighted(g, 1), a = astar(g);
+      expect(a1.cost).toBeCloseTo(a.cost, 9);
+      expect(a1.path.length).toBe(a.path.length);
+    }
+  });
+
+  it('greedy w>1: valid path, never optimal-worse than Dijkstra, scans <= admissible A*, and is strictly suboptimal + strictly cheaper somewhere', () => {
+    let suboptimalSomewhere = false, fewerSomewhere = false;
+    for (const seed of [1, 7, 42, 0xC0FFEE, 999, 12345]) {
+      const g = buildCity(40, 26, seed);
+      const opt = dijkstra(g).cost;
+      const a = astar(g);
+      const gw = astarWeighted(g, 3);
+      validatePath(g, gw);                                 // still a real path
+      expect(gw.cost).toBeGreaterThanOrEqual(opt - 1e-9);  // can only be >= optimum
+      expect(gw.expanded).toBeLessThanOrEqual(a.expanded + 1e-9); // greedier or equal
+      if (gw.cost > opt + 1e-9) suboptimalSomewhere = true;
+      if (gw.expanded < a.expanded) fewerSomewhere = true;
+    }
+    expect(suboptimalSomewhere).toBe(true);                 // the cost of speed
+    expect(fewerSomewhere).toBe(true);                      // the benefit of speed
   });
 });
 

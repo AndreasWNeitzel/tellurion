@@ -7,7 +7,7 @@
 // sim.js holds the grid and both searches.
 
 import { viridis } from '../../../shared/js/render/colormaps.js';
-import { buildCity, dijkstra, astar, WALL } from './sim.js';
+import { buildCity, dijkstra, astarWeighted, WALL } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,8 +21,10 @@ const readoutA = document.getElementById('readout-a');
 const readoutCost = document.getElementById('readout-cost');
 const sliderSpeed = document.getElementById('slider-speed');
 const sliderSeed = document.getElementById('slider-seed');
+const sliderWeight = document.getElementById('slider-weight');
 const valueSpeed = document.getElementById('value-speed');
 const valueSeed = document.getElementById('value-seed');
+const valueWeight = document.getElementById('value-weight');
 const btnRestart = document.getElementById('btn-restart');
 const btnPlay = document.getElementById('btn-playpause');
 
@@ -44,14 +46,14 @@ const FLASH_DUR = FLASH_SWEEP + FLASH_GLOW;
 const REST_DUR = 300;          // 5 s hold so the result is readable
 
 const st = {
-  seed: 7, speed: 6, k: 0, g: null, dj: null, as: null,
-  phase: 'search', flashT: 0, restT: 0, playing: !DETERMINISTIC,
+  seed: 7, speed: 6, w: 1, k: 0, g: null, dj: null, as: null,
+  phase: 'search', restT: 0, playing: !DETERMINISTIC,
 };
 
 function rebuild() {
   st.g = buildCity(COLS, ROWS, st.seed);
   st.dj = dijkstra(st.g);
-  st.as = astar(st.g);
+  st.as = astarWeighted(st.g, st.w);
   st.k = 0; st.phase = 'search'; st.restT = 0;
   // Per-search arrival index (cells settled when each reached the
   // goal). Each panel reveals at its own pace: A* finishes early and
@@ -174,7 +176,8 @@ function drawPanel(x0, title, res, ft) {
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
   const rd = drawPanel(PAD, 'Dijkstra (flood)', st.dj, st.djFlashT);
-  const ra = drawPanel(PAD + PANEL_W + GAP, 'A* (heuristic)', st.as, st.asFlashT);
+  const aTitle = st.w > 1 ? `A* greedy w=${st.w.toFixed(2)}` : 'A* (optimal)';
+  const ra = drawPanel(PAD + PANEL_W + GAP, aTitle, st.as, st.asFlashT);
   readoutD.textContent = String(Math.min(rd, st.dj.expanded));
   readoutA.textContent = String(Math.min(ra, st.as.expanded));
   const costTxt = Number.isFinite(st.dj.cost) ? st.dj.cost.toFixed(0) : 'inf';
@@ -194,14 +197,26 @@ function render() {
     ctx.fillStyle = 'rgba(160,200,255,0.9)'; ctx.font = '12px ui-monospace, monospace';
     ctx.fillText(`Dijkstra ${dLive} scanned    A* ${aLive} scanned    ${tail}`, W / 2, H - 12);
   } else {
-    // Both find the SAME optimal path (admissible heuristic). The
-    // honest comparison is effort, not path length: A* reached it
-    // first having scanned far fewer cells.
+    // w = 1: identical optimal path, A* just cheaper to compute.
+    // w > 1: greedy A* scans even fewer cells but returns a SUBOPTIMAL
+    // (longer) path. This is the pros/cons the playground exists for.
     const ratio = aSet > 0 ? (dSet / aSet).toFixed(1) : '--';
-    ctx.fillStyle = 'rgba(255,209,102,0.92)'; ctx.font = '12px ui-monospace, monospace';
-    ctx.fillText(`Both found the SAME shortest path: ${pathLen} cells, cost ${costTxt}`, W / 2, H - 21);
-    ctx.fillStyle = 'rgba(160,200,255,0.9)';
-    ctx.fillText(`A* reached it scanning ${aSet} cells; Dijkstra needed ${dSet} (${ratio}x more work)`, W / 2, H - 7);
+    const aCost = Number.isFinite(st.as.cost) ? st.as.cost : Infinity;
+    const dCost = Number.isFinite(st.dj.cost) ? st.dj.cost : Infinity;
+    const suboptimal = aCost > dCost + 1e-9;
+    ctx.font = '12px ui-monospace, monospace';
+    if (suboptimal) {
+      const over = (((aCost - dCost) / dCost) * 100).toFixed(0);
+      ctx.fillStyle = 'rgba(255,140,90,0.95)';
+      ctx.fillText(`greedy A* path cost ${aCost.toFixed(0)} vs Dijkstra optimum ${dCost.toFixed(0)}  (+${over}% longer)`, W / 2, H - 21);
+      ctx.fillStyle = 'rgba(160,200,255,0.9)';
+      ctx.fillText(`but it scanned only ${aSet} cells vs ${dSet} (${ratio}x less): speed traded for optimality`, W / 2, H - 7);
+    } else {
+      ctx.fillStyle = 'rgba(255,209,102,0.92)';
+      ctx.fillText(`Both found the SAME shortest path: ${pathLen} cells, cost ${costTxt}`, W / 2, H - 21);
+      ctx.fillStyle = 'rgba(160,200,255,0.9)';
+      ctx.fillText(`A* reached it scanning ${aSet} cells; Dijkstra needed ${dSet} (${ratio}x more work)`, W / 2, H - 7);
+    }
     if (st.phase === 'rest') {
       const frac = 1 - st.restT / REST_DUR;
       ctx.strokeStyle = 'rgba(255,209,102,0.4)'; ctx.lineWidth = 2;
@@ -213,6 +228,7 @@ function render() {
 
 sliderSpeed.addEventListener('input', () => { st.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(st.speed); });
 sliderSeed.addEventListener('input', () => { st.seed = parseInt(sliderSeed.value, 10); valueSeed.textContent = String(st.seed); rebuild(); });
+sliderWeight.addEventListener('input', () => { st.w = parseFloat(sliderWeight.value); valueWeight.textContent = st.w.toFixed(2); rebuild(); });
 btnRestart.addEventListener('click', () => { st.k = 0; st.phase = 'search'; st.djFlashT = -1; st.asFlashT = -1; st.restT = 0; });
 btnPlay.addEventListener('click', () => {
   st.playing = !st.playing;
@@ -246,6 +262,11 @@ function tick() {
 function bootSync() {
   valueSpeed.textContent = String(st.speed);
   valueSeed.textContent = String(st.seed);
+  // The reference frames showcase the headline feature: a greedy A*
+  // (w = 2) returning a suboptimal path far faster than Dijkstra's
+  // exhaustive optimum. The live default stays w = 1 (classic optimal).
+  if (CAPTURE_NAME) { st.w = 2; sliderWeight.value = '2'; }
+  valueWeight.textContent = st.w.toFixed(2);
   rebuild();
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;

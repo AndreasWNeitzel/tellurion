@@ -133,7 +133,14 @@ function heapPop(h) {
   return top;
 }
 
-function search(g, useHeuristic) {
+// hWeight selects the algorithm via the priority f = g + hWeight * h:
+//   0  -> Dijkstra            (optimal, floods uniformly)
+//   1  -> A*, admissible h    (optimal, goal-directed, fewer nodes)
+//   >1 -> weighted/greedy A*  (far fewer nodes, but the returned path
+//         can be SUBOPTIMAL: speed traded for optimality)
+// `cost` is the true accumulated path cost, so a weighted run reports
+// its real (possibly longer-than-optimal) cost.
+function search(g, hWeight) {
   const N = g.cols * g.rows;
   const dist = new Float64Array(N).fill(Infinity);
   const prev = new Int32Array(N).fill(-1);
@@ -141,9 +148,9 @@ function search(g, useHeuristic) {
   const order = [];
   const gx = g.goal % g.cols, gy = (g.goal / g.cols) | 0;
   const hToGoal = (i) => {
-    if (!useHeuristic) return 0;
+    if (hWeight === 0) return 0;
     const x = i % g.cols, y = (i / g.cols) | 0;
-    return Math.abs(x - gx) + Math.abs(y - gy);          // admissible (min edge cost = 1)
+    return hWeight * (Math.abs(x - gx) + Math.abs(y - gy));   // Manhattan, weighted
   };
   dist[g.start] = 0;
   const h = [];
@@ -154,7 +161,7 @@ function search(g, useHeuristic) {
     settled[u] = 1; order.push(u);
     if (u === g.goal) break;
     for (const v of neighbors(g, u)) {
-      if (g.cost[v] === WALL) continue;
+      if (g.cost[v] === WALL || settled[v]) continue;      // no reopening
       const nd = dist[u] + g.cost[v];
       if (nd < dist[v]) { dist[v] = nd; prev[v] = u; heapPush(h, [nd + hToGoal(v), v]); }
     }
@@ -164,5 +171,8 @@ function search(g, useHeuristic) {
   return { order, path, cost: dist[g.goal], expanded: order.length };
 }
 
-export function dijkstra(g) { return search(g, false); }
-export function astar(g) { return search(g, true); }
+export function dijkstra(g) { return search(g, 0); }
+export function astar(g) { return search(g, 1); }
+// Weighted / greedy A*: w = 1 is optimal, w > 1 trades optimality for
+// speed (a shorter search that may return a longer path).
+export function astarWeighted(g, w = 1) { return search(g, Math.max(0, w)); }

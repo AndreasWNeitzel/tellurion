@@ -28,11 +28,15 @@
     on a procedural city (streets cost 1, piazzas cost 4, buildings and
     the river are walls). Left, Dijkstra floods outward in all
     directions; right, A* uses a goal-direction heuristic and drives a
-    tight beam toward the target. Both settle on the <em>same</em>
-    optimal route, but A* explores far fewer cells, the count is live.
-    When both reach the goal a single bolt races down the shortest
-    path and fades to a steady line; the solved map then rests for a
-    few seconds before a new city is generated.
+    tight beam toward the target. At heuristic weight 1, A* is still
+    optimal and finds the <em>same</em> route as Dijkstra with far
+    fewer cells. Push the weight above 1 and A* turns greedy: it
+    reaches the goal scanning even fewer cells, but the path it returns
+    is no longer the shortest, the classic speed-versus-optimality
+    trade-off, while Dijkstra always proves the true optimum. Each
+    panel fires its own bolt the instant that search reaches the goal,
+    so A* can finish and rest while Dijkstra is still flooding; the
+    solved map then holds for five seconds before a new city.
   </p>
   <figure class="pg-figure">
     <canvas id="stage" width="760" height="300" tabindex="0"
@@ -52,6 +56,7 @@
   <div class="controls pg-controls" id="controls" role="group" aria-label="Pathfinding controls">
     <div class="row"><span class="label">speed</span><input aria-label="cells revealed per frame" type="range" id="slider-speed" min="1" max="60" step="1" value="6"><span class="value" id="value-speed">6</span></div>
     <div class="row"><span class="label">map seed</span><input aria-label="map seed" type="range" id="slider-seed" min="1" max="40" step="1" value="7"><span class="value" id="value-seed">7</span></div>
+    <div class="row"><span class="label">A* heuristic weight</span><input aria-label="A* heuristic weight (1 optimal, higher = greedier)" type="range" id="slider-weight" min="1" max="3" step="0.25" value="1"><span class="value" id="value-weight">1.00</span></div>
     <div class="row buttons">
       <button id="btn-restart" type="button">Restart search</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
