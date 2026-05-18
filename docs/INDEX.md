@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers](../playgrounds/msc-y1/M2009-pde-zoo-interactive/index.html)** &nbsp; (verified, verified 2026-05-18T07:03:19Z)
+  One shared 1D grid on [0, 1] solving five canonical partial differential equations, each with the numerical scheme that suits it: the wave equation (hyperbolic, energy-conserving), the heat equation (parabolic, dissipative), the Laplace/Poisson equation (elliptic, steady), the time-dependent Schrodinger equation (dispersive, unitary) and Burgers' equation (n
+
 - **[Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray](../playgrounds/msc-y1/MFM-MP-radiation-dosimetry-detector/index.html)** &nbsp; (verified, verified 2026-05-18T06:44:47Z)
   An ionization chamber: a small gas cavity between two electrodes at a collecting voltage. Photons Compton-scatter in the gas; the recoil electrons strip electrons off gas molecules, creating ion pairs at a fixed average cost of W per pair (33.97 eV in air). The applied field sweeps the ions to the electrodes, where the collected charge is measured. At low vo
 
@@ -827,6 +830,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified)
   Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
 
+- **[Fourier Series: Convergence, Epicycles and the Gibbs Overshoot](../playgrounds/msc-y1/M2009-fourier-series-convergence-gibb/index.html)** &nbsp; (verified)
+  Any periodic function is a sum of sines and cosines. This playground takes a square, sawtooth or triangle wave on [-pi, pi], builds its N-term Fourier partial sum, and shows the same sum three ways: as a curve compared to the target, as a chain of rotating vectors whose tip traces it, and through its convergence behaviour (the Parseval energy and the Gibbs o
+
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified)
   A plane wave of chosen polarization strikes the boundary between two non-absorbing media of refractive indices n1 and n2 at a variable angle of incidence.
 
@@ -865,9 +871,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified)
   A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.
-
-- **[PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers](../playgrounds/msc-y1/M2009-pde-zoo-interactive/index.html)** &nbsp; (verified)
-  One shared 1D grid on [0, 1] solving five canonical partial differential equations, each with the numerical scheme that suits it: the wave equation (hyperbolic, energy-conserving), the heat equation (parabolic, dissipative), the Laplace/Poisson equation (elliptic, steady), the time-dependent Schrodinger equation (dispersive, unitary) and Burgers' equation (n
 
 - **[Poynting Vector: a Plane EM Wave in 3D](../playgrounds/bsc-y1s2/FIS1014-poynting-vector-wave-3d/index.html)** &nbsp; (verified)
   A monochromatic plane wave propagates along z. `E` oscillates in one transverse plane, `B` in the orthogonal one, and the Poynting vector `S = E x B / mu0` points along the propagation direction. Units are `c = 1`, `mu0 = 1`.

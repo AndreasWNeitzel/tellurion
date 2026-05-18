@@ -513,7 +513,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] pde-zoo-interactive : hero webgl2. 5 tabs (wave/heat/Laplace/
   Schrodinger/Navier-Stokes) shared GPU engine, paint IC/BC, analytic
   vs numeric vs error. Cross-link to laplace/tdse/NS heroes.
-- [ ] fourier-series-convergence-gibb : medium canvas2d. Target vs
+- [x] fourier-series-convergence-gibb : medium canvas2d. Target vs
   N-term sum plus epicycles, Gibbs 8.9% arrow. Inv: Parseval 0.1%;
   Gibbs 8.9% 1%.
 - [ ] green-function-propagator : advanced canvas2d. Source f(x), u=

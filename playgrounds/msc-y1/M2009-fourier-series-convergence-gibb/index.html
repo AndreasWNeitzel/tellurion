@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fourier Series: Convergence, Epicycles and the Gibbs Overshoot</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Fourier Series: Convergence, Epicycles and the Gibbs Overshoot</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="A target wave with its N-term Fourier sum and the Gibbs overshoot, the rotating-epicycle reconstruction, and the convergence of energy and overshoot">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">target:</span><span class="value" id="readout-tgt">square</span>
+      <span class="label">terms N:</span><span class="value" id="readout-n">8</span>
+      <span class="label">Parseval:</span><span class="value" id="readout-par">0%</span>
+      <span class="label">Gibbs:</span><span class="value" id="readout-gibbs">8.9%</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      Any periodic shape is a sum of sines and cosines. Add more terms and the sum gets closer to the target, except right at a jump, where it always overshoots by about 8.9 percent of the jump no matter how many terms you add (the Gibbs phenomenon, the overshoot only gets narrower). The same sum is the tip of a chain of rotating vectors (epicycles), and Parseval's theorem says the energy in the coefficients equals the energy in the function.
+      <em>Method:</em> analytic Fourier coefficients, partial sums and the Wilbraham-Gibbs constant; Canvas2D, deterministic.
+      <em>Source:</em> Arfken and Weber, Mathematical Methods for Physicists; Gibbs 1899.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">target wave</span><select aria-label="target wave" id="select-tgt" style="grid-column: span 2;"><option value="square">square (has jumps)</option><option value="sawtooth">sawtooth (has jumps)</option><option value="triangle">triangle (continuous)</option></select></div>
+    <div class="row"><span class="label">number of terms N</span><input aria-label="number of Fourier terms" type="range" id="slider-n" min="1" max="80" step="1" value="8"><span class="value" id="value-n">8</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
