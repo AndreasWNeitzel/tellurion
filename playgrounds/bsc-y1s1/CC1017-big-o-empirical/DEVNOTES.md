@@ -40,3 +40,7 @@ watched).
 - npx vitest run invariants.test.mjs   (9 tests)
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was figcaption-only).
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  9 passed + visual 5/5 x3. Shipped.

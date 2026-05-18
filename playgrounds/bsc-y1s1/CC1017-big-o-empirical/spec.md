@@ -21,6 +21,62 @@ share_state_keys: []
 ---
 # Big-O empirical scaling
 
+## Explainer
+
+### What you are looking at
+
+"This algorithm is $O(N\log N)$" is an abstract claim, but you can
+actually see it. The playground races a slow sort against a fast one
+on the same data and plots how their work grows with the input size,
+so the difference between $O(N^2)$ and $O(N\log N)$ becomes a visible
+gap, not a definition to memorize.
+
+### What Big-O means
+
+Big-O describes how an algorithm's cost scales with input size $N$,
+ignoring constants and lower-order terms. For sorting, the natural
+cost is the number of comparisons:
+
+- A simple comparison sort (bubble/insertion) does on the order of
+  $T(N) = c\,N^2$ operations: every element is compared against many
+  others.
+- Merge sort divides the list in half $\log_2 N$ times and does
+  $O(N)$ work per level, giving $T(N) = c\,N\log_2 N$.
+
+The point of Big-O is that the constant $c$ does not matter for large
+$N$: the function's shape wins. A faster computer rescales $c$ but
+never turns an $N^2$ curve into an $N\log N$ one.
+
+### Reading the scaling empirically
+
+The playground sorts the same seeded shuffle both ways, counting the
+real compare/swap/write operations, and accumulates one measured
+point $(N, \text{ops})$ per run. On the log-log scaling panel a power
+law $T\propto N^p$ is a straight line of slope $p$, so the quadratic
+sort plots with slope $\approx 2$ and merge sort with slope
+$\approx 1$ (the $\log N$ factor is a gentle upward bend, not a slope
+change). Doubling $N$ roughly quadruples the $O(N^2)$ work but only
+slightly more than doubles the $O(N\log N)$ work, which is exactly
+why algorithmic complexity, not clock speed, decides what is feasible
+at scale. Because both sorts replay from a recorded event stream, the
+animation speed is identical and only the operation counts differ,
+isolating the complexity.
+
+### Things to try
+
+- Increase $N$ and watch the gap between the two operation counts
+  widen dramatically (quadratic vs linearithmic).
+- Read the log-log slopes: about 2 for the simple sort, about 1 for
+  merge sort.
+- Note that speeding up replay does not change the curves: Big-O is
+  about growth, not constants.
+
+### Where this comes from
+
+Asymptotic complexity and the analysis of sorting follow Cormen,
+Leiserson, Rivest and Stein, *Introduction to Algorithms*,
+Chapters 2 to 4.
+
 ## What it shows
 The same seeded shuffle of $[1..N]$ is sorted twice at once: an
 $O(N^2)$ comparison sort (bubble or insertion) on the left, merge sort
