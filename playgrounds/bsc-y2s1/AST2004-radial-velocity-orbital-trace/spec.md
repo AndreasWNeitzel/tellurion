@@ -21,3 +21,59 @@ share_state_keys: []
 ---
 # Radial velocity orbital trace
 Orbit and corresponding RV curve, side by side. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
+
+## Explainer
+
+### What you are looking at
+
+We cannot see most exoplanets directly, but an orbiting planet makes
+its star wobble, and that wobble shifts the star's spectral lines
+periodically. The playground shows the orbit on the left and the
+resulting line-of-sight velocity curve on the right, the signal that
+discovered the first exoplanets.
+
+### The wobble
+
+Star and planet orbit their common centre of mass; the star traces a
+small ellipse with speed set by momentum balance,
+$M_\star v_\star = m_p v_p$. We observe only the component along the
+line of sight, the radial velocity. For a Keplerian orbit it is
+
+$$v_r(t) = K\big[\cos(\nu + \omega) + e\cos\omega\big] + \gamma,$$
+
+with $\gamma$ the system's bulk velocity, $\nu(t)$ the true anomaly,
+$\omega$ the argument of periapsis, and the semi-amplitude
+
+$$K = \left(\frac{2\pi G}{P}\right)^{1/3}
+  \frac{m_p\sin i}{(M_\star + m_p)^{2/3}}
+  \frac{1}{\sqrt{1 - e^2}}.$$
+
+### Reading the curve
+
+The shape of the RV curve decodes the orbit:
+
+- A circular orbit ($e=0$) gives a pure sinusoid; eccentricity
+  skews and sharpens it, and $\omega$ rotates the asymmetry.
+- The period $P$ is read straight off the curve; the amplitude $K$
+  gives the planet mass, but only $m_p\sin i$ (the inclination is
+  degenerate without a transit), so RV yields a minimum mass.
+- A more massive or closer planet gives a larger $K$ (easier to
+  detect); an Earth around a Sun is sub-m/s, which is why this method
+  favours hot Jupiters.
+
+This is the workhorse behind HARPS and ESPRESSO and the 51 Peg b
+discovery. The playground links the moving star to the live RV trace
+so you see exactly which part of the orbit makes which feature.
+
+### Things to try
+
+- Set $e=0$ and see a clean sine wave; raise $e$ and watch it skew.
+- Rotate $\omega$ and watch the asymmetry of the curve swing around.
+- Increase the planet mass or shrink the period and watch the
+  amplitude $K$ grow.
+
+### Where this comes from
+
+The radial-velocity equation and the $m_p\sin i$ degeneracy follow
+Carroll and Ostlie, *An Introduction to Modern Astrophysics*,
+Chapter 7, and Perryman, *The Exoplanet Handbook*, Chapter 2.
