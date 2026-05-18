@@ -22,6 +22,62 @@ share_state_keys: []
 
 # Compton scattering kinematics
 
+## Explainer
+
+### What you are looking at
+
+Bounce an X-ray off a loosely held electron and the scattered X-ray
+comes back with a longer wavelength, redder. Classical wave theory says
+the wavelength should not change at all. It does, and by an amount that
+depends only on the scattering angle, not on the incoming wavelength.
+That was decisive 1923 evidence that light comes in particles carrying
+momentum.
+
+### The kinematics
+
+Treat the photon as a particle with energy $hc/\lambda$ and momentum
+$h/\lambda$. Conserve energy and momentum in the photon-electron
+collision and the algebra collapses to the Compton shift:
+
+$$\lambda' - \lambda = \frac{h}{m_e c}\,(1 - \cos\theta).$$
+
+The whole right side except $\cos\theta$ is a constant, the electron
+Compton wavelength $\lambda_C = h/m_e c = 2.426$ pm. So the wavelength
+change depends only on the scattering angle $\theta$: zero straight
+ahead, maximal ($2\lambda_C$) for a backscatter. The recoiling electron
+carries off the lost energy,
+
+$$T = hc\left(\frac1\lambda - \frac1{\lambda'}\right),$$
+
+and leaves at an angle fixed by $\cot\phi = (1+\alpha)\tan(\theta/2)$
+with $\alpha = \lambda_C/\lambda$.
+
+### Why it matters
+
+The shift is independent of the incident wavelength, which is
+impossible for a classical wave pushing on a charge but automatic for a
+particle collision. It is direct proof of the photon, and the same
+kinematics (run in reverse, a fast electron boosting a low-energy
+photon) is inverse Compton scattering, a major process in
+high-energy astrophysics. The playground sweeps $\theta$ and shows the
+scattered photon, the recoil electron, and the $\Delta\lambda(\theta)$
+curve.
+
+### Things to try
+
+- Sweep $\theta$ to $180^\circ$ and read off the maximum shift
+  $\Delta\lambda = 2\lambda_C \approx 4.85$ pm.
+- Change the incident wavelength and confirm $\Delta\lambda$ does not
+  move: angle-only, the key surprise.
+- Watch the recoil electron take exactly the energy the photon loses.
+
+### Where this comes from
+
+The relativistic energy-momentum conservation and the Compton shift
+formula follow Eisberg and Resnick, *Quantum Physics*, 2nd ed.,
+Chapter 2, and Carroll and Ostlie, *An Introduction to Modern
+Astrophysics*, 2nd ed., Chapter 5.
+
 ## Physical setup
 
 A monochromatic photon of wavelength $\lambda$ (typically 0.5 to 10 pm, the X-ray regime where Compton scattering is significant) is incident along the $+x$ axis on a free electron at rest. The photon scatters at angle $\theta$ measured from its original direction. The recoiling electron flies off at angle $\phi$ on the opposite side of the scattering plane.
