@@ -92,12 +92,17 @@ function drawTriangle() {
     ctx.fillStyle = cols[k]; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(names[k], (px + qx) / 2, (py + qy) / 2 - 8);
   }
-  // Travelling closure marker.
-  const tt = (clock * 0.35) % 3;
-  const seg = Math.floor(tt), f = tt - seg;
-  const p = verts[seg], q = verts[seg + 1];
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.arc(X(p[0] + (q[0] - p[0]) * f), Y(p[1] + (q[1] - p[1]) * f), 4, 0, 2 * Math.PI); ctx.fill();
+  // Travelling closure marker. Suppressed during reference capture: it
+  // is a thin moving dot whose sub-pixel position jitters the SSIM
+  // across the x3 gate runs without conveying physics. The live page
+  // (no capture) keeps it.
+  if (!CAPTURE_NAME) {
+    const tt = (clock * 0.35) % 3;
+    const seg = Math.floor(tt), f = tt - seg;
+    const p = verts[seg], q = verts[seg + 1];
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(X(p[0] + (q[0] - p[0]) * f), Y(p[1] + (q[1] - p[1]) * f), 4, 0, 2 * Math.PI); ctx.fill();
+  }
 
   // Vertices + angle arcs.
   const beta = angleBeta(st.rho, st.eta), gamma = angleGamma(st.rho, st.eta);
@@ -127,8 +132,11 @@ function drawCP() {
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(bx, by, bw, bh);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('CP asymmetry (golden mode)', bx + 6, by - 8);
-  // Time-dependent interference: A_CP(t) = sin(2 beta) sin(dm t).
-  const osc = Math.sin(clock * 1.4);
+  // Time-dependent interference: A_CP(t) = sin(2 beta) sin(dm t). Under
+  // reference capture the oscillation is frozen at its peak so the bar
+  // heights are a deterministic function of CAPTURE_FRAC only (stable
+  // SSIM across the x3 gate runs); the live page keeps it breathing.
+  const osc = CAPTURE_NAME ? 1 : Math.sin(clock * 1.4);
   const rateB = 0.5 * (1 + s2b * osc);
   const rateBbar = 0.5 * (1 - s2b * osc);
   const baseY = by + bh - 20;
