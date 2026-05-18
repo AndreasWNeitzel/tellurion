@@ -20,6 +20,59 @@ share_state_keys: []
 
 # Gyroscope precession
 
+## Explainer
+
+### What you are looking at
+
+A spinning top tilted away from vertical does not fall over. Instead
+its axis sweeps slowly around a cone. Gravity is pulling it down, yet
+the response is sideways. That sideways response is precession, and it
+is the most counterintuitive everyday consequence of angular momentum.
+
+### Why it goes sideways instead of falling
+
+A fast-spinning top has a large angular momentum $\mathbf L$ pointing
+along its spin axis. Gravity acting at the centre of mass, a distance
+$r$ from the pivot, applies a torque
+
+$$\boldsymbol\tau = \mathbf r \times M\mathbf g,$$
+
+of magnitude $M g r \sin\theta$. The key law is that torque changes
+angular momentum, $\boldsymbol\tau = d\mathbf L/dt$. The torque points
+horizontally, perpendicular to both gravity and the axis, so it does
+not pull $\mathbf L$ down; it swings $\mathbf L$ sideways. The axis
+chases $\mathbf L$ and the whole top circles.
+
+### The precession rate
+
+In the fast-spin limit (spin rate $\omega_s$ much larger than the
+precession rate) the tilt $\theta$ stays constant and the axis goes
+around in azimuth at
+
+$$\Omega_p = \frac{M g r}{I_s\,\omega_s}.$$
+
+Read off the physics: more spin or more spin-inertia means slower
+precession (a fast top precesses lazily); more weight or a longer lever
+arm means faster precession. Strikingly, $\theta$ cancels out of the
+rate in this limit. The playground advances the tilt, azimuth, and
+spin by these analytic rates so you can watch the cone and change
+$\omega_s$ to see the $1/\omega_s$ law.
+
+### Things to try
+
+- Increase the spin $\omega_s$ and watch the precession slow down.
+- Tilt the top more and confirm the precession rate barely changes
+  (the $\theta$ independence of $\Omega_p$).
+- Notice the axis never falls; gravity only moves it around.
+
+### Where this comes from
+
+The torque-equals-rate-of-change-of-angular-momentum argument and the
+steady-precession formula $\Omega_p = M g r / (I_s\omega_s)$ follow
+Marion and Thornton, *Classical Dynamics of Particles and Systems*,
+5th ed., Chapter 11; the full Lagrangian treatment (with nutation) is
+in Goldstein, *Classical Mechanics*, Chapter 5.
+
 ## Physical setup
 
 Heavy symmetric top of mass M = 1, with pivot fixed at one end and center

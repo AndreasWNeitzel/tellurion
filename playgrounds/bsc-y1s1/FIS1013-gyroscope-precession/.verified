@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T20:09:00Z
-invariants: 5/5 (Omega_p formula, monotonic in omega_s, theta constant, circle, period closure)
-visual: SSIM > 0.92 across 5 frames showing precession with cone trail and rate curve
+verified-at: 2026-05-18T15:46:29Z
+invariants:  (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); text-only, render unchanged
