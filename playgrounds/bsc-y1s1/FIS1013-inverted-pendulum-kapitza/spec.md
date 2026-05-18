@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "A pendulum hangs down because down is stable. Shake its pivot up and down fast enough and a second stable position appears, straight up: the pendulum stands on end and stays there, balanced by nothing but the vibration."
+one_paragraph: "An ordinary pendulum has one stable equilibrium (hanging down) and one unstable one (inverted). Kapitza showed that driving the pivot vertically at high frequency adds, after averaging over the fast shaking, an effective potential that can turn the inverted position into a genuine stable minimum. The condition is a^2 omega^2 / (2 g l) > 1, with a and omega the drive amplitude and frequency: above that threshold the bob, given a small kick, only jitters about straight-up instead of toppling. The left panel shows the driven pendulum sitting inverted and trembling; the right panel plots the effective potential U_eff(theta) with its minimum at theta = 0, and the readout prints the stability number and flags STABLE when it exceeds 1. Drop the drive below threshold and the inverted state collapses. This vibrational stabilization is the same idea behind Paul ion traps and some feedback-free control schemes."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
