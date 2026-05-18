@@ -21,6 +21,61 @@ share_state_keys: [wavelength, na, k1]
 
 # Optical Lithography Resolution
 
+## Explainer
+
+### What you are looking at
+
+Every microchip is printed by shining light through a mask onto a
+wafer. The lens cannot capture all the light the mask diffracts, so the
+printed image is a blurred, low-pass-filtered copy of the mask. How
+small a feature survives that blur is the resolution limit, the central
+constraint of the entire semiconductor industry.
+
+### The equation
+
+The mask transmittance $t(x)$ diffracts into spatial frequencies. The
+projection lens has a finite numerical aperture NA, so it acts as a
+hard low-pass filter $\Pi(f)$ that passes only $|f| \le \mathrm{NA}/
+\lambda$. The printed aerial image is
+
+$$I(x) = \Big|\,\mathcal F^{-1}\big[\,\Pi(f)\,\mathcal F\{t\}(f)\,
+  \big]\Big|^2,
+  \qquad \Pi(f) = \begin{cases}1 & |f|\le \mathrm{NA}/\lambda\\
+  0 & \text{else}\end{cases}.$$
+
+Fine features (a tight line/space grating) live at high spatial
+frequency; if that frequency exceeds $\mathrm{NA}/\lambda$ it is simply
+thrown away and the lines do not print.
+
+### The resolution limit
+
+The smallest printable half-pitch follows directly:
+
+$$\text{CD} = k_1\,\frac{\lambda}{\mathrm{NA}},$$
+
+the Rayleigh scaling. Three levers: shorter wavelength $\lambda$
+(deep-UV to extreme-UV), larger NA (immersion lenses), and a smaller
+process factor $k_1$ (resolution-enhancement tricks like phase-shift
+masks and off-axis illumination). The playground lets you shrink the
+mask pitch and watch the aerial image contrast collapse to zero as the
+features cross the $\mathrm{NA}/\lambda$ cutoff, the physical wall
+Moore's law keeps pushing against.
+
+### Things to try
+
+- Shrink the line/space pitch and watch the printed contrast fade,
+  then vanish at the diffraction limit.
+- Increase NA and watch finer features survive (immersion
+  lithography).
+- Drop the wavelength and see the same gain (the move to EUV).
+
+### Where this comes from
+
+The Fourier-optics imaging model, the pupil low-pass filter, and the
+Rayleigh CD $= k_1\lambda/\mathrm{NA}$ scaling follow Goodman,
+*Introduction to Fourier Optics*, and the standard lithography
+treatment in Levinson, *Principles of Lithography*.
+
 ## Physical setup
 
 A projection scanner images a reticle (photomask) onto a wafer
