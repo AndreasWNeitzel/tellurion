@@ -22,6 +22,67 @@ share_state_keys: []
 
 # Lorenz Attractor
 
+## Explainer
+
+### What you are looking at
+
+Three simple equations, derived as a crude model of convection rolls,
+produce the most famous picture in chaos theory: a trajectory that
+never repeats, never settles, yet stays forever on a butterfly-shaped
+surface. The playground integrates the Lorenz system and shows the
+attractor and the sensitive dependence that named the "butterfly
+effect".
+
+### The Lorenz system
+
+Lorenz (1963) reduced atmospheric convection to
+
+$$\dot x = \sigma(y-x),
+  \qquad
+  \dot y = x(\rho-z)-y,
+  \qquad
+  \dot z = xy-\beta z,$$
+
+with the classic parameters $\sigma=10$, $\beta=8/3$, $\rho=28$.
+Here $x$ is the convection-roll intensity, $y$ and $z$ the
+temperature variations.
+
+### Why it is chaotic but bounded
+
+Two facts coexist:
+
+- The flow is dissipative: the phase-space volume contracts at the
+  constant rate $\nabla\cdot\mathbf f = -(\sigma+1+\beta)<0$, so all
+  trajectories are sucked onto a zero-volume set, the strange
+  attractor.
+- Yet on that set nearby trajectories separate exponentially: the
+  largest Lyapunov exponent is positive ($\lambda_1\approx0.906$),
+  so a microscopic uncertainty grows to order one in finite time and
+  long-term prediction is impossible. This is deterministic chaos:
+  fully determined equations, fundamentally unpredictable behaviour.
+
+The trajectory loops one wing, then unpredictably switches to the
+other; the sequence of wings is effectively random even though the
+dynamics is deterministic, the essence of the butterfly effect. The
+attractor has a fractal (non-integer) dimension $\approx 2.06$. The
+playground integrates two nearby starts and shows them track together
+then diverge, while the orbit traces the two-lobed attractor.
+
+### Things to try
+
+- Watch one trajectory weave the two-winged attractor, switching
+  lobes irregularly forever (never repeating, never settling).
+- Start two points a hair apart and watch them stay together, then
+  suddenly diverge onto different wings (sensitive dependence).
+- Lower $\rho$ below ~24.7 and watch the chaos collapse to a steady
+  fixed point (the onset of chaos).
+
+### Where this comes from
+
+The Lorenz equations, the strange attractor, dissipation and
+sensitive dependence follow Lorenz, J. Atmos. Sci. 20, 130 (1963),
+and Strogatz, *Nonlinear Dynamics and Chaos*, Chapter 9.
+
 ## Physical setup
 
 The Lorenz 1963 system: a three-variable truncation of the Saltzman convection equations, written
