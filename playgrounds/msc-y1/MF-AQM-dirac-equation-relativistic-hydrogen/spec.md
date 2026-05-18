@@ -21,6 +21,64 @@ share_state_keys: [Z, p]
 
 # Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung
 
+## Explainer
+
+### What you are looking at
+
+Schrodinger's hydrogen levels depend only on $n$. Dirac's relativistic
+treatment splits them by total angular momentum $j$ (the fine
+structure) and predicts a strange jitter of the electron's position
+(Zitterbewegung). The playground stacks the two level ladders, magnifies
+the relativistic gap, and shows the trembling, with everything growing
+as the nuclear charge $Z$ rises.
+
+### Dirac vs Schrodinger levels
+
+The non-relativistic energy is $E_n^\text{Schr} = -\mathrm{Ry}\,Z^2/n^2$.
+Solving the Dirac-Coulomb problem exactly gives levels that depend on
+$n$ and $j$:
+
+$$E_{nj}^\text{Dirac}
+  = mc^2\Big[1 + \big(\tfrac{Z\alpha}{n - (j+\frac12)
+  + \sqrt{(j+\frac12)^2 - (Z\alpha)^2}}\big)^2\Big]^{-1/2}.$$
+
+Expanded for small $Z\alpha$ it reproduces the Schrodinger level plus a
+fine-structure correction of order $(Z\alpha)^2$ that splits each $n$
+into $j$-sublevels. Because the correction scales as $Z^4$ (the
+splitting energy), it is tiny in hydrogen but grows dramatically for
+high-$Z$ ions: the playground normalizes by $\mathrm{Ry}\,Z^2$ so the
+relativistic deviation is the visible story and a log-log panel shows
+the splitting rising with slope 4 in $Z$.
+
+### Zitterbewegung
+
+A Dirac wavepacket built from both positive- and negative-energy
+components interferes, producing a rapid trembling of the position
+about its classical drift at angular frequency
+
+$$\omega_{ZB} = \frac{2 m c^2}{\hbar} \approx 1.6\times10^{21}\
+  \text{s}^{-1},$$
+
+with amplitude of order the Compton wavelength. It is unobservable
+directly for a free electron but is the conceptual origin of the
+Darwin term in fine structure. The playground animates the trembling
+over the smooth drift.
+
+### Things to try
+
+- Raise $Z$ and watch the Dirac levels peel away from the Schrodinger
+  ladder (the relativistic deviation growing as $Z^2$, splitting as
+  $Z^4$).
+- Read the log-log fine-structure panel: a clean slope-4 line in $Z$.
+- Watch Zitterbewegung: a fast tremble at $2mc^2/\hbar$ riding the
+  classical motion.
+
+### Where this comes from
+
+The Dirac-Coulomb levels, the fine-structure $Z$ scaling, and
+Zitterbewegung follow Dirac (1928), Bjorken and Drell, *Relativistic
+Quantum Mechanics* (1964), and Sakurai, *Advanced Quantum Mechanics*.
+
 ## Physical setup
 
 A hydrogen-like ion of nuclear charge `Z`. The Schrodinger equation
