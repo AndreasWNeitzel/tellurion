@@ -2,6 +2,7 @@ import { transmitOptical, profileVsTau } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rI = document.getElementById('readout-i');
 const sI = document.getElementById('slider-Iin'), vI = document.getElementById('value-Iin');
@@ -44,5 +45,5 @@ function render() {
   rI.textContent = I_out.toFixed(3);
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() { if (CAPTURE_NAME) st.tau = 0.2 + CAPTURE_FRAC * 8; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
