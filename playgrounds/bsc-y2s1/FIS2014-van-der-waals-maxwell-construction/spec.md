@@ -19,6 +19,61 @@ share_state_keys: []
 
 # Van der Waals Condensation and the Maxwell Construction
 
+## Explainer
+
+### What you are looking at
+
+Compress a real gas below its critical temperature and at some point it
+stops fighting back: the pressure stays flat while the volume shrinks,
+because the gas is condensing into liquid. The van der Waals equation
+predicts a wiggly isotherm there; the Maxwell construction replaces the
+unphysical wiggle with that flat coexistence line. The playground shows
+the piston, the meniscus, and the isotherm together.
+
+### The equation of state
+
+In reduced units (everything scaled by its critical value) the van der
+Waals equation is
+
+$$p = \frac{8T}{3V - 1} - \frac{3}{V^2},$$
+
+with the critical point at $V = T = p = 1$, where the isotherm has an
+inflection ($dp/dV = d^2p/dV^2 = 0$). The $-3/V^2$ term is molecular
+attraction; the $3V-1$ term is the finite size of molecules.
+
+### The unphysical loop and Maxwell's fix
+
+For $T < 1$ the isotherm is non-monotonic: it has a stretch where
+$dp/dV > 0$, meaning compressing the fluid would *lower* its pressure,
+which is mechanically impossible. Nature avoids it by phase-separating
+at a fixed coexistence pressure $p_\text{co}$. Maxwell's equal-area
+construction sets that pressure so the two lobes of the loop have equal
+area:
+
+$$\int_{V_l}^{V_g} p\,dV = p_\text{co}\,(V_g - V_l), \qquad
+  p(V_l) = p(V_g) = p_\text{co}.$$
+
+Between the binodal volumes $V_l$ (liquid) and $V_g$ (gas) the system is
+a mixture, and the lever rule gives the liquid fraction
+$x = (V_g - V)/(V_g - V_l)$. The spinodal ($dp/dV = 0$) marks the
+absolutely unstable core inside that.
+
+### Things to try
+
+- Set $T$ just below 1 and watch a tiny flat coexistence segment
+  appear; lower $T$ and it widens.
+- Compress through the flat region and watch the meniscus rise as the
+  lever-rule liquid fraction grows.
+- Go to $T = 1$ and see the flat region shrink to a single point: the
+  critical point, where liquid and gas become indistinguishable.
+
+### Where this comes from
+
+The reduced van der Waals equation of state, the Maxwell equal-area
+construction, the lever rule, and the spinodal follow Callen,
+*Thermodynamics and an Introduction to Thermostatistics*, 2nd ed.,
+Section 3.6 and Problem 9.4-1.
+
 ## Physical setup
 
 A fixed amount of a van der Waals fluid in a piston-cylinder, held at
