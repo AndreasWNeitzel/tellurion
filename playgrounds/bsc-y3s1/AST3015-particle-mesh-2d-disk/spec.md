@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST3015
 supporting_ucs: [MAA-GD]
 curriculum_year: bsc-y3s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A thousand particles pull on each other through a grid, not pair by pair; the disk they form grows the swing-amplified spiral patterns galaxies show.'
+one_paragraph: 'Computing gravity between N particles pair by pair costs order N^2; the particle-mesh method instead deposits mass onto a grid by cloud-in-cell, solves Poisson once with an FFT, and interpolates the force back, for near-linear cost. The playground evolves a flat exponential disk of 1500 self-gravitating particles this way on a periodic grid, and the disk spontaneously grows transient spiral arms through swing amplification, the same mechanism invoked for real galactic spirals. It is the cheap N-body scheme behind cosmological simulations. Reference: Hockney and Eastwood, Computer Simulation Using Particles; Binney and Tremaine, Galactic Dynamics.'
 tags: [exoplanets, numerics, animation, live-readout]
 difficulty: 3
 tier: simple
