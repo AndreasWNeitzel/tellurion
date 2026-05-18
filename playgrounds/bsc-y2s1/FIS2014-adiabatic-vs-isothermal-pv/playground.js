@@ -79,5 +79,5 @@ function tick(now) { const dt = (now - last) / 1000; last = now;
     if (st.V < 0.3) st.dir = 1;
   }
   render(); requestAnimationFrame(tick); }
-function bootSync() { st.V = 1 + 1.4 * Math.sin(CAPTURE_FRAC * Math.PI * 2); render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() { st.V = 0.3 + CAPTURE_FRAC * 2.1; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
