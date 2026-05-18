@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: arfken-weber
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Hit any vector with a matrix and it usually turns and stretches. Two special directions only stretch, never turn: the eigenvectors. Iterate the map and almost everything swings around to point along the dominant one."
+one_paragraph: "A 2x2 matrix M maps the unit circle to an ellipse. Most input vectors come out rotated and rescaled, but along the eigenvector directions the matrix only scales (by the eigenvalue) without changing direction. The playground draws the unit circle, its image the ellipse, and the two eigenvector lines with tips at distance |lambda_i|; as the matrix entries change, the eigenvectors stay pinned to their lines while a generic vector swings toward the dominant eigenvector (the larger |lambda|), which is exactly why the power method converges. The readout reports lambda_1, lambda_2, the trace and the determinant (trace = lambda_1 + lambda_2, det = lambda_1 lambda_2). Complex eigenvalues appear as pure rotation with no invariant real line. This is the geometric heart of diagonalization and of linear-stability analysis."
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
