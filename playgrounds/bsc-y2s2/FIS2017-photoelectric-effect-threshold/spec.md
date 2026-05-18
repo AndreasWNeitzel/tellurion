@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s2
 primary_citation: eisberg-resnick
 primary_chapter: 2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Dim blue light ejects electrons; bright red light does not. A frequency threshold, not brightness, controls it, and that broke classical wave optics.'
+one_paragraph: 'The photoelectric effect cannot be explained by light as a wave. Einstein''s quantum picture says each photon delivers exactly h nu, so an electron escapes only if h nu exceeds the metal''s work function phi, leaving with KE_max = h nu - phi. Below the threshold frequency no electrons appear no matter how intense the light. The playground plots KE_max against frequency, a straight line of slope h that crosses zero at the threshold, as you change the metal and the illumination. The sharp frequency cutoff is the central quantum signature and the work that won Einstein the Nobel Prize. Reference: Eisberg and Resnick, Quantum Physics, Ch. 2.'
 tags: [quantum, animation, live-readout]
 difficulty: 3
 tier: simple
