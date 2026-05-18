@@ -44,7 +44,6 @@ const tok = {
 // Decaying trails for the oscillating cursor dots (sum, y1, y2). Cleared
 // when the sweep wraps so the comet does not streak across the panel.
 const trails = { sum: [], y1: [], y2: [] };
-let lastCursor = 0;
 function pushTrail(key, x, y) {
   const a = trails[key];
   a.push({ x, y });
@@ -85,7 +84,7 @@ function plotFunc(x, y, w, h, fn, yMin, yMax, color, lw = 1.2) {
   ctx.beginPath();
   const N = w;
   for (let i = 0; i < N; i += 1) {
-    const t = (i / (N - 1)) * T_WINDOW;
+    const t = state.tNow + (i / (N - 1)) * T_WINDOW;
     const yval = fn(t);
     const yClamped = Math.max(yMin, Math.min(yMax, yval));
     const px = x + i;
@@ -128,7 +127,7 @@ function drawAll() {
   ctx.lineWidth = 1.0;
   ctx.beginPath();
   for (let i = 0; i < PANEL_W - 2; i += 1) {
-    const t = (i / (PANEL_W - 3)) * T_WINDOW;
+    const t = state.tNow + (i / (PANEL_W - 3)) * T_WINDOW;
     const env = Math.abs(envelope(t, state.f1, state.f2));
     const px = padX + 1 + i;
     const py = panelY1 + panelH * (1 - (env - (-2.2)) / 4.4);
@@ -137,7 +136,7 @@ function drawAll() {
   ctx.stroke();
   ctx.beginPath();
   for (let i = 0; i < PANEL_W - 2; i += 1) {
-    const t = (i / (PANEL_W - 3)) * T_WINDOW;
+    const t = state.tNow + (i / (PANEL_W - 3)) * T_WINDOW;
     const env = -Math.abs(envelope(t, state.f1, state.f2));
     const px = padX + 1 + i;
     const py = panelY1 + panelH * (1 - (env - (-2.2)) / 4.4);
@@ -181,21 +180,21 @@ function drawAll() {
   ctx.fillStyle = tok.accentWarm;
   ctx.fillText(`f_2`, xF(state.f2) + 4, panelY2 + 44);
 
-  // Time cursor on panels 1 and 2
-  const tCursor = state.tNow % T_WINDOW;
-  if (tCursor < lastCursor) { trails.sum.length = 0; trails.y1.length = 0; trails.y2.length = 0; }
-  lastCursor = tCursor;
+  // The time window scrolls with state.tNow (oscilloscope), so the
+  // left edge is "now". A fixed reference line marks it; the dots show
+  // the instantaneous y1, y2 and their sum entering the scope. Trails
+  // are cleared only on reset (tNow advances monotonically).
   ctx.strokeStyle = 'rgba(241, 210, 138, 0.70)';
   ctx.lineWidth = 1.2;
   ctx.beginPath();
-  const cx = padX + 1 + (PANEL_W - 2) * (tCursor / T_WINDOW);
+  const cx = padX + 1;
   ctx.moveTo(cx, panelY0);
   ctx.lineTo(cx, panelY1 + panelH);
   ctx.stroke();
 
   // Oscillating dots with decaying trails: y1, y2 on panel 1 and the
-  // resultant on panel 2.
-  const y1v = y1(tCursor, state.f1), y2v = y2(tCursor, state.f2);
+  // resultant on panel 2, sampled at the current time (left edge).
+  const y1v = y1(state.tNow, state.f1), y2v = y2(state.tNow, state.f2);
   const py1 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y1v)) + 1.1) / 2.2);
   const py2 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y2v)) + 1.1) / 2.2);
   pushTrail('y1', cx, py1); pushTrail('y2', cx, py2);
@@ -203,7 +202,7 @@ function drawAll() {
   ctx.fillStyle = tok.accentCool; ctx.beginPath(); ctx.arc(cx, py1, 3, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = tok.accentWarm; ctx.beginPath(); ctx.arc(cx, py2, 3, 0, Math.PI * 2); ctx.fill();
 
-  const ys = ySum(tCursor, state.f1, state.f2);
+  const ys = ySum(state.tNow, state.f1, state.f2);
   const ydot = panelY1 + panelH * (1 - (ys - (-2.2)) / 4.4);
   pushTrail('sum', cx, ydot);
   drawTrail('sum', '241, 210, 138');

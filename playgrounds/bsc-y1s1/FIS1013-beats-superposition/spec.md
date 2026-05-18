@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2016]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Play two notes a hair apart and you do not hear two notes: you hear one note that throbs, loud-soft-loud, at the difference frequency. That throb is beats, and it is how a piano tuner zeroes a string by ear."
+one_paragraph: "Add two cosines of nearby frequency f1 and f2 and a trig identity rewrites the sum as a fast carrier at the average frequency times a slow envelope at half their difference: y = 2 cos(2 pi f_bar t) cos(2 pi f_b t). The ear cannot follow the fast carrier but does hear the envelope, so the tone seems to swell and fade, the beats, at the rate |f1 - f2| (0.3 Hz for the defaults here). The top panel overlays the two component waves so you can watch them drift in and out of step; the middle panel shows their sum hugging the slow envelope; the bottom panel is the spectrum, two close lines whose spacing is the beat rate. The time window scrolls like an oscilloscope so the envelope visibly marches past. Tuning a guitar or piano by ear is exactly this: adjust one string until the beats slow to a standstill, meaning the two frequencies have matched."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
