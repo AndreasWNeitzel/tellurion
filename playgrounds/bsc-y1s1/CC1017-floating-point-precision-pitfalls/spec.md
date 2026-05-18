@@ -22,6 +22,65 @@ share_state_keys: []
 
 # Floating-point pitfalls: the Patriot missile failure
 
+## Explainer
+
+### What you are looking at
+
+Computers cannot store most decimal numbers exactly, and a tiny
+rounding error, repeated long enough, can kill people. The playground
+reconstructs the 1991 Patriot missile failure: a tradeoff hidden in
+the binary representation of 0.1 that grew, tick by tick, into a
+half-second targeting error and 28 deaths.
+
+### Why 0.1 is not 0.1
+
+Floating-point numbers store a value as
+$(-1)^s \times 1.f \times 2^{e}$ with a finite fraction $f$. Just as
+$1/3$ has no finite decimal expansion, $0.1$ has no finite binary
+one: it is an infinitely repeating binary fraction. Any fixed-width
+format must truncate it. The Patriot used a 24-bit fixed-point
+constant for 0.1, storing instead
+
+$$\frac{209715}{2097152} = 0.0999999046\ldots,$$
+
+an error of about $9.5\times10^{-8}$ per tick. One tick is harmless;
+the disaster is in the accumulation.
+
+### Error accumulation and catastrophic cancellation
+
+System time was kept as an integer count of 0.1 s ticks and converted
+to seconds by multiplying by that flawed constant. After running for
+$T$ seconds (so $10T$ ticks) the clock drifts by
+
+$$\Delta t \approx 9.5\times10^{-8}\times 10\,T
+  \;\propto\; T,$$
+
+growing linearly with uptime. After about 100 hours of continuous
+operation the drift reached $\sim0.34$ s. Multiplied by a Scud's
+velocity ($\sim1676$ m/s) that is a range-gate error of more than
+half a kilometer, so the incoming missile fell outside the tracking
+window and was not engaged. The general lessons the playground makes
+concrete: representation error is unavoidable, it accumulates with
+repeated operations, subtracting nearly-equal numbers (catastrophic
+cancellation) destroys precision, and the fix is to bound or reset
+accumulated error rather than assume arithmetic is exact.
+
+### Things to try
+
+- Watch the clock drift grow linearly with uptime from a
+  $10^{-7}$-scale per-tick error.
+- Convert the time drift into a range-gate miss distance and see it
+  cross the lethal threshold after ~100 hours.
+- Compare exact decimal vs the 24-bit binary constant: the gap that
+  started it all.
+
+### Where this comes from
+
+IEEE-754 representation error, accumulation, and catastrophic
+cancellation follow Goldberg, "What Every Computer Scientist Should
+Know About Floating-Point Arithmetic", ACM Computing Surveys 23, 5
+(1991), and the GAO report GAO/IMTEC-92-26 on the Patriot failure.
+
 ## Physical setup
 Dhahran, 25 February 1991. A Patriot battery's fire-control computer
 keeps system time as an integer count of 0.1 s ticks, converted to
