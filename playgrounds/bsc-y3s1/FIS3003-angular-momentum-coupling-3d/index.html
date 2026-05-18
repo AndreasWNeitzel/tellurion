@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Adding Angular Momenta: The Vector Model</h1>
   <div data-slot="description" class="katex-target">Two angular momenta $j_1$ and $j_2$ combine into a total $J$ that can only take the values $|j_1-j_2| \le J \le j_1+j_2$, the triangle rule. In the vector model the two momenta precess on cones about the resultant $\mathbf J$, their lengths $\sqrt{j(j+1)}$ and their tips circling so the sum stays fixed. The change of basis between the uncoupled $|j_1 m_1\rangle|j_2 m_2\rangle$ and coupled $|J M\rangle$ states is the unitary Clebsch-Gordan matrix, shown as a table whose columns are orthonormal.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

@@ -18,7 +18,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Henon Strange Attractor</h1>
   <div data-slot="description" class="katex-target">The Henon map $x_{n+1} = 1 - a x_n^2 + y_n$, $y_{n+1} = b x_n$ folds the plane into a fractal strange attractor. Sweep $a$ and $b$ and watch the attractor reshape and lose stability; the live readout tracks the largest Lyapunov exponent.</div>
@@ -39,4 +39,4 @@
 </div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

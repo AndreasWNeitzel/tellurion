@@ -18,7 +18,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Lorenz Attractor Ensemble (Hero)</h1>
   <div data-slot="description" class="katex-target">Edward Lorenz's 1963 chaos model, shown as a swarm. A few thousand trajectories ($4096$) start a hair apart inside a $10^{-3}$ ball around $(1,1,1)$ and are integrated with RK4 at $\sigma=10$, $\rho=28$, $\beta=8/3$. The GPU paints how densely they crowd as a glowing viridis cloud on the famous two-lobed butterfly. Nearby starts pull apart exponentially yet never leave the same shape: deterministic chaos. Sliders set integration speed and trail length; drag to orbit, scroll to zoom.</div>
@@ -31,4 +31,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

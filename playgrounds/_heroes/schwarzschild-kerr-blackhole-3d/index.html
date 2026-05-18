@@ -18,7 +18,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Schwarzschild-Kerr Black Hole 3D (Hero)</h1>
   <div data-slot="description" class="katex-target">A real per-pixel null-geodesic ray-march of a black hole. Every pixel traces one light ray bent by curved spacetime until it falls through the horizon (black), hits the hot disk (coloured), or escapes to the stars. You see the dark shadow, the thin photon ring at $b_c = 3\sqrt{3}\,M$, and the accretion disk gravitationally lensed into the Interstellar double arc (far side bent up and over the top and mirrored underneath), with the side rotating toward you Doppler-beamed brighter. Schwarzschild geometry with an approximate frame-drag twist for spin. Sliders set spin and the disk radii; drag to orbit, scroll to zoom.</div>
@@ -31,4 +31,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

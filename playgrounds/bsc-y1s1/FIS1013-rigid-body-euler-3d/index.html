@@ -18,7 +18,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Torque-Free Rigid Body: Euler's Equations 3D (Hero)</h1>
   <div data-slot="description" class="katex-target">A body tumbling in free space with no torque. Euler's equations $I_i\dot\omega_i=(I_j-I_k)\omega_j\omega_k$ are integrated with RK4 and a unit quaternion. The angular velocity $\boldsymbol\omega$ (white) traces the polhode in the body frame and the herpolhode in space; the angular momentum $\mathbf L$ (gold) stays fixed. Spin about the intermediate axis and the body flips: the Dzhanibekov effect. Drag to orbit, scroll to zoom.</div>
@@ -31,4 +31,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

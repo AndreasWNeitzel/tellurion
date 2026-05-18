@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">TDSE Wavepacket Sculptor</h1>
   <div data-slot="description" class="katex-target">The time-dependent Schroedinger equation $i\,\partial_t\psi = [-\tfrac12\partial_x^2 + V(x)]\psi$ (units $\hbar=m=1$), integrated by the Crank-Nicolson scheme, which is exactly unitary so the norm is conserved. The probability cloud $|\psi(x)|^2$ is coloured by the local phase $\arg\psi$ and evolves over the chosen potential: a free packet spreads, a barrier splits it into reflected and tunnelled parts, a harmonic well makes a coherent state oscillate, a double well lets it tunnel between minima. The strip below traces the mean position $\langle x\rangle(t)$.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

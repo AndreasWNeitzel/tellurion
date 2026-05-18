@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Special Relativity Spacetime Lab</h1>
   <div data-slot="description" class="katex-target">Special relativity made physical. A rod-train moves at speed $\beta = v/c$ and is Lorentz-contracted to $L_0/\gamma$ against its dashed rest length, while two twin clocks tick: on the round trip the travelling twin returns having aged only $2L/(\gamma\beta)$ against the stay-home $2L/\beta$. The side panel is the Minkowski diagram with the 45-degree light cone, the boosted lines of simultaneity (slope $\beta$), and the twin worldline. The spacetime interval $s^2 = t^2 - x^2$ is invariant under every boost.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

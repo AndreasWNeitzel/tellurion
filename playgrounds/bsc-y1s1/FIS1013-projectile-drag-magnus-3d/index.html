@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Projectile: Drag and the Magnus Force in 3D</h1>
   <div data-slot="description" class="katex-target">A ball launched in 3D under $\dot{\mathbf v}=-g\hat z-c|\mathbf v|\mathbf v+c_M(\boldsymbol\omega\times\mathbf v)$. Three trajectories are flown at once: vacuum (parabola), quadratic drag only, and drag plus Magnus. Because the Magnus force is perpendicular to both velocity and spin, sidespin curves the flight sideways while backspin adds lift and topspin cuts the range. RK4 integration.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

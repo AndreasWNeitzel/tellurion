@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Dipole Radiation in 3D</h1>
   <div data-slot="description" class="katex-target">An oscillating electric dipole radiates with the angular pattern $\sin^2\theta$: nothing along its axis, maximum in the equatorial plane, the familiar toroidal donut. The rotating 3D surface is that pattern; the pulsing charges are the source and the rings are outgoing wavefronts. The time-averaged power is the Larmor form $P = \mu_0 p_0^2 \omega^4 / (12\pi c)$, scaling as $\omega^4$, and in the far zone $\mathbf E$, $\mathbf B$ and $\hat{\mathbf r}$ are mutually orthogonal with $|\mathbf E| = c|\mathbf B|$. Switch to a magnetic dipole or a half-wave antenna to compare the lobes and directivity.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Brownian Motion and the Diffusion Law</h1>
   <div data-slot="description" class="katex-target">An ensemble of independent walkers diffuses from the origin, each axis taking Gaussian steps. The mean-squared displacement grows as $\langle r^2\rangle = 4Dt$ in two dimensions and the displacement distribution is Gaussian. The diffusion coefficient is set by Stokes-Einstein, $D = k_B T / (6\pi\eta r)$, so heating, thinning the solvent, or shrinking the tracer all speed the spread. A highlighted tracer is buffeted by solvent molecules and drags a trail. The side panels show the measured $\langle r^2\rangle$ against the $4Dt$ line and the displacement histogram against the Gaussian.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

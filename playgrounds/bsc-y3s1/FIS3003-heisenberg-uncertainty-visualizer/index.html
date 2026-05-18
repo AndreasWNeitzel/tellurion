@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">The Heisenberg Uncertainty Seesaw</h1>
   <div data-slot="description" class="katex-target">A quantum state lives in two conjugate spaces at once: the position wavefunction $\psi(x)$ and its Fourier transform, the momentum wavefunction $\phi(k)$. Their spreads obey $\sigma_x\,\sigma_p \ge \hbar/2$, with equality only for a Gaussian. Squeeze the packet narrow in position and it must spread in momentum: the two panels are the live probability densities, the gauge tracks the product, and the red band below $\hbar/2$ is forbidden. Non-Gaussian shapes (box, triangle, double bump) sit strictly above the bound.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

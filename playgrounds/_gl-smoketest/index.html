@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><title>WebGL2 smoke test</title>
-<style>html, body { margin: 0; background: #060608; height: 100%; } canvas { display: block; width: 100vw; height: 100vh; }</style></head>
+<style>html, body { margin: 0; background: #060608; height: 100%; } canvas { display: block; width: 100vw; height: 100vh; }</style><link rel="stylesheet" href="../../shared/css/explainer.css"></head>
 <body><canvas id="c"></canvas>
 <script type="module">
 import { createGL2 } from '../../shared/js/engine-gl/context.js';
@@ -30,4 +30,4 @@ try {
 }
 window.__simulationReady = ok;
 window.dispatchEvent(new CustomEvent('simulation-ready'));
-</script></body></html>
+</script><script type="module" src="../../shared/js/explainer.js"></script></body></html>

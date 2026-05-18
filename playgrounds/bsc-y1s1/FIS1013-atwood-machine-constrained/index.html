@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Atwood Machine with a Massive Pulley</h1>
   <div data-slot="description" class="katex-target">Two masses on an inextensible rope over a pulley of finite moment of inertia. The rope constraint gives $a=(m_1-m_2)g/(m_1+m_2+I/R^2)$, and the pulley inertia makes the two tensions unequal: $T_1=m_1(g-a)$, $T_2=m_2(g+a)$. Toggle the pulley between a uniform disk ($I=\tfrac12 MR^2$) and a thin ring ($I=MR^2$), or set its mass to zero for the classical result.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

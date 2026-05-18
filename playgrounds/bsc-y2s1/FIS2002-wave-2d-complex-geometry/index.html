@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">2D Waves in a Drawable Geometry</h1>
   <div data-slot="description" class="katex-target">The scalar wave equation $\partial_{tt}u = c^2\nabla^2 u - \gamma\,\partial_t u$ solved by an explicit leapfrog scheme with rigid walls and an absorbing sponge. A free point source makes a circular wavefront; a single slit diffracts; two slits interfere with a central maximum on the axis; an obstacle casts a shadow that the wave bends into. The side panel reads the screen intensity along the dashed far column. The numerics are the shared wave engine; the time step satisfies the 2D CFL bound $c\,\Delta t \lt \Delta x/\sqrt{2}$.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

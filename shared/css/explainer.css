@@ -1,0 +1,94 @@
+/* explainer.css
+   Floating "What is this?" trigger plus the explanation dialog. Uses the
+   shared design tokens; AA contrast on the dark theme. The trigger sits
+   bottom-right, clear of #stage, so visual goldens are unaffected. */
+
+.explainer-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9000;
+  font: 600 13px/1 var(--font-mono, ui-monospace, monospace);
+  color: #06121a;
+  background: var(--accent, #ffd166);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+.explainer-fab:hover { filter: brightness(1.08); }
+.explainer-fab:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.explainer-dialog {
+  /* Explicit high-contrast colours, NOT page tokens: --fg resolves to a
+     dark value on some playground themes and made the body unreadable. */
+  border: 1px solid #2f3440;
+  background: #14161c;
+  color: #eef0f4;
+  max-width: 720px;
+  width: calc(100vw - 32px);
+  max-height: 86vh;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+}
+.explainer-dialog::backdrop { background: rgba(2, 4, 8, 0.66); }
+
+.explainer-body {
+  padding: 22px 26px 28px;
+  overflow-y: auto;
+  max-height: 86vh;
+  font-size: 15px;
+  line-height: 1.62;
+  color: #eef0f4;
+}
+.explainer-body h2 {
+  margin: 0 32px 6px 0;
+  font-size: 19px;
+  color: #ffffff;
+}
+.explainer-body h3 {
+  margin: 20px 0 6px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffd166;
+}
+.explainer-body p { margin: 8px 0; color: #eef0f4; }
+.explainer-body p.eq { overflow-x: auto; text-align: center; }
+.explainer-body ul { margin: 8px 0; padding-left: 20px; }
+.explainer-body li { margin: 4px 0; }
+.explainer-body code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.92em;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.explainer-body pre {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.explainer-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font: 600 11px/1 var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg-muted, #9aa0a6);
+  background: transparent;
+  border: 1px solid var(--border, #2a2e37);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.explainer-close:hover { color: var(--fg, #e8e8ea); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .explainer-dialog[open] { animation: explainer-in 0.16s ease-out; }
+}
+@keyframes explainer-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

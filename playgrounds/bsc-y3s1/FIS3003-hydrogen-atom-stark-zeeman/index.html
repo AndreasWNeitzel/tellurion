@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Hydrogen in Electric and Magnetic Fields</h1>
   <div data-slot="description" class="katex-target">Hydrogen's degenerate levels split when you apply external fields. A magnetic field gives the normal Zeeman effect: each level fans into equally spaced sublevels $\Delta E = \mu_B B\, m_\ell$, and a spectral line becomes the Lorentz triplet. An electric field gives the Stark effect, linear in $F$ for $n\ge 2$ because hydrogen is degenerate, but the ground state $n=1$ has no first-order Stark shift at all (only a tiny quadratic one), the headline result. The left panel is the term diagram fanning out; the right is the synthetic spectrum a spectrometer would record, zoomed onto the multiplet.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

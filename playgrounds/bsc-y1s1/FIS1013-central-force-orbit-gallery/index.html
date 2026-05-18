@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Central-Force Orbit Gallery</h1>
   <div data-slot="description" class="katex-target">A particle in a central potential $V(r)=k\,r^{p}$. The orbit (left) is integrated with symplectic velocity-Verlet; the effective potential $V_{\text{eff}}(r)=V(r)+L^2/2\mu r^2$ (right) sets the radial turning points and the orbit class. Only the inverse-square ($p=-1$) and harmonic ($p=2$) laws give closed orbits (Bertrand); everything else is a precessing rosette.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

@@ -18,7 +18,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Tokamak Plasma Confinement 3D (Hero)</h1>
   <div data-slot="description" class="katex-target">A tokamak holds a 100-million-degree fusion plasma with magnetic fields instead of walls. A toroidal vessel carries helical field lines coloured by strength $|B|$; charged particles either spiral freely along the field (passing) or get mirror-trapped on the weak-field outboard side and trace the classic banana orbits. A glowing core marks the confined plasma. Drag to orbit, scroll to zoom.</div>
@@ -31,4 +31,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

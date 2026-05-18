@@ -18,7 +18,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Poynting Vector: a Plane EM Wave in 3D</h1>
   <div data-slot="description" class="katex-target">A plane electromagnetic wave propagating along $z$. The electric field $\mathbf E$ (red/blue) and magnetic field $\mathbf B$ (orange) oscillate in perpendicular planes; the Poynting vector $\mathbf S=\mathbf E\times\mathbf B/\mu_0$ (white) carries the energy along the propagation direction. Switch between linear, circular (the $\mathbf E$ tip traces a helix), elliptical and standing-wave modes. Drag to orbit.</div>
@@ -31,4 +31,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

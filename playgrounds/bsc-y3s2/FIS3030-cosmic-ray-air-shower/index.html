@@ -18,7 +18,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Cosmic-Ray Air Shower</h1>
   <div data-slot="description" class="katex-target">A primary cosmic ray streaks into the atmosphere and a Heitler cascade develops: a downward-propagating shower front fans out into a bright-cored, energy-coloured cone (white near shower maximum, gold mid-cascade, blue once below the critical energy), and the ground detector array lights up on arrival. The event loops. Sliders set the primary energy $\log_{10}(E/\mathrm{GeV})$, the zenith angle, and the number of radiation lengths; the live readout gives $X_\max = X_0 \ln(E/E_c)$ and the ground particle count.</div>
@@ -31,4 +31,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>

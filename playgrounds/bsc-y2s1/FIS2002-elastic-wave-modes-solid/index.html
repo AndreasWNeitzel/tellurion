@@ -17,7 +17,7 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style></head><body>
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Elastic Waves: P and S Modes in a Solid</h1>
   <div data-slot="description" class="katex-target">A 2D isotropic solid obeying $\rho\,\ddot{\mathbf u} = (\lambda+\mu)\nabla(\nabla\!\cdot\mathbf u) + \mu\nabla^2\mathbf u$. A source launches a compressional P wave at $v_P=\sqrt{(\lambda+2\mu)/\rho}$ and a shear S wave at $v_S=\sqrt{\mu/\rho}$. The medium is coloured by its divergence (compression) and a reference grid shows it straining; the red and blue rings are the analytic P and S wavefronts. The side panel is the seismogram at a station, where the P arrival precedes the S arrival by $d(1/v_S-1/v_P)$. Lower the shear modulus toward zero and the S wave disappears.</div>
@@ -30,4 +30,4 @@
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
 <script type="module" src="./playground.js"></script>
-</body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>
