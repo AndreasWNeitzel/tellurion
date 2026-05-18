@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung](../playgrounds/msc-y1/MF-AQM-dirac-equation-relativistic-hydrogen/index.html)** &nbsp; (verified, verified 2026-05-18T02:23:49Z)
+  A hydrogen-like ion of nuclear charge `Z`. The Schrodinger equation gives a degenerate `-Ry Z^2/n^2` ladder; the Dirac equation adds the relativistic kinetic correction, spin-orbit coupling and the Darwin term, deepening every level and splitting it by the total angular momentum `j`. A free Dirac wave packet also exhibits Zitterbewegung, a rapid trembling of
+
 - **[Scattering Theory: Differential Cross Section and Partial Waves](../playgrounds/msc-y1/MF-AQM-scattering-theory-differential-cross-section/index.html)** &nbsp; (verified, verified 2026-05-18T02:09:13Z)
   A monoenergetic beam (plane wave `e^{ikz}`) hits a fixed central potential and scatters into an outgoing spherical wave `f(theta) e^{ikr}/r`. The measured quantity is the differential cross section `dsigma/dOmega = |f(theta)|^2`, axially symmetric about the beam. For a hard sphere it is built from the partial-wave phase shifts; for a weak smooth potential th
 
@@ -827,8 +830,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
 
-- **[Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung](../playgrounds/msc-y1/MF-AQM-dirac-equation-relativistic-hydrogen/index.html)** &nbsp; (verified)
-  A hydrogen-like ion of nuclear charge `Z`. The Schrodinger equation gives a degenerate `-Ry Z^2/n^2` ladder; the Dirac equation adds the relativistic kinetic correction, spin-orbit coupling and the Darwin term, deepening every level and splitting it by the total angular momentum `j`. A free Dirac wave packet also exhibits Zitterbewegung, a rapid trembling of
+- **[Second Quantization: Fock States, Ladder Operators, (Anti)commutators](../playgrounds/msc-y1/MF-AQM-second-quantization-bosons-fermions/index.html)** &nbsp; (verified)
+  A single field mode in the occupation-number (Fock) representation. The number states |n> form the basis; the ladder operators add or remove one quantum. Bosons can pile up arbitrarily many quanta in the mode; fermions are limited to occupation 0 or 1 by the Pauli principle. The bosonic coherent state, the eigenstate of the annihilation operator, has a Poiss
 
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.

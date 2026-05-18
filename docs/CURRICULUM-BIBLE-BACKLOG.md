@@ -430,7 +430,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] dirac-equation-relativistic-hydrogen : advanced canvas2d.
   Schrodinger vs Dirac levels, fine structure, Z slider,
   Zitterbewegung. Inv: ground -13.6eV 0.01%; FS prop a^4 prop Z^4.
-- [ ] second-quantization-bosons-fermions : advanced canvas2d. Level
+- [x] second-quantization-bosons-fermions : advanced canvas2d. Level
   rungs, adag/a operators, Fock kets, (anti)commutators. Inv: boson
   a|n>=sqrt n|n-1>; fermion a|1>=|0>,a|0>=0.
 

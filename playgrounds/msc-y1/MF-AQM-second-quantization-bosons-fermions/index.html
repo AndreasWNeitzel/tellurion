@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Second Quantization: Fock States, Ladder Operators, (Anti)commutators</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Second Quantization: Fock States, Ladder Operators, (Anti)commutators</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Fock-state ladder, the (anti)commutator identity, and the occupation distribution"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">stat:</span><span class="value" id="readout-stat">boson</span>
+      <span class="label">&lt;N&gt;:</span><span class="value" id="readout-n">0.00</span>
+      <span class="label">norm:</span><span class="value" id="readout-norm">1.000</span>
+      <span class="label">relation:</span><span class="value" id="readout-rel">[a,adag]=1</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      The occupation-number (Fock) representation: ladder operators raise and lower number states by sqrt(n+1) and sqrt(n), bosons obey [a, a-dagger] = 1 and fermions {a, a-dagger} = 1 (Pauli, so a-dagger|1> = 0), and the bosonic coherent state is a Poissonian eigenstate of a.
+      <em>Method:</em> exact Fock-space linear algebra; deterministic.
+      <em>Source:</em> Dirac 1927; Fetter and Walecka 1971; Sakurai and Napolitano.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">statistics</span><select aria-label="particle statistics" id="select-stat" style="grid-column: span 2;"><option value="boson">boson ([a, a-dagger] = 1)</option><option value="fermion">fermion ({a, a-dagger} = 1, Pauli)</option></select></div>
+    <div class="row"><span class="label">state</span><select aria-label="state preparation" id="select-mode" style="grid-column: span 2;"><option value="pump">number-state pump (apply a-dagger)</option><option value="coherent">bosonic coherent state |alpha&gt;</option></select></div>
+    <div class="row"><span class="label">coherent alpha</span><input aria-label="coherent amplitude, x100" type="range" id="slider-alpha" min="50" max="450" step="10" value="240"><span class="value" id="value-alpha">2.40</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
