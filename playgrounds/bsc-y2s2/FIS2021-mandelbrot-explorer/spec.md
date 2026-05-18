@@ -20,6 +20,66 @@ share_state_keys: []
 
 # Mandelbrot Rainbow Explorer
 
+## Explainer
+
+### What you are looking at
+
+One of the most intricate objects in mathematics comes from iterating
+the simplest possible nonlinear formula and asking a single yes/no
+question. The playground lets you zoom into the Mandelbrot set
+endlessly and find the same motifs repeating at every scale, infinite
+complexity from one line of arithmetic.
+
+### The definition
+
+For each complex number $c$, iterate
+
+$$z_{0}=0,
+  \qquad
+  z_{n+1}=z_n^2+c.$$
+
+The Mandelbrot set $\mathcal M$ is the set of $c$ for which the
+sequence stays bounded forever. Everything you see is a map of that
+one question over the complex plane.
+
+### Escape, coloring, and self-similarity
+
+A point $c$ is colored by how fast it escapes:
+
+- If $|z_n|$ ever exceeds 2 the orbit is guaranteed to diverge; the
+  iteration count at escape sets the color, which is why the exterior
+  shows smooth bands (level sets of the escape-time / Green's
+  function of $\mathcal M$).
+- Points that never escape are in the set (drawn black). The
+  boundary is a fractal of Hausdorff dimension 2: infinitely crinkly,
+  so zooming in always reveals new structure.
+- The bulbs hanging off the main cardioid are exactly the regions
+  where the iteration has a stable cycle of a given period (period
+  doubling, the same $2,4,8,\dots$ bifurcation cascade as the
+  logistic map lives on the real slice), and tiny near-perfect copies
+  of the whole set recur deep inside (quasi-self-similarity).
+
+So the picture is not decorative: distance from the boundary is the
+escape rate, the bulbs encode periodic dynamics, and the repetition
+is genuine renormalization structure. The playground renders the
+escape-time field and lets you zoom into the boundary to see the
+detail never end.
+
+### Things to try
+
+- Zoom into the boundary repeatedly and watch fresh detail (and mini
+  Mandelbrots) appear at every magnification.
+- Sit on the real axis and connect the bulbs to the period-doubling
+  route to chaos of the logistic map.
+- Compare a point just inside the boundary (slow, structured escape)
+  with one far outside (instant escape).
+
+### Where this comes from
+
+The Mandelbrot set, the escape-time algorithm and its connection to
+period doubling follow Mandelbrot, *The Fractal Geometry of Nature*,
+and Peitgen, Jurgens and Saupe, *Chaos and Fractals*.
+
 ## Physical setup
 
 The Mandelbrot set $\mathcal{M} \subset \mathbb{C}$ is
