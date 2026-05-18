@@ -20,6 +20,67 @@ share_state_keys: []
 
 # Maximum-entropy distributions: a small zoo
 
+## Explainer
+
+### What you are looking at
+
+If all you know about a quantity is a few facts (its range, its mean,
+its variance), which probability distribution should you assume? The
+maximum-entropy principle says: the one that is maximally
+noncommittal, that adds no information you do not have. Strikingly,
+the familiar textbook distributions all fall out of this single rule
+depending on the constraint. The playground shows the zoo.
+
+### The principle
+
+Among all densities $p(x)$ consistent with the known constraints,
+pick the one that maximizes the differential entropy
+
+$$h[p] = -\int p(x)\,\ln p(x)\,dx,$$
+
+subject to normalization and the given expectation constraints
+$\int p\,f_k\,dx = \mu_k$. Solving this constrained optimization with
+Lagrange multipliers gives the universal exponential-family form
+
+$$p(x) \;\propto\; \exp\!\Big[\textstyle\sum_k \lambda_k f_k(x)\Big].$$
+
+The constraints choose the functions $f_k$; everything else is forced.
+
+### The zoo
+
+- Known support only ($[a,b]$): the uniform distribution (no
+  feature is preferred).
+- Known mean on $[0,\infty)$: the exponential distribution
+  $p\propto e^{-\lambda x}$.
+- Known mean and variance on $(-\infty,\infty)$: the Gaussian
+  $p\propto e^{-(x-\mu)^2/2\sigma^2}$ (which is why the Gaussian is
+  the "least-assuming" distribution for a given spread, the deep
+  reason it is everywhere).
+- Known mean on the non-negative integers: the geometric/Boltzmann
+  form, the same algebra that gives statistical mechanics its
+  partition function.
+
+The lesson is that distributional assumptions are equivalent to
+constraint assumptions: choosing "Gaussian noise" is exactly the
+statement "I only know the mean and variance". The playground lets
+you set which moments are fixed and shows the maximum-entropy density
+snap to the corresponding member of the zoo.
+
+### Things to try
+
+- Fix only the support and get the flat uniform; add a mean
+  constraint and watch it tilt into an exponential.
+- Add a variance constraint on the whole line and watch the Gaussian
+  emerge as the maximum-entropy answer.
+- Note that adding a constraint always lowers the entropy (more
+  knowledge, less uncertainty).
+
+### Where this comes from
+
+The maximum-entropy principle and the resulting exponential family
+follow Jaynes, Phys. Rev. 106, 620 (1957), and Cover and Thomas,
+*Elements of Information Theory*, Chapter 12.
+
 ## Physical setup
 
 A 1D probability density on a continuous support. The maximum-entropy principle (Jaynes 1957) selects the density that maximizes differential entropy h(p) = -integral p ln p dx subject to fixed moments (or other linear functionals of p). The result depends entirely on the choice of constraints; this playground enumerates four canonical cases.
