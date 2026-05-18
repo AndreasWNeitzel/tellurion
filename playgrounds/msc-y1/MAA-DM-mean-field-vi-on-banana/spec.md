@@ -20,6 +20,64 @@ share_state_keys: []
 
 # Mean-field VI on a banana
 
+## Explainer
+
+### What you are looking at
+
+Variational inference turns Bayesian inference into optimization:
+instead of sampling the true posterior, pick the closest member of a
+simple family of distributions. The playground does exactly that,
+fitting an axis-aligned Gaussian to a curved "banana" posterior, and
+the visible mismatch is the whole lesson about what VI gets wrong.
+
+### The target and the approximation
+
+The true posterior is a long, curved Rosenbrock valley
+$p(x,y)\propto\exp[-(x^2 + 10(y-x^2)^2)/2]$. The approximating family
+is the mean-field Gaussian: independent in each coordinate,
+
+$$q(x,y) = \mathcal N(x\mid\mu_x,\sigma_x^2)\,
+  \mathcal N(y\mid\mu_y,\sigma_y^2).$$
+
+"Mean-field" means we forbid $q$ from representing any correlation
+between $x$ and $y$.
+
+### The ELBO and why VI is mode-seeking
+
+VI maximizes the evidence lower bound, equivalently it minimizes the
+reverse KL divergence from $q$ to $p$:
+
+$$\mathrm{ELBO}(q)
+  = \mathbb E_{q}\big[\log p(x,y)\big]
+  + \mathbb H[q]
+  = \log p(\text{data}) - \mathrm{KL}\big(q\,\|\,p\big).$$
+
+Because it is the reverse KL $\mathrm{KL}(q\|p)$, $q$ is penalized
+heavily for putting mass where $p$ is near zero, so it tucks itself
+inside one part of the banana rather than spanning it. The
+consequences are textbook: the fitted Gaussian sits on the high-
+density region but is too narrow and ignores the curvature, so VI
+systematically underestimates the posterior variance and misses the
+$x$-$y$ correlation. The playground animates the ELBO climbing while
+the $q$ ellipse settles into the banana, visibly failing to follow
+the bend, the canonical mean-field failure mode.
+
+### Things to try
+
+- Watch the ELBO increase monotonically while the Gaussian ellipse
+  shrinks onto the valley.
+- Note the converged ellipse is narrower than the true spread
+  (reverse-KL variance underestimation).
+- See that the axis-aligned $q$ cannot tilt to follow the banana's
+  curvature (the cost of the mean-field independence assumption).
+
+### Where this comes from
+
+The ELBO, reverse-KL (mode-seeking) behavior, and the mean-field
+failure on correlated posteriors follow Blei, Kucukelbir and
+McAuliffe, JASA 112, 859 (2017), and Bishop, *Pattern Recognition
+and Machine Learning*, Chapter 10.
+
 ## Physical setup
 
 Fit a mean-field Gaussian q(x, y) = N(mu_x, sigma_x^2) * N(mu_y, sigma_y^2) to a Rosenbrock-style banana target. The banana is a long curved valley; the mean-field Gaussian is axis-aligned; this gap is the canonical failure mode of variational inference.

@@ -1,3 +1,3 @@
-verified-at: 2026-05-13T17:30:41Z
-invariants: 5/5 (ELBO climbs, mu near banana mode, sigma bounded, log p topology)
-visual: SSIM > 0.92 across 5 frames showing the ellipse settle
+verified-at: 2026-05-18T18:35:53Z
+invariants: Tests  5 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); comprehensive ## Explainer added; render-neutral (overlay outside #stage, goldens unchanged)
