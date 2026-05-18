@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS1013
 supporting_ucs: [FIS2016, FIS1015]
 curriculum_year: bsc-y1s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Push a swing at just the right rhythm and small pushes build huge swings; push off-rhythm and almost nothing happens. That selectivity is resonance, and how sharp it is depends on one number: the damping."
+one_paragraph: "A single mass on a spring with linear damping is driven by a sinusoidal force, x'' + 2 gamma x' + omega_0^2 x = F0 cos(omega t). After a transient the oscillator forgets its start and settles into a steady oscillation at the drive frequency, with an amplitude that peaks when the drive is tuned near the natural frequency omega_0. The top panel shows the live response x(t) against the drive; the bottom panel is the steady-state amplitude-versus-frequency curve with a cursor at the current drive frequency, so you watch the response grow as you approach the resonance peak. Light damping (high quality factor Q) makes that peak tall and narrow; heavy damping flattens it. The readout reports omega, gamma, Q and the resonant frequency. This is the physics behind tuning a radio and why marching troops break step on a bridge."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
