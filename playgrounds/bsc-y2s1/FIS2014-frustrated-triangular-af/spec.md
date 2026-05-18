@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2014
 supporting_ucs: [FIS2018, MAA-NM]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Put antiferromagnetic spins on a triangle and they cannot all disagree at once; that frustration leaves the ground state disordered down to absolute zero.'
+one_paragraph: 'On a triangular lattice every small triangle of antiferromagnetic Ising spins is frustrated: at most two of the three bonds can be satisfied, so no arrangement makes every neighbour pair happy. Wannier showed this removes the finite-temperature phase transition entirely and leaves a hugely degenerate ground state with extensive residual entropy. The playground runs single-spin Metropolis dynamics and you watch the lattice stay disordered and restless even as the temperature falls toward zero, never freezing into a clean pattern the way an unfrustrated antiferromagnet would. It is the cleanest illustration of geometric frustration. Reference: Wannier 1950, Phys. Rev. 79, 357.'
 tags: [thermodynamics, statistical-physics, animation, live-readout]
 difficulty: 3
 tier: simple
