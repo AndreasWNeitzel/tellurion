@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: arfken-weber
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Every matrix, no matter how lopsided, is just rotate, then stretch along clean perpendicular axes, then rotate again. The stretch factors are the singular values. Watch a circle become an ellipse in three honest steps."
+one_paragraph: "The singular value decomposition writes M = U S V^T: a first rotation V^T, a pure axis-aligned scaling S by the singular values sigma_1 >= sigma_2, and a final rotation U. The playground shows this as four panels: the unit circle, then after V^T, then after S (a circle stretched into an axis-aligned ellipse), then after U (rotated into the final image of M). The singular values are the semi-axis lengths of that final ellipse, and their ratio sigma_1/sigma_2 is the condition number, which measures how close M is to singular. The readout reports sigma_1, sigma_2 and cond(M). SVD is the backbone of least squares, low-rank compression and principal component analysis."
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
