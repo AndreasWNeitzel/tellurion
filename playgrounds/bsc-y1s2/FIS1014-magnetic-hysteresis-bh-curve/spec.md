@@ -19,6 +19,75 @@ share_state_keys: []
 
 # Magnetic Hysteresis: Domains and the B-H Loop
 
+## Explainer
+
+### What you are looking at
+
+Drive a ferromagnet with an oscillating magnetic field and its
+magnetization does not simply follow: it lags, so plotting the response
+$B$ against the drive $H$ traces a loop rather than a line. The lattice
+of magnetic domains flips in a delayed wave, and the area inside the
+loop is energy lost as heat every cycle. This is why transformer cores
+warm up and why magnets remember.
+
+### Why there is a loop (hysteresis)
+
+Magnetic domains do not rotate freely; they are pinned by defects and
+only flip once the field exceeds a local threshold. So the
+magnetization at a given $H$ depends on the history, whether $H$ was
+rising or falling. Sweeping $H$ up and back down therefore traces two
+different branches: a loop with a remanence (magnetization left at
+$H=0$) and a coercive field (the reverse $H$ needed to zero it).
+
+### The model
+
+The playground uses the Jiles-Atherton model. The ideal lossless
+response is the anhysteretic curve
+
+$$M_{\rm an} = M_s\left[\coth\!\frac{H_e}{a}
+  - \frac{a}{H_e}\right], \qquad H_e = H + \alpha M,$$
+
+a Langevin-type saturation ($M_s$ the saturation magnetization, $H_e$
+the effective field including domain coupling $\alpha$). Pinning is
+added through an irreversible component:
+
+$$\frac{dM_{\rm irr}}{dH}
+  = \frac{M_{\rm an} - M_{\rm irr}}
+  {k\,\delta - \alpha\,(M_{\rm an} - M_{\rm irr})},$$
+
+where $k$ sets the pinning strength and $\delta = \pm1$ is the sweep
+direction (this $\delta$ is what makes the up and down branches
+differ). The measured magnetization blends reversible and irreversible
+parts, $M = (1-c)M_{\rm irr} + c\,M_{\rm an}$.
+
+### The energy loss
+
+Driving with $H = H_m\sin(\omega t)$ and tracing $B$ versus $H$ gives
+the closed loop. The work dissipated per cycle per unit volume is the
+enclosed area,
+
+$$W = \oint H\,dB,$$
+
+which is exactly the iron loss that heats a transformer core. A fat
+loop (hard magnet) stores information; a thin loop (soft magnet) wastes
+little energy.
+
+### Things to try
+
+- Watch the magnetization lag the field: the domain wave reverses
+  after the drive, not with it.
+- Increase the pinning $k$ and see the loop fatten, more remanence,
+  more energy lost per cycle.
+- Shrink the loop toward the single anhysteretic curve as pinning goes
+  to zero (an ideal soft magnet).
+
+### Where this comes from
+
+Domain hysteresis, the B-H loop and its area as the per-cycle loss,
+and the Jiles-Atherton model follow Jiles and Atherton (1986) and the
+ferromagnetism treatment in Griffiths, *Introduction to
+Electrodynamics*, 5th ed., Chapter 6.
+
 ## Physical setup
 
 A ferromagnet under an oscillating applied field. The domain lattice
