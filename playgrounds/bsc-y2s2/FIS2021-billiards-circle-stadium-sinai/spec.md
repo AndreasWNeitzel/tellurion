@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A ball bouncing in a circle traces neat rosettes forever; round the ends into a stadium and the same ball fills the table chaotically.'
+one_paragraph: 'A billiard is a free particle reflecting specularly off the walls of a region; whether its motion is orderly or chaotic depends only on the shape. The circle is integrable, so trajectories stay on tidy caustic patterns; the Bunimovich stadium (two semicircles joined by straight walls) and the Sinai billiard (a box with a central disk) are provably chaotic, with nearby trajectories diverging exponentially. The playground lets you switch geometry and watch one trajectory plus its sensitivity to a tiny change in launch angle. This is the purely geometric route to chaos and the classical backdrop of quantum chaos. Reference: Tabachnikov, Geometry and Billiards.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
