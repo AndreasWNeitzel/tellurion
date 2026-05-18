@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: [FIS1013]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Drive a particle in a double well harder and harder and its steady rhythm splits, splits again, then shatters into chaos, all from one knob.'
+one_paragraph: 'The driven damped Duffing oscillator, a mass in a double-well potential with friction and a periodic push, is the textbook route to chaos. As the drive amplitude rises the periodic response undergoes a period-doubling cascade (period 1, 2, 4, ...) and then becomes chaotic, while a Poincare section sampled once per drive cycle turns from a few dots into a fractal strange attractor. The playground integrates the trajectory and builds the stroboscopic Poincare section as you change the drive, so the cascade and the strange attractor emerge live. It is one of the cleanest demonstrations of deterministic chaos. Reference: Strogatz, Nonlinear Dynamics and Chaos, Ch. 12.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
