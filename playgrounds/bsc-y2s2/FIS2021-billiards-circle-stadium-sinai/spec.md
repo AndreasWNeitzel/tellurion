@@ -20,6 +20,65 @@ share_state_keys: []
 
 # Billiards: circle, stadium, Sinai
 
+## Explainer
+
+### What you are looking at
+
+Take the simplest possible dynamical system, a ball bouncing
+elastically inside a 2D box, and the only thing you change is the
+shape of the box. Yet that geometry alone decides whether the motion
+is perfectly regular or fully chaotic. The playground runs the same
+billiard in three boundaries so you watch order become chaos with no
+forces involved.
+
+### Same physics, three boundaries
+
+A free particle moves in straight lines and reflects with
+angle-of-incidence = angle-of-reflection. Order or chaos is set
+purely by whether the boundary focuses or defocuses a beam of nearby
+trajectories:
+
+- Circle (integrable): the angle of incidence at the wall is
+  conserved at every bounce, so each orbit lies on a caustic and the
+  motion is quasi-periodic. Two nearby starts stay nearby
+  (zero Lyapunov exponent).
+- Bunimovich stadium (two semicircles joined by straight walls): the
+  defocusing of the straight segments wins, trajectories separate
+  exponentially, the motion is fully chaotic and ergodic (it fills
+  the whole table uniformly).
+- Sinai billiard (a square with a central circular scatterer): the
+  convex obstacle disperses every beam that hits it (the dispersing
+  mechanism Sinai proved gives hard chaos), again exponential
+  sensitivity.
+
+### Why it matters
+
+These are the textbook proof that chaos needs no nonlinearity in the
+force law: a constant-speed free particle plus a boundary is enough.
+The contrast (a conserved second integral in the circle versus its
+destruction by curvature in the stadium/Sinai) is the cleanest
+illustration of the difference between integrable and ergodic
+Hamiltonian systems, and the quantum versions seed quantum-chaos and
+the random-matrix conjecture. The playground traces a trajectory and
+a fan of nearby ones so the regular-vs-exponential spreading is
+directly visible.
+
+### Things to try
+
+- Run the circle and watch a trajectory weave a clean star pattern
+  with a forbidden inner caustic (integrable, conserved angle).
+- Switch to the stadium or Sinai and watch a tight bundle of starts
+  smear over the whole table within a few bounces (exponential
+  sensitivity).
+- Nudge the start slightly: negligible drift in the circle, total
+  divergence in the chaotic tables.
+
+### Where this comes from
+
+Integrable vs chaotic billiards, the Bunimovich stadium and the Sinai
+dispersing billiard follow Tabachnikov, *Geometry and Billiards*, and
+Berry, "Regularity and chaos in classical mechanics" (1987).
+
 ## Physical setup
 
 A free particle of unit speed bouncing elastically off the walls of a 2D shape. Three classical geometries: circle (integrable), Bunimovich stadium (chaotic), Sinai billiard (chaotic with convex scatterer). Used to study quantum-classical correspondence and the onset of chaos under purely geometric constraints.
