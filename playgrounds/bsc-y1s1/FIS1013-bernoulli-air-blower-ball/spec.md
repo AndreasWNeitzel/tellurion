@@ -22,6 +22,61 @@ share_state_keys: []
 
 # Bernoulli air-blower ball
 
+## Explainer
+
+### What you are looking at
+
+A ball hovering on an air jet, and not just hovering: nudge it
+sideways and it springs back to the center instead of falling out.
+The playground shows why a tilted jet still traps the ball, which is
+the real lesson (it is the same physics that makes a spinning ball
+curve and a wing lift).
+
+### Vertical balance
+
+The free jet entrains surrounding air and decelerates with height, so
+its drag on the ball falls off with distance from the nozzle. The
+ball floats at the height where the upward drag balances gravity:
+
+$$\tfrac12\,\rho\,C_D\,A\,v_\mathrm{jet}^2(h)
+  \;=\; m g.$$
+
+Above that point the jet is too weak and the ball sinks; below it the
+jet is too strong and pushes the ball back up, so the equilibrium
+height is stable.
+
+### Lateral trapping: the Bernoulli/Coanda restoring force
+
+The interesting part is sideways stability. Move the ball partly out
+of the jet and the airflow is faster on the side still inside the jet
+than on the outside. By Bernoulli's principle along a streamline,
+
+$$P + \tfrac12\rho v^2 = \text{const},$$
+
+faster flow means lower pressure, so the higher-pressure outer air
+pushes the ball back toward the jet axis (the jet also bends around
+the ball, the Coanda effect, adding to the inward push). The net
+sideways force always points back to center, giving a restoring force
+like a spring: the ball oscillates about the axis rather than falling
+out. This is why the trick works even when the blower is tilted well
+off vertical. The playground lets you tilt the jet and perturb the
+ball and shows the vertical balance and the lateral restoring force.
+
+### Things to try
+
+- Watch the ball settle at the height where jet drag equals gravity,
+  and bob back if pushed up or down.
+- Nudge the ball sideways and watch the lower-pressure jet side pull
+  it back to the axis (the restoring force).
+- Tilt the blower and see the ball still trapped on the jet axis,
+  not just balanced on top.
+
+### Where this comes from
+
+Bernoulli's principle, jet entrainment, and the Coanda restoring
+effect follow Halliday, Resnick and Walker, *Fundamentals of
+Physics*, Chapter 14, and Tritton, *Physical Fluid Dynamics*.
+
 ## Physical setup
 A sphere of mass $m$ and radius $R$ sits in a turbulent free jet issuing
 from a nozzle whose axis can be tilted by an angle from vertical. The

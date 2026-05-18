@@ -23,3 +23,7 @@ self-recentres. Pure local sim.js, no shared engine, no GL.
 - npx vitest run invariants.test.mjs   (7 tests)
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was caption-only).
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  7 passed + visual 5/5 x3. Shipped.
