@@ -20,6 +20,66 @@ share_state_keys: []
 
 # Mutual information of a bivariate Gaussian
 
+## Explainer
+
+### What you are looking at
+
+Mutual information answers "how much does knowing $X$ tell you about
+$Y$?" in bits, capturing any dependence, not just linear correlation.
+For two correlated Gaussians it has a clean closed form, so the
+playground can show the joint cloud, its marginals, and the exact
+mutual information as you tighten the correlation.
+
+### The definition
+
+Mutual information is the gap between treating $X$ and $Y$ as
+independent and using their true joint distribution:
+
+$$I(X;Y)
+  = \iint p(x,y)\,
+  \log\frac{p(x,y)}{p(x)\,p(y)}\,dx\,dy
+  = \mathrm{KL}\big(p(x,y)\,\big\|\,p(x)p(y)\big).$$
+
+Equivalently $I(X;Y) = H(X) - H(X\mid Y)$: the reduction in your
+uncertainty about $X$ once $Y$ is known. It is zero exactly when $X$
+and $Y$ are independent and otherwise positive.
+
+### The Gaussian closed form
+
+For a bivariate Gaussian with correlation coefficient $\rho$,
+everything collapses to
+
+$$I(X;Y) = -\tfrac12\,\ln\!\big(1 - \rho^2\big).$$
+
+This single formula carries the intuition:
+
+- $\rho=0$: independent, $I=0$ (knowing $X$ says nothing about $Y$).
+- $|\rho|\to1$: $I\to\infty$ (one variable nearly determines the
+  other).
+- $I$ depends only on $\rho^2$: positive and negative correlation
+  carry the same information, and the relationship is strongly
+  nonlinear (you need $\rho\approx0.8$ before $I$ even reaches 0.5
+  nat).
+
+The playground sweeps $\rho$ and shows the joint heatmap tilt into an
+ellipse while $I=-\tfrac12\ln(1-\rho^2)$ and the conditional spread
+$H(X\mid Y)$ track it. This is the workhorse quantity behind feature
+selection, the information bottleneck, and channel analysis.
+
+### Things to try
+
+- Set $\rho=0$ and see a round cloud with $I=0$ (independent).
+- Increase $|\rho|$ and watch the ellipse thin while $I$ rises
+  slowly then explodes near $|\rho|=1$.
+- Flip the sign of $\rho$ and confirm $I$ is unchanged (it depends
+  only on $\rho^2$).
+
+### Where this comes from
+
+The definition of mutual information and the Gaussian
+$-\tfrac12\ln(1-\rho^2)$ result follow Cover and Thomas, *Elements of
+Information Theory*, Chapters 2 and 8.
+
 ## Physical setup
 
 A static, exact, no-integration example: two correlated Gaussian random variables (X, Y) with covariance Sigma. The joint density p(x, y) is rendered as a heatmap; the marginals p(x) and p(y) are drawn above and beside it. Mutual information I(X; Y) is the area you can carve out of the joint by knowing the marginals; for a Gaussian it admits a closed form -0.5 ln(1 - rho^2).
