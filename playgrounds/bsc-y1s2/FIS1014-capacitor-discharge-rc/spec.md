@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s2
 primary_citation: griffithsem2017
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Charge a capacitor, then let it dump through a resistor. The voltage does not fall steadily; it decays exponentially, losing the same fraction every time constant tau = RC, the heartbeat of every timing circuit."
+one_paragraph: "A charged capacitor C discharging through a resistor R obeys V(t) = V0 e^{-t/RC}. The decay is exponential, not linear: after one time constant tau = RC the voltage is down to 1/e (about 37 percent), after 5 tau it is effectively zero, and the shape is the same whatever V0 is. The playground shows the RC circuit and the V(t) curve building, with a dashed marker at t = tau crossing the curve at the 37 percent point and a readout of R, C and tau (tau = R C, so 10 kOhm times 10 uF gives 0.1 s). Larger R or C means a slower decay. This single exponential sets the timing of camera flashes, switch debouncers and oscillators, and describes the leak of charge through any real insulator."
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
