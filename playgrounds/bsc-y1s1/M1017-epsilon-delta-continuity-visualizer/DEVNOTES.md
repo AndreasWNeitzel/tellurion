@@ -20,3 +20,7 @@ delta_max.
 - npx vitest run invariants.test.mjs
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was text-only).
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  5 passed + visual 5/5 x3. Shipped.

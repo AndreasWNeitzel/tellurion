@@ -21,3 +21,64 @@ share_state_keys: []
 ---
 # Epsilon-delta continuity visualizer
 Slider for $x_0$ and $\epsilon$. The accent-yellow box shows the maximum $\delta_{\max}(\epsilon)$ such that $|x - x_0| < \delta$ implies $|f(x) - f(x_0)| < \epsilon$ for $f = \sin$. Demonstrates continuity at every point. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
+
+## Explainer
+
+### What you are looking at
+
+The epsilon-delta definition of continuity is famously the first
+"real" proof students meet, and it is much clearer as a picture: you
+name a tolerance on the output, and the definition challenges you to
+find a tolerance on the input that guarantees it. The playground is
+that challenge, made interactive: pick a target band and watch the
+input window that fits inside it.
+
+### The definition as a game
+
+A function $f$ is continuous at $x_0$ if
+
+$$\forall\,\epsilon>0\ \ \exists\,\delta>0:\quad
+  |x - x_0| < \delta \;\Longrightarrow\;
+  |f(x) - f(x_0)| < \epsilon.$$
+
+Read it as a two-move game. Your adversary picks an output tolerance
+$\epsilon$ (a horizontal band of half-height $\epsilon$ around
+$f(x_0)$). You must respond with an input tolerance $\delta$ (a
+vertical strip of half-width $\delta$ around $x_0$) so that the entire
+graph over that strip stays inside the band. If you can always answer,
+no matter how small $\epsilon$, the function is continuous there.
+
+### Reading the visual
+
+The yellow box is the largest such $\delta$. The key intuitions it
+makes visible:
+
+- Shrink $\epsilon$ and the required $\delta$ shrinks too: continuity
+  is a statement about a limit, not a single point.
+- Where the graph is steep (large $|f'|$) you need a narrow $\delta$;
+  where it is flat you can afford a wide one. Quantitatively
+  $\delta\approx\epsilon/|f'(x_0)|$ for a smooth function, so the
+  slope controls the trade-off.
+- If $f$ had a jump, then for a small enough $\epsilon$ no $\delta$
+  works (the box collapses): that is exactly what discontinuity
+  means, and uniform continuity is the stronger statement that one
+  $\delta$ works for all $x_0$ at once.
+
+The playground uses $f=\sin$ (continuous everywhere) and lets you
+move $x_0$ and $\epsilon$ to feel how $\delta_{\max}$ tracks the local
+slope.
+
+### Things to try
+
+- Shrink $\epsilon$ and watch the $\delta$ box shrink in step (the
+  limit is being taken).
+- Move $x_0$ to a steep part of $\sin$ (near a zero crossing) and to
+  a flat part (near a peak); compare how wide $\delta$ can be.
+- Note that a $\delta$ can always be found here, the signature of
+  continuity at every point.
+
+### Where this comes from
+
+The epsilon-delta definition of continuity and limits follows Rudin,
+*Principles of Mathematical Analysis*, Chapter 4, and Spivak,
+*Calculus*, Chapter 6.
