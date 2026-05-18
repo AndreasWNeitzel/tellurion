@@ -9,8 +9,8 @@ supporting_ucs: [AST2004]
 curriculum_year: bsc-y3s2
 primary_citation: jackson1998
 primary_chapter: 11
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Run through vertical rain and you tilt your umbrella forward; move through starlight and every star shifts toward the direction you are heading.'
+one_paragraph: 'Stellar aberration is the relativistic version of the tilted-umbrella effect: an observer moving at velocity beta c sees every star displaced toward the direction of motion, by an angle given by the Lorentz aberration formula. For Earth''s orbital motion (v around 30 km/s, beta around 1e-4) the maximum shift is about 20.5 arcseconds, the aberration Bradley discovered in 1728 and the first direct proof that Earth moves. The playground places stars at fixed rest-frame directions and sweeps the observer speed from planetary to ultrarelativistic, where the whole sky crushes into a forward spot. Reference: Griffiths, Introduction to Electrodynamics, Ch. 12.'
 tags: [relativity, animation, live-readout]
 difficulty: 3
 tier: simple
