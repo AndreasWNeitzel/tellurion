@@ -20,6 +20,71 @@ share_state_keys: []
 
 # Lagrange points of the CR3BP
 
+## Explainer
+
+### What you are looking at
+
+Two big bodies (a star and a planet, the Earth and the Moon) orbit each
+other. A lightweight third object feels both pulls. In the frame that
+rotates with the pair, there are five points where it can sit and not
+drift away: the Lagrange points. Real spacecraft park at them. The
+playground shows the rotating frame, the five points, and how stable
+each one is.
+
+### The equations
+
+Work in the synodic (co-rotating) frame, scaled so the total mass,
+separation, and angular velocity are all 1. With mass ratio
+$\mu = m_2/(m_1+m_2)$, the primaries sit fixed at $(-\mu, 0)$ and
+$(1-\mu, 0)$, and the test particle obeys
+
+$$\ddot x = 2\dot y + x
+  - \frac{(1-\mu)(x+\mu)}{r_1^3} - \frac{\mu\,(x-1+\mu)}{r_2^3},$$
+
+$$\ddot y = -2\dot x + y
+  - \frac{(1-\mu)\,y}{r_1^3} - \frac{\mu\,y}{r_2^3}.$$
+
+The $\pm2\dot{}$ terms are the Coriolis force, the $x$ and $y$ terms
+the centrifugal force, both artifacts of working in a rotating frame.
+There is one conserved quantity, the Jacobi integral
+
+$$C = 2\left[\frac{x^2+y^2}{2} + \frac{1-\mu}{r_1}
+  + \frac{\mu}{r_2}\right] - (\dot x^2 + \dot y^2),$$
+
+the rotating-frame analogue of energy; it bounds where the particle
+can go (the zero-velocity curves).
+
+### The five points and their stability
+
+Setting all velocities and accelerations to zero gives five
+equilibria. $L_1, L_2, L_3$ lie on the line through the primaries and
+are always saddle points, linearly unstable (a craft there needs small
+station-keeping nudges). $L_4$ and $L_5$ sit at the apexes of
+equilateral triangles with the two primaries, at
+$(\tfrac12-\mu, \pm\tfrac{\sqrt3}{2})$, and are linearly stable provided
+the mass ratio is small,
+
+$$\mu < \mu_R \approx 0.0385 \quad (\text{Routh, 1875}).$$
+
+This is why the Sun-Jupiter $L_4/L_5$ points hold the Trojan
+asteroids: Jupiter is light enough relative to the Sun.
+
+### Things to try
+
+- Drop the test particle near $L_4$ with small $\mu$ and watch it
+  librate (tadpole orbit) rather than fall away.
+- Increase $\mu$ past 0.0385 and watch $L_4/L_5$ turn unstable.
+- Note the collinear points always shed the particle: they are
+  saddles, not wells.
+
+### Where this comes from
+
+The circular restricted three-body problem in the synodic frame, the
+Jacobi integral, the five Lagrange points and the Routh stability
+criterion follow Binney and Tremaine, *Galactic Dynamics*, 2nd ed.,
+Section 3.3, and Murray and Dermott, *Solar System Dynamics*,
+Chapter 3.
+
 ## Physical setup
 
 Two heavy bodies of mass m1 and m2 orbit their common center of mass in a circular orbit. A test particle (mass negligible) moves under their combined gravity, computed in the rotating frame where the two primaries stand still. Non-dimensional units: total mass = 1, separation = 1, angular velocity = 1.

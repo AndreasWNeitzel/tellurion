@@ -2076,8 +2076,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Rotational Splitting of Multiplets
 `playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets` | MAA-AS | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8 (`aerts-asteroseism`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Without rotation, a stellar oscillation mode of degree l has 2l+1 components (the azimuthal orders m) at one shared frequency. Rotation lifts that degeneracy: prograde and retrograde modes shift in opposite directions, splitting the mode into an evenly spaced multiplet with spacing proportional to m(1 - C_nl)Omega, where Omega is the rotation rate and C_nl the Ledoux constant. The playground fans the (2l+1) multiplet out as you spin the star. Measuring that splitting in Kepler light curves is how the internal rotation of red giants and subgiants was determined. Reference: Aerts, Christensen-Dalsgaard and Kurtz, Asteroseismology, Ch. 3.8.
+- Hook: A non-rotating star''s oscillation modes are degenerate; spin the star and each splits into a frequency multiplet whose spacing measures the rotation rate.
 - Review verdict: [deep] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - spec.md placeholder hook/one_paragraph.
@@ -2116,8 +2116,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Baryon Acoustic Oscillation (Toy)
 `playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy` | MAA-CS | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Sound wave + baryon shell freeze at $r_s \approx 150$ Mpc. Source: Liddle Ch. 11 (`liddle-cosmology`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Before recombination, photons and baryons were one fluid. A density perturbation launched a spherical sound wave that traveled outward until the universe cooled enough for atoms to form, at which point the wave stalled, leaving a shell of baryons at the sound horizon r_s of about 150 Mpc. That frozen scale shows up today as a slight excess of galaxy pairs separated by 150 Mpc: the baryon acoustic oscillation, a standard ruler for measuring cosmic distances and dark energy. The playground shows the sound shell freezing out. Reference: Liddle, An Introduction to Modern Cosmology, Ch. 11.
+- Hook: A sound wave launched in the early universe froze when atoms formed, leaving a 150 Mpc ring imprinted on the distribution of galaxies, a standard ruler.
 - Review verdict: [deep] RENDER-NEUTRAL TEXT FIX ONLY
 
 ### CMB Power Spectrum (Toy)
