@@ -198,7 +198,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A hydrogen atom is one electron bound to one proton by the Coulomb attraction. Quantum mechanics says the electron does not follow a path; it is described by a wavefunction psi, and |psi|^2 is the probability density of finding it at a given point. Solving the Schrodinger equation for the Coulomb potential gives a discrete family of solutions labelled by thr
 
 - **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:38:47Z)
-  2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).
+  A stretched membrane pinned at its edges obeys the two-dimensional wave equation. Any disturbance spreads as a travelling wave at a fixed speed set by the medium, reflects off the fixed boundary (inverting on reflection), and superposes linearly with other disturbances. Damping removes energy and the membrane relaxes back to flat. Clicking the surface seeds 
 
 - **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-14T03:35:10Z)
   In 1963 Edward Lorenz reduced atmospheric convection to three coupled ordinary differential equations. They have no random terms, yet their solutions never repeat and depend so sensitively on the starting point that the future becomes effectively unpredictable. The set of states the system settles onto is the Lorenz attractor: a thin, two-lobed surface (the 
