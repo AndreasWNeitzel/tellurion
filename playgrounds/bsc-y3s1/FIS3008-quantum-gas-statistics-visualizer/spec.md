@@ -19,6 +19,63 @@ share_state_keys: []
 
 # Quantum Gas Statistics Visualizer
 
+## Explainer
+
+### What you are looking at
+
+Three gases of identical particles at the same temperature, filling the
+same energy levels three different ways. Classical particles (Maxwell-
+Boltzmann), fermions that refuse to share a state (Fermi-Dirac), and
+bosons that love to (Bose-Einstein). Cool them down and the differences
+become dramatic: a Fermi sea, and a Bose condensate.
+
+### The occupation rules
+
+For a level at energy $\epsilon$, the average number of particles in it
+is
+
+$$n(\epsilon) = \begin{cases}
+  e^{-(\epsilon-\mu)/\tau} & \text{Maxwell-Boltzmann},\\[4pt]
+  \dfrac{1}{e^{(\epsilon-\mu)/\tau}+1} & \text{Fermi-Dirac},\\[8pt]
+  \dfrac{1}{e^{(\epsilon-\mu)/\tau}-1} & \text{Bose-Einstein},
+\end{cases}$$
+
+with $\tau = k_BT$ and the chemical potential $\mu$ fixed by holding
+the total number constant, $N = \int g(\epsilon)\,n(\epsilon)\,d\epsilon$,
+using the 3D density of states $g(\epsilon)\propto\sqrt\epsilon$. The
+only differences are the $+1$, the $-1$, or neither in the denominator,
+yet they change everything.
+
+### The two quantum surprises
+
+- Fermi-Dirac, $-1\to+1$: at most one particle per state. At low
+  temperature particles stack up to the Fermi energy
+  $E_F = (3N/2C)^{2/3}$, giving the degenerate Fermi sea that holds up
+  white dwarfs and sets metal electron behavior.
+- Bose-Einstein, the $-1$: below a critical temperature
+  $\tau_c = (N/C\,\Gamma(3/2)\zeta(3/2))^{2/3}$ a macroscopic fraction
+  $1 - (\tau/\tau_c)^{3/2}$ collapses into the single ground state, the
+  Bose-Einstein condensate.
+
+At high temperature all three converge to the classical
+Maxwell-Boltzmann curve (occupations small, the $\pm1$ negligible). The
+playground sweeps temperature and shows the three occupation curves and
+the Fermi/condensate features appear.
+
+### Things to try
+
+- Cool the Fermi gas and watch the occupation sharpen into a step at
+  $E_F$ (the Fermi sea).
+- Cool the Bose gas through $\tau_c$ and watch the ground-state
+  occupation jump (condensation).
+- Heat all three and watch them merge onto the classical curve.
+
+### Where this comes from
+
+The three occupation statistics, the Fermi energy, and Bose-Einstein
+condensation follow Reif, *Fundamentals of Statistical and Thermal
+Physics*, and Pathria, *Statistical Mechanics*.
+
 ## Physical setup
 
 A non-interacting gas of N indistinguishable particles in a 3D box,
