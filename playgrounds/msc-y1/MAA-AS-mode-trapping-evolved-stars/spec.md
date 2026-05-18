@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: aerts-asteroseism
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A sharp feature in a star''s interior traps some oscillation modes more than others, printing a periodic wiggle on the otherwise even period spacing.'
+one_paragraph: 'In an evolved star the buoyancy (Brunt-Vaisala) frequency can carry a sharp glitch left by a chemical-composition discontinuity. Modes whose wavelength matches the glitch are partially trapped, so the gravity-mode period spacing is no longer constant: it picks up a periodic modulation whose period encodes where the glitch sits. The playground shows the even spacing developing this wiggle as the glitch is introduced. Reading that modulation probes the deep, otherwise invisible interior structure of red giants. Reference: Mosser et al. 2018; Aerts et al., Asteroseismology, Ch. 3.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
