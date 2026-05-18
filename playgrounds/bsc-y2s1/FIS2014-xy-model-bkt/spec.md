@@ -20,6 +20,67 @@ share_state_keys: []
 
 # 2D XY model: BKT vortex unbinding
 
+## Explainer
+
+### What you are looking at
+
+A grid of compass-needle spins, each free to point any direction in the
+plane, neighbors preferring to align. In 2D this system cannot order
+the usual way (no permanent magnetization at any finite temperature),
+yet it still has a sharp phase transition, driven not by alignment but
+by the binding and unbinding of swirl defects called vortices. This is
+the Berezinskii-Kosterlitz-Thouless transition, a Nobel-winning idea.
+
+### The model
+
+Each site $i$ has an angle $\theta_i$; neighboring spins interact with
+energy
+
+$$E = -J\sum_{\langle i,j\rangle}\cos(\theta_i - \theta_j),
+  \qquad J = 1.$$
+
+It is simulated by Metropolis Monte Carlo (propose a random angle
+change, accept with the Boltzmann probability). A vortex is detected by
+walking the angle around a small plaquette: if it winds by $+2\pi$ it
+is a vortex, by $-2\pi$ an antivortex.
+
+### Why there is no ordinary order, but still a transition
+
+The Mermin-Wagner theorem forbids true long-range order in 2D with a
+continuous symmetry: thermal spin waves always wash out global
+alignment. So the order parameter is zero at all $T > 0$. The
+transition is instead topological. At the critical temperature
+
+$$T_\text{BKT} \approx 0.893\,J$$
+
+the behavior of the vortices changes character:
+
+- Below $T_\text{BKT}$: vortices and antivortices are bound in tight
+  pairs; correlations decay as a slow power law (quasi-long-range
+  order).
+- Above $T_\text{BKT}$: pairs unbind into a gas of free vortices;
+  correlations decay exponentially; order is destroyed.
+
+The playground shows the spin field and the vortex map so you can
+literally watch pairs unbind as you cross $T_\text{BKT}$.
+
+### Things to try
+
+- Sit below $T_\text{BKT}$ and find tightly bound +/- vortex pairs in
+  the vortex map.
+- Heat through $T_\text{BKT} \approx 0.893$ and watch pairs split into
+  freely wandering vortices.
+- Note the spins never globally align even at low $T$: the order is
+  topological, not magnetic.
+
+### Where this comes from
+
+The XY model, the BKT vortex-unbinding transition, and the critical
+temperature follow Kosterlitz and Thouless (1973), with the
+high-precision $T_\text{BKT}$ from Hasenbusch (2005) and the Monte
+Carlo method from Newman and Barkema, *Monte Carlo Methods in
+Statistical Physics*, Section 5.5.
+
 ## Physical setup
 
 Classical XY model: each site of an L x L periodic square lattice holds a continuous angle theta in [0, 2 pi). Bond energy -J cos(theta_i - theta_j); J = 1. The 2D XY model has no spontaneous symmetry breaking at finite T (Mermin-Wagner), but it does have a finite-temperature Berezinskii-Kosterlitz-Thouless (BKT) transition at T_BKT ~ 0.893 J (Hasenbusch 2005, Phys. Rev. B 71, 094507).
