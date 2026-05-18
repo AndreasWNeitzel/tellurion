@@ -21,6 +21,72 @@ share_state_keys: [mode, p, q]
 
 # Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW
 
+## Explainer
+
+### What you are looking at
+
+In general relativity gravity is not a force; it is the shape of
+spacetime, and freely falling bodies just follow the straightest
+possible paths (geodesics) through that curved geometry. The
+playground integrates those paths in three famous spacetimes and
+shows the orbits, precession, frame dragging, and cosmic expansion
+that result.
+
+### The geodesic equation
+
+A free particle extremizes its proper time, which gives the geodesic
+equation
+
+$$\frac{d^2 x^\mu}{d\lambda^2}
+  + \Gamma^\mu_{\ \alpha\beta}\,
+  \frac{dx^\alpha}{d\lambda}\,
+  \frac{dx^\beta}{d\lambda} = 0,$$
+
+where the Christoffel symbols $\Gamma^\mu_{\alpha\beta}$ are built
+from derivatives of the metric $g_{\mu\nu}$. The metric encodes the
+gravitational field; the equation says "go straight, but in a
+geometry that is curved".
+
+### Three spacetimes
+
+- Schwarzschild (non-rotating mass): symmetry gives conserved energy
+  and angular momentum, reducing the motion to a 1D effective
+  potential
+$$\Big(\frac{dr}{d\tau}\Big)^2
+  = E^2 - \Big(1-\frac{2GM}{r}\Big)
+  \Big(1 + \frac{L^2}{r^2}\Big).$$
+  An extra $1/r^3$ term beyond Newton makes bound orbits precess
+  (the perihelion advance of Mercury) and creates a photon sphere
+  and an innermost stable circular orbit.
+- Kerr (rotating mass): the spin drags spacetime around with it
+  (frame dragging / the Lense-Thirring effect), so prograde and
+  retrograde orbits differ and the ISCO moves with the spin
+  parameter $a$.
+- FLRW (the expanding universe): the same geodesic equation makes
+  comoving particles separate as the scale factor $a(t)$ grows, and
+  cosmological redshift is just a photon following a null geodesic.
+
+The playground lets you pick the spacetime and initial conditions and
+watch the geodesic: precessing rosettes, dragged orbits, plunges past
+the ISCO, or Hubble recession.
+
+### Things to try
+
+- In Schwarzschild, start a bound orbit and watch it precess (the
+  relativistic correction Newton lacks); move inside the ISCO and
+  watch it plunge.
+- Switch on Kerr spin and watch prograde vs retrograde orbits become
+  asymmetric (frame dragging).
+- Switch to FLRW and watch initially static particles drift apart as
+  space expands.
+
+### Where this comes from
+
+The geodesic equation and the Schwarzschild, Kerr and FLRW
+applications follow Hartle, *Gravity: An Introduction to Einstein's
+General Relativity*, Chapters 8, 9 and 18, and Misner, Thorne and
+Wheeler, *Gravitation*.
+
 ## Physical setup
 
 Three spacetimes share one idea: free particles follow geodesics.
