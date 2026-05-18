@@ -21,3 +21,65 @@ share_state_keys: []
 ---
 # Main-sequence M-L relation
 Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
+
+## Explainer
+
+### What you are looking at
+
+The single most important relation in stellar astrophysics: a
+main-sequence star's luminosity is set almost entirely by its mass,
+and it rises steeply, roughly as mass cubed. That one fact explains
+why massive stars live fast and die young. The playground plots the
+mass-luminosity relation and the lifetime that follows from it.
+
+### Why luminosity climbs so steeply with mass
+
+For a star in hydrostatic and thermal equilibrium, dimensional
+analysis of the stellar-structure equations (the homology relations)
+gives a power law
+
+$$\frac{L}{L_\odot}
+  \;\approx\;
+  \left(\frac{M}{M_\odot}\right)^{\!\alpha},
+  \qquad \alpha \approx 3\text{ to }4,$$
+
+with the exponent varying along the sequence: $\alpha\approx2.3$ for
+low-mass M dwarfs, $\sim4$ for solar-type stars, and flattening
+toward $\sim1$ to $2$ for the most massive O stars (radiation-
+pressure and electron-scattering dominated). The steepness comes from
+the strong temperature sensitivity of both the opacity and the
+nuclear burning: a bit more mass means a much hotter core and
+disproportionately more power.
+
+### The headline consequence: lifetimes
+
+The main-sequence lifetime is the fuel divided by the burn rate. The
+fuel is $\propto M$ and the burn rate is $L\propto M^\alpha$, so
+
+$$t_\mathrm{MS}
+  \;\propto\; \frac{M}{L}
+  \;\propto\; M^{\,1-\alpha}
+  \;\approx\; M^{-2.5}.$$
+
+A 10 $M_\odot$ star is thousands of times more luminous than the Sun
+and burns out in a few million years, while a 0.3 $M_\odot$ red dwarf
+shines feebly for far longer than the current age of the universe.
+This is why the most massive stars are always young and why old
+clusters keep only their low-mass stars. The playground sweeps mass
+across the piecewise relation and shows $L$ and $t_\mathrm{MS}$
+respond.
+
+### Things to try
+
+- Slide the mass and watch $L$ change by orders of magnitude for a
+  modest mass change (the steep power law).
+- Read the lifetime collapsing as $\sim M^{-2.5}$: massive stars
+  live briefly.
+- Note the slope changing across the M-dwarf, solar, and O-star
+  regimes (the piecewise exponent).
+
+### Where this comes from
+
+The homology mass-luminosity relation and the resulting lifetimes
+follow Carroll and Ostlie, *An Introduction to Modern Astrophysics*,
+Chapter 7, and Hansen, Kawaler and Trimble, *Stellar Interiors*.
