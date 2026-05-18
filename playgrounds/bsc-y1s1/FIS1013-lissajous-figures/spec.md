@@ -20,6 +20,61 @@ share_state_keys: []
 
 # Lissajous figures
 
+## Explainer
+
+### What you are looking at
+
+Drive one oscillation horizontally and another vertically and the
+combined point traces a curve whose shape encodes the ratio of the
+two frequencies and their phase difference. These are Lissajous
+figures, the patterns an oscilloscope draws and the classic way to
+compare two frequencies.
+
+### The curve
+
+The point follows two perpendicular harmonic motions:
+
+$$x(t) = A\sin(\omega_x t + \delta),
+  \qquad
+  y(t) = B\sin(\omega_y t).$$
+
+What you see depends on two things: the frequency ratio
+$\omega_x/\omega_y$ and the phase offset $\delta$.
+
+### Reading the pattern
+
+- A rational ratio $\omega_x/\omega_y = p/q$ gives a closed curve
+  that repeats; the number of lobes touching each side counts $p$ and
+  $q$, so the figure literally displays the frequency ratio. An
+  irrational ratio never closes and slowly fills a box (a precursor
+  of quasiperiodicity).
+- The phase $\delta$ morphs the shape continuously: at equal
+  frequencies, $\delta=0$ is a diagonal line, $\delta=\pi/2$ is an
+  ellipse (a circle if $A=B$), $\delta=\pi$ the opposite diagonal.
+  Watching the figure rotate and "breathe" is watching $\delta$
+  advance.
+
+This is exactly how you tune two signals to a known ratio (lock the
+pattern until it stops drifting) and why $x$-$y$ phase plots reveal
+relative phase at a glance, from oscilloscopes to coupled-oscillator
+phase space. The playground lets you set $\omega_x:\omega_y$ and
+$\delta$ and watch the curve form and evolve.
+
+### Things to try
+
+- Set a $1:1$ ratio and sweep $\delta$ from 0 to $\pi$: line to
+  ellipse to circle to line.
+- Set $1:2$, $2:3$, $3:4$ and count the lobes that read off $p$ and
+  $q$.
+- Detune one frequency very slightly and watch the closed figure
+  slowly precess (a beat in the phase).
+
+### Where this comes from
+
+Superposition of perpendicular harmonic motions and the Lissajous
+construction follow French, *Vibrations and Waves*, Chapter 2, and
+Crawford, *Waves* (Berkeley Physics Course, Vol. 3).
+
 ## Physical setup
 
 A point traces out the parametric curve
