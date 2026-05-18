@@ -19,6 +19,61 @@ share_state_keys: []
 
 # Biot-Savart 3D Field Explorer
 
+## Explainer
+
+### What you are looking at
+
+Run a current through a wire and it wraps space in a magnetic field.
+The playground lets you pick the wire (a straight wire, a single loop,
+a Helmholtz pair, a solenoid) and shows the field as colored arrows and
+traced field lines, with the on-axis strength in a side panel. It is
+the rule that connects electric current to magnetism made visible.
+
+### The one law: Biot-Savart
+
+Every short piece of current-carrying wire $d\boldsymbol\ell$ adds a
+small magnetic field, and you sum the contributions along the whole
+wire:
+
+$$\mathbf B(\mathbf r) = \frac{\mu_0 I}{4\pi}
+  \oint \frac{d\boldsymbol\ell \times (\mathbf r - \mathbf r')}
+  {|\mathbf r - \mathbf r'|^3}.$$
+
+Read the pieces: the field of each element is perpendicular to both the
+current direction $d\boldsymbol\ell$ and the line to the field point
+(that is the cross product), it falls off as one over distance squared,
+and it circles the wire (right-hand rule). $\mu_0$ is just the constant
+that sets the units.
+
+### What each wire shape gives
+
+- Straight wire: the integral gives $B = \mu_0 I / (2\pi d)$, circles
+  around the wire that weaken with distance $d$.
+- Single loop: on the axis, $B_z(z) = \mu_0 I R^2 / [2(R^2+z^2)^{3/2}]$,
+  peaked at the center.
+- Helmholtz pair (two loops one radius apart): the two on-axis profiles
+  add so the field is almost uniform in the middle, the standard way
+  to make a known, flat field.
+- Solenoid: the loops stack and the interior field becomes nearly
+  uniform, $B \approx \mu_0 n I$, with $n$ turns per length.
+
+The playground computes the sum directly over a polyline of $d\ell$
+elements, so the same one law produces all four cases.
+
+### Things to try
+
+- Switch from a single loop to a Helmholtz pair and watch the on-axis
+  profile flatten in the middle.
+- Build up the solenoid and see the inside field straighten and the
+  outside field nearly vanish.
+- Note the field always encircles the wire, never points along it.
+
+### Where this comes from
+
+The Biot-Savart law and the loop, Helmholtz, and solenoid results
+follow Griffiths, *Introduction to Electrodynamics*, 5th ed.,
+Chapter 5 (magnetostatics).
+
 ## Physical setup
 
 Current-carrying wires (a straight wire, a loop, Helmholtz coils, a
