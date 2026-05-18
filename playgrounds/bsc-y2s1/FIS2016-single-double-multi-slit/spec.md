@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2016
 supporting_ucs: [FIS3019]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'One slit gives a broad smear, two give fringes inside it, and N slits sharpen those fringes into the bright lines of a diffraction grating.'
+one_paragraph: 'The far-field intensity of N identical slits factorizes into two pieces: the single-slit diffraction envelope (sin beta / beta)^2 set by the slit width, times the multi-slit interference term (sin N alpha / sin alpha)^2 set by the slit spacing and number. The playground plots the pattern as you change slit width, separation, and N: one slit is the pure envelope, two slits add cosine fringes, and raising N narrows the principal maxima toward grating-sharp lines while the envelope stays put. It cleanly separates the two physical scales every diffraction pattern combines. Reference: Hecht, Optics, Ch. 10.'
 tags: [waves, animation, live-readout]
 difficulty: 3
 tier: simple
