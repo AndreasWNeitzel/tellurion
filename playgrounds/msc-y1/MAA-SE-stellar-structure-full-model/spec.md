@@ -21,6 +21,71 @@ share_state_keys: [m, x]
 
 # Stellar Structure: the Eddington Standard Model
 
+## Explainer
+
+### What you are looking at
+
+A star is a self-regulating ball of gas where four physical demands
+must be satisfied simultaneously at every radius. The Eddington
+standard model solves all four with one elegant trick, and from a
+star's mass and composition alone it predicts the entire run of
+density, pressure, temperature, and luminosity. The playground builds
+that model and lets you change the mass and hydrogen content.
+
+### The four structure equations
+
+A spherically symmetric star obeys hydrostatic equilibrium, mass
+continuity, energy generation, and energy transport:
+
+$$\frac{dP}{dr} = -\frac{G m\rho}{r^2},
+  \qquad
+  \frac{dm}{dr} = 4\pi r^2\rho,$$
+
+$$\frac{dL}{dr} = 4\pi r^2\rho\,\varepsilon,
+  \qquad
+  \frac{dT}{dr} = -\frac{3\kappa\rho L}{16\pi a c\,T^3 r^2}
+  \ \ (\text{radiative}).$$
+
+Here $\varepsilon$ is the nuclear energy release per unit mass and
+$\kappa$ the opacity. These are coupled and would normally need a
+numerical integration.
+
+### The Eddington trick: an n = 3 polytrope
+
+Eddington noticed that if the ratio of gas pressure to total pressure,
+$\beta = P_\mathrm{gas}/P$, is constant through the star, then total
+pressure becomes a pure power of density,
+
+$$P = K\,\rho^{4/3},$$
+
+an $n=3$ polytrope. The dimensionless structure then collapses to the
+universal Lane-Emden function $\theta(\xi)$ with $n=3$, the same shape
+for every such star. Scaling that one solution by the chosen mass $M$
+and radius $R$ gives the physical $\rho(r),P(r),T(r)$. Layering on
+nuclear burning (pp chain, CNO cycle, triple-alpha) fixes the
+luminosity, and the Schwarzschild criterion
+$\nabla_\mathrm{rad}>\nabla_\mathrm{ad}$ marks the convective zones.
+The famous payoff is that the $n=3$ model makes luminosity depend
+mostly on mass (not radius), the theoretical origin of the
+mass-luminosity relation. The playground sweeps $M$ and the hydrogen
+fraction $X$ and shows the full interior respond.
+
+### Things to try
+
+- Increase the mass and watch the central temperature and luminosity
+  rise steeply, and the burning switch from pp to CNO.
+- Lower the hydrogen fraction $X$ (an evolved composition) and watch
+  the star contract and heat to keep burning.
+- Find the convective core/envelope boundaries flipping with mass
+  (the Schwarzschild criterion).
+
+### Where this comes from
+
+The four structure equations, the constant-$\beta$ $n=3$ polytrope,
+and the standard model follow Eddington, *The Internal Constitution
+of the Stars* (1926), and Hansen, Kawaler and Trimble, *Stellar
+Interiors*, Chapters 1 to 7.
+
 ## Physical setup
 
 A self-gravitating sphere in hydrostatic equilibrium with a polytropic equation of state P = K rho^{(n+1)/n}, n = 3 (the Eddington standard model: pressure is the sum of ideal-gas and radiation pressure with a constant ratio beta). The dimensionless structure is universal (the Lane-Emden function theta(xi)); scaling it with a chosen mass M and radius R gives the physical run of density, pressure and temperature. Nuclear burning (pp chain, CNO cycle, triple-alpha) sets the luminosity, and the Schwarzschild criterion decides which regions transport energy by convection. Composition is set by the hydrogen mass fraction X (with Z = 0.02, Y = 1 - X - Z). SI units throughout.
