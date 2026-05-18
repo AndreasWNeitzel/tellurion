@@ -20,6 +20,68 @@ share_state_keys: []
 
 # Chirikov standard map and KAM-torus breakdown
 
+## Explainer
+
+### What you are looking at
+
+The Chirikov standard map is the single most studied gateway from
+order to chaos in Hamiltonian systems. One parameter $K$ takes it
+from perfectly layered invariant curves to global chaos, and the
+playground lets you watch the last barrier break at a precise,
+universal value.
+
+### The map
+
+It is the area-preserving kicked-rotor map on the
+$(\theta,p)$ cylinder:
+
+$$p_{n+1} = p_n + K\sin\theta_n,
+  \qquad
+  \theta_{n+1} = \theta_n + p_{n+1}\pmod{2\pi}.$$
+
+Each plotted dot is one iterate; many orbits from different starts
+are shown together (a Poincare section). Area preservation
+($|\partial(\theta_{n+1},p_{n+1})/\partial(\theta_n,p_n)|=1$) makes
+it a faithful stand-in for a perturbed integrable Hamiltonian near a
+resonance.
+
+### KAM tori and their breakup
+
+- $K=0$: integrable. $p$ is conserved; every orbit is a horizontal
+  line (an invariant torus).
+- Small $K$: the KAM theorem guarantees most tori merely deform and
+  survive, so the section is mostly smooth curves, with thin chaotic
+  layers and island chains only at the rational (resonant) tori.
+- Increasing $K$ destroys tori in order of how well their winding
+  number is approximated by rationals; the most-irrational
+  (golden-mean) torus is the toughest and is the last spanning
+  barrier. It breaks at the universal critical value
+
+$$K_c \approx 0.971635.$$
+
+Below $K_c$ a surviving torus blocks transport in $p$; above it no
+rotational torus spans the cylinder and chaotic orbits diffuse in $p$
+without bound (global chaos). This last-barrier picture sets
+dynamic-aperture limits in particle accelerators, long-term Solar
+System stability, and magnetic-field-line confinement in tokamaks.
+The playground seeds many orbits plus the golden torus and sweeps
+$K$ so you see the islands, the breakup order, and the threshold.
+
+### Things to try
+
+- Set $K$ small and see smooth curves with islands at resonances
+  while most tori survive (KAM).
+- Push $K$ toward $\approx0.97$ and watch the golden-mean torus, the
+  last barrier, finally break.
+- Above $K_c$ follow one chaotic orbit and watch $p$ diffuse without
+  bound (global stochasticity).
+
+### Where this comes from
+
+The standard map, the KAM theorem and the Greene/last-torus
+threshold follow Chirikov, Phys. Rep. 52, 263 (1979), and
+Lichtenberg and Lieberman, *Regular and Chaotic Dynamics*.
+
 ## Physical setup
 
 The standard map is the discrete-time area-preserving map
