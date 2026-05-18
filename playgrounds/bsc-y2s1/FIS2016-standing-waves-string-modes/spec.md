@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2016
 supporting_ucs: []
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Pluck a clamped string and only special shapes survive: the harmonics, each fitting a whole number of half-waves between the fixed ends.'
+one_paragraph: 'A string clamped at both ends can oscillate only in its normal modes, the sin(n pi x / L) standing patterns with frequencies f_n = n c / (2L). Mode n has n antinodes and n - 1 interior nodes, and any motion of the string is a sum of these harmonics. The playground animates a chosen mode (or a superposition) in time, marking the nodes and antinodes, so the quantized set of allowed shapes and the evenly spaced harmonic ladder are explicit. This is the mechanical archetype for every boundary-value spectrum, from organ pipes to atomic orbitals. Reference: French, Vibrations and Waves.'
 tags: [waves, animation, live-readout]
 difficulty: 3
 tier: simple
