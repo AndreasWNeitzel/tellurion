@@ -39,13 +39,21 @@
   <div class="note">
     These playgrounds load <code>playground.js</code> as an ES module, so they cannot be opened directly from <code>file://</code> in Chromium. Serve the project over HTTP with <code>npm run dev</code> (vite) or any static server.
   </div>
-  <h2>Shipped (291)</h2>
+  <h2>Shipped (292)</h2>
   <section class="card-grid">
 
     <article class="card">
       <h2><a href="./playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/index.html">CKM Mixing Unitarity Triangle</a></h2>
       <p class="status">verified 2026-05-18</p>
       <p class="description">Wolfenstein parameterization; triangle area is Jarlskog (CP violation). Source: Griffiths-Particles Ch. 10 (`griffiths-particles`).</p>
+      
+    </article>
+  
+
+    <article class="card">
+      <h2><a href="./playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html">Cosmic-Ray Air Shower</a></h2>
+      <p class="status">verified 2026-05-18</p>
+      <p class="description">Atmosphere is drawn as a gradient from dark space to ground. A primary cosmic ray streaks in from the top; the shower front then propagates downward and the Heitler cascade fans out into a bright-cored cone, colour-coded by particle energy (white at high energy near shower maximum, gold mid-cascade, blue once below the critical energy). The descending front </p>
       
     </article>
   
@@ -1829,7 +1837,7 @@
     <article class="card">
       <h2><a href="./playgrounds/bsc-y3s2/FIS3025-vortex-dynamics-2d/index.html">2D Point-Vortex Dynamics</a></h2>
       <p class="status">verified 2026-05-17</p>
-      <p class="description">`N` ideal point vortices in an unbounded 2D inviscid fluid. Vortex `a` has a fixed circulation `Gamma_a` and position `r_a(t)`. Each vortex is passively advected by the velocity field induced by all the others (a vortex does not advect itself). The induced velocity at a point `p` is the 2D Biot-Savart sum. The resulting motion is Hamiltonian: for `N &lt;= 3` it</p>
+      <p class="description">Idealize a 2D fluid's swirl into a handful of point vortices, each a pure spin of fixed strength. They do not spin themselves; each is carried by the flow of all the others. Two opposite vortices shoot off in a straight line (a smoke ring's cross-section); a pile of like vortices waltzes; four or more go chaotic.</p>
       
     </article>
   
@@ -2141,7 +2149,7 @@
     <article class="card">
       <h2><a href="./playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/index.html">Friedmann Cosmography</a></h2>
       <p class="status">verified 2026-05-14</p>
-      <p class="description">A flat Friedmann-Lemaitre-Robertson-Walker universe with matter density parameter $\Omega_m$, cosmological constant $\Omega_\Lambda = 1 - \Omega_m$, and Hubble constant $H_0$. The dimensionless Hubble function and cosmic age follow from the Friedmann equation.</p>
+      <p class="description">The whole expansion history of a flat universe is set by one number, the matter fraction $\Omega_m$ (the rest is the cosmological constant). The playground dials it and shows how the expansion rate, the age of the universe, and distances to far galaxies all change, the cosmography behind every &quot;how old / how far&quot; number in cosmology.</p>
       
     </article>
   
@@ -2371,13 +2379,12 @@
   
   </section>
 
-  <h2 class="drafts-heading">Draft (19)</h2>
+  <h2 class="drafts-heading">Draft (18)</h2>
   <p class="drafts-note">These playgrounds are scaffolded with a spec frontmatter but not yet built. They will appear above when shipped.</p>
   <ul class="drafts-list">
     <li><span class="drafts-slug">aperture-synthesis-uv-plane</span></li>
     <li><span class="drafts-slug">chandrasekhar-dynamical-friction</span></li>
     <li><span class="drafts-slug">cosmic-distance-ladder</span></li>
-    <li><span class="drafts-slug">cosmic-ray-air-shower</span></li>
     <li><span class="drafts-slug">fresnel-snell-3d-interface</span></li>
     <li><span class="drafts-slug">galaxy-merger-nbody</span></li>
     <li><span class="drafts-slug">gravitational-lensing-caustics</span></li>
