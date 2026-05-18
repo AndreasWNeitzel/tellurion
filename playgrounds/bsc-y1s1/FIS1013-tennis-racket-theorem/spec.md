@@ -22,6 +22,69 @@ share_state_keys: []
 
 # Tennis racket theorem (Dzhanibekov effect)
 
+## Explainer
+
+### What you are looking at
+
+Spin a tennis racket, a phone, or a book tossed in the air about its
+middle axis and it does not spin cleanly: it flips over, end for end,
+and flips back, again and again. Spin it about its long or its short
+axis and it spins steadily. Cosmonaut Vladimir Dzhanibekov noticed this
+with a wing-nut in orbit in 1985. It is not friction or a wobble; it is
+exact rigid-body dynamics.
+
+### The equations
+
+For a rigid body with no torque, the angular velocity in the body frame
+obeys Euler's equations, with principal moments of inertia ordered
+$I_1 < I_2 < I_3$:
+
+$$I_1\dot\omega_1 = (I_2 - I_3)\,\omega_2\omega_3,$$
+
+$$I_2\dot\omega_2 = (I_3 - I_1)\,\omega_3\omega_1,$$
+
+$$I_3\dot\omega_3 = (I_1 - I_2)\,\omega_1\omega_2.$$
+
+The orientation is carried along by a unit quaternion $q$ updated with
+$\dot q = \tfrac12\,q \otimes (0, \boldsymbol\omega_\text{body})$
+(quaternions just avoid the gimbal problems of Euler angles). Two
+quantities never change: the rotational energy and the magnitude of
+angular momentum,
+
+$$E = \tfrac12\sum_k I_k \omega_k^2, \qquad
+  |\mathbf L|^2 = \sum_k (I_k\omega_k)^2.$$
+
+### Why the middle axis is unstable
+
+Spin almost purely about axis 1 (smallest $I$) or axis 3 (largest $I$)
+and linearizing Euler's equations gives oscillations: small wobbles
+stay small, the spin is stable. Do the same about the intermediate
+axis 2 and the linearized equation has a *positive* growth rate
+instead of an oscillation,
+
+$$\ddot{\delta} \;=\; +\,\Gamma^2\,\delta,
+  \qquad \Gamma^2 = \frac{(I_2-I_1)(I_3-I_2)}{I_1 I_3}\,\omega_2^2 > 0,$$
+
+so any tiny disturbance grows exponentially until the body flips. The
+two conserved quantities $E$ and $|\mathbf L|$ force that growth to
+turn back around, which is why it flips, returns, and repeats forever.
+This is the tennis-racket (or intermediate-axis) theorem.
+
+### Things to try
+
+- Start the spin on the long or short axis and watch it hold steady.
+- Start it on the middle axis and watch the periodic end-over-end
+  flips, with the energy and $|\mathbf L|$ readouts staying constant
+  through every flip.
+- Note the flip is regular, not random: same physics, conserved
+  quantities intact.
+
+### Where this comes from
+
+Euler's equations, the stability analysis of the three principal axes,
+and the intermediate-axis instability follow Goldstein, Poole and
+Safko, *Classical Mechanics*, 3rd ed., Section 5.6.
+
 ## Physical setup
 A torque-free rigid body with principal moments of inertia
 $I_1 < I_2 < I_3$. The angular velocity in the body frame obeys

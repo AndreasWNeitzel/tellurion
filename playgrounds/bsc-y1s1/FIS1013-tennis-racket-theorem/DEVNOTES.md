@@ -49,3 +49,7 @@ equations + quaternion kinematics. Readout: spin axis, |L| drift
 - npx vitest run invariants.test.mjs
 - node scripts/build-index.mjs
 - visual gate only if #stage changes (this sweep was caption-only).
+
+## Sweep 2026-05-18
+Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
+invariants  + visual 5/5 x3. Shipped.
