@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2021
 supporting_ucs: []
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Drop a blob of tracers into the pendulum''s phase space: it stretches and filaments wildly, yet its area never changes.'
+one_paragraph: 'Liouville''s theorem says Hamiltonian flow preserves phase-space volume: a cloud of states can be sheared and drawn into thin filaments, but its area stays invariant. The playground drops a Gaussian blob of tracers anywhere in the pendulum''s (theta, p) plane and integrates them symplectically, so you watch the blob circulate in the libration region, stall near the separatrix, or rotate above it, deforming dramatically while conserving area. This incompressibility of phase space is the foundation that statistical mechanics is built on. Reference: Lemos, Analytical Mechanics, Ch. 6.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
