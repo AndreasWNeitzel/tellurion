@@ -22,6 +22,60 @@ share_state_keys: []
 
 # Saha-Boltzmann hydrogen ionization
 
+## Explainer
+
+### What you are looking at
+
+Heat hydrogen gas and at some temperature it suddenly tears apart into
+protons and electrons. The switch is sharp, and it happens far below
+the temperature you would naively guess from the 13.6 eV needed to
+ionize an atom. The playground sweeps temperature and shows the
+ionization fraction climb its S-curve. This is why stellar spectra
+change so dramatically with surface temperature.
+
+### The equations
+
+In thermal equilibrium, pulling an electron off balances against
+recombination. The Saha equation gives the ratio, and combining it with
+charge balance ($n_e = n_+$) and nucleon conservation
+($n_\text{tot} = n_+ + n_0$) yields a closed quadratic for the
+ionized fraction $x = n_+/n_\text{tot}$:
+
+$$\frac{x^2}{1-x} = \frac{\mathrm{Saha}(T)}{n_\text{tot}}, \qquad
+  \mathrm{Saha}(T) = \frac{2 Z_+}{Z_0}
+  \left(\frac{2\pi m_e k_B T}{h^2}\right)^{3/2}
+  e^{-\chi/k_B T},$$
+
+with $\chi = 13.6$ eV. Solving: $x = \tfrac12(-R + \sqrt{R^2 + 4R})$
+with $R = \mathrm{Saha}(T)/n_\text{tot}$.
+
+### Why ionization wins so early
+
+The exponential $e^{-\chi/k_B T}$ alone would keep hydrogen neutral
+until about $\chi/k_B \approx 158{,}000$ K. But the prefactor
+$(T^{3/2}/n)$ is huge: at the low densities of a stellar photosphere
+there are vastly more free states for the electron to occupy than
+bound ones, so entropy strongly favours ionization. The half-ionization
+point lands near $0.05\,\chi/k_B$, roughly 10000 K, an order of
+magnitude below the naive estimate. The limits are clean: $R \ll 1$
+gives $x \to \sqrt{R}$ (the Boltzmann tail), $R \gg 1$ gives $x \to 1$
+(fully ionized).
+
+### Things to try
+
+- Sweep $T$ and watch the sharp S-curve from neutral to fully ionized.
+- Lower the density and watch the transition move to even lower
+  temperature: the $T^{3/2}/n$ phase-space factor at work.
+- Mark the half-ionization temperature and compare it to the naive
+  $\chi/k_B$: it is far lower, the whole point.
+
+### Where this comes from
+
+The Saha equation, the quadratic ionization balance, and the
+phase-space prefactor follow Carroll and Ostlie, *An Introduction to
+Modern Astrophysics*, 2nd ed., Chapter 8, and Hansen, Kawaler and
+Trimble, *Stellar Interiors*, 2nd ed., Chapter 3.
+
 ## Physical setup
 
 Pure-hydrogen plasma in local thermodynamic equilibrium. Charge balance ($n_e = n_+$) and total nucleon conservation ($n_\text{tot} = n_+ + n_0$) plus the Saha equation give a closed-form quadratic for the ionization fraction $x = n_+ / n_\text{tot}$:
