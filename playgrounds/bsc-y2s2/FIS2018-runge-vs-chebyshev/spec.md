@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2018
 supporting_ucs: [M3012, MAA-NM]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Interpolate a gentle bump with more and more equally spaced points and it gets worse, wild oscillations at the edges; Chebyshev nodes cure it.'
+one_paragraph: 'High-degree polynomial interpolation on equispaced nodes can fail badly: for the Runge function 1/(1 + 25 x^2) the interpolant grows huge oscillations near the interval ends that worsen as you add points. Clustering the nodes toward the edges at the Chebyshev points tames the error and restores convergence. The playground overlays the equispaced and Chebyshev interpolants on the true function as you raise the degree, so the runaway edge oscillation and its Chebyshev fix are visible together. This is exactly why spectral methods use Chebyshev grids. Reference: Trefethen, Approximation Theory and Approximation Practice.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
