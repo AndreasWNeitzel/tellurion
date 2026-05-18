@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: FIS2018
 supporting_ucs: [MAA-NM]
 curriculum_year: bsc-y2s2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Translate a square pulse with four numerical schemes and watch them fail differently: one smears it, one wiggles, one blows up past a Courant limit.'
+one_paragraph: 'Linear advection just shifts a profile at speed c, so the exact answer is trivial, which makes it the perfect stress test for numerical schemes. The playground runs four (upwind, Lax-Friedrichs, Lax-Wendroff, and a higher-order or unstable choice) on the same square pulse against the analytic translation, with the Courant number C = c dt / dx adjustable. You watch numerical diffusion round the pulse, dispersion add trailing ripples, and outright instability blow up once C exceeds the stability limit. It shows why the scheme choice and the CFL condition are not optional. Reference: LeVeque, Finite Volume Methods for Hyperbolic Problems.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
