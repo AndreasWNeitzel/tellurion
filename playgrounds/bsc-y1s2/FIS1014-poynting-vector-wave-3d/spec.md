@@ -19,6 +19,67 @@ share_state_keys: []
 
 # Poynting Vector: a Plane EM Wave in 3D
 
+## Explainer
+
+### What you are looking at
+
+A light wave is an electric field and a magnetic field locked together,
+oscillating at right angles to each other and to the direction they
+travel. The playground draws both as ribbons along the propagation
+axis and a third arrow, the Poynting vector, showing which way (and how
+fast) energy actually flows.
+
+### The fields
+
+For a plane wave traveling along $z$, the electric field oscillates in
+one transverse direction and the magnetic field in the perpendicular
+one, in step:
+
+$$\mathbf E = E_0\cos(kz - \omega t)\,\hat e_{\rm pol}, \qquad
+  \mathbf B = \frac{1}{c}\,\hat z \times \mathbf E.$$
+
+They are in phase (peak together, zero together) and $B$ is smaller by
+a factor $c$. The wave moves at $c = \omega/k$.
+
+### The Poynting vector: where the energy goes
+
+The energy flux is the Poynting vector
+
+$$\mathbf S = \frac{\mathbf E \times \mathbf B}{\mu_0}.$$
+
+Because $\mathbf E \perp \mathbf B$ and both are transverse, $\mathbf S$
+points along $+\hat z$, the propagation direction, and its size
+pulses as $\cos^2(kz-\omega t)$. Its time average is the intensity, the
+brightness you actually measure. This is the precise statement that a
+light wave carries energy forward.
+
+### Polarization states
+
+- Linear: $\mathbf E$ stays in one plane (the default ribbon).
+- Circular: two perpendicular components a quarter cycle apart,
+  $\mathbf E = E_0[\cos(kz-\omega t)\,\hat x + \sin(kz-\omega t)\,\hat y]$,
+  so the tip traces a helix.
+- Standing: two counter-propagating waves add to
+  $\mathbf E = 2E_0\sin(kz)\sin(\omega t)$, fixed nodes, no net energy
+  transport ($\langle\mathbf S\rangle = 0$).
+
+The playground switches between these so you see the geometry change
+while the $\mathbf E \times \mathbf B$ rule still sets the energy flow.
+
+### Things to try
+
+- Watch $\mathbf E$ and $\mathbf B$ peak at the same instant: they are
+  in phase, not a quarter cycle apart.
+- Switch to circular polarization and follow the field tip spiraling.
+- Switch to a standing wave and see the Poynting arrows cancel on
+  average: nodes do not transport energy.
+
+### Where this comes from
+
+The plane-wave fields, the $\mathbf B = \hat z\times\mathbf E/c$
+relation, and the Poynting vector follow Griffiths, *Introduction to
+Electrodynamics*, 5th ed., Chapter 9.
+
 ## Physical setup
 
 A monochromatic plane wave propagates along z. `E` oscillates in one
