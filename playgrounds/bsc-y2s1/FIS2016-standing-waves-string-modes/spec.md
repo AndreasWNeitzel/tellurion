@@ -20,6 +20,61 @@ share_state_keys: []
 
 # Standing waves on a fixed-end string
 
+## Explainer
+
+### What you are looking at
+
+Pluck a guitar string and it does not vibrate at just any frequency:
+only a discrete ladder of standing-wave patterns fits between the
+fixed ends. The playground shows those modes and how an arbitrary
+pluck is a sum of them, which is why an instrument has a definite
+pitch and timbre.
+
+### Why the frequencies are quantized
+
+The string obeys the wave equation with both ends pinned to zero
+displacement (Dirichlet boundary conditions). Only sinusoids that fit
+a whole number of half-wavelengths between the ends survive:
+
+$$y_n(x,t) = A_n\sin\!\frac{n\pi x}{L}\,\cos(\omega_n t + \phi_n),
+  \qquad
+  f_n = \frac{n}{2L}\sqrt{\frac{T}{\mu}},$$
+
+with $T$ the tension and $\mu$ the mass per length. The allowed
+frequencies are integer multiples of the fundamental $f_1$: a
+harmonic series. Mode $n$ has $n-1$ stationary nodes and $n$
+antinodes.
+
+### Superposition and timbre
+
+Any initial shape is a sum of these modes (a Fourier sine series):
+
+$$y(x,0) = \sum_n A_n\sin\frac{n\pi x}{L}.$$
+
+Each mode then oscillates at its own $f_n$, so the string's motion is
+the superposition evolving in time. Where you pluck sets the mix of
+$A_n$ (pluck at the centre and even modes vanish), which is exactly
+what gives different instruments and pluck positions their distinct
+timbre while sharing the same pitch $f_1$. Changing tension or
+length slides the whole harmonic ladder (how tuning and fretting
+work). The playground lets you excite individual modes or a pluck and
+watch the standing patterns and their superposition.
+
+### Things to try
+
+- Excite single modes $n=1,2,3$ and count the nodes ($n-1$) and the
+  frequency ratios (1:2:3, the harmonic series).
+- Pluck at the centre and notice the even modes are absent (a node of
+  every even mode sits at the pluck point).
+- Increase the tension and watch every frequency rise as
+  $\sqrt{T}$ (tuning a string).
+
+### Where this comes from
+
+The fixed-string normal modes, the harmonic series, and the Fourier
+superposition follow French, *Vibrations and Waves*, Chapters 5 and
+6, and Crawford, *Waves* (Berkeley Physics Course, Vol. 3).
+
 ## Physical setup
 
 A uniform string of length L is fixed at both ends. The normal modes of
