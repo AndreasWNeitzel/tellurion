@@ -21,3 +21,60 @@ share_state_keys: []
 ---
 # Bondi spherical accretion
 Bondi radius and accretion rate for a steady spherically symmetric inflow; sonic point at $r_B/2$. Source: Frank-King-Raine Ch. 2 (`frank-king-raine`).
+
+## Explainer
+
+### What you are looking at
+
+A compact object (a black hole, a neutron star, a young star) sitting
+in a cloud of gas pulls that gas in. Far away the gas barely moves;
+close in it falls supersonically. There is exactly one steady flow that
+threads both regimes, and its accretion rate is fixed by just the gas
+density and temperature. This is Bondi accretion, the baseline model
+for how compact objects feed.
+
+### The setup
+
+A point mass $M$ in uniform gas of density $\rho_\infty$ and sound
+speed $c_s$. Steady, spherically symmetric inflow conserves mass
+($\dot M = 4\pi r^2\rho u = \text{const}$) and momentum (Euler). The
+natural length is the Bondi radius, where gravity wins over thermal
+pressure:
+
+$$r_B = \frac{GM}{c_s^2}.$$
+
+### The sonic point and the rate
+
+Combining mass and momentum conservation gives a wind-type equation
+that is singular where the flow speed equals the sound speed. The
+unique physical (transonic) solution passes through $u = c_s$ at the
+sonic radius
+
+$$r_s = \frac{r_B}{2} = \frac{GM}{2 c_s^2},$$
+
+subsonic outside, supersonic inside. The steady accretion rate that
+results depends only on the ambient gas, not on any inner boundary:
+
+$$\dot M \;\sim\; \frac{\rho_\infty\,(GM)^2}{c_s^3}.$$
+
+So a colder cloud (small $c_s$) is accreted far more vigorously
+($\dot M\propto c_s^{-3}$), and the rate scales as $M^2$. The
+playground sweeps the central mass and shows the density and velocity
+profiles with the sonic point marked, and the rate tracking
+$\rho_\infty(GM)^2/c_s^3$.
+
+### Things to try
+
+- Increase $M$ and watch the Bondi and sonic radii grow and the
+  accretion rate climb as $M^2$.
+- Lower the gas temperature (sound speed) and watch the rate shoot up
+  ($c_s^{-3}$).
+- Note the flow always crosses sound speed at $r_B/2$: the transonic
+  point is forced.
+
+### Where this comes from
+
+The Bondi radius, the transonic sonic point at $r_B/2$, and the
+$\dot M \propto \rho_\infty (GM)^2/c_s^3$ accretion rate follow Frank,
+King and Raine, *Accretion Power in Astrophysics*, Chapter 2 (after
+Bondi 1952).
