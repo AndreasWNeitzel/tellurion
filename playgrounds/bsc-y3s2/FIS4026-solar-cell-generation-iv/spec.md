@@ -21,6 +21,64 @@ share_state_keys: [eg, suns, pin]
 
 # Solar Cell: I-V, Fill Factor and the Shockley-Queisser Limit
 
+## Explainer
+
+### What you are looking at
+
+A solar cell is a p-n junction in the light: photons make
+electron-hole pairs, the junction sweeps them apart, and you draw
+current. The playground shows the I-V curve, the power knee, and the
+fundamental thermodynamic ceiling (Shockley-Queisser) that no
+single-junction cell can beat.
+
+### The single-diode model
+
+Illumination adds a constant photocurrent $I_L$; the junction itself
+is still a diode. Their sum is the Shockley single-diode equation:
+
+$$I = I_L - I_0\left(e^{qV/kT} - 1\right).$$
+
+Read the operating points:
+
+- Short circuit ($V=0$): $I = I_\text{sc} \approx I_L$, full
+  photocurrent.
+- Open circuit ($I=0$): $V_\text{oc} = \frac{kT}{q}\ln(1 + I_L/I_0)$,
+  the maximum voltage.
+- In between, the delivered power $P = IV$ peaks at the maximum-power
+  point.
+
+The fill factor $\mathrm{FF} = P_\max/(I_\text{sc}V_\text{oc})$ measures
+how "square" the I-V curve is; efficiency is
+$\eta = P_\max/P_\text{in}$.
+
+### The Shockley-Queisser limit
+
+There is a hard ceiling from detailed balance: photons below the
+bandgap $E_g$ are not absorbed (lost), and photons well above $E_g$
+waste their excess as heat (thermalization). Optimizing over $E_g$
+against the solar spectrum gives a maximum single-junction efficiency
+of about 33% near $E_g\approx1.3$ eV. It is not an engineering limit;
+it is thermodynamics. Beating it requires multi-junction or
+concentrator tricks. The playground sweeps the load and the bandgap and
+shows the I-V curve, the fill factor, and where the cell sits relative
+to the Shockley-Queisser bound.
+
+### Things to try
+
+- Sweep the load from short to open circuit and watch the power peak
+  at the knee (the maximum-power point).
+- Increase illumination and watch $I_\text{sc}$ rise linearly while
+  $V_\text{oc}$ grows only logarithmically.
+- Tune the bandgap and find the ~1.3 eV optimum against the
+  Shockley-Queisser curve.
+
+### Where this comes from
+
+The Shockley single-diode equation, fill factor, and the
+Shockley-Queisser detailed-balance limit follow Shockley (1949),
+Shockley and Queisser (1961), and Sze and Ng, *Physics of
+Semiconductor Devices*.
+
 ## Physical setup
 
 A p-n junction solar cell under illumination: photons with energy
