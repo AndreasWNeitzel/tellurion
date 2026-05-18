@@ -21,12 +21,12 @@
 </style></head><body>
 <header>
   <h1 data-slot="title">Hydrogen Orbitals 3D (Hero)</h1>
-  <div data-slot="description" class="katex-target">$|\psi_{n\ell m}|^2$ volume-rendered with viridis density or HSV phase coloring; optional Blinn-Phong isosurface mode. Quantum numbers obey $\ell \lt n$ and $|m| \le \ell$ via slider clamping. Drag to orbit, scroll to zoom.</div>
+  <div data-slot="description" class="katex-target">The exact quantum shapes of the hydrogen atom, drawn as a 3D probability cloud. Pick the quantum numbers $n$, $\ell$, $m$ and watch the orbital change from a sphere to dumbbells, rings and multi-lobed shells. Some slider combinations refuse to move because those orbitals do not exist ($\ell \lt n$, $|m| \le \ell$): that rule is the physics behind the periodic table. View as density, phase, or a lit isosurface; drag to orbit, scroll to zoom.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Volume rendering of hydrogen orbital density $|\psi_{n\ell m}|^2$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).</figcaption>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Hydrogen orbitals: the electron probability cloud $|\psi_{n\ell m}|^2$ for quantum numbers $(n, \ell, m)$. Brighter regions are where the electron is more likely to be found, and the colour key in the corner shows the active scale (density, phase, or sign). Method: exact hydrogenic wavefunctions (radial Laguerre times spherical harmonic) volume ray-marched on the GPU. Source: Eisberg and Resnick, Quantum Physics, Ch. 5.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>

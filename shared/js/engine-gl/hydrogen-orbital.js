@@ -57,11 +57,12 @@ void main() {
   vec3 ro = nearWorld.xyz / nearWorld.w;
   vec3 rd = normalize(farWorld.xyz / farWorld.w - ro);
   float t0, t1;
-  if (!boxIntersect(ro, rd, t0, t1)) { oColor = vec4(0.02, 0.02, 0.025, 1.0); return; }
+  bool hitBox = boxIntersect(ro, rd, t0, t1);
+  vec3 col = vec3(0.0);
+  if (hitBox) {
   t0 = max(t0, 0.0);
   int STEPS = 160;
   float dt = (t1 - t0) / float(STEPS);
-  vec3 col = vec3(0.0);
   if (uMode == 1) {
     // Isosurface: march to the first crossing, then a few bisection
     // steps for a smooth (non-stairstepped) surface. Lobes are coloured
@@ -144,9 +145,31 @@ void main() {
       if (trans < 0.01) break;
     }
   }
+  }
   vec2 cv = uv - 0.5;
   float vign = 1.0 - 0.3 * dot(cv, cv) * 2.0;
-  oColor = vec4(aces(col * vign), 1.0);
+  vec3 outc = hitBox ? aces(col * vign) : vec3(0.02, 0.02, 0.025);
+
+  // Screen-space colour key. Without it the viewer cannot tell which
+  // quantity the colours encode (the spec promises three distinct
+  // schemes). Time independent and uv only, so deterministic capture
+  // stays pixel stable. mode 0 viridis = probability density, mode 2
+  // hue ramp = wavefunction phase, mode 1 two tone = sign of psi.
+  float bx0 = 0.904, bx1 = 0.946, by0 = 0.34, by1 = 0.82;
+  float fx0 = bx0 - 0.014, fx1 = bx1 + 0.014, fy0 = by0 - 0.030, fy1 = by1 + 0.030;
+  float inBar = step(bx0, uv.x) * step(uv.x, bx1) * step(by0, uv.y) * step(uv.y, by1);
+  float inFrame = step(fx0, uv.x) * step(uv.x, fx1) * step(fy0, uv.y) * step(uv.y, fy1);
+  float tBar = clamp((uv.y - by0) / (by1 - by0), 0.0, 1.0);
+  vec3 keyCol;
+  if (uMode == 2) keyCol = hsv2rgb(tBar, 0.85, 1.0);
+  else if (uMode == 1) keyCol = mix(vec3(0.26, 0.78, 0.92), vec3(1.00, 0.74, 0.36), step(0.5, tBar));
+  else keyCol = viridis(tBar);
+  keyCol *= 0.92;                                         // tame bloom on the bright end
+  float edgeRing = inFrame * (1.0 - inBar);
+  outc = mix(outc, vec3(0.03, 0.03, 0.05), inFrame * 0.82);   // dark backplate
+  outc = mix(outc, vec3(0.62, 0.66, 0.72), edgeRing * 0.9);   // light border ring
+  outc = mix(outc, keyCol, inBar);
+  oColor = vec4(outc, 1.0);
 }`;
 
 export function setupOrbitalGL(canvas, gridSize = 32) {

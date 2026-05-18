@@ -195,7 +195,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
 
 - **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:48:06Z)
-  WebGL2 volume ray-march of $|\psi_{n,\ell,m}|^2$ on a $40^3$ R16F 3D texture, with an isosurface mode that shades the level set via central-difference gradient normals and Blinn-Phong. Associated Laguerre and Legendre polynomials evaluated on the CPU mirror at `shared/js/engine/hydrogen-orbital-cpu.js`, then uploaded to the GL engine at `shared/js/engine-gl/
+  A hydrogen atom is one electron bound to one proton by the Coulomb attraction. Quantum mechanics says the electron does not follow a path; it is described by a wavefunction psi, and |psi|^2 is the probability density of finding it at a given point. Solving the Schrodinger equation for the Coulomb potential gives a discrete family of solutions labelled by thr
 
 - **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:38:47Z)
   2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).
