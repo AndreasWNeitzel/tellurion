@@ -20,6 +20,131 @@ share_state_keys: [r, x0, iters]
 
 # Logistic Map Cobweb and Bifurcation Diagram
 
+## Explainer
+
+### What you are looking at
+
+This is the single most famous equation in chaos, and it is one line
+of arithmetic. Think of $x$ as a population as a fraction of the most
+the environment can hold, so $x$ runs from 0 (extinct) to 1 (packed
+full). Each generation, the next value is computed from the current
+one. A single knob, $r$, controls how fast the population breeds. Turn
+that one knob slowly and the long-term behavior goes from a steady
+number, to a 2-year boom-bust cycle, to a 4-year cycle, to genuine
+chaos, and the transition is the same in shape for completely
+unrelated systems.
+
+The left panel is the *cobweb*: a picture of the iteration itself. The
+right panel is the *bifurcation diagram*: the long-term outcome plotted
+against $r$. It is the map of the whole story on one page.
+
+### The one rule
+
+Everything comes from this recurrence:
+
+$$x_{n+1} = r\,x_n\,(1 - x_n).$$
+
+Read it as: growth is fast when the population is small (the $x_n$
+factor) but is choked when it gets crowded (the $1 - x_n$ factor). The
+product of those two competing effects is a downward parabola, peaking
+at $x = 1/2$. The parameter $r$ in $(0, 4]$ scales how tall that
+parabola is.
+
+A steady state ("fixed point") is a value that maps to itself,
+$x^* = r\,x^*(1 - x^*)$, which solves to
+
+$$x^* = 0 \qquad \text{or} \qquad x^* = \frac{r-1}{r}.$$
+
+Whether a fixed point is actually reached depends on its slope test.
+With $f'(x) = r\,(1 - 2x)$, a fixed point is stable only while
+
+$$|f'(x^*)| < 1.$$
+
+Plug in $x^* = (r-1)/r$ and you get $|2 - r| < 1$, that is
+$1 < r < 3$. At exactly $r = 3$ the slope hits $-1$ and the steady
+state goes unstable. That is where the interesting part begins.
+
+### Reading the cobweb
+
+The cobweb is a way to iterate by eye. Draw the parabola
+$y = r\,x(1-x)$ and the diagonal $y = x$. Start at $x_0$, go vertically
+to the parabola (that is $x_1$), then horizontally to the diagonal (now
+$x_1$ is on the x-axis), then vertically to the parabola again, and so
+on. The staircase spirals into a point when the fixed point is stable,
+settles into a closed box for a 2-cycle, and fills the square
+erratically when the motion is chaotic. You are watching the equation
+think.
+
+### Turning the knob: the period-doubling cascade
+
+Past $r = 3$ the single steady value splits into a 2-cycle (the
+population alternates high, low, high, low). Push $r$ higher and the
+2-cycle splits into a 4-cycle, then 8, then 16. The splits come faster
+and faster and pile up at the accumulation point
+
+$$r_\infty \approx 3.5699.$$
+
+Beyond it the behavior is chaotic: deterministic, but never repeating,
+and exquisitely sensitive to the starting value. Threaded through the
+chaos are sudden *windows* of clean periodic motion (a vivid period-3
+window sits near $r \approx 3.83$).
+
+### Why this is universal: the Feigenbaum number
+
+Call $r_n$ the value of $r$ where the $2^{n}$-cycle is born. The
+spacings between successive bifurcations shrink by a near-constant
+factor. In the limit that factor is the Feigenbaum constant:
+
+$$\delta = \lim_{n\to\infty}
+  \frac{r_{n-1} - r_{n-2}}{r_{n} - r_{n-1}} \approx 4.6692016.$$
+
+The remarkable fact, Feigenbaum's discovery, is that $\delta$ is the
+*same number* for an enormous class of systems that period-double,
+dripping taps, heart cells, electronic circuits, not just this map. It
+is a genuine constant of nature for the route to chaos. The playground
+locates the superstable cascade by bisection and shows $\delta$
+converging.
+
+### Measuring the chaos: the Lyapunov exponent
+
+Chaos means nearby starting values separate exponentially. The rate is
+the Lyapunov exponent, an average of the local stretching:
+
+$$\lambda = \lim_{N\to\infty} \frac{1}{N}
+  \sum_{n=0}^{N-1} \ln\big|f'(x_n)\big|,
+  \qquad f'(x) = r\,(1 - 2x).$$
+
+Negative $\lambda$ means trajectories converge (order); $\lambda = 0$
+at each bifurcation; positive $\lambda$ means chaos. At the far edge
+$r = 4$ there is an exact answer the simulation must reproduce,
+
+$$\lambda(r{=}4) = \ln 2 \approx 0.6931,$$
+
+which follows from the change of variables that turns the $r=4$
+logistic map into the tent map. The live readout shows $\lambda$ flip
+sign exactly where the bifurcation diagram turns from lines into a
+cloud.
+
+### Things to try
+
+- Set $r = 2.5$ and watch the cobweb spiral straight into the fixed
+  point $x^* = (r-1)/r = 0.6$.
+- Step $r$ up through 3.0, 3.45, 3.54: count the cycle doubling
+  1, 2, 4 in the cobweb box.
+- Drag $r$ to 3.83 inside the chaos and find the clean period-3
+  window, order hiding inside disorder.
+- Push to $r = 4$ and confirm the readout settles near
+  $\lambda = \ln 2$.
+
+### Where this comes from
+
+The cobweb construction, the period-doubling sequence, the superstable
+cascade, the Lyapunov exponent for 1D maps (and the $\ln 2$ result at
+$r=4$), and Feigenbaum universality all follow Strogatz, *Nonlinear
+Dynamics and Chaos*, 2nd ed. (2015), Chapter 10 (Sections 10.1, 10.2,
+10.3, 10.5, 10.6). The bifurcation-diagram construction follows Newman,
+*Computational Physics* (2013), Exercise 3.6.
+
 ## Physical setup
 
 The playground visualizes the iterated logistic map on x in [0, 1] with parameter r in (0, 4]. The map is the archetypal discrete-time dynamical system exhibiting period-doubling bifurcations, the Feigenbaum cascade, and chaos. Two panels display complementary views: a cobweb diagram traces iterates from an initial condition x_0 via the graphical construction (staircase of segments between the curve y = r x (1 - x) and the diagonal y = x), and the bifurcation diagram scatters attractor points x as a function of r, revealing the cascade and the chaotic sea. The playground enforces deterministic iteration; all randomness is controlled by the RNG seed.
