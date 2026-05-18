@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s1
 primary_citation: bmw
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Fit a circle to noisy orbit points and you get a clean answer that is quietly wrong: any real eccentricity biases the radius and centre.'
+one_paragraph: 'Gauss made his name recovering the lost asteroid Ceres from a short, noisy arc by least squares. The playground shows the simplest version: scatter noisy positions along a true Kepler ellipse and fit a circle by linear least squares. The fit is well posed and converges, but when the orbit''s eccentricity is nonzero the circular model is wrong, so the recovered centre and radius are systematically biased. It is a concrete lesson that a tight fit to the wrong model is still wrong. Reference: Bate, Mueller and White, Fundamentals of Astrodynamics, Ch. 5.'
 tags: [exoplanets, numerics, animation, live-readout]
 difficulty: 3
 tier: simple
