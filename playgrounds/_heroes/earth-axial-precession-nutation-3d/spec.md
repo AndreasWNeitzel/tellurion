@@ -1,7 +1,7 @@
 ---
 title: Earth Axial Precession + Nutation 3D (Hero)
-description: 'Lit 3D Earth tilted at obliquity $\varepsilon$. Lunisolar precession at 50.29″/yr sweeps the rotation axis through a 25,772-yr cone, with the 18.6-yr lunar-node nutation superposed. Year display advances in simulated calendar years. Drag to orbit, scroll to zoom.'
-caption: 'Figure 1. Earth axial precession + nutation, 3D axis line drawn in world space. Source: Smart, Celestial Mechanics (`smart`).'
+description: "Earth spins like a tilted top. Gravity from the Sun and Moon slowly swings its spin axis around a big cone, one full turn every ~25,800 years (this is why the pole star changes over millennia), with a small 18.6-year wobble on top. Drag to orbit the view, scroll to zoom; the year counter runs forward."
+caption: "Figure 1. The Earth's spin axis (white line) traces a slow precession cone driven by lunisolar gravity, with the 18.6-year nutation wobble superposed. Method: closed-form IAU precession-nutation series. Source: Smart, Textbook on Spherical Astronomy."
 slug: earth-axial-precession-nutation-3d
 status: verified
 audience: portfolio
@@ -11,8 +11,8 @@ supporting_ucs: []
 curriculum_year: hero
 primary_citation: marion-thornton
 primary_chapter: 11
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: "Earth is a spinning top tilted 23.4 degrees, and the Sun and Moon torque it. Its axis does not stay put: it swings around a cone once every ~25,800 years, slowly changing which star is the pole star, with a small 18.6-year nodding wobble (nutation) riding along."
+one_paragraph: "A lit 3D Earth, tilted at its 23.4-degree obliquity, with the spin axis drawn out into space. Because the planet bulges at the equator, the gravity of the Sun and Moon pulls on the bulge and torques the axis sideways, so instead of toppling it sweeps a slow circle, the axial precession, completing one cone every ~25,772 years at 50.29 arcseconds per year. That is why Polaris is only temporarily the North Star. A second, faster effect, the 18.6-year nutation tied to the Moon's orbital-node cycle, adds a small nod of amplitude 17.2 arcsec in ecliptic longitude and 9.2 arcsec in obliquity. The axis position uses the standard closed-form IAU precession-nutation series (reused shared engine), so it is deterministic and exact; the invariants check the precession rate, the 25,800-year period, the base obliquity and the two nutation amplitudes. Drag to orbit the camera, scroll to zoom; the readout shows the simulated year and the current axis angles."
 tags: [mechanics, animation, multi-panel, live-readout]
 difficulty: 4
 tier: single
@@ -21,5 +21,63 @@ renderer: webgl2
 estimated_engagement_minutes: 6
 share_state_keys: [scale, year0]
 ---
-# Earth axial precession + nutation (hero, Canvas2D MVP)
-Lunisolar precession 50.29 arcsec/yr; 18.6-yr nutation with amplitudes 17.2"/9.2" in Δψ/Δε. Source: Smart, Celestial Mechanics.
+
+# Earth Axial Precession + Nutation 3D
+
+## Physical setup
+
+Earth is an oblate spinning top: it bulges at the equator. The Sun and Moon pull harder on the near side of that bulge than the far side, producing a gravitational torque. A non-spinning body would simply tip over; a fast-spinning one instead responds at right angles, so the spin axis sweeps out a cone rather than falling. This is lunisolar axial precession. A smaller, shorter-period forcing from the regression of the Moon's orbital nodes (18.6-year cycle) adds the nutation, a slight nodding of the axis on top of the steady precession.
+
+## Governing equations
+
+General precession in longitude advances at 50.29 arcsec/yr, completing 360 degrees in about 25,772 years. The mean obliquity is the standard epoch value (~23.44 degrees) with the slow secular drift. The principal nutation term (period 18.6 yr, the lunar node) has amplitude Delta-psi ~ 17.2 arcsec in ecliptic longitude and Delta-epsilon ~ 9.2 arcsec in obliquity. The instantaneous pole direction is the mean pole displaced by these nutation terms (the standard IAU series; Smart).
+
+## Numerical method
+
+Closed-form evaluation of the precession and nutation series in the shared `earth-rotation-cpu` engine (`precessionLongitude`, `nutation`, `obliquity`). No time integration and no random numbers; the axis direction at any simulated year is computed directly, so the scene is deterministic and the capture is reproducible.
+
+## Controls
+
+- Drag: orbit the camera around the Earth.
+- Scroll: zoom.
+- The readout panel shows the simulated calendar year and the current axis angles.
+- Share keys: `scale` (zoom), `year0` (epoch the year counter starts from).
+
+## Expected qualitative features
+
+- A lit 3D Earth tilted at ~23.4 degrees, continents rotating with the daily spin.
+- The spin axis drawn into space, its tip tracing a circular precession cone over the long run.
+- Over one simulated ~25,772-year circuit the axis returns to its start (the pole-star cycle).
+- A small superposed nutation wobble (18.6-year period) on the otherwise smooth cone.
+- A monotonically advancing year counter and live axis-angle readout, no text overlap.
+
+## Invariants and acceptance thresholds
+
+`invariants.test.mjs` (vitest, offline):
+
+1. Precession rate = 50.29 arcsec/yr (to 0.01).
+2. Precession completes 360 degrees in 25,000-27,000 yr.
+3. Obliquity at epoch equals the base value to 0.01 deg.
+4. Nutation 18.6-yr maximum |Delta-epsilon| ~ 9.2 arcsec (8-12).
+5. Nutation 18.6-yr maximum |Delta-psi| ~ 17.2 arcsec (15-20).
+
+Visual gate: SSIM > 0.92 against committed golden frames; the visual-reviewer pass (post-build sweep) confirmed the 3D Earth, the legible precession cone, the visible nutation, clean animation progression and a non-overlapping readout.
+
+## Limiting cases for verification
+
+- One full simulated circuit: the axis returns to its starting orientation (period closure).
+- Nutation switched conceptually off: a perfectly smooth cone (the mean pole).
+- Obliquity ~ 23.4 deg sets the cone half-angle.
+
+## Visual fallback
+
+The 3D scene plus the year/angle readout carries the physics; the camera animation is interactive only.
+
+## Citations
+
+- Smart, Textbook on Spherical Astronomy: the precession-nutation series.
+- Marion and Thornton, Classical Dynamics, Ch. 11: torque-free and torqued symmetric-top precession.
+
+## Risk register
+
+- The nutation is the dominant 18.6-yr term only (the full IAU1980/2000 series has hundreds of small terms); this is stated and is sufficient for the qualitative pole-cycle visualization the invariants pin.

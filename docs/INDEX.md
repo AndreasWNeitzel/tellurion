@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Green's Function: Building a Solution from Tent Responses](../playgrounds/msc-y1/M2009-green-function-propagator/index.html)** &nbsp; (verified, verified 2026-05-18T07:33:53Z)
+  The boundary-value problem -u'' = f on [0, L] with u(0) = u(L) = 0. The Green's function G(x, x') is the solution when the source is a single unit spike at x'. It is the tent that is zero at both walls and has a kink at x'. Because the operator is linear, the solution for any source is the superposition of these tents weighted by the source value at each poi
+
 - **[Fourier Series: Convergence, Epicycles and the Gibbs Overshoot](../playgrounds/msc-y1/M2009-fourier-series-convergence-gibb/index.html)** &nbsp; (verified, verified 2026-05-18T07:20:47Z)
   Any periodic function is a sum of sines and cosines. This playground takes a square, sawtooth or triangle wave on [-pi, pi], builds its N-term Fourier partial sum, and shows the same sum three ways: as a curve compared to the target, as a chain of rotating vectors whose tip traces it, and through its convergence behaviour (the Parseval energy and the Gibbs o
 
@@ -186,7 +189,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Schematic of event horizon + photon sphere + ergosphere + ISCO with disk emission (Planck blackbody mapped from $T(r) \propto r^{-3/4}$). Full per-pixel null geodesic ray-march in Kerr is queued for WebGL2. Source: Shapiro-Teukolsky Ch. 12 (`shapiro-teukolsky`).
 
 - **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:56:05Z)
-  Lunisolar precession 50.29 arcsec/yr; 18.6-yr nutation with amplitudes 17.2"/9.2" in Δψ/Δε. Source: Smart, Celestial Mechanics.
+  Earth is an oblate spinning top: it bulges at the equator. The Sun and Moon pull harder on the near side of that bulge than the far side, producing a gravitational torque. A non-spinning body would simply tip over; a fast-spinning one instead responds at right angles, so the spin axis sweeps out a cone rather than falling. This is lunisolar axial precession.
 
 - **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-14T03:54:59Z)
   Torus with helical field lines; safety factor $q_a$ from ITER-like parameters. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
@@ -850,9 +853,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Gravity Assist Slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/index.html)** &nbsp; (verified)
   A Jupiter-scale planet orbits a central star. A spacecraft enters on a hyperbolic trajectory; the user drags the periapsis distance and the relative approach angle. Inset shows the symmetric hyperbola in the planet rest frame; main panel shows the asymmetric solar-system-frame trajectory. Velocity arrows before and after make the energy change explicit. Pres
-
-- **[Green's Function: Building a Solution from Tent Responses](../playgrounds/msc-y1/M2009-green-function-propagator/index.html)** &nbsp; (verified)
-  The boundary-value problem -u'' = f on [0, L] with u(0) = u(L) = 0. The Green's function G(x, x') is the solution when the source is a single unit spike at x'. It is the tent that is zero at both walls and has a kink at x'. Because the operator is linear, the solution for any source is the superposition of these tents weighted by the source value at each poi
 
 - **[Hydrogen in Electric and Magnetic Fields](../playgrounds/bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman/index.html)** &nbsp; (verified)
   A hydrogen atom in a uniform magnetic field (Zeeman) and a uniform electric field (Stark), with a chosen emission transition observed in a synthetic spectrometer.
