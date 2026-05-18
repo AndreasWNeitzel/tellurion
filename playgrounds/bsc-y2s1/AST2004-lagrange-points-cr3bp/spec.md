@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST2004
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y2s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'In the rotating frame of two orbiting masses there are five places a third body can sit still: the Lagrange points, three of them unstable, two stable.'
+one_paragraph: 'The circular restricted three-body problem follows a massless test particle in the gravity of two bodies that orbit their common centre. Worked in the synodic (co-rotating) frame the two primaries stand still and centrifugal plus Coriolis forces appear; the energy-like Jacobi integral is then conserved. The playground integrates a trajectory in this frame and overlays the five Lagrange points and the zero-velocity (Hill) curves set by the Jacobi constant. L1, L2, L3 lie on the line through the masses and are saddles; L4 and L5 lead and trail by 60 degrees and are stable when the mass ratio is below about 1/25, which is why Trojan asteroids park there. Reference: Murray and Dermott, Solar System Dynamics; Carroll and Ostlie, Ch. 18.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
