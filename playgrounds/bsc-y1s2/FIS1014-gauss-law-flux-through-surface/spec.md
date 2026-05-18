@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s2
 primary_citation: griffithsem2017
 primary_chapter: 2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Wrap any loop you like around a charge and the flux through it is the same number; slide the charge outside and it drops to zero, no matter how you bend the loop.'
+one_paragraph: 'Gauss''s law says the electric flux through a closed surface depends only on the charge enclosed, never on the shape or size of the surface. Here a point charge sits in a plane and you draw a closed curve around it (a circle, an ellipse, or a wobbly blob); the playground integrates E.n around the curve by Simpson quadrature and shows the flux live. Drag the charge or reshape the loop: while the charge stays inside, the flux holds fixed at q/epsilon_0; the instant it crosses outside, the flux collapses to zero. That shape independence is the entire content of Gauss''s law, and it is what lets you trade a hard field integral for a trivial charge count.'
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
