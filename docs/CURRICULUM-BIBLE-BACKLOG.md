@@ -510,7 +510,7 @@ docs/NEEDS-ATTENTION.md, move on.
 
 ## Section 23: Cross-curricular / Math Methods (M2009)
 
-- [ ] pde-zoo-interactive : hero webgl2. 5 tabs (wave/heat/Laplace/
+- [x] pde-zoo-interactive : hero webgl2. 5 tabs (wave/heat/Laplace/
   Schrodinger/Navier-Stokes) shared GPU engine, paint IC/BC, analytic
   vs numeric vs error. Cross-link to laplace/tdse/NS heroes.
 - [ ] fourier-series-convergence-gibb : medium canvas2d. Target vs
@@ -519,3 +519,36 @@ docs/NEEDS-ATTENTION.md, move on.
 - [ ] green-function-propagator : advanced canvas2d. Source f(x), u=
   integral G f, draggable tent G(x,x'), Dirichlet. Inv: G symmetric;
   G(0)=G(L)=0; ODE 1e-4.
+
+## POST-BUILD PHASE (run only after every `- [ ]` above is `- [x]`)
+
+Standing user directive (2026-05-18). The build backlog being empty does
+NOT mean done; this phase is mandatory and is itself backlog work.
+
+- [ ] qa-pedagogy-devnotes-sweep : ONE rigorous pass over EVERY shipped
+  playground (all years/UCs, ~307+ cards), doing all three of the
+  following per playground so it is opened and analysed once:
+  (A) QA SCRUTINY + FIX: load the live page in a real browser; confirm
+  it loads at all; exercise every slider/toggle/select and confirm each
+  visibly and correctly changes the output; confirm no UI/element
+  overlap at default and extreme settings; confirm the animation loops
+  cleanly; confirm any traced/streaked curve actually follows the thing
+  it represents; confirm the graphics show the intended physics and
+  match what the caption/description claims (no text-vs-graphics
+  contradiction). Fix every defect; re-run invariants + visual gate
+  (recapture goldens if the render changed).
+  (B) DEVNOTES: create a repo-only `DEVNOTES.md` in the playground
+  folder, the exhaustive hidden developer/debug reference (full physics,
+  every constant and why, calibration decisions, screenshot-revealed
+  fixes, control-probe expected outcomes, invariant rationale, known
+  approximations, gate commands). Never linked from index.html, never
+  in the gallery, so rendered-site users never see it.
+  (C) APPROACHABLE REWRITE: rewrite the learner-facing prose for a
+  first-exposure undergrad - the index.html `<figcaption>`, the spec.md
+  `hook` + `one_paragraph` (these drive the gallery card), and
+  README.md. Plain language, direct intuition, say what they are looking
+  at, which control does what, and where the effect physically comes
+  from. The current author-summary style is the pedagogical mistake.
+  Commit per playground (or small batch) with factual messages. Never
+  stop until every playground is swept. See memory
+  feedback-approachable-text-and-devnotes.

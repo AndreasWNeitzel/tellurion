@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray](../playgrounds/msc-y1/MFM-MP-radiation-dosimetry-detector/index.html)** &nbsp; (verified, verified 2026-05-18T06:44:47Z)
+  An ionization chamber: a small gas cavity between two electrodes at a collecting voltage. Photons Compton-scatter in the gas; the recoil electrons strip electrons off gas molecules, creating ion pairs at a fixed average cost of W per pair (33.97 eV in air). The applied field sweeps the ions to the electrodes, where the collected charge is measured. At low vo
+
 - **[Monte Carlo Photon Transport in a Tissue Slab](../playgrounds/msc-y1/MFM-MP-monte-carlo-photon-transport/index.html)** &nbsp; (verified, verified 2026-05-18T06:31:21Z)
   A pencil beam of monoenergetic photons normally incident on a slab of water (tissue equivalent). Each photon is transported by Monte Carlo: it travels a randomly sampled distance, then interacts by photoelectric absorption, Compton scattering or Rayleigh scattering, chosen in proportion to the cross sections. Compton scattering reduces the photon energy and 
 
@@ -851,9 +854,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Interactive Laplace Solver: Draw Your Own Conductors](../playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive/index.html)** &nbsp; (verified)
   A grounded box encloses user-painted conductors. The electrostatic potential satisfies Laplace's equation in the charge-free region with Dirichlet data on every conductor; the electric field is `E = -grad phi` and is everywhere normal to the conductor surfaces.
 
-- **[Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray](../playgrounds/msc-y1/MFM-MP-radiation-dosimetry-detector/index.html)** &nbsp; (verified)
-  An ionization chamber: a small gas cavity between two electrodes at a collecting voltage. Photons Compton-scatter in the gas; the recoil electrons strip electrons off gas molecules, creating ion pairs at a fixed average cost of W per pair (33.97 eV in air). The applied field sweeps the ions to the electrodes, where the collected charge is measured. At low vo
-
 - **[Magnetic Hysteresis: Domains and the B-H Loop](../playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve/index.html)** &nbsp; (verified)
   A ferromagnet under an oscillating applied field. The domain lattice reverses as a threshold-ordered wave that lags the field (the hysteresis); the B-H loop is traced alongside, its enclosed area the energy dissipated per cycle.
 
@@ -865,6 +865,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Pathfinding Dijkstra Astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/index.html)** &nbsp; (verified)
   A `cols x rows` grid is generated from a seed: building blocks and a diagonal river (with two bridges) become walls, a few piazzas cost 4, all other cells cost 1. Connectivity from start to goal is guaranteed.
+
+- **[PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers](../playgrounds/msc-y1/M2009-pde-zoo-interactive/index.html)** &nbsp; (verified)
+  One shared 1D grid on [0, 1] solving five canonical partial differential equations, each with the numerical scheme that suits it: the wave equation (hyperbolic, energy-conserving), the heat equation (parabolic, dissipative), the Laplace/Poisson equation (elliptic, steady), the time-dependent Schrodinger equation (dispersive, unitary) and Burgers' equation (n
 
 - **[Poynting Vector: a Plane EM Wave in 3D](../playgrounds/bsc-y1s2/FIS1014-poynting-vector-wave-3d/index.html)** &nbsp; (verified)
   A monochromatic plane wave propagates along z. `E` oscillates in one transverse plane, `B` in the orthogonal one, and the Poynting vector `S = E x B / mu0` points along the propagation direction. Units are `c = 1`, `mu0 = 1`.

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="A finite-difference solution of the selected partial differential equation, the analytic reference, and the error">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">equation:</span><span class="value" id="readout-eq">wave</span>
+      <span class="label">t:</span><span class="value" id="readout-t">0.00</span>
+      <span class="label">max error:</span><span class="value" id="readout-err">0</span>
+      <span class="label">conserved:</span><span class="value" id="readout-cons">-</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      The same finite-difference grid solving five classic PDEs. The wave equation carries a shape back and forth, the heat equation smooths it away, the Laplace/Poisson equation finds the steady shape, the Schrodinger equation spreads a quantum wavepacket, and Burgers (1D Navier-Stokes) steepens into a shock that viscosity rounds off. Where an exact solution is known it is drawn behind the numeric one, with the gap between them shown as the error.
+      <em>Method:</em> explicit leapfrog and shared Crank-Nicolson tridiagonal solver; Canvas2D line plots (no WebGL; see spec Stack note); deterministic.
+      <em>Source:</em> LeVeque, Finite Difference Methods for ODEs and PDEs (2007).
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">equation</span><select aria-label="equation" id="select-eq" style="grid-column: span 2;"><option value="wave">wave  u_tt = c^2 u_xx</option><option value="heat">heat  u_t = a u_xx</option><option value="laplace">Laplace/Poisson  u'' = -f</option><option value="schrodinger">Schrodinger  i psi_t = -1/2 psi_xx</option><option value="burgers">Burgers  u_t + u u_x = nu u_xx</option></select></div>
+    <div class="row"><span class="label">parameter</span><input aria-label="mode number or viscosity parameter" type="range" id="slider-p" min="1" max="6" step="1" value="2"><span class="value" id="value-p">2</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
