@@ -20,6 +20,67 @@ share_state_keys: []
 
 # FitzHugh-Nagumo excitable neuron
 
+## Explainer
+
+### What you are looking at
+
+A neuron does something odd: a small poke does almost nothing, but a
+poke past a threshold triggers a big, stereotyped spike that always
+looks the same regardless of how hard you pushed. The playground is
+the FitzHugh-Nagumo model, the minimal two-variable system that
+captures this all-or-nothing excitability and its phase-plane
+geometry.
+
+### The equations
+
+A two-variable reduction of Hodgkin-Huxley: a fast voltage-like
+variable $v$ and a slow recovery variable $w$,
+
+$$\dot v = v - \tfrac13 v^3 - w + I,
+  \qquad
+  \dot w = \varepsilon\,(v + a - b w),$$
+
+with $\varepsilon\ll1$ making $w$ slow. The cubic $v$-nullcline
+($\dot v=0$) and the linear $w$-nullcline ($\dot w=0$) and where they
+cross set the entire behavior.
+
+### Excitability, threshold and limit cycles
+
+The geometry explains the physiology:
+
+- One stable fixed point on the left branch of the cubic: the
+  resting state. A tiny perturbation decays back.
+- But a perturbation past the middle (unstable) branch of the cubic
+  cannot return directly; it is forced on a long excursion up the
+  right branch and back, a single large spike, before recovering.
+  That is the threshold and the all-or-nothing action potential, and
+  it explains the refractory period (while $w$ recovers, a second
+  spike is hard to fire).
+- Inject steady current $I$: the fixed point shifts past a Hopf
+  bifurcation and the system fires a periodic train (a stable limit
+  cycle), the neuron tonically spiking.
+
+This relaxation-oscillator structure (fast jumps, slow recovery) is
+generic: it is also the model for cardiac pacemakers, the Belousov
+chemical oscillator, and any excitable medium. The playground shows
+the phase plane with both nullclines and the trajectory, plus the
+voltage trace, as you change $I$ and the stimulus.
+
+### Things to try
+
+- Give a sub-threshold kick and watch it decay; give a slightly
+  bigger one and watch the full spike fire (all-or-nothing).
+- Fire two pulses close together and see the second fail (the
+  refractory period).
+- Ramp the injected current $I$ until the rest point loses stability
+  and a limit cycle appears (tonic spiking, the Hopf bifurcation).
+
+### Where this comes from
+
+The FitzHugh-Nagumo model, excitability and the phase-plane analysis
+follow FitzHugh, Biophys. J. 1, 445 (1961), and Strogatz, *Nonlinear
+Dynamics and Chaos*, Chapters 7 and 8.
+
 ## Physical setup
 
 Two-variable reduction of the Hodgkin-Huxley model:
