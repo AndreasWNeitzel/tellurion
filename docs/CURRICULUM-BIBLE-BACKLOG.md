@@ -577,3 +577,15 @@ NOT mean done; this phase is mandatory and is itself backlog work.
   pattern and CLAUDE.md 12.7 model routing. Automate the
   self-criticism-and-correction mechanism; the human cannot review 300+
   by hand.
+
+- [ ] hero-promotion : after the qa-pedagogy-devnotes-sweep, identify
+  the playgrounds whose physics most profits from spectacular visuals
+  (Phong-shaded 3D with dynamical complexity, N-body with emergent
+  patterns, intricate dynamical effects) - take inspiration from the
+  existing webgl2/canvas2d heroes for the bar. Promote those candidates
+  and elevate them to unparalleled, conference-spotlight quality:
+  visual supremacy is the goal (lighting, depth, motion, density of
+  meaningful detail), while keeping the gate-verified physics and
+  invariants intact. Re-verify every promoted playground (invariants,
+  recapture goldens, visual x3) and update tier/hero_candidate. User
+  directive 2026-05-18; see memory feedback-approachable-text-and-devnotes.
