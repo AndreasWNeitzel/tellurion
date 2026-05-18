@@ -22,6 +22,68 @@ share_state_keys: []
 
 # Compton vs inverse Compton
 
+## Explainer
+
+### What you are looking at
+
+The same photon-electron collision, run two ways. A photon hitting a
+slow electron loses energy (Compton). A relativistic electron hitting a
+low-energy photon dumps energy into it, boosting it by $\gamma^2$
+(inverse Compton). The playground puts both on one energy axis so the
+contrast, and the regime where the simple formulas break, is explicit.
+
+### Forward Compton
+
+A photon of energy $E$ scatters off an electron at rest and comes out
+softer; the largest loss is a head-on backscatter:
+
+$$E' = \frac{E}{1 + 2E/m_e c^2}.$$
+
+For X-rays the shift is small; for gamma rays the electron rest energy
+$m_e c^2 = 511$ keV sets the scale.
+
+### Inverse Compton
+
+Now the electron is relativistic (Lorentz factor $\gamma$) and the
+photon soft. In the electron frame the photon is blueshifted by
+$\sim\gamma$, scatters, and is blueshifted again on the way out, a net
+boost of $\sim\gamma^2$:
+
+$$E_\text{typ} \approx \tfrac43\,\gamma^2 E
+  \quad(\text{Thomson limit}),
+  \qquad
+  E_\text{max} = \frac{4\gamma^2 E}{1 + 4\gamma E/m_e c^2}.$$
+
+The denominator is the Klein-Nishina correction: once $\gamma E
+\gtrsim 0.1\,m_e c^2$ the scattering cross-section drops and the simple
+$\gamma^2$ scaling saturates. The playground flags when that regime is
+entered.
+
+### Why it matters
+
+Inverse Compton is how cosmic-ray electrons turn starlight and the CMB
+into X-rays and gamma rays; it powers blazar high-energy emission and
+the Sunyaev-Zeldovich distortion of the CMB. The single picture, same
+QED process, opposite energy flow depending on who is faster, ties
+laboratory Compton scattering to high-energy astrophysics. The
+playground shows both shifted energies versus photon energy and
+$\gamma$.
+
+### Things to try
+
+- Hold the electron at rest, raise the photon energy, and watch the
+  Compton shift grow toward the $2E/m_ec^2$ regime.
+- Make the electron relativistic and watch the photon boosted by
+  $\sim\gamma^2$ (inverse Compton).
+- Push $\gamma E$ past $\sim0.1\,m_ec^2$ and see the Klein-Nishina
+  flag: the $\gamma^2$ law saturates.
+
+### Where this comes from
+
+The Compton shift, the inverse-Compton $\gamma^2$ boost, and the
+Klein-Nishina regime follow Rybicki and Lightman, *Radiative Processes
+in Astrophysics*, Chapter 7.
+
 ## Physical setup
 
 Two photon-electron scattering channels on the same energy axis.
