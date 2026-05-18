@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: griffiths-particles
 primary_chapter: 9
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A proton is not three quarks but a swarm: valence quarks, a gluon sea, and quark-antiquark pairs, each carrying a share of the momentum.'
+one_paragraph: 'Deep inelastic scattering shows the proton is made of partons sharing its momentum. A parton distribution f(x) gives the probability of finding a constituent that carries momentum fraction x; plotting x f(x) shows where the momentum actually sits. The playground draws toy distributions for the up and down valence quarks, the gluon, and the sea quarks, so you see the valence bumps at moderate x and the gluon and sea rising steeply toward small x. The momentum fractions must sum to one. Reference: Griffiths, Introduction to Elementary Particles, Ch. 9.'
 tags: [nuclear-particle, animation, live-readout]
 difficulty: 3
 tier: simple
