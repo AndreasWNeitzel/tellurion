@@ -5,6 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { makeRng } from '../../shared/js/render/rng.js';
 import {
   solvePoisson2D, depositCIC, stepPM,
+  solvePoissonIsolated2D, depositCICOpen,
 } from '../../shared/js/engine/particle-mesh-2d.js';
 
 describe('particle-mesh-2d: Poisson solver recovers a single Fourier mode', () => {
@@ -122,5 +123,60 @@ describe('particle-mesh-2d: determinism', () => {
     let same = true;
     for (let i = 0; i < a.length; i += 1) if (a[i] !== b[i]) same = false;
     expect(same).toBe(true);
+  });
+});
+
+describe('particle-mesh-2d: isolated boundaries give the free-space monopole', () => {
+  it('phi(r) follows 2 G M ln r far from a central point mass (no periodic images)', () => {
+    const M = 32, L = 8, G = 1, Mtot = 3;
+    const eps = 0.04 * L / M;
+    const rho = new Float64Array(M * M);
+    const c = M / 2;                       // a single central cell mass
+    rho[c * M + c] = Mtot / ((L / M) * (L / M));   // surface density
+    const phi = solvePoissonIsolated2D(rho, M, L, G, eps);
+    // Sample two radii along the row through the centre and check the
+    // difference matches the analytic 2D monopole 2 G M ln r.
+    const DX = L / M;
+    const r1 = 4, r2 = 10;                  // cells from centre
+    const p1 = phi[c * M + (c + r1)];
+    const p2 = phi[c * M + (c + r2)];
+    const want = 2 * G * Mtot * Math.log((r2 * DX) / (r1 * DX));
+    expect(Math.abs((p2 - p1) - want) / Math.abs(want)).toBeLessThan(0.12);
+  });
+
+  it('isolated leapfrog conserves momentum and is deterministic', () => {
+    function run() {
+      const M = 32, L = 10, G = 1, N = 250;
+      const rng = makeRng(0xABCD);
+      const x = new Float64Array(2 * N), v = new Float64Array(2 * N), m = new Float64Array(N);
+      for (let p = 0; p < N; p += 1) {
+        x[2 * p] = L / 2 + (rng() - 0.5) * 2;
+        x[2 * p + 1] = L / 2 + (rng() - 0.5) * 2;
+        v[2 * p] = (rng() - 0.5) * 0.1; v[2 * p + 1] = (rng() - 0.5) * 0.1;
+        m[p] = 1 / N;
+      }
+      const st = { x, v, m, N, t: 0, nSteps: 0 };
+      let p0x = 0, p0y = 0;
+      for (let p = 0; p < N; p += 1) { p0x += m[p] * v[2 * p]; p0y += m[p] * v[2 * p + 1]; }
+      for (let s = 0; s < 80; s += 1) stepPM(st, 0.02, { NGRID: M, L, G, isolated: true });
+      let px = 0, py = 0;
+      for (let p = 0; p < N; p += 1) { px += m[p] * st.v[2 * p]; py += m[p] * st.v[2 * p + 1]; }
+      return { drift: Math.abs(px - p0x) + Math.abs(py - p0y), x: Float64Array.from(st.x) };
+    }
+    const a = run(), b = run();
+    expect(a.drift).toBeLessThan(1e-6);
+    let same = true;
+    for (let i = 0; i < a.x.length; i += 1) if (a.x[i] !== b.x[i]) same = false;
+    expect(same).toBe(true);
+  });
+
+  it('open-boundary deposit drops particles outside the grid (no wrap)', () => {
+    const M = 16, L = 4, N = 2;
+    const x = Float64Array.from([L / 2, L / 2, -1, -1]);   // one in, one out
+    const m = Float64Array.from([1, 1]);
+    const rho = depositCICOpen(x, m, N, M, L);
+    let s = 0;
+    for (let i = 0; i < rho.length; i += 1) s += rho[i];
+    expect(s).toBeCloseTo(1, 9);            // only the inside particle counts
   });
 });

@@ -20,7 +20,7 @@ share_state_keys: []
 
 # Galaxy Merger N-Body
 
-Two dense rotating exponential disks (about 3600 equal-mass particles total, split by the mass-ratio sliders, color-coded by origin) fall together as a true self-gravitating system. Gravity is solved self-consistently on a periodic grid with the shared particle-mesh engine; there are no analytic cores and no special-case forces, so the in-fall, tidal tails, dynamical friction, coalescence and phase-mixing all emerge from the particle dynamics. A second panel plots every particle in the energy vs angular-momentum plane in the rest frame of the surviving primary's density centroid (the Galactocentric analogue), where the disrupted lighter galaxy forms the Gaia-Enceladus / Sausage clump.
+Two dense rotating exponential disks (about 3600 equal-mass particles total, split by the mass-ratio sliders, color-coded by origin) fall together as a true self-gravitating system. Gravity is solved self-consistently with the shared particle-mesh engine using ISOLATED (vacuum) boundaries (zero-padded Green's-function convolution, fast radix-2 FFT): there is no periodic box, so particles never wrap or teleport, and debris flung out simply leaves the frame. There are no analytic cores and no special-case forces, so the in-fall, tidal tails, dynamical friction, coalescence and phase-mixing all emerge from the particle dynamics. A second panel plots every particle in the energy vs angular-momentum plane in the rest frame of the surviving primary's density centroid (the Galactocentric analogue), where the disrupted lighter galaxy forms the Gaia-Enceladus / Sausage clump.
 
 ## Explainer
 
@@ -41,17 +41,22 @@ $\Sigma\propto e^{-R/R_d}$, the Freeman 1970 law) of equal-mass
 particles. Crucially there are no point-mass cores and no prescribed
 potential: gravity is computed from the particles themselves with a
 particle-mesh (PM) solver. Each step deposits the particle masses on
-a grid (cloud-in-cell), solves the Poisson equation by FFT,
+a grid (cloud-in-cell), then solves the Poisson equation
+$\nabla^2\Phi = 4\pi G\,\rho$ with ISOLATED (free-space) boundaries.
+In 2D the Green's function of the Laplacian is
+$\tfrac{1}{2\pi}\ln r$, so the potential is the convolution
 
-$$\nabla^2\Phi = 4\pi G\,\rho,
-  \qquad
-  \Phi_{\mathbf k} = -\,\frac{4\pi G\,\rho_{\mathbf k}}{|\mathbf k|^2},$$
+$$\Phi(\mathbf r) = 2G\!\int \ln|\mathbf r-\mathbf r'|\;
+  \rho(\mathbf r')\,d^2r',$$
 
-and interpolates the force $-\nabla\Phi$ back to each particle, which
-is then advanced by a kick-drift-kick leapfrog (Hockney and Eastwood
-1988). Because the field is built from the actual particle
-distribution and fed back to them, the self-gravity is fully
-self-consistent.
+evaluated by the zero-padded FFT trick (the density is embedded in a
+doubled grid and convolved with the discretized Green's function).
+There is no periodic box, so no spurious image forces and no wrapping
+of particles. The force $-\nabla\Phi$ is interpolated back to each
+particle, which is advanced by a kick-drift-kick leapfrog (Hockney
+and Eastwood 1988). Because the field is built from the actual
+particle distribution and fed back to them, the self-gravity is
+fully self-consistent.
 
 ### Why coalescence is now automatic
 
@@ -109,7 +114,7 @@ et al., MNRAS 478, 611 (2018).
 
 ## Physical setup
 
-Two exponential stellar disks of equal-mass particles, total mass set by the M1, M2 sliders (about 3600 particles split by mass ratio). Self-gravity is solved with the shared 2D particle-mesh engine (`shared/js/engine/particle-mesh-2d.js`): cloud-in-cell mass deposit on a 48 x 48 periodic grid, FFT Poisson solve, CIC force interpolation, kick-drift-kick leapfrog. Disk rotation is balanced against the actual t=0 PM force (not an analytic guess) plus a small warm dispersion. No analytic cores, no Chandrasekhar term, no merge event: dynamical friction, tidal disruption and coalescence are emergent.
+Two exponential stellar disks of equal-mass particles, total mass set by the M1, M2 sliders (about 3600 particles split by mass ratio). Self-gravity is solved with the shared 2D particle-mesh engine (`shared/js/engine/particle-mesh-2d.js`): cloud-in-cell mass deposit on a 64 x 64 grid, ISOLATED Poisson solve (zero-padded Green's-function convolution on the doubled grid, radix-2 FFT), CIC force interpolation, kick-drift-kick leapfrog. No periodic wrap (free-space boundaries; particles that leave just leave). Disk rotation is balanced against the actual t=0 PM force (not an analytic guess) plus a small warm dispersion. No analytic cores, no Chandrasekhar term, no merge event: dynamical friction, tidal disruption and coalescence are emergent.
 
 ## Controls
 

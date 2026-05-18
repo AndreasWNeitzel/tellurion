@@ -11,7 +11,7 @@
 
 import { makeRng, gaussian } from '../../../shared/js/render/rng.js';
 import {
-  depositCIC, solvePoisson2D, gradPhi, interpolateCIC, stepPM,
+  depositCICOpen, solvePoissonIsolated2D, gradPhiOpen, interpolateCICOpen, stepPM,
 } from '../../../shared/js/engine/particle-mesh-2d.js';
 
 const params        = new URLSearchParams(location.search);
@@ -26,12 +26,17 @@ const readout  = document.getElementById('readout');
 const controlsEl = document.getElementById('controls');
 const W = canvas.width, H = canvas.height;
 
-// Particle-mesh parameters (periodic box; the merger is kept central so the
-// periodic images stay far away).
-const NGRID = 48;
-const L     = 14;
+// Particle-mesh parameters. ISOLATED (vacuum) boundaries via the shared
+// engine's zero-padded Green's-function solver: there is NO periodic box,
+// so particles never wrap or teleport; debris that is flung out simply
+// leaves the frame, which is honest. NGRID is a power of two so the engine
+// uses its fast radix-2 FFT. The softening EPS is ~1.5 cells, small enough
+// that the dense cores attract strongly and resolve the merger.
+const NGRID = 64;
+const L     = 16;
 const G     = 1;
-const PM    = { NGRID, L, G };
+const EPS   = 1.5 * L / NGRID;
+const PM    = { NGRID, L, G, isolated: true, eps: EPS };
 const NTOT  = 3600;          // dense: reads as a real galaxy, holds 60 fps
 const dt    = 0.03;
 
@@ -89,11 +94,11 @@ function reset() {
   }
   // Balance rotation against the ACTUAL t=0 particle-mesh force (not an
   // analytic guess), then add a small dispersion so each disk is warm.
-  const rho = depositCIC(X, M, NP, NGRID, L);
-  const phi0 = solvePoisson2D(rho, NGRID, L, G);
-  const { gx, gy } = gradPhi(phi0, NGRID, L);
-  const ax0 = interpolateCIC(X, gx, NP, NGRID, L);
-  const ay0 = interpolateCIC(X, gy, NP, NGRID, L);
+  const rho = depositCICOpen(X, M, NP, NGRID, L);
+  const phi0 = solvePoissonIsolated2D(rho, NGRID, L, G, EPS);
+  const { gx, gy } = gradPhiOpen(phi0, NGRID, L);
+  const ax0 = interpolateCICOpen(X, gx, NP, NGRID, L);
+  const ay0 = interpolateCICOpen(X, gy, NP, NGRID, L);
   for (let k = 0; k < NP; k += 1) {
     const c = ORIG[k] === 0 ? c1 : c2;
     const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
@@ -142,10 +147,11 @@ function render() {
   const Wl = W * SPLIT;
   const cx = Wl / 2, cy = H / 2;
   const sc = Math.min(Wl, H) * 0.085;        // units to px in the spatial panel
-  // Spatial panel, in the primary-centroid frame (periodic-wrapped to it).
+  // Spatial panel, in the primary-centroid frame. Isolated boundaries: NO
+  // periodic wrap. A particle flung far just leaves the panel (clipped),
+  // which is honest, rather than teleporting to the opposite edge.
   for (let k = 0; k < NP; k += 1) {
-    let dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
-    dx -= Math.round(dx / L) * L; dy -= Math.round(dy / L) * L;
+    const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
     const px = cx + dx * sc, py = cy + dy * sc;
     if (px < 2 || px > Wl - 2 || py < 2 || py > H - 2) continue;
     ctx.fillStyle = ORIG[k] === 0 ? '#7c9cff' : '#fdb56a';
@@ -161,13 +167,12 @@ function render() {
   // diagnostic).
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
   ctx.beginPath(); ctx.moveTo(Wl, 0); ctx.lineTo(Wl, H); ctx.stroke();
-  const phiAt = interpolateCIC(X, phiGrid, NP, NGRID, L);
+  const phiAt = interpolateCICOpen(X, phiGrid, NP, NGRID, L);
   const px0 = Wl + 54, px1 = W - 18, py0 = 40, py1 = H - 40;
   let lzMax = 1e-6, eLo = 1e30, eHi = -1e30;
   const pts = [];
   for (let k = 0; k < NP; k += ELZ_SKIP) {
-    let dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
-    dx -= Math.round(dx / L) * L; dy -= Math.round(dy / L) * L;
+    const dx = X[2 * k] - c.x, dy = X[2 * k + 1] - c.y;
     const vx = V[2 * k] - c.vx, vy = V[2 * k + 1] - c.vy;
     const Lz = dx * vy - dy * vx;
     const E = 0.5 * (vx * vx + vy * vy) + phiAt[k];

@@ -237,7 +237,7 @@
     <article class="card">
       <h2><a href="./playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html">Galaxy Merger N-Body</a></h2>
       <p class="status">verified 2026-05-18</p>
-      <p class="description">Two dense rotating exponential disks (about 3600 equal-mass particles total, split by the mass-ratio sliders, color-coded by origin) fall together as a true self-gravitating system. Gravity is solved self-consistently on a periodic grid with the shared particle-mesh engine; there are no analytic cores and no special-case forces, so the in-fall, tidal tails, </p>
+      <p class="description">Two dense rotating exponential disks (about 3600 equal-mass particles total, split by the mass-ratio sliders, color-coded by origin) fall together as a true self-gravitating system. Gravity is solved self-consistently with the shared particle-mesh engine using ISOLATED (vacuum) boundaries (zero-padded Green's-function convolution, fast radix-2 FFT): there is</p>
       
     </article>
   
@@ -2285,7 +2285,7 @@
     <article class="card">
       <h2><a href="./playgrounds/bsc-y2s2/FIS2018-runge-vs-chebyshev/index.html">Runge Phenomenon and Chebyshev Cure</a></h2>
       <p class="status">verified 2026-05-18</p>
-      <p class="description">Polynomial interpolation of the Runge function f(x) = 1 / (1 + 25 x^2) on [-1, 1] at n + 1 nodes: - Equispaced: x_i = -1 + 2 i / n. - Chebyshev (second kind, including endpoints): x_i = cos(i pi / n).</p>
+      <p class="description">The natural instinct, fit more points with a higher-degree polynomial to get a better approximation, can spectacularly backfire. The playground interpolates the same smooth function on evenly spaced points and watches the fit explode near the edges, then fixes it by moving the points, not raising the degree.</p>
       
     </article>
   

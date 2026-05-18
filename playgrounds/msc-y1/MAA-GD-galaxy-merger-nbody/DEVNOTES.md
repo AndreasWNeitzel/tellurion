@@ -24,3 +24,6 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 
 ## Sweep 2026-05-18
 User-directed rebuild: replaced analytic cores + Chandrasekhar/merge/damping hacks with a true self-gravitating particle-mesh N-body on the new shared engine. Merger, dynamical friction, tidal disruption, coalescence and the Sausage E-Lz signature all emergent and continuous; screenshot-verified t-000/t-050/t-100; 60fps at 3600 particles. Tests 1 passed + PM engine 6/6.
+
+## Sweep 2026-05-18
+User feedback: particles teleporting (periodic wrap) + cores too weak. Added isolated (vacuum) BCs to the shared PM engine via zero-padded Green-function convolution + a radix-2 FFT (30x faster, Poisson still exact to 1e-9). NGRID 64, no wrap: particles that leave just leave, galaxies strongly attract and merge. Screenshot-verified t-000/t-100; Sausage E-Lz preserved; 60fps. PM engine tests 9/9.
