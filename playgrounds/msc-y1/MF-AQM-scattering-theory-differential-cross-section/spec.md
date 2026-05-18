@@ -21,6 +21,72 @@ share_state_keys: [target, ka, str]
 
 # Scattering Theory: Differential Cross Section and Partial Waves
 
+## Explainer
+
+### What you are looking at
+
+Fire a quantum beam at a target and count where particles come out.
+The angular pattern, the differential cross section, encodes the
+potential. The playground shows the incident plane wave, the outgoing
+scattered wave, the phase shifts each angular-momentum channel picks
+up, and the polar $d\sigma/d\Omega$ pattern, with the optical theorem
+as a built-in consistency check.
+
+### The scattering amplitude
+
+Far from the target the wavefunction is an incident plane wave plus an
+outgoing spherical wave whose angular weight is the scattering
+amplitude $f(\theta)$:
+
+$$\psi \;\sim\; e^{ikz} + f(\theta)\,\frac{e^{ikr}}{r},
+  \qquad
+  \frac{d\sigma}{d\Omega} = |f(\theta)|^2.$$
+
+Two complementary ways to get $f$:
+
+- Partial waves: expand in angular momentum $\ell$; a spherically
+  symmetric potential only shifts each radial wave's phase by
+  $\delta_\ell$, so
+
+$$f(\theta) = \frac1k\sum_{\ell}(2\ell+1)\,e^{i\delta_\ell}
+  \sin\delta_\ell\,P_\ell(\cos\theta).$$
+
+  A hard sphere of radius $a$ gives $\tan\delta_\ell$ from spherical
+  Bessel functions; at low energy only $\ell=0$ matters and
+  $\sigma\to4\pi a^2$ (four times the geometric area, a quantum
+  surprise).
+- Born approximation (weak potential): $f$ is essentially the Fourier
+  transform of $V(r)$ in the momentum transfer
+  $q = 2k\sin(\theta/2)$, which is why scattering measures structure.
+
+### The optical theorem
+
+Probability conservation forces a tight link between forward
+scattering and the total cross section:
+
+$$\sigma_\text{tot} = \frac{4\pi}{k}\,\mathrm{Im}\,f(0).$$
+
+The playground computes $\sigma_\text{tot}$ both ways (sum over
+$\delta_\ell$ and from $\mathrm{Im}\,f(0)$) and shows them agree, the
+optical-theorem check, while the polar pattern morphs as you change
+energy and target.
+
+### Things to try
+
+- Lower the energy on a hard sphere until only $\delta_0$ survives:
+  isotropic scattering with $\sigma\to4\pi a^2$.
+- Raise the energy and watch higher partial waves switch on and the
+  pattern develop forward-peaked lobes.
+- Confirm the partial-wave $\sigma_\text{tot}$ equals the
+  optical-theorem value as you vary the potential.
+
+### Where this comes from
+
+The partial-wave expansion, the Born approximation, and the optical
+theorem follow Sakurai, *Modern Quantum Mechanics*, Chapter 6;
+Griffiths, *Introduction to Quantum Mechanics*, Chapter 11; and
+Taylor, *Scattering Theory* (1972).
+
 ## Physical setup
 
 A monoenergetic beam (plane wave `e^{ikz}`) hits a fixed central
