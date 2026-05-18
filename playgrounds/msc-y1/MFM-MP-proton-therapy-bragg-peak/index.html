@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="The proton depth-dose Bragg peak against the photon curve, the spread-out Bragg peak as a superposition, and the dose deposited along a patient depth">
+    </canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">energy:</span><span class="value" id="readout-e">150 MeV</span>
+      <span class="label">range:</span><span class="value" id="readout-r">15.6 cm</span>
+      <span class="label">mode:</span><span class="value" id="readout-mode">pristine vs X-ray</span>
+      <span class="label">peak/entrance:</span><span class="value" id="readout-pe">3.2</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A proton beam deposits little dose on the way in and almost all of it in a sharp Bragg peak at a depth set by its energy through R = alpha E0^1.77, then nothing beyond; a photon beam builds up to a shallow maximum and irradiates everything past the target. Superposing pristine peaks of decreasing energy spreads the peak into a flat plateau covering a tumour.
+      <em>Method:</em> the Bragg-Kleeman rule with Gaussian range straggling and weighted SOBP superposition; Canvas2D, deterministic.
+      <em>Source:</em> Wilson 1946; Bortfeld 1997.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">proton energy (MeV)</span><input aria-label="proton energy in MeV" type="range" id="slider-e" min="60" max="230" step="2" value="150"><span class="value" id="value-e">150</span></div>
+    <div class="row"><span class="label">mode</span><select aria-label="display mode" id="select-mode" style="grid-column: span 2;"><option value="pristine">pristine Bragg vs X-ray</option><option value="sobp">spread-out Bragg peak</option></select></div>
+    <div class="row"><span class="label">SOBP width (%)</span><input aria-label="SOBP plateau width, percent of range" type="range" id="slider-pw" min="10" max="60" step="2" value="35"><span class="value" id="value-pw">35</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

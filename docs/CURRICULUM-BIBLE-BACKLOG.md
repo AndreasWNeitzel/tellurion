@@ -498,7 +498,7 @@ docs/NEEDS-ATTENTION.md, move on.
   FID plus spectrum, k-space fill, 2D iFFT image; T1/T2 presets, SE vs
   GE. Inv: TR>>T1 Mz to M0; S prop rho e^-TE/T2 (1-e^-TR/T1); |M|
   1e-10.
-- [ ] proton-therapy-bragg-peak : advanced canvas2d. Proton depth-dose
+- [x] proton-therapy-bragg-peak : advanced canvas2d. Proton depth-dose
   Bragg peak vs X-ray, SOBP superposition. Bethe-Bloch R prop E^1.77.
   Inv: R prop E0^1.77 2%; peak at range 1mm; no dose beyond.
 - [ ] monte-carlo-photon-transport : advanced canvas2d. Tissue slab,
