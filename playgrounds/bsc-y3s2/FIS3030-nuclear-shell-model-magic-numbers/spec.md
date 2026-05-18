@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s2
 primary_citation: krane-nuclear
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Fill nuclear energy levels like atomic shells and a strong spin-orbit force produces the magic numbers 2, 8, 20, 28, 50, 82, 126 where nuclei are extra stable.'
+one_paragraph: 'Nucleons occupy quantized single-particle levels of an average nuclear potential, protons and neutrons filling separately, each level holding 2j+1 of them. A plain oscillator potential gives the wrong shell closures; adding the strong spin-orbit term of Mayer and Jensen (1949) reorders the levels so the cumulative counts land exactly on the observed magic numbers 2, 8, 20, 28, 50, 82, 126, where nuclei show extra binding and stability. The playground fills levels up to a chosen nucleon count and highlights the closures. Reference: Krane, Introductory Nuclear Physics, Ch. 5.'
 tags: [nuclear-particle, animation, live-readout]
 difficulty: 3
 tier: simple
