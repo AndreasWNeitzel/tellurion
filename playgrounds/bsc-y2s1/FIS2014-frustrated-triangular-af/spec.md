@@ -20,6 +20,63 @@ share_state_keys: []
 
 # Frustrated triangular antiferromagnet
 
+## Explainer
+
+### What you are looking at
+
+Put antiferromagnetic spins (each wanting to be opposite its
+neighbours) on a triangular lattice and they cannot all be satisfied
+at once: every triangle has a built-in conflict. This is geometric
+frustration, and the playground shows its strange consequence, a
+system that never orders and keeps a huge ground-state degeneracy
+even at zero temperature.
+
+### The frustration
+
+Ising spins $s_i=\pm1$ on a triangular lattice with
+$E = J\sum_{\langle ij\rangle} s_i s_j$, $J>0$ (antiferromagnetic, so
+neighbours prefer to be opposite). On a single triangle you cannot
+make all three pairs anti-aligned: if A is up and B is down, C wants
+to be opposite to both and fails one. Every elementary triangle
+therefore has at least one frustrated (unsatisfiable) bond. There is
+no way to tile the plane that satisfies all bonds.
+
+### No ordering, residual entropy
+
+The consequences are profound and exactly known (Wannier 1950):
+
+- There is no finite-temperature phase transition. Unlike the square
+  lattice (which orders below $T_c$), the triangular
+  antiferromagnet stays disordered down to $T=0$.
+- The ground state is massively degenerate: a finite entropy per
+  spin survives at $T=0$,
+$$\frac{S(0)}{N k_B} = \frac{2}{\pi}\int_0^{\pi/3}
+  \ln\!\big(2\cos x\big)\,dx \approx 0.323,$$
+
+  a violation of a naive third law and the hallmark of frustration.
+  The system fluctuates forever among an exponentially large set of
+  equal-energy configurations.
+
+This is the prototype of frustration that underlies spin ice, spin
+glasses, and the order-by-disorder phenomenon. The playground runs
+Monte Carlo on the triangular lattice and shows it refusing to order
+and the per-triangle frustrated bond that can never be removed.
+
+### Things to try
+
+- Cool the lattice and watch it stay disordered (no ordering
+  transition), unlike a square-lattice antiferromagnet.
+- Highlight a triangle and confirm one bond is always frustrated, at
+  any temperature.
+- Estimate the residual entropy: many distinct ground states at the
+  same minimum energy.
+
+### Where this comes from
+
+The triangular Ising antiferromagnet, the absence of ordering and the
+residual entropy follow Wannier, Phys. Rev. 79, 357 (1950), and
+Moessner and Ramirez, Physics Today 59, 24 (2006).
+
 ## Physical setup
 
 Antiferromagnetic Ising spins on a 2D triangular lattice with periodic boundaries. Each spin prefers to be opposite to its 6 neighbors. Geometric frustration: on every 3-spin plaquette, you cannot satisfy all three anti-alignments at once. Wannier 1950 showed there is no finite-T phase transition; the T = 0 ground state has extensive residual entropy.
