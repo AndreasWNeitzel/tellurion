@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: AST3014
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y3s1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Pop a membrane between high- and low-pressure gas and three things race apart at once: a shock, a contact surface, and a rarefaction fan.'
+one_paragraph: 'The Sod shock tube is the standard test of any compressible-flow code. A membrane separates a dense, high-pressure gas (rho=1, P=1) from a thin, low-pressure one (rho=0.125, P=0.1); removing it launches a rightward shock, a contact discontinuity trailing it, and a leftward rarefaction fan, all with a known exact Riemann solution. The playground evolves it with smoothed-particle hydrodynamics (SPH) and overlays the analytic answer, so you see where the particle method captures the shock and where it smears the contact. It is the canonical pass/fail benchmark for hydrodynamics solvers. Reference: Sod 1978; Monaghan, Smoothed Particle Hydrodynamics (ARAA 1992).'
 tags: [fluids-mhd, stellar, animation, live-readout]
 difficulty: 3
 tier: simple
