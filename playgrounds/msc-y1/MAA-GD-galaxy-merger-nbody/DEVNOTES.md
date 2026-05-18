@@ -17,3 +17,7 @@ invariants Tests 1 passed + visual 5/5 x3. Shipped.
 ## Sweep 2026-05-18
 User feedback: with an unequal-mass primary the lab-frame view let the system drift off-screen, and the E-Lz plot looked suspicious (evolves then freezes). Fixed: render the spatial panel in the shared mass-weighted COM frame so the remnant stays centered at any mass ratio; reduced the merge radius so dynamical friction drives several decaying passages (violent relaxation churns E-Lz through the merger) before coalescence. The post-settling freeze is correct physics (conserved integrals in a relaxed remnant, the basis of the Gaia-Enceladus diagnostic) and is now documented. Screenshot-verified the remnant stays centered and the E-Lz plane evolves (t-050) then settles (t-100).
 invariants Tests 1 passed + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-18
+User request: compute the integrals of motion in the primary core's rest frame from now on. Replaced the mass-weighted COM reference with the more-massive core's position/velocity for both the E-Lz panel and the spatial centering (the Galactocentric analogue: the real Gaia-Enceladus/Sausage integrals are measured relative to the surviving Milky Way, not the barycentre). Labels and Explainer updated; screenshot-verified the survivor stays centered and the accreted Sausage clump is anchored on the primary.
+invariants Tests 1 passed + visual 5/5 x3. Shipped.

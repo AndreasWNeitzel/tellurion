@@ -4,8 +4,9 @@
 // friction, so the orbit decays and the cores coalesce into one nucleus;
 // the tracers feel the combined Hernquist potential and violently relax.
 // A second panel shows the stars in the energy vs angular-momentum plane
-// (COM frame), where the shredded lighter galaxy forms a distinct radial
-// clump: the Gaia-Enceladus / Sausage analogue.
+// in the PRIMARY core's rest frame (the Galactocentric analogue), where the
+// shredded lighter galaxy forms a distinct radial clump: the Gaia-Enceladus
+// / Sausage analogue.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
@@ -219,17 +220,16 @@ function step() {
 const SPLIT = 0.57;            // left = spatial, right = integrals of motion
 const ELZ_SKIP = 3;            // subsample tracers for the E-Lz scatter
 
-function comFrame() {
-  // Mass-weighted centre of mass of the two nuclei and its velocity.
-  const Mt = halo1.M + halo2.M;
-  return {
-    x:  (halo1.M * halo1.x  + halo2.M * halo2.x)  / Mt,
-    y:  (halo1.M * halo1.y  + halo2.M * halo2.y)  / Mt,
-    vx: (halo1.M * halo1.vx + halo2.M * halo2.vx) / Mt,
-    vy: (halo1.M * halo1.vy + halo2.M * halo2.vy) / Mt,
-  };
+function primaryFrame() {
+  // Rest frame anchored on the PRIMARY (more massive) galaxy's core. This is
+  // the Galactocentric analogue: the Gaia-Enceladus / Sausage integrals of
+  // motion are measured relative to the surviving Milky Way, not the system
+  // barycentre. The heavy primary also barely moves, so it keeps both panels
+  // centred on the survivor.
+  return (halo1.M >= halo2.M) ? halo1 : halo2;
 }
-// Specific orbital energy and z angular momentum of a star, in the COM frame.
+// Specific orbital energy and z angular momentum of a star, in the primary
+// core's rest frame.
 function integrals(p, com) {
   const xr = p.x - com.x, yr = p.y - com.y;
   const vxr = p.vx - com.vx, vyr = p.vy - com.vy;
@@ -250,7 +250,7 @@ function render() {
   // Render the spatial panel in the centre-of-mass frame: subtract the
   // system COM so an unequal-mass primary cannot carry the whole encounter
   // off-screen (and so the spatial view and the E-Lz panel share one frame).
-  const com = comFrame();
+  const com = primaryFrame();
   ctx.fillStyle = '#7c9cff';
   for (const p of tracers1) ctx.fillRect(cx + (p.x - com.x) * sc, cy + (p.y - com.y) * sc, 1.5, 1.5);
   ctx.fillStyle = '#fdb56a';
@@ -261,9 +261,9 @@ function render() {
   ctx.fillStyle = '#ffd57f';
   ctx.beginPath(); ctx.arc(cx + (halo2.x - com.x) * sc, cy + (halo2.y - com.y) * sc, 3, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('merger (spatial, COM frame)', 12, 20);
+  ctx.fillText('merger (spatial, primary-core frame)', 12, 20);
 
-  // Integrals-of-motion panel: E versus L_z in the COM frame, colour-coded
+  // Integrals-of-motion panel: E versus L_z in the primary-core frame, coloured
   // by galaxy of origin. The shredded lighter galaxy lands in a distinct
   // low-|Lz| (radial) clump, the Gaia-Enceladus / "Sausage" analogue.
   // (com computed above; the spatial panel and this panel share it.)
@@ -295,7 +295,7 @@ function render() {
     ctx.fillRect(mapx(q.Lz), mapy(q.E), 1.4, 1.4);
   }
   ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('integrals of motion (COM frame)', px0, 22);
+  ctx.fillText('integrals of motion (primary-core frame)', px0, 22);
   ctx.fillText('L_z  (angular momentum)', px0 + 60, H - 16);
   ctx.save();
   ctx.translate(Wl + 18, (py0 + py1) / 2); ctx.rotate(-Math.PI / 2);

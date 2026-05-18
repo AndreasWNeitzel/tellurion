@@ -20,7 +20,7 @@ share_state_keys: []
 
 # Galaxy Merger N-Body
 
-Two coherently-rotating exponential spiral disks (7000 tracer particles each, color-coded by initial galaxy) of user-set masses M1, M2 approach at chosen impact parameter and relative velocity. Each tracer feels the live combined Hernquist potential of both halos; the nuclei integrate as an unequal-mass Newtonian two-body with exact Chandrasekhar dynamical friction, so the orbit decays and the cores coalesce into one phase-mixed remnant. A second panel plots every star in the centre-of-mass energy vs angular-momentum plane, color-coded by origin, where the disrupted lighter galaxy forms the Gaia-Enceladus / Sausage clump.
+Two coherently-rotating exponential spiral disks (7000 tracer particles each, color-coded by initial galaxy) of user-set masses M1, M2 approach at chosen impact parameter and relative velocity. Each tracer feels the live combined Hernquist potential of both halos; the nuclei integrate as an unequal-mass Newtonian two-body with exact Chandrasekhar dynamical friction, so the orbit decays and the cores coalesce into one phase-mixed remnant. A second panel plots every star in the energy vs angular-momentum plane measured in the primary galaxy core's rest frame (the Galactocentric analogue), color-coded by origin, where the disrupted lighter galaxy forms the Gaia-Enceladus / Sausage clump.
 
 ## Explainer
 
@@ -70,16 +70,21 @@ remnant.
 
 ### The integrals-of-motion panel and the Sausage
 
-For each star the playground computes, in the centre-of-mass frame,
-the specific angular momentum and orbital energy
+For each star the playground computes, in the rest frame of the
+PRIMARY (more massive) galaxy's core, the specific angular momentum
+and orbital energy
 
 $$L_z = x\,v_y - y\,v_x,
   \qquad
   E = \tfrac12 v^2 + \Phi_1 + \Phi_2,$$
 
-and plots $E$ against $L_z$, colour-coded by galaxy of origin. Both
-panels share one centre-of-mass frame, so an unequal-mass primary
-cannot drag the encounter off-screen. While the two nuclei are still
+with positions and velocities taken relative to that core. This is
+the Galactocentric analogue: the real Gaia-Enceladus / Sausage
+integrals of motion are measured relative to the surviving Milky Way,
+not the system barycentre, so the surviving primary disk is the
+natural zero-point. Both panels share this primary-core frame, and
+because the heavy primary barely moves it also keeps the encounter
+centred on the survivor. While the two nuclei are still
 orbiting the potential is time-dependent and the points churn
 violently (each pericentre passage reshuffles $E$ and $L_z$, the
 visible signature of violent relaxation). Once the nuclei coalesce
