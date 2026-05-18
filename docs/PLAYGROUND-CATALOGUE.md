@@ -660,8 +660,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### q-state Potts Model on a 2D Square Lattice
 `playgrounds/bsc-y2s1/FIS2014-potts-q-state-transition` | FIS2014 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Each site of an L x L periodic square lattice holds a discrete spin s in {0, 1, ..., q - 1}. Energy: E = -J sum_{<i, j>} delta(s_i, s_j) with J = 1.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: In the q-state Potts model each site picks one of q colours and a bond lowers the energy only when its two sites match. It generalizes the Ising model (q = 2) and orders below T_c = 1 / ln(1 + sqrt(q)). The character of the transition depends only on q: for q up to 4 it is continuous (second order), while for q of 5 or more it turns first order, with a latent-heat jump and coexisting phases. The playground runs Metropolis dynamics through T_c and shows the order parameter and energy, so the continuous-versus-abrupt distinction is visible as you change q. Reference: Wu 1982, Rev. Mod. Phys. 54, 235.
+- Hook: Generalize the Ising magnet to q colours and one dial flips the phase transition from a smooth second-order one to an abrupt first-order jump.
 - Review verdict: [deep] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - `hook: 'STATUS: needs_hook'` — must be replaced with concrete 1-sentence hook
@@ -684,8 +684,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### 2D XY Model and the BKT Vortex Transition
 `playgrounds/bsc-y2s1/FIS2014-xy-model-bkt` | FIS2014 | SHIPPED | tier:simple
 
-- What it does / physics / visuals: Classical XY model: each site of an L x L periodic square lattice holds a continuous angle theta in [0, 2 pi). Bond energy -J cos(theta_i - theta_j); J = 1. The 2D XY model has no spontaneous symmetry breaking at finite T (Mermin-Wagner), but it does have a finite-temperature Berezinskii-Kosterlitz-Thouless (BKT) transition at T_BKT ~ 0.893 J (Hasenbusch 2005, Phys. Rev. B 71, 094507).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Continuous spins on a 2D lattice cannot spontaneously order at any finite temperature (Mermin-Wagner), so the XY model has no ordinary critical point. Berezinskii, Kosterlitz and Thouless found instead a topological transition near T = 0.893 J: below it, vortices and antivortices are locked in neutral pairs and correlations decay as slow power laws; above it the pairs unbind into free vortices and correlations decay exponentially. The playground evolves the spins and tracks the vortices, so you watch pairs stay bound below the BKT temperature and proliferate above it. This unbinding mechanism earned the 2016 Nobel Prize in Physics. Reference: Kosterlitz and Thouless 1973; Hasenbusch 2005.
+- Hook: The 2D XY magnet never develops true long-range order, yet it still has a phase transition: bound vortex pairs unbind at the Kosterlitz-Thouless temperature.
 - Review verdict: [deep] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - `hook: 'STATUS: needs_hook'` — must be replaced with concrete 1-sentence hook
