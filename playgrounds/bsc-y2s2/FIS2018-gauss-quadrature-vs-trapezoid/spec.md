@@ -20,6 +20,59 @@ share_state_keys: []
 
 # Gauss-Legendre vs trapezoid quadrature
 
+## Explainer
+
+### What you are looking at
+
+Two ways to compute an integral numerically. The trapezoidal rule lays
+down evenly spaced points and connects them with straight lines.
+Gauss-Legendre instead chooses both the point positions and their
+weights optimally. For smooth functions Gauss-Legendre is staggeringly
+more accurate for the same number of points, and the playground shows
+that gap shrink as you add nodes.
+
+### The two rules
+
+Approximate $\int_{-1}^{1} f(x)\,dx$ as a weighted sum of samples:
+
+$$\int_{-1}^{1} f(x)\,dx \approx \sum_{i} w_i\,f(x_i).$$
+
+- Trapezoid: $x_i$ equispaced, $w_i$ equal (ends halved). With $n$
+  intervals the error falls only as $1/n^2$.
+- Gauss-Legendre: the $n$ nodes are the roots of the Legendre
+  polynomial $P_n(x)$ and the weights are chosen so the rule is exact
+  for every polynomial up to degree $2n-1$, double what $n$ free
+  points would naively give.
+
+### Why Gauss wins (and when it does not)
+
+By placing nodes at the Legendre roots, $n$ Gauss points integrate a
+degree-$(2n-1)$ polynomial with zero error. For a smooth function
+(well approximated by polynomials) the error then drops
+*exponentially* in $n$, not polynomially: a dozen Gauss points can beat
+thousands of trapezoid points. The playground tests
+$\cos 2x$ and $e^{-4x^2}$ (smooth, Gauss crushes it), the Runge
+function (Gauss still wins), and $\sqrt{|x|}$ (a kink at 0: neither
+converges fast, the honest caveat that spectral accuracy needs
+smoothness). Nodes and weights are computed by the Golub-Welsch
+eigenproblem.
+
+### Things to try
+
+- Pick $\cos 2x$ and watch Gauss reach machine precision in ~6 nodes
+  while trapezoid is still crawling.
+- Pick $\sqrt{|x|}$ and see both stall: the kink destroys the
+  Gauss advantage.
+- Add nodes and watch the Gauss error fall in a straight line on a
+  log axis (exponential convergence).
+
+### Where this comes from
+
+Gauss-Legendre quadrature, the degree-$(2n-1)$ exactness, and the
+smoothness requirement follow Trefethen, *Approximation Theory and
+Approximation Practice*, Chapter 18, and Press et al., *Numerical
+Recipes*, 3rd ed., Chapter 4.
+
 ## Physical setup
 
 Numerical evaluation of integral_{-1}^1 f(x) dx by:
