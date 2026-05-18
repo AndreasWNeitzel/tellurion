@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y3s1
 primary_citation: goedbloed-plasma
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Pluck a magnetic field line like a guitar string: a transverse ripple runs along it at the Alfven speed, restored by magnetic tension.'
+one_paragraph: 'In a magnetized plasma the field lines behave like elastic strings under tension. A transverse perturbation of the field, with the frozen-in fluid moving with it, propagates along the background field as an Alfven wave at speed v_A = B_0 / sqrt(mu_0 rho), with magnetic tension providing the restoring force exactly as string tension does for a wave on a string. The playground animates the 1D transverse perturbation and reports v_A as you change the field strength and density, so the B over sqrt(rho) scaling is explicit. Alfven waves carry energy through the solar corona and the solar wind. Reference: Goedbloed and Poedts, Principles of Magnetohydrodynamics, Ch. 5.'
 tags: [fluids-mhd, stellar, animation, live-readout]
 difficulty: 3
 tier: simple
