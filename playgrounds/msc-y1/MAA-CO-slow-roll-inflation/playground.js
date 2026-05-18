@@ -7,6 +7,7 @@
 // of motion (step) and __physicsCheck are unchanged.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { V as simV, Vp as simVp, Vpp as simVpp, epsilon as simEpsilon, eta as simEta, nsR_atN as simNsRatN } from './sim.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -23,25 +24,15 @@ const W = canvas.width, H = canvas.height;
 const state = { model: 'phi2', phi: 8.0, phid: 0, t: 0, N: 0 };
 const trail = [];
 
-function V(phi) {
-  if (state.model === 'phi2') return 0.5 * phi * phi;
-  if (state.model === 'phi4') return 0.25 * phi * phi * phi * phi;
-  return Math.pow(1 - Math.exp(-Math.sqrt(2 / 3) * phi), 2);
-}
-function Vp(phi) {
-  if (state.model === 'phi2') return phi;
-  if (state.model === 'phi4') return phi * phi * phi;
-  const e = Math.exp(-Math.sqrt(2 / 3) * phi);
-  return 2 * Math.sqrt(2 / 3) * (1 - e) * e;
-}
-function Vpp(phi) {
-  if (state.model === 'phi2') return 1;
-  if (state.model === 'phi4') return 3 * phi * phi;
-  const e = Math.exp(-Math.sqrt(2 / 3) * phi);
-  return 2 * (2 / 3) * (2 * e * e - e + e * e * (-1));
-}
-function epsilon(phi) { const v = V(phi); return v > 1e-12 ? 0.5 * (Vp(phi) / v) ** 2 : 0; }
-function eta(phi)     { const v = V(phi); return v > 1e-12 ? Vpp(phi) / v : 0; }
+// Pure physics lives in sim.js (model-parameterised, with the corrected
+// Starobinsky V''); these thin wrappers close over state.model so every
+// existing call site stays unchanged and the invariants test the same code.
+const V       = (phi) => simV(phi, state.model);
+const Vp      = (phi) => simVp(phi, state.model);
+const Vpp     = (phi) => simVpp(phi, state.model);
+const epsilon = (phi) => simEpsilon(phi, state.model);
+const eta     = (phi) => simEta(phi, state.model);
+const nsR_atN = (N)   => simNsRatN(N, state.model);
 
 function step(dt) {
   const H_Hubble = Math.sqrt(Math.max(V(state.phi) / 3, 1e-12));
@@ -191,28 +182,26 @@ function drawNsR() {
   ctx.fillStyle = '#06d6a0'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
   ctx.fillText('Planck-favoured', sx(0.965) - 36, sy(0.02) - ph * 0.16 - 4);
 
-  // Inflation track: only the slow-roll segment (phi from 8 down to the
-  // end of inflation). The (n_s, r) prediction diverges once epsilon > 1,
-  // so the reheating tail is excluded.
-  const phiEnd = Math.max(0.4, phiEndOfInflation());
+  // Inflation track: the slow-roll prediction versus the number of
+  // e-folds N before the end of inflation, over the observationally
+  // relevant CMB window N = 40..70. (The previous code plotted the raw
+  // epsilon(phi)/eta(phi) of the live rolling field, which diverges in
+  // the reheating region, so the track was clamped off-window and the
+  // panel rendered empty with nonsensical n_s/r for phi4.)
   ctx.strokeStyle = '#fdb56a'; ctx.lineWidth = 1.8; ctx.beginPath();
   let started = false;
-  for (let phi = 8; phi > phiEnd; phi -= 0.04) {
-    const e = epsilon(phi), n = eta(phi);
-    const ns = 1 - 6 * e + 2 * n, r = 16 * e;
+  for (let Nf = 40; Nf <= 70; Nf += 1) {
+    const { ns, r } = nsR_atN(Nf);
     const x = sx(Math.max(nsMin, Math.min(nsMax, ns))), y = sy(Math.min(rMax, r));
     if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  // Observable point: evaluated in the slow-roll regime (clamp away from
-  // the divergent reheating region) so it stays physically meaningful.
-  const phiObs = Math.max(state.phi, phiEnd + 0.2);
-  const eC = epsilon(phiObs), nC = eta(phiObs);
-  const nsC = 1 - 6 * eC + 2 * nC, rC = 16 * eC;
+  // Observable point at the CMB pivot, N = 55 e-folds.
+  const { ns: nsC, r: rC } = nsR_atN(55);
   const cxp = sx(Math.max(nsMin, Math.min(nsMax, nsC))), cyp = sy(Math.min(rMax, rC));
   ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(cxp, cyp, 5, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#dcdde2'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillText(`(n_s, r) plane (schematic)   model: ${state.model}   n_s=${nsC.toFixed(3)} r=${rC.toFixed(3)}`, x0 + 8, y0 + 16);
+  ctx.fillText(`(n_s, r) at N=55   model: ${state.model}   n_s=${nsC.toFixed(3)} r=${rC.toFixed(3)}`, x0 + 8, y0 + 16);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
   ctx.fillText('n_s ->', x0 + pw - 6, y0 + ph - 6);
 }

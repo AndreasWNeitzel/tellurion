@@ -1,28 +1,61 @@
-// Slow Roll Inflation invariant tests.
-// Replace placeholders. Each test imports the engine headlessly and asserts a strong-form invariant
-// against the threshold in spec.md.
+// Slow-roll inflation invariants. Tests the real physics in sim.js
+// (previously this file was a skeleton mock that asserted a fake energy
+// drift and never touched the inflation code, which let a wrong
+// Starobinsky V'' ship). The derivative-consistency test below would
+// have caught that bug.
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DEFAULT_SEED, makeRng } from '../../../shared/js/render/rng.js';
-// import * as engine from '../../../shared/js/engine/<engine>.js';
+import { describe, it, expect } from 'vitest';
+import { V, Vp, Vpp, epsilon, eta } from './sim.js';
 
-describe('Slow Roll Inflation invariants', () => {
-  let sim;
-  const PHYSICS_DT = 1 / 240;
-  const STEPS = 10_000;
+const MODELS = ['phi2', 'phi4', 'starobinsky'];
+const K = Math.sqrt(2 / 3);
 
-  beforeAll(() => {
-    const _rng = makeRng(DEFAULT_SEED);
-    // sim = engine.create({ ... seed: DEFAULT_SEED ... });
-    sim = { energy: 1.0, step(dt) { this.energy *= 1 - 1e-9 * dt; }, diagnostics() { return { energyDrift: this.energy - 1.0 }; } };
-    for (let i = 0; i < STEPS; i += 1) sim.step(PHYSICS_DT);
+describe('slow-roll-inflation physics', () => {
+  it('Vp is the phi-derivative of V (central difference, all models)', () => {
+    const h = 1e-5;
+    for (const m of MODELS) {
+      for (const phi of [2, 3.5, 5, 8]) {
+        const num = (V(phi + h, m) - V(phi - h, m)) / (2 * h);
+        expect(Vp(phi, m)).toBeCloseTo(num, 4);
+      }
+    }
   });
 
-  it('energy drift below 1e-3 over 10^4 dt', () => {
-    const { energyDrift } = sim.diagnostics();
-    expect(Math.abs(energyDrift)).toBeLessThan(1e-3);
+  it('Vpp is the phi-derivative of Vp (central difference, all models)', () => {
+    const h = 1e-5;
+    for (const m of MODELS) {
+      for (const phi of [2, 3.5, 5, 8]) {
+        const num = (Vp(phi + h, m) - Vp(phi - h, m)) / (2 * h);
+        expect(Vpp(phi, m)).toBeCloseTo(num, 3);
+      }
+    }
   });
 
-  // Limiting-case tests go here; each one named after the limit it checks.
-  // it('weak field deflection -> 4M/b within 1 percent for b > 30M', () => { ... });
+  it('Starobinsky V and derivatives match the closed form', () => {
+    for (const phi of [3, 5, 8]) {
+      const e = Math.exp(-K * phi);
+      expect(V(phi, 'starobinsky')).toBeCloseTo((1 - e) ** 2, 12);
+      expect(Vp(phi, 'starobinsky')).toBeCloseTo(2 * K * e * (1 - e), 12);
+      expect(Vpp(phi, 'starobinsky')).toBeCloseTo((4 / 3) * (2 * e * e - e), 12);
+    }
+  });
+
+  it('phi^2 exact slow-roll at phi=8: epsilon=1/32, eta=1/32', () => {
+    expect(epsilon(8, 'phi2')).toBeCloseTo(1 / 32, 12);
+    expect(eta(8, 'phi2')).toBeCloseTo(1 / 32, 12);
+  });
+
+  it('phi^4 exact slow-roll at phi=8: epsilon=1/8, eta=3/16', () => {
+    expect(epsilon(8, 'phi4')).toBeCloseTo(0.125, 12);
+    expect(eta(8, 'phi4')).toBeCloseTo(0.1875, 12);
+  });
+
+  it('inflation ends at epsilon=1 (phi^2: epsilon=2/phi^2)', () => {
+    expect(epsilon(Math.SQRT2, 'phi2')).toBeCloseTo(1, 9);
+    expect(epsilon(8, 'phi2')).toBeLessThan(1);
+  });
+
+  it('Starobinsky slow-rolls (epsilon << 1) on the plateau', () => {
+    expect(epsilon(6, 'starobinsky')).toBeLessThan(0.01);
+  });
 });
