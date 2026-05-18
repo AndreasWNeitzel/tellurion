@@ -20,6 +20,65 @@ share_state_keys: []
 
 # Paraxial Gaussian beam (TEM_00)
 
+## Explainer
+
+### What you are looking at
+
+A laser beam is not a parallel pencil of light. It has a narrowest
+point (the waist), and on either side it flares out as a hyperbola. The
+tighter you focus it, the faster it spreads, a hard limit set by
+diffraction. The playground shows the waist, the hyperbolic envelope,
+and the curving wavefronts.
+
+### The beam and its scales
+
+The fundamental TEM_00 laser mode has a Gaussian intensity profile
+
+$$I(r, z) = I_0\left(\frac{w_0}{w(z)}\right)^2
+  \exp\!\left(-\frac{2 r^2}{w(z)^2}\right),$$
+
+narrowest at the waist ($1/e^2$ radius $w_0$). The single scale that
+governs everything is the Rayleigh range
+
+$$z_R = \frac{\pi w_0^2}{\lambda},$$
+
+the distance over which the beam stays roughly collimated. The spot
+size, wavefront curvature, and an extra phase then follow:
+
+$$w(z) = w_0\sqrt{1 + (z/z_R)^2}, \quad
+  R(z) = z\left(1 + (z_R/z)^2\right), \quad
+  \eta(z) = \arctan(z/z_R).$$
+
+### The diffraction trade-off
+
+Far from the waist the beam spreads at the divergence half-angle
+
+$$\theta = \frac{\lambda}{\pi w_0}.$$
+
+Read it: a tight waist (small $w_0$) gives a short $z_R$ and a large
+$\theta$. You cannot have a beam that is both tightly focused and
+stays collimated; the product $w_0\theta = \lambda/\pi$ is fixed by the
+wavelength. That is the diffraction limit in one line, the same reason
+a small telescope cannot resolve fine detail. The extra Gouy phase
+$\eta(z)$ is a real $\pi$ phase slip a focused beam picks up passing
+through its waist, important for cavity resonance. The playground
+sweeps $w_0$ and $\lambda$ so the scalings are visible.
+
+### Things to try
+
+- Shrink the waist $w_0$ and watch the beam flare faster ($\theta
+  \propto 1/w_0$, $z_R \propto w_0^2$).
+- Increase the wavelength and watch the same flaring (longer waves
+  diffract more).
+- Note the wavefronts: flat at the waist, most curved near $z_R$,
+  spherical far away.
+
+### Where this comes from
+
+The Gaussian-beam profile, Rayleigh range, spot-size and curvature
+laws, Gouy phase, and the divergence limit follow Saleh and Teich,
+*Fundamentals of Photonics*, Chapter 3.
+
 ## Physical setup
 
 The fundamental TEM_00 mode of a laser cavity, modeled in the paraxial (slowly varying envelope) limit. The beam is narrowest at z = 0 with 1/e^2 intensity radius w_0; it expands hyperbolically along z as it propagates.
