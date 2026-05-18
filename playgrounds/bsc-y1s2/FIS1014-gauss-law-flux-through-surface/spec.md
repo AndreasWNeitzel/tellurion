@@ -22,6 +22,61 @@ share_state_keys: []
 
 # Gauss's law in 2D: flux invariant under deformation
 
+## Explainer
+
+### What you are looking at
+
+Draw any closed loop around a charge and count the electric field lines
+poking out through it. The number depends only on the charge inside,
+not on the loop's size or shape, and is exactly zero if the charge sits
+outside. Drag the charge in and out of the loop and watch the flux
+readout snap between a fixed value and zero. That is Gauss's law, made
+tactile.
+
+### The field and the flux
+
+A 2D point charge produces the planar Coulomb field
+
+$$\mathbf E = \frac{q}{2\pi\epsilon_0\, r}\,\hat{\mathbf r},$$
+
+pointing radially, falling off as $1/r$ (the 2D analogue of the
+familiar $1/r^2$). The flux through a closed curve is the field
+component crossing it, summed all the way around:
+
+$$\Phi = \oint \mathbf E \cdot \hat{\mathbf n}\, ds.$$
+
+### Why the shape does not matter
+
+Gauss's law (the divergence theorem applied to Coulomb's field) says
+this integral collapses to just the enclosed charge:
+
+$$\Phi = \begin{cases}
+  q/\epsilon_0, & \text{charge inside the curve},\\[2pt]
+  0, & \text{charge outside}.
+\end{cases}$$
+
+Stretch the loop, dent it, make it a blob: as long as the charge stays
+inside, the flux is unchanged, because field lines that leave must come
+back. The playground evaluates the loop integral numerically with
+Simpson quadrature and you watch the number stay pinned at
+$q/\epsilon_0$, then drop to zero the instant the charge crosses the
+boundary. That shape-independence is what makes Gauss's law a
+calculation shortcut for any symmetric problem.
+
+### Things to try
+
+- Resize and distort the loop with the charge inside: the flux
+  readout does not move.
+- Drag the charge across the boundary and watch the flux jump to zero.
+- Add the realization that the same law, in 3D, gives the field of a
+  sphere or an infinite plane in one line.
+
+### Where this comes from
+
+The Coulomb field, the flux integral, and Gauss's law (shape
+independence, charge enclosed) follow Griffiths, *Introduction to
+Electrodynamics*, 5th ed., Chapter 2.
+
 ## Physical setup
 
 A 2D point charge $q$ at user-set position generates the planar Coulomb field $\mathbf{E} = q / (2 \pi \epsilon_0 r) \hat r$. A user-controlled closed curve (ellipse or perturbed-ellipse blob) is drawn around the charge, and the flux $\oint \mathbf{E} \cdot \hat n\,ds$ is computed numerically via Simpson quadrature.
