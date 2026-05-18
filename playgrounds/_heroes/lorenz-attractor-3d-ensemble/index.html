@@ -21,12 +21,12 @@
 </style></head><body>
 <header>
   <h1 data-slot="title">Lorenz Attractor Ensemble (Hero)</h1>
-  <div data-slot="description" class="katex-target">$10^4$ Lorenz trajectories integrated RK4 in a fragment shader from a $10^{-3}$ ball around $(1,1,1)$; positions splatted into an HDR log-density accumulator with geometric decay, viridis-mapped, with one tracked lead particle drawing its recent path. Drag to orbit, scroll to zoom.</div>
+  <div data-slot="description" class="katex-target">Edward Lorenz's 1963 chaos model, shown as a swarm. A few thousand trajectories ($4096$) start a hair apart inside a $10^{-3}$ ball around $(1,1,1)$ and are integrated with RK4 at $\sigma=10$, $\rho=28$, $\beta=8/3$. The GPU paints how densely they crowd as a glowing viridis cloud on the famous two-lobed butterfly. Nearby starts pull apart exponentially yet never leave the same shape: deterministic chaos. Sliders set integration speed and trail length; drag to orbit, scroll to zoom.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Ensemble density of $10^4$ Lorenz trajectories ($\sigma=10$, $\rho=28$, $\beta=8/3$). Source: Strogatz Nonlinear Dynamics Ch. 9 (`strogatz-nonlin`).</figcaption>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Ensemble density of $4096$ Lorenz trajectories ($\sigma=10$, $\rho=28$, $\beta=8/3$): brighter regions are where trajectories crowd on the attractor. The cloud starts in a $10^{-3}$ ball and is stretched across the whole butterfly within seconds, the signature of deterministic chaos. Method: CPU RK4 per trajectory, GPU additive density splatting with ACES tonemapping. Source: Strogatz, Nonlinear Dynamics and Chaos, Ch. 9.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>

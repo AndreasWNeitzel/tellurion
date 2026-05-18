@@ -201,7 +201,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   2D wave equation $\partial_t^2 u = c^2 \nabla^2 u - \gamma \partial_t u$ on a 96x96 grid with Dirichlet boundaries. Click seeds Gaussian impulses. Source: French Waves Ch. 6 (`french-waves`).
 
 - **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-14T03:35:10Z)
-  $1024$ trajectories integrated in a fragment shader (RK4, $dt = 0.005$, $\sigma = 10$, $\beta = 8/3$, $\rho$ slider-controlled) starting from a $10^{-3}$ ball around $(1, 1, 1)$. Each frame the WebGL2 engine at `shared/js/engine-gl/lorenz-ensemble.js` advances every particle one RK4 step, then splats its image-space position into an HDR accumulator with geom
+  In 1963 Edward Lorenz reduced atmospheric convection to three coupled ordinary differential equations. They have no random terms, yet their solutions never repeat and depend so sensitively on the starting point that the future becomes effectively unpredictable. The set of states the system settles onto is the Lorenz attractor: a thin, two-lobed surface (the 
 
 - **[Secular Perturbations (Laplace-Lagrange)](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (verified, verified 2026-05-14T02:28:54Z)
   Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7 (`murray-dermott`).
