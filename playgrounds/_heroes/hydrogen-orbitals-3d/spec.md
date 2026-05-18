@@ -24,6 +24,68 @@ share_state_keys: [n, l, m, view]
 
 # Hydrogen Orbitals 3D
 
+## Explainer
+
+### What you are looking at
+
+The electron in a hydrogen atom has no orbit and no path. It is a
+standing wave around the proton, and what you can know is only the
+probability of finding it somewhere. The playground draws those
+probability clouds, the orbitals, in 3D, and lets you dial the three
+quantum numbers to morph the shape.
+
+### The Schrodinger solution
+
+The electron obeys the time-independent Schrodinger equation in the
+proton's Coulomb potential $V=-e^2/4\pi\varepsilon_0 r$. The
+normalizable solutions exist only for discrete energies
+
+$$E_n = -\frac{13.6\ \mathrm{eV}}{n^2},$$
+
+and each wavefunction separates into a radial and an angular part:
+
+$$\psi_{n\ell m}(r,\theta,\phi)
+  = R_{n\ell}(r)\,Y_\ell^m(\theta,\phi),$$
+
+labelled by three integers: $n$ (size and energy, $1,2,3,\dots$),
+$\ell$ (orbital shape / angular momentum, $0\le\ell<n$: s, p, d,
+f...), and $m$ (orientation, $-\ell\le m\le\ell$). The displayed
+cloud is $|\psi|^2$, the probability density.
+
+### Reading the clouds
+
+The structure is not decorative, it is the quantum numbers made
+visible:
+
+- $n-\ell-1$ radial nodes (spherical shells where $\psi=0$) and
+  $\ell$ angular nodal planes; the total number of nodes is $n-1$,
+  and more nodes means higher energy.
+- $\ell=0$ (s) is spherical; $\ell=1$ (p) is a dumbbell; $\ell=2$
+  (d) has the cloverleaf lobes; raising $m$ rotates/reorients the
+  same shape.
+- The orbital is largest for large $n$ (the electron is, on average,
+  farther out), which is the size of the atom.
+
+These shapes determine chemical bonding, spectra (transitions between
+levels emit the Balmer/Lyman lines), and the periodic table. The
+playground renders $|\psi_{n\ell m}|^2$ as a 3D point cloud you can
+rotate, with the nodal surfaces visible as gaps.
+
+### Things to try
+
+- Set $\ell=0$ for a round s orbital, then raise $\ell$ to grow the
+  p dumbbell and d cloverleaf lobes.
+- Increase $n$ at fixed $\ell$ and count the radial shells appearing
+  ($n-\ell-1$ of them) as the cloud grows.
+- Vary $m$ and watch the same shape reorient (the orientation quantum
+  number).
+
+### Where this comes from
+
+The hydrogen wavefunctions, quantum numbers and nodal structure
+follow Griffiths, *Introduction to Quantum Mechanics*, Chapter 4, and
+Cohen-Tannoudji, Diu and Laloe, *Quantum Mechanics*, Vol. 1.
+
 ## Physical setup
 
 A hydrogen atom is one electron bound to one proton by the Coulomb attraction. Quantum mechanics says the electron does not follow a path; it is described by a wavefunction psi, and |psi|^2 is the probability density of finding it at a given point. Solving the Schrodinger equation for the Coulomb potential gives a discrete family of solutions labelled by three integers, the quantum numbers (n, l, m). Each one is a fixed 3D shape, an orbital. This playground draws that shape directly: where the cloud is bright, the electron is likely to be; where it is dark, it almost never is.

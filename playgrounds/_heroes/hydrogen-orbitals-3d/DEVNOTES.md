@@ -87,3 +87,7 @@ coarseness never affects the physics claims.
   --deterministic (REQUIRED here because the #stage render changed)
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3)
 - node scripts/build-index.mjs         (regenerate gallery card)
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  11 passed + visual 5/5 x3. Shipped.
