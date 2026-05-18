@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s2
 primary_citation: eisberg-resnick
 primary_chapter: 2
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Bounce an X-ray off a free electron and it comes back redder; the wavelength shift depends only on the scattering angle, not the photon energy.'
+one_paragraph: 'Compton scattering treats light as particles: a photon collides with a free electron, and conservation of energy and momentum forces the scattered photon to lose energy. The wavelength shift is Delta lambda = (h / m_e c)(1 - cos theta), independent of the incident wavelength and set purely by the scattering angle, where h / m_e c = 2.426 pm is the electron Compton wavelength. The playground lets you vary theta and shows the scattered photon, the recoiling electron, and the resulting shift. This angle-only shift was decisive evidence that light carries momentum h / lambda. Reference: Eisberg and Resnick, Quantum Physics, Ch. 2.'
 tags: [quantum, animation, live-readout]
 difficulty: 3
 tier: simple
