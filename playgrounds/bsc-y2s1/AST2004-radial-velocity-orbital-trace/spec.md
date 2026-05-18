@@ -9,8 +9,8 @@ supporting_ucs: [AST3015]
 curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Watch a star wobble on its tiny orbit while the matching radial-velocity curve draws itself; that wobble is how most of the first exoplanets were found.'
+one_paragraph: 'A planet and its star both orbit their common centre of mass, so the star traces a small ellipse and its line-of-sight velocity rises and falls each period. The playground shows the orbit and, beside it, the radial-velocity curve traced point by point as the star moves. Raise the eccentricity or turn the argument of periapsis and the curve shifts from a clean sinusoid to a skewed sawtooth; the amplitude carries the planet mass and the orbital geometry. This is the Doppler method that delivered the first hot Jupiters and still anchors exoplanet mass estimates. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 7.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
