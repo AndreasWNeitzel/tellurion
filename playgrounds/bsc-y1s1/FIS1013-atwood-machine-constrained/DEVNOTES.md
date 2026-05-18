@@ -110,3 +110,7 @@ machine instead of over."
   now drapes over the top with m2/m3 hanging from the side tangents.
 - Invariants 9/9 (sim.js untouched). Double frame inspected: rope over
   B, blocks on the sides; gate 5/5 x3.
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  9 passed + visual 5/5 x3. Shipped.

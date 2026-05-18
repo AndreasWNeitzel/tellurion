@@ -19,6 +19,62 @@ share_state_keys: []
 
 # Atwood Machine with a Massive Pulley
 
+## Explainer
+
+### What you are looking at
+
+An Atwood machine is two weights on a rope over a pulley, the classic
+demo of how a constraint (the inextensible rope) couples two motions
+into one. The twist here is a heavy pulley: its rotational inertia
+slows everything down and the rope tension is no longer the same on
+both sides. The playground shows the masses moving and the tensions
+live.
+
+### The constraint and the ideal case
+
+The rope does not stretch, so both masses share one speed and
+acceleration magnitude $a$, and the pulley spins at
+$\alpha = a/R$. With a massless, frictionless pulley the classic
+result is
+
+$$a = \frac{(m_1 - m_2)\,g}{m_1 + m_2},$$
+
+less than $g$ because the heavier mass must drag the lighter one up.
+
+### Adding the pulley's inertia
+
+A real pulley of moment of inertia $I$ must be spun up, which costs
+torque, so the two rope tensions differ ($T_1\neq T_2$) and that
+difference supplies the angular acceleration. Writing Newton's law
+for each mass and the rotational equation $\,(T_1-T_2)R = I\alpha\,$
+for the pulley, with $\alpha=a/R$, gives
+
+$$a = \frac{(m_1 - m_2)\,g}
+  {m_1 + m_2 + I/R^2}.$$
+
+The pulley contributes an effective added mass $I/R^2$ (for a uniform
+disk, $I=\tfrac12 M R^2$, so it adds $M/2$). The heavier the pulley,
+the more sluggish the system and the larger the tension asymmetry
+$T_1-T_2 = I a / R^2$. Energy is still conserved: the lost potential
+energy now also goes into the pulley's rotational kinetic energy
+$\tfrac12 I\omega^2$. The playground sweeps the masses and pulley
+inertia and shows $a$, both tensions, and the energy bookkeeping.
+
+### Things to try
+
+- Set the pulley massless and recover $a=(m_1-m_2)g/(m_1+m_2)$ with
+  $T_1=T_2$.
+- Increase the pulley mass and watch the acceleration drop and the
+  two tensions split apart.
+- Make $m_1=m_2$: the system is balanced and stays at rest whatever
+  the pulley.
+
+### Where this comes from
+
+The constrained Atwood machine with a massive pulley follows
+Kleppner and Kolenkow, *An Introduction to Mechanics*, Chapter 6, and
+Taylor, *Classical Mechanics*, Chapter 3.
+
 ## Physical setup
 
 Two masses `m1`, `m2` hang from an inextensible massless rope over a
