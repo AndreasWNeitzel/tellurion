@@ -21,6 +21,61 @@ share_state_keys: [rayleigh, wavenumber, prandtl]
 
 # Rayleigh-Benard Convection: Onset of Instability
 
+## Explainer
+
+### What you are looking at
+
+Heat a fluid layer from below. At first nothing moves and heat just
+conducts up. Past a sharp threshold the still layer becomes unstable
+and breaks into orderly counter-rotating rolls, the patterned
+convection you see in a heated pan or in the Sun. This playground sits
+right at that onset.
+
+### The competition, in one number
+
+Warm fluid at the bottom is lighter and wants to rise (buoyancy);
+viscosity and thermal diffusion fight that. Their ratio is the
+Rayleigh number,
+
+$$\mathrm{Ra} = \frac{g\,\alpha\,\Delta T\,d^3}{\nu\,\kappa},$$
+
+with $g$ gravity, $\alpha$ thermal expansion, $\Delta T$ the
+top-bottom temperature difference, $d$ the depth, $\nu$ viscosity,
+$\kappa$ thermal diffusivity. Large Ra means buoyancy wins.
+
+### The instability threshold
+
+Linearizing the Boussinesq equations about the motionless conducting
+state and asking when an infinitesimal perturbation stops decaying
+gives a marginal-stability condition. For stress-free, perfectly
+conducting plates it has a closed form, and the minimum over horizontal
+wavenumber is exact:
+
+$$\mathrm{Ra}_c = \frac{27\pi^4}{4} \approx 657.5,$$
+
+at critical wavenumber $k_c = \pi/\sqrt2$ (so the rolls are about as
+wide as the layer is deep). Below $\mathrm{Ra}_c$ every mode decays:
+pure conduction, no motion. Above it, the mode at $k_c$ grows and sets
+the roll wavelength. The threshold is an exact number the simulation is
+gate-tested against, not a quoted constant. The playground sweeps Ra
+through $\mathrm{Ra}_c$ and shows the still layer give way to rolls.
+
+### Things to try
+
+- Hold Ra just below $\mathrm{Ra}_c$: the layer stays motionless,
+  straight conduction temperature profile.
+- Push Ra past $\approx 657.5$ and watch counter-rotating rolls switch
+  on at the predicted wavelength.
+- Note the roll width: comparable to the layer depth (set by $k_c$),
+  not arbitrary.
+
+### Where this comes from
+
+The Boussinesq linear-stability analysis, the Rayleigh number, and the
+$\mathrm{Ra}_c = 27\pi^4/4$ free-slip threshold follow Chandrasekhar,
+*Hydrodynamic and Hydromagnetic Stability*, and Drazin and Reid,
+*Hydrodynamic Stability*.
+
 ## Physical setup
 
 A fluid layer of depth `d` heated from below (hot plate `T = 1` at the
