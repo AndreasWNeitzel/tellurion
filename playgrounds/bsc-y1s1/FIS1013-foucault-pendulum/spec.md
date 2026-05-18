@@ -20,6 +20,69 @@ share_state_keys: []
 
 # Foucault pendulum: Coriolis precession
 
+## Explainer
+
+### What you are looking at
+
+A long pendulum swings in a straight line. Watch for a while and the
+line itself slowly turns, like a clock hand. Nothing pushes it
+sideways; the floor (the Earth) is rotating underneath it. In 1851 Leon
+Foucault hung a 67 m pendulum in the Pantheon in Paris and let the
+public watch the planet spin. This is that experiment, with the clock
+sped up so you do not have to wait a day.
+
+### Why the swing plane turns
+
+In the small patch of ground under the pendulum, the Earth's rotation
+$\Omega$ contributes a vertical spin rate
+
+$$\omega_z = \Omega \sin\phi,$$
+
+where $\phi$ is the latitude. The pendulum bob, moving in that rotating
+frame, feels the Coriolis acceleration. Writing the swing in ground
+coordinates $(x, y)$, the linearized equations are
+
+$$\ddot x = -\omega_0^2\, x + 2\,\omega_z\, \dot y,$$
+
+$$\ddot y = -\omega_0^2\, y - 2\,\omega_z\, \dot x,$$
+
+with the ordinary pendulum frequency $\omega_0 = \sqrt{g/L}$. The first
+term on each right-hand side is just the pendulum restoring force. The
+$2\omega_z \dot{}$ terms are the Coriolis coupling: they do no work
+(they are always perpendicular to the velocity), so the bob keeps
+swinging at $\omega_0$, but the whole plane of the swing rotates.
+
+### The precession rate
+
+Solving those equations shows the plane precesses at exactly $-\omega_z$.
+The time for one full turn is
+
+$$T_\text{prec} = \frac{2\pi}{\omega_z}
+  = \frac{T_\text{day}}{\sin\phi}.$$
+
+At the North Pole ($\phi = 90^\circ$) the plane turns once per
+sidereal day. At the equator ($\phi = 0$) it never turns at all. In
+Paris ($\phi \approx 49^\circ$) it takes about 32 hours. The playground
+scales time so the polar period is 24 seconds, so the effect is
+visible immediately; the latitude slider shows the $\sin\phi$ law
+directly.
+
+### Things to try
+
+- Set latitude to 90 degrees and watch the fastest precession.
+- Set it near 0 and watch the plane barely move: no Coriolis spin at
+  the equator.
+- Note the swing speed itself never changes; only the plane rotates,
+  because Coriolis does no work.
+
+### Where this comes from
+
+The rotating-frame equations, the Coriolis term, and the
+$1/\sin\phi$ precession period follow Marion and Thornton, *Classical
+Dynamics of Particles and Systems*, 5th ed., Chapter 10. The original
+demonstration is Foucault (1851), *Comptes Rendus de l'Academie des
+Sciences*.
+
 ## Physical setup
 
 A small-amplitude pendulum suspended over a point on a rotating Earth at
