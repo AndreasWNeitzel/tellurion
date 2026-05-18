@@ -22,6 +22,64 @@ share_state_keys: []
 
 # Stellar habitable zone
 
+## Explainer
+
+### What you are looking at
+
+The habitable zone is the ring of orbits around a star where a
+rocky planet could hold liquid water: close enough not to freeze,
+far enough not to boil. The playground sets the star's luminosity
+and shows the zone move in and out, with the key surprise that it is
+not fixed in absolute distance but scales with the square root of the
+star's brightness.
+
+### Equilibrium temperature
+
+A planet absorbs starlight and re-radiates as a blackbody. Balancing
+absorbed against emitted power gives the equilibrium temperature
+
+$$T_\mathrm{eq} = \left[\frac{L_*\,(1-A)}
+  {16\pi\sigma\,d^2}\right]^{1/4},$$
+
+with $L_*$ the stellar luminosity, $A$ the planet's albedo (fraction
+reflected), $\sigma$ the Stefan-Boltzmann constant, and $d$ the
+orbital distance. The crucial scaling is $T_\mathrm{eq}\propto
+(L_*/d^2)^{1/4}$: temperature depends on the received flux, not on
+distance alone.
+
+### Where the zone sits, and why it moves
+
+Setting $T_\mathrm{eq}$ to the inner (runaway-greenhouse) and outer
+(maximum-greenhouse) limits and solving for $d$ gives the zone
+boundaries. Since the flux at the planet is $L_*/(4\pi d^2)$,
+constant-temperature edges sit at
+
+$$d_\mathrm{in,out} \;\propto\; \sqrt{\,L_*\,}.$$
+
+So a star ten times more luminous pushes the habitable zone roughly
+three times farther out, and the zone for a faint M dwarf hugs the
+star tightly (where tidal locking and flares then matter). The
+playground sweeps $L_*$ and the planet's albedo and shows the green
+annulus expanding and contracting as $\sqrt{L_*}$, with Earth marked
+for reference. (The simple radiative-equilibrium estimate ignores
+atmospheric greenhouse warming, which is why Earth at $T_\mathrm{eq}
+\approx 255$ K is habitable at a true surface 288 K.)
+
+### Things to try
+
+- Increase the luminosity and watch the zone move outward as the
+  square root, not linearly.
+- Raise the albedo (a more reflective planet) and watch the whole
+  zone shift inward (less absorbed flux means it must sit closer).
+- Compare Earth's position: it sits comfortably inside the Sun's
+  zone, with the greenhouse making up the 33 K gap.
+
+### Where this comes from
+
+The equilibrium-temperature balance and the $\sqrt{L_*}$ habitable-
+zone scaling follow Kasting, Whitmire and Reynolds (1993) and the
+treatment in Seager, *Exoplanet Atmospheres*.
+
 ## Physical setup
 
 A central star characterized by effective temperature $T_\text{eff}$ and radius $R_\star$ (in solar units). The luminosity is the Stefan-Boltzmann integral
