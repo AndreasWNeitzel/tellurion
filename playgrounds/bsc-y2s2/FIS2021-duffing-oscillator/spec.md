@@ -20,6 +20,56 @@ share_state_keys: []
 
 # Driven damped Duffing oscillator
 
+## Explainer
+
+### What you are looking at
+
+A ball rolling in a double-well (two valleys, one hill between),
+damped, and shaken periodically. At gentle shaking it settles into a
+simple repeating motion. Crank up the drive and it period-doubles
+again and again, then goes chaotic, hopping between wells
+unpredictably. The Duffing oscillator is the cleanest mechanical route
+to chaos with one knob.
+
+### The equation
+
+A unit mass in the potential $V(x) = -x^2/2 + x^4/4$ with linear
+damping $\delta$ and a periodic drive of amplitude $\gamma$:
+
+$$\ddot x + \delta\,\dot x - x + x^3 = \gamma\cos(\omega t).$$
+
+The $-x + x^3$ is the double-well restoring force (unstable at the
+origin, stable in the two wells). As the first-order system
+$\dot x = v,\ \dot v = x - x^3 - \delta v + \gamma\cos\omega t$ it is
+integrated with RK4.
+
+### The Poincare section
+
+A continuous chaotic trajectory looks like a tangle. The trick is to
+strobe it: record the state once per drive period $T = 2\pi/\omega$.
+That stroboscopic Poincare section turns periodic motion into a few
+fixed dots, a period-2 cycle into 2 dots, period-4 into 4, and chaos
+into a fractal cloud (a strange attractor). Sweeping the drive
+amplitude $\gamma$ traces a bifurcation diagram with the same
+period-doubling cascade and the same Feigenbaum ratio as the logistic
+map: universality across utterly different systems.
+
+### Things to try
+
+- Low $\gamma$: a single Poincare dot, simple periodic motion in one
+  well.
+- Raise $\gamma$ and watch the dot split to 2, then 4, then a cloud,
+  the cascade to chaos.
+- In the chaotic regime watch the trajectory jump between wells with
+  no schedule, while the strange attractor stays a fixed fractal shape.
+
+### Where this comes from
+
+The Duffing equation, the stroboscopic Poincare section, and the
+period-doubling route to chaos follow Strogatz, *Nonlinear Dynamics and
+Chaos*, 2nd ed., Section 12.5, and Ott, *Chaos in Dynamical Systems*,
+2nd ed., Section 7.2.
+
 ## Physical setup
 
 A particle in a symmetric double-well potential V(x) = -x^2/2 + x^4/4, subject to linear damping and a periodic external drive. The Duffing equation is the textbook system that exhibits a complete period-doubling cascade to chaos under a single control parameter (the drive amplitude gamma). It is also one of the cleanest examples for visualizing a Poincare stroboscopic section.
