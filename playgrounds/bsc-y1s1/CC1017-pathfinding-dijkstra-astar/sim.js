@@ -18,8 +18,9 @@ export function buildCity(cols, rows, seed = DEFAULT_SEED) {
   const rng = makeRng(seed);
   const cost = new Float64Array(cols * rows).fill(1);
   const at = (x, y) => y * cols + x;
-  // Building blocks: rectangular wall clusters.
-  const nBlocks = Math.floor(cols * rows / 36);
+  // Building blocks: rectangular wall clusters. Denser than a sparse
+  // map so the flood has to work around real obstructions.
+  const nBlocks = Math.floor(cols * rows / 26);
   for (let b = 0; b < nBlocks; b += 1) {
     const bw = 2 + Math.floor(rng() * 4), bh = 2 + Math.floor(rng() * 4);
     const bx = 1 + Math.floor(rng() * (cols - bw - 2));
@@ -35,10 +36,13 @@ export function buildCity(cols, rows, seed = DEFAULT_SEED) {
     const rx = Math.round((0.32 + 0.28 * by / rows) * cols);
     for (let dx = -2; dx <= 2; dx += 1) { const x = rx + dx; if (x >= 0 && x < cols) cost[at(x, by)] = 1; }
   }
-  // A few slow piazzas.
-  for (let p = 0; p < 5; p += 1) {
-    const px = 2 + Math.floor(rng() * (cols - 4)), py = 2 + Math.floor(rng() * (rows - 4));
-    for (let y = py; y < py + 2; y += 1) for (let x = px; x < px + 2; x += 1) if (cost[at(x, y)] !== WALL) cost[at(x, y)] = 4;
+  // Slow piazzas (cost 4): scaled to the map so a larger city has more
+  // of them, which makes Dijkstra's uniform-cost flood visibly bulge.
+  const nPiazza = Math.max(5, Math.floor((cols * rows) / 320));
+  for (let p = 0; p < nPiazza; p += 1) {
+    const pw = 2 + Math.floor(rng() * 3), ph = 2 + Math.floor(rng() * 3);
+    const px = 2 + Math.floor(rng() * (cols - pw - 3)), py = 2 + Math.floor(rng() * (rows - ph - 3));
+    for (let y = py; y < py + ph; y += 1) for (let x = px; x < px + pw; x += 1) if (cost[at(x, y)] !== WALL) cost[at(x, y)] = 4;
   }
   const start = at(1, Math.floor(rows / 2));
   const goal = at(cols - 2, Math.floor(rows / 2));
