@@ -53,3 +53,33 @@ sim.js physics is correct (vacuum == analytic parabola, invariants
   bsc-y1s1/FIS1013-projectile-drag-magnus-3d --deterministic
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3)
 - node scripts/build-index.mjs
+
+## Redo as a spin-gradient volley (2026-05-18, #253)
+
+User rejected the orbiting-camera version: "all you did was give a
+very annoying 3D spin that zooms in and out unprofessionally; what
+extra info does 3D give over a 2D plot? Shoot multiple balls deviating
+by a slight azimuth, each with a different spin, a continuous range
+positive -> none -> negative."
+
+- Concept: launch N balls (slider 5..21) with a +-5 deg azimuth fan
+  and a sidespin swept linearly from -spinMax through 0 to +spinMax.
+  omega = [0,0,spin] (about z) so each curves laterally (in y) by a
+  different amount via Magnus (perpendicular to v and omega). The
+  volley splays into a 3D ribbon whose lateral spread (shown in the
+  readout) is intrinsically out-of-plane: that is the compelling 3D
+  that a 2D plot cannot show. Colour is a diverging spin gradient with
+  a legend.
+- Zoom fix: PXSCALE is computed ONCE from the 8 corners of a FIXED
+  world box at a reference camera and never recomputed. The camera
+  azimuth/height sliders only change the view direction; the scene
+  centre re-centres but the scale is constant, so rotating no longer
+  zooms. The old build auto-fit the projection to the trajectory bbox
+  every frame, which was the "zooms in and out" complaint.
+- speed slider capped 14..45 so the fixed frame stays valid; ground
+  grid + per-ball shadows sell the depth; gnomon labels shortened
+  ("x range / y side / z up") to stop them overlapping at the origin.
+- sim.js (trajectory, RK4) untouched -> invariants 6/6. Capture is the
+  volley progressively opening at two fixed camera azimuths; frames
+  inspected directly (early cluster -> full 3D fan, identical scale at
+  different azimuths). Visual gate 5/5 x3.

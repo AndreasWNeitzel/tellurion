@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Put sidespin on the ball and it does not just fall short, it swerves out of the plane entirely.'
-one_paragraph: 'A ball launched in 3D under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4. Three trajectories fly at once over a perspective ground grid, each casting a shadow on the plane: vacuum, drag only, and drag plus Magnus. The camera orbits the scene (auto or by slider) so the lateral Magnus swerve reads as genuine depth rather than a flat plot. Because the Magnus force is perpendicular to both velocity and spin, sidespin curves the flight laterally while backspin adds lift and topspin cuts the range.'
+one_paragraph: 'A whole volley of balls is launched almost together (a few degrees of azimuthal fan) under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4. Each ball carries a different sidespin, swept continuously from strong one way, through zero, to strong the other way (a colour gradient). Because the Magnus force is perpendicular to both velocity and spin, each ball curves out of the launch plane by a different amount, so the volley splays into a three-dimensional ribbon over the ground with per-ball shadows. That lateral spread is intrinsically 3D and cannot be read off a flat plot. The camera is a fixed perspective (constant scale, no auto-zoom); azimuth and height sliders rotate it.'
 tags: [mechanics, animation, live-readout]
 difficulty: 2
 tier: medium
@@ -42,17 +42,19 @@ RK4 on `(p, v)` with `dt = 0.002`, terminating at the ground crossing
 
 ## Controls
 
-- launch speed, elevation, spin-rate sliders.
-- spin-axis selector (sidespin, backspin, topspin, knuckle); Reset,
-  Pause.
-- camera azimuth and height sliders; auto-orbit on/off. The camera is
-  a true perspective pinhole; the orbit is the primary depth cue.
+- launch speed, elevation sliders; max |spin| (the gradient extent);
+  number of balls in the volley.
+- camera azimuth and height sliders (fixed perspective, no auto-zoom);
+  Reset, Pause.
 
 ## Expected qualitative features
 
-- Vacuum is the longest, symmetric parabola; drag shortens it.
-- Sidespin swerves the cyan path out of the vertical plane.
-- Backspin lifts and lengthens; topspin dips and shortens.
+- The volley leaves almost together then fans into a 3D ribbon: balls
+  with opposite spin curve to opposite sides, the zero-spin ball stays
+  in the launch plane.
+- The lateral spread grows with |spin| and is visibly out-of-plane
+  (the case for showing this in 3D, not a 2D plot).
+- Rotating the camera does not rescale the scene (constant scale).
 
 ## Invariants and acceptance thresholds
 

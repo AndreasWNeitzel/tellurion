@@ -230,7 +230,7 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Projectile with Drag and the Magnus Force in 3D
 `playgrounds/bsc-y1s1/FIS1013-projectile-drag-magnus-3d` | F1006 | SHIPPED | swept | tier:medium
 
-- What it does / physics / visuals: A ball launched in 3D under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4. Three trajectories fly at once over a perspective ground grid, each casting a shadow on the plane: vacuum, drag only, and drag plus Magnus. The camera orbits the scene (auto or by slider) so the lateral Magnus swerve reads as genuine depth rather than a flat plot. Because the Magnus force is perpendicular to both velocity and spin, sidespin curves the flight laterally while backspin adds lift and topspin cuts the range.
+- What it does / physics / visuals: A whole volley of balls is launched almost together (a few degrees of azimuthal fan) under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4. Each ball carries a different sidespin, swept continuously from strong one way, through zero, to strong the other way (a colour gradient). Because the Magnus force is perpendicular to both velocity and spin, each ball curves out of the launch plane by a different amount, so the volley splays into a three-dimensional ribbon over the ground with per-ball shadows. That lateral spread is intrinsically 3D and cannot be read off a flat plot. The camera is a fixed perspective (constant scale, no auto-zoom); azimuth and height sliders rotate it.
 - Hook: Put sidespin on the ball and it does not just fall short, it swerves out of the plane entirely.
 - Review verdict: (not yet reviewed)
 

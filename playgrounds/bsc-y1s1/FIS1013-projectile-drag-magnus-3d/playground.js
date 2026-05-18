@@ -1,14 +1,16 @@
-// Projectile with drag and Magnus, in a true perspective 3D scene.
-// Three trajectories fly together over a perspective ground grid:
-// vacuum (grey, dashed), quadratic drag (amber), drag plus Magnus
-// (cyan). The camera orbits the scene so the lateral Magnus curve
-// reads as depth, not a flat plot; each path drops a soft shadow onto
-// the ground, vertical stems tie the flight to the grid, and a corner
-// gnomon shows the world axes. Sliders set launch speed, elevation,
-// spin rate, spin axis and the camera; sim.js holds the physics.
-// Reference: Marion and Thornton, Classical Dynamics (5th ed.), Ch. 2.
+// Projectile with drag and the Magnus force, in 3D. A whole volley of
+// balls is launched almost together (a few degrees of azimuthal fan)
+// but each carries a different sidespin, swept continuously from
+// strong one way, through zero, to strong the other way. The Magnus
+// force is perpendicular to v and omega, so each ball curves out of
+// the launch plane by a different amount: the volley splays into a 3D
+// ribbon over the ground. That lateral spread is the whole point and
+// cannot be read off a 2D plot. The camera is a FIXED perspective
+// (constant scale, no auto-zoom); azimuth and height sliders rotate
+// it. sim.js holds the physics (RK4). Reference: Marion and Thornton,
+// Classical Dynamics (5th ed.), Ch. 2.
 
-import { trajectory, spinVector } from './sim.js';
+import { trajectory } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -19,7 +21,7 @@ const canvas = document.getElementById('stage'); const ctx = canvas.getContext('
 const readoutEl = document.getElementById('readout');
 const controlsEl = document.getElementById('controls');
 
-const READOUTS = ['range (m)', 'apex (m)', 'side (m)', 'tof (s)', 'spin'];
+const READOUTS = ['balls', 'spin range', 'lateral spread (m)', 'range (m)', 'apex (m)'];
 const rEls = {};
 for (const k of READOUTS) {
   const a = document.createElement('span'); a.className = 'label'; a.textContent = k;
@@ -27,205 +29,186 @@ for (const k of READOUTS) {
   readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[k] = b;
 }
 
-const st = { speed: 32, elev: 35, spin: 45, axis: 'side', camAz: 35, camEl: 26, autoRot: 1, t: 0 };
-const C_DRAG = 0.006, C_MAG = 0.0018;
-let traj = { vac: null, drag: null, mag: null };
+const W = canvas.width, H = canvas.height;
+const C_DRAG = 0.006, C_MAG = 0.0020;
+const AZ_FAN = 5;                          // azimuth half-fan (deg)
+const st = { speed: 34, elev: 38, spinMax: 70, n: 13, camAz: 36, camEl: 22, t: 0 };
+let running = !DETERMINISTIC;
+let shots = [];
 
-function recompute() {
-  const om = spinVector(st.spin, st.axis);
-  traj.vac = trajectory({ speed: st.speed, elevDeg: st.elev, c: 0, cM: 0 });
-  traj.drag = trajectory({ speed: st.speed, elevDeg: st.elev, c: C_DRAG, cM: 0 });
-  traj.mag = trajectory({ speed: st.speed, elevDeg: st.elev, omega: om, c: C_DRAG, cM: C_MAG });
+function rebuild() {
+  shots = [];
+  const N = st.n;
+  for (let i = 0; i < N; i += 1) {
+    const f = N === 1 ? 0 : i / (N - 1);          // 0..1
+    const s = (f * 2 - 1);                         // -1..+1
+    const spin = s * st.spinMax;                   // sidespin rate (rad/s)
+    const az = s * AZ_FAN;                          // small azimuth fan
+    const T = trajectory({
+      speed: st.speed, elevDeg: st.elev, aziDeg: az,
+      omega: [0, 0, spin], c: C_DRAG, cM: C_MAG,
+    });
+    shots.push({ T, spin, s });
+  }
+  st.t = 0;
 }
-recompute();
-let running = true;
 
 function buildSlider(label, min, max, stp, value, key, fmt = v => v.toFixed(0)) {
   const row = document.createElement('div'); row.className = 'row';
   const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
   const inp = document.createElement('input'); inp.type = 'range'; inp.min = String(min); inp.max = String(max); inp.step = String(stp); inp.value = String(value); inp.setAttribute('aria-label', label);
   const val = document.createElement('span'); val.className = 'value'; val.textContent = fmt(+value);
-  inp.addEventListener('input', () => { st[key] = parseFloat(inp.value); val.textContent = fmt(+inp.value); recompute(); render(); });
+  inp.addEventListener('input', () => { st[key] = parseFloat(inp.value); val.textContent = fmt(+inp.value); rebuild(); });
   row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
   controlsEl.appendChild(row);
-  return { inp, val };
+  return inp;
 }
-const cS = buildSlider('speed (m/s)', 12, 60, 1, st.speed, 'speed');
-const cE = buildSlider('elevation (deg)', 5, 80, 1, st.elev, 'elev');
-const cW = buildSlider('spin (rad/s)', 0, 90, 1, st.spin, 'spin');
-const selRow = document.createElement('div'); selRow.className = 'row';
-const selLab = document.createElement('span'); selLab.className = 'label'; selLab.textContent = 'spin axis';
-const sel = document.createElement('select'); sel.setAttribute('aria-label', 'spin axis');
-for (const [v, t] of [['side', 'sidespin (curve)'], ['back', 'backspin (lift)'], ['top', 'topspin (dip)'], ['none', 'knuckle (no spin)']]) { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); }
-sel.value = st.axis;
-sel.addEventListener('change', () => {
-  st.axis = sel.value;
-  if (st.axis !== 'none' && st.spin < 5) { st.spin = 40; cW.inp.value = '40'; cW.val.textContent = '40'; }
-  recompute(); render();
-});
-selRow.appendChild(selLab); selRow.appendChild(sel); const ss = document.createElement('span'); ss.className = 'value'; selRow.appendChild(ss);
-controlsEl.appendChild(selRow);
-const cAz = buildSlider('camera azimuth', 0, 359, 1, st.camAz, 'camAz');
-const cEl = buildSlider('camera height', 6, 78, 1, st.camEl, 'camEl');
-const rotRow = document.createElement('div'); rotRow.className = 'row';
-const rotLab = document.createElement('span'); rotLab.className = 'label'; rotLab.textContent = 'auto-orbit';
-const rotSel = document.createElement('select'); rotSel.setAttribute('aria-label', 'auto-orbit');
-for (const [v, t] of [['1', 'on'], ['0', 'off']]) { const o = document.createElement('option'); o.value = v; o.textContent = t; rotSel.appendChild(o); }
-rotSel.value = String(st.autoRot);
-rotSel.addEventListener('change', () => { st.autoRot = parseInt(rotSel.value, 10); render(); });
-rotRow.appendChild(rotLab); rotRow.appendChild(rotSel); const rs = document.createElement('span'); rs.className = 'value'; rotRow.appendChild(rs);
-controlsEl.appendChild(rotRow);
+const cS = buildSlider('speed (m/s)', 14, 45, 1, st.speed, 'speed');
+const cE = buildSlider('elevation (deg)', 12, 70, 1, st.elev, 'elev');
+const cW = buildSlider('max |spin| (rad/s)', 0, 110, 2, st.spinMax, 'spinMax');
+const cN = buildSlider('balls in the volley', 5, 21, 2, st.n, 'n');
+const cAz = buildSlider('camera azimuth', 0, 359, 1, st.camAz, 'camAz', v => v.toFixed(0));
+const cEl = buildSlider('camera height', 6, 70, 1, st.camEl, 'camEl', v => v.toFixed(0));
 const bRow = document.createElement('div'); bRow.className = 'row buttons';
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
-const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
+const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running));
 bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
-bReset.addEventListener('click', () => { Object.assign(st, { speed: 32, elev: 35, spin: 45, axis: 'side', camAz: 35, camEl: 26, autoRot: 1, t: 0 }); cS.inp.value = '32'; cS.val.textContent = '32'; cE.inp.value = '35'; cE.val.textContent = '35'; cW.inp.value = '45'; cW.val.textContent = '45'; cAz.inp.value = '35'; cAz.val.textContent = '35'; cEl.inp.value = '26'; cEl.val.textContent = '26'; rotSel.value = '1'; sel.value = 'side'; recompute(); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); render(); });
+bReset.addEventListener('click', () => {
+  for (const [inp, v] of [[cS, 34], [cE, 38], [cW, 70], [cN, 13], [cAz, 36], [cEl, 22]]) {
+    inp.value = String(v); inp.dispatchEvent(new Event('input'));   // updates st, label, rebuild
+  }
+  st.t = 0; running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
+});
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
 
-// Perspective camera. World: x downrange, y lateral, z up.
+// Fixed perspective camera. The projection scale is a CONSTANT derived
+// once from a fixed world box, so rotating the camera never zooms (the
+// previous build auto-fit every frame and zoomed in and out).
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const norm = (a) => { const L = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / L, a[1] / L, a[2] / L]; };
+const WX = 88, WY = 26, WZ = 30;                 // fixed world box (m)
+const WC = [WX * 0.40, 0, WZ * 0.42];            // box centre
+const WRAD = 0.5 * Math.hypot(WX, 2 * WY, WZ);
+const CAM_DIST = 2.5 * WRAD;
 
-function makeCamera(W, H) {
-  let xMax = 1, zMax = 1, yAbs = 0.5;
-  for (const T of [traj.vac, traj.drag, traj.mag]) for (const q of T.pts) { xMax = Math.max(xMax, q[0]); zMax = Math.max(zMax, q[2]); yAbs = Math.max(yAbs, Math.abs(q[1])); }
-  const C = [xMax / 2, 0, zMax * 0.45];
-  const radius = 0.5 * Math.hypot(xMax, 2.4 * yAbs + 2, zMax) + 2;
-  const azDeg = st.camAz + (st.autoRot ? st.t * 16 : 0);
-  const az = azDeg * Math.PI / 180, el = st.camEl * Math.PI / 180;
-  const dist = 2.5 * radius;
-  const eye = [C[0] + dist * Math.cos(el) * Math.cos(az), C[1] + dist * Math.cos(el) * Math.sin(az), C[2] + dist * Math.sin(el)];
-  const fwd = norm(sub(C, eye));
+function camera() {
+  const az = st.camAz * Math.PI / 180, el = st.camEl * Math.PI / 180;
+  const eye = [
+    WC[0] + CAM_DIST * Math.cos(el) * Math.cos(az),
+    WC[1] + CAM_DIST * Math.cos(el) * Math.sin(az),
+    WC[2] + CAM_DIST * Math.sin(el),
+  ];
+  const fwd = norm(sub(WC, eye));
   const right = norm(cross(fwd, [0, 0, 1]));
   const up = cross(right, fwd);
-  const sample = [];
-  for (const T of [traj.vac, traj.drag, traj.mag]) for (const q of T.pts) sample.push(q);
-  for (const cx of [0, xMax]) for (const cy of [-yAbs - 2, yAbs + 2]) sample.push([cx, cy, 0]);
-  let uMin = 1e9, uMax = -1e9, wMin = 1e9, wMax = -1e9;
-  for (const Pt of sample) {
-    const r = sub(Pt, eye); const cz = dot(r, fwd); if (cz <= 0.05) continue;
-    const u = dot(r, right) / cz, w = dot(r, up) / cz;
-    uMin = Math.min(uMin, u); uMax = Math.max(uMax, u); wMin = Math.min(wMin, w); wMax = Math.max(wMax, w);
+  return { eye, fwd, right, up };
+}
+// Constant pixel scale: project the 8 box corners at a reference
+// camera once and size them to the canvas. Never recomputed.
+const PXSCALE = (() => {
+  const az = 36 * Math.PI / 180, el = 22 * Math.PI / 180;
+  const eye = [WC[0] + CAM_DIST * Math.cos(el) * Math.cos(az), WC[1] + CAM_DIST * Math.cos(el) * Math.sin(az), WC[2] + CAM_DIST * Math.sin(el)];
+  const fwd = norm(sub(WC, eye)); const right = norm(cross(fwd, [0, 0, 1])); const up = cross(right, fwd);
+  let m = 1e-6;
+  for (const cx of [0, WX]) for (const cy of [-WY, WY]) for (const cz of [0, WZ]) {
+    const r = sub([cx, cy, cz], eye); const cz2 = dot(r, fwd); if (cz2 <= 0.05) continue;
+    m = Math.max(m, Math.abs(dot(r, right) / cz2), Math.abs(dot(r, up) / cz2));
   }
-  const M = 56;
-  const scale = Math.min((W - 2 * M) / (uMax - uMin || 1), (H - 2 * M) / (wMax - wMin || 1));
-  const uc = (uMin + uMax) / 2, wc = (wMin + wMax) / 2;
-  const project = (Pt) => {
-    const r = sub(Pt, eye); const cz = dot(r, fwd);
-    if (cz <= 0.05) return null;
-    const u = dot(r, right) / cz, w = dot(r, up) / cz;
-    return [W / 2 + (u - uc) * scale, H / 2 - (w - wc) * scale, cz];
-  };
-  return { project, eye, right, up, fwd, dist };
+  return 0.46 * Math.min(W, H) / m;
+})();
+
+function project(cam, P) {
+  const r = sub(P, cam.eye); const cz = dot(r, cam.fwd);
+  if (cz <= 0.05) return null;
+  return [W / 2 + (dot(r, cam.right) / cz) * PXSCALE, H / 2 - (dot(r, cam.up) / cz) * PXSCALE, cz];
+}
+
+// Diverging spin colour: cool for negative spin, white at zero, warm
+// for positive. s in [-1, 1].
+function spinColor(s, alpha = 1) {
+  if (s >= 0) return `rgba(${255},${Math.round(210 - 120 * s)},${Math.round(150 - 130 * s)},${alpha})`;
+  const t = -s;
+  return `rgba(${Math.round(150 - 60 * t)},${Math.round(210 - 30 * t)},255,${alpha})`;
 }
 
 function render() {
-  const W = canvas.width, H = canvas.height;
   ctx.fillStyle = '#06070b'; ctx.fillRect(0, 0, W, H);
-  const cam = makeCamera(W, H);
-  const proj = cam.project;
+  const cam = camera();
 
-  let xMax = 1, yAbs = 0.5;
-  for (const T of [traj.vac, traj.drag, traj.mag]) for (const q of T.pts) { xMax = Math.max(xMax, q[0]); yAbs = Math.max(yAbs, Math.abs(q[1])); }
-  const yG = Math.ceil(yAbs + 1);
-
-  // Ground grid on z = 0, lines fading with camera depth.
-  const seg = (A, B, alpha) => {
-    const a = proj(A), b = proj(B); if (!a || !b) return;
-    ctx.strokeStyle = `rgba(120,150,200,${alpha})`; ctx.lineWidth = 1;
+  // Perspective ground grid (z = 0), fades with depth.
+  const seg = (A, B, al) => {
+    const a = project(cam, A), b = project(cam, B); if (!a || !b) return;
+    ctx.strokeStyle = `rgba(120,150,200,${al})`; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
   };
-  const dStep = Math.max(2, Math.round(xMax / 14));
-  for (let x = 0; x <= xMax + dStep; x += dStep) seg([x, -yG, 0], [x, yG, 0], 0.16);
-  for (let y = -yG; y <= yG; y += 1) seg([0, y, 0], [xMax + dStep, y, 0], y === 0 ? 0.30 : 0.12);
+  for (let x = 0; x <= WX; x += 11) seg([x, -WY, 0], [x, WY, 0], 0.14);
+  for (let y = -WY; y <= WY; y += 6.5) seg([0, y, 0], [WX, y, 0], y === 0 ? 0.3 : 0.12);
 
-  // Painter order: draw the three flights far-to-near, each with a soft
-  // ground shadow (the strongest "this is above a plane" depth cue).
-  const flights = [
-    { T: traj.vac, col: '150,156,166', w: 1.6, dash: [5, 5] },
-    { T: traj.drag, col: '255,178,77', w: 2.4, dash: [] },
-    { T: traj.mag, col: '91,198,255', w: 3.0, dash: [] },
-  ];
-  for (const fl of flights) { let d = 0, n = 0; for (const q of fl.T.pts) { const s = proj(q); if (s) { d += s[2]; n += 1; } } fl.depth = n ? d / n : 1e9; }
-  flights.sort((a, b) => b.depth - a.depth);
-
-  for (const fl of flights) {
-    ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = fl.w * 0.9; ctx.setLineDash([]);
-    ctx.beginPath(); let started = false;
-    for (const q of fl.T.pts) { const s = proj([q[0], q[1], 0]); if (!s) { started = false; continue; } if (!started) { ctx.moveTo(s[0], s[1]); started = true; } else ctx.lineTo(s[0], s[1]); }
-    ctx.stroke();
-  }
-  // Vertical stems from the Magnus arc down to its shadow (depth ladder).
-  ctx.strokeStyle = 'rgba(91,198,255,0.22)'; ctx.lineWidth = 1; ctx.setLineDash([]);
-  const mp = traj.mag.pts;
-  for (let i = 0; i < mp.length; i += Math.max(1, Math.round(mp.length / 14))) {
-    const a = proj(mp[i]), b = proj([mp[i][0], mp[i][1], 0]);
-    if (a && b) { ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
-  }
-  for (const fl of flights) {
-    ctx.strokeStyle = `rgba(${fl.col},0.95)`; ctx.lineWidth = fl.w; ctx.setLineDash(fl.dash);
-    ctx.beginPath(); let started = false;
-    for (const q of fl.T.pts) { const s = proj(q); if (!s) { started = false; continue; } if (!started) { ctx.moveTo(s[0], s[1]); started = true; } else ctx.lineTo(s[0], s[1]); }
-    ctx.stroke(); ctx.setLineDash([]);
-    const L = fl.T.pts[fl.T.pts.length - 1]; const sL = proj(L);
-    if (sL) { ctx.fillStyle = `rgb(${fl.col})`; ctx.beginPath(); ctx.arc(sL[0], sL[1], 4, 0, 6.28); ctx.fill(); }
-  }
-
-  // Ball on the Magnus path: ground shadow, glow, depth-scaled size.
+  // Volley progress: a shared phase so all balls fly out together and
+  // the fan opens in real time.
   const tt = Number.isFinite(st.t) ? st.t : 0;
-  const phase = (((tt * 0.45) % 1) + 1) % 1;
-  const idx = Math.max(0, Math.min(mp.length - 1, Math.floor(phase * mp.length)));
-  const Pb = mp[idx];
-  const sh = proj([Pb[0], Pb[1], 0]);
-  if (sh) { ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(sh[0], sh[1], 7, 3, 0, 0, 6.28); ctx.fill(); }
-  const bp = proj(Pb);
-  if (bp) {
-    const rB = Math.max(4, 9 * cam.dist / (bp[2] * 1.4));
-    ctx.strokeStyle = 'rgba(234,246,255,0.35)'; ctx.lineWidth = 1;
-    if (sh) { ctx.beginPath(); ctx.moveTo(bp[0], bp[1]); ctx.lineTo(sh[0], sh[1]); ctx.stroke(); }
-    const gl = ctx.createRadialGradient(bp[0], bp[1], 0, bp[0], bp[1], rB * 2);
-    gl.addColorStop(0, '#eaf6ff'); gl.addColorStop(1, 'rgba(120,200,255,0)');
-    ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(bp[0], bp[1], rB * 2, 0, 6.28); ctx.fill();
-    ctx.fillStyle = '#eaf6ff'; ctx.beginPath(); ctx.arc(bp[0], bp[1], rB, 0, 6.28); ctx.fill();
-    const a = st.t * (1 + st.spin * 0.1);
-    ctx.strokeStyle = '#0b0b12'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(bp[0] - rB * Math.cos(a), bp[1] - rB * Math.sin(a)); ctx.lineTo(bp[0] + rB * Math.cos(a), bp[1] + rB * Math.sin(a)); ctx.stroke();
-    const axV = { side: [0, 0, 1], back: [0, -1, 0], top: [0, 1, 0], none: [0, 0, 0] }[st.axis];
-    const tip = proj([Pb[0] + axV[0] * 2.5, Pb[1] + axV[1] * 2.5, Pb[2] + axV[2] * 2.5]);
-    if (tip && (axV[0] || axV[1] || axV[2])) {
-      ctx.strokeStyle = '#ff7ab6'; ctx.lineWidth = 2.5;
-      ctx.beginPath(); ctx.moveTo(bp[0], bp[1]); ctx.lineTo(tip[0], tip[1]); ctx.stroke();
-      ctx.fillStyle = '#ff7ab6'; ctx.beginPath(); ctx.arc(tip[0], tip[1], 3, 0, 6.28); ctx.fill();
-      ctx.fillStyle = '#ff9dc8'; ctx.font = '10px ui-monospace, monospace'; ctx.fillText('omega', tip[0] + 5, tip[1] - 3);
+  const phase = Math.min(1, (tt * 0.32) % 1.6);
+
+  // Painter order: far trajectories first.
+  const ord = shots.map((sh, i) => {
+    let d = 0, k = 0; for (const q of sh.T.pts) { const p = project(cam, q); if (p) { d += p[2]; k += 1; } }
+    return { i, depth: k ? d / k : 1e9 };
+  }).sort((a, b) => b.depth - a.depth);
+
+  let maxSide = 0;
+  for (const { i } of ord) {
+    const sh = shots[i]; const pts = sh.T.pts; const last = Math.max(1, Math.floor(phase * (pts.length - 1)));
+    maxSide = Math.max(maxSide, Math.abs(sh.T.side));
+    // Ground shadow.
+    ctx.strokeStyle = 'rgba(0,0,0,0.40)'; ctx.lineWidth = 2;
+    ctx.beginPath(); let started = false;
+    for (let k = 0; k <= last; k += 1) { const p = project(cam, [pts[k][0], pts[k][1], 0]); if (!p) { started = false; continue; } started ? ctx.lineTo(p[0], p[1]) : (ctx.moveTo(p[0], p[1]), started = true); }
+    ctx.stroke();
+    // Flight arc.
+    ctx.strokeStyle = spinColor(sh.s, 0.92); ctx.lineWidth = 2.4;
+    ctx.beginPath(); started = false;
+    for (let k = 0; k <= last; k += 1) { const p = project(cam, pts[k]); if (!p) { started = false; continue; } started ? ctx.lineTo(p[0], p[1]) : (ctx.moveTo(p[0], p[1]), started = true); }
+    ctx.stroke();
+    // Ball head.
+    const hp = project(cam, pts[last]);
+    if (hp) {
+      const r = Math.max(3, 7 * CAM_DIST / (hp[2] * 1.6));
+      const gl = ctx.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], r * 2.1);
+      gl.addColorStop(0, '#ffffff'); gl.addColorStop(0.5, spinColor(sh.s, 0.8)); gl.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(hp[0], hp[1], r * 2.1, 0, 6.28); ctx.fill();
+      ctx.fillStyle = spinColor(sh.s, 1); ctx.beginPath(); ctx.arc(hp[0], hp[1], r, 0, 6.28); ctx.fill();
     }
   }
 
-  // Axis gnomon: world triad drawn with the camera basis only, so its
-  // orientation tracks the orbit and the 3D framing is unambiguous.
-  const gx = 52, gy = H - 46, gL = 26;
-  for (const [vWorld, c, lab] of [[[1, 0, 0], '#ff8d6b', 'x'], [[0, 1, 0], '#7ad88a', 'y'], [[0, 0, 1], '#7ab6ff', 'z']]) {
-    const ex = dot(vWorld, cam.right), ey = dot(vWorld, cam.up);
+  // Launch marker + world-axis gnomon (from the camera basis).
+  const o0 = project(cam, [0, 0, 0]);
+  if (o0) { ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.fillText('launch', o0[0] - 6, o0[1] + 16); }
+  const gx = 46, gy = H - 40, gL = 26;
+  for (const [v, c, lab] of [[[1, 0, 0], '#ff8d6b', 'x range'], [[0, 1, 0], '#7ad88a', 'y side'], [[0, 0, 1], '#7ab6ff', 'z up']]) {
+    const ex = dot(v, cam.right), ey = dot(v, cam.up);
     const tx = gx + ex * gL, ty = gy - ey * gL;
     ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(tx, ty); ctx.stroke();
-    ctx.fillStyle = c; ctx.font = '10px ui-monospace, monospace'; ctx.fillText(lab, tx + 2, ty + 2);
+    ctx.fillStyle = c; ctx.font = '9px ui-monospace, monospace';
+    ctx.textAlign = ex < -0.2 ? 'right' : 'left';
+    ctx.fillText(lab, tx + (ex < -0.2 ? -3 : 3), ty + (ey < -0.2 ? 9 : -2));
   }
+  ctx.textAlign = 'left';
 
-  const o0 = proj([0, 0, 0]);
-  if (o0) { ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('launch', o0[0] - 8, o0[1] + 16); }
-  ctx.fillStyle = 'rgba(150,156,166,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('vacuum', 16, 24);
-  ctx.fillStyle = '#ffb24d'; ctx.fillText('drag', 16, 40);
-  ctx.fillStyle = '#5bc6ff'; ctx.fillText('drag + Magnus', 16, 56);
+  // Spin colour legend (top-left), the continuous range topspin..none..backspin.
+  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.fillText('sidespin:  - (curves one way)   0   + (the other)', 16, 22);
+  for (let k = 0; k <= 40; k += 1) { const s = k / 40 * 2 - 1; ctx.fillStyle = spinColor(s, 1); ctx.fillRect(16 + k * 4, 28, 4, 8); }
 
-  rEls['range (m)'].textContent = traj.mag.range.toFixed(2);
-  rEls['apex (m)'].textContent = traj.mag.apex.toFixed(2);
-  rEls['side (m)'].textContent = traj.mag.side.toFixed(2);
-  rEls['tof (s)'].textContent = traj.mag.tof.toFixed(2);
-  rEls.spin.textContent = st.axis;
+  rEls.balls.textContent = String(st.n);
+  rEls['spin range'].textContent = `-${st.spinMax} .. +${st.spinMax}`;
+  rEls['lateral spread (m)'].textContent = (2 * maxSide).toFixed(1);
+  rEls['range (m)'].textContent = shots.length ? shots[(shots.length - 1) >> 1].T.range.toFixed(1) : '--';
+  rEls['apex (m)'].textContent = shots.length ? shots[(shots.length - 1) >> 1].T.apex.toFixed(1) : '--';
 }
 
-let last = performance.now();
+let last = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 function tick(now) {
   const dt = Math.min(Math.max((now - last) / 1000, 0), 0.05); last = now;
   if (running) st.t += dt;
@@ -233,15 +216,17 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 function bootSync() {
+  rebuild();
   if (CAPTURE_NAME) {
-    const i = Math.max(0, Math.min(4, Math.round(CAPTURE_FRAC * 4)));
-    st.autoRot = 0; st.camAz = 20 + i * 48; st.camEl = 20 + i * 9; st.t = 0.3 + i * 0.34;
-    cAz.inp.value = String(st.camAz); cAz.val.textContent = String(st.camAz);
-    cEl.inp.value = String(st.camEl); cEl.val.textContent = String(st.camEl);
-    rotSel.value = '0';
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    const i = Math.max(0, Math.min(4, Math.round(f * 4)));
+    st.t = [0.5, 1.4, 2.6, 3.6, 4.6][i];          // volley progressively opening
+    st.camAz = [28, 28, 50, 50, 70][i];           // a couple of fixed viewpoints
+    render();
+    if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+    return;
   }
   render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 
 window.__physicsCheck = async () => {
