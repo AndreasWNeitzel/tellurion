@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Spin Valve: GMR/TMR Hysteresis and the Two-Current Model](../playgrounds/bsc-y3s2/FIS4026-gmr-spin-valve-simulator/index.html)** &nbsp; (verified, verified 2026-05-18T01:42:51Z)
+  A spin valve is two ferromagnetic layers separated by a non-magnetic spacer: a metal (giant magnetoresistance, GMR) or a thin insulating barrier (tunnel magnetoresistance, TMR). One layer is soft (the free layer) and follows the applied field; the other is pinned by an adjacent antiferromagnet (exchange bias). The device resistance is low when the two magnet
+
 - **[MOSFET Operation: Channel, Pinch-off and I-V Regions](../playgrounds/bsc-y3s2/FIS4026-mosfet-operation-animated/index.html)** &nbsp; (verified, verified 2026-05-18T01:31:47Z)
   An n-channel enhancement MOSFET: a gate over a thin oxide above a p-type body, with n+ source and drain. Raising the gate voltage past the threshold V_th inverts the surface into an n-type channel connecting source and drain. The drain-source voltage then drives a current whose behaviour splits into three regions (cutoff, triode, saturation), with the channe
 
@@ -818,11 +821,11 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Rectangular Waveguide Modes](../playgrounds/bsc-y2s2/FIS2006-waveguide-mode-animator/index.html)** &nbsp; (verified)
   A hollow rectangular metallic waveguide of width a and height b (vacuum filled), excited in a chosen TE or TM mode at a variable frequency.
 
+- **[Solar Cell: I-V, Fill Factor and the Shockley-Queisser Limit](../playgrounds/bsc-y3s2/FIS4026-solar-cell-generation-iv/index.html)** &nbsp; (verified)
+  A p-n junction solar cell under illumination: photons with energy above the bandgap create electron-hole pairs, driving a photocurrent `I_L`. The cell behaves as a current source in parallel with a diode; the external load sets the operating voltage. Short circuit (`V = 0`) gives the full photocurrent; open circuit (`I = 0`) gives the maximum voltage `V_oc`;
+
 - **[Special Relativity Spacetime Lab](../playgrounds/bsc-y2s2/FIS2003-special-relativity-spacetime-lab/index.html)** &nbsp; (verified)
   A rigid rod (a train) of rest length L0 makes a round trip out to a coordinate distance L and back at speed beta (units c = 1). A twin rides the train; the other stays at the home station at x = 0.
-
-- **[Spin Valve: GMR/TMR Hysteresis and the Two-Current Model](../playgrounds/bsc-y3s2/FIS4026-gmr-spin-valve-simulator/index.html)** &nbsp; (verified)
-  A spin valve is two ferromagnetic layers separated by a non-magnetic spacer: a metal (giant magnetoresistance, GMR) or a thin insulating barrier (tunnel magnetoresistance, TMR). One layer is soft (the free layer) and follows the applied field; the other is pinned by an adjacent antiferromagnet (exchange bias). The device resistance is low when the two magnet
 
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified)
   Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.

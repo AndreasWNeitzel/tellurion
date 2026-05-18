@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solar Cell: I-V, Fill Factor and the Shockley-Queisser Limit</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+</head>
+<body>
+  <h1>Solar Cell: I-V, Fill Factor and the Shockley-Queisser Limit</h1>
+
+  <figure>
+    <canvas id="stage" width="860" height="560" aria-label="Solar cell I-V and power curve, photon generation, and the Shockley-Queisser limit"></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">V:</span><span class="value" id="readout-v">0.00</span>
+      <span class="label">V_oc:</span><span class="value" id="readout-voc">0.00</span>
+      <span class="label">FF:</span><span class="value" id="readout-ff">0.00</span>
+      <span class="label">eta:</span><span class="value" id="readout-eta">0%</span>
+    </div>
+    <figcaption>
+      <span class="figure-number">Figure 1.</span>
+      A single-diode solar cell: photons above the bandgap generate electron-hole pairs and a photocurrent; the load voltage trades current for voltage along the I-V curve, the power peaks at the maximum-power point, and the detailed-balance Shockley-Queisser limit caps the efficiency near 30% at a gap of about 1.3 eV.
+      <em>Method:</em> ideal single-diode model with the Shockley-Queisser detailed balance; deterministic.
+      <em>Source:</em> Shockley 1949; Shockley and Queisser 1961; Green 1981; Wurfel 2009.
+    </figcaption>
+  </figure>
+
+  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">spectrum</span><select aria-label="solar spectrum" id="select-spec" style="grid-column: span 2;"><option value="1000">AM1.5G (1000 W/m^2, terrestrial)</option><option value="1353">AM0 (1353 W/m^2, space)</option></select></div>
+    <div class="row"><span class="label">bandgap E_g (eV)</span><input aria-label="bandgap energy, x100 eV" type="range" id="slider-eg" min="50" max="300" step="2" value="134"><span class="value" id="value-eg">1.34</span></div>
+    <div class="row"><span class="label">concentration (suns)</span><input aria-label="solar concentration, suns" type="range" id="slider-suns" min="1" max="100" step="1" value="1"><span class="value" id="value-suns">1</span></div>
+    <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+  </div>
+
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -417,7 +417,7 @@ docs/NEEDS-ATTENTION.md, move on.
 - [x] gmr-spin-valve-simulator : advanced canvas2d. FM/NM/FM two-current,
   P low-R AP high-R, GMR hysteresis, TMR Julliere. Inv: P<AP; GMR>0;
   Julliere 1%.
-- [ ] solar-cell-generation-iv : medium canvas2d. Cell, photon rain,
+- [x] solar-cell-generation-iv : medium canvas2d. Cell, photon rain,
   e-h pairs, IV plus power, FF/eta, AM0/1.5. Inv: Voc<Eg/q; SQ limit;
   V=0 I=Isc; I=0 Voc.
 
