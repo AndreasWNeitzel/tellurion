@@ -24,6 +24,63 @@ share_state_keys: [scale, year0]
 
 # Earth Axial Precession + Nutation 3D
 
+## Explainer
+
+### What you are looking at
+
+Earth spins like a top, and like a top whose axis is pushed, its
+spin axis slowly sweeps out a giant cone instead of tipping over.
+That 26000-year wobble (plus a smaller 18.6-year nod) is why the pole
+star changes over millennia. The playground shows the spin axis
+tracing the precession cone with the nutation ripple on top.
+
+### Why a torque makes the axis circle, not fall
+
+Earth is not a sphere: it bulges at the equator (oblate). The Sun and
+Moon pull harder on the near side of that bulge than the far side, a
+net gravitational torque $\boldsymbol\tau$ trying to upright the
+tilted axis. For a non-spinning body the axis would just tip. But for
+a body with large spin angular momentum $\mathbf L$ (Earth's
+rotation), the rigid-body equation
+
+$$\frac{d\mathbf L}{dt} = \boldsymbol\tau$$
+
+means the torque, which is perpendicular to $\mathbf L$, changes the
+direction of $\mathbf L$ rather than its magnitude. The axis
+therefore precesses (sweeps a cone) at the rate
+
+$$\Omega_p = \frac{\tau}{L\sin\theta}
+  \;\propto\; \frac{(C-A)}{C\,\omega},$$
+
+set by the dynamical oblateness $(C-A)/C$ and the spin $\omega$,
+giving the ~25800-year period and the 23.4 deg cone half-angle.
+
+### Nutation: the smaller nod
+
+The Moon's orbital plane is tilted and its nodes regress with an
+18.6-year period, so the lunar part of the torque is not steady but
+modulated. That superimposes a small forced oscillation, the
+nutation, a few-arcsecond nodding of the axis on top of the smooth
+precession. Same physics (torque on a gyroscope), just a periodic
+forcing term. The playground renders Earth's tilted spinning body,
+the lunisolar torque, and the axis tip drawing the slow precession
+circle on the sky with the 18.6-year nutation wobble.
+
+### Things to try
+
+- Watch the spin axis sweep the precession cone, not tip over (the
+  gyroscopic response to a torque).
+- Speed up time and see the axis tip trace a circle on the sky over
+  ~26000 years (the wandering pole star).
+- Look closely for the small 18.6-year nodding (nutation) riding on
+  the steady precession.
+
+### Where this comes from
+
+Rigid-body precession and lunisolar torque follow Goldstein,
+*Classical Mechanics*, Chapter 5, and the Earth-orientation treatment
+in Murray and Dermott, *Solar System Dynamics*, Chapter 5.
+
 ## Physical setup
 
 Earth is an oblate spinning top: it bulges at the equator. The Sun and Moon pull harder on the near side of that bulge than the far side, producing a gravitational torque. A non-spinning body would simply tip over; a fast-spinning one instead responds at right angles, so the spin axis sweeps out a cone rather than falling. This is lunisolar axial precession. A smaller, shorter-period forcing from the regression of the Moon's orbital nodes (18.6-year cycle) adds the nutation, a slight nodding of the axis on top of the steady precession.

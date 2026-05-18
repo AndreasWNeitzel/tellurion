@@ -73,3 +73,7 @@ amplitudes and the test scans the period numerically.
 - node scripts/build-index.mjs         (regenerate gallery card)
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3)
   Only needed if the #stage render changes; text/spec edits do not.
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  5 passed + visual 5/5 x3. Shipped.
