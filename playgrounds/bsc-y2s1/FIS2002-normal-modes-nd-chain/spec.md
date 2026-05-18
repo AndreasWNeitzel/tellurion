@@ -19,6 +19,61 @@ share_state_keys: []
 
 # Normal Modes of a Mass-Spring Chain
 
+## Explainer
+
+### What you are looking at
+
+A row of masses linked by springs. Pluck it any way and the messy
+motion is always a sum of a few clean standing-wave patterns, the
+normal modes, each vibrating at its own fixed frequency. This is the
+discrete ancestor of every continuous wave: a guitar string, a crystal
+lattice, a phonon.
+
+### The monatomic chain
+
+For $N$ equal masses $m$ and springs $K$ with fixed ends, solving the
+coupled equations gives exactly $N$ modes:
+
+$$\omega_n = 2\sqrt{\frac{K}{m}}\,
+  \sin\!\left(\frac{n\pi}{2(N+1)}\right),
+  \qquad n = 1,\dots,N,$$
+
+with sinusoidal shapes $A_i \propto \sin\!\big(i\,n\pi/(N+1)\big)$.
+Long-wavelength modes (small $n$) have $\omega \propto n$: that linear
+part is ordinary sound. Near the maximum $n$ the frequency saturates at
+$2\sqrt{K/m}$, the lattice cannot vibrate faster than its springs
+allow.
+
+### The diatomic chain: a gap opens
+
+Alternate two spring constants $K_1, K_2$ (a two-atom basis) and the
+single branch splits in two:
+
+$$\omega^2 = \frac{K_1+K_2}{m}
+  \mp \frac{1}{m}\sqrt{K_1^2 + K_2^2 + 2K_1 K_2\cos(ka)}.$$
+
+The lower sign is the acoustic branch (neighbors move together, ordinary
+sound); the upper sign is the optical branch (neighbors move against
+each other). Between them, at the zone boundary, sits a frequency gap
+of width $\sqrt{2\max(K_1,K_2)/m} - \sqrt{2\min(K_1,K_2)/m}$, which
+closes only when $K_1 = K_2$ (back to one atom per cell). This gap is
+exactly why ionic crystals have a forbidden infrared band.
+
+### Things to try
+
+- Excite a single low-$n$ mode and watch a clean standing sine wave;
+  excite a high-$n$ mode and see the rapid zigzag near the cutoff.
+- Switch to the diatomic chain and watch the acoustic (in-phase) and
+  optical (anti-phase) branches, with the gap between them.
+- Set $K_1 = K_2$ and watch the gap close: the two-atom cell collapses
+  back to one.
+
+### Where this comes from
+
+The monatomic and diatomic chain mode frequencies, the acoustic and
+optical branches, and the zone-boundary gap follow Ashcroft and Mermin,
+*Solid State Physics*, Chapter 22.
+
 ## Physical setup
 
 A 1D chain of N point masses joined by springs with fixed ends. The
