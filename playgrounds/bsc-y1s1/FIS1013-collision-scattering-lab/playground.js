@@ -29,8 +29,25 @@ function physParams() {
   const E = 0.5 * mu * st.v1 * st.v1;
   return { kind: st.kind, R: 1.0, alpha: 1.2, lambda: 1.6, mu, v0: st.v1, E, m1, m2 };
 }
-let P = physParams(), rel = relTrajectory(st.b, P);
-function rebuild() { P = physParams(); rel = relTrajectory(st.b, P); st.t = 0; }
+// The deflection function chi(b) is expensive for Yukawa (a numerical
+// orbit per sample). render() runs every frame, so sampling it ~180x
+// per frame there froze the page. Compute the polar curve and the
+// current-b deflection ONCE per parameter change and cache them.
+function buildCache() {
+  const chi = chiOf(st.b, P);
+  const curve = [];
+  for (let i = 1; i <= 90; i += 1) {
+    const bb = 0.015 + (3.0 - 0.015) * i / 90;
+    const c = chiOf(bb, P);
+    if (c < 0.02) { curve.push(null); continue; }
+    const c2 = chiOf(bb + 0.008, P);
+    const ds = (bb / Math.max(1e-6, Math.sin(c))) * Math.abs(0.008 / Math.max(1e-6, c2 - c));
+    curve.push({ c, ds });
+  }
+  return { chi, curve };
+}
+let P = physParams(), rel = relTrajectory(st.b, P), cache = buildCache();
+function rebuild() { P = physParams(); rel = relTrajectory(st.b, P); cache = buildCache(); st.t = 0; }
 let running = true;
 
 function buildSlider(label, min, max, stp, value, key, fmt = v => v.toFixed(2)) {
@@ -72,7 +89,7 @@ function render() {
   const idx = Math.min(n - 1, Math.floor((0.35 + 0.6 * ((st.t * 0.3) % 1)) * n));
   const SC = 64;
 
-  const chi = chiOf(st.b, P);
+  const chi = cache.chi;
   const Vcm = m1 * st.v1 / M;
   const r1m = 7 + 5 * Math.cbrt(m1), r2m = 7 + 5 * Math.cbrt(m2);
 
@@ -145,12 +162,10 @@ function render() {
   const RAD = (ds) => pr * Math.max(0.04, Math.min(1, (Math.log10(ds + 1e-6) + 3) / 6));   // fixed: 1e-3..1e3 -> 0..1
   ctx.strokeStyle = '#5bc6ff'; ctx.lineWidth = 2.4; ctx.beginPath();
   let first = true;
-  for (let i = 1; i <= 90; i += 1) {
-    const bb = 0.015 + (3.0 - 0.015) * i / 90;
-    const c = chiOf(bb, P); if (c < 0.02) continue;
-    const c2 = chiOf(bb + 0.008, P);
-    const ds = (bb / Math.max(1e-6, Math.sin(c))) * Math.abs(0.008 / Math.max(1e-6, c2 - c));
-    const rr = RAD(ds); const X = pcx + rr * Math.cos(Math.PI + c), Y = pcy - rr * Math.sin(c);
+  for (const pt of cache.curve) {
+    if (!pt) { first = true; continue; }                 // gap (chi ~ 0)
+    const rr = RAD(pt.ds);
+    const X = pcx + rr * Math.cos(Math.PI + pt.c), Y = pcy - rr * Math.sin(pt.c);
     first ? (ctx.moveTo(X, Y), first = false) : ctx.lineTo(X, Y);
   }
   ctx.stroke();
@@ -172,7 +187,20 @@ function render() {
 let last = performance.now();
 function tick(now) { const dt = Math.min((now - last) / 1000, 0.05); last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
 function bootSync() {
-  if (CAPTURE_NAME) st.t = CAPTURE_FRAC * 2.6;
+  if (CAPTURE_NAME) {
+    // Cycle the potential across the five frames so the goldens prove
+    // all three render (including the fixed hard-sphere bounce and the
+    // no-longer-laggy Yukawa), at distinct impact parameters.
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    const i = Math.max(0, Math.min(4, Math.round(f * 4)));
+    const plan = [
+      ['coulomb', 0.6], ['hard', 0.45], ['yukawa', 0.7], ['hard', 0.15], ['coulomb', 1.4],
+    ][i];
+    st.kind = plan[0]; st.b = plan[1]; sel.value = st.kind;
+    cB.inp.value = String(st.b); cB.val.textContent = st.b.toFixed(2);
+    rebuild();
+    st.t = 1.1;
+  }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
