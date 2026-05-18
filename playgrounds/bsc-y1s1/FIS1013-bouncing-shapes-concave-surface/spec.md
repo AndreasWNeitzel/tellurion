@@ -22,6 +22,69 @@ share_state_keys: []
 
 # Bouncing balls in a concave bowl
 
+## Explainer
+
+### What you are looking at
+
+Thousands of particles, in a chosen shape, dropped into a curved bowl
+under gravity, bouncing and settling. It is a sandbox for the two
+rules that govern almost all rigid-body contact: gravity plus
+restitution at every collision. With many particles you watch
+collective behaviour (settling, packing, energy loss) emerge from
+those simple local rules.
+
+### The two rules
+
+Between contacts each particle is a projectile under gravity:
+
+$$\ddot{\mathbf r} = \mathbf g.$$
+
+At a bounce off the bowl wall, the velocity is reflected about the
+local surface normal $\hat{\mathbf n}$ and the normal component is
+scaled by the coefficient of restitution $e\in[0,1]$:
+
+$$\mathbf v' = \mathbf v
+  - (1+e)\,(\mathbf v\cdot\hat{\mathbf n})\,\hat{\mathbf n}.$$
+
+$e=1$ is a perfectly elastic bounce (no energy lost); $e<1$ removes a
+fraction $1-e^2$ of the normal kinetic energy each impact, so the
+particles lose height and settle. Particle-particle collisions use
+the same impulse law along the line of centres.
+
+### What emerges
+
+The interesting physics is collective:
+
+- A concave bowl focuses trajectories: bounces converge toward the
+  bottom, so the cloud collapses into the well rather than spreading
+  (the geometric reason a bowl collects, a flat floor does not).
+- With $e<1$ the energy monotonically drains and the assembly
+  relaxes into a packed static heap whose surface is roughly
+  horizontal: granular settling and the angle of repose.
+- The chosen initial shape (a letter, a ring) is scrambled by
+  collisions, a direct view of how ordered configurations decay into
+  the maximum-entropy packed state.
+
+The playground lets you pick the shape, the bowl curvature and the
+restitution and watch the focusing, the energy decay, and the final
+packing.
+
+### Things to try
+
+- Set $e=1$ and watch the particles bounce forever, focused by the
+  bowl but never settling (energy conserved).
+- Lower $e$ and watch the cloud lose height each bounce and pack into
+  a static heap (granular relaxation).
+- Compare a flat floor vs a concave bowl: only the bowl collects the
+  particles toward the centre.
+
+### Where this comes from
+
+Projectile motion, the coefficient of restitution and impulsive
+collisions follow Halliday, Resnick and Walker, *Fundamentals of
+Physics*, Chapters 4 and 9, and Kleppner and Kolenkow, *An
+Introduction to Mechanics*, Chapter 4.
+
 ## Physical setup
 Several point balls fall under uniform gravity into a concave bowl
 $y=f(x)$ chosen from a menu. Each contact reflects the velocity about

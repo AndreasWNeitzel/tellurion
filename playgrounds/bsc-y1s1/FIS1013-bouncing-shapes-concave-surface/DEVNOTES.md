@@ -57,3 +57,7 @@ original shape (star, heart, square, letter A, ball, asymmetric)".
   --playground bsc-y1s1/FIS1013-bouncing-shapes-concave-surface --deterministic
 - visual gate: npx playwright test visual.test.mjs (SSIM>0.92 x3)
 - node scripts/build-index.mjs
+
+## Sweep 2026-05-18
+Added comprehensive ## Explainer (first-exposure plain language, all governing equations in KaTeX, bibliographic origin); render-neutral.
+invariants Tests  5 passed + visual 5/5 x3. Shipped.

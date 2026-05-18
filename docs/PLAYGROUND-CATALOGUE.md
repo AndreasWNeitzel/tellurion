@@ -2174,8 +2174,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Bayesian Coin Update
 `playgrounds/msc-y1/MAA-DM-bayesian-coin-update` | MAA-DM | SHIPPED | tier:simple
 
-- What it does / physics / visuals: This file is a placeholder. The `playground-architect` subagent fills it in after `/scaffold` runs. Do not edit by hand.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A coin has an unknown bias theta (probability of heads). Belief about theta is a Beta(alpha, beta) density. The prior Beta(alpha_0, beta_0) is your state before data; observing k heads in n flips multiplies it by the binomial likelihood, and because the Beta family is conjugate to the binomial the posterior is again Beta, with parameters alpha_0 + k and beta_0 + (n - k). No integral is approximated for the update itself: counting heads and tails is the entire computation. The playground draws the prior, the normalized likelihood and the posterior on the same axes, shades the 95 percent equal-tailed credible interval, and prints the posterior mean and standard deviation. Sliders set the prior pseudo-counts alpha_0, beta_0 and the data k, n; a button flips five more times from a biased coin (true bias 0.7) so you watch the posterior tighten and walk toward 0.7 as evidence accumulates.
+- Hook: Start believing a coin is fair, flip it a few times, and watch a belief curve slide and sharpen toward the truth. This is Bayes theorem with the algebra done in closed form.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with Bayesian update (Bayes' rule: P(p|D) ~ P(D|p) P(p)), Beta-Binomial model, prior/likelihood/posterior, conjugacy, what invariants hold (posterior inte
