@@ -21,6 +21,72 @@ share_state_keys: [m1, m2, fill, dm]
 
 # Close Binary: Roche Lobes and Conservative Mass Transfer
 
+## Explainer
+
+### What you are looking at
+
+Most stars are in binaries, and when one swells up it can dump matter
+onto its companion. Whether that happens, and what it does to the
+orbit, is governed entirely by the shape of the combined gravity-
+plus-rotation potential. The playground shows the Roche lobes and
+how conservative mass transfer drives the orbit.
+
+### The Roche potential
+
+In the frame rotating with the binary, a test particle feels both
+stars' gravity plus the centrifugal term. The effective (Roche)
+potential is
+
+$$\Phi_R = -\frac{GM_1}{r_1} - \frac{GM_2}{r_2}
+  - \tfrac12\,\Omega^2\,s^2,$$
+
+with $s$ the distance from the rotation axis and $\Omega$ the orbital
+angular frequency. Its equipotentials are nested closed surfaces
+around each star. The critical one passes through the inner Lagrange
+point $L_1$ and forms a figure-eight: the two lobes are the Roche
+lobes. A star that swells to fill its lobe spills gas through the
+$L_1$ nozzle onto its companion.
+
+### What conservative transfer does to the orbit
+
+If no mass or angular momentum leaves the system (conservative
+transfer), the total $M_1+M_2$ and the orbital angular momentum
+$J = M_1 M_2\sqrt{Ga/(M_1+M_2)}$ are both fixed. Holding $J$ constant
+while moving mass gives the separation response
+
+$$\frac{\dot a}{a}
+  = 2\,\dot M_1
+  \left(\frac{1}{M_1} - \frac{1}{M_2}\right),$$
+
+so the behavior flips at equal mass:
+
+- Mass from the more massive star to the lighter one ($M_1>M_2$):
+  the orbit shrinks, $L_1$ moves further into the donor, and transfer
+  runs away (unstable, rapid).
+- Mass from the lighter to the heavier star: the orbit widens and
+  transfer is self-limiting (stable).
+
+This single sign change explains Algol-type systems, the formation of
+X-ray binaries, and why some binaries merge. The playground lets you
+set the masses and Roche-lobe filling and watch the lobes and the
+separation/period respond as mass moves.
+
+### Things to try
+
+- Fill the donor's Roche lobe and watch gas stream through $L_1$ to
+  the companion.
+- Transfer from the heavier star and watch the orbit shrink (runaway);
+  transfer from the lighter star and watch it widen (stable).
+- Set $M_1=M_2$ and note the turning point where $\dot a$ changes
+  sign.
+
+### Where this comes from
+
+The Roche potential, Lagrange points, and conservative mass-transfer
+orbital response follow Frank, King and Raine, *Accretion Power in
+Astrophysics*, Chapter 4, and Hilditch, *An Introduction to Close
+Binary Stars*.
+
 ## Physical setup
 
 Two stars on a circular orbit, viewed in the corotating frame. The effective (Roche) potential is the sum of both gravitational potentials and the centrifugal term. Its critical equipotential through the inner Lagrange point L1 is the figure-eight that defines each star's Roche lobe; a star that fills its lobe loses mass through L1 to its companion. When the transfer is conservative (no mass or angular momentum leaves the system) the orbital separation and period change in a way fixed entirely by the changing mass ratio. SI units; separation in metres, masses in kg.
