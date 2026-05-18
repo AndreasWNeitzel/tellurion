@@ -20,6 +20,70 @@ share_state_keys: []
 
 # Brachistochrone: why the cycloid wins
 
+## Explainer
+
+### What you are looking at
+
+Three frictionless beads start together at A and slide under gravity to
+a lower point B: one down a straight ramp, one along a circular arc,
+one along a cycloid (the curve traced by a point on a rolling wheel).
+The straight line is the shortest path, yet the cycloid bead always
+arrives first. The fastest descent is not the shortest route. Johann
+Bernoulli posed this in 1696 and it launched the calculus of
+variations.
+
+### The physics of the race
+
+There is no friction, so energy is conserved and the speed depends only
+on how far the bead has dropped:
+
+$$v(s) = \sqrt{2\,g\,y(s)},$$
+
+where $y(s)$ is the depth below the start. The travel time is the path
+length divided by speed, added up along the curve:
+
+$$T = \int_0^L \frac{ds}{v(s)} = \int_0^L \frac{ds}{\sqrt{2 g\,y(s)}}.$$
+
+The straight line keeps the path short but stays shallow at first, so
+the bead is slow early. A curve that drops steeply at the start trades
+extra length for early speed. The optimum balances the two, and the
+exact solution is the cycloid.
+
+### Why the cycloid wins
+
+Minimizing the time integral with the calculus of variations gives the
+cycloid
+
+$$x = R(\vartheta - \sin\vartheta), \qquad
+  y = -R(1 - \cos\vartheta),$$
+
+with $R$ fixed by the endpoint B. It has a remarkable property: along
+it the parameter advances at a constant rate,
+
+$$\vartheta(t) = \sqrt{g/R}\;t,$$
+
+so the descent time has the closed form $T = \sqrt{R/g}\,\vartheta_B$.
+That same cycloid is also the tautochrone: a bead released from *any*
+point on it reaches the bottom in the same time. The playground races
+all three beads so you watch the cycloid pull ahead even though its
+track is longer.
+
+### Things to try
+
+- Watch the start: the cycloid bead dives steeply and builds speed
+  while the straight-line bead is still crawling.
+- Compare arrival times in the readout: cycloid first, arc second,
+  line last, despite the line being shortest.
+- Note the cycloid bead's parameter ticks at a constant rate, the
+  signature that makes it also the tautochrone.
+
+### Where this comes from
+
+The energy argument, the time functional, and the cycloid as the
+brachistochrone (and tautochrone) follow Marion and Thornton,
+*Classical Dynamics of Particles and Systems*, 5th ed., Chapter 6, and
+Lemos, *Analytical Mechanics*, Chapter 2.
+
 ## Physical setup
 
 Three frictionless beads of equal mass slide from A = (0, 0) to B = (4, -2)
