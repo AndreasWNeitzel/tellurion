@@ -58,7 +58,7 @@ const sel = document.createElement('select'); sel.setAttribute('aria-label', 'pr
 const PRESETS = {
   'Kepler ellipse': { p: -1, L: 1.0, r0: 1.8, vr0: 0 },
   'Harmonic (oscillator)': { p: 2, L: 1.0, r0: 1.4, vr0: 0 },
-  'Precessing rosette': { p: -2.5, L: 1.1, r0: 1.5, vr0: 0 },
+  'Precessing rosette': { p: -1.5, L: 1.3, r0: 2.0, vr0: 0 },
   'Unbound escape': { p: -1, L: 1.0, r0: 1.1, vr0: 1.7 },
   'Near-circular': { p: -1, L: 1.0, r0: 1.0, vr0: 0 },
 };
@@ -80,7 +80,13 @@ function render() {
   // Orbit scene (left).
   const cxL = 270, cyL = 286;
   const r = Math.hypot(orbit.x, orbit.y);
-  maxR = Math.max(maxR * 0.999, Math.min(14, r * 1.08));
+  // Fit the frame to the orbit envelope once, then hold it. The old
+  // rule chased the instantaneous radius with a slow per-frame decay,
+  // so a bound ellipse made the whole view zoom in and out every
+  // period (the apoapsis inflated maxR, periapsis let it decay). A
+  // monotone running max grows once to the true apoapsis and then
+  // stays put; rebuild() resets it on any parameter change or escape.
+  maxR = Math.min(14, Math.max(maxR, r * 1.12));
   const sc = 224 / Math.max(1.2, maxR);
   // Force centre glow.
   const g = ctx.createRadialGradient(cxL, cyL, 0, cxL, cyL, 26);
