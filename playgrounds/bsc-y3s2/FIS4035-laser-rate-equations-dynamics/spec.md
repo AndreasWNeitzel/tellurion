@@ -21,6 +21,61 @@ share_state_keys: [regime, pump, q0]
 
 # Laser Rate-Equation Dynamics
 
+## Explainer
+
+### What you are looking at
+
+A laser is a feedback loop: a pump builds population inversion, that
+inversion amplifies light in the cavity, and the growing light burns
+the inversion back down. Two coupled equations capture it, and they
+explain three behaviors: dark below threshold, a ringing turn-on, and
+the giant pulse of a Q-switch.
+
+### The rate equations
+
+Let $n$ be the population inversion and $p$ the cavity photon number:
+
+$$\dot n = R_\text{pump} - \frac{n}{\tau} - B\,n\,p,$$
+
+$$\dot p = B\,n\,p - \frac{p}{\tau_c} + \epsilon\,n.$$
+
+Read the terms: the pump feeds $n$; spontaneous decay ($n/\tau$) and
+stimulated emission ($Bnp$) drain it; stimulated emission feeds $p$;
+cavity loss ($p/\tau_c$) drains it; a tiny spontaneous term $\epsilon n$
+seeds the field so the laser can start from darkness.
+
+### The three regimes
+
+- Below threshold: gain never beats loss, $p\to0$, the device is dark.
+  Threshold is where round-trip gain equals loss, $B\,n_\text{th} =
+  1/\tau_c$.
+- Continuous-wave above threshold: $n$ and $p$ settle to a steady
+  state, but they get there via damped relaxation oscillations, the
+  characteristic ringing turn-on as the inversion overshoots and the
+  photon number chases it.
+- Q-switched: hold the cavity loss high (low Q) so the pump charges a
+  huge inversion without lasing, then suddenly drop the loss; the
+  stored energy dumps into one giant nanosecond pulse.
+
+The nonlinear $Bnp$ coupling is what produces the overshoot ring and
+the explosive Q-switch pulse. The playground integrates the equations
+and lets you cross threshold and trigger a Q-switch.
+
+### Things to try
+
+- Pump just below threshold (dark) then just above and watch the
+  relaxation-oscillation ringing settle to CW.
+- Q-switch: charge at low Q, dump, and watch a giant short pulse far
+  above the CW level.
+- Raise the pump and watch the steady photon number rise roughly
+  linearly above threshold.
+
+### Where this comes from
+
+The two-level laser rate equations, the threshold condition,
+relaxation oscillations, and Q-switching follow Siegman, *Lasers*, and
+Svelto, *Principles of Lasers*.
+
 ## Physical setup
 
 A gain medium (a two-level inversion) sits in an optical resonator. An
