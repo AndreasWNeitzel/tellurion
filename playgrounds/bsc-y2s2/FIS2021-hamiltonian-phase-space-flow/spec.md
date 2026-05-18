@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s2
 primary_citation: lemos-mech
 primary_chapter: 6
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Click anywhere and drop a tracer; it glides along a curve of constant energy, and the whole plane fills with the nested orbits of the flow.'
+one_paragraph: 'A Hamiltonian system moves so that energy is conserved, so every trajectory is confined to a constant-H contour in phase space. The playground lets you click to seed tracers anywhere; each is integrated with a symplectic step and rides its own energy contour, exposing the global structure of the flow (fixed points, separatrices, libration versus rotation). Because the integrator is symplectic the orbits stay closed and the energy does not drift. It turns the phase portrait into something you build by hand, one click at a time. Reference: Lemos, Analytical Mechanics, Ch. 6.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
