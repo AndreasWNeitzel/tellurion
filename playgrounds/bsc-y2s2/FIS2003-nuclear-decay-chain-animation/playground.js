@@ -188,15 +188,23 @@ function drawNucleus(node, prev, phase) {
 
   // Decay animation: alpha cluster shoots from the +x rim of the
   // daughter. Phase ramps 0 -> 1 over the lifetime of the step; the
-  // cluster ejects at phase 0..0.55 then fades.
+  // cluster starts at the rim, accelerates outward, then fades.
   if (isAlpha) {
-    const rim = Math.sqrt(A + 4) * scale * pulse;                  // rim of parent nucleus
-    // Maximum x the cluster reaches before the right edge of the panel.
-    const xMax = NX + NW - 90;                                       // leave room for label
-    const xStart = cx + rim + 6;
-    const xR = xStart + Math.min(1, phase / 0.70) * (xMax - xStart);
+    // Rim is the visual radius of the 3D ball (visualR = Rball * scale).
+    // Use Rball directly (not sqrt(A)) for the 3D layout.
+    const rim = Rball * scale * pulse;
+    const xStart = cx + rim + protRad * 2.4;       // just outside the ball
+    const xMax = NX + NW - 100;                    // leave room for label
+    // Eject over the first 75 % of the cycle, then idle/fade.
+    const ej = Math.min(1, phase / 0.75);
+    const xR = xStart + ej * (xMax - xStart);
     const yR = cy;
-    const fade = Math.min(1, 1 - Math.max(0, (phase - 0.85) / 0.15));
+    // Fade window: invisible at phase < 0.05 (the new step has just
+    // appeared; pause before ejection), full opacity 0.05..0.85,
+    // fade out 0.85..1.
+    let fade = 1;
+    if (phase < 0.05) fade = phase / 0.05;
+    else if (phase > 0.85) fade = Math.max(0, 1 - (phase - 0.85) / 0.15);
     ctx.globalAlpha = fade;
     // He-4: 2 protons + 2 neutrons, compact cluster
     const dxs = [[-protRad, -protRad, true], [protRad, -protRad, true], [-protRad, protRad, false], [protRad, protRad, false]];
@@ -206,13 +214,15 @@ function drawNucleus(node, prev, phase) {
       ctx.fillStyle = p ? 'rgba(255,200,196,0.6)' : 'rgba(196,220,255,0.5)';
       ctx.beginPath(); ctx.arc(xR + dx - protRad * 0.4, yR + dy - protRad * 0.4, protRad * 0.32, 0, 6.2832); ctx.fill();
     }
-    // motion trail
-    ctx.globalAlpha = fade * 0.32;
-    for (let k = 1; k <= 5; k += 1) {
-      const tx = xR - k * (protRad * 1.4);
-      if (tx < xStart - protRad * 2) continue;
-      ctx.fillStyle = 'rgba(255,220,140,0.6)';
-      ctx.beginPath(); ctx.arc(tx, cy, protRad * 0.7, 0, 6.2832); ctx.fill();
+    // motion trail behind the cluster (only if it has actually moved).
+    if (ej > 0.05) {
+      ctx.globalAlpha = fade * 0.35;
+      for (let k = 1; k <= 6; k += 1) {
+        const tx = xR - k * (protRad * 1.6);
+        if (tx < xStart) continue;
+        ctx.fillStyle = 'rgba(255,220,140,0.55)';
+        ctx.beginPath(); ctx.arc(tx, cy, protRad * 0.7, 0, 6.2832); ctx.fill();
+      }
     }
     ctx.globalAlpha = 1;
     ctx.fillStyle = 'rgba(255,224,140,0.92)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
