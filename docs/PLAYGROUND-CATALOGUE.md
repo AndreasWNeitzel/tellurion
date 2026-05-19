@@ -2393,8 +2393,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Nuclear Burning Rates vs Temperature
 `playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature` | MAA-SA | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: pp $\propto T^4$, CNO $\propto T^{18}$, 3-α $\propto T^{40}$. Source: Hansen-Kawaler Ch. 6 (`hansen-kawaler`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Near the Gamow peak each thermonuclear rate behaves as a steep power law, epsilon(T) proportional to rho X_i X_j T^nu, with an effective exponent nu that is large and itself temperature-dependent: nu about 4 for the proton-proton chain, about 16 to 18 for the CNO cycle, and about 40 for the triple-alpha process. This steepness is the thermostat of a star: a small contraction raises T, the rate jumps, the extra pressure halts the contraction, so burning self-regulates; it also dictates which fuel dominates in which star (p-p in the Sun, CNO in massive stars, triple-alpha in red-giant cores). The playground plots the three rates against temperature on a log scale so the differing slopes are unmistakable. Reference: Hansen and Kawaler, Stellar Interiors, Chapter 6.
+- Hook: Stellar nuclear reactions are violently temperature-sensitive: a few percent more core heat can change the energy output by orders of magnitude, which is exactly what makes stars stable.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with nuclear reaction rate (Coulomb barrier, Gamow peak), temperature sensitivity (T^n scaling, n ~ 10 for pp chain), screening effects, invariants (react
@@ -2444,8 +2444,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Eddington Grey Atmosphere
 `playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere` | MAA-SP | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: The light leaving a star is not emitted from a surface but from a fuzzy layer where the gas goes from opaque to transparent. The Eddington grey atmosphere is the simplest model of that layer, and it predicts where the photosphere is and why the spectrum looks slightly hotter at the disk center than the edge (limb darkening). The playground shows the temperature run and the emergent intensity.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Assuming a frequency-independent (grey) opacity and radiative equilibrium, the Eddington approximation closes the moment equations and gives the temperature run T^4(tau) = (3/4) T_eff^4 (tau + 2/3), so the effective temperature is reached at optical depth tau = 2/3 (the photosphere) rather than at tau = 0. Solving the transfer equation with the Eddington-Barbier relation yields the emergent intensity I(0, mu) proportional to (2/3 + mu): brighter looking straight down into the star (mu = 1, disk centre) and dimmer toward the limb (small mu), which is limb darkening. The playground shows the T(tau) profile and the angular intensity as T_eff is varied. Reference: Hansen and Kawaler, Stellar Interiors, Chapter 3.
+- Hook: Starlight is not emitted from a surface but from a fuzzy layer where the gas goes from opaque to transparent; the simplest model of that layer predicts the photosphere and limb darkening.
 - Review verdict: (not yet reviewed)
 
 ### Voigt Profile Decomposition

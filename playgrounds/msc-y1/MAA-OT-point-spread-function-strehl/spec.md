@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: born-wolf
 primary_chapter: 8
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A telescope can never image a star as a true point: diffraction spreads it into a blob, and the Strehl ratio is the single number that says how close to perfect the image is.'
+one_paragraph: 'A clear circular aperture produces the Airy point-spread function, I(theta) proportional to [2 J_1(x)/x]^2 with x = pi D sin(theta) / lambda, whose first dark ring sets the diffraction limit. Optical aberrations or atmospheric turbulence add a wavefront phase error of root-mean-square sigma (in radians); the Strehl ratio, the peak intensity relative to the aberration-free peak, follows the Marechal approximation S approximately exp[-(2 pi sigma_lambda)^2] for small errors and quantifies image quality in one number (S near 1 is diffraction-limited, S below ~0.8 is degraded). The playground shows the PSF and its Strehl as aberration is dialed in, making the wavefront-error to image-quality link concrete. Reference: Born and Wolf, Principles of Optics, Chapter 8.'
 tags: [optics, animation, live-readout]
 difficulty: 3
 tier: simple
