@@ -1,13 +1,20 @@
 // playground.js
-// The Patriot missile failure (Dhahran, 25 Feb 1991) as a floating-
-// point pitfall you can drive. A 24-bit fixed-point copy of 0.1 makes
-// the system clock lose ~9.5e-8 s per 0.1 s tick; the error grows
-// linearly with uptime and displaces the radar range gate by
-// (clock error) x (Scud closing speed). Drag uptime; when the gate
-// walks off the Scud the track is lost and the interceptor never fires.
+// The Patriot missile failure (Dhahran, 25 Feb 1991) as a
+// floating-point pitfall you can drive, rendered as a tactical
+// engagement. A 24-bit fixed-point copy of 0.1 makes the system
+// clock lose ~9.5e-8 s per 0.1 s tick; the error grows linearly with
+// uptime and displaces the radar range gate by (clock error) x (Scud
+// closing speed). With the gate still on the Scud the Patriot boosts
+// vertically, pitches over and converges under lead-pursuit guidance
+// for a clean intercept; once the clock drift walks the gate off the
+// track the system drops the track, no interceptor is fired, and the
+// ballistic Scud completes its arc onto the protected asset. The
+// lower panel keeps the exact 24-bit chop and the linear error
+// accumulation. sim.js is unchanged (the floating-point model and
+// its 12 invariants are the lesson).
 
 import {
-  PATRIOT_ERR_PER_TICK_S, SCUD_SPEED_MS,
+  PATRIOT_ERR_PER_TICK_S,
   patriotTimeError, rangeGateErrorMeters,
 } from './sim.js';
 
@@ -33,352 +40,320 @@ const btnReset = document.getElementById('btn-reset');
 
 const GATE_HALF_M = 150;        // radar range-gate half-width (m)
 const M2PX = 0.084;             // scene scale (px per metre)
+const GROUND_Y = 322;
+const BAT = { x: 244, y: GROUND_Y - 4 };       // launcher
+const ASSET = { x: 656, y: GROUND_Y - 4 };     // protected asset
+const SCUD_HMAX = 270;          // Scud apogee height above ground (px)
+const TL = 0.05;                // interceptor launch phase
+
+const COL = {
+  bg: '#05070d', grid: 'rgba(64,120,110,0.16)', ring: 'rgba(64,150,120,0.12)',
+  fg: '#cfd6e4', muted: '#76839a', dim: '#3d4758',
+  scud: '#ff8a4c', scudGlow: 'rgba(255,138,76,0.20)',
+  intc: '#5bc0eb', intcGlow: 'rgba(91,192,235,0.20)',
+  ok: '#06d6a0', bad: '#ef476f', amber: '#ffd166', grid2: '#23252a',
+};
 
 const state = {
   hours: parseInt(sliderHours.value, 10),
   speed: parseInt(sliderSpeed.value, 10),
   patched: false,
-  phase: 0,                     // Scud descent 0..1
+  phase: 0,
   playing: !DETERMINISTIC,
 };
 
-function colors() {
-  const css = getComputedStyle(document.body);
-  return {
-    bg: css.getPropertyValue('--bg').trim() || '#060608',
-    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
-    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
-    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
-    blue: '#5bc0eb',
-    red: '#ef476f',
-    green: '#06d6a0',
-    grid: '#23252a',
-  };
-}
-
-// Scene geometry: a long diagonal Scud track across the full frame so
-// the gate displacement is legible; battery low and central.
-const GROUND_Y = 312;
-const BATTERY = { x: 372, y: GROUND_Y };
-const ENTRY = { x: 70, y: 60 };
-const TARGET = { x: 690, y: GROUND_Y - 6 };
-const TRK = { dx: TARGET.x - ENTRY.x, dy: TARGET.y - ENTRY.y };
-const TRK_LEN = Math.hypot(TRK.dx, TRK.dy);
-const TRK_U = { x: TRK.dx / TRK_LEN, y: TRK.dy / TRK_LEN };
-
-function scudPos(phase) {
-  return { x: ENTRY.x + TRK.dx * phase, y: ENTRY.y + TRK.dy * phase };
-}
-
-// Deterministic pseudo-random so stars, smoke and debris are reproducible
-// frame to frame (the visual gate needs byte-stable captures).
 function srnd(i) { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
 
-function drawSky(c) {
-  const g = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
-  g.addColorStop(0, '#070912'); g.addColorStop(0.7, '#0d1020'); g.addColorStop(1, '#1a1526');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, GROUND_Y);
-  for (let i = 0; i < 70; i += 1) {
-    const x = srnd(i) * W, y = srnd(i + 99) * (GROUND_Y - 30);
-    ctx.fillStyle = `rgba(200,210,255,${(0.15 + 0.5 * srnd(i + 7)).toFixed(2)})`;
-    ctx.fillRect(x, y, 1, 1);
-  }
+// Ballistic Scud: enters high at the left, descends on a parabola
+// (steeper near impact) onto the protected asset.
+function SC(t) {
+  const tt = Math.max(0, Math.min(1, t));
+  const x = 60 + (ASSET.x - 60) * (0.5 * tt + 0.5 * tt * tt);
+  const h = SCUD_HMAX * Math.pow(1 - tt, 1.8);
+  return { x, y: GROUND_Y - 8 - h };
+}
+function scudTangent(t) {
+  const a = SC(t - 0.01), b = SC(t + 0.01);
+  const dx = b.x - a.x, dy = b.y - a.y, n = Math.hypot(dx, dy) || 1;
+  return { x: dx / n, y: dy / n };
 }
 
-function drawGround(c) {
-  // Desert dune silhouette instead of a flat line.
-  ctx.fillStyle = '#241c2b';
-  ctx.beginPath(); ctx.moveTo(0, GROUND_Y);
-  for (let x = 0; x <= W; x += 24) {
-    const y = GROUND_Y + 5 * Math.sin(x * 0.013) + 3 * Math.sin(x * 0.041 + 1.3);
-    ctx.lineTo(x, y);
+// Lead-pursuit interceptor with a launch boost and a turn-rate limit,
+// so it climbs near-vertically then arcs over and converges. Pure
+// function of the engagement phase: deterministic for capture.
+function interceptorPath(tNow) {
+  const pts = [];
+  let pos = { x: BAT.x + 4, y: BAT.y - 16 };
+  let ang = -Math.PI / 2;                       // straight up
+  let spd = 120;
+  const dt = 0.0045;
+  let hit = null;
+  for (let tau = TL; tau <= tNow + 1e-9; tau += dt) {
+    const boosting = tau < TL + 0.11;
+    spd = Math.min(1850, spd + (boosting ? 1500 : 240) * dt);
+    const aim = SC(Math.min(1, tau + 0.17));    // predicted Scud point
+    const want = Math.atan2(aim.y - pos.y, aim.x - pos.x);
+    let d = Math.atan2(Math.sin(want - ang), Math.cos(want - ang));
+    const cap = (boosting ? 0.9 : 3.4) * dt;
+    if (d > cap) d = cap; else if (d < -cap) d = -cap;
+    ang += d;
+    pos = { x: pos.x + Math.cos(ang) * spd * dt, y: pos.y + Math.sin(ang) * spd * dt };
+    if (pos.y > GROUND_Y - 2) pos.y = GROUND_Y - 2;
+    pts.push({ x: pos.x, y: pos.y });
+    const sc = SC(tau);
+    if (!hit && Math.hypot(pos.x - sc.x, pos.y - sc.y) < 15) { hit = { x: (pos.x + sc.x) / 2, y: (pos.y + sc.y) / 2, tau }; break; }
   }
-  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,200,140,0.18)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(0, GROUND_Y);
-  for (let x = 0; x <= W; x += 24) ctx.lineTo(x, GROUND_Y + 5 * Math.sin(x * 0.013) + 3 * Math.sin(x * 0.041 + 1.3));
+  return { pts, hit };
+}
+
+function glowTrail(pts, head, color, glow, width) {
+  if (pts.length < 2) return;
+  const n = Math.max(2, Math.floor(pts.length * head));
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = glow; ctx.lineWidth = width + 6;
+  ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < n; i += 1) ctx.lineTo(pts[i].x, pts[i].y);
   ctx.stroke();
-}
-
-function drawRadar(c, lost) {
-  // Fire-control radar range rings + sweeping beam from the battery.
-  const col = lost ? '120,30,55' : '20,120,90';
-  for (let r = 60; r < 360; r += 60) {
-    ctx.strokeStyle = `rgba(${col},0.16)`; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(BATTERY.x, BATTERY.y, r, Math.PI, 2 * Math.PI); ctx.stroke();
+  for (let i = 1; i < n; i += 1) {
+    const a = (i / n) ** 1.4;
+    ctx.strokeStyle = color.replace(')', `,${(0.15 + 0.85 * a).toFixed(3)})`).replace('rgb', 'rgba');
+    ctx.lineWidth = width;
+    ctx.beginPath(); ctx.moveTo(pts[i - 1].x, pts[i - 1].y); ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
   }
-  const sweep = Math.PI + (1 + Math.sin(state.phase * 6.0)) * 0.5 * Math.PI;
-  const grad = ctx.createLinearGradient(BATTERY.x, BATTERY.y,
-    BATTERY.x + 330 * Math.cos(sweep), BATTERY.y + 330 * Math.sin(sweep));
-  grad.addColorStop(0, `rgba(${col},0.32)`); grad.addColorStop(1, `rgba(${col},0)`);
-  ctx.strokeStyle = grad; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(BATTERY.x, BATTERY.y);
-  ctx.lineTo(BATTERY.x + 330 * Math.cos(sweep), BATTERY.y + 330 * Math.sin(sweep)); ctx.stroke();
 }
 
-function missile(x, y, ang, len, bodyCol, flame) {
-  // A nose-cone + body + fins missile with a tapered exhaust flame.
+function dart(x, y, ang, len, color) {
   ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
-  if (flame > 0) {
-    const fl = len * (1.1 + 1.6 * flame);
-    const fg = ctx.createLinearGradient(-len * 0.5, 0, -len * 0.5 - fl, 0);
-    fg.addColorStop(0, 'rgba(255,240,180,0.95)');
-    fg.addColorStop(0.4, 'rgba(255,150,40,0.8)');
-    fg.addColorStop(1, 'rgba(255,60,0,0)');
-    ctx.fillStyle = fg;
-    ctx.beginPath(); ctx.moveTo(-len * 0.5, -len * 0.22);
-    ctx.lineTo(-len * 0.5 - fl, 0); ctx.lineTo(-len * 0.5, len * 0.22);
-    ctx.closePath(); ctx.fill();
-  }
-  ctx.fillStyle = bodyCol;
+  ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(len * 0.5, 0);                       // nose
-  ctx.lineTo(len * 0.1, -len * 0.16);
-  ctx.lineTo(-len * 0.5, -len * 0.16);
-  ctx.lineTo(-len * 0.5, len * 0.16);
-  ctx.lineTo(len * 0.1, len * 0.16);
+  ctx.moveTo(len * 0.6, 0);
+  ctx.lineTo(-len * 0.4, -len * 0.16);
+  ctx.lineTo(-len * 0.4, len * 0.16);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';       // fins
-  ctx.beginPath();
-  ctx.moveTo(-len * 0.5, -len * 0.16); ctx.lineTo(-len * 0.62, -len * 0.34);
-  ctx.lineTo(-len * 0.34, -len * 0.16); ctx.closePath(); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(-len * 0.5, len * 0.16); ctx.lineTo(-len * 0.62, len * 0.34);
-  ctx.lineTo(-len * 0.34, len * 0.16); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(len * 0.5, 0, len * 0.09, 0, 6.2832); ctx.fill();
   ctx.restore();
 }
 
-function fireball(x, y, t, big) {
-  // Layered expanding blast: white core, orange body, dark smoke, shock ring.
-  const R = (big ? 46 : 24) * Math.min(1, 0.3 + t * 1.4);
-  const sg = ctx.createRadialGradient(x, y, 0, x, y, R);
-  sg.addColorStop(0, 'rgba(255,255,235,0.95)');
-  sg.addColorStop(0.35, 'rgba(255,170,50,0.85)');
-  sg.addColorStop(0.7, 'rgba(190,60,20,0.55)');
-  sg.addColorStop(1, 'rgba(40,20,20,0)');
-  ctx.fillStyle = sg;
-  ctx.beginPath(); ctx.arc(x, y, R, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = `rgba(255,210,160,${(0.6 * (1 - t)).toFixed(2)})`; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(x, y, R * (1 + t * 1.6), 0, 2 * Math.PI); ctx.stroke();
-  for (let k = 0; k < (big ? 18 : 10); k += 1) {
-    const a = k * 2.39996, d = R * (0.6 + 1.5 * t) * (0.5 + srnd(k));
-    ctx.fillStyle = `rgba(255,${120 + (k * 53) % 120},40,${(0.8 * (1 - t)).toFixed(2)})`;
-    ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d - t * 14, 2.4, 2.4);
-  }
-}
-
-function drawBattery(c, firing) {
-  // Launcher box on tracked chassis with raised launch rails.
-  ctx.fillStyle = '#3a4150';
-  ctx.fillRect(BATTERY.x - 20, BATTERY.y - 12, 40, 12);
-  ctx.fillStyle = '#2a2f3a';
-  ctx.fillRect(BATTERY.x - 22, BATTERY.y, 44, 6);
-  ctx.fillStyle = firing ? c.green : '#566';
-  ctx.save(); ctx.translate(BATTERY.x, BATTERY.y - 12); ctx.rotate(-0.86);
-  ctx.fillRect(-3, -26, 6, 26); ctx.fillRect(-9, -22, 6, 22);
-  ctx.restore();
-  if (firing) {
-    ctx.fillStyle = 'rgba(255,180,60,0.5)';
-    ctx.beginPath(); ctx.arc(BATTERY.x + 12, BATTERY.y - 26, 9, 0, 2 * Math.PI); ctx.fill();
-  }
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText('Patriot battery', BATTERY.x, BATTERY.y + 18);
-}
-
-function drawBarracks(c, hit, t) {
-  if (hit) {
-    // Collapsed rubble after the strike.
-    ctx.fillStyle = '#3a2420';
-    for (let i = 0; i < 16; i += 1) {
-      const bx = TARGET.x + 4 + srnd(i) * 64, by = TARGET.y - 4 - srnd(i + 3) * 14;
-      ctx.fillRect(bx, by, 4 + srnd(i + 9) * 7, 4 + srnd(i + 5) * 6);
-    }
-    ctx.fillStyle = 'rgba(120,120,130,0.25)';
-    ctx.beginPath(); ctx.arc(TARGET.x + 36, TARGET.y - 30, 30 + t * 20, 0, 2 * Math.PI); ctx.fill();
-  } else {
-    ctx.fillStyle = '#6b7280';
-    ctx.fillRect(TARGET.x + 8, TARGET.y - 26, 56, 26);
-    ctx.fillStyle = '#454b57';
-    ctx.beginPath(); ctx.moveTo(TARGET.x + 4, TARGET.y - 26);
-    ctx.lineTo(TARGET.x + 36, TARGET.y - 38); ctx.lineTo(TARGET.x + 68, TARGET.y - 26);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ffd166';
-    for (let i = 0; i < 3; i += 1) ctx.fillRect(TARGET.x + 14 + i * 16, TARGET.y - 20, 8, 10);
-  }
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText('barracks', TARGET.x + 36, TARGET.y + 16);
-}
-
-function drawScene(c, timeErr, rangeErr) {
-  const sp = scudPos(state.phase);
-  const offPx = rangeErr * M2PX;                 // gate lags behind Scud
-  const gate = { x: sp.x - TRK_U.x * offPx, y: sp.y - TRK_U.y * offPx };
-  const lost = rangeErr > GATE_HALF_M;
-  const halfPx = GATE_HALF_M * M2PX;
-  const ang = Math.atan2(TRK.dy, TRK.dx);
-  const nx = -TRK_U.y, ny = TRK_U.x;             // across-track normal
-
-  drawSky(c);
-  drawRadar(c, lost && !state.patched);
-  drawGround(c);
-
-  // Scud incoming trajectory (faint), then a glowing smoke trail behind it.
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.setLineDash([3, 6]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(ENTRY.x, ENTRY.y); ctx.lineTo(TARGET.x, TARGET.y); ctx.stroke();
-  ctx.setLineDash([]);
-
-  const intercepted = !lost && state.phase >= 0.62;
-  const impacted = lost && state.phase >= 0.98;
-
-  if (!intercepted) {
-    for (let k = 1; k <= 14; k += 1) {
-      const pp = scudPos(Math.max(0, state.phase - k * 0.018));
-      ctx.fillStyle = `rgba(210,210,225,${(0.16 * (1 - k / 14)).toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(pp.x, pp.y, 4.5 - k * 0.22, 0, 2 * Math.PI); ctx.fill();
-    }
-  }
-
-  // Radar acquisition gate: corner brackets where the system THINKS the
-  // target is. Green and locked when it still contains the Scud; flashing
-  // red and empty (tracking a ghost) once the clock drift has walked it off.
-  const gw = halfPx, gx = 18;
-  const flash = lost ? 0.55 + 0.45 * Math.sin(state.phase * 22) : 1;
-  const gcol = state.patched ? c.green : (lost ? c.red : c.green);
-  ctx.strokeStyle = gcol; ctx.globalAlpha = lost ? flash : 1; ctx.lineWidth = 2;
-  const cor = [
-    [gate.x - TRK_U.x * gw + nx * gx, gate.y - TRK_U.y * gw + ny * gx],
-    [gate.x + TRK_U.x * gw + nx * gx, gate.y + TRK_U.y * gw + ny * gx],
-    [gate.x + TRK_U.x * gw - nx * gx, gate.y + TRK_U.y * gw - ny * gx],
-    [gate.x - TRK_U.x * gw - nx * gx, gate.y - TRK_U.y * gw - ny * gx],
-  ];
-  const L = 10;
-  for (let i = 0; i < 4; i += 1) {
-    const p = cor[i], q = cor[(i + 1) % 4], r = cor[(i + 3) % 4];
-    const u1 = [(q[0] - p[0]), (q[1] - p[1])], n1 = Math.hypot(u1[0], u1[1]);
-    const u2 = [(r[0] - p[0]), (r[1] - p[1])], n2 = Math.hypot(u2[0], u2[1]);
+function reticle(x, y, ph, color) {
+  const r = 16 + Math.sin(ph * 8) * 1.5;
+  ctx.strokeStyle = color; ctx.lineWidth = 1.4;
+  for (let k = 0; k < 4; k += 1) {
+    const a = k * Math.PI / 2 + ph * 0.6;
+    const cx = x + Math.cos(a) * r, cy = y + Math.sin(a) * r;
+    const tx = Math.cos(a + Math.PI / 2), ty = Math.sin(a + Math.PI / 2);
     ctx.beginPath();
-    ctx.moveTo(p[0] + u1[0] / n1 * L, p[1] + u1[1] / n1 * L);
-    ctx.lineTo(p[0], p[1]);
-    ctx.lineTo(p[0] + u2[0] / n2 * L, p[1] + u2[1] / n2 * L);
+    ctx.moveTo(cx - tx * 6, cy - ty * 6);
+    ctx.lineTo(cx, cy);
+    ctx.lineTo(cx - Math.cos(a) * 6, cy - Math.sin(a) * 6);
+    ctx.stroke();
+  }
+}
+
+function burst(x, y, t, big) {
+  const R = (big ? 52 : 30) * Math.min(1, 0.25 + t * 1.5);
+  const g = ctx.createRadialGradient(x, y, 0, x, y, R);
+  g.addColorStop(0, `rgba(255,255,240,${(0.95 * (1 - t)).toFixed(2)})`);
+  g.addColorStop(0.35, `rgba(255,180,70,${(0.8 * (1 - t)).toFixed(2)})`);
+  g.addColorStop(0.7, `rgba(200,70,25,${(0.45 * (1 - t)).toFixed(2)})`);
+  g.addColorStop(1, 'rgba(20,15,20,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, R, 0, 6.2832); ctx.fill();
+  ctx.strokeStyle = `rgba(255,210,160,${(0.55 * (1 - t)).toFixed(2)})`; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, R * (1 + t * 1.7), 0, 6.2832); ctx.stroke();
+  for (let k = 0; k < (big ? 22 : 13); k += 1) {
+    const a = k * 2.39996, d = R * (0.6 + 1.6 * t) * (0.5 + srnd(k));
+    ctx.fillStyle = `rgba(255,${(150 + (k * 47) % 100) | 0},60,${(0.8 * (1 - t)).toFixed(2)})`;
+    ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d - t * 16, 2.4, 2.4);
+  }
+}
+
+function drawBackdrop() {
+  const g = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+  g.addColorStop(0, '#05070d'); g.addColorStop(0.75, '#070b14'); g.addColorStop(1, '#0b0f1a');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, GROUND_Y);
+  // radar range rings + scan from the battery
+  ctx.strokeStyle = COL.ring; ctx.lineWidth = 1;
+  for (let r = 70; r < 540; r += 70) { ctx.beginPath(); ctx.arc(BAT.x, BAT.y, r, Math.PI, 2 * Math.PI); ctx.stroke(); }
+  ctx.strokeStyle = COL.grid;
+  for (let gx = 0; gx <= W; gx += 60) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, GROUND_Y); ctx.globalAlpha = 0.5; ctx.stroke(); ctx.globalAlpha = 1; }
+  const sweep = Math.PI + (1 + Math.sin(state.phase * 5)) * 0.5 * Math.PI;
+  const sg = ctx.createLinearGradient(BAT.x, BAT.y, BAT.x + 520 * Math.cos(sweep), BAT.y + 520 * Math.sin(sweep));
+  sg.addColorStop(0, 'rgba(64,150,120,0.22)'); sg.addColorStop(1, 'rgba(64,150,120,0)');
+  ctx.strokeStyle = sg; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(BAT.x, BAT.y); ctx.lineTo(BAT.x + 520 * Math.cos(sweep), BAT.y + 520 * Math.sin(sweep)); ctx.stroke();
+  // horizon
+  ctx.strokeStyle = 'rgba(120,180,160,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, GROUND_Y); ctx.lineTo(W, GROUND_Y); ctx.stroke();
+  ctx.fillStyle = '#080a10'; ctx.fillRect(0, GROUND_Y, W, 30);
+}
+
+function drawBattery(firing) {
+  ctx.fillStyle = '#2c333f'; ctx.fillRect(BAT.x - 18, BAT.y - 8, 36, 10);
+  ctx.fillStyle = '#3a4250';
+  ctx.save(); ctx.translate(BAT.x, BAT.y - 8); ctx.rotate(-1.05);
+  ctx.fillRect(-3, -30, 7, 30); ctx.restore();
+  if (firing) {
+    const fg = ctx.createRadialGradient(BAT.x + 6, BAT.y - 22, 0, BAT.x + 6, BAT.y - 22, 16);
+    fg.addColorStop(0, 'rgba(255,220,140,0.7)'); fg.addColorStop(1, 'rgba(255,150,40,0)');
+    ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(BAT.x + 6, BAT.y - 22, 16, 0, 6.2832); ctx.fill();
+  }
+  ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('PATRIOT BATTERY', BAT.x, BAT.y + 16);
+}
+
+function drawAsset(destroyed, t) {
+  if (destroyed) {
+    ctx.fillStyle = '#3a2a26';
+    for (let i = 0; i < 14; i += 1) ctx.fillRect(ASSET.x - 26 + srnd(i) * 52, ASSET.y - 4 - srnd(i + 3) * 12, 4 + srnd(i + 7) * 6, 4 + srnd(i + 5) * 5);
+    ctx.fillStyle = `rgba(140,140,150,${(0.3 * (1 - t)).toFixed(2)})`;
+    ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y - 24, 28 + t * 22, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = COL.bad; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillText('ASSET DESTROYED', ASSET.x, ASSET.y + 16);
+  } else {
+    ctx.strokeStyle = '#566173'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(ASSET.x - 22, ASSET.y - 24, 44, 24);
+    ctx.beginPath(); ctx.moveTo(ASSET.x - 22, ASSET.y - 24); ctx.lineTo(ASSET.x, ASSET.y - 34); ctx.lineTo(ASSET.x + 22, ASSET.y - 24); ctx.stroke();
+    ctx.strokeStyle = 'rgba(91,192,235,0.35)';
+    ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y, 40, Math.PI, 2 * Math.PI); ctx.stroke();
+    ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillText('PROTECTED ASSET', ASSET.x, ASSET.y + 16);
+  }
+}
+
+function drawScene(rangeErr) {
+  const t = state.phase;
+  const lost = rangeErr > GATE_HALF_M && !state.patched;
+  const sc = SC(Math.min(1, t));
+  const tan = scudTangent(Math.min(0.98, t));
+  const offPx = rangeErr * M2PX;
+  const gate = { x: sc.x - tan.x * offPx, y: sc.y - tan.y * offPx };
+
+  drawBackdrop();
+
+  // Scud incoming arc (faint guide + glowing trail)
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.setLineDash([3, 7]); ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let k = 0; k <= 40; k += 1) { const p = SC(k / 40); k === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  const inter = (!lost) ? interceptorPath(t) : { pts: [], hit: null };
+  const killed = inter.hit && t >= inter.hit.tau;
+  const scudEndT = killed ? inter.hit.tau : Math.min(1, t);
+  const scudTrail = [];
+  for (let k = 0; k <= 60; k += 1) { const tt = scudEndT * k / 60; scudTrail.push(SC(tt)); }
+  glowTrail(scudTrail, 1, 'rgb(255,138,76)', COL.scudGlow, 2);
+
+  if (!killed) {
+    dart(sc.x, sc.y, Math.atan2(tan.y, tan.x), 22, COL.scud);
+    reticle(sc.x, sc.y, t * 6, lost ? COL.bad : COL.amber);
+    ctx.fillStyle = COL.scud; ctx.font = 'bold 10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillText('SCUD  M-5', sc.x + 16, sc.y - 12);
+  }
+
+  // radar range gate (where the system THINKS the Scud is)
+  const gcol = state.patched ? COL.ok : (lost ? COL.bad : COL.ok);
+  const flash = lost ? 0.5 + 0.5 * Math.sin(t * 20) : 1;
+  ctx.globalAlpha = flash; ctx.strokeStyle = gcol; ctx.lineWidth = 1.6;
+  const gw = 17, L = 9;
+  for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+    const cxp = gate.x + sx * gw, cyp = gate.y + sy * gw;
+    ctx.beginPath();
+    ctx.moveTo(cxp - sx * L, cyp); ctx.lineTo(cxp, cyp); ctx.lineTo(cxp, cyp - sy * L);
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
-  ctx.fillStyle = gcol; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
-  ctx.fillText(lost ? 'gate (empty: tracking a ghost)' : 'acquisition gate',
-    gate.x - nx * (gx + 8) - 4, gate.y - ny * (gx + 8) + 4);
+  ctx.fillStyle = gcol; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText(lost ? 'GATE (EMPTY - GHOST TRACK)' : 'RANGE GATE', gate.x, gate.y + 30);
 
-  // The clock-drift displacement, as a labelled offset between where the
-  // radar looks and where the Scud really is.
-  if (offPx > 8) {
-    ctx.strokeStyle = lost ? c.red : c.accent; ctx.lineWidth = 1.4;
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath(); ctx.moveTo(gate.x, gate.y); ctx.lineTo(sp.x, sp.y); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = lost ? c.red : c.accent; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
-    ctx.fillText(`${rangeErr.toFixed(0)} m`, (gate.x + sp.x) / 2 + nx * 12, (gate.y + sp.y) / 2 + ny * 12);
+  // the clock-drift displacement, labelled (the floating-point lesson)
+  if (offPx > 7 && !killed) {
+    ctx.strokeStyle = lost ? COL.bad : COL.amber; ctx.lineWidth = 1.3; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(gate.x, gate.y); ctx.lineTo(sc.x, sc.y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = lost ? COL.bad : COL.amber; ctx.font = 'bold 10px ui-monospace, monospace';
+    ctx.fillText(`${rangeErr.toFixed(0)} m clock-drift offset`, (gate.x + sc.x) / 2, (gate.y + sc.y) / 2 - 8);
   }
 
-  // The Scud (a real missile with exhaust), unless already intercepted.
-  if (!intercepted) {
-    missile(sp.x, sp.y, ang, 26, c.accent, 0.5 + 0.4 * Math.sin(state.phase * 30));
-    if (state.phase < 0.82) {
-      ctx.fillStyle = c.accent; ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
-      ctx.fillText('Scud', sp.x + nx * 18 + 6, sp.y + ny * 18 + 4);
-    }
-  }
-
-  // Interceptor / outcome.
+  // interceptor
   let firing = false;
-  if (!lost) {
-    const launch = Math.max(0, Math.min(1, (state.phase - 0.15) / 0.47));
-    firing = launch > 0 && state.phase < 0.62;
-    if (firing) {
-      const lx = BATTERY.x + 14, ly = BATTERY.y - 26;
-      // Lead-pursuit interceptor path with a slight gravity-like arc.
-      const ix = lx + (sp.x - lx) * launch;
-      const iy = ly + (sp.y - ly) * launch - 70 * Math.sin(Math.PI * launch);
-      const prevL = Math.max(0, launch - 0.05);
-      const px = lx + (sp.x - lx) * prevL;
-      const py = ly + (sp.y - ly) * prevL - 70 * Math.sin(Math.PI * prevL);
-      for (let k = 1; k <= 10; k += 1) {
-        const f = Math.max(0, launch - k * 0.05);
-        const tx = lx + (sp.x - lx) * f, ty = ly + (sp.y - ly) * f - 70 * Math.sin(Math.PI * f);
-        ctx.fillStyle = `rgba(150,210,255,${(0.22 * (1 - k / 10)).toFixed(3)})`;
-        ctx.beginPath(); ctx.arc(tx, ty, 3.2 - k * 0.22, 0, 2 * Math.PI); ctx.fill();
-      }
-      missile(ix, iy, Math.atan2(iy - py, ix - px), 20, '#cfe6ff', 1.0);
-      ctx.fillStyle = c.blue; ctx.font = 'bold 10px ui-monospace, monospace'; ctx.textAlign = 'left';
-      ctx.fillText('PAC-2 interceptor', lx + 8, ly - 8);
+  if (!lost && inter.pts.length > 1) {
+    firing = !killed;
+    glowTrail(inter.pts, 1, 'rgb(91,192,235)', COL.intcGlow, 2);
+    if (!killed) {
+      const a = inter.pts[inter.pts.length - 1], b = inter.pts[inter.pts.length - 2] || a;
+      dart(a.x, a.y, Math.atan2(a.y - b.y, a.x - b.x), 17, COL.intc);
+      ctx.fillStyle = COL.intc; ctx.font = 'bold 9px ui-monospace, monospace'; ctx.textAlign = 'left';
+      ctx.fillText('PAC-2', a.x + 10, a.y - 8);
     }
-    if (intercepted) {
-      const t = Math.min(1, (state.phase - 0.62) / 0.4);
-      fireball(sp.x, sp.y, t, false);
-    }
-  } else if (impacted) {
-    const t = Math.min(1, (state.phase - 0.98) / 0.2);
-    fireball(TARGET.x + 36, TARGET.y - 8, t, true);
-    // Screen-edge red alert flash on the lethal outcome.
-    ctx.strokeStyle = `rgba(239,71,111,${(0.5 * (1 - t)).toFixed(2)})`;
-    ctx.lineWidth = 8; ctx.strokeRect(4, 4, W - 8, GROUND_Y - 8);
+  }
+  if (killed) {
+    const kt = Math.min(1, (t - inter.hit.tau) / 0.32);
+    burst(inter.hit.x, inter.hit.y, kt, false);
   }
 
-  drawBattery(c, firing);
-  drawBarracks(c, impacted, impacted ? Math.min(1, (state.phase - 0.98) / 0.2) : 0);
+  const impacted = lost && t >= 0.99;
+  if (impacted) {
+    const it = Math.min(1, (t - 0.99) / 0.18);
+    burst(ASSET.x, ASSET.y - 8, it, true);
+    ctx.strokeStyle = `rgba(239,71,111,${(0.55 * (1 - it)).toFixed(2)})`;
+    ctx.lineWidth = 7; ctx.strokeRect(4, 4, W - 8, GROUND_Y - 8);
+  }
 
-  // Headline status banner with a coloured chip.
+  drawBattery(firing);
+  drawAsset(impacted, impacted ? Math.min(1, (t - 0.99) / 0.18) : 0);
+
+  // HUD status banner
   ctx.textAlign = 'left';
-  const msg = state.patched ? 'PATCHED: exact time kept, gate locked on the Scud (intercept)'
-    : lost ? 'TRACK LOST: clock drift walked the gate off the Scud, no launch, impact'
-    : 'TRACKING: gate still contains the Scud (intercept)';
-  const bc = (lost && !state.patched) ? c.red : c.green;
-  ctx.fillStyle = bc; ctx.globalAlpha = 0.16; ctx.fillRect(28, 18, 9, 22); ctx.globalAlpha = 1;
-  ctx.fillStyle = bc; ctx.fillRect(28, 18, 5, 22);
-  ctx.font = 'bold 14px ui-monospace, monospace'; ctx.fillText(msg, 44, 35);
+  const msg = state.patched ? 'PATCHED: exact time kept, gate locked, INTERCEPT'
+    : lost ? 'TRACK LOST: clock drift walked the gate off, NO LAUNCH, IMPACT'
+    : (killed ? 'INTERCEPT: Scud destroyed in flight' : 'TRACKING: gate locked on the Scud, engaging');
+  const bc = lost ? COL.bad : COL.ok;
+  ctx.fillStyle = bc; ctx.globalAlpha = 0.16; ctx.fillRect(26, 16, 9, 22); ctx.globalAlpha = 1;
+  ctx.fillStyle = bc; ctx.fillRect(26, 16, 5, 22);
+  ctx.font = 'bold 13px ui-monospace, monospace'; ctx.fillText(msg, 42, 32);
 }
 
-function drawCausePanel(c, timeErr, rangeErr) {
-  const top = 352;
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+function drawCausePanel(timeErr) {
+  const top = 360;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = COL.muted; ctx.font = '12px ui-monospace, monospace';
   ctx.fillText('Why: 0.1 is not exact in binary.', 40, top);
-  ctx.fillStyle = c.fg; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('24 bits: 0.1 ~ 209715 / 2097152', 40, top + 20);
-  ctx.fillText('       = 0.0999999046...', 40, top + 38);
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`error/tick = ${PATRIOT_ERR_PER_TICK_S.toExponential(3)} s, never reset`, 40, top + 60);
+  ctx.fillStyle = COL.fg;
+  ctx.fillText('24 bits: 0.1 ~ 209715 / 2097152 = 0.0999999046...', 40, top + 20);
+  ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`error/tick = ${PATRIOT_ERR_PER_TICK_S.toExponential(3)} s, never reset`, 40, top + 40);
+  ctx.fillText(`clock error now = ${(timeErr * 1000).toFixed(1)} ms  at ${state.hours} h uptime`, 40, top + 58);
 
-  // Linear accumulation plot, error(s) vs uptime(h).
-  const px = 372, py = top + 2, pw = 348, ph = 92;
+  const px = 372, py = top - 6, pw = 348, ph = 92;
   const eMax = patriotTimeError(100) * 1.08;
   const xOf = (h) => px + pw * h / 100;
   const yOf = (e) => py + ph * (1 - e / eMax);
-  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-  ctx.strokeRect(px, py, pw, ph);
+  ctx.strokeStyle = COL.grid2; ctx.lineWidth = 1; ctx.strokeRect(px, py, pw, ph);
   for (const h of [8, 20, 100]) {
     const x = xOf(h);
-    ctx.strokeStyle = c.grid; ctx.setLineDash([2, 3]);
-    ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x, py + ph); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = c.muted; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.strokeStyle = COL.grid2; ctx.setLineDash([2, 3]);
+    ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x, py + ph); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = COL.muted; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(`${h}h`, x, py + ph + 11);
   }
-  ctx.strokeStyle = c.red; ctx.lineWidth = 2; ctx.beginPath();
-  for (let i = 0; i <= 100; i += 1) { const x = xOf(i), y = yOf(patriotTimeError(i)); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+  ctx.strokeStyle = COL.bad; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= 100; i += 1) { const x = xOf(i), y = yOf(patriotTimeError(i)); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
   ctx.stroke();
   const cx = xOf(state.hours), cy = yOf(state.patched ? 0 : patriotTimeError(state.hours));
-  ctx.fillStyle = state.patched ? c.green : c.accent;
-  ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillText('clock error (s) vs uptime', px, py - 12);
-  ctx.fillText('Dhahran battery: ~100 h up', px + 96, py + ph + 11);
+  ctx.fillStyle = state.patched ? COL.ok : COL.amber;
+  ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('clock error (s) vs uptime', px, py - 10);
+  ctx.textAlign = 'center';
+  ctx.fillText('Dhahran battery: ~100 h up', px + pw / 2, py + ph + 11);
+  ctx.textAlign = 'left';
 }
 
 function render() {
-  const c = colors();
-  ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = COL.bg; ctx.fillRect(0, 0, W, H);
   const timeErr = patriotTimeError(state.hours, state.patched);
   const rangeErr = rangeGateErrorMeters(state.hours, state.speed, state.patched);
-  drawScene(c, timeErr, rangeErr);
-  drawCausePanel(c, timeErr, rangeErr);
+  drawScene(rangeErr);
+  drawCausePanel(timeErr);
 
   readoutTime.textContent = `${(timeErr * 1000).toFixed(1)} ms`;
   readoutRange.textContent = `${rangeErr.toFixed(0)} m`;
@@ -387,10 +362,7 @@ function render() {
 }
 
 function tick() {
-  if (state.playing) {
-    state.phase += 0.006;
-    if (state.phase > 1.18) state.phase = 0;
-  }
+  if (state.playing) { state.phase += 0.005; if (state.phase > 1.22) state.phase = 0; }
   render();
   requestAnimationFrame(tick);
 }
@@ -408,11 +380,10 @@ btnReset.addEventListener('click', () => { state.phase = 0; });
 function bootSync() {
   valueHours.textContent = String(state.hours);
   valueSpeed.textContent = String(state.speed);
-
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state.hours = Math.round(f * 100);
-    state.phase = Math.min(1.05, 0.08 + f * 0.97);
+    state.phase = Math.min(1.05, 0.06 + f * 0.99);
     valueHours.textContent = String(state.hours);
     render();
     if (DETERMINISTIC) {
