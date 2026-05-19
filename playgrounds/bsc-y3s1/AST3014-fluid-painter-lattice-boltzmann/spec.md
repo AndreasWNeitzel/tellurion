@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: AST3014
 supporting_ucs: []
 curriculum_year: bsc-y3s1
-hook: 'Draw obstacles by click-drag; a Lattice Boltzmann solver responds in real time with vortex streets, Bernoulli flow acceleration, and a viridis velocity-magnitude field.'
-one_paragraph: 'D2Q9 BGK collision on a 192x96 grid, bounce-back at user-drawn obstacles, steady inflow on the left and zero-gradient outflow on the right. Reynolds number tunable via the relaxation time tau.'
+hook: 'Draw an obstacle by click-drag and watch the flow respond in real time: it accelerates around the body and leaves a low-speed wake behind it, the speed shown as a colour field.'
+one_paragraph: 'A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on the left, zero-gradient outflow on the right, and half-way bounce-back at user-drawn obstacles. The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu, so lowering tau drives the wake from a steady recirculation toward unsteady vortex shedding. Reference: Kruger et al., The Lattice Boltzmann Method (Springer 2017), Chapters 3 to 5.'
 tags: [fluids-mhd, interactive-drag, animation, field-visualization]
 difficulty: 4
 tier: large
@@ -20,7 +20,7 @@ share_state_keys: []
 
 # Fluid Painter: Lattice Boltzmann Sandbox
 
-Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz roll.
+Draw obstacles by click-drag (shift-drag erases); a 192 x 96 D2Q9 lattice-Boltzmann solver responds in real time. The colour field shows the local flow speed: bright where the fluid accelerates around the body, dark in the low-momentum wake behind it. A circular obstacle at moderate Reynolds number sheds a vortex street; lowering the relaxation time raises the Reynolds number and roughens the wake.
 
 ## Explainer
 
@@ -61,22 +61,23 @@ whether the flow is smooth or turbulent.
 
 ### What the flow shows
 
-Behind a circular obstacle at moderate Reynolds number, vortices shed
-alternately, the Von Karman vortex street (the same physics that makes
-flags flap and wires sing). A sharp corner or a shear layer rolls up
-into Kelvin-Helmholtz billows. The injected dye is passive: it
-visualizes mixing without changing the flow. Because every cell only
-talks to its neighbors, the whole thing runs fast in a Worker and
-responds to your drawing instantly.
+Behind a circular obstacle the flow separates: a low-momentum wake
+forms on the centreline while the fluid squeezed around the sides
+speeds up (a clear momentum deficit between the two). At moderate
+Reynolds number the wake recirculates steadily; lower the relaxation
+time to raise the Reynolds number and the wake becomes unsteady,
+shedding alternately into a Von Karman vortex street (the same physics
+that makes flags flap and wires sing). Because every cell only talks
+to its neighbours, the solver responds to your drawing immediately.
 
 ### Things to try
 
-- Draw a circle in a stream and watch the vortex street develop
-  behind it; widen it to raise Re and see the wake go turbulent.
-- Make a sharp step and watch a Kelvin-Helmholtz roll-up on the shear
-  layer.
-- Shift-drag dye and watch it trace the mixing without disturbing the
-  flow.
+- Draw a circle in the stream and watch the wake form behind it while
+  the flow accelerates around its sides.
+- Lower tau (raise the Reynolds number) and watch the steady wake give
+  way to unsteady vortex shedding.
+- Draw a flat plate across part of the channel and see the flow
+  divert and a longer separated wake form behind it.
 
 ### Where this comes from
 
@@ -90,19 +91,21 @@ D2Q9 distribution functions $f_i$ on a 2D grid. BGK collision $f_i \to f_i - (f_
 
 ## Controls
 
-- Click-drag: draw obstacles; right-click erases; shift-drag injects dye
-- Reynolds slider, inflow speed, dye rate
-- Velocity vs vorticity toggle, reset
+- Click-drag: draw obstacle cells; shift-drag erases.
+- tau (relaxation time): sets the viscosity and hence the Reynolds
+  number.
+- Clear obstacles; Reset flow.
 
 ## Invariants
 
-- Total mass conserved within 0.01% per 1000 steps.
-- Empty channel: Poiseuille parabola within 2% after 500 steps.
-- Von Karman shedding period at Re = 100: Strouhal $St \approx 0.2$ within 20%.
-
-## Status note
-
-Scaffolded with full LBM spec; Worker + bounce-back + dye advection not yet implemented.
+- D2Q9 equilibrium moments exact: sum_k f_k^eq = rho and
+  sum_k c_k f_k^eq = rho u.
+- Uniform fluid at rest (no inflow, no obstacle) is a fixed point.
+- Deterministic: identical inputs reproduce the populations bit-for-bit.
+- Fluid mass stays finite and bounded over a long run.
+- An obstacle leaves a momentum deficit: the wake centreline is slower
+  than the bypass flow beside it.
+- Kinematic viscosity nu = (tau - 1/2)/3 and Re = U D / nu.
 
 ## Citations
 

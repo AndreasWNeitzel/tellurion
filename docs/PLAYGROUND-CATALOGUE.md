@@ -1161,8 +1161,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Fluid Painter: Lattice Boltzmann Sandbox
 `playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann` | AST3014 | SHIPPED | swept | tier:large
 
-- What it does / physics / visuals: D2Q9 BGK collision on a 192x96 grid, bounce-back at user-drawn obstacles, steady inflow on the left and zero-gradient outflow on the right. Reynolds number tunable via the relaxation time tau.
-- Hook: Draw obstacles by click-drag; a Lattice Boltzmann solver responds in real time with vortex streets, Bernoulli flow acceleration, and a viridis velocity-magnitude field.
+- What it does / physics / visuals: A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on the left, zero-gradient outflow on the right, and half-way bounce-back at user-drawn obstacles. The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu, so lowering tau drives the wake from a steady recirculation toward unsteady vortex shedding. Reference: Kruger et al., The Lattice Boltzmann Method (Springer 2017), Chapters 3 to 5.
+- Hook: Draw an obstacle by click-drag and watch the flow respond in real time: it accelerates around the body and leaves a low-speed wake behind it, the speed shown as a colour field.
 - Review verdict: [deep] BROKEN (INCOMPLETE IMPLEMENTATION)
 
 ### Parker Solar Wind
