@@ -2,6 +2,7 @@ import { allowedJ, multiplicity, totalMultiplicityFromJ } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rS = document.getElementById('readout-s');
 const sJ1 = document.getElementById('slider-j1'), vJ1 = document.getElementById('value-j1');
@@ -49,5 +50,18 @@ function render() {
   rS.textContent = `${totalMultiplicityFromJ(st.j1, st.j2)}`;
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    // Sweep the coupling so the five frames show progressively richer
+    // decompositions (more allowed J, taller m-ladders).
+    const pairs = [[0.5, 0.5], [1, 0.5], [1, 1], [1.5, 1], [2, 1]];
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    const p = pairs[Math.min(pairs.length - 1, Math.round(frac * (pairs.length - 1)))];
+    st = { j1: p[0], j2: p[1] };
+    sJ1.value = String(2 * st.j1); vJ1.textContent = jLabel(st.j1);
+    sJ2.value = String(2 * st.j2); vJ2.textContent = jLabel(st.j2);
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
