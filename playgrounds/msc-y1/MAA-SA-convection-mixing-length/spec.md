@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: hansen-kawaler
 primary_chapter: 5
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Stars carry heat either by radiation or by boiling blobs of gas; which one operates where, decided by one inequality, controls a star''s structure and radius.'
+one_paragraph: 'A layer is unstable to convection by the Schwarzschild criterion when the temperature gradient the radiation would need exceeds the adiabatic one, nabla_rad > nabla_ad (a rising blob stays buoyant). Mixing-length theory closes the problem with one free parameter: a blob travels a distance l = alpha H_P (alpha of order unity, H_P the pressure scale height) before dissolving and releasing its heat, which sets the convective flux and the actual gradient between nabla_ad and nabla_rad. Deep convection is nearly adiabatic and almost independent of alpha, but near the surface (superadiabatic convection) the structure and hence the stellar radius depend sensitively on the chosen alpha, which is why it is calibrated to the Sun. The playground shows the stability criterion and how varying alpha changes the gradient and the surface answer. Reference: Hansen and Kawaler, Stellar Interiors, Chapter 5.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple

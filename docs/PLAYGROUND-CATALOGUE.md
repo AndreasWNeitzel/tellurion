@@ -2463,8 +2463,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Mean-Motion Resonance and Kirkwood Gaps
 `playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy` | MAA-SS | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Kirkwood gaps in the asteroid belt at 2:1, 3:1, 5:2, 7:3 with Jupiter. Source: Murray-Dermott Ch. 8 (`murray-dermott`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A mean-motion resonance occurs when the orbital periods are near a small-integer ratio, p n_J approximately q n, so the same gravitational configuration with Jupiter repeats and the perturbations add coherently instead of averaging away. The slow resonant angle phi obeys a pendulum equation, phi-double-dot proportional to -sin(phi), so an asteroid is either trapped and librating about the resonance or circulating past it; near strong resonances the chaotic pumping of eccentricity drives the body onto a planet-crossing orbit and it is removed, carving the Kirkwood gap over millions of years. The playground shows the belt, the resonant semi-major axes, and a tracer''s resonant-angle libration or circulation as the period ratio is tuned. Reference: Murray and Dermott, Solar System Dynamics, Chapter 8.
+- Hook: The asteroid belt has empty lanes, the Kirkwood gaps, sitting exactly where an asteroid would orbit the Sun an integer number of times for every few of Jupiter''s.
 - Review verdict: [deep] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - spec.md line 12: hook = 'STATUS: needs_hook' (UNFILLED).
@@ -2475,8 +2475,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Secular Perturbations (Laplace-Lagrange)
 `playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange` | MAA-SS | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7 (`murray-dermott`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Laplace-Lagrange theory averages the disturbing function over the orbital periods, dropping the fast angles and keeping the secular terms. Writing the complex eccentricity vector z (components e cos(varpi), e sin(varpi)), the linearized secular system is z-dot = i A z, where A is a constant matrix built from the masses and semi-major axes; its eigenvalues are the secular precession frequencies and its eigenvectors the normal modes. The planets therefore trade eccentricity periodically like coupled oscillators while the total angular-momentum deficit is conserved, the mechanism that paces Earth''s Milankovitch climate cycles. The playground integrates two planets exchanging eccentricity and shows the mode beating. Reference: Murray and Dermott, Solar System Dynamics, Chapter 7.
+- Hook: Averaged over many orbits the fast planetary motion cancels and only a slow drift survives: eccentricities and orbit orientations cycle back and forth over millennia, the dynamics behind Milankovitch cycles.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [medium] Raw bib key in figcaption and README: `(murray-dermott)` should be "Murray & Dermott, Solar System Dynamics, Ch. 7"
