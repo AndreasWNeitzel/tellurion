@@ -31,31 +31,79 @@ frequencies, the optical ancestor of every image filter.
 
 ### The Fourier-transform property of a lens
 
-A thin lens, in the Fraunhofer regime, maps the field in its front
-focal plane to its own Fourier transform in the back focal plane:
+A thin lens of focal length $f$ illuminated by light of wavelength
+$\lambda$ maps the COMPLEX field in its front focal plane to its
+own Fourier transform in the back focal plane. Writing the front-
+plane transmittance as $t(x, y)$ and the back-plane field as
+$U_f(x_f, y_f)$,
 
-$$U_f(f_x, f_y) \;\propto\; \mathcal F\{t\}(f_x, f_y).$$
+$$\boxed{\;U_f(x_f, y_f) = \frac{1}{i\lambda f}\,
+    \mathcal F\{t\}(f_x, f_y)\bigg|_{f_x = x_f / (\lambda f),\;
+                                       f_y = y_f / (\lambda f)},\;}$$
+
+where the Fourier transform $\mathcal F\{t\}$ is
+
+$$\mathcal F\{t\}(f_x, f_y) = \iint t(x, y)\,e^{-2\pi i (f_x x + f_y y)}\,dx\,dy,$$
+
+and the spatial-frequency-to-position mapping is
+
+$$x_f = \lambda f\,f_x,\qquad y_f = \lambda f\,f_y.$$
 
 Low spatial frequencies (broad features) land near the optical axis;
-high frequencies (fine detail, sharp edges) land far out. So the common
-focal plane of the 4f system literally displays the image's spectrum.
+high spatial frequencies (fine detail, sharp edges) land far out. The
+common focal plane of the 4f system thus literally displays the
+image's spatial spectrum at scale $\lambda f$ per cycle/length.
+
+### Why a lens transforms
+
+The Fraunhofer-diffraction integral for a transparency at distance
+$z$ in the paraxial regime is
+
+$$U(x', y'; z) \propto \iint t(x, y)\,
+       \exp\!\left[-\frac{ik}{z}(x x' + y y')\right]\,dx\,dy,$$
+
+with $k = 2\pi/\lambda$. A thin lens adds a quadratic phase
+$\exp[-ik(x'^2 + y'^2)/(2 f)]$ to the field passing through it. In a
+4f geometry the quadratic phases from the two lenses cancel the
+free-space quadratic phases between them, leaving just the bare
+exponential kernel above. The result is a clean two-dimensional
+Fourier transform without paraxial-approximation artifacts.
 
 ### Spatial filtering
 
-Place a mask $M$ there, multiply, and the second lens inverse-
-transforms:
+Place a mask $M(x_f, y_f)$ at the common focal plane, then a second
+identical lens inverse-transforms:
 
-$$U_f' = M\cdot U_f, \qquad U_i = \mathcal F^{-1}\{U_f'\},
-  \qquad \text{recorded } |U_i|^2.$$
+$$U_f' = M\,U_f, \qquad U_{\rm image} = \mathcal F^{-1}\{U_f'\},
+   \qquad I_{\rm image} = |U_{\rm image}|^2.$$
 
 With no mask, $\mathcal F^{-1}\mathcal F\,t = t$: the image is
-faithfully reproduced. Block the center (high-pass) and only edges
-survive (edge enhancement). Pass only the center (low-pass) and the
-image blurs, fine structure removed. A small off-axis stop removes a
-periodic grating. This is exactly convolution by a point-spread
-function, done at the speed of light, and it is the conceptual basis
-of phase-contrast microscopy and optical correlators. The computation
-uses a 2D FFT to mimic the optics.
+faithfully reproduced.
+
+- *Low-pass* (central pinhole, blocks high $|f|$): the image blurs
+  by convolution with the Airy pattern of the pinhole; sharp edges
+  smear.
+- *High-pass* (central beam stop, blocks low $|f|$): only sharp
+  changes survive; this is Schlieren imaging.
+- *Notch* (a small off-axis stop): removes a periodic grating
+  selectively, the optical analogue of removing one frequency bin.
+- *Phase mask* (Zernike phase contrast): converts the phase
+  information of a transparent specimen into intensity.
+
+This is exactly the convolution theorem realised at the speed of
+light. The CPU implementation in the playground uses a 2D FFT to
+mimic the same optics.
+
+### Symbols, at a glance
+
+- $t(x, y)$, complex transmittance of the input object.
+- $\lambda$, wavelength of the illuminating light (m).
+- $f$, focal length of each lens (m).
+- $(x_f, y_f)$, position in the Fourier (mask) plane (m).
+- $(f_x, f_y)$, spatial frequencies (cycles per metre).
+- $M(x_f, y_f)$, mask transmittance.
+- $U_f$, $U_{\rm image}$, the complex fields at the Fourier and
+  image planes.
 
 ### Things to try
 
@@ -65,12 +113,19 @@ uses a 2D FFT to mimic the optics.
   removed.
 - High-pass (central block): watch only the outlines survive (edge
   detection).
+- A horizontal slit mask: removes all horizontal structure but
+  preserves vertical lines.
 
-### Where this comes from
+### Bibliographic origin
 
-The lens Fourier-transform property and 4f spatial filtering follow
-Goodman, *Introduction to Fourier Optics*, and Hecht, *Optics*, 5th
-ed., Chapter 11.
+The recognition that a lens performs a Fourier transform is in
+Abbe's 1873 microscopy theory; the modern operational formulation
+is Goodman, *Introduction to Fourier Optics* (4th ed., Roberts and
+Co. 2017), Ch. 5, 8. The 4f geometry is in VanderLugt, *Optical
+Signal Processing* (Wiley 1992), Ch. 3. Phase contrast: Zernike,
+*Physica* **9** (1942) 686 (Nobel Prize 1953). A clean textbook
+treatment of all of the above is Hecht, *Optics* (5th ed., Pearson
+2017), Ch. 11.
 
 ## Physical setup
 
