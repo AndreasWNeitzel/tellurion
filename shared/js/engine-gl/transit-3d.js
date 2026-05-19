@@ -8,16 +8,28 @@
 import { createGL2 } from './context.js';
 import { compileProgram } from './shader.js';
 
+// aSize is now interpreted as worldRadius for real objects (depth-
+// scaled by uPixK / clip.w) so the star and planet have a consistent
+// size that matches the orbit's geometric scale. For background stars
+// we want a fixed-pixel size; we encode that by passing aSize negative
+// (its absolute value is the pixel size).
 const VS_PT = `#version 300 es
 layout(location=0) in vec3 aPos;
 layout(location=1) in float aSize;
 layout(location=2) in vec4 aCol;
 uniform mat4 uVP;
+uniform float uPixK;
 out vec4 vCol;
 void main(){
   vCol = aCol;
   gl_Position = uVP * vec4(aPos, 1.0);
-  gl_PointSize = aSize;
+  if (aSize < 0.0) {
+    gl_PointSize = -aSize;                             // fixed pixel size
+  } else {
+    // world radius -> pixels with a 2-px floor so a sub-pixel
+    // planet (Earth analogue) remains visible against the star.
+    gl_PointSize = max(2.0, uPixK * aSize / gl_Position.w);
+  }
 }`;
 
 // Star imposter: limb-darkened disc with a small chromosphere glow.
@@ -33,10 +45,12 @@ void main(){
   vec2 d = gl_PointCoord * 2.0 - 1.0;
   float r2 = dot(d, d);
   if (vCol.a > 1.5) {
-    // planet: dark opaque disc with a soft rim
+    // planet: opaque dark disc with a soft cool rim
     if (r2 > 1.0) discard;
-    float rim = smoothstep(1.0, 0.85, sqrt(r2));
-    o = vec4(vCol.rgb * (0.10 + 0.18 * rim), 1.0);
+    float r = sqrt(r2);
+    float core = 1.0 - smoothstep(0.80, 1.00, r);   // 1 at center, 0 at rim
+    vec3 col = vec3(0.030, 0.030, 0.045) * core + vec3(0.10, 0.07, 0.05) * (1.0 - core);
+    o = vec4(col, 1.0);
   } else if (vCol.a > 0.5) {
     // star: limb-darkened
     if (r2 > 1.0) discard;
@@ -82,15 +96,17 @@ export function setupTransitGL(canvas) {
   const NBG = 240;
   const rnd = mulberry(0xA571A);
   const ptBuf = new Float32Array((NBG + 2) * 8);
-  // bg stars at fixed sky positions (far behind, big sphere of radius R_BG)
-  const R_BG = 18;
+  // bg stars at fixed sky positions on a far celestial sphere; aSize
+  // encoded NEGATIVE so the vertex shader treats it as a fixed-pixel
+  // point size (independent of orbit zoom level).
+  const R_BG = 220;
   for (let i = 0; i < NBG; i += 1) {
     const u = 2 * rnd() - 1, ph = 2 * Math.PI * rnd(), s = Math.sqrt(1 - u * u);
     const o = i * 8;
     ptBuf[o] = R_BG * s * Math.cos(ph);
     ptBuf[o + 1] = R_BG * u;
     ptBuf[o + 2] = R_BG * s * Math.sin(ph);
-    ptBuf[o + 3] = 1.5 + 1.5 * rnd();          // size
+    ptBuf[o + 3] = -(1.5 + 1.5 * rnd());        // negative = fixed pixel size
     ptBuf[o + 4] = 0.65 + 0.35 * rnd();
     ptBuf[o + 5] = 0.7 + 0.3 * rnd();
     ptBuf[o + 6] = 0.85;
@@ -126,30 +142,41 @@ export function setupTransitGL(canvas) {
     return o;
   }
 
-  // Place planet at world position = orbit in the (x, z) plane,
-  // rotated about the x-axis by alpha = (pi/2 - inc) so the inclination
-  // tilts the orbit toward the y-axis (the camera elevation tilts the
-  // view; default azimuth=0 elevation=0 -> edge-on at inc=pi/2).
+  // Orbit geometry matches the CPU light curve in transit-cpu.js.
+  // CPU convention: at orbital phase theta, the planet's sky-x is
+  // a*cos(theta), sky-y is a*sin(theta)*cos(inc), depth toward
+  // observer is a*sin(theta)*sin(inc) (positive = "in front" of
+  // the star). The default camera sits at +x looking toward -x; its
+  // screen-right is +z and screen-up is +y. So we map:
+  //   world_x = a sin(theta) sin(inc)   (depth toward observer)
+  //   world_y = a sin(theta) cos(inc)   (sky vertical, foreshortened)
+  //   world_z = a cos(theta)            (sky horizontal)
+  // With this mapping the planet is between the camera and the star
+  // at theta = pi/2 (where the CPU's transitFlux dips), edge-on
+  // (inc = pi/2) gives world_y = 0 (a horizontal chord), face-on
+  // (inc = 0) collapses depth to zero (the ring becomes a circle in
+  // the sky plane).
   function orbitPos(theta, A, inc) {
-    const xo = A * Math.cos(theta), zo = A * Math.sin(theta);
-    const alpha = Math.PI / 2 - inc;
-    const y = Math.sin(alpha) * zo;
-    const z = Math.cos(alpha) * zo;
-    return [xo, y, z];
+    const xo = A * Math.cos(theta);
+    const yo = A * Math.sin(theta);
+    return [yo * Math.sin(inc), yo * Math.cos(inc), xo];
   }
 
+  // theta in radians; A is the orbit radius in WORLD units, expected
+  // == a/Rs; inc the orbital inclination; Rp_world the planet radius
+  // in WORLD units, expected == Rp/Rs; starColor a vec3.
   function update(theta, A, inc, Rp_world, starColor) {
-    // Star is at the origin, big imposter
+    // Star at the origin with worldRadius = 1 (one Rs in world units).
     const o = NBG * 8;
     ptBuf[o] = 0; ptBuf[o + 1] = 0; ptBuf[o + 2] = 0;
-    ptBuf[o + 3] = 360;                                // px size (clamped by GL)
+    ptBuf[o + 3] = 1.0;                                 // world radius = Rs
     ptBuf[o + 4] = starColor[0]; ptBuf[o + 5] = starColor[1]; ptBuf[o + 6] = starColor[2];
-    ptBuf[o + 7] = 1.0;                                // tag: star
+    ptBuf[o + 7] = 1.0;                                 // tag: star
 
     const [px, py, pz] = orbitPos(theta, A, inc);
     const o2 = (NBG + 1) * 8;
     ptBuf[o2] = px; ptBuf[o2 + 1] = py; ptBuf[o2 + 2] = pz;
-    ptBuf[o2 + 3] = Math.max(2.5, 360 * Rp_world);
+    ptBuf[o2 + 3] = Math.max(1e-4, Rp_world);          // world radius = Rp/Rs (shader floors size)
     ptBuf[o2 + 4] = 0.10; ptBuf[o2 + 5] = 0.10; ptBuf[o2 + 6] = 0.12;
     ptBuf[o2 + 7] = 2.0;                                // tag: planet
     gl.bindBuffer(gl.ARRAY_BUFFER, ptVBO);
@@ -164,25 +191,34 @@ export function setupTransitGL(canvas) {
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, ringBuf);
   }
 
-  function render(view, proj, u1, u2) {
+  function render(view, proj, u1, u2, fovDeg) {
     const VP = mul(proj, view);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, W, H);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
     gl.clearColor(0.01, 0.012, 0.02, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    // orbit ring (additive)
+    gl.clearDepth(1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    // points first (bg, star, planet) so the orbit-ring (drawn after)
+    // is correctly depth-tested against the star: the front half of
+    // the ring draws on top, the back half is occluded.
+    gl.useProgram(ptProg);
+    gl.uniformMatrix4fv(gl.getUniformLocation(ptProg, 'uVP'), false, VP);
+    // pixel-size scale factor K: pixels per world-unit at clip.w = 1
+    // for a perspective projection. canvasHeight / (2 tan(fov/2)).
+    const pixK = H / (2 * Math.tan((fovDeg ?? 35) * Math.PI / 360));
+    gl.uniform1f(gl.getUniformLocation(ptProg, 'uPixK'), pixK);
+    gl.uniform1f(gl.getUniformLocation(ptProg, 'uU1'), u1);
+    gl.uniform1f(gl.getUniformLocation(ptProg, 'uU2'), u2);
+    gl.bindVertexArray(ptVAO);
+    gl.drawArrays(gl.POINTS, 0, NBG + 2);
+    // orbit ring last (depth-tested against the star + planet).
     gl.useProgram(lnProg);
     gl.uniformMatrix4fv(gl.getUniformLocation(lnProg, 'uVP'), false, VP);
     gl.uniform4f(gl.getUniformLocation(lnProg, 'uCol'), 0.45, 0.65, 0.9, 0.35);
     gl.bindVertexArray(ringVAO);
     gl.drawArrays(gl.LINE_LOOP, 0, RING_N);
-    // points (bg, star, planet)
-    gl.useProgram(ptProg);
-    gl.uniformMatrix4fv(gl.getUniformLocation(ptProg, 'uVP'), false, VP);
-    gl.uniform1f(gl.getUniformLocation(ptProg, 'uU1'), u1);
-    gl.uniform1f(gl.getUniformLocation(ptProg, 'uU2'), u2);
-    gl.bindVertexArray(ptVAO);
-    gl.drawArrays(gl.POINTS, 0, NBG + 2);
     gl.bindVertexArray(null);
   }
 

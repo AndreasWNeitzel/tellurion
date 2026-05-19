@@ -22,14 +22,31 @@ const controlsEl = document.getElementById('controls');
 let engine = null;
 try { engine = setupTransitGL(canvas); } catch (e) { console.warn('[transit] GL init failed', e); engine = null; }
 const camera = createOrbitCamera(canvas, {
-  target: [0, 0, 0], radius: 14, minRadius: 6, maxRadius: 36,
+  target: [0, 0, 0], radius: 14, minRadius: 4, maxRadius: 120,
   azimuthDeg: 0, elevationDeg: 0, fovDeg: 35,
+  near: 0.05, far: 400,
 });
+// View-orbit radius: identity for compact orbits (a/Rs <= 14), gentle
+// log compression beyond so an Earth-analogue at a/Rs = 215 still fits
+// the camera. CPU physics uses the true a/Rs; this only affects the
+// 3D visual scale.
+function viewOrbitRadius(aOverRs) {
+  if (aOverRs <= 14) return aOverRs;
+  return 14 + 6 * Math.log10(aOverRs / 14);
+}
+function fitCamera() {
+  const A = viewOrbitRadius(ui.aOverRs);
+  camera.setRadius(Math.max(8, Math.min(100, A * 2.3)));
+}
 window.__camera = camera;
 
 const ui = { Rp: 0.1, aOverRs: 6, inc: Math.PI / 2, period: 4, u1: 0.45, u2: 0.20, running: true, hoverPhase: -1 };
 let sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });
-function resolve() { sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 }); }
+function resolve() {
+  sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });
+  fitCamera();
+}
+fitCamera();
 
 const RKEYS = ['phase', 'flux', 'depth (Rp/Rs)^2', 'period', 'inclination', 'transit?'];
 const rEls = {};
@@ -142,9 +159,14 @@ function frame() {
   if (engine) {
     const phase = ((sim.t % sim.period) / sim.period + 1) % 1;
     const theta = 2 * Math.PI * phase;
-    // world axes mapped: orbit-plane radius A_world = aOverRs (star = 1 world unit).
-    engine.update(theta, ui.aOverRs * 0.32, ui.inc, ui.Rp * 0.32, [1.0, 0.78, 0.50]);
-    engine.render(camera.viewMatrix(), camera.projMatrix(canvas.width / canvas.height), ui.u1, ui.u2);
+    // World units: star radius = 1; orbit radius = viewOrbitRadius(a/Rs)
+    // (visual log-compression beyond a/Rs > 14 so an Earth-analogue orbit
+    // still fits the camera). Planet radius is Rp/Rs in world units;
+    // the renderer floors point size at 2 px so a sub-pixel planet
+    // remains visible.
+    const A_view = viewOrbitRadius(ui.aOverRs);
+    engine.update(theta, A_view, ui.inc, ui.Rp, [1.0, 0.78, 0.50]);
+    engine.render(camera.viewMatrix(), camera.projMatrix(canvas.width / canvas.height), ui.u1, ui.u2, camera.state.fovDeg);
   }
   drawPlot(); refreshReadout();
 }
