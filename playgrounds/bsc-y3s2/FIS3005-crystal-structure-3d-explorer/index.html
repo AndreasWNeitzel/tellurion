@@ -49,7 +49,7 @@
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">lattice</span><select aria-label="lattice type" id="select-lat" style="grid-column: span 2;"><option value="fcc">face-centred (FCC)</option><option value="bcc">body-centred (BCC)</option><option value="sc">simple cubic (SC)</option></select></div>
-    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="crystal">crystal + Miller plane</option><option value="recip">reciprocal lattice</option></select></div>
+    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="crystal">crystal + Miller plane</option><option value="recip">reciprocal lattice</option><option value="diff2d">2D diffraction pattern</option></select></div>
     <div class="row"><span class="label">Miller (hkl)</span><select aria-label="Miller indices" id="select-hkl" style="grid-column: span 2;"><option value="1,1,1">(111)</option><option value="1,0,0">(100)</option><option value="1,1,0">(110)</option><option value="2,0,0">(200)</option></select></div>
     <div class="row"><span class="label">supercell</span><input aria-label="supercell repeats" type="range" id="slider-sc" min="1" max="3" step="1" value="1"><span class="value" id="value-sc">1</span></div>
     <div class="row buttons" style="grid-template-columns: 1fr 1fr;"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>

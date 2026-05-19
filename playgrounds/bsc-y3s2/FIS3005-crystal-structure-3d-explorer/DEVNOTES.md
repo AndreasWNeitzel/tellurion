@@ -16,3 +16,18 @@ REVIEW (NEEDS CODE FIX + RECAPTURE) partly stale: FCC physics correct (d_111=a/s
 ## Sweep 2026-05-19
 REVIEW NEEDS-CODE-FIX partly stale: physics + sim.js + real invariants + text already correct; sole genuine defect was bootSync ignoring captureFraction (5 identical goldens). Added CAPTURE_FRAC sweep + slider sync; recaptured 5 distinct verified-correct goldens.
 invariants Tests  9 passed + visual 5/5 x3. Shipped.
+
+## Enhance 2026-05-19 (live-review #271)
+User: "perhaps include some kind of 2D crystallography plot as well?"
+The 1D powder-XRD strip + reciprocal view already existed; what was
+missing was a real single-crystal diffraction image. Added a third
+select-view option "2D diffraction pattern" -> drawDiffraction2D():
+the reciprocal layer at l = selected-l, each (h,k) a spot with area
+~ sqrt(|F_hkl|), systematic absences drawn as faint open rings so the
+FCC all-same-parity / BCC h+k+l-even extinction is visible, (000)
+beam stop, labelled h,k axes, selected reflection gold-ringed, caption
+states the extinction rule. Reuses sim.js structureFactor/isAllowed
+(no engine change). Default view stays 'crystal' so the 5 goldens are
+byte-identical; gate re-run confirms visual 5/5 x3 unchanged.
+Imported structureFactor, isAllowed; added index.html option.
+Gate: 9 invariants + smoke + visual 5/5 x3 PASS. Shipped.

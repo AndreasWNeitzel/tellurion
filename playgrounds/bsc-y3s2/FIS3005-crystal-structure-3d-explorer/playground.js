@@ -9,7 +9,7 @@
 
 import {
   basis, atomsPerConventionalCell, dSpacing, primitiveVectors,
-  reciprocalVectors, powderLines, bzFaceCount,
+  reciprocalVectors, powderLines, bzFaceCount, structureFactor, isAllowed,
 } from './sim.js';
 
 const params = new URLSearchParams(location.search);
@@ -208,6 +208,63 @@ function drawReciprocal() {
   ctx.fillText(`reciprocal lattice  |  ${name}`, VCX, VCY + HALFH + 14);
 }
 
+// Single-crystal diffraction pattern: the reciprocal-lattice layer at
+// l = (selected l). Each (h,k) reflection is a spot whose area scales
+// with |F_hkl|; systematically absent reflections (FCC mixed parity,
+// BCC h+k+l odd) are drawn as faint open marks so the extinction rule
+// is visible, exactly as on an area detector. Kittel Ch.2.
+function drawDiffraction2D() {
+  const L = st.hkl[2];
+  const HM = 5;
+  const sp = Math.min(HALFW, HALFH) / (HM + 1.4);
+  const cx = VCX, cy = VCY;
+  // intensity normalisation over the visible layer
+  let fmax = 1e-9;
+  for (let h = -HM; h <= HM; h += 1) for (let k = -HM; k <= HM; k += 1) {
+    fmax = Math.max(fmax, structureFactor(st.lat, h, k, L));
+  }
+  // faint reciprocal axes
+  ctx.strokeStyle = 'rgba(150,160,180,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx - HM * sp, cy); ctx.lineTo(cx + HM * sp, cy);
+  ctx.moveTo(cx, cy - HM * sp); ctx.lineTo(cx, cy + HM * sp); ctx.stroke();
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('h', cx + HM * sp + 12, cy + 4);
+  ctx.fillText('k', cx, cy - HM * sp - 8);
+  const [sh, sk, sl] = st.hkl;
+  for (let h = -HM; h <= HM; h += 1) {
+    for (let k = -HM; k <= HM; k += 1) {
+      const x = cx + h * sp, y = cy - k * sp;
+      if (h === 0 && k === 0) {                            // direct (000) beam stop
+        ctx.strokeStyle = 'rgba(150,160,180,0.6)'; ctx.lineWidth = 1.4;
+        ctx.strokeRect(x - 4, y - 4, 8, 8);
+        continue;
+      }
+      const F = structureFactor(st.lat, h, k, L);
+      if (!isAllowed(st.lat, h, k, L) || F < 1e-9) {       // systematic absence
+        ctx.strokeStyle = 'rgba(120,130,150,0.30)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x, y, 2.4, 0, 2 * Math.PI); ctx.stroke();
+        continue;
+      }
+      const r = 2.2 + 6.5 * Math.sqrt(F / fmax);
+      const isSel = (h === sh && k === sk && L === sl);
+      const g = ctx.createRadialGradient(x, y, 0.5, x, y, r);
+      if (isSel) { g.addColorStop(0, '#fff0c0'); g.addColorStop(1, '#ffd166'); }
+      else { g.addColorStop(0, 'rgba(140,225,255,0.95)'); g.addColorStop(1, 'rgba(60,150,200,0.55)'); }
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill();
+      if (isSel) {
+        ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.arc(x, y, r + 5, 0, 2 * Math.PI); ctx.stroke();
+        ctx.fillStyle = '#ffd166'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+        ctx.fillText(`(${sh}${sk}${sl})`, x + r + 8, y - r - 2);
+      }
+    }
+  }
+  const rule = st.lat === 'fcc' ? 'absent unless h,k,l all even or all odd'
+    : st.lat === 'bcc' ? 'absent unless h+k+l even' : 'all (hkl) allowed';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`${st.lat.toUpperCase()} single-crystal pattern, hk${L} layer  |  ${rule}`, VCX, VCY + HALFH + 14);
+}
+
 function drawXRD() {
   const x0 = 40, x1 = W - 24, y0 = H - 104, y1 = H - 38;
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
@@ -235,7 +292,9 @@ function drawXRD() {
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  if (st.view === 'recip') drawReciprocal(); else drawCrystal();
+  if (st.view === 'recip') drawReciprocal();
+  else if (st.view === 'diff2d') drawDiffraction2D();
+  else drawCrystal();
   drawXRD();
   const [h, k, l] = st.hkl;
   const lines = powderLines(st.lat, 4.0, 1.5406, 24);
