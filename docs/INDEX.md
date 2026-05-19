@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-19T08:20:45Z)
+  A star is a self-regulating ball of gas where four physical demands must be satisfied simultaneously at every radius. The Eddington standard model solves all four with one elegant trick, and from a star's mass and composition alone it predicts the entire run of density, pressure, temperature, and luminosity. The playground builds that model and lets you chan
+
 - **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified, verified 2026-05-19T08:16:41Z)
   A quantum wavepacket shown twice at once: its shape in position and its shape in momentum. Squeeze it narrow in position and it spreads wide in momentum, and vice versa. You cannot make both narrow. That is the Heisenberg uncertainty principle, and here it is a literal seesaw you operate.
 
@@ -22,9 +25,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Rayleigh-Benard Convection: Onset of Instability](../playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html)** &nbsp; (verified, verified 2026-05-19T07:32:31Z)
   Heat a fluid layer from below. At first nothing moves and heat just conducts up. Past a sharp threshold the still layer becomes unstable and breaks into orderly counter-rotating rolls, the patterned convection you see in a heated pan or in the Sun. This playground sits right at that onset.
-
-- **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-19T07:04:31Z)
-  A star is a self-regulating ball of gas where four physical demands must be satisfied simultaneously at every radius. The Eddington standard model solves all four with one elegant trick, and from a star's mass and composition alone it predicts the entire run of density, pressure, temperature, and luminosity. The playground builds that model and lets you chan
 
 - **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:47:42Z)
   An oscillating charge (a dipole antenna) does not radiate equally in all directions. It throws no power straight along its axis and the most broadside, giving a doughnut-shaped radiation pattern. This is why a whip antenna is mounted vertically and why you rotate it for the best signal.

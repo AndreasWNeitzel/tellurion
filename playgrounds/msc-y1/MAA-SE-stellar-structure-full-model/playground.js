@@ -38,9 +38,23 @@ function rebuild() {
   st.model = stellarModel({ M: Mr * MSUN, R: Math.pow(Mr, 0.7) * RSUN, X, Y, nShell: 360 });
 }
 
+// Blackbody-like heat ramp: a star reads as glowing, hot core white,
+// cool outer layers deep red. viridis (purple-green-yellow) made the
+// temperature structure imperceptible and unphysical here.
+const HEAT = [
+  [0.00, [60, 8, 6]], [0.25, [150, 26, 10]], [0.45, [224, 70, 16]],
+  [0.65, [255, 142, 38]], [0.82, [255, 214, 120]], [1.00, [240, 244, 255]],
+];
 function vcol(t, a = 1) {
-  const c = viridis(Math.max(0, Math.min(1, t)));
-  return `rgba(${c.r | 0},${c.g | 0},${c.b | 0},${a})`;
+  const u = Math.max(0, Math.min(1, t));
+  let i = 0;
+  while (i < HEAT.length - 2 && u > HEAT[i + 1][0]) i += 1;
+  const [t0, c0] = HEAT[i], [t1, c1] = HEAT[i + 1];
+  const f = (u - t0) / (t1 - t0 || 1);
+  const r = c0[0] + (c1[0] - c0[0]) * f;
+  const g = c0[1] + (c1[1] - c0[1]) * f;
+  const b = c0[2] + (c1[2] - c0[2]) * f;
+  return `rgba(${r | 0},${g | 0},${b | 0},${a})`;
 }
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
@@ -190,8 +204,11 @@ function drawEpsHR(x, y, w, h) {
   const track = zamsTrack(80);
   const tMin = 3.5, tMax = 4.7;                            // log Teff
   const lMin = -2, lMax = 6;                               // log L/Lsun
-  const HX = (lt) => hx + hw * (tMax - lt) / (tMax - tMin);
-  const HY = (ll) => hy + hh * (1 - (ll - lMin) / (lMax - lMin));
+  // Clamp to the panel: at the high-mass end of the tour the ZAMS
+  // point/track would otherwise leave the box (the curve "escaping
+  // the plot limits" the user reported).
+  const HX = (lt) => Math.max(hx, Math.min(hx + hw, hx + hw * (tMax - lt) / (tMax - tMin)));
+  const HY = (ll) => Math.max(hy, Math.min(hy + hh, hy + hh * (1 - (ll - lMin) / (lMax - lMin))));
   ctx.strokeStyle = '#7fd6a0'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < track.length; i += 1) {
     const xx = HX(Math.log10(track[i].Teff)), yy = HY(Math.log10(track[i].L));
