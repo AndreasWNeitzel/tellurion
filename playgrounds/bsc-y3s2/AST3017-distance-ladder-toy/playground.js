@@ -2,6 +2,7 @@ import { distanceModulus, ladderUncertainty, RANGE_PC } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rS = document.getElementById('readout-s');
 const sS1 = document.getElementById('slider-s1'), vS1 = document.getElementById('value-s1');
@@ -59,5 +60,19 @@ function render() {
   rS.textContent = `${(sigma_total * 100).toFixed(1)}%`;
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    // Widen every rung's uncertainty across the frames so the error
+    // bands grow and the compounded Hubble-flow sigma climbs.
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st.s1 = 0.01 + frac * 0.05;
+    st.s2 = 0.02 + frac * 0.10;
+    st.s3 = 0.03 + frac * 0.11;
+    sS1.value = String(st.s1); vS1.textContent = `${(st.s1 * 100).toFixed(1)}%`;
+    sS2.value = String(st.s2); vS2.textContent = `${(st.s2 * 100).toFixed(1)}%`;
+    sS3.value = String(st.s3); vS3.textContent = `${(st.s3 * 100).toFixed(1)}%`;
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
