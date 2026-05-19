@@ -43,3 +43,7 @@ Thumbs.db
 
 # Local-only Claude settings
 .claude/settings.local.json
+
+# Raw card-image source drop (heavy input; derive assets/thumbs via
+# scripts/build-card-thumbs.mjs, which is committed)
+images/
