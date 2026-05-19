@@ -54,17 +54,104 @@ bounces.
   near-perfectly (resonant tunnelling, the basis of the tunnel diode).
 - Hold Shift and drag on the scene to sculpt the terrain yourself.
 
-### The equation (collapsible)
+### The time-dependent Schroedinger equation
 
-$$i\,\frac{\partial\psi}{\partial t}
-  =-\tfrac12\frac{\partial^2\psi}{\partial x^2}+V(x)\,\psi
-  \quad(\hbar=m=1).$$
+In natural units ($\hbar = m = 1$, so that energy, momentum and
+length all live in compatible units) the wavefunction $\psi(x, t)$
+obeys
 
-Crank-Nicolson: $(1+\tfrac{i\,dt}{2}H)\psi^{n+1}
-=(1-\tfrac{i\,dt}{2}H)\psi^n$, which is unitary, so
-$\int|\psi|^2dx$ is conserved. Rectangular-barrier transmission
-$T(E)=\big[1+\frac{V_0^2\sinh^2(\kappa a)}{4E(V_0-E)}\big]^{-1}$,
-$\kappa=\sqrt{2(V_0-E)}$.
+$$\boxed{\;i\,\frac{\partial \psi}{\partial t}
+  = -\frac{1}{2}\,\frac{\partial^2 \psi}{\partial x^2} + V(x)\,\psi.\;}$$
+
+The interpretation that puts the playground on the screen is Born's
+rule: $|\psi(x, t)|^2 dx$ is the probability of finding the particle
+in $dx$ at $x$ at time $t$. The total probability stays at one,
+
+$$\int |\psi(x, t)|^2\,dx = 1,$$
+
+which is unitarity (the Hamiltonian is Hermitian and the propagator
+$U = e^{-i H t}$ preserves norms). Watch the live readout: it stays
+locked at 1.000 to round-off.
+
+### Why a wave can leak through a wall
+
+A classical particle with kinetic energy $E < V_0$ stops at the
+barrier wall. The Schroedinger equation does not. Inside the barrier
+the spatial part becomes
+
+$$-\frac{1}{2}\,\frac{\partial^2 \psi}{\partial x^2}
+  = (E - V_0)\,\psi
+  \implies
+  \psi(x) \propto e^{\pm \kappa x},\quad
+  \kappa = \sqrt{2 (V_0 - E)}.$$
+
+So $\psi$ inside the barrier is not zero; it is an exponential
+shoulder $e^{-\kappa x}$ that decays as you go deeper. If the barrier
+is finite, some of that exponential reaches the far side and emerges
+as a propagating wave. The transmission probability through a
+rectangular barrier of height $V_0$ and width $a$ at energy $E < V_0$
+is
+
+$$T(E) = \left[1 + \frac{V_0^2 \sinh^2(\kappa a)}{4 E (V_0 - E)}\right]^{-1}.$$
+
+In the thick-barrier limit $\kappa a \gg 1$ this collapses to
+
+$$T(E) \approx \frac{16 E (V_0 - E)}{V_0^2}\,e^{-2 \kappa a},$$
+
+the famous $e^{-2 \kappa a}$ that controls alpha decay (Gamow 1928)
+and scanning tunnelling microscopy. Double the barrier width and
+the transmission falls by $e^{-2}$; that is why the "thick" preset
+transmits almost nothing.
+
+### Symbols, at a glance
+
+- $\psi(x, t)$, the complex wavefunction. $|\psi|^2$ is the probability
+  density.
+- $V(x)$, the potential the particle moves in (the user-shaped
+  terrain on screen).
+- $E = k_0^2 / 2$, the mean kinetic energy of the launched packet
+  (in natural units).
+- $k_0$, mean wavenumber of the Gaussian wavepacket (sets the
+  packet's group velocity $v_g = k_0$).
+- $V_0$, $a$, barrier height and width.
+- $\kappa = \sqrt{2(V_0 - E)}$, the imaginary wavenumber inside a
+  classically forbidden region.
+- $T(E)$, the transmission probability; $R(E) = 1 - T(E)$.
+
+### Numerics: Crank Nicolson unitarity
+
+The discrete time-step uses Crank Nicolson,
+
+$$\left(1 + \tfrac{i\,\Delta t}{2}\,H\right)\,\psi^{n+1}
+  = \left(1 - \tfrac{i\,\Delta t}{2}\,H\right)\,\psi^{n},$$
+
+which is unitary to machine precision: it is the Cayley
+approximation $U \approx (1 - i H \Delta t / 2)(1 + i H \Delta t / 2)^{-1}$
+of the exact propagator, and is preferred over explicit schemes
+(which violate $\int |\psi|^2 = 1$ and blow up).
+
+### Where you have felt this physics
+
+- Alpha decay (1928 Gamow): the half-life of a heavy nucleus is set
+  by tunnelling probability through the Coulomb barrier; see the
+  *Radioactive Decay Chain* playground for the Geiger-Nuttall law.
+- The Sun: proton-proton fusion needs protons to tunnel through
+  their mutual Coulomb barrier at $T \sim 15\,\mathrm{MK}$.
+- Scanning tunnelling microscopy: an exponentially-sensitive tunnel
+  current images atomic-scale topography.
+- Flash memory cells: electrons tunnel from a control gate to a
+  floating gate.
+
+### Bibliographic origin
+
+The time-dependent Schroedinger equation: Schroedinger, *Annalen
+der Physik* **81** (1926) 109. The rectangular-barrier transmission
+is in Griffiths, *Introduction to Quantum Mechanics* (3rd ed.,
+Cambridge 2018), Section 2.5. The Crank Nicolson scheme is in
+Crank and Nicolson, *Proc. Camb. Phil. Soc.* **43** (1947) 50;
+its unitarity is shown in Press et al., *Numerical Recipes* (3rd
+ed.), Section 20.2. Gamow's original alpha-decay calculation is
+Gamow, *Zeitschrift fuer Physik* **51** (1928) 204.
 
 ## Physical setup
 
