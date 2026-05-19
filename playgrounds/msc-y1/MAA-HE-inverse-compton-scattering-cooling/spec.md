@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: rybickilightman1979
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Reverse Compton scattering: a fast electron slams a low-energy photon up to X-ray or gamma-ray energies and bleeds its own energy away, the engine behind high-energy radiation from jets and the cosmic web.'
+one_paragraph: 'A relativistic electron of Lorentz factor gamma immersed in a radiation field of energy density U_rad loses energy by inverse-Compton scattering at the rate -dE/dt = (4/3) sigma_T c gamma^2 beta^2 U_rad (Thomson regime), the same form as synchrotron with the magnetic energy density replaced by U_rad. Because the loss scales as gamma^2, high-energy electrons cool fastest, so an injected population steepens and develops a cooling break; the characteristic cooling time is t_IC proportional to 1 / (gamma U_rad). The playground integrates a single electron''s energy (and an injected spectrum) as it cools, showing the gamma^2 dependence and the build-up of the upscattered high-energy photons. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Chapter 7.'
 tags: [stellar, fluids-mhd, animation, live-readout]
 difficulty: 3
 tier: simple
