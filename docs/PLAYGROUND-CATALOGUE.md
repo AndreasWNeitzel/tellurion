@@ -670,7 +670,7 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Thermodynamic Engine Simulator
 `playgrounds/bsc-y2s1/FIS2014-thermodynamic-engine-simulator` | FIS2001 | DRAFT | HERO-CANDIDATE | tier:hero
 
-- What it does / physics / visuals: A piston-cylinder engine running a chosen ideal-gas cycle. The gas molecules and piston track the live temperature and volume, the P-V loop traces with a moving operating point, and an energy-flow diagram splits Q_hot into work and Q_cold with the efficiency. Carnot, Otto, Diesel and Stirling cycles, reversible to a refrigerator. The headless sim.js is gate-tested for the first law and the Carnot/Otto efficiency laws.
+- What it does / physics / visuals: A piston-cylinder engine running a chosen ideal-gas cycle. The gas molecules and piston track the live temperature and volume, the P-V loop traces with a moving operating point, and an energy-flow diagram splits Q_hot into work and Q_cold with the efficiency. Carnot, Otto, Diesel and Stirling cycles, reversible to a refrigerator. Reference: Callen, Thermodynamics, 2nd ed., Chapter 4; Reif, Fundamentals of Statistical and Thermal Physics, Chapter 5.
 - Hook: Watch the molecules speed up as heat pours in, the piston do the work, and the wasted heat dump into the cold sink, all from one moving dot on the P-V loop.
 - Review verdict: [deep] CLEAN (deep audit passed)
 
@@ -797,7 +797,7 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Radioactive Decay Chain
 `playgrounds/bsc-y2s2/FIS2003-nuclear-decay-chain-animation` | FIS2003 | DRAFT | tier:advanced
 
-- What it does / physics / visuals: A heavy nucleus walks a decay series to stable lead. The primary scene is the physical nucleus, protons and neutrons packed and intermixed, transmuting each step: alpha decay sheds a He-4 cluster (Z-2, N-2), beta-minus turns a neutron into a proton (Z+1, N-1). The Q value comes from the Bethe-Weizsaecker semi-empirical mass formula and the alpha half-life from the Geiger-Nuttall law. The side panel is the Segre chart tracing the path from the parent to the stable endpoint (Pb-206 for U-238, Pb-208 for Th-232). The headless sim.js is gate-tested for the mode transforms with nucleon and charge conservation, the SEMF binding curve peaking near iron, the exact U-238 chain, exothermicity, and the Geiger-Nuttall trend.
+- What it does / physics / visuals: A heavy nucleus walks a decay series to stable lead. The primary scene is the physical nucleus, protons and neutrons packed and intermixed, transmuting each step: alpha decay sheds a He-4 cluster (Z-2, N-2), beta-minus turns a neutron into a proton (Z+1, N-1). The Q value comes from the Bethe-Weizsaecker semi-empirical mass formula and the alpha half-life from the Geiger-Nuttall law. The side panel is the Segre chart tracing the path from the parent to the stable endpoint (Pb-206 for U-238, Pb-208 for Th-232). Reference: Krane, Introductory Nuclear Physics, Chapters 3 and 6 to 8.
 - Hook: Watch uranium claw its way down to lead, shedding alpha clusters and flipping neutrons into protons, the half-life of each step set by the Gamow tunnelling law.
 - Review verdict: [deep] CLEAN (deep audit passed)
 

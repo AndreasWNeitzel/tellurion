@@ -10,7 +10,7 @@ curriculum_year: bsc-y3s1
 primary_citation: hecht2017
 primary_chapter: 9
 hook: 'Scan a Fabry-Perot cavity: it flashes bright and transmits only at the razor-sharp resonances set by the mirror finesse.'
-one_paragraph: 'Fabry-Perot finesse made physical: a scanned two-mirror cavity. An input beam undergoes multiple partial reflections; as the round-trip phase is swept the circulating field builds up and the cavity flashes bright at each resonance with a strong transmitted beam, while between resonances it is dark and the light is reflected. Raising the mirror reflectance R sharpens the resonances (higher finesse F* = pi sqrt(R)/(1-R)) until they are razor thin and almost always missed. A synced Airy strip shows T(phi) over three free spectral ranges with a marker tracking the scan, plus the live finesse and T_min. sim.js (transmission, finesse, fwhmPhi) is unchanged.'
+one_paragraph: 'Fabry-Perot finesse made physical: a scanned two-mirror cavity. An input beam undergoes multiple partial reflections; as the round-trip phase is swept the circulating field builds up and the cavity flashes bright at each resonance with a strong transmitted beam, while between resonances it is dark and the light is reflected. Raising the mirror reflectance R sharpens the resonances (higher finesse F* = pi sqrt(R)/(1-R)) until they are razor thin and almost always missed. A synced Airy strip shows T(phi) over three free spectral ranges with a marker tracking the scan, plus the live finesse and T_min. Reference: Hecht, Optics, Chapter 9; Born and Wolf, Principles of Optics, Chapter 7.'
 tags: [optics, animation, live-readout]
 difficulty: 3
 tier: simple
