@@ -1,3 +1,3 @@
-verified-at: 2026-05-18T19:20:59Z
-invariants: Tests passed (npx vitest run invariants.test.mjs)
-visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); stale goldens recaptured (deterministic A==B, !=old); comprehensive ## Explainer added; screenshot-verified (T_eff 2500K red -> 10000K blue, limb darkening, tau=2/3 photosphere)
+verified-at: 2026-05-19T01:48:17Z
+invariants: Tests  9 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); render-neutral, render unchanged

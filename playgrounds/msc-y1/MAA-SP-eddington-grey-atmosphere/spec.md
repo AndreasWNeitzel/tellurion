@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: hansen-kawaler
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Starlight is not emitted from a surface but from a fuzzy layer where the gas goes from opaque to transparent; the simplest model of that layer predicts the photosphere and limb darkening.'
+one_paragraph: 'Assuming a frequency-independent (grey) opacity and radiative equilibrium, the Eddington approximation closes the moment equations and gives the temperature run T^4(tau) = (3/4) T_eff^4 (tau + 2/3), so the effective temperature is reached at optical depth tau = 2/3 (the photosphere) rather than at tau = 0. Solving the transfer equation with the Eddington-Barbier relation yields the emergent intensity I(0, mu) proportional to (2/3 + mu): brighter looking straight down into the star (mu = 1, disk centre) and dimmer toward the limb (small mu), which is limb darkening. The playground shows the T(tau) profile and the angular intensity as T_eff is varied. Reference: Hansen and Kawaler, Stellar Interiors, Chapter 3.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
