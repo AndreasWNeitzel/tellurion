@@ -26,3 +26,32 @@ export function betaIntegral(a, b) {
   }
   return s * dx;
 }
+
+// Hero (appended; everything above is byte-identical). Unnormalised
+// shape of each species, used only to sample where in x a parton
+// sits. The swarm COMPOSITION (how many of each) comes from the
+// physical momentum budget in playground.js, so the displayed proton
+// matches the measured fact that the gluon carries the most; these
+// shapes only say at which x each parton appears.
+export function partonShape(kind, x) {
+  if (kind === 'u') return u_v(x);
+  if (kind === 'd') return d_v(x);
+  if (kind === 'g') return gluon(x);
+  return sea(x);
+}
+
+// Deterministic rejection sample of x from a species' shape. The
+// gluon and sea shapes diverge as x -> 0 but are integrable; xmin
+// (matching the slider floor) bounds the sampler.
+export function sampleX(kind, rng, xmin = 1e-3) {
+  const fmax = 1.05 * Math.max(
+    partonShape(kind, xmin),
+    partonShape(kind, 0.02), partonShape(kind, 0.1),
+    partonShape(kind, 0.25), partonShape(kind, 0.5),
+  );
+  for (let g = 0; g < 400; g += 1) {
+    const x = xmin + rng() * (1 - xmin);
+    if (rng() * fmax <= partonShape(kind, x)) return x;
+  }
+  return 0.15;
+}
