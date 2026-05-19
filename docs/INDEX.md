@@ -2,6 +2,12 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified, verified 2026-05-19T03:36:03Z)
+  Draw obstacles by click-drag (shift-drag erases); a 192 x 96 D2Q9 lattice-Boltzmann solver responds in real time. The colour field shows the local flow speed: bright where the fluid accelerates around the body, dark in the low-momentum wake behind it. A circular obstacle at moderate Reynolds number sheds a vortex street; lowering the relaxation time raises t
+
+- **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified, verified 2026-05-19T03:26:53Z)
+  A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.
+
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified, verified 2026-05-19T03:14:25Z)
   When light hits glass it partly reflects and partly bends through. Exactly how much of each depends on the angle and the polarization. The playground sweeps the incidence angle and shows two special angles: Brewster, where the reflection of one polarization switches off entirely, and the critical angle, beyond which the light cannot leave a dense medium at a
 
@@ -593,9 +599,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Rotational Splitting of Multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
   Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8 (`aerts-asteroseism`).
 
-- **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
-  A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.
-
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
   The habitable zone is the ring of orbits around a star where a rocky planet could hold liquid water: close enough not to freeze, far enough not to boil. The playground sets the star's luminosity and shows the zone move in and out, with the key surprise that it is not fixed in absolute distance but scales with the square root of the star's brightness.
 
@@ -727,9 +730,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Cosmic Distance Ladder](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
   Four-rung overlap and error propagation. Source: Carroll-Ostlie Ch. 24 (`carroll-ostlie`).
-
-- **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
-  Draw obstacles by click-drag; a 256 x 192 D2Q9 Lattice Boltzmann solver (running in a Worker) responds instantly. Visualize velocity magnitude with a viridis colormap and overlaid streamlines. Shift-drag injects a colored tracer dye that visualizes mixing. A circular obstacle produces a Von Karman vortex street; a sharp corner produces a Kelvin-Helmholtz rol
 
 - **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
   A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
