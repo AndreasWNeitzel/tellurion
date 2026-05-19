@@ -34,7 +34,8 @@ for (const k of READOUTS) {
   readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[k] = b;
 }
 
-const st = { preset: 'composite', kappaRatio: 8, s0: 1.6, simRate: 6, brush: 'metal', t: 0 };
+const st = { preset: 'composite', kappaRatio: 8, s0: 1.6, simRate: 6, brush: 'metal', t: 0, mx: -1, my: -1, over: false };
+const BRUSH_COL = { metal: '#f4f6fb', insulator: '#7aa8ff', heat: '#ff8a4d', cold: '#7fd1ff', erase: '#9aa0ad' };
 let g = createGrid(N), dt = 0.01, nSteps = 0, simT = 0, running = true;
 
 // Build a scene honouring the kappa-contrast and source-amplitude
@@ -106,6 +107,45 @@ function fluxAt(x, y) {
   return [-kp * gx, -kp * gy];
 }
 
+// Bounding box of all grid cells matching pred, or null if none.
+function bbox(pred) {
+  let i0 = 1e9, j0 = 1e9, i1 = -1, j1 = -1;
+  for (let j = 0; j < N; j += 1) for (let i = 0; i < N; i += 1) {
+    if (pred(j * N + i)) { if (i < i0) i0 = i; if (i > i1) i1 = i; if (j < j0) j0 = j; if (j > j1) j1 = j; }
+  }
+  return i1 < 0 ? null : { i0, j0, i1, j1 };
+}
+function boxRect(b, color, label) {
+  if (!b) return;
+  const x = FX + b.i0 * CELL, y = FY + b.j0 * CELL;
+  const w = (b.i1 - b.i0 + 1) * CELL, h = (b.j1 - b.j0 + 1) * CELL;
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+  ctx.strokeRect(x - 1.5, y - 1.5, w + 3, h + 3); ctx.setLineDash([]); ctx.lineWidth = 1;
+  const ly = (y - 6) < FY + 12 ? y + h + 14 : y - 6;
+  const lx = Math.max(FX + 2, Math.min(x, FX + FPX - 130));
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.92)'; ctx.shadowBlur = 3;
+  ctx.fillStyle = color; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(label, lx, ly); ctx.fillText(label, lx, ly); ctx.restore();
+}
+// Make the otherwise-invisible boundary conditions and volumetric
+// source explicit: a labelled hitbox around each region.
+function drawSourceBoxes() {
+  boxRect(bbox((k) => g.fixed[k] === 1 && g.val[k] > 1e-6), '#ff8a4d', 'heat (fixed T)');
+  boxRect(bbox((k) => g.fixed[k] === 1 && g.val[k] <= 1e-6), '#7fd1ff', 'cold sink (T=0)');
+  boxRect(bbox((k) => g.src[k] > 1e-9), '#ffd166', 'heat source S');
+}
+function drawBrushCursor() {
+  if (!st.over || st.mx < FX || st.my < FY || st.mx > FX + FPX || st.my > FY + FPX) return;
+  const col = BRUSH_COL[st.brush] || '#9aa0ad';
+  ctx.strokeStyle = col; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(st.mx, st.my, 3 * CELL, 0, 6.2832); ctx.stroke();
+  ctx.fillStyle = col; ctx.beginPath(); ctx.arc(st.mx, st.my, 1.5, 0, 6.2832); ctx.fill();
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
+  ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`${st.brush} brush`, st.mx + 3 * CELL + 4, st.my + 3); ctx.restore();
+  ctx.lineWidth = 1;
+}
+
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const vmax = VMAX;
@@ -158,6 +198,10 @@ function render() {
     ctx.lineTo(ax - 6 * Math.cos(ang + 0.4), ay - 6 * Math.sin(ang + 0.4));
     ctx.closePath(); ctx.fill();
   }
+
+  // labelled hitboxes for the boundary sources/sinks, then the brush
+  drawSourceBoxes();
+  drawBrushCursor();
 
   // colour bar
   const cbX = PX, cbY = 170, cbW = 16, cbH = 160;
@@ -239,10 +283,10 @@ bPause.addEventListener('click', () => { running = !running; bPause.textContent 
 
 let painting = false;
 function evToGrid(e) { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) * canvas.width / r.width, (e.clientY - r.top) * canvas.height / r.height]; }
-canvas.addEventListener('mousedown', e => { painting = true; const [x, y] = evToGrid(e); paintAt(x, y); render(); });
-canvas.addEventListener('mousemove', e => { if (!painting) return; const [x, y] = evToGrid(e); paintAt(x, y); render(); });
+canvas.addEventListener('mousedown', e => { painting = true; const [x, y] = evToGrid(e); st.mx = x; st.my = y; st.over = true; paintAt(x, y); render(); });
+canvas.addEventListener('mousemove', e => { const [x, y] = evToGrid(e); st.mx = x; st.my = y; st.over = true; if (painting) paintAt(x, y); render(); });
 window.addEventListener('mouseup', () => { painting = false; });
-canvas.addEventListener('mouseleave', () => { painting = false; });
+canvas.addEventListener('mouseleave', () => { painting = false; st.over = false; render(); });
 
 // loop and capture
 let lastT = performance.now();
