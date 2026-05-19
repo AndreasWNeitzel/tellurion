@@ -2519,8 +2519,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Maximum-Entropy Distributions Zoo
 `playgrounds/msc-y1/MAA-ST-maxent-distribution-zoo` | MAA-ST | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: If all you know about a quantity is a few facts (its range, its mean, its variance), which probability distribution should you assume? The maximum-entropy principle says: the one that is maximally noncommittal, that adds no information you do not have. Strikingly, the familiar textbook distributions all fall out of this single rule depending on the constraint. The playground shows the zoo.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The maximum-entropy principle (Jaynes 1957) picks, among all densities consistent with given constraints, the one that maximises the differential entropy h[p] = -integral p ln p dx, which forces the exponential-family form p(x) proportional to exp(sum_k lambda_k f_k(x)). Fixing only the support [a, b] gives the uniform; a mean on [0, infinity) gives the exponential e^{-x/mu}/mu; a mean and variance on the whole line give the Gaussian; a mean and a fixed E|X - mu| give the Laplace. The playground lets you choose which moments are fixed and shows the maximum-entropy density snap to the matching member of the zoo, with its closed-form and numerically integrated entropy side by side, making concrete that choosing a distribution is the same as choosing which constraints you assume. Reference: Cover and Thomas, Elements of Information Theory, 2nd ed., Chapter 12; Jaynes, Physical Review 106, 620 (1957).
+- Hook: Tell the playground only a few facts about a quantity (its range, its mean, its variance) and it draws the single least-committal distribution consistent with them. The same rule produces the uniform, the exponential, the Gaussian and the Laplace, one per constraint set.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [low] Placeholder hooks in spec.md (needs_hook, needs_paragraph); fill frontmatter fields
@@ -2528,8 +2528,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### MCMC Sampler Comparator
 `playgrounds/msc-y1/MAA-ST-mcmc-comparator` | MAA-ST | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: To do Bayesian inference you need samples from a probability distribution you can evaluate but not sample directly. Markov-chain Monte Carlo builds a random walk whose long-run visiting frequency is exactly that distribution. The playground runs several MCMC samplers side by side on the same target so you can see why some explore well and some get stuck.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Markov-chain Monte Carlo draws from a distribution you can evaluate but not sample directly by building a random walk whose stationary distribution is the target. Every sampler here uses the Metropolis-Hastings rule, accept a proposal x'' from x with probability min(1, [pi(x'') q(x|x'')] / [pi(x) q(x''|x)]), which enforces detailed balance and so fixes pi as the chain stationary law; the samplers differ only in the proposal q: isotropic random-walk Metropolis, an adaptive-covariance variant, gradient-drifted MALA, and Hamiltonian Monte Carlo, which adds momentum and integrates Hamiltonian trajectories for long, nearly rejection-free moves. On the banana or Neal''s funnel the random-walk methods stall while HMC keeps mixing; the live readout reports per-sampler acceptance, effective sample size per unit time, and a Kolmogorov-Smirnov distance to the true marginal, so efficiency is judged by independent draws per second rather than raw motion. Reference: Robert and Casella, Monte Carlo Statistical Methods, 2nd ed., Chapter 7; Neal, MCMC using Hamiltonian Dynamics, in the Handbook of Markov Chain Monte Carlo (2011).
+- Hook: Three Markov-chain Monte Carlo samplers race on the same hard target. Random-walk Metropolis crawls and gets stuck where Hamiltonian Monte Carlo sweeps across in long strides; the honest scorecard is effective samples per second, not acceptance rate.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [low] Placeholder hooks in spec.md (needs_hook, needs_paragraph); fill frontmatter fields
@@ -2537,8 +2537,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Mutual Information of a Bivariate Gaussian
 `playgrounds/msc-y1/MAA-ST-mutual-information-2d` | MAA-ST | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Mutual information answers "how much does knowing $X$ tell you about $Y$?" in bits, capturing any dependence, not just linear correlation. For two correlated Gaussians it has a clean closed form, so the playground can show the joint cloud, its marginals, and the exact mutual information as you tighten the correlation.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Mutual information I(X;Y) measures how much knowing one variable reduces uncertainty about the other: it is the Kullback-Leibler divergence between the true joint density and the product of the marginals, equivalently I = H(X) - H(X|Y), zero exactly when X and Y are independent and positive otherwise. For a bivariate Gaussian with correlation coefficient rho everything collapses to the closed form I(X;Y) = -1/2 ln(1 - rho^2), which depends only on rho^2 (positive and negative correlation carry the same information) and rises slowly then diverges as |rho| approaches 1. The playground renders the joint density as a heatmap with its marginals, sweeps rho and the marginal widths, and tracks both the exact I and a grid-integrated estimate, the workhorse quantity behind feature selection, the information bottleneck and channel analysis. Reference: Cover and Thomas, Elements of Information Theory, 2nd ed., Chapters 2 and 8; MacKay, Information Theory, Inference, and Learning Algorithms, Chapter 2.
+- Hook: Correlation only sees straight-line dependence; mutual information sees all of it, in nats. For two correlated Gaussians it is exactly -1/2 ln(1 - rho^2): zero when independent, diverging as one variable comes to determine the other.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [low] Placeholder hooks in spec.md (needs_hook, needs_paragraph); fill frontmatter fields
