@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Paint a conductor with the mouse and watch the electrostatic field find its own shape in about a second.'
-one_paragraph: 'A live successive-over-relaxation solver for Laplace''s equation. The primary canvas is the potential field itself, a diverging RdBu image with electric-field streamlines; drag to paint conductors, choose presets (parallel plates, coaxial cable, dipole, charged sphere), set the voltage, and switch between potential, |E| and equipotential views. The headless sim.js runs the same scheme and is gate-tested against the analytic capacitor and coaxial limits.'
+one_paragraph: 'In a charge-free region the electrostatic potential obeys Laplace''s equation, del^2 V = 0, which has the smoothing property that V at any point is the average of its neighbours and can have no interior maximum or minimum. The primary canvas is the potential field itself with electric-field streamlines; you drag to paint conductors, pick presets (parallel plates, coaxial cable, dipole, charged sphere), set the voltage, and switch between the potential, the field magnitude |E|, and equipotential views. Watching the solution relax shows the potential settling into the unique configuration fixed by the conductor boundaries, with E always perpendicular to them. Reference: Griffiths, Introduction to Electrodynamics, Chapter 3.'
 tags: [electromagnetism, interactive-drag, field-visualization, animation]
 difficulty: 3
 tier: advanced
