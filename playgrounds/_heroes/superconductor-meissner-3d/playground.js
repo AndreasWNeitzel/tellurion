@@ -61,7 +61,7 @@ function sel(label, opts, on) {
 sel('preset', ['Meissner levitation', 'normal (field penetrates)', 'Type-II vortex', 'quench by overfield'], (p) => {
   if (p === 'Meissner levitation') { ui.TbyTc = 0.4; ui.Bapp = 0.2; }
   else if (p === 'normal (field penetrates)') { ui.TbyTc = 1.15; ui.Bapp = 0.2; }
-  else if (p === 'Type-II vortex') { ui.TbyTc = 0.75; ui.Bapp = 0.55; }
+  else if (p === 'Type-II vortex') { ui.TbyTc = 0.65; ui.Bapp = 0.30; }     // SC with partial-penetration regime
   else { ui.TbyTc = 0.4; ui.Bapp = 1.3; }
   sT.value = ui.TbyTc.toFixed(2); sB.value = ui.Bapp.toFixed(2);
 });
@@ -116,7 +116,11 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
   if (ui.running) {
     const s = sc();
-    const hEq = s ? Math.max(1.4, levitationHeight(ui.mz, WEIGHT)) : 0.7;  // drops onto sample if normal
+    // Rest height when not superconducting: the magnet's south pole
+    // must sit on the sample's top surface, not sink into it.
+    // Sample top is at world y = -0.9; south pole at world y = h - 1.85
+    // so the rest height is 0.95 + a small clearance.
+    const hEq = s ? Math.max(1.4, levitationHeight(ui.mz, WEIGHT)) : 1.0;
     hVel += (hEq - h) * 6 * dt - hVel * 4 * dt;          // damped settle
     h += hVel * dt;
     h = Math.max(0.6, Math.min(6, h));
@@ -131,7 +135,7 @@ function bootSync() {
     const P = [{ T: 0.4, B: 0.2 }, { T: 1.15, B: 0.2 }, { T: 0.75, B: 0.55 }, { T: 0.4, B: 1.3 }, { T: 0.3, B: 0.15 }];
     const k = P[Math.min(P.length - 1, Math.floor(CAPTURE_FRAC * P.length + 1e-6))];
     ui.TbyTc = k.T; ui.Bapp = k.B;
-    h = sc() ? Math.max(1.4, levitationHeight(ui.mz, WEIGHT)) : 0.7;
+    h = sc() ? Math.max(1.4, levitationHeight(ui.mz, WEIGHT)) : 1.0;
     camera.setAzimuthDeg(34 + CAPTURE_FRAC * 34);
     frame();
     if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {

@@ -138,8 +138,11 @@ export function setupMeissnerGL(canvas) {
     gl.uniformMatrix4fv(gl.getUniformLocation(solidProg, 'uVP'), false, VP);
     // sample: glowing skin when superconducting
     gl.bindVertexArray(sample.vao);
-    gl.uniform3f(gl.getUniformLocation(solidProg, 'uCol'), sc ? 0.35 : 0.4, sc ? 0.7 : 0.4, sc ? 1.0 : 0.42);
-    gl.uniform1f(gl.getUniformLocation(solidProg, 'uEmis'), sc ? 0.45 : 0.05);
+    // Cold sample is a subdued teal with a faint glow (NOT pure white,
+    // which washed out the magnet and the field lines); warm sample
+    // is a neutral graphite tone.
+    gl.uniform3f(gl.getUniformLocation(solidProg, 'uCol'), sc ? 0.10 : 0.16, sc ? 0.22 : 0.16, sc ? 0.34 : 0.18);
+    gl.uniform1f(gl.getUniformLocation(solidProg, 'uEmis'), sc ? 0.15 : 0.03);
     gl.drawArrays(gl.TRIANGLES, 0, sample.n);
     // magnet poles, rebuilt at the current levitation height (cheap,
     // 36 verts each).
