@@ -74,7 +74,9 @@ bPause.addEventListener('click', () => { running = !running; bPause.textContent 
 function paintAt(cx, cy) {
   const i = Math.round(cx / canvas.width * (N - 1)), j = Math.round(cy / canvas.height * (N - 1));
   const v = st.brush === '+' ? st.volt : st.brush === '-' ? -st.volt : 0;
-  const R = 6;
+  // Fine brush: draw a small disc so users can sketch detailed
+  // conductor shapes (the old R = 6 stamp was too coarse).
+  const R = 1;
   for (let dj = -R; dj <= R; dj += 1) for (let di = -R; di <= R; di += 1) {
     if (di * di + dj * dj > R * R) continue;
     const ii = i + di, jj = j + dj; if (ii < 1 || jj < 1 || ii >= N - 1 || jj >= N - 1) continue;
