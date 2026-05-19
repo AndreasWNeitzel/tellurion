@@ -10,7 +10,7 @@ curriculum_year: bsc-y2s2
 primary_citation: eisberg-resnick
 primary_chapter: 3
 hook: 'Fire particles one at a time at a double slit; the interference pattern that builds up has fringes set by lambda = h/p.'
-one_paragraph: 'de Broglie duality made physical: a matter-wave double-slit experiment. Particles of the chosen species and kinetic energy are fired one at a time at a double slit and land stochastically with probability given by the two-slit intensity for lambda = h/p (from sim.js), so the interference pattern builds up dot by dot. A long-wavelength electron shows the textbook multi-fringe pattern; a proton, neutron, or carbon atom at the same energy has a far shorter lambda and the fringes collapse into a classical scatter. A compact lambda(T) log-log strip keeps the quantitative curve for all five species with the live marker and readouts. sim.js (deBroglieNm and the species table) is unchanged.'
+one_paragraph: 'de Broglie duality made physical: a matter-wave double-slit experiment. Particles of the chosen species and kinetic energy are fired one at a time at a double slit and land stochastically with probability given by the two-slit intensity for lambda = h/p, so the interference pattern builds up dot by dot. A long-wavelength electron shows the textbook multi-fringe pattern; a proton, neutron, or carbon atom at the same energy has a far shorter lambda and the fringes collapse into a classical scatter. A compact lambda(T) log-log strip keeps the quantitative curve for all five species with the live marker and readouts. Reference: Griffiths, Introduction to Quantum Mechanics, Chapter 1; Tonomura et al. 1989 (single-electron interference buildup).'
 tags: [quantum, animation, live-readout]
 difficulty: 3
 tier: simple
