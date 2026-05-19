@@ -21,12 +21,14 @@ function escapeOutsideKatex(s) {
     if (s.startsWith('$$', i)) {
       const j = s.indexOf('$$', i + 2);
       if (j < 0) { out.push(htmlEscape(s.slice(i))); break; }
-      out.push(s.slice(i, j + 2));
+      // Escape inside math too: bare < > & are invalid HTML; KaTeX
+      // auto-render reads textContent so entities decode back correctly.
+      out.push(htmlEscape(s.slice(i, j + 2)));
       i = j + 2;
     } else if (s[i] === '$') {
       const j = s.indexOf('$', i + 1);
       if (j < 0) { out.push(htmlEscape(s.slice(i))); break; }
-      out.push(s.slice(i, j + 1));
+      out.push(htmlEscape(s.slice(i, j + 1)));
       i = j + 1;
     } else {
       let j = i;
