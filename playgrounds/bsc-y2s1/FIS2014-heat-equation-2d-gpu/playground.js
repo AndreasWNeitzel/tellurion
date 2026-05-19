@@ -127,12 +127,25 @@ function boxRect(b, color, label) {
   ctx.fillStyle = color; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText(label, lx, ly); ctx.fillText(label, lx, ly); ctx.restore();
 }
-// Make the otherwise-invisible boundary conditions and volumetric
-// source explicit: a labelled hitbox around each region.
-function drawSourceBoxes() {
-  boxRect(bbox((k) => g.fixed[k] === 1 && g.val[k] > 1e-6), '#ff8a4d', 'heat (fixed T)');
-  boxRect(bbox((k) => g.fixed[k] === 1 && g.val[k] <= 1e-6), '#7fd1ff', 'cold sink (T=0)');
-  boxRect(bbox((k) => g.src[k] > 1e-9), '#ffd166', 'heat source S');
+// Per-cell paint overlay: a small coloured dot on every cell the user
+// has painted (fixed boundary or volumetric source). This shows
+// EXACTLY where the brush has stamped, without the previous dashed
+// bounding boxes which kept growing as the user painted and read as
+// a visual glitch.
+function drawPaintOverlay() {
+  const r = Math.max(1.2, CELL * 0.32);
+  for (let j = 0; j < g.N; j += 1) for (let i = 0; i < g.N; i += 1) {
+    const k = j * g.N + i;
+    let c = null;
+    if (g.fixed[k] === 1 && g.val[k] > 1e-6) c = '#ff8a4d';
+    else if (g.fixed[k] === 1 && g.val[k] <= 1e-6) c = '#7fd1ff';
+    else if (g.src[k] > 1e-9) c = '#ffd166';
+    if (!c) continue;
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.arc(FX + (i + 0.5) * CELL, FY + (j + 0.5) * CELL, r, 0, 6.2832);
+    ctx.fill();
+  }
 }
 function drawBrushCursor() {
   if (!st.over || st.mx < FX || st.my < FY || st.mx > FX + FPX || st.my > FY + FPX) return;
@@ -200,7 +213,7 @@ function render() {
   }
 
   // labelled hitboxes for the boundary sources/sinks, then the brush
-  drawSourceBoxes();
+  drawPaintOverlay();
   drawBrushCursor();
 
   // colour bar
