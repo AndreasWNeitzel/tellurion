@@ -9,7 +9,7 @@
 // and watch its baselines, the UV arcs and the resolution change.
 // sim.js holds the testable physics. Reference: Thompson, Moran and
 // Swenson, Interferometry and Synthesis in Radio Astronomy, Ch. 4.
-import { stationXYZ, baselineLambda, uv, maxBaseline, resolutionMas, dirtyImage } from './sim.js';
+import { stationXYZ, baselineLambda, uv, maxBaseline, resolutionMas, dirtyBeam } from './sim.js';
 import { cividis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 
 const params = new URLSearchParams(location.search);
@@ -42,7 +42,7 @@ const SRC_REL = [
 ];
 let sources = SRC_REL.map((s) => ({ l: 0, m: 0, amp: s.amp }));
 let FOV_RAD = 1;
-const NT = 360, IMG_N = 72, UV_CAP = 520;
+const NT = 360, IMG_N = 72, UV_CAP = 360;
 
 const st = { time: 0, running: !DETERMINISTIC, drag: -1 };
 let xyz = telescopes.map((t) => stationXYZ(t.lat, t.lon));
@@ -78,22 +78,54 @@ function uvForImage() {
   return out;
 }
 
-let dirty = null, dirtyAt = -1;
 const off = document.createElement('canvas'); off.width = IMG_N; off.height = IMG_N;
 const offCtx = off.getContext('2d');
 let idata = null;
-function refreshDirty() {
-  if (uvHist.length < 6) { dirty = null; return; }
-  // match the sky model and FOV to the current synthesised resolution
+const dimg = new Float64Array(IMG_N * IMG_N);
+let dHaveImage = false, dRow = IMG_N, dStep = 0, dSamples = [];
+
+function dirtyPrep() {
   const resRad = resolutionMas(xyz, LAMBDA_MM) * MAS;
   FOV_RAD = 13 * resRad;
   sources = SRC_REL.map((s) => ({ l: s.lr * resRad, m: s.mr * resRad, amp: s.amp }));
-  const img = dirtyImage(uvForImage(), sources, IMG_N, FOV_RAD);
+  dSamples = uvForImage();
+  dStep = (2 * FOV_RAD) / (IMG_N - 1);
+}
+// Row j -> output row (IMG_N-1-j) so increasing m is at the TOP,
+// matching the sky-model panel (the image was vertically flipped).
+function computeRows(j0, j1) {
+  for (let j = j0; j < j1; j += 1) {
+    const m = -FOV_RAD + j * dStep;
+    const outRow = (IMG_N - 1 - j) * IMG_N;
+    for (let i = 0; i < IMG_N; i += 1) {
+      const l = -FOV_RAD + i * dStep;
+      let acc = 0;
+      for (const sc of sources) acc += sc.amp * dirtyBeam(dSamples, l - sc.l, m - sc.m);
+      dimg[outRow + i] = acc;
+    }
+  }
+}
+function blit() {
   let mn = Infinity, mx = -Infinity;
-  for (let i = 0; i < img.length; i += 1) { if (img[i] < mn) mn = img[i]; if (img[i] > mx) mx = img[i]; }
-  idata = fieldToImageData(img, IMG_N, IMG_N, mn, mx, cividis, idata);
+  for (let k = 0; k < dimg.length; k += 1) { const v = dimg[k]; if (v < mn) mn = v; if (v > mx) mx = v; }
+  idata = fieldToImageData(dimg, IMG_N, IMG_N, mn, mx, cividis, idata);
   offCtx.putImageData(idata, 0, 0);
-  dirty = true; dirtyAt = st.time;
+  dHaveImage = true;
+}
+// Full synchronous build (capture / first paint).
+function refreshDirty() {
+  if (uvHist.length < 6) { dHaveImage = false; return; }
+  dirtyPrep(); computeRows(0, IMG_N); blit(); dRow = IMG_N;
+}
+// Incremental: 8 rows per animation frame, looping continuously, so
+// no single frame does the whole O(N_uv * N_pix^2) sum (the lag).
+function dirtyStep() {
+  if (uvHist.length < 6) { dHaveImage = false; return; }
+  if (dRow >= IMG_N) { dirtyPrep(); dRow = 0; }
+  const end = Math.min(IMG_N, dRow + 8);
+  computeRows(dRow, end);
+  dRow = end;
+  if (dRow >= IMG_N) blit();
 }
 
 function panel(x, y, w, h, title) {
@@ -150,8 +182,14 @@ function render() {
     ctx.fillStyle = `hsla(${(sm.pair * 47) % 360},75%,62%,0.55)`;
     ctx.fillRect(x, y, 1.6, 1.6);
   }
-  ctx.fillStyle = '#8893a6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
-  ctx.fillText(`${(uvMax / 1e6).toFixed(0)} Mλ`, UVp.x + UVp.w - 6, cy - 4);
+  ctx.fillStyle = '#8893a6'; ctx.font = '10px ui-monospace, monospace';
+  ctx.textAlign = 'right'; ctx.fillText(`${(uvMax / 1e6).toFixed(0)} Mλ`, UVp.x + UVp.w - 6, cy - 4);
+  ctx.textAlign = 'left';
+  ctx.fillText('u', UVp.x + UVp.w - 14, cy + 14);
+  ctx.fillText('v', cx + 6, UVp.y + 26);
+  ctx.fillStyle = '#5a6477';
+  ctx.fillText('each arc = one antenna pair, swept by Earth rotation', UVp.x + 8, UVp.y + UVp.h - 10);
+  ctx.fillText('(the Fourier components the array samples)', UVp.x + 8, UVp.y + UVp.h - 24);
 
   // bottom: sky model + dirty image
   const botY = MAP.y + MAP.h + 22, botH = H - botY - 22;
@@ -166,7 +204,7 @@ function render() {
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 6 + s.amp * 9, 0, 6.2832); ctx.fill();
     ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(x, y, 2 + s.amp * 2.5, 0, 6.2832); ctx.fill();
   }
-  if (dirty) {
+  if (dHaveImage) {
     const sz = Math.min(UVp.w - 16, botH - 30);
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(off, 0, 0, IMG_N, IMG_N, UVp.x + (UVp.w - sz) / 2, botY + 24, sz, sz);
@@ -176,21 +214,27 @@ function render() {
     ctx.textAlign = 'left';
   }
 
+  // readout drawn on-canvas in the clear top band (the DOM overlay
+  // collided with the map); hidden DOM node kept for the aria role.
   const res = resolutionMas(xyz, LAMBDA_MM);
-  if (readoutEl) {
-    readoutEl.innerHTML = `<span class="label">hour angle</span><span class="value">${(st.time / NT * 24 - 12).toFixed(1)} h</span>`
-      + `<span class="label">baselines</span><span class="value">${baselines.length}</span>`
-      + `<span class="label">uv samples</span><span class="value">${uvHist.length}</span>`
-      + `<span class="label">resolution</span><span class="value">${res.toFixed(3)} mas</span>`;
-  }
+  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#cdd3e2';
+  ctx.fillText('Earth-rotation aperture synthesis', MAP.x, 22);
+  ctx.fillStyle = '#8893a6';
+  ctx.fillText(`hour angle ${(st.time / NT * 24 - 12).toFixed(1)} h`, MAP.x, 44);
+  ctx.fillText(`baselines ${baselines.length}`, MAP.x + 150, 44);
+  ctx.fillText(`uv samples ${uvHist.length}`, MAP.x + 270, 44);
+  ctx.fillStyle = '#5bc0eb';
+  ctx.fillText(`resolution theta ~ lambda/B_max = ${res.toFixed(3)} mas`, MAP.x + 420, 44);
+  if (readoutEl) readoutEl.textContent = `hour angle ${(st.time / NT * 24 - 12).toFixed(1)} h, resolution ${res.toFixed(3)} mas`;
 }
 
 function frame() {
   if (st.running && !CAPTURE_NAME) {
     st.time = (st.time + 2) % NT;
     accumulate();
-    if (st.time - dirtyAt >= 18 || dirtyAt < 0 || st.time < dirtyAt) refreshDirty();
   }
+  if (!CAPTURE_NAME) dirtyStep();        // incremental, no per-frame hitch
   render();
   if (!CAPTURE_NAME) requestAnimationFrame(frame);
 }
@@ -216,7 +260,7 @@ canvas.addEventListener('pointermove', (e) => {
   const [, my] = evt(e);
   const lat = Math.max(-75, Math.min(75, 90 - ((my - MAP.y) / MAP.h) * 180));
   telescopes[st.drag].lat = lat;
-  rebuildBaselines(); accumulate(); refreshDirty();
+  rebuildBaselines(); accumulate();      // incremental dirtyStep refills next frames
 });
 function endDrag() { st.drag = -1; canvas.classList.remove('dragging'); }
 canvas.addEventListener('pointerup', endDrag);
@@ -231,19 +275,23 @@ function buildControls() {
   inp.setAttribute('aria-label', 'hour angle / accumulated time');
   const val = document.createElement('span'); val.className = 'value';
   const sync = () => { val.textContent = `${(st.time / NT * 24 - 12).toFixed(1)} h`; };
-  inp.addEventListener('input', () => { st.running = false; st.time = parseInt(inp.value, 10); sync(); accumulate(); refreshDirty(); render(); });
+  inp.addEventListener('input', () => { st.running = false; st.time = parseInt(inp.value, 10); sync(); accumulate(); render(); });
   sync(); row.append(lab, inp, val);
   const brow = document.createElement('div'); brow.className = 'row buttons';
   const bp = document.createElement('button'); bp.type = 'button'; bp.textContent = st.running ? 'Pause' : 'Play';
   bp.addEventListener('click', () => { st.running = !st.running; bp.textContent = st.running ? 'Pause' : 'Play'; if (st.running && !CAPTURE_NAME) requestAnimationFrame(frame); });
   const br = document.createElement('button'); br.type = 'button'; br.textContent = 'Reset';
-  br.addEventListener('click', () => { telescopes.forEach((t, i) => { t.lat = [-23, 34.1, 50.5, 60.2, 19.8][i]; }); st.time = 0; rebuildBaselines(); accumulate(); refreshDirty(); render(); });
+  br.addEventListener('click', () => { telescopes.forEach((t, i) => { t.lat = [-23, 34.1, 50.5, 60.2, 19.8][i]; }); st.time = 0; rebuildBaselines(); accumulate(); render(); });
   brow.append(bp, br);
   host.append(row, brow);
 }
 
 function bootSync() {
   buildControls();
+  // The DOM readout box overlapped the canvas map; the readout is
+  // drawn on-canvas now. Keep the node for aria-live but take it out
+  // of the visual layout.
+  if (readoutEl) readoutEl.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;padding:0;border:0';
   if (CAPTURE_NAME && DETERMINISTIC) {
     const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
     st.time = Math.round(8 + f * (NT - 8));

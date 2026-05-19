@@ -36,3 +36,21 @@ invariants Tests  1 passed + visual 5/5 x3. Shipped.
   centro-symmetric, peak 1 on axis; on-axis point source peaks at
   the grid centre).
 Gate: 7 invariants + smoke + visual 5/5 x3 PASS. Shipped.
+
+## Follow-up 2026-05-19 (user: still laggy, overlap, flipped image, UV plot unclear)
+- Lag: the every-18-steps full O(N_uv*N_pix^2) dirty-image rebuild
+  caused a periodic hitch. Replaced with an incremental builder: 8
+  rows/frame, looping continuously (full image ~9 frames), so no
+  single frame does the whole sum. ~43 fps now. UV_CAP 520 -> 360.
+- Overlap: the DOM readout box overlapped the map. Readout is now
+  drawn on-canvas in the clear top band; the DOM node is kept (aria)
+  but visually clipped out.
+- Flip: the dirty image was vertically mirrored vs the sky model
+  (ImageData row 0 = top, but m=-fov was row 0). computeRows writes
+  row j to output row (N-1-j) so +m is at the top, matching the sky
+  panel. sim.js dirtyImage/invariants untouched (the flip is in the
+  playground's own row build).
+- UV plot clarity: added u/v axis labels and an in-panel note ("each
+  arc = one antenna pair, swept by Earth rotation; the Fourier
+  components the array samples").
+Gate: 7 invariants + smoke + visual 5/5 x3 PASS.
