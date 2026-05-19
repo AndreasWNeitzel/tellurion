@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'The domains do not just follow the field, they remember where they have been. That memory is the area inside the loop.'
-one_paragraph: 'A Jiles-Atherton hysteresis model driven by an oscillating field. The primary scene is a lattice of magnetic domains that flip toward the field but lag it; the secondary panel traces the B-H loop with a glowing pen and shades the per-cycle energy loss. Soft iron, hard steel and ferrite presets, with coercivity, saturation and drive sliders. The headless sim.js is gate-tested for remanence, coercivity and the soft-vs-hard ordering.'
+one_paragraph: 'A ferromagnet driven by an oscillating applied field H, modelled with the Jiles-Atherton description of domain-wall motion. Because the magnetic domains flip toward the field but lag it (domain walls pin and unpin irreversibly), the magnetization B is not a single-valued function of H but traces a closed hysteresis loop. The scene shows a lattice of domains reorienting while the side panel draws the B-H loop and shades its enclosed area, which equals the energy dissipated as heat per cycle. Soft iron gives a thin lossy-but-easily-switched loop, hard steel a wide loop with large remanence and coercivity (a permanent magnet), and ferrite an intermediate case; sliders set coercivity, saturation and drive amplitude. Reference: Jiles, Introduction to Magnetism and Magnetic Materials, Chapters 7 to 8.'
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: medium
