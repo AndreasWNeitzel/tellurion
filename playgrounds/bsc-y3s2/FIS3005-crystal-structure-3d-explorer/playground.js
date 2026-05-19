@@ -267,7 +267,9 @@ bP.addEventListener('click', () => { st.running = !st.running; bP.textContent = 
 
 function bootSync() {
   vSC.textContent = String(st.sc);
-  if (CAPTURE_NAME) { st.yaw = 0.6 + (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 2 * Math.PI; }
+  // 5.2 rad (not a full 2 pi turn) so the first and last frame show
+  // different orientations of the lattice instead of the same view.
+  if (CAPTURE_NAME) { st.yaw = 0.6 + (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 5.2; }
   render();
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
