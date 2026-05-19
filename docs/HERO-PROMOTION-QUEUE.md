@@ -30,15 +30,15 @@ serialise the visual/GPU gate; no shared/ edits in parallel.
 - [ ] msc-y1/MAA-SE-stellar-structure-full-model (tier hero; stellar interior)
 - [ ] bsc-y2s2/FIS2003-special-relativity-spacetime-lab (TRIAGED BELOW BAR: faint underdeveloped Minkowski diagram; readout panel overlaps moving rod)
 - [ ] msc-y1/MF-AQM-scattering-theory-differential-cross-section (TRIAGED BELOW BAR: thin sparse 3D wireframe, rotation barely perceptible)
-- [ ] msc-y1/MF-GR-friedmann-expansion-multicomponent (tier hero)
-- [ ] msc-y1/MF-GR-inflation-quantum-fluctuations (tier hero)
-- [ ] msc-y1/MF-QFT-klein-gordon-wavepacket-mass (tier hero)
+- [x] msc-y1/MF-GR-friedmann-expansion-multicomponent (AT BAR: dramatic legible comoving-grid expansion + growing horizons + era density chart, dynamic 3-panel)
+- [ ] msc-y1/MF-GR-inflation-quantum-fluctuations (TRIAGED BELOW BAR mild: mode-freezing panel thin/underdeveloped, empty space; lower priority)
+- [x] msc-y1/MF-QFT-klein-gordon-wavepacket-mass (AT BAR: dynamic sub-luminal spreading vs light cone, causality + dispersion legible)
 - [ ] msc-y1/MFM-MP-mri-bloch-equations-k-space (TRIAGED BELOW BAR: hero Bloch-sphere panel very faint vs the rich right panels)
 - [x] msc-y1/MFM-MP-ct-reconstruction-lab (AT BAR: dense quantitative Shepp-Logan/Radon/FBP lab with live gantry sweep + RMSE/SNR + convergence; 3D not beneficial, no gilding)
-- [ ] bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer (tier hero)
-- [ ] bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman (advanced; level splitting)
-- [ ] bsc-y3s1/FIS3003-angular-momentum-coupling-3d (advanced; 3D coupling)
-- [ ] bsc-y3s2/FIS3005-superconductivity-meissner-3d (advanced; 3D expulsion)
+- [ ] bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer (TRIAGED BELOW BAR clear: near-static, underfilled, cramped/clipped sigma-x sigma-p bar widget; deep-fix next)
+- [ ] bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman (TRIAGED BELOW BAR clear: huge dead space in term diagram, spectrum near-static across frames)
+- [ ] bsc-y3s1/FIS3003-angular-momentum-coupling-3d (TRIAGED BELOW BAR moderate: sparse 3D vector panel, precession subtle; CG table fine)
+- [x] bsc-y3s2/FIS3005-superconductivity-meissner-3d (AT BAR: vivid frame-filling Meissner field-line expulsion vs penetration transition + Bc(T) phase point, correct and dramatic)
 
 ## Tier B: rich 2D dynamics, strong payoff
 
