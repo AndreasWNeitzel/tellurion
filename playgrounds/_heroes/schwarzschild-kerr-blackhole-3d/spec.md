@@ -24,6 +24,65 @@ share_state_keys: [aOverM, diskInner, diskOuter]
 
 # Schwarzschild-Kerr Black Hole 3D
 
+## Explainer
+
+### What you are looking at
+
+A black hole does not just have a hole punched in the sky behind it.
+It bends light so severely that you see the far side of its accretion
+disk lensed up and over the top and wrapped underneath, a dark shadow
+where light fell in, and a razor-thin bright ring of light that
+orbited the hole before escaping. The playground ray-traces exactly
+that for a non-rotating (Schwarzschild) and a spinning (Kerr) hole.
+
+### Light bending in curved spacetime
+
+Photons follow null geodesics of the metric. For the Schwarzschild
+metric the key scales are the event horizon at the Schwarzschild
+radius
+
+$$r_s = \frac{2GM}{c^2},$$
+
+the photon sphere at $1.5\,r_s$ (where light can orbit), and the
+shadow, of angular radius corresponding to $\sqrt{27}\,GM/c^2$,
+slightly larger than the horizon because rays grazing the photon
+sphere are captured. Rays aimed near the shadow edge wind around the
+hole one or more times, producing the infinitely-stacked photon ring
+and the lensed second image of the disk.
+
+### Schwarzschild vs Kerr
+
+A spinning (Kerr) black hole drags spacetime around with it (frame
+dragging). The consequences the playground shows:
+
+- The shadow becomes asymmetric: the side rotating toward the camera
+  is brightened and the shadow is flattened on that side (the
+  characteristic Kerr crescent, as imaged for M87* and Sgr A*).
+- The innermost stable circular orbit moves inward with spin, so the
+  disk reaches closer and is hotter and brighter near the prograde
+  edge (relativistic Doppler beaming).
+
+This is the physics behind the Event Horizon Telescope images and
+*Interstellar*'s Gargantua. The playground integrates the ray paths
+in the chosen metric and lets you change the spin and viewing
+inclination to morph the shadow, photon ring, and lensed disk.
+
+### Things to try
+
+- Watch the far side of the disk lensed up over the top and a second
+  image wrapped underneath (strong gravitational lensing).
+- Increase the Kerr spin and watch the shadow flatten into an
+  off-centre crescent with a brightened approaching side.
+- Tilt the inclination from face-on toward edge-on and see the
+  Einstein-ring-like wrap of the disk.
+
+### Where this comes from
+
+The Schwarzschild/Kerr null geodesics, the photon sphere and shadow
+follow Hartle, *Gravity*, Chapters 9 and 15, and Misner, Thorne and
+Wheeler, *Gravitation*, Chapter 25; the imaging follows the Event
+Horizon Telescope results (EHT Collaboration 2019).
+
 ## Physical setup
 
 A black hole bends the paths of light rays so strongly that some rays loop around it before escaping and others are swallowed. Looking at a black hole surrounded by a glowing accretion disk, you do not see a disk with a hole punched in it; you see the near side directly, the far side lensed up and over the top, and a second image of the far side wrapped around underneath. A perfectly dark region (the shadow) sits where every ray that would land there has fallen through the event horizon, ringed by a thin bright circle (the photon ring) made of light that orbited the hole one or more times before reaching the camera.

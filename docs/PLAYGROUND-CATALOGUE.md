@@ -2185,8 +2185,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### EM on a 2D Gaussian Mixture
 `playgrounds/msc-y1/MAA-DM-em-on-gmm-2d` | MAA-DM | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: You are given a cloud of points that is secretly a blend of a few overlapping Gaussian blobs, but you are told neither which point came from which blob nor the blobs' shapes. Expectation-Maximization recovers both by a chicken-and-egg loop: guess the blobs, softly assign points, refit the blobs, repeat. The playground animates the ellipses snapping onto the data.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The data is modeled as a Gaussian mixture: each point is drawn from one of K Gaussians with mixing weight pi_k, but the assignment of points to components is hidden, so the likelihood cannot be maximized directly. Expectation-Maximization alternates an E-step (given the current parameters, compute each point''s soft responsibility gamma_ik for every component) and an M-step (refit each component as a responsibility-weighted mean and covariance), a loop that provably increases the data log-likelihood every iteration and converges to a local optimum. The playground animates the component ellipses translating and reshaping onto the blobs while the log-likelihood climbs monotonically in the live readout. Reference: Dempster, Laird and Rubin 1977; Bishop, Pattern Recognition and Machine Learning, Chapter 9.
+- Hook: A cloud of points secretly blends a few overlapping Gaussian bumps; watch Expectation-Maximization recover their shapes and weights by alternating soft guesses and refits until the ellipses snap onto the data.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with GMM model (K Gaussians in 2D), E-step (assign responsibility), M-step (update means/covariances/weights), convergence criterion (log-likelihood plate
@@ -2196,8 +2196,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### GP Kernel Zoo
 `playgrounds/msc-y1/MAA-DM-gp-kernel-zoo` | MAA-DM | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: A Gaussian process is a probability distribution not over numbers but over whole functions. Before you see data it is a fog of plausible curves; show it a few points and the fog collapses to curves that pass through them, with calibrated uncertainty (wide between points, tight on them). The playground lets you pick the kernel and watch prior and posterior.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A Gaussian process places a prior over functions: any finite set of values is jointly Gaussian with mean zero and covariance set by a kernel k(x, x''), which encodes how smooth, wiggly or periodic the function is. Conditioning on noisy observations gives a closed-form Gaussian posterior, with mean mu(x*) = k(x*,X)[K + sigma_n^2 I]^-1 y and variance k(x*,x*) minus k(x*,X)[K + sigma_n^2 I]^-1 k(X,x*). The playground lets you switch among kernels (squared-exponential, Matern, periodic, linear) and see how each reshapes both the prior sample functions and the data-conditioned posterior with its uncertainty band. Reference: Rasmussen and Williams, Gaussian Processes for Machine Learning, Chapters 2 and 4.
+- Hook: A Gaussian process is a probability distribution over whole functions; pick a kernel and watch the prior fog of plausible curves collapse onto a handful of data points with calibrated uncertainty (wide between points, tight on them).
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with GP regression model, kernel definitions (RBF, Matern, periodic, linear), prior/posterior visualization, invariants (posterior integrates to probabili
@@ -2207,8 +2207,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Mean-Field VI on a Banana
 `playgrounds/msc-y1/MAA-DM-mean-field-vi-on-banana` | MAA-DM | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Variational inference turns Bayesian inference into optimization: instead of sampling the true posterior, pick the closest member of a simple family of distributions. The playground does exactly that, fitting an axis-aligned Gaussian to a curved "banana" posterior, and the visible mismatch is the whole lesson about what VI gets wrong.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The true posterior is a long curved Rosenbrock valley, p(x,y) proportional to exp[-(x^2 + 10(y - x^2)^2)/2]. Variational inference replaces sampling with optimization: it fits the closest member of a simple family, here the mean-field Gaussian q(x,y) = N(x | mu_x, sigma_x^2) N(y | mu_y, sigma_y^2), which by construction cannot represent any x-y correlation. Maximizing the evidence lower bound (equivalently minimizing the reverse KL divergence from q to p) is mode-seeking: q collapses onto one region and underestimates the variance rather than averaging over the whole curved ridge, the canonical failure mode the visible mismatch makes obvious. The playground animates the Gaussian ellipse climbing the ELBO onto the banana while the readout tracks the bound. Reference: Bishop, Pattern Recognition and Machine Learning, Chapter 10; Blei, Kucukelbir and McAuliffe 2017.
+- Hook: Variational inference turns Bayesian inference into optimization; watch a mean-field Gaussian squeeze itself into a curved banana posterior and see exactly what that approximation gets wrong.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with variational inference (KL divergence, mean-field factorization), banana-shaped posterior, evidence lower bound (ELBO), convergence criterion, invaria
@@ -2240,8 +2240,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Chandrasekhar Dynamical Friction
 `playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar` | MAA-GD | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Friction on a massive perturber in a Maxwellian background; peaks near $v \sim \sigma$. Source: Binney-Tremaine Ch. 8 (`binney-tremaine`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Chandrasekhar summed the cumulative two-body gravitational deflections of a Maxwellian background (density rho, dispersion sigma) on a perturber of mass M moving at speed V, giving dV/dt = -(4 pi G^2 M rho ln Lambda / V^2) f(X) with f(X) = erf(X) - (2X/sqrt(pi)) e^(-X^2) and X = V/(sqrt(2) sigma); ln Lambda is the Coulomb logarithm over the range of impact parameters. The velocity dependence is the whole story: only background stars slower than the perturber contribute to the trailing overdensity, so the drag vanishes at low V (few stars left behind), peaks near V ~ sigma, and falls off as 1/V^2 at high speed. The playground sweeps V and plots the drag curve with its characteristic peak. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 8.
+- Hook: A massive body plowing through a star field feels a gravitational drag from the wake it pulls behind it; sweep its speed and watch the friction rise, peak near the velocity dispersion, then fall.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with Chandrasekhar friction, impulse cross-section, dynamical decoupling (timescale vs encounter rate), invariants (energy monotonic decrease, orbital dec
@@ -2262,8 +2262,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Jeans Isothermal Sphere
 `playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere` | MAA-GD | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: $\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Treat the stars or dark matter as an isothermal self-gravitating fluid with a constant velocity dispersion sigma acting like a fixed temperature. Hydrostatic equilibrium against its own gravity (equivalently the isotropic Jeans equation) has the exact singular solution rho(r) = sigma^2 / (2 pi G r^2). Because the enclosed mass then grows linearly with radius, M(r) proportional to r, the circular speed v_c = sqrt(G M(r)/r) = sqrt(2) sigma is independent of radius: a flat rotation curve with no fine tuning, which is exactly what extended dark halos reproduce in real galaxies. The playground plots the density, enclosed mass and the resulting flat rotation curve as sigma is varied. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 4.
+- Hook: The simplest model that explains why galaxy rotation curves are flat (the original dynamical case for dark matter): a self-gravitating ball whose particle speeds are the same everywhere.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with Jeans equation (hydrostatic equilibrium in a potential), isothermal model (constant velocity dispersion), density profile (rho ~ r^-2), virial parame
@@ -2273,8 +2273,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Orbits in an Axisymmetric Potential
 `playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential` | MAA-GD | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3 (`binney-tremaine`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A flattened galaxy is well described by the Miyamoto-Nagai potential Phi(R,z) = -G M / sqrt(R^2 + (a + sqrt(z^2 + b^2))^2), with cylindrical radius R, height z, disk scale length a and thickness b. Because this is not an inverse-square point-mass field, the radial and azimuthal oscillation frequencies are incommensurate, so a generic bound orbit does not close: it precesses, filling a rosette bounded by an inner and outer radius. Energy E and the angular momentum component L_z about the symmetry axis are conserved and pin the rosette, while a third (non-classical) integral confines the motion in the meridional plane. The playground integrates an orbit with a symplectic step and shows the rosette plus the conserved quantities holding flat. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 3.
+- Hook: A star in a disk galaxy does not trace a closed ellipse like a planet; its orbit fails to close and slowly fills an annulus, drawing a rosette.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with axisymmetric potential (e.g., logarithmic or Hernquist), orbit equations (Lagrangian in cylindrical coords), initial conditions (E, L_z control shape
@@ -2295,8 +2295,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Shakura-Sunyaev Accretion Disc Temperature
 `playgrounds/msc-y1/MAA-HE-accretion-disk-temperature-profile` | MAA-HE | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Gas spiraling onto a black hole or neutron star cannot fall straight in: it forms a disk, and friction between adjacent rings heats it until it glows. The playground computes how hot each radius gets and the spectrum that results, the model behind the blue glow of cataclysmic variables and the UV bump of quasars.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: In a steady, optically thick, geometrically thin disk, gas at radius R orbits at the local Keplerian rate and drifts slowly inward; viscous torques carry angular momentum outward and dissipate the released gravitational energy locally. Balancing that power against blackbody emission from both faces gives the Shakura-Sunyaev profile T(R) = [3 G M Mdot / (8 pi sigma R^3) (1 - sqrt(R_in/R))]^(1/4), with central mass M, accretion rate Mdot, inner edge R_in (the innermost stable circular orbit) and Stefan-Boltzmann sigma. Far from the edge this is the famous T proportional to R^(-3/4) law; the bracket forces T to zero at R_in and produces a peak just outside it. The playground plots T(R) and the integrated multi-temperature blackbody spectrum as M, Mdot and R_in are varied. Reference: Shakura and Sunyaev 1973; Frank, King and Raine, Accretion Power in Astrophysics, Chapter 5.
+- Hook: Gas cannot fall straight onto a black hole; it forms a disk that friction heats until it glows, and this profile is the model behind the blue glow of cataclysmic variables and the UV bump of quasars.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with Shakura-Sunyaev alpha-disk model, viscous heating, radiative cooling, temperature profile T(r), scaling T ~ r^-3/4 for a steady disk, alpha parameter

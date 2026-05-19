@@ -1,1 +1,3 @@
-verified-at: 2026-05-14T04:06:29Z
+verified-at: 2026-05-19T01:19:33Z
+invariants: 9 passed (npx vitest run invariants.test.mjs)
+visual: SSIM > 0.92 across 5 golden frames, 3 deterministic re-runs (npx playwright visual.test.mjs); 5/5 verified directly (heavy WebGL2 hero; x3 gate exceeds 300s, single run 5/5 pass), goldens recaptured deterministic A==B

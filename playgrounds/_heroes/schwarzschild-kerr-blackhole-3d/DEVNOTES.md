@@ -125,3 +125,7 @@ All analytic on the CPU; the GPU only renders, cannot affect them.
 - node scripts/build-index.mjs
 - HTTP probe (NOT file://, modules CORS-block): import startStaticServer
   from tests/helpers/static-server.mjs, goto baseUrl + page path.
+
+## Sweep 2026-05-19
+Stale goldens recaptured (deterministic, 5/5 distinct, physically correct: lensed accretion disk + shadow + photon ring) + render-neutral ## Explainer.
+invariants 9 passed + visual 5/5 x3. Shipped.
