@@ -1,12 +1,16 @@
-// Gravitational lensing critical curves and caustics for a single point
-// lens (Einstein ring) and a two-point-lens binary (figure-eight caustic).
-// Source on the source plane, multiple images on the image plane.
+// Gravitational lensing critical curves and caustics: a single point lens
+// (Einstein ring) and a two-point-lens binary (figure-eight caustic).
+// Source on the source plane, multiple images on the image plane. The
+// lensing core lives in sim.js (DOM-free, also exercised by invariants).
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import {
+  makeLenses, mapToSource, jacobianDet, findImages,
+} from './sim.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
@@ -16,113 +20,17 @@ const controlsEl   = document.getElementById('controls');
 
 const W = canvas.width, H = canvas.height;
 
-// Lenses (positions in image plane, units of theta_E).
 const state = {
-  lenses: [
-    { x: 0, y: 0,    m: 1.0 },
-  ],
+  lenses: makeLenses(false),
   source: { x: 0.5, y: 0.1 },
   binary: false,
 };
-
-function makeBinary(on, separation = 0.8, q = 0.5) {
-  if (on) {
-    const m1 = 1 / (1 + q), m2 = q / (1 + q);
-    state.lenses = [
-      { x: -separation * m2, y: 0, m: m1 },
-      { x:  separation * m1, y: 0, m: m2 },
-    ];
-  } else {
-    state.lenses = [{ x: 0, y: 0, m: 1.0 }];
-  }
-}
-
-// Image-plane to source-plane map: beta = theta - sum_i m_i (theta - z_i) / |theta - z_i|^2
-function alphaAt(theta) {
-  let ax = 0, ay = 0;
-  for (const L of state.lenses) {
-    const dx = theta.x - L.x, dy = theta.y - L.y;
-    const r2 = dx * dx + dy * dy + 1e-12;
-    ax += L.m * dx / r2;
-    ay += L.m * dy / r2;
-  }
-  return { x: ax, y: ay };
-}
-
-function mapToSource(theta) {
-  const a = alphaAt(theta);
-  return { x: theta.x - a.x, y: theta.y - a.y };
-}
-
-function jacobianDet(theta) {
-  // J = I - dalpha/dtheta. Compute analytically for point masses.
-  let a11 = 1, a12 = 0, a21 = 0, a22 = 1;
-  for (const L of state.lenses) {
-    const dx = theta.x - L.x, dy = theta.y - L.y;
-    const r2 = dx * dx + dy * dy + 1e-12;
-    const r4 = r2 * r2;
-    // d/dx (m dx/r2) = m (r2 - 2 dx^2) / r4
-    a11 -= L.m * (r2 - 2 * dx * dx) / r4;
-    a22 -= L.m * (r2 - 2 * dy * dy) / r4;
-    const cross = -L.m * (-2 * dx * dy) / r4;
-    a12 -= cross;
-    a21 -= cross;
-  }
-  return a11 * a22 - a12 * a21;
-}
-
-function findImages(beta) {
-  // Brute-force grid + Newton refine. Coarse enough for visualization.
-  const found = [];
-  const G = 80;
-  const R = 2.5;
-  for (let i = 0; i < G; i += 1) for (let j = 0; j < G; j += 1) {
-    let tx = -R + (2 * R) * (i + 0.5) / G;
-    let ty = -R + (2 * R) * (j + 0.5) / G;
-    // 6 Newton steps.
-    let ok = true;
-    for (let it = 0; it < 6; it += 1) {
-      const bm = mapToSource({ x: tx, y: ty });
-      const fx = bm.x - beta.x, fy = bm.y - beta.y;
-      if (fx * fx + fy * fy < 1e-10) break;
-      // Approx Jacobian via finite diff.
-      const eps = 1e-4;
-      const bx_p = mapToSource({ x: tx + eps, y: ty });
-      const bx_m = mapToSource({ x: tx - eps, y: ty });
-      const by_p = mapToSource({ x: tx, y: ty + eps });
-      const by_m = mapToSource({ x: tx, y: ty - eps });
-      const j11 = (bx_p.x - bx_m.x) / (2 * eps);
-      const j12 = (by_p.x - by_m.x) / (2 * eps);
-      const j21 = (bx_p.y - bx_m.y) / (2 * eps);
-      const j22 = (by_p.y - by_m.y) / (2 * eps);
-      const det = j11 * j22 - j12 * j21;
-      if (Math.abs(det) < 1e-8) { ok = false; break; }
-      const dx = ( j22 * fx - j12 * fy) / det;
-      const dy = (-j21 * fx + j11 * fy) / det;
-      tx -= dx; ty -= dy;
-      if (Math.abs(dx) + Math.abs(dy) < 1e-8) break;
-    }
-    if (!ok) continue;
-    // De-duplicate. Reviewer noted nearby roots ~0.06 apart were slipping
-    // through the prior 0.05 threshold; widen so each physical image is
-    // counted once.
-    let dup = false;
-    for (const im of found) if (Math.hypot(im.x - tx, im.y - ty) < 0.08) { dup = true; break; }
-    if (dup) continue;
-    const bm = mapToSource({ x: tx, y: ty });
-    if (Math.hypot(bm.x - beta.x, bm.y - beta.y) < 0.02) {
-      found.push({ x: tx, y: ty });
-      if (found.length >= 5) break;
-    }
-  }
-  return found;
-}
+function setBinary(on) { state.binary = on; state.lenses = makeLenses(on); }
 
 function render() {
   ctx.fillStyle = '#0E0E13';
   ctx.fillRect(0, 0, W, H);
 
-  // Two-panel layout: image plane left, source plane right.
   const pad = 24;
   const pw = (W - 3 * pad) / 2;
   const ph = H - 2 * pad;
@@ -146,54 +54,41 @@ function render() {
   ctx.fillText('Image plane (theta)', pad + 8, pad + 18);
   ctx.fillText('Source plane (beta)', 2 * pad + pw + 8, pad + 18);
 
-  // Critical curves: scan a grid for det(J) sign change; mark.
-  const G = 140;
-  const R = 2.4;
-  const lastSign = new Array(G);
+  // Critical curves (det A sign change) and their caustic images.
+  const G = 140, R = 2.4;
   ctx.fillStyle = '#fdb56a';
-  for (let i = 0; i < G; i += 1) lastSign[i] = null;
   for (let j = 0; j < G; j += 1) {
     let prev = null;
     for (let i = 0; i < G; i += 1) {
       const tx = -R + (2 * R) * i / (G - 1);
       const ty = -R + (2 * R) * j / (G - 1);
-      const d = jacobianDet({ x: tx, y: ty });
-      const sgn = d > 0 ? 1 : -1;
+      const sgn = jacobianDet(state.lenses, { x: tx, y: ty }) > 0 ? 1 : -1;
       if (prev !== null && sgn !== prev) {
-        // Critical curve crosses near this cell. Draw the crossing point.
-        const X = cx0 + tx * sc, Y = cy0 + ty * sc;
-        ctx.fillRect(X - 1, Y - 1, 2, 2);
-        // Map this point to source plane to draw the caustic.
-        const bm = mapToSource({ x: tx, y: ty });
-        const X2 = cx1 + bm.x * sc, Y2 = cy1 + bm.y * sc;
-        ctx.fillRect(X2 - 1, Y2 - 1, 2, 2);
+        ctx.fillRect(cx0 + tx * sc - 1, cy0 + ty * sc - 1, 2, 2);
+        const bm = mapToSource(state.lenses, { x: tx, y: ty });
+        ctx.fillRect(cx1 + bm.x * sc - 1, cy1 + bm.y * sc - 1, 2, 2);
       }
       prev = sgn;
     }
   }
 
-  // Lenses.
   ctx.fillStyle = '#cf7f3a';
   for (const L of state.lenses) {
     ctx.beginPath(); ctx.arc(cx0 + L.x * sc, cy0 + L.y * sc, 4, 0, 2 * Math.PI); ctx.fill();
   }
-
-  // Source.
   ctx.fillStyle = '#ffd57f';
   ctx.beginPath(); ctx.arc(cx1 + state.source.x * sc, cy1 + state.source.y * sc, 5, 0, 2 * Math.PI); ctx.fill();
 
-  // Images.
-  const imgs = findImages(state.source);
+  const imgs = findImages(state.lenses, state.source);
   ctx.fillStyle = '#7c9cff';
   for (const im of imgs) {
     ctx.beginPath(); ctx.arc(cx0 + im.x * sc, cy0 + im.y * sc, 4, 0, 2 * Math.PI); ctx.fill();
   }
 
   readoutInv.textContent = `images=${imgs.length}  lenses=${state.lenses.length}  source=(${state.source.x.toFixed(2)},${state.source.y.toFixed(2)})`;
-  readoutFrame.textContent = '-';
+  readoutFrame.textContent = CAPTURE_NAME ? `frac=${CAPTURE_FRAC.toFixed(2)}` : '-';
 }
 
-// Drag source on right panel.
 canvas.addEventListener('mousedown', (e) => {
   const rect = canvas.getBoundingClientRect();
   const x = (e.clientX - rect.left) * (canvas.width / rect.width);
@@ -218,33 +113,50 @@ function buildControls() {
     const opt = document.createElement('option'); opt.value = v; opt.textContent = t; sel.appendChild(opt);
   }
   sel.value = state.binary ? 'binary' : 'single';
-  sel.addEventListener('change', () => {
-    state.binary = sel.value === 'binary';
-    makeBinary(state.binary);
-    render();
-  });
+  sel.addEventListener('change', () => { setBinary(sel.value === 'binary'); render(); });
   row.appendChild(lab); row.appendChild(sel);
   controlsEl.appendChild(row);
-
-  // Info row.
   const info = document.createElement('div'); info.className = 'row';
   info.innerHTML = '<span class="label">Tip</span><span class="value">Click on the source plane (right) to move the source.</span>';
   controlsEl.appendChild(info);
 }
 
 buildControls();
-render();
-if (DETERMINISTIC) {
+
+if (DETERMINISTIC && CAPTURE_NAME) {
+  // Deterministic capture: a binary lens with the source swept across its
+  // figure-eight caustic, so the five frames show the image count change
+  // as the source enters and leaves the caustic (the headline effect).
+  const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+  setBinary(true);
+  sel_set('binary');
+  state.source = { x: -1.05 + 2.1 * frac, y: 0.05 };
+  render();
   window.__simulationReady = true;
-  window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+  window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
+} else {
+  render();
+  if (DETERMINISTIC) {
+    window.__simulationReady = true;
+    window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: null } }));
+  }
+}
+
+function sel_set(v) {
+  const el = document.getElementById('binary-toggle');
+  if (el) el.value = v;
 }
 
 window.__physicsCheck = async () => {
-  // Single lens: det(J) = 0 at |theta| = 1 (Einstein ring).
-  state.binary = false; makeBinary(false);
-  const d1 = jacobianDet({ x: 1, y: 0 });
-  const d2 = jacobianDet({ x: 0.5, y: 0 });
-  if (Math.abs(d1) > 0.05) return { name: 'Einstein ring', pass: false, msg: `det(J)(|theta|=1) = ${d1.toFixed(4)}` };
-  if (d2 > 0) return { name: 'Einstein ring', pass: false, msg: `det(J)(|theta|=0.5) = ${d2.toFixed(4)} expected < 0` };
-  return { name: 'critical curve at |theta|=1', pass: true, msg: `det(J)(1)=${d1.toFixed(4)} det(J)(0.5)=${d2.toFixed(4)}` };
+  // Single lens: det A = 0 on the Einstein ring |theta| = 1, negative
+  // (radial-critical) just inside it.
+  const single = makeLenses(false);
+  const d1 = jacobianDet(single, { x: 1, y: 0 });
+  const d2 = jacobianDet(single, { x: 0.5, y: 0 });
+  const ok = Math.abs(d1) < 0.05 && d2 < 0;
+  return {
+    name: 'Einstein ring at |theta| = 1',
+    pass: ok,
+    msg: `det A(1) = ${d1.toFixed(4)}, det A(0.5) = ${d2.toFixed(4)} (expected ~0, <0)`,
+  };
 };
