@@ -92,3 +92,7 @@ All closed-form on the CPU; the GPU only renders, cannot affect them.
   inter-frame SSIM ~0.87).
 - HTTP probe (NOT file://, ES modules CORS-block at origin null):
   /tmp/pg-probe.mjs pattern via tests/helpers/static-server.mjs.
+
+## Sweep 2026-05-19
+Stale goldens recaptured (deterministic, physically correct: toroidal plasma, co/counter-passing + trapped banana orbits) + render-neutral ## Explainer.
+invariants 4 passed + visual 5/5 x3. Shipped.

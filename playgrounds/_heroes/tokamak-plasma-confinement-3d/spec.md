@@ -24,6 +24,62 @@ share_state_keys: [R0, a, B0, Ip]
 
 # Tokamak Plasma Confinement 3D
 
+## Explainer
+
+### What you are looking at
+
+A fusion plasma is ten times hotter than the Sun's core, so no
+material wall can touch it. A tokamak holds it with magnetic fields
+twisted into a doughnut. The playground shows the helical field
+lines, the nested flux surfaces they wrap, and charged particles
+spiralling along them, the geometry that confines a star in a bottle.
+
+### Why a magnetic bottle works
+
+A charged particle in a magnetic field gyrates tightly around the
+field line (Larmor radius $r_L = mv_\perp/qB$) and streams freely
+along it. So a field line is a track: confine the field lines and you
+confine the plasma. A purely toroidal field is not enough, the
+gradient and curvature drifts push particles out. The fix is to add a
+twist.
+
+### Two fields, one twist
+
+A tokamak superposes:
+
+- a toroidal field $B_\phi$ from external coils (the long way around
+  the doughnut), and
+- a poloidal field $B_\theta$ from a large current driven through
+  the plasma itself (the short way around).
+
+Their sum is a set of helical field lines that wind around nested
+toroidal flux surfaces. The pitch of the helix is the safety factor
+
+$$q = \frac{r B_\phi}{R B_\theta},$$
+
+the number of toroidal turns per poloidal turn. The twist is what
+cancels the vertical drift (a particle spends equal time on the
+inner and outer sides), giving net confinement, and $q$ also sets
+MHD stability: low-order rational $q$ surfaces are where instabilities
+(kinks, tearing modes) grow. The playground renders the toroidal +
+poloidal field, the resulting helical lines on nested flux surfaces,
+and particles spiralling along them, with $q$ and the fields tunable.
+
+### Things to try
+
+- Turn off the poloidal field and watch confinement fail (particles
+  drift off the pure toroidal field).
+- Add the plasma current and watch the field lines become helical and
+  the particles stay trapped on flux surfaces.
+- Change the safety factor $q$ and see the helix wind tighter or
+  looser (and rational-$q$ resonant surfaces appear).
+
+### Where this comes from
+
+Tokamak field geometry, the safety factor and drift confinement
+follow Freidberg, *Plasma Physics and Fusion Energy*, and Wesson,
+*Tokamaks*.
+
 ## Physical setup
 
 Fusion needs a plasma at roughly 100 million kelvin, far too hot for any solid wall. A tokamak holds it with magnetic fields shaped into a torus. Field-aligned charged particles spiral tightly around field lines and drift slowly across them, so a suitably shaped field cages the plasma. Two field components combine: a toroidal field from external coils and a poloidal field from the current driven through the plasma itself. Their sum is a set of helical field lines lying on nested toroidal flux surfaces.
