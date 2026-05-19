@@ -465,6 +465,33 @@ footer a{color:var(--text-secondary);text-decoration:none}
   </div>
 </section>
 
+<section class="credits" id="credits">
+  <div class="lab">Credits</div>
+  <div class="credits-grid">
+    <div class="credits-col">
+      <h3>Authorship</h3>
+      ${[
+        ['Physics Simulations', 'Andreas W. Neitzel'],
+        ['Physics Engines', 'Andreas W. Neitzel'],
+        ['Numerical Methods', 'Andreas W. Neitzel'],
+        ['Canvas2D / SVG Rendering', 'Andreas W. Neitzel'],
+        ['Visual Design', 'Andreas W. Neitzel'],
+        ['Website Architecture', 'Andreas W. Neitzel'],
+        ['Curriculum Mapping', 'Andreas W. Neitzel'],
+      ].map(([k, v]) => `<div class="crow"><div class="ck">${k}</div><div class="cv">${v}</div></div>`).join('')}
+      <p class="credits-note">Assisted with Claude Code (Anthropic).</p>
+    </div>
+    <div class="credits-col">
+      <h3>Special Thanks</h3>
+      <p class="sub">Beta testers who helped refine these simulations</p>
+      ${BETA_TESTERS.length
+        ? BETA_TESTERS.map((t) => `<div class="crow"><div class="cv">${t.name}${t.institution ? ` &middot; <span style="color:var(--text-dimmed)">${t.institution}</span>` : ''}</div></div>`).join('')
+        : '<p class="credits-empty">Beta testers will be listed here.</p>'}
+    </div>
+  </div>
+  <div class="credits-ver">v${PKG_VERSION} &middot; Built ${BUILD_DATE} &middot; ${cards.length} simulations</div>
+</section>
+
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
 <footer>Andreas W. Neitzel &middot; ORCID 0000-0001-6283-907X &middot; IA/CAUP, University of Porto</footer>
 
