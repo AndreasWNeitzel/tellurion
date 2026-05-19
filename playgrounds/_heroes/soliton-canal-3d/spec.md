@@ -54,14 +54,62 @@ each other and come out unchanged, which no ordinary wave does.
   soliton, so it just spreads into a train of ripples. Compare.
 - Change canal depth and watch the dispersion change the soliton width.
 
-### The equation (collapsible)
+### The Korteweg de Vries equation
 
-$$u_t + 6\,u\,u_x + u_{xxx} = 0, \qquad x \in [0,L)\ \text{periodic}.$$
+The water-surface elevation $u(x, t)$ above its quiet level obeys
 
-The single-soliton solution is
-$u(x,t) = \tfrac{c}{2}\,\mathrm{sech}^2\!\big(\tfrac{\sqrt c}{2}(x - c t - x_0)\big)$,
-amplitude $a=c/2$, speed $c=2a$. The $6 u u_x$ term is nonlinear
-steepening; $u_{xxx}$ is dispersion; a soliton is the exact balance.
+$$\boxed{\;u_t + 6\,u\,u_x + u_{xxx} = 0, \quad x \in [0, L)\ \text{periodic}.\;}$$
+
+Each term is doing a real job:
+
+- $u_t$ is just the rate of change of the height at a fixed point.
+- $6\,u\,u_x$ is nonlinear advection: the local velocity at which the
+  wave moves depends on its OWN height. Taller water moves faster.
+  This is what would make an ocean wave eventually break.
+- $u_{xxx}$ is dispersion: ripples of different wavelength travel at
+  different speeds, which spreads any lump out into a train.
+
+A soliton is the exact balance: steepening rate = dispersion rate.
+The closed-form one-soliton solution is
+
+$$u(x, t) = \frac{c}{2}\,\mathrm{sech}^2\!\Big(\frac{\sqrt{c}}{2}\,(x - c\,t - x_0)\Big),$$
+
+with amplitude $a = c/2$ and speed $c = 2 a$. So taller solitons are
+faster, by a precise factor of two, which is why the tall hump
+overtakes the short hump in the two-soliton preset.
+
+### Symbols, at a glance
+
+- $u(x, t)$, the water-surface elevation above its quiet level (m).
+- $x$, position along the canal (m, periodic with length $L$).
+- $t$, time (s).
+- $u_t \equiv \partial u / \partial t$, $u_x \equiv \partial u / \partial x$,
+  $u_{xxx} \equiv \partial^3 u / \partial x^3$.
+- $c$, the soliton speed (m/s); $a = c/2$ is its amplitude.
+- $\delta$, the dispersion coefficient (relabelled "canal depth"
+  in the UI); a thinner canal makes dispersion stronger, which
+  widens each soliton.
+
+### Why this matters beyond the canal
+
+KdV is the universal weak-nonlinearity, weak-dispersion equation:
+the same shape appears in shallow water, internal ocean waves,
+optical fibres, ion-acoustic plasma waves, and even highway traffic
+density. The two-soliton collision test (in front of you on screen)
+is the signature non-trivial test: ordinary waves do not pass through
+each other, solitons do.
+
+### Bibliographic origin
+
+KdV was derived for shallow water in Korteweg and de Vries, *Phil. Mag.*
+**39** (1895) 422. The soliton (the name was coined later in 1965 by
+Zabusky and Kruskal in *Phys. Rev. Lett.* **15**, 240) was first
+observed by John Scott Russell in 1834 (Russell, *Report on Waves*,
+British Association for the Advancement of Science, 1844). The exact
+multi-soliton solutions and the inverse scattering transform come
+from Gardner, Greene, Kruskal, Miura, *Phys. Rev. Lett.* **19** (1967)
+1095. A clean modern treatment is in Drazin and Johnson, *Solitons:
+An Introduction* (Cambridge 1989), Ch. 1, 3, 4.
 
 ## Physical setup
 
