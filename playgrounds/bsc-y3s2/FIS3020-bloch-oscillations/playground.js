@@ -2,6 +2,7 @@ import { blochFrequency, quasiMomentum, position } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rT = document.getElementById('readout-t');
 const sF = document.getElementById('slider-F'), vF = document.getElementById('value-F');
@@ -68,5 +69,19 @@ function render() {
   rT.textContent = T_B.toFixed(2);
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt * 2; render(); requestAnimationFrame(tick); }
-function bootSync() { st.t = CAPTURE_NAME ? 2 : 0; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME) {
+    // Sweep three full Bloch periods so the five frames show the
+    // quasi-momentum crossing the Brillouin zone and the position
+    // completing its real-space oscillation.
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    // 2.7 periods (not an integer, so the first and last frame land at
+    // different phases of the periodic oscillation).
+    st.t = frac * 2.7 * (2 * Math.PI / blochFrequency(st.F));
+  } else {
+    st.t = 0;
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
