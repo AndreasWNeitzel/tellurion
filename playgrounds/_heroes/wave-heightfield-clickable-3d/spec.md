@@ -24,6 +24,63 @@ share_state_keys: [c, gamma, A, sigma]
 
 # Wave Heightfield (Clickable)
 
+## Explainer
+
+### What you are looking at
+
+A drumhead rendered as a lit 3D surface that you can poke. Every
+click drops a ripple that spreads at a fixed speed, bounces off the
+rim, and adds to every other ripple. It is an interactive ripple
+tank, the cleanest demonstration of how 2D waves propagate, reflect,
+interfere, and decay.
+
+### The wave equation
+
+A stretched membrane pinned at its edges obeys the 2D wave equation
+with damping:
+
+$$\frac{\partial^2 u}{\partial t^2}
+  = c^2\nabla^2 u - \gamma\frac{\partial u}{\partial t},$$
+
+with $u(x,y,t)$ the height, $c$ the wave speed (set by tension and
+density), and $\gamma$ the damping. It is solved on a grid by an
+explicit finite-difference stencil, stable while the Courant number
+$c\,\Delta t/\Delta x \le 1/\sqrt2$ (the 2D CFL limit; exceeding it
+makes the scheme blow up).
+
+### What the ripples show
+
+Three universal wave behaviours, all visible at once:
+
+- Propagation at constant speed: a click makes an expanding circular
+  front; the radius grows linearly with time.
+- Reflection with inversion at the fixed rim ($u=0$ boundary): the
+  returning pulse is flipped, exactly the half-wave phase change of a
+  hard boundary, and repeated reflections build standing-wave modes.
+- Linear superposition: two ripples pass through each other and add,
+  producing interference (reinforcement and cancellation) with no
+  mutual scattering. Damping drains energy so the surface relaxes
+  back to flat.
+
+Same equation governs sound, light, seismic and water waves; the
+heightfield just makes the 2D field tangible. The playground lets you
+seed Gaussian impulses anywhere and change $c$ and $\gamma$.
+
+### Things to try
+
+- Click once and watch a clean circular front expand and reflect
+  inverted off the edges.
+- Click twice and watch the two ripples interfere (bright
+  reinforcement, dark cancellation) and then pass through unchanged.
+- Raise the damping and watch the surface settle to flat; lower it
+  and watch reflections build a standing-wave pattern.
+
+### Where this comes from
+
+The 2D wave equation, boundary reflection and the CFL stability
+condition follow French, *Vibrations and Waves*, Chapter 7, and
+LeVeque, *Finite Difference Methods for ODEs and PDEs*, Chapter 4.
+
 ## Physical setup
 
 A stretched membrane pinned at its edges obeys the two-dimensional wave equation. Any disturbance spreads as a travelling wave at a fixed speed set by the medium, reflects off the fixed boundary (inverting on reflection), and superposes linearly with other disturbances. Damping removes energy and the membrane relaxes back to flat. Clicking the surface seeds a localized Gaussian impulse, so the playground is an interactive ripple tank rendered as a lit 3D heightfield.

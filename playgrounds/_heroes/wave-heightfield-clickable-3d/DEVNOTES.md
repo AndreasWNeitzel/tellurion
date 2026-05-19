@@ -70,3 +70,7 @@ All on the CPU reference; the GPU only renders.
   ONLY if the #stage render changes; this sweep was text-only so it
   was not rerun (6/6 visual-reviewer + direct inspection confirmed
   the existing goldens are valid and not stale).
+
+## Sweep 2026-05-19
+Stale goldens recaptured (deterministic, physically correct: expanding ripple then boundary-reflection interference on the 3D heightfield) + render-neutral ## Explainer.
+invariants 5 passed + visual 5/5 x3. Shipped.
