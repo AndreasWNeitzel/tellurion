@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Paint a copper bar through a foam wall and watch heat refuse to cross it: the same flux, a gentle slope in the metal and a cliff in the insulator.'
-one_paragraph: 'An explicit finite-difference solver for the variable-conductivity heat equation dT/dt = div(kappa grad T) + S on a 96x96 grid. The primary scene is the physical temperature field (viridis) overlaid with live conductive-flux streamlines q = -kappa grad T; the side panel is the mid-row cross-section T(x). Five presets (composite wall, uniform rod, room radiator, finned heat sink, insulated quench), a paint brush for metal, insulator, heat and cold, and sliders for the conductivity contrast, the source temperature and the time-lapse rate. The headless sim.js is gate-tested for heat conservation in an insulated box, the diffusivity rate at equal physical time, the steady Laplace balance, the composite-wall gradient ratio and the CFL stability bound.'
+one_paragraph: 'An explicit finite-difference solver for the variable-conductivity heat equation dT/dt = div(kappa grad T) + S on a 96x96 grid. The primary scene is the physical temperature field (viridis) overlaid with live conductive-flux streamlines q = -kappa grad T; the side panel is the mid-row cross-section T(x). Five presets (composite wall, uniform rod, room radiator, finned heat sink, insulated quench), a paint brush for metal, insulator, heat and cold, and sliders for the conductivity contrast, the source temperature and the time-lapse rate. A composite wall keeps the heat flux continuous while the temperature gradient steepens in the poorer conductor, an insulated box conserves total heat, and uniform conductivity relaxes to the linear Laplace profile. Reference: Incropera, Fundamentals of Heat and Mass Transfer, Chapters 2 and 5.'
 tags: [thermodynamics, pde, animation, multi-panel, live-readout]
 difficulty: 3
 tier: advanced
@@ -18,6 +18,66 @@ share_state_keys: []
 ---
 
 # Interactive 2D Heat Equation
+
+## Explainer
+
+### What you are looking at
+
+Heat always flows from hot to cold, but how fast depends on the
+material. The playground solves the two-dimensional heat equation on a
+slab you can paint with conductor or insulator. The point it makes
+concrete: a metal bar threaded through a foam wall develops a gentle
+slope in the metal and a steep cliff in the foam, even though exactly
+the same amount of heat crosses both.
+
+### The heat equation
+
+The temperature field $T(x,y,t)$ evolves by
+
+$$\frac{\partial T}{\partial t}
+  \;=\; \nabla\cdot\big(\kappa\,\nabla T\big) \;+\; S,$$
+
+where $\kappa(x,y)$ is the thermal diffusivity (how readily the local
+material conducts heat) and $S$ is any heat source. The heat flux
+follows Fourier's law,
+
+$$\mathbf{q} \;=\; -\,\kappa\,\nabla T,$$
+
+so heat runs downhill in temperature at a rate set by $\kappa$.
+
+### Steady state and the composite wall
+
+When nothing changes in time, $\partial T/\partial t = 0$, so the field
+settles to the balance $\nabla\cdot(\kappa\nabla T) + S = 0$ (Poisson,
+or Laplace when $S=0$). For a uniform $\kappa$ held between two fixed
+faces the steady profile is a straight line. Across a composite wall
+the flux $\mathbf{q}$ must be continuous (heat cannot pile up at the
+interface), so $-\kappa\,dT/dx$ is the same on both sides and the
+gradient $dT/dx$ is steeper in the lower-$\kappa$ material by exactly
+the ratio of the conductivities. That is the cliff-in-the-insulator.
+
+### The stability limit
+
+An explicit time step is only stable if it is small enough: in two
+dimensions $dt \le dx^2/(4\,\kappa_{\max})$. Push the time-lapse past
+that bound and the numbers blow up instead of diffusing; the
+playground shows the bound live so you can watch it fail.
+
+### Things to try
+
+- Paint a metal bar through an insulating wall and watch the kink form
+  in both the field and the cross-section.
+- Raise the conductivity contrast and see the gradient ratio across
+  the interface grow with it.
+- Push the time-lapse rate past the stability bound and watch the
+  explicit scheme diverge.
+
+### Where this comes from
+
+The variable-coefficient heat equation, Fourier's law and the
+composite-wall result follow Incropera, Fundamentals of Heat and Mass
+Transfer, Chapters 2 and 5; the explicit scheme and its stability
+bound follow Press et al., Numerical Recipes (3rd ed.), Section 20.2.
 
 ## Physical setup
 
