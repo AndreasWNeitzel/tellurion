@@ -27,7 +27,7 @@ serialise the visual/GPU gate; no shared/ edits in parallel.
 - [x] bsc-y2s2/FIS2006-dipole-radiation-3d (PROMOTED: pitch-sweep tumble fixes the axisymmetric-yaw no-op so the donut visibly rocks edge-on to face-on; glowing solid lobe + bloom + denser mesh + brighter wavefronts; physics intact, invariants 7/7, recaptured 5 distinct, 60fps)
 - [x] msc-y1/MF-GR-gravitational-wave-detector (AT BAR: clean dynamic 3-panel, chirp+arms+matched-filter all live; 3D not beneficial, no gilding per simplifier ethos)
 - [ ] bsc-y3s1/FIS3003-tdse-wavepacket-sculptor (TRIAGED BELOW BAR: underfilled frame, near-empty bottom <x>(t) plot, rainbow phase)
-- [ ] msc-y1/MAA-SE-stellar-structure-full-model (tier hero; stellar interior)
+- [ ] msc-y1/MAA-SE-stellar-structure-full-model (TRIAGED BELOW BAR clear: static fixed 1 Msun model, all 5 goldens byte-identical (vacuous visual gate); deep-fix = mass sweep, next)
 - [ ] bsc-y2s2/FIS2003-special-relativity-spacetime-lab (TRIAGED BELOW BAR: faint underdeveloped Minkowski diagram; readout panel overlaps moving rod)
 - [ ] msc-y1/MF-AQM-scattering-theory-differential-cross-section (TRIAGED BELOW BAR: thin sparse 3D wireframe, rotation barely perceptible)
 - [x] msc-y1/MF-GR-friedmann-expansion-multicomponent (AT BAR: dramatic legible comoving-grid expansion + growing horizons + era density chart, dynamic 3-panel)
@@ -42,9 +42,9 @@ serialise the visual/GPU gate; no shared/ edits in parallel.
 
 ## Tier B: rich 2D dynamics, strong payoff
 
-- [ ] msc-y1/M2009-pde-zoo-interactive (tier hero)
-- [ ] bsc-y2s2/FIS2021-lagrangian-field-sandbox (tier hero)
-- [ ] bsc-y2s2/FIS2021-kam-theory-poincare-section (advanced; phase-space tori)
+- [x] msc-y1/M2009-pde-zoo-interactive (AT BAR: dynamic self-verifying numeric-vs-analytic PDE multi-panel with CFL/conservation note)
+- [ ] bsc-y2s2/FIS2021-lagrangian-field-sandbox (TRIAGED BELOW BAR moderate: correct/dynamic but heavily underfilled, sparse panels)
+- [ ] bsc-y2s2/FIS2021-kam-theory-poincare-section (TRIAGED BELOW BAR mild-mod: dense emergent KAM structure but near-illegible faint readout, low contrast)
 - [ ] bsc-y2s2/FIS2021-hamilton-jacobi-action-angle (advanced)
 - [ ] bsc-y2s2/FIS2021-canonical-transformation-visual (advanced)
 - [ ] bsc-y3s1/FIS3008-md-lennard-jones-thermodynamics (tier hero; MD)
