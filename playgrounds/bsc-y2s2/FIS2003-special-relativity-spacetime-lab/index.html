@@ -7,25 +7,26 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 900px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
-  .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 10ch 8ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+  .pg-figure { max-width: 1200px; position: relative; }
+  .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; border-radius: 4px; }
+  .readout-panel { margin-top: var(--space-3); background: rgba(8,10,14,0.7); padding: 10px 14px; border-radius: 4px; display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 14px; row-gap: 4px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; }
+  .readout-panel .label { color: var(--fg-muted); font-size: 11px; opacity: 0.75; }
+  .readout-panel .value { color: var(--fg); font-variant-numeric: tabular-nums; padding-bottom: 4px; }
   figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
   .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; gap: var(--space-3); }
 </style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Special Relativity Spacetime Lab</h1>
-  <div data-slot="description" class="katex-target">Special relativity made physical. A rod-train moves at speed $\beta = v/c$ and is Lorentz-contracted to $L_0/\gamma$ against its dashed rest length, while two twin clocks tick: on the round trip the travelling twin returns having aged only $2L/(\gamma\beta)$ against the stay-home $2L/\beta$. The side panel is the Minkowski diagram with the 45-degree light cone, the boosted lines of simultaneity (slope $\beta$), and the twin worldline. The spacetime interval $s^2 = t^2 - x^2$ is invariant under every boost.</div>
+  <div data-slot="description" class="katex-target">Special relativity made physical. A rod-train moves at speed $\beta = v/c$ and is Lorentz-contracted to $L_0/\gamma$ against its dashed rest length, while two twin clocks tick: on the round trip the travelling twin returns having aged only $2L/(\gamma\beta)$ against the stay-home $2L/\beta$. The Minkowski diagram shows the trip in spacetime with the light cone, the home worldline (vertical), and the traveller worldline (tilted by $1/\beta$); a button toggles the boosted simultaneity grid. The spacetime interval $s^2 = (ct)^2 - x^2$ is invariant under every boost.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="900" height="700"></canvas>
+  <canvas id="stage" width="1200" height="680"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Lorentz contraction, the twin clocks, and the Minkowski diagram. Source: Taylor and Wheeler, Spacetime Physics, 2nd ed., Ch. 3-4 (`taylor-wheeler`).</figcaption>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Lorentz contraction, the desynchronising twin clocks, the contraction ratio, the Minkowski worldlines, and a textual reading. Source: Taylor and Wheeler, Spacetime Physics, 2nd ed., Ch. 3, 4 (`taylor-wheeler`).</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
