@@ -54,15 +54,84 @@ you dial the ingredients.
 - Click a far galaxy and watch its light arrive reddened; the redshift
   readout is exactly $a_{\rm now}/a_{\rm emit}-1$.
 
-### The equation (collapsible)
+### The Friedmann equation
 
-$$\left(\frac{\dot a}{a}\right)^2 = H_0^2\!\left[\Omega_r a^{-4}
-  +\Omega_m a^{-3}+\Omega_\Lambda+\Omega_k a^{-2}\right],\quad
-  \Omega_k = 1-\Omega_r-\Omega_m-\Omega_\Lambda,$$
+The Friedmann equation is what you get when you put a homogeneous,
+isotropic fluid into Einstein's equations. With the scale factor
+$a(t)$ describing how all proper distances stretch ($a = 1$ today by
+convention), it reads
 
-with $a$ the scale factor ($a=1$ today), $H_0$ today's Hubble rate,
-$\Omega_x$ the present density of component $x$ in critical units.
-Hubble's law $v=H d$; redshift $1+z=a_{\rm obs}/a_{\rm emit}$.
+$$\boxed{\;\left(\frac{\dot a}{a}\right)^2 = H_0^2\!\left[\Omega_r\,a^{-4}
+  + \Omega_m\,a^{-3} + \Omega_\Lambda + \Omega_k\,a^{-2}\right],\;}$$
+
+with the curvature density fixed by closure:
+
+$$\Omega_k = 1 - \Omega_r - \Omega_m - \Omega_\Lambda.$$
+
+Each term has a different $a$ dependence because each component
+dilutes differently as space grows:
+
+- $\Omega_r\,a^{-4}$, radiation. Photons dilute as $a^{-3}$ in number
+  density AND lose energy by $a^{-1}$ from redshift, so the energy
+  density goes as $a^{-4}$.
+- $\Omega_m\,a^{-3}$, non-relativistic matter (dark + baryonic).
+  Number density dilutes as $a^{-3}$, energy per particle is the
+  rest mass and does not redshift, so $\rho_m \propto a^{-3}$.
+- $\Omega_\Lambda$, vacuum / cosmological constant. Energy per unit
+  volume of the vacuum is, by hypothesis, a constant; it gains
+  total energy as space grows (this is what drives acceleration).
+- $\Omega_k\,a^{-2}$, spatial curvature. Not a physical substance;
+  it is the geometry of the spatial slices ($\Omega_k > 0$ open,
+  $\Omega_k < 0$ closed, $\Omega_k = 0$ flat).
+
+The sum of the four equals one today by the definition of $H_0$ and
+the critical density $\rho_{\rm crit} = 3 H_0^2 / (8 \pi G)$.
+
+### Three observables it predicts
+
+- Hubble's law (low redshift): $v = H_0\,d$ for proper distance $d$;
+  the deviation from a straight line at higher redshift measures
+  $q_0 = \frac{1}{2}\Omega_m + \Omega_r - \Omega_\Lambda$
+  (deceleration parameter; our universe has $q_0 < 0$, i.e.
+  accelerating).
+- Cosmological redshift: light emitted at scale factor
+  $a_{\rm emit}$ and observed today at $a_{\rm obs} = 1$ has
+
+$$1 + z = \frac{a_{\rm obs}}{a_{\rm emit}}.$$
+
+  A photon emitted at $a = 0.1$ is observed today with wavelength
+  ten times longer.
+- Age of the universe: $t_0 = \int_0^1 da / (a\,H(a))$ depends on
+  the same density mix.
+
+### Symbols, at a glance
+
+- $a$, scale factor; $a(t_0) = 1$ today.
+- $\dot a \equiv da/dt$; the Hubble parameter is $H(t) = \dot a / a$.
+- $H_0 = H(t_0)$, today's Hubble rate (about $67 \mathrm{\,km/s/Mpc}$).
+- $\Omega_x$, present-day density of component $x$ in units of the
+  critical density. Our universe is roughly $(\Omega_r, \Omega_m,
+  \Omega_\Lambda) \approx (5 \times 10^{-5}, 0.31, 0.69)$.
+- $z$, cosmological redshift; $a_{\rm emit}$ the scale factor when
+  the photon left the source.
+- $\rho_{\rm crit} = 3 H_0^2 / (8 \pi G) \approx 9.5 \times 10^{-27}
+  \mathrm{\,kg/m^3}$, the density that just closes the universe with
+  flat spatial geometry.
+
+### Bibliographic origin
+
+The Friedmann equation was first written down by Alexander Friedmann
+in *Zeitschrift fuer Physik* **10** (1922) 377 (his elegant
+classification of expansion possibilities predates Hubble's
+observational discovery by seven years). The independent matter
+analog is Lemaitre, *Ann. Soc. Sci. Bruxelles* **47** (1927) 49.
+The modern cosmological-constant data is best summarised in
+Planck Collaboration, *A&A* **641** (2020) A6, and the discovery
+of accelerated expansion via type Ia supernovae is Riess et al.
+*Astron. J.* **116** (1998) 1009 and Perlmutter et al. *Astrophys. J.*
+**517** (1999) 565 (2011 Nobel Prize). Textbook treatments: Weinberg,
+*Cosmology* (Oxford 2008), Ch. 1, 2; Dodelson and Schmidt, *Modern
+Cosmology* (2nd ed., Academic 2020), Ch. 2.
 
 ## Physical setup
 
