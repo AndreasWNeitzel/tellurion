@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Two coils at exactly one radius apart make a pocket of perfectly uniform field. Drag them apart and watch it collapse.'
-one_paragraph: 'The magnetic field of arbitrary current loops computed directly from the Biot-Savart law and shown as a 3D lattice of arrow glyphs coloured by |B| with traced field lines and an on-axis Bz profile. Presets give the straight wire, circular loop, Helmholtz coils and a solenoid; current and coil radius are sliders; drag to orbit. The headless sim.js is gate-tested against the analytic closed forms.'
+one_paragraph: 'The magnetic field of arbitrary current loops computed directly from the Biot-Savart law and shown as a 3D lattice of arrow glyphs coloured by |B| with traced field lines and an on-axis Bz profile. Presets give the straight wire (B falling as 1/r), the single circular loop, a Helmholtz pair (the central region where the field is most uniform), and a solenoid (a nearly uniform interior with return flux outside); current and coil radius are sliders and you drag to orbit. Reference: Griffiths, Introduction to Electrodynamics, Chapter 5.'
 tags: [electromagnetism, 3d, field-visualization, animation]
 difficulty: 3
 tier: advanced

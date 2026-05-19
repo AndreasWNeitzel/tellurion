@@ -355,14 +355,14 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Interactive Laplace Solver: Draw Your Own Conductors
 `playgrounds/bsc-y1s2/FIS1014-laplace-solver-2d-interactive` | FIS1004 | SHIPPED | swept | HERO-CANDIDATE | tier:advanced
 
-- What it does / physics / visuals: A live successive-over-relaxation solver for Laplace''s equation. The primary canvas is the potential field itself, a diverging RdBu image with electric-field streamlines; drag to paint conductors, choose presets (parallel plates, coaxial cable, dipole, charged sphere), set the voltage, and switch between potential, |E| and equipotential views. The headless sim.js runs the same scheme and is gate-tested against the analytic capacitor and coaxial limits.
+- What it does / physics / visuals: In a charge-free region the electrostatic potential obeys Laplace''s equation, del^2 V = 0, which has the smoothing property that V at any point is the average of its neighbours and can have no interior maximum or minimum. The primary canvas is the potential field itself with electric-field streamlines; you drag to paint conductors, pick presets (parallel plates, coaxial cable, dipole, charged sphere), set the voltage, and switch between the potential, the field magnitude |E|, and equipotential views. Watching the solution relax shows the potential settling into the unique configuration fixed by the conductor boundaries, with E always perpendicular to them. Reference: Griffiths, Introduction to Electrodynamics, Chapter 3.
 - Hook: Paint a conductor with the mouse and watch the electrostatic field find its own shape in about a second.
 - Review verdict: [deep] CLEAN (deep audit passed)
 
 ### Magnetic Hysteresis: Domains and the B-H Loop
 `playgrounds/bsc-y1s2/FIS1014-magnetic-hysteresis-bh-curve` | FIS1004 | SHIPPED | swept | tier:medium
 
-- What it does / physics / visuals: A Jiles-Atherton hysteresis model driven by an oscillating field. The primary scene is a lattice of magnetic domains that flip toward the field but lag it; the secondary panel traces the B-H loop with a glowing pen and shades the per-cycle energy loss. Soft iron, hard steel and ferrite presets, with coercivity, saturation and drive sliders. The headless sim.js is gate-tested for remanence, coercivity and the soft-vs-hard ordering.
+- What it does / physics / visuals: A ferromagnet driven by an oscillating applied field H, modelled with the Jiles-Atherton description of domain-wall motion. Because the magnetic domains flip toward the field but lag it (domain walls pin and unpin irreversibly), the magnetization B is not a single-valued function of H but traces a closed hysteresis loop. The scene shows a lattice of domains reorienting while the side panel draws the B-H loop and shades its enclosed area, which equals the energy dissipated as heat per cycle. Soft iron gives a thin lossy-but-easily-switched loop, hard steel a wide loop with large remanence and coercivity (a permanent magnet), and ferrite an intermediate case; sliders set coercivity, saturation and drive amplitude. Reference: Jiles, Introduction to Magnetism and Magnetic Materials, Chapters 7 to 8.
 - Hook: The domains do not just follow the field, they remember where they have been. That memory is the area inside the loop.
 - Review verdict: [deep] CLEAN (subject to visual/invariant gates)
 
@@ -376,14 +376,14 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Multipole Expansion: Exact vs Truncated Potential
 `playgrounds/bsc-y1s2/FIS1014-multipole-expansion-3d` | FIS1004 | SHIPPED | swept | tier:medium
 
-- What it does / physics / visuals: The exact electrostatic potential of a charge cluster, its multipole expansion truncated at a chosen order, and the error between them, shown as three field maps. The error blows up near the charges and collapses far away, and each extra term tightens it; a sweeping probe traces the relative error against distance. Exact and multipole come from the headless sim.js.
+- What it does / physics / visuals: Far from a localized charge cluster the potential can be expanded in inverse powers of distance, V(r) = (1/4 pi eps0)[q/r + p.rhat/r^2 + quadrupole/r^3 + ...], the multipole expansion: a far observer sees first the net charge, then the dipole, then finer structure. The three field maps show the exact potential, the expansion truncated at a chosen order, and their difference. The error is large near the charges (where the expansion does not converge) and falls off rapidly with distance, and each extra term tightens it further out; a sweeping probe traces the relative error against distance so the 1/r, 1/r^2, 1/r^3 hierarchy is explicit. Reference: Griffiths, Introduction to Electrodynamics, Chapter 3; Jackson, Classical Electrodynamics, Chapter 4.
 - Hook: Far away, even a messy charge cluster looks like one number. The error map shows exactly how far away "far" has to be.
 - Review verdict: [deep] CLEAN (subject to visual/invariant gates)
 
 ### Poynting Vector: a Plane EM Wave in 3D
 `playgrounds/bsc-y1s2/FIS1014-poynting-vector-wave-3d` | FIS1004 | SHIPPED | swept | HERO-CANDIDATE | tier:advanced
 
-- What it does / physics / visuals: A plane electromagnetic wave in a 3D oblique-projected scene: the E (red/blue) and B (orange) field ribbons oscillate in perpendicular planes, white Poynting arrows carry the energy along the propagation axis, and ghost wavefront planes move at c. Linear, circular (the E tip traces a helix), elliptical and standing-wave modes; drag to orbit. The exact closed-form fields are gate-tested in the headless sim.js.
+- What it does / physics / visuals: A plane electromagnetic wave shown in 3D: the electric field E (red/blue) and magnetic field B (orange) oscillate in phase, perpendicular to each other and to the direction of travel, with |E| = c|B|. The white arrows are the Poynting vector S = E x B / mu0, which points along the propagation axis and carries the wave''s energy at speed c, and ghost wavefront planes march forward at c. Switching modes shows linear polarization, circular (the E tip traces a helix), elliptical, and a standing wave formed by two counter-propagating waves with fixed nodes; drag to orbit and see the field geometry from any angle. Reference: Griffiths, Introduction to Electrodynamics, Chapter 9.
 - Hook: E and B are not just out of phase by ninety degrees in time, they live in perpendicular planes, and their cross product is exactly where the energy goes.
 - Review verdict: [deep] CLEAN (subject to visual/invariant gates)
 
