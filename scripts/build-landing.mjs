@@ -217,7 +217,14 @@ body{max-width:1280px;margin:0 auto;padding:0 24px 64px;background:transparent;c
   overflow:hidden;transition:background 150ms ease,border-color 150ms ease,transform 150ms ease,box-shadow 150ms ease}
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tagc);border-radius:3px 0 0 3px;z-index:2}
 .card:hover{background:var(--bg-card-hover);border-color:var(--border-subtle);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
-.cimg{position:relative;height:120px;background:var(--bg-card) center/cover no-repeat;overflow:hidden}
+.cimg{position:relative;height:120px;background:var(--bg-card) center/cover no-repeat;overflow:hidden;transition:transform 300ms ease}
+.card:hover .cimg{transform:scale(1.04)}
+/* D1 staggered entry, D2 filter transition, D4 featured entrance */
+.card.preanim{opacity:0;transform:translateY(12px)}
+.card.inview{opacity:1;transform:translateY(0);transition:opacity 400ms ease-out,transform 400ms ease-out}
+.card.fhide{opacity:0!important;transform:scale(0.97)!important;transition:opacity 200ms ease,transform 200ms ease}
+.heroes .card-f.fpre{opacity:0;transform:translateX(-10px)}
+.heroes .card-f.fin{opacity:1;transform:translateX(0);transition:opacity 500ms ease-out,transform 500ms ease-out}
 .cimg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,9,15,0.2) 0%,rgba(7,9,15,0.6) 70%,rgba(7,9,15,0.95) 100%)}
 .cph{position:absolute;left:30%;top:36%;width:40%;height:28%;background:#fff;opacity:0.07}
 .lvl{position:absolute;top:8px;right:8px;z-index:3;font-family:var(--f-mono);font-size:10px;font-weight:500;
@@ -266,7 +273,7 @@ footer a{color:var(--text-secondary);text-decoration:none}
 
 <div class="header">
   <h1 class="site-title">Playgrounds Portfolio</h1>
-  <p>${cards.length} interactive simulations across physics, astronomy, statistical mechanics, and machine learning, aligned to the University of Porto BSc in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
+  <p><span id="statn" data-target="${cards.length}">${cards.length}</span> interactive simulations across physics, astronomy, statistical mechanics, and machine learning, aligned to the University of Porto BSc in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
 </div>
 
 <section>
@@ -303,6 +310,9 @@ footer a{color:var(--text-secondary);text-decoration:none}
   var chips=[].slice.call(document.querySelectorAll('.chip'));
   var cards=[].slice.call(grid.querySelectorAll('.card'));
   var active={};
+  // D1: hide cards before first paint (JS-only) so the staggered
+  // entry has no visible -> hidden flash. No-JS users see them.
+  if(!reduce && 'IntersectionObserver' in window){ cards.forEach(function(c){ c.classList.add('preanim'); }); }
 
   // All sound goes through the shared AudioSystem (shared/js/audio.js,
   // loaded as a module above and exposed as window.__audio). It owns
@@ -395,6 +405,46 @@ footer a{color:var(--text-secondary);text-decoration:none}
     });
   });
   render();
+
+  // D1: staggered card entry. Cards start hidden (.preanim, JS-only so
+  // no-JS still shows them) and fade+rise in when scrolled into view,
+  // staggered by index*35ms (cap 400ms). D2: on filter change shown
+  // cards re-fade via .inview; hide stays instant to avoid reflow jank.
+  if(!reduce && 'IntersectionObserver' in window){
+    var seen=new WeakSet(), b=0, lastT=0;
+    var eio=new IntersectionObserver(function(ents){
+      var now=performance.now(); if(now-lastT>120)b=0; lastT=now;
+      ents.forEach(function(en){
+        if(!en.isIntersecting)return;
+        var c=en.target; if(seen.has(c))return; seen.add(c); eio.unobserve(c);
+        var d=Math.min(400,(b++)*35);
+        setTimeout(function(){ c.classList.remove('preanim'); c.classList.add('inview'); },d);
+      });
+    },{threshold:0.1});
+    cards.forEach(function(c){ eio.observe(c); });
+  } else { cards.forEach(function(c){ c.classList.add('inview'); }); }
+
+  // D4: featured row enters once per session, left to right.
+  try{
+    var fseen=sessionStorage.getItem('pg:fseen');
+    var fcards=[].slice.call(document.querySelectorAll('.heroes .card-f'));
+    if(!reduce && !fseen && fcards.length){
+      fcards.forEach(function(f,i){ f.classList.add('fpre');
+        setTimeout(function(){ f.classList.add('fin'); f.classList.remove('fpre'); },120*i); });
+      sessionStorage.setItem('pg:fseen','1');
+    }
+  }catch(e){}
+
+  // D5: stat counter 0 -> N over 1200ms ease-out, integer only.
+  var stn=document.getElementById('statn');
+  if(stn && !reduce){
+    var target=parseInt(stn.getAttribute('data-target'),10)||0, t0=0;
+    var step=function(ts){ if(!t0)t0=ts; var k=Math.min(1,(ts-t0)/1200);
+      var e=1-Math.pow(1-k,3);
+      stn.textContent=String(Math.round(target*e));
+      if(k<1)requestAnimationFrame(step); };
+    stn.textContent='0'; requestAnimationFrame(step);
+  }
 
   // Lazy-load category thumbnails (Section 5). Until the files exist
   // in assets/thumbs/ every card keeps the white-box placeholder; a
