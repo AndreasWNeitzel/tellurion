@@ -22,6 +22,20 @@ export function viridis(t) { return sampleLUT(VIRIDIS_LUT, t); }
 export function cividis(t) { return sampleLUT(CIVIDIS_LUT, t); }
 export function rdbu(t)    { return sampleLUT(RDBU_R_LUT, t); }
 
+// Diverging map with BLACK at the zero point (t = 0.5): quiescent
+// medium is black, negative amplitude goes cool blue, positive goes
+// warm orange. The standard choice for wave fields on the dark
+// theme (a white midpoint washes the page out). gamma < 1 keeps
+// small amplitudes near-black so only real structure lights up.
+export function divBlack(t) {
+  const d = Math.max(-1, Math.min(1, (t - 0.5) * 2));
+  const m = Math.pow(Math.abs(d), 0.8);
+  if (d < 0) {
+    return { r: Math.round(20 * m), g: Math.round(120 * m), b: Math.round(255 * m) };
+  }
+  return { r: Math.round(255 * m), g: Math.round(110 * m + 40 * m * m), b: Math.round(30 * m) };
+}
+
 // Write a scalar field into ImageData using a chosen colormap.
 // field: Float32Array or Float64Array of length width*height
 // vmin, vmax: scaling
@@ -42,4 +56,4 @@ export function fieldToImageData(field, width, height, vmin, vmax, cmap = viridi
   return imageData;
 }
 
-export const COLORMAPS = { viridis, cividis, rdbu };
+export const COLORMAPS = { viridis, cividis, rdbu, divBlack };

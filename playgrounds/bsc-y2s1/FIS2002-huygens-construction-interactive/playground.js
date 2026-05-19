@@ -7,7 +7,7 @@
 // ed.), Sec. 10.1-10.2.
 
 import { sourcesLine, sourcesArc, fieldAt, farFieldAmplitude, apertureAmplitude } from './sim.js';
-import { rdbu, fieldToImageData } from '../../../shared/js/render/colormaps.js';
+import { divBlack, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -69,7 +69,7 @@ function render() {
   }
   const uref = 0.55 * maxAbs;
   for (let i = 0; i < GN * GN; i += 1) disp[i] = Math.tanh(disp[i] / uref);
-  imgData = fieldToImageData(disp, GN, GN, -1, 1, rdbu, imgData);
+  imgData = fieldToImageData(disp, GN, GN, -1, 1, divBlack, imgData);
   offCtx.putImageData(imgData, 0, 0);
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(off, FX, FY, FPX, FPX);
