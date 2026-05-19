@@ -49,3 +49,34 @@ export function laplaceReal(s, fn, params) {
   }
   return 0;
 }
+
+// Laplace transform at complex s = sx + i sy, returning { re, im }.
+// Same closed forms as above, evaluated with complex arithmetic so the
+// whole s-plane (the analytic landscape and its poles) can be drawn,
+// not just the positive real axis. On the imaginary axis (sx = 0) this
+// reduces to the Fourier transform.
+export function laplaceComplex(sx, sy, fn, params) {
+  const div = (ar, ai, br, bi) => {
+    const d = br * br + bi * bi || 1e-30;
+    return { re: (ar * br + ai * bi) / d, im: (ai * br - ar * bi) / d };
+  };
+  if (fn === 'exp') {
+    return div(1, 0, sx + params.a, sy);                 // 1 / (s + a)
+  }
+  if (fn === 'cos') {
+    const wx = sx + params.decay, wy = sy;               // w = s + decay
+    const w2r = wx * wx - wy * wy, w2i = 2 * wx * wy;     // w^2
+    return div(wx, wy, w2r + params.omega0 * params.omega0, w2i); // w / (w^2 + w0^2)
+  }
+  if (fn === 'ramp') {
+    const wx = sx + params.decay, wy = sy;
+    const w2r = wx * wx - wy * wy, w2i = 2 * wx * wy;
+    return div(1, 0, w2r, w2i);                          // 1 / (s + decay)^2
+  }
+  if (fn === 'rect') {
+    const ex = Math.exp(-sx * params.T);
+    const er = ex * Math.cos(sy * params.T), ei = -ex * Math.sin(sy * params.T);
+    return div(1 - er, -ei, sx, sy);                     // (1 - e^{-sT}) / s
+  }
+  return { re: 0, im: 0 };
+}

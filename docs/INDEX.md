@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fourier vs Laplace Transform Pairs](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (verified, verified 2026-05-19T10:26:01Z)
+  Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15 (`arfken-weber`).
+
 - **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (verified, verified 2026-05-19T09:53:15Z)
   Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12 (`ashcroft-mermin`).
 
@@ -40,9 +43,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Schwarzschild Light Bending](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/index.html)** &nbsp; (verified, verified 2026-05-19T04:39:34Z)
   Fire a sheet of light rays past a black hole. Rays that pass far away bend slightly; rays that come in close swing around; and rays inside a critical aim are swallowed. Right at the boundary, light can loop the hole many times before escaping, the origin of the bright photon ring in black-hole images.
-
-- **[Fourier vs Laplace Transform Pairs](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (verified, verified 2026-05-19T04:36:48Z)
-  Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15 (`arfken-weber`).
 
 - **[Crystal Structure Explorer](../playgrounds/bsc-y3s2/FIS3005-crystal-structure-3d-explorer/index.html)** &nbsp; (verified, verified 2026-05-19T04:30:24Z)
   A crystal is a lattice plus a basis. The playground builds the cubic lattices (simple, body-centered, face-centered), lets you slice them with any Miller plane, and shows which X-ray reflections are allowed. This is how the atomic arrangement of a solid is actually determined.
