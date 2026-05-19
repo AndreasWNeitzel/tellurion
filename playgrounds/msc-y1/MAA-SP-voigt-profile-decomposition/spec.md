@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: carroll-ostlie
 primary_chapter: 9
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A spectral line is never infinitely thin: thermal motion gives it a Gaussian core, finite level lifetimes and collisions give heavy Lorentzian wings, and the observed line is their convolution.'
+one_paragraph: 'Doppler broadening from the Maxwellian velocity distribution produces a Gaussian profile phi_G of width set by the thermal speed, while natural (radiative) and collisional (pressure) broadening produce a Lorentzian phi_L of width set by the damping constant. The true line shape is their convolution, the Voigt profile phi_V = phi_G * phi_L, whose dimensionless damping parameter a = Gamma / (4 pi Delta nu_D) controls the blend: small a is nearly Gaussian (Doppler core dominates), large a develops the strong Lorentzian wings that build the damping part of the curve of growth. The playground overlays the Gaussian, the Lorentzian and their Voigt convolution and lets you sweep temperature and pressure to watch the core-to-wing transition. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Chapter 9.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
