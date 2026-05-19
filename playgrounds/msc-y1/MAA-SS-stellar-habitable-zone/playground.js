@@ -1,10 +1,11 @@
 // Stellar habitable zone: planet equilibrium temperature vs orbital radius.
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { luminosity, Teq as simTeq, radiusAtT } from './sim.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
@@ -15,13 +16,8 @@ const controlsEl   = document.getElementById('controls');
 const W = canvas.width, H = canvas.height;
 const state = { Teff: 5778, Rstar: 1.0, A: 0.3, a_AU: 1.0 };
 
-// L = 4 pi R^2 sigma T^4, in solar units L = R^2 (T/T_sun)^4.
-function Lstar() { return state.Rstar * state.Rstar * Math.pow(state.Teff / 5778, 4); }
-function Teq(a_AU) {
-  // T_eq = T_sun (1 - A)^0.25 / sqrt(2 a / R_sun) * sqrt(R_star / R_sun)
-  // Approx for a in AU: T_eq = T_sun (L)^0.25 * (1 - A)^0.25 / sqrt(a)
-  return 278 * Math.pow(Lstar(), 0.25) * Math.pow(1 - state.A, 0.25) / Math.sqrt(a_AU);
-}
+function Lstar() { return luminosity(state.Teff, state.Rstar); }
+function Teq(a_AU) { return simTeq(a_AU, state.Teff, state.Rstar, state.A); }
 
 function render() {
   ctx.fillStyle = '#0E0E13';
@@ -44,9 +40,7 @@ function render() {
   ctx.beginPath(); ctx.arc(sx, sy, sr, 0, 2 * Math.PI); ctx.fill();
 
   // HZ band: T_inner ~ 273 K, T_outer ~ 200 K.
-  function rFromT(T) {
-    return Math.pow(278 * Math.pow(Lstar(), 0.25) * Math.pow(1 - state.A, 0.25) / T, 2);
-  }
+  const rFromT = (T) => radiusAtT(T, state.Teff, state.Rstar, state.A);
   const r_in  = rFromT(273);
   const r_out = rFromT(200);
   const scaleX = (W - 160) / Math.max(r_out * 1.4, 1);
@@ -92,6 +86,14 @@ function buildControls() {
 }
 
 buildControls();
+if (CAPTURE_NAME && DETERMINISTIC) {
+  // Move the planet outward across the habitable zone so the five
+  // frames go from too-hot (close in), through habitable, to too-cold.
+  const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+  state.a_AU = 0.30 + frac * 2.70;
+  const aInp = document.getElementById('a');
+  if (aInp) { aInp.value = String(state.a_AU); const v = aInp.parentElement && aInp.parentElement.querySelector('.value'); if (v) v.textContent = state.a_AU.toFixed(2); }
+}
 render();
 if (DETERMINISTIC) {
   window.__simulationReady = true;
