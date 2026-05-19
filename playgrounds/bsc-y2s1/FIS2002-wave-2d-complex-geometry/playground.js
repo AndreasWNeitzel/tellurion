@@ -8,7 +8,7 @@
 // Hecht, Optics (5th ed.), Ch. 10.
 
 import { buildScene, stepScene, cflDt, PRESETS, energy } from './sim.js';
-import { fieldToImageData, rdbu } from '../../../shared/js/render/colormaps.js';
+import { fieldToImageData, divBlack } from '../../../shared/js/render/colormaps.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -62,7 +62,7 @@ function render() {
   // diffracted/transmitted field without clipping the strong near
   // field, so the pattern past the wall is visible.
   for (let i = 0; i < N * N; i += 1) disp[i] = Math.tanh(u[i] / USCALE);
-  imgData = fieldToImageData(disp, N, N, -1, 1, rdbu, imgData);
+  imgData = fieldToImageData(disp, N, N, -1, 1, divBlack, imgData);
   const px = imgData.data;
   for (let i = 0; i < N * N; i += 1) if (bar[i]) { const j = i * 4; px[j] = 14; px[j + 1] = 16; px[j + 2] = 22; }
   offCtx.putImageData(imgData, 0, 0);
@@ -143,8 +143,12 @@ function tick(now) {
   const dr = Math.min((now - lastT) / 1000, 0.05); lastT = now;
   if (st.running) {
     acc += dr;
-    while (acc > 1 / 60 && st.nstep < HORIZON) { scene.drive(phase, 0.7); phase += scene.omega * DT; stepScene(scene, C, st.gamma, DT); simT += DT; st.nstep += 1; acc -= 1 / 60; }
-    if (st.nstep >= HORIZON) acc = 0;
+    // Keep driving indefinitely: the source-driven field settles into
+    // a steady oscillation and stays alive. It used to stop at
+    // HORIZON, which read as the animation randomly halting.
+    let budget = 4;
+    while (acc > 1 / 60 && budget-- > 0) { scene.drive(phase, 0.7); phase += scene.omega * DT; stepScene(scene, C, st.gamma, DT); simT += DT; st.nstep += 1; acc -= 1 / 60; }
+    if (acc > 0.1) acc = 0;
   }
   render(); requestAnimationFrame(tick);
 }

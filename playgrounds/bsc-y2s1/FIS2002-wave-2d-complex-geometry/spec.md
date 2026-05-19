@@ -1,5 +1,5 @@
 ---
-title: 2D Waves in a Drawable Geometry
+title: "2D Wave Diffraction: Slits and Obstacles"
 slug: wave-2d-complex-geometry
 status: verified
 audience: portfolio

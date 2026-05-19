@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-slot="title">2D Waves in a Drawable Geometry</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-slot="title">2D Wave Diffraction: Slits and Obstacles</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
@@ -19,13 +19,13 @@
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
-  <h1 data-slot="title">2D Waves in a Drawable Geometry</h1>
+  <h1 data-slot="title">2D Wave Diffraction: Slits and Obstacles</h1>
   <div data-slot="description" class="katex-target">The scalar wave equation $\partial_{tt}u = c^2\nabla^2 u - \gamma\,\partial_t u$ solved by an explicit leapfrog scheme with rigid walls and an absorbing sponge. A free point source makes a circular wavefront; a single slit diffracts; two slits interfere with a central maximum on the axis; an obstacle casts a shadow that the wave bends into. The side panel reads the screen intensity along the dashed far column. The numerics are the shared wave engine; the time step satisfies the 2D CFL bound $c\,\Delta t \lt \Delta x/\sqrt{2}$.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="880" height="600"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. 2D wave field in a drawable geometry with absorbing edges; screen-intensity side panel. Source: Crawford, Waves (Berkeley Physics Course Vol. 3), Ch. 7 (`crawford-waves`).</figcaption>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. 2D wave field with rigid walls, slits and obstacles and absorbing edges; screen-intensity side panel. Source: Crawford, Waves (Berkeley Physics Course Vol. 3), Ch. 7 (`crawford-waves`).</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
