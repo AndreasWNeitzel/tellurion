@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-ST
 supporting_ucs: [MAA-DM]
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The KL divergence is not symmetric: fitting a simple Gaussian to a two-bump target one way covers both bumps, the other way collapses onto one, and the two answers are qualitatively opposite.'
+one_paragraph: 'The Kullback-Leibler divergence KL(P || Q) = integral P log(P/Q) is the expected extra code length from using Q when the truth is P; it is non-negative, zero only when P = Q, and asymmetric. Fitting an approximating Q to a bimodal target P by minimizing the forward KL(P || Q) is mass-covering (zero-avoiding): Q is penalized wherever P has mass but Q does not, so it spreads to span both modes. Minimizing the reverse KL(Q || P) is mode-seeking (zero-forcing): Q is penalized for mass where P is small, so it collapses onto a single mode and underestimates variance, which is exactly why variational inference is mode-seeking. The playground fits one Gaussian to a two-bump target both ways and shows the opposite outcomes side by side. Reference: Cover and Thomas, Elements of Information Theory, Chapter 2; Bishop, Pattern Recognition and Machine Learning, Chapter 10.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
