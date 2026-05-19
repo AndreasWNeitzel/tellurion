@@ -243,7 +243,11 @@ footer a{color:var(--text-secondary);text-decoration:none}
 .page-transition{position:fixed;inset:0;background:var(--bg-void);opacity:0;
   pointer-events:none;z-index:9000;transition:opacity 200ms ease}
 .page-transition.show{opacity:1}
-.card.sel{transform:scale(1.02);opacity:0;transition:transform 200ms ease,opacity 200ms ease;z-index:5}
+.card.sel{transform:scale(1.03);opacity:0;transition:transform 200ms ease,opacity 200ms ease;z-index:5}
+.card.justback{border-color:var(--border-active)!important;transition:border-color 200ms ease}
+.pgprog{position:fixed;top:0;left:0;height:1px;width:0;background:var(--accent);
+  z-index:9999;opacity:0;transition:width 600ms linear,opacity 200ms ease}
+.pgprog.run{opacity:1}
 .content-fade{opacity:1;transition:opacity 200ms ease}
 .content-fade.out{opacity:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
@@ -252,9 +256,12 @@ footer a{color:var(--text-secondary);text-decoration:none}
 </head>
 <body>
 <div class="page-transition show" id="ptrans" aria-hidden="true"></div>
+<div class="pgprog" id="pgprog" aria-hidden="true"></div>
 <script type="module">
   import { mountStarField } from './shared/js/starfield.js';
+  import { getAudioSystem } from './shared/js/audio.js';
   mountStarField();
+  window.__audio = getAudioSystem();
 </script>
 
 <div class="header">
@@ -297,31 +304,12 @@ footer a{color:var(--text-secondary);text-decoration:none}
   var cards=[].slice.call(grid.querySelectorAll('.card'));
   var active={};
 
-  var actx=null;
-  var noAudio=reduce||('ontouchstart' in window);          // no sound on mobile / reduced motion
-  function initA(){ if(actx||noAudio)return; try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){actx=null;} }
-  if(!noAudio){
-    window.addEventListener('pointerdown',initA);
-    window.addEventListener('keydown',initA);
-    window.addEventListener('mousemove',initA,{once:true});
-  }
-  function ping(){
-    if(noAudio)return;
-    if(!actx){ initA(); if(!actx)return; }
-    try{
-      if(actx.state==='suspended'||actx.state==='interrupted'){ actx.resume(); }
-      var n=actx.currentTime;
-      var o=actx.createOscillator(),g=actx.createGain();
-      o.type='sine';
-      o.frequency.setValueAtTime(880,n);
-      g.gain.setValueAtTime(0,n);
-      g.gain.linearRampToValueAtTime(0.035,n+0.005);
-      g.gain.exponentialRampToValueAtTime(0.0001,n+0.08);
-      o.connect(g); g.connect(actx.destination);
-      o.start(n); o.stop(n+0.08);
-      o.onended=function(){ try{o.disconnect();g.disconnect();}catch(e){} };
-    }catch(e){}
-  }
+  // All sound goes through the shared AudioSystem (shared/js/audio.js,
+  // loaded as a module above and exposed as window.__audio). It owns
+  // the mobile / reduced-motion / no-Web-Audio guards and the 30ms
+  // chaos guard, so these are thin call-throughs.
+  function aud(){ return window.__audio || null; }
+  function ping(){ var a=aud(); if(a)a.hoverCard(); }
 
   function visible(c){
     var q=input.value.toLowerCase();
@@ -368,24 +356,42 @@ footer a{color:var(--text-secondary);text-decoration:none}
   chips.forEach(function(ch){
     ch.addEventListener('mouseenter',ping);
     ch.addEventListener('click',function(){
+      var on=!ch.classList.contains('active');
       ch.classList.toggle('active');
       if(active[ch.dataset.tag])delete active[ch.dataset.tag]; else active[ch.dataset.tag]=1;
+      var a=aud(); if(a){ on?a.filterActivate():a.filterDeactivate(); }
       render();
     });
   });
   clearBtn.addEventListener('click',function(){ active={}; chips.forEach(function(c){c.classList.remove('active');}); render(); });
   var ptrans=document.getElementById('ptrans');
+  var pgprog=document.getElementById('pgprog');
   // Fade the overlay out on arrival (landing fades in). Reduced motion
   // hides the overlay via CSS, so this is a no-op there.
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ if(ptrans)ptrans.classList.remove('show'); }); });
+  // B2: a just-returned card briefly brightens its border.
+  try{
+    var lastSel=sessionStorage.getItem('pg:lastSel');
+    if(lastSel){ sessionStorage.removeItem('pg:lastSel');
+      var jb=cards.filter(function(c){return c.getAttribute('href')===lastSel;})[0];
+      if(jb&&!reduce){ setTimeout(function(){ jb.classList.add('justback');
+        setTimeout(function(){ jb.classList.remove('justback'); },800); },400); }
+    }
+  }catch(e){}
   cards.forEach(function(c){
     c.addEventListener('mouseenter',ping);
     c.addEventListener('click',function(e){
-      if(reduce)return;
-      e.preventDefault(); var href=c.getAttribute('href');
-      c.classList.add('sel');                       // clicked card scales + fades
-      if(ptrans)ptrans.classList.add('show');        // rest fades to void
-      setTimeout(function(){ location.href=href; },230);
+      var href=c.getAttribute('href');
+      if(reduce)return;                               // instant nav, no transition
+      e.preventDefault();
+      var a=aud(); if(a)a.selectPlayground();          // B1 select woosh
+      if(window.__starfield)window.__starfield.accelerate('in');
+      c.classList.add('sel');                          // clicked card scales 1.03 + fades
+      if(ptrans)ptrans.classList.add('show');          // rest fades to void
+      try{ sessionStorage.setItem('pg:lastSel',href); }catch(er){}
+      if(pgprog){ pgprog.classList.add('run');
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ pgprog.style.width='100%'; }); }); }
+      setTimeout(function(){ location.href=href; },650);   // min 600ms progress
     });
   });
   render();

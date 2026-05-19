@@ -12,6 +12,7 @@
 // module once.
 
 import { mountStarField } from './starfield.js';
+import { getAudioSystem } from './audio.js';
 
 const FENCE = '-'.repeat(3);
 
@@ -267,7 +268,7 @@ function mountChrome() {
     '::-webkit-scrollbar-thumb:hover{background:var(--border-active)}',
     'body{position:relative;z-index:0}',
     '#ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}',
-    'body{opacity:1;transition:opacity .3s ease}body.pg-leaving{opacity:0}',
+    'body{opacity:1;transform:translateY(0);transition:opacity .3s ease,transform .3s ease}body.pg-leaving{opacity:0;transform:translateY(6px)}',
     '@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}',
     '.pg-back{position:fixed;top:20px;left:20px;z-index:100;display:flex;align-items:center;gap:8px;',
     'padding:8px 14px 8px 10px;background:var(--bg-frosted);backdrop-filter:blur(12px);',
@@ -315,6 +316,8 @@ function mountChrome() {
   back.addEventListener('click', (e) => {
     if (reduce) return;
     e.preventDefault();
+    try { getAudioSystem().returnFromPlayground(); } catch { /* ignore */ }   // B2 resurface
+    try { (window.__starfield || mountStarField())?.accelerate('out'); } catch { /* ignore */ }
     document.body.classList.add('pg-leaving');
     setTimeout(() => { location.href = back.getAttribute('href'); }, 340);
   });
