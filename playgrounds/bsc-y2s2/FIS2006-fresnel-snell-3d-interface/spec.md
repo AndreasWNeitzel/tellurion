@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Tune to Brewster and the reflected p-beam simply switches off; tip past the critical angle and the light cannot leave at all.'
-one_paragraph: 'Reflection and refraction at a planar dielectric interface. The refracted beam bends by Snell, the Fresnel equations fix the s- and p-reflectance, the reflected p-beam vanishes at Brewster theta_B = atan(n2/n1), and from a dense to a rare medium beyond the critical angle the wave is totally internally reflected with an evanescent skin. Energy is conserved, R + T = 1. The primary scene is the physical interface with incident, reflected and refracted beams whose width tracks the power and a polarization-state inset; the side panel is the Fresnel R_s, R_p versus angle with the Brewster and critical markers. The headless sim.js is gate-tested for Snell to 0.01 deg, the Brewster zero, energy conservation, total internal reflection with a positive evanescent decay, the normal-incidence coincidence and the grazing limit.'
+one_paragraph: 'Reflection and refraction at a planar dielectric interface. The refracted beam bends by Snell, the Fresnel equations fix the s- and p-reflectance, the reflected p-beam vanishes at Brewster theta_B = atan(n2/n1), and from a dense to a rare medium beyond the critical angle the wave is totally internally reflected with an evanescent skin. Energy is conserved, R + T = 1. The primary scene is the physical interface with incident, reflected and refracted beams whose width tracks the power and a polarization-state inset; the side panel is the Fresnel R_s, R_p versus angle with the Brewster and critical markers. Reference: Hecht, Optics, 5th ed., Section 4.6; Jackson, Classical Electrodynamics, 3rd ed., Section 7.3.'
 tags: [optics, electromagnetism, multi-panel, live-readout]
 difficulty: 4
 tier: advanced
@@ -18,6 +18,57 @@ share_state_keys: []
 ---
 
 # Fresnel and Snell at an Interface
+
+## Explainer
+
+### What you are looking at
+
+When light hits glass it partly reflects and partly bends through.
+Exactly how much of each depends on the angle and the polarization.
+The playground sweeps the incidence angle and shows two special
+angles: Brewster, where the reflection of one polarization switches
+off entirely, and the critical angle, beyond which the light cannot
+leave a dense medium at all.
+
+### Snell and the Fresnel coefficients
+
+The refracted ray obeys Snell's law,
+
+$$n_1\sin\theta_1 = n_2\sin\theta_2,$$
+
+with refractive indices $n_1,n_2$ and angles to the normal
+$\theta_1,\theta_2$. How much amplitude reflects is set by the Fresnel
+coefficients for the two polarizations (s, electric field in the
+surface; p, in the plane of incidence):
+
+$$r_s=\frac{n_1 c_1-n_2 c_2}{n_1 c_1+n_2 c_2},\qquad
+  r_p=\frac{n_2 c_1-n_1 c_2}{n_2 c_1+n_1 c_2},$$
+
+where $c_1=\cos\theta_1$, $c_2=\cos\theta_2$. The reflectance is
+$R=|r|^2$ and energy is conserved, $R+T=1$.
+
+### Brewster and total internal reflection
+
+At the Brewster angle $\theta_B=\arctan(n_2/n_1)$ the p-reflectance
+$r_p$ is exactly zero: reflected light is then purely s-polarized
+(this is how polarizing sunglasses work). Going from a dense to a rare
+medium ($n_1>n_2$), beyond the critical angle
+$\theta_c=\arcsin(n_2/n_1)$ there is no refracted ray at all: the wave
+is totally internally reflected, $R=1$, with only an evanescent field
+that decays exponentially into the second medium.
+
+### Things to try
+
+- Tune to Brewster and watch the reflected p-beam vanish.
+- Set glass-to-air and sweep past the critical angle into total
+  internal reflection.
+- Check $R+T=1$ holds at every angle below the critical angle.
+
+### Where this comes from
+
+Snell's law, the Fresnel equations, Brewster's angle and total
+internal reflection follow Hecht, Optics, 5th ed., Section 4.6, and
+Jackson, Classical Electrodynamics, 3rd ed., Section 7.3.
 
 ## Physical setup
 
