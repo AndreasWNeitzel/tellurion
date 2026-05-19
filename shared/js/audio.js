@@ -82,37 +82,33 @@ class AudioSystem {
     this._blip(c, 880, 0.08, 0.032, 0.005, 4);
   }
 
-  // C2: playground selected. Bass thump + descending sweep + breath.
+  // C2: playground selected. A smooth digital "confirm": a soft low
+  // body and a clean rising C5 -> G5 interval with a faint high
+  // octave for sparkle. No bass thump, no descending whoosh, no
+  // noise breath (the old "woosh" the user disliked): pure sines,
+  // gentle 12 ms attacks, exponential tails. Soothing and futuristic.
   selectPlayground() {
     const c = this._ready(); if (!c) return;
     const t = c.currentTime;
-    // Layer 1 bass pulse 55 Hz
-    const o1 = c.createOscillator(), g1 = c.createGain();
-    o1.type = 'sine'; o1.frequency.setValueAtTime(55, t);
-    g1.gain.setValueAtTime(0, t);
-    g1.gain.linearRampToValueAtTime(0.09, t + 0.03);
-    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.73);
-    o1.connect(g1); g1.connect(c.destination); o1.start(t); o1.stop(t + 0.75);
-    // Layer 2 descending sweep 320 -> 60 Hz through a lowpass
-    const o2 = c.createOscillator(), g2 = c.createGain(), f2 = c.createBiquadFilter();
-    o2.type = 'sine';
-    o2.frequency.setValueAtTime(320, t);
-    o2.frequency.exponentialRampToValueAtTime(60, t + 0.55);
-    f2.type = 'lowpass'; f2.Q.value = 1.2; f2.frequency.value = 800;
-    g2.gain.setValueAtTime(0, t);
-    g2.gain.linearRampToValueAtTime(0.05, t + 0.02);
-    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
-    o2.connect(f2); f2.connect(g2); g2.connect(c.destination); o2.start(t); o2.stop(t + 0.58);
-    // Layer 3 air texture: bandpassed noise breath
-    const src = c.createBufferSource(), g3 = c.createGain(), f3 = c.createBiquadFilter();
-    src.buffer = this._noiseBuffer(c, 1);
-    f3.type = 'bandpass'; f3.frequency.value = 1200; f3.Q.value = 0.4;
-    g3.gain.setValueAtTime(0, t);
-    g3.gain.linearRampToValueAtTime(0.022, t + 0.04);
-    g3.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-    src.connect(f3); f3.connect(g3); g3.connect(c.destination); src.start(t); src.stop(t + 0.54);
-    const done = () => { try { o1.disconnect(); g1.disconnect(); o2.disconnect(); f2.disconnect(); g2.disconnect(); src.disconnect(); f3.disconnect(); g3.disconnect(); } catch { /* ignore */ } };
-    o1.onended = done;
+    const voice = (freq, t0, dur, peak, type = 'sine', detune = 0) => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t + t0);
+      if (detune) o.detune.setValueAtTime(detune, t + t0);
+      g.gain.setValueAtTime(0.00001, t + t0);
+      g.gain.linearRampToValueAtTime(peak, t + t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + t0 + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t + t0); o.stop(t + t0 + dur + 0.03);
+      const kill = () => { try { o.disconnect(); g.disconnect(); } catch { /* ignore */ } };
+      o.onended = kill;
+      setTimeout(kill, (t0 + dur + 0.12) * 1000);
+    };
+    voice(196.00, 0.00, 0.46, 0.024);             // soft G3 body (no thump)
+    voice(523.25, 0.00, 0.40, 0.050, 'sine', -3); // C5
+    voice(523.25, 0.00, 0.40, 0.034, 'sine', 5);  // detuned twin for warmth
+    voice(783.99, 0.085, 0.50, 0.044);            // resolve up a fifth, G5
+    voice(1567.98, 0.085, 0.34, 0.013, 'triangle'); // faint high-octave sparkle
   }
 
   // C3: return from a playground. Lighter, ascending: resurfacing.
