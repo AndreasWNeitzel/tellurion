@@ -65,3 +65,7 @@ User: bump to 10k; DM can be few heavy low-res particles, stars numerous and shi
 
 ## Sweep 2026-05-19
 User: bump to 12000 (DM 500 total); polar rotation was 0..90..0 (edge at both ends) -> wanted -90..0..90 (face/edge/face). Done: NTOT=12000, STAR_FRAC=1-500/NTOT -> ~11500 light shining stars + ~500 dark-matter particles ~92x heavier (verified DECISIVE-MERGE first pass ~130 merged ~156, no NaN, worker ~15 steps/s). Polar/pitch projection corrected: screen_y=y1*sin(p)+z*cos(p), depth=z*sin(p)-y1*cos(p) so pitch 0=edge-on, +/-90=the two face-on views (verified by 3 screenshots: spiral face-on at +90, thin edge at 0, face-on other side at -90). Dynamic NTOT in title/readout. invariants 1 + engine 6/6, visual 5/5 x3 deterministic. Shipped.
+
+## Sweep 2026-05-19
+Pure first-exposure-physics user-facing text; no source-code, tooling, performance or CI references.
+invariants Tests  1 passed + visual 5/5 x3. Shipped.

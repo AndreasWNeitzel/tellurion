@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: barneshut1986
 primary_chapter: 1
-hook: 'Two galaxies, each a dark halo plus a stellar disk, fall together in true 3D; a Barnes-Hut octree solves the gravity, dynamical friction sinks the companion, and the shredded debris leaves the Gaia-Enceladus / Sausage signature in the energy vs angular-momentum plane.'
-one_paragraph: 'Each galaxy is a Hernquist dark-matter halo (about 80% of its mass) plus a stellar component (about 20%); the primary is a rotating spiral disk, the companion a diffuse dispersion-supported dwarf. Gravity is the shared 3D Barnes-Hut octree (O(N log N), no grid, no periodic box, no analytic cores, no merge event): distant groups of bodies are replaced by their centre of mass once the cell size over distance falls below the opening angle, and a kick-drift-kick leapfrog with Plummer softening advances the true 3D positions. The in-fall, tidal bridges and tails, the dynamical-friction inspiral and the coalescence all emerge from the 3D dynamics, solved per frame at 60fps. The angle of attack is the inclination of the companion approach to the primary disk plane (edge-on to face-on). The camera orbits the real point cloud (drag), zooms (wheel) and pans (Shift-drag); the view is locked to the robust bound-system centre of mass. A second panel shows the stars in the energy vs angular-momentum plane in the surviving primary frame, where the disrupted companion forms the Gaia-Enceladus / Sausage clump.'
+hook: 'Two galaxies, each a dark-matter halo wrapped around a stellar disk, fall together in 3D; dynamical friction drags the smaller one in, tidal forces shred it, and the debris leaves the Gaia-Enceladus / Sausage fingerprint in the energy vs angular-momentum plane.'
+one_paragraph: 'Each galaxy has two parts: a Hernquist dark-matter halo carrying about 80% of the mass and a luminous stellar component, the primary a rotating spiral disk and the companion a small diffuse dwarf. All bodies move under their mutual gravity, computed as a full three-dimensional N-body system with a hierarchical (Barnes-Hut) approximation and a softened force so close passages stay finite; nothing about the merger is scripted. The companion raises a trailing wake in the primary halo, loses orbital energy to dynamical friction, sinks, is tidally stretched into bridges and tails, and the debris violently relaxes into a single remnant. A slider sets the angle at which the companion comes in (edge-on to the disk through face-on), alongside the two masses, impact parameter and closing speed; drag to orbit the view, scroll to zoom. A second panel plots the stars in the energy versus angular-momentum plane in the survivor''s rest frame, where the shredded companion settles into the distinct low-angular-momentum clump that identifies the Gaia-Enceladus / Sausage debris in the real Milky Way halo.'
 tags: [galactic, interactive-drag, animation, live-readout]
 difficulty: 4
 tier: large
@@ -37,71 +37,66 @@ galaxy leaves the Gaia-Enceladus / "Sausage" fingerprint. Sliders set
 the two masses, the impact parameter, the closing speed, and the
 angle of attack of the companion to the primary disk.
 
-### The Barnes-Hut tree: O(N log N) gravity
+### How gravity is computed
 
-Summing the force between every pair of N bodies is O(N^2), far too
-slow. The Barnes-Hut method (Barnes and Hut, Nature 324, 446, 1986)
-builds an octree: space is recursively split into cubes until each
-holds at most one body. To get the force on a body, the tree is
-walked from the root; a whole cell of size $s$ at distance $d$ is
-replaced by a single pseudo-body at its centre of mass when
+Every star and dark-matter particle feels the pull of every other.
+Computing each pair directly is prohibitively expensive for a galaxy,
+so the simulation uses the hierarchical idea introduced by Barnes and
+Hut (Nature 324, 446, 1986): a distant clump of bodies is well
+approximated by a single mass at its combined centre of mass. A group
+of angular size $s$ seen at distance $d$ is treated as one body when
 
 $$\frac{s}{d} < \theta ,$$
 
-the opening angle (here the classic $\theta \approx 1$); otherwise
-the cell is opened and its children are examined. Distant structure
-is thus coarse-grained, nearby structure resolved, and the cost
-drops to O(N log N). The pairwise force is Plummer-softened,
+where the opening angle $\theta$ trades detail for cost: small
+$\theta$ resolves more structure, $\theta\approx1$ is the usual
+choice. Nearby bodies are still summed individually, with the force
+softened so a close passage stays finite,
 
 $$\mathbf a_i = \sum_j \frac{G\,m_j\,
    (\mathbf r_j-\mathbf r_i)}
    {\left(|\mathbf r_j-\mathbf r_i|^2+\epsilon^2\right)^{3/2}},$$
 
-so close passages stay finite (the standard collisionless-N-body
-prescription). Time integration is a kick-drift-kick leapfrog. This
-is exactly how isolated galaxy mergers are simulated (Barnes and
-Efstathiou 1987; the tree, with PM added for cosmology, is the
-GADGET-2 scheme, Springel 2005). There is no periodic box and no
-zero-padded FFT, so the method is naturally 3D and isolated; the
-shared engine is unit-tested against direct summation (under 2% at
-$\theta=0.5$, exact at $\theta=0$).
+the standard collisionless prescription ($\epsilon$ a softening
+length). Orbits are advanced with a time-symmetric leapfrog, so the
+energy stays well behaved over the whole encounter. This is the same
+approach used for real galaxy-merger studies (Barnes and Efstathiou
+1987; large simulations such as GADGET, Springel 2005).
 
 ### The galaxies
 
-Each galaxy is built in 3D from its distribution function. The dark
-matter is a Hernquist (1990) sphere, sampled by the analytic inverse
-CDF $r=a\sqrt q/(1-\sqrt q)$ with random directions, carrying about
-80% of the mass; it is the dominant potential that binds the disk and
-against which dynamical friction acts. The primary's stars are a
-rotating exponential disk (surface density $\Sigma\propto e^{-R/R_d}$,
-the Freeman 1970 law) with a thin scale height and two spiral arms;
-the companion's stars are a compact diffuse, dispersion-supported
-dwarf. At $t=0$ one self-consistent Barnes-Hut force solve sets the
-velocities: the disk on near-circular orbits (small 3D dispersion),
-the halo and dwarf on isotropic 3D dispersions, so each galaxy starts
-in approximate equilibrium before they fall together.
+Each galaxy is two components. The dark matter follows a Hernquist
+(1990) profile and carries about 80% of the mass; it is the dominant
+potential that binds the disk and against which dynamical friction
+acts. The primary's stars form a rotating exponential disk (surface
+density $\Sigma\propto e^{-R/R_d}$, the Freeman 1970 law) with a thin
+scale height and two spiral arms; the companion is a compact, diffuse,
+dispersion-supported dwarf. Each galaxy is launched in approximate
+internal equilibrium, the disk on near-circular orbits and the halo
+and dwarf with isotropic random motions, so any structure that
+appears is produced by the encounter, not by the starting state.
 
 ### Why coalescence is automatic
 
-Nothing is added to make them merge. Dynamical friction arises by
-itself: the companion plows through the primary halo, raises a
-trailing density wake whose pull drains its orbital energy, sinks,
-and is tidally stripped into streams that violently relax around the
-survivor. There is no two-body core integration, no Chandrasekhar
-term, no merge teleport. The default companion is heavy, concentrated
-and on a tight bound orbit, so the merger is decisive (the headless
-diagnostic confirms first passage near step 130, the cores merged
-near step 156, the bound system staying centred and finite).
+Nothing is added by hand to make the galaxies merge. Dynamical
+friction arises on its own: the companion plows through the primary
+halo and raises a trailing density wake whose backward pull drains
+its orbital energy. It sinks, is tidally stripped into streams, and
+the debris violently relaxes around the survivor. There is no
+imposed drag term and no merge event; with a heavy companion on a
+tight bound orbit the sinking takes only a couple of pericentre
+passages, so the coalescence is decisive.
 
 ### The integrals-of-motion panel and the Sausage
 
-For each star the playground computes, in the surviving primary's
-mass-weighted centroid frame, the specific z-angular momentum and the
-real (Barnes-Hut potential) orbital energy
+For each star the right panel shows, measured in the surviving
+primary's rest frame, the specific vertical angular momentum and the
+orbital energy in the system's own gravitational potential
+$\Phi(\mathbf x)$,
 
 $$L_z = x\,v_y - y\,v_x,
   \qquad
-  E = \tfrac12 v^2 + \Phi_{\rm BH}(\mathbf x).$$
+  E = \tfrac12 v^2 + \Phi(\mathbf x).$$
 
 While the galaxies interact the potential is time-dependent and the
 points churn (violent relaxation); as the remnant relaxes $E,L_z$
