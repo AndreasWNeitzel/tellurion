@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-DM
 supporting_ucs: [MAA-ST]
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A Gaussian process is a probability distribution over whole functions; pick a kernel and watch the prior fog of plausible curves collapse onto a handful of data points with calibrated uncertainty (wide between points, tight on them).'
+one_paragraph: 'A Gaussian process places a prior over functions: any finite set of values is jointly Gaussian with mean zero and covariance set by a kernel k(x, x''), which encodes how smooth, wiggly or periodic the function is. Conditioning on noisy observations gives a closed-form Gaussian posterior, with mean mu(x*) = k(x*,X)[K + sigma_n^2 I]^-1 y and variance k(x*,x*) minus k(x*,X)[K + sigma_n^2 I]^-1 k(X,x*). The playground lets you switch among kernels (squared-exponential, Matern, periodic, linear) and see how each reshapes both the prior sample functions and the data-conditioned posterior with its uncertainty band. Reference: Rasmussen and Williams, Gaussian Processes for Machine Learning, Chapters 2 and 4.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
