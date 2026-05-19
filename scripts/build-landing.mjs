@@ -276,8 +276,10 @@ footer a{color:var(--text-secondary);text-decoration:none}
 <script type="module">
   import { mountStarField } from './shared/js/starfield.js';
   import { getAudioSystem } from './shared/js/audio.js';
+  import { mountCursor } from './shared/js/cursor.js';
   mountStarField();
   window.__audio = getAudioSystem();
+  mountCursor();
 </script>
 
 <div class="header">

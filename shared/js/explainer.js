@@ -13,6 +13,7 @@
 
 import { mountStarField } from './starfield.js';
 import { getAudioSystem } from './audio.js';
+import { mountCursor } from './cursor.js';
 
 const FENCE = '-'.repeat(3);
 
@@ -305,6 +306,7 @@ function mountChrome() {
   // flickers). Created only here, after the _CAPTURE early-return,
   // so deterministic capture stays byte-identical to the goldens.
   mountStarField();
+  mountCursor();
 
   const back = document.createElement('a');
   back.className = 'pg-back';
