@@ -43,6 +43,14 @@
   <section class="card-grid">
 
     <article class="card">
+      <h2><a href="./playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/index.html">Attention as Soft Retrieval</a></h2>
+      <p class="status">verified 2026-05-19</p>
+      <p class="description">An attention block is a soft, differentiable version of looking something up in a dictionary. A hard dictionary returns the value whose key exactly matches the request. Attention instead compares the request (the query) to every key, decides how relevant each one is, and returns a blend of all the values weighted by relevance. Because the blend is smooth, yo</p>
+      
+    </article>
+  
+
+    <article class="card">
       <h2><a href="./playgrounds/bsc-y2s2/FIS2021-hamilton-jacobi-action-angle/index.html">Action-Angle Variables</a></h2>
       <p class="status">verified 2026-05-19</p>
       <p class="description">For a bound oscillator there is a magic change of coordinates that makes the motion trivial: one variable (the action) stays perfectly constant, and the other (the angle) just advances at a steady rate. The playground shows any 1D bound system in both its messy phase portrait and its clean action-angle form.</p>
@@ -2443,17 +2451,9 @@
   
 
     <article class="card">
-      <h2><a href="./playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/index.html">t-SNE vs UMAP vs Isomap</a></h2>
+      <h2><a href="./playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/index.html">Dimensionality Reduction: PCA vs Isomap vs t-SNE</a></h2>
       <p class="status">verified 2026-05-13</p>
-      <p class="description">A 3D dataset shown alongside three 2D embeddings of it. The Swiss roll is the classic &quot;is your DR method nonlinear?&quot; test: PCA squashes it because PCA only knows linear projections, Isomap unrolls it because it measures distances along the manifold, t-SNE clusters local neighborhoods but loses the global ordering. The two-blob dataset is easier and all three</p>
-      
-    </article>
-  
-
-    <article class="card">
-      <h2><a href="./playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/index.html">Attention as Soft Retrieval</a></h2>
-      <p class="status">verified 2026-05-13</p>
-      <p class="description">Single-head scaled dot-product attention over a small key-value bank: w_i = softmax(Q . k_i / sqrt(d) / tau), output = sum w_i v_i. The left panel shows six keys in 2D; the query (red) can be dragged. The right panel shows the value bars colored by attention weight; the cat-3 bar is the weighted output. As temperature tau drops, attention concentrates on the</p>
+      <p class="description">High-dimensional data often lies on a low-dimensional surface bent inside a bigger space (a manifold). Dimensionality reduction tries to draw that surface in 2D so you can see it. There is no perfect way to do this: every method keeps one kind of structure and sacrifices another. The playground rotates a 3D (or higher) dataset on the left and shows three dif</p>
       
     </article>
   
