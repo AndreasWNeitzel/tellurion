@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-ST
 supporting_ucs: [MAA-DM]
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Three Markov-chain Monte Carlo samplers race on the same hard target. Random-walk Metropolis crawls and gets stuck where Hamiltonian Monte Carlo sweeps across in long strides; the honest scorecard is effective samples per second, not acceptance rate.'
+one_paragraph: 'Markov-chain Monte Carlo draws from a distribution you can evaluate but not sample directly by building a random walk whose stationary distribution is the target. Every sampler here uses the Metropolis-Hastings rule, accept a proposal x'' from x with probability min(1, [pi(x'') q(x|x'')] / [pi(x) q(x''|x)]), which enforces detailed balance and so fixes pi as the chain stationary law; the samplers differ only in the proposal q: isotropic random-walk Metropolis, an adaptive-covariance variant, gradient-drifted MALA, and Hamiltonian Monte Carlo, which adds momentum and integrates Hamiltonian trajectories for long, nearly rejection-free moves. On the banana or Neal''s funnel the random-walk methods stall while HMC keeps mixing; the live readout reports per-sampler acceptance, effective sample size per unit time, and a Kolmogorov-Smirnov distance to the true marginal, so efficiency is judged by independent draws per second rather than raw motion. Reference: Robert and Casella, Monte Carlo Statistical Methods, 2nd ed., Chapter 7; Neal, MCMC using Hamiltonian Dynamics, in the Handbook of Markov Chain Monte Carlo (2011).'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
