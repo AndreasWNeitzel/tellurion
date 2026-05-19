@@ -55,3 +55,6 @@ kept shipped legitimately, NOT via the heartbeat fast-ship bypass).
 ## Sweep 2026-05-18
 Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
 invariants  + visual 5/5 x3. Shipped.
+
+## Sweep 2026-05-19
+REVIEW verdict BROKEN was FULLY STALE (pre-fix). Current sim.js is correct: phi2 {ns:1-2/N, r:8/N}, phi4 {ns:1-3/N, r:16/N}, Starobinsky {1-2/N, 12/N^2} = canonical n_s=1-(p+2)/(2N), r=4p/N. The REVIEW`s own recommended phi4 fix (1-4/N) was itself WRONG (correct is 1-3/N, matching MAA-CO-slow-roll-inflation). invariants.test.mjs 10/10 pass testing the correct closed forms; hook/one_paragraph are real prose (not STATUS placeholders); no raw bib key in index.html; leakscan2=0; has ## Explainer; .verified. No code or text change required. Verified-clean.
