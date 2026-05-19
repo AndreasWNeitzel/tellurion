@@ -2640,25 +2640,27 @@ footer a{color:var(--text-secondary);text-decoration:none}
   var active={};
 
   var actx=null;
-  function initA(){ if(actx||reduce)return; try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){actx=null;} }
-  window.addEventListener('pointerdown',initA);
-  window.addEventListener('keydown',initA);
-  window.addEventListener('mousemove',initA,{once:true});
+  var noAudio=reduce||('ontouchstart' in window);          // no sound on mobile / reduced motion
+  function initA(){ if(actx||noAudio)return; try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){actx=null;} }
+  if(!noAudio){
+    window.addEventListener('pointerdown',initA);
+    window.addEventListener('keydown',initA);
+    window.addEventListener('mousemove',initA,{once:true});
+  }
   function ping(){
-    if(reduce)return;
+    if(noAudio)return;
     if(!actx){ initA(); if(!actx)return; }
     try{
       if(actx.state==='suspended'||actx.state==='interrupted'){ actx.resume(); }
       var n=actx.currentTime;
       var o=actx.createOscillator(),g=actx.createGain();
-      o.type='triangle';
-      o.frequency.setValueAtTime(1050,n);
-      o.frequency.exponentialRampToValueAtTime(680,n+0.045);
-      g.gain.setValueAtTime(0.0001,n);
-      g.gain.exponentialRampToValueAtTime(0.017,n+0.003);
-      g.gain.exponentialRampToValueAtTime(0.0001,n+0.05);
+      o.type='sine';
+      o.frequency.setValueAtTime(880,n);
+      g.gain.setValueAtTime(0,n);
+      g.gain.linearRampToValueAtTime(0.035,n+0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001,n+0.08);
       o.connect(g); g.connect(actx.destination);
-      o.start(n); o.stop(n+0.055);
+      o.start(n); o.stop(n+0.08);
       o.onended=function(){ try{o.disconnect();g.disconnect();}catch(e){} };
     }catch(e){}
   }
