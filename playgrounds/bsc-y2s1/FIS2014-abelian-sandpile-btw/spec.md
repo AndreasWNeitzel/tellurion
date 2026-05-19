@@ -33,52 +33,85 @@ self-organized criticality.
 
 ### The toppling rule
 
-Each cell of a grid holds an integer height. Drop a grain on a random
-cell; whenever a cell reaches the threshold (4 on a square lattice)
-it topples, sending one grain to each of its four neighbours:
+Each cell $i$ of a 2D lattice holds an integer height $z_i$. Drop a
+grain on a random cell; if any cell reaches the threshold $z_c$ it
+topples, redistributing $z_c$ grains to its $z_c$ neighbours:
 
-$$z_i \ge 4 \;\Longrightarrow\;
-  z_i \to z_i - 4,\quad
-  z_{\text{nbr}} \to z_{\text{nbr}} + 1,$$
+$$\boxed{\;z_i \ge z_c \;\Longrightarrow\;
+  z_i \to z_i - z_c,\quad
+  z_j \to z_j + 1 \ \text{for each neighbour } j\,\text{of}\, i.\;}$$
 
-and grains that fall off the boundary leave the system. Toppling can
-push neighbours over threshold, so one grain can set off a chain
-reaction, an avalanche, before the pile is stable again. (The rule is
-"abelian": the final stable configuration does not depend on the
-order in which unstable cells are relaxed.)
+On a square lattice with nearest-neighbour interaction, $z_c = 4$
+(four neighbours). Grains that fall off the boundary leave the system
+(open boundary condition, the way energy dissipates). Toppling can
+push neighbours over threshold, which set off further topplings: one
+grain dropped on a critical pile can trigger an avalanche of any size.
 
-### Self-organized criticality
+The rule is *abelian*: the final stable configuration is independent
+of the order in which unstable cells are relaxed (Dhar 1990). This
+makes the model algorithmically clean and exactly solvable in some
+respects (the group structure of stable configurations is computable).
 
-Driven slowly and dissipating at the edges, the pile drives itself to
-a stationary critical state with no tuning. The signature is that the
-avalanche sizes $s$ follow a power law,
+### The avalanche size distribution
 
-$$P(s) \sim s^{-\tau},$$
+Driven slowly (one grain at a time, after the pile has stabilised)
+and dissipating at the boundary, the pile reaches a stationary state
+in which the avalanche size $s$ (the number of topplings in one
+event) follows a power law:
 
-with no characteristic size: most events are tiny, but events of
-every magnitude up to system-spanning occur, and the distribution is
-scale-free (a straight line on log-log). This is fundamentally
-different from a tuned phase transition: nothing sets the control
-parameter, the dynamics finds the critical point itself. The same
-idea is invoked for earthquakes (Gutenberg-Richter), neuronal
-avalanches, and forest fires. The playground drops grains, animates
-the avalanches, and accumulates the size distribution so you watch
-the power law build up.
+$$\boxed{\;P(s) \sim s^{-\tau}\,f(s / L^D),\;}$$
+
+where $\tau \approx 1.27$ in 2D and $L^D$ is a finite-size cutoff
+($D \approx 2.78$). On log-log axes the bulk of the distribution is
+a straight line: most events are tiny, but events of every magnitude
+up to system-spanning occur, and the distribution is scale-free. The
+same scaling applies to the avalanche duration $T$ and to the area
+$a$ covered.
+
+### Self-organised criticality
+
+This is fundamentally different from a tuned phase transition:
+*nothing* sets the control parameter (no $T = T_c$ to dial in). The
+dynamics finds the critical point itself. The mechanism is that the
+driving rate is infinitely slower than the relaxation rate (separation
+of time scales), and the average grain in equals the average grain
+out by conservation.
+
+Analogues invoked in the same framework: earthquakes (the
+Gutenberg-Richter law $\log N(>M) = a - b M$), forest fires (Drossel
+and Schwabl 1992), neuronal avalanches (Beggs and Plenz 2003),
+landslides, solar flares, and stock-market crashes.
+
+### Symbols, at a glance
+
+- $z_i$, integer height at cell $i$.
+- $z_c$, toppling threshold ($z_c = 4$ for the square lattice).
+- $s$, avalanche size (number of topplings).
+- $T$, avalanche duration; $a$, avalanche area.
+- $\tau$, the avalanche-size exponent ($\tau \approx 1.27$ in 2D).
+- $L$, linear size of the lattice; $L^D$ the finite-size cutoff.
+- $P(s)$, the avalanche-size distribution.
 
 ### Things to try
 
 - Drop grains and watch most do nothing while rare ones trigger
   large cascades.
 - Build up the avalanche-size histogram and see it straighten into a
-  power law on log-log (scale-free).
+  power law on log-log.
 - Note the pile self-tunes to criticality: you never set a
   parameter, it finds it.
 
-### Where this comes from
+### Bibliographic origin
 
-The BTW sandpile, abelian toppling, and self-organized criticality
-follow Bak, Tang and Wiesenfeld, Phys. Rev. Lett. 59, 381 (1987),
-and Jensen, *Self-Organized Criticality*.
+The original model: Bak, Tang and Wiesenfeld, *Phys. Rev. Lett.* **59**
+(1987) 381 (the seminal SOC paper), with the extended treatment in
+*Phys. Rev. A* **38** (1988) 364. The abelian-group structure: Dhar,
+*Phys. Rev. Lett.* **64** (1990) 1613. A modern textbook is Jensen,
+*Self-Organized Criticality: Emergent Complex Behavior in Physical
+and Biological Systems* (Cambridge 1998), Ch. 3, 4. The
+forest-fire variant: Drossel and Schwabl, *Phys. Rev. Lett.* **69**
+(1992) 1629. The neuronal-avalanche analogy: Beggs and Plenz, *J.
+Neurosci.* **23** (2003) 11167.
 
 ## Physical setup
 
