@@ -171,6 +171,60 @@ footer a{color:var(--text-secondary);text-decoration:none}
 .content-fade.out{opacity:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
   .page-transition{opacity:1!important;display:none}}
+/* About + Credits + footer (site-structure spec) */
+.about{padding:100px 0 80px}
+.about .lab,.credits .lab{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--text-dimmed);margin:0 0 48px}
+.about-grid{display:flex;gap:56px;align-items:flex-start}
+.about-l{width:240px;flex:none}
+.about-photo{width:200px;height:200px;border-radius:6px;border:1px solid var(--border-subtle);
+  background:rgba(255,255,255,0.07) center/cover no-repeat}
+.about-contact{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.about-contact a{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:0.8125rem;
+  color:var(--text-secondary);text-decoration:none}
+.about-contact a:hover{color:var(--text-primary)}
+.about-contact svg{width:13px;height:13px;color:var(--text-dimmed);flex:none}
+.about-r{flex:1;min-width:0}
+.about-name{font-size:1.75rem;font-weight:700;letter-spacing:-0.02em;color:var(--text-primary);margin:0}
+.about-title{font-size:0.9375rem;color:var(--text-secondary);margin:6px 0 0}
+.about-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.about-chips span{background:var(--accent-dim);border:1px solid rgba(79,126,247,0.2);color:var(--accent);
+  font-size:0.8125rem;padding:3px 10px;border-radius:4px}
+.about-bio{margin-top:24px;max-width:600px;color:var(--text-secondary);font-size:0.9375rem;line-height:1.7}
+.about-bio p{margin:0 0 14px}
+.about-cols{display:flex;gap:36px;flex-wrap:wrap;margin-top:36px}
+.about-col h4{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text-dimmed);margin:0 0 8px}
+.about-col ul{list-style:none;margin:0;padding:0}
+.about-col li{font-size:0.8125rem;color:var(--text-secondary);line-height:2}
+.about-stack{margin-top:32px}
+.about-stack .lab{margin:0 0 12px}
+.about-stack .tags{display:flex;flex-wrap:wrap;gap:8px}
+.about-stack .tags span{font-family:var(--f-mono);font-size:11px;color:var(--text-dimmed);
+  background:rgba(255,255,255,0.04);border:1px solid var(--border-dim);padding:3px 9px;border-radius:4px}
+.credits{padding:80px 0;border-top:1px solid var(--border-dim)}
+.credits-grid{display:flex;gap:80px;flex-wrap:wrap}
+.credits-col{flex:1;min-width:280px}
+.credits-col h3{font-size:1.125rem;font-weight:600;letter-spacing:-0.01em;color:var(--text-primary);margin:0 0 20px}
+.credits-col .sub{font-size:0.8125rem;color:var(--text-secondary);margin:6px 0 24px}
+.crow{display:flex;border-bottom:1px solid var(--border-dim);padding:12px 0}
+.crow .ck{width:200px;flex:none;font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed)}
+.crow .cv{font-size:0.8125rem;color:var(--text-secondary)}
+.credits-note{margin-top:20px;max-width:440px;font-size:0.8125rem;color:var(--text-dimmed);font-style:italic}
+.credits-empty{font-size:0.8125rem;color:var(--text-dimmed);font-style:italic}
+.credits-ver{margin-top:32px;padding-top:32px;border-top:1px solid var(--border-dim);
+  font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed)}
+.sitefoot{height:64px;background:var(--bg-void);border-top:1px solid var(--border-dim);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed);margin-top:40px}
+/* Hidden only once the entrance JS has armed the section (group 6),
+   so the no-JS / pre-JS page shows About fully. */
+.about.prep .about-anim{opacity:0;transform:translateY(8px)}
+.about.prep .about-anim.in{opacity:1;transform:translateY(0);transition:opacity 400ms ease-out,transform 400ms ease-out}
+.about.prep .about-photo{opacity:0;transform:scale(0.95)}
+.about.prep .about-photo.in{opacity:1;transform:scale(1);transition:opacity 500ms ease-out,transform 500ms ease-out}
+@media(max-width:760px){.about-grid{flex-direction:column}.about-l{width:100%;display:flex;
+  flex-direction:column;align-items:center}.credits-grid{flex-direction:column;gap:40px}}
 </style>
 </head>
 <body>
@@ -2704,6 +2758,39 @@ footer a{color:var(--text-secondary);text-decoration:none}
       <div class="ctags"><span class="ctag">quantum</span><span class="ctag">atomic-molecular</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a></div>
+</section>
+
+<section class="about" id="about">
+  <div class="lab">About</div>
+  <div class="about-grid">
+    <div class="about-l">
+      <div class="about-photo"></div>
+      <div class="about-contact">
+        <a href="mailto:andreaswneitzel@astro.up.pt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>andreaswneitzel@astro.up.pt</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0H12v2.2h.07c.63-1.2 2.17-2.47 4.46-2.47C21.4 7.73 24 10.1 24 14.8V24h-5v-8.2c0-1.96-.04-4.48-2.73-4.48-2.73 0-3.15 2.13-3.15 4.33V24h-5V8z"/></svg>LinkedIn</a>
+      </div>
+    </div>
+    <div class="about-r">
+      <h2 class="about-name about-anim">Andreas W. Neitzel</h2>
+      <p class="about-title about-anim">PhD Candidate in Astrophysics &middot; University of Porto</p>
+      <div class="about-chips about-anim">
+        <span>IA / CAUP</span><span>FCT Doctoral Fellow</span><span>ESA Ariel Consortium</span><span>ArqueoGal Co-I</span>
+      </div>
+      <div class="about-bio about-anim">
+        <p>I am a fourth-year PhD candidate at the Instituto de Astrof&iacute;sica e Ci&ecirc;ncias do Espa&ccedil;o (IA/CAUP) and the University of Porto, working at the intersection of asteroseismology, Galactic archaeology, and machine learning. My research uses stellar oscillations to reconstruct the formation history of the Milky Way.</p>
+        <p>This website is a personal project in science communication: 305+ physics simulations spanning the undergraduate and graduate physics curriculum, built from scratch as a public educational resource.</p>
+      </div>
+      <div class="about-cols">
+        <div class="about-col about-anim"><h4>Physics</h4><ul><li>Asteroseismology</li><li>Galactic Archaeology</li><li>Statistical Mechanics</li><li>General Relativity</li><li>Quantum Mechanics</li><li>Stellar Structure</li></ul></div>
+        <div class="about-col about-anim"><h4>Engineering</h4><ul><li>Canvas2D / SVG Rendering</li><li>Custom Physics Engines</li><li>Symplectic Integrators</li><li>Lattice Boltzmann (LBM)</li><li>Crank-Nicolson PDE Solver</li><li>Web Audio API</li><li>Python / NumPy / PyTorch</li><li>Node.js Build Pipelines</li></ul></div>
+        <div class="about-col about-anim"><h4>Design</h4><ul><li>Systems Design</li><li>Data Visualization</li><li>Scientific Communication</li><li>UI / UX Architecture</li><li>Typography Systems</li><li>Motion Design</li></ul></div>
+      </div>
+      <div class="about-stack about-anim">
+        <div class="lab">Built with</div>
+        <div class="tags"><span>Vanilla JavaScript</span><span>Canvas2D</span><span>SVG</span><span>Web Audio API</span><span>KaTeX</span><span>HTML5 / CSS3</span><span>Node.js</span><span>No Frameworks</span></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
