@@ -32,6 +32,14 @@ function curOf(cy) {
   if (m) return { level: 'BSc', badge: 'BSc · Y' + m[1], order: 100 + (+m[1]) * 10, group: 'BSc Year ' + m[1] };
   m = s.match(/^msc-y(\d)/);
   if (m) return { level: 'MSc', badge: 'MSc · Y' + m[1], order: 300 + (+m[1]) * 10, group: 'MSc Year ' + m[1] };
+  // Legacy Licenciatura tag, e.g. "L:F-3Y-1S" = BSc Physics Year 3
+  // Semester 1. Many specs still carry this form; without it they all
+  // collapsed into one wrong "Advanced" bucket and the order broke.
+  m = s.match(/^l:f-(\d)y-(\d)s/);
+  if (m) return { level: 'BSc', badge: 'BSc · Y' + m[1], order: 100 + (+m[1]) * 10 + (+m[2]), group: 'BSc Year ' + m[1] + ', Semester ' + m[2] };
+  m = s.match(/^l:f-(\d)y/);
+  if (m) return { level: 'BSc', badge: 'BSc · Y' + m[1], order: 100 + (+m[1]) * 10, group: 'BSc Year ' + m[1] };
+  if (s === 'hero') return { level: 'BSc', badge: 'Featured', order: 90, group: 'Featured' };
   return { level: 'ADV', badge: 'Advanced', order: 900, group: 'Advanced / Cross-curricular' };
 }
 
