@@ -21,7 +21,7 @@
 </style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Orbits in an Axisymmetric Potential</h1>
-  <div data-slot="description" class="katex-target">A star orbiting in a Miyamoto-Nagai axisymmetric galaxy potential, shown in the meridional $(R, z)$ plane. Set the launch radius and the radial and vertical kick; the orbit fills a box (the rosette of a non-closed axisymmetric orbit) bounded by the effective potential.</div>
+  <div data-slot="description" class="katex-target">A star orbiting in a Miyamoto-Nagai axisymmetric galaxy potential. The azimuthal launch speed sets the conserved $L_z$; the symplectic meridional integrator then traces the face-on rosette (left) and the $(R, z)$ orbit filling the box inside the zero-velocity curve $\Phi_\mathrm{eff} = E$ (right), with energy and $L_z$ held flat.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
@@ -30,7 +30,7 @@
 </figure>
 <div id="controls" class="pg-controls">
   <div class="row"><span class="label">R0 (kpc)</span><input type="range" id="slider-R" aria-label="launch radius kpc" min="3" max="16" step="0.5" value="8"><span class="value" id="value-R">8.0</span></div>
-  <div class="row"><span class="label">vR (km/s)</span><input type="range" id="slider-v" aria-label="radial velocity km/s" min="-120" max="120" step="5" value="0"><span class="value" id="value-v">0</span></div>
+  <div class="row"><span class="label">v_phi (km/s)</span><input type="range" id="slider-v" aria-label="azimuthal velocity km/s" min="50" max="220" step="5" value="80"><span class="value" id="value-v">80</span></div>
   <div class="row"><span class="label">vz (km/s)</span><input type="range" id="slider-vz" aria-label="vertical velocity km/s" min="0" max="160" step="5" value="40"><span class="value" id="value-vz">40</span></div>
   <div class="row buttons">
     <button id="btn-reset" type="button">Reset</button>
