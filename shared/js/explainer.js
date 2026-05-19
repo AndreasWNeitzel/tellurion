@@ -272,7 +272,7 @@ function mountChrome() {
     // box instead of the viewport. Opacity-only page fade. The
     // padding-top keeps the playground title clear of the fixed back
     // button. (Chrome is capture-suppressed, so goldens are untouched.)
-    'body{position:relative;z-index:0;padding-top:60px;opacity:1;transition:opacity .3s ease}',
+    'body{position:relative;z-index:0;padding-top:60px;opacity:1;transition:opacity .15s ease}',
     'body.pg-leaving{opacity:0}',
     '#ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}',
     '@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}',
@@ -282,7 +282,7 @@ function mountChrome() {
     "font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:0.8125rem;font-weight:400;",
     'text-decoration:none;cursor:pointer;opacity:0;transform:translateX(-8px);',
     'transition:border-color var(--t-fast),background var(--t-fast)}',
-    '.pg-back.in{opacity:1;transform:translateX(0);transition:opacity 300ms ease,transform 300ms ease}',
+    '.pg-back.in{opacity:1;transform:translateX(0);transition:opacity 150ms ease,transform 150ms ease}',
     '.pg-back:hover{border-color:var(--border-active);background:var(--bg-card)}',
     '.pg-back:hover .bt{color:var(--text-primary)}',
     '.pg-back svg{width:14px;height:14px;color:var(--accent);flex:none;display:block}',
@@ -326,7 +326,7 @@ function mountChrome() {
     try { getAudioSystem().returnFromPlayground(); } catch { /* ignore */ }   // B2 resurface
     try { (window.__starfield || mountStarField())?.accelerate('out'); } catch { /* ignore */ }
     document.body.classList.add('pg-leaving');
-    setTimeout(() => { location.href = back.getAttribute('href'); }, 340);
+    setTimeout(() => { location.href = back.getAttribute('href'); }, 170);
   });
   document.body.appendChild(back);
   // Entry: slide in from the left, 400 ms after load (Section 10).
