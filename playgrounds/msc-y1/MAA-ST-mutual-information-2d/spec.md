@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-ST
 supporting_ucs: [MAA-DM]
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Correlation only sees straight-line dependence; mutual information sees all of it, in nats. For two correlated Gaussians it is exactly -1/2 ln(1 - rho^2): zero when independent, diverging as one variable comes to determine the other.'
+one_paragraph: 'Mutual information I(X;Y) measures how much knowing one variable reduces uncertainty about the other: it is the Kullback-Leibler divergence between the true joint density and the product of the marginals, equivalently I = H(X) - H(X|Y), zero exactly when X and Y are independent and positive otherwise. For a bivariate Gaussian with correlation coefficient rho everything collapses to the closed form I(X;Y) = -1/2 ln(1 - rho^2), which depends only on rho^2 (positive and negative correlation carry the same information) and rises slowly then diverges as |rho| approaches 1. The playground renders the joint density as a heatmap with its marginals, sweeps rho and the marginal widths, and tracks both the exact I and a grid-integrated estimate, the workhorse quantity behind feature selection, the information bottleneck and channel analysis. Reference: Cover and Thomas, Elements of Information Theory, 2nd ed., Chapters 2 and 8; MacKay, Information Theory, Inference, and Learning Algorithms, Chapter 2.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
