@@ -79,9 +79,9 @@ The reconstruction $z(t) = \sum_k C_k e^{2\pi i k t / N}$ is animated by walking
 
 ## Controls
 
-- Epicycle-count slider (1 to $N/2$)
-- Draw-mode toggle: click points to define a custom path
-- Preset gallery: figure-8, heart, star, letter A, Earth outline
+- Epicycle-count slider (1 to $N/2$). Every selected epicycle's arm is drawn; the readout reports both the epicycle count and how many circles are large enough to be visible (the high-order radii are sub-pixel).
+- Preset gallery: Earth outline, heart (upright), butterfly (Fay's curve), spirograph (hypotrochoid), figure-eight, 5-star, letter A (a true A: two diagonals and a crossbar, no base).
+- A multi-winding preset (butterfly, spirograph) traverses over a proportionally longer period so the pen speed is comparable across presets.
 
 ## Invariants
 

@@ -17,9 +17,14 @@ export function samplePath(name, n) {
     let x, y;
     switch (name) {
       case 'heart': {
+        // Classic parametric heart. y-up convention (the renderer
+        // flips to screen space), so the rounded lobes must sit at
+        // large +y and the point at large -y. The standard curve
+        // already satisfies this; the earlier extra negation is what
+        // flipped it upside down.
         const a = 2 * Math.PI * t;
         x = 16 * Math.pow(Math.sin(a), 3);
-        y = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a));
+        y = 13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a);
         x *= 0.05; y *= 0.05;
         break;
       }
@@ -37,19 +42,46 @@ export function samplePath(name, n) {
         break;
       }
       case 'letter-A': {
-        // y-up: apex at the TOP (+0.8), feet at the bottom (-0.8). The
-        // old coords had the apex at -0.8, so the A drew upside down.
+        // A real letter "A": two diagonals meeting at the apex plus a
+        // crossbar, NO bottom side (the old path closed the triangle
+        // and added a stray bar, so it read as a triangle-with-a-line).
+        // Traced as one closed stroke: left foot -> apex -> right foot
+        // -> up the right leg to the crossbar -> across -> back down to
+        // the left foot (this last leg runs along the left diagonal,
+        // reinforcing it rather than adding a base). y-up, apex at top.
         const segs = [
-          [-0.6, -0.8], [0, 0.8], [0.6, -0.8], [-0.6, -0.8],
-          [-0.3, 0.0], [0.3, 0.0], [-0.3, 0.0], [-0.6, -0.8],
+          [-0.62, -0.8], [0.0, 0.85], [0.62, -0.8],
+          [0.30, -0.05], [-0.30, -0.05], [-0.62, -0.8],
         ];
         const segCount = segs.length - 1;
         const sf = t * segCount;
-        const k = Math.floor(sf);
+        const k = Math.min(segCount - 1, Math.floor(sf));
         const u = sf - k;
         const a = segs[k], b = segs[k + 1];
         x = a[0] + (b[0] - a[0]) * u;
         y = a[1] + (b[1] - a[1]) * u;
+        break;
+      }
+      case 'butterfly': {
+        // Fay's butterfly curve (Temple H. Fay, 1989). A single closed
+        // transcendental curve with rich high-order structure: a
+        // demanding, recognisable epicycle target.
+        const a = t * 12 * Math.PI;                       // standard Fay range
+        const rr = Math.exp(Math.cos(a)) - 2 * Math.cos(4 * a)
+                 + Math.pow(Math.sin(a / 12), 5);
+        x = Math.sin(a) * rr * 0.32;
+        y = Math.cos(a) * rr * 0.32;
+        break;
+      }
+      case 'spirograph': {
+        // Hypotrochoid (a classic spirograph rosette): rolling circle
+        // r inside fixed R, pen offset d. R=5, r=3 gives a 3-fold
+        // many-looped figure that closes after r/gcd revolutions.
+        const R = 5, r = 3, d = 5;
+        const th = t * 2 * Math.PI * 3;                   // closes in 3 turns
+        const k2 = (R - r) / r;
+        x = ((R - r) * Math.cos(th) + d * Math.cos(k2 * th)) * 0.11;
+        y = ((R - r) * Math.sin(th) - d * Math.sin(k2 * th)) * 0.11;
         break;
       }
       case 'circle': {

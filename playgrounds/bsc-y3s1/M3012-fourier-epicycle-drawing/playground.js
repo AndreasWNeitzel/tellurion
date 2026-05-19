@@ -14,6 +14,14 @@ const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
+// index.html ships an empty #readout panel; build its rows here so the
+// live invariant readout (mandatory) is actually visible.
+const readoutEl    = document.getElementById('readout');
+if (readoutEl) {
+  readoutEl.innerHTML =
+    '<span class="rk">reconstruction</span><span class="value" id="readout-invariant">...</span>'
+  + '<span class="rk">frame</span><span class="value" id="readout-frame">0</span>';
+}
 const readoutInv   = document.getElementById('readout-invariant') || { textContent: '' };
 const readoutFrame = document.getElementById('readout-frame') || { textContent: '' };
 const controlsEl   = document.getElementById('controls');
@@ -55,9 +63,14 @@ function frame(tSimFrac) {
   }
   ctx.stroke();
 
-  // Epicycles: walk the chain from the center, draw each circle + radius arm.
+  // Epicycles: walk the chain from the center. EVERY one of the M
+  // arms is drawn (the slider value must equal the visible chain
+  // length); only the circle outline is skipped when its radius is
+  // sub-pixel, since a < 0.4 px ring is invisible anyway.
   let cx = center.x, cy = center.y;
-  for (let i = 0; i < Math.min(state.M, state.coeffs.length); i += 1) {
+  const Mvis = Math.min(state.M, state.coeffs.length);
+  let circlesDrawn = 0;
+  for (let i = 0; i < Mvis; i += 1) {
     const c = state.coeffs[i];
     const ph = 2 * Math.PI * c.k * tSimFrac;
     const co = Math.cos(ph), si = Math.sin(ph);
@@ -65,24 +78,30 @@ function frame(tSimFrac) {
     const dy = -(c.re * si + c.im * co) * scale;
     const nx = cx + dx, ny = cy + dy;
     const r = c.amp * scale;
-    if (r > 0.5) {
-      ctx.strokeStyle = `hsla(${(i * 23) % 360}, 70%, 60%, 0.5)`;
+    if (r > 0.4) {
+      ctx.strokeStyle = `hsla(${(i * 47) % 360}, 70%, 62%, 0.45)`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, 2 * Math.PI);
       ctx.stroke();
-      ctx.strokeStyle = 'rgba(220,220,240,0.6)';
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(nx, ny);
-      ctx.stroke();
+      circlesDrawn += 1;
     }
+    // The radial arm is always drawn so the chain has exactly M links.
+    ctx.strokeStyle = 'rgba(220,220,240,0.55)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(nx, ny);
+    ctx.stroke();
     cx = nx; cy = ny;
   }
+  state._circlesDrawn = circlesDrawn;
+  state._Mvis = Mvis;
 
-  // Trail traced by tip.
+  // Trail traced by tip. The cap follows the effective period so a
+  // multi-winding preset still shows its whole closed figure.
   trail.push({ x: cx, y: cy });
-  if (trail.length > PERIOD + 4) trail.shift();
+  if (trail.length > effPeriod() + 4) trail.shift();
   ctx.strokeStyle = '#fdb56a';
   ctx.lineWidth = 1.6;
   ctx.beginPath();
@@ -100,17 +119,26 @@ function frame(tSimFrac) {
 let frameNo = 0;
 let lastReadoutAt = 0;
 const PERIOD = 480;
+// A preset whose closed path winds around the origin many times (the
+// butterfly does 6, the spirograph 3) would draw its pen "turbo fast"
+// at a fixed 480-frame traversal. Stretch the traversal so the pen
+// speed feels comparable across presets.
+const PRESET_PERIOD_MULT = { butterfly: 3, spirograph: 2 };
+function effPeriod() { return PERIOD * (PRESET_PERIOD_MULT[state.preset] || 1); }
 function tick() {
+  const per = effPeriod();
   // Clear the trail at the start of each period so the closed shape is
   // traced cleanly once per loop instead of overdrawing stale points.
-  if (frameNo % PERIOD === 0) trail.length = 0;
-  const tFrac = (frameNo % PERIOD) / PERIOD;
+  if (frameNo % per === 0) trail.length = 0;
+  const tFrac = (frameNo % per) / per;
   frame(tFrac);
   frameNo += 1;
   if (performance.now() - lastReadoutAt > 200) {
     lastReadoutAt = performance.now();
     const rms = rmsError(state.coeffs, state.M, state.path);
-    readoutInv.textContent = `RMS=${rms.toExponential(2)}  M=${state.M}/${N}`;
+    readoutInv.textContent =
+      `RMS=${rms.toExponential(2)}  epicycles=${state._Mvis ?? state.M}/${N}`
+      + `  (${state._circlesDrawn ?? state._Mvis ?? state.M} visible rings)`;
     readoutFrame.textContent = String(frameNo);
   }
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
@@ -124,7 +152,7 @@ function buildControls() {
   const sel  = document.createElement('select');
   sel.id = 'preset-select';
   sel.setAttribute('aria-label', 'Path preset');
-  for (const name of ['earth', 'heart', 'figure-eight', 'star-5', 'letter-A']) {
+  for (const name of ['earth', 'heart', 'butterfly', 'spirograph', 'figure-eight', 'star-5', 'letter-A']) {
     const opt = document.createElement('option'); opt.value = name; opt.textContent = name;
     sel.appendChild(opt);
   }
