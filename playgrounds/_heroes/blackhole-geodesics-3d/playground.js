@@ -34,9 +34,9 @@ const M = 1;
 const ui = { b: 5.6, spin: 0.0, t: 0, running: true };
 const geods = [];                       // recent fired geodesics
 
-function fire(type, b, L, E) {
+function fire(type, b, L, E, r0 = 46) {
   const g = integrateGeodesic({
-    type, M, r0: 46, b, L, E, dphi: 0.004, maxPhi: 70,
+    type, M, r0, b, L, E, dphi: 0.003, maxPhi: 90,
   });
   g.kind = type; g.b = b; g.anim = 0;
   geods.push(g); if (geods.length > 6) geods.shift();
@@ -73,8 +73,18 @@ function sel(label, opts, on) {
 sel('preset', ['photon capture', 'photon escape (grazing)', 'ISCO orbit', 'plunge'], (p) => {
   if (p === 'photon capture') { ui.b = bCrit(M) * 0.98; bS.value = ui.b.toFixed(2); fire('null', ui.b); }
   else if (p === 'photon escape (grazing)') { ui.b = bCrit(M) * 1.03; bS.value = ui.b.toFixed(2); fire('null', ui.b); }
-  else if (p === 'ISCO orbit') { const r = 6.2, L = Math.sqrt((r * r) / (r - 3)); fire('timelike', NaN, L, Math.sqrt((r - 2) ** 2 / (r * (r - 3)))); }
-  else { fire('timelike', NaN, 3.3, 0.965); }
+  else if (p === 'ISCO orbit') {
+    // Start AT the circular-orbit radius with the matching L and E,
+    // not 46M away with that L (which was the bug: the particle just
+    // fell in).
+    const r = 6.2, L = Math.sqrt((r * r) / (r - 3));
+    const E = Math.sqrt((r - 2) ** 2 / (r * (r - 3)));
+    fire('timelike', NaN, L, E, r);
+  } else {
+    // Plunge: start close enough to see the spiral in (small L, modest
+    // E) rather than just a straight fall from r0=46.
+    fire('timelike', NaN, 3.3, 0.965, 14);
+  }
 });
 const btnRow = document.createElement('div'); btnRow.className = 'row buttons';
 const bFire = document.createElement('button'); bFire.type = 'button'; bFire.textContent = 'Fire photon';
