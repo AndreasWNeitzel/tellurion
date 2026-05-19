@@ -9,7 +9,7 @@ import { makeRng, gaussian } from '../../../shared/js/render/rng.js';
 export const G     = 1;
 export const THETA = 1.0;          // Barnes-Hut opening angle (Barnes & Hut 1986)
 export const EPS   = 0.045;        // Plummer softening
-export const NTOT  = 10000;        // 10k bodies; the tree solve is
+export const NTOT  = 12000;        // 12k bodies; the tree solve is
                                    // worker-offloaded so the render
                                    // stays at 60fps
 export const DT    = 0.025;
@@ -32,7 +32,7 @@ export function buildGalaxies(state, seed) {
   // heavy) since it only needs to supply the smooth potential and the
   // dynamical-friction wake. Mass fractions below stay 20% stars /
   // 80% dark, so halo particles end up ~9x heavier than star particles.
-  const STAR_FRAC = 0.90;
+  const STAR_FRAC = 1 - 500 / NTOT;   // ~500 dark-matter particles total
   const nd1 = Math.round(STAR_FRAC * n1), nh1 = n1 - nd1;
   const nd2 = Math.round(STAR_FRAC * n2), nh2 = n2 - nd2;
   const Rd1 = 0.7, Rd2 = 0.5 * Math.sqrt(M2 / M1);

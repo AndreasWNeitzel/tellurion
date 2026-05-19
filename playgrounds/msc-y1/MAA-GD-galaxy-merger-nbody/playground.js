@@ -1,11 +1,11 @@
-// Galaxy merger as a real, fully three-dimensional 10000-body
+// Galaxy merger as a real, fully three-dimensional 12000-body
 // self-gravitating N-body. Gravity is the shared 3D Barnes-Hut octree
 // (shared/js/engine/barnes-hut-3d): O(N log N), no grid, no periodic
 // box, no analytic cores, no merge event (Barnes & Hut, Nature 324,
 // 446, 1986; mergers: Barnes & Efstathiou 1987; leapfrog +
 // Plummer-equivalent softening after Springel 2005, GADGET-2).
 //
-// 10000 bodies cannot be tree-solved per frame on the main thread
+// 12000 bodies cannot be tree-solved per frame on the main thread
 // (~50 ms/step), so the LIVE path runs the solver in a Web Worker and
 // the main thread renders the latest 3D snapshot at a steady 60fps.
 // The DETERMINISTIC capture path (the SSIM gate) runs the SAME model
@@ -70,8 +70,11 @@ function render() {
       const dx = X[3 * kk] - c[0], dy = X[3 * kk + 1] - c[1], dz = X[3 * kk + 2] - c[2];
       const x1 = dx * cyaw - dy * syaw, y1 = dx * syaw + dy * cyaw;
       const sx = cx + x1 * SCR;
-      const sy = cy + (y1 * cpit - dz * spit) * SCR;
-      const dep = y1 * spit + dz * cpit;
+      // Polar angle: pitch = 0 edge-on (disk thickness on screen),
+      // pitch = +/-90 deg the two face-on views (camera on the disk
+      // axis). screen_y = y1 sin p + z cos p; depth = z sin p - y1 cos p.
+      const sy = cy + (y1 * spit + dz * cpit) * SCR;
+      const dep = dz * spit - y1 * cpit;
       proj[3 * kk] = sx; proj[3 * kk + 1] = sy; proj[3 * kk + 2] = dep;
       if (dep < dmin) dmin = dep; if (dep > dmax) dmax = dep;
       if (KIND[kk] < 2) {
@@ -118,7 +121,7 @@ function render() {
     ctx.globalCompositeOperation = 'source-over';
   }
   ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('3D self-gravitating merger (10000-body Barnes-Hut, COM frame)', 12, 20);
+  ctx.fillText(`3D self-gravitating merger (${NTOT}-body Barnes-Hut, COM frame)`, 12, 20);
   ctx.fillStyle = 'rgba(154,160,176,0.7)'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('drag: rotate   wheel: zoom   shift-drag: pan', 12, H - 14);
 
