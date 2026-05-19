@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-DM
 supporting_ucs: [MAA-ST]
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Variational inference turns Bayesian inference into optimization; watch a mean-field Gaussian squeeze itself into a curved banana posterior and see exactly what that approximation gets wrong.'
+one_paragraph: 'The true posterior is a long curved Rosenbrock valley, p(x,y) proportional to exp[-(x^2 + 10(y - x^2)^2)/2]. Variational inference replaces sampling with optimization: it fits the closest member of a simple family, here the mean-field Gaussian q(x,y) = N(x | mu_x, sigma_x^2) N(y | mu_y, sigma_y^2), which by construction cannot represent any x-y correlation. Maximizing the evidence lower bound (equivalently minimizing the reverse KL divergence from q to p) is mode-seeking: q collapses onto one region and underestimates the variance rather than averaging over the whole curved ridge, the canonical failure mode the visible mismatch makes obvious. The playground animates the Gaussian ellipse climbing the ELBO onto the banana while the readout tracks the bound. Reference: Bishop, Pattern Recognition and Machine Learning, Chapter 10; Blei, Kucukelbir and McAuliffe 2017.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
