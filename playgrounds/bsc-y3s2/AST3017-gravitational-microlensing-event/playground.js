@@ -2,10 +2,12 @@
 // projection; magnification A(u) and image positions theta_pm visualized.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { magnification, imagePositions, lightCurve } from './sim.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
@@ -26,25 +28,6 @@ const bgStars = (() => {
   }
   return out;
 })();
-
-function magnification(u) {
-  return (u * u + 2) / (Math.max(u, 1e-6) * Math.sqrt(u * u + 4));
-}
-
-function imagePositions(u) {
-  const d = Math.sqrt(u * u + 4);
-  return [0.5 * (u + d), 0.5 * (u - d)]; // in units of theta_E
-}
-
-function lightCurve(uMin, tE, tArr) {
-  const A = new Array(tArr.length);
-  for (let i = 0; i < tArr.length; i += 1) {
-    const t = tArr[i];
-    const u = Math.sqrt(uMin * uMin + (t / tE) ** 2);
-    A[i] = magnification(u);
-  }
-  return A;
-}
 
 const tSeries = (() => { const a = []; for (let i = -120; i <= 120; i += 2) a.push(i); return a; })();
 const Acurve  = lightCurve(state.uMin, state.tE, tSeries);
@@ -148,7 +131,15 @@ function buildControls() {
 buildControls();
 render();
 if (DETERMINISTIC) {
-  state.t = 0; render();
+  if (CAPTURE_NAME) {
+    // Sweep the event in time so the five frames show the light curve
+    // rising, peaking and fading with the images and lens position.
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    state.t = -120 + frac * 240;
+  } else {
+    state.t = 0;
+  }
+  render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
 } else {
@@ -156,8 +147,8 @@ if (DETERMINISTIC) {
 }
 
 window.__physicsCheck = async () => {
-  // At u=0.3: A = (0.09 + 2)/(0.3 * sqrt(0.09 + 4)) = 2.09/0.604 = 3.461
+  // At u=0.3: A = (0.09 + 2)/(0.3 sqrt(4.09)) = 2.09/0.60671 = 3.4448.
   const A = magnification(0.3);
-  if (Math.abs(A - 3.461) > 0.005) return { name: 'Paczynski formula', pass: false, msg: `A(0.3) = ${A.toFixed(4)} expected 3.461` };
+  if (Math.abs(A - 3.4448) > 0.005) return { name: 'Paczynski formula', pass: false, msg: `A(0.3) = ${A.toFixed(4)} expected 3.4448` };
   return { name: 'Paczynski A(u)', pass: true, msg: `A(0.3) = ${A.toFixed(4)}` };
 };
