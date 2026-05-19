@@ -134,6 +134,42 @@ class AudioSystem {
   // C4 / C5: filter chip toggled on / off.
   filterActivate() { const c = this._ready(); if (c) this._blip(c, 660, 0.05, 0.025, 0.004, 0); }
   filterDeactivate() { const c = this._ready(); if (c) this._blip(c, 520, 0.05, 0.018, 0.004, 0); }
+
+  // G: barely-perceptible ambient drone. Two detuned 40/41.2 Hz sines
+  // beating at ~1.2 Hz, 3 s fade-in. Returns the new on/off state.
+  ambientActive() { return !!this._amb; }
+  toggleAmbient() {
+    if (this._amb) { this._stopAmbient(); return false; }
+    if (!this.enabled) return false;
+    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return false; } }
+    const c = this.ctx; if (!c) return false;
+    if (c.state === 'suspended') { try { c.resume(); } catch { /* ignore */ } }
+    const t = c.currentTime;
+    const mk = (f) => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.00001, t);
+      g.gain.linearRampToValueAtTime(0.006, t + 3.0);
+      o.connect(g); g.connect(c.destination); o.start(t);
+      return { o, g };
+    };
+    this._amb = [mk(40), mk(41.2)];
+    return true;
+  }
+  _stopAmbient() {
+    if (!this._amb) return;
+    const c = this.ctx, t = c ? c.currentTime : 0;
+    for (const n of this._amb) {
+      try {
+        n.g.gain.cancelScheduledValues(t);
+        n.g.gain.setValueAtTime(n.g.gain.value, t);
+        n.g.gain.linearRampToValueAtTime(0.00001, t + 0.4);
+        n.o.stop(t + 0.45);
+        n.o.onended = () => { try { n.o.disconnect(); n.g.disconnect(); } catch { /* ignore */ } };
+      } catch { /* ignore */ }
+    }
+    this._amb = null;
+  }
 }
 
 let _singleton = null;

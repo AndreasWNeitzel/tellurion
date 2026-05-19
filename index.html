@@ -130,6 +130,13 @@ footer a{color:var(--text-secondary);text-decoration:none}
   z-index:150;opacity:0;transition:opacity 250ms ease;pointer-events:none}
 .scrollprog.on{opacity:1}
 .scrollprog .sp-fill{height:100%;width:0;background:var(--accent)}
+.ambtoggle{position:fixed;right:16px;bottom:14px;z-index:150;width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;background:transparent;border:none;
+  color:var(--text-dimmed);font-size:16px;cursor:pointer;line-height:1;font-family:var(--f-ui)}
+.ambtoggle:hover{color:var(--text-secondary)}
+.ambtoggle .dot{position:absolute;top:2px;right:2px;width:4px;height:4px;border-radius:50%;
+  background:var(--accent);display:none}
+.ambtoggle.on .dot{display:block}
 .cur-group:not(.seen) .ln{transform:scaleX(0)}
 .cur-group:not(.seen) h3{opacity:0}
 .cur-group .ln{transform-origin:left;transition:transform 600ms ease-out}
@@ -2652,6 +2659,7 @@ footer a{color:var(--text-secondary);text-decoration:none}
   </a></div>
 </section>
 
+<button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
 <footer>Andreas W. Neitzel &middot; ORCID 0000-0001-6283-907X &middot; IA/CAUP, University of Porto</footer>
 
 <script>
@@ -2828,6 +2836,19 @@ footer a{color:var(--text-secondary);text-decoration:none}
     };
     window.addEventListener('scroll',onScroll,{passive:true});
     window.addEventListener('resize',onScroll); onScroll();
+  }
+
+  // G: ambient-sound toggle, off by default, state in sessionStorage.
+  var ambBtn=document.getElementById('ambtoggle');
+  if(ambBtn){
+    var savedOn=false; try{ savedOn=sessionStorage.getItem('pg:amb')==='1'; }catch(e){}
+    ambBtn.classList.toggle('on',savedOn);
+    ambBtn.addEventListener('click',function(){
+      var a=aud(); if(!a){ return; }
+      var on=a.toggleAmbient();
+      ambBtn.classList.toggle('on',on);
+      try{ sessionStorage.setItem('pg:amb',on?'1':'0'); }catch(e){}
+    });
   }
 
   // Lazy-load category thumbnails (Section 5). Until the files exist
