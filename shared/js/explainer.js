@@ -267,9 +267,14 @@ function mountChrome() {
     '::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}',
     '::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:3px}',
     '::-webkit-scrollbar-thumb:hover{background:var(--border-active)}',
-    'body{position:relative;z-index:0}',
+    // No transform on <body>: a transformed ancestor would reparent
+    // position:fixed (back button, "What is this?" FAB) to the body
+    // box instead of the viewport. Opacity-only page fade. The
+    // padding-top keeps the playground title clear of the fixed back
+    // button. (Chrome is capture-suppressed, so goldens are untouched.)
+    'body{position:relative;z-index:0;padding-top:60px;opacity:1;transition:opacity .3s ease}',
+    'body.pg-leaving{opacity:0}',
     '#ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}',
-    'body{opacity:1;transform:translateY(0);transition:opacity .3s ease,transform .3s ease}body.pg-leaving{opacity:0;transform:translateY(6px)}',
     '@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}',
     '.pg-back{position:fixed;top:20px;left:20px;z-index:100;display:flex;align-items:center;gap:8px;',
     'padding:8px 14px 8px 10px;background:var(--bg-frosted);backdrop-filter:blur(12px);',
@@ -325,28 +330,9 @@ function mountChrome() {
   });
   document.body.appendChild(back);
   // Entry: slide in from the left, 400 ms after load (Section 10).
+  // No mouse parallax: it read as laggy/buggy and is removed.
   if (reduce) back.classList.add('in');
   else setTimeout(() => back.classList.add('in'), 400);
-
-  // E3: very subtle weighty parallax (max 3px, spring damping 0.08).
-  if (!reduce && !('ontouchstart' in window)) {
-    let tx = 0, ty = 0, cx = 0, cy = 0, parking = false;
-    window.addEventListener('mousemove', (ev) => {
-      tx = Math.max(-3, Math.min(3, (ev.clientX - window.innerWidth / 2) / window.innerWidth * 6));
-      ty = Math.max(-3, Math.min(3, (ev.clientY - window.innerHeight / 2) / window.innerHeight * 6));
-    }, { passive: true });
-    setTimeout(() => {
-      back.style.transition = 'border-color var(--t-fast),background var(--t-fast)';
-      parking = true;
-      const tick = () => {
-        if (!parking) return;
-        cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
-        back.style.transform = `translate(${cx.toFixed(2)}px,${cy.toFixed(2)}px)`;
-        requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    }, 800);                                    // after the entry slide settles
-  }
 
   if (!reduce) {
     document.body.classList.add('pg-leaving');

@@ -4,7 +4,8 @@
 // touch devices or under prefers-reduced-motion.
 //
 // Disable in one place (spec H4):
-const CURSOR_ENABLED = true;
+// Disabled: the ghost cursor read as buggy/laggy/annoying.
+const CURSOR_ENABLED = false;
 
 const HOVER_SEL = '.card, .rcard, a, button, .chip, input, select, [role="button"]';
 
