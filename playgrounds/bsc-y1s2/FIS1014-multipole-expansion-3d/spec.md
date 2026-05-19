@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Far away, even a messy charge cluster looks like one number. The error map shows exactly how far away "far" has to be.'
-one_paragraph: 'The exact electrostatic potential of a charge cluster, its multipole expansion truncated at a chosen order, and the error between them, shown as three field maps. The error blows up near the charges and collapses far away, and each extra term tightens it; a sweeping probe traces the relative error against distance. Exact and multipole come from the headless sim.js.'
+one_paragraph: 'Far from a localized charge cluster the potential can be expanded in inverse powers of distance, V(r) = (1/4 pi eps0)[q/r + p.rhat/r^2 + quadrupole/r^3 + ...], the multipole expansion: a far observer sees first the net charge, then the dipole, then finer structure. The three field maps show the exact potential, the expansion truncated at a chosen order, and their difference. The error is large near the charges (where the expansion does not converge) and falls off rapidly with distance, and each extra term tightens it further out; a sweeping probe traces the relative error against distance so the 1/r, 1/r^2, 1/r^3 hierarchy is explicit. Reference: Griffiths, Introduction to Electrodynamics, Chapter 3; Jackson, Classical Electrodynamics, Chapter 4.'
 tags: [electromagnetism, field-visualization, interactive-drag, animation]
 difficulty: 3
 tier: medium
