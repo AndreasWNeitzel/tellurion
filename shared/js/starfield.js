@@ -23,7 +23,9 @@ export class StarField {
     c.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block';
     this.canvas = c;
     this.ctx = c.getContext('2d', { alpha: false });
-    document.body.appendChild(c);
+    // Parent to <html>, not <body>: page-transition fades set opacity
+    // on body, and the star field must never fade or reinitialise.
+    document.documentElement.appendChild(c);
 
     this.scrollY = window.scrollY || 0;
     this.mx = 0; this.my = 0;            // mouse offset from viewport centre

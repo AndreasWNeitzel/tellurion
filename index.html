@@ -108,12 +108,20 @@ body{max-width:1280px;margin:0 auto;padding:0 24px 64px;background:transparent;c
 .cur-wrap{overflow:hidden;transition:max-height .3s ease;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 footer{padding:32px 0 8px;color:var(--text-dimmed);font-size:12px;font-family:var(--f-mono)}
 footer a{color:var(--text-secondary);text-decoration:none}
-body{opacity:1;transition:opacity .3s ease}
-body.leaving{opacity:0}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Page transitions (Section 9): fades only, no slide/zoom. The star
+   field canvas is parented to <html> so it never fades. */
+.page-transition{position:fixed;inset:0;background:var(--bg-void);opacity:0;
+  pointer-events:none;z-index:9000;transition:opacity 200ms ease}
+.page-transition.show{opacity:1}
+.card.sel{transform:scale(1.02);opacity:0;transition:transform 200ms ease,opacity 200ms ease;z-index:5}
+.content-fade{opacity:1;transition:opacity 200ms ease}
+.content-fade.out{opacity:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
+  .page-transition{opacity:1!important;display:none}}
 </style>
 </head>
 <body>
+<div class="page-transition show" id="ptrans" aria-hidden="true"></div>
 <script type="module">
   import { mountStarField } from './shared/js/starfield.js';
   mountStarField();
@@ -2706,13 +2714,18 @@ body.leaving{opacity:0}
     });
   });
   clearBtn.addEventListener('click',function(){ active={}; chips.forEach(function(c){c.classList.remove('active');}); render(); });
+  var ptrans=document.getElementById('ptrans');
+  // Fade the overlay out on arrival (landing fades in). Reduced motion
+  // hides the overlay via CSS, so this is a no-op there.
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ if(ptrans)ptrans.classList.remove('show'); }); });
   cards.forEach(function(c){
     c.addEventListener('mouseenter',ping);
     c.addEventListener('click',function(e){
       if(reduce)return;
       e.preventDefault(); var href=c.getAttribute('href');
-      document.body.classList.add('leaving');
-      setTimeout(function(){ location.href=href; },300);
+      c.classList.add('sel');                       // clicked card scales + fades
+      if(ptrans)ptrans.classList.add('show');        // rest fades to void
+      setTimeout(function(){ location.href=href; },230);
     });
   });
   render();
