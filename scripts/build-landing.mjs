@@ -284,8 +284,7 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .cur-group .chev{color:var(--text-dimmed);font-size:0.8125rem;width:12px;transition:transform var(--t-fast)}
 .cur-group.collapsed .chev{transform:rotate(-90deg)}
 .cur-wrap{overflow:hidden;transition:max-height .3s ease;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
-footer{padding:32px 0 8px;color:var(--text-dimmed);font-size:12px;font-family:var(--f-mono)}
-footer a{color:var(--text-secondary);text-decoration:none}
+@media(max-width:600px){.sitefoot{flex-direction:column;height:auto;gap:6px;padding:20px 0;text-align:center}}
 /* Page transitions (Section 9): fades only, no slide/zoom. The star
    field canvas is parented to <html> so it never fades. */
 .page-transition{position:fixed;inset:0;background:var(--bg-void);opacity:0;
@@ -493,7 +492,7 @@ footer a{color:var(--text-secondary);text-decoration:none}
 </section>
 
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
-<footer>Andreas W. Neitzel &middot; ORCID 0000-0001-6283-907X &middot; IA/CAUP, University of Porto</footer>
+<footer class="sitefoot"><span>&copy; ${BUILD_YEAR} Andreas W. Neitzel</span><span>Physics &middot; Astrophysics &middot; University of Porto</span></footer>
 
 <script>
 (function(){
