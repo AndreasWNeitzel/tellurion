@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, existsSync } from 'node:fs';
 import { join, basename, dirname, relative } from 'node:path';
 
 function* walk(dir) {
@@ -103,7 +103,10 @@ const shortBadge = (b) => (b === 'Advanced' || b === 'Featured') ? 'Adv' : b;
 for (const c of cards) {
   c.ptag = canonTag(c.tags[0]);
   c.tagcolor = `var(--tag-${TAG_COLORVAR[c.ptag] || 'numerics'})`;
-  c.thumb = TAG_THUMB[c.ptag] || '';
+  const tf = TAG_THUMB[c.ptag] || '';
+  // Only reference a thumbnail that actually exists, so cards stay on
+  // the clean placeholder (no 404 console noise) until the files land.
+  c.thumb = (tf && existsSync(join('assets', 'thumbs', tf))) ? tf : '';
 }
 
 function cardHTML(c, featured = false) {
