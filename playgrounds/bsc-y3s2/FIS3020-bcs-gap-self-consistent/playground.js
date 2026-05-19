@@ -2,6 +2,7 @@ import { gapAtT, Tc, gapZero } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rD = document.getElementById('readout-d');
 const sN = document.getElementById('slider-N'), vN = document.getElementById('value-N');
@@ -123,5 +124,15 @@ function tick() {
   render();
   requestAnimationFrame(tick);
 }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    // Sweep the reduced temperature so the five frames show the gap
+    // closing from near-full down to zero through Tc.
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st.tRel = 0.05 + frac * 1.0;
+    sT.value = String(st.tRel); vT.textContent = st.tRel.toFixed(2);
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
