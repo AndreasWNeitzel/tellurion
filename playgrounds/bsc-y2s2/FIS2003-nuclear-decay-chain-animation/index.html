@@ -7,25 +7,26 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 900px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
-  .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 9ch 9ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+  .pg-figure { max-width: 1200px; position: relative; }
+  .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; border-radius: 4px; }
+  .readout-panel { margin-top: var(--space-3); background: rgba(8,10,14,0.7); padding: 10px 14px; border-radius: 4px; display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 14px; row-gap: 4px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; }
+  .readout-panel .label { color: var(--fg-muted); font-size: 11px; opacity: 0.75; }
+  .readout-panel .value { color: var(--fg); font-variant-numeric: tabular-nums; padding-bottom: 4px; }
   figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 8ch; gap: var(--space-2); align-items: center; font-size: 13px; color: var(--fg-muted); }
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 3; gap: var(--space-3); }
 </style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Radioactive Decay Chain</h1>
-  <div data-slot="description" class="katex-target">A heavy nucleus walks a decay series to stable lead. Each step is a real transmutation: alpha decay sheds a He-4 cluster ($Z{-}2$, $N{-}2$), beta-minus turns a neutron into a proton ($Z{+}1$, $N{-}1$). The Q value comes from the semi-empirical mass formula and the alpha half-life from the Geiger-Nuttall law $\log_{10} t_{1/2} = aZ_d/\sqrt{Q} - b$. The side panel is the Segre chart tracing the path from the parent to the stable endpoint (Pb-206 for U-238, Pb-208 for Th-232).</div>
+  <div data-slot="description" class="katex-target">A heavy nucleus (rendered in 3D as close-packed protons and neutrons) walks a decay series to stable lead. Each step is a real transmutation: alpha decay sheds a He-4 cluster ($Z{-}2$, $N{-}2$); beta-minus turns a neutron into a proton ($Z{+}1$, $N{-}1$). The Q value comes from the semi-empirical mass formula and the alpha half-life from the Geiger-Nuttall law $\log_{10} t_{1/2} = 1.72 \, Z_d / \sqrt{Q} - 53.6$, with the slope set by Gamow tunnelling through the Coulomb barrier. The three panels: the nucleus (left), the Geiger-Nuttall log half-life trend (top right), the Segre chart path to the stable endpoint (bottom right).</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="900" height="600"></canvas>
+  <canvas id="stage" width="1200" height="680"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Nucleus transmutation along a decay series with the Segre-chart path and Geiger-Nuttall half-life. Source: Krane, Introductory Nuclear Physics, Ch. 3, 6-8 (`krane-nuclear`).</figcaption>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Nucleus transmutation along a decay series with the Geiger-Nuttall log half-life trend and the Segre-chart path. Source: Krane, Introductory Nuclear Physics, Ch. 3, 6-8 (`krane-nuclear`).</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
 <div id="custom-controls"></div>
