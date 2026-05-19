@@ -30,8 +30,14 @@ const MAP = {
   math_field: 'thumb-numerics.jpg',               // flow field / vector field
   orbits: 'thumb-mechanics.jpg',                  // orbital trails
   bioluminescent_field: 'thumb-quantum.jpg',      // wavefunction / field surface
-  interference_pattern: 'thumb-optics.jpg',       // fringes (optics)
-  // eclipse: held for a future solar / occultation card.
+  interference_pattern: 'thumb-optics.jpg',       // double-slit fringes (.webp)
+  tesla_coil: 'thumb-electromagnetism.jpg',       // arc discharge
+  glowing_hot_metal: 'thumb-thermodynamics.jpg',  // hot billet / heat
+  bismuth: 'thumb-condensed-matter.jpg',          // iridescent crystal (solid-state)
+  gravitational_grid: 'thumb-cosmology.jpg',      // spacetime curvature sheet
+  // Spares (no card category yet): eclipse (held for the 3D-Earth /
+  // occultation card), pyrite + crystal_lattice (more solid-state),
+  // frost_crystals (a future nucleation / phase-transition card).
 };
 
 mkdirSync(OUT, { recursive: true });
