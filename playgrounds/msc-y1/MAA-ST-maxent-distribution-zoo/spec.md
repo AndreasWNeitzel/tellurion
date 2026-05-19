@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-ST
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Tell the playground only a few facts about a quantity (its range, its mean, its variance) and it draws the single least-committal distribution consistent with them. The same rule produces the uniform, the exponential, the Gaussian and the Laplace, one per constraint set.'
+one_paragraph: 'The maximum-entropy principle (Jaynes 1957) picks, among all densities consistent with given constraints, the one that maximises the differential entropy h[p] = -integral p ln p dx, which forces the exponential-family form p(x) proportional to exp(sum_k lambda_k f_k(x)). Fixing only the support [a, b] gives the uniform; a mean on [0, infinity) gives the exponential e^{-x/mu}/mu; a mean and variance on the whole line give the Gaussian; a mean and a fixed E|X - mu| give the Laplace. The playground lets you choose which moments are fixed and shows the maximum-entropy density snap to the matching member of the zoo, with its closed-form and numerically integrated entropy side by side, making concrete that choosing a distribution is the same as choosing which constraints you assume. Reference: Cover and Thomas, Elements of Information Theory, 2nd ed., Chapter 12; Jaynes, Physical Review 106, 620 (1957).'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
