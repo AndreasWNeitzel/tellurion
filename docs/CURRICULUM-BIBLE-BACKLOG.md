@@ -525,7 +525,7 @@ docs/NEEDS-ATTENTION.md, move on.
 Standing user directive (2026-05-18). The build backlog being empty does
 NOT mean done; this phase is mandatory and is itself backlog work.
 
-- [ ] qa-pedagogy-devnotes-sweep : ONE rigorous pass over EVERY shipped
+- [x] qa-pedagogy-devnotes-sweep : ONE rigorous pass over EVERY shipped
   playground (all years/UCs, ~307+ cards), doing all three of the
   following per playground so it is opened and analysed once:
   (A) QA SCRUTINY + FIX: load the live page in a real browser; confirm
