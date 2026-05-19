@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: binney-tremaine
 primary_chapter: 4
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The simplest model that explains why galaxy rotation curves are flat (the original dynamical case for dark matter): a self-gravitating ball whose particle speeds are the same everywhere.'
+one_paragraph: 'Treat the stars or dark matter as an isothermal self-gravitating fluid with a constant velocity dispersion sigma acting like a fixed temperature. Hydrostatic equilibrium against its own gravity (equivalently the isotropic Jeans equation) has the exact singular solution rho(r) = sigma^2 / (2 pi G r^2). Because the enclosed mass then grows linearly with radius, M(r) proportional to r, the circular speed v_c = sqrt(G M(r)/r) = sqrt(2) sigma is independent of radius: a flat rotation curve with no fine tuning, which is exactly what extended dark halos reproduce in real galaxies. The playground plots the density, enclosed mass and the resulting flat rotation curve as sigma is varied. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 4.'
 tags: [galactic, animation, live-readout]
 difficulty: 3
 tier: simple

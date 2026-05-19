@@ -2284,8 +2284,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Spiral Density-Wave Dispersion
 `playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion` | MAA-GD | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: $\nu^2(k)$ for tightly-wound spiral waves; Toomre $Q$ boundary. Source: Binney-Tremaine Ch. 6 (`binney-tremaine`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: In the tight-winding (WKB) limit a small-amplitude density wave in a differentially rotating stellar disk obeys the Lin-Shu dispersion relation (omega - m Omega)^2 = kappa^2 - 2 pi G Sigma |k| F(s, Q), linking the pattern frequency to the radial wavenumber k through the epicyclic frequency kappa, the surface density Sigma and the reduction factor F. A single dimensionless number, Toomre''s Q = kappa sigma_R / (3.36 G Sigma), decides stability: for Q > 1 the disk is stable to axisymmetric perturbations and only certain wavelengths support travelling waves, while Q < 1 lets perturbations grow. The playground plots the dispersion curve and the forbidden band as Q and the wavenumber vary, showing why arms are a self-sustained wave rather than a material structure. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 6.
+- Hook: A galaxy''s spiral arms are not fixed strings of stars but a wave pattern, like the bunching of cars in a traffic jam, that the disk material flows through.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with spiral instability in accretion disks or galaxy disks, linear dispersion relation (perturbation growth), Toomre Q parameter, self-gravitating instabi
