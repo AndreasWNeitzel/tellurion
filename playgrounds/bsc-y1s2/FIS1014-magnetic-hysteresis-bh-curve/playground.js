@@ -29,7 +29,19 @@ for (const k of READOUTS) {
 const st = { preset: 'hard steel', k: 0.95, Ms: 1.4, Hm: 3.0, t: 0 };
 function par() { const base = PRESETS[st.preset]; return { ...base, k: st.k, Ms: st.Ms }; }
 let P = par(), loop = sweepLoop(P, st.Hm), M = 0, Hprev = 0;
-function rebuild() { P = par(); loop = sweepLoop(P, st.Hm); }
+// The reference loop is the STEADY-STATE B-H cycle; a fresh jaStep
+// starts at M = 0 on the initial-magnetisation curve and would
+// disagree with the reference for the first few cycles (and after
+// every parameter change). Run several cycles of jaStep so M reaches
+// the steady-state loop before the user sees the ball.
+function warmupToSteady() {
+  const W = 1400, dt = 0.02;
+  for (let s = 0; s < W; s += 1) {
+    st.t += dt;
+    jaStep(st.Hm * Math.sin(st.t * 1.1));
+  }
+}
+function rebuild() { P = par(); loop = sweepLoop(P, st.Hm); warmupToSteady(); }
 let running = true;
 
 // Seeded per-domain switching thresholds (a wave of reversal as M grows).
@@ -64,7 +76,7 @@ const bRow = document.createElement('div'); bRow.className = 'row buttons';
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
 bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
-bReset.addEventListener('click', () => { Object.assign(st, { preset: 'hard steel', k: 0.95, Ms: 1.4, Hm: 3.0, t: 0 }); selP.value = 'hard steel'; cK.inp.value = '0.95'; cK.vEl.textContent = '0.95'; cM.inp.value = '1.4'; cM.vEl.textContent = '1.40'; cH.inp.value = '3'; cH.vEl.textContent = '3.0'; rebuild(); M = 0; Hprev = 0; running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
+bReset.addEventListener('click', () => { Object.assign(st, { preset: 'hard steel', k: 0.95, Ms: 1.4, Hm: 3.0, t: 0 }); selP.value = 'hard steel'; cK.inp.value = '0.95'; cK.vEl.textContent = '0.95'; cM.inp.value = '1.4'; cM.vEl.textContent = '1.40'; cH.inp.value = '3'; cH.vEl.textContent = '3.0'; M = 0; Hprev = 0; rebuild(); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
 
 function jaStep(Hn) {
@@ -159,6 +171,7 @@ function tick() {
 }
 function bootSync() {
   if (CAPTURE_NAME) { st.t = CAPTURE_FRAC * 6; let hp = 0; M = 0; Hprev = 0; for (let s = 1; s <= 400; s += 1) { const tt = (s / 400) * st.t; jaStep(st.Hm * Math.sin(tt * 1.1)); } st.t = CAPTURE_FRAC * 6; }
+  else { warmupToSteady(); }                            // start the ball on the steady loop
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
