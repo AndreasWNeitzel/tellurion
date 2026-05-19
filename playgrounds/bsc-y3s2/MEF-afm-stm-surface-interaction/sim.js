@@ -36,6 +36,16 @@ export function surfaceProfile(x, amp = 0.5, latticeA = 4) {
   return amp * Math.cos(2 * Math.PI * x / latticeA);
 }
 
+// 2D atomic corrugation for the micrograph view: a square lattice of
+// bumps z = amp/2 (cos 2pi x/a + cos 2pi y/a), in [-amp, amp],
+// exactly periodic with lattice constant a in both x and y, and
+// reducing along a row to the 1D surfaceProfile shape (a (100)-type
+// surface). Ashcroft-Mermin Ch. 4.
+export function surfaceProfile2D(x, y, amp = 0.5, latticeA = 4) {
+  const k = 2 * Math.PI / latticeA;
+  return 0.5 * amp * (Math.cos(k * x) + Math.cos(k * y));
+}
+
 // STM constant-height current map: gap = h0 - z_s(x).
 export function stmConstantHeight(x, h0, V, phiEv, amp = 0.5, a = 4) {
   return stmCurrent(h0 - surfaceProfile(x, amp, a), V, phiEv);

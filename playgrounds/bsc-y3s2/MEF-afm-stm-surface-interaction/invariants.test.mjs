@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ljPotential, ljForce, ljMinDistance, kappa, stmCurrent,
   decadePerAngstrom, surfaceProfile, stmTopograph, afmForceScan,
+  surfaceProfile2D,
 } from './sim.js';
 
 describe('afm-stm-surface-interaction invariants', () => {
@@ -64,5 +65,20 @@ describe('afm-stm-surface-interaction invariants', () => {
   it('deterministic: pure functions reproduce outputs exactly', () => {
     expect(stmCurrent(5, 1, 4)).toBe(stmCurrent(5, 1, 4));
     expect(ljForce(3.2, 0.02, 3)).toBe(ljForce(3.2, 0.02, 3));
+  });
+
+  it('surfaceProfile2D is bounded by amp, lattice-periodic, and corrugated', () => {
+    const amp = 0.6, a = 4;
+    let mn = Infinity, mx = -Infinity;
+    for (let i = 0; i < 60; i += 1) for (let j = 0; j < 60; j += 1) {
+      const v = surfaceProfile2D(i * 0.31, j * 0.27, amp, a);
+      if (v < mn) mn = v; if (v > mx) mx = v;
+    }
+    expect(mx).toBeLessThanOrEqual(amp + 1e-9);
+    expect(mn).toBeGreaterThanOrEqual(-amp - 1e-9);
+    expect(mx - mn).toBeGreaterThan(0.3 * amp);                 // real corrugation
+    // periodic under (x,y) -> (x + a, y) and (x, y + a)
+    expect(surfaceProfile2D(1.3, 2.1, amp, a)).toBeCloseTo(surfaceProfile2D(1.3 + a, 2.1, amp, a), 9);
+    expect(surfaceProfile2D(1.3, 2.1, amp, a)).toBeCloseTo(surfaceProfile2D(1.3, 2.1 + a, amp, a), 9);
   });
 });
