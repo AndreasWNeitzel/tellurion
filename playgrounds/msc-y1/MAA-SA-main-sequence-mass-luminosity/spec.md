@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: carroll-ostlie
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The single most important relation in stellar astrophysics: a main-sequence star''s luminosity is set almost entirely by its mass and rises steeply, roughly as mass cubed, so massive stars live fast and die young.'
+one_paragraph: 'For a star in hydrostatic and radiative equilibrium, dimensional (homology) scaling of the structure equations gives a steep power law L proportional to M^alpha with alpha about 3 to 4 (alpha near 3 for massive, electron-scattering-dominated stars, closer to 4-5 for low-mass stars). Since the available nuclear fuel scales only as M while the burn rate scales as L, the main-sequence lifetime is tau proportional to M / L proportional to M^(1-alpha), so a tenfold mass increase shortens the life by roughly a factor of a thousand. The playground plots the mass-luminosity relation and the resulting lifetime across the main sequence, the one fact that explains the demographics of stellar populations. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Chapter 7.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple

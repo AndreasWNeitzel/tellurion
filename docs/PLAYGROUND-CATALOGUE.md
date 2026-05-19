@@ -2498,8 +2498,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Binary Symmetric Channel and the Repetition Code
 `playgrounds/msc-y1/MAA-ST-channel-capacity-bsc` | MAA-ST | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: If a communication channel randomly corrupts your bits, how much information can you still send reliably? Shannon's answer is exact and surprising: there is a hard ceiling (the capacity), and below it you can drive the error rate to zero with clever coding. The playground uses the simplest channel, the binary symmetric channel, and the simplest code, repetition, to make this concrete.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The binary symmetric channel flips each transmitted bit independently with probability p. Its capacity is C(p) = 1 - H(p) bits per use, where H(p) = -p log2 p - (1-p) log2 (1-p) is the binary entropy; C is 1 for a clean channel, 0 at p = 1/2 (pure noise). Shannon''s noisy-channel coding theorem says any rate below C is achievable with arbitrarily low error given long enough codes, while no scheme beats C. The playground demonstrates this with the simplest code: an n-fold repetition code with majority vote has rate 1/n and a residual error that shrinks as n grows, visibly hugging but never crossing the capacity bound. Reference: Cover and Thomas, Elements of Information Theory, Chapters 2 and 7; Shannon 1948.
+- Hook: If a channel randomly flips your bits, how much can you still send reliably? Shannon''s answer is exact: there is a hard ceiling, and below it the error rate can be driven to zero.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [medium] Placeholder hooks in spec.md (needs_hook, needs_paragraph); fill with non-placeholder content
@@ -2509,8 +2509,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### KL Divergence Asymmetry (Mass-Covering vs Mode-Seeking)
 `playgrounds/msc-y1/MAA-ST-kl-divergence-asymmetry` | MAA-ST | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: The KL divergence measures how different one distribution is from another, but it is not symmetric: $\mathrm{KL}(P\|Q)$ and $\mathrm{KL}(Q\|P)$ are different numbers and, more importantly, they want different answers when you fit a simple $Q$ to a complex $P$. The playground fits one Gaussian to a two-bump target both ways and shows the qualitatively opposite results.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The Kullback-Leibler divergence KL(P || Q) = integral P log(P/Q) is the expected extra code length from using Q when the truth is P; it is non-negative, zero only when P = Q, and asymmetric. Fitting an approximating Q to a bimodal target P by minimizing the forward KL(P || Q) is mass-covering (zero-avoiding): Q is penalized wherever P has mass but Q does not, so it spreads to span both modes. Minimizing the reverse KL(Q || P) is mode-seeking (zero-forcing): Q is penalized for mass where P is small, so it collapses onto a single mode and underestimates variance, which is exactly why variational inference is mode-seeking. The playground fits one Gaussian to a two-bump target both ways and shows the opposite outcomes side by side. Reference: Cover and Thomas, Elements of Information Theory, Chapter 2; Bishop, Pattern Recognition and Machine Learning, Chapter 10.
+- Hook: The KL divergence is not symmetric: fitting a simple Gaussian to a two-bump target one way covers both bumps, the other way collapses onto one, and the two answers are qualitatively opposite.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [low] Placeholder hook in spec.md (needs_hook); fill with non-placeholder sentence
