@@ -82,3 +82,33 @@ tactical-terminal engagement:
   uptime+phase 0..100 h: tracking -> 144 m offset threshold ->
   TRACK LOST -> asset impact. 5 byte-distinct frames.
 Gate: 12 invariants + smoke + visual 5/5 x3 PASS. Shipped.
+
+## Corrective pass 2026-05-19 (user reports on the rework)
+Render-only; sim.js + 12 invariants byte-identical.
+- The Scud target reticle was four bent arms at 90 deg with the same
+  chirality, rotating: it read as a hooked cross. Replaced with a
+  clean pulsing ring + four fixed radial ticks + a centre dot (no
+  bend, no rotation).
+- The range gate now clears when the Scud is destroyed (wrapped in
+  if(!killed)); it no longer lingers as a stale hitbox.
+- Battery moved downrange (x 244 -> 560, beside the asset) so the
+  interceptor has a long arced path.
+- Scud trajectory: was x ~ 0.5t+0.5t^2 with h ~ (1-t)^1.8 (a late
+  near-vertical plunge then a flat run). Now x linear, h ~ (1-t^2):
+  a smooth gravity parabola, high at apogee, arcing gradually down
+  to strike the asset at an angle.
+- Tracking system: the cruise acceleration was tiny (+320*dt) so the
+  interceptor never reached usable speed and could not close from
+  the downrange battery (it "went away"). Now it ramps hard
+  (+9000*dt to 1850) and uses a predicted-intercept-point lead
+  (tgo = range/speed) that converges from any launch point.
+- It then shot off the top of the scene: shortened the vertical
+  boost (0.10 -> 0.05) and raised the lateral-turn authority
+  (4.4 -> 11 * dt) so PIP lofts it then bends it precisely onto the
+  Scud high up (tall, vertical, but on-canvas; y clamped >= 6).
+- Label collisions fixed: BATTERY / PROTECTED ASSET separated and
+  shortened; the clock-drift-offset label sits above the gate, or
+  below it when the gate is near the top (avoids the status banner).
+Verified by dense screenshot sampling: clean reticle, the long arc,
+a real high-altitude INTERCEPT with the gate cleared, and the lost
+case (no launch, asset destroyed). Gate: 12 inv + smoke + 5/5 x3.

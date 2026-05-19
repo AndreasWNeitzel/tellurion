@@ -41,7 +41,7 @@ const btnReset = document.getElementById('btn-reset');
 const GATE_HALF_M = 150;        // radar range-gate half-width (m)
 const M2PX = 0.084;             // scene scale (px per metre)
 const GROUND_Y = 322;
-const BAT = { x: 244, y: GROUND_Y - 4 };       // launcher
+const BAT = { x: 560, y: GROUND_Y - 4 };       // launcher (near the asset: longer intercept arc)
 const ASSET = { x: 656, y: GROUND_Y - 4 };     // protected asset
 const SCUD_HMAX = 270;          // Scud apogee height above ground (px)
 const TL = 0.05;                // interceptor launch phase
@@ -64,12 +64,15 @@ const state = {
 
 function srnd(i) { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
 
-// Ballistic Scud: enters high at the left, descends on a parabola
-// (steeper near impact) onto the protected asset.
+// Ballistic Scud: a smooth gravity arc. It enters high on the left
+// at apogee, closes horizontally at a steady rate (x linear in t)
+// and falls as h ~ (1 - t^2), so the path is a clean descending
+// parabola that strikes the asset at an angle (not a late vertical
+// plunge followed by a horizontal run).
 function SC(t) {
   const tt = Math.max(0, Math.min(1, t));
-  const x = 60 + (ASSET.x - 60) * (0.5 * tt + 0.5 * tt * tt);
-  const h = SCUD_HMAX * Math.pow(1 - tt, 1.8);
+  const x = 70 + (ASSET.x - 70) * tt;
+  const h = SCUD_HMAX * (1 - tt * tt);
   return { x, y: GROUND_Y - 8 - h };
 }
 function scudTangent(t) {
@@ -89,19 +92,31 @@ function interceptorPath(tNow) {
   const dt = 0.0045;
   let hit = null;
   for (let tau = TL; tau <= tNow + 1e-9; tau += dt) {
-    const boosting = tau < TL + 0.11;
-    spd = Math.min(1850, spd + (boosting ? 1500 : 240) * dt);
-    const aim = SC(Math.min(1, tau + 0.17));    // predicted Scud point
+    const boosting = tau < TL + 0.05;
+    // Ramp hard to interceptor speed within the boost phase; the old
+    // tiny cruise accel kept it well below the Scud's effective speed
+    // so it could never close from the downrange battery.
+    spd = Math.min(1850, spd + 9000 * dt);
+    // predicted intercept point: lead by time-to-go = range / speed
+    // (in tau units). Self-correcting, so it converges from any
+    // launch location (the battery sits well downrange now).
+    const scNow = SC(tau);
+    const tgo = Math.min(0.5, Math.hypot(pos.x - scNow.x, pos.y - scNow.y) / Math.max(spd, 1));
+    const aim = SC(Math.min(1, tau + tgo));
     const want = Math.atan2(aim.y - pos.y, aim.x - pos.x);
     let d = Math.atan2(Math.sin(want - ang), Math.cos(want - ang));
-    const cap = (boosting ? 0.9 : 3.4) * dt;
+    // Strong lateral acceleration off boost so the predicted-intercept
+    // law actually bends the trajectory onto the Scud instead of
+    // coasting up off the top of the scene.
+    const cap = (boosting ? 1.0 : 11) * dt;
     if (d > cap) d = cap; else if (d < -cap) d = -cap;
     ang += d;
     pos = { x: pos.x + Math.cos(ang) * spd * dt, y: pos.y + Math.sin(ang) * spd * dt };
     if (pos.y > GROUND_Y - 2) pos.y = GROUND_Y - 2;
+    if (pos.y < 6) pos.y = 6;                    // stay on the scene
     pts.push({ x: pos.x, y: pos.y });
     const sc = SC(tau);
-    if (!hit && Math.hypot(pos.x - sc.x, pos.y - sc.y) < 15) { hit = { x: (pos.x + sc.x) / 2, y: (pos.y + sc.y) / 2, tau }; break; }
+    if (!hit && Math.hypot(pos.x - sc.x, pos.y - sc.y) < 18) { hit = { x: (pos.x + sc.x) / 2, y: (pos.y + sc.y) / 2, tau }; break; }
   }
   return { pts, hit };
 }
@@ -135,19 +150,22 @@ function dart(x, y, ang, len, color) {
   ctx.restore();
 }
 
+// Clean targeting reticle: a pulsing ring, four fixed radial ticks
+// at N/E/S/W and a centre dot. No bent or rotating arms (those read
+// as a hooked cross), purely radial and mirror-symmetric.
 function reticle(x, y, ph, color) {
-  const r = 16 + Math.sin(ph * 8) * 1.5;
+  const r = 15 + Math.sin(ph * 4) * 1.2;
   ctx.strokeStyle = color; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.stroke();
   for (let k = 0; k < 4; k += 1) {
-    const a = k * Math.PI / 2 + ph * 0.6;
-    const cx = x + Math.cos(a) * r, cy = y + Math.sin(a) * r;
-    const tx = Math.cos(a + Math.PI / 2), ty = Math.sin(a + Math.PI / 2);
+    const a = k * Math.PI / 2;
     ctx.beginPath();
-    ctx.moveTo(cx - tx * 6, cy - ty * 6);
-    ctx.lineTo(cx, cy);
-    ctx.lineTo(cx - Math.cos(a) * 6, cy - Math.sin(a) * 6);
+    ctx.moveTo(x + Math.cos(a) * (r - 5), y + Math.sin(a) * (r - 5));
+    ctx.lineTo(x + Math.cos(a) * (r + 5), y + Math.sin(a) * (r + 5));
     ctx.stroke();
   }
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(x, y, 1.7, 0, 6.2832); ctx.fill();
 }
 
 function burst(x, y, t, big) {
@@ -198,7 +216,7 @@ function drawBattery(firing) {
     ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(BAT.x + 6, BAT.y - 22, 16, 0, 6.2832); ctx.fill();
   }
   ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText('PATRIOT BATTERY', BAT.x, BAT.y + 16);
+  ctx.fillText('BATTERY', BAT.x, BAT.y + 16);
 }
 
 function drawAsset(destroyed, t) {
@@ -208,7 +226,7 @@ function drawAsset(destroyed, t) {
     ctx.fillStyle = `rgba(140,140,150,${(0.3 * (1 - t)).toFixed(2)})`;
     ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y - 24, 28 + t * 22, 0, 6.2832); ctx.fill();
     ctx.fillStyle = COL.bad; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
-    ctx.fillText('ASSET DESTROYED', ASSET.x, ASSET.y + 16);
+    ctx.fillText('ASSET DESTROYED', ASSET.x, ASSET.y + 30);
   } else {
     ctx.strokeStyle = '#566173'; ctx.lineWidth = 1.5;
     ctx.strokeRect(ASSET.x - 22, ASSET.y - 24, 44, 24);
@@ -216,7 +234,7 @@ function drawAsset(destroyed, t) {
     ctx.strokeStyle = 'rgba(91,192,235,0.35)';
     ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y, 40, Math.PI, 2 * Math.PI); ctx.stroke();
     ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
-    ctx.fillText('PROTECTED ASSET', ASSET.x, ASSET.y + 16);
+    ctx.fillText('PROTECTED ASSET', ASSET.x, ASSET.y + 30);
   }
 }
 
@@ -250,27 +268,35 @@ function drawScene(rangeErr) {
     ctx.fillText('SCUD  M-5', sc.x + 16, sc.y - 12);
   }
 
-  // radar range gate (where the system THINKS the Scud is)
-  const gcol = state.patched ? COL.ok : (lost ? COL.bad : COL.ok);
-  const flash = lost ? 0.5 + 0.5 * Math.sin(t * 20) : 1;
-  ctx.globalAlpha = flash; ctx.strokeStyle = gcol; ctx.lineWidth = 1.6;
-  const gw = 17, L = 9;
-  for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
-    const cxp = gate.x + sx * gw, cyp = gate.y + sy * gw;
-    ctx.beginPath();
-    ctx.moveTo(cxp - sx * L, cyp); ctx.lineTo(cxp, cyp); ctx.lineTo(cxp, cyp - sy * L);
-    ctx.stroke();
+  // radar range gate (where the system THINKS the Scud is). Removed
+  // once the Scud is destroyed: there is nothing left to track.
+  if (!killed) {
+    const gcol = state.patched ? COL.ok : (lost ? COL.bad : COL.ok);
+    const flash = lost ? 0.5 + 0.5 * Math.sin(t * 20) : 1;
+    ctx.globalAlpha = flash; ctx.strokeStyle = gcol; ctx.lineWidth = 1.6;
+    const gw = 17, L = 9;
+    // Clean frame-corner brackets: each corner's two arms run inward
+    // along the box edges (mirror-symmetric, no rotational hook).
+    for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      const cxp = gate.x + sx * gw, cyp = gate.y + sy * gw;
+      ctx.beginPath();
+      ctx.moveTo(cxp - sx * L, cyp); ctx.lineTo(cxp, cyp); ctx.lineTo(cxp, cyp - sy * L);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = gcol; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillText(lost ? 'GATE (EMPTY - GHOST TRACK)' : 'RANGE GATE', gate.x, gate.y + 30);
   }
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = gcol; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText(lost ? 'GATE (EMPTY - GHOST TRACK)' : 'RANGE GATE', gate.x, gate.y + 30);
 
   // the clock-drift displacement, labelled (the floating-point lesson)
   if (offPx > 7 && !killed) {
     ctx.strokeStyle = lost ? COL.bad : COL.amber; ctx.lineWidth = 1.3; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(gate.x, gate.y); ctx.lineTo(sc.x, sc.y); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = lost ? COL.bad : COL.amber; ctx.font = 'bold 10px ui-monospace, monospace';
-    ctx.fillText(`${rangeErr.toFixed(0)} m clock-drift offset`, (gate.x + sc.x) / 2, (gate.y + sc.y) / 2 - 8);
+    ctx.fillStyle = lost ? COL.bad : COL.amber; ctx.font = 'bold 10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    // Below the gate when the gate is high (avoids the status banner);
+    // above it otherwise (avoids the RANGE GATE label below it).
+    const labY = gate.y < 70 ? gate.y + 46 : gate.y - 26;
+    ctx.fillText(`${rangeErr.toFixed(0)} m clock-drift offset`, gate.x, labY);
   }
 
   // interceptor
