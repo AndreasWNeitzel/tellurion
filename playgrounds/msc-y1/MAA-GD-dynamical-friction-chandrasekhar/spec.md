@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: binney-tremaine
 primary_chapter: 8
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A massive body plowing through a star field feels a gravitational drag from the wake it pulls behind it; sweep its speed and watch the friction rise, peak near the velocity dispersion, then fall.'
+one_paragraph: 'Chandrasekhar summed the cumulative two-body gravitational deflections of a Maxwellian background (density rho, dispersion sigma) on a perturber of mass M moving at speed V, giving dV/dt = -(4 pi G^2 M rho ln Lambda / V^2) f(X) with f(X) = erf(X) - (2X/sqrt(pi)) e^(-X^2) and X = V/(sqrt(2) sigma); ln Lambda is the Coulomb logarithm over the range of impact parameters. The velocity dependence is the whole story: only background stars slower than the perturber contribute to the trailing overdensity, so the drag vanishes at low V (few stars left behind), peaks near V ~ sigma, and falls off as 1/V^2 at high speed. The playground sweeps V and plots the drag curve with its characteristic peak. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 8.'
 tags: [galactic, animation, live-readout]
 difficulty: 3
 tier: simple
