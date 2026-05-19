@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-ST
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'If a channel randomly flips your bits, how much can you still send reliably? Shannon''s answer is exact: there is a hard ceiling, and below it the error rate can be driven to zero.'
+one_paragraph: 'The binary symmetric channel flips each transmitted bit independently with probability p. Its capacity is C(p) = 1 - H(p) bits per use, where H(p) = -p log2 p - (1-p) log2 (1-p) is the binary entropy; C is 1 for a clean channel, 0 at p = 1/2 (pure noise). Shannon''s noisy-channel coding theorem says any rate below C is achievable with arbitrarily low error given long enough codes, while no scheme beats C. The playground demonstrates this with the simplest code: an n-fold repetition code with majority vote has rate 1/n and a residual error that shrinks as n grows, visibly hugging but never crossing the capacity bound. Reference: Cover and Thomas, Elements of Information Theory, Chapters 2 and 7; Shannon 1948.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
