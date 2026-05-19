@@ -929,6 +929,9 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Black Hole Geodesics (Hero)](../playgrounds/_heroes/blackhole-geodesics-3d/index.html)** &nbsp; (verified)
   Gravity here is not a force pulling things in; it is the shape of spacetime, and light and matter simply follow the straightest available paths (geodesics) through that shape. Near a black hole the shape is so curved that there is a knife-edge: aim a photon a fraction of a percent too close and it cannot get back out, no matter how fast it is going, because 
 
+- **[Exoplanet Interior (Hero)](../playgrounds/_heroes/exoplanet-interior-3d/index.html)** &nbsp; (verified)
+  A terrestrial-to-mini-Neptune planet decomposed into concentric layers of (in order from the centre): an iron core, a silicate mantle, an optional water/ice layer, an optional H/He envelope. The big panel is a 3D cutaway sphere that rotates so you can see the layered structure; the side panels show where this planet falls on a family of mass- radius curves a
+
 - **[Exoplanet Transit (Hero)](../playgrounds/_heroes/exoplanet-transit-3d/index.html)** &nbsp; (verified)
   A planet orbits its star. Whenever it passes between us and the star, it blocks a tiny fraction of the light, like an insect crossing a streetlamp. The dip is sharp, periodic, and tells you the planet's size: how much it blocks is the square of the planet-to-star radius ratio. From a few thousand such dips, the Kepler mission found thousands of planets we ca
 
