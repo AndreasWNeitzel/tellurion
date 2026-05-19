@@ -32,35 +32,64 @@ The playground shows why a tilted jet still traps the ball, which is
 the real lesson (it is the same physics that makes a spinning ball
 curve and a wing lift).
 
-### Vertical balance
+### Vertical balance: drag against gravity
 
-The free jet entrains surrounding air and decelerates with height, so
-its drag on the ball falls off with distance from the nozzle. The
-ball floats at the height where the upward drag balances gravity:
+The free jet entrains surrounding air and decelerates with height
+above the nozzle. The ball floats at the height $h$ where the upward
+drag force balances gravity:
 
-$$\tfrac12\,\rho\,C_D\,A\,v_\mathrm{jet}^2(h)
-  \;=\; m g.$$
+$$\boxed{\;F_{\rm drag}(h) = \tfrac12\,\rho_{\rm air}\,C_D\,A\,v_{\rm jet}^2(h)
+  \;=\; m\,g.\;}$$
 
-Above that point the jet is too weak and the ball sinks; below it the
-jet is too strong and pushes the ball back up, so the equilibrium
-height is stable.
+A turbulent free jet's centreline velocity follows an empirical decay
+$v_{\rm jet}(h) \propto v_0\,d_0 / h$ for $h \gg d_0$ (the nozzle
+diameter), so the drag falls off as $h^{-2}$. Above the equilibrium
+height the jet is too weak and the ball sinks; below it the jet is
+too strong and pushes the ball back up. The vertical equilibrium is
+*stable*: $\partial F_{\rm drag}/\partial h < 0$ at the float
+height, so any displacement returns.
 
 ### Lateral trapping: the Bernoulli/Coanda restoring force
 
-The interesting part is sideways stability. Move the ball partly out
-of the jet and the airflow is faster on the side still inside the jet
-than on the outside. By Bernoulli's principle along a streamline,
+Move the ball partly out of the jet. The airflow speed is higher on
+the side still inside the jet ($v_{\rm in}$) and lower on the outside
+($v_{\rm out}$). Along a streamline at the same height, Bernoulli's
+principle gives
 
-$$P + \tfrac12\rho v^2 = \text{const},$$
+$$\boxed{\;P + \tfrac12\,\rho\,v^2 + \rho\,g\,z = \text{const},\;}$$
 
-faster flow means lower pressure, so the higher-pressure outer air
-pushes the ball back toward the jet axis (the jet also bends around
-the ball, the Coanda effect, adding to the inward push). The net
-sideways force always points back to center, giving a restoring force
-like a spring: the ball oscillates about the axis rather than falling
-out. This is why the trick works even when the blower is tilted well
-off vertical. The playground lets you tilt the jet and perturb the
-ball and shows the vertical balance and the lateral restoring force.
+so the static pressure on the fast-flow side is LOWER than on the
+slow-flow side:
+
+$$\Delta P = P_{\rm out} - P_{\rm in} = \tfrac12\,\rho\,(v_{\rm in}^2 - v_{\rm out}^2) > 0.$$
+
+The pressure difference integrated over the ball's surface gives a
+net force back toward the jet axis. The jet also bends around the
+ball (the Coanda effect), which gives an additional reaction force
+toward the axis. The net lateral force is to first order linear in
+displacement,
+
+$$F_{\rm lateral} = -k_{\rm restore}\,x,$$
+
+and the ball oscillates about the axis at angular frequency
+$\omega \sim \sqrt{k_{\rm restore}/m}$. This is why the trick works
+even when the blower is tilted well off vertical: the ball is
+trapped on the jet axis, not balanced on its tip.
+
+### Symbols, at a glance
+
+- $\rho_{\rm air}$, density of air ($\approx 1.2\,\mathrm{kg/m^3}$
+  at sea level).
+- $C_D$, drag coefficient of a sphere ($\approx 0.47$ for a smooth
+  sphere at moderate Reynolds number, dropping to $\approx 0.2$ in
+  the post-crisis turbulent regime).
+- $A = \pi R^2$, the sphere's frontal area.
+- $v_{\rm jet}(h)$, the centreline jet speed at height $h$.
+- $v_0$, $d_0$, the jet speed and diameter at the nozzle.
+- $m$, sphere mass; $g$, gravitational acceleration.
+- $P$, $v$, $z$, the local pressure, speed, and height of a fluid
+  element along a streamline.
+- $k_{\rm restore}$, the effective stiffness of the lateral trap.
 
 ### Things to try
 
@@ -71,11 +100,16 @@ ball and shows the vertical balance and the lateral restoring force.
 - Tilt the blower and see the ball still trapped on the jet axis,
   not just balanced on top.
 
-### Where this comes from
+### Bibliographic origin
 
-Bernoulli's principle, jet entrainment, and the Coanda restoring
-effect follow Halliday, Resnick and Walker, *Fundamentals of
-Physics*, Chapter 14, and Tritton, *Physical Fluid Dynamics*.
+Bernoulli's principle was published in Bernoulli, *Hydrodynamica*
+(1738), Ch. 12. The turbulent free-jet velocity decay law is from
+Schlichting, *Boundary Layer Theory* (8th ed., Springer 2000),
+Ch. 21. The Coanda effect (a jet bending toward a curved surface)
+is the 1936 Coanda patent and is discussed in Tritton, *Physical
+Fluid Dynamics* (2nd ed., Oxford 1988), Ch. 23. A clean
+undergraduate treatment is Halliday, Resnick and Walker,
+*Fundamentals of Physics* (11th ed., Wiley 2018), Ch. 14.
 
 ## Physical setup
 A sphere of mass $m$ and radius $R$ sits in a turbulent free jet issuing
