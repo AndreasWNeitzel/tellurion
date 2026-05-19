@@ -9,8 +9,9 @@ import { makeRng, gaussian } from '../../../shared/js/render/rng.js';
 export const G     = 1;
 export const THETA = 1.0;          // Barnes-Hut opening angle (Barnes & Hut 1986)
 export const EPS   = 0.045;        // Plummer softening
-export const NTOT  = 3000;         // largest N at solid 60fps per-frame
-                                   // for the faithful cuspy 3D model
+export const NTOT  = 10000;        // 10k bodies; the tree solve is
+                                   // worker-offloaded so the render
+                                   // stays at 60fps
 export const DT    = 0.025;
 const ZH    = 0.12;                // stellar-disk scale height
 const PITCH = 0.35;                // spiral arm pitch
@@ -26,8 +27,14 @@ export function buildGalaxies(state, seed) {
   let n1 = Math.round(NTOT * M1 / Mt);
   n1 = Math.max(800, Math.min(NTOT - 800, n1));
   const n2 = NTOT - n1;
-  const nd1 = Math.round(0.22 * n1), nh1 = n1 - nd1;
-  const nd2 = Math.round(0.22 * n2), nh2 = n2 - nd2;
+  // The luminous stars are the high-resolution component (most of the
+  // particle COUNT, light), the dark matter is low-resolution (few,
+  // heavy) since it only needs to supply the smooth potential and the
+  // dynamical-friction wake. Mass fractions below stay 20% stars /
+  // 80% dark, so halo particles end up ~9x heavier than star particles.
+  const STAR_FRAC = 0.90;
+  const nd1 = Math.round(STAR_FRAC * n1), nh1 = n1 - nd1;
+  const nd2 = Math.round(STAR_FRAC * n2), nh2 = n2 - nd2;
   const Rd1 = 0.7, Rd2 = 0.5 * Math.sqrt(M2 / M1);
   const A1 = 2.2 * Rd1, A2 = 2.2 * Rd2;
   const sep = 2.6, b = state.impact;
