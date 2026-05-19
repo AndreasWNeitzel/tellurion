@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Crank the light brighter and still nothing happens below the threshold frequency: the experiment that forced energy into quanta.'
-one_paragraph: 'The photoelectric effect as a phototube: light of frequency nu strikes a metal cathode and, if h nu exceeds the work function phi, photoelectrons are ejected with K_max = h nu - phi and drift to the anode under the applied voltage. Below the threshold nu0 = phi/h no electrons appear at any intensity, the result classical wave theory could not explain. Raising the intensity adds electrons but never speeds them up; raising the frequency does. The primary scene is the physical phototube; the side panels are the current-voltage curve (cut off at the stopping voltage, saturating with intensity) and the Einstein line V_stop(nu) of universal slope h/e. The headless sim.js is gate-tested for the Einstein equation, the threshold, intensity independence of K_max, the h/e slope, and the saturation/cutoff behaviour.'
+one_paragraph: 'The photoelectric effect as a phototube: light of frequency nu strikes a metal cathode and, if h nu exceeds the work function phi, photoelectrons are ejected with K_max = h nu - phi and drift to the anode under the applied voltage. Below the threshold nu0 = phi/h no electrons appear at any intensity, the result classical wave theory could not explain. Raising the intensity adds electrons but never speeds them up; raising the frequency does. The primary scene is the physical phototube; the side panels are the current-voltage curve (cut off at the stopping voltage, saturating with intensity) and the Einstein line V_stop(nu) of universal slope h/e. Reference: Eisberg and Resnick, Quantum Physics of Atoms, 2nd ed., Sections 2.2 to 2.3.'
 tags: [quantum, modern-physics, animation, multi-panel, live-readout]
 difficulty: 3
 tier: advanced
@@ -18,6 +18,55 @@ share_state_keys: []
 ---
 
 # The Photoelectric Effect
+
+## Explainer
+
+### What you are looking at
+
+Shine light on a metal and electrons can be knocked out. Classical
+wave theory says a bright enough beam should always do it. Experiment
+says otherwise: below a threshold colour, no electrons come out no
+matter how bright the light. That contradiction forced energy to be
+quantised, and the playground lets you reproduce it in a phototube.
+
+### Einstein's photon equation
+
+Light of frequency $\nu$ delivers energy in indivisible quanta of size
+$h\nu$ (Planck constant $h$). One photon ejects one electron only if it
+carries more than the metal's work function $\phi$ (the energy needed
+to free an electron). The leftover becomes kinetic energy:
+
+$$K_\text{max} = h\nu - \phi,$$
+
+so emission needs $h\nu>\phi$, that is $\nu$ above the threshold
+$\nu_0=\phi/h$. Brightening the light sends more photons (more
+electrons) but does not change each photon's energy, so it never
+speeds the electrons up. Only raising $\nu$ does.
+
+### Reading it off the stopping voltage
+
+Apply a retarding voltage; the current stops when the voltage just
+cancels the fastest electrons:
+
+$$e\,V_\text{stop} = K_\text{max} = h\nu - \phi.$$
+
+Plotting $V_\text{stop}$ against $\nu$ gives a straight line whose
+slope is the universal constant $h/e$, the same for every metal, and
+whose intercept gives that metal's $\nu_0$.
+
+### Things to try
+
+- Pick a high-work-function metal and sweep $\nu$ up through its
+  threshold: nothing, then a sudden onset.
+- Below threshold, crank the intensity to maximum and confirm the
+  current stays exactly zero (the anti-classical result).
+- Raise $\nu$ and watch $V_\text{stop}$ climb along the $h/e$ line.
+
+### Where this comes from
+
+Einstein's quantum explanation and the stopping-voltage line follow
+Eisberg and Resnick, Quantum Physics of Atoms, 2nd ed., Sections 2.2
+to 2.3.
 
 ## Physical setup
 
