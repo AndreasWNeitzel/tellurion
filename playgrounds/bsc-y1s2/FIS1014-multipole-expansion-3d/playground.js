@@ -26,7 +26,7 @@ for (const k of READOUTS) {
   readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[k] = b;
 }
 
-const st = { dist: 'quadrupole', order: 2, scale: 0.32, t: 0 };
+const st = { dist: 'quadrupole', order: 2, scale: 0.32, t: 0, q: +1 };
 let charges = buildDist(st.dist, st.scale);
 function rebuild() { charges = buildDist(st.dist, st.scale); }
 
@@ -48,9 +48,11 @@ const sVal = document.createElement('span'); sVal.className = 'value'; sVal.text
 sInp.addEventListener('input', () => { st.scale = parseFloat(sInp.value); sVal.textContent = st.scale.toFixed(2); rebuild(); });
 row.appendChild(lab); row.appendChild(sInp); row.appendChild(sVal); controlsEl.appendChild(row);
 const bRow = document.createElement('div'); bRow.className = 'row buttons';
+const bSign = document.createElement('button'); bSign.type = 'button'; bSign.textContent = 'click charge: +';
+bSign.addEventListener('click', () => { st.q = -st.q; bSign.textContent = `click charge: ${st.q > 0 ? '+' : '-'}`; });
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
-bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
+bRow.appendChild(bSign); bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
 let running = true;
 bReset.addEventListener('click', () => { Object.assign(st, { dist: 'quadrupole', order: 2, scale: 0.32, t: 0 }); selD.value = 'quadrupole'; selO.value = '2'; sInp.value = '0.32'; sVal.textContent = '0.32'; rebuild(); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
@@ -66,7 +68,7 @@ canvas.addEventListener('pointerdown', e => {
     const x0 = 14 + m * (pw + 6);
     if (cxp >= x0 && cxp <= x0 + pw && cyp >= 40 && cyp <= 40 + pw) {
       const wx = ((cxp - x0) / pw - 0.5) * 2 * D, wy = -((cyp - 40) / pw - 0.5) * 2 * D;
-      charges.push({ q: (e.shiftKey ? -1 : 1) * 1.4, r: [wx, wy, 0] });
+      charges.push({ q: (e.shiftKey ? -1 : st.q) * 1.4, r: [wx, wy, 0] });
       break;
     }
   }
@@ -87,8 +89,11 @@ const offc = off.getContext('2d');
 function render() {
   const W = canvas.width, H = canvas.height;
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  // Map row kept narrow enough to clear the top-right readout HUD.
-  const D = 3.2, pw = (W - 264 - 26) / 3, ptop = 40, ph = pw;
+  // Interactive maps are the primary visual; the error plot below is
+  // a small secondary strip. Maps are kept narrow enough to clear the
+  // top-right readout HUD; the maps are taller than before and the
+  // plot height is now fixed small.
+  const D = 3.2, pw = (W - 264 - 26) / 3, ptop = 30, ph = 260;
   // Sample fields.
   let vmax = 1e-6, emax = 1e-6;
   const vex = new Float64Array(NG * NG), vmp = new Float64Array(NG * NG);
@@ -124,8 +129,8 @@ function render() {
   const x0 = 14, cxm = x0 + pw / 2, cym = ptop + ph / 2;
   ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(cxm, cym, rp / (2 * D) * pw, 0, 6.28); ctx.stroke();
-  // error(r) panel.
-  const ay0 = ptop + ph + 26, ah = H - ay0 - 16, ax0 = 60, ax1 = W - 30;
+  // error(r) panel: small secondary strip beneath the dominant maps.
+  const ay0 = ptop + ph + 26, ah = 90, ax0 = 60, ax1 = W - 30;
   ctx.fillStyle = '#0b0b13'; ctx.fillRect(20, ay0 - 16, W - 40, ah + 24);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
   ctx.fillText('relative error |V_exact - V_multipole| / |V_exact|  vs  distance r', 28, ay0 - 2);
