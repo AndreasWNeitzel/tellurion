@@ -253,27 +253,30 @@ function mountChrome() {
   if (!document.querySelector('link[data-chrome-font]')) {
     const lf = document.createElement('link');
     lf.rel = 'stylesheet'; lf.dataset.chromeFont = '1';
-    lf.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
+    lf.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
     document.head.appendChild(lf);
   }
   const css = document.createElement('style');
   css.textContent = [
-    ':root{--bg-void:#07090f;--border-subtle:rgba(255,255,255,0.10);--border-active:rgba(255,255,255,0.18);',
-    '--text-primary:#e8eaf0;--text-secondary:#8892a4;--accent:#4f7ef7}',
+    ':root{--bg-void:#07090f;--bg-card:#0f1220;--bg-frosted:rgba(12,15,26,0.85);',
+    '--border-subtle:rgba(255,255,255,0.10);--border-active:rgba(255,255,255,0.18);',
+    '--text-primary:#e8eaf0;--text-secondary:#8892a4;--text-dimmed:#3d4758;--accent:#4f7ef7}',
     'html{background:var(--bg-void)}',
     'body{position:relative;z-index:0}',
     '#ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}',
     'body{opacity:1;transition:opacity .3s ease}body.pg-leaving{opacity:0}',
-    '.pg-back{position:fixed;top:14px;left:14px;z-index:50;display:flex;align-items:center;gap:8px;',
-    'padding:8px 14px 8px 11px;background:rgba(13,17,23,0.72);backdrop-filter:blur(8px);',
-    '-webkit-backdrop-filter:blur(8px);border:1px solid var(--border-subtle);border-radius:7px;',
-    "color:var(--text-primary);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-weight:500;",
-    'font-size:12px;letter-spacing:-0.01em;text-decoration:none;cursor:pointer;transition:border-color .15s ease,background .15s ease}',
-    '.pg-back:hover{border-color:var(--border-active);background:rgba(17,24,39,0.85)}',
-    '.pg-back .cv{color:var(--accent);font-size:14px;line-height:1}',
-    '.pg-back .bk{color:var(--text-primary);font-weight:600}',
-    '.pg-back .bt{color:var(--text-secondary);font-weight:400;border-left:1px solid var(--border-subtle);padding-left:8px;margin-left:1px}',
-    reduce ? 'body{transition:none}' : '',
+    '.pg-back{position:fixed;top:20px;left:20px;z-index:100;display:flex;align-items:center;gap:8px;',
+    'padding:8px 14px 8px 10px;background:var(--bg-frosted);backdrop-filter:blur(12px);',
+    '-webkit-backdrop-filter:blur(12px);border:1px solid var(--border-subtle);border-radius:6px;',
+    "font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:0.8125rem;font-weight:400;",
+    'text-decoration:none;cursor:pointer;opacity:0;transform:translateX(-8px);',
+    'transition:border-color var(--t-fast),background var(--t-fast)}',
+    '.pg-back.in{opacity:1;transform:translateX(0);transition:opacity 300ms ease,transform 300ms ease}',
+    '.pg-back:hover{border-color:var(--border-active);background:var(--bg-card)}',
+    '.pg-back:hover .bt{color:var(--text-primary)}',
+    '.pg-back svg{width:14px;height:14px;color:var(--accent);flex:none;display:block}',
+    '.pg-back .bt{color:var(--text-secondary)}',
+    reduce ? 'body{transition:none}.pg-back{opacity:1;transform:none;transition:none}' : '',
   ].join('');
   document.head.appendChild(css);
 
@@ -287,7 +290,9 @@ function mountChrome() {
   back.className = 'pg-back';
   back.href = '../../../index.html';
   const ttl = (document.querySelector('h1') ? document.querySelector('h1').textContent : (document.title || 'Back')).trim();
-  back.innerHTML = '<span class="cv">&#8249;</span><span class="bk">Back</span><span class="bt">' + esc(ttl.length > 22 ? ttl.slice(0, 22).trim() + '…' : ttl) + '</span>';
+  back.setAttribute('aria-label', 'Back to all simulations');
+  back.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>'
+    + '<span class="bt">' + esc(ttl.length > 24 ? ttl.slice(0, 24).trim() + '…' : ttl) + '</span>';
   back.addEventListener('click', (e) => {
     if (reduce) return;
     e.preventDefault();
@@ -295,6 +300,9 @@ function mountChrome() {
     setTimeout(() => { location.href = back.getAttribute('href'); }, 340);
   });
   document.body.appendChild(back);
+  // Entry: slide in from the left, 400 ms after load (Section 10).
+  if (reduce) back.classList.add('in');
+  else setTimeout(() => back.classList.add('in'), 400);
 
   if (!reduce) {
     document.body.classList.add('pg-leaving');
