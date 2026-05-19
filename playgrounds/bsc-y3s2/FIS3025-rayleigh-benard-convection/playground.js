@@ -147,9 +147,15 @@ function boot() {
   restoreState(); syncLabels();
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
-    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    st.Ra = 2 * RA_C; st.k = K_C; st.Pr = 1; st.amp = 1e-3;
-    for (let n = 0; n < Math.round(f * 90); n += 1) { const sg = linearSigma(NY, st.Ra, st.Pr, st.k); fieldAmplitude(sg, 0.016 * 6); }
+    // Sweep the Rayleigh number across the critical value at a fixed
+    // settling time: below Ra_c the perturbation decays to a flat
+    // conducting state, above it convection rolls grow and saturate at
+    // an amplitude that increases with Ra - Ra_c. This shows the
+    // convective onset (the headline) and is robustly frame-distinct.
+    const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    const raMul = [0.6, 1.05, 1.5, 2.5, 5.0][Math.min(4, Math.round(f * 4))];
+    st.Ra = raMul * RA_C; st.k = K_C; st.Pr = 1; st.amp = 1e-2;
+    for (let n = 0; n < 70; n += 1) { const sg = linearSigma(NY, st.Ra, st.Pr, st.k); fieldAmplitude(sg, 0.016 * 4); }
     frame(0);
   } else {
     frame(0);
