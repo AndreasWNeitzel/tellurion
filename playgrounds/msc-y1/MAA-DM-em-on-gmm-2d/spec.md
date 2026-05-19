@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-DM
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A cloud of points secretly blends a few overlapping Gaussian bumps; watch Expectation-Maximization recover their shapes and weights by alternating soft guesses and refits until the ellipses snap onto the data.'
+one_paragraph: 'The data is modeled as a Gaussian mixture: each point is drawn from one of K Gaussians with mixing weight pi_k, but the assignment of points to components is hidden, so the likelihood cannot be maximized directly. Expectation-Maximization alternates an E-step (given the current parameters, compute each point''s soft responsibility gamma_ik for every component) and an M-step (refit each component as a responsibility-weighted mean and covariance), a loop that provably increases the data log-likelihood every iteration and converges to a local optimum. The playground animates the component ellipses translating and reshaping onto the blobs while the log-likelihood climbs monotonically in the live readout. Reference: Dempster, Laird and Rubin 1977; Bishop, Pattern Recognition and Machine Learning, Chapter 9.'
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
