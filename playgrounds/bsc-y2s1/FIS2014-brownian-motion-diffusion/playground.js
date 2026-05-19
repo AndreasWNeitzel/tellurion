@@ -22,7 +22,7 @@ const controlsEl = document.getElementById('controls');
 
 const NP = 1600;
 const DT = 0.02;
-const HORIZON = 320;                 // steps from t=0 to the terminal frame
+const HORIZON = 720;                 // steps per animation cycle (~12 s real)
 const K_DISP = 3.6e9;                // physical D (m^2/s) to display units
 const PXSCALE = 21;                  // display units to pixels
 const READOUTS = ['T (K)', 'eta (mPa s)', 'r (nm)', 'D (m^2/s)', 'sim t', '<r^2>'];
@@ -150,7 +150,14 @@ function buildSlider(label, min, max, stp, value, key, fmt) {
   const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
   const inp = document.createElement('input'); inp.type = 'range'; inp.min = String(min); inp.max = String(max); inp.step = String(stp); inp.value = String(value); inp.setAttribute('aria-label', label);
   const val = document.createElement('span'); val.className = 'value'; val.textContent = fmt(+value);
-  inp.addEventListener('input', () => { st[key] = parseFloat(inp.value); val.textContent = fmt(+inp.value); rebuild(); render(); });
+  inp.addEventListener('input', () => {
+    st[key] = parseFloat(inp.value);
+    val.textContent = fmt(+inp.value);
+    // Restart the cycle so the user SEES the new diffusion play out;
+    // previously this just snapshotted the new state at the current
+    // step count, which made the slider feel inert.
+    rebuild(0); render();
+  });
   row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
   controlsEl.appendChild(row); return { inp, val };
 }
@@ -174,8 +181,16 @@ function tick(now) {
   const dr = Math.min((now - lastT) / 1000, 0.05); lastT = now;
   if (st.running) {
     acc += dr; const D = Ddisp();
-    while (acc > 1 / 60 && st.nstep < HORIZON) { step(ens, DT, D); st.nstep += 1; if (st.nstep % 6 === 0) msdHist.push([ens.t, msd(ens)]); if (st.nstep % 3 === 0) trail.push([ens.x[0], ens.y[0]]); acc -= 1 / 60; }
-    if (st.nstep >= HORIZON) acc = 0;
+    while (acc > 1 / 60 && st.nstep < HORIZON) {
+      step(ens, DT, D); st.nstep += 1;
+      if (st.nstep % 6 === 0) msdHist.push([ens.t, msd(ens)]);
+      if (st.nstep % 3 === 0) trail.push([ens.x[0], ens.y[0]]);
+      acc -= 1 / 60;
+    }
+    // Auto-restart at the terminal frame so the animation cycles
+    // forever; the user sees the cloud spread, the MSD-4Dt line build
+    // up, the histogram approach the Gaussian, then reset and repeat.
+    if (st.nstep >= HORIZON) { rebuild(0); acc = 0; }
   }
   render(); requestAnimationFrame(tick);
 }
