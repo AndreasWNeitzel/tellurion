@@ -2,6 +2,7 @@ import { bindingEnergy, pairWavefunction } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const rE = document.getElementById('readout-e');
@@ -153,6 +154,13 @@ function tick() {
 }
 
 function bootSync() {
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    // Sweep the pairing coupling so the five frames show the binding
+    // energy growing exponentially with the interaction strength.
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st.V = 0.15 + frac * 0.55;
+    sV.value = String(st.V); vV.textContent = st.V.toFixed(2);
+  }
   render();
   if (DETERMINISTIC) {
     requestAnimationFrame(() =>
