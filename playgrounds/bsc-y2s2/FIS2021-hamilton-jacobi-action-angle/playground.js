@@ -37,12 +37,18 @@ const LCX = 210, RCX = 560, CY = H / 2 + 6, SC = 92;
 // For Kepler the energy slider maps to a bound radial energy Ek < 0
 // and the omega0 slider to the angular momentum L, kept inside the
 // bound window 1 + 2 Ek L^2 > 0 for the whole slider range.
+// Kepler: keep the bound orbit away from r -> 0. With L ~ 0.8 the
+// circular orbit sits at r = L^2 = 0.64 (E_circ = -1/2L^2 = -0.78);
+// the E slider spans modest to eccentric orbits whose pericentre
+// stays >~ 0.35, so the radial force never becomes too stiff for
+// the (substepped) integrator and the live (r, p_r) point rides the
+// analytic loop.
 function Epar() {
-  if (st.pot === 'kepler') return -0.92 + 0.46 * ((st.E - 0.1) / 1.7);   // [-0.92,-0.46]
+  if (st.pot === 'kepler') return -0.74 + 0.49 * ((st.E - 0.1) / 1.7);   // [-0.74,-0.25]
   return st.E;
 }
 function baseW() {
-  if (st.pot === 'kepler') return 0.30 + 0.20 * ((st.w0 - 0.5) / 1.5);   // L in [0.30,0.50]
+  if (st.pot === 'kepler') return 0.70 + 0.20 * ((st.w0 - 0.5) / 1.5);   // L in [0.70,0.90]
   return st.w0;
 }
 // The parameter actually felt now: a sinusoidal ramp about the base
@@ -150,22 +156,15 @@ function render() {
   ctx.moveTo(RCX, CY - 138); ctx.lineTo(RCX, CY + 138); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
   ctx.fillText('action-angle  (theta winds uniformly)', RCX, H - 14);
+  // The whole point of action-angle variables: the canonical
+  // transform turns ANY 1-DOF bound orbit into a circle of radius
+  // sqrt(2 J) swept at the constant rate omega, for Kepler exactly
+  // as for the harmonic. So the loop is always a clean circle (the
+  // earlier toCircle map was the harmonic-only transform and made
+  // Kepler a wrong, weird blob).
   const rJpx = Math.sqrt(2 * Math.max(0, Jnow)) * SC * 0.7;
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.2;
-  if (st.pot === 'harmonic') {
-    ctx.beginPath(); ctx.arc(RCX, CY, rJpx, 0, 2 * Math.PI); ctx.stroke();
-  } else if (pts) {
-    // map the true orbit into scaled coordinates: a closed loop the
-    // angle sweeps at constant rate
-    ctx.beginPath();
-    const loop = pts.concat(pts.slice().reverse().map(([x, pp]) => [x, -pp]));
-    loop.forEach(([x, pp], i) => {
-      const c = toCircle(x - mid, pp, wE);
-      const X = RCX + c.Q * SC * 0.7, Y = CY - c.P * SC * 0.7;
-      if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
-    });
-    ctx.closePath(); ctx.stroke();
-  }
+  ctx.beginPath(); ctx.arc(RCX, CY, rJpx, 0, 2 * Math.PI); ctx.stroke();
   const rr = rJpx || 1;
   ctx.strokeStyle = 'rgba(255,209,102,0.85)'; ctx.lineWidth = 1.6;
   ctx.beginPath(); ctx.moveTo(RCX, CY); ctx.lineTo(RCX + rr * Math.cos(-th), CY + rr * Math.sin(-th)); ctx.stroke();
@@ -183,8 +182,17 @@ const DT = 1 / 360;
 let lastT = (typeof performance !== 'undefined' ? performance.now() : 0);
 function physics(h) {
   const wE = wEff();
-  const a0 = force(q, wE); p += 0.5 * a0 * h; q += p * h; p += 0.5 * force(q, wE) * h;
-  if (st.pot === 'kepler') q = Math.max(1e-4, q);
+  // Kepler's radial force ~ 1/r^2 is stiff near pericentre; substep
+  // velocity-Verlet (more substeps the closer r is) so energy is
+  // conserved and the live (r, p_r) point stays exactly on the
+  // analytic phase loop instead of spiralling off it.
+  let nsub = 1;
+  if (st.pot === 'kepler') nsub = Math.max(1, Math.min(64, Math.ceil(h / (0.02 * q * q + 1e-4))));
+  const hs = h / nsub;
+  for (let s = 0; s < nsub; s += 1) {
+    const a0 = force(q, wE); p += 0.5 * a0 * hs; q += p * hs; p += 0.5 * force(q, wE) * hs;
+    if (st.pot === 'kepler') q = Math.max(1e-4, q);
+  }
   t += h;
   const wN = wEff();
   th = (th + omegaOfE(st.pot, energyOf(st.pot, q, p, wN), wN) * h) % (2 * Math.PI);
