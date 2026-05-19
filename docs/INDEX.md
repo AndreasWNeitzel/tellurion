@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[BBN Light-Element Abundances](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/index.html)** &nbsp; (verified, verified 2026-05-19T10:34:02Z)
+  Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11 (`liddle-cosmology`).
+
 - **[Fourier vs Laplace Transform Pairs](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (verified, verified 2026-05-19T10:26:01Z)
   Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15 (`arfken-weber`).
 
@@ -49,9 +52,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Cooper Pair Binding Energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/index.html)** &nbsp; (verified, verified 2026-05-19T04:15:19Z)
   Two electrons normally repel. Yet add just two extra electrons above a filled Fermi sea with the faintest attraction between them and they *always* form a bound pair, no matter how weak the attraction. That counterintuitive fact, Cooper's 1956 result, is the seed of superconductivity. The playground sweeps the coupling and shows the binding energy and the pa
-
-- **[BBN Light-Element Abundances](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/index.html)** &nbsp; (verified, verified 2026-05-19T04:11:41Z)
-  Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11 (`liddle-cosmology`).
 
 - **[Cosmic Distance Ladder](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (verified, verified 2026-05-19T04:11:41Z)
   Four-rung overlap and error propagation. Source: Carroll-Ostlie Ch. 24 (`carroll-ostlie`).

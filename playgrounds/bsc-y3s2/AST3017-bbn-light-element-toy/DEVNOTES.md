@@ -16,3 +16,6 @@ REVIEW (NEEDS CODE FIX + RECAPTURE) partly stale: BBN abundance physics correct 
 ## Sweep 2026-05-19
 REVIEW NEEDS-CODE-FIX partly stale: physics + sim.js + real invariants + text already correct; sole genuine defect was bootSync ignoring captureFraction (5 identical goldens). Added CAPTURE_FRAC sweep + slider sync; recaptured 5 distinct verified-correct goldens.
 invariants Tests  5 passed + visual 5/5 x3. Shipped.
+
+## Rehaul 2026-05-19
+User: "just a cartesian plot"; global no-plot-as-main rule. Rehaul: primary view is the cooling early universe, a particle box of free protons and neutrons that lock into deuterium then helium-4 over a BBN clock (T from ~1 MeV, t to ~1000 s); a mass-fraction bar shows the yield (H, Y_p) for the chosen baryon-to-photon ratio with a green/red observation check that surfaces the lithium problem (7Li predicted >> observed); the abundance-vs-eta curves are demoted to a small diagnostic strip with the Planck-eta line and current-eta marker. sim.js empirical fits + invariants byte-identical (5/5). Verified live: nucleons assemble into bound 4He clusters as it cools, 5 distinct goldens (eta sweep, settled).
