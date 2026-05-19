@@ -65,20 +65,63 @@ cards.sort((a, b) => a.title.localeCompare(b.title));
 const TAGS = ['mechanics', 'quantum', 'electromagnetism', 'optics', 'statistical-physics', 'fluids-mhd', 'solid-state', 'cosmology', 'relativity', 'stellar', 'medical-physics', 'numerics'];
 const heroes = cards.filter(c => c.hero_candidate).slice(0, 4);
 
-const cardsHTML = cards.map(c => `
-  <a class="card" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-year="${c.curriculum_year}" data-tags="${c.tags.join(' ')}" data-order="${c.order}" data-group="${c.group}" href="${c.path}/index.html">
-    <div class="chead"><h3>${c.title}</h3><span class="ybadge">${c.badge}</span></div>
-    <div class="meta"><span class="uc">${c.primary_uc}</span></div>
-    <div class="tags">${c.tags.slice(0, 4).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-  </a>`).join('');
+// Map an arbitrary first-tag to one of the 12 canonical categories
+// (specs carry a free tags[] list, not a primary_tag field).
+function canonTag(raw) {
+  const t = (raw || '').toLowerCase();
+  const has = (s) => t.indexOf(s) >= 0;
+  if (has('quantum') || has('atomic') || has('nuclear') || has('particle')) return 'quantum';
+  if (has('electromag') || t === 'em' || has('charge') || has('circuit')) return 'electromagnetism';
+  if (has('optic') || has('wave-optics') || has('photon') || has('interfer') || has('diffrac')) return 'optics';
+  if (has('fluid') || has('mhd') || has('plasma') || has('aero')) return 'fluids-mhd';
+  if (has('statistical') || has('thermo') || has('entropy') || has('stat-mech')) return has('thermo') ? 'thermodynamics' : 'statistical-physics';
+  if (has('solid') || has('condensed') || has('crystal') || has('band')) return 'solid-state';
+  if (has('cosmolog') || has('bbn') || has('inflation') || has('universe')) return 'cosmology';
+  if (has('relativ') || has('black-hole') || has('gravitational-wave') || has('lensing')) return 'relativity';
+  if (has('stellar') || has('astro') || has('orbit') || has('kepler') || has('seismo')) return 'stellar';
+  if (has('medical') || has('imaging') || has('tomograph')) return 'medical-physics';
+  if (has('numeric') || has('algorithm') || has('comput') || has('ml') || has('optimi')) return 'numerics';
+  if (has('mechan') || has('dynamic') || has('pendulum') || has('rigid') || has('oscill')) return 'mechanics';
+  return 'numerics';
+}
+const TAG_COLORVAR = {
+  mechanics: 'mechanics', quantum: 'quantum', electromagnetism: 'electromagnetism',
+  optics: 'optics', 'statistical-physics': 'statistical', thermodynamics: 'statistical',
+  'fluids-mhd': 'fluids', 'solid-state': 'solid-state', cosmology: 'cosmology',
+  stellar: 'stellar', relativity: 'relativity', 'medical-physics': 'medical', numerics: 'numerics',
+};
+const TAG_THUMB = {
+  mechanics: 'thumb-mechanics.jpg', quantum: 'thumb-quantum.jpg',
+  electromagnetism: 'thumb-electromagnetism.jpg', optics: 'thumb-optics.jpg',
+  'fluids-mhd': 'thumb-fluids.jpg', 'statistical-physics': 'thumb-statistical-physics.jpg',
+  thermodynamics: 'thumb-thermodynamics.jpg', 'solid-state': 'thumb-condensed-matter.jpg',
+  cosmology: 'thumb-cosmology.jpg', stellar: 'thumb-stellar.jpg',
+  relativity: 'thumb-relativity.jpg', 'medical-physics': 'thumb-medical-physics.jpg',
+  numerics: 'thumb-numerics.jpg',
+};
+const shortBadge = (b) => (b === 'Advanced' || b === 'Featured') ? 'Adv' : b;
+for (const c of cards) {
+  c.ptag = canonTag(c.tags[0]);
+  c.tagcolor = `var(--tag-${TAG_COLORVAR[c.ptag] || 'numerics'})`;
+  c.thumb = TAG_THUMB[c.ptag] || '';
+}
 
-const heroHTML = heroes.length ? heroes.map(h => `
-  <a class="hero-card" href="${h.path}/index.html">
-    <div class="hbadge"><span class="star">&#9733;</span></div>
-    <h2>${h.title}</h2>
-    <div class="hero-meta"><span class="uc">${h.primary_uc}</span> &middot; ${h.badge}</div>
-  </a>`).join('') : '<p>Featured coming soon.</p>';
+function cardHTML(c, featured = false) {
+  const thumb = c.thumb ? `assets/thumbs/${c.thumb}` : '';
+  const star = featured ? '<span class="cstar">&#9733;</span>' : '';
+  return `
+  <a class="card${featured ? ' card-f' : ''}" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-year="${c.curriculum_year}" data-tags="${c.tags.join(' ')}" data-order="${c.order}" data-group="${c.group}" style="--tagc:${c.tagcolor}" href="${c.path}/index.html">
+    <div class="cimg"${thumb ? ` data-thumb="${thumb}"` : ''}><div class="cph"></div>${star}<span class="lvl">${shortBadge(c.badge)}</span></div>
+    <div class="cbody">
+      <h3 class="ctitle">${c.title}</h3>
+      <span class="cuc">${c.primary_uc}</span>
+      <div class="ctags">${c.tags.slice(0, 4).map(t => `<span class="ctag">${t}</span>`).join('')}</div>
+    </div>
+  </a>`;
+}
 
+const cardsHTML = cards.map(c => cardHTML(c)).join('');
+const heroHTML = heroes.length ? heroes.map(h => cardHTML(h, true)).join('') : '<p class="t-small" style="color:var(--text-dimmed)">Featured coming soon.</p>';
 const chipRail = TAGS.map(t => `<button class="chip" data-tag="${t}">${t}</button>`).join('');
 
 const html = `<!doctype html>
@@ -136,13 +179,7 @@ body{max-width:1240px;margin:0 auto;padding:30px;background:transparent;color:va
 .header p{color:var(--text-secondary);max-width:560px;font-size:0.9375rem}
 h2.sec{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dimmed);margin:30px 0 14px}
 .uc{font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--text-secondary)}
-.heroes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:14px 0 6px}
-.hero-card{display:block;padding:15px;background:var(--bg-card);border:1px solid var(--border-subtle);
-  border-radius:8px;color:var(--text-primary);text-decoration:none;transition:background .15s ease,border-color .15s ease}
-.hero-card:hover{background:var(--bg-card-hover);border-color:var(--border-active)}
-.hbadge .star{color:var(--accent-gold);font-size:13px}
-.hero-card h2{font-family:var(--f-ui);font-weight:600;font-size:15px;letter-spacing:-0.02em;margin:6px 0 6px;color:var(--text-primary)}
-.hero-meta{font-size:12px;color:var(--text-secondary)}
+.heroes{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:14px 0 6px}
 .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
 .search{flex:1;min-width:220px}
 .search input{width:100%;padding:10px 13px;background:var(--bg-card);border:1px solid var(--border-subtle);
@@ -160,17 +197,27 @@ h2.sec{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.1
 .clearall{display:none;padding:5px 10px;background:transparent;border:1px solid var(--border-subtle);
   color:var(--text-secondary);border-radius:4px;font-size:11px;font-family:var(--f-mono);cursor:pointer}
 .clearall.show{display:inline-block}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:8px}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+@media(max-width:900px){.card-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.card-grid{grid-template-columns:1fr}}
 .card-grid.curr{display:block}
-.card{display:block;padding:14px;background:var(--bg-card);border:1px solid var(--border-subtle);
-  border-radius:8px;color:var(--text-primary);text-decoration:none;transition:background .15s ease,border-color .15s ease}
-.card:hover{background:var(--bg-card-hover);border-color:var(--border-active)}
-.chead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.card h3{font-family:var(--f-ui);font-weight:600;font-size:14px;letter-spacing:-0.02em;margin:0 0 4px;color:var(--text-primary)}
-.card .meta{margin:2px 0 8px}
-.ybadge{font-family:var(--f-mono);font-size:11px;color:var(--text-secondary);white-space:nowrap;flex:none}
-.card .tags{display:flex;flex-wrap:wrap;gap:4px}
-.card .tag{font-size:11px;padding:2px 7px;background:#1e2a3a;color:var(--text-secondary);border-radius:4px;font-family:var(--f-mono)}
+.card{position:relative;display:flex;flex-direction:column;min-height:200px;background:var(--bg-card);
+  border:1px solid var(--border-dim);border-radius:8px;color:var(--text-primary);text-decoration:none;
+  overflow:hidden;transition:background 150ms ease,border-color 150ms ease,transform 150ms ease,box-shadow 150ms ease}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tagc);border-radius:3px 0 0 3px;z-index:2}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-subtle);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.cimg{position:relative;height:120px;background:var(--bg-card) center/cover no-repeat;overflow:hidden}
+.cimg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,9,15,0.2) 0%,rgba(7,9,15,0.6) 70%,rgba(7,9,15,0.95) 100%)}
+.cph{position:absolute;left:30%;top:36%;width:40%;height:28%;background:#fff;opacity:0.07}
+.lvl{position:absolute;top:8px;right:8px;z-index:3;font-family:var(--f-mono);font-size:10px;font-weight:500;
+  background:rgba(7,9,15,0.7);color:var(--text-secondary);padding:3px 7px;border-radius:4px}
+.cstar{position:absolute;top:10px;left:10px;z-index:3;color:var(--accent-gold);font-size:12px}
+.cbody{padding:14px 16px 16px;display:flex;flex-direction:column}
+.ctitle{font-size:1.125rem;font-weight:600;letter-spacing:-0.01em;margin:0;color:var(--text-primary);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cuc{margin-top:4px;font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-code)}
+.ctags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;max-height:24px;overflow:hidden}
+.ctag{font-size:0.8125rem;padding:2px 8px;background:rgba(255,255,255,0.05);color:var(--text-secondary);border-radius:4px}
 .cur-group{width:100%;margin:18px 0 8px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .cur-group h3{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dimmed);margin:0;white-space:nowrap}
 .cur-group .ln{flex:1;height:1px;background:var(--border-subtle)}
@@ -311,6 +358,25 @@ body.leaving{opacity:0}
     });
   });
   render();
+
+  // Lazy-load category thumbnails (Section 5). Until the files exist
+  // in assets/thumbs/ every card keeps the white-box placeholder; a
+  // 404 falls back silently to it.
+  var imgZones=[].slice.call(document.querySelectorAll('.cimg[data-thumb]'));
+  if('IntersectionObserver' in window && imgZones.length){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting)return;
+        var z=en.target; io.unobserve(z);
+        var src=z.getAttribute('data-thumb'); if(!src)return;
+        var im=new Image();
+        im.onload=function(){ z.style.backgroundImage='url("'+src+'")'; var ph=z.querySelector('.cph'); if(ph)ph.style.display='none'; };
+        im.onerror=function(){};
+        im.src=src;
+      });
+    },{rootMargin:'200px'});
+    imgZones.forEach(function(z){ io.observe(z); });
+  }
 })();
 </script>
 </body></html>`;
