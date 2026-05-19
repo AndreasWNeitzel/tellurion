@@ -56,8 +56,8 @@ $$\mathrm{Ra}_c = \frac{27\pi^4}{4} \approx 657.5,$$
 at critical wavenumber $k_c = \pi/\sqrt2$ (so the rolls are about as
 wide as the layer is deep). Below $\mathrm{Ra}_c$ every mode decays:
 pure conduction, no motion. Above it, the mode at $k_c$ grows and sets
-the roll wavelength. The threshold is an exact number the simulation is
-gate-tested against, not a quoted constant. The playground sweeps Ra
+the roll wavelength. The threshold is an exact number set by the
+stability analysis, not a quoted constant. The playground sweeps Ra
 through $\mathrm{Ra}_c$ and shows the still layer give way to rolls.
 
 ### Things to try
@@ -86,8 +86,8 @@ critical `Ra_c` the layer is motionless and heat crosses by conduction;
 above it the motionless state is linearly unstable and the layer
 organises into steady counter-rotating convection rolls. With
 stress-free, perfectly conducting plates the marginal-stability problem
-has a closed-form solution, so the threshold is an exact number the
-engine is gate-tested against, not a quoted constant.
+has a closed-form solution, so the threshold is an exact number set
+by the analysis, not a quoted constant.
 
 ## Governing equations
 
