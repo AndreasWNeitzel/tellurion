@@ -30,7 +30,8 @@ const MAP = {
   math_field: 'thumb-numerics.jpg',               // flow field / vector field
   orbits: 'thumb-mechanics.jpg',                  // orbital trails
   bioluminescent_field: 'thumb-quantum.jpg',      // wavefunction / field surface
-  // eclipse: held for a future solar / optics / occultation category.
+  interference_pattern: 'thumb-optics.jpg',       // fringes (optics)
+  // eclipse: held for a future solar / occultation card.
 };
 
 mkdirSync(OUT, { recursive: true });
