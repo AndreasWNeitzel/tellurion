@@ -315,9 +315,14 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
   .page-transition{opacity:1!important;display:none}}
 /* About + Credits + footer (site-structure spec) */
+/* Explicit guard: every section/wrapper stays transparent so the
+   fixed star-field canvas (z-index:-1 on <html>) shows through at
+   all scroll positions. Only <html>, the nav, cards, the back
+   button and the footer carry a background. */
+section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rail{background:transparent}
 .about{padding:100px 0 80px}
 .about .lab,.credits .lab{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;
-  text-transform:uppercase;color:var(--text-dimmed);margin:0 0 48px}
+  text-transform:uppercase;color:var(--text-secondary);margin:0 0 48px}
 .about-grid{display:flex;gap:56px;align-items:flex-start}
 .about-l{width:240px;flex:none}
 .about-photo{width:200px;height:200px;border-radius:6px;border:1px solid var(--border-subtle);
@@ -343,20 +348,20 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .about-stack{margin-top:32px}
 .about-stack .lab{margin:0 0 12px}
 .about-stack .tags{display:flex;flex-wrap:wrap;gap:8px}
-.about-stack .tags span{font-family:var(--f-mono);font-size:11px;color:var(--text-dimmed);
-  background:rgba(255,255,255,0.04);border:1px solid var(--border-dim);padding:3px 9px;border-radius:4px}
+.about-stack .tags span{font-family:var(--f-mono);font-size:11px;color:var(--text-secondary);
+  background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);padding:3px 9px;border-radius:4px}
 .credits{padding:80px 0;border-top:1px solid var(--border-dim)}
 .credits-grid{display:flex;gap:80px;flex-wrap:wrap}
 .credits-col{flex:1;min-width:280px}
 .credits-col h3{font-size:1.125rem;font-weight:600;letter-spacing:-0.01em;color:var(--text-primary);margin:0 0 20px}
 .credits-col .sub{font-size:0.8125rem;color:var(--text-secondary);margin:6px 0 24px}
 .crow{display:flex;border-bottom:1px solid var(--border-dim);padding:12px 0}
-.crow .ck{width:200px;flex:none;font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed)}
-.crow .cv{font-size:0.8125rem;color:var(--text-secondary)}
-.credits-note{margin-top:20px;max-width:440px;font-size:0.8125rem;color:var(--text-dimmed);font-style:italic}
-.credits-empty{font-size:0.8125rem;color:var(--text-dimmed);font-style:italic}
+.crow .ck{width:200px;flex:none;font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-secondary)}
+.crow .cv{font-size:0.8125rem;color:var(--text-primary)}
+.credits-note{margin-top:20px;max-width:440px;font-size:0.8125rem;color:var(--text-secondary);font-style:italic}
+.credits-empty{font-size:0.8125rem;color:var(--text-secondary);font-style:italic}
 .credits-ver{margin-top:32px;padding-top:32px;border-top:1px solid var(--border-dim);
-  font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed)}
+  font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-secondary)}
 .sitefoot{height:64px;background:var(--bg-void);border-top:1px solid var(--border-dim);
   display:flex;align-items:center;justify-content:space-between;
   font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed);margin-top:40px}
