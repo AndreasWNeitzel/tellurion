@@ -108,7 +108,12 @@ function buildCN(s, dt) {
 
 export function step(s, dt) {
   const { N } = s;
-  if (s._dt !== dt) buildCN(s, dt);
+  // Rebuild the CN matrix every step: V can change between steps
+  // (preset, slider, sculpt). Caching it on dt alone left a stale
+  // A-matrix for the old V while the RHS used the new V, which is no
+  // longer unitary and the norm drifts. buildCN is O(N), cheap next
+  // to the O(N) Thomas solve.
+  buildCN(s, dt);
   const alpha = dt / (4 * s.dx * s.dx);
   // RHS d = (1 - i dt/2 H) psi : offdiag +i alpha ; diag 1 - i(2alpha + dt/2 V)
   for (let i = 1; i < N - 1; i += 1) {

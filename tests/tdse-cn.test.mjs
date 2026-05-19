@@ -20,6 +20,18 @@ describe('Crank-Nicolson unitarity', () => {
     expect(Math.abs(n0 - 1)).toBeLessThan(1e-6);     // started normalised
   });
 
+  it('stays unitary when the potential is changed mid-run (regression)', () => {
+    const s = makeTDSE(1024, 160);
+    setPacket(s, -40, 3, 5);
+    setPotential(s, 'rect', 4, 2);
+    for (let i = 0; i < 200; i += 1) step(s, 0.02);
+    setPotential(s, 'double', 9, 1.5);            // change V between steps
+    for (let i = 0; i < 200; i += 1) step(s, 0.02);
+    sculptV(s, 5, 4, 3);                          // sculpt between steps
+    for (let i = 0; i < 200; i += 1) step(s, 0.02);
+    expect(Math.abs(norm(s) - 1)).toBeLessThan(1e-6);
+  });
+
   it('conserved through a barrier interaction too', () => {
     const s = makeTDSE(1024, 160);
     setPacket(s, -40, 3, 5);
