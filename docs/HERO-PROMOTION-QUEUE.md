@@ -27,7 +27,7 @@ serialise the visual/GPU gate; no shared/ edits in parallel.
 - [x] bsc-y2s2/FIS2006-dipole-radiation-3d (PROMOTED: pitch-sweep tumble fixes the axisymmetric-yaw no-op so the donut visibly rocks edge-on to face-on; glowing solid lobe + bloom + denser mesh + brighter wavefronts; physics intact, invariants 7/7, recaptured 5 distinct, 60fps)
 - [x] msc-y1/MF-GR-gravitational-wave-detector (AT BAR: clean dynamic 3-panel, chirp+arms+matched-filter all live; 3D not beneficial, no gilding per simplifier ethos)
 - [ ] bsc-y3s1/FIS3003-tdse-wavepacket-sculptor (TRIAGED BELOW BAR: underfilled frame, near-empty bottom <x>(t) plot, rainbow phase)
-- [ ] msc-y1/MAA-SE-stellar-structure-full-model (TRIAGED BELOW BAR clear: static fixed 1 Msun model, all 5 goldens byte-identical (vacuous visual gate); deep-fix = mass sweep, next)
+- [x] msc-y1/MAA-SE-stellar-structure-full-model (PROMOTED: capture sweeps stellar mass 0.30->15 Msun so the 5 goldens are 5 distinct correct main-sequence models (fixes the vacuous identical-goldens gate); added a throttled live main-sequence auto-tour (slider takes over on drag, 60fps-safe); sim.js intact, invariants 11/11, 5 distinct)
 - [ ] bsc-y2s2/FIS2003-special-relativity-spacetime-lab (TRIAGED BELOW BAR: faint underdeveloped Minkowski diagram; readout panel overlaps moving rod)
 - [ ] msc-y1/MF-AQM-scattering-theory-differential-cross-section (TRIAGED BELOW BAR: thin sparse 3D wireframe, rotation barely perceptible)
 - [x] msc-y1/MF-GR-friedmann-expansion-multicomponent (AT BAR: dramatic legible comoving-grid expansion + growing horizons + era density chart, dynamic 3-panel)

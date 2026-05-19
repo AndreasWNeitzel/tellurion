@@ -13,7 +13,7 @@ one_paragraph: 'A full stellar-structure playground built on the Eddington stand
 tags: [stellar-structure, polytrope, lane-emden, nuclear-burning, live-readout]
 difficulty: 5
 tier: hero
-hero_candidate: true
+hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 6
 share_state_keys: [m, x]

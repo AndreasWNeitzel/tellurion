@@ -28,7 +28,8 @@ const slX = document.getElementById('slider-x'), vX = document.getElementById('v
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF_M = 0, DEF_X = 70;
-const st = { mRaw: DEF_M, xRaw: DEF_X, running: true, ph: 0, model: null };
+const TOUR_LO = -52, TOUR_HI = 118;        // main-sequence tour: 0.30 -> 15 Msun
+const st = { mRaw: DEF_M, xRaw: DEF_X, running: true, ph: 0, model: null, tour: true, frame: 0 };
 const massMsun = () => Math.pow(10, st.mRaw / 100);
 const Xfrac = () => st.xRaw / 100;
 
@@ -230,16 +231,30 @@ function draw() {
 }
 
 function tick() {
-  if (st.running) st.ph = (st.ph + 1 / 360) % 1;
+  if (st.running) {
+    st.ph = (st.ph + 1 / 360) % 1;
+    if (st.tour) {
+      // Slow automatic tour up and down the main sequence so the model
+      // is perceptibly alive on load. The mass slider takes over the
+      // moment the user drags it (st.tour := false). The model rebuild
+      // is throttled to hold 60 fps; draw() still runs every frame.
+      st.frame = (st.frame + 1) % 600;
+      if (st.frame % 6 === 0) {
+        const u = 0.5 - 0.5 * Math.cos(st.ph * 2 * Math.PI);
+        const mRaw = Math.round(TOUR_LO + (TOUR_HI - TOUR_LO) * u);
+        if (mRaw !== st.mRaw) { st.mRaw = mRaw; slM.value = String(mRaw); rebuild(); sync(); }
+      }
+    }
+  }
   draw();
   requestAnimationFrame(tick);
 }
 
 function sync() { vM.textContent = massMsun().toFixed(2); vX.textContent = Xfrac().toFixed(2); }
-slM.addEventListener('input', () => { st.mRaw = parseInt(slM.value, 10); rebuild(); sync(); draw(); });
+slM.addEventListener('input', () => { st.tour = false; st.mRaw = parseInt(slM.value, 10); rebuild(); sync(); draw(); });
 slX.addEventListener('input', () => { st.xRaw = parseInt(slX.value, 10); rebuild(); sync(); draw(); });
 bR.addEventListener('click', () => {
-  st.mRaw = DEF_M; st.xRaw = DEF_X; st.running = true; rebuild();
+  st.mRaw = DEF_M; st.xRaw = DEF_X; st.running = true; st.tour = true; st.frame = 0; rebuild();
   slM.value = String(DEF_M); slX.value = String(DEF_X);
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); sync(); draw();
 });
@@ -262,8 +277,18 @@ function boot() {
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   sync();
   if (CAPTURE_NAME) {
+    // Sweep the stellar mass across the five frames (0.30 -> 15 Msun),
+    // the controlling parameter of stellar structure. Each frame is the
+    // correct model for that mass, so the sliced star, the T/rho/P/L
+    // profiles, the convective/radiative zoning, the pp/CNO/3-alpha
+    // balance and the HR/ZAMS position all change. The default 1 Msun
+    // model has almost no convective shells, so the old st.ph-only
+    // capture produced five byte-identical frames.
     const fr = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
-    st.ph = fr; draw();
+    st.tour = false;
+    st.mRaw = Math.round(TOUR_LO + (TOUR_HI - TOUR_LO) * fr);
+    slM.value = String(st.mRaw);
+    st.ph = fr; rebuild(); sync(); draw();
   } else { draw(); }
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {

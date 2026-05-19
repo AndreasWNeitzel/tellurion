@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-19T07:04:31Z)
+  A star is a self-regulating ball of gas where four physical demands must be satisfied simultaneously at every radius. The Eddington standard model solves all four with one elegant trick, and from a star's mass and composition alone it predicts the entire run of density, pressure, temperature, and luminosity. The playground builds that model and lets you chan
+
 - **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified, verified 2026-05-19T06:56:48Z)
   A quantum wavepacket shown twice at once: its shape in position and its shape in momentum. Squeeze it narrow in position and it spreads wide in momentum, and vice versa. You cannot make both narrow. That is the Heisenberg uncertainty principle, and here it is a literal seesaw you operate.
 
@@ -175,9 +178,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Standard Model Particle Zoo: PDG Data and Conservation Laws](../playgrounds/msc-y1/MF-PP-standard-model-particle-zoo/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   Every known elementary particle and every force except gravity fits into one compact table, the Standard Model. The playground is that table made interactive: it shows the matter fermions, the force carriers, the Higgs, and, crucially, which decays are allowed by the conservation laws and which are forbidden.
-
-- **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
-  A star is a self-regulating ball of gas where four physical demands must be satisfied simultaneously at every radius. The Eddington standard model solves all four with one elegant trick, and from a star's mass and composition alone it predicts the entire run of density, pressure, temperature, and luminosity. The playground builds that model and lets you chan
 
 - **[Two-Stream Instability (1D PIC)](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   Shoot two electron beams through each other. The smooth counter-flow is unstable: tiny density ripples feed on the beam energy and grow explosively, then roll up into swirls in phase space and saturate. This two-stream instability is a foundational plasma effect and a classic test of particle-in-cell simulation.
