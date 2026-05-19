@@ -2,6 +2,7 @@ import { greenFn, solve } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rX = document.getElementById('readout-x');
 const sX = document.getElementById('slider-x'), vX = document.getElementById('value-x');
@@ -67,5 +68,23 @@ function render() {
   rX.textContent = st.x0.toFixed(2);
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    // Move the point source x0 (so the Green tent shifts and peaks at
+    // x0) and cycle the forcing so u(x) = integral G f changes too.
+    const states = [
+      { x0: 0.20, fn: 'const' },
+      { x0: 0.35, fn: 'step' },
+      { x0: 0.50, fn: 'gauss' },
+      { x0: 0.65, fn: 'sin' },
+      { x0: 0.80, fn: 'const' },
+    ];
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st = states[Math.min(states.length - 1, Math.round(frac * (states.length - 1)))];
+    sX.value = String(st.x0); vX.textContent = st.x0.toFixed(2);
+    if (selF) selF.value = st.fn;
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
