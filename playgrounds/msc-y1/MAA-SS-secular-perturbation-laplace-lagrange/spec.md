@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: murray-dermott
 primary_chapter: 7
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Averaged over many orbits the fast planetary motion cancels and only a slow drift survives: eccentricities and orbit orientations cycle back and forth over millennia, the dynamics behind Milankovitch cycles.'
+one_paragraph: 'Laplace-Lagrange theory averages the disturbing function over the orbital periods, dropping the fast angles and keeping the secular terms. Writing the complex eccentricity vector z (components e cos(varpi), e sin(varpi)), the linearized secular system is z-dot = i A z, where A is a constant matrix built from the masses and semi-major axes; its eigenvalues are the secular precession frequencies and its eigenvectors the normal modes. The planets therefore trade eccentricity periodically like coupled oscillators while the total angular-momentum deficit is conserved, the mechanism that paces Earth''s Milankovitch climate cycles. The playground integrates two planets exchanging eccentricity and shows the mode beating. Reference: Murray and Dermott, Solar System Dynamics, Chapter 7.'
 tags: [exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
