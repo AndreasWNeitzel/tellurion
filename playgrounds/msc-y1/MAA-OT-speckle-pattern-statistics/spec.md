@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: born-wolf
 primary_chapter: 10
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A bright star through a big telescope on a turbulent night does not make a clean dot; it boils into a swarm of bright grains called speckles, each briefly as sharp as the telescope can do.'
+one_paragraph: 'Atmospheric turbulence corrugates the incoming wavefront on the scale of the Fried parameter r_0, so the pupil acts like roughly N ~ (D/r_0)^2 independent sub-apertures whose randomly phased contributions interfere in the focal plane. The instantaneous image is fully developed speckle: the intensity follows a negative-exponential law P(I) = (1/<I>) exp(-I/<I>), and each speckle grain is about the diffraction size lambda/D, so the sharp information is present but scrambled and washed out by long exposures. The playground generates speckle patterns from a random phase screen and shows the exponential intensity statistics and grain count, the basis of speckle and lucky imaging. Reference: Born and Wolf, Principles of Optics, Chapter 10; Goodman, Speckle Phenomena in Optics.'
 tags: [optics, animation, live-readout]
 difficulty: 3
 tier: simple
