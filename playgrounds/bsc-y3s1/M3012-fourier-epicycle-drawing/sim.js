@@ -37,9 +37,11 @@ export function samplePath(name, n) {
         break;
       }
       case 'letter-A': {
+        // y-up: apex at the TOP (+0.8), feet at the bottom (-0.8). The
+        // old coords had the apex at -0.8, so the A drew upside down.
         const segs = [
-          [-0.6, 0.8], [0, -0.8], [0.6, 0.8], [-0.6, 0.8],
-          [-0.3, 0.0], [0.3, 0.0], [-0.3, 0.0], [-0.6, 0.8],
+          [-0.6, -0.8], [0, 0.8], [0.6, -0.8], [-0.6, -0.8],
+          [-0.3, 0.0], [0.3, 0.0], [-0.3, 0.0], [-0.6, -0.8],
         ];
         const segCount = segs.length - 1;
         const sf = t * segCount;

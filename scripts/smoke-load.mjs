@@ -65,7 +65,11 @@ try {
         for (let i = 0; i < d.length; i += stride) {
           if (d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11 > mn + 14) content += 1;
         }
-        nonblank = total > 0 && content / total > 0.01;   // >=1% of canvas rendered
+        // Low bar on purpose: the guard catches blank / won't-load /
+        // JS-error pages, not sparsity. Thin line-art (a curve on a
+        // dark background) is legitimate and covers well under 1% of
+        // the canvas; only a truly empty canvas has ~zero deviation.
+        nonblank = total > 0 && content / total > 0.0006;
       } else { nonblank = true; } // webgl: cannot cheaply sample; rely on no-error
     } catch (e) { return { hasStage: true, sampleErr: String(e) }; }
     return { hasStage: true, w: c.width, h: c.height, nonblank, ready: !!window.__simulationReady };
