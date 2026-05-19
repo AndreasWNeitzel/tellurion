@@ -31,34 +31,103 @@ share_state_keys: [b, spin]
 
 ### What you are seeing and why it matters
 
-Gravity here is not a force pulling things in; it is the shape of
-spacetime, and light and matter simply follow the straightest
-available paths (geodesics) through that shape. Near a black hole the
-shape is so curved that there is a knife-edge: aim a photon a fraction
-of a percent too close and it cannot get back out, no matter how fast
-it is going, because there is no "faster" than light. That threshold,
-the impact parameter b = 3 sqrt(3) M, and the photon sphere at 3 M and
-the innermost stable orbit at 6 M, are exact numbers that fall out of
-the geometry. Fire photons across the threshold and watch one escape
-and its near-twin vanish. This is also why a black hole casts a
-sharp-edged shadow, the thing the Event Horizon Telescope imaged.
+Gravity, in Einstein's general relativity, is not a force pulling
+things in. It is the shape of spacetime; light and matter simply
+follow the straightest available paths (geodesics) through that
+shape. Near a black hole the shape is so curved that there is a
+knife-edge: aim a photon a fraction of a percent too close and it
+cannot get back out, no matter how fast it is going, because there is
+no "faster" than light. Three exact numbers fall out of the geometry:
+the event horizon at $r_h = 2M$, the unstable photon sphere at
+$r_{\rm ph} = 3M$, and the innermost stable circular orbit for massive
+particles at $r_{\rm ISCO} = 6M$. The critical impact parameter for a
+photon to escape is $b_{\rm crit} = 3\sqrt{3}\,M$. Fire photons across
+that threshold and watch one escape and its near-twin vanish. The
+sharp-edged shadow it casts on a background sky is exactly what the
+Event Horizon Telescope imaged in 2019 for M87* and in 2022 for Sgr A*.
+
+### The Schwarzschild geometry
+
+We use geometrised units $G = c = 1$, so the black-hole mass $M$ has
+units of length. In those units $1\,M_\odot \approx 1.477\,\mathrm{km}$.
+The Schwarzschild metric for a non-rotating black hole of mass $M$ is
+
+$$ds^2 = -\left(1 - \frac{2M}{r}\right)\,dt^2 + \frac{dr^2}{1 - 2M/r}
+       + r^2\left(d\theta^2 + \sin^2\theta\,d\phi^2\right),$$
+
+where $t$ is Killing time at infinity, $r$ is the areal radius (the
+$r$ such that a sphere there has area $4\pi r^2$), and $(\theta,\phi)$
+are the usual spherical angles. The metric is singular at $r = 2M$
+(the horizon, a coordinate singularity) and at $r = 0$ (the genuine
+curvature singularity).
+
+### Why a photon either escapes or is captured
+
+For a particle orbiting in the equatorial plane $\theta = \pi/2$,
+conserved energy $E$ and angular momentum $L$ reduce the geodesic
+equation to a one-dimensional radial problem with an effective
+potential. Using $u \equiv 1/r$ (Binet substitution), the null
+geodesic equation reads
+
+$$\boxed{\;\frac{d^2u}{d\phi^2} + u = 3 M u^2\;}$$
+
+for photons, and for massive particles add a constant term:
+
+$$\frac{d^2u}{d\phi^2} + u = \frac{M}{L^2} + 3 M u^2.$$
+
+Here $\phi$ is the azimuthal angle along the orbit. The impact
+parameter $b = L/E$ controls everything; it has units of length.
+Photons with $b > b_{\rm crit} = 3\sqrt{3}\,M$ slow, turn, and escape;
+those with $b < b_{\rm crit}$ spiral through the horizon. At
+$b = b_{\rm crit}$ a photon asymptotes to a circular orbit on the
+photon sphere $r_{\rm ph} = 3M$ (one unstable, marginally bound photon
+orbit). This emerges algebraically: the timelike effective potential
+
+$$V_{\rm eff}^2(r) = \left(1 - \frac{2M}{r}\right)\left(1 + \frac{L^2}{r^2}\right)$$
+
+has a maximum at $r_{\rm ph} = 3M$ for photons (the $1$ in the
+parenthesis is dropped), and a minimum at $r = 6M$ for massive
+particles with critical angular momentum $L = 2\sqrt{3}\,M$, which is
+the ISCO.
+
+### Symbols, at a glance
+
+- $M$, the black-hole mass in geometrised units ($G = c = 1$).
+- $r$, the areal radius (Schwarzschild "$r$"). Note $r \ne$ proper
+  distance, because spacetime is curved.
+- $\phi$, the azimuthal angle around the hole in the orbital plane.
+- $u = 1/r$, the Binet variable; the orbit equation is cleaner in $u$.
+- $b = L/E$, the impact parameter for a photon (units of length), or
+  the asymptotic perpendicular offset of the unperturbed trajectory.
+- $V_{\rm eff}(r)$, the effective potential for the radial motion.
+- $r_h = 2M$, $r_{\rm ph} = 3M$, $r_{\rm ISCO} = 6M$, the three
+  characteristic radii.
 
 ### Try this
 
-- Drag the impact-parameter slider through b/b_crit = 1.0 and fire:
-  watch escape flip to capture at the threshold.
-- Use the "photon escape (grazing)" preset and see the ray loop the
-  photon sphere almost a full turn before flying off.
-- Switch to "ISCO orbit" and "plunge" to compare a bound orbit with a
-  particle that spirals in.
-- Turn up the spin slider and watch the lensed shadow deform.
+- Drag the impact-parameter slider through $b/b_{\rm crit} = 1.0$ and
+  fire; escape flips to capture at the threshold.
+- Use the "photon escape (grazing)" preset and watch the ray loop the
+  photon sphere almost a full turn before flying off; this is the
+  "photon ring" the EHT is starting to resolve.
+- Switch to "ISCO orbit" then "plunge" to compare a bound orbit at
+  $r = 6M$ against a particle that spirals in.
+- Turn up the spin slider and watch the lensed shadow deform; the
+  metric used for the lensed background is Schwarzschild/Kerr, while
+  the analysed geodesics in the side panel are Schwarzschild (stated
+  in the readout).
 
-### The orbit equation (collapsible)
+### Bibliographic origin
 
-$$\frac{d^2u}{d\phi^2}+u = 3 M u^2\ \text{(null)},\qquad
-  b_{\rm crit}=3\sqrt3\,M,\quad r_{\rm ph}=3M,\quad r_{\rm ISCO}=6M.$$
-
-with $u = 1/r$. Timelike geodesics add a $M/L^2$ term.
+The orbit equation $d^2u/d\phi^2 + u = 3Mu^2$ and the critical impact
+parameter are derived in Misner, Thorne and Wheeler, *Gravitation*
+(Freeman 1973), Ch. 25, Eqs. 25.16 and 25.18. The effective potential
+treatment and the ISCO are in Hartle, *Gravity: An Introduction to
+Einstein's General Relativity* (Addison-Wesley 2003), Ch. 9. The
+Schwarzschild solution itself dates to Schwarzschild 1916,
+Sitzungsber. K. Preuss. Akad. Wiss. 189. The photon-ring imaging
+context is Event Horizon Telescope Collaboration et al., ApJL 875
+(2019) L1.
 
 ## Physical setup
 
