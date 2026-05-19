@@ -161,6 +161,29 @@ function stepSinai(state) {
   return true;
 }
 
+// ===== Ellipse billiard ===================================================
+// x^2/A^2 + y^2/B^2 = 1, A > B. Integrable: foci at (+/- c, 0),
+// c = sqrt(A^2 - B^2). A chord through one focus reflects through the
+// other; off-focus orbits stay tangent to a confocal caustic.
+const ELLIPSE_A = 1.4, ELLIPSE_B = 0.9;
+const ELLIPSE_C = Math.sqrt(ELLIPSE_A * ELLIPSE_A - ELLIPSE_B * ELLIPSE_B);
+function stepEllipse(state) {
+  const { x, y, vx, vy } = state;
+  const iA2 = 1 / (ELLIPSE_A * ELLIPSE_A), iB2 = 1 / (ELLIPSE_B * ELLIPSE_B);
+  const a = vx * vx * iA2 + vy * vy * iB2;
+  const b = 2 * (x * vx * iA2 + y * vy * iB2);
+  const c = x * x * iA2 + y * y * iB2 - 1;        // < 0 inside
+  const disc = Math.max(0, b * b - 4 * a * c);
+  const t = (-b + Math.sqrt(disc)) / (2 * a);     // outward-moving root
+  const xN = x + t * vx, yN = y + t * vy;
+  // inward normal = -normalize(grad F), grad F = (x/A^2, y/B^2)
+  const gx = xN * iA2, gy = yN * iB2, gl = Math.hypot(gx, gy) || 1;
+  const [vxR, vyR] = reflect(vx, vy, -gx / gl, -gy / gl);
+  state.x = xN; state.y = yN; state.vx = vxR; state.vy = vyR;
+  state.bounces += 1;
+  return true;
+}
+
 export function createBilliard({ geom = 'stadium', x = 0, y = 0, vx = 1, vy = 0.6 } = {}) {
   const v = Math.hypot(vx, vy);
   return { geom, x, y, vx: vx / v, vy: vy / v, bounces: 0 };
@@ -170,6 +193,7 @@ export function step(state) {
   if (state.geom === 'circle') return stepCircle(state);
   if (state.geom === 'stadium') return stepStadium(state);
   if (state.geom === 'sinai') return stepSinai(state);
+  if (state.geom === 'ellipse') return stepEllipse(state);
   throw new Error(`unknown geom ${state.geom}`);
 }
 
@@ -177,7 +201,9 @@ export const GEOM_BOUNDS = {
   circle:  { xmin: -1.2, xmax: 1.2, ymin: -1.2, ymax: 1.2 },
   stadium: { xmin: -STADIUM_L - 1.1, xmax: STADIUM_L + 1.1, ymin: -1.1, ymax: 1.1 },
   sinai:   { xmin: -1.1, xmax: 1.1, ymin: -1.1, ymax: 1.1 },
+  ellipse: { xmin: -ELLIPSE_A - 0.15, xmax: ELLIPSE_A + 0.15, ymin: -ELLIPSE_B - 0.15, ymax: ELLIPSE_B + 0.15 },
 };
 
 export const STADIUM_HALF_LENGTH = STADIUM_L;
 export const SINAI_R = SINAI_INNER_R;
+export const ELLIPSE_AXES = { a: ELLIPSE_A, b: ELLIPSE_B, c: ELLIPSE_C };

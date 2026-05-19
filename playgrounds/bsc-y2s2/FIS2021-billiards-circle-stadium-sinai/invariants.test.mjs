@@ -5,10 +5,10 @@
 // (d) Stadium: angular spread > 2 rad over 200 bounces (chaos).
 
 import { describe, it, expect } from 'vitest';
-import { createBilliard, step, SINAI_R } from './sim.js';
+import { createBilliard, step, SINAI_R, ELLIPSE_AXES } from './sim.js';
 
 describe('Billiards: speed conservation', () => {
-  for (const geom of ['circle', 'stadium', 'sinai']) {
+  for (const geom of ['circle', 'stadium', 'sinai', 'ellipse']) {
     it(`${geom}: |v| stays = 1 over 500 bounces`, () => {
       const b = createBilliard({ geom, x: 0.3, y: 0.2, vx: 0.7, vy: 0.5 });
       for (let i = 0; i < 500; i += 1) {
@@ -37,6 +37,31 @@ describe('Billiards: position stays inside boundary', () => {
       const onSquare = Math.abs(Math.abs(b.x) - 1) < 1e-9 || Math.abs(Math.abs(b.y) - 1) < 1e-9;
       const onDisc = Math.abs(Math.hypot(b.x, b.y) - SINAI_R) < 1e-9;
       expect(onSquare || onDisc).toBe(true);
+    }
+  });
+});
+
+describe('Billiards: ellipse two-focus property', () => {
+  const { a, b, c } = ELLIPSE_AXES;
+  it('every bounce point lies on the ellipse x^2/A^2 + y^2/B^2 = 1', () => {
+    const s = createBilliard({ geom: 'ellipse', x: -c, y: 0, vx: 0.4, vy: 0.9 });
+    for (let i = 0; i < 200; i += 1) {
+      step(s);
+      expect(Math.abs((s.x * s.x) / (a * a) + (s.y * s.y) / (b * b) - 1)).toBeLessThan(1e-9);
+    }
+  });
+  it('a chord from one focus reflects through the other focus, alternating', () => {
+    for (const [vx, vy] of [[0.3, 0.95], [0.8, 0.6], [-0.2, 1], [1, 0.05]]) {
+      const s = createBilliard({ geom: 'ellipse', x: -c, y: 0, vx, vy });
+      // after each bounce the outgoing ray passes through the far focus,
+      // which alternates F2, F1, F2, ...
+      for (let k = 0; k < 8; k += 1) {
+        step(s);
+        const fx = (k % 2 === 0) ? c : -c;          // target focus
+        const cross = (fx - s.x) * s.vy - (0 - s.y) * s.vx;
+        const denom = Math.hypot(fx - s.x, s.y) || 1;
+        expect(Math.abs(cross) / denom).toBeLessThan(1e-6);
+      }
     }
   });
 });

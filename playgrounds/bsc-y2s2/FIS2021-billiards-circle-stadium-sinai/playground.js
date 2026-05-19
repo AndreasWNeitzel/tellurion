@@ -1,9 +1,11 @@
 // playground.js
-// Three classical 2D billiards: circle, stadium, Sinai. Particle bounces
-// specularly; trail accumulates.
+// Four classical 2D billiards: circle, stadium, Sinai, ellipse. The
+// particle bounces specularly; trail accumulates. The ellipse is
+// integrable and launched from a focus, so every chord reflects
+// through the other focus (the two-focus property).
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { createBilliard, step, GEOM_BOUNDS, STADIUM_HALF_LENGTH, SINAI_R } from './sim.js';
+import { createBilliard, step, GEOM_BOUNDS, STADIUM_HALF_LENGTH, SINAI_R, ELLIPSE_AXES } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -91,6 +93,26 @@ function drawWalls() {
     ctx.beginPath();
     ctx.arc(c.px, c.py, r, 0, 2 * Math.PI);
     ctx.stroke();
+  } else if (state.geom === 'ellipse') {
+    const { a, b, c } = ELLIPSE_AXES;
+    const o = toPx(0, 0);
+    const rx = Math.abs(toPx(a, 0).px - o.px);
+    const ry = Math.abs(toPx(0, b).py - o.py);
+    ctx.beginPath();
+    ctx.ellipse(o.px, o.py, rx, ry, 0, 0, 2 * Math.PI);
+    ctx.stroke();
+    // the two foci: every chord through one reflects through the other
+    ctx.fillStyle = 'rgba(255, 209, 102, 0.95)';
+    for (const sgn of [-1, 1]) {
+      const f = toPx(sgn * c, 0);
+      ctx.beginPath(); ctx.arc(f.px, f.py, 4, 0, 2 * Math.PI); ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255, 209, 102, 0.8)';
+    ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    const fl = toPx(-c, 0), fr = toPx(c, 0);
+    ctx.fillText('focus', fl.px, fl.py + 16);
+    ctx.fillText('focus', fr.px, fr.py + 16);
+    ctx.textAlign = 'left';
   }
 }
 
@@ -128,7 +150,7 @@ function drawAll() {
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
-  const integrable = state.geom === 'circle';
+  const integrable = state.geom === 'circle' || state.geom === 'ellipse';
   const rows = [
     ['geometry', state.geom],
     ['integrable', integrable ? 'yes' : 'no'],
@@ -151,6 +173,7 @@ function rebuild() {
   let ic;
   if (state.geom === 'circle') ic = { x: 0.7, y: 0.0, vx: 0.3, vy: 0.95 };
   else if (state.geom === 'stadium') ic = { x: 0.1, y: 0.2, vx: 1.0, vy: 0.7 };
+  else if (state.geom === 'ellipse') ic = { x: -ELLIPSE_AXES.c, y: 0, vx: 0.35, vy: 0.94 };  // launch from a focus
   else ic = { x: 0.55, y: 0.55, vx: 1.0, vy: 0.6 };
   state.billiard = createBilliard({ geom: state.geom, ...ic });
   state.trail = [{ x: state.billiard.x, y: state.billiard.y }];
