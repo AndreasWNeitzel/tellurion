@@ -52,15 +52,92 @@ the open question.
 - "orbit the mouth": sit near the throat and look around the rim.
 - Widen the throat radius b0 and watch the window open up.
 
-### The metric (collapsible)
+### The Ellis-Morris-Thorne metric
 
-$$ds^2=-dt^2+d\ell^2+(b_0^2+\ell^2)\,d\Omega^2,$$
+The simplest traversable wormhole is the Ellis (1973) /
+Morris-Thorne (1988) geometry, in geometrised units $G = c = 1$:
 
-$\ell$ the proper radial distance (the two universes are
-$\ell>0$ and $\ell<0$), $b_0$ the throat radius, circumferential
-radius $r(\ell)=\sqrt{b_0^2+\ell^2}$. A null ray has
-$(d\ell/d\lambda)^2=E^2-L^2/(b_0^2+\ell^2)$; it traverses iff its
-impact parameter $|L/E|<b_0$. Embedding: $z=b_0\,\mathrm{arcsinh}(\ell/b_0)$.
+$$\boxed{\;ds^2 = -\,dt^2 + d\ell^2 + (b_0^2 + \ell^2)\,d\Omega^2,\;}$$
+
+with $d\Omega^2 = d\theta^2 + \sin^2\theta\,d\phi^2$ the unit-sphere
+element. Each piece has a clean meaning:
+
+- $\ell$, the proper radial distance from the throat. Positive
+  $\ell$ is one universe; negative $\ell$ is the other. The throat
+  is $\ell = 0$, where the two universes meet.
+- $b_0$, the throat radius (the bottleneck width). At $\ell = 0$ the
+  spheres have area $4\pi b_0^2$, which is the smallest area of any
+  sphere in the geometry.
+- $r(\ell) = \sqrt{b_0^2 + \ell^2}$, the circumferential ("areal")
+  radius of the sphere at proper distance $\ell$. Note $r(0) = b_0$
+  and $r \to |\ell|$ at large $|\ell|$ (far from the throat the
+  geometry is asymptotically flat).
+
+The embedding diagram (the "Flamm paraboloid" image so commonly
+drawn) follows from setting $z(\ell) = b_0\,\mathrm{arcsinh}(\ell / b_0)$
+and plotting $(z, r)$.
+
+### How a photon goes through
+
+Null geodesics in the Ellis metric, with conserved energy $E$ and
+angular momentum $L$ from the time and azimuthal Killing vectors,
+satisfy the radial equation
+
+$$\left(\frac{d\ell}{d\lambda}\right)^2 = E^2 - \frac{L^2}{b_0^2 + \ell^2},$$
+
+where $\lambda$ is the affine parameter along the ray. The right
+side is the radial "energy" of the ray; the ray traverses the
+throat if and only if its impact parameter satisfies
+
+$$|L / E| < b_0.$$
+
+Otherwise the ray turns at $\ell_{\rm turn} = \pm\sqrt{(L/E)^2 - b_0^2}$
+and comes back. The fragment shader walks one ray per screen pixel
+from the camera into the geometry and reports which side ($\mathrm{sign}\,\ell$)
+the ray ends up on; that selects which of two procedural skies to
+sample.
+
+### The honest part: exotic matter
+
+The bracketed metric is a vacuum solution only if we tolerate
+$\rho < 0$ (the weak energy condition is violated). Concretely
+Einstein's equations $G_{\mu\nu} = 8\pi T_{\mu\nu}$ applied to this
+metric require, at the throat,
+
+$$\rho(\ell = 0) = -\frac{1}{8\pi b_0^2} < 0.$$
+
+This is "exotic matter": stuff with negative energy density in the
+observer's local frame. The Casimir effect produces tiny localised
+negative energies, but no known process produces it in the macroscopic
+amounts a real traversable wormhole would need. The geometry is
+exact; whether nature lets us build one is open.
+
+### Symbols, at a glance
+
+- $\ell$, proper radial distance (m); the two universes are
+  $\ell > 0$ and $\ell < 0$; the throat is $\ell = 0$.
+- $b_0$, throat radius (m).
+- $r(\ell) = \sqrt{b_0^2 + \ell^2}$, circumferential radius (m).
+- $t$, coordinate time (s); $d\tau = dt$ along worldlines at rest.
+- $E$, photon energy (conserved by $\partial_t$); $L$, angular
+  momentum (conserved by $\partial_\phi$); $b = L/E$ is the impact
+  parameter with units of length.
+- $\rho$, local energy density (negative at the throat).
+
+### Bibliographic origin
+
+The geometry was written down by Ellis, *J. Math. Phys.* **14**
+(1973) 104; revived and analysed for traversability by Morris and
+Thorne, *Am. J. Phys.* **56** (1988) 395 (the paper Carl Sagan asked
+Kip Thorne to write so *Contact* would have honest physics). The
+exotic-matter requirement is sharpened by the Morris, Thorne,
+Yurtsever no-go bound in *Phys. Rev. Lett.* **61** (1988) 1446. A
+modern textbook treatment is Visser, *Lorentzian Wormholes: From
+Einstein to Hawking* (AIP 1995), Ch. 11, 13. Rendering this
+geometry as a fragment-shader image is in Bouhebel, *Astron.
+Astrophys.* **663** (2022) A156 and the *Interstellar* movie's
+black-hole pipeline (James et al., *Class. Quantum Grav.* **32**
+(2015) 065001).
 
 ## Physical setup
 
