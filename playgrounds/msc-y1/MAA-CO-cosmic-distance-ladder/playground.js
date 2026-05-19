@@ -1,181 +1,186 @@
-// Cosmic distance ladder, shown as one connected ladder. The four rungs
-// (trigonometric parallax, Cepheid period-luminosity, Type Ia standard
-// candle, Hubble flow) share a logarithmic distance axis. Each slider
-// drives a large in-panel diagram on the left (the parallax baseline,
-// the Leavitt law, the SN light curve, the redshifted spectrum) and the
-// position of that rung's marker on the axis; the markers are joined
-// into a ladder climbing from parsecs to gigaparsecs. The error whisker
-// widens down the ladder because every rung is calibrated on the one
-// below it, which is the whole point of the construction.
-// Reference: Weinberg, Cosmology (2008), Sec. 1.6; Freedman and Madore,
-// ARA&A 48, 673 (2010).
+// Cosmic distance ladder as one logarithmic ruler of the universe.
+// The horizontal axis is log10(distance) from 1 pc to 10 Gpc with
+// labelled unit ticks. Each rung is its real working RANGE, drawn so
+// neighbours overlap: that overlap is the calibration handoff (each
+// method is anchored on the one below it). Real objects sit at their
+// true distances. Drag the target cursor: it names the method that
+// reaches that distance and the cumulative fractional error of the
+// chain needed to get there (errors add in quadrature down the
+// ladder). Reference: Weinberg, Cosmology (2008), Sec. 1.6; Freedman
+// and Madore, ARA&A 48, 673 (2010).
+import { dParallax, MVCepheid, dHubble, ladder, H0 } from './sim.js';
 
-import { dParallax, MVCepheid, dModulus, dHubble, ladder, H0, C_KMS } from './sim.js';
-
-const params        = new URLSearchParams(location.search);
+const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
-const CAPTURE_NAME  = params.get('capture');
-const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
-
-const canvas     = document.getElementById('stage');
-const ctx        = canvas.getContext('2d', { alpha: false });
-const readoutEl  = document.getElementById('readout');
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+const readoutEl = document.getElementById('readout');
 const controlsEl = document.getElementById('controls');
-
 const W = canvas.width, H = canvas.height;
 const DEF = { parallax: 100, cepheidP: 30, snApparent: 16, z: 0.05 };
-const state = { ...DEF, phase: 0 };
+const state = { ...DEF, targetLog: 6.0, phase: 0, dragging: false };
 let running = true;
 
-const AX = { x0: 470, x1: 884, lo: 0, hi: 10 };          // log10(d/pc)
-const xOfPc = (pc) => {
-  const L = Math.min(AX.hi, Math.max(AX.lo, Math.log10(Math.max(1, pc))));
-  return AX.x0 + (L - AX.lo) / (AX.hi - AX.lo) * (AX.x1 - AX.x0);
-};
-const RUNGS = [
-  { name: '1. Parallax',    yc: 130, color: '#ffd57f' },
-  { name: '2. Cepheid P-L', yc: 254, color: '#7fd0ff' },
-  { name: '3. Type Ia SN',  yc: 378, color: '#ff9d6e' },
-  { name: '4. Hubble flow', yc: 502, color: '#c98bff' },
-];
-const PX = 22, PW = 426, PH = 112;     // vignette panel geometry
-
+const AX = { x0: 70, x1: W - 40, lo: 0, hi: 10 };          // log10(d / pc)
+const RY = 250;                                            // ruler y
+const xOf = (logpc) => AX.x0 + (Math.max(AX.lo, Math.min(AX.hi, logpc)) - AX.lo) / (AX.hi - AX.lo) * (AX.x1 - AX.x0);
+const xOfPc = (pc) => xOf(Math.log10(Math.max(1, pc)));
+const logFromX = (px) => AX.lo + (px - AX.x0) / (AX.x1 - AX.x0) * (AX.hi - AX.lo);
 function fmtPc(pc) {
   if (pc < 1e3) return `${pc.toFixed(1)} pc`;
   if (pc < 1e6) return `${(pc / 1e3).toFixed(2)} kpc`;
   if (pc < 1e9) return `${(pc / 1e6).toFixed(2)} Mpc`;
   return `${(pc / 1e9).toFixed(2)} Gpc`;
 }
-const lerp = (a, b, t) => a + (b - a) * t;
-
-function panel(i, ph) {
-  const x = PX, y = RUNGS[i].yc - PH / 2;
+// Text with a dark halo so labels stay legible over the coloured bars.
+function lbl(s, x, y) {
   ctx.save();
-  ctx.beginPath(); ctx.rect(x, y, PW, PH); ctx.clip();
-  ctx.fillStyle = '#080810'; ctx.fillRect(x, y, PW, PH);
-  if (i === 0) {
-    // Parallax: a baseline whose half-angle is the parallax. The star's
-    // displacement from the distant background spans the panel as p runs
-    // 1 -> 800 mas, so the slider repaints almost the whole panel.
-    ctx.fillStyle = 'rgba(200,205,230,0.35)';
-    for (let k = 0; k < 26; k += 1) ctx.fillRect(x + ((k * 53) % PW), y + ((k * 31) % PH), 1.5, 1.5);
-    const frac = (state.parallax - 1) / 799;                   // 0..1
-    const off = lerp(-PW * 0.40, PW * 0.40, frac);
-    const sway = (running || CAPTURE_NAME) ? 4 * Math.sin(ph) : 0;
-    ctx.strokeStyle = 'rgba(255,213,127,0.5)'; ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(x + PW / 2, y + PH - 12); ctx.lineTo(x + PW / 2 + off, y + 26); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#7e828a'; ctx.font = '10px ui-monospace, monospace';
-    ctx.fillText('Sun', x + PW / 2 - 9, y + PH - 2);
-    ctx.fillStyle = '#ffd57f';
-    ctx.beginPath(); ctx.arc(x + PW / 2 + off + sway, y + 24, 6, 0, 2 * Math.PI); ctx.fill();
-  } else if (i === 1) {
-    // Leavitt period-luminosity line, with the live point on it.
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-    ctx.beginPath(); ctx.moveTo(x + 30, y + 12); ctx.lineTo(x + 30, y + PH - 16); ctx.lineTo(x + PW - 10, y + PH - 16); ctx.stroke();
-    ctx.fillStyle = '#7e828a'; ctx.font = '9px ui-monospace, monospace';
-    ctx.fillText('M_V', x + 6, y + 20); ctx.fillText('log P', x + PW - 34, y + PH - 4);
-    const X = (lp) => x + 34 + lp * (PW - 50);                 // log10 P in [0,2]
-    const Y = (M) => y + 16 + ((M + 7) / 6) * (PH - 34);       // M_V in [-7,-1]
-    ctx.strokeStyle = '#7fd0ff'; ctx.lineWidth = 2; ctx.beginPath();
-    for (let k = 0; k <= 40; k += 1) { const lp = 2 * k / 40; const xx = X(lp), yy = Y(MVCepheid(Math.pow(10, lp))); k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
-    ctx.stroke();
-    const lpNow = Math.log10(state.cepheidP);
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(lpNow), Y(MVCepheid(state.cepheidP)), 4.5, 0, 2 * Math.PI); ctx.fill();
-  } else if (i === 2) {
-    // SN Ia light curve; the apparent-mag slider shifts the whole curve
-    // vertically (brighter peak = nearer), repainting the panel.
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.beginPath(); ctx.moveTo(x + 26, y + 10); ctx.lineTo(x + 26, y + PH - 12); ctx.lineTo(x + PW - 10, y + PH - 12); ctx.stroke();
-    const peakY = lerp(y + 14, y + PH - 22, (state.snApparent - 6) / 22);
-    ctx.strokeStyle = '#ff9d6e'; ctx.lineWidth = 2; ctx.beginPath();
-    for (let k = 0; k <= 46; k += 1) { const t = k / 46; const dip = Math.exp(-((t - 0.34) ** 2) / 0.012); const xx = x + 30 + t * (PW - 44); const yy = (y + PH - 14) - (y + PH - 14 - peakY) * dip; k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
-    ctx.stroke();
-    const mt = (running || CAPTURE_NAME) ? (ph * 0.12) % 1 : 0.34;
-    const dip = Math.exp(-((mt - 0.34) ** 2) / 0.012);
-    ctx.fillStyle = '#ffd9b0';
-    ctx.beginPath(); ctx.arc(x + 30 + mt * (PW - 44), (y + PH - 14) - (y + PH - 14 - peakY) * dip, 4, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#7e828a'; ctx.font = '9px ui-monospace, monospace'; ctx.fillText('flux', x + 4, y + 18);
-  } else {
-    // Hubble: rest spectrum vs observed, lines redshifted by z. Large z
-    // sweeps the lines across the full bar.
-    ctx.fillStyle = '#dcdde2'; ctx.font = '10px ui-monospace, monospace';
-    ctx.fillText('rest', x + 6, y + 22); ctx.fillText('observed', x + 6, y + 64);
-    const bx = x + 70, bw = PW - 84;
-    for (const [by, zz] of [[y + 14, 0], [y + 56, state.z]]) {
-      ctx.fillStyle = '#101018'; ctx.fillRect(bx, by, bw, 20);
-      for (const rf of [0.16, 0.30, 0.52, 0.74]) {
-        const obs = rf * (1 + zz * (6 / 0.4));
-        if (obs <= 1) { ctx.fillStyle = zz ? '#c98bff' : '#9fb4d8'; ctx.fillRect(bx + obs * bw, by, 2, 20); }
-      }
-    }
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace';
-    ctx.fillText(`v = c z = ${(C_KMS * state.z).toFixed(0)} km/s`, bx, y + PH - 2);
-  }
+  ctx.shadowColor = 'rgba(6,9,16,0.95)'; ctx.shadowBlur = 4;
+  ctx.fillText(s, x, y); ctx.fillText(s, x, y);
   ctx.restore();
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.strokeRect(PX, RUNGS[i].yc - PH / 2, PW, PH);
 }
+// Rung working ranges (log10 pc) and the colour; ranges deliberately
+// overlap their neighbour, which is where the calibration is passed up.
+const RUNGS = [
+  { name: 'Trigonometric parallax', lo: 0.0, hi: 3.5, yc: RY + 58, color: '#f5c842', err: 0.02 },
+  { name: 'Cepheid period-luminosity', lo: 3.0, hi: 7.5, yc: RY + 96, color: '#4f9cf9', err: 0.05 },
+  { name: 'Type Ia supernova', lo: 6.5, hi: 9.5, yc: RY + 134, color: '#f59e6e', err: 0.07 },
+  { name: 'Hubble flow  v = H0 d', lo: 7.5, hi: 10.0, yc: RY + 172, color: '#b48bff', err: 0.10 },
+];
+// Real signposts at true distances (pc).
+const OBJ = [
+  { d: 1.30, n: 'Proxima Cen' }, { d: 47, n: 'Hyades' }, { d: 8000, n: 'Galactic centre' },
+  { d: 5.0e4, n: 'LMC' }, { d: 7.7e5, n: 'M31' }, { d: 1.65e7, n: 'Virgo cluster' },
+  { d: 1.0e8, n: 'Coma cluster' }, { d: 2.0e9, n: 'distant SN Ia' }, { d: 9.0e9, n: 'faint galaxies' },
+];
+
+// Fractional error to reach a distance: the chain of rungs from
+// parallax up to the one covering log d, combined in quadrature
+// (each rung is calibrated on the previous, so the errors compound).
+function cumErr(logpc) {
+  let s = 0;
+  for (const r of RUNGS) {
+    if (r.lo > logpc + 1e-9) break;
+    const reach = Math.min(logpc, r.hi);
+    const edge = 1 + 1.4 * Math.max(0, (reach - (r.lo + r.hi) / 2)) / ((r.hi - r.lo) / 2);
+    s += (r.err * edge) ** 2;
+  }
+  return Math.sqrt(s);
+}
+function activeRungs(logpc) { return RUNGS.filter((r) => logpc >= r.lo - 1e-9 && logpc <= r.hi + 1e-9); }
 
 function render() {
-  if (!CAPTURE_NAME && running) state.phase += 0.045;
-  const ph = CAPTURE_NAME ? CAPTURE_FRAC * 9 : state.phase;
-  ctx.fillStyle = '#0E0E13'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#dcdde2'; ctx.font = '17px sans-serif';
-  ctx.fillText('Cosmic distance ladder', 18, 26);
-  ctx.font = '12px sans-serif'; ctx.fillStyle = '#9aa0a6';
-  ctx.fillText('Each rung is calibrated on the one below; every slider moves its diagram and its marker.', 18, 46);
+  if (!CAPTURE_NAME && running) {
+    state.phase += 0.02;
+    if (!state.dragging) state.targetLog = 5.2 + 4.4 * (0.5 + 0.5 * Math.sin(state.phase * 0.5));
+  }
+  ctx.fillStyle = '#080b14'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#e2e8f0'; ctx.font = '17px sans-serif';
+  ctx.fillText('Cosmic distance ladder: one logarithmic ruler of the universe', 18, 28);
+  ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif';
+  ctx.fillText('Each method has a working range; neighbours overlap, and that overlap is where the calibration is handed up.', 18, 48);
 
-  const d = ladder(state);
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.fillStyle = '#7e828a';
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
-  for (const [L, lab] of [[0, '1 pc'], [2, '100 pc'], [4, '10 kpc'], [6, '1 Mpc'], [8, '100 Mpc'], [10, '10 Gpc']]) {
-    const xx = AX.x0 + (L / 10) * (AX.x1 - AX.x0);
-    ctx.beginPath(); ctx.moveTo(xx, 64); ctx.lineTo(xx, 556); ctx.stroke();
-    ctx.fillText(lab, xx, 570);
+  // signpost objects above the ruler
+  for (const o of OBJ) {
+    const x = xOfPc(o.d);
+    const tw = running ? 0.6 + 0.4 * Math.sin(state.phase + o.d) : 1;
+    ctx.fillStyle = `rgba(226,232,240,${0.5 + 0.4 * tw})`;
+    ctx.beginPath(); ctx.arc(x, RY - 70, 2.6, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = 'rgba(100,116,139,0.4)'; ctx.beginPath(); ctx.moveTo(x, RY - 66); ctx.lineTo(x, RY - 6); ctx.stroke();
+    ctx.save(); ctx.translate(x, RY - 76); ctx.rotate(-Math.PI / 4);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '10px ui-monospace, monospace'; lbl(o.n, 0, 0); ctx.restore();
+  }
+  // the ruler + labelled unit ticks
+  ctx.strokeStyle = 'rgba(226,232,240,0.5)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(AX.x0, RY); ctx.lineTo(AX.x1, RY); ctx.stroke(); ctx.lineWidth = 1;
+  const TICKS = [[0, '1 pc'], [1, '10 pc'], [2, '100 pc'], [3, '1 kpc'], [4, '10 kpc'], [5, '100 kpc'], [6, '1 Mpc'], [7, '10 Mpc'], [8, '100 Mpc'], [9, '1 Gpc'], [10, '10 Gpc']];
+  ctx.textAlign = 'center'; ctx.font = '11px ui-monospace, monospace';
+  for (const [L, lab] of TICKS) {
+    const x = xOf(L);
+    ctx.strokeStyle = 'rgba(148,163,184,0.25)'; ctx.beginPath(); ctx.moveTo(x, RY - 6); ctx.lineTo(x, RY + 6); ctx.stroke();
+    ctx.fillStyle = '#64748b'; ctx.fillText(lab, x, RY + 20);
   }
   ctx.textAlign = 'left';
 
-  const errFrac = [0.012, 0.045, 0.085, 0.14];
-  const xm = d.map(xOfPc);
-  const BARH = 32;
-  // Ladder climb: join successive bar tips (the calibration chain).
-  ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 2;
-  for (let i = 0; i < 3; i += 1) { ctx.beginPath(); ctx.moveTo(xm[i], RUNGS[i].yc); ctx.lineTo(xm[i + 1], RUNGS[i + 1].yc); ctx.stroke(); }
-  for (let i = 0; i < 4; i += 1) {
-    const R = RUNGS[i];
-    panel(i, ph);
-    // Bold reach bar from the axis origin to this rung's distance. Any
-    // slider resizes a large coloured block, so the response dominates
-    // the frame instead of being a one-pixel marker on a log axis.
-    const g = ctx.createLinearGradient(AX.x0, 0, Math.max(AX.x0 + 4, xm[i]), 0);
-    g.addColorStop(0, 'rgba(255,255,255,0.06)'); g.addColorStop(1, R.color);
-    ctx.fillStyle = g; ctx.fillRect(AX.x0, R.yc - BARH / 2, Math.max(3, xm[i] - AX.x0), BARH);
-    ctx.fillStyle = R.color; ctx.fillRect(xm[i] - 3, R.yc - BARH / 2 - 3, 6, BARH + 6);
-    const ew = errFrac[i] * (AX.x1 - AX.x0) * 0.5;
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(xm[i] - ew, R.yc); ctx.lineTo(xm[i] + ew, R.yc); ctx.stroke();
-    ctx.fillStyle = '#dcdde2'; ctx.font = '13px sans-serif';
-    ctx.fillText(R.name, AX.x0 + 6, R.yc - BARH / 2 - 8);
-    ctx.fillStyle = R.color; ctx.font = '13px ui-monospace, monospace';
-    const above = xm[i] < AX.x1 - 130; ctx.textAlign = above ? 'left' : 'right';
-    ctx.fillText(fmtPc(d[i]), xm[i] + (above ? 12 : -12), R.yc + 4);
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-    ctx.fillText([
-      `p = ${state.parallax.toFixed(0)} mas`,
-      `P = ${state.cepheidP.toFixed(0)} d -> M_V = ${MVCepheid(state.cepheidP).toFixed(2)}`,
-      `m = ${state.snApparent.toFixed(1)}, M = -19.3`,
-      `z = ${state.z.toFixed(3)}`,
-    ][i], AX.x0 + 6, R.yc + BARH / 2 + 16);
+  // rung range bars with overlap shading
+  for (let i = 0; i < RUNGS.length; i += 1) {
+    const r = RUNGS[i];
+    const xa = xOf(r.lo), xb = xOf(r.hi);
+    ctx.fillStyle = r.color + '33';
+    ctx.fillRect(xa, r.yc - 8, xb - xa, 16);
+    ctx.strokeStyle = r.color; ctx.lineWidth = 1.4; ctx.strokeRect(xa, r.yc - 8, xb - xa, 16); ctx.lineWidth = 1;
+    if (i > 0) {                                           // overlap with the rung below
+      const p = RUNGS[i - 1];
+      const oa = xOf(Math.max(r.lo, p.lo)), ob = xOf(Math.min(r.hi, p.hi));
+      if (ob > oa) {
+        ctx.fillStyle = 'rgba(245,200,66,0.14)';
+        ctx.fillRect(oa, p.yc + 8, ob - oa, (r.yc - 8) - (p.yc + 8));
+        ctx.fillStyle = '#e8c878'; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'center';
+        lbl('calibration handed up', (oa + ob) / 2, (p.yc + r.yc) / 2 + 3); ctx.textAlign = 'left';
+      }
+    }
+    ctx.fillStyle = '#e2e8f0'; ctx.font = '12px sans-serif';
+    lbl(`${r.name}`, xa + 4, r.yc - 13);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '10px ui-monospace, monospace';
+    lbl(`${fmtPc(Math.pow(10, r.lo))} - ${fmtPc(Math.pow(10, r.hi))}`, xa + 4, r.yc + 22);
+    // the slider-driven anchor for this rung (where its physics is set)
+    const anchorPc = ladder(state)[i];
+    const ax = xOfPc(anchorPc);
+    if (ax >= xa - 2 && ax <= xb + 2) {
+      ctx.fillStyle = r.color; ctx.beginPath(); ctx.arc(ax, r.yc, 4.5, 0, 6.2832); ctx.fill();
+    }
   }
 
-  const span = (Math.log10(Math.max(1, d[3])) - Math.log10(Math.max(1, d[0]))).toFixed(2);
+  // draggable target cursor + cumulative error
+  const cx = xOf(state.targetLog);
+  const errF = cumErr(state.targetLog);
+  const dLogErr = Math.log10(1 + errF);                    // half-width in dex
+  const ex0 = xOf(state.targetLog - dLogErr), ex1 = xOf(state.targetLog + dLogErr);
+  const cyTop = RY - 86, cyBot = RY + 186;
+  ctx.fillStyle = 'rgba(245,200,66,0.15)'; ctx.fillRect(ex0, cyTop, ex1 - ex0, cyBot - cyTop);
+  ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx, cyTop); ctx.lineTo(cx, cyBot); ctx.stroke();
+  ctx.fillStyle = '#f5c842'; ctx.beginPath(); ctx.arc(cx, RY, 6, 0, 6.2832); ctx.fill(); ctx.lineWidth = 1;
+  const dpc = Math.pow(10, state.targetLog);
+  const act = activeRungs(state.targetLog);
+  const lx = Math.max(AX.x0 + 78, Math.min(AX.x1 - 82, cx));   // keep label clear of edges and the readout panel
+  ctx.fillStyle = '#f5c842'; ctx.font = 'bold 14px ui-monospace, monospace'; ctx.textAlign = 'center';
+  lbl(`${fmtPc(dpc)}   +/- ${(errF * 100).toFixed(0)}%`, lx, RY - 94);
+  ctx.textAlign = 'left';
+
+  // diagnostic strip: cumulative fractional error vs distance
+  const dy = H - 96, dh = 78;
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(AX.x0, dy, AX.x1 - AX.x0, dh);
+  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(AX.x0 + 0.5, dy + 0.5, AX.x1 - AX.x0 - 1, dh - 1);
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('cumulative distance error climbing the ladder (diagnostic)', AX.x0 + 8, dy + 14);
+  ctx.strokeStyle = '#4f9cf9'; ctx.lineWidth = 1.6; ctx.beginPath();
+  for (let k = 0; k <= 200; k += 1) {
+    const lg = AX.lo + (AX.hi - AX.lo) * k / 200;
+    const e = Math.min(0.5, cumErr(lg));
+    const xx = xOf(lg), yy = dy + dh - 8 - (e / 0.5) * (dh - 22);
+    if (k === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+  }
+  ctx.stroke(); ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(245,200,66,0.6)'; ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(cx, dy); ctx.lineTo(cx, dy + dh); ctx.stroke(); ctx.setLineDash([]);
+
   readoutEl.innerHTML =
-    `<span class="label">H&#8320;</span><span class="value">${H0} km/s/Mpc</span>` +
-    `<span class="label">ladder span</span><span class="value">${span} dex</span>` +
-    `<span class="label">far rung</span><span class="value">${fmtPc(d[3])}</span>`;
+    `<span class="label">target</span><span class="value">${fmtPc(dpc)}</span>` +
+    `<span class="label">method</span><span class="value">${act.length ? act[act.length - 1].name.split(' ')[0] : '-'}</span>` +
+    `<span class="label">cum. error</span><span class="value">${(errF * 100).toFixed(1)}%</span>` +
+    `<span class="label">H&#8320;</span><span class="value">${H0} km/s/Mpc</span>`;
 }
+
+function evLog(e) {
+  const r = canvas.getBoundingClientRect();
+  return logFromX((e.clientX - r.left) / r.width * W);
+}
+canvas.addEventListener('pointerdown', (e) => { state.dragging = true; state.targetLog = Math.max(AX.lo, Math.min(AX.hi, evLog(e))); render(); });
+canvas.addEventListener('pointermove', (e) => { if (state.dragging) { state.targetLog = Math.max(AX.lo, Math.min(AX.hi, evLog(e))); render(); } });
+window.addEventListener('pointerup', () => { state.dragging = false; });
 
 function slider(id, label, min, max, step, key, fmt) {
   const r = document.createElement('div'); r.className = 'row';
@@ -190,23 +195,27 @@ function slider(id, label, min, max, step, key, fmt) {
 }
 function buildControls() {
   controlsEl.innerHTML = '';
-  slider('p',   'parallax (mas)', 1, 800, 1,    'parallax',   v => v.toFixed(0));
-  slider('cep', 'Cepheid P (d)',  1, 100, 1,    'cepheidP',   v => v.toFixed(0));
-  slider('ap',  'apparent V mag', 6, 28,  0.1,  'snApparent', v => v.toFixed(1));
-  slider('z',   'redshift z',     0.002, 0.4, 0.002, 'z',     v => v.toFixed(3));
+  slider('p', 'parallax (mas)', 1, 800, 1, 'parallax', (v) => v.toFixed(0));
+  slider('cep', 'Cepheid P (d)', 1, 100, 1, 'cepheidP', (v) => v.toFixed(0));
+  slider('ap', 'SN apparent V', 6, 28, 0.1, 'snApparent', (v) => v.toFixed(1));
+  slider('z', 'redshift z', 0.002, 0.4, 0.002, 'z', (v) => v.toFixed(3));
   const row = document.createElement('div'); row.className = 'row buttons';
   const reset = document.createElement('button'); reset.type = 'button'; reset.id = 'btn-reset'; reset.textContent = 'Reset';
-  reset.addEventListener('click', () => { Object.assign(state, DEF); buildControls(); render(); });
+  reset.addEventListener('click', () => { Object.assign(state, DEF); state.targetLog = 6.0; buildControls(); render(); });
   const pause = document.createElement('button'); pause.type = 'button'; pause.id = 'btn-pause'; pause.textContent = 'Pause';
   pause.setAttribute('aria-pressed', 'false');
   pause.addEventListener('click', () => { running = !running; pause.textContent = running ? 'Pause' : 'Play'; pause.setAttribute('aria-pressed', String(!running)); });
   row.appendChild(reset); row.appendChild(pause); controlsEl.appendChild(row);
 }
-
 buildControls();
 let raf;
 function tick() { render(); if (!CAPTURE_NAME) raf = requestAnimationFrame(tick); }
 if (DETERMINISTIC) {
+  if (CAPTURE_NAME) {
+    const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    state.targetLog = 1.0 + f * 8.5;                        // sweep across the ladder
+    state.dragging = true;
+  }
   render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
