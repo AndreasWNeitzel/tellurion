@@ -32,37 +32,65 @@ range, the Bragg peak. The playground shows that peak, how its depth
 tracks the beam energy, and how stacking energies builds a flat dose
 over a tumor.
 
-### Why charged particles peak
+### Why charged particles peak: the Bethe stopping power
 
-As a proton slows in tissue it loses energy by ionization at the
-rate given (in magnitude) by the Bethe stopping power,
+As a proton slows in tissue it loses energy primarily by ionising
+atoms; the rate of energy loss per unit path length, in magnitude, is
+the Bethe stopping power:
 
-$$-\frac{dE}{dx}
-  \;\propto\; \frac{z^2}{v^2}\,
-  \ln\!\frac{2 m_e v^2}{I}.$$
+$$\boxed{\;-\,\frac{dE}{dx}
+       = \frac{4\pi\,n_e\,z^2\,e^4}{m_e\,v^2}\,
+       \left[\ln\!\frac{2\,m_e\,v^2}{I} - \ln(1 - \beta^2) - \beta^2\right].\;}$$
 
-The crucial factor is $1/v^2$: as the proton slows, it loses energy
-ever faster, so the energy deposition is small at the entrance and
-diverges just before the proton stops. Integrating gives the
-approximate Bragg-Kleeman range-energy relation
+For non-relativistic protons in water this reduces to
 
-$$R \;\approx\; \alpha\,E_0^{\,p},
-  \qquad p \approx 1.77\ \text{(water)},$$
+$$-\frac{dE}{dx} \;\propto\; \frac{z^2}{v^2}\,\ln\!\frac{2\,m_e\,v^2}{I},$$
 
-so the peak's depth is set, controllably, by the beam energy alone.
+with the crucial $1/v^2$ factor: as the proton slows, it loses energy
+ever faster. The deposition is small at the entrance (fast proton)
+and rises sharply just before it stops (slow proton). That is the
+Bragg peak.
 
-### The spread-out Bragg peak
+Integrating the stopping power gives the empirical Bragg-Kleeman
+range-energy relation:
 
-A single pristine peak is too narrow to cover a tumor, so a clinical
-plan superposes many peaks of decreasing energy and weight to build a
-flat, uniform dose across the target depth, the spread-out Bragg peak,
-with a sharp distal falloff. Contrast this with a megavoltage photon
-beam, whose dose builds up to a shallow maximum and then keeps
-irradiating everything beyond the tumor exponentially. That is the
-entire physical case for proton therapy: dose conformity and minimal
-exit dose. The playground sweeps the beam energy and shows the peak
-move, and toggles the SOBP build-up versus a photon depth-dose for
-comparison.
+$$\boxed{\;R(E_0) \;\approx\; \alpha\,E_0^{\,p},\qquad
+   \alpha \approx 0.0022\,\mathrm{cm\,MeV^{-p}}, \quad
+   p \approx 1.77\ \text{(water)}.\;}$$
+
+A 200 MeV proton has $R \approx 26\,\mathrm{cm}$; a 70 MeV proton has
+$R \approx 4\,\mathrm{cm}$. So the depth of the peak is controllably
+set by the beam energy alone, which is what makes proton therapy
+viable.
+
+### Symbols, at a glance
+
+- $E$, kinetic energy of the proton (MeV); $E_0$ the entrance
+  energy.
+- $x$, path length in tissue (cm); $R(E_0)$ the range.
+- $v$, proton speed; $\beta = v/c$.
+- $z$, charge of the projectile ($z = 1$ for a proton).
+- $m_e$, electron mass; $n_e$, electron number density of the medium
+  (about $3.3 \times 10^{29}\,\mathrm{m^{-3}}$ for water).
+- $I$, mean ionisation potential ($I \approx 75\,\mathrm{eV}$ for
+  water).
+- $\alpha$, $p$, the Bragg-Kleeman fit constants.
+
+### The spread-out Bragg peak (SOBP)
+
+A single pristine peak is too narrow ($\sim 1\,\mathrm{cm}$ FWHM) to
+cover a tumour, so a clinical plan superposes peaks of decreasing
+energy and weight $w_i$:
+
+$$D_{\rm SOBP}(x) = \sum_i w_i\,D_{\rm peak}(x; E_i),$$
+
+with the weights chosen so the plateau is flat and the distal edge
+remains sharp. Typical clinical SOBPs cover 4-15 cm in depth with
+about 30 individual peaks. Contrast a megavoltage photon beam, whose
+dose follows an attenuation $D_\gamma(x) \propto e^{-\mu x}$ after a
+short build-up, depositing energy in everything beyond the tumour
+exponentially with the absorption coefficient $\mu$. The proton
+"distal edge" sparing is the entire clinical case.
 
 ### Things to try
 
@@ -73,11 +101,17 @@ comparison.
 - Toggle the photon depth-dose and see it keep depositing beyond the
   target (no distal sparing): the clinical contrast.
 
-### Where this comes from
+### Bibliographic origin
 
-The Bethe stopping power, the Bragg-Kleeman range relation, and the
-spread-out Bragg peak follow Podgorsak, *Radiation Physics for
-Medical Physicists*, and Paganetti, *Proton Therapy Physics*.
+The Bethe stopping power (the original quantum-mechanical derivation):
+Bethe, *Annalen der Physik* **397** (1930) 325. The Bragg peak itself
+was observed by William Henry Bragg, *Phil. Mag.* **8** (1904) 719.
+The Bragg-Kleeman range fit: Bragg and Kleeman, *Phil. Mag.* **10**
+(1905) 318. The medical case for protons was made in Wilson, *Radiology*
+**47** (1946) 487 (the same Robert R. Wilson who later directed
+Fermilab). Modern textbooks: Podgorsak, *Radiation Physics for Medical
+Physicists* (3rd ed., Springer 2016), Ch. 6, 7; Paganetti, *Proton
+Therapy Physics* (2nd ed., CRC 2018), Ch. 2, 6.
 
 ## Physical setup
 
