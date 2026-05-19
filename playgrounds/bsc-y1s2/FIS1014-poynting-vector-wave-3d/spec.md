@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'E and B are not just out of phase by ninety degrees in time, they live in perpendicular planes, and their cross product is exactly where the energy goes.'
-one_paragraph: 'A plane electromagnetic wave in a 3D oblique-projected scene: the E (red/blue) and B (orange) field ribbons oscillate in perpendicular planes, white Poynting arrows carry the energy along the propagation axis, and ghost wavefront planes move at c. Linear, circular (the E tip traces a helix), elliptical and standing-wave modes; drag to orbit. The exact closed-form fields are gate-tested in the headless sim.js.'
+one_paragraph: 'A plane electromagnetic wave shown in 3D: the electric field E (red/blue) and magnetic field B (orange) oscillate in phase, perpendicular to each other and to the direction of travel, with |E| = c|B|. The white arrows are the Poynting vector S = E x B / mu0, which points along the propagation axis and carries the wave''s energy at speed c, and ghost wavefront planes march forward at c. Switching modes shows linear polarization, circular (the E tip traces a helix), elliptical, and a standing wave formed by two counter-propagating waves with fixed nodes; drag to orbit and see the field geometry from any angle. Reference: Griffiths, Introduction to Electrodynamics, Chapter 9.'
 tags: [electromagnetism, 3d, animation, live-readout]
 difficulty: 3
 tier: advanced
