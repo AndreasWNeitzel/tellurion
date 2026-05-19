@@ -37,9 +37,9 @@ function curSigma() {
 }
 
 // geometry
-const XP = { x: 28, y: 46, w: 540, h: 200 };     // |psi(x)|^2 panel
-const KP = { x: 28, y: 292, w: 540, h: 200 };    // |phi(k)|^2 panel
-const GA = { x: 612, y: 210, w: 70, h: 250 };    // sigma_x sigma_p gauge
+const XP = { x: 28, y: 44, w: 568, h: 206 };     // |psi(x)|^2 panel
+const KP = { x: 28, y: 292, w: 568, h: 206 };    // |phi(k)|^2 panel
+const GA = { x: 604, y: 250, w: 120, h: 236 };   // sigma_x sigma_p gauge (below the DOM readout panel, no overlap)
 
 function drawPacket(panel, dens, coord, sig, mean, color, label, unitMax) {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(panel.x, panel.y, panel.w, panel.h);
@@ -51,8 +51,14 @@ function drawPacket(panel, dens, coord, sig, mean, color, label, unitMax) {
   ctx.beginPath(); ctx.moveTo(panel.x, base);
   for (let i = 0; i < n; i += 1) { const X = cx(coord[i]); const Y = base - (dens[i] / mx) * (panel.h - 30); ctx.lineTo(X, Y); }
   ctx.lineTo(panel.x + panel.w, base); ctx.closePath();
-  ctx.fillStyle = color + '66'; ctx.fill();
-  ctx.strokeStyle = color; ctx.lineWidth = 1.8; ctx.beginPath();
+  const fillg = ctx.createLinearGradient(0, panel.y, 0, base);
+  fillg.addColorStop(0, color + 'b0'); fillg.addColorStop(1, color + '22');
+  ctx.fillStyle = fillg; ctx.fill();
+  // faint zero-coordinate guide so the panel is not empty space
+  const xZero = cx(0);
+  ctx.strokeStyle = 'rgba(150,160,180,0.18)'; ctx.beginPath();
+  ctx.moveTo(xZero, panel.y + 4); ctx.lineTo(xZero, base); ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = 2.0; ctx.beginPath();
   for (let i = 0; i < n; i += 1) { const X = cx(coord[i]); const Y = base - (dens[i] / mx) * (panel.h - 30); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
   ctx.stroke(); ctx.lineWidth = 1;
   // sigma extent bar (mean +/- sigma)
@@ -82,29 +88,43 @@ function render() {
   ctx.fillText('Fourier conjugates: narrow one, the other must broaden', XP.x + XP.w / 2, KP.y - 8);
   ctx.textAlign = 'left';
 
-  // sigma_x sigma_p gauge: the bar grows to the product; its top can
-  // never drop below the hbar/2 line. The forbidden strip is the band
-  // beneath that line (a real state's product never lands there).
+  // sigma_x sigma_p meter: the bar grows to the product; its top can
+  // never enter the forbidden band below the hbar/2 line (only a
+  // Gaussian touches it). Labels live inside the box so nothing clips.
+  const gcx = GA.x + GA.w / 2;
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(GA.x, GA.y, GA.w, GA.h);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(GA.x, GA.y, GA.w, GA.h);
-  const pmax = 1.6, bot = GA.y + GA.h - 10;
-  const py = (p) => bot - (Math.min(p, pmax) / pmax) * (GA.h - 24);
+  const pmax = 1.6, bot = GA.y + GA.h - 30, top = GA.y + 44;
+  const py = (p) => bot - (Math.min(p, pmax) / pmax) * (bot - top);
   const yFloor = py(HBAR_OVER_2);
-  // product bar (magnitude of sigma_x sigma_p)
+  // forbidden band (sigma_x sigma_p < hbar/2): hatched red strip
+  ctx.fillStyle = 'rgba(255,70,70,0.13)';
+  ctx.fillRect(GA.x + 1, yFloor, GA.w - 2, bot - yFloor);
+  ctx.strokeStyle = 'rgba(255,90,90,0.30)'; ctx.lineWidth = 1;
+  for (let yh = yFloor + 6; yh < bot; yh += 8) { ctx.beginPath(); ctx.moveTo(GA.x + 2, yh); ctx.lineTo(GA.x + GA.w - 2, yh - 6); ctx.stroke(); }
+  // product bar
   const at = prod <= HBAR_OVER_2 * 1.03;
-  ctx.fillStyle = at ? '#7fd6ff' : '#ffd24a';
-  ctx.fillRect(GA.x + 14, py(prod), GA.w - 28, bot - py(prod));
-  // hbar/2 reference line: the bar top never drops below it
-  ctx.strokeStyle = '#ff5d5d'; ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
-  ctx.beginPath(); ctx.moveTo(GA.x, yFloor); ctx.lineTo(GA.x + GA.w, yFloor); ctx.stroke();
+  const grad = ctx.createLinearGradient(0, bot, 0, py(prod));
+  grad.addColorStop(0, at ? '#3aa6d6' : '#c79a26'); grad.addColorStop(1, at ? '#9fe4ff' : '#ffe27a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(gcx - 22, py(prod), 44, bot - py(prod));
+  ctx.strokeStyle = at ? '#bfeeff' : '#ffe9a0'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(gcx - 22, py(prod), 44, bot - py(prod)); ctx.lineWidth = 1;
+  // hbar/2 bound line
+  ctx.strokeStyle = '#ff5d5d'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+  ctx.beginPath(); ctx.moveTo(GA.x + 2, yFloor); ctx.lineTo(GA.x + GA.w - 2, yFloor); ctx.stroke();
   ctx.setLineDash([]); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText('sx sp', GA.x + GA.w / 2, GA.y - 18);
-  ctx.fillText(prod.toFixed(3), GA.x + GA.w / 2, GA.y - 4);
-  ctx.fillStyle = '#ff8a8a'; ctx.font = '10px ui-monospace, monospace';
-  ctx.fillText('min hbar/2', GA.x + GA.w / 2, yFloor - 5);
-  ctx.fillStyle = '#9aa0ad';
-  ctx.fillText(at ? 'at the bound' : 'above bound', GA.x + GA.w / 2, bot + 2);
+  // labels, all inside the box
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('sigma_x . sigma_p', gcx, GA.y + 18);
+  ctx.fillStyle = at ? '#9fe4ff' : '#ffe27a'; ctx.font = '15px ui-monospace, monospace';
+  ctx.fillText(prod.toFixed(3), gcx, GA.y + 38);
+  ctx.fillStyle = '#ff9a9a'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillText('hbar/2', GA.x + GA.w - 5, yFloor - 4);
+  ctx.fillStyle = 'rgba(255,120,120,0.85)'; ctx.textAlign = 'center';
+  ctx.fillText('FORBIDDEN', gcx, (yFloor + bot) / 2);
+  ctx.fillStyle = at ? '#9fe4ff' : '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(at ? 'at the bound' : 'above bound', gcx, bot + 18);
   ctx.textAlign = 'left';
 
   rEls['shape'].textContent = st.shape;
@@ -157,7 +177,18 @@ function tick(now) {
   render(); requestAnimationFrame(tick);
 }
 function bootSync() {
-  st.t = CAPTURE_NAME ? CAPTURE_FRAC * 7 : 0;
+  if (CAPTURE_NAME) {
+    // Sweep the squeeze monotonically across the five frames so they
+    // are five clearly distinct conjugate states (x narrow / k broad
+    // ... x broad / k narrow), not three aliased copies at the
+    // breathing zero-crossing. Live mode keeps the sinusoidal seesaw.
+    const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st.breathe = 0;
+    st.sigma = 0.5 + 1.7 * f;
+    st.t = 0;
+  } else {
+    st.t = 0;
+  }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
     window.__simulationReady = true;

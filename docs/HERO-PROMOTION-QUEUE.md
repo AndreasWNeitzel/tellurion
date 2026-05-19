@@ -35,7 +35,7 @@ serialise the visual/GPU gate; no shared/ edits in parallel.
 - [x] msc-y1/MF-QFT-klein-gordon-wavepacket-mass (AT BAR: dynamic sub-luminal spreading vs light cone, causality + dispersion legible)
 - [ ] msc-y1/MFM-MP-mri-bloch-equations-k-space (TRIAGED BELOW BAR: hero Bloch-sphere panel very faint vs the rich right panels)
 - [x] msc-y1/MFM-MP-ct-reconstruction-lab (AT BAR: dense quantitative Shepp-Logan/Radon/FBP lab with live gantry sweep + RMSE/SNR + convergence; 3D not beneficial, no gilding)
-- [ ] bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer (TRIAGED BELOW BAR clear: near-static, underfilled, cramped/clipped sigma-x sigma-p bar widget; deep-fix next)
+- [x] bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer (PROMOTED: fixed capture/period aliasing so the 5 frames sweep the conjugate seesaw monotonically (sigma_x 0.50->2.20, sigma_p 1.00->0.227); enlarged de-cramped bound meter with shaded FORBIDDEN band moved clear of the DOM readout (overlap fixed); gradient packet fills; physics intact product=0.5000, invariants 7/7, 5 distinct, 60fps)
 - [ ] bsc-y3s1/FIS3003-hydrogen-atom-stark-zeeman (TRIAGED BELOW BAR clear: huge dead space in term diagram, spectrum near-static across frames)
 - [ ] bsc-y3s1/FIS3003-angular-momentum-coupling-3d (TRIAGED BELOW BAR moderate: sparse 3D vector panel, precession subtle; CG table fine)
 - [x] bsc-y3s2/FIS3005-superconductivity-meissner-3d (AT BAR: vivid frame-filling Meissner field-line expulsion vs penetration transition + Bc(T) phase point, correct and dramatic)

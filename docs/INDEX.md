@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified, verified 2026-05-19T06:56:48Z)
+  A quantum wavepacket shown twice at once: its shape in position and its shape in momentum. Squeeze it narrow in position and it spreads wide in momentum, and vice versa. You cannot make both narrow. That is the Heisenberg uncertainty principle, and here it is a literal seesaw you operate.
+
 - **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:47:42Z)
   An oscillating charge (a dipole antenna) does not radiate equally in all directions. It throws no power straight along its axis and the most broadside, giving a doughnut-shaped radiation pattern. This is why a whip antenna is mounted vertically and why you rotate it for the best signal.
 
@@ -328,9 +331,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[The 4f Fourier-Optics Processor](../playgrounds/bsc-y3s1/FIS3019-fourier-optics-4f-system/index.html)** &nbsp; (verified, verified 2026-05-19T02:03:57Z)
   A lens does a Fourier transform. Put a transparency one focal length in front of a lens and its spatial-frequency spectrum appears one focal length behind. A second lens transforms back, reconstructing the image. Put a mask in the middle and you edit the image by editing its frequencies, the optical ancestor of every image filter.
-
-- **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified, verified 2026-05-19T02:03:57Z)
-  A quantum wavepacket shown twice at once: its shape in position and its shape in momentum. Squeeze it narrow in position and it spreads wide in momentum, and vice versa. You cannot make both narrow. That is the Heisenberg uncertainty principle, and here it is a literal seesaw you operate.
 
 - **[Van der Waals Condensation and the Maxwell Construction](../playgrounds/bsc-y2s1/FIS2014-van-der-waals-maxwell-construction/index.html)** &nbsp; (verified, verified 2026-05-19T02:03:57Z)
   Compress a real gas below its critical temperature and at some point it stops fighting back: the pressure stays flat while the volume shrinks, because the gas is condensing into liquid. The van der Waals equation predicts a wiggly isotherm there; the Maxwell construction replaces the unphysical wiggle with that flat coexistence line. The playground shows the

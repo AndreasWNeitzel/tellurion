@@ -9,7 +9,7 @@ one_paragraph: 'A quantum state shown in both conjugate spaces at once: the posi
 tags: [quantum, fourier, animation, multi-panel, live-readout]
 difficulty: 4
 tier: hero
-hero_candidate: true
+hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 5
 curriculum_year: 'L:F-3Y-1S'
