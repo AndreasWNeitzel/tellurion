@@ -26,7 +26,10 @@ const camera = createOrbitCamera(canvas, {
 });
 window.__camera = camera;
 
-const ui = { Lc: 1, R: 0.92, tau: 1, P: 3.0, running: true, qArmed: false, qOpen: true, qT: 0 };
+// Default pump is set just above the lasing threshold so the slider
+// has visible head-room above and below it. The old P=3 was ~75x
+// the threshold (everything saturated, the slider looked dead).
+const ui = { Lc: 1, R: 0.92, tau: 1, P: 0.08, running: true, qArmed: false, qOpen: true, qT: 0 };
 const sim = makeLaser({ P: ui.P, tau: ui.tau, tauC: cavityLifetime(ui.Lc, ui.R), B: 1, seed: 1e-5, qLow: 1e-3 });
 function syncParams() { sim.P = ui.P; sim.tau = ui.tau; sim.tauC = cavityLifetime(ui.Lc, ui.R); }
 
@@ -46,7 +49,7 @@ function slider(label, min, max, stp, value, fmt, onInput) {
   inp.addEventListener('input', () => { val.textContent = fmt(parseFloat(inp.value)); onInput(parseFloat(inp.value)); });
   row.append(lab, inp, val); controlsEl.appendChild(row); return inp;
 }
-const sP = slider('pump P', 0, 8, 0.05, ui.P, (v) => v.toFixed(2), (v) => { ui.P = v; syncParams(); });
+const sP = slider('pump P', 0, 0.6, 0.005, ui.P, (v) => v.toFixed(3), (v) => { ui.P = v; syncParams(); });
 slider('mirror R', 0.5, 0.99, 0.005, ui.R, (v) => v.toFixed(3), (v) => { ui.R = v; syncParams(); });
 slider('cavity length', 0.5, 3, 0.05, ui.Lc, (v) => v.toFixed(2), (v) => { ui.Lc = v; syncParams(); });
 slider('upper tau', 0.3, 6, 0.1, ui.tau, (v) => v.toFixed(1), (v) => { ui.tau = v; syncParams(); });
@@ -70,7 +73,7 @@ sel('preset', ['below threshold', 'at threshold', 'well above threshold', 'Q-swi
 const btnRow = document.createElement('div'); btnRow.className = 'row buttons';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.textContent = 'Pause';
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
-const bQ = document.createElement('button'); bQ.type = 'button'; bQ.textContent = 'Fire Q-switch';
+const bQ = document.createElement('button'); bQ.type = 'button'; bQ.textContent = 'Q-switch: build & fire';
 btnRow.append(bPause, bReset, bQ); controlsEl.appendChild(btnRow);
 bPause.addEventListener('click', () => { ui.running = !ui.running; bPause.textContent = ui.running ? 'Pause' : 'Play'; });
 bReset.addEventListener('click', () => { sim.N = 0; sim.n = 1e-9; ui.qArmed = false; ui.qOpen = true; });
@@ -110,9 +113,9 @@ function refreshReadout() {
 
 function frame() {
   const Pth = thresholdPump(1, sim.tauC, ui.tau);
-  const invF = Math.min(1, sim.N / Math.max(1.4 * thresholdInversion(1, sim.tauC), 0.5));
-  const photF = Math.min(1, sim.n / 1.6);
-  const outF = Math.min(1, outputPower(sim) / 0.25);
+  const invF = Math.min(1, sim.N / Math.max(1.4 * thresholdInversion(1, sim.tauC), 0.06));
+  const photF = Math.min(1, sim.n / 0.6);
+  const outF = Math.min(1, outputPower(sim) / 0.02);
   if (engine) { engine.update(0.016, invF, photF, outF); engine.render(camera.viewMatrix(), camera.projMatrix(canvas.width / canvas.height)); }
   drawPlot(); refreshReadout();
 }
