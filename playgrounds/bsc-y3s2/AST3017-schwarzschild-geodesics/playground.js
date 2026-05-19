@@ -338,7 +338,10 @@ function bootSync() {
     valueN.textContent    = String(state.N);
     valueBmax.textContent = state.bMax.toFixed(2);
     buildSwarm();
-    const target = Math.round(frac * CAPTURE_TOTAL_STEPS);
+    // The fan resolves well before CAPTURE_TOTAL_STEPS, so a full-range
+    // sweep leaves the later frames identical. Spread the five frames
+    // across the evolving window instead.
+    const target = Math.round(frac * 600);
     stepN(target);
     drawFrame();
     if (DETERMINISTIC) {
