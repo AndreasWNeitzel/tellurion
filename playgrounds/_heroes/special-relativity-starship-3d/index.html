@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-slot="title">Relativistic Starship (Hero)</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+  body { padding: var(--space-4); }
+  .pg-figure { max-width: 1100px; position: relative; }
+  .pg-figure canvas#stage { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 4px; }
+  .pg-figure canvas#stage.dragging { cursor: grabbing; }
+  canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
+  .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(4,5,12,0.6); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 15ch 13ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
+  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  .pg-controls button { font: inherit; padding: 4px 8px; }
+</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<header>
+  <h1 data-slot="title">Relativistic Starship</h1>
+  <div data-slot="description" class="katex-target">Fly a starship toward light speed and see what relativity does to the sky. The throttle sets $\beta = v/c$. Stars bunch toward the bow (aberration), shift blue ahead and red astern (Doppler), and the forward field brightens (relativistic beaming): all the exact Lorentz transform of the incoming photons. The lower panel is the lab's view of your length-contracted ship, with the twin clocks drifting apart. Drag to look around the cockpit, throttle up, watch the sky collapse forward.</div>
+</header>
+<figure class="pg-figure">
+  <canvas id="stage" width="1100" height="640"></canvas>
+  <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
+  <canvas id="plot" width="1100" height="170" aria-label="Lab-frame view: the length-contracted ship, marker rings, and the twin clocks."></canvas>
+  <figcaption data-slot="caption" class="katex-target">Figure 1. Cockpit sky under relativistic aberration, Doppler shift and beaming at speed $\beta$, with the lab-frame length-contracted ship and twin clocks below. Method: exact Lorentz transform of photon 4-momenta. Source: Rindler, Relativity, Sec. 4.</figcaption>
+</figure>
+<div id="controls" class="pg-controls"></div>
+<div id="custom-controls"></div>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script></body></html>
