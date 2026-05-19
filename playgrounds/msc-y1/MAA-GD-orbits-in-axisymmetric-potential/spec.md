@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: binney-tremaine
 primary_chapter: 3
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A star in a disk galaxy does not trace a closed ellipse like a planet; its orbit fails to close and slowly fills an annulus, drawing a rosette.'
+one_paragraph: 'A flattened galaxy is well described by the Miyamoto-Nagai potential Phi(R,z) = -G M / sqrt(R^2 + (a + sqrt(z^2 + b^2))^2), with cylindrical radius R, height z, disk scale length a and thickness b. Because this is not an inverse-square point-mass field, the radial and azimuthal oscillation frequencies are incommensurate, so a generic bound orbit does not close: it precesses, filling a rosette bounded by an inner and outer radius. Energy E and the angular momentum component L_z about the symmetry axis are conserved and pin the rosette, while a third (non-classical) integral confines the motion in the meridional plane. The playground integrates an orbit with a symplectic step and shows the rosette plus the conserved quantities holding flat. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 3.'
 tags: [galactic, animation, live-readout]
 difficulty: 3
 tier: simple

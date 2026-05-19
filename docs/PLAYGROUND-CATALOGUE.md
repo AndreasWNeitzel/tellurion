@@ -2306,8 +2306,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Inverse-Compton Cooling
 `playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling` | MAA-HE | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: In ordinary Compton scattering a photon gives energy to an electron. Reverse it: a fast electron slamming into a low-energy photon kicks the photon up to X-ray or gamma-ray energies, and the electron cools. This inverse-Compton process is how relativistic electrons in jets and the cosmic web produce high-energy radiation. The playground follows the electron's energy bleeding away.
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A relativistic electron of Lorentz factor gamma immersed in a radiation field of energy density U_rad loses energy by inverse-Compton scattering at the rate -dE/dt = (4/3) sigma_T c gamma^2 beta^2 U_rad (Thomson regime), the same form as synchrotron with the magnetic energy density replaced by U_rad. Because the loss scales as gamma^2, high-energy electrons cool fastest, so an injected population steepens and develops a cooling break; the characteristic cooling time is t_IC proportional to 1 / (gamma U_rad). The playground integrates a single electron''s energy (and an injected spectrum) as it cools, showing the gamma^2 dependence and the build-up of the upscattered high-energy photons. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Chapter 7.
+- Hook: Reverse Compton scattering: a fast electron slams a low-energy photon up to X-ray or gamma-ray energies and bleeds its own energy away, the engine behind high-energy radiation from jets and the cosmic web.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with inverse-Compton scattering (hot electrons upscatter low-energy photons), cooling rate (proportional to electron density, magnetic field or CMB photon
