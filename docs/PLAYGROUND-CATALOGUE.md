@@ -2360,8 +2360,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Atmospheric Speckle Statistics
 `playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics` | MAA-OT | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: $N \sim (D/r_0)^2$ speckles per realization. Source: Roddier (`hardy-ao`); Goodman (`goodman-speckle`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: Atmospheric turbulence corrugates the incoming wavefront on the scale of the Fried parameter r_0, so the pupil acts like roughly N ~ (D/r_0)^2 independent sub-apertures whose randomly phased contributions interfere in the focal plane. The instantaneous image is fully developed speckle: the intensity follows a negative-exponential law P(I) = (1/<I>) exp(-I/<I>), and each speckle grain is about the diffraction size lambda/D, so the sharp information is present but scrambled and washed out by long exposures. The playground generates speckle patterns from a random phase screen and shows the exponential intensity statistics and grain count, the basis of speckle and lucky imaging. Reference: Born and Wolf, Principles of Optics, Chapter 10; Goodman, Speckle Phenomena in Optics.
+- Hook: A bright star through a big telescope on a turbulent night does not make a clean dot; it boils into a swarm of bright grains called speckles, each briefly as sharp as the telescope can do.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with speckle definition (coherent light interference), intensity statistics (exponential distribution), structure function (autocorrelation), invariants (
@@ -2371,8 +2371,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Mixing-Length Convection
 `playgrounds/msc-y1/MAA-SA-convection-mixing-length` | MAA-SA | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Schwarzschild criterion + MLT parameter $\alpha = l_m / H_P$. Source: Hansen-Kawaler Ch. 5 (`hansen-kawaler`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A layer is unstable to convection by the Schwarzschild criterion when the temperature gradient the radiation would need exceeds the adiabatic one, nabla_rad > nabla_ad (a rising blob stays buoyant). Mixing-length theory closes the problem with one free parameter: a blob travels a distance l = alpha H_P (alpha of order unity, H_P the pressure scale height) before dissolving and releasing its heat, which sets the convective flux and the actual gradient between nabla_ad and nabla_rad. Deep convection is nearly adiabatic and almost independent of alpha, but near the surface (superadiabatic convection) the structure and hence the stellar radius depend sensitively on the chosen alpha, which is why it is calibrated to the Sun. The playground shows the stability criterion and how varying alpha changes the gradient and the surface answer. Reference: Hansen and Kawaler, Stellar Interiors, Chapter 5.
+- Hook: Stars carry heat either by radiation or by boiling blobs of gas; which one operates where, decided by one inequality, controls a star''s structure and radius.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with mixing-length theory (MLT), convective flux formula, opacity scaling, temperature and density gradients, invariants (convective luminosity monotonic 
@@ -2382,8 +2382,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Main-Sequence Mass-Luminosity Relation
 `playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity` | MAA-SA | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: For a star in hydrostatic and radiative equilibrium, dimensional (homology) scaling of the structure equations gives a steep power law L proportional to M^alpha with alpha about 3 to 4 (alpha near 3 for massive, electron-scattering-dominated stars, closer to 4-5 for low-mass stars). Since the available nuclear fuel scales only as M while the burn rate scales as L, the main-sequence lifetime is tau proportional to M / L proportional to M^(1-alpha), so a tenfold mass increase shortens the life by roughly a factor of a thousand. The playground plots the mass-luminosity relation and the resulting lifetime across the main sequence, the one fact that explains the demographics of stellar populations. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Chapter 7.
+- Hook: The single most important relation in stellar astrophysics: a main-sequence star''s luminosity is set almost entirely by its mass and rises steeply, roughly as mass cubed, so massive stars live fast and die young.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with main-sequence relation (L ~ M^n, n ~ 3-4 for massive stars), physical origin (gravity, opacity, core temperature), metallicity dependence, invariants

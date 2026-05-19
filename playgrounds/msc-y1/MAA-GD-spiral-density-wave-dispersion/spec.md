@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: binney-tremaine
 primary_chapter: 6
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A galaxy''s spiral arms are not fixed strings of stars but a wave pattern, like the bunching of cars in a traffic jam, that the disk material flows through.'
+one_paragraph: 'In the tight-winding (WKB) limit a small-amplitude density wave in a differentially rotating stellar disk obeys the Lin-Shu dispersion relation (omega - m Omega)^2 = kappa^2 - 2 pi G Sigma |k| F(s, Q), linking the pattern frequency to the radial wavenumber k through the epicyclic frequency kappa, the surface density Sigma and the reduction factor F. A single dimensionless number, Toomre''s Q = kappa sigma_R / (3.36 G Sigma), decides stability: for Q > 1 the disk is stable to axisymmetric perturbations and only certain wavelengths support travelling waves, while Q < 1 lets perturbations grow. The playground plots the dispersion curve and the forbidden band as Q and the wavenumber vary, showing why arms are a self-sustained wave rather than a material structure. Reference: Binney and Tremaine, Galactic Dynamics 2e, Chapter 6.'
 tags: [galactic, animation, live-readout]
 difficulty: 3
 tier: simple
