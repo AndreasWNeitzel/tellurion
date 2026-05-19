@@ -19,7 +19,7 @@ const readoutEl = document.getElementById('readout');
 const controlsEl = document.getElementById('controls');
 
 let engine = null;
-try { engine = setupCosmicLatticeGL(canvas, 9); } catch (e) { console.warn('[universe] GL init failed', e); engine = null; }
+try { engine = setupCosmicLatticeGL(canvas, 12); } catch (e) { console.warn('[universe] GL init failed', e); engine = null; }
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0], radius: 26, minRadius: 6, maxRadius: 70,
   azimuthDeg: 32, elevationDeg: 16, fovDeg: 55,
@@ -164,7 +164,7 @@ let last = performance.now();
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
   if (ui.running) {
-    ui.time += ui.dir * dt * 1.1;
+    ui.time += ui.dir * dt * 0.5;          // slower loop so the expansion plays out
     if (ui.time > sol.tLoop1) ui.time = sol.tLoop0;       // loop the window
     if (ui.time < sol.tLoop0) ui.time = sol.tLoop1;
   }

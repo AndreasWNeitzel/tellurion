@@ -83,10 +83,13 @@ export function setupCosmicLatticeGL(canvas, gridN = 9) {
   for (let i = 0; i < gridN; i += 1)
     for (let j = 0; j < gridN; j += 1)
       for (let k = 0; k < gridN; k += 1) {
-        const x = (i / (gridN - 1) - 0.5) * 2 * span + (rnd() - 0.5) * 0.7;
-        const y = (j / (gridN - 1) - 0.5) * 2 * span + (rnd() - 0.5) * 0.7;
-        const z = (k / (gridN - 1) - 0.5) * 2 * span + (rnd() - 0.5) * 0.7;
-        verts.push(x, y, z, 0.4 + 0.6 * rnd());
+        // Larger seeded jitter so the comoving structure (primordial
+        // "fluctuations") is visible and grows visibly with a(t)
+        // instead of looking like a rigid grid.
+        const x = (i / (gridN - 1) - 0.5) * 2 * span + (rnd() - 0.5) * 1.6;
+        const y = (j / (gridN - 1) - 0.5) * 2 * span + (rnd() - 0.5) * 1.6;
+        const z = (k / (gridN - 1) - 0.5) * 2 * span + (rnd() - 0.5) * 1.6;
+        verts.push(x, y, z, 0.25 + 0.75 * rnd() * rnd());      // long-tail brightness for "structure"
       }
   const nGal = verts.length / 4;
   const comoving = new Float32Array(verts);
