@@ -21,7 +21,7 @@
 </style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Torque-Free Rigid Body: Euler's Equations 3D (Hero)</h1>
-  <div data-slot="description" class="katex-target">A body tumbling in free space with no torque. Euler's equations $I_i\dot\omega_i=(I_j-I_k)\omega_j\omega_k$ are integrated with RK4 and a unit quaternion. The angular velocity $\boldsymbol\omega$ (white) traces the polhode in the body frame and the herpolhode in space; the angular momentum $\mathbf L$ (gold) stays fixed. Spin about the intermediate axis and the body flips: the Dzhanibekov effect. Drag to orbit, scroll to zoom.</div>
+  <div data-slot="description" class="katex-target">A body tumbling in free space with no torque. Euler's equations $I_i\dot\omega_i=(I_j-I_k)\omega_j\omega_k$ are integrated with RK4 and a unit quaternion. The green curve painted on the body is the <em>polhode</em>, the path the angular velocity $\boldsymbol\omega$ traces in the body frame; the pink curve in the floating disk above is the <em>herpolhode</em>, the same vector seen in the lab frame (it rolls in the invariable plane perpendicular to $\mathbf L$). The angular momentum $\mathbf L$ (gold) stays fixed in space. Spin about the intermediate axis and the body flips: the Dzhanibekov effect. Drag to orbit, scroll to zoom.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
