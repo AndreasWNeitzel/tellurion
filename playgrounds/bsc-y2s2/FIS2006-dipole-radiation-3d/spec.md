@@ -9,7 +9,7 @@ one_paragraph: 'An oscillating dipole radiates with the angular pattern sin^2(th
 tags: [electromagnetism, radiation, 3d, multi-panel, live-readout]
 difficulty: 4
 tier: hero
-hero_candidate: true
+hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 5
 curriculum_year: 'L:F-2Y-2S'

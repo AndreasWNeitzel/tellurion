@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:47:42Z)
+  An oscillating charge (a dipole antenna) does not radiate equally in all directions. It throws no power straight along its axis and the most broadside, giving a doughnut-shaped radiation pattern. This is why a whip antenna is mounted vertically and why you rotate it for the best signal.
+
 - **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:41:42Z)
   A solid body tumbles in space with nothing pushing on it. The white arrow is its instantaneous spin axis $\boldsymbol\omega$; the gold arrow is the angular momentum $\mathbf L$, which stays fixed in space because there is no torque. Watch the spin axis trace a closed curve on the body (the polhode) while the body's own axes wander around the fixed gold arrow
 
@@ -238,9 +241,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Canonical Transformations](../playgrounds/bsc-y2s2/FIS2021-canonical-transformation-visual/index.html)** &nbsp; (verified, verified 2026-05-19T02:24:29Z)
   You can change coordinates in Hamiltonian mechanics, but only special "canonical" changes keep the equations of motion in Hamiltonian form. Their defining property is geometric: they preserve area in phase space. The playground maps a blob of phase points through different transformations so you see which ones preserve area (canonical) and which distort it (
-
-- **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T02:24:29Z)
-  An oscillating charge (a dipole antenna) does not radiate equally in all directions. It throws no power straight along its axis and the most broadside, giving a doughnut-shaped radiation pattern. This is why a whip antenna is mounted vertically and why you rotate it for the best signal.
 
 - **[Elastic Waves: P and S Modes in a Solid](../playgrounds/bsc-y2s1/FIS2002-elastic-wave-modes-solid/index.html)** &nbsp; (verified, verified 2026-05-19T02:24:29Z)
   Strike a solid and two different waves race out from the impact: a fast push-pull wave (P) and a slower shake-sideways wave (S). A detector off to the side records the P arrival first, then the S arrival some time later. That P-minus-S delay is exactly how seismologists locate earthquakes.

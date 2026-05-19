@@ -53,10 +53,14 @@ function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(SX, SY, SW, SH);
   ctx.strokeStyle = 'rgba(220,225,235,0.5)'; ctx.strokeRect(SX, SY, SW, SH);
-  const pat = patternFn(), yaw = st.t * 0.5, pitch = -0.5, scale = 150;
+  // The pattern is a surface of revolution about z, so spinning it
+  // about z (yaw) is invisible. Tumbling it (pitch sweep) is what
+  // makes the toroidal 3D structure read: the donut rocks from
+  // near-edge-on to near-face-on. yaw is kept for subtle parallax.
+  const pat = patternFn(), yaw = st.t * 0.22, pitch = -0.95 + 0.66 * Math.sin(st.t * 0.31), scale = 168;
 
   // radiation-pattern surface of revolution: radius = pattern(theta)
-  const NT = 46, NP = 40, faces = [];
+  const NT = 56, NP = 52, faces = [];
   for (let i = 0; i < NT; i += 1) {
     const th0 = Math.PI * i / NT, th1 = Math.PI * (i + 1) / NT;
     for (let j = 0; j < NP; j += 1) {
@@ -71,15 +75,36 @@ function render() {
     }
   }
   faces.sort((a, b) => a.dep - b.dep);                         // painter's order
-  const intensA = 0.30 + 0.40 * Math.min(1, st.moment / 2);     // radiated intensity ~ p0^2
+  const intensA = 0.52 + 0.34 * Math.min(1, st.moment / 2);     // radiated intensity ~ p0^2
+  const dmin = faces.length ? faces[0].dep : 0;
+  const dmax = faces.length ? faces[faces.length - 1].dep : 1;
+  const drange = (dmax - dmin) || 1;
+  ctx.lineJoin = 'round';
   for (const f of faces) {
-    const c = f.shade;
-    ctx.fillStyle = `rgba(${Math.round(90 + 165 * c)},${Math.round(120 + 90 * c)},${Math.round(220 - 80 * c)},${intensA})`;
-    ctx.strokeStyle = 'rgba(180,200,235,0.18)';
+    const c = f.shade;                                          // sin^2(theta) intensity 0..1
+    const nd = (f.dep - dmin) / drange;                          // 0 far .. 1 near
+    const lit = 0.55 + 0.45 * nd;                                // nearer faces brighter
+    const R = Math.round((70 + 185 * c) * lit);
+    const G = Math.round((110 + 110 * c) * lit);
+    const B = Math.round((235 - 70 * c) * lit);
+    ctx.fillStyle = `rgba(${R},${G},${B},${intensA})`;
+    ctx.strokeStyle = `rgba(150,205,255,${0.05 + 0.10 * c})`;     // hairline, not a wire cage
     ctx.beginPath(); ctx.moveTo(f.verts[0][0], f.verts[0][1]);
     for (let k = 1; k < 4; k += 1) ctx.lineTo(f.verts[k][0], f.verts[k][1]);
     ctx.closePath(); ctx.fill(); ctx.stroke();
   }
+  // additive bloom along the high-intensity equator so the lobe reads
+  // as luminous radiated power, not a mesh.
+  ctx.globalCompositeOperation = 'lighter';
+  for (const f of faces) {
+    if (f.shade < 0.6) continue;
+    const nd = (f.dep - dmin) / drange; if (nd < 0.5) continue;   // front equatorial band
+    ctx.fillStyle = `rgba(120,190,255,${0.05 * f.shade})`;
+    ctx.beginPath(); ctx.moveTo(f.verts[0][0], f.verts[0][1]);
+    for (let k = 1; k < 4; k += 1) ctx.lineTo(f.verts[k][0], f.verts[k][1]);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
   // E-field polarization texture on the surface: meridional (theta-hat)
   // for an electric dipole / antenna, azimuthal (phi-hat) for a
   // magnetic dipole. This is the real distinction between E and M
@@ -114,11 +139,12 @@ function render() {
   // outgoing wavefronts: spacing tracks the wavelength lambda = c/f,
   // so higher frequency packs visibly more rings (a strong, physical
   // frequency cue beyond the scale-free pattern shape)
-  const ringPx = (frac) => 24 + frac * (Math.min(SW, SH) * 0.46);
+  const ringPx = (frac) => 24 + frac * (Math.min(SW, SH) * 0.52);
   const nRings = Math.max(2, Math.min(16, Math.round(st.fMHz / 22)));
+  ctx.globalCompositeOperation = 'lighter';
   for (let w = 0; w < nRings; w += 1) {
     const fr = ((st.t * 0.45 + w / nRings) % 1);
-    ctx.strokeStyle = `rgba(127,200,255,${0.5 * (1 - fr)})`; ctx.lineWidth = 1.4;
+    ctx.strokeStyle = `rgba(140,210,255,${0.62 * (1 - fr)})`; ctx.lineWidth = 1.8;
     ctx.beginPath();
     for (let a = 0; a <= 48; a += 1) {
       const th = Math.PI * a / 48, amp = 0.35 + 0.65 * pat(th), R = ringPx(fr) * amp;
@@ -127,6 +153,7 @@ function render() {
     }
     ctx.stroke();
   }
+  ctx.globalCompositeOperation = 'source-over';
   ctx.lineWidth = 1;
   ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`${st.source === 'antenna' ? 'half-wave antenna' : st.source + ' dipole'} radiation pattern (rotating)`, SX + SW / 2, SY + SH + 20);
