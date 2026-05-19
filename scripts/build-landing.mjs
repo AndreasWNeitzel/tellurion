@@ -97,9 +97,61 @@ body { max-width: 1200px; margin: 0 auto; padding: var(--space-4); font-family: 
 .card .tags { display: flex; flex-wrap: wrap; gap: 3px; }
 .card .tag { font-size: 9px; padding: 2px 6px; background: #2a2a30; color: var(--fg-muted); border-radius: 3px; font-family: ui-monospace, monospace; }
 footer { padding: var(--space-4) 0; color: var(--fg-muted); font-size: 12px; } footer a { color: var(--accent, #ffd166); }
+html { background: #07070c; }
+body { position: relative; z-index: 0; background: transparent; }
+#ambient { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -2; pointer-events: none; display: block; }
 </style>
 </head>
 <body>
+<canvas id="ambient" aria-hidden="true"></canvas>
+<script>
+(function(){
+  const c=document.getElementById('ambient'); if(!c) return;
+  const x=c.getContext('2d'); if(!x) return;
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W=0,H=0,DPR=1,stars=[],neb=[],last=0;
+  function rng(s){return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+  function build(){
+    const r=rng(0xACE1);
+    W=window.innerWidth; H=window.innerHeight; DPR=Math.min(2,window.devicePixelRatio||1);
+    c.width=W*DPR; c.height=H*DPR; x.setTransform(DPR,0,0,DPR,0,0);
+    stars=[]; const n=Math.max(60,Math.round(W*H/9000));
+    for(let i=0;i<n;i++){const d=r();stars.push({x:r()*W,y:r()*H,z:0.3+d*0.7,r:0.4+d*1.3,ph:r()*6.2832});}
+    const cols=[[70,90,180],[120,70,170],[40,120,150],[150,95,140]];
+    neb=[];
+    for(let i=0;i<4;i++){neb.push({x:r()*W,y:r()*H,R:260+r()*360,c:cols[i],vx:(r()-0.5)*0.05,vy:(r()-0.5)*0.05,ph:r()*6.2832});}
+  }
+  function draw(t){
+    x.fillStyle='#07070c'; x.fillRect(0,0,W,H);
+    for(const b of neb){
+      const px=b.x+(reduce?0:Math.sin(t*0.00004+b.ph)*40);
+      const py=b.y+(reduce?0:Math.cos(t*0.00003+b.ph)*30);
+      const a=0.10+(reduce?0:0.03*Math.sin(t*0.0002+b.ph));
+      const g=x.createRadialGradient(px,py,0,px,py,b.R);
+      g.addColorStop(0,'rgba('+b.c[0]+','+b.c[1]+','+b.c[2]+','+Math.max(0,a).toFixed(3)+')');
+      g.addColorStop(1,'rgba('+b.c[0]+','+b.c[1]+','+b.c[2]+',0)');
+      x.fillStyle=g; x.fillRect(0,0,W,H);
+      if(!reduce){ b.x+=b.vx; b.y+=b.vy; if(b.x<-b.R)b.x=W+b.R; if(b.x>W+b.R)b.x=-b.R; if(b.y<-b.R)b.y=H+b.R; if(b.y>H+b.R)b.y=-b.R; }
+    }
+    for(const s of stars){
+      const tw=reduce?0.7:0.55+0.45*Math.sin(t*0.002*s.z+s.ph);
+      x.globalAlpha=Math.max(0,Math.min(1,tw))*s.z;
+      x.fillStyle='#dfe6ff';
+      x.beginPath(); x.arc(s.x,s.y,s.r,0,6.2832); x.fill();
+      if(!reduce){ s.y+=0.05*s.z; s.x+=0.012*s.z; if(s.y>H+2)s.y=-2; if(s.x>W+2)s.x=-2; }
+    }
+    x.globalAlpha=1;
+  }
+  function frame(t){
+    if(t-last>33){ last=t; draw(t); }
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  build();
+  draw(0);
+  if(!reduce) requestAnimationFrame(frame);
+  let to; window.addEventListener('resize',()=>{clearTimeout(to);to=setTimeout(()=>{build();draw(performance.now());},200);});
+})();
+</script>
 <div class="header">
   <h1>Playgrounds Portfolio</h1>
   <p>${cards.length} interactive simulations across physics, astronomy, statistical mechanics, and machine learning. Built for AI-lab hiring committees and ESA Research Fellowship reviewers; aligned to the UPorto FCUP Bachelor in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
