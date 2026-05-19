@@ -36,3 +36,18 @@ invariants byte-identical):
 - Pointer-drag on the canvas sets x0; capture sweeps the 5 (x0,fn)
   states with the sweep completed (5 distinct deterministic frames).
 Gate: 5 invariants + smoke + visual 5/5 x3 PASS. Shipped.
+
+## Layout fix 2026-05-19 (user: messy, no intuition, overlap, out of bounds)
+The #286 rehaul's auto scales (SC_T=150/0.25, SC_B=150/uMax) sagged
+the top string ~150 px into the bottom panel's labels and the bottom
+string past the diagnostic strip / off-canvas. Render-only; sim.js +
+5 invariants byte-identical:
+- Two explicit panels (TOP base 80 / sag<=110 within 50..218; BOT
+  base 270 / sag<=110 within 240..408) each ctx.clip()'d to its
+  rect; diagnostic strip clipped within 426..486. Scales bounded so
+  a string can never leave its panel or collide.
+- Removed the redundant faint analytic overlay in the main bottom
+  panel (the cyan string IS u); one concise caption per panel; load
+  arrow + sweep line confined to their bands.
+The intuition reads now: one poke -> tent G; many pokes -> smooth u;
+exact u(L/2)=L^2/8=0.125 check. Gate 5 + smoke + 5/5 x3.
