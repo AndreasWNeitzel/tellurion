@@ -1,0 +1,13 @@
+import { chromium } from 'playwright';
+import path from 'node:path'; import { fileURLToPath } from 'node:url';
+import { startStaticServer } from '../tests/helpers/static-server.mjs';
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const { server, url } = await startStaticServer(ROOT);
+const b = await chromium.launch(); const p = await b.newPage({ viewport:{width:1280,height:880} });
+const errs=[]; p.on('pageerror',e=>errs.push(String(e))); p.on('console',m=>{if(m.type()==='error')errs.push('c:'+m.text());});
+await p.goto(url+'/index.html',{waitUntil:'load',timeout:20000});
+await p.waitForTimeout(1600); await p.screenshot({path:'/tmp/gal-A.png'});
+await p.selectOption('#sortsel','curriculum'); await p.waitForTimeout(900); await p.screenshot({path:'/tmp/gal-B.png'});
+const d=await p.evaluate(()=>({cards:document.querySelectorAll('.card').length,amb:!!document.getElementById('ambient'),groups:document.querySelectorAll('.cur-group').length}));
+console.log('GAL',JSON.stringify(d),'errs',errs.length?errs.slice(0,3).join(' | '):'none');
+await b.close(); await server.closePromise();
