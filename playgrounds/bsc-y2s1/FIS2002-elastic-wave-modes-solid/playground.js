@@ -7,7 +7,7 @@
 // Lifshitz, Theory of Elasticity (Vol. 7), Sec. 22-24.
 
 import { speeds, cflDt, makeSolid, ricker, step, divergence } from './sim.js';
-import { rdbu, fieldToImageData } from '../../../shared/js/render/colormaps.js';
+import { divBlack, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,7 +21,7 @@ const controlsEl = document.getElementById('controls');
 
 const GN = 160;
 const RHO = 1;
-const HORIZON = 150;                  // steps to the terminal frame (P front near the edge)
+const HORIZON = 360;                  // steps: long enough for P then the slower S to reach the station
 const STEPS_PER_FRAME = 1;
 const READOUTS = ['source', 'lambda', 'mu', 'v_P', 'v_S', 'sim t'];
 const rEls = {};
@@ -78,10 +78,12 @@ function render() {
   for (let j = 1; j < GN - 1; j += 1) for (let i = 1; i < GN - 1; i += 1) { const d = divergence(solid, i, j); dfield[j * GN + i] = d; const a = Math.abs(d); if (a > mx) mx = a; }
   const uref = 0.62 * mx;
   for (let i = 0; i < GN * GN; i += 1) dfield[i] = Math.tanh(dfield[i] / uref);
-  imgData = fieldToImageData(dfield, GN, GN, -1, 1, rdbu, imgData);
+  imgData = fieldToImageData(dfield, GN, GN, -1, 1, divBlack, imgData);
   offCtx.putImageData(imgData, 0, 0);
+  // Clip everything (field, strained grid, growing wavefront rings)
+  // to the panel so nothing escapes the box.
+  ctx.save(); ctx.beginPath(); ctx.rect(FX, FY, FPX, FPX); ctx.clip();
   ctx.imageSmoothingEnabled = true; ctx.drawImage(off, FX, FY, FPX, FPX);
-  ctx.strokeStyle = 'rgba(220,225,235,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(FX, FY, FPX, FPX);
 
   // deformed reference grid (shows the medium straining)
   const gstep = 11, uscale = 60;
@@ -112,6 +114,8 @@ function render() {
   ctx.lineWidth = 1;
   // station marker
   ctx.fillStyle = '#ffe46b'; ctx.beginPath(); ctx.arc(FX + STA.i * CELL, FY + STA.j * CELL, 4, 0, 6.2832); ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(220,225,235,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(FX, FY, FPX, FPX);
   ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('divergence (compression) + deformed grid; P ring red, S ring blue', FX + FPX / 2, FY + FPX + 18);
   ctx.textAlign = 'left';
@@ -193,7 +197,7 @@ function tick(now) {
       for (let q = 0; q < STEPS_PER_FRAME && st.nstep < HORIZON; q += 1) { step(solid, st.lambda, st.mu, RHO, DT, st.nstep < 34 ? sf : null, 16); seis.push([solid.t, solid.uy[STA.j * GN + STA.i], solid.ux[STA.j * GN + STA.i]]); st.nstep += 1; }
       acc -= 1 / 60;
     }
-    if (st.nstep >= HORIZON) acc = 0;
+    if (st.nstep >= HORIZON) { rebuild(0); acc = 0; }   // replay: strike -> P -> S -> repeat
   }
   render(); requestAnimationFrame(tick);
 }
