@@ -1,5 +1,5 @@
 ---
-title: Gravitational-Wave Detector: Inspiral Chirp and Matched Filter
+title: "Gravitational Waves: Inspiral, Merger, and Detection"
 slug: gravitational-wave-detector
 status: verified
 audience: portfolio
@@ -8,8 +8,8 @@ primary_uc: MF-GR
 supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: peters1964
-hook: 'Two black holes spiral together and the gravitational-wave frequency and amplitude chirp upward; a LIGO arm stretches by 2e-18 m, a thousandth of a proton, and a matched filter pulls the signal out of the noise and reads off the chirp mass to better than 0.1%.'
-one_paragraph: 'An interactive compact-binary inspiral and a LIGO-type interferometer (quadrupole / leading post-Newtonian; Peters 1964; Maggiore, Gravitational Waves Vol. 1; Abbott et al. 2016). The chirp mass Mc = (m1 m2)^{3/5}/(m1+m2)^{1/5} sets the frequency evolution df/dt = (96/5) pi^{8/3}(G Mc/c^3)^{5/3} f^{11/3}, so f(tau) ~ tau^{-3/8} sweeps up to merger and the strain amplitude h = (4/D)(G Mc/c^2)^{5/3}(pi f/c)^{2/3} rises with it (about 1e-21 for a 30+30 Msun binary at 400 Mpc, like GW150914). The interferometer panel shows the differential arm response (one 4 km arm +h L/2, the other -h L/2, about 2e-18 m); the waveform panel shows the chirp building to merger; the matched-filter panel correlates the noisy data with a template and peaks sharply at coalescence, recovering the chirp mass. The chirp mass sets the tau^{-3/8} frequency sweep, the strain scales as 1/D (about 1e-21 at 400 Mpc), the two arms respond with opposite sign at the sub-proton level, and a matched filter peaks at coalescence for the correct template, recovering the chirp mass. Reference: Maggiore, Gravitational Waves Vol. 1; Peters 1964; Abbott et al. 2016.'
+hook: 'Two black holes spiral together, their orbit shrinking as they radiate; a two-arm ripple of spacetime tightens into the merger, a LIGO arm twitches by a thousandth of a proton, and a matched filter reads off the chirp mass.'
+one_paragraph: 'An interactive compact-binary inspiral. The main view is the physical system: two black holes orbit on a Keplerian separation a = (G M / omega_orb^2)^{1/3} that shrinks as gravitational waves carry away energy, while the leading quadrupole radiation spreads outward as a two-arm spiral that tightens and brightens as the frequency rises, then merges and rings down. The chirp mass Mc = (m1 m2)^{3/5}/(m1+m2)^{1/5} sets the sweep df/dt = (96/5) pi^{8/3}(G Mc/c^3)^{5/3} f^{11/3}, so f ~ tau^{-3/8} climbs to merger and the strain amplitude h = (4/D)(G Mc/c^2)^{5/3}(pi f/c)^{2/3} grows with it (about 1e-21 for a 30+30 solar-mass binary at 400 Mpc, the GW150914 case). Diagnostic strips show the chirp strain h(t), a matched filter that peaks sharply at coalescence and recovers the chirp mass, and a LIGO arm whose 4 km length changes by h L / 2, a sub-proton displacement. Reference: Maggiore, Gravitational Waves Vol. 1; Peters 1964; Abbott et al. 2016.'
 tags: [general-relativity, gravitational-waves, interferometry, signal-processing, live-readout]
 difficulty: 5
 tier: hero

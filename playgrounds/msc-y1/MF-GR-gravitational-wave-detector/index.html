@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gravitational-Wave Detector: Inspiral Chirp and Matched Filter</title>
+  <title>Gravitational Waves: Inspiral, Merger, and Detection</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 <link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
 <body>
-  <h1>Gravitational-Wave Detector: Inspiral Chirp and Matched Filter</h1>
+  <h1>Gravitational Waves: Inspiral, Merger, and Detection</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="LIGO interferometer, the inspiral chirp strain, and the matched-filter SNR"></canvas>
+    <canvas id="stage" width="860" height="560" aria-label="two black holes spiralling to merger and the radiated gravitational-wave ripple, with the chirp strain, matched filter, and LIGO arm strain"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">M_chirp:</span><span class="value" id="readout-mc">26.1</span>
       <span class="label">f_GW:</span><span class="value" id="readout-f">0</span>
@@ -22,8 +22,8 @@
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      A compact-binary inspiral seen by a LIGO-type interferometer: the chirp strain stretches one 4 km arm and squeezes the other by h L / 2 (about 2e-18 m), and a matched filter recovers the chirp mass from the rising-frequency waveform.
-      <em>Method:</em> quadrupole / leading-PN inspiral, antenna response, matched filter; Canvas2D, deterministic.
+      Two black holes spiral together on a shrinking orbit and radiate a two-arm gravitational-wave ripple that tightens into the merger and rings down; the chirp strain, a matched filter that recovers the chirp mass, and a LIGO arm changing length by h L / 2 (a sub-proton displacement) are shown as diagnostics.
+      <em>Method:</em> Keplerian inspiral with leading-quadrupole radiation, the chirp-mass frequency sweep, antenna response, and matched filtering; Canvas2D, deterministic.
       <em>Source:</em> Peters 1964; Maggiore, Gravitational Waves Vol. 1; Abbott et al. 2016.
     </figcaption>
   </figure>

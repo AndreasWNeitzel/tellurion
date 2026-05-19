@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gravitational Waves: Inspiral, Merger, and Detection](../playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html)** &nbsp; (verified, verified 2026-05-19T09:48:11Z)
+  When two black holes spiral together they shake spacetime itself, sending out a gravitational wave whose frequency sweeps upward into a "chirp". LIGO digs that chirp out of detector noise with a matched filter. The playground generates the inspiral waveform and shows how matched filtering recovers it even when it is buried below the noise.
+
 - **[Gravitational Lensing: Microlensing and Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/index.html)** &nbsp; (verified, verified 2026-05-19T09:27:41Z)
   Top half is a 200-star procedural field; one star is the source (with a faint Einstein-radius ring), another is the lens moving across the field. As the lens approaches the source the user sees the two distorted images flanking it, an Einstein ring flash at zero impact parameter, and the characteristic Paczynski bump in the bottom-half light curve. A binary-
 
@@ -124,9 +127,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW](../playgrounds/msc-y1/MF-GR-geodesics-curved-spacetime-3d/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   In general relativity gravity is not a force; it is the shape of spacetime, and freely falling bodies just follow the straightest possible paths (geodesics) through that curved geometry. The playground integrates those paths in three famous spacetimes and shows the orbits, precession, frame dragging, and cosmic expansion that result.
-
-- **[Gravitational-Wave Detector: Inspiral Chirp and Matched Filter](../playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
-  When two black holes spiral together they shake spacetime itself, sending out a gravitational wave whose frequency sweeps upward into a "chirp". LIGO digs that chirp out of detector noise with a matched filter. The playground generates the inspiral waveform and shows how matched filtering recovers it even when it is buried below the noise.
 
 - **[Green's Function: Building a Solution from Tent Responses](../playgrounds/msc-y1/M2009-green-function-propagator/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   A Green's function is the answer to one simple question: how does the system respond to a single pinprick? Once you know the response to a spike at every location, you can build the response to any load at all by adding up scaled copies. The playground shows the tent-shaped spike response and how a general source is assembled from those tents.
@@ -700,9 +700,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Thomas Precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/index.html)** &nbsp; (verified, verified 2026-05-18T17:39:02Z)
   A gyroscope on a circular orbit picks up $(\gamma - 1)$ rad of extra rotation per revolution. Source: Jackson 3e Ch. 11.8 (`jackson3e`).
-
-- **[Gravitational-Wave Chirp Sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/index.html)** &nbsp; (verified, verified 2026-05-18T17:30:56Z)
-  A compact-binary inspiral. A compact strain $h(t)$ strip scrolls the chirp waveform (clamped so the post-Newtonian divergence near merger cannot flood the panel) and an $f(t)$ strip tracks the rising frequency. The main panel is a 3D inspiral: two perspective-shaded spheres orbit on an inclined plane at the barycentric Kepler separation $a \propto f_\mathrm{
 
 - **[Parallel Transport on a Sphere](../playgrounds/bsc-y3s2/M3007-parallel-transport-on-sphere/index.html)** &nbsp; (verified, verified 2026-05-18T17:30:56Z)
   Carry an arrow around a triangle drawn on a globe, always keeping it "as parallel as possible" to itself. On a flat plane it returns unchanged. On the sphere it comes back rotated, by an angle exactly equal to the area you enclosed. That rotation-from-curvature is the geometric heart of gauge theory and general relativity.
