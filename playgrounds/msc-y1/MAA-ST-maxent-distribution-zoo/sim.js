@@ -95,6 +95,59 @@ export function gridX(family) {
   return xs;
 }
 
+// Seeded RNG (mulberry32) so sampling is deterministic for the gate.
+export function makeRng(seed) {
+  let s = seed >>> 0;
+  return function rng() {
+    s |= 0; s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Draw n samples from the maximum-entropy distribution of a family by
+// direct inversion / Box-Muller. The empirical moments reproduce the
+// constraints that family was built to satisfy.
+export function sampleFamily(family, params, n, seed = 0xC0FFEE) {
+  const rng = makeRng(seed), out = new Float64Array(n);
+  for (let i = 0; i < n; i += 1) {
+    const u = Math.min(1 - 1e-12, Math.max(1e-12, rng()));
+    if (family === 'uniform') out[i] = params.a + (params.b - params.a) * u;
+    else if (family === 'exponential') out[i] = -params.mean * Math.log(1 - u);
+    else if (family === 'gaussian') {
+      const u2 = Math.min(1 - 1e-12, Math.max(1e-12, rng()));
+      out[i] = params.mu + params.sigma * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * u2);
+    } else { // laplace
+      const e = u - 0.5;
+      out[i] = params.mu - params.b * Math.sign(e) * Math.log(1 - 2 * Math.abs(e));
+    }
+  }
+  return out;
+}
+
+// Same support and family, but with an imposed cosine ripple of
+// amplitude s in [0, 1], renormalised on the grid. It is a valid
+// density satisfying the same support, yet its added structure makes
+// it strictly less entropic than the maximum-entropy member: this is
+// the point of the principle (any structure beyond the constraints
+// costs entropy). Reference: Cover and Thomas 2006, Sec. 12.1.
+export function structuredPdf(family, params, xs, s) {
+  const p = pdf(family, params, xs);
+  if (s <= 0) return p;
+  let xlo = xs[0], xhi = xs[xs.length - 1];
+  if (family === 'uniform') { xlo = params.a; xhi = params.b; }
+  const k = 4 * Math.PI / (xhi - xlo), c = 0.5 * (xlo + xhi), dx = xs[1] - xs[0];
+  let norm = 0;
+  for (let i = 0; i < xs.length; i += 1) {
+    const mod = 1 + s * Math.cos(k * (xs[i] - c));
+    p[i] = p[i] * Math.max(0, mod);
+    norm += p[i] * dx;
+  }
+  if (norm > 0) for (let i = 0; i < p.length; i += 1) p[i] /= norm;
+  return p;
+}
+
 // Constraints summary string for each family (UI tooltip).
 export const CONSTRAINTS = {
   uniform:     'support [a, b], no moment constraint',

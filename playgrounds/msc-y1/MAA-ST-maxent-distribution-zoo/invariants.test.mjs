@@ -4,7 +4,7 @@
 // integration matches it to a few percent.
 
 import { describe, it, expect } from 'vitest';
-import { pdf, analyticEntropy, numericEntropy, gridX } from './sim.js';
+import { pdf, analyticEntropy, numericEntropy, gridX, structuredPdf, sampleFamily } from './sim.js';
 
 describe('Maxent: Gaussian', () => {
   it('h(N(0,1)) = 0.5 ln(2 pi e)', () => {
@@ -57,6 +57,40 @@ describe('Maxent: Laplace', () => {
     const hAnalytic = analyticEntropy('laplace', { mu: 0, b: 1 });
     const hNumeric = numericEntropy(p, xs);
     expect(Math.abs(hAnalytic - hNumeric) / hAnalytic).toBeLessThan(0.02);
+  });
+});
+
+describe('Maxent: the principle (structure lowers entropy)', () => {
+  const cfg = {
+    gaussian: { mu: 0, sigma: 1 }, uniform: { a: -2, b: 2 },
+    exponential: { mean: 1 }, laplace: { mu: 0, b: 1 },
+  };
+  for (const fam of ['gaussian', 'uniform', 'exponential', 'laplace']) {
+    it(`${fam}: any imposed structure has strictly lower entropy`, () => {
+      const xs = gridX(fam), pm = cfg[fam];
+      const hMax = numericEntropy(pdf(fam, pm, xs), xs);
+      let prev = hMax;
+      for (const s of [0.3, 0.6, 0.9]) {
+        const h = numericEntropy(structuredPdf(fam, pm, xs, s), xs);
+        expect(h).toBeLessThan(hMax);
+        expect(h).toBeLessThan(prev + 1e-9);   // monotone non-increasing in s
+        prev = h;
+      }
+    });
+    it(`${fam}: structuredPdf stays a normalised density`, () => {
+      const xs = gridX(fam), dx = xs[1] - xs[0];
+      const q = structuredPdf(fam, cfg[fam], xs, 0.7);
+      let s = 0; for (let i = 0; i < q.length; i += 1) { expect(q[i]).toBeGreaterThanOrEqual(0); s += q[i] * dx; }
+      expect(Math.abs(s - 1)).toBeLessThan(0.02);
+    });
+  }
+  it('sampleFamily reproduces the constraint mean (seeded)', () => {
+    const g = sampleFamily('gaussian', { mu: 0.5, sigma: 1 }, 20000, 0xC0FFEE);
+    let m = 0; for (const v of g) m += v; m /= g.length;
+    expect(Math.abs(m - 0.5)).toBeLessThan(0.05);
+    const e = sampleFamily('exponential', { mean: 2 }, 20000, 0xBEEF);
+    let me = 0; for (const v of e) me += v; me /= e.length;
+    expect(Math.abs(me - 2)).toBeLessThan(0.1);
   });
 });
 
