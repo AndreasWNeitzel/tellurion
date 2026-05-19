@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: hansen-kawaler
 primary_chapter: 6
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Stellar nuclear reactions are violently temperature-sensitive: a few percent more core heat can change the energy output by orders of magnitude, which is exactly what makes stars stable.'
+one_paragraph: 'Near the Gamow peak each thermonuclear rate behaves as a steep power law, epsilon(T) proportional to rho X_i X_j T^nu, with an effective exponent nu that is large and itself temperature-dependent: nu about 4 for the proton-proton chain, about 16 to 18 for the CNO cycle, and about 40 for the triple-alpha process. This steepness is the thermostat of a star: a small contraction raises T, the rate jumps, the extra pressure halts the contraction, so burning self-regulates; it also dictates which fuel dominates in which star (p-p in the Sun, CNO in massive stars, triple-alpha in red-giant cores). The playground plots the three rates against temperature on a log scale so the differing slopes are unmistakable. Reference: Hansen and Kawaler, Stellar Interiors, Chapter 6.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
