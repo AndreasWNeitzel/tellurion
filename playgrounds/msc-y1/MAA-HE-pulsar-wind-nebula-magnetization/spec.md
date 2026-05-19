@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: rybickilightman1979
 primary_chapter: 6
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'A young pulsar blows a relativistic wind that slams into its debris, inflating a glowing bubble (the Crab Nebula is the textbook case); whether that wind is mostly particles or mostly field sets where the shock sits.'
+one_paragraph: 'The wind magnetization is the ratio of Poynting to kinetic energy flux, sigma = (B^2/4 pi) / (rho c^2 Gamma). The wind coasts until its ram pressure can no longer hold off the nebula and forms a termination shock at radius R_ts ~ sqrt(Edot / (4 pi c p_neb)), set by the spin-down power Edot and the nebular pressure p_neb. A low-sigma (particle-dominated) wind shocks strongly and lights up efficiently, while a high-sigma (magnetically dominated) wind compresses weakly and the shock moves in, the classic sigma problem the Crab poses. The playground shows the radial wind profile, the termination-shock position and the post-shock flow as the magnetization is varied. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Chapter 6; Kennel and Coroniti 1984.'
 tags: [stellar, fluids-mhd, animation, live-readout]
 difficulty: 3
 tier: simple
