@@ -687,6 +687,42 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
     });
   }
 
+  // Section 5: active nav link follows the section in view (>40%).
+  if('IntersectionObserver' in window){
+    var navLinkFor={};
+    [].slice.call(document.querySelectorAll('.nav-links a')).forEach(function(a){
+      var h=a.getAttribute('href'); if(h&&h.charAt(0)==='#')navLinkFor[h.slice(1)]=a;
+    });
+    var secIds=['browse','about','credits'];
+    var navObs=new IntersectionObserver(function(es){
+      es.forEach(function(en){
+        if(en.intersectionRatio<0.4)return;
+        var id=en.target.id, link=navLinkFor[id]; if(!link)return;
+        Object.keys(navLinkFor).forEach(function(k){ navLinkFor[k].classList.remove('active'); });
+        link.classList.add('active');
+      });
+    },{threshold:[0.4,0.6]});
+    secIds.forEach(function(id){ var s=document.getElementById(id); if(s)navObs.observe(s); });
+  }
+
+  // Section 6: About enters once. Hidden state armed only now (the
+  // .about.prep gate) so the no-JS page already shows it.
+  var aboutSec=document.getElementById('about');
+  if(aboutSec && !reduce && 'IntersectionObserver' in window){
+    aboutSec.classList.add('prep');
+    var aPhoto=aboutSec.querySelector('.about-photo');
+    var aAnims=[].slice.call(aboutSec.querySelectorAll('.about-anim'));
+    var aDone=false;
+    var aObs=new IntersectionObserver(function(es){
+      es.forEach(function(en){
+        if(aDone||en.intersectionRatio<0.15)return; aDone=true; aObs.disconnect();
+        if(aPhoto)setTimeout(function(){ aPhoto.classList.add('in'); },0);
+        aAnims.forEach(function(el,i){ setTimeout(function(){ el.classList.add('in'); },100+i*80); });
+      });
+    },{threshold:0.15});
+    aObs.observe(aboutSec);
+  }
+
   // G: ambient-sound toggle, off by default, state in sessionStorage.
   var ambBtn=document.getElementById('ambtoggle');
   if(ambBtn){
