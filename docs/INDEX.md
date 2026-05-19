@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified, verified 2026-05-19T08:13:31Z)
+  A solid body tumbles in space with nothing pushing on it. The white arrow is its instantaneous spin axis $\boldsymbol\omega$; the gold arrow is the angular momentum $\mathbf L$, which stays fixed in space because there is no torque. Watch the spin axis trace a closed curve on the body (the polhode) while the body's own axes wander around the fixed gold arrow
+
 - **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (verified, verified 2026-05-19T08:10:31Z)
   A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
 
@@ -25,9 +28,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:47:42Z)
   An oscillating charge (a dipole antenna) does not radiate equally in all directions. It throws no power straight along its axis and the most broadside, giving a doughnut-shaped radiation pattern. This is why a whip antenna is mounted vertically and why you rotate it for the best signal.
-
-- **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:41:42Z)
-  A solid body tumbles in space with nothing pushing on it. The white arrow is its instantaneous spin axis $\boldsymbol\omega$; the gold arrow is the angular momentum $\mathbf L$, which stays fixed in space because there is no torque. Watch the spin axis trace a closed curve on the body (the polhode) while the body's own axes wander around the fixed gold arrow
 
 - **[Schwarzschild Light Bending](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/index.html)** &nbsp; (verified, verified 2026-05-19T04:39:34Z)
   Fire a sheet of light rays past a black hole. Rays that pass far away bend slightly; rays that come in close swing around; and rays inside a critical aim are swallowed. Right at the boundary, light can loop the hole many times before escaping, the origin of the bright photon ring in black-hole images.

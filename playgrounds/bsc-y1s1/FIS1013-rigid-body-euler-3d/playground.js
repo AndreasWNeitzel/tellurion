@@ -64,7 +64,10 @@ bReset.addEventListener('click', () => { DEF.I = [2.0, 3.0, 4.0]; sI1.value = '2
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
 
 const gl = createGL2(canvas);
-const camera = createOrbitCamera(canvas, { target: [0, 0, 0], radius: 5.8, minRadius: 3, maxRadius: 18, azimuthDeg: 38, elevationDeg: 26, fovDeg: 45 });
+// Zoomed out enough that the whole Poinsot construction (the
+// invariable-plane disk r=3.4, the polhode on the body and the
+// herpolhode in the plane) is fully framed; 5.8 cropped the curve.
+const camera = createOrbitCamera(canvas, { target: [0, 0, 0], radius: 9.6, minRadius: 3, maxRadius: 20, azimuthDeg: 38, elevationDeg: 24, fovDeg: 45 });
 window.__camera = camera;
 
 // UV sphere (unit), reused and scaled to the inertia ellipsoid.
