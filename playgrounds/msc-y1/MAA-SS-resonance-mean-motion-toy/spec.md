@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: murray-dermott
 primary_chapter: 8
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'The asteroid belt has empty lanes, the Kirkwood gaps, sitting exactly where an asteroid would orbit the Sun an integer number of times for every few of Jupiter''s.'
+one_paragraph: 'A mean-motion resonance occurs when the orbital periods are near a small-integer ratio, p n_J approximately q n, so the same gravitational configuration with Jupiter repeats and the perturbations add coherently instead of averaging away. The slow resonant angle phi obeys a pendulum equation, phi-double-dot proportional to -sin(phi), so an asteroid is either trapped and librating about the resonance or circulating past it; near strong resonances the chaotic pumping of eccentricity drives the body onto a planet-crossing orbit and it is removed, carving the Kirkwood gap over millions of years. The playground shows the belt, the resonant semi-major axes, and a tracer''s resonant-angle libration or circulation as the period ratio is tuned. Reference: Murray and Dermott, Solar System Dynamics, Chapter 8.'
 tags: [exoplanets, animation, live-readout]
 difficulty: 3
 tier: simple
