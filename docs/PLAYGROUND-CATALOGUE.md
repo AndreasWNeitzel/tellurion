@@ -2317,8 +2317,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### Pulsar Wind Nebula Magnetization
 `playgrounds/msc-y1/MAA-HE-pulsar-wind-nebula-magnetization` | MAA-HE | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Crab-like nebula: termination shock + magnetization. Source: Kennel-Coroniti 1984; Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: The wind magnetization is the ratio of Poynting to kinetic energy flux, sigma = (B^2/4 pi) / (rho c^2 Gamma). The wind coasts until its ram pressure can no longer hold off the nebula and forms a termination shock at radius R_ts ~ sqrt(Edot / (4 pi c p_neb)), set by the spin-down power Edot and the nebular pressure p_neb. A low-sigma (particle-dominated) wind shocks strongly and lights up efficiently, while a high-sigma (magnetically dominated) wind compresses weakly and the shock moves in, the classic sigma problem the Crab poses. The playground shows the radial wind profile, the termination-shock position and the post-shock flow as the magnetization is varied. Reference: Rybicki and Lightman, Radiative Processes in Astrophysics, Chapter 6; Kennel and Coroniti 1984.
+- Hook: A young pulsar blows a relativistic wind that slams into its debris, inflating a glowing bubble (the Crab Nebula is the textbook case); whether that wind is mostly particles or mostly field sets where the shock sits.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with PWN physics (pulsar wind particles, magnetization parameter sigma = B^2/(rho c^2), magnetic reconnection, Doppler boosting for jets), expected struct
@@ -2339,8 +2339,8 @@ Shipped vs Draft is exactly how scripts/build-index.mjs (line 152) splits the ga
 ### PSF and Strehl Ratio
 `playgrounds/msc-y1/MAA-OT-point-spread-function-strehl` | MAA-OT | SHIPPED | swept | tier:simple
 
-- What it does / physics / visuals: Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8 (`born-wolf`).
-- Hook: (placeholder hook, flagged)
+- What it does / physics / visuals: A clear circular aperture produces the Airy point-spread function, I(theta) proportional to [2 J_1(x)/x]^2 with x = pi D sin(theta) / lambda, whose first dark ring sets the diffraction limit. Optical aberrations or atmospheric turbulence add a wavefront phase error of root-mean-square sigma (in radians); the Strehl ratio, the peak intensity relative to the aberration-free peak, follows the Marechal approximation S approximately exp[-(2 pi sigma_lambda)^2] for small errors and quantifies image quality in one number (S near 1 is diffraction-limited, S below ~0.8 is degraded). The playground shows the PSF and its Strehl as aberration is dialed in, making the wavefront-error to image-quality link concrete. Reference: Born and Wolf, Principles of Optics, Chapter 8.
+- Hook: A telescope can never image a star as a true point: diffraction spreads it into a blob, and the Strehl ratio is the single number that says how close to perfect the image is.
 - Review verdict: [first-pass] RENDER-NEUTRAL TEXT FIX ONLY
 - Flags to address:
   - [high] spec.md is architect placeholder; fill with PSF definition (Airy disk for diffraction-limited aperture), Strehl ratio (peak normalized by diffraction limit), phase errors/aberrations, wavefront

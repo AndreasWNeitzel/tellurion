@@ -7,8 +7,8 @@ created: 2026-05-13
 primary_uc: MAA-HE
 supporting_ucs: []
 curriculum_year: msc-y1
-hook: 'STATUS: needs_hook'
-one_paragraph: 'STATUS: needs_paragraph'
+hook: 'Gas cannot fall straight onto a black hole; it forms a disk that friction heats until it glows, and this profile is the model behind the blue glow of cataclysmic variables and the UV bump of quasars.'
+one_paragraph: 'In a steady, optically thick, geometrically thin disk, gas at radius R orbits at the local Keplerian rate and drifts slowly inward; viscous torques carry angular momentum outward and dissipate the released gravitational energy locally. Balancing that power against blackbody emission from both faces gives the Shakura-Sunyaev profile T(R) = [3 G M Mdot / (8 pi sigma R^3) (1 - sqrt(R_in/R))]^(1/4), with central mass M, accretion rate Mdot, inner edge R_in (the innermost stable circular orbit) and Stefan-Boltzmann sigma. Far from the edge this is the famous T proportional to R^(-3/4) law; the bracket forces T to zero at R_in and produces a peak just outside it. The playground plots T(R) and the integrated multi-temperature blackbody spectrum as M, Mdot and R_in are varied. Reference: Shakura and Sunyaev 1973; Frank, King and Raine, Accretion Power in Astrophysics, Chapter 5.'
 tags: [stellar, fluids-mhd, animation, live-readout]
 difficulty: 3
 tier: simple
