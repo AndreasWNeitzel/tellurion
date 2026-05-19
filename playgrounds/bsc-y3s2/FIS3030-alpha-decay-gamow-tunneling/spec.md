@@ -10,7 +10,7 @@ curriculum_year: bsc-y3s2
 primary_citation: krane-nuclear
 primary_chapter: 8
 hook: 'An alpha wavefunction tunnels the Coulomb barrier; the nucleus emits alphas at the Geiger-Nuttall rate.'
-one_paragraph: 'Gamow alpha decay shown as the process itself. An alpha wavefunction oscillates in the nuclear well, decays exponentially across the classically forbidden Coulomb-barrier region (WKB suppression set by the Gamow exponent from sim.js), and leaks a small transmitted wave. A nuclear scene emits alpha particles at a cadence mapped from the Geiger-Nuttall half-life, so a high-Q nuclide visibly streams alphas with a narrow barrier while a low-Q one is nearly quiescent behind a wide barrier. A compact Geiger-Nuttall strip carries the log10 T vs Q^-1/2 line with the live (Z, Q) marker and the half-life read out. sim.js (geigerNuttallLogT, gamowExponent) is unchanged.'
+one_paragraph: 'Gamow alpha decay shown as the process itself. An alpha wavefunction oscillates in the nuclear well, decays exponentially across the classically forbidden Coulomb-barrier region (WKB suppression set by the Gamow exponent), and leaks a small transmitted wave. A nuclear scene emits alpha particles at a cadence mapped from the Geiger-Nuttall half-life, so a high-Q nuclide visibly streams alphas with a narrow barrier while a low-Q one is nearly quiescent behind a wide barrier. A compact Geiger-Nuttall strip carries the log10 T vs Q^-1/2 line with the live (Z, Q) marker and the half-life read out. Reference: Krane, Introductory Nuclear Physics, Chapter 8; Gamow 1928.'
 tags: [nuclear-particle, animation, live-readout]
 difficulty: 3
 tier: simple
