@@ -88,43 +88,41 @@ function render() {
   ctx.fillText('Fourier conjugates: narrow one, the other must broaden', XP.x + XP.w / 2, KP.y - 8);
   ctx.textAlign = 'left';
 
-  // sigma_x sigma_p meter: the bar grows to the product; its top can
-  // never enter the forbidden band below the hbar/2 line (only a
-  // Gaussian touches it). Labels live inside the box so nothing clips.
+  // Uncertainty meter: one calm vertical bar = the product
+  // sigma_x.sigma_p, with a single solid line marking the hbar/2 floor
+  // it can never cross. Muted palette matched to the two packets
+  // (cyan = position, soft amber = above the bound), no hatching or
+  // gradients, labels spaced so it reads at a glance.
   const gcx = GA.x + GA.w / 2;
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(GA.x, GA.y, GA.w, GA.h);
-  ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(GA.x, GA.y, GA.w, GA.h);
-  const pmax = 1.6, bot = GA.y + GA.h - 30, top = GA.y + 44;
+  ctx.strokeStyle = 'rgba(200,205,215,0.28)'; ctx.strokeRect(GA.x, GA.y, GA.w, GA.h);
+  const pmax = 1.6, bot = GA.y + GA.h - 34, top = GA.y + 56;
   const py = (p) => bot - (Math.min(p, pmax) / pmax) * (bot - top);
   const yFloor = py(HBAR_OVER_2);
-  // forbidden band (sigma_x sigma_p < hbar/2): hatched red strip
-  ctx.fillStyle = 'rgba(255,70,70,0.13)';
-  ctx.fillRect(GA.x + 1, yFloor, GA.w - 2, bot - yFloor);
-  ctx.strokeStyle = 'rgba(255,90,90,0.30)'; ctx.lineWidth = 1;
-  for (let yh = yFloor + 6; yh < bot; yh += 8) { ctx.beginPath(); ctx.moveTo(GA.x + 2, yh); ctx.lineTo(GA.x + GA.w - 2, yh - 6); ctx.stroke(); }
-  // product bar
   const at = prod <= HBAR_OVER_2 * 1.03;
-  const grad = ctx.createLinearGradient(0, bot, 0, py(prod));
-  grad.addColorStop(0, at ? '#3aa6d6' : '#c79a26'); grad.addColorStop(1, at ? '#9fe4ff' : '#ffe27a');
-  ctx.fillStyle = grad;
-  ctx.fillRect(gcx - 22, py(prod), 44, bot - py(prod));
-  ctx.strokeStyle = at ? '#bfeeff' : '#ffe9a0'; ctx.lineWidth = 1.5;
-  ctx.strokeRect(gcx - 22, py(prod), 44, bot - py(prod)); ctx.lineWidth = 1;
-  // hbar/2 bound line
-  ctx.strokeStyle = '#ff5d5d'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+  // soft "impossible" region below the floor (flat low-alpha, no hatch)
+  ctx.fillStyle = 'rgba(120,130,150,0.12)';
+  ctx.fillRect(GA.x + 1, yFloor, GA.w - 2, bot - yFloor);
+  // the product bar (single flat colour)
+  const barC = at ? '#7fd6ff' : '#e3b061';
+  ctx.fillStyle = barC;
+  ctx.fillRect(gcx - 20, py(prod), 40, bot - py(prod));
+  // hbar/2 floor: one clean solid line
+  ctx.strokeStyle = '#e2e6ee'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(GA.x + 2, yFloor); ctx.lineTo(GA.x + GA.w - 2, yFloor); ctx.stroke();
-  ctx.setLineDash([]); ctx.lineWidth = 1;
-  // labels, all inside the box
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
-  ctx.fillText('sigma_x . sigma_p', gcx, GA.y + 18);
-  ctx.fillStyle = at ? '#9fe4ff' : '#ffe27a'; ctx.font = '15px ui-monospace, monospace';
-  ctx.fillText(prod.toFixed(3), gcx, GA.y + 38);
-  ctx.fillStyle = '#ff9a9a'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
-  ctx.fillText('hbar/2', GA.x + GA.w - 5, yFloor - 4);
-  ctx.fillStyle = 'rgba(255,120,120,0.85)'; ctx.textAlign = 'center';
-  ctx.fillText('FORBIDDEN', gcx, (yFloor + bot) / 2);
-  ctx.fillStyle = at ? '#9fe4ff' : '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(at ? 'at the bound' : 'above bound', gcx, bot + 18);
+  ctx.lineWidth = 1;
+  // title + value (top), floor label (on the line), status (bottom)
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText('uncertainty product', gcx, GA.y + 20);
+  ctx.fillStyle = barC; ctx.font = '17px ui-monospace, monospace';
+  ctx.fillText(prod.toFixed(3), gcx, GA.y + 42);
+  ctx.fillStyle = 'rgba(226,230,238,0.85)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillText('hbar/2 = 0.50  (hard limit)', gcx, yFloor - 5);
+  ctx.fillStyle = '#9aa0ad';
+  ctx.fillText('cannot go below', gcx, bot + 16);
+  ctx.fillStyle = barC; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(at ? 'minimum (Gaussian)' : 'above the limit', gcx, bot + 30);
   ctx.textAlign = 'left';
 
   rEls['shape'].textContent = st.shape;

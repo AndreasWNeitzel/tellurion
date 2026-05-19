@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified, verified 2026-05-19T08:16:41Z)
+  A quantum wavepacket shown twice at once: its shape in position and its shape in momentum. Squeeze it narrow in position and it spreads wide in momentum, and vice versa. You cannot make both narrow. That is the Heisenberg uncertainty principle, and here it is a literal seesaw you operate.
+
 - **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified, verified 2026-05-19T08:13:31Z)
   A solid body tumbles in space with nothing pushing on it. The white arrow is its instantaneous spin axis $\boldsymbol\omega$; the gold arrow is the angular momentum $\mathbf L$, which stays fixed in space because there is no torque. Watch the spin axis trace a closed curve on the body (the polhode) while the body's own axes wander around the fixed gold arrow
 
@@ -22,9 +25,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-19T07:04:31Z)
   A star is a self-regulating ball of gas where four physical demands must be satisfied simultaneously at every radius. The Eddington standard model solves all four with one elegant trick, and from a star's mass and composition alone it predicts the entire run of density, pressure, temperature, and luminosity. The playground builds that model and lets you chan
-
-- **[The Heisenberg Uncertainty Seesaw](../playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html)** &nbsp; (verified, verified 2026-05-19T06:56:48Z)
-  A quantum wavepacket shown twice at once: its shape in position and its shape in momentum. Squeeze it narrow in position and it spreads wide in momentum, and vice versa. You cannot make both narrow. That is the Heisenberg uncertainty principle, and here it is a literal seesaw you operate.
 
 - **[Dipole Radiation in 3D](../playgrounds/bsc-y2s2/FIS2006-dipole-radiation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:47:42Z)
   An oscillating charge (a dipole antenna) does not radiate equally in all directions. It throws no power straight along its axis and the most broadside, giving a doughnut-shaped radiation pattern. This is why a whip antenna is mounted vertically and why you rotate it for the best signal.
