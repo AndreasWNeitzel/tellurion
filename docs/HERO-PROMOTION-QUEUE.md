@@ -23,9 +23,9 @@ serialise the visual/GPU gate; no shared/ edits in parallel.
 
 ## Tier A: 3D / dynamical, highest visual payoff
 
-- [ ] bsc-y1s1/FIS1013-rigid-body-euler-3d (tier hero, 3D; Dzhanibekov tumble)
+- [x] bsc-y1s1/FIS1013-rigid-body-euler-3d (PROMOTED: body-fixed grid so the tumble reads, invariable-plane disk + Poinsot polhode/herpolhode, frame-filling depth-cued; physics intact E/|L| conserved, invariants 5/5, recaptured 5 distinct, 60fps)
 - [ ] bsc-y2s2/FIS2006-dipole-radiation-3d (tier hero; 3D radiation lobes)
-- [ ] msc-y1/MF-GR-gravitational-wave-detector (tier hero; interferometer + strain)
+- [x] msc-y1/MF-GR-gravitational-wave-detector (AT BAR: clean dynamic 3-panel, chirp+arms+matched-filter all live; 3D not beneficial, no gilding per simplifier ethos)
 - [ ] bsc-y3s1/FIS3003-tdse-wavepacket-sculptor (tier hero; wavepacket scattering)
 - [ ] msc-y1/MAA-SE-stellar-structure-full-model (tier hero; stellar interior)
 - [ ] bsc-y2s2/FIS2003-special-relativity-spacetime-lab (tier hero; light cones)

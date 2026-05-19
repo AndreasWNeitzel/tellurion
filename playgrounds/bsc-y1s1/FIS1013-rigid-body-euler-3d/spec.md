@@ -9,7 +9,7 @@ one_paragraph: 'A Phong-shaded inertia ellipsoid tumbles under Euler''s torque-f
 tags: [mechanics, 3d, animation, live-readout]
 difficulty: 3
 tier: hero
-hero_candidate: true
+hero_candidate: false
 renderer: webgl2
 estimated_engagement_minutes: 5
 curriculum_year: 'L:F-1Y-1S'

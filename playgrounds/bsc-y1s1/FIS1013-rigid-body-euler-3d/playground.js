@@ -64,7 +64,7 @@ bReset.addEventListener('click', () => { DEF.I = [2.0, 3.0, 4.0]; sI1.value = '2
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
 
 const gl = createGL2(canvas);
-const camera = createOrbitCamera(canvas, { target: [0, 0, 0], radius: 7.2, minRadius: 3, maxRadius: 18, azimuthDeg: 35, elevationDeg: 22, fovDeg: 45 });
+const camera = createOrbitCamera(canvas, { target: [0, 0, 0], radius: 5.8, minRadius: 3, maxRadius: 18, azimuthDeg: 38, elevationDeg: 26, fovDeg: 45 });
 window.__camera = camera;
 
 // UV sphere (unit), reused and scaled to the inertia ellipsoid.
@@ -88,16 +88,32 @@ const sphVBO = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, sphVBO); gl.buf
 const sphIBO = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphIBO); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, sph.idx, gl.STATIC_DRAW);
 
 const meshProg = compileProgram(gl, `#version 300 es
-in vec3 p; uniform mat4 uMVP, uModel; out vec3 vN; out vec3 vW;
-void main(){ vN = normalize(mat3(uModel)*normalize(p)); vec4 w=uModel*vec4(p,1.); vW=w.xyz; gl_Position=uMVP*vec4(p,1.); }`,
+in vec3 p; uniform mat4 uMVP, uModel; out vec3 vN; out vec3 vW; out vec3 vP;
+void main(){ vN = normalize(mat3(uModel)*normalize(p)); vec4 w=uModel*vec4(p,1.); vW=w.xyz; vP=normalize(p); gl_Position=uMVP*vec4(p,1.); }`,
 `#version 300 es
-precision highp float; in vec3 vN; in vec3 vW; out vec4 o; uniform vec3 uEye;
+precision highp float; in vec3 vN; in vec3 vW; in vec3 vP; out vec4 o; uniform vec3 uEye;
+const float PI=3.14159265;
 void main(){
-  vec3 N=normalize(vN); vec3 L=normalize(vec3(0.5,0.8,0.4));
-  vec3 V=normalize(uEye-vW); vec3 H=normalize(L+V);
-  float d=max(dot(N,L),0.0); float s=pow(max(dot(N,H),0.0),48.0);
-  vec3 base=vec3(0.40,0.52,0.78)*(0.55+0.45*abs(N.y));
+  vec3 N=normalize(vN); vec3 Ld=normalize(vec3(0.5,0.8,0.4));
+  vec3 V=normalize(uEye-vW); vec3 Hh=normalize(Ld+V);
+  float d=max(dot(N,Ld),0.0); float s=pow(max(dot(N,Hh),0.0),48.0);
+  float rim=pow(1.0-max(dot(N,V),0.0),3.0);
+  // Body-fixed lat/long grid so the tumble is readable on the body
+  // itself; principal axes get coloured face tints so orientation
+  // and the Dzhanibekov flip are unmistakable.
+  float lat=asin(clamp(vP.y,-1.,1.));        // -pi/2..pi/2  (axis 2)
+  float lon=atan(vP.z,vP.x);                  // -pi..pi
+  float gA=abs(fract(lat*(7.0/PI)+0.5)-0.5);
+  float gB=abs(fract(lon*(9.0/PI)+0.5)-0.5);
+  float gw=fwidth(lat)*3.5+0.012;
+  float gline=1.0-smoothstep(0.0,gw,min(gA,gB));
+  vec3 tint=vec3(0.40,0.52,0.78);
+  tint=mix(tint,vec3(0.86,0.40,0.40),smoothstep(0.55,0.95,abs(vP.x))*0.6); // axis 1 (red)
+  tint=mix(tint,vec3(0.45,0.85,0.55),smoothstep(0.80,0.99,abs(vP.y))*0.7); // axis 2 (green, spin)
+  vec3 base=tint*(0.55+0.45*abs(N.y));
   vec3 col=base*(0.22+0.85*d)+vec3(0.9,0.93,1.0)*s*0.6;
+  col+=vec3(0.30,0.45,0.70)*rim*0.5;                       // depth-cueing rim glow
+  col=mix(col,vec3(0.94,0.98,1.0),gline*0.85);             // bright grid lines
   col=col/(col+vec3(1.0)); col=pow(col,vec3(0.4545));
   o=vec4(col,1.0);
 }`);
@@ -134,6 +150,25 @@ function drawLines(mvp, verts, color, mode) {
   gl.uniformMatrix4fv(gl.getUniformLocation(lineProg, 'uMVP'), false, mvp);
   gl.uniform4fv(gl.getUniformLocation(lineProg, 'uColor'), color);
   gl.drawArrays(mode, 0, verts.length / 3);
+}
+
+function invariablePlane(Lw, R, segs) {
+  // Disk in the invariable plane (perpendicular to the conserved
+  // space-fixed L). The herpolhode rolls in exactly this plane, so
+  // drawing it makes the Poinsot construction legible.
+  const Ln = Math.hypot(...Lw) || 1;
+  const n = [Lw[0] / Ln, Lw[1] / Ln, Lw[2] / Ln];
+  const a = Math.abs(n[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+  let t = [a[1] * n[2] - a[2] * n[1], a[2] * n[0] - a[0] * n[2], a[0] * n[1] - a[1] * n[0]];
+  const tn = Math.hypot(...t) || 1; t = [t[0] / tn, t[1] / tn, t[2] / tn];
+  const b = [n[1] * t[2] - n[2] * t[1], n[2] * t[0] - n[0] * t[2], n[0] * t[1] - n[1] * t[0]];
+  const fan = [0, 0, 0], rim = [];
+  for (let i = 0; i <= segs; i += 1) {
+    const a2 = i / segs * 2 * Math.PI, c = Math.cos(a2) * R, s = Math.sin(a2) * R;
+    const x = t[0] * c + b[0] * s, y = t[1] * c + b[1] * s, z = t[2] * c + b[2] * s;
+    fan.push(x, y, z); rim.push(x, y, z);
+  }
+  return { fan, rim };
 }
 
 function render() {
@@ -179,15 +214,25 @@ function render() {
   drawLines(vp, [0, 0, 0, Lw[0] * ls, Lw[1] * ls, Lw[2] * ls], [1, 0.82, 0.3, 1], gl.LINES);
   drawLines(vp, [Lw[0] * ls, Lw[1] * ls, Lw[2] * ls], [1, 0.82, 0.3, 1], gl.POINTS);
 
-  // Glowing polhode / herpolhode: additive strip plus beaded points.
-  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  // Invariable plane, perpendicular to the conserved space-fixed L:
+  // a faint translucent disk with a bright rim. The herpolhode rolls
+  // exactly in this plane (Poinsot's construction).
+  const ip = invariablePlane(Lw, 3.4, 96);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  drawLines(vp, ip.fan, [0.34, 0.42, 0.78, 0.12], gl.TRIANGLE_FAN);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  drawLines(vp, ip.rim, [0.62, 0.72, 1.0, 0.45], gl.LINE_STRIP);
+
+  // Glowing polhode (on the body) / herpolhode (in the plane):
+  // additive strip plus beaded points.
   if (polhode.length > 6) {
-    drawLines(mvp, polhode, [0.45, 1, 0.8, 0.85], gl.LINE_STRIP);
-    drawLines(mvp, polhode, [0.6, 1, 0.9, 0.5], gl.POINTS);
+    drawLines(mvp, polhode, [0.5, 1, 0.85, 0.95], gl.LINE_STRIP);
+    drawLines(mvp, polhode, [0.7, 1, 0.95, 0.6], gl.POINTS);
   }
   if (herpolhode.length > 6) {
-    drawLines(vp, herpolhode, [1, 0.55, 0.95, 0.8], gl.LINE_STRIP);
-    drawLines(vp, herpolhode, [1, 0.7, 1, 0.45], gl.POINTS);
+    drawLines(vp, herpolhode, [1, 0.58, 0.96, 0.9], gl.LINE_STRIP);
+    drawLines(vp, herpolhode, [1, 0.74, 1, 0.55], gl.POINTS);
   }
   gl.disable(gl.BLEND);
 
@@ -206,7 +251,7 @@ function advance(dtSim) {
   for (let i = 0; i < n; i += 1) {
     step(body, PHYS_DT);
     const wn = Math.hypot(...body.w) || 1;
-    polhode.push(body.w[0] / wn * 1.0, body.w[1] / wn * 1.0, body.w[2] / wn * 1.0);
+    polhode.push(body.w[0] / wn * 1.04, body.w[1] / wn * 1.04, body.w[2] / wn * 1.04);
     const ww = bodyToWorld(body.q, body.w);
     herpolhode.push(ww[0] / wn * 3.4, ww[1] / wn * 3.4, ww[2] / wn * 3.4);
     while (polhode.length > TRAIL * 3) polhode.splice(0, 3);

@@ -27,3 +27,7 @@ flip. Readout: E_rot, |L|, omega.e2, t, state.
 ## Sweep 2026-05-18
 Rewrote placeholder hook/one_paragraph as first-exposure-undergrad prose; render-neutral.
 invariants  + visual 5/5 x3. Shipped.
+
+## Hero-promotion 2026-05-19
+Visual promotion to the playgrounds/_heroes bar (render-only; sim.js, capture branch and __physicsCheck byte-identical). Added a body-fixed lat/long grid plus principal-axis face tints in the ellipsoid fragment shader so the tumble and the Dzhanibekov intermediate-axis flip read directly on the body; added the invariable plane as a translucent rimmed disk perpendicular to the conserved space-fixed L (Poinsot construction) with the polhode pushed onto the body surface and brightened herpolhode; tightened default camera framing (radius 7.2 -> 5.8) and added a depth-cueing rim glow. Recaptured 5 distinct goldens; E(rot) and |L| conserved across frames, omega.e2 sign-flips (intermediate-axis instability), invariants 5/5, rAF ~16.7 ms (60 fps). Triage verdict: was below bar (featureless grey ellipsoid, buried polhode, dead black frame); now at bar.
+invariants Tests  5 passed + visual 5/5 x3. Shipped.

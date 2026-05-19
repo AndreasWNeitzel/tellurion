@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified, verified 2026-05-19T06:41:42Z)
+  A solid body tumbles in space with nothing pushing on it. The white arrow is its instantaneous spin axis $\boldsymbol\omega$; the gold arrow is the angular momentum $\mathbf L$, which stays fixed in space because there is no torque. Watch the spin axis trace a closed curve on the body (the polhode) while the body's own axes wander around the fixed gold arrow
+
 - **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (verified, verified 2026-05-19T04:58:30Z)
   A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
 
@@ -919,9 +922,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
   Spin a tennis racket, a phone, or a book tossed in the air about its middle axis and it does not spin cleanly: it flips over, end for end, and flips back, again and again. Spin it about its long or its short axis and it spins steadily. Cosmonaut Vladimir Dzhanibekov noticed this with a wing-nut in orbit in 1985. It is not friction or a wobble; it is exact ri
-
-- **[Torque-Free Rigid Body (Euler's Equations) 3D](../playgrounds/bsc-y1s1/FIS1013-rigid-body-euler-3d/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
-  A solid body tumbles in space with nothing pushing on it. The white arrow is its instantaneous spin axis $\boldsymbol\omega$; the gold arrow is the angular momentum $\mathbf L$, which stays fixed in space because there is no torque. Watch the spin axis trace a closed curve on the body (the polhode) while the body's own axes wander around the fixed gold arrow
 
 - **[Double Pendulum Phase Portrait and Energy Conservation](../playgrounds/bsc-y1s1/FIS1013-double-pendulum/index.html)** &nbsp; (verified, verified 2026-05-18T15:34:16Z)
   Hang a rod from a pin so it can swing. Now hang a second rod from the free end of the first. Give the pair a push. The lower rod whips around in a way that never quite repeats, and if you start it twice from almost-identical positions the two motions look completely different after only a few seconds. That sensitivity is the whole point: the double pendulum 
