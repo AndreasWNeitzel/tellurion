@@ -62,7 +62,7 @@ dramatically) but its area is conserved exactly. This is why
 phase-space density is conserved along trajectories, the basis of the
 microcanonical ensemble and of why you must integrate Hamiltonian
 systems with a symplectic (area-preserving) scheme (here
-velocity-Verlet from the shared engine) rather than a generic ODE
+velocity-Verlet, a symplectic integrator) rather than a generic ODE
 solver that would spuriously inflate or shrink the blob.
 
 ### Things to try
