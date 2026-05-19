@@ -34,35 +34,71 @@ curl-integral track each other to the digit.
 
 ### The theorem
 
-In 2D, Green's / Stokes' theorem states
+In 2D, Green's theorem (the planar case of Stokes' theorem) states
 
-$$\oint_{\partial A}\mathbf F\cdot d\boldsymbol\ell
-  = \iint_A (\nabla\times\mathbf F)_z\,dA,$$
+$$\boxed{\;\oint_{\partial A} \mathbf F \cdot d\boldsymbol\ell
+       = \iint_A (\nabla \times \mathbf F)_z\,dA,\;}$$
 
-where the left side is the circulation, the work done going once
-around the loop, and the right side sums the local rotation
-$(\nabla\times\mathbf F)_z = \partial_x F_y - \partial_y F_x$ over
-the enclosed area. The boundary "sees" only what the interior does.
+where the left side is the *circulation* (the work done going once
+around the loop $\partial A$ in the positive orientation), and the
+right side sums the local rotation density over the enclosed area
+$A$.  In coordinates,
+
+$$(\nabla \times \mathbf F)_z = \frac{\partial F_y}{\partial x}
+                              - \frac{\partial F_x}{\partial y}.$$
+
+The boundary "sees" only what the interior does; the enclosed curl
+is the only thing that matters.
+
+### Each side, written out
+
+If you parametrise the rectangle $A = [x_1, x_2] \times [y_1, y_2]$
+counterclockwise, the line integral splits into four straight legs:
+
+$$\oint_{\partial A} \mathbf F \cdot d\boldsymbol\ell
+   = \int_{x_1}^{x_2} F_x(x, y_1)\,dx + \int_{y_1}^{y_2} F_y(x_2, y)\,dy
+   - \int_{x_1}^{x_2} F_x(x, y_2)\,dx - \int_{y_1}^{y_2} F_y(x_1, y)\,dy.$$
+
+The playground evaluates this by Simpson's rule and prints both it
+and the area integral $\iint_A (\partial_x F_y - \partial_y F_x)\,dA$
+side by side; they agree to the digit.
 
 ### Reading the three fields
 
-- Unit-curl field (rigid rotation): curl is a constant, so the
-  circulation grows exactly proportional to the rectangle's area,
-  the cleanest illustration of the theorem.
-- Shear field: nonzero constant curl as well; circulation still
-  equals curl times area regardless of where you place the loop.
-- Conservative field (a gradient): curl is zero everywhere, so every
+- *Unit-curl field* (rigid rotation): $\mathbf F = \tfrac{1}{2}(-y, x)$
+  gives $(\nabla \times \mathbf F)_z = 1$ everywhere, so the
+  circulation equals exactly the enclosed area $|A|$.
+- *Shear field*: $\mathbf F = (-y, 0)$ has constant curl
+  $(\nabla \times \mathbf F)_z = 1$ as well; circulation still
+  equals $|A|$, regardless of placement, illustrating that the curl
+  is a LOCAL property and the result depends only on its integral.
+- *Conservative field* (a gradient): $\mathbf F = \nabla\phi$ with
+  $\phi = \tfrac{1}{2}(x^2 + y^2)$ gives
+  $\nabla \times \mathbf F = \mathbf 0$ everywhere, so every
   closed-loop circulation is exactly zero, the field is
-  path-independent and has a potential. This is the 2D special case
-  that underlies "conservative force does no net work around a loop"
-  and is the test for whether a field is a gradient.
+  path-independent, and has a potential $\phi$.
 
-The deep point is that local rotation and global circulation are the
-same information, which is why Maxwell's equations and fluid vorticity
-are written with curl, and why a vanishing curl certifies a potential
-exists. The playground shows the drag-rectangle's measured loop
-integral equalling the enclosed curl-area to numerical precision for
-all three fields.
+### Why this matters
+
+The "local rotation = global circulation" identity is what makes
+Maxwell's equations expressible in differential form (Ampere's law
+$\oint \mathbf B \cdot d\boldsymbol\ell = \mu_0 I$ becomes
+$\nabla \times \mathbf B = \mu_0 \mathbf J$). In fluid dynamics it
+is the bridge between Kelvin's circulation theorem and vorticity
+dynamics. In topology it is the seed of de Rham cohomology: a curl-
+free field on a simply connected domain admits a global potential;
+on a multiply connected one it might not, and the obstruction is
+exactly the closed-loop circulations around holes.
+
+### Symbols, at a glance
+
+- $\mathbf F = (F_x, F_y)$, a 2D vector field.
+- $A$, a planar region with boundary $\partial A$ traversed
+  counterclockwise.
+- $d\boldsymbol\ell$, the line element of $\partial A$.
+- $(\nabla \times \mathbf F)_z = \partial_x F_y - \partial_y F_x$,
+  the scalar (out-of-plane) curl.
+- $\phi$, a scalar potential if it exists; $\mathbf F = \nabla\phi$.
 
 ### Things to try
 
@@ -73,9 +109,17 @@ all three fields.
 - Compare: same area, different placement gives the same circulation
   for uniform-curl fields (it depends only on enclosed curl).
 
-### Where this comes from
+### Bibliographic origin
 
-Green's and Stokes' theorems and the circulation/curl equivalence
-follow Riley, Hobson and Bence, *Mathematical Methods for Physics and
-Engineering*, Chapter 10, and Griffiths, *Introduction to
-Electrodynamics*, Chapter 1.
+Green's theorem was stated in Green, *An Essay on the Application of
+Mathematical Analysis to the Theories of Electricity and Magnetism*
+(privately printed, Nottingham 1828). The 3D generalisation that
+became Stokes' theorem appeared in a postscript to Lord Kelvin's
+letter to George Gabriel Stokes (2 July 1850); Stokes promptly set
+it as Problem 8 of the Smith's Prize examination at Cambridge in
+1854 (it later acquired his name). Modern textbook treatments are
+Riley, Hobson and Bence, *Mathematical Methods for Physics and
+Engineering* (3rd ed., Cambridge 2006), Ch. 10; Griffiths,
+*Introduction to Electrodynamics* (5th ed., Cambridge 2024), Ch. 1;
+Spivak, *Calculus on Manifolds* (Westview 1971), Ch. 4 for the
+exterior-calculus generalisation.
