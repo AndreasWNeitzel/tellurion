@@ -56,16 +56,99 @@ only the well-aligned systems.
   this is the regime Kepler needed years of staring at one field to
   detect.
 
-### The light curve (collapsible)
+### The transit geometry and the four observables
 
-Limb darkening (quadratic):
-$I(\mu)/I(1) = 1 - u_1(1-\mu) - u_2(1-\mu)^2$, $\mu=\cos\theta$.
+A planet of radius $R_p$ orbits a star of radius $R_s$ at semi-major
+axis $a$ with period $T$ and inclination $i$. The light curve has
+four properties, each tied to one physical number:
 
-Central transit depth (uniform disc):
-$\delta = (R_p/R_s)^2$.
+- *Depth*: in the simplest case (no limb darkening, planet much
+  smaller than the star) the dip is
 
-Kepler's third law:
-$T^2 = (4\pi^2/GM_\star)\,a^3$.
+$$\delta = (R_p / R_s)^2.$$
+
+  A Jupiter on the Sun ($R_p/R_s \approx 0.1$) gives 1 %; an Earth
+  on the Sun gives 84 ppm.
+- *Period*: the spacing between dips is exactly the orbital period
+  $T$, set by Kepler's third law
+
+$$T^2 = \frac{4\pi^2}{G M_\star}\,a^3.$$
+
+- *Duration*: time between first and last contact is
+
+$$T_{\rm dur} \approx \frac{T}{\pi}\,\arcsin\!\left(\frac{R_s}{a}\,\sqrt{1 - b^2}\right),$$
+
+  where $b = (a / R_s)\,\cos i$ is the impact parameter. Long
+  duration $\Rightarrow$ small $a / R_s$ (close-in planet) or near
+  central transit.
+- *Shape*: the dip is not square. Stellar surface brightness falls
+  toward the limb; the planet blocks more light at the centre than
+  at the edge.
+
+### Limb darkening: why the dip is U-shaped
+
+Across the stellar disc the specific intensity falls toward the
+limb. The standard quadratic-darkening law (Kopal 1950) is
+
+$$I(\mu) / I(1) = 1 - u_1\,(1 - \mu) - u_2\,(1 - \mu)^2,
+  \quad \mu = \cos\theta,$$
+
+where $\theta$ is the angle between the line of sight and the
+normal to the stellar surface at the point being viewed, so
+$\mu = 1$ at the centre of the disc and $\mu = 0$ at the limb.
+Typical solar-type stars have $u_1 \approx 0.4$, $u_2 \approx 0.2$
+in the optical. When the planet crosses the limb the flux it
+blocks is small (the limb is dim); as it crosses the centre it
+blocks more (the centre is bright). That is the round-bottomed U
+the playground shows.
+
+### The exact flux integral
+
+The flux you see is the integral of intensity over the unblocked
+stellar disc:
+
+$$\frac{F(t)}{F_0} = \frac{\iint_{\rm star \setminus planet} I(\mu)\,dA}
+                          {\iint_{\rm star} I(\mu)\,dA}.$$
+
+For a uniform disc this collapses to $1 - (R_p / R_s)^2$ at central
+transit; with limb darkening you need the (Mandel and Agol 2002)
+analytic forms. The playground evaluates the integral numerically
+on a 160-by-220 polar grid every frame.
+
+### Symbols, at a glance
+
+- $R_p$, $R_s$, planet and stellar radius; $\delta = (R_p / R_s)^2$
+  is the transit depth.
+- $a$, orbital semi-major axis; $T$ the period.
+- $i$, orbital inclination ($i = \pi/2$ is edge-on, hence the
+  transit).
+- $b = (a / R_s)\,\cos i$, impact parameter (in stellar radii); a
+  transit happens when $b < 1 + R_p / R_s$.
+- $u_1$, $u_2$, the linear and quadratic limb-darkening coefficients.
+- $\mu = \cos\theta$, the cosine of the emission angle.
+- $G$ Newton's constant, $M_\star$ the stellar mass.
+
+### Why this matters: thousands of planets
+
+The transit signal is geometric, so it depends only on $R_p / R_s$,
+not on the system's distance. A 1 % dip from a Jupiter is identical
+whether the star is at 10 pc or 1 kpc. NASA's *Kepler* mission used
+this to discover over 2 600 confirmed planets by staring at one
+field for four years and time-resolving these dips; TESS extends
+this all-sky. The "Earth analogue" preset is the regime where the
+depth is 84 ppm and the duration is 13 hours once per year, which
+is what makes Earth-sized habitable-zone discoveries so hard.
+
+### Bibliographic origin
+
+The analytic limb-darkened transit light curve: Mandel and Agol,
+*Astrophys. J.* **580** (2002) L171. Period-from-spacing and the
+duration formula: Seager and Mallen-Ornelas, *Astrophys. J.* **585**
+(2003) 1038. Limb darkening: Kopal, *Harvard Coll. Obs. Circular*
+**454** (1950); modern coefficients from Claret and Bloemen, *A&A*
+**529** (2011) A75. Kepler's third law in this context: any
+mechanics textbook, e.g. Goldstein, *Classical Mechanics* (3rd ed.,
+Addison-Wesley 2002), Ch. 3.
 
 ## Physical setup
 
