@@ -234,8 +234,120 @@ async function build() {
   document.body.appendChild(dlg);
 }
 
+// Capture-aware space-theme chrome (ambient parallax background behind
+// the playground, a frosted "go back" control, smooth page fade). The
+// per-playground visual gate loads ?deterministic=1&capture=..., and
+// for those loads this returns immediately so the page is byte-
+// identical to the committed goldens (the 310 deterministic gates stay
+// valid). Real visitors, with no such query, get the full aesthetic.
+const _qp = new URLSearchParams(location.search);
+const _CAPTURE = _qp.get('deterministic') === '1' || _qp.has('capture');
+
+function mountChrome() {
+  if (_CAPTURE) return;
+  if (document.getElementById('ambient')) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!document.querySelector('link[data-chrome-font]')) {
+    const lf = document.createElement('link');
+    lf.rel = 'stylesheet'; lf.dataset.chromeFont = '1';
+    lf.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
+    document.head.appendChild(lf);
+  }
+  const css = document.createElement('style');
+  css.textContent = [
+    ':root{--bg-primary:#080b14;--border-subtle:#1e2a3a;--border-active:#2d4263;',
+    '--text-primary:#e2e8f0;--text-secondary:#64748b;--accent-blue:#3b82f6}',
+    'html{background:var(--bg-primary)}',
+    'body{position:relative;z-index:0}',
+    '#ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-2;pointer-events:none;display:block}',
+    'body{opacity:1;transition:opacity .3s ease}body.pg-leaving{opacity:0}',
+    '.pg-back{position:fixed;top:14px;left:14px;z-index:50;display:flex;align-items:center;gap:8px;',
+    'padding:8px 14px 8px 11px;background:rgba(13,17,23,0.72);backdrop-filter:blur(8px);',
+    '-webkit-backdrop-filter:blur(8px);border:1px solid var(--border-subtle);border-radius:7px;',
+    "color:var(--text-primary);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-weight:500;",
+    'font-size:12px;letter-spacing:-0.01em;text-decoration:none;cursor:pointer;transition:border-color .15s ease,background .15s ease}',
+    '.pg-back:hover{border-color:var(--border-active);background:rgba(17,24,39,0.85)}',
+    '.pg-back .cv{color:var(--accent-blue);font-size:14px;line-height:1}',
+    '.pg-back .bk{color:var(--text-primary);font-weight:600}',
+    '.pg-back .bt{color:var(--text-secondary);font-weight:400;border-left:1px solid var(--border-subtle);padding-left:8px;margin-left:1px}',
+    reduce ? 'body{transition:none}' : '',
+  ].join('');
+  document.head.appendChild(css);
+
+  const cv = document.createElement('canvas');
+  cv.id = 'ambient'; cv.setAttribute('aria-hidden', 'true');
+  document.body.insertBefore(cv, document.body.firstChild);
+  (function () {
+    const x = cv.getContext('2d'); if (!x) return;
+    let W = 0, H = 0, DPR = 1, layers = [], neb = [], last = 0, mxv = 0, tmx = 0;
+    const rng = (s) => () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+    function rebuild() {
+      const r = rng(0xACE1);
+      W = window.innerWidth; H = window.innerHeight; DPR = Math.min(2, window.devicePixelRatio || 1);
+      cv.width = W * DPR; cv.height = H * DPR; x.setTransform(DPR, 0, 0, DPR, 0, 0);
+      layers = [[0.10, 1.4, 0.85], [0.05, 1.0, 0.55], [0.02, 0.7, 0.35]].map((d) => {
+        const n = Math.max(24, Math.round(W * H / 18000 * d[2] / 0.4)), a = [];
+        for (let i = 0; i < n; i += 1) a.push({ x: r() * W, y: r() * (H + 600), rr: d[1] * (0.5 + r()), ph: r() * 6.2832 });
+        return { par: d[0], br: d[2], s: a };
+      });
+      const cols = [[40, 55, 110], [70, 45, 100], [28, 75, 95], [90, 60, 90]];
+      neb = []; for (let k = 0; k < 4; k += 1) neb.push({ x: r() * W, y: r() * H, R: 300 + r() * 360, c: cols[k], vx: (r() - 0.5) * 0.04, vy: (r() - 0.5) * 0.04, ph: r() * 6.2832 });
+    }
+    function draw(t) {
+      x.fillStyle = '#080b14'; x.fillRect(0, 0, W, H);
+      for (const b of neb) {
+        const nx = b.x + (reduce ? 0 : Math.sin(t * 0.00004 + b.ph) * 36);
+        const ny = b.y + (reduce ? 0 : Math.cos(t * 0.00003 + b.ph) * 26);
+        const a = 0.05 + (reduce ? 0 : 0.018 * Math.sin(t * 0.0002 + b.ph));
+        const g = x.createRadialGradient(nx, ny, 0, nx, ny, b.R);
+        g.addColorStop(0, 'rgba(' + b.c[0] + ',' + b.c[1] + ',' + b.c[2] + ',' + Math.max(0, a).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + b.c[0] + ',' + b.c[1] + ',' + b.c[2] + ',0)');
+        x.fillStyle = g; x.fillRect(0, 0, W, H);
+        if (!reduce) { b.x += b.vx; b.y += b.vy; if (b.x < -b.R) b.x = W + b.R; if (b.x > W + b.R) b.x = -b.R; if (b.y < -b.R) b.y = H + b.R; if (b.y > H + b.R) b.y = -b.R; }
+      }
+      mxv += (tmx - mxv) * 0.05;
+      const sc = window.scrollY || window.pageYOffset || 0;
+      for (const L of layers) {
+        const oy = -sc * L.par, om = Math.max(-8, Math.min(8, mxv * L.par));
+        for (const stp of L.s) {
+          const px = stp.x + om, py = ((stp.y + oy) % (H + 600) + (H + 600)) % (H + 600) - 300;
+          if (py < -4 || py > H + 4) continue;
+          const tw = reduce ? 0.42 : 0.30 + 0.30 * Math.sin(t * 0.0016 * L.br + stp.ph);
+          x.globalAlpha = Math.max(0, Math.min(1, tw)) * L.br * 0.6;
+          x.fillStyle = '#aab4cc'; x.beginPath(); x.arc(px, py, stp.rr, 0, 6.2832); x.fill();
+        }
+      }
+      x.globalAlpha = 1;
+    }
+    function frame(t) { if (t - last > 33) { last = t; draw(t); } if (!reduce) requestAnimationFrame(frame); }
+    rebuild(); draw(0); if (!reduce) requestAnimationFrame(frame);
+    window.addEventListener('mousemove', (e) => { tmx = e.clientX - window.innerWidth / 2; });
+    let to; window.addEventListener('resize', () => { clearTimeout(to); to = setTimeout(() => { rebuild(); draw(performance.now()); }, 200); });
+  }());
+
+  const back = document.createElement('a');
+  back.className = 'pg-back';
+  back.href = '../../../index.html';
+  const ttl = (document.querySelector('h1') ? document.querySelector('h1').textContent : (document.title || 'Back')).trim();
+  back.innerHTML = '<span class="cv">&#8249;</span><span class="bk">Back</span><span class="bt">' + esc(ttl.length > 22 ? ttl.slice(0, 22).trim() + '…' : ttl) + '</span>';
+  back.addEventListener('click', (e) => {
+    if (reduce) return;
+    e.preventDefault();
+    document.body.classList.add('pg-leaving');
+    setTimeout(() => { location.href = back.getAttribute('href'); }, 340);
+  });
+  document.body.appendChild(back);
+
+  if (!reduce) {
+    document.body.classList.add('pg-leaving');
+    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('pg-leaving')));
+  }
+}
+
+function boot() { build(); mountChrome(); }
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', build, { once: true });
+  document.addEventListener('DOMContentLoaded', boot, { once: true });
 } else {
-  build();
+  boot();
 }
