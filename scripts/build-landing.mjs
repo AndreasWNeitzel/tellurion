@@ -43,6 +43,21 @@ function curOf(cy) {
   return { level: 'ADV', badge: 'Advanced', order: 900, group: 'Advanced / Cross-curricular' };
 }
 
+// Outward links. Per the standing directive this site ships zero
+// github references (the code is private, destined for a paid
+// domain), so these are neutral placeholders to be pointed at the
+// real domain later. No github.com / github.io strings anywhere.
+const RESEARCH_URL = '#';
+const LINKEDIN_URL = '#';
+const CONTACT_EMAIL = 'andreaswneitzel@astro.up.pt';
+const BETA_TESTERS = [
+  // { name: "...", institution: "..." }
+];
+let PKG_VERSION = '0.1.0';
+try { PKG_VERSION = JSON.parse(readFileSync('package.json', 'utf8')).version || PKG_VERSION; } catch { /* keep default */ }
+const BUILD_DATE = new Date().toISOString().slice(0, 10);
+const BUILD_YEAR = new Date().getFullYear();
+
 const cards = [];
 for (const path of walk('playgrounds')) {
   const text = readFileSync(path, 'utf8');
@@ -168,9 +183,35 @@ html{background:var(--bg-void);scrollbar-width:thin;scrollbar-color:var(--border
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--border-active)}
-body{max-width:1280px;margin:0 auto;padding:0 24px 64px;background:transparent;color:var(--text-primary);
+body{max-width:1280px;margin:0 auto;padding:0 24px 0;background:transparent;color:var(--text-primary);
   font-family:var(--f-ui);font-size:15px;font-weight:400;position:relative;z-index:0;line-height:1.6}
-.header{padding-top:80px}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+.header{padding-top:118px}
+/* Navigation bar (site-structure spec). Fixed, frosted, persistent. */
+.nav{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;background:var(--bg-frosted);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
+  border-bottom:1px solid var(--border-dim);transition:border-color 300ms ease}
+.nav.depth{border-bottom-color:var(--border-subtle)}
+.nav-in{max-width:1280px;height:56px;margin:0 auto;padding:0 24px;display:flex;align-items:center;
+  justify-content:space-between;gap:24px}
+.nav-mono{font-family:var(--f-mono);font-weight:500;font-size:14px;letter-spacing:0.08em;
+  color:var(--text-primary);padding:6px 10px;border:1px solid var(--border-subtle);border-radius:4px;
+  text-decoration:none;transition:border-color var(--t-fast)}
+.nav-mono:hover{border-color:var(--border-active)}
+.nav-links{display:flex;gap:32px}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.01em;color:var(--text-secondary);
+  text-decoration:none;transition:color var(--t-fast)}
+.nav-links a:hover,.nav-links a.active{color:var(--text-primary)}
+.nav-icons{display:flex;gap:20px;align-items:center}
+.nav-icons a{color:var(--text-dimmed);display:flex;transition:color var(--t-fast)}
+.nav-icons a:hover{color:var(--text-secondary)}
+.nav-icons svg{width:18px;height:18px}
+.nav-burger{display:none;background:none;border:none;color:var(--text-secondary);font-size:20px;cursor:pointer;padding:4px 8px}
+.nav-mobile{display:none;position:fixed;top:56px;left:0;right:0;z-index:199;background:var(--bg-surface);
+  border-bottom:1px solid var(--border-dim);padding:20px 24px;flex-direction:column;gap:20px}
+.nav-mobile.open{display:flex}
+.nav-mobile a{color:var(--text-secondary);text-decoration:none;font-size:15px;font-weight:500}
+@media(max-width:768px){.nav-links{display:none}.nav-burger{display:block}}
 /* Type scale (spec Section 2, do not deviate) */
 .t-display{font-size:clamp(2rem,5vw,3.2rem);font-weight:700;letter-spacing:-0.03em;line-height:1.1}
 .t-title{font-size:1.5rem;font-weight:600;letter-spacing:-0.02em}
@@ -277,6 +318,27 @@ footer a{color:var(--text-secondary);text-decoration:none}
 </style>
 </head>
 <body>
+<nav class="nav" id="nav">
+  <div class="nav-in">
+    <a class="nav-mono" href="index.html" aria-label="Home">AN</a>
+    <div class="nav-links">
+      <a href="#browse">Simulations</a>
+      <a href="#about">About</a>
+      <a href="#credits">Credits</a>
+      <a href="${RESEARCH_URL}"${RESEARCH_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>Research</a>
+    </div>
+    <div class="nav-icons">
+      <a href="${LINKEDIN_URL}"${LINKEDIN_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''} aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0H12v2.2h.07c.63-1.2 2.17-2.47 4.46-2.47C21.4 7.73 24 10.1 24 14.8V24h-5v-8.2c0-1.96-.04-4.48-2.73-4.48-2.73 0-3.15 2.13-3.15 4.33V24h-5V8z"/></svg></a>
+    </div>
+    <button class="nav-burger" id="nav-burger" type="button" aria-label="Menu" aria-expanded="false">&#9776;</button>
+  </div>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="#browse">Simulations</a>
+  <a href="#about">About</a>
+  <a href="#credits">Credits</a>
+  <a href="${RESEARCH_URL}"${RESEARCH_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>Research</a>
+</div>
 <div class="page-transition show" id="ptrans" aria-hidden="true"></div>
 <div class="pgprog" id="pgprog" aria-hidden="true"></div>
 <div class="scrollprog" id="scrollprog" aria-hidden="true"><div class="sp-fill" id="sp-fill"></div></div>
@@ -299,7 +361,7 @@ footer a{color:var(--text-secondary);text-decoration:none}
   <div class="heroes">${heroHTML}</div>
 </section>
 
-<section>
+<section id="browse">
   <h2 class="sec">Browse</h2>
   <div class="controls">
     <div class="search">
@@ -493,6 +555,23 @@ footer a{color:var(--text-secondary);text-decoration:none}
     };
     window.addEventListener('scroll',onScroll,{passive:true});
     window.addEventListener('resize',onScroll); onScroll();
+  }
+
+  // Nav: brighten the border past 80px; mobile burger dropdown.
+  var navEl=document.getElementById('nav');
+  if(navEl){
+    var navScroll=function(){ navEl.classList.toggle('depth',(window.scrollY||0)>80); };
+    window.addEventListener('scroll',navScroll,{passive:true}); navScroll();
+  }
+  var burger=document.getElementById('nav-burger'), navMob=document.getElementById('nav-mobile');
+  if(burger&&navMob){
+    burger.addEventListener('click',function(){
+      var open=navMob.classList.toggle('open');
+      burger.setAttribute('aria-expanded',String(open));
+    });
+    [].slice.call(navMob.querySelectorAll('a')).forEach(function(a){
+      a.addEventListener('click',function(){ navMob.classList.remove('open'); burger.setAttribute('aria-expanded','false'); });
+    });
   }
 
   // G: ambient-sound toggle, off by default, state in sessionStorage.
