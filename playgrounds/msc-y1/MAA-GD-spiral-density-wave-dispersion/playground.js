@@ -1,46 +1,132 @@
+// Lin-Shu density waves and the Toomre criterion, shown as the disk
+// itself. A differentially-rotating face-on disk of stars carries a
+// two-armed density wave. Where the dispersion relation
+// (omega - m Omega)^2 = kappa^2 - 2 pi G Sigma |k| + k^2 sigma^2 has a
+// negative minimum (Q = sigma kappa / (pi G Sigma) < 1) the wave grows
+// at rate sqrt(-nu^2_min) and the disk fragments into spiral clumps;
+// for Q > 1 it shears away and the disk stays smooth. The nu^2(k)
+// curve is the demoted diagnostic. sim.js is unchanged. Reference:
+// Binney and Tremaine, Galactic Dynamics (2nd ed.), Ch. 6.
 import { nuSquared, ToomreQ, kCrit } from './sim.js';
+
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
-const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 const rQ = document.getElementById('readout-q');
 const sS = document.getElementById('slider-s'), vS = document.getElementById('value-s');
 const sK = document.getElementById('slider-k'), vK = document.getElementById('value-k');
 const sG = document.getElementById('slider-G'), vG = document.getElementById('value-G');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { sigma: 1.5, kappa: 1.5, GSig: 3 }; let running = true;
+
+const st = { sigma: 1.5, kappa: 1.5, GSig: 3, t: 0 };
+let running = true;
+const CX = 250, CY = 250, RIN = 36, ROUT = 196;
+const N = 2200;
+
+// seeded disk: particle base radius + angle, fixed
+let _s = 0x1234;
+function rnd() { _s = (Math.imul(_s, 1664525) + 1013904223) >>> 0; return _s / 4294967296; }
+const part = [];
+function seedDisk() { _s = 0x1234; part.length = 0; for (let i = 0; i < N; i += 1) { const u = rnd(); const r = RIN + (ROUT - RIN) * Math.sqrt(u); part.push({ r, th: rnd() * 6.2832 }); } }
+seedDisk();
+
 sS.addEventListener('input', () => { st.sigma = parseFloat(sS.value); vS.textContent = st.sigma.toFixed(2); });
 sK.addEventListener('input', () => { st.kappa = parseFloat(sK.value); vK.textContent = st.kappa.toFixed(2); });
 sG.addEventListener('input', () => { st.GSig = parseFloat(sG.value); vG.textContent = st.GSig.toFixed(2); });
-btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+btnR.addEventListener('click', () => { st.sigma = 1.5; st.kappa = 1.5; st.GSig = 3; st.t = 0; sS.value = '1.5'; vS.textContent = '1.50'; sK.value = '1.5'; vK.textContent = '1.50'; sG.value = '3'; vG.textContent = '3.00'; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+
 function render() {
-  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: 50 };
-  const cy = H / 2;
-  ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.moveTo(pad.l, cy); ctx.lineTo(W - pad.r, cy); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('ν²', 12, pad.t + 10); ctx.fillText('k', W - 20, H - pad.b + 14);
-  const kMax = 6;
-  const xToPx = (k) => pad.l + k / kMax * (W - pad.l - pad.r);
-  const yMin = -4, yMax = 10;
-  const yToPx = (y) => H - pad.b - (y - yMin) / (yMax - yMin) * (H - pad.t - pad.b);
+  if (!CAPTURE_NAME && running) st.t += 0.02;
+  ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillText('Toomre Q decides it: below 1 the disk fragments into spiral arms', 18, 26);
+
+  const GS = st.GSig / (2 * Math.PI);
+  const Q = ToomreQ(st.sigma, st.kappa, GS);
+  // minimum of nu^2 over k -> growth rate sqrt(-nu2min); argmin -> k*
+  let nu2min = Infinity, kStar = 0.5;
+  for (let kk = 0.05; kk <= 6; kk += 0.02) { const v = nuSquared(kk, st.kappa, st.sigma, GS); if (v < nu2min) { nu2min = v; kStar = kk; } }
+  const gamma = Math.sqrt(Math.max(0, -nu2min));
+  // wave amplitude: grows when unstable (saturating), stays small &
+  // winds up (phase-mixes) when stable
+  const tt = st.t;
+  const ampU = 0.95 * (1 - Math.exp(-gamma * tt * 1.1));  // strong arms when unstable
+  const amp = Q < 1 ? Math.min(1.05, ampU) : 0.06;
+  const mArms = 2;
+  // a loosely-wound grand-design spiral (real pitch angles are ~15
+  // deg); kStar drives only the diagnostic marker, not this winding,
+  // since the toy nu^2 minimum can sit past the plotted k range.
+  const pitch = 1.7;
+
+  // The density wave: stars crowd azimuthally toward the spiral
+  // potential minima (theta -> theta + amp sin(phase)/m), which makes
+  // genuine bright arms; a small radial breathing adds richness.
+  for (let i = 0; i < N; i += 1) {
+    const p = part[i];
+    const Om = 0.9 / p.r * 90;                            // flat-Vc => Omega ~ 1/r
+    const th0 = p.th + Om * tt * 0.6;
+    const phase = mArms * th0 - pitch * Math.log(p.r / RIN) - st.kappa * tt * 0.2;
+    const th = th0 + (amp / mArms) * Math.sin(phase);     // azimuthal bunching
+    const rr = p.r * (1 + 0.05 * amp * Math.cos(phase));
+    const x = CX + rr * Math.cos(th), y = CY + rr * Math.sin(th);
+    if (x < 24 || x > 476 || y < 40 || y > 470) continue;
+    const comp = 0.5 + 0.5 * Math.cos(phase);             // bright on the crest
+    const a = 0.22 + 0.7 * (Q < 1 ? comp : 0.4);
+    ctx.fillStyle = `rgba(${(160 + 80 * comp) | 0},${(190 + 45 * comp) | 0},255,${a.toFixed(3)})`;
+    ctx.fillRect(x, y, 2.0, 2.0);
+  }
+  // galactic centre
+  ctx.fillStyle = 'rgba(255,220,150,0.9)'; ctx.beginPath(); ctx.arc(CX, CY, 5, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = Q < 1 ? '#ef476f' : '#06d6a0'; ctx.font = '13px ui-monospace, monospace';
+  ctx.fillText(Q < 1 ? `UNSTABLE  Q = ${Q.toFixed(2)} < 1  (growing spiral, rate ${gamma.toFixed(2)})`
+    : `STABLE  Q = ${Q.toFixed(2)} > 1  (perturbation shears away)`, 26, 470);
+
+  // diagnostic: nu^2(k) dispersion curve with the unstable band
+  const dx = 500, dy = 70, dw = canvas.width - dx - 24, dh = 360;
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(dx, dy, dw, dh);
+  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx + 0.5, dy + 0.5, dw - 1, dh - 1);
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('dispersion nu^2(k)  (diagnostic)', dx + 8, dy + 16);
+  const kMax = 6, y0 = -6, y1 = 12;
+  const xPk = (k) => dx + 10 + k / kMax * (dw - 20);
+  const yPk = (v) => dy + dh - 14 - (v - y0) / (y1 - y0) * (dh - 36);
+  ctx.strokeStyle = 'rgba(120,130,150,0.4)'; ctx.beginPath(); ctx.moveTo(dx + 10, yPk(0)); ctx.lineTo(dx + dw - 10, yPk(0)); ctx.stroke();
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
-  for (let i = 0; i <= 200; i += 1) {
-    const k = i / 200 * kMax;
-    const v = nuSquared(k, st.kappa, st.sigma, st.GSig / (2 * Math.PI));
-    if (i === 0) ctx.moveTo(xToPx(k), yToPx(v)); else ctx.lineTo(xToPx(k), yToPx(v));
+  for (let i = 0; i <= 160; i += 1) {
+    const k = i / 160 * kMax, v = Math.max(y0, Math.min(y1, nuSquared(k, st.kappa, st.sigma, GS)));
+    if (i === 0) ctx.moveTo(xPk(k), yPk(v)); else ctx.lineTo(xPk(k), yPk(v));
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(239,71,111,0.15)';
-  ctx.fillRect(pad.l, yToPx(0), W - pad.l - pad.r, H - pad.b - yToPx(0));
-  const Q = ToomreQ(st.sigma, st.kappa, st.GSig / (2 * Math.PI));
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`Q = σ κ / (π G Σ) = ${Q.toFixed(2)}`, 12, H - 14);
-  ctx.fillStyle = Q < 1 ? '#ef476f' : '#06d6a0';
-  ctx.fillText(Q < 1 ? 'UNSTABLE (ν² < 0 region)' : 'Stable to axisymmetric perturbations', 12, H - 30);
+  if (nu2min < 0) {
+    ctx.fillStyle = 'rgba(239,71,111,0.16)';
+    ctx.fillRect(dx + 10, yPk(0), dw - 20, dy + dh - 14 - yPk(0));
+    ctx.strokeStyle = 'rgba(239,71,111,0.7)'; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xPk(kStar), dy + 18); ctx.lineTo(xPk(kStar), dy + dh - 14); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#ef476f'; ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText(`k* = ${kStar.toFixed(2)}`, xPk(kStar) + 4, dy + 30);
+  }
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillText('k', dx + dw - 16, dy + dh - 2); ctx.fillText('nu^2', dx + 6, dy + 28);
+  ctx.fillText(`k_crit(cs=0) = ${kCrit(st.kappa, GS).toFixed(2)}`, dx + 8, dy + dh - 4);
+
   rQ.textContent = Q.toFixed(2);
 }
-function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+
+function tick() { render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+function bootSync() {
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    // sweep sigma so Q crosses 1 (unstable clumpy -> stable smooth)
+    const sig = [0.4, 0.8, 1.2, 2.0, 3.2];
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st.sigma = sig[Math.min(sig.length - 1, Math.round(frac * (sig.length - 1)))];
+    st.t = 9.0;                                         // evolved state
+    sS.value = String(st.sigma); vS.textContent = st.sigma.toFixed(2);
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
