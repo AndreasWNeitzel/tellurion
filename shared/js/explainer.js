@@ -206,7 +206,7 @@ async function build() {
   ].join('');
   const main = explainer
     ? `<section class="explainer-main">${mdToHtml(explainer)}</section>
-       ${refDetail ? `<details class="explainer-more"><summary>Reference detail (setup, equations, numerics)</summary>${refDetail}</details>` : ''}`
+       ${refDetail ? `<details class="explainer-more"><summary>Reference detail (setup, equations, numerics)</summary><div class="explainer-more-body">${refDetail}</div></details>` : ''}`
     : `${plain ? `<section><h3>The idea, in plain language</h3>${mdToHtml(plain)}</section>` : ''}
        ${setup ? `<section><h3>Physical setup</h3>${mdToHtml(setup)}</section>` : ''}
        ${eqs ? `<section><h3>The equations</h3>${mdToHtml(eqs)}</section>` : ''}
@@ -261,10 +261,14 @@ function mountChrome() {
     ':root{--bg-void:#07090f;--bg-card:#0f1220;--bg-frosted:rgba(12,15,26,0.85);',
     '--border-subtle:rgba(255,255,255,0.10);--border-active:rgba(255,255,255,0.18);',
     '--text-primary:#e8eaf0;--text-secondary:#8892a4;--text-dimmed:#3d4758;--accent:#4f7ef7}',
-    'html{background:var(--bg-void)}',
+    'html{background:var(--bg-void);scrollbar-width:thin;scrollbar-color:var(--border-subtle) transparent}',
+    '::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}',
+    '::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:3px}',
+    '::-webkit-scrollbar-thumb:hover{background:var(--border-active)}',
     'body{position:relative;z-index:0}',
     '#ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}',
     'body{opacity:1;transition:opacity .3s ease}body.pg-leaving{opacity:0}',
+    '@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}',
     '.pg-back{position:fixed;top:20px;left:20px;z-index:100;display:flex;align-items:center;gap:8px;',
     'padding:8px 14px 8px 10px;background:var(--bg-frosted);backdrop-filter:blur(12px);',
     '-webkit-backdrop-filter:blur(12px);border:1px solid var(--border-subtle);border-radius:6px;',
@@ -276,6 +280,21 @@ function mountChrome() {
     '.pg-back:hover .bt{color:var(--text-primary)}',
     '.pg-back svg{width:14px;height:14px;color:var(--accent);flex:none;display:block}',
     '.pg-back .bt{color:var(--text-secondary)}',
+    // Related strip (Section 14)
+    ".pg-related{max-width:1100px;margin:36px auto 48px;padding:0 24px;font-family:'Plus Jakarta Sans',system-ui,sans-serif}",
+    '.pg-related h2{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dimmed);margin:0 0 16px}',
+    '.pg-related .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}',
+    '@media(max-width:760px){.pg-related .rgrid{grid-template-columns:1fr}}',
+    '.rcard{position:relative;display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border-subtle);',
+    'border-radius:8px;overflow:hidden;text-decoration:none;transition:border-color var(--t-fast),transform var(--t-fast)}',
+    '.rcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rtagc,#94a3b8);border-radius:3px 0 0 3px}',
+    '.rcard:hover{border-color:var(--border-active);transform:translateY(-2px)}',
+    '.rcard .rimg{position:relative;height:80px;background:var(--bg-card)}',
+    '.rcard .rimg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,9,15,0.2),rgba(7,9,15,0.95))}',
+    '.rcard .rph{position:absolute;left:30%;top:34%;width:40%;height:28%;background:#fff;opacity:0.07}',
+    '.rcard .rbody{padding:12px 14px}',
+    '.rcard .rt{font-size:1.0rem;font-weight:600;letter-spacing:-0.01em;color:var(--text-primary);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
+    '.rcard .ru{margin-top:4px;font-family:var(--f-mono,monospace);font-size:0.75rem;color:var(--text-dimmed)}',
     reduce ? 'body{transition:none}.pg-back{opacity:1;transform:none;transition:none}' : '',
   ].join('');
   document.head.appendChild(css);
@@ -308,6 +327,33 @@ function mountChrome() {
     document.body.classList.add('pg-leaving');
     requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('pg-leaving')));
   }
+
+  // Related strip (Section 14): same UC first, then same primary tag,
+  // up to 3. Catalogue is fetched at runtime; capture-suppressed, so
+  // it never touches the deterministic golden frames.
+  fetch('../../../shared/playgrounds-catalogue.json').then((r) => r.ok ? r.json() : null).then((cat) => {
+    if (!Array.isArray(cat) || !cat.length) return;
+    const segs = decodeURIComponent(location.pathname).split('/').filter(Boolean);
+    const ix = segs.lastIndexOf('index.html');
+    const slug = ix > 0 ? segs[ix - 1] : segs[segs.length - 1];
+    const self = cat.find((e) => e.slug === slug) || {};
+    const pool = cat.filter((e) => e.slug !== slug);
+    const pick = [];
+    const take = (arr) => { for (const e of arr) { if (pick.length < 3 && !pick.includes(e)) pick.push(e); } };
+    if (self.uc) take(pool.filter((e) => e.uc && e.uc === self.uc));
+    if (self.tag) take(pool.filter((e) => e.tag === self.tag));
+    take(pool.filter((e) => e.tag === self.tag));               // fill with same-tag
+    const rel = pick.slice(0, 3);
+    if (rel.length < 3) return;                                  // strip only when full
+    const sec = document.createElement('section');
+    sec.className = 'pg-related';
+    sec.innerHTML = '<h2>Related</h2><div class="rgrid">' + rel.map((e) => (
+      `<a class="rcard" style="--rtagc:${e.tagc || '#94a3b8'}" href="../../../${e.path}/index.html">`
+      + '<div class="rimg"><div class="rph"></div></div>'
+      + `<div class="rbody"><h3 class="rt">${esc(e.title)}</h3><div class="ru">${esc(e.uc || '')}</div></div></a>`
+    )).join('') + '</div>';
+    document.body.appendChild(sec);
+  }).catch(() => {});
 }
 
 function boot() { build(); mountChrome(); }

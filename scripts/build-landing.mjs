@@ -163,10 +163,11 @@ const html = `<!doctype html>
   --bg-primary:var(--bg-void); --accent-blue:var(--accent);
 }
 *{box-sizing:border-box}
-html{background:var(--bg-primary);scrollbar-width:thin;scrollbar-color:#2d4263 #0b0e16}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:#0b0e16}
-::-webkit-scrollbar-thumb{background:#2d4263;border-radius:999px}
+html{background:var(--bg-void);scrollbar-width:thin;scrollbar-color:var(--border-subtle) transparent}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-active)}
 body{max-width:1280px;margin:0 auto;padding:0 24px 64px;background:transparent;color:var(--text-primary);
   font-family:var(--f-ui);font-size:15px;font-weight:400;position:relative;z-index:0;line-height:1.6}
 .header{padding-top:80px}
@@ -414,4 +415,14 @@ footer a{color:var(--text-secondary);text-decoration:none}
 try { mkdirSync('dist', { recursive: true }); } catch {}
 writeFileSync('dist/index.html', html);
 writeFileSync('index.html', html);
-console.log(`Wrote dist/index.html and index.html (${cards.length} cards, ${heroes.length} heroes).`);
+
+// Runtime catalogue for the in-playground "Related" strip (Section 14).
+// The playground chrome fetches this; it is capture-suppressed there,
+// so it never affects the deterministic golden frames.
+const catalogue = cards.map(c => ({
+  slug: c.slug, title: c.title, uc: c.primary_uc || '',
+  tag: c.ptag, tagc: c.tagcolor, path: c.path, badge: shortBadge(c.badge),
+}));
+mkdirSync('shared', { recursive: true });
+writeFileSync('shared/playgrounds-catalogue.json', JSON.stringify(catalogue));
+console.log(`Wrote dist/index.html, index.html, shared/playgrounds-catalogue.json (${cards.length} cards, ${heroes.length} heroes).`);

@@ -80,10 +80,29 @@
   font: 600 12px/1.4 var(--font-mono, ui-monospace, monospace);
   letter-spacing: 0.04em;
   color: #9aa0a6;
-  list-style: revert;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+.explainer-more > summary::-webkit-details-marker { display: none; }
+/* Section 13: a chevron that rotates 180deg on open (CSS, 200ms). */
+.explainer-more > summary::before {
+  content: "\25be";
+  display: inline-block;
+  transition: transform 200ms ease;
+  color: #6b7fa3;
+}
+.explainer-more[open] > summary::before { transform: rotate(180deg); }
 .explainer-more > summary:hover { color: #eef0f4; }
 .explainer-more[open] > summary { margin-bottom: 8px; }
+/* Section 13: smooth disclosure of the hint body. */
+.explainer-more-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 250ms ease;
+}
+.explainer-more[open] .explainer-more-body { max-height: 1400px; }
 .explainer-body code {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.92em;
