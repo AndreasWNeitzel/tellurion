@@ -126,6 +126,14 @@ footer a{color:var(--text-secondary);text-decoration:none}
 .pgprog{position:fixed;top:0;left:0;height:1px;width:0;background:var(--accent);
   z-index:9999;opacity:0;transition:width 600ms linear,opacity 200ms ease}
 .pgprog.run{opacity:1}
+.scrollprog{position:fixed;top:0;left:0;width:100%;height:2px;background:var(--border-subtle);
+  z-index:150;opacity:0;transition:opacity 250ms ease;pointer-events:none}
+.scrollprog.on{opacity:1}
+.scrollprog .sp-fill{height:100%;width:0;background:var(--accent)}
+.cur-group:not(.seen) .ln{transform:scaleX(0)}
+.cur-group:not(.seen) h3{opacity:0}
+.cur-group .ln{transform-origin:left;transition:transform 600ms ease-out}
+.cur-group h3{transition:opacity 600ms ease-out}
 .content-fade{opacity:1;transition:opacity 200ms ease}
 .content-fade.out{opacity:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
@@ -135,6 +143,7 @@ footer a{color:var(--text-secondary);text-decoration:none}
 <body>
 <div class="page-transition show" id="ptrans" aria-hidden="true"></div>
 <div class="pgprog" id="pgprog" aria-hidden="true"></div>
+<div class="scrollprog" id="scrollprog" aria-hidden="true"><div class="sp-fill" id="sp-fill"></div></div>
 <script type="module">
   import { mountStarField } from './shared/js/starfield.js';
   import { getAudioSystem } from './shared/js/audio.js';
@@ -2703,6 +2712,23 @@ footer a{color:var(--text-secondary);text-decoration:none}
       arr.forEach(function(c){ c.style.display=''; grid.appendChild(c); });
     }
     clearBtn.classList.toggle('show',Object.keys(active).length>0);
+    wireGroups();
+  }
+  // E2: curriculum section headers animate in (rule extends 0->100%,
+  // text fades) once per session, on scroll into view.
+  var seenG;
+  try{ seenG=new Set(JSON.parse(sessionStorage.getItem('pg:seenG')||'[]')); }catch(e){ seenG=new Set(); }
+  var cgObs=('IntersectionObserver' in window)&&!reduce?new IntersectionObserver(function(es){
+    es.forEach(function(en){ if(!en.isIntersecting)return; var g=en.target; cgObs.unobserve(g);
+      g.classList.add('seen'); var lab=g.getAttribute('data-lab'); if(lab){ seenG.add(lab);
+        try{ sessionStorage.setItem('pg:seenG',JSON.stringify([].slice.call(seenG))); }catch(e){} } });
+  },{threshold:0.5}):null;
+  function wireGroups(){
+    [].slice.call(grid.querySelectorAll('.cur-group')).forEach(function(g){
+      var lab=g.querySelector('h3')?g.querySelector('h3').textContent:''; g.setAttribute('data-lab',lab);
+      if(reduce||!cgObs||seenG.has(lab)){ g.classList.add('seen'); }
+      else { cgObs.observe(g); }
+    });
   }
   input.addEventListener('input',render);
   sortsel.addEventListener('change',render);
@@ -2787,6 +2813,19 @@ footer a{color:var(--text-secondary);text-decoration:none}
       stn.textContent=String(Math.round(target*e));
       if(k<1)requestAnimationFrame(step); };
     stn.textContent='0'; requestAnimationFrame(step);
+  }
+
+  // E1: top scroll-progress bar. Fades in past 100px, out at the top.
+  var sprog=document.getElementById('scrollprog'), spf=document.getElementById('sp-fill');
+  if(sprog&&spf){
+    var onScroll=function(){
+      var y=window.scrollY||window.pageYOffset||0;
+      var h=document.documentElement.scrollHeight-window.innerHeight;
+      spf.style.width=(h>0?Math.min(100,Math.max(0,y/h*100)):0)+'%';
+      sprog.classList.toggle('on',y>100);
+    };
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll); onScroll();
   }
 
   // Lazy-load category thumbnails (Section 5). Until the files exist

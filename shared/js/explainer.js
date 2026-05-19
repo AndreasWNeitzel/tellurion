@@ -326,6 +326,26 @@ function mountChrome() {
   if (reduce) back.classList.add('in');
   else setTimeout(() => back.classList.add('in'), 400);
 
+  // E3: very subtle weighty parallax (max 3px, spring damping 0.08).
+  if (!reduce && !('ontouchstart' in window)) {
+    let tx = 0, ty = 0, cx = 0, cy = 0, parking = false;
+    window.addEventListener('mousemove', (ev) => {
+      tx = Math.max(-3, Math.min(3, (ev.clientX - window.innerWidth / 2) / window.innerWidth * 6));
+      ty = Math.max(-3, Math.min(3, (ev.clientY - window.innerHeight / 2) / window.innerHeight * 6));
+    }, { passive: true });
+    setTimeout(() => {
+      back.style.transition = 'border-color var(--t-fast),background var(--t-fast)';
+      parking = true;
+      const tick = () => {
+        if (!parking) return;
+        cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
+        back.style.transform = `translate(${cx.toFixed(2)}px,${cy.toFixed(2)}px)`;
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, 800);                                    // after the entry slide settles
+  }
+
   if (!reduce) {
     document.body.classList.add('pg-leaving');
     requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('pg-leaving')));
