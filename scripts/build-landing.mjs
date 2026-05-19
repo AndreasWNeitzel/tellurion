@@ -135,6 +135,7 @@ h2.sec{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.1
   color:var(--text-secondary);border-radius:4px;font-size:11px;font-family:var(--f-mono);cursor:pointer}
 .clearall.show{display:inline-block}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:8px}
+.card-grid.curr{display:block}
 .card{display:block;padding:14px;background:var(--bg-card);border:1px solid var(--border-subtle);
   border-radius:8px;color:var(--text-primary);text-decoration:none;transition:background .15s ease,border-color .15s ease}
 .card:hover{background:var(--bg-card-hover);border-color:var(--border-active)}
@@ -144,13 +145,13 @@ h2.sec{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.1
 .ybadge{font-family:var(--f-mono);font-size:11px;color:var(--text-secondary);white-space:nowrap;flex:none}
 .card .tags{display:flex;flex-wrap:wrap;gap:4px}
 .card .tag{font-size:11px;padding:2px 7px;background:#1e2a3a;color:var(--text-secondary);border-radius:4px;font-family:var(--f-mono)}
-.cur-group{margin:24px 0 6px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.cur-group{width:100%;margin:18px 0 8px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .cur-group h3{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dimmed);margin:0;white-space:nowrap}
 .cur-group .ln{flex:1;height:1px;background:var(--border-subtle)}
 .cur-group .cnt{font-family:var(--f-mono);font-size:11px;color:var(--text-dimmed)}
 .cur-group .chev{color:var(--text-secondary);transition:transform .15s}
 .cur-group.collapsed .chev{transform:rotate(-90deg)}
-.cur-wrap{overflow:hidden;transition:max-height .3s ease}
+.cur-wrap{overflow:hidden;transition:max-height .3s ease;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 footer{padding:32px 0 8px;color:var(--text-dimmed);font-size:12px;font-family:var(--f-mono)}
 footer a{color:var(--text-secondary);text-decoration:none}
 body{opacity:1;transition:opacity .3s ease}
@@ -286,6 +287,7 @@ body.leaving{opacity:0}
     var mode=sortsel.value, vis=cards.filter(visible);
     cards.forEach(function(c){c.style.display='none';});
     if(mode==='curriculum'){
+      grid.classList.add('curr');
       var groups={};
       vis.forEach(function(c){ var key=(+c.dataset.order)+'|'+c.dataset.group; (groups[key]=groups[key]||[]).push(c); });
       Object.keys(groups).sort(function(a,b){return (+a.split('|')[0])-(+b.split('|')[0]);}).forEach(function(key){
@@ -302,6 +304,7 @@ body.leaving{opacity:0}
         });
       });
     } else {
+      grid.classList.remove('curr');
       var arr=vis.slice();
       arr.sort(function(a,b){return a.dataset.title.localeCompare(b.dataset.title);});
       arr.forEach(function(c){ c.style.display=''; grid.appendChild(c); });
