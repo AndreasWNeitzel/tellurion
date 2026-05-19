@@ -31,31 +31,84 @@ off at large radius. It does not, it stays flat. That single stubborn
 fact is the strongest everyday evidence for dark matter, and the
 playground lets you fit the three competing models to mock data.
 
+### Where the rotation-curve formula comes from
+
+Stars in a galaxy's outer disc move on roughly circular orbits. The
+centripetal acceleration $v_c^2/R$ equals the inward gravitational
+acceleration from the enclosed mass:
+
+$$\boxed{\;\frac{v_c^2(R)}{R} = \frac{G\,M(<R)}{R^2}
+       \;\Longrightarrow\;
+       v_c(R) = \sqrt{\frac{G\,M(<R)}{R}}.\;}$$
+
+This is exact for a spherical mass distribution (Newton's shell
+theorem) and a very good approximation for a thin disc once $R$ is
+beyond the disc scale length.
+
 ### The expected falloff
 
-If all the mass were the visible matter concentrated centrally, then
-outside it the speed would be Keplerian, like a planet:
+If the visible matter were point-like at the centre, the outer speed
+would be Keplerian:
 
-$$v(R) = \sqrt{\frac{G M_\text{vis}}{R}}\ \propto\ \frac{1}{\sqrt R},$$
+$$v_K(R) = \sqrt{\frac{G\,M_\text{vis}}{R}} \;\propto\; \frac{1}{\sqrt R},$$
 
-falling as you go out. Even with a realistic bulge and disk
-(Hernquist + Miyamoto-Nagai profiles) the visible-only curve still
-turns over and declines past the disk scale.
+so doubling $R$ multiplies the speed by $1/\sqrt 2 \approx 0.71$. With
+a realistic bulge (Hernquist 1990) and disc (Miyamoto and Nagai 1975):
 
-### Adding a dark halo
+- *Hernquist bulge*: $\Phi_b(R) = -G M_b / (R + a_b)$, contributing
+  $v_b^2(R) = G M_b R / (R + a_b)^2$.
+- *Miyamoto-Nagai disc* (axisymmetric, on the midplane $z = 0$):
 
-Add an NFW dark-matter halo and its contribution is
+$$\Phi_d(R, z = 0) = -\frac{G M_d}{\sqrt{R^2 + (a_d + b_d)^2}},
+\quad
+v_d^2(R) = \frac{G M_d\,R^2}{[R^2 + (a_d + b_d)^2]^{3/2}}.$$
 
-$$v_h^2(R) = \frac{G M_{200}}{R}\,
-  \frac{\ln(1+x) - x/(1+x)}{\ln(1+c) - c/(1+c)},
-  \qquad x = R/r_s,$$
+Both turn over past the disc scale length and decline as $R^{-1/2}$
+at large $R$. The data REFUSES to decline.
 
-which keeps rising where the visible matter has run out. Sum the
-components ($v^2 = v_b^2 + v_d^2 + v_h^2$) and the total curve goes
-flat at large $R$, exactly the observed behavior. The playground
-overlays mock observations (drawn from the halo model with realistic
-noise) and you see only the visible+dark model fits beyond about
-10 kpc.
+### Adding a dark-matter halo: NFW
+
+The Navarro, Frenk and White (1997) profile is the cosmological
+prediction for collisionless dark-matter halos:
+
+$$\rho_{\rm NFW}(R) = \frac{\rho_s}{(R/r_s)\,(1 + R/r_s)^2},$$
+
+with scale radius $r_s$ and characteristic density $\rho_s$. The
+enclosed-mass integral gives
+
+$$M_{\rm NFW}(<R) = 4\pi\,\rho_s\,r_s^3\,\bigg[\ln(1 + x) - \frac{x}{1 + x}\bigg],
+\qquad x \equiv R / r_s,$$
+
+so the halo contribution to the rotation curve is
+
+$$\boxed{\;v_h^2(R) = \frac{G\,M_{200}}{R}\,
+   \frac{\ln(1 + x) - x/(1+x)}{\ln(1 + c) - c/(1 + c)},
+   \qquad c = R_{200} / r_s.\;}$$
+
+Here $R_{200}$ is the radius at which the mean enclosed density is
+200 times critical (the conventional virial radius), $M_{200}$ the
+mass within it, and $c$ the concentration parameter.
+
+The total curve is the quadrature sum:
+
+$$v_{\rm tot}^2(R) = v_b^2(R) + v_d^2(R) + v_h^2(R).$$
+
+At large $R$, $v_h^2$ approaches $G M_{\rm vir}/R$ slowly enough that
+$v_{\rm tot}$ stays essentially flat over many disc scale lengths,
+exactly matching the observed flatness in spiral galaxies.
+
+### Symbols, at a glance
+
+- $R$, galactocentric cylindrical radius (kpc).
+- $v_c(R)$, circular speed at $R$ (km/s).
+- $M(<R)$, mass enclosed within radius $R$.
+- $M_b$, $a_b$, Hernquist bulge mass and scale length.
+- $M_d$, $a_d$, $b_d$, Miyamoto-Nagai disc mass, radial and vertical
+  scales.
+- $\rho_s$, $r_s$, NFW characteristic density and scale radius.
+- $R_{200}$, $M_{200}$, virial radius and mass; $c$, concentration.
+- $G = 4.302 \times 10^{-6}\,\mathrm{kpc\,(km/s)^2\,M_\odot^{-1}}$ in
+  the practical galactic-dynamics units.
 
 ### Things to try
 
@@ -65,11 +118,17 @@ noise) and you see only the visible+dark model fits beyond about
 - Note all three models share the same visible mass: the data, not
   the stars, demand the halo.
 
-### Where this comes from
+### Bibliographic origin
 
-The Hernquist bulge, Miyamoto-Nagai disk, and NFW halo rotation-curve
-contributions follow Binney and Tremaine, *Galactic Dynamics*, 2nd ed.,
-Chapter 2, with the NFW profile from Navarro, Frenk and White (1997).
+The flat-rotation-curve evidence is in Rubin and Ford, *Astrophys. J.*
+**159** (1970) 379 (Andromeda), extended to ~60 spirals in Rubin,
+Ford and Thonnard, *Astrophys. J.* **238** (1980) 471. The original
+papers for the components: Hernquist, *Astrophys. J.* **356** (1990)
+359; Miyamoto and Nagai, *Publ. Astron. Soc. Japan* **27** (1975)
+533; Navarro, Frenk and White, *Astrophys. J.* **490** (1997) 493
+(the NFW profile, from cosmological N-body simulations). The textbook
+synthesis is Binney and Tremaine, *Galactic Dynamics* (2nd ed.,
+Princeton 2008), Ch. 2, with the dark-matter chapter in Sec. 2.6.
 
 ## Physical setup
 
