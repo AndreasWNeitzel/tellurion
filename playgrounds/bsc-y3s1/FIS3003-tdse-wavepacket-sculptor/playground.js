@@ -28,8 +28,11 @@ for (const kk of READOUTS) {
   readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[kk] = b;
 }
 
-const N = 640, L = 60, DT = 0.01, STEPS_PER_FRAME = 3, HORIZON = 1400;
-const st = { pot: 'barrier', k0: 3.0, param: 8, nstep: 0, running: 1 };
+const N = 640, L = 60, DT = 0.01, STEPS_PER_FRAME = 6, HORIZON = 1400;
+// Default: E = k0^2/2 = 8 ~ V0 = 8, so the barrier splits the packet
+// into clearly comparable reflected and transmitted lobes (the
+// headline). It auto-launches and re-launches on loop.
+const st = { pot: 'barrier', k0: 4.0, param: 8, nstep: 0, running: 1 };
 let s = makeState(N, L);
 let trace = [];
 
@@ -37,7 +40,7 @@ function packetStart() {
   if (st.pot === 'harmonic') return { x0: 6, k0: 0, sig: 0.7 };
   if (st.pot === 'double') return { x0: -8, k0: 0, sig: 1.0 };
   if (st.pot === 'well' || st.pot === 'lattice') return { x0: -6, k0: st.k0, sig: 1.4 };
-  return { x0: -16, k0: st.k0, sig: 1.8 };       // free / barrier / delta
+  return { x0: -16, k0: st.k0, sig: 1.2 };       // free / barrier / delta
 }
 function potOpts() {
   if (st.pot === 'harmonic') return { omega: st.param / 8 };   // param 2..16 -> omega 0.25..2
@@ -146,23 +149,31 @@ controlsEl.appendChild(pRow);
 const cK = buildSlider('momentum k0', 0.5, 6, 0.1, st.k0, 'k0', v => v.toFixed(1));
 const cP = buildSlider('barrier V0 / well', 2, 16, 0.5, st.param, 'param', v => v.toFixed(1));
 const bRow = document.createElement('div'); bRow.className = 'row buttons';
+const bLaunch = document.createElement('button'); bLaunch.type = 'button'; bLaunch.textContent = 'Launch';
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
-bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
+bRow.appendChild(bLaunch); bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
+bLaunch.addEventListener('click', () => {       // re-fire the packet from t=0
+  st.nstep = 0; st.running = 1; rebuild(0);
+  bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); render();
+});
 bReset.addEventListener('click', () => {
-  Object.assign(st, { pot: 'barrier', k0: 3.0, param: 8, nstep: 0, running: 1 });
-  pSel.value = 'barrier'; cK.inp.value = '3'; cK.val.textContent = '3.0'; cP.inp.value = '8'; cP.val.textContent = '8.0';
+  Object.assign(st, { pot: 'barrier', k0: 4.0, param: 8, nstep: 0, running: 1 });
+  pSel.value = 'barrier'; cK.inp.value = '4'; cK.val.textContent = '4.0'; cP.inp.value = '8'; cP.val.textContent = '8.0';
   rebuild(0); bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); render();
 });
 bPause.addEventListener('click', () => { st.running = st.running ? 0 : 1; bPause.textContent = st.running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!st.running)); });
 
-let acc = 0, lastT = performance.now();
+let acc = 0, lastT = performance.now(), holdF = 0;
 function tick(now) {
   const dr = Math.min((now - lastT) / 1000, 0.05); lastT = now;
   if (st.running && st.nstep < HORIZON) {
     acc += dr;
     while (acc > 1 / 60 && st.nstep < HORIZON) { for (let q = 0; q < STEPS_PER_FRAME && st.nstep < HORIZON; q += 1) { step(s, DT); st.nstep += 1; if (st.nstep % 4 === 0) trace.push(expectationX(s)); } acc -= 1 / 60; }
-    if (st.nstep >= HORIZON) acc = 0;
+    if (st.nstep >= HORIZON) { acc = 0; holdF = 0; }
+  } else if (st.running && st.nstep >= HORIZON && !CAPTURE_NAME) {
+    // hold the final split for ~1.2 s, then re-launch (keeps it alive)
+    holdF += 1; if (holdF > 72) { rebuild(0); }
   }
   render(); requestAnimationFrame(tick);
 }
