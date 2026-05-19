@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Watch the molecules speed up as heat pours in, the piston do the work, and the wasted heat dump into the cold sink, all from one moving dot on the P-V loop.'
-one_paragraph: 'A piston-cylinder engine running a chosen ideal-gas cycle. The gas molecules and piston track the live temperature and volume, the P-V loop traces with a moving operating point, and an energy-flow diagram splits Q_hot into work and Q_cold with the efficiency. Carnot, Otto, Diesel and Stirling cycles, reversible to a refrigerator. The headless sim.js is gate-tested for the first law and the Carnot/Otto efficiency laws.'
+one_paragraph: 'A piston-cylinder engine running a chosen ideal-gas cycle. The gas molecules and piston track the live temperature and volume, the P-V loop traces with a moving operating point, and an energy-flow diagram splits Q_hot into work and Q_cold with the efficiency. Carnot, Otto, Diesel and Stirling cycles, reversible to a refrigerator. Reference: Callen, Thermodynamics, 2nd ed., Chapter 4; Reif, Fundamentals of Statistical and Thermal Physics, Chapter 5.'
 tags: [thermodynamics, animation, multi-panel, live-readout]
 difficulty: 3
 tier: hero
@@ -18,6 +18,63 @@ share_state_keys: []
 ---
 
 # Thermodynamic Engine Simulator
+
+## Explainer
+
+### What you are looking at
+
+A heat engine takes heat in from something hot, turns part of it into
+useful work, and dumps the rest into something cold. It cannot turn
+all the heat into work; the playground makes that limit visible by
+running a gas through a closed cycle and splitting the heat into work
+and waste live.
+
+### The four processes and the first law
+
+The working gas is $n$ moles of an ideal gas. Each leg of a cycle is
+one of four idealised processes:
+
+$$\text{isothermal: }pV=\text{const},\quad
+  \text{adiabatic: }pV^{\gamma}=\text{const},$$
+$$\text{isochoric: }V=\text{const},\quad
+  \text{isobaric: }p=\text{const},$$
+
+with $\gamma=C_p/C_V$ the heat-capacity ratio. Around any closed loop
+the internal energy returns to its start, so the first law gives
+
+$$\oint dU = 0 \;\Longrightarrow\; \sum Q = \sum W,$$
+
+and the net work is exactly the area enclosed by the loop on the
+pressure-volume ($p$-$V$) diagram.
+
+### Efficiency and the Carnot bound
+
+The efficiency is the fraction of the absorbed heat converted to work,
+
+$$\eta=\frac{W_\text{net}}{Q_\text{hot}}=1-\frac{Q_\text{cold}}{Q_\text{hot}}.$$
+
+No engine working between a hot reservoir at $T_h$ and a cold one at
+$T_c$ can beat the Carnot value
+
+$$\eta_\text{Carnot}=1-\frac{T_c}{T_h},$$
+
+and the air-standard Otto cycle gives $\eta=1-r^{1-\gamma}$ with
+compression ratio $r$. As $T_c\to T_h$ the efficiency collapses to
+zero: you need a temperature difference to extract work.
+
+### Things to try
+
+- Switch between Carnot, Otto, Diesel and Stirling and compare the
+  loop shape and the efficiency for the same temperatures.
+- Slide $T_c$ toward $T_h$ and watch the efficiency fall to zero.
+- Reverse the cycle and watch the same hardware act as a refrigerator,
+  pumping heat from cold to hot at the cost of work.
+
+### Where this comes from
+
+The ideal-gas processes, the first law and the Carnot limit follow
+Callen, Thermodynamics, 2nd ed., Chapter 4, and Reif, Fundamentals of
+Statistical and Thermal Physics, Chapter 5.
 
 ## Physical setup
 
