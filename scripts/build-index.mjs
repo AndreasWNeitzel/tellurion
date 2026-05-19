@@ -227,18 +227,25 @@ function renderMarkdown(cards) {
 }
 
 async function main() {
+  // SAFETY GUARD: this script produces a bare-bones index.html and was once
+  // run by mistake against the rich landing maintained by build-landing.mjs
+  // (nav bar, about, credits, footer, banner cards). Refuse to clobber the
+  // root index.html. To force the bare layout, run with --force-root.
+  const force = process.argv.includes('--force-root');
   const cards = await loadCards();
   await fs.mkdir(DIST_DIR, { recursive: true });
   const html = renderHTML(cards);
-  // Write to BOTH dist/index.html (production bundle) and the project root
-  // index.html (what vite's dev server and naive static servers serve).
   const distHtml = path.join(DIST_DIR, 'index.html');
   const rootHtml = path.join(ROOT, 'index.html');
   const mdPath   = path.join(DOCS_DIR, 'INDEX.md');
   await fs.writeFile(distHtml, html);
-  await fs.writeFile(rootHtml, html);
   await fs.writeFile(mdPath,   renderMarkdown(cards));
-  console.log(`Wrote ${distHtml}, ${rootHtml}, ${mdPath}; ${cards.length} cards`);
+  if (force) {
+    await fs.writeFile(rootHtml, html);
+    console.log(`Wrote ${distHtml}, ${rootHtml} (FORCED), ${mdPath}; ${cards.length} cards`);
+  } else {
+    console.log(`Wrote ${distHtml}, ${mdPath}; ${cards.length} cards. SKIPPED root index.html (use build-landing.mjs for the rich landing, or pass --force-root to override).`);
+  }
 }
 
 main().catch(err => {

@@ -179,7 +179,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Two-Stream Instability (1D PIC)](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   Shoot two electron beams through each other. The smooth counter-flow is unstable: tiny density ripples feed on the beam energy and grow explosively, then roll up into swirls in phase space and saturate. This two-stream instability is a foundational plasma effect and a classic test of particle-in-cell simulation.
 
-- **[2D Wave Diffraction: Slits and Obstacles](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
+- **[2D Waves in a Drawable Geometry](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
   Put obstacles in the path of a wave and it does not just stop: it bends around corners, squeezes through gaps and spreads on the far side, and forms interference patterns behind two slits. The playground solves the real 2D wave equation on a geometry you draw, so diffraction and interference emerge from the physics rather than being faked.
 
 - **[Alpha Decay via Gamow Tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
@@ -744,7 +744,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3 (`griffiths-particles`).
 
 - **[Sturm-Liouville Eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
-  Pluck a string fixed at both ends and it rings in a sum of pure modes, each with its own frequency. Here the string's mass density $\rho(x)$ is yours to choose. With a uniform density the modes are exactly the textbook sines and the spectrum is $\lambda_n=n^2$; load the string in the middle, put a step in the density, or taper it, and the modes bend toward t
+  Pluck a string fixed at both ends and it rings in a sum of pure modes, each a sine, each with its own frequency. The playground projects any starting shape onto those modes and evolves it. The point is general: those modes are the eigenfunctions of a Sturm-Liouville operator, and they form a complete orthonormal basis, the engine behind every Fourier expansi
 
 - **[1D Alfvén Wave in MHD](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/index.html)** &nbsp; (verified, verified 2026-05-18T17:04:04Z)
   Transverse magnetic perturbation travels at $v_A = B_0/\sqrt{\mu_0 \rho}$; magnetic-tension restoring force. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
@@ -925,33 +925,3 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-18T15:34:16Z)
   In 1963 the meteorologist Edward Lorenz stripped a weather model down to three numbers and three equations and found something that changed science: a system with no randomness in it at all, whose future is still effectively unpredictable. This playground releases thousands of trajectories from almost the same starting point. They stay together for a moment,
-
-- **[Black Hole Geodesics (Hero)](../playgrounds/_heroes/blackhole-geodesics-3d/index.html)** &nbsp; (verified)
-  Gravity here is not a force pulling things in; it is the shape of spacetime, and light and matter simply follow the straightest available paths (geodesics) through that shape. Near a black hole the shape is so curved that there is a knife-edge: aim a photon a fraction of a percent too close and it cannot get back out, no matter how fast it is going, because 
-
-- **[Exoplanet Interior (Hero)](../playgrounds/_heroes/exoplanet-interior-3d/index.html)** &nbsp; (verified)
-  A terrestrial-to-mini-Neptune planet decomposed into concentric layers of (in order from the centre): an iron core, a silicate mantle, an optional water/ice layer, an optional H/He envelope. The big panel is a 3D cutaway sphere that rotates so you can see the layered structure; the side panels show where this planet falls on a family of mass- radius curves a
-
-- **[Exoplanet Transit (Hero)](../playgrounds/_heroes/exoplanet-transit-3d/index.html)** &nbsp; (verified)
-  A planet orbits its star. Whenever it passes between us and the star, it blocks a tiny fraction of the light, like an insect crossing a streetlamp. The dip is sharp, periodic, and tells you the planet's size: how much it blocks is the square of the planet-to-star radius ratio. From a few thousand such dips, the Kepler mission found thousands of planets we ca
-
-- **[Expanding Universe (Hero)](../playgrounds/_heroes/expanding-universe-3d/index.html)** &nbsp; (verified)
-  Space itself stretches. The galaxies are not flying through space away from an explosion; the space between them is growing, so every observer sees everyone else receding and nobody is at the centre. How fast that growth is, and whether it speeds up, slows down, or reverses, is set by one quantity: what the universe is made of. Ordinary matter gravitates and
-
-- **[Laser Cavity (Hero)](../playgrounds/_heroes/laser-cavity-3d/index.html)** &nbsp; (verified)
-  A laser is not just a bright lamp. Below a certain pump rate it does nothing special: atoms get excited and dribble out incoherent light. Above a threshold pump, something abrupt happens: photons already in the cavity stimulate excited atoms to emit MORE photons in exact step, which stimulate yet more, and the cavity fills with one coherent, synchronized fie
-
-- **[Meissner Effect (Hero)](../playgrounds/_heroes/superconductor-meissner-3d/index.html)** &nbsp; (verified)
-  Most materials let a magnetic field pass through them. A superconductor, below a certain temperature, does the opposite: it sets up surface currents that cancel the field everywhere inside, so the field is pushed out. Because the field cannot get in, a magnet brought near is repelled, and it can hover with nothing touching it. This is the Meissner effect, th
-
-- **[Quantum Tunnelling (Hero)](../playgrounds/_heroes/quantum-tunnelling-barrier-3d/index.html)** &nbsp; (verified)
-  A classical ball that does not have enough energy to get over a hill rolls back, every time. A quantum particle is a wave, and a wave does not stop dead at a wall; a little of it leaks out the far side. So a particle facing a barrier it could never climb classically still has a real chance of being found beyond it. That is quantum tunnelling, and it is not e
-
-- **[Relativistic Starship (Hero)](../playgrounds/_heroes/special-relativity-starship-3d/index.html)** &nbsp; (verified)
-  Light has a fixed speed for everyone, and that single fact rebuilds geometry. As you throttle up, the stars do not just stream past: their positions, colours and brightness all change because you are transforming the photons themselves. Aberration sweeps the whole sky toward your direction of travel, so near light speed the universe ahead collapses into a sm
-
-- **[Soliton Canal (Hero)](../playgrounds/_heroes/soliton-canal-3d/index.html)** &nbsp; (verified)
-  Drop a stone in a pond and the ripple spreads out and fades: ordinary waves disperse. In 1834 John Scott Russell chased a single hump of water down a canal on horseback and watched it travel for kilometres without changing shape. That hump is a soliton. It survives because the water's nonlinearity (taller water moves faster, so the back of the hump catches u
-
-- **[Wormhole Traversal (Hero)](../playgrounds/_heroes/wormhole-traversal-3d/index.html)** &nbsp; (verified)
-  A wormhole is not a tunnel bored through stuff; it is a shape of spacetime that connects two far-apart regions through a short throat. If such a shape existed, light from the far region would reach you bent through the throat, so you would literally see another sky framed in a circle ahead. This playground integrates the real light paths of the simplest such
