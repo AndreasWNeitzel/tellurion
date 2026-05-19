@@ -1,227 +1,254 @@
-// Aperture synthesis: trace UV arcs for telescope baselines as Earth
-// rotates. Shows the sky model, the accumulating UV coverage, and a
-// rough "dirty image" from inverse DFT of the sampled visibility.
+// Aperture synthesis on the UV plane. Earth-rotation synthesis: each
+// antenna pair sweeps an ellipse in the UV plane as the Earth turns,
+// the sampled visibility is inverse-transformed into the dirty image
+// (true sky convolved with the dirty beam). Reworked for performance
+// (UV accumulated incrementally; the dirty image is the dirty beam
+// placed at the source positions, recomputed a few times a second on
+// a modest grid, not an O(N_uv * N_pix^2) sum every frame) and for a
+// correct, auto-scaled UV plot. Drag any telescope to a new latitude
+// and watch its baselines, the UV arcs and the resolution change.
+// sim.js holds the testable physics. Reference: Thompson, Moran and
+// Swenson, Interferometry and Synthesis in Radio Astronomy, Ch. 4.
+import { stationXYZ, baselineLambda, uv, maxBaseline, resolutionMas, dirtyImage } from './sim.js';
+import { cividis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-
-const params        = new URLSearchParams(location.search);
+const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
-const CAPTURE_NAME  = params.get('capture');
-
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant') || { textContent: '' };
-const readoutFrame = document.getElementById('readout-frame') || { textContent: '' };
-const controlsEl   = document.getElementById('controls');
-
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+const readoutEl = document.getElementById('readout');
 const W = canvas.width, H = canvas.height;
 
-// Telescope positions in geocentric XYZ (km). Approximate.
 const telescopes = [
-  { name: 'ALMA',       lat: -23.0, lon:  -67.8 },
-  { name: 'VLA',        lat:  34.1, lon: -107.6 },
-  { name: 'Effelsberg', lat:  50.5, lon:    6.9 },
-  { name: 'Metsahovi',  lat:  60.2, lon:   24.4 },
-  { name: 'JCMT',       lat:  19.8, lon: -155.5 },
+  { name: 'ALMA', lat: -23.0, lon: -67.8 },
+  { name: 'VLA', lat: 34.1, lon: -107.6 },
+  { name: 'Effelsberg', lat: 50.5, lon: 6.9 },
+  { name: 'Metsahovi', lat: 60.2, lon: 24.4 },
+  { name: 'JCMT', lat: 19.8, lon: -155.5 },
 ];
-const R_EARTH = 6378.0;
-function telescopeXYZ(t) {
-  const lat = t.lat * Math.PI / 180, lon = t.lon * Math.PI / 180;
-  return {
-    x: R_EARTH * Math.cos(lat) * Math.cos(lon),
-    y: R_EARTH * Math.cos(lat) * Math.sin(lon),
-    z: R_EARTH * Math.sin(lat),
-  };
-}
-const xyz = telescopes.map(telescopeXYZ);
-
-// Source: three sources in the sky model (l, m) in arcsec.
-const sources = [
-  { l:    0, m:    0, amp: 1.0 },
-  { l:  300, m:  150, amp: 0.4 },
-  { l: -250, m:  100, amp: 0.2 },
+const LAMBDA_MM = 3.0;
+const DEC = 30 * Math.PI / 180;
+const MAS = Math.PI / 180 / 3600 / 1000;          // milliarcsec -> rad
+// Sky model and FOV are scaled to the synthesised resolution (set in
+// refreshDirty from the current array), so the beam is properly
+// sampled instead of undersampled into pure noise. Offsets are in
+// units of the resolution element.
+const SRC_REL = [
+  { lr: 0, mr: 0, amp: 1.0 },
+  { lr: 4.2, mr: 2.1, amp: 0.5 },
+  { lr: -3.0, mr: 3.6, amp: 0.28 },
 ];
+let sources = SRC_REL.map((s) => ({ l: 0, m: 0, amp: s.amp }));
+let FOV_RAD = 1;
+const NT = 360, IMG_N = 72, UV_CAP = 520;
 
-const LAMBDA_MM = 3.0; // observing wavelength
-const decDeg = 30;
-
-const state = { time: 0, NT: 360 };
-
-// Compute UV samples for all baselines at given hour angle H (rad), declination delta.
-function uvSample(H, delta_rad) {
-  const samples = [];
+const st = { time: 0, running: !DETERMINISTIC, drag: -1 };
+let xyz = telescopes.map((t) => stationXYZ(t.lat, t.lon));
+let baselines = [];
+function rebuildBaselines() {
+  xyz = telescopes.map((t) => stationXYZ(t.lat, t.lon));
+  baselines = [];
   for (let i = 0; i < xyz.length; i += 1) for (let j = i + 1; j < xyz.length; j += 1) {
-    const dx = xyz[j].x - xyz[i].x;
-    const dy = xyz[j].y - xyz[i].y;
-    const dz = xyz[j].z - xyz[i].z;
-    const u = (dx * Math.sin(H) + dy * Math.cos(H));
-    const v = (-dx * Math.sin(delta_rad) * Math.cos(H)
-             + dy * Math.sin(delta_rad) * Math.sin(H)
-             + dz * Math.cos(delta_rad));
-    // Convert km -> wavelengths
-    samples.push({ u: u * 1e6 / LAMBDA_MM, v: v * 1e6 / LAMBDA_MM, baseline: i * 10 + j });
+    baselines.push({ ...baselineLambda(xyz[i], xyz[j], LAMBDA_MM), pair: i * 10 + j });
   }
-  return samples;
 }
+rebuildBaselines();
 
-const uvHistory = [];
+// UV samples accumulated up to st.time, with the Hermitian conjugate
+// so the dirty beam is real. Rebuilt only when time/geometry change.
+let uvHist = [];
 function accumulate() {
-  uvHistory.length = 0;
-  const delta = decDeg * Math.PI / 180;
-  for (let s = 0; s < state.time; s += 1) {
-    const H = (s / state.NT) * 2 * Math.PI - Math.PI;
-    const sams = uvSample(H, delta);
-    for (const sm of sams) uvHistory.push(sm);
-  }
-}
-
-function dirtyImage() {
-  // Direct sum: I(l, m) = sum_uv exp(2 pi i (u l + v m)). 32x32 grid.
-  const N = 48;
-  const img = new Float64Array(N * N);
-  const lmMaxArcsec = 600;
-  const lmStep = (2 * lmMaxArcsec) / N;
-  // Sky model visibilities for each (u, v) sample. We want the dirty image
-  // = inverse FFT of the (sampled) visibility, with visibility = FFT(sky).
-  for (let j = 0; j < N; j += 1) for (let i = 0; i < N; i += 1) {
-    const l = (-lmMaxArcsec + i * lmStep) * Math.PI / 648000; // rad
-    const m = (-lmMaxArcsec + j * lmStep) * Math.PI / 648000;
-    let acc = 0;
-    for (const sm of uvHistory) {
-      // Visibility V(u,v) = sum_s amp * exp(-2 pi i (u l_s + v m_s)).
-      let vRe = 0, vIm = 0;
-      for (const src of sources) {
-        const ls = src.l * Math.PI / 648000;
-        const ms = src.m * Math.PI / 648000;
-        const phase = -2 * Math.PI * (sm.u * ls + sm.v * ms);
-        vRe += src.amp * Math.cos(phase);
-        vIm += src.amp * Math.sin(phase);
-      }
-      // Inverse FT contribution: V(u,v) * exp(+2 pi i (u l + v m)).
-      const phase2 = 2 * Math.PI * (sm.u * l + sm.v * m);
-      acc += vRe * Math.cos(phase2) - vIm * Math.sin(phase2);
+  uvHist = [];
+  const step = Math.max(1, Math.floor(st.time / 240));   // keep it bounded
+  for (let s = 0; s <= st.time; s += step) {
+    const Hh = (s / NT) * 2 * Math.PI - Math.PI;
+    for (const b of baselines) {
+      const p = uv(b.bx, b.by, b.bz, Hh, DEC);
+      uvHist.push({ u: p.u, v: p.v, pair: b.pair });
+      uvHist.push({ u: -p.u, v: -p.v, pair: b.pair });
     }
-    img[j * N + i] = acc;
   }
-  return { img, N };
+}
+function uvForImage() {
+  if (uvHist.length <= UV_CAP) return uvHist;
+  const out = [], stride = uvHist.length / UV_CAP;
+  for (let k = 0; k < UV_CAP; k += 1) out.push(uvHist[Math.floor(k * stride)]);
+  return out;
 }
 
+let dirty = null, dirtyAt = -1;
+const off = document.createElement('canvas'); off.width = IMG_N; off.height = IMG_N;
+const offCtx = off.getContext('2d');
+let idata = null;
+function refreshDirty() {
+  if (uvHist.length < 6) { dirty = null; return; }
+  // match the sky model and FOV to the current synthesised resolution
+  const resRad = resolutionMas(xyz, LAMBDA_MM) * MAS;
+  FOV_RAD = 13 * resRad;
+  sources = SRC_REL.map((s) => ({ l: s.lr * resRad, m: s.mr * resRad, amp: s.amp }));
+  const img = dirtyImage(uvForImage(), sources, IMG_N, FOV_RAD);
+  let mn = Infinity, mx = -Infinity;
+  for (let i = 0; i < img.length; i += 1) { if (img[i] < mn) mn = img[i]; if (img[i] > mx) mx = img[i]; }
+  idata = fieldToImageData(img, IMG_N, IMG_N, mn, mx, cividis, idata);
+  offCtx.putImageData(idata, 0, 0);
+  dirty = true; dirtyAt = st.time;
+}
+
+function panel(x, y, w, h, title) {
+  ctx.strokeStyle = 'rgba(220,226,240,0.28)'; ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.fillStyle = '#cdd3e2'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(title, x + 8, y + 16);
+}
+
+// world map: lon -> x, lat -> y. Panels start below the DOM readout
+// overlay (absolute, top-left) so they never collide with it.
+const MAP = { x: 22, y: 104, w: 392, h: 200 };
+function mapXY(lat, lon) {
+  return [MAP.x + ((lon + 180) / 360) * MAP.w, MAP.y + ((90 - lat) / 180) * MAP.h];
+}
 function render() {
-  ctx.fillStyle = '#0E0E13';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#05070d'; ctx.fillRect(0, 0, W, H);
 
-  // Left: world map sketch (lat/lon graticule).
-  const mapX0 = 24, mapY0 = 24, mapW = W * 0.4, mapH = H * 0.5;
-  ctx.strokeStyle = 'rgba(220,220,240,0.35)'; ctx.strokeRect(mapX0, mapY0, mapW, mapH);
-  ctx.fillStyle = '#dcdde2'; ctx.font = '13px sans-serif';
-  ctx.fillText('Telescopes on Earth (lat-lon)', mapX0 + 8, mapY0 + 18);
-  // Simple equirectangular map: lon -> x, lat -> y.
-  for (const t of telescopes) {
-    const x = mapX0 + ((t.lon + 180) / 360) * mapW;
-    const y = mapY0 + ((90 - t.lat) / 180) * mapH;
-    ctx.fillStyle = '#ffd57f';
-    ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#dcdde2'; ctx.fillText(t.name, x + 6, y + 4);
+  // world map + telescopes (draggable in latitude)
+  panel(MAP.x, MAP.y, MAP.w, MAP.h, 'Telescopes (drag to move latitude)');
+  ctx.strokeStyle = 'rgba(120,150,200,0.10)';
+  for (let g = 1; g < 8; g += 1) {
+    ctx.beginPath(); ctx.moveTo(MAP.x + g * MAP.w / 8, MAP.y); ctx.lineTo(MAP.x + g * MAP.w / 8, MAP.y + MAP.h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(MAP.x, MAP.y + g * MAP.h / 8); ctx.lineTo(MAP.x + MAP.w, MAP.y + g * MAP.h / 8); ctx.stroke();
   }
-  // Graticule.
-  ctx.strokeStyle = 'rgba(220,220,240,0.1)';
-  for (let g = 0; g < 8; g += 1) {
-    ctx.beginPath(); ctx.moveTo(mapX0 + g * mapW / 8, mapY0); ctx.lineTo(mapX0 + g * mapW / 8, mapY0 + mapH); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(mapX0, mapY0 + g * mapH / 8); ctx.lineTo(mapX0 + mapW, mapY0 + g * mapH / 8); ctx.stroke();
+  ctx.strokeStyle = 'rgba(120,150,200,0.22)';
+  ctx.beginPath(); ctx.moveTo(MAP.x, MAP.y + MAP.h / 2); ctx.lineTo(MAP.x + MAP.w, MAP.y + MAP.h / 2); ctx.stroke();
+  // active baselines between stations
+  ctx.strokeStyle = 'rgba(91,192,235,0.22)'; ctx.lineWidth = 1;
+  for (let i = 0; i < telescopes.length; i += 1) for (let j = i + 1; j < telescopes.length; j += 1) {
+    const a = mapXY(telescopes[i].lat, telescopes[i].lon), b = mapXY(telescopes[j].lat, telescopes[j].lon);
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
   }
-
-  // Right top: UV plane.
-  const uvX0 = mapX0 + mapW + 24, uvY0 = mapY0, uvW = W - uvX0 - 24, uvH = mapH;
-  ctx.strokeStyle = 'rgba(220,220,240,0.35)'; ctx.strokeRect(uvX0, uvY0, uvW, uvH);
-  ctx.fillStyle = '#dcdde2'; ctx.fillText('UV coverage', uvX0 + 8, uvY0 + 18);
-  // Plot uvHistory.
-  const uvMax = 5e3; // wavelengths
-  const cxUV = uvX0 + uvW / 2, cyUV = uvY0 + uvH / 2;
-  const sUV = Math.min(uvW, uvH) / 2 / uvMax;
-  for (const sm of uvHistory) {
-    const x = cxUV + sm.u * sUV;
-    const y = cyUV - sm.v * sUV;
-    ctx.fillStyle = `hsla(${(sm.baseline * 37) % 360}, 70%, 60%, 0.5)`;
-    ctx.fillRect(x, y, 1.5, 1.5);
+  for (let i = 0; i < telescopes.length; i += 1) {
+    const t = telescopes[i], [x, y] = mapXY(t.lat, t.lon);
+    ctx.fillStyle = st.drag === i ? '#fff' : '#ffd57f';
+    ctx.beginPath(); ctx.arc(x, y, st.drag === i ? 6 : 4.5, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = '#aeb6c6'; ctx.font = '10px ui-monospace, monospace';
+    ctx.fillText(t.name, x + 7, y + 3);
   }
 
-  // Bottom strip: dirty image and sky model.
-  const botY0 = mapY0 + mapH + 24, botH = H - botY0 - 24;
-  ctx.strokeStyle = 'rgba(220,220,240,0.35)';
-  ctx.strokeRect(mapX0, botY0, mapW, botH);
-  ctx.strokeRect(uvX0,  botY0, uvW,  botH);
-  ctx.fillStyle = '#dcdde2'; ctx.fillText('Sky model', mapX0 + 8, botY0 + 18);
-  ctx.fillText('Dirty image', uvX0 + 8, botY0 + 18);
-  // Sky model.
-  const cxSky = mapX0 + mapW / 2, cySky = botY0 + botH / 2;
-  for (const src of sources) {
-    const x = cxSky + src.l * mapW * 0.0005;
-    const y = cySky - src.m * mapH * 0.0005;
-    ctx.fillStyle = `rgba(255, 213, 127, ${0.4 + src.amp * 0.6})`;
-    ctx.beginPath(); ctx.arc(x, y, 4 + src.amp * 4, 0, 2 * Math.PI); ctx.fill();
+  // UV plane (auto-scaled to the longest baseline)
+  const UVp = { x: MAP.x + MAP.w + 22, y: MAP.y, w: W - (MAP.x + MAP.w + 22) - 22, h: MAP.h };
+  panel(UVp.x, UVp.y, UVp.w, UVp.h, 'UV coverage (M lambda)');
+  const uvMax = maxBaseline(xyz, LAMBDA_MM) * 1.08;
+  const cx = UVp.x + UVp.w / 2, cy = UVp.y + UVp.h / 2;
+  const sUV = Math.min(UVp.w, UVp.h) / 2 / uvMax;
+  ctx.strokeStyle = 'rgba(120,150,200,0.14)';
+  for (const fr of [0.5, 1]) { ctx.beginPath(); ctx.arc(cx, cy, fr * Math.min(UVp.w, UVp.h) / 2, 0, 6.2832); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(UVp.x, cy); ctx.lineTo(UVp.x + UVp.w, cy); ctx.moveTo(cx, UVp.y); ctx.lineTo(cx, UVp.y + UVp.h); ctx.stroke();
+  for (const sm of uvHist) {
+    const x = cx + sm.u * sUV, y = cy - sm.v * sUV;
+    if (x < UVp.x || x > UVp.x + UVp.w || y < UVp.y || y > UVp.y + UVp.h) continue;
+    ctx.fillStyle = `hsla(${(sm.pair * 47) % 360},75%,62%,0.55)`;
+    ctx.fillRect(x, y, 1.6, 1.6);
   }
-  // Dirty image (when accumulated enough).
-  if (uvHistory.length > 5) {
-    const { img, N } = dirtyImage();
-    // Normalize by number of UV samples so the dirty image brightness is
-    // comparable between snapshot (few samples) and full-synthesis state.
-    const Nsamp = Math.max(uvHistory.length, 1);
-    for (let i = 0; i < img.length; i += 1) img[i] /= Nsamp;
-    let mx = 0, mn = Infinity;
-    for (let i = 0; i < img.length; i += 1) { if (img[i] > mx) mx = img[i]; if (img[i] < mn) mn = img[i]; }
-    const cell = Math.min(uvW, botH) / N;
-    for (let j = 0; j < N; j += 1) for (let i = 0; i < N; i += 1) {
-      const v = (img[j * N + i] - mn) / Math.max(mx - mn, 1e-9);
-      ctx.fillStyle = `rgb(${(255 * v) | 0}, ${(190 * v) | 0}, ${(70 * v) | 0})`;
-      ctx.fillRect(uvX0 + 24 + i * cell, botY0 + 28 + j * cell, cell + 1, cell + 1);
-    }
+  ctx.fillStyle = '#8893a6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillText(`${(uvMax / 1e6).toFixed(0)} Mλ`, UVp.x + UVp.w - 6, cy - 4);
+
+  // bottom: sky model + dirty image
+  const botY = MAP.y + MAP.h + 22, botH = H - botY - 22;
+  panel(MAP.x, botY, MAP.w, botH, 'Sky model (truth)');
+  panel(UVp.x, botY, UVp.w, botH, 'Dirty image (reconstruction)');
+  const skC = [MAP.x + MAP.w / 2, botY + botH / 2 + 6];
+  for (const s of sources) {
+    const x = skC[0] + s.l / FOV_RAD * (MAP.w / 2 - 16);
+    const y = skC[1] - s.m / FOV_RAD * (botH / 2 - 22);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 6 + s.amp * 9);
+    g.addColorStop(0, '#ffe9b0'); g.addColorStop(1, 'rgba(255,213,127,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 6 + s.amp * 9, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(x, y, 2 + s.amp * 2.5, 0, 6.2832); ctx.fill();
+  }
+  if (dirty) {
+    const sz = Math.min(UVp.w - 16, botH - 30);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(off, 0, 0, IMG_N, IMG_N, UVp.x + (UVp.w - sz) / 2, botY + 24, sz, sz);
+  } else {
+    ctx.fillStyle = '#5a6477'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillText('accumulating UV coverage...', UVp.x + UVp.w / 2, botY + botH / 2);
+    ctx.textAlign = 'left';
   }
 
-  readoutInv.textContent = `time=${state.time}  baselines=${xyz.length * (xyz.length - 1) / 2}  uv samples=${uvHistory.length}`;
-  readoutFrame.textContent = String(state.time);
+  const res = resolutionMas(xyz, LAMBDA_MM);
+  if (readoutEl) {
+    readoutEl.innerHTML = `<span class="label">hour angle</span><span class="value">${(st.time / NT * 24 - 12).toFixed(1)} h</span>`
+      + `<span class="label">baselines</span><span class="value">${baselines.length}</span>`
+      + `<span class="label">uv samples</span><span class="value">${uvHist.length}</span>`
+      + `<span class="label">resolution</span><span class="value">${res.toFixed(3)} mas</span>`;
+  }
 }
 
-let raf;
-function tick() {
-  state.time = (state.time + 1) % state.NT;
-  accumulate();
+function frame() {
+  if (st.running && !CAPTURE_NAME) {
+    st.time = (st.time + 2) % NT;
+    accumulate();
+    if (st.time - dirtyAt >= 18 || dirtyAt < 0 || st.time < dirtyAt) refreshDirty();
+  }
   render();
-  if (!CAPTURE_NAME) raf = requestAnimationFrame(tick);
+  if (!CAPTURE_NAME) requestAnimationFrame(frame);
 }
+
+// drag a telescope: vertical = latitude
+function pick(mx, my) {
+  for (let i = 0; i < telescopes.length; i += 1) {
+    const [x, y] = mapXY(telescopes[i].lat, telescopes[i].lon);
+    if (Math.hypot(mx - x, my - y) < 12) return i;
+  }
+  return -1;
+}
+function evt(e) {
+  const r = canvas.getBoundingClientRect();
+  return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
+}
+canvas.addEventListener('pointerdown', (e) => {
+  const [mx, my] = evt(e); const i = pick(mx, my);
+  if (i >= 0) { st.drag = i; canvas.classList.add('dragging'); canvas.setPointerCapture(e.pointerId); }
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (st.drag < 0) return;
+  const [, my] = evt(e);
+  const lat = Math.max(-75, Math.min(75, 90 - ((my - MAP.y) / MAP.h) * 180));
+  telescopes[st.drag].lat = lat;
+  rebuildBaselines(); accumulate(); refreshDirty();
+});
+function endDrag() { st.drag = -1; canvas.classList.remove('dragging'); }
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
 
 function buildControls() {
-  controlsEl.innerHTML = '';
+  const host = document.getElementById('controls'); if (!host) return;
+  host.innerHTML = '';
   const row = document.createElement('div'); row.className = 'row';
-  const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = 'time-slider'; lab.textContent = 'time';
-  const inp = document.createElement('input'); inp.id = 'time-slider'; inp.type = 'range'; inp.min = '0'; inp.max = String(state.NT); inp.value = String(state.time);
-  inp.setAttribute('aria-label', 'Simulated hour angle');
-  const val = document.createElement('span'); val.className = 'value'; val.textContent = String(state.time);
-  inp.addEventListener('input', () => { state.time = parseInt(inp.value, 10); val.textContent = String(state.time); accumulate(); render(); });
-  row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
-  controlsEl.appendChild(row);
+  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = 'hour angle';
+  const inp = document.createElement('input'); inp.type = 'range'; inp.min = '0'; inp.max = String(NT); inp.value = String(st.time);
+  inp.setAttribute('aria-label', 'hour angle / accumulated time');
+  const val = document.createElement('span'); val.className = 'value';
+  const sync = () => { val.textContent = `${(st.time / NT * 24 - 12).toFixed(1)} h`; };
+  inp.addEventListener('input', () => { st.running = false; st.time = parseInt(inp.value, 10); sync(); accumulate(); refreshDirty(); render(); });
+  sync(); row.append(lab, inp, val);
+  const brow = document.createElement('div'); brow.className = 'row buttons';
+  const bp = document.createElement('button'); bp.type = 'button'; bp.textContent = st.running ? 'Pause' : 'Play';
+  bp.addEventListener('click', () => { st.running = !st.running; bp.textContent = st.running ? 'Pause' : 'Play'; if (st.running && !CAPTURE_NAME) requestAnimationFrame(frame); });
+  const br = document.createElement('button'); br.type = 'button'; br.textContent = 'Reset';
+  br.addEventListener('click', () => { telescopes.forEach((t, i) => { t.lat = [-23, 34.1, 50.5, 60.2, 19.8][i]; }); st.time = 0; rebuildBaselines(); accumulate(); refreshDirty(); render(); });
+  brow.append(bp, br);
+  host.append(row, brow);
 }
 
-buildControls();
-accumulate();
-render();
-if (DETERMINISTIC) {
-  // One render is enough; the dirty-image direct sum is O(N_uv * N_pix^2)
-  // per call which exceeds Playwright's 30-s capture timeout if we step
-  // many frames here. The pre-rendered output reflects the initial
-  // accumulated UV sample set.
-  state.time = 60; accumulate(); render();
-  window.__simulationReady = true;
-  window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-} else {
-  raf = requestAnimationFrame(tick);
+function bootSync() {
+  buildControls();
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st.time = Math.round(8 + f * (NT - 8));
+  } else { st.time = 60; }
+  accumulate(); refreshDirty(); render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
-
-window.__physicsCheck = async () => {
-  // For a 1000 km baseline at 3 mm wavelength, the longest |b/lambda| ~ 1000 km / 3 mm = 3.33e8.
-  // Resolution theta ~ 1/|b/lambda| rad = 3e-9 rad = 0.62 mas. (note: not uas in this version.)
-  const blMax = 1000 * 1e6 / LAMBDA_MM;          // km -> mm -> wavelengths
-  const theta_rad = 1 / blMax;
-  const theta_mas = theta_rad * 206264.806 * 1000;
-  if (Math.abs(theta_mas - 0.618) > 0.01) return { name: 'resolution', pass: false, msg: `theta=${theta_mas} mas` };
-  return { name: 'baseline resolution', pass: true, msg: `theta(1000 km, 3 mm) = ${theta_mas.toFixed(3)} mas` };
-};
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }

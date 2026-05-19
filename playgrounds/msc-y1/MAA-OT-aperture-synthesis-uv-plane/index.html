@@ -21,7 +21,7 @@
 </style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <header>
   <h1 data-slot="title">Aperture Synthesis on the UV Plane</h1>
-  <div data-slot="description" class="katex-target">Playground.</div>
+  <div data-slot="description" class="katex-target"><strong>What you are seeing:</strong> a radio interferometer never measures the sky directly; each antenna pair measures one Fourier component of it, the <em>visibility</em> at a point $(u,v)$ set by the projected baseline. As the Earth rotates, every baseline sweeps an ellipse through the $(u,v)$ plane (Earth-rotation aperture synthesis), filling in coverage. The inverse transform of that sampled visibility is the <em>dirty image</em>: the true sky convolved with the dirty beam. Drag any telescope to a new latitude and watch its baselines, the UV arcs and the angular resolution $\theta \sim \lambda / B_\mathrm{max}$ change. Five real stations (ALMA, VLA, Effelsberg, Metsahovi, JCMT) at $\lambda = 3$ mm.</div>
 </header>
 <figure class="pg-figure">
   <canvas id="stage" width="900" height="600"></canvas>
