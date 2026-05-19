@@ -37,15 +37,20 @@ const PRESETS = {
 };
 const st = { preset: 'cyclotron', B0: 1, q: 1, speed: 3, running: true };
 let s, scale = 70;
+// Guiding centre (EMA of position: averages out the gyration, leaving
+// the slow drift) and a camera that follows it, so the orbit never
+// drifts out of view for any preset and you literally watch the
+// particle gyrate about its drifting guiding centre.
+const gc = { x: 0, y: 0, z: 0, init: false };
+const cam = { x: 0, y: 0, z: 0 };
 const az = 0.62, el = 0.42;                          // fixed view angles
 const ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(el), se = Math.sin(el);
 function proj(p) {
-  // orthographic: rotate about z (az) then tilt (el)
-  const x = p[0] * ca - p[1] * sa;
-  const y = p[0] * sa + p[1] * ca;
-  const sx = x;
-  const sy = y * se - p[2] * ce;
-  return [W / 2 + sx * scale, H / 2 + sy * scale];
+  // orthographic: translate by the camera, rotate about z (az), tilt (el)
+  const X0 = p[0] - cam.x, Y0 = p[1] - cam.y, Z0 = p[2] - cam.z;
+  const x = X0 * ca - Y0 * sa;
+  const y = X0 * sa + Y0 * ca;
+  return [W / 2 + x * scale, H / 2 + (y * se - Z0 * ce) * scale];
 }
 
 function rebuild() {
@@ -53,6 +58,7 @@ function rebuild() {
   scale = cfg.scale;
   s = createState({ q: st.q, m: 1, r0: cfg.r0.slice(), v0: cfg.v0.slice(), preset: st.preset, params: { B0: st.B0, E0: 0.4 * st.B0, grad: 0.06, mirror: 0.05 } });
   s.trail = [];
+  gc.init = false; cam.x = cam.y = cam.z = 0;
 }
 
 function advance() {
@@ -61,7 +67,14 @@ function advance() {
     step(s, dt);
     s.trail.push(s.r.slice());
     if (s.trail.length > 2600) s.trail.shift();
+    // Guiding centre = slow EMA of position (gyration averages out).
+    if (!gc.init) { gc.x = s.r[0]; gc.y = s.r[1]; gc.z = s.r[2]; gc.init = true; }
+    else { const a = 0.02; gc.x += a * (s.r[0] - gc.x); gc.y += a * (s.r[1] - gc.y); gc.z += a * (s.r[2] - gc.z); }
   }
+  // Camera eases toward the guiding centre so the orbit stays framed.
+  cam.x += 0.12 * (gc.x - cam.x);
+  cam.y += 0.12 * (gc.y - cam.y);
+  cam.z += 0.12 * (gc.z - cam.z);
 }
 
 function axes() {
@@ -75,9 +88,40 @@ function axes() {
   }
 }
 
+function arrow3(a, b, color, label) {
+  const A = proj(a), B = proj(b);
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
+  const an = Math.atan2(B[1] - A[1], B[0] - A[0]);
+  ctx.beginPath(); ctx.moveTo(B[0], B[1]);
+  ctx.lineTo(B[0] - 9 * Math.cos(an - 0.4), B[1] - 9 * Math.sin(an - 0.4));
+  ctx.lineTo(B[0] - 9 * Math.cos(an + 0.4), B[1] - 9 * Math.sin(an + 0.4));
+  ctx.closePath(); ctx.fill();
+  if (label) { ctx.font = '11px monospace'; ctx.fillText(label, B[0] + 5, B[1] - 4); }
+  ctx.lineWidth = 1;
+}
+const DRIFT_LABEL = {
+  cyclotron: 'cyclotron: pure gyration, no drift',
+  exb: 'E x B drift: v_d = E x B / B^2 (charge-independent)',
+  gradB: 'grad-B drift: v_d ~ (m v_perp^2 / 2qB^3) B x grad B',
+  curvature: 'curvature drift: v_d ~ (m v_||^2 / qB) along R_c x B',
+  mirror: 'magnetic mirror: mu = m v_perp^2 / 2B invariant; v_|| reflects',
+};
+
 function render() {
   ctx.fillStyle = 'rgba(7,8,12,0.16)'; ctx.fillRect(0, 0, W, H);  // persistence fade
   axes();
+  // B-field hint: a faint grid of +z arrows around the camera (B is
+  // predominantly along z for these presets) so the field is visible.
+  for (let gx = -1; gx <= 1; gx += 1) {
+    for (let gy = -1; gy <= 1; gy += 1) {
+      arrow3([cam.x + gx * 1.7, cam.y + gy * 1.7, cam.z - 1.1],
+        [cam.x + gx * 1.7, cam.y + gy * 1.7, cam.z + 1.1], 'rgba(110,140,200,0.30)', null);
+    }
+  }
+  const blab = proj([cam.x + 1.7, cam.y + 1.7, cam.z + 1.15]);
+  ctx.fillStyle = 'rgba(150,175,230,0.8)'; ctx.font = '11px monospace';
+  ctx.fillText('B', blab[0] + 4, blab[1]);
   // helix trail
   ctx.strokeStyle = st.q >= 0 ? 'rgba(255,150,90,0.75)' : 'rgba(110,170,255,0.75)';
   ctx.lineWidth = 1.6; ctx.beginPath();
@@ -86,12 +130,30 @@ function render() {
     if (i === 0) ctx.moveTo(P[0], P[1]); else ctx.lineTo(P[0], P[1]);
   }
   ctx.stroke();
-  // particle
+  // guiding centre marker
+  if (gc.init) {
+    const G = proj([gc.x, gc.y, gc.z]);
+    ctx.strokeStyle = 'rgba(150,255,200,0.8)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(G[0] - 5, G[1]); ctx.lineTo(G[0] + 5, G[1]);
+    ctx.moveTo(G[0], G[1] - 5); ctx.lineTo(G[0], G[1] + 5); ctx.stroke(); ctx.lineWidth = 1;
+    ctx.fillStyle = 'rgba(150,255,200,0.7)'; ctx.font = '10px monospace';
+    ctx.fillText('guiding centre', G[0] + 7, G[1] + 11);
+  }
+  // particle + its velocity and (E x B) drift vectors
   const P = proj(s.r);
+  const vmag = speed(s) || 1;
+  arrow3(s.r, [s.r[0] + s.v[0] / vmag * 0.9, s.r[1] + s.v[1] / vmag * 0.9, s.r[2] + s.v[2] / vmag * 0.9],
+    'rgba(245,245,255,0.85)', 'v');
+  if (st.preset === 'exb') {
+    const d = exbDrift(s); const dm = Math.hypot(d[0], d[1], d[2]) || 1;
+    arrow3([gc.x, gc.y, gc.z], [gc.x + d[0] / dm * 1.2, gc.y + d[1] / dm * 1.2, gc.z + d[2] / dm * 1.2],
+      '#ffd24a', 'v_d');
+  }
   ctx.fillStyle = st.q >= 0 ? '#ffcaa0' : '#a8ccff';
   ctx.beginPath(); ctx.arc(P[0], P[1], 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px monospace';
-  ctx.fillText('Boris pusher, F = q(E + v x B); trail is the 3D orbit, orthographic projection', 12, H - 12);
+  // active-drift explanation (educational, not just a projection note)
+  ctx.fillStyle = 'rgba(220,228,245,0.9)'; ctx.font = '12px monospace';
+  ctx.fillText(DRIFT_LABEL[st.preset] || '', 12, H - 12);
 
   rV.textContent = speed(s).toFixed(4);
   rMu.textContent = magneticMoment(s).toFixed(4);

@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Single-Particle Motion: Drifts in E and B](../playgrounds/bsc-y3s1/AST3014-single-particle-em-drift-3d/index.html)** &nbsp; (verified, verified 2026-05-19T08:04:46Z)
+  A single charged particle in electric and magnetic fields does not just circle: its gyration center slowly drifts sideways, and a converging field can bounce it back. These guiding-center drifts and the magnetic mirror are how the Van Allen belts, the aurora, and magnetic- confinement fusion work.
+
 - **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified, verified 2026-05-19T07:58:43Z)
   Draw obstacles by click-drag (shift-drag erases); a 192 x 96 D2Q9 lattice-Boltzmann solver responds in real time. The colour field shows the local flow speed: bright where the fluid accelerates around the body, dark in the low-momentum wake behind it. A circular obstacle at moderate Reynolds number sheds a vortex street; lowering the relaxation time raises t
 
@@ -31,9 +34,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Fourier vs Laplace Transform Pairs](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (verified, verified 2026-05-19T04:36:48Z)
   Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15 (`arfken-weber`).
-
-- **[Single-Particle Motion: Drifts in E and B](../playgrounds/bsc-y3s1/AST3014-single-particle-em-drift-3d/index.html)** &nbsp; (verified, verified 2026-05-19T04:33:25Z)
-  A single charged particle in electric and magnetic fields does not just circle: its gyration center slowly drifts sideways, and a converging field can bounce it back. These guiding-center drifts and the magnetic mirror are how the Van Allen belts, the aurora, and magnetic- confinement fusion work.
 
 - **[Crystal Structure Explorer](../playgrounds/bsc-y3s2/FIS3005-crystal-structure-3d-explorer/index.html)** &nbsp; (verified, verified 2026-05-19T04:30:24Z)
   A crystal is a lattice plus a basis. The playground builds the cubic lattices (simple, body-centered, face-centered), lets you slice them with any Miller plane, and shows which X-ray reflections are allowed. This is how the atomic arrangement of a solid is actually determined.
