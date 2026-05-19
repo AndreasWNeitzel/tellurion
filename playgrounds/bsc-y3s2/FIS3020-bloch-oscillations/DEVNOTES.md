@@ -16,3 +16,6 @@ REVIEW (CONFIRMED CODE FIX + RECAPTURE) partly stale: Bloch-oscillation physics 
 ## Sweep 2026-05-19
 REVIEW CONFIRMED-CODE-FIX partly stale: Bloch physics, sim.js, 5 invariants, text already correct. Sole genuine defect: bootSync hardcoded st.t so all 5 goldens identical. Added CAPTURE_FRAC; capture sweeps st.t over 2.7 Bloch periods (non-integer so endpoints differ); recaptured 5 distinct verified-correct goldens (k sweeps the band, x oscillates).
 invariants Tests  5 passed + visual 5/5 x3. Shipped.
+
+## Rehaul 2026-05-19
+User: "very boring, very limited. Just a simple 2d cartesian plot." Applied the no-plot-as-main rule: the primary view is now the physical system, an electron wavepacket (glowing Gaussian) riding a tilted periodic lattice with a centre-of-mass trail that stays inside the Wannier-Stark width W/2F and a force arrow, showing the headline counterintuitive result (a DC force gives oscillation, not runaway). The band E(k) with the Brillouin-zone sweep and the real-space x(t) are demoted to small diagnostic panels. sim.js byte-identical (blochFrequency/quasiMomentum/position; invariants 5/5). Verified live: wavepacket + trail + BZ-dot all animate, 5 distinct goldens.
