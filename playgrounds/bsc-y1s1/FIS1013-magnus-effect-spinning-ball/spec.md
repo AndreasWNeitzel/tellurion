@@ -31,36 +31,83 @@ drag that always shortens the flight.
 
 ### The Magnus force
 
-A spinning ball drags air around with it, so the airflow is faster on
-one side and slower on the other. By Bernoulli the pressure is lower
-on the fast side, giving a sideways lift force perpendicular to both
-the velocity and the spin axis:
+A spinning ball drags air around with it (the viscous boundary
+layer co-rotates), so the airflow speed is asymmetric. By Bernoulli's
+principle the static pressure is lower on the side where the surface
+moves with the flow. The net pressure imbalance gives a lift force
+perpendicular to both the velocity and the spin axis,
 
-$$\mathbf F_M = S\,\boldsymbol\omega \times \mathbf v,$$
+$$\boxed{\;\mathbf F_M = S\,\boldsymbol\omega \times \mathbf v,\;}$$
 
-with $\boldsymbol\omega$ the spin and $S$ a coefficient set by the
-ball's size and the air density. Backspin lifts (the ball "floats"),
-topspin pushes it down (a sharp dip), sidespin curves it laterally.
-The force is always at right angles to the motion, so it bends the
-path without doing work.
+with $\boldsymbol\omega$ the spin (rad/s) and $S$ a positive
+coefficient. A useful explicit form is
+
+$$S = C_L\,\frac{\rho_{\rm air}\,A\,R_{\rm ball}}{2},$$
+
+where $C_L$ is a dimensionless lift coefficient that depends on the
+spin parameter $\sigma \equiv \omega R_{\rm ball} / |\mathbf v|$.
+For a typical football $C_L$ ranges from about $0.2$ (modest spin)
+to $0.5$ (heavy spin).
+
+Backspin lifts ($\mathbf F_M$ up, the ball "floats"); topspin pushes
+it down (a sharp dip); sidespin curves it laterally (the banana free
+kick). The force is always perpendicular to the motion, so it bends
+the path without doing work; only drag dissipates kinetic energy.
 
 ### Competing with gravity and drag
 
-The full equation of motion adds gravity and quadratic air drag:
+The full equation of motion for a spinning ball in air is
 
-$$m\frac{d\mathbf v}{dt}
-  = m\mathbf g
-  - \tfrac12\rho C_D A\,|\mathbf v|\,\mathbf v
-  + S\,\boldsymbol\omega\times\mathbf v.$$
+$$\boxed{\;m\,\frac{d\mathbf v}{dt}
+  = m\,\mathbf g
+  - \tfrac{1}{2}\,\rho_{\rm air}\,C_D\,A\,|\mathbf v|\,\mathbf v
+  + S\,\boldsymbol\omega \times \mathbf v.\;}$$
 
-Drag is antiparallel to $\mathbf v$ and grows with speed, so it
-always shortens the range and is why a real trajectory is not the
-textbook parabola. The Magnus term competes with gravity: enough
-backspin can flatten or even loft the arc; topspin makes it plunge
-well short of the no-spin parabola. The playground sweeps launch
-speed, angle and spin and overlays the spinning path against the
-drag-only and ideal-parabola references so the Magnus deflection is
-explicit.
+The three terms:
+
+- $m\,\mathbf g$, the weight ($\mathbf g \approx (0, -9.81)\,\mathrm{m/s^2}$).
+- $-\tfrac{1}{2} \rho_{\rm air} C_D A |\mathbf v|\,\mathbf v$,
+  *quadratic drag*: always antiparallel to $\mathbf v$ and growing
+  with $v^2$. For a smooth sphere $C_D \approx 0.47$ in the laminar
+  regime and drops to about $0.2$ in the post-crisis turbulent
+  regime (around Reynolds number $3 \times 10^5$). This is why a
+  fast spin can trigger the drag crisis and a knuckleball flutters.
+- $S\,\boldsymbol\omega \times \mathbf v$, the Magnus force.
+
+For a football ($m \approx 0.43\,\mathrm{kg}$, $R \approx 0.11\,\mathrm{m}$)
+launched at $30\,\mathrm{m/s}$ with $10\,\mathrm{rev/s}$ sidespin, the
+Magnus force is comparable to half the weight, which is exactly the
+deflection scale of a Roberto Carlos free kick.
+
+### Symbols, at a glance
+
+- $\mathbf v$, ball velocity (m/s); $\boldsymbol\omega$, spin
+  (rad/s).
+- $m$, ball mass (kg); $R_{\rm ball}$, ball radius (m).
+- $A = \pi R_{\rm ball}^2$, frontal area; $\rho_{\rm air}$, air density
+  ($\approx 1.2\,\mathrm{kg/m^3}$ at sea level).
+- $C_D$, drag coefficient; $C_L$, Magnus lift coefficient; $S$, the
+  Magnus prefactor above.
+- $\sigma = \omega R_{\rm ball}/|\mathbf v|$, the spin parameter.
+
+### Things to try
+
+- Add backspin and watch the trajectory flatten and carry farther
+  than the no-spin curve.
+- Switch to topspin and watch it dip sharply and fall short.
+- Crank the speed and see drag bend the path away from the ideal
+  parabola even with zero spin.
+
+### Bibliographic origin
+
+The effect was described in Magnus, *Annalen der Physik* **88** (1853)
+1, after earlier observations by Newton (1671) and Robins (1742) of
+the lateral deflection of musket balls. The lift formula
+$\mathbf F = \rho\,\boldsymbol\omega \times \mathbf v\,V$ for an
+inviscid spinning cylinder is the Kutta-Joukowski theorem (1902).
+The aerodynamic context is in Goff, *Gold Medal Physics: The
+Science of Sports* (Johns Hopkins 2010), Ch. 4. The drag crisis is
+discussed in Mehta, *Annu. Rev. Fluid Mech.* **17** (1985) 151.
 
 ### Things to try
 
