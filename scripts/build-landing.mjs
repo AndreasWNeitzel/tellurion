@@ -167,8 +167,9 @@ html{background:var(--bg-primary);scrollbar-width:thin;scrollbar-color:#2d4263 #
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:#0b0e16}
 ::-webkit-scrollbar-thumb{background:#2d4263;border-radius:999px}
-body{max-width:1240px;margin:0 auto;padding:30px;background:transparent;color:var(--text-primary);
+body{max-width:1280px;margin:0 auto;padding:0 24px 64px;background:transparent;color:var(--text-primary);
   font-family:var(--f-ui);font-size:15px;font-weight:400;position:relative;z-index:0;line-height:1.6}
+.header{padding-top:80px}
 /* Type scale (spec Section 2, do not deviate) */
 .t-display{font-size:clamp(2rem,5vw,3.2rem);font-weight:700;letter-spacing:-0.03em;line-height:1.1}
 .t-title{font-size:1.5rem;font-weight:600;letter-spacing:-0.02em}
@@ -179,26 +180,32 @@ body{max-width:1240px;margin:0 auto;padding:30px;background:transparent;color:va
 .t-mono{font-family:var(--f-mono);font-size:0.8125rem}
 #ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}
 .site-title{font-size:clamp(2rem,5vw,3.2rem);font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin:0 0 16px;color:var(--text-primary)}
-.header p{color:var(--text-secondary);max-width:560px;font-size:0.9375rem}
-h2.sec{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dimmed);margin:30px 0 14px}
-.uc{font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--text-secondary)}
-.heroes{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:14px 0 6px}
-.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
-.search{flex:1;min-width:220px}
-.search input{width:100%;padding:10px 13px;background:var(--bg-card);border:1px solid var(--border-subtle);
-  color:var(--text-primary);border-radius:6px;font-size:14px;font-family:var(--f-ui);outline:none;
-  transition:border-color .15s ease}
-.search input::placeholder{color:var(--text-secondary)}
+.header p{color:var(--text-secondary);max-width:560px;font-size:0.9375rem;margin:0}
+.sec{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dimmed);margin:48px 0 16px}
+.uc{font-family:var(--f-mono);font-weight:400;font-size:0.8125rem;color:var(--text-code)}
+/* Featured: 4-up horizontal scroll row, no wrapping (Section 7) */
+.heroes{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:6px;scroll-snap-type:x proximity}
+.heroes .card-f{flex:0 0 calc((100% - 36px)/4);min-width:240px;min-height:220px;scroll-snap-align:start}
+.heroes .card-f .cimg{height:140px}
+@media(max-width:900px){.heroes .card-f{flex:0 0 70%}}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0 14px}
+.search{position:relative;flex:1;max-width:640px;min-width:240px}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-dimmed);pointer-events:none}
+.search input{width:100%;padding:10px 14px 10px 40px;background:var(--bg-surface);border:1px solid var(--border-dim);
+  color:var(--text-primary);border-radius:6px;font-size:0.9375rem;font-family:var(--f-ui);outline:none;transition:border-color var(--t-fast)}
+.search input::placeholder{color:var(--text-dimmed)}
 .search input:focus{border-color:var(--border-active)}
-.sortsel{padding:9px 11px;background:var(--bg-card);border:1px solid var(--border-subtle);
-  color:var(--text-secondary);border-radius:6px;font-family:var(--f-mono);font-size:12px}
-.tags-rail{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
-.chip{padding:5px 10px;background:#1e2a3a;border:none;color:var(--text-secondary);border-radius:4px;
-  font-size:11px;font-family:var(--f-mono);cursor:pointer;transition:background .15s ease,color .15s ease}
-.chip:hover{color:var(--text-primary)}
-.chip.active{background:var(--accent-blue);color:#fff}
-.clearall{display:none;padding:5px 10px;background:transparent;border:1px solid var(--border-subtle);
-  color:var(--text-secondary);border-radius:4px;font-size:11px;font-family:var(--f-mono);cursor:pointer}
+.sortsel{padding:9px 12px;background:var(--bg-surface);border:1px solid var(--border-dim);
+  color:var(--text-secondary);border-radius:6px;font-family:var(--f-ui);font-size:0.8125rem;outline:none;transition:border-color var(--t-fast)}
+.sortsel:focus{border-color:var(--border-active)}
+.tags-rail{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;align-items:center}
+.chip{padding:4px 12px;background:transparent;border:1px solid var(--border-dim);color:var(--text-secondary);
+  border-radius:20px;font-size:0.8125rem;font-family:var(--f-ui);cursor:pointer;transition:all var(--t-fast)}
+.chip:hover{border-color:var(--border-subtle)}
+.chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--text-primary)}
+.clearall{display:none;background:transparent;border:none;color:var(--text-dimmed);
+  font-size:0.8125rem;font-family:var(--f-ui);cursor:pointer;padding:4px 6px}
+.clearall:hover{text-decoration:underline}
 .clearall.show{display:inline-block}
 .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
 @media(max-width:900px){.card-grid{grid-template-columns:repeat(2,1fr)}}
@@ -221,11 +228,11 @@ h2.sec{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.1
 .cuc{margin-top:4px;font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-code)}
 .ctags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;max-height:24px;overflow:hidden}
 .ctag{font-size:0.8125rem;padding:2px 8px;background:rgba(255,255,255,0.05);color:var(--text-secondary);border-radius:4px}
-.cur-group{width:100%;margin:18px 0 8px;display:flex;align-items:center;gap:12px;cursor:pointer}
-.cur-group h3{font-family:var(--f-ui);font-weight:500;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dimmed);margin:0;white-space:nowrap}
-.cur-group .ln{flex:1;height:1px;background:var(--border-subtle)}
+.cur-group{width:100%;margin:28px 0 10px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.cur-group h3{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dimmed);margin:0;white-space:nowrap}
+.cur-group .ln{flex:1;height:1px;background:var(--border-dim)}
 .cur-group .cnt{font-family:var(--f-mono);font-size:11px;color:var(--text-dimmed)}
-.cur-group .chev{color:var(--text-secondary);transition:transform .15s}
+.cur-group .chev{color:var(--text-dimmed);font-size:0.8125rem;width:12px;transition:transform var(--t-fast)}
 .cur-group.collapsed .chev{transform:rotate(-90deg)}
 .cur-wrap{overflow:hidden;transition:max-height .3s ease;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 footer{padding:32px 0 8px;color:var(--text-dimmed);font-size:12px;font-family:var(--f-mono)}
@@ -254,13 +261,17 @@ body.leaving{opacity:0}
 <section>
   <h2 class="sec">Browse</h2>
   <div class="controls">
-    <div class="search"><input id="search-input" type="text" placeholder="Search by title, code, year, or subject" aria-label="Search playgrounds"></div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+      <input id="search-input" type="text" placeholder="Search simulations..." aria-label="Search simulations">
+    </div>
     <select class="sortsel" id="sortsel" aria-label="Order">
-      <option value="az">Order: A to Z</option>
-      <option value="curriculum">Order: curriculum (BSc to MSc)</option>
+      <option value="az">A &rarr; Z</option>
+      <option value="za">Z &rarr; A</option>
+      <option value="curriculum">Curriculum order</option>
     </select>
   </div>
-  <div class="tags-rail" id="tags-rail">${chipRail}<button class="clearall" id="clearall">clear</button></div>
+  <div class="tags-rail" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
   <div class="card-grid" id="card-grid">${cardsHTML}</div>
 </section>
 
@@ -336,6 +347,7 @@ body.leaving{opacity:0}
       grid.classList.remove('curr');
       var arr=vis.slice();
       arr.sort(function(a,b){return a.dataset.title.localeCompare(b.dataset.title);});
+      if(mode==='za')arr.reverse();
       arr.forEach(function(c){ c.style.display=''; grid.appendChild(c); });
     }
     clearBtn.classList.toggle('show',Object.keys(active).length>0);
