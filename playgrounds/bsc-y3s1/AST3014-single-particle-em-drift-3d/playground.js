@@ -137,9 +137,15 @@ function boot() {
   restoreState(); syncLabels(); rebuild();
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
-    st.preset = 'cyclotron'; st.B0 = 1; st.q = 1; rebuild();
+    // Capture the E x B drift (the playground's headline): the guiding
+    // centre translates, so every frame is at a new position. Pure
+    // cyclotron is a closed circle, so its trail saturates and the
+    // frames stop differing.
+    st.preset = 'exb'; st.B0 = 1; st.q = 1;
+    if (selPre) selPre.value = 'exb';
+    rebuild();
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const steps = Math.round(f * 360);
+    const steps = Math.round(f * 520);
     for (let n = 0; n < steps; n += 1) { advance(); render(); }
     if (steps === 0) render();
   } else {
