@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified, verified 2026-05-19T07:58:43Z)
+  Draw obstacles by click-drag (shift-drag erases); a 192 x 96 D2Q9 lattice-Boltzmann solver responds in real time. The colour field shows the local flow speed: bright where the fluid accelerates around the body, dark in the low-momentum wake behind it. A circular obstacle at moderate Reynolds number sheds a vortex street; lowering the relaxation time raises t
+
 - **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified, verified 2026-05-19T07:41:41Z)
   Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.
 
@@ -64,9 +67,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Gravitational Lensing Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/index.html)** &nbsp; (verified, verified 2026-05-19T03:47:41Z)
   Drag up to four point-mass lenses; caustic curves (in amber) and critical curves (in white) are drawn analytically. A source position marker in the source-plane creates 2, 3, or 4 multiply-lensed images that update in real time. A background dot grid shears according to the lens map.
-
-- **[Fluid Painter: Lattice Boltzmann Sandbox](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/index.html)** &nbsp; (verified, verified 2026-05-19T03:36:03Z)
-  Draw obstacles by click-drag (shift-drag erases); a 192 x 96 D2Q9 lattice-Boltzmann solver responds in real time. The colour field shows the local flow speed: bright where the fluid accelerates around the body, dark in the low-momentum wake behind it. A circular obstacle at moderate Reynolds number sheds a vortex street; lowering the relaxation time raises t
 
 - **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified, verified 2026-05-19T03:26:53Z)
   A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.

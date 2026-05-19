@@ -24,6 +24,12 @@ export function createLBM(NX, NY, opts = {}) {
     NX, NY,
     tau: opts.tau ?? 0.6,
     uIn: opts.uIn ?? 0.10,
+    // Optional velocity limiter for the interactive playground only
+    // (0 = off, the pure BGK core used by invariants.test.mjs). BGK
+    // LBM is unstable when the local Mach number is large; clamping
+    // |u| keeps the user-driven sandbox from diverging to infinity
+    // without touching the gate-tested physics.
+    uClamp: opts.uClamp ?? 0,
     f: new Float64Array(NX * NY * 9),
     f2: new Float64Array(NX * NY * 9),
     obstacle: new Uint8Array(NX * NY),
@@ -102,7 +108,15 @@ export function step(s) {
         const v = f[idx * 9 + k];
         rho += v; ux += CX[k] * v; uy += CY[k] * v;
       }
-      ux /= rho; uy /= rho;
+      if (!(rho > 1e-6)) { rho = 1; ux = 0; uy = 0; }   // guard a vacuum/NaN cell
+      else { ux /= rho; uy /= rho; }
+      if (s.uClamp > 0) {
+        // BGK LBM diverges once the local Mach number is large. The
+        // velocity limiter caps |u| so the interactive sandbox stays
+        // bounded; it never triggers in the gate regime (uClamp = 0).
+        const sp = Math.hypot(ux, uy);
+        if (sp > s.uClamp) { const r = s.uClamp / sp; ux *= r; uy *= r; }
+      }
       for (let k = 0; k < 9; k += 1) {
         f[idx * 9 + k] += -(f[idx * 9 + k] - feq(k, rho, ux, uy)) / tau;
       }

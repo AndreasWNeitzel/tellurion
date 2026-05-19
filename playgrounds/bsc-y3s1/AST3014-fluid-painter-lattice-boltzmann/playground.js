@@ -24,11 +24,11 @@ const cellW = W / NX, cellH = H / NY;
 const CAP_WARMUP = 20;
 const CAP_MAX = 1400;
 
-const s = createLBM(NX, NY, { tau: 0.6, uIn: 0.10 });
+const s = createLBM(NX, NY, { tau: 0.57, uIn: 0.10, uClamp: 0.17 });
 function freshFlow() {
   lbmReset(s);
   s.obstacle.fill(0);
-  addCircle(s, NX / 4, NY / 2, 6);
+  addCircle(s, NX / 4, NY / 2, 9);                    // larger -> clear Karman wake
 }
 freshFlow();
 
@@ -39,15 +39,28 @@ function render() {
     for (let x = 0; x < NX; x += 1) {
       const idx = y * NX + x;
       if (s.obstacle[idx]) {
-        ctx.fillStyle = '#dcdde2';
+        ctx.fillStyle = '#e8e9ee';
+      } else if (x > 0 && x < NX - 1 && y > 0 && y < NY - 1
+                 && !s.obstacle[idx - 1] && !s.obstacle[idx + 1]
+                 && !s.obstacle[idx - NX] && !s.obstacle[idx + NX]) {
+        // Vorticity omega = d(uy)/dx - d(ux)/dy by central differences.
+        // A blue<->red diverging map makes the alternating shed
+        // vortices (the von Karman street) unmistakable; faint speed
+        // tint keeps the free stream visible.
+        const e = macro(s, idx + 1), w = macro(s, idx - 1);
+        const n = macro(s, idx + NX), so = macro(s, idx - NX);
+        const omega = 0.5 * ((e.uy - w.uy) - (n.ux - so.ux));
+        const v = Math.max(-1, Math.min(1, omega / 0.06));
+        const sp = Math.min(1, Math.hypot(macro(s, idx).ux, macro(s, idx).uy) / 0.22);
+        const base = 18 + 26 * sp;
+        const r = Math.floor(base + (v > 0 ? 200 * v : 0));
+        const g = Math.floor(base + 70 * (1 - Math.abs(v)));
+        const b = Math.floor(base + (v < 0 ? 210 * -v : 40));
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
       } else {
         const { ux, uy } = macro(s, idx);
-        const speed = Math.min(0.25, Math.hypot(ux, uy));
-        const t = speed / 0.25;
-        const r = Math.floor(20 + 235 * t * t);
-        const g = Math.floor(60 + 195 * t);
-        const b = Math.floor(120 + 50 * (1 - t));
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        const t = Math.min(1, Math.hypot(ux, uy) / 0.22);
+        ctx.fillStyle = `rgb(${18 + 40 * t | 0},${44 + 120 * t | 0},${90 + 90 * t | 0})`;
       }
       ctx.fillRect(x * cellW, y * cellH, cellW + 1, cellH + 1);
     }
@@ -85,7 +98,9 @@ function buildControls() {
     row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
     controlsEl.appendChild(row);
   }
-  slider('tau', 'tau (visc)', 0.52, 1.0, 0.01, s.tau, v => { s.tau = v; });
+  // Floor tau at 0.56 (nu = 0.02): below this BGK LBM is unconditionally
+  // unstable for the user-drawn high-Re geometry and diverges.
+  slider('tau', 'tau (visc)', 0.56, 1.0, 0.01, Math.max(0.56, s.tau), v => { s.tau = Math.max(0.56, v); });
   const row = document.createElement('div'); row.className = 'row';
   const clear = document.createElement('button'); clear.type = 'button'; clear.textContent = 'Clear obstacles';
   clear.addEventListener('click', () => { s.obstacle.fill(0); });
@@ -106,6 +121,13 @@ function updateReadout() {
 
 function tick() {
   for (let i = 0; i < 4; i += 1) lbmStep(s);
+  // Self-heal: if the field ever goes non-finite (extreme user
+  // geometry), reset the flow instead of rendering an exploded NaN
+  // field. The tau floor + velocity limiter make this rare.
+  if (s.steps % 16 === 0) {
+    const m = fluidMass(s);
+    if (!Number.isFinite(m) || m <= 0) freshFlow();
+  }
   render();
   if (s.steps % 16 === 0) updateReadout();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
