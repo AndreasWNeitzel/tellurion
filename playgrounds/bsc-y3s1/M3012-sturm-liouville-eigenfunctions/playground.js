@@ -1,51 +1,71 @@
-// Sturm-Liouville eigenfunctions made physical: the modes of -y'' = lambda y
-// on [0, pi] with Dirichlet ends ARE the normal modes of a vibrating string.
-// The string is shown oscillating as y(x,t) = sum c_n phi_n(x) cos(omega_n t)
-// with omega_n = sqrt(lambda_n); each mode below vibrates at its own rate, so
-// the eigenvalue spectrum lambda_n = n^2 becomes visible motion. Click the
-// string to re-pluck it (triangular initial condition).
+// A regular Sturm-Liouville problem made physical: the modes of
+// -(T y')' = lambda rho(x) y on [0, pi] with clamped ends ARE the
+// normal modes of a string whose mass density rho(x) you can change.
+// Uniform rho gives the textbook sin(n x), lambda_n = n^2. Loading the
+// string (heavy centre, a step, a taper) bends the mode shapes and
+// shifts the spectrum, yet the modes stay orthonormal under the
+// rho-weighted inner product. Three views: the vibrating string with
+// its visible density, the eigenvalue ladder against the n^2
+// reference, and every requested mode (not just six). Click the string
+// to re-pluck.
 
-import { eigenfunction, eigenvalue, projectCoefficients, reconstruct, L } from './sim.js';
+import {
+  solveSL, projectWeighted, modeSumAt, nodeCount, eigenvalue, L,
+} from './sim.js';
+import { parseUrlState, applyState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 
-const params         = new URLSearchParams(location.search);
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const params        = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_FRAC  = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas      = document.getElementById('stage');
-const ctx         = canvas.getContext('2d', { alpha: false });
-const readoutN    = document.getElementById('readout-n');
-const readoutErr  = document.getElementById('readout-err');
-const sliderN     = document.getElementById('slider-N');
-const valueN      = document.getElementById('value-N');
+const canvas     = document.getElementById('stage');
+const ctx        = canvas.getContext('2d', { alpha: false });
+const readoutN   = document.getElementById('readout-n');
+const readoutLam = document.getElementById('readout-lam');
+const readoutNod = document.getElementById('readout-nod');
+const sliderN    = document.getElementById('slider-N');
+const valueN     = document.getElementById('value-N');
+const selDens    = document.getElementById('sel-density');
 
 const W = canvas.width, H = canvas.height;
-let N = parseInt(sliderN.value, 10);
+const NGRID = 96;
 
-// Initial string profiles. Default: a smoothly loaded string x(pi-x).
-// Click re-plucks to a triangular tent peaked at the cursor.
-const smoothProfile = (x) => x * (L - x);
+let N = parseInt(sliderN.value, 10);
+let densKind = selDens.value;
+let sol = solveSL(densKind, NGRID, L);
+
+// Initial profiles. Default: a smoothly loaded string. Click re-plucks
+// to a triangular tent peaked at the cursor (a sharp corner, so the
+// modal coefficients fall off slowly and N visibly matters).
+const smoothProfile = (x) => Math.sin(Math.PI * x / L) * (0.6 + 0.4 * x / L);
 let pluckP = null;
 function currentProfile(x) {
   if (pluckP === null) return smoothProfile(x);
-  const A = L * L / 4;                 // match the smooth-profile peak scale
-  return x < pluckP ? A * (x / pluckP) : A * ((L - x) / (L - pluckP));
+  return x < pluckP ? (x / pluckP) : ((L - x) / (L - pluckP));
 }
 
-let coeffs = projectCoefficients(currentProfile, N);
-function recompute() { coeffs = projectCoefficients(currentProfile, N); }
+let coeffs = projectWeighted(currentProfile, sol, N);
+function reproject() { coeffs = projectWeighted(currentProfile, sol, N); }
+function resolve() { sol = solveSL(densKind, NGRID, L); reproject(); }
 
 sliderN.addEventListener('input', () => {
   N = parseInt(sliderN.value, 10);
   valueN.textContent = String(N);
-  recompute();
+  reproject();
+});
+selDens.addEventListener('change', () => {
+  densKind = selDens.value;
+  resolve();
 });
 
 canvas.addEventListener('pointerdown', (e) => {
   const rect = canvas.getBoundingClientRect();
-  const px = (e.clientX - rect.left) / rect.width;          // 0..1 across canvas
-  pluckP = Math.max(0.06 * L, Math.min(0.94 * L, px * L));
-  recompute();
+  const py = (e.clientY - rect.top) / rect.height;
+  if (py > 0.46) return;                         // only the string panel is pluckable
+  const px = (e.clientX - rect.left) / rect.width;
+  pluckP = Math.max(0.07 * L, Math.min(0.93 * L, px * L));
+  reproject();
 });
 
 function colors() {
@@ -59,134 +79,173 @@ function colors() {
   };
 }
 
-// Visible angular frequency of mode n. omega_n = sqrt(lambda_n) = n; scaled
-// so the fundamental period is a few seconds and higher modes are clearly
-// faster.
-const TIME_SCALE = 0.9;
-function omega(n) { return Math.sqrt(eigenvalue(n)) * TIME_SCALE; }
-
+const TIME_SCALE = 0.55;
 let clock = 0;
 
-function modeColor(n, nMax) {
-  const t = (n - 1) / Math.max(1, nMax - 1);
+function modeColor(k, kMax, alpha = 1) {
+  const t = (k - 1) / Math.max(1, kMax - 1);
   const r = 70 + Math.round(180 * t);
-  const g = 120 + Math.round(110 * t);
+  const g = 130 + Math.round(95 * t);
   const b = 235 - Math.round(170 * t);
-  return `rgb(${r}, ${g}, ${b})`;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Sample the time-evolved string and the static reconstruction on the
+// solver grid, returning pixel polylines plus the display normalisation.
+function sampleString(t) {
+  const ng = sol.n + 2;
+  const live = new Float64Array(ng), env = new Float64Array(ng);
+  let fMax = 1e-9;
+  for (let j = 0; j < ng; j += 1) {
+    live[j] = modeSumAt(sol, coeffs, N, j, t);
+    let e = 0;
+    for (let k = 1; k <= N; k += 1) e += coeffs[k] * sol.modes[k - 1][j];
+    env[j] = e;
+    fMax = Math.max(fMax, Math.abs(e), Math.abs(live[j]));
+  }
+  return { live, env, fMax, ng };
+}
+
+// Panel 1: the physical string. Stroke weight and warmth track the
+// local density rho(x); a faint ribbon behind shows rho directly.
 function drawString(c, x0, y0, w, h, t) {
-  ctx.fillStyle = c.bg;
-  ctx.fillRect(x0, y0, w, h);
-  const padL = 48, padR = 16, padT = 26, padB = 30;
+  ctx.fillStyle = c.bg; ctx.fillRect(x0, y0, w, h);
+  const padL = 50, padR = 18, padT = 30, padB = 24;
   const plotW = w - padL - padR;
   const midY = y0 + padT + (h - padT - padB) / 2;
-  const amp = (h - padT - padB) * 0.42;
+  const amp = (h - padT - padB) * 0.40;
+  const { live, env, fMax, ng } = sampleString(t);
+  const xPix = (j) => x0 + padL + plotW * (j / (ng - 1));
+  const yPix = (v) => midY - amp * v / fMax;
 
-  // Display normalisation from the static reconstruction peak.
-  let fMax = 1e-6;
-  for (let i = 0; i <= 200; i += 1) {
-    const x = L * i / 200;
-    fMax = Math.max(fMax, Math.abs(reconstruct(coeffs, x, N)));
-  }
-  const xFor = (x) => x0 + padL + plotW * x / L;
-  const yFor = (v) => midY - amp * v / fMax;
+  // Density ribbon (the Sturm-Liouville weight, made visible).
+  let rMax = 1e-9;
+  for (let j = 0; j < ng; j += 1) rMax = Math.max(rMax, sol.rho[j]);
+  const ribB = y0 + h - padB + 18;
+  ctx.beginPath();
+  ctx.moveTo(xPix(0), ribB);
+  for (let j = 0; j < ng; j += 1) ctx.lineTo(xPix(j), ribB - 30 * sol.rho[j] / rMax);
+  ctx.lineTo(xPix(ng - 1), ribB); ctx.closePath();
+  ctx.fillStyle = 'rgba(120,150,255,0.16)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(120,150,255,0.4)'; ctx.lineWidth = 1; ctx.stroke();
 
-  // Equilibrium line and clamped endpoints.
-  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-  ctx.setLineDash([4, 5]);
-  ctx.beginPath(); ctx.moveTo(xFor(0), midY); ctx.lineTo(xFor(L), midY); ctx.stroke();
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+  ctx.beginPath(); ctx.moveTo(xPix(0), midY); ctx.lineTo(xPix(ng - 1), midY); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Faint static envelope (the target the modal sum converges to).
-  ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 1.5;
+  // Static reconstruction envelope (target the modal sum converges to).
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
   ctx.beginPath();
-  for (let i = 0; i <= 240; i += 1) {
-    const x = L * i / 240;
-    const v = reconstruct(coeffs, x, N);
-    if (i === 0) ctx.moveTo(xFor(x), yFor(v)); else ctx.lineTo(xFor(x), yFor(v));
-  }
+  for (let j = 0; j < ng; j += 1) (j ? ctx.lineTo : ctx.moveTo).call(ctx, xPix(j), yPix(env[j]));
   ctx.stroke();
 
-  // The vibrating string: superposition of modes evolving in time.
-  const pts = [];
-  for (let i = 0; i <= 320; i += 1) {
-    const x = L * i / 320;
-    let y = 0;
-    for (let n = 1; n <= N; n += 1) y += coeffs[n] * eigenfunction(n, x) * Math.cos(omega(n) * t);
-    pts.push([xFor(x), yFor(y)]);
+  // The vibrating string: segments coloured/weighted by local density.
+  for (let j = 1; j < ng; j += 1) {
+    const rA = sol.rho[j - 1] / rMax;
+    ctx.strokeStyle = `rgba(255,${Math.round(209 - 120 * rA)},${Math.round(102 - 70 * rA)},0.9)`;
+    ctx.lineWidth = 1.6 + 3.6 * rA;
+    ctx.beginPath();
+    ctx.moveTo(xPix(j - 1), yPix(live[j - 1]));
+    ctx.lineTo(xPix(j), yPix(live[j]));
+    ctx.stroke();
   }
-  // Soft glow then crisp core.
-  ctx.strokeStyle = 'rgba(255,209,102,0.22)'; ctx.lineWidth = 7;
-  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
-  ctx.strokeStyle = c.accent; ctx.lineWidth = 2.4;
-  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
-
-  // Clamped end beads.
   ctx.fillStyle = c.fg;
-  for (const xe of [0, L]) { ctx.beginPath(); ctx.arc(xFor(xe), midY, 4.5, 0, 2 * Math.PI); ctx.fill(); }
+  for (const je of [0, ng - 1]) { ctx.beginPath(); ctx.arc(xPix(je), midY, 4.5, 0, 2 * Math.PI); ctx.fill(); }
 
   ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillText('vibrating string  y(x,t) = sum c_n phi_n(x) cos(omega_n t)', x0 + padL, y0 + 16);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.textAlign = 'right';
-  ctx.fillText(pluckP === null ? 'click string to pluck' : 'plucked', x0 + w - padR, y0 + 16);
+  ctx.fillText('clamped string  -(T y′)′ = λ ρ(x) y    line weight = local density ρ', x0 + padL, y0 + 17);
+  ctx.fillStyle = 'rgba(255,255,255,0.42)'; ctx.textAlign = 'right';
+  ctx.fillText(pluckP === null ? 'click string to pluck' : 'plucked', x0 + w - padR, y0 + 17);
 }
 
-function drawModes(c, x0, y0, w, h, t) {
-  ctx.fillStyle = c.bg;
-  ctx.fillRect(x0, y0, w, h);
-  const padL = 48, padR = 16, padT = 20, padB = 14;
-  const plotW = w - padL - padR;
-  const M = Math.min(6, N);
-  const laneH = (h - padT - padB) / M;
+// Panel 2: the eigenvalue ladder lambda_k, with faint open ticks at
+// the uniform-string reference n^2 so the spectral shift is visible.
+function drawSpectrum(c, x0, y0, w, h) {
+  ctx.fillStyle = c.bg; ctx.fillRect(x0, y0, w, h);
+  const padL = 50, padR = 16, padT = 22, padB = 26;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const K = N;
+  let lamMax = 1;
+  for (let k = 1; k <= K; k += 1) lamMax = Math.max(lamMax, sol.lambda[k - 1], eigenvalue(k));
+  const xk = (k) => x0 + padL + plotW * (K === 1 ? 0.5 : (k - 1) / (K - 1));
+  const yl = (lam) => y0 + padT + plotH * (1 - lam / lamMax);
 
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x0 + padL, y0 + padT + plotH); ctx.lineTo(x0 + padL + plotW, y0 + padT + plotH); ctx.stroke();
   ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillText('normal modes phi_n(x) cos(omega_n t)  (omega_n^2 = lambda_n = n^2)', x0 + padL, y0 + 14);
+  ctx.fillText('spectrum  λₖ   (open ticks: uniform-string reference n²)', x0 + padL, y0 + 15);
 
-  for (let n = 1; n <= M; n += 1) {
-    const laneMid = y0 + padT + (n - 0.5) * laneH;
-    const a = laneH * 0.40;
+  for (let k = 1; k <= K; k += 1) {
+    const xr = xk(k);
+    ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xr - 5, yl(eigenvalue(k))); ctx.lineTo(xr + 5, yl(eigenvalue(k))); ctx.stroke();
+    const yv = yl(sol.lambda[k - 1]);
+    ctx.strokeStyle = modeColor(k, K, 0.5); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(xr, y0 + padT + plotH); ctx.lineTo(xr, yv); ctx.stroke();
+    ctx.fillStyle = modeColor(k, K, 1);
+    ctx.beginPath(); ctx.arc(xr, yv, 3.4, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('k = 1', xk(1), y0 + padT + plotH + 14);
+  ctx.fillText(`k = ${K}`, xk(K), y0 + padT + plotH + 14);
+}
+
+// Panel 3: small multiples of every requested mode (capped only by N,
+// never by a hard 6). Each cell shows psi_k breathing at sqrt(lambda_k)
+// with its k-1 interior nodes.
+function drawGallery(c, x0, y0, w, h, t) {
+  ctx.fillStyle = c.bg; ctx.fillRect(x0, y0, w, h);
+  const padT = 20, padB = 8, padX = 8;
+  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`normal modes ψₖ(x) cos(√λₖ t)   (showing all ${N})`, x0 + padX + 4, y0 + 14);
+
+  const cols = N <= 4 ? N : (N <= 9 ? Math.ceil(N / 2) : (N <= 15 ? 5 : Math.ceil(N / 4)));
+  const rows = Math.ceil(N / cols);
+  const gw = (w - 2 * padX) / cols;
+  const gh = (h - padT - padB) / rows;
+  const ng = sol.n + 2;
+
+  for (let k = 1; k <= N; k += 1) {
+    const r = Math.floor((k - 1) / cols), col = (k - 1) % cols;
+    const cx = x0 + padX + col * gw, cy = y0 + padT + r * gh;
+    const mid = cy + gh * 0.52;
+    const a = gh * 0.32;
     ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x0 + padL, laneMid); ctx.lineTo(x0 + padL + plotW, laneMid); ctx.stroke();
-
-    ctx.strokeStyle = modeColor(n, M); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx + 6, mid); ctx.lineTo(cx + gw - 6, mid); ctx.stroke();
+    const env = Math.cos(Math.sqrt(Math.max(0, sol.lambda[k - 1])) * t);
+    const psi = sol.modes[k - 1];
+    ctx.strokeStyle = modeColor(k, N, 1); ctx.lineWidth = 1.8;
     ctx.beginPath();
-    for (let i = 0; i <= 240; i += 1) {
-      const x = L * i / 240;
-      const v = eigenfunction(n, x) * Math.cos(omega(n) * t) / Math.sqrt(2 / L);
-      const xx = x0 + padL + plotW * x / L;
-      const yy = laneMid - a * v;
-      if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+    for (let j = 0; j < ng; j += 1) {
+      const xx = cx + 6 + (gw - 12) * (j / (ng - 1));
+      const yy = mid - a * psi[j] * 1.05 * env;
+      (j ? ctx.lineTo : ctx.moveTo).call(ctx, xx, yy);
     }
     ctx.stroke();
-    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
-    ctx.fillText(`n=${n}`, x0 + padL - 6, laneMid + 4);
+    ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillText(`k=${k}`, cx + 7, cy + 11);
   }
 }
 
 function render(t) {
   const c = colors();
-  ctx.fillStyle = c.bg;
-  ctx.fillRect(0, 0, W, H);
-  drawString(c, 0, 0, W, H * 0.56, t);
-  drawModes(c, 0, H * 0.56, W, H * 0.44, t);
+  ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H);
+  const h1 = H * 0.40, h2 = H * 0.24, h3 = H - h1 - h2;
+  drawString(c, 0, 0, W, h1, t);
+  drawSpectrum(c, 0, h1, W, h2);
+  drawGallery(c, 0, h1 + h2, W, h3, t);
 }
 
 function updateReadout() {
-  let maxErr = 0;
-  for (let i = 0; i < 100; i += 1) {
-    const x = L * i / 99;
-    const err = Math.abs(currentProfile(x) - reconstruct(coeffs, x, N));
-    if (err > maxErr) maxErr = err;
-  }
   readoutN.textContent = String(N);
-  readoutErr.textContent = maxErr.toExponential(2);
+  readoutLam.textContent = sol.lambda[N - 1].toFixed(2);
+  readoutNod.textContent = String(nodeCount(sol.modes[N - 1]));
 }
 
 let last = 0;
 function loop(now) {
   if (!last) last = now;
-  clock += Math.min(0.05, (now - last) / 1000);
+  clock += Math.min(0.05, (now - last) / 1000) * TIME_SCALE;
   last = now;
   render(clock);
   updateReadout();
@@ -196,29 +255,41 @@ function loop(now) {
 function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    N = Math.max(1, Math.round(1 + frac * 19));
-    sliderN.value = String(N);
-    valueN.textContent = String(N);
-    recompute();
-    // Freeze the wave at a frame-dependent phase so each still differs.
-    render(0.5 + 2.3 * frac);
+    const kinds = ['uniform', 'heavy-center', 'two-step', 'heavy-end', 'taper'];
+    densKind = kinds[Math.min(kinds.length - 1, Math.floor(frac * kinds.length + 1e-6))];
+    selDens.value = densKind;
+    N = Math.max(2, Math.round(4 + frac * 14));
+    sliderN.value = String(N); valueN.textContent = String(N);
+    resolve();
+    render(0.4 + 2.1 * frac);
     updateReadout();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const detail = { capture: CAPTURE_NAME ?? null, N };
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = detail;
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const detail = { capture: CAPTURE_NAME ?? null, N, densKind };
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
+        window.__simulationReady = true;
+        window.__simulationReadyDetail = detail;
+      }));
     }
     return;
   }
+  const st = parseUrlState();
+  if (st) {
+    applyState(st, { N: sliderN, density: selDens });
+    N = parseInt(sliderN.value, 10);
+    densKind = selDens.value;
+  }
   valueN.textContent = String(N);
+  resolve();
   render(0);
   updateReadout();
 }
+
+mountShareButton(
+  document.getElementById('controls'),
+  () => ({ N: String(N), density: densKind }),
+  { label: 'Copy URL' },
+);
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {

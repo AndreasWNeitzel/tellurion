@@ -23,38 +23,53 @@
   <h1>Sturm-Liouville eigenfunctions on [0, pi]</h1>
 
   <p>
-    <strong>What you are seeing:</strong> the Sturm-Liouville modes of
-    $-y'' = \lambda y$ on $[0, \pi]$ with $y(0) = y(\pi) = 0$ are the
-    normal modes of a clamped string. The top panel is a vibrating
-    string evolving as $y(x,t) = \sum_{n=1}^{N} c_n \phi_n(x)
-    \cos(\omega_n t)$ with $\omega_n = \sqrt{\lambda_n} = n$, so the
-    eigenvalue spectrum $\lambda_n = n^2$ becomes visible motion. The
-    lower lanes show each normal mode oscillating at its own rate
-    (mode $n$ is $n$ times faster).
+    <strong>What you are seeing:</strong> a clamped string whose mass
+    density $\rho(x)$ you choose. Its normal modes are the
+    eigenfunctions of the regular Sturm-Liouville problem
+    $-(T y')' = \lambda\,\rho(x)\,y$ on $[0,\pi]$, $y(0)=y(\pi)=0$,
+    solved numerically (finite differences, Jacobi). A
+    <em>uniform</em> string recovers the textbook
+    $\phi_n=\sqrt{2/\pi}\sin n x$, $\lambda_n=n^2$. Load it (heavy
+    centre, a density step, a taper) and the mode shapes bend toward
+    the heavy region and the spectrum shifts off $n^2$, yet the modes
+    stay orthonormal under the weighted inner product
+    $\langle f,g\rangle_\rho=\int\rho f g\,dx$. That invariance is the
+    substance of Sturm-Liouville theory.
   </p>
   <p>
-    Click the string to re-pluck it (a triangular initial condition at
-    the cursor) and watch the modal mix change. The $N$ slider sets how
-    many eigenfunctions reconstruct the profile, with the maximum
-    reconstruction error read out live.
+    Top: the vibrating string, line weight tracking the local density,
+    with the density ribbon drawn beneath. Middle: the eigenvalue
+    ladder $\lambda_k$ against the open-tick $n^2$ reference. Bottom:
+    every one of the $N$ modes you ask for (mode $k$ has exactly $k-1$
+    interior nodes, the Sturm oscillation theorem). Click the string to
+    re-pluck it with a triangular tent.
   </p>
 
   <figure class="pg-figure">
-    <canvas id="stage" width="760" height="500" tabindex="0"
-            aria-label="First few eigenfunctions and reconstruction of target function."></canvas>
+    <canvas id="stage" width="760" height="580" tabindex="0"
+            aria-label="Variable-density string, its eigenvalue spectrum, and every requested Sturm-Liouville mode."></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">N terms:</span><span class="value" id="readout-n">8</span>
-      <span class="label">max |error|:</span><span class="value" id="readout-err">0</span>
+      <span class="label">N modes:</span><span class="value" id="readout-n">8</span>
+      <span class="label">&lambda;<sub>N</sub>:</span><span class="value" id="readout-lam">0</span>
+      <span class="label">nodes of &psi;<sub>N</sub>:</span><span class="value" id="readout-nod">0</span>
     </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
-      Sturm-Liouville eigenfunctions and truncated expansion of a
-      target function. Source: Arfken-Weber Ch. 8 (`arfken-weber`).
+      Regular Sturm-Liouville spectrum of a variable-density clamped
+      string, solved by finite differences. Source: Arfken-Weber Ch. 8
+      (`arfken-weber`).
     </figcaption>
   </figure>
 
   <div class="controls pg-controls" id="controls" role="group" aria-label="SL controls">
     <div class="row"><span class="label">N (modes)</span><input aria-label="N (modes)" type="range" id="slider-N" min="1" max="20" step="1" value="8"><span class="value" id="value-N">8</span></div>
+    <div class="row"><span class="label">density &rho;(x)</span><select aria-label="density profile" id="sel-density">
+      <option value="uniform">uniform (sin n x)</option>
+      <option value="heavy-center" selected>heavy centre</option>
+      <option value="heavy-end">heavy near one end</option>
+      <option value="two-step">two-step (4x denser half)</option>
+      <option value="taper">linear taper</option>
+    </select><span class="value">SL weight</span></div>
   </div>
 
   <script type="module" src="./playground.js"></script>
