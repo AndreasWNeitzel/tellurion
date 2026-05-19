@@ -52,15 +52,89 @@ pulse, which is how laser range-finders and laser machining work.
 - "Q-switched giant pulse" (or Fire Q-switch): one brief brilliant
   flash that drains the stored inversion.
 
-### The equations (collapsible)
+### The rate equations of a four-level laser
 
-$$\dot N = P-\frac N\tau-B N n,\qquad
-  \dot n = B N n-\frac n{\tau_c}+s\frac N\tau,$$
+A coupled pair of ODEs for the population inversion $N$ (number of
+atoms in the upper laser state minus the lower) and the cavity
+photon number $n$ captures everything:
 
-$N$ the inversion, $n$ the photon number, $P$ the pump, $\tau$ the
-upper-state lifetime, $\tau_c$ the cavity lifetime (longer for better
-mirrors), $B$ the stimulated coupling. Threshold inversion
-$N_{\rm th}=1/(B\tau_c)$; threshold pump $P_{\rm th}=N_{\rm th}/\tau$.
+$$\boxed{\;
+\dot N = P - \frac{N}{\tau} - B\,N\,n,\qquad
+\dot n = B\,N\,n - \frac{n}{\tau_c} + s\,\frac{N}{\tau}.
+\;}$$
+
+What each term does:
+
+- $P$, the pump rate (excited atoms produced per unit time). The
+  knob you turn on the front panel.
+- $-N/\tau$, spontaneous emission with upper-state lifetime $\tau$:
+  excited atoms drop on their own, scrambling into all directions.
+- $-B\,N\,n$, *stimulated* emission: each photon in the cavity
+  triggers another excited atom to emit a copy in the same mode.
+  The coefficient $B$ is the Einstein $B$ coefficient times the
+  mode density.
+- $+B\,N\,n$, the photon-gain twin of the line above.
+- $-n/\tau_c$, photons leaking out (the cavity decay time
+  $\tau_c$ depends on mirror reflectivity and absorption).
+- $+s\,N/\tau$, the small fraction $s \ll 1$ of spontaneous photons
+  that land in the lasing mode and seed the build-up.
+
+### Steady state and the threshold
+
+Set $\dot N = \dot n = 0$. Below threshold the second equation gives
+$n_{\rm ss} \approx s\,(N_{\rm ss}/\tau) \cdot \tau_c / (1 - B\,N_{\rm ss}\,\tau_c)$,
+which is small. The gain-loss balance $B\,N\,\tau_c = 1$ defines
+
+$$N_{\rm th} = \frac{1}{B\,\tau_c},\qquad
+  P_{\rm th} = \frac{N_{\rm th}}{\tau} = \frac{1}{B\,\tau\,\tau_c}.$$
+
+Above threshold the inversion *clamps* at $N_{\rm ss} = N_{\rm th}$ and
+all extra pump goes into the beam:
+
+$$n_{\rm ss} = \tau_c\,(P - P_{\rm th}),\qquad P > P_{\rm th}.$$
+
+This is the kink in the output-vs-pump curve and the most reliable
+diagnostic that you have a laser, not a bright lamp.
+
+### The Q-switched giant pulse
+
+Set $\tau_c$ very small (the cavity is "spoiled", $Q$ low) and pump
+hard. The atoms cannot lase, so the inversion piles up far above
+threshold; the steady-state inversion would be $P\,\tau$. Then
+suddenly snap $\tau_c$ back to its high-$Q$ value. The stimulated
+term explodes: $B\,N\,n$ runs away because $N$ is now far above
+threshold. The result is a sub-microsecond burst of light that
+dumps the stored inversion in one pulse. The peak photon number
+is of order
+
+$$n_{\rm peak} \sim N_0 - N_{\rm th} - N_{\rm th}\,\ln(N_0 / N_{\rm th}),$$
+
+solving the giant-pulse algebra of Wagner and Lengyel 1963.
+
+### Symbols, at a glance
+
+- $N$, population inversion (atoms in the upper laser level minus
+  the lower, summed over the gain medium).
+- $n$, number of photons in the lasing cavity mode.
+- $P$, pump rate (atoms/s).
+- $\tau$, spontaneous-emission lifetime of the upper level (s).
+- $\tau_c$, cavity photon lifetime; depends on mirror reflectivity
+  and absorption.
+- $B$, stimulated-emission coupling (atoms photon$^{-1}$ s$^{-1}$).
+- $s$, spontaneous-emission branching into the cavity mode (a small
+  geometric factor).
+
+### Bibliographic origin
+
+The Einstein 1917 derivation of the A and B coefficients is
+Einstein, *Physikalische Zeitschrift* **18** (1917) 121, the
+ancestor of the rate-equation framework. The textbook treatment of
+laser rate equations is Siegman, *Lasers* (University Science 1986),
+Ch. 6, 7. The original Q-switching analysis is Hellwarth in
+*Advances in Quantum Electronics* (1961), with the giant-pulse
+algebra in Wagner and Lengyel, *J. Appl. Phys.* **34** (1963)
+2040. A clean modern treatment is Milonni and Eberly, *Laser
+Physics* (Wiley 2010), Ch. 5, 6.
 
 ## Physical setup
 
