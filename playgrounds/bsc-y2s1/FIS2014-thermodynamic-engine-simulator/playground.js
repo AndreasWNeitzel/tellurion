@@ -91,8 +91,11 @@ function render() {
   // Hot/cold reservoirs glow when heat flows (sign of Q on this seg,
   // flipped if running in reverse).
   const q = (st.reverse ? -1 : 1) * cur.Q;
-  ctx.fillStyle = `rgba(255,90,70,${q > 1 ? 0.55 : 0.12})`; ctx.fillRect(cx0 - 16, cyTop + cylH + 6, cylW + 32, 16);
-  ctx.fillStyle = `rgba(90,150,255,${q < -1 ? 0.55 : 0.12})`; ctx.fillRect(cx0 - 16, cyTop - 26, cylW + 32, 16);
+  // Label positions: hot at top, cold at bottom. Glow when heat is
+  // flowing into the gas (q > 0, from the HOT reservoir) or out of
+  // the gas (q < 0, into the COLD reservoir). Colours match labels.
+  ctx.fillStyle = `rgba(255,90,70,${q > 1 ? 0.55 : 0.12})`; ctx.fillRect(cx0 - 16, cyTop - 26, cylW + 32, 16);            // hot (top, red)
+  ctx.fillStyle = `rgba(90,150,255,${q < -1 ? 0.55 : 0.12})`; ctx.fillRect(cx0 - 16, cyTop + cylH + 6, cylW + 32, 16);   // cold (bottom, blue)
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('hot reservoir', cx0, cyTop - 30); ctx.fillText('cold reservoir', cx0, cyTop + cylH + 34);
   // Cylinder walls + gas region.
