@@ -33,6 +33,20 @@ const st = { Ra: 2 * RA_C, k: K_C, Pr: 1, running: true, amp: 1e-3, t: 0 };
 const FW = W, FH = Math.round(H * 0.62);             // roll field panel
 const CW = W, CY = FH, CH = H - FH;                  // neutral-curve panel
 
+// Deterministic RNG so tracer seeding is reproducible for the gate.
+let _seed = 0xC0FFEE >>> 0;
+function rnd() { _seed = (Math.imul(_seed, 1664525) + 1013904223) >>> 0; return _seed / 4294967296; }
+
+const Lx = () => (2 * Math.PI / st.k) * 2;            // domain width: ~2 roll pairs
+const NTR = 760;
+const trc = new Float32Array(NTR * 2);               // x in [0,Lx], y in [0,1]
+function seedTracers() {
+  _seed = 0xC0FFEE >>> 0;
+  const L = Lx();
+  for (let i = 0; i < NTR; i += 1) { trc[2 * i] = rnd() * L; trc[2 * i + 1] = 0.03 + rnd() * 0.94; }
+}
+seedTracers();
+
 function fieldAmplitude(sigma, dt) {
   // Linear evolution exp(sigma t), saturated for display so the rolls
   // stay visible (a tanh soft clamp; the physics is the sign of sigma).
@@ -41,23 +55,59 @@ function fieldAmplitude(sigma, dt) {
   return Math.tanh(st.amp);                          // 0..1 display amplitude
 }
 
+// Linear convective eigenmode stream function psi = S sin(pi y) sin(k x):
+// temperature theta ~ sin(pi y) cos(k x), velocity (u, w) = (psi_y, -psi_x).
+// Advecting tracers by this divergence-free field makes the counter-
+// rotating rolls visibly circulate instead of freezing into a still image.
+function vel(x, y, S) {
+  const k = st.k;
+  return [
+    S * Math.PI * Math.cos(Math.PI * y) * Math.sin(k * x),
+    -S * k * Math.sin(Math.PI * y) * Math.cos(k * x),
+  ];
+}
+function advect(disp, dt) {
+  const S = disp, L = Lx(), h = dt * 1.6;            // visual flow rate
+  for (let i = 0; i < NTR; i += 1) {
+    let x = trc[2 * i], y = trc[2 * i + 1];
+    const [ux, uy] = vel(x, y, S);
+    x += ux * h; y += uy * h;
+    if (x < 0) x += L; else if (x >= L) x -= L;
+    if (y < 0.02 || y > 0.98) { x = rnd() * L; y = 0.03 + rnd() * 0.94; }
+    trc[2 * i] = x; trc[2 * i + 1] = y;
+  }
+}
+
+const BL = 6;                                         // temperature block size (fast paint)
 function drawRolls(disp) {
-  const img = ctx.getImageData(0, 0, FW, FH);
-  const d = img.data;
-  for (let py = 0; py < FH; py += 1) {
-    const y = 1 - py / (FH - 1);                      // y=0 hot plate at the bottom
+  for (let py = 0; py < FH; py += BL) {
+    const y = 1 - py / (FH - 1);
     const vert = Math.sin(Math.PI * y);
-    for (let px = 0; px < FW; px += 1) {
-      const x = px / (FW - 1) * (2 * Math.PI / st.k) * 2;    // ~2 roll pairs across
-      const theta = disp * vert * Math.cos(st.k * x);        // eigenmode sin(pi y) cos(k x)
+    for (let px = 0; px < FW; px += BL) {
+      const x = px / FW * Lx();
+      const theta = disp * vert * Math.cos(st.k * x);
       const c = viridis(0.5 + 0.5 * Math.max(-1, Math.min(1, theta)));
-      const o = (py * FW + px) * 4;
-      d[o] = c.r; d[o + 1] = c.g; d[o + 2] = c.b; d[o + 3] = 255;
+      ctx.fillStyle = `rgb(${c.r | 0},${c.g | 0},${c.b | 0})`;
+      ctx.fillRect(px, py, BL, BL);
     }
   }
-  ctx.putImageData(img, 0, 0);
-  // hot/cold plate labels
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '12px monospace';
+  // tracer streaks: each drawn as a short segment along the local flow
+  // so the rolls read as turning fluid (background repaint clears them
+  // every frame, so there is no smear).
+  const S = disp, L = Lx();
+  ctx.lineWidth = 1.1; ctx.strokeStyle = 'rgba(245,248,255,0.55)';
+  ctx.beginPath();
+  for (let i = 0; i < NTR; i += 1) {
+    const x = trc[2 * i], y = trc[2 * i + 1];
+    const [ux, uy] = vel(x, y, S);
+    const m = Math.hypot(ux, uy) || 1, sl = 0.05 / m;
+    const ax = (x - ux * sl) / L * FW, ay = (1 - (y - uy * sl)) * (FH - 1);
+    const bx = (x + ux * sl) / L * FW, by = (1 - (y + uy * sl)) * (FH - 1);
+    ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+  }
+  ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '12px monospace';
   ctx.fillText('cold plate  T = 0', 12, 16);
   ctx.fillText('hot plate  T = 1', 12, FH - 10);
 }
@@ -106,6 +156,7 @@ function frame(dt) {
   const sigma = readout();
   const disp = fieldAmplitude(sigma, dt);
   drawRolls(disp);
+  advect(disp, dt);
   drawNeutralCurve();
 }
 
@@ -155,7 +206,13 @@ function boot() {
     const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
     const raMul = [0.6, 1.05, 1.5, 2.5, 5.0][Math.min(4, Math.round(f * 4))];
     st.Ra = raMul * RA_C; st.k = K_C; st.Pr = 1; st.amp = 1e-2;
-    for (let n = 0; n < 70; n += 1) { const sg = linearSigma(NY, st.Ra, st.Pr, st.k); fieldAmplitude(sg, 0.016 * 4); }
+    seedTracers();
+    const steps = 50 + Math.round(f * 150);            // distinct + reproducible per fraction
+    for (let n = 0; n < steps; n += 1) {
+      const sg = linearSigma(NY, st.Ra, st.Pr, st.k);
+      const dp = fieldAmplitude(sg, 0.016 * 4);
+      advect(dp, 0.016 * 4);
+    }
     frame(0);
   } else {
     frame(0);

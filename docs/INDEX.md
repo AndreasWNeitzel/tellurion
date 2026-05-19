@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Rayleigh-Benard Convection: Onset of Instability](../playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html)** &nbsp; (verified, verified 2026-05-19T07:32:31Z)
+  Heat a fluid layer from below. At first nothing moves and heat just conducts up. Past a sharp threshold the still layer becomes unstable and breaks into orderly counter-rotating rolls, the patterned convection you see in a heated pan or in the Sun. This playground sits right at that onset.
+
 - **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-19T07:04:31Z)
   A star is a self-regulating ball of gas where four physical demands must be satisfied simultaneously at every radius. The Eddington standard model solves all four with one elegant trick, and from a star's mass and composition alone it predicts the entire run of density, pressure, temperature, and luminosity. The playground builds that model and lets you chan
 
@@ -16,9 +19,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Fourier Epicycle Drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/index.html)** &nbsp; (verified, verified 2026-05-19T04:58:30Z)
   A chain of rotating circles (epicycles) traces a target shape. Each circle rotates at a harmonic frequency with radius equal to the DFT coefficient magnitude; the tip of the last arm draws the curve. Sliding the epicycle count from 1 to N/2 visibly improves the fit; the RMS error vs the original path shrinks monotonically.
-
-- **[Rayleigh-Benard Convection: Onset of Instability](../playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html)** &nbsp; (verified, verified 2026-05-19T04:45:49Z)
-  Heat a fluid layer from below. At first nothing moves and heat just conducts up. Past a sharp threshold the still layer becomes unstable and breaks into orderly counter-rotating rolls, the patterned convection you see in a heated pan or in the Sun. This playground sits right at that onset.
 
 - **[Schwarzschild Light Bending](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/index.html)** &nbsp; (verified, verified 2026-05-19T04:39:34Z)
   Fire a sheet of light rays past a black hole. Rays that pass far away bend slightly; rays that come in close swing around; and rays inside a critical aim are swallowed. Right at the boundary, light can loop the hole many times before escaping, the origin of the bright photon ring in black-hole images.

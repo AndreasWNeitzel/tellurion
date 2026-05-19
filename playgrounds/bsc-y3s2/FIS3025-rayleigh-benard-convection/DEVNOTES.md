@@ -20,3 +20,7 @@ REVIEW (NEEDS CODE FIX + RECAPTURE) partly stale: Boussinesq linear-stability ph
 ## Sweep 2026-05-19
 REVIEW NEEDS-CODE-FIX partly stale: physics + sim.js + real invariants + text already correct; sole genuine defect was bootSync ignoring captureFraction (5 identical goldens). Added CAPTURE_FRAC sweep + slider sync; recaptured 5 distinct verified-correct goldens.
 invariants Tests  6 passed + visual 5/5 x3. Shipped.
+
+## Live-fix 2026-05-19
+User report: page "broken, won't load" (blank/stuck). Root cause: the live render was a static temperature eigenmode disp*sin(pi y)*cos(k x) where disp=tanh(amp) saturates to ~1 within a fraction of a second, so rAF kept running but every frame was byte-identical (probe: rAF 45->311, canvas hash unchanged). The capture-only gate never caught it. Fix (render-only; sim.js/engine/__physicsCheck/invariants byte-identical): added tracer particles advected by the analytic convective-eigenmode velocity field psi=S sin(pi y) sin(k x) so the counter-rotating rolls visibly circulate and never freeze; coarse-block temperature paint for speed; capture seeds tracers deterministically and advects a fraction-dependent number of steps (5 distinct goldens). Added scripts/smoke-load.mjs and wired it into the gate so a frozen/blank live page now fails before ship. Verified live: rAF running + canvas hash CHANGING + no console errors; the stability curve is now a secondary diagnostic panel (no-plot-as-main rule).
+invariants 6/6, smoke OK, visual 5/5 x3.
