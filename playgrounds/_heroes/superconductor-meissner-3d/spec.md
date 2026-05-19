@@ -54,15 +54,94 @@ through it and the magnet falls.
 - "quench by overfield": keep it cold but push the applied field past
   Hc(T); superconductivity collapses and the magnet drops.
 
-### The physics (collapsible)
+### Where the screening comes from: London's equations
 
-$$\lambda_L(T)=\frac{\lambda_0}{\sqrt{1-(T/T_c)^4}},\qquad
-  H_c(T)=H_{c0}\!\left[1-(T/T_c)^2\right],$$
+Inside a superconductor the supercurrent density $\vec j_s$ obeys
+the second London equation (London brothers 1935),
 
-field decay $B(d)=B_{\rm surf}\,e^{-d/\lambda_L}$; the screening is the
-image dipole at depth $h$ with moment $-m_z$ (so $B_\perp=0$ at the
-surface), giving the levitation force
-$F=\dfrac{3\,m^2}{32\,h^4}$ (units $\mu_0/4\pi=1$).
+$$\boxed{\;\nabla \times \vec j_s
+       = -\,\frac{n_s e^2}{m_e}\,\vec B.\;}$$
+
+Combine with Ampere's law $\nabla \times \vec B = \mu_0\,\vec j_s$
+(neglecting the displacement current) and one finds, inside the
+superconductor,
+
+$$\nabla^2 \vec B = \frac{1}{\lambda_L^2}\,\vec B,\qquad
+  \lambda_L \equiv \sqrt{\frac{m_e}{\mu_0\,n_s\,e^2}}.$$
+
+This is a Helmholtz equation with a real (not imaginary) decay
+constant: solutions decay exponentially with depth. The field
+inside the bulk goes to zero on a thin shell:
+
+$$B(d) = B_{\rm surf}\,e^{-d / \lambda_L},$$
+
+so $\lambda_L$, the *London penetration depth*, is the thickness of
+the screening shell. Typical values are about 100 nm in elemental
+superconductors.
+
+### Temperature dependence: $\lambda_L$ grows, $H_c$ shrinks
+
+As $T \to T_c$ the density of superconducting carriers $n_s(T)$
+falls to zero. Empirically (the two-fluid model of Gorter and
+Casimir 1934),
+
+$$\lambda_L(T) = \frac{\lambda_0}{\sqrt{1 - (T/T_c)^4}},\qquad
+  H_c(T) = H_{c0}\,\left[1 - (T/T_c)^2\right].$$
+
+So warming the sample (a) lets the field penetrate deeper, and (b)
+shrinks the field strength the sample can keep out before it
+quenches. Push $T$ to $T_c$ and the levitation disappears.
+
+### Why the magnet hovers: the image-dipole construction
+
+For a vertical point magnetic dipole of moment $m_z$ at height $h$
+above a superconducting half-space, the boundary condition
+$B_\perp(z = 0) = 0$ is satisfied by placing an IMAGE dipole at
+depth $h$ below the surface with opposite vertical moment $-m_z$.
+Two anti-parallel coaxial dipoles separated by $2 h$ repel. In
+units where $\mu_0 / 4\pi = 1$ the repulsive force is
+
+$$F = \frac{3\,m^2}{32\,h^4}\quad (\text{vertical}, \text{upward}).$$
+
+The magnet settles to the height where this equals its weight $mg$;
+nothing touches and there is no friction.
+
+### Symbols, at a glance
+
+- $\vec B$, magnetic flux density (T); $\vec j_s$, supercurrent
+  density (A/m^2).
+- $n_s$, density of superconducting carriers; $T_c$, transition
+  temperature; $\lambda_0 \equiv \lambda_L(T = 0)$.
+- $\lambda_L(T)$, London penetration depth; the e-folding length of
+  the field inside the bulk.
+- $H_c(T)$, critical field; above it superconductivity is destroyed.
+- $m$, magnetic dipole moment; $h$, height of the dipole above the
+  surface.
+- $\mu_0 = 4\pi \times 10^{-7}\,\mathrm{T\,m/A}$, the vacuum
+  permeability.
+
+### Type-I vs Type-II (a caveat)
+
+The clean image-dipole picture is for *Type-I* superconductors,
+where the Meissner state is complete up to $H_c$. *Type-II*
+materials (most high-$T_c$ compounds, including YBCO) allow flux
+to penetrate as discrete quantised vortices above the lower
+critical field $H_{c1}$ and remain superconducting up to a larger
+$H_{c2}$. The playground's "Type-II vortex" preset hints at this
+state qualitatively; the image-dipole formula above is for the
+Type-I Meissner regime.
+
+### Bibliographic origin
+
+The original observation: Meissner and Ochsenfeld, *Naturwissenschaften*
+**21** (1933) 787. The phenomenological theory: F. and H. London,
+*Proc. R. Soc. A* **149** (1935) 71. The two-fluid temperature
+dependence: Gorter and Casimir, *Physica* **1** (1934) 305. A
+modern textbook: Tinkham, *Introduction to Superconductivity* (2nd
+ed., Dover 1996), Ch. 1, 2, 3. Type-II vortex lattice: Abrikosov,
+*Sov. Phys. JETP* **5** (1957) 1174 (2003 Nobel Prize). The
+image-dipole levitation formula is in Jackson, *Classical
+Electrodynamics* (3rd ed., Wiley 1998), Section 5.13.
 
 ## Physical setup
 
