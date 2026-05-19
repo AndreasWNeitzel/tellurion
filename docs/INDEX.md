@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Gravitational Lensing: Microlensing and Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/index.html)** &nbsp; (verified, verified 2026-05-19T09:27:41Z)
+  Top half is a 200-star procedural field; one star is the source (with a faint Einstein-radius ring), another is the lens moving across the field. As the lens approaches the source the user sees the two distorted images flanking it, an Einstein ring flash at zero impact parameter, and the characteristic Paczynski bump in the bottom-half light curve. A binary-
+
 - **[Stellar Structure: the Eddington Standard Model](../playgrounds/msc-y1/MAA-SE-stellar-structure-full-model/index.html)** &nbsp; (verified, verified 2026-05-19T08:20:45Z)
   A star is a self-regulating ball of gas where four physical demands must be satisfied simultaneously at every radius. The Eddington standard model solves all four with one elegant trick, and from a star's mass and composition alone it predicts the entire run of density, pressure, temperature, and luminosity. The playground builds that model and lets you chan
 
@@ -38,9 +41,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Crystal Structure Explorer](../playgrounds/bsc-y3s2/FIS3005-crystal-structure-3d-explorer/index.html)** &nbsp; (verified, verified 2026-05-19T04:30:24Z)
   A crystal is a lattice plus a basis. The playground builds the cubic lattices (simple, body-centered, face-centered), lets you slice them with any Miller plane, and shows which X-ray reflections are allowed. This is how the atomic arrangement of a solid is actually determined.
 
-- **[Gravitational Microlensing Event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/index.html)** &nbsp; (verified, verified 2026-05-19T04:26:20Z)
-  Top half is a 200-star procedural field; one star is the source (with a faint Einstein-radius ring), another is the lens moving across the field. As the lens approaches the source the user sees the two distorted images flanking it, an Einstein ring flash at zero impact parameter, and the characteristic Paczynski bump in the bottom-half light curve. A binary-
-
 - **[Cooper Pair Binding Energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/index.html)** &nbsp; (verified, verified 2026-05-19T04:15:19Z)
   Two electrons normally repel. Yet add just two extra electrons above a filled Fermi sea with the faintest attraction between them and they *always* form a bound pair, no matter how weak the attraction. That counterintuitive fact, Cooper's 1956 result, is the seed of superconductivity. The playground sweeps the coupling and shows the binding energy and the pa
 
@@ -64,9 +64,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Addition of Two Angular Momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/index.html)** &nbsp; (verified, verified 2026-05-19T03:53:19Z)
   $j_1 \otimes j_2 = |j_1-j_2| \oplus \dots \oplus j_1+j_2$. Source: Sakurai QM Ch. 3 (`sakurai-qm`).
-
-- **[Gravitational Lensing Caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/index.html)** &nbsp; (verified, verified 2026-05-19T03:47:41Z)
-  Drag up to four point-mass lenses; caustic curves (in amber) and critical curves (in white) are drawn analytically. A source position marker in the source-plane creates 2, 3, or 4 multiply-lensed images that update in real time. A background dot grid shears according to the lens map.
 
 - **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified, verified 2026-05-19T03:26:53Z)
   A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.

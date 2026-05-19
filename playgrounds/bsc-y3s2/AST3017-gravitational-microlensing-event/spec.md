@@ -1,5 +1,5 @@
 ---
-title: "Gravitational Microlensing Event"
+title: "Gravitational Lensing: Microlensing and Caustics"
 slug: gravitational-microlensing-event
 status: verified
 audience: portfolio
@@ -7,8 +7,8 @@ created: 2026-05-15
 primary_uc: AST3017
 supporting_ucs: []
 curriculum_year: bsc-y3s2
-hook: 'A foreground star drifts past a background source; the Paczynski light curve traces out, two distorted images flank the lens, and an Einstein ring flashes at closest approach.'
-one_paragraph: 'Single point-mass microlensing: magnification A(u) = (u^2+2)/(u sqrt(u^2+4)) with u(t) = sqrt(u_min^2 + ((t-t_peak)/t_E)^2), image positions theta_pm in units of theta_E, and a fully drawn Paczynski bump.'
+hook: 'Drag a background source behind a star: its lensed images slide along the critical curve, an Einstein ring flashes at alignment, and the magnification traces a Paczynski bump or, for a binary lens, sharp caustic spikes.'
+one_paragraph: 'Interactive gravitational lensing. The image plane is the main view: the lens (single point mass or a binary), its critical curve, the source-plane caustic, and the lensed images found from the lens equation beta = theta - sum m_i (theta - z_i)/|theta - z_i|^2. Drag or let the source drift; the diagnostic strip shows the total magnification, the single-lens Paczynski bump A(u) = (u^2+2)/(u sqrt(u^2+4)) or the steep caustic-crossing spikes of a binary lens. Merges the former microlensing-event and lensing-caustics playgrounds.'
 tags: [relativity, gr-relativity, animation, live-readout]
 difficulty: 3
 tier: large

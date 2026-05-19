@@ -12,3 +12,6 @@ REVIEW (NEEDS CODE FIX + RECAPTURE) GENUINE (HEAVY): (1) invariants.test.mjs was
 ## Sweep 2026-05-19
 REVIEW NEEDS-CODE-FIX partly stale: physics + sim.js + real invariants + text already correct; sole genuine defect was bootSync ignoring captureFraction (5 identical goldens). Added CAPTURE_FRAC sweep + slider sync; recaptured 5 distinct verified-correct goldens.
 invariants Tests  8 passed + visual 5/5 x3. Shipped.
+
+## Merge 2026-05-19
+Merged AST3017-gravitational-lensing-caustics INTO this card. Interactive image-plane lensing sandbox: point/binary lens, critical curve (det A=0 scan), source-plane caustic, lensed images from the lens equation (grid-seed Newton), draggable + drifting source, Einstein ring; magnification A(t) is the diagnostic strip. sim.js keeps the point-lens Paczynski API (invariants 8/8 unchanged) plus makeLenses/mapToSource/jacobianDet/imageMag/findImages. Deleted the redundant caustics card; regenerated index/catalogue/landing (0 dangling refs). Note: recapture goldens AFTER any spec.md hook edit (the longer hook made the page 2px taller -> first gate hit a dimension mismatch; recaptured against the regenerated index.html and PASS). smoke OK, visual 5/5 x3.
