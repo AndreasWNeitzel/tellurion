@@ -186,56 +186,9 @@ body.leaving{opacity:0}
 </style>
 </head>
 <body>
-<canvas id="ambient" aria-hidden="true"></canvas>
-<script>
-(function(){
-  var c=document.getElementById('ambient'); if(!c) return;
-  var x=c.getContext('2d'); if(!x) return;
-  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var W=0,H=0,DPR=1,layers=[],neb=[],last=0,mxv=0,tmx=0;
-  function rng(s){return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
-  function build(){
-    var r=rng(0xACE1);
-    W=window.innerWidth; H=window.innerHeight; DPR=Math.min(2,window.devicePixelRatio||1);
-    c.width=W*DPR; c.height=H*DPR; x.setTransform(DPR,0,0,DPR,0,0);
-    layers=[[0.10,1.2,0.85],[0.05,0.9,0.55],[0.02,0.6,0.35]].map(function(d){
-      var n=Math.max(20,Math.round(W*H/20000*d[2]/0.4)), a=[];
-      for(var i=0;i<n;i++)a.push({x:r()*W,y:r()*(H+600),rr:d[1]*(0.5+r()),ph:r()*6.2832});
-      return {par:d[0],br:d[2],s:a};
-    });
-    var cols=[[40,55,110],[70,45,100],[28,75,95],[90,60,90]];
-    neb=[]; for(var k=0;k<4;k++)neb.push({x:r()*W,y:r()*H,R:300+r()*360,c:cols[k],vx:(r()-0.5)*0.04,vy:(r()-0.5)*0.04,ph:r()*6.2832});
-  }
-  function draw(t){
-    x.fillStyle='#080b14'; x.fillRect(0,0,W,H);
-    for(var b of neb){
-      var nx=b.x+(reduce?0:Math.sin(t*0.00004+b.ph)*36), ny=b.y+(reduce?0:Math.cos(t*0.00003+b.ph)*26);
-      var a=0.05+(reduce?0:0.018*Math.sin(t*0.0002+b.ph));
-      var g=x.createRadialGradient(nx,ny,0,nx,ny,b.R);
-      g.addColorStop(0,'rgba('+b.c[0]+','+b.c[1]+','+b.c[2]+','+Math.max(0,a).toFixed(3)+')');
-      g.addColorStop(1,'rgba('+b.c[0]+','+b.c[1]+','+b.c[2]+',0)');
-      x.fillStyle=g; x.fillRect(0,0,W,H);
-      if(!reduce){ b.x+=b.vx; b.y+=b.vy; if(b.x<-b.R)b.x=W+b.R; if(b.x>W+b.R)b.x=-b.R; if(b.y<-b.R)b.y=H+b.R; if(b.y>H+b.R)b.y=-b.R; }
-    }
-    mxv+=(tmx-mxv)*0.05;
-    var sc=window.scrollY||window.pageYOffset||0;
-    for(var L of layers){
-      var oy=-sc*L.par, om=Math.max(-8,Math.min(8,mxv*L.par));
-      for(var s of L.s){
-        var px=s.x+om, py=((s.y+oy)%(H+600)+(H+600))%(H+600)-300;
-        if(py<-4||py>H+4)continue;
-        var tw=reduce?0.42:0.30+0.30*Math.sin(t*0.0016*L.br+s.ph);
-        x.globalAlpha=Math.max(0,Math.min(1,tw))*L.br*0.6;
-        x.fillStyle='#aab4cc'; x.beginPath(); x.arc(px,py,s.rr,0,6.2832); x.fill();
-      }
-    }
-    x.globalAlpha=1;
-  }
-  function frame(t){ if(t-last>33){last=t;draw(t);} if(!reduce) requestAnimationFrame(frame); }
-  build(); draw(0); if(!reduce) requestAnimationFrame(frame);
-  window.addEventListener('mousemove',function(e){ tmx=e.clientX-window.innerWidth/2; });
-  var to; window.addEventListener('resize',function(){clearTimeout(to);to=setTimeout(function(){build();draw(performance.now());},200);});
-})();
+<script type="module">
+  import { mountStarField } from './shared/js/starfield.js';
+  mountStarField();
 </script>
 
 <div class="header">
