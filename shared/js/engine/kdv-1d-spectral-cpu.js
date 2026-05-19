@@ -82,6 +82,10 @@ export function makeKdV(N = 512, L = 40) {
   for (let i = 0; i < N; i += 1) dealias[i] = Math.abs(k[i]) <= (2 / 3) * kmax ? 1 : 0;
   return {
     N, L, dx, x, t: 0,
+    // Dispersion coefficient delta in u_t + 6 u u_x + delta u_xxx = 0.
+    // Default 1 (the canonical KdV the invariant tests use); the
+    // playground maps "canal depth" onto it for exploration.
+    dispersion: 1,
     u: new Float64Array(N),
     k, k3, dealias,
     // FFT / RK4 work buffers (no per-step allocation).
@@ -155,6 +159,7 @@ function nonlinear(s, Ur, Ui, outr, outi) {
 // dispersive part; dt is limited only by the (smooth) nonlinearity.
 export function step(s, dt) {
   const { N, k3 } = s;
+  const dl = s.dispersion;               // dispersion coefficient delta
   // Spectrum of the current real field.
   s.ur.set(s.u); s.ui.fill(0);
   fftInPlace(s.ur, s.ui, -1);            // U = fft(u)
@@ -171,25 +176,25 @@ export function step(s, dt) {
   nonlinear(s, s.ur, s.ui, s.ar, s.ai);
   // Ua = E_{h/2} (U + h/2 a)
   for (let i = 0; i < N; i += 1) { s.vr[i] = s.ur[i] + 0.5 * dt * s.ar[i]; s.vi[i] = s.ui[i] + 0.5 * dt * s.ai[i]; }
-  for (let i = 0; i < N; i += 1) rot(s.vr, s.vi, i, 0.5 * dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.vr, s.vi, i, 0.5 * dt * k3[i] * dl);
   // b = N(Ua)
   nonlinear(s, s.vr, s.vi, s.br, s.bi);
   // also need E_{h/2} a for the final combination -> store rotated a in cr/ci
   s.cr.set(s.ar); s.ci.set(s.ai);
-  for (let i = 0; i < N; i += 1) rot(s.cr, s.ci, i, 0.5 * dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.cr, s.ci, i, 0.5 * dt * k3[i] * dl);
   // Ub = E_{h/2} U + h/2 b
   for (let i = 0; i < N; i += 1) { s.tmpr[i] = s.ur[i]; s.tmpi[i] = s.ui[i]; }
-  for (let i = 0; i < N; i += 1) rot(s.tmpr, s.tmpi, i, 0.5 * dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.tmpr, s.tmpi, i, 0.5 * dt * k3[i] * dl);
   for (let i = 0; i < N; i += 1) { s.tmpr[i] += 0.5 * dt * s.br[i]; s.tmpi[i] += 0.5 * dt * s.bi[i]; }
   // c = N(Ub)
   nonlinear(s, s.tmpr, s.tmpi, s.cr2 ?? (s.cr2 = new Float64Array(N)), s.ci2 ?? (s.ci2 = new Float64Array(N)));
   const c2r = s.cr2, c2i = s.ci2;
   // Ud = E_{h} U + E_{h/2} h c
   s.vr.set(s.ur); s.vi.set(s.ui);
-  for (let i = 0; i < N; i += 1) rot(s.vr, s.vi, i, dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.vr, s.vi, i, dt * k3[i] * dl);
   // E_{h/2} (h c)
   s.tmpr.set(c2r); s.tmpi.set(c2i);
-  for (let i = 0; i < N; i += 1) rot(s.tmpr, s.tmpi, i, 0.5 * dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.tmpr, s.tmpi, i, 0.5 * dt * k3[i] * dl);
   for (let i = 0; i < N; i += 1) { s.vr[i] += dt * s.tmpr[i]; s.vi[i] += dt * s.tmpi[i]; }
   // d = N(Ud)
   const dr = s.dr ?? (s.dr = new Float64Array(N));
@@ -200,12 +205,12 @@ export function step(s, dt) {
   // U_new = E_h U + (h/6)[ E_h a + 2 E_{h/2}(b + c) + d ]
   // E_h a:
   s.tmpr.set(s.ar); s.tmpi.set(s.ai);
-  for (let i = 0; i < N; i += 1) rot(s.tmpr, s.tmpi, i, dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.tmpr, s.tmpi, i, dt * k3[i] * dl);
   // 2 E_{h/2} (b + c):
   for (let i = 0; i < N; i += 1) { s.br[i] += c2r[i]; s.bi[i] += c2i[i]; }
-  for (let i = 0; i < N; i += 1) rot(s.br, s.bi, i, 0.5 * dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.br, s.bi, i, 0.5 * dt * k3[i] * dl);
   // E_h U:
-  for (let i = 0; i < N; i += 1) rot(s.ur, s.ui, i, dt * k3[i]);
+  for (let i = 0; i < N; i += 1) rot(s.ur, s.ui, i, dt * k3[i] * dl);
   for (let i = 0; i < N; i += 1) {
     s.ur[i] += (dt / 6) * (s.tmpr[i] + 2 * s.br[i] + dr[i]);
     s.ui[i] += (dt / 6) * (s.tmpi[i] + 2 * s.bi[i] + di[i]);
