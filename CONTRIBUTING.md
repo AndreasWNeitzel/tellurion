@@ -32,6 +32,6 @@ Each playground must ship with:
 - No em-dash and no en-dash anywhere.
 - No emoji in source, docs, captions, or commit messages.
 - No AI-tells in prose: delve, leverage as verb, in conclusion, moreover, furthermore, it's worth noting, navigate as metaphor, tapestry, landscape as metaphor.
-- Citations as `arXiv:YYMM.NNNNN`, `ADS:bibcode`, `doi:...`, `github.com/org/repo`, or explicit `[no-source: internal-reasoning]` tag.
+- Citations as `arXiv:YYMM.NNNNN`, `ADS:bibcode`, `doi:...`, a repository `url:...`, or explicit `[no-source: internal-reasoning]` tag.
 
 See `CLAUDE.md` for the full hard-rule list.

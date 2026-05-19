@@ -123,16 +123,17 @@ Bundled artifacts are mounted into the personal-site repo at `assets/playgrounds
 - **Visual**: Playwright + SSIM. Configured in `playwright.config.ts`. Test files at `playgrounds/<name>/visual.test.mjs`.
 - **Multimodal**: handled by `visual-reviewer` subagent, not by a static test.
 
-## CI
+## Verification pipeline
 
-GitHub Actions workflow at `.github/workflows/verify.yml`:
+Run locally (this is private code; there is no hosted CI service). The
+gate is `/tmp/gate.sh` per playground plus the batch scripts:
 
-1. Install Node, install Playwright browsers (cached).
+1. Node and Playwright browsers available locally.
 2. Run engine unit tests.
 3. Run every playground's invariants.test.mjs.
-4. Run every playground's visual.test.mjs.
-5. Run aesthetics-reviewer in a non-blocking advisory mode (LLM cost cap).
-6. On main branch: bundle and prepare deploy artifact (no auto-publish).
+4. Run every playground's visual.test.mjs (SSIM > 0.92 x3).
+5. Run scripts/smoke-load.mjs (live page loads, no errors).
+6. Bundle and prepare the deploy artifact for the private host.
 
 ## Forbidden patterns
 
