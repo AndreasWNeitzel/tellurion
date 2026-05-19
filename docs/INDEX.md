@@ -2,6 +2,9 @@
 
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
+- **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified, verified 2026-05-19T07:41:41Z)
+  Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.
+
 - **[Rayleigh-Benard Convection: Onset of Instability](../playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html)** &nbsp; (verified, verified 2026-05-19T07:32:31Z)
   Heat a fluid layer from below. At first nothing moves and heat just conducts up. Past a sharp threshold the still layer becomes unstable and breaks into orderly counter-rotating rolls, the patterned convection you see in a heated pan or in the Sun. This playground sits right at that onset.
 
@@ -34,9 +37,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Gravitational Microlensing Event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/index.html)** &nbsp; (verified, verified 2026-05-19T04:26:20Z)
   Top half is a 200-star procedural field; one star is the source (with a faint Einstein-radius ring), another is the lens moving across the field. As the lens approaches the source the user sees the two distorted images flanking it, an Einstein ring flash at zero impact parameter, and the characteristic Paczynski bump in the bottom-half light curve. A binary-
-
-- **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/index.html)** &nbsp; (verified, verified 2026-05-19T04:20:18Z)
-  Move a planet between the inner and outer edges of the conservative HZ for a given star (T_eff, L). The planet surface displays ice (frozen), blue-green (liquid water), or steam (runaway) based on its equilibrium temperature with a fixed albedo.
 
 - **[Cooper Pair Binding Energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/index.html)** &nbsp; (verified, verified 2026-05-19T04:15:19Z)
   Two electrons normally repel. Yet add just two extra electrons above a filled Fermi sea with the faintest attraction between them and they *always* form a bound pair, no matter how weak the attraction. That counterintuitive fact, Cooper's 1956 result, is the seed of superconductivity. The playground sweeps the coupling and shows the binding energy and the pa

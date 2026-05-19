@@ -52,8 +52,20 @@ try {
     try {
       const g = c.getContext('2d') || c.getContext('webgl2') || c.getContext('webgl');
       if (g && g.getImageData) {
-        const s = 48, d = g.getImageData(0, 0, Math.min(s, c.width), Math.min(s, c.height)).data;
-        for (let i = 0; i < d.length; i += 4) { if (d[i] > 16 || d[i + 1] > 16 || d[i + 2] > 22) { nonblank = true; break; } }
+        // Scan the WHOLE canvas (coarse stride), not just a corner:
+        // centred-content playgrounds have dark margins. Blank only if
+        // almost nothing deviates from the darkest (background) pixel.
+        const d = g.getImageData(0, 0, c.width, c.height).data;
+        const stride = 4 * 53;
+        let mn = 255, total = 0, content = 0;
+        for (let i = 0; i < d.length; i += stride) {
+          const lum = d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11;
+          if (lum < mn) mn = lum; total += 1;
+        }
+        for (let i = 0; i < d.length; i += stride) {
+          if (d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11 > mn + 14) content += 1;
+        }
+        nonblank = total > 0 && content / total > 0.01;   // >=1% of canvas rendered
       } else { nonblank = true; } // webgl: cannot cheaply sample; rely on no-error
     } catch (e) { return { hasStage: true, sampleErr: String(e) }; }
     return { hasStage: true, w: c.width, h: c.height, nonblank, ready: !!window.__simulationReady };
