@@ -19,13 +19,20 @@ class AudioSystem {
     this.ctx = null;
     this.last = 0;                 // last sound start (ms), for the 30 ms guard
     if (!this.enabled) return;
-    const init = () => {
-      if (this.ctx) return;
-      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { this.ctx = null; this.enabled = false; }
+    // Create the context on first gesture, and resume it on every
+    // gesture / when the tab becomes visible again. Browsers suspend
+    // the AudioContext on autoplay policy and on tab blur; without an
+    // aggressive resume, later sounds silently never fire.
+    const wake = () => {
+      try {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx && this.ctx.state !== 'running') this.ctx.resume().catch(() => {});
+      } catch { this.ctx = null; this.enabled = false; }
     };
-    window.addEventListener('pointerdown', init);
-    window.addEventListener('keydown', init);
-    window.addEventListener('mousemove', init, { once: true });
+    window.addEventListener('pointerdown', wake);
+    window.addEventListener('pointermove', wake, { passive: true });
+    window.addEventListener('keydown', wake);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
   }
 
   _ready() {
@@ -33,7 +40,10 @@ class AudioSystem {
     if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return null; } }
     const c = this.ctx;
     if (!c) return null;
-    if (c.state === 'suspended' || c.state === 'interrupted') { try { c.resume(); } catch { /* ignore */ } }
+    // Never schedule into a non-running context: its clock is frozen,
+    // events never fire and nodes leak (audio "randomly stops"). Kick
+    // a resume and skip this one; the next attempt plays.
+    if (c.state !== 'running') { try { c.resume().catch(() => {}); } catch { /* ignore */ } return null; }
     const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     if (now - this.last < 30) return null;     // C6 volume guard
     this.last = now;
@@ -52,7 +62,9 @@ class AudioSystem {
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(g); g.connect(c.destination);
     o.start(t); o.stop(t + dur + 0.02);
-    o.onended = () => { try { o.disconnect(); g.disconnect(); } catch { /* ignore */ } };
+    const kill = () => { try { o.disconnect(); g.disconnect(); } catch { /* ignore */ } };
+    o.onended = kill;
+    setTimeout(kill, (dur + 0.1) * 1000);            // fallback if onended never fires
   }
 
   _noiseBuffer(c, seconds) {
