@@ -2,6 +2,7 @@ import { fourierMag2, laplaceReal, timeFn } from './sim.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
 const rA = document.getElementById('readout-a');
 const sA = document.getElementById('slider-a'), vA = document.getElementById('value-a');
@@ -98,5 +99,24 @@ function render() {
   rA.textContent = st.a.toFixed(2);
 }
 function tick() { render(); requestAnimationFrame(tick); }
-function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+function bootSync() {
+  if (CAPTURE_NAME && DETERMINISTIC) {
+    // Step through transform pairs so f(t), |F(omega)|^2, F(s) and the
+    // s-plane poles all change across the five frames.
+    const states = [
+      { a: 0.6, omega0: 2, fn: 'exp' },
+      { a: 1.5, omega0: 2, fn: 'exp' },
+      { a: 0.8, omega0: 2, fn: 'cos' },
+      { a: 0.8, omega0: 4, fn: 'cos' },
+      { a: 1.0, omega0: 2, fn: 'ramp' },
+    ];
+    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st = states[Math.min(states.length - 1, Math.round(frac * (states.length - 1)))];
+    sA.value = String(st.a); vA.textContent = st.a.toFixed(2);
+    sW.value = String(st.omega0); vW.textContent = st.omega0.toFixed(1);
+    if (selF) selF.value = st.fn;
+  }
+  render();
+  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+}
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
