@@ -55,15 +55,98 @@ answer.
 - Look astern (drag to turn around): the few stars left back there are
   deeply redshifted and dim.
 
-### The transform (collapsible)
+### The Lorentz factor and the relativistic effects
 
-$$\gamma=\frac{1}{\sqrt{1-\beta^2}},\quad
-  \cos\theta'=\frac{\cos\theta+\beta}{1+\beta\cos\theta},\quad
-  D=\frac{1}{\gamma(1-\beta\cos\theta')},\quad
-  \frac{I_{\rm obs}}{I_{\rm emit}}=D^4.$$
+Define $\beta = v/c$ (the ship's speed divided by the speed of light)
+and the Lorentz factor
 
-Length contracts as $L=L_0/\gamma$; proper time runs as
-$\mathrm{d}\tau=\mathrm{d}t/\gamma$.
+$$\boxed{\;\gamma = \frac{1}{\sqrt{1 - \beta^2}}.\;}$$
+
+Three effects ride on $\gamma$:
+
+- Length contraction: an object of rest length $L_0$ along the
+  direction of motion is measured by the lab as
+
+$$L = L_0 / \gamma.$$
+
+- Time dilation: a clock at rest on the ship ticks proper time
+  $d\tau$ in coordinate time $dt$ with
+
+$$d\tau = dt / \gamma.$$
+
+- Velocity addition: speeds do not just add. A photon emitted in
+  the ship's frame always has speed $c$ in any frame; for two
+  speeds $u$ and $v$ along the same axis,
+
+$$u \oplus v = \frac{u + v}{1 + u v / c^2}.$$
+
+### Aberration: where the stars appear to be
+
+A photon emitted toward the ship's rest frame at angle $\theta$ from
+the direction of motion is seen in the ship's frame at angle $\theta'$:
+
+$$\cos\theta' = \frac{\cos\theta + \beta}{1 + \beta\,\cos\theta}.$$
+
+At $\beta \to 1$ the right side tends to $1$ for any $\theta < \pi$,
+so the WHOLE sky collapses into a small forward cone. This is why
+near-light-speed travel concentrates the stars into a bright disc
+ahead.
+
+### Doppler shift and beaming
+
+For a photon arriving from direction $\theta'$ in the ship's frame
+with the source at rest in the lab, the relativistic Doppler factor
+is
+
+$$D(\theta') = \frac{1}{\gamma\,(1 - \beta\,\cos\theta')}.$$
+
+The observed wavelength satisfies $\lambda_{\rm obs} = \lambda_{\rm emit}/D$
+(forward $D > 1$ is a blueshift, backward $D < 1$ is a redshift). The
+specific intensity transforms as
+
+$$\frac{I_{\rm obs}}{I_{\rm emit}} = D^4,$$
+
+the famous "relativistic beaming" $D^4$ factor (one $D$ from photon
+energy, one from photon rate, two from solid-angle aberration). This
+is exactly why one side of an astrophysical relativistic jet looks
+bright and the other side looks invisible.
+
+### Symbols, at a glance
+
+- $v$, ship speed in the lab frame; $\beta = v/c$.
+- $\gamma$, the Lorentz factor; $\gamma \ge 1$ with $\gamma = 1$ at
+  rest and $\gamma \to \infty$ at $\beta \to 1$.
+- $\theta$, $\theta'$, the angle of a photon's direction in the lab
+  and the ship frame respectively, measured from the direction of
+  motion.
+- $D$, the Doppler factor; $D = 1$ at rest, $D > 1$ forward, $D < 1$
+  backward.
+- $\lambda$, photon wavelength; $L$, length; $\tau$, proper time;
+  $t$, coordinate time.
+
+### A worked example: $\beta = \sqrt 3 / 2$
+
+This is the "relativistic (0.87)" preset. Then $\beta^2 = 3/4$,
+$1 - \beta^2 = 1/4$, $\gamma = 2$, so the ship's clock ticks at
+half the lab rate; a 1 m rod on the ship is 0.5 m in the lab. A
+photon emitted directly ahead in the lab arrives in the ship frame
+at angle $\theta' = 0$ with $D = 1/(2\,(1 - \sqrt{3}/2)) = 3.73$,
+so its 550 nm light blueshifts to 148 nm (UV) and its intensity is
+amplified by $3.73^4 \approx 194$. The same star directly astern
+has $D = 1/(2\,(1 + \sqrt 3/2)) = 0.268$, redshifting to 2.05 µm
+and dimming by $0.268^4 \approx 0.005$.
+
+### Bibliographic origin
+
+The Lorentz transformations are in Einstein, *Annalen der Physik*
+**17** (1905) 891. The clean modern treatment of stellar aberration
+and the $D^4$ beaming is Rindler, *Relativity: Special, General,
+and Cosmological* (Oxford 2006), Ch. 3 and 4; the canonical textbook
+is Taylor and Wheeler, *Spacetime Physics* (2nd ed., Freeman 1992),
+Ch. 3, 4, 8. The visual look used here ("Penrose-Terrell rotation"
+plus aberration plus the $D^4$ beaming, all together) was first
+worked out in Penrose, *Proc. Camb. Phil. Soc.* **55** (1959) 137 and
+Terrell, *Phys. Rev.* **116** (1959) 1041.
 
 ## Physical setup
 
