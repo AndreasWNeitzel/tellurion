@@ -116,10 +116,81 @@ export function sCurve({ N = 400, seed = 0xC0FFEE } = {}) {
   return { X, labels, N, D: 3 };
 }
 
+// Two interleaved moons: the classic ML test set. The two crescents
+// share a half-overlap so linear methods cannot separate them but
+// neighbourhood-preserving methods can.
+export function twoMoons({ N = 500, seed = 0xC0FFEE, noise = 0.1 } = {}) {
+  const rng = makeRng(seed);
+  const X = new Float64Array(N * 3);
+  const labels = new Float64Array(N);
+  const halfN = Math.floor(N / 2);
+  for (let i = 0; i < N; i += 1) {
+    const isUpper = i < halfN;
+    const t = Math.PI * rng();
+    if (isUpper) {
+      X[i * 3]     = Math.cos(t) + gaussian(rng, 0, noise);
+      X[i * 3 + 1] = Math.sin(t) + gaussian(rng, 0, noise);
+      X[i * 3 + 2] = gaussian(rng, 0, noise);
+      labels[i] = 0;
+    } else {
+      X[i * 3]     = 1 - Math.cos(t) + gaussian(rng, 0, noise);
+      X[i * 3 + 1] = -Math.sin(t) + 0.5 + gaussian(rng, 0, noise);
+      X[i * 3 + 2] = gaussian(rng, 0, noise);
+      labels[i] = 1;
+    }
+  }
+  return { X, labels, N, D: 3 };
+}
+
+// Pinwheel: K = 5 spiral arms in 2D embedded in 3D ambient. Each
+// arm is a stretched Gaussian rotated into place. Tests whether DR
+// preserves the curved cluster shapes.
+export function pinwheel({ N = 500, seed = 0xC0FFEE, K = 5 } = {}) {
+  const rng = makeRng(seed);
+  const X = new Float64Array(N * 3);
+  const labels = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    const k = i % K;
+    const armAngle = 2 * Math.PI * k / K;
+    const r = 0.3 + 1.5 * rng();
+    const swirl = armAngle + 1.4 * r + gaussian(rng, 0, 0.18);
+    X[i * 3]     = r * Math.cos(swirl) + gaussian(rng, 0, 0.05);
+    X[i * 3 + 1] = r * Math.sin(swirl) + gaussian(rng, 0, 0.05);
+    X[i * 3 + 2] = gaussian(rng, 0, 0.1);
+    labels[i] = k;
+  }
+  return { X, labels, N, D: 3 };
+}
+
+// Spheres: K = 3 concentric spherical shells in 3D. Linear methods
+// project them on top of each other; geodesic methods (Isomap) keep
+// them separable.
+export function concentricSpheres({ N = 500, seed = 0xC0FFEE, K = 3 } = {}) {
+  const rng = makeRng(seed);
+  const X = new Float64Array(N * 3);
+  const labels = new Float64Array(N);
+  for (let i = 0; i < N; i += 1) {
+    const k = i % K;
+    const R = 0.7 + 0.7 * k;
+    const u = 2 * rng() - 1, phi = 2 * Math.PI * rng();
+    const s = Math.sqrt(1 - u * u);
+    X[i * 3]     = R * s * Math.cos(phi) + gaussian(rng, 0, 0.03);
+    X[i * 3 + 1] = R * u + gaussian(rng, 0, 0.03);
+    X[i * 3 + 2] = R * s * Math.sin(phi) + gaussian(rng, 0, 0.03);
+    labels[i] = k;
+  }
+  return { X, labels, N, D: 3 };
+}
+
 export const DATASETS = {
-  'torus':       torus,
-  'hopf-link':   hopfLink,
-  'clusters-5d': fiveClustersRing,
+  'torus':              torus,
+  'hopf-link':          hopfLink,
+  'clusters-5d':        fiveClustersRing,
+  'swiss-roll':         swissRoll,
+  's-curve':            sCurve,
+  'two-moons':          twoMoons,
+  'pinwheel':           pinwheel,
+  'concentric-spheres': concentricSpheres,
 };
 
 // ==== linear algebra helpers ==============================================
