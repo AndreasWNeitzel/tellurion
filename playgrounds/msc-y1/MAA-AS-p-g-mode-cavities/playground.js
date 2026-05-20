@@ -8,6 +8,27 @@
 import { N, S_l, cavities } from './sim.js';
 import { rdbu } from '../../../shared/js/render/colormaps.js';
 
+// User feedback: 'the white flashing while useful to signify
+// oscillation, is irritating to the eyes. Consider a different
+// colormap.' We keep the RdBu compression-vs-rarefaction
+// interpretation (red = positive, blue = negative) but BLEND the
+// nominal RdBu colour toward a dark, non-bright neutral so the
+// midpoint (where the oscillation crosses zero) is no longer a
+// flash of white. The 0..1 fraction f selects (r, g, b) as
+// rdbu(f) tinted with the dark surface colour.
+function rdbuDark(f) {
+  const c = rdbu(f);
+  // weight = how strongly to keep the RdBu colour vs the dark base.
+  // weight = 1 at the extremes (f = 0 or 1), 0 at the centre (f = 0.5).
+  const w = Math.abs(f - 0.5) * 2;
+  const base = { r: 32, g: 36, b: 50 };
+  return {
+    r: Math.round(c.r * w + base.r * (1 - w)),
+    g: Math.round(c.g * w + base.g * (1 - w)),
+    b: Math.round(c.b * w + base.b * (1 - w)),
+  };
+}
+
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME  = params.get('capture');
@@ -103,7 +124,7 @@ function drawStar(c, omega, l, tphase) {
       if (rr > 1) { d[o] = 8; d[o + 1] = 9; d[o + 2] = 14; d[o + 3] = 255; continue; }
       const th = Math.atan2(ny, nx);
       const val = xiAt(rr) * Math.cos(l * th) * ct;     // pulsation field
-      const col = rdbu(0.5 + 0.5 * Math.max(-1, Math.min(1, val)));
+      const col = rdbuDark(0.5 + 0.5 * Math.max(-1, Math.min(1, val)));
       // Dim toward the limb for a spherical look.
       const limb = 0.55 + 0.45 * Math.sqrt(Math.max(0, 1 - rr * rr));
       d[o] = col.r * limb; d[o + 1] = col.g * limb; d[o + 2] = col.b * limb; d[o + 3] = 255;
