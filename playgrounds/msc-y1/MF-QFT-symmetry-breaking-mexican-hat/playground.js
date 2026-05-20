@@ -11,6 +11,7 @@ import {
   Vfinite, vev, higgsMass, GOLDSTONE_MASS, Tc, vevT, radialProfile,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -30,7 +31,7 @@ const selV = document.getElementById('select-view');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF_MU = 200, DEF_LAM = 50, DEF_VIEW = 'roll';
-const st = { mu: DEF_MU, lam: DEF_LAM, view: DEF_VIEW, running: true, ph: 0 };
+const st = { mu: DEF_MU, lam: DEF_LAM, view: DEF_VIEW, running: !prefersReducedMotion(), ph: 0 };
 
 function mu2() { return st.mu / 100; }
 function lam() { return st.lam / 100; }

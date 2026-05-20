@@ -8,6 +8,7 @@
 
 import { langevin, dLangevinExact, sweepLoop, PRESETS } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -42,7 +43,7 @@ function warmupToSteady() {
   }
 }
 function rebuild() { P = par(); loop = sweepLoop(P, st.Hm); warmupToSteady(); }
-let running = true;
+let running = !prefersReducedMotion();
 
 // Seeded per-domain switching thresholds (a wave of reversal as M grows).
 const GX = 22, GY = 14;

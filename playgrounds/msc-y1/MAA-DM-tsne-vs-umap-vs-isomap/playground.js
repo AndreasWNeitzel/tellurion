@@ -2,6 +2,7 @@
 // 2x2 grid: original 3D dataset (top-down view) plus three 2D embeddings.
 
 import { DATASETS, pca, isomap, tsne } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const DETERMINISTIC  = urlParams.get('deterministic') === '1';

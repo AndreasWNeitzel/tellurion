@@ -1,4 +1,5 @@
 import { fieldE, skinDepth } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -9,7 +10,7 @@ const sF = document.getElementById('slider-f'), vF = document.getElementById('va
 const selM = document.getElementById('select-mat');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { fExp: 6, mat: 'cu', t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 sF.addEventListener('input', () => { st.fExp = parseFloat(sF.value); vF.textContent = `1e${st.fExp.toFixed(1)}`; });
 selM.addEventListener('change', () => { st.mat = selM.value; });
 btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });

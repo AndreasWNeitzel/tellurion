@@ -7,6 +7,7 @@
 // abundance-vs-eta curves are a diagnostic strip. Toy empirical fits
 // in sim.js. Reference: Liddle, Cosmology Ch. 11; Kolb and Turner Ch. 4.
 import { Yp, DH, Li7H, ETA_PLANCK, OBS_Yp, OBS_DH, OBS_Li7H } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');

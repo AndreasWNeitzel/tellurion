@@ -3,6 +3,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createString, stepString, N, DX, L_X, DT, totalEnergy, injectPulse } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -29,7 +30,7 @@ const state = {
   speed: 1,
   fixed: null,
   free: null,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   E0: 0,    // initial energy for the live drift readout
 };
 

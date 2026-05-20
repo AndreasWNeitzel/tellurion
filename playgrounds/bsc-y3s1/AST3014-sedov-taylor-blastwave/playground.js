@@ -9,6 +9,7 @@
 // postShockDensity) is unchanged. Reference: Shu, The Physics of
 // Astrophysics Vol. II, Ch. 17.
 import { shockRadius, shockSpeed, postShockDensity } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -23,7 +24,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { logE: 51, logn: 0, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 const CX = W / 2, CY = 250, RMAX = 210;       // remnant centre + max px radius
 const PC = 3.086e16, YR = 3.155e7, WIN_PC = 55;
 

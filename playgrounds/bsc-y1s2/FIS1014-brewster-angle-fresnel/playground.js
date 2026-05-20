@@ -31,7 +31,7 @@ const btnPlay     = document.getElementById('btn-playpause');
 const W = canvas.width, H = canvas.height;
 const st = {
   thetaDeg: 56.31, ratio: 1.5, pol: 'p', speed: 2, phase: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 // Left scene.

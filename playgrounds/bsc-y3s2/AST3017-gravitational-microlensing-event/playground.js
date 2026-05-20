@@ -6,6 +6,7 @@
 // view; the light curve is the diagnostic strip. Physics in sim.js.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   makeLenses, mapToSource, jacobianDet, imageMag, findImages,
   magnification as pointA, uOfT,
@@ -35,7 +36,7 @@ const SX = (x) => cx + x * sc, SY = (y) => cy - y * sc;
 
 const state = {
   binary: false, uMin: 0.32, tE: 60, sep: 1.0, q: 0.5,
-  t: -120, dragging: false, running: true,
+  t: -120, dragging: false, running: !prefersReducedMotion(),
 };
 const bgStars = (() => {
   const a = [];

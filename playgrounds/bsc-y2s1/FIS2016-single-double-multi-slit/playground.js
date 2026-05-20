@@ -8,6 +8,7 @@
 // invariant-tested physics; this file adds the field visualization.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   intensity, A_DEF, LAMBDA, envelopeZeros, principalMaxima, slitSources,
 } from './sim.js';
@@ -36,7 +37,7 @@ const state = {
   ratio: 5.0,            // d / a
   speed: 2,
   phase: 0,              // omega t
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 // Field panel geometry.

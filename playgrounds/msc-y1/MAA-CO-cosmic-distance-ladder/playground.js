@@ -9,6 +9,7 @@
 // ladder). Reference: Weinberg, Cosmology (2008), Sec. 1.6; Freedman
 // and Madore, ARA&A 48, 673 (2010).
 import { dParallax, MVCepheid, dHubble, ladder, H0 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,7 +22,7 @@ const controlsEl = document.getElementById('controls');
 const W = canvas.width, H = canvas.height;
 const DEF = { parallax: 100, cepheidP: 30, snApparent: 16, z: 0.05 };
 const state = { ...DEF, targetLog: 6.0, phase: 0, dragging: false };
-let running = true;
+let running = !prefersReducedMotion();
 
 const AX = { x0: 70, x1: W - 40, lo: 0, hi: 10 };          // log10(d / pc)
 const RY = 250;                                            // ruler y

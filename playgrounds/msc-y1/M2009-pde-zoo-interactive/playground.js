@@ -10,6 +10,7 @@ import {
   makeBurgers, stepBurgers, burgersIntegral, burgersEnergy, maxError,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -30,7 +31,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const N = 200;
 const NU = [0.001, 0.003, 0.006, 0.012, 0.02, 0.04];
 const DEF = { eq: 'wave', p: 2 };
-const st = { ...DEF, running: true, sim: null, hist: [], steady: null };
+const st = { ...DEF, running: !prefersReducedMotion(), sim: null, hist: [], steady: null };
 
 function build() {
   st.hist = []; st.steady = null;

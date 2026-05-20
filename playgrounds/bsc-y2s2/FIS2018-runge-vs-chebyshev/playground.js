@@ -2,6 +2,7 @@
 // Runge vs Chebyshev: live interpolation and error curves.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   rungeFn, equispacedNodes, chebyshevNodes, buildInterp, maxError,
 } from './sim.js';
@@ -27,7 +28,7 @@ const state = {
   n: 12,
   speed: 2,
   sweepDir: 1,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

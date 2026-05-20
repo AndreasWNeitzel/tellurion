@@ -3,6 +3,7 @@
 // the selected metal and draw a vertical line at the current nu.
 
 import { METALS, thresholdFreqPhz, keMaxEv } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

@@ -13,6 +13,7 @@
 // and Tremaine, Galactic Dynamics 2e, Sec. 3.2; Miyamoto and Nagai,
 // PASJ 27, 533 (1975).
 import { leapfrogMeridional, effPotential, orbitEnergy, forceR } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

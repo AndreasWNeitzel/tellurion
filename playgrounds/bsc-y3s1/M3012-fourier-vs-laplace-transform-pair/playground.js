@@ -5,6 +5,7 @@
 // landscape along the imaginary axis s = i omega. f(t) and |F(omega)|^2
 // are diagnostic strips. Reference: Arfken-Weber Ch. 15.
 import { fourierMag2, laplaceComplex, timeFn } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -17,7 +18,7 @@ const sW = document.getElementById('slider-w'), vW = document.getElementById('va
 const selF = document.getElementById('select-f');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { a: 1, omega0: 2, fn: 'exp', t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 sA.addEventListener('input', () => { st.a = parseFloat(sA.value); vA.textContent = st.a.toFixed(2); });
 sW.addEventListener('input', () => { st.omega0 = parseFloat(sW.value); vW.textContent = st.omega0.toFixed(1); });
 selF.addEventListener('change', () => { st.fn = selF.value; });

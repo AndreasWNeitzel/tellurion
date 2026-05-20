@@ -10,6 +10,7 @@ import {
   sigmaTotOptical, sigmaElasticIntegral, bornAmplitude, momentumTransfer, lMax,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -30,7 +31,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const DEF_T = 'hard', DEF_KA = 3.0, DEF_STR = 2.0;
 const NTH = 60;
-const st = { target: DEF_T, ka: DEF_KA, str: DEF_STR, running: true, ph: 0, deltas: null, R: null, sigma: 0, optRel: 0 };
+const st = { target: DEF_T, ka: DEF_KA, str: DEF_STR, running: !prefersReducedMotion(), ph: 0, deltas: null, R: null, sigma: 0, optRel: 0 };
 
 function potential(r) {
   if (st.target === 'yukawa') return r === 0 ? 0 : st.str * Math.exp(-1.4 * r) / r;

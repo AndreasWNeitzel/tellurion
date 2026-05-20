@@ -11,6 +11,7 @@ import {
   deceleration, particleHorizon, hubbleRadius,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -31,7 +32,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const DEF_OM = 315, DEF_H0 = 67, DEF_OR = 9;
 const A_MIN = 1e-6, A_MAX = 8;
-const st = { om: DEF_OM, h0: DEF_H0, or: DEF_OR, running: true, ph: 0, p: null };
+const st = { om: DEF_OM, h0: DEF_H0, or: DEF_OR, running: !prefersReducedMotion(), ph: 0, p: null };
 
 function rebuild() {
   st.p = flatParams(st.om / 1000, st.or * 1e-5, st.h0);

@@ -11,6 +11,7 @@
 // Reference: Krane, Introductory Nuclear Physics (1988), Ch. 9.
 
 import { transitionType, kurie, betaSpectrum } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

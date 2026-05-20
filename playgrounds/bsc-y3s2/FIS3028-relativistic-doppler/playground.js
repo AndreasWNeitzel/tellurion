@@ -2,6 +2,7 @@
 // linear axes (left) and polar plot (right). Marker at current theta.
 
 import { gamma, dopplerFactor } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

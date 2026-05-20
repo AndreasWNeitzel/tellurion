@@ -2,6 +2,7 @@
 // Cyclotron orbit visualization.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createCyclotron, stepCyclotron, speed,
   cyclotronRadius, cyclotronPeriod,
@@ -32,7 +33,7 @@ const state = {
   speed: 2,
   sim: null,
   trail: [],
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

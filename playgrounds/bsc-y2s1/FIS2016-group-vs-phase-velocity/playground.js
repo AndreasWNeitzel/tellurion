@@ -1,4 +1,5 @@
 import { omega, phaseVelocity, groupVelocity } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -10,7 +11,7 @@ const sD = document.getElementById('slider-dk'), vD = document.getElementById('v
 const selD = document.getElementById('select-d');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { k0: 4, dk: 0.5, disp: 'water-deep', t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 sK.addEventListener('input', () => { st.k0 = parseFloat(sK.value); vK.textContent = st.k0.toFixed(2); });
 sD.addEventListener('input', () => { st.dk = parseFloat(sD.value); vD.textContent = st.dk.toFixed(2); });
 selD.addEventListener('change', () => { st.disp = selD.value; });

@@ -7,6 +7,7 @@
 // (2nd ed.), Sec. 3.8.
 
 import { allowedJ, clebschGordan, vecLen, cosJ1toJ, cosJ2toJ } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

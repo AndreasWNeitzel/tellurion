@@ -7,6 +7,7 @@
 // Sec. 2.5; Press et al., Numerical Recipes, Sec. 20.5.
 
 import { createGrid, sweep, fieldAt, maxResidual, applyPreset, setFixed } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

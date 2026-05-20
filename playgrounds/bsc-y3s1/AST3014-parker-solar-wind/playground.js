@@ -7,6 +7,7 @@
 import { criticalRadius, parkerSpeed, R_SUN } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -28,7 +29,7 @@ const K_MP    = 1.38e-23 / 1.66e-27;
 const TIME_ACCEL = 7.0e4;             // physical seconds per animation second-ish
 
 let st = { T: 1.4, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 
 function csOf(Tmk) { return Math.sqrt(2 * K_MP * Tmk * 1e6); }
 

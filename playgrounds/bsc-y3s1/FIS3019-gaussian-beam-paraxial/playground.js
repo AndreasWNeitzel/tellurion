@@ -4,6 +4,7 @@
 
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   intensityField, spotRadius, rayleighRange, divergenceAngle,
   powerThroughAperture,

@@ -6,6 +6,7 @@
 // sweep and the real-space x(t) are small diagnostics. Physics in
 // sim.js. Reference: Ashcroft and Mermin, Solid State Physics, Ch. 12.
 import { blochFrequency, quasiMomentum, position } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');

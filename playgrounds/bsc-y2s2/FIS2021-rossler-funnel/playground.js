@@ -4,6 +4,7 @@
 // reports the running max-Lyapunov exponent.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createRossler, stepRossler, maxLyapunov,
   DEFAULT_DT, DEFAULT_PARAMS,
@@ -40,7 +41,7 @@ const state = {
   speed:   0.2,
   rossler: null,
   trail:   [],
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   rafId:   null,
 };
 

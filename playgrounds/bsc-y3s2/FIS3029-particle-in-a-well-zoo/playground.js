@@ -2,6 +2,7 @@
 // Three canonical bound-state wells with selected eigenfunction overlaid.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   infiniteWellPsi, infiniteWellE,
   finiteWellLevels, finiteWellPsi,

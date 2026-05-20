@@ -6,6 +6,7 @@
 // (incomplete) inversion, and instantaneous pi / pi-half pulses.
 
 import { stepBloch, rodrigues, norm, blochAngles } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const tTrail = document.getElementById('toggle-trail');
 const bPi = document.getElementById('btn-pi'), bPih = document.getElementById('btn-pihalf');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const st = { S: [0, 0, 1], t: 0, w0: 1.2, w1: 0.5, delta: 0, frame: 'lab', trail: true, running: true, traj: [], az: -0.62, el: 0.46 };
+const st = { S: [0, 0, 1], t: 0, w0: 1.2, w1: 0.5, delta: 0, frame: 'lab', trail: true, running: !prefersReducedMotion(), traj: [], az: -0.62, el: 0.46 };
 const wrf = () => st.w0 - st.delta;
 const params3 = () => ({ w0: st.w0, w1: st.w1, wrf: wrf() });
 

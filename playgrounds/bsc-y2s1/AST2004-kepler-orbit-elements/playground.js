@@ -1,4 +1,5 @@
 import { elementsToPos, solveKepler, trueAnomaly } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -12,7 +13,7 @@ const sO = document.getElementById('slider-O'), vO = document.getElementById('va
 const sW = document.getElementById('slider-w'), vW = document.getElementById('value-w');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { a: 1.5, e: 0.3, i: 30, O: 60, w: 45, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 for (const [id, key, fmt] of [[sA,'a',2],[sE,'e',2],[sI,'i',0],[sO,'O',0],[sW,'w',0]]) {
   id.addEventListener('input', () => { st[key] = parseFloat(id.value); document.getElementById(`value-${key === 'w' ? 'w' : key}`).textContent = st[key].toFixed(fmt); });
 }

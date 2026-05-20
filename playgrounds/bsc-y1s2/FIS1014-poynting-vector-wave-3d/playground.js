@@ -7,6 +7,7 @@
 // Sec. 9.2; Jackson, Classical Electrodynamics, Ch. 7.
 
 import { fields, avgPoynting, dot, norm } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -26,7 +27,7 @@ for (const k of READOUTS) {
 }
 
 const st = { mode: 'linear', lambda: 3.0, E0: 1.0, pol: 0, t: 0, yaw: -0.7, pitch: 0.42 };
-let running = true;
+let running = !prefersReducedMotion();
 
 function selectRow(label, opts, value, onChange) {
   const row = document.createElement('div'); row.className = 'row';

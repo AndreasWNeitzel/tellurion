@@ -11,6 +11,7 @@ import {
   amplitudeAlphaExponent, matrixElementAlphaPower,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -30,7 +31,7 @@ const selO = document.getElementById('select-order');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF_E = 100, DEF_T = 60, DEF_O = 'tree';
-const st = { eRaw: DEF_E, thDeg: DEF_T, order: DEF_O, running: true, ph: 0 };
+const st = { eRaw: DEF_E, thDeg: DEF_T, order: DEF_O, running: !prefersReducedMotion(), ph: 0 };
 const sqrtS = () => st.eRaw / 100;                       // GeV
 const cosTh = () => Math.cos(st.thDeg * Math.PI / 180);
 const nVert = () => (st.order === 'loop' ? 4 : 2);

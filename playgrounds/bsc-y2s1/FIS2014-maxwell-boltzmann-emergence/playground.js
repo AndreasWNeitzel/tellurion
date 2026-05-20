@@ -2,6 +2,7 @@
 // Hard-disk gas with speed histogram + MB curve overlay.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createGas, stepGas, totalKE, meanSpeed, speedHistogram, maxwellBoltzmann2D,
   BOX, RADIUS,
@@ -27,7 +28,7 @@ const state = {
   speed: 3,
   sim: null,
   KE0: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

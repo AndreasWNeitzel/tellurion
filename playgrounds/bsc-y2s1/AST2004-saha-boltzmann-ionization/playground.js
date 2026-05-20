@@ -7,6 +7,7 @@
 // as "most atoms neutral AND in n=2". sim.js core is unchanged.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   ionizationFraction, ionizationTemp, boltzmannFraction, balmerStrength,
 } from './sim.js';

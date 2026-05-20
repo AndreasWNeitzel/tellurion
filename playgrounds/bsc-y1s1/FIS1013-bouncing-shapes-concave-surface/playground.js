@@ -6,6 +6,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createSystem, step, SHAPES, ARRANGEMENTS, diagnostics } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const SEED = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -39,7 +40,7 @@ const toPx = (x, y) => ({ px: W * (x + VX) / (2 * VX), py: H * (1 - (y - Y_LO) /
 const COLORS = ['#5bc0eb', '#f4a261', '#06d6a0', '#ef476f', '#ffd166', '#b08bd8'];
 const st = {
   shape: 'parabola', a: 0.55, e: 0.85, arrangement: 'star', n: 1200,
-  sys: null, trails: [], playing: !DETERMINISTIC,
+  sys: null, trails: [], playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function rebuild() {

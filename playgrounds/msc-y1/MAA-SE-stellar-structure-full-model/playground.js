@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -29,7 +30,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const DEF_M = 0, DEF_X = 70;
 const TOUR_LO = -52, TOUR_HI = 118;        // main-sequence tour: 0.30 -> 15 Msun
-const st = { mRaw: DEF_M, xRaw: DEF_X, running: true, ph: 0, model: null, tour: true, frame: 0 };
+const st = { mRaw: DEF_M, xRaw: DEF_X, running: !prefersReducedMotion(), ph: 0, model: null, tour: true, frame: 0 };
 const massMsun = () => Math.pow(10, st.mRaw / 100);
 const Xfrac = () => st.xRaw / 100;
 

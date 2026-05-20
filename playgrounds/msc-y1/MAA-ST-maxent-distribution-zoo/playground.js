@@ -7,6 +7,7 @@
 // sim.js. Reference: MacKay 2003, Sec. 22.2; Cover and Thomas 2006,
 // Sec. 12.1.
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   pdf, analyticEntropy, numericEntropy, gridX, chooseSupport, CONSTRAINTS,
   structuredPdf, sampleFamily,

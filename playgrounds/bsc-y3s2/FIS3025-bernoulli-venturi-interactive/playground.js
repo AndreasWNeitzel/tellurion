@@ -7,6 +7,7 @@
 // is shared/sim.js (gate-tested); this only draws it. Deterministic.
 import { pipeArea, velocity, pressure, diagnostics, airfoilLift } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const sRho = document.getElementById('slider-rho'), vRho = document.getElementBy
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const PT = 2.0;                                      // total (stagnation) pressure, arbitrary units
-const st = { ratio: 0.4, Q: 0.7, rho: 1.2, running: true, t: 0 };
+const st = { ratio: 0.4, Q: 0.7, rho: 1.2, running: !prefersReducedMotion(), t: 0 };
 
 const PIPE_X0 = 70, PIPE_X1 = W - 70, PIPE_CY = Math.round(H * 0.56), PIPE_HALF = 64;
 const COL_MAXH = (PIPE_CY - PIPE_HALF) - 104;        // tallest column stays clear of the readout panel

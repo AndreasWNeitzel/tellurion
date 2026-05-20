@@ -12,6 +12,7 @@
 // byte-identical; partonShape/sampleX are appended. Reference:
 // Griffiths, Introduction to Elementary Particles, Ch. 9; PDG.
 import { u_v, d_v, gluon, sea, sampleX } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -39,7 +40,7 @@ let _s = 0xC0FFEE >>> 0;
 function rng() { _s = (Math.imul(_s, 1664525) + 1013904223) >>> 0; return _s / 4294967296; }
 
 const st = { x: 0.2, scale: 'lin', t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 const BAG = { cx: 250, cy: 198, rx: 220, ry: 130 };
 // x (1e-3..1) -> screen inside the bag, log-spaced so the small-x
 // gluon/sea crowd is visible and the valence bump is distinct.

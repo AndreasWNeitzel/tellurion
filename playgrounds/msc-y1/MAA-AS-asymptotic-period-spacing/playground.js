@@ -6,6 +6,7 @@
 // the cavity, and the resulting period comb. See sim.js for the
 // closed-form WKB construction and references.
 import { PROFILES, brunt, phaseIntegral, pi1FromProfile, Pi_l, evolutionStage, modeProfileArray } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -29,7 +30,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const NR = 240;
-const st = { profile: 'rgb', l: 1, n: 14, speed: 1, running: true, t: 0, modeArr: null, Pi1: 80, P_n: 1500 };
+const st = { profile: 'rgb', l: 1, n: 14, speed: 1, running: !prefersReducedMotion(), t: 0, modeArr: null, Pi1: 80, P_n: 1500 };
 
 // Diverging red-blue colormap for the displacement amplitude in [-1, 1].
 // Negative side cool, positive side warm, midpoint a near-black so the

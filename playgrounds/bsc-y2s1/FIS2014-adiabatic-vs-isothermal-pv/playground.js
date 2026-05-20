@@ -1,4 +1,5 @@
 import { isothermalPressure, adiabaticPressure, adiabaticTemperature } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -10,7 +11,7 @@ const sT = document.getElementById('slider-T'), vT = document.getElementById('va
 const selP = document.getElementById('select-p');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause'), btnRev = document.getElementById('btn-rev');
 let st = { gamma: 1.4, T0: 300, V0: 1, P0_iso: 1, mode: 'both', V: 1, dir: 1, curve: 'both' };
-let running = true;
+let running = !prefersReducedMotion();
 
 // Molecular gas inside the piston: NPART point particles bouncing in
 // a rectangular cell whose right wall is the piston. Speeds scaled by

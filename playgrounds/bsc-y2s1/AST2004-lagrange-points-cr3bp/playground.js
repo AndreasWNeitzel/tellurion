@@ -10,6 +10,7 @@ import {
   DEFAULT_DT, DEFAULT_MU, SQRT3_HALF, MU_ROUTH,
 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -39,7 +40,7 @@ const state = {
   speed: 1.0,
   particles: [],
   lagrange: null,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

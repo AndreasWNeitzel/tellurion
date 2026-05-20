@@ -2,6 +2,7 @@
 // Damped driven oscillator: x(t) trace and resonance curve.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createDriven, stepDriven, steadyAmplitude, resonancePeak, qualityFactor,
   OMEGA0, F0,
@@ -33,7 +34,7 @@ const state = {
   speed: 3,
   sim: null,
   trace: [],
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

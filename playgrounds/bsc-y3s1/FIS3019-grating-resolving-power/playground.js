@@ -1,4 +1,5 @@
 import { intensity, resolvingPower, principalMaxAngle } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -8,7 +9,7 @@ const rR = document.getElementById('readout-r');
 const ids = ['N','d','a','l','dl'];
 const sliders = ids.map(k => ({ k, s: document.getElementById('slider-'+k), v: document.getElementById('value-'+k) }));
 let st = { N: 20, d: 2, a: 0.5, l: 589, dl: 6 };
-let running = true;
+let running = !prefersReducedMotion();
 sliders.forEach(({ k, s, v }) => s.addEventListener('input', () => { st[k] = parseFloat(s.value); v.textContent = k === 'N' ? st[k].toString() : st[k].toFixed(2); }));
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });

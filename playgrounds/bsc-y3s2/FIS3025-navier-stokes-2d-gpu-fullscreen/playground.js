@@ -21,6 +21,7 @@ import {
 } from '../../../shared/js/engine/chorin-2d-cpu.js';
 import { viridis, divBlack } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -53,7 +54,7 @@ const GX = 220, GY = 140, DT = 0.09, VMAX = 1.8, YSHIFT = 6, DIFF = 4, CONF = 0.
 const SUBSTEPS = 2;
 const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 4e-3, maxIter: 20 }, bfecc: false, confine: CONF };
 const REGIME_RE = { stokes: 8, steady: 60, vonkarman: 300, turbulent: 600 };
-const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: true, field: 'vorticity' };
+const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: !prefersReducedMotion(), field: 'vorticity' };
 const selField = document.getElementById('select-field');
 
 let state, dye, off, peakW = 0;

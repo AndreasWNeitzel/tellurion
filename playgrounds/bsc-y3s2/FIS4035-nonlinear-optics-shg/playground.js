@@ -13,6 +13,7 @@ import {
   conversionEfficiency, nonlinearLength, nO, nE, phaseMatchAngleTypeI,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -34,7 +35,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const LAMBDA_FW = 1.0642;                               // canonical Nd:YAG fundamental (micron)
 const DEF_DK = 0.6, DEF_G = 0.06;
 const N = 1600;
-const st = { regime: 'undepleted', dk: DEF_DK, gamma: DEF_G, running: true, z: null, i1: null, i2: null, zEnd: 1, i2max: 1, zNow: 0 };
+const st = { regime: 'undepleted', dk: DEF_DK, gamma: DEF_G, running: !prefersReducedMotion(), z: null, i1: null, i2: null, zEnd: 1, i2max: 1, zNow: 0 };
 
 function windowLength() {
   if (st.regime === 'depleted') return 7 * nonlinearLength(st.gamma);

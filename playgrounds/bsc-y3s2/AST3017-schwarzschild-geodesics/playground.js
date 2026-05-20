@@ -6,6 +6,7 @@
 // so visual.test.mjs frames are reproducible.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createPhotonSwarm,
   stepSwarm,

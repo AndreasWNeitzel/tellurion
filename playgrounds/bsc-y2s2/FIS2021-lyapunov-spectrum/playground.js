@@ -5,6 +5,7 @@
 // Live readouts show a, b, lambda_1, lambda_2, lambda_1+lambda_2, ln|b|, and N.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   lyapunovSpectrum,
   attractorPoints,
@@ -39,7 +40,7 @@ const state = {
   b: 0.3,
   result: null,
   attractor: null,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   dragging: false,
 };
 

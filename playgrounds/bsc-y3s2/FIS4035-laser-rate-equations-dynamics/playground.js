@@ -11,6 +11,7 @@ import {
   createLaser, step, thresholdPump, steadyInversion, steadyPhotons, outputPower, SEED,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -42,7 +43,7 @@ const T_WINDOW = 24;
 const LIVE_DT = 0.06;                                  // sim time advanced per animation frame
 const DEF_R = 12, DEF_Q0 = 0.25;
 const st = {
-  regime: 'cw', r: DEF_R, q0: DEF_Q0, running: true,
+  regime: 'cw', r: DEF_R, q0: DEF_Q0, running: !prefersReducedMotion(),
   sim: null, hist: [], lastK: -1, qs: null,
 };
 

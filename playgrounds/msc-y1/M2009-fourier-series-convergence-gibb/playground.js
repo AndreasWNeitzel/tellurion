@@ -9,6 +9,7 @@ import {
   meanSquare, parsevalEnergy, gibbsOvershoot, gibbsConstant, gibbsAtJump,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -27,7 +28,7 @@ const slN = document.getElementById('slider-n'), vN = document.getElementById('v
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF = { tgt: 'square', n: 8 };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 const G = gibbsConstant();
 
 function panel(x, y, w, h, title) {

@@ -8,6 +8,7 @@ import {
   angularImpulse, hamiltonian, preset,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -32,7 +33,7 @@ const CXp = W / 2, CYp = H / 2;
 function px(x) { return CXp + x * SX; }
 function py(y) { return CYp - y * SY; }
 
-const st = { presetName: 'dipole', strength: 1, speed: 3, running: true, t: 0, H0: 0 };
+const st = { presetName: 'dipole', strength: 1, speed: 3, running: !prefersReducedMotion(), t: 0, H0: 0 };
 let s, tracers = [];
 
 function buildTracers(deterministic) {

@@ -13,6 +13,7 @@
 // A&A 618, A109 (2018); Aerts, Christensen-Dalsgaard and Kurtz,
 // Asteroseismology, Ch. 3.
 import { deltaP, modePeriods, trapping, gModeEnvelope, gModePhase } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { Pi: 80, A: 0.2, Ptrap: 350, t: 0, mi: 1 };
-let running = true;
+let running = !prefersReducedMotion();
 const NM = 60, P0 = 800;
 const XENV = 0.62;                                   // g-mode cavity edge (frac radius)
 

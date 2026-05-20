@@ -8,6 +8,7 @@
 // the leading-order top physics unchanged.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createTop, stepTop, precessionRate, tipPosition, L_VIS,
   M_TOP, G_GRAV, R_COM, I_SPIN,
@@ -39,7 +40,7 @@ const state = {
   sim: null,
   tipTrail: [],
   az: 0.6,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

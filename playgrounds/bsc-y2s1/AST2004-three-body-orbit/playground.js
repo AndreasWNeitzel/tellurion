@@ -3,6 +3,7 @@
 // the same canvas; one slider for the perturbation dv.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createThreeBodyFromIC,
   ORBIT_CATALOG,
@@ -44,7 +45,7 @@ const state = {
   tb: null,
   trails: [[], [], []],
   tElapsed: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function setView(half) {

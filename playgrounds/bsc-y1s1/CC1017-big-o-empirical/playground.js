@@ -6,6 +6,7 @@
 // 1/2 N(N-1) and N log2 N curves. "Sweep N" fills the curve at once.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   shuffledArray, recordSort, comparisonCount,
   EV_CMP, EV_SWAP, EV_SET,
@@ -43,7 +44,7 @@ const state = {
   N: parseInt(sliderN.value, 10),
   speed: parseInt(sliderSpeed.value, 10),
   algoA: selectAlgo.value,        // 'bubble' | 'insertion'  -> O(N^2)
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   A: null,                        // left  race (quadratic)
   B: null,                        // right race (merge)
   points: new Map(),              // `${N}:${algoA}` -> { N, q, m }

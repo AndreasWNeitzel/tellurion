@@ -8,6 +8,7 @@
 // gate-tested engine and is unchanged. Reference: Arfken and Weber,
 // Mathematical Methods (7th ed.), Ch. 10; Riley and Hobson Ch. 21.
 import { greenFn, solve } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -22,7 +23,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { x0: 0.5, fn: 'const', t: 0, sweep: 0, drag: false };
-let running = true;
+let running = !prefersReducedMotion();
 const N = 200;
 const X0P = 60, X1P = W - 36;
 const xToPx = (x) => X0P + x * (X1P - X0P);

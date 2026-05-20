@@ -3,6 +3,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createBTW, stepBTW, avalanchePLBins, L } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -22,7 +23,7 @@ const W = canvas.width, H = canvas.height;
 const state = {
   speed: 3,
   sim: null,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

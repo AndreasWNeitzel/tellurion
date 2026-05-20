@@ -10,6 +10,7 @@ import {
   hysteresisLoop, createValve, stepField, valveState,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -30,7 +31,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const HC_PIN = 1.2, HMAX = 1.6, NLOOP = 2400;
 const DEF_MODEL = 'gmr', DEF_P = 0.5, DEF_HC = 0.3;
-const st = { model: DEF_MODEL, P: DEF_P, hcFree: DEF_HC, running: true, ph: 0, loop: null, rAP: 2, mr: 0 };
+const st = { model: DEF_MODEL, P: DEF_P, hcFree: DEF_HC, running: !prefersReducedMotion(), ph: 0, loop: null, rAP: 2, mr: 0 };
 
 function modelResistances() {
   if (st.model === 'tmr') {

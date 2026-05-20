@@ -11,6 +11,7 @@
 // Swenson, Interferometry and Synthesis in Radio Astronomy, Ch. 4.
 import { stationXYZ, baselineLambda, uv, maxBaseline, resolutionMas, dirtyBeam } from './sim.js';
 import { cividis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

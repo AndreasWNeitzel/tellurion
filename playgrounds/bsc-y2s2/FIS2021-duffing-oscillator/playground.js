@@ -4,6 +4,7 @@
 // bifurcation diagram in the drive amplitude gamma.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createDuffing, stepDuffing, bifurcationGamma,
   DEFAULT_DT, DEFAULT_PARAMS,
@@ -46,7 +47,7 @@ const state = {
   trail:   [],
   poincare:[],
   periodAcc: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   rafId:   null,
   bif:     null,
 };

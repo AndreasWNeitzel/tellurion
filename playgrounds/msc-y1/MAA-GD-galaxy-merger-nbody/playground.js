@@ -15,6 +15,7 @@
 // surviving primary's frame (the Gaia-Enceladus / Sausage clump).
 
 import { buildGalaxies, setVelocities, G, THETA, EPS, NTOT, DT } from './model.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

@@ -8,6 +8,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createLorenz, stepLorenz, maxLyapunov, rebuildRhs,
   createAttractor, stepAttractor, ATTRACTORS,
@@ -44,7 +45,7 @@ const state = {
   at: null,                 // unified handle: { step(), pos(), def }
   trail: [],
   az: 0.6,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function buildHandle() {

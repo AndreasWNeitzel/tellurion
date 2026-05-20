@@ -8,6 +8,7 @@
 
 import { cycleStates, analysis, sampleSeg, carnotEff } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -62,7 +63,7 @@ const bRev = document.createElement('button'); bRev.type = 'button'; bRev.textCo
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
 bRow.appendChild(bRev); bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
-let running = true;
+let running = !prefersReducedMotion();
 bRev.addEventListener('click', () => { st.reverse = !st.reverse; bRev.textContent = st.reverse ? 'Forward' : 'Reverse'; });
 bReset.addEventListener('click', () => { Object.assign(st, { type: 'carnot', Th: 650, Tc: 300, r: 4, reverse: false, phase: 0 }); selC.value = 'carnot'; cTh.inp.value = '650'; cTh.vEl.textContent = '650'; cTc.inp.value = '300'; cTc.vEl.textContent = '300'; cR.inp.value = '4'; cR.vEl.textContent = '4.0'; bRev.textContent = 'Reverse'; rebuild(); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });

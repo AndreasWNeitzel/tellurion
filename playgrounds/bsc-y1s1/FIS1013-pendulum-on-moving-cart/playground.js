@@ -2,6 +2,7 @@
 // Cart with pendulum render + energy and phase panels.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createCart, stepCart, energy, horizontalMomentum,
   M_CART, M_BOB, L_PEN,
@@ -31,7 +32,7 @@ const state = {
   E0: 0,
   trail: [],     // bob trail
   phase: [],     // (theta, x) phase
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

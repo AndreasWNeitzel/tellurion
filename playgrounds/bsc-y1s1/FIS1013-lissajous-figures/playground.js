@@ -3,6 +3,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { x as xFn, y as yFn, period, PRESETS } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -32,7 +33,7 @@ const state = {
   delta: Math.PI / 2,
   speed: 2,
   tNow: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

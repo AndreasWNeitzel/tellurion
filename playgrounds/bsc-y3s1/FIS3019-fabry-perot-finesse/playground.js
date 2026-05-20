@@ -7,6 +7,7 @@
 // A synced Airy strip keeps the quantitative curve. sim.js is unchanged.
 
 import { transmission, coefficientFinesse, finesse, fwhmPhi } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

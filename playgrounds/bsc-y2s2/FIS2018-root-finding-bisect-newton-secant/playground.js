@@ -14,6 +14,7 @@
 // Reference: Burden and Faires, Numerical Analysis (9th ed.), Ch. 2.
 
 import { bisect, newton, secant } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

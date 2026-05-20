@@ -9,6 +9,7 @@
 import { RA_C, K_C, discreteRaC, linearSigma } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const sPr = document.getElementById('slider-pr'), vPr = document.getElementById(
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const NY = 96;                                       // resolution of the discrete onset
-const st = { Ra: 2 * RA_C, k: K_C, Pr: 1, running: true, amp: 1e-3, t: 0 };
+const st = { Ra: 2 * RA_C, k: K_C, Pr: 1, running: !prefersReducedMotion(), amp: 1e-3, t: 0 };
 
 const FW = W, FH = Math.round(H * 0.62);             // roll field panel
 const CW = W, CY = FH, CH = H - FH;                  // neutral-curve panel

@@ -2,6 +2,7 @@
 // FitzHugh-Nagumo voltage trace and (v, w) phase portrait with nullclines.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createFHN, stepFHN, restState, A_FN, B_FN, EPS_FN,
 } from './sim.js';
@@ -30,7 +31,7 @@ const state = {
   sim: null,
   trace: [],
   phase: [],
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

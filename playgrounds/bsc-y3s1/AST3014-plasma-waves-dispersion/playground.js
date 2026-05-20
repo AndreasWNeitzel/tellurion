@@ -9,6 +9,7 @@ import {
   sample, oModeSpeeds, upperHybrid, xCutoffs, plasmaFrequency,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -27,7 +28,7 @@ const sNe = document.getElementById('slider-ne'), vNe = document.getElementById(
 const sWc = document.getElementById('slider-wc'), vWc = document.getElementById('value-wc');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const st = { mode: 'omode', wpRel: 1.0, wc: 0.6, running: true, phase: 0 };
+const st = { mode: 'omode', wpRel: 1.0, wc: 0.6, running: !prefersReducedMotion(), phase: 0 };
 const C = 20;                                        // light speed in plot units (omega_p = 1)
 const params = () => ({ wp: st.wpRel, c: C, vth: 0.05, cs: 0.02, lambdaD: 0.3, vA: 0.3, wc: st.wc });
 

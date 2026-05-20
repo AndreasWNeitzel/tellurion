@@ -1,6 +1,7 @@
 // Inverse-Compton cooling playground. t_cool vs gamma on log-log axes.
 
 import { tCoolYears, uPhotonThermalJM3 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

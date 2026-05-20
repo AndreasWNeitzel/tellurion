@@ -1,6 +1,7 @@
 // Stellar habitable zone: planet equilibrium temperature vs orbital radius.
 
 import { luminosity, Teq as simTeq, radiusAtT } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -14,7 +15,7 @@ const readoutFrame = document.getElementById('readout-frame') || { textContent: 
 const controlsEl   = document.getElementById('controls');
 
 const W = canvas.width, H = canvas.height;
-const state = { Teff: 5778, Rstar: 1.0, A: 0.3, a_AU: 1.0, theta: 0, running: true };
+const state = { Teff: 5778, Rstar: 1.0, A: 0.3, a_AU: 1.0, theta: 0, running: !prefersReducedMotion() };
 
 function Lstar() { return luminosity(state.Teff, state.Rstar); }
 function Teq(a_AU) { return simTeq(a_AU, state.Teff, state.Rstar, state.A); }

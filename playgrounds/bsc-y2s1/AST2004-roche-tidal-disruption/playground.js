@@ -3,6 +3,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createCloud, stepCloud, streamLength, comDistance } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -38,7 +39,7 @@ const state = {
   speed: 0.5,
   cloud: null,
   trail: [],
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function toPx(x, y) { return { px: CX + x * PX_PER_UNIT, py: CY - y * PX_PER_UNIT }; }

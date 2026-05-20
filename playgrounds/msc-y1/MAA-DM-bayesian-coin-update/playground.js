@@ -5,6 +5,7 @@
 
 import { makeRng } from '../../../shared/js/render/rng.js';
 import { betaPdf, posteriorParams, betaMean, betaVariance, credibleInterval } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const DETERMINISTIC  = urlParams.get('deterministic') === '1';

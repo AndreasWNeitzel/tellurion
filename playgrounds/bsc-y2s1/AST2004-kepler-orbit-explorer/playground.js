@@ -4,6 +4,7 @@
 // Kepler-III plot (T^2 vs a^3) shows that every body lands on the same line.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   PLANETS, createSwarm, stepSwarm, bodyPosition,
   keplerThirdLaw, DEFAULT_DT,
@@ -43,7 +44,7 @@ const state = {
   swarm:   null,
   trails:  [],            // array of arrays of {x,y}, one per body
   speed:   1.0,           // years/sec
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   t:       0,
 };
 

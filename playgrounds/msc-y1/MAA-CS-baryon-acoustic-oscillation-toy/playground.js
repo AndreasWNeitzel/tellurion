@@ -9,6 +9,7 @@
 // soundHorizon / baoXi are the added gate-tested helpers. Reference:
 // Eisenstein et al. 2005; Weinberg, Cosmology Ch. 8.
 import { soundSpeed, soundHorizon, baoXi, C_KM_S } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -23,7 +24,7 @@ const W = canvas.width, H = canvas.height;
 
 const T_REC = 380;                                   // kyr
 const st = { R: 0.6, t: 0 };                          // t in kyr (loops)
-let running = true;
+let running = !prefersReducedMotion();
 
 sR.addEventListener('input', () => { st.R = parseFloat(sR.value); vR.textContent = st.R.toFixed(2); });
 btnR.addEventListener('click', () => { st.R = 0.6; st.t = 0; sR.value = '0.6'; vR.textContent = '0.60'; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });

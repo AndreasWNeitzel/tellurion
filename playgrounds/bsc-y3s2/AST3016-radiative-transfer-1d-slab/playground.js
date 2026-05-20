@@ -10,6 +10,7 @@
 // (transmitOptical, profileVsTau) is unchanged. Reference: Rybicki
 // and Lightman, Radiative Processes in Astrophysics, Ch. 1.
 import { transmitOptical, profileVsTau } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -25,7 +26,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { Iin: 1, S: 3, tau: 2, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 
 sI.addEventListener('input', () => { st.Iin = parseFloat(sI.value); vI.textContent = st.Iin.toFixed(2); });
 sS.addEventListener('input', () => { st.S = parseFloat(sS.value); vS.textContent = st.S.toFixed(2); });

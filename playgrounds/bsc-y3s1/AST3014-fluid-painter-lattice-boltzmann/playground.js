@@ -3,6 +3,7 @@
 // sim.js (DOM-free, also exercised by invariants.test.mjs).
 
 import { createLBM, step as lbmStep, macro, addCircle, reset as lbmReset, fluidMass } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

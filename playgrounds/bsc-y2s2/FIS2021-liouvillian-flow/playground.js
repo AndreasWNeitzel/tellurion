@@ -4,6 +4,7 @@
 // separatrix curve.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createSwarm,
   stepSwarm,
@@ -49,7 +50,7 @@ const state = {
   swarm: null,
   A0: 1,
   E0: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   dragging: false,
   steps: 0,
 };

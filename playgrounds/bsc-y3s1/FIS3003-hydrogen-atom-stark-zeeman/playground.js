@@ -8,6 +8,7 @@
 // Introduction to Quantum Mechanics (3rd ed.), Ch. 6.
 
 import { energyLevel, sublevels, spectrumLines, zeemanTriplet, MU_B } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

@@ -8,6 +8,7 @@ import {
   depthGrid, peakDepth, distalDepth,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -29,7 +30,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const ZMAX = 38, NZ = 760;
 const Z = depthGrid(ZMAX, NZ);
 const DEF = { e: 150, mode: 'pristine', pw: 35 };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 
 const cache = {};
 function rebuild() {

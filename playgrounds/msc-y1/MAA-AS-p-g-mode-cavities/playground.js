@@ -7,6 +7,7 @@
 
 import { N, S_l, cavities } from './sim.js';
 import { rdbu } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 // User feedback: 'the white flashing while useful to signify
 // oscillation, is irritating to the eyes. Consider a different
@@ -43,7 +44,7 @@ const btnR   = document.getElementById('btn-reset'), btnP = document.getElementB
 
 const W = canvas.width, H = canvas.height;
 let st = { omega: 2, l: 1 };
-let running = true;
+let running = !prefersReducedMotion();
 let clock = 0;
 
 sW.addEventListener('input', () => { st.omega = parseFloat(sW.value); vW.textContent = st.omega.toFixed(2); });

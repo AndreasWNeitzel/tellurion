@@ -10,6 +10,7 @@
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { beamingHalfAngle, doppler, aberratedAngle } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -26,7 +27,7 @@ const valueA       = document.getElementById('value-alpha');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const st = { gamma: 5.0, alpha: 0.0, az: 0.5, playing: !DETERMINISTIC };
+const st = { gamma: 5.0, alpha: 0.0, az: 0.5, playing: !(DETERMINISTIC || prefersReducedMotion()) };
 
 const CX = W * 0.46, CY = H * 0.52, SC = 150, ELEV = 0.42;
 function proj(x, y, z) {

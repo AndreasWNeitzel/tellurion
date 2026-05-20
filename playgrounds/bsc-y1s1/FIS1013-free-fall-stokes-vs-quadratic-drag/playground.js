@@ -30,7 +30,7 @@ const btnPlay  = document.getElementById('btn-playpause');
 const PHYSICS_DT = 1 / 240;
 let accumulator = 0;
 let lastTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-let running = true;
+let running = !prefersReducedMotion();
 
 let y0 = parseFloat(sliderY0.value);
 let b  = parseFloat(sliderB.value);

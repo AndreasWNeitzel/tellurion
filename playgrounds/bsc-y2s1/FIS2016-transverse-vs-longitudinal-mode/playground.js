@@ -13,6 +13,7 @@
 // Ch. 7.
 import { omegaK, modePosition, totalEnergy } from './sim.js';
 import { rdbu } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

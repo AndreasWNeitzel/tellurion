@@ -8,6 +8,7 @@
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { V as simV, Vp as simVp, Vpp as simVpp, epsilon as simEpsilon, eta as simEta, nsR_atN as simNsRatN } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

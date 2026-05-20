@@ -10,6 +10,7 @@ import {
   matchedFilter, G, C, MSUN, MPC,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -29,7 +30,7 @@ const sD = document.getElementById('slider-d'), vD = document.getElementById('va
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF_M1 = 30, DEF_M2 = 30, DEF_D = 400;
-const st = { m1: DEF_M1, m2: DEF_M2, D: DEF_D, running: true, ph: 0, wf: null, mf: null };
+const st = { m1: DEF_M1, m2: DEF_M2, D: DEF_D, running: !prefersReducedMotion(), ph: 0, wf: null, mf: null };
 
 function rebuild() {
   const m1 = st.m1 * MSUN, m2 = st.m2 * MSUN, D = st.D * MPC;

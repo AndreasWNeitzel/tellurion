@@ -59,7 +59,7 @@ const state = {
   speed: parseInt(sliderSpeed.value, 10),
   patched: false,
   phase: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function srnd(i) { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }

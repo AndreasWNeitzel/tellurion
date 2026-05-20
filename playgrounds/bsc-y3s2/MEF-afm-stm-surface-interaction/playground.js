@@ -13,6 +13,7 @@ import {
   surfaceProfile, surfaceProfile2D, stmConstantHeight, stmTopograph, afmForceScan,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -33,7 +34,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const LAT = 4, AMP = 0.6, EPS = 0.02, SIG = 3, BIAS = 0.1, ISET = 2e-3;
 const XMAX = 24;                                     // angstrom scan window
-const st = { mode: 'stm-cc', gap: 5, phi: 5, running: true, scanY: 0 };
+const st = { mode: 'stm-cc', gap: 5, phi: 5, running: !prefersReducedMotion(), scanY: 0 };
 
 // Micrograph panel (left, square) + law panel + scan-trace panel.
 const MG = { x: 22, y: 40, s: Math.min(360, H - 200) };

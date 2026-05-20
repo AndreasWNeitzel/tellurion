@@ -1,6 +1,7 @@
 // Slow-roll inflation playground. (n_s, r) plane with Planck 2018 box.
 
 import { nsR, withinPlanckBox, PLANCK_NS, PLANCK_NS_SIG, PLANCK_R_UPPER } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

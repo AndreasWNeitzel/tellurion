@@ -13,6 +13,7 @@
 // Cosmology.
 import { Dl, synthModes } from './sim.js';
 import { rdbu, fieldToImageData } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -33,7 +34,7 @@ const MTOT = 260;                       // total acoustic modes per realisation
 const LSCALE = 90;                      // l -> ripples-across-patch
 
 const st = { lPeak: 220, lDamp: 2000, seed: 0xC0FFEE };
-let running = true;
+let running = !prefersReducedMotion();
 
 const off = document.createElement('canvas'); off.width = GRID; off.height = GRID;
 const offCtx = off.getContext('2d');

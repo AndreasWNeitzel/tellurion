@@ -3,6 +3,7 @@
 // orthonormal pair u1, u2.
 
 import { gramSchmidt, dot, norm, project, residual } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

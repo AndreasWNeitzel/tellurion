@@ -23,7 +23,7 @@ const sJ2 = document.getElementById('slider-j2'), vJ2 = document.getElementById(
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const st = { j1: 0.5, j2: 0.5, t: 0, jIdx: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 
 // Per-frame hit-test rectangles for the clickable J rows in the
 // decomposition panel. Populated each render().

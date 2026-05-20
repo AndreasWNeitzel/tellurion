@@ -6,6 +6,7 @@
 // for the tests.
 
 import { collide2d, ke2d } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,7 +22,7 @@ let st = { m1: 1, m2: 2, u1: 3, u2: 0.4, e: 0.9 };
 for (const { k, s, v } of ids) { st[k] = parseFloat(s.value); s.addEventListener('input', () => { st[k] = parseFloat(s.value); v.textContent = parseFloat(s.value).toFixed(2); reset(); }); }
 const btnR = document.getElementById('btn-reset');
 const btnP = document.getElementById('btn-pause');
-let running = true;
+let running = !prefersReducedMotion();
 btnR.addEventListener('click', reset);
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 

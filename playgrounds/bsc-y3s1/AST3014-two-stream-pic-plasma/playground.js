@@ -4,6 +4,7 @@
 // log mode-1 trace with the analytic growth-rate reference
 // gamma = omega_p / (2 sqrt 2). Physics is the gate-tested sim.js.
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createTwoStream, stepPIC, modeOneAmplitude, modeAmplitudes,
   twoStreamMaxGrowth, NPARTICLES, L,
@@ -31,7 +32,7 @@ const SPEC_Y = PHASE_Y + PHASE_H + 14, SPEC_H = 84;
 const TRACE_Y = SPEC_Y + SPEC_H + 14, TRACE_H = 96;
 const KMODES = 8, DT = 0.05, GAMMA = twoStreamMaxGrowth(1);   // wp = 1 in sim units
 
-const state = { v0: 0.6, speed: 3, sim: null, modeHist: [], spec: [], playing: !DETERMINISTIC };
+const state = { v0: 0.6, speed: 3, sim: null, modeHist: [], spec: [], playing: !(DETERMINISTIC || prefersReducedMotion()) };
 
 function rebuild() {
   state.sim = createTwoStream({ v0: state.v0, T: 0.01, seed: SEED });

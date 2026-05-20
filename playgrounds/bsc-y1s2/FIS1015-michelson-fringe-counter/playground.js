@@ -1,4 +1,5 @@
 import { intensity, fringesBetween, visibility } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -11,7 +12,7 @@ const sV = document.getElementById('slider-vis'), vV = document.getElementById('
 const sSrc = document.getElementById('select-src');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause'), btnS = document.getElementById('btn-step');
 let st = { lambda: 633e-9, rate: 200e-9, vis: 1, src: 'ring', d: 0, fringes: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 sL.addEventListener('input', () => { st.lambda = parseFloat(sL.value) * 1e-9; vL.textContent = sL.value; });
 sR.addEventListener('input', () => { st.rate = parseFloat(sR.value) * 1e-9; vR.textContent = sR.value; });
 sV.addEventListener('input', () => { st.vis = parseFloat(sV.value); vV.textContent = st.vis.toFixed(2); });

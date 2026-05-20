@@ -3,6 +3,7 @@
 // (x1, x2) phase portrait.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createSprings, stepVerlet, totalEnergy, modeAmplitudes,
   purePlusMode, pureMinusMode, OMEGA_PLUS, OMEGA_MINUS,
@@ -33,7 +34,7 @@ const state = {
   history: [],   // {t, x1, x2}
   E0: 0,
   preset: 'generic',
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

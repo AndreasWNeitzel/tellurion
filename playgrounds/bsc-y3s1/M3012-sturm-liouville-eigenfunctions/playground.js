@@ -13,6 +13,7 @@ import {
   solveSL, projectWeighted, modeSumAt, nodeCount, eigenvalue, L,
 } from './sim.js';
 import { parseUrlState, applyState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

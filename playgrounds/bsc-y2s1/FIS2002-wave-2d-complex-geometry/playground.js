@@ -9,6 +9,7 @@
 
 import { buildScene, stepScene, cflDt, PRESETS, energy } from './sim.js';
 import { fieldToImageData, divBlack } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

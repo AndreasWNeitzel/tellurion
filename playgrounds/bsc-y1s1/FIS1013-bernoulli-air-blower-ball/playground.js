@@ -6,6 +6,7 @@
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createBlower, step, airVelocityAt, diagnostics } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const SEED = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -36,7 +37,7 @@ const toWorld = (mx, my) => ({ x: (mx - NZ_PX.x) / SCx, y: (NZ_PX.y - my) / SCy 
 const rng = makeRng(SEED);
 const sim = createBlower({ U0: 18, tiltDeg: 0, x0: 0.0, y0: 0.95 });
 const streaks = [];
-const st = { drag: false, playing: !DETERMINISTIC };
+const st = { drag: false, playing: !(DETERMINISTIC || prefersReducedMotion()) };
 
 function spawnStreaks(n) {
   for (let i = 0; i < n; i += 1) {

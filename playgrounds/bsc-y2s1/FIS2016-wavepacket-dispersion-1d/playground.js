@@ -7,6 +7,7 @@
 // solution in sim.js (spreadAt, center, density, realPsi) is
 // unchanged. Reference: Eisberg and Resnick, Quantum Physics, Ch. 5.
 import { density, realPsi, spreadAt, center } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,7 +22,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { s0: 1, k0: 3, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 const XMIN = -4, XMAX = 34;
 const PX0 = 40, PX1 = W - 30;
 const xToPx = (x) => PX0 + (x - XMIN) / (XMAX - XMIN) * (PX1 - PX0);

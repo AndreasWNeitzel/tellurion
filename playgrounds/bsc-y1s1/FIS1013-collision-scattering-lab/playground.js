@@ -5,6 +5,7 @@
 // Reference: Goldstein, Classical Mechanics (3rd ed.), Ch. 3.7.
 
 import { reducedMass, chiOf, relTrajectory, dsigmaRutherford } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -48,7 +49,7 @@ function buildCache() {
 }
 let P = physParams(), rel = relTrajectory(st.b, P), cache = buildCache();
 function rebuild() { P = physParams(); rel = relTrajectory(st.b, P); cache = buildCache(); st.t = 0; }
-let running = true;
+let running = !prefersReducedMotion();
 
 function buildSlider(label, min, max, stp, value, key, fmt = v => v.toFixed(2)) {
   const row = document.createElement('div'); row.className = 'row';

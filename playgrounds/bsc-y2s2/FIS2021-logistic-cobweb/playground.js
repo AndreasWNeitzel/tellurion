@@ -3,6 +3,7 @@
 // All numerics live in ./sim.js; this file is rendering, input, and live readouts.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   iterateOrbit,
   lyapunovExponent,
@@ -46,7 +47,7 @@ const COBWEB_STEPS   = 256;
 const state = {
   r: 3.2,
   x0: 0.1,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   dragging: false,
   bifImage: null,
   period: 1,

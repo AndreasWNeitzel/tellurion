@@ -2,6 +2,7 @@
 // MC integration: function and convergence curve.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   plainMC, importanceMC, convergence, testFn, EXACT,
 } from './sim.js';
@@ -27,7 +28,7 @@ const state = {
   log2N: 14,
   speed: 2,
   sweepDir: 1,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   cachedCurves: null,
 };
 

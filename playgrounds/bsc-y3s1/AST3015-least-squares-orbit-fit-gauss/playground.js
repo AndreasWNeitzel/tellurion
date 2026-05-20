@@ -11,6 +11,7 @@
 // fitCircle / rms) is unchanged. Reference: Bate, Mueller and White,
 // Fundamentals of Astrodynamics, Ch. 5 (after Gauss 1809).
 import { generateData, fitCircle, rms } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { e: 0.56, N: 36, s: 0.05, seed: 0xC0FFEE, k: 3 };
-let running = true;
+let running = !prefersReducedMotion();
 const CX = W / 2, CY = 232, SC = 150;          // focus at (CX, CY); 1 AU = SC px
 const OMEGA = 0.3;                              // orbit orientation (matches generateData)
 

@@ -32,7 +32,7 @@ const selHkl = document.getElementById('select-hkl');
 const sSC = document.getElementById('slider-sc'), vSC = document.getElementById('value-sc');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const st = { lat: 'fcc', view: 'crystal', hkl: [1, 1, 1], sc: 1, yaw: 0.6, running: true };
+const st = { lat: 'fcc', view: 'crystal', hkl: [1, 1, 1], sc: 1, yaw: 0.6, running: !prefersReducedMotion() };
 
 // 3D viewport: a box that stays clear of the readout overlay and
 // strictly above the XRD strip (which starts at H-110).

@@ -9,6 +9,7 @@ import {
   norm, expectationN, commutatorAction, coherentState, pump,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const sA = document.getElementById('slider-alpha'), vA = document.getElementById
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const NM_B = 24, NM_F = 1, DEF_STAT = 'boson', DEF_MODE = 'pump', DEF_A = 2.4;
-const st = { stat: DEF_STAT, mode: DEF_MODE, alpha: DEF_A, running: true, ph: 0 };
+const st = { stat: DEF_STAT, mode: DEF_MODE, alpha: DEF_A, running: !prefersReducedMotion(), ph: 0 };
 
 function nMax() { return st.stat === 'fermion' ? NM_F : NM_B; }
 function currentState() {

@@ -8,6 +8,7 @@ import {
   propagate4f, makeObject, filterMask, meanOf,
 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

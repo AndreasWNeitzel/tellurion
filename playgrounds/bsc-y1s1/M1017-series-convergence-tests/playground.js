@@ -6,6 +6,7 @@
 // vs N with the true limit and the N marker. sim.js is unchanged.
 
 import { SERIES, partialSum, ratioTest, rootTest } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

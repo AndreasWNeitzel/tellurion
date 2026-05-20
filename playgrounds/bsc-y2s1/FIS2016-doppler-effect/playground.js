@@ -2,6 +2,7 @@
 // Moving source emits circular wavefronts. Bottom panel shows f_obs(theta).
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createDoppler, stepDoppler, observedFreq, radius,
   SOURCE_FREQ, WAVE_SPEED,
@@ -28,7 +29,7 @@ const state = {
   v: 0.5,
   speed: 2,
   sim: null,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   // Draggable observer in world coords (offset from the source at
   // theta = 0 by default).
   obsX: 2.5, obsY: 0,

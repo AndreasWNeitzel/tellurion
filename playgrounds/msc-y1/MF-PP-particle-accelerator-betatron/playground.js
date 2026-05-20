@@ -13,6 +13,7 @@ import {
   rigidity, bendRadius,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -38,7 +39,7 @@ const X0 = 3e-3, XP0 = 0;           // launch: 3 mm offset, no angle
 
 const DEF_F = 40, DEF_N = 8, DEF_B = 12;   // f=4.0 m -> Q~1.72, off low-order resonances
 const st = {
-  fRaw: DEF_F, nc: DEF_N, bRaw: DEF_B, running: true,
+  fRaw: DEF_F, nc: DEF_N, bRaw: DEF_B, running: !prefersReducedMotion(),
   x: X0, xp: XP0, turn: 0, trail: [],
 };
 const focal = () => st.fRaw / 10;

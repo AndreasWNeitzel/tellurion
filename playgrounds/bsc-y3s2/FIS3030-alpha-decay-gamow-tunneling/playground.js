@@ -7,6 +7,7 @@
 
 import { geigerNuttallLogT, gamowExponent } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -25,7 +26,7 @@ const W = canvas.width, H = canvas.height;
 const rng = makeRng(SEED);
 
 let st = { Z: 90, Q: 4.5 };
-let running = true;
+let running = !prefersReducedMotion();
 let clock = 0;
 let emitClock = 0;
 let emitted = 0;

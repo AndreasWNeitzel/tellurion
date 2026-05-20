@@ -2,6 +2,7 @@
 // Kuramoto oscillators on the unit circle, with r(t) panel.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createKuramoto, stepKuramoto, orderParameter, criticalCoupling, N,
 } from './sim.js';
@@ -31,7 +32,7 @@ const state = {
   speed: 2,
   sim: null,
   rHistory: [],
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

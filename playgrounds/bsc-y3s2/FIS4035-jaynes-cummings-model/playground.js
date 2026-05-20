@@ -14,6 +14,7 @@ import {
 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -34,7 +35,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const DEF_NBAR = 25, DEF_G = 1;
 const N_SAMPLES = 4000;                                // analytic-curve resolution
-const st = { nbar: DEF_NBAR, g: DEF_G, running: true, series: null, tWin: 1, tNow: 0, P: null };
+const st = { nbar: DEF_NBAR, g: DEF_G, running: !prefersReducedMotion(), series: null, tWin: 1, tNow: 0, P: null };
 
 function windowTime(nbar, g) {
   return Math.max(2.4 * revivalTime(nbar, g), 24 / g, 18);

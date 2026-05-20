@@ -3,6 +3,7 @@
 // radians per completed orbit. Secondary panel: precession rate vs beta.
 
 import { gamma, thomasFactor } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -16,7 +17,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 
 const T_ORBIT = 4.0;                       // seconds per orbit, fixed
 let st = { beta: 0.5, t: 0, precess: 0 };  // precess = accumulated lab-frame axis angle (rad)
-let running = true;
+let running = !prefersReducedMotion();
 let last = performance.now();
 
 sB.addEventListener('input', () => { st.beta = parseFloat(sB.value); vB.textContent = st.beta.toFixed(2); });

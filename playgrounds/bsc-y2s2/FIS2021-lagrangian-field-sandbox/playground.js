@@ -9,6 +9,7 @@
 
 import { create, step } from '../../../shared/js/engine/ode-rk.js';
 import { makeRhs, energy, angularMomentum } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -30,7 +31,7 @@ const sAmp = document.getElementById('slider-amp'), vAmp = document.getElementBy
 const sSpd = document.getElementById('slider-speed'), vSpd = document.getElementById('value-speed');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const st = { sys: 'pendulum', g: 9.81, amp: 1.4, speed: 1, running: true };
+const st = { sys: 'pendulum', g: 9.81, amp: 1.4, speed: 1, running: !prefersReducedMotion() };
 let inst, par, E0, L0, t = 0, trail = [], orbitXY = [];
 const SX = 220, SY = H / 2 - 6, PXR = 545;                // mechanism centre, phase x
 const KSC = 118;                                          // Kepler draw scale (r=1 -> px)

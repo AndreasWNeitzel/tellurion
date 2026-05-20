@@ -8,6 +8,7 @@
 // small diagnostic. sim.js (L_solar, MS_lifetime_Gyr) is unchanged.
 // Reference: Carroll and Ostlie, Modern Astrophysics (2nd ed.), Ch. 7.
 import { L_solar, MS_lifetime_Gyr } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,7 +22,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { M: 1, tau: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 const SAMPLE = [0.15, 0.3, 0.5, 0.8, 1, 1.6, 3, 6, 12, 25, 60];
 // loop seconds; scaled so a 25 Msun star dies many times while the
 // Sun ages a sliver (t_MS spans ~1e-3 to ~1e3 Gyr).

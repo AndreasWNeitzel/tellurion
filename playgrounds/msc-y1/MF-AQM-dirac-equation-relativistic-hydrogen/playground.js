@@ -11,6 +11,7 @@ import {
   fineStructureSplit, groupVelocity, zbOmega, zbPosition,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -29,7 +30,7 @@ const sP = document.getElementById('slider-p'), vP = document.getElementById('va
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const NMAX = 3, DEF_Z = 50, DEF_P = 0.6;
-const st = { Z: DEF_Z, p: DEF_P, running: true, t: 0 };
+const st = { Z: DEF_Z, p: DEF_P, running: !prefersReducedMotion(), t: 0 };
 
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);

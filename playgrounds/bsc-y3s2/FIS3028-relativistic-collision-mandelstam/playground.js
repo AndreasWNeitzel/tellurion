@@ -1,4 +1,5 @@
 import { fixedTargetS, colliderS, sqrtS } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -15,7 +16,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const selG = document.getElementById('select-geom');
 
 const st = { m1: 0.94, m2: 0.94, logE: 3, geom: 'collider', t: 0, cycle: 3.0 };
-let running = true;
+let running = !prefersReducedMotion();
 
 sM1.addEventListener('input', () => { st.m1 = parseFloat(sM1.value); vM1.textContent = st.m1.toFixed(2); });
 sM2.addEventListener('input', () => { st.m2 = parseFloat(sM2.value); vM2.textContent = st.m2.toFixed(2); });

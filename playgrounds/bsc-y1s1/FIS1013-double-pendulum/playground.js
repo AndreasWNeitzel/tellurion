@@ -4,6 +4,7 @@
 // and a live readout panel. All numerics live in ./sim.js and the shared engine.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   create as engineCreate,
   step as engineStep,
@@ -91,7 +92,7 @@ const state = {
   poincare: new PoincareCounter(),
   trail: [],            // ring buffer of {x, y} for bob 2 (physical-space trail)
   phaseTrail: [],       // ring buffer of {t1, w1} for the phase panel
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   dragging: null,       // 'bob1' | 'bob2' | null
   dragVelocityReset: false,
 };

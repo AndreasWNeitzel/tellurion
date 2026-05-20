@@ -8,6 +8,7 @@ import {
   omega, groupVelocity, phaseVelocity, packet, evolve,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const L = 60, T_END = 52;
 const DEF_M = 150, DEF_K = 200, DEF_W = 100;
-const st = { m: DEF_M, k0: DEF_K, w: DEF_W, running: true, ph: 0 };
+const st = { m: DEF_M, k0: DEF_K, w: DEF_W, running: !prefersReducedMotion(), ph: 0 };
 const opts = () => ({ m: st.m / 100, k0: st.k0 / 100, sigma0: st.w / 100, L, xN: 360, kN: 256 });
 
 function rebuild() {

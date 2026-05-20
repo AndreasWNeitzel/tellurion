@@ -2,6 +2,7 @@
 // occupation, plus DOS histogram with E_F marker.
 
 import { dispersion, fermiEnergyAtFilling, densityOfStates } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

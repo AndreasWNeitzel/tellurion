@@ -109,7 +109,7 @@ function boxFaces(p) {
 }
 
 const st = {
-  object: 'thandle', axis: 1, spin: 6, perturb: 0.04, playing: !DETERMINISTIC,
+  object: 'thandle', axis: 1, spin: 6, perturb: 0.04, playing: !(DETERMINISTIC || prefersReducedMotion()),
   sim: null, trace: [], flips: 0, lastSign: 0, I: [1, 2, 3],
   wHist: [[], [], []],
 };

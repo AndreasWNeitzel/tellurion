@@ -8,6 +8,7 @@
 // curve is the demoted diagnostic. sim.js is unchanged. Reference:
 // Binney and Tremaine, Galactic Dynamics (2nd ed.), Ch. 6.
 import { nuSquared, ToomreQ, kCrit } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -22,7 +23,7 @@ const sG = document.getElementById('slider-G'), vG = document.getElementById('va
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const st = { sigma: 1.5, kappa: 1.5, GSig: 3, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 const CX = 250, CY = 250, RIN = 36, ROUT = 196;
 const N = 2200;
 

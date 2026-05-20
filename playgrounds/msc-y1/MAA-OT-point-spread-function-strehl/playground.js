@@ -13,6 +13,7 @@
 // Principles of Optics, Ch. 8; Mahajan, JOSA 72, 1258 (1982).
 import { airyIntensity, strehl, firstNullArcsec } from './sim.js';
 import { viridis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 const W = canvas.width, H = canvas.height;
 
 const st = { lambda: 650, D: 8, sigma: 0.05, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 const FOV = 0.18;                 // fixed half field of view (arcsec)
 const SEP = 0.10;                 // fixed binary separation (arcsec)
 const ARC2RAD = Math.PI / 180 / 3600;

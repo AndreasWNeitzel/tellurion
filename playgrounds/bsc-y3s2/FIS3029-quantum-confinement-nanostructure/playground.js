@@ -5,6 +5,7 @@
 // Canvas2D, deterministic.
 import { energyLevel, confinementGap, levels, dos, absorptionOnset } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -23,7 +24,7 @@ const sL = document.getElementById('slider-l'), vL = document.getElementById('va
 const sM = document.getElementById('slider-m'), vM = document.getElementById('value-m');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const st = { dim: 'dot', L: 2, m: 1, running: true, phase: 0 };
+const st = { dim: 'dot', L: 2, m: 1, running: !prefersReducedMotion(), phase: 0 };
 const LPAN = { x: 30, y: 28, w: W * 0.42 - 40, h: H - 110 };   // well + levels
 const RPAN = { x: W * 0.46, y: 28, w: W - W * 0.46 - 24, h: H - 110 }; // DOS
 

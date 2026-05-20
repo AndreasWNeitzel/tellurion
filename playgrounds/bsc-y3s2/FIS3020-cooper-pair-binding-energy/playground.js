@@ -1,4 +1,5 @@
 import { bindingEnergy, pairWavefunction } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -11,7 +12,7 @@ const sN = document.getElementById('slider-N'), vN = document.getElementById('va
 const sOD = document.getElementById('slider-OD'), vOD = document.getElementById('value-OD');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { V: 0.3, N0: 1.0, omega_D: 1.0 };
-let running = true;
+let running = !prefersReducedMotion();
 
 sV.addEventListener('input', () => { st.V = parseFloat(sV.value); vV.textContent = st.V.toFixed(2); render(); });
 sN.addEventListener('input', () => { st.N0 = parseFloat(sN.value); vN.textContent = st.N0.toFixed(2); render(); });

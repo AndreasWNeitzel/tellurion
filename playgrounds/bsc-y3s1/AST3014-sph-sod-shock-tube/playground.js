@@ -3,6 +3,7 @@
 // (density, velocity, pressure).
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createSod, stepSPH, diagnostics, totalEnergy, totalMass, N, X_DOMAIN,
 } from './sim.js';
@@ -29,7 +30,7 @@ const state = {
   speed: 2,
   field: 0,
   sim: null,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   E0: 0,
   M0: 0,
 };

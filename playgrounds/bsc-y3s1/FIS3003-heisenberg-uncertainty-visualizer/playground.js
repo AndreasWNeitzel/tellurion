@@ -8,6 +8,7 @@
 // Introduction to Quantum Mechanics (3rd ed.), Sec. 1.6 and 3.5.
 
 import { makeGrid, setShape, momentumDensity, sigmaX, sigmaP, HBAR_OVER_2 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

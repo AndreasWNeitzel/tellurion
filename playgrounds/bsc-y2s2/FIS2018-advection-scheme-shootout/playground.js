@@ -2,6 +2,7 @@
 // Side-by-side 1D linear advection in four numerical schemes plus exact.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   initSquare, exactSolution, NX, X_MIN, X_MAX, DX,
   stepFTCS, stepUpwind, stepLaxWendroff, stepMacCormack,
@@ -35,7 +36,7 @@ const state = {
   ftcs: null, upwind: null, lw: null, mac: null,
   t: 0,
   steps: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

@@ -7,6 +7,7 @@
 // kept as a quantitative strip. sim.js is unchanged.
 
 import { alfvenSpeedMS, bField, vField, MU0 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -22,7 +23,7 @@ const btnR   = document.getElementById('btn-reset'), btnP = document.getElementB
 
 const W = canvas.width, H = canvas.height;
 let st = { B_nT: 5, n_amu_cc: 5, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 
 const LAMBDA = 1e7;          // m, display wavelength (sim.js convention)
 const XSPAN  = 2e7;          // m, domain shown

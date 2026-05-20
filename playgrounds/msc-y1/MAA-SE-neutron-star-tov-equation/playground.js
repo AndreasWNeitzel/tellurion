@@ -9,6 +9,7 @@ import {
   C, MSUN, KM, EOS, tovStar, tovProfile, massRadiusCurve, maxMass, fermiP, fermiRho,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -29,7 +30,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const KEYS = ['fermi', 'stiff', 'soft', 'quark'];
 const COL = { fermi: '#ffd166', stiff: '#6fb4ff', soft: '#9be8b0', quark: '#ff9d6f' };
 const DEF_E = 'fermi', DEF_R = 183;
-const st = { eos: DEF_E, rRaw: DEF_R, running: true, ph: 0 };
+const st = { eos: DEF_E, rRaw: DEF_R, running: !prefersReducedMotion(), ph: 0 };
 const rhoC = () => Math.pow(10, st.rRaw / 10);
 
 // boot-time cache of the four mass-radius sequences and max masses

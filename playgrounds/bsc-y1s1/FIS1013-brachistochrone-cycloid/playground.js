@@ -2,6 +2,7 @@
 // Brachistochrone race: cycloid vs line vs arc. Three beads, one canvas.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   positionOnCycloid, positionOnLine, positionOnArc,
   cycloidCurve, lineCurve, arcCurve,
@@ -27,7 +28,7 @@ const T_MAX = Math.max(T_CYCLOID, T_LINE, T_ARC) * 1.05;
 const state = {
   speed: 2,
   tNow: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

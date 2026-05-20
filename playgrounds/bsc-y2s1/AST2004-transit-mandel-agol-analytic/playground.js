@@ -1,4 +1,5 @@
 import { fluxAt, fluxWithLimb } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -11,7 +12,7 @@ const sU1 = document.getElementById('slider-u1'), vU1 = document.getElementById(
 const sU2 = document.getElementById('slider-u2'), vU2 = document.getElementById('value-u2');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { p: 0.1, b: 0.3, u1: 0.3, u2: 0.2, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 sP.addEventListener('input', () => { st.p = parseFloat(sP.value); vP.textContent = st.p.toFixed(3); });
 sB.addEventListener('input', () => { st.b = parseFloat(sB.value); vB.textContent = st.b.toFixed(2); });
 sU1.addEventListener('input', () => { st.u1 = parseFloat(sU1.value); vU1.textContent = st.u1.toFixed(2); });

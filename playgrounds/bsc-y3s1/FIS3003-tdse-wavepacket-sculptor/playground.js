@@ -9,6 +9,7 @@
 // Ch. 1-2; Press et al., Numerical Recipes (3rd ed.), Sec. 20.2.
 
 import { makeState, setPotential, setGaussian, step, norm, expectationX, energy, probRightOf } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

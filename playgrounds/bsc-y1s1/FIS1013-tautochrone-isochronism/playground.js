@@ -3,6 +3,7 @@
 // bottom simultaneously.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   beadPosition, cycloidXY, sampleCycloid,
   R, FULL_PERIOD, QUARTER_PERIOD,
@@ -30,7 +31,7 @@ const BEAD_COLORS = ['#7fb1d8', '#d68a69', '#f1d28a', '#c2c2e6', '#a3d4a3'];
 const state = {
   speed: 2,
   tNow: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function worldToPx(x, y) {

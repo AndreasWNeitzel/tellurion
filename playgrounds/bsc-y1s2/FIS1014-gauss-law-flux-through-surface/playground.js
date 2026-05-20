@@ -2,6 +2,7 @@
 // of E-field arrows; reports the flux numerically.
 
 import { ellipse, blob, flux, insideEllipse, EPS0 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

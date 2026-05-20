@@ -8,6 +8,7 @@ import {
   radialDistribution, rescaleTo, diagnostics,
 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -29,7 +30,7 @@ const sSp = document.getElementById('slider-speed'), vSp = document.getElementBy
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const N = 300, SEED = 0xC0FFEE, DT = 0.004;
-const st = { T: 1.0, rho: 0.55, speed: 4, running: true };
+const st = { T: 1.0, rho: 0.55, speed: 4, running: !prefersReducedMotion() };
 let state = makeLJ({ N, rho: st.rho, T0: st.T, seed: SEED });
 let e0 = diagnostics(state.inst).energy;
 

@@ -7,6 +7,7 @@ import {
   W_AIR, runChamber, collectionEfficiency, saturationCurve,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const slR = document.getElementById('slider-dr'), vR = document.getElementById('
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF = { e: 100, vRaw: 248, dr: 1 };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 const volts = () => Math.round(Math.pow(10, st.vRaw / 100));
 const SR = 1.13, MASS = 1.3e-6;
 

@@ -7,6 +7,7 @@
 // convergence trace with the epsilon tube. sim.js core is unchanged.
 
 import { SEQUENCES, cauchyWidth } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const valueEps = document.getElementById('value-eps');
 
 const W = canvas.width, H = canvas.height;
 const NMAX = 200;
-const st = { name: selectSeq.value, N0: parseInt(sliderN.value, 10), eps: Math.pow(10, parseFloat(sliderEps.value)), playing: !DETERMINISTIC };
+const st = { name: selectSeq.value, N0: parseInt(sliderN.value, 10), eps: Math.pow(10, parseFloat(sliderEps.value)), playing: !(DETERMINISTIC || prefersReducedMotion()) };
 
 function seqVals() {
   const f = SEQUENCES[st.name].fn;

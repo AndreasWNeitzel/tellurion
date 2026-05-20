@@ -9,6 +9,7 @@ import {
   brainPhantom, mrImage, imageToK, reconFromK, magnitude,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -34,7 +35,7 @@ const PRESET = {
   pd: { TR: 3000, TE: 15, name: 'proton density' },
 };
 const DEF = { w: 't2', seq: 'se', kf: 100 };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 const PH = brainPhantom(N);
 // representative grey-matter relaxation for the Bloch-sphere demo
 const GM_T1 = 1000, GM_T2 = 100, OMEGA = 0.05;

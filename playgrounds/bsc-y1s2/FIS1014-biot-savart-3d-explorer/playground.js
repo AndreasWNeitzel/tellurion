@@ -6,6 +6,7 @@
 // Sec. 5.2; Jackson, Classical Electrodynamics, Sec. 5.3.
 
 import { biotSavart, buildPreset, axialBz, K } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -27,7 +28,7 @@ for (const k of READOUTS) {
 const st = { preset: 'loop', I: 2.0, R: 1.3, lines: 'on', t: 0, yaw: -0.6, pitch: 0.5 };
 let segs = buildPreset(st.preset, { I: st.I, R: st.R });
 function rebuild() { segs = buildPreset(st.preset, { I: st.I, R: st.R }); }
-let running = true;
+let running = !prefersReducedMotion();
 
 function selectRow(label, opts, value, onChange) {
   const row = document.createElement('div'); row.className = 'row';

@@ -2,6 +2,7 @@
 // reflection coefficient, VSWR, and power delivered.
 
 import { reflection, vswr, powerDelivered } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

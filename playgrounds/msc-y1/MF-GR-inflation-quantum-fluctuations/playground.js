@@ -9,6 +9,7 @@ import {
   scalarAmplitude, powerSpectrum, modeHistory,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const sL = document.getElementById('slider-lam'), vL = document.getElementById('
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF_POT = 'starobinsky', DEF_N = 57, DEF_L = 14;
-const st = { pot: DEF_POT, N: DEF_N, lam: DEF_L, running: true, ph: 0 };
+const st = { pot: DEF_POT, N: DEF_N, lam: DEF_L, running: !prefersReducedMotion(), ph: 0 };
 
 function lamCom() { return Math.pow(10, -8 + st.lam * 0.25); }   // ~1e-8 .. 1e2
 

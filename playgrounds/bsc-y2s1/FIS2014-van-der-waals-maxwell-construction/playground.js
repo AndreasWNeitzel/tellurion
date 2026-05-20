@@ -8,6 +8,7 @@
 
 import { pVdW, observedP, maxwell, spinodal, liquidFraction, criticalPoint } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -31,7 +32,7 @@ for (const k of READOUTS) {
 }
 
 const st = { T: 0.92, V: 2.5, auto: 1, t: 0, _lastV: 2.5 };
-let running = true;
+let running = !prefersReducedMotion();
 
 // Fixed particle identities (seeded once): a stable condensation rank
 // so the same molecules join the liquid first as V shrinks, plus phase

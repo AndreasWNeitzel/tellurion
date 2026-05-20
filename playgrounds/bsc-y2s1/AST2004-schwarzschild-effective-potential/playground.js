@@ -2,6 +2,7 @@
 // Schwarzschild effective-potential plot.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   veffMassive, veffPhoton, turningPoints,
   PHOTON_SPHERE, ISCO, L_ISCO, M,
@@ -53,7 +54,7 @@ const state = {
   mode: 0,         // 0 = massive, 1 = photon
   speed: 2,
   sweepDir: 1,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

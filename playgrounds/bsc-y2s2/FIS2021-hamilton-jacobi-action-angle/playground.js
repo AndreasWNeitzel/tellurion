@@ -30,7 +30,7 @@ const sW = document.getElementById('slider-w'), vW = document.getElementById('va
 const sRamp = document.getElementById('slider-ramp'), vRamp = document.getElementById('value-ramp');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const st = { pot: 'harmonic', E: 0.6, w0: 1.0, ramp: 0, running: true };
+const st = { pot: 'harmonic', E: 0.6, w0: 1.0, ramp: 0, running: !prefersReducedMotion() };
 let q = 0, p = 0, th = 0, t = 0, J0 = 0, jHist = [];
 const LCX = 210, RCX = 560, CY = H / 2 + 6, SC = 92;
 

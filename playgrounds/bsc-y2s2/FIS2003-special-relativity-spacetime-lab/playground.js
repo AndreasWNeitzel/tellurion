@@ -10,6 +10,7 @@
 // Reference: Taylor and Wheeler, Spacetime Physics (2nd ed.), Ch. 3, 4.
 
 import { gamma, contractedLength, twinTrip, boost, dopplerFactor } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

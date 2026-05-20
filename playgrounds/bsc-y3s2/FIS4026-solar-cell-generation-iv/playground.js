@@ -11,6 +11,7 @@ import {
   fillFactor, sqLimit, ivCurve, sqCurve, VT,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -30,7 +31,7 @@ const sSun = document.getElementById('slider-suns'), vSun = document.getElementB
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF_EG = 1.34, DEF_SUN = 1, DEF_PIN = 1000;
-const st = { Eg: DEF_EG, suns: DEF_SUN, Pin: DEF_PIN, running: true, ph: 0, p: null, voc: 1, mpp: null, iv: null, sq: null };
+const st = { Eg: DEF_EG, suns: DEF_SUN, Pin: DEF_PIN, running: !prefersReducedMotion(), ph: 0, p: null, voc: 1, mpp: null, iv: null, sq: null };
 
 function rebuild() {
   const r = sqLimit(st.Eg, { Pin: st.Pin });

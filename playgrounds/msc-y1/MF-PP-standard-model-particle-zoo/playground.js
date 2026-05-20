@@ -8,6 +8,7 @@ import {
   PARTICLES, checkDecay, DECAYS, feelsForce,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -39,7 +40,7 @@ const ORDER = ['u', 'd', 'c', 's', 't', 'b', 'e', 'nue', 'mu', 'num', 'tau', 'nu
 const TYPE_COL = { quark: '#2f6ad6', lepton: '#3a9a6a', boson: '#9a6a3a', hadron: '#6a3a9a' };
 
 const DEF_FORCE = 'none', DEF_DECAY = 0;
-const st = { force: DEF_FORCE, decay: DEF_DECAY, running: true, ph: 0 };
+const st = { force: DEF_FORCE, decay: DEF_DECAY, running: !prefersReducedMotion(), ph: 0 };
 function selId() { return ORDER[Math.min(ORDER.length - 1, Math.floor(st.ph * ORDER.length))]; }
 
 function panel(x, y, w, h, title) {

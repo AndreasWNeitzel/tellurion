@@ -8,6 +8,7 @@
 // Reference: Goldstein, Classical Mechanics (3rd ed.), Ch. 3.
 
 import { createOrbit, step, energy, angularMomentum, vEff, orbitClass, MU } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

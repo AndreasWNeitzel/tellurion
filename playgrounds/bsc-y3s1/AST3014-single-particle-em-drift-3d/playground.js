@@ -9,6 +9,7 @@ import {
   createState, step, speed, magneticMoment, vParallel, exbDrift, gyrofrequency,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -35,7 +36,7 @@ const PRESETS = {
   curvature: { r0: [3, 0, 0], v0: [0.2, 0, 0.9], scale: 34, dt: 0.01 },
   mirror: { r0: [0, 0, -3], v0: [0.5, 0, 0.7], scale: 30, dt: 2 * Math.PI / 240 },
 };
-const st = { preset: 'cyclotron', B0: 1, q: 1, speed: 3, running: true };
+const st = { preset: 'cyclotron', B0: 1, q: 1, speed: 3, running: !prefersReducedMotion() };
 let s, scale = 70;
 // Guiding centre (EMA of position: averages out the gyration, leaving
 // the slow drift) and a camera that follows it, so the orbit never

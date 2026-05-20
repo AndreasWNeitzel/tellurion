@@ -2,6 +2,7 @@
 // Beltrami triangle and the holonomy readout.
 
 import { holonomy, interiorAngleSum, sphericalToCartesian } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

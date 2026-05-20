@@ -2,6 +2,7 @@
 // Redshift factor curve and color visualization.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   redshiftFactor, clockRate, redshift_z, wavelengthToRGB, HORIZON, M,
 } from './sim.js';
@@ -30,7 +31,7 @@ const state = {
   rRatio: 2.0,     // r_em / 2M
   speed: 2,
   sweepDir: 1,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

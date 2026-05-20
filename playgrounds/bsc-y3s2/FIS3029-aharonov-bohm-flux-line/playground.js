@@ -9,6 +9,7 @@
 // the far-field limit of what is drawn. Reference: Sakurai, Modern QM,
 // Ch. 2; Aharonov and Bohm, Phys. Rev. 115, 485 (1959).
 import { intensity } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -22,7 +23,7 @@ const sP = document.getElementById('slider-p'), vP = document.getElementById('va
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const st = { phi: 0, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 sP.addEventListener('input', () => { st.phi = parseFloat(sP.value); vP.textContent = st.phi.toFixed(2); });
 btnR.addEventListener('click', () => {
   st.phi = 0; sP.value = '0'; vP.textContent = '0.00'; st.t = 0;

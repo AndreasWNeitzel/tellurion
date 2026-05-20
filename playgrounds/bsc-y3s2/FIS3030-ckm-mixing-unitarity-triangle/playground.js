@@ -6,6 +6,7 @@
 // sim.js (ckmModulus, trianglePoints, angleBeta/Gamma) is unchanged.
 
 import { ckmModulus, trianglePoints, angleBeta, angleGamma, CKM_DEFAULT } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,7 +22,7 @@ const btnR   = document.getElementById('btn-reset'), btnP = document.getElementB
 
 const W = canvas.width, H = canvas.height;
 let st = { rho: 0.157, eta: 0.355 };
-let running = true;
+let running = !prefersReducedMotion();
 let clock = 0;
 
 sR.addEventListener('input', () => { st.rho = parseFloat(sR.value); vR.textContent = st.rho.toFixed(3); });

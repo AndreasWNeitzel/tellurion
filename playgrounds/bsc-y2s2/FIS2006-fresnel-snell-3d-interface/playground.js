@@ -8,6 +8,7 @@
 // diagnostic. Numerics in sim.js. Reference: Hecht, Optics (5th ed.),
 // Sec. 4.6; Jackson, Classical Electrodynamics (3rd ed.), Sec. 7.3.
 import { snellTheta2, brewster, criticalAngle, fresnel } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

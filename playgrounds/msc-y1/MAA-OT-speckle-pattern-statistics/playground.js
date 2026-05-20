@@ -7,6 +7,7 @@
 // and negExpPdf are the added, gate-tested helpers. Reference:
 // Goodman, Speckle Phenomena in Optics; Roddier, Adaptive Optics.
 import { boilField, expectedSpeckleCount, negExpPdf } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -21,7 +22,7 @@ const W = canvas.width, H = canvas.height;
 
 const NP = 60, SCALE = 3, IMG = NP * SCALE;          // 180 px panels
 const st = { Dr0: 6, seed: 0xC0FFEE, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 let longSum = new Float64Array(NP * NP), longN = 0;
 
 function modes() { return Math.min(90, Math.max(1, Math.round(st.Dr0 * st.Dr0))); }

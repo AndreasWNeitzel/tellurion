@@ -6,6 +6,7 @@
 // (slack). The symmetric y = a cosh(x/a) - a API is kept for the tests.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   tension, solveCatenary2pt, sampleCatenary2pt, catenary2ptY,
 } from './sim.js';
@@ -45,7 +46,7 @@ const state = {
   drag: null,              // 1 | 2 | null
   sway: 0,
   speed: parseInt(sliderSpeed.value, 10) || 2,   // was undefined -> NaN sway
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 // slider-a now controls cable length L (slack). Map its [0.4,3.0]-ish

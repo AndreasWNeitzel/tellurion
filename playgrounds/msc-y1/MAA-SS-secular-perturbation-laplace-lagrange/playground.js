@@ -6,6 +6,7 @@
 // Reference: Murray-Dermott, Solar System Dynamics, Ch. 7.
 
 import { amd } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -20,7 +21,7 @@ const sC = document.getElementById('slider-c'), vC = document.getElementById('va
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const st = { e0: 0.15, coupling: 0.3, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 let last = performance.now();
 
 sE.addEventListener('input', () => { st.e0 = parseFloat(sE.value); vE.textContent = st.e0.toFixed(2); render(); });

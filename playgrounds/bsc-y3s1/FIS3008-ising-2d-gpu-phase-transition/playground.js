@@ -30,7 +30,7 @@ const selI = document.getElementById('select-init');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const L = 144, SEED = 0xC0FFEE, TC = onsagerTc(1);
-const st = { T: 2.0, speed: 3, init: 'random', running: true };
+const st = { T: 2.0, speed: 3, init: 'random', running: !prefersReducedMotion() };
 let inst = create({ L, T: st.T, seed: SEED, init: st.init });
 
 // offscreen lattice bitmap

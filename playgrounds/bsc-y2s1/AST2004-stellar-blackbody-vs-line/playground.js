@@ -1,4 +1,5 @@
 import { wienPeakNm, LINES, planckLambda } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -10,7 +11,7 @@ const sD = document.getElementById('slider-d'), vD = document.getElementById('va
 const selS = document.getElementById('select-s');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { T: 5800, depth: 1, scale: 'lin', tA: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 sT.addEventListener('input', () => { st.T = parseFloat(sT.value); vT.textContent = st.T.toFixed(0); });
 sD.addEventListener('input', () => { st.depth = parseFloat(sD.value); vD.textContent = st.depth.toFixed(2); });
 selS.addEventListener('change', () => { st.scale = selS.value; });

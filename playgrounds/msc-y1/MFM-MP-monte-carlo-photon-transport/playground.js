@@ -5,6 +5,7 @@
 // deterministic. Klein and Nishina 1929; Attix 1986.
 import { runMC, crossSections, interactionFractions } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -24,7 +25,7 @@ const slN = document.getElementById('slider-n'), vN = document.getElementById('v
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
 const DEF = { eRaw: 300, L: 15, n: 8 };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 const energy = () => Math.round(Math.pow(10, st.eRaw / 100));
 const KCOL = ['#ff6b6b', '#6fd6e8', '#ffd166'];          // PE, Compton, Rayleigh
 const KNAME = ['photoelectric', 'Compton', 'Rayleigh'];

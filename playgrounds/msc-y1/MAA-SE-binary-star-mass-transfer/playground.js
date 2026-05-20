@@ -10,6 +10,7 @@ import {
   keplerPeriod, conservativeTransfer, zetaLobe, classify, equipotentialRing,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -31,7 +32,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const A0 = 6 * RSUN;                                     // base separation
 const DEF = { m1: 20, m2: 10, fill: 80, dm: 0 };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 const M1b = () => st.m1 / 10 * MSUN;
 const M2b = () => st.m2 / 10 * MSUN;
 const fillFrac = () => st.fill / 100;

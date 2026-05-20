@@ -5,6 +5,7 @@
 
 import { makeDisk, leapfrog, accBH, accDirect, snapshotTree } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -31,7 +32,7 @@ const DT = 0.005;
 const G = 1, EPS = 0.03;
 const st = {
   N: 500, theta: 0.7, use_tree: true, show_tree: true,
-  running: true, state: null,
+  running: !prefersReducedMotion(), state: null,
 };
 
 function reseed() {

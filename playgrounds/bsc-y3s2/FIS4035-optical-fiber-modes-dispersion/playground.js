@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -32,7 +33,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const CUTOFF = 2.404826;                                // LP11 / single-mode cutoff
 const CURVES = [[0, 1, '#7fd1ff', 'LP01'], [1, 1, '#f1c069', 'LP11'], [2, 1, '#8fe39b', 'LP21'], [0, 2, '#d79bff', 'LP02']];
 const DEF_V = 3.8, DEF_LD = 2.0;
-const st = { l: 0, m: 1, V: DEF_V, LD: DEF_LD, running: true, zEnd: 1, zNow: 0, disp: null };
+const st = { l: 0, m: 1, V: DEF_V, LD: DEF_LD, running: !prefersReducedMotion(), zEnd: 1, zNow: 0, disp: null };
 
 function rebuild() {
   st.zEnd = 4 * st.LD;

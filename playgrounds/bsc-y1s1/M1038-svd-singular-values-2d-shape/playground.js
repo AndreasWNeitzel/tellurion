@@ -2,6 +2,7 @@
 // Four panels showing the unit circle stretched by each step of M = U S V^T.
 
 import { svd2x2 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';

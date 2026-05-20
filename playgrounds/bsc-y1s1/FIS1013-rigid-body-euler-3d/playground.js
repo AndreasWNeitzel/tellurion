@@ -12,6 +12,7 @@ import { createRigidBody, step, energy, angularMomentumSq, bodyToWorld, angularM
 import { createGL2 } from '../../../shared/js/engine-gl/context.js';
 import { compileProgram } from '../../../shared/js/engine-gl/shader.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

@@ -11,6 +11,7 @@ import {
   outputCurve, transferCurve,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -32,7 +33,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const KN = 1e-3;                                        // transconductance (A/V^2)
 const VDS_MAX = 6, VGS_MAX = 5;
 const DEF_VGS = 3, DEF_VTH = 1, DEF_LAM = 0;
-const st = { vgs: DEF_VGS, vth: DEF_VTH, lambda: DEF_LAM, running: true, vds: 0 };
+const st = { vgs: DEF_VGS, vth: DEF_VTH, lambda: DEF_LAM, running: !prefersReducedMotion(), vds: 0 };
 const opts = () => ({ vth: st.vth, kn: KN, lambda: st.lambda });
 
 function family() {

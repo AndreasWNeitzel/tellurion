@@ -7,6 +7,7 @@
 // unchanged.
 
 import { dxDy, dyDx, innerX, innerY, fAt } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -23,7 +24,7 @@ const valueA = document.getElementById('value-A');
 const valueB = document.getElementById('value-B');
 
 const W = canvas.width, H = canvas.height;
-const st = { A: parseFloat(sliderA.value), B: parseFloat(sliderB.value), s: 0, playing: !DETERMINISTIC };
+const st = { A: parseFloat(sliderA.value), B: parseFloat(sliderB.value), s: 0, playing: !(DETERMINISTIC || prefersReducedMotion()) };
 
 function diverge(v) {
   const t = Math.max(-1, Math.min(1, v));

@@ -2,6 +2,7 @@
 // V(t) and I(t) curves with the current-time dashed marker.
 
 import { vC, iR } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -27,7 +28,7 @@ let R  = parseFloat(sliderR.value) * 1e3;  // kOhm -> Ohm
 let C  = parseFloat(sliderC.value) * 1e-6; // uF -> F
 
 let t = 0;
-let running = true;
+let running = !prefersReducedMotion();
 let lastTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
 sliderV0.addEventListener('input', () => { V0 = parseFloat(sliderV0.value); valueV0.textContent = V0.toFixed(1); t = 0; });

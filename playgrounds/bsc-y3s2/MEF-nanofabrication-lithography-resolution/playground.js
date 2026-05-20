@@ -7,6 +7,7 @@ import {
   WAVELENGTHS, cutoffFreq, rayleigh, reticleTestPattern, aerialImage, contrast,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -27,7 +28,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 // Multi-zone reticle: half-pitches from coarse (left) to fine (right).
 const PITCHES = [220, 160, 120, 90, 65, 45, 30, 18];   // nm half-pitch
 const NSAMP = 1024, DX = 2.5;                            // nm/sample (window ~2.56 um)
-const st = { lam: 'arf', NA: 1.0, k1: 0.5, running: true, phase: 0 };
+const st = { lam: 'arf', NA: 1.0, k1: 0.5, running: !prefersReducedMotion(), phase: 0 };
 
 function lamNm() { return WAVELENGTHS[st.lam]; }
 

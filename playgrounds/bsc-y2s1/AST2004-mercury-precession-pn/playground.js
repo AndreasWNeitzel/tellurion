@@ -4,6 +4,7 @@
 // orbits, fading. Red dots: perihelion passages. Yellow disc: central body.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createMercury, stepMercury, mercuryDiagnostics,
   DEFAULT_DT, DEFAULT_ALPHA, DEFAULT_E,
@@ -42,7 +43,7 @@ const state = {
   currentOrbit: [],
   perihelions: [],
   rPrev: Infinity, rCurr: Infinity, rNext: Infinity,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   rafId: null,
 };
 

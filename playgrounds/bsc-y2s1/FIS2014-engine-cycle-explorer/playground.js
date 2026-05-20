@@ -1,4 +1,5 @@
 import { ottoEfficiency, dieselEfficiency, carnotEfficiency, stirlingEfficiency, ottoPVCurve } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -10,7 +11,7 @@ const sRc = document.getElementById('slider-rc'), vRc = document.getElementById(
 const selC = document.getElementById('select-c');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 let st = { r: 8, rc: 2, cycle: 'otto', t: 0, gamma: 1.4 };
-let running = true;
+let running = !prefersReducedMotion();
 sR.addEventListener('input', () => { st.r = parseFloat(sR.value); vR.textContent = st.r.toFixed(1); });
 sRc.addEventListener('input', () => { st.rc = parseFloat(sRc.value); vRc.textContent = st.rc.toFixed(2); });
 selC.addEventListener('change', () => { st.cycle = selC.value; });

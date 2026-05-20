@@ -31,7 +31,7 @@ const toWorld = (mx, my) => ({ x: (mx - CXp) / SCx, y: (CYp - my) / SCy });
 const st = {
   fieldKey: 'conservative1',
   A: { x: -2, y: -0.4 }, B: { x: 2, y: 0.6 }, C: { x: 0, y: 1.8 },
-  probe: 0, drag: null, playing: !DETERMINISTIC,
+  probe: 0, drag: null, playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function fieldMag(f, x, y) { return Math.hypot(f.P(x, y), f.Q(x, y)); }

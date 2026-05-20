@@ -8,6 +8,7 @@ import {
   makePhantom, radon, projectionAngles, fbp, mlem, rmse, snr,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const N = 80, A_MAX = 180;
 const DEF = { na: 90, filt: 'ramlak', meth: 'fbp' };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 
 const PH = makePhantom(N);
 const ANG_MAX = projectionAngles(A_MAX);

@@ -8,6 +8,7 @@
 // Lightman, Radiative Processes in Astrophysics, Ch. 5.
 
 import { emissivity, cutoffHz, H, KB, makeRng, step, photonEnergyExp, maxwellVelocity } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

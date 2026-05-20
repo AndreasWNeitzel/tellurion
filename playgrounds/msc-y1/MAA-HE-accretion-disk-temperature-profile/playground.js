@@ -2,6 +2,7 @@
 // Accretion-disc T(r) profile and face-on color rendering.
 
 import { DEFAULT_SEED, mulberry32 } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   temperature, temperatureBare, temperatureToRGB, R_IN, R_TMAX, T_MAX,
 } from './sim.js';
@@ -31,7 +32,7 @@ const state = {
   rmax: 80,
   speed: 0,
   phase: 0,            // accumulated rotation phase for the disc view
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 // Disc rendering constants. The disc is the Newtonian Shakura-Sunyaev

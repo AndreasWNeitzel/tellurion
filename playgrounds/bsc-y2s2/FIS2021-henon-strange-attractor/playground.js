@@ -10,6 +10,7 @@
 // dot dust.
 
 import { henonStep, henonMaxLyapunov, DEFAULT_PARAMS } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const DETERMINISTIC  = urlParams.get('deterministic') === '1';
@@ -42,7 +43,7 @@ const state = {
   pointsDrawn: 0,
   lambda1: 0,
   speed: 6,               // iterations per frame; user-adjustable
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   rafId: null,
 };
 

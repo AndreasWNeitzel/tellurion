@@ -8,6 +8,7 @@
 // Sec. 3.4; Jackson, Classical Electrodynamics, Sec. 4.1.
 
 import { exactPotential, multipolePotential, buildDist, monopole, dipole } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -53,7 +54,7 @@ bSign.addEventListener('click', () => { st.q = -st.q; bSign.textContent = `click
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
 bRow.appendChild(bSign); bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
-let running = true;
+let running = !prefersReducedMotion();
 bReset.addEventListener('click', () => { Object.assign(st, { dist: 'quadrupole', order: 2, scale: 0.32, t: 0 }); selD.value = 'quadrupole'; selO.value = '2'; sInp.value = '0.32'; sVal.textContent = '0.32'; rebuild(); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
 // Click to add a charge in the exact-map panel.

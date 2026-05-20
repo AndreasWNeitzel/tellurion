@@ -8,6 +8,7 @@ import {
   L, grid, greenG, source, applyGreen, solveViaGreen, solveDirect, odeResidual,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -28,7 +29,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const N = 200;
 const DEF = { src: 'sine', p: 2, xpRaw: 50 };
-const st = { ...DEF, running: true, ph: 0 };
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
 const xpVal = () => st.xpRaw / 100;
 
 let cache = {};

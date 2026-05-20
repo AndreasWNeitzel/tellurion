@@ -3,6 +3,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createXY, sweep, magnetization, energyPerSite, vortexMap, setTemperature, T_BKT } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -22,7 +23,7 @@ const btnCold      = document.getElementById('btn-cold');
 const btnHot       = document.getElementById('btn-hot');
 
 const W = canvas.width, H = canvas.height;
-const state = { xy: null, T: 0.7, L: 64, speed: 3, playing: !DETERMINISTIC };
+const state = { xy: null, T: 0.7, L: 64, speed: 3, playing: !(DETERMINISTIC || prefersReducedMotion()) };
 
 function rebuild(init = 'hot') {
   state.xy = createXY({ L: state.L, T: state.T, seed: SEED, init });

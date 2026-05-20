@@ -8,6 +8,7 @@ import {
   casimirPressure, casimirEnergyPerArea, modeWavelength, modeCountBelow, pressureCurve,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -27,7 +28,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const DEF_D = 1000, DEF_NM = 8;
 const D_LO = 5e-8, D_HI = 5e-6;                         // pressure-curve range (m)
-const st = { dnm: DEF_D, nm: DEF_NM, running: true, ph: 0 };
+const st = { dnm: DEF_D, nm: DEF_NM, running: !prefersReducedMotion(), ph: 0 };
 
 function rebuild() {
   st.dT = st.dnm * 1e-9;                                // target separation (m)

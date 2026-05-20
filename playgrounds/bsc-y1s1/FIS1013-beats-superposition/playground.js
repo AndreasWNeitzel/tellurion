@@ -3,6 +3,7 @@
 // y2(t) overlaid. Middle: sum with envelope. Bottom: spectrum bars.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   y1, y2, ySum, envelope, envelopeFreq, beatRate, carrierFreq,
 } from './sim.js';
@@ -32,7 +33,7 @@ const state = {
   f2: 4.7,
   speed: 2,
   tNow: 0,
-  playing: !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }

@@ -4,6 +4,7 @@
 // of the target with the chains' accepted-state trails overlaid.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createChain, TARGETS, ks1D, normCdf,
 } from '../../../shared/js/engine/mcmc-harness.js';
@@ -42,7 +43,7 @@ const state = {
   samplers:   ['rwm', 'mala', 'hmc'],
   chains:     null,
   traces:     null,
-  playing:    !DETERMINISTIC,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
   rafId:      null,
 };
 

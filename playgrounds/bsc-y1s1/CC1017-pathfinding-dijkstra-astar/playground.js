@@ -8,6 +8,7 @@
 
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { buildCity, dijkstra, astarWeighted, WALL } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -47,7 +48,7 @@ const REST_DUR = 300;          // 5 s hold so the result is readable
 
 const st = {
   seed: 7, speed: 6, w: 1, k: 0, g: null, dj: null, as: null,
-  phase: 'search', restT: 0, playing: !DETERMINISTIC,
+  phase: 'search', restT: 0, playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
 function rebuild() {

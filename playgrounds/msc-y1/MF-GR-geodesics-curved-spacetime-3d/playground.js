@@ -14,6 +14,7 @@ import {
   particleHorizon, scaleFactorHistory, scaleToRedshift,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -34,7 +35,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const DEF_MODE = 'schw', DEF_P = 5.2, DEF_Q = 0;
 const BC = bCritSchwarzschild();
-const st = { mode: DEF_MODE, p: DEF_P, q: DEF_Q, running: true, ph: 0, fan: null, drift: 0 };
+const st = { mode: DEF_MODE, p: DEF_P, q: DEF_Q, running: !prefersReducedMotion(), ph: 0, fan: null, drift: 0 };
 
 function rebuild() {
   const aOverM = st.mode === 'kerr' ? Math.max(0, Math.min(0.99, st.q / 100)) : 0;
