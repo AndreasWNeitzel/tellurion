@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Black Hole Legend</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+.pg-figure { max-width: 1000px; } .pg-figure canvas { width: 100%; height: auto; background: #02030a; }
+.pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+.pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 10ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+.pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+.pg-controls input[type="range"], .pg-controls select { width: 100%; }
+.pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+.pg-controls .row.toggles { grid-template-columns: 1fr; grid-column: span 2; display: flex; flex-wrap: wrap; gap: 12px; }
+.pg-controls .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-muted); }
+.legend-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; background: linear-gradient(90deg, #ffd28a, #ff7c8a); color: #000; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; margin-left: 8px; vertical-align: 2px; }
+</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Black Hole<span class="legend-badge">LEGEND</span></h1>
+<p><strong>What you are seeing:</strong> a Schwarzschild / Kerr black hole rendered through five interchangeable modes (Overview, Photons, Lensing, Frame drag, Spacetime). All overlays (event horizon, photon sphere, ISCO, ergosphere, coordinate grid) are toggleable. Source: Misner, Thorne, Wheeler, <em>Gravitation</em>, Ch. 25 (<code>mtw-gravitation</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="960" height="640"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">M (M_sun):</span><span class="value" id="readout-M">--</span>
+  <span class="label">spin chi:</span><span class="value" id="readout-chi">--</span>
+  <span class="label">R_s:</span><span class="value" id="readout-rs">--</span>
+  <span class="label">r_ISCO / R_s:</span><span class="value" id="readout-isco">--</span>
+  <span class="label">mode:</span><span class="value" id="readout-mode">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Black Hole Legend, mode-switchable laboratory. Method: closed-form Schwarzschild and Kerr (Bardeen-Press-Teukolsky 1972) + 4th-order Runge-Kutta photon orbits + Refsdal 1964 point-mass lensing + Doppler-beamed thin-disk image. Source: Misner-Thorne-Wheeler, Gravitation, Ch. 25.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">mode</span><select aria-label="mode" id="select-mode">
+  <option value="overview" selected>Overview</option>
+  <option value="photons">Photons</option>
+  <option value="lensing">Lensing</option>
+  <option value="framedrag">Frame drag (Kerr)</option>
+  <option value="spacetime">Spacetime (Flamm)</option>
+</select><span class="value" id="value-mode">over</span></div>
+<div class="row"><span class="label">log10 M (M_sun)</span><input aria-label="logM" type="range" id="slider-logM" min="0" max="10" step="0.1" value="6.0"><span class="value" id="value-logM">6.0</span></div>
+<div class="row"><span class="label">spin chi = a/M</span><input aria-label="chi" type="range" id="slider-chi" min="0" max="0.99" step="0.01" value="0.0"><span class="value" id="value-chi">0.00</span></div>
+<div class="row"><span class="label">inclination (deg)</span><input aria-label="incl" type="range" id="slider-incl" min="0" max="85" step="1" value="60"><span class="value" id="value-incl">60</span></div>
+<div class="row"><span class="label">photon b / R_s</span><input aria-label="b" type="range" id="slider-b" min="1.5" max="6" step="0.01" value="2.65"><span class="value" id="value-b">2.65</span></div>
+<div class="row"><span class="label">source beta / theta_E</span><input aria-label="beta" type="range" id="slider-beta" min="-3" max="3" step="0.05" value="0.3"><span class="value" id="value-beta">0.30</span></div>
+<div class="row toggles">
+  <label class="toggle"><input type="checkbox" id="t-horizon" checked> horizon</label>
+  <label class="toggle"><input type="checkbox" id="t-photonsphere" checked> photon sphere</label>
+  <label class="toggle"><input type="checkbox" id="t-isco" checked> ISCO</label>
+  <label class="toggle"><input type="checkbox" id="t-ergo"> ergosphere</label>
+  <label class="toggle"><input type="checkbox" id="t-grid"> coordinate grid</label>
+  <label class="toggle"><input type="checkbox" id="t-traces" checked> geodesic traces</label>
+</div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>

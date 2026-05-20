@@ -1,7 +1,8 @@
 ---
 title: Friedmann Expansion: Radiation, Matter and Lambda Eras
 slug: friedmann-expansion-multicomponent
-status: verified
+status: superseded
+superseded_by: dark-energy-fate-of-universe-3d
 audience: portfolio
 created: 2026-05-18
 primary_uc: MF-GR

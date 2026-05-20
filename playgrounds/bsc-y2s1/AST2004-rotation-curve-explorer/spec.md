@@ -1,7 +1,8 @@
 ---
 title: Rotation Curve Explorer
 slug: rotation-curve-explorer
-status: verified
+status: superseded
+superseded_by: dark-matter-halo-rotation-curve-3d
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004

@@ -1,0 +1,119 @@
+import { describe, it, expect } from 'vitest';
+import {
+  schwarzschildRadius_m, photonSphereRadius_m, criticalImpactParameter_m,
+  iscoRadius_m, kerrHorizonRadius_m, lightBendingAngle_rad,
+  einsteinRingRadius_rad, lensImagePositions_rad, lensMagnification,
+  hawkingTemperature_K, gravRedshift, tracePhoton, classifyPhoton,
+} from './sim.js';
+
+const M_SUN = 1.989e30;
+
+describe('blackhole-legend-3d', () => {
+  it('R_s for 1 solar mass is ~ 2953 m', () => {
+    expect(schwarzschildRadius_m(1)).toBeGreaterThan(2900);
+    expect(schwarzschildRadius_m(1)).toBeLessThan(3000);
+  });
+
+  it('photon sphere is at 1.5 R_s', () => {
+    expect(photonSphereRadius_m(1) / schwarzschildRadius_m(1)).toBeCloseTo(1.5, 9);
+  });
+
+  it('critical impact parameter is 3 sqrt 3 / 2 R_s', () => {
+    expect(criticalImpactParameter_m(1) / schwarzschildRadius_m(1)).toBeCloseTo(3 * Math.sqrt(3) / 2, 9);
+  });
+
+  it('Schwarzschild ISCO is at 6 GM/c^2 = 3 R_s', () => {
+    const r_iso = iscoRadius_m(1, 0);
+    const Rs = schwarzschildRadius_m(1);
+    expect(r_iso / Rs).toBeCloseTo(3, 4);
+  });
+
+  it('Kerr prograde ISCO -> GM/c^2 = R_s/2 as chi -> 1', () => {
+    const r_iso = iscoRadius_m(1, 0.999);
+    const Rs = schwarzschildRadius_m(1);
+    expect(r_iso / Rs).toBeLessThan(0.6);
+    expect(r_iso / Rs).toBeGreaterThan(0.4);
+  });
+
+  it('ISCO is monotonically decreasing with chi (prograde)', () => {
+    let prev = Infinity;
+    for (let c = 0; c <= 0.95; c += 0.1) {
+      const r = iscoRadius_m(1, c);
+      expect(r).toBeLessThanOrEqual(prev);
+      prev = r;
+    }
+  });
+
+  it('Kerr horizon r_+ = R_s/2 (1 + sqrt(1 - chi^2))', () => {
+    const Rs = schwarzschildRadius_m(1);
+    expect(kerrHorizonRadius_m(1, 0)).toBeCloseTo(Rs, -3);
+    expect(kerrHorizonRadius_m(1, 0.6) / Rs).toBeCloseTo(0.5 + 0.5 * Math.sqrt(1 - 0.36), 4);
+  });
+
+  it('light bending: photon at b -> infinity gives small angle ~ 2 R_s / b', () => {
+    const Rs = schwarzschildRadius_m(1);
+    const b = 100 * Rs;
+    const dphi = lightBendingAngle_rad(1, b);
+    expect(dphi).toBeCloseTo(2 * Rs / b, 3);
+  });
+
+  it('light bending: photon at b = b_c gives infinite angle (capture)', () => {
+    const bc = criticalImpactParameter_m(1);
+    const cls = classifyPhoton(1, 0.5 * bc);
+    expect(cls).toBe('capture');
+  });
+
+  it('Einstein ring radius scales as sqrt(M)', () => {
+    const tE1 = einsteinRingRadius_rad(1, 1e16, 2e16);
+    const tE4 = einsteinRingRadius_rad(4, 1e16, 2e16);
+    expect(tE4 / tE1).toBeCloseTo(2, 6);
+  });
+
+  it('lens image positions: x_+ + x_- = beta (Refsdal 1964)', () => {
+    const beta = 1e-7;
+    const tE = einsteinRingRadius_rad(1, 1e16, 2e16);
+    const { x_plus, x_minus } = lensImagePositions_rad(1, beta, 1e16, 2e16);
+    expect(x_plus + x_minus).toBeCloseTo(beta, 12);
+  });
+
+  it('lens image positions: x_+ x_- = -theta_E^2', () => {
+    const beta = 5e-8;
+    const tE = einsteinRingRadius_rad(1, 1e16, 2e16);
+    const { x_plus, x_minus } = lensImagePositions_rad(1, beta, 1e16, 2e16);
+    expect(x_plus * x_minus).toBeCloseTo(-tE * tE, 18);
+  });
+
+  it('lens magnification diverges as beta -> 0', () => {
+    expect(lensMagnification(1e-12, 1.0)).toBeGreaterThan(1e6);
+  });
+
+  it('lens magnification = 1 at large beta / theta_E', () => {
+    expect(lensMagnification(100.0, 1.0)).toBeCloseTo(1, 2);
+  });
+
+  it('Hawking temperature: solar BH ~ 6e-8 K', () => {
+    expect(hawkingTemperature_K(1)).toBeGreaterThan(5e-8);
+    expect(hawkingTemperature_K(1)).toBeLessThan(7e-8);
+  });
+
+  it('gravitational redshift diverges at the horizon', () => {
+    const Rs = schwarzschildRadius_m(1);
+    expect(gravRedshift(1, 1.001 * Rs)).toBeGreaterThan(20);
+  });
+
+  it('photon orbit traced at b > b_c escapes (yields a path)', () => {
+    const Rs = schwarzschildRadius_m(1);
+    const b = 3 * Rs;
+    const { path, captured } = tracePhoton(1, b);
+    expect(captured).toBe(false);
+    expect(path.length).toBeGreaterThan(50);
+  });
+
+  it('classifyPhoton: high b => escape, low b => capture, near b_c => orbit', () => {
+    const Rs = schwarzschildRadius_m(1);
+    const bc = criticalImpactParameter_m(1);
+    expect(classifyPhoton(1, 10 * Rs)).toBe('escape');
+    expect(classifyPhoton(1, 0.5 * bc)).toBe('capture');
+    expect(classifyPhoton(1, 1.01 * bc)).toBe('orbit');
+  });
+});

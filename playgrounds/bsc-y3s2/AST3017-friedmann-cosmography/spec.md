@@ -1,7 +1,8 @@
 ---
 title: Friedmann Cosmography
 slug: friedmann-cosmography
-status: verified
+status: superseded
+superseded_by: dark-energy-fate-of-universe-3d
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3017
