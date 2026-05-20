@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+import path from 'node:path'; import { fileURLToPath } from 'node:url';
+import { startStaticServer } from '../tests/helpers/static-server.mjs';
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const { server, url } = await startStaticServer(ROOT);
+const b = await chromium.launch(); const p = await b.newPage();
+const errs=[]; p.on('pageerror',e=>errs.push(String(e&&e.stack||e))); p.on('console',m=>{if(m.type()==='error')errs.push('c:'+m.text());});
+await p.goto(url+'/playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html?deterministic=1&capture=t-050&captureFraction=0.5',{waitUntil:'load',timeout:15000});
+await p.waitForTimeout(2500);
+const r = await p.evaluate(()=>({ready:!!window.__simulationReady}));
+console.log('ready=',r.ready,'errs=',errs.length?errs.join(' || '):'NONE');
+await b.close(); await server.closePromise();
