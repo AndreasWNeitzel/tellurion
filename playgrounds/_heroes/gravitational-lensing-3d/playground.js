@@ -117,7 +117,6 @@ function render() {
   ctx.fillText(`source β = (${st.bx.toFixed(2)}, ${st.by.toFixed(2)})    Einstein ring θ_E = 1`, 24, 22);
   ctx.fillText(`drag to move the source; yellow dots are the two images`, 24, 40);
 
-  const r = Math.sqrt(st.bx * st.bx + st.by * st.by);
   const muTot = images.reduce((s, im) => s + im.mag, 0);
   rBeta.textContent = `(${st.bx.toFixed(2)}, ${st.by.toFixed(2)})`;
   rRadii.textContent = `${images[0] ? Math.sqrt(images[0].x*images[0].x + images[0].y*images[0].y).toFixed(2) : '-'} / ${images[1] ? Math.sqrt(images[1].x*images[1].x + images[1].y*images[1].y).toFixed(2) : '-'}`;

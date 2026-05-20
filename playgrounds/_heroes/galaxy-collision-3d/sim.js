@@ -48,17 +48,6 @@ export function makeTwoGalaxies(opts = {}) {
     { x: +d / 2, y: 0,  vx: 0, vy: -V, m: M_core },
   ];
 
-  function placeGalaxy(idx, cx, cy, cvx, cvy, M, prograde) {
-    state.x[2 * idx]     = cx;
-    state.x[2 * idx + 1] = cy;
-    state.v[2 * idx]     = cvx;
-    state.v[2 * idx + 1] = cvy;
-    state.m[idx] = M;
-    for (let k = 1; k <= N_disk; k += 1) {
-      const i = idx + k * 2;        // interleave: not used; we place sequentially
-    }
-  }
-
   // Sequential layout: [core0, disk0..., core1, disk1...]
   let idx = 0;
   for (let g = 0; g < 2; g += 1) {
@@ -68,7 +57,6 @@ export function makeTwoGalaxies(opts = {}) {
     state.v[2 * idx] = core.vx;
     state.v[2 * idx + 1] = core.vy;
     state.m[idx] = core.m;
-    const coreIdx = idx;
     idx += 1;
     for (let k = 0; k < N_disk; k += 1) {
       const u = rng();
@@ -80,12 +68,10 @@ export function makeTwoGalaxies(opts = {}) {
       state.x[2 * idx + 1] = core.y + r * sy;
       state.m[idx] = 1 / N_disk;
       const vCirc = Math.sqrt(M_core / r);
-      // Prograde direction for each galaxy: +ccw for galaxy 0, also
-      // +ccw for galaxy 1 to make both have the same spin (a classic
-      // tidal-tail-favorable geometry).
-      const sign = g === 0 ? 1 : 1;
-      state.v[2 * idx]     = core.vx - sign * vCirc * sy;
-      state.v[2 * idx + 1] = core.vy + sign * vCirc * cx;
+      // Both galaxies spin counter-clockwise: the classic tidal-tail-
+      // favorable prograde-prograde geometry (Toomre and Toomre 1972).
+      state.v[2 * idx]     = core.vx - vCirc * sy;
+      state.v[2 * idx + 1] = core.vy + vCirc * cx;
       idx += 1;
     }
   }

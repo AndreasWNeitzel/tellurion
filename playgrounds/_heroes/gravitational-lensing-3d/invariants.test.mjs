@@ -38,8 +38,14 @@ describe('gravitational-lensing-3d', () => {
   });
 
   it('sourcePattern stripes is bounded in [-1, 1]', () => {
+    // Deterministic LCG so the test is reproducible across runs.
+    let s = 0xC0FFEE;
+    const rand = () => {
+      s = (s * 1664525 + 1013904223) | 0;
+      return ((s >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF;
+    };
     for (let i = 0; i < 100; i += 1) {
-      const v = sourcePattern((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, 'stripes');
+      const v = sourcePattern((rand() - 0.5) * 4, (rand() - 0.5) * 4, 'stripes');
       expect(v).toBeGreaterThanOrEqual(-1.0001);
       expect(v).toBeLessThanOrEqual(1.0001);
     }
