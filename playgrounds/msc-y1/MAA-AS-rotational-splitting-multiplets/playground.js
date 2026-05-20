@@ -41,33 +41,41 @@ const TILT = 0.46, cT = Math.cos(TILT), sT = Math.sin(TILT);
 
 function drawStar(cx, cy, RST, ph) {
   const l = st.l;
+  // User feedback: 'flashing effect is irritating, would be nice to
+  // see actual deformation of the surface'. The flat brightness-only
+  // pulse was 0.45 -> 1.0 (2x range, ~1 Hz), which strobed; the new
+  // visualization displaces the surface RADIALLY by xi(t) Y_l^l so
+  // the lobes physically push out and pull in, and brightness now
+  // varies only gently (0.75 .. 1.0) to indicate compression.
   const fPuls = (st.isG ? 0.55 : 1.0) * (1 + 0.12 * l);
-  const pulse = 0.45 + 0.55 * (0.5 + 0.5 * Math.cos(2 * Math.PI * fPuls * ph)); // 0.45..1, never 0
-  const lon = st.Omega * ph * 0.8;                                // gentle spin
+  const xi = Math.cos(2 * Math.PI * fPuls * ph);                  // -1 .. +1
+  const pulse = 0.85 + 0.15 * (0.5 + 0.5 * xi);                   // 0.85 .. 1.0 (gentle)
+  const lon = st.Omega * ph * 0.8;
   const latP = Math.min(l, 3);
   const step = 3;
+  // Maximum radial displacement of the surface, in screen pixels.
+  const DEFORM = Math.max(2.5, RST * 0.06) * xi;
   for (let py = -RST; py <= RST; py += step) {
     for (let px = -RST; px <= RST; px += step) {
       const nx = px / RST, ny = py / RST; const rr = nx * nx + ny * ny;
       if (rr > 1) continue;
       const nz = Math.sqrt(1 - rr);
-      // Equator-on view: spin axis is screen +y, so colatitude comes
-      // straight from ny and longitude from atan2(nz, nx). This makes
-      // the 2l sectors geometrically exact (l nodes across the visible
-      // face), unlike the tilted frame which collapsed l=2 to a dipole.
       const theta = Math.acos(Math.max(-1, Math.min(1, ny)));
       const phi = Math.atan2(nz, nx) - lon;
-      // Sectoral Y_l^l: 2l alternating lobes in longitude. Sign sets the
-      // colour (out/in), a non-vanishing latitude+pulse envelope keeps
-      // all 2l sectors legible at every instant.
       const sector = Math.cos(l * phi);
       const lat = 0.32 + 0.68 * Math.pow(Math.sin(theta), latP);
       const I = lat * pulse * (0.45 + 0.55 * Math.sqrt(Math.abs(sector)));
       const shade = (0.32 + 0.68 * nz) * I;
+      // Radial surface displacement scaled by the local Y_l^l (sectoral)
+      // amplitude. The lobes physically extrude when sector > 0 and
+      // recess when sector < 0, alternating in lockstep with xi(t).
+      const d = DEFORM * sector * Math.pow(Math.sin(theta), latP);
+      const drawX = cx + px + nx * d;
+      const drawY = cy + py + ny * d;
       let r, g, b;
       if (sector >= 0) { r = 255; g = 145; b = 60; } else { r = 70; g = 150; b = 255; }
       ctx.fillStyle = `rgb(${(r * shade) | 0},${(g * shade) | 0},${(b * shade) | 0})`;
-      ctx.fillRect(cx + px, cy + py, step, step);
+      ctx.fillRect(drawX, drawY, step, step);
     }
   }
   // Rotation axis and spin arrow.
