@@ -162,23 +162,42 @@ export function setupTransitGL(canvas) {
     return [yo * Math.sin(inc), yo * Math.cos(inc), xo];
   }
 
-  // theta in radians; A is the orbit radius in WORLD units, expected
-  // == a/Rs; inc the orbital inclination; Rp_world the planet radius
-  // in WORLD units, expected == Rp/Rs; starColor a vec3.
-  function update(theta, A, inc, Rp_world, starColor) {
-    // Star at the origin with worldRadius = 1 (one Rs in world units).
+  // theta in radians; A is the orbit radius in WORLD units; inc the
+  // orbital inclination; Rp_world the planet radius in WORLD units;
+  // starColor a vec3; starWorld the star radius in WORLD units
+  // (defaults to 1 if not provided; the playground passes STAR_WORLD = 3
+  // so the star is a prominent on-screen disc).
+  function update(theta, A, inc, Rp_world, starColor, starWorld) {
+    const sw = (starWorld != null) ? starWorld : 1.0;
+    // Star at the origin.
     const o = NBG * 8;
     ptBuf[o] = 0; ptBuf[o + 1] = 0; ptBuf[o + 2] = 0;
-    ptBuf[o + 3] = 1.0;                                 // world radius = Rs
+    ptBuf[o + 3] = sw;                                  // world radius
     ptBuf[o + 4] = starColor[0]; ptBuf[o + 5] = starColor[1]; ptBuf[o + 6] = starColor[2];
     ptBuf[o + 7] = 1.0;                                 // tag: star
 
+    // Place the planet on the SKY-projected position rather than its
+    // true 3D orbital position. Real transits look near-orthographic
+    // because the system distance dwarfs the orbit (~kpc vs ~AU); the
+    // visual planet-to-star angular ratio must be (Rp/Rs) for the
+    // user to see the (Rp/Rs)^2 dip match the light curve. Using the
+    // true 3D position foreshortens the planet when it is between
+    // camera and star, making it look much larger than (Rp/Rs).
+    //
+    // Sky projection: snap world_x (the depth coordinate from the
+    // default camera at +x) to a tiny offset that reflects whether
+    // the planet is in front of or behind the star (so depth-test
+    // hides the planet during secondary eclipse), while world_y and
+    // world_z carry the actual sky position.
     const [px, py, pz] = orbitPos(theta, A, inc);
+    const depthSign = px >= 0 ? 1 : -1;             // in front (+) or behind (-)
     const o2 = (NBG + 1) * 8;
-    ptBuf[o2] = px; ptBuf[o2 + 1] = py; ptBuf[o2 + 2] = pz;
-    ptBuf[o2 + 3] = Math.max(1e-4, Rp_world);          // world radius = Rp/Rs (shader floors size)
+    ptBuf[o2] = depthSign * 0.02;                   // tiny offset for depth ordering
+    ptBuf[o2 + 1] = py;                             // sky-y from the orbit projection
+    ptBuf[o2 + 2] = pz;                             // sky-x from the orbit projection
+    ptBuf[o2 + 3] = Math.max(1e-4, Rp_world);       // world radius = Rp/Rs
     ptBuf[o2 + 4] = 0.10; ptBuf[o2 + 5] = 0.10; ptBuf[o2 + 6] = 0.12;
-    ptBuf[o2 + 7] = 2.0;                                // tag: planet
+    ptBuf[o2 + 7] = 2.0;                            // tag: planet
     gl.bindBuffer(gl.ARRAY_BUFFER, ptVBO);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, ptBuf);
 

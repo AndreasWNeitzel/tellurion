@@ -26,13 +26,17 @@ const camera = createOrbitCamera(canvas, {
   azimuthDeg: 0, elevationDeg: 0, fovDeg: 35,
   near: 0.05, far: 400,
 });
-// View-orbit radius: identity for compact orbits (a/Rs <= 14), gentle
-// log compression beyond so an Earth-analogue at a/Rs = 215 still fits
-// the camera. CPU physics uses the true a/Rs; this only affects the
-// 3D visual scale.
+// User feedback: 'star too small'. Star world radius stays at 1 (one
+// Rs); the fix is to pull the camera CLOSER so the star takes up
+// more screen. We still preserve the (Rp/Rs)^2 transit ratio because
+// the planet world radius is also one Rp/Rs world unit and the orbit
+// is at one a/Rs world unit (apart from the log compression for
+// huge a/Rs).
+// View-orbit radius: identity for compact orbits (a/Rs <= 12), gentle
+// log compression beyond so an Earth-analogue at a/Rs = 215 still fits.
 function viewOrbitRadius(aOverRs) {
-  if (aOverRs <= 14) return aOverRs;
-  return 14 + 6 * Math.log10(aOverRs / 14);
+  if (aOverRs <= 12) return aOverRs;
+  return 12 + 5 * Math.log10(aOverRs / 12);
 }
 function fitCamera() {
   const A = viewOrbitRadius(ui.aOverRs);
@@ -159,11 +163,9 @@ function frame() {
   if (engine) {
     const phase = ((sim.t % sim.period) / sim.period + 1) % 1;
     const theta = 2 * Math.PI * phase;
-    // World units: star radius = 1; orbit radius = viewOrbitRadius(a/Rs)
-    // (visual log-compression beyond a/Rs > 14 so an Earth-analogue orbit
-    // still fits the camera). Planet radius is Rp/Rs in world units;
-    // the renderer floors point size at 2 px so a sub-pixel planet
-    // remains visible.
+    // World units: star radius = 1; orbit radius = viewOrbitRadius(a/Rs);
+    // planet radius = Rp/Rs. Camera radius is now A * 1.20 so the
+    // star fills more of the panel.
     const A_view = viewOrbitRadius(ui.aOverRs);
     engine.update(theta, A_view, ui.inc, ui.Rp, [1.0, 0.78, 0.50]);
     engine.render(camera.viewMatrix(), camera.projMatrix(canvas.width / canvas.height), ui.u1, ui.u2, camera.state.fovDeg);
@@ -174,7 +176,7 @@ function frame() {
 let last = performance.now();
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (ui.running) sim.t += dt * (ui.period / 6);    // one full orbit in ~ 6 seconds
+  if (ui.running) sim.t += dt * (ui.period / 14);    // one orbit in ~14 s (slower so the transit is watchable)
   camera.tickIdle(now);
   rebuildCurve();
   frame();
