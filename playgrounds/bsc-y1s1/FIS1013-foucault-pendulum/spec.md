@@ -1,7 +1,8 @@
 ---
 title: Foucault Pendulum and Coriolis Precession
 slug: foucault-pendulum
-status: verified
+status: superseded
+superseded_by: foucault-pendulum-rotating-earth-3d
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013

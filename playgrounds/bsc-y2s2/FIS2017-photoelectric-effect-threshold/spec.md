@@ -1,7 +1,8 @@
 ---
 title: Photoelectric Effect Threshold
 slug: photoelectric-effect-threshold
-status: verified
+status: superseded
+superseded_by: photoelectric-effect-simulator
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2017
