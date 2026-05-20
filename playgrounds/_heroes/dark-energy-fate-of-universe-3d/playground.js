@@ -4,6 +4,7 @@
 
 import { integrateScaleFactor, scaleAt, PRESETS, fateOf } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -25,7 +26,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  preset: 'lcdm', m: 0.31, L: 0.69, speed: 1, running: true,
+  preset: 'lcdm', m: 0.31, L: 0.69, speed: 1, running: !prefersReducedMotion(),
   sol: null, time: 0, timeStart: 0, timeEnd: 0, timeNow: 0,
   galaxies: [],
 };

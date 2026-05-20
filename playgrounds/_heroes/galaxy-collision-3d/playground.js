@@ -5,6 +5,7 @@
 
 import { makeTwoGalaxies, leapfrog } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -27,7 +28,7 @@ const btnPause = document.getElementById('btn-pause');
 
 const st = {
   N_disk: 1200, sep: 4.0, V: 0.7, theta: 0.7,
-  running: true, state: null,
+  running: !prefersReducedMotion(), state: null,
   VIEW: 5.0,
 };
 

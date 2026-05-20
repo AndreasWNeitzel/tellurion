@@ -5,6 +5,7 @@
 
 import { broadenedLine, gaussianLine, limbDarkening, halfWidthHalfDepth } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -25,7 +26,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  vsiniKmS: 30, sigma: 0.012, depth: 0.7, inc: 90, running: true,
+  vsiniKmS: 30, sigma: 0.012, depth: 0.7, inc: 90, running: !prefersReducedMotion(),
   phase: 0, profile: null, wavelengths: null,
 };
 

@@ -5,6 +5,7 @@
 
 import { realSphericalHarmonic, surfaceDisplacement } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -25,7 +26,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  l: 2, m: 2, omega: 1, amp: 0.16, speed: 1, running: true,
+  l: 2, m: 2, omega: 1, amp: 0.16, speed: 1, running: !prefersReducedMotion(),
   t: 0, az: 0.6, tilt: 0.5,
   N_LAT: 40, N_LON: 60,
 };

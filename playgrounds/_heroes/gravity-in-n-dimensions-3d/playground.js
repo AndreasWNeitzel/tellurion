@@ -4,6 +4,7 @@
 
 import { step, angularMomentum, energy, eccentricIC } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  d: 3, r0: 1.0, ecc: 1.05, trail: 1500, running: true,
+  d: 3, r0: 1.0, ecc: 1.05, trail: 1500, running: !prefersReducedMotion(),
   state: null, trailBuf: null, trailIdx: 0, trailLen: 0,
   L0: 0, E0: 0,
 };

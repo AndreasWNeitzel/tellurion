@@ -6,6 +6,7 @@
 
 import { lensPointMass, solvePointMassImages, sourcePattern } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  bx: 0.3, by: 0.1, pattern: 'stripes', running: true,
+  bx: 0.3, by: 0.1, pattern: 'stripes', running: !prefersReducedMotion(),
   VIEW: 3.0,
 };
 

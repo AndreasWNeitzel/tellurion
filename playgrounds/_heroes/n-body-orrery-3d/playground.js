@@ -5,6 +5,7 @@
 
 import { makeOrreryInstance, step, diagnostics } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  dt: 0.006, sub: 6, tiltX: 0.55, az: 0.6, running: true,
+  dt: 0.006, sub: 6, tiltX: 0.55, az: 0.6, running: !prefersReducedMotion(),
   showGhosts: true, inst: null, E0: 0,
   TRAIL: 600,
   trails: null,
