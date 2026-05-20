@@ -5,6 +5,7 @@
 
 import { embedZ, circumferentialR, properDistance, tidalScale, criticalImpact } from './sim.js';
 import { setupWormholeGL } from '../../../shared/js/engine-gl/wormhole-3d.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -20,7 +21,7 @@ const controlsEl = document.getElementById('controls');
 let engine = null;
 try { engine = setupWormholeGL(canvas); } catch (e) { console.warn('[wormhole] GL init failed', e); engine = null; }
 
-const ui = { b0: 1.2, lCam: 12, yaw: 0, tidal: 1.0, running: true, dir: -1, t: 0, mode: 'traverse', yawAuto: 0 };
+const ui = { b0: 1.2, lCam: 12, yaw: 0, tidal: 1.0, running: !prefersReducedMotion(), dir: -1, t: 0, mode: 'traverse', yawAuto: 0 };
 
 const RKEYS = ['throat b0', 'ship l', 'proper dist', 'tidal scale', 'region', 'traverse if b<'];
 const rEls = {};

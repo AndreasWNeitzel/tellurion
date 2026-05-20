@@ -6,6 +6,7 @@ import { makeGrid, seedImpulse, step as cpuStep, totalEnergy } from './sim.js';
 import { setupWave2DGL } from '../../../shared/js/engine-gl/wave-2d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { rayHeightfieldCell } from '../../../shared/js/gl/raycast.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -58,7 +59,7 @@ function buildButtons() {
 }
 
 const ui = { c: 0.4, gamma: 0.05, A: 0.8, sigma: 6, t: 0, clicks: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 let N = 256;
 
 ui.shape = 'point';

@@ -5,6 +5,7 @@
 import { densityAt, energyEV } from '../../../shared/js/engine/hydrogen-orbital-cpu.js';
 import { setupOrbitalGL } from '../../../shared/js/engine-gl/hydrogen-orbital.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -55,7 +56,7 @@ function buildButtons() {
 
 const st = { n: 1, l: 0, m: 0, view: 'density', t: 0 };
 let needsRebuild = true;
-let running = true;
+let running = !prefersReducedMotion();
 
 const sN = buildSlider('n', 1, 5, 1, st.n, v => { st.n = v; clampNlm(); needsRebuild = true; });
 const sL = buildSlider('ℓ', 0, 4, 1, st.l, v => { st.l = v; clampNlm(); needsRebuild = true; });

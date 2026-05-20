@@ -6,6 +6,7 @@
 import { cavityLifetime, thresholdPump, thresholdInversion, makeLaser, step, outputPower, steadyState } from './sim.js';
 import { setupLaserCavityGL } from '../../../shared/js/engine-gl/laser-cavity-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -29,7 +30,7 @@ window.__camera = camera;
 // Default pump is set just above the lasing threshold so the slider
 // has visible head-room above and below it. The old P=3 was ~75x
 // the threshold (everything saturated, the slider looked dead).
-const ui = { Lc: 1, R: 0.92, tau: 1, P: 0.08, running: true, qArmed: false, qOpen: true, qT: 0 };
+const ui = { Lc: 1, R: 0.92, tau: 1, P: 0.08, running: !prefersReducedMotion(), qArmed: false, qOpen: true, qT: 0 };
 const sim = makeLaser({ P: ui.P, tau: ui.tau, tauC: cavityLifetime(ui.Lc, ui.R), B: 1, seed: 1e-5, qLow: 1e-3 });
 function syncParams() { sim.P = ui.P; sim.tau = ui.tau; sim.tauC = cavityLifetime(ui.Lc, ui.R); }
 

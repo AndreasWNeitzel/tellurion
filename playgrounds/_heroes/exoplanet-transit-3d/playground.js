@@ -7,6 +7,7 @@
 import { makeTransit, planetSkyPos, transitFlux, periodFromAxis } from './sim.js';
 import { setupTransitGL } from '../../../shared/js/engine-gl/transit-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -84,7 +85,7 @@ function fitCamera() {
 }
 window.__camera = camera;
 
-const ui = { Rp: 0.1, aOverRs: 6, inc: Math.PI / 2, period: 4, u1: 0.45, u2: 0.20, running: true, hoverPhase: -1, H_atm: 0.020 };
+const ui = { Rp: 0.1, aOverRs: 6, inc: Math.PI / 2, period: 4, u1: 0.45, u2: 0.20, running: !prefersReducedMotion(), hoverPhase: -1, H_atm: 0.020 };
 let sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });
 function resolve() {
   sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });

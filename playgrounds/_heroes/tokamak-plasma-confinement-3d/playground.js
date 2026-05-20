@@ -10,6 +10,7 @@ import { safetyAtEdge, safetyAxis, bToroidal } from './sim.js';
 import { mulberry32, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { setupTokamakGL } from '../../../shared/js/engine-gl/tokamak.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -60,7 +61,7 @@ function buildButtons() {
 }
 
 const st = { R: 1.0, a: 0.35, B0: 5.3, Ip: 3, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 let rebuild = true;
 
 buildSlider('R0 (m)', 1.0, 3.0, 0.05, st.R, v => { st.R = v; });

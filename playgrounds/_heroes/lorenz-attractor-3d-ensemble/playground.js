@@ -5,6 +5,7 @@
 import { initEnsemble, rk4Step, centroid, diameter } from '../../../shared/js/engine/lorenz-cpu.js';
 import { setupLorenzGL } from '../../../shared/js/engine-gl/lorenz-ensemble.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -44,7 +45,7 @@ function buildButtons() {
 }
 
 const ui = { substeps: 4, decay: 0.985 };
-let running = true;
+let running = !prefersReducedMotion();
 const N = 4096;
 let state = initEnsemble(N, 1e-3, 0xC0FFEE);
 let t = 0;

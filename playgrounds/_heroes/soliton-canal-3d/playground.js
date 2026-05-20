@@ -7,6 +7,7 @@ import { makeKdV, addSoliton, setGaussian, clear, step, invariants, peak } from 
 import { setupKdVCanalGL } from '../../../shared/js/engine-gl/kdv-canal-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { rayPlaneIntersect } from '../../../shared/js/gl/raycast.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -22,7 +23,7 @@ const controlsEl = document.getElementById('controls');
 const NGRID = 512, L = 60;
 const sim = makeKdV(NGRID, L);
 
-const ui = { preset: 'two-soliton', amp: 0.9, depth: 1.0, nsol: 3, speedMul: 1, running: true };
+const ui = { preset: 'two-soliton', amp: 0.9, depth: 1.0, nsol: 3, speedMul: 1, running: !prefersReducedMotion() };
 let i0 = null;                       // invariant baseline
 
 function applyPreset(name) {

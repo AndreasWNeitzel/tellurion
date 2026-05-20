@@ -8,6 +8,7 @@ import {
   gamma, deaberrateCos, dopplerFactor, contractedLength, properTime,
 } from './sim.js';
 import { setupStarshipGL } from '../../../shared/js/engine-gl/starship-3d.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -24,7 +25,7 @@ let engine = null;
 try { engine = setupStarshipGL(canvas, 2600); }
 catch (e) { console.warn('[starship] webgl2 init failed', e); engine = null; }
 
-const ui = { beta: 0.87, yaw: 0, pitch: 0, running: true, labT: 0, probe: '' };
+const ui = { beta: 0.87, yaw: 0, pitch: 0, running: !prefersReducedMotion(), labT: 0, probe: '' };
 let probeUntil = 0;
 
 const RKEYS = ['beta', 'gamma', 'lab clock', 'ship clock', 'ring L/L0', 'probe'];

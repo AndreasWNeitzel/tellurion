@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { setupBHGL } from '../../../shared/js/engine-gl/schwarzschild-kerr.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -31,7 +32,7 @@ const camera = createOrbitCamera(canvas, {
 window.__camera = camera;
 
 const M = 1;
-const ui = { b: 5.6, spin: 0.0, t: 0, running: true };
+const ui = { b: 5.6, spin: 0.0, t: 0, running: !prefersReducedMotion() };
 const geods = [];                       // recent fired geodesics
 
 function fire(type, b, L, E, r0 = 46) {

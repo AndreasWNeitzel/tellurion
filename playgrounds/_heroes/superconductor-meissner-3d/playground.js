@@ -6,6 +6,7 @@
 import { lambdaL, criticalField, isSuperconducting, fieldAt, levitationForce, levitationHeight, penetrationProfile } from './sim.js';
 import { setupMeissnerGL } from '../../../shared/js/engine-gl/meissner-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -27,7 +28,7 @@ const camera = createOrbitCamera(canvas, {
 window.__camera = camera;
 
 const WEIGHT = 0.05, MZ0 = 2.2, TC = 1;
-const ui = { TbyTc: 0.4, Bapp: 0.2, lam0: 0.45, mz: MZ0, running: true };
+const ui = { TbyTc: 0.4, Bapp: 0.2, lam0: 0.45, mz: MZ0, running: !prefersReducedMotion() };
 let h = 3, hVel = 0;
 
 const RKEYS = ['T / Tc', 'state', 'lambda_L', 'Hc(T)', 'levitation h', 'bulk |B|'];

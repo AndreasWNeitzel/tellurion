@@ -6,6 +6,7 @@
 import { integrateScaleFactor, scaleAt, redshift, recession, hubble } from './sim.js';
 import { setupCosmicLatticeGL } from '../../../shared/js/engine-gl/cosmic-lattice-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -26,7 +27,7 @@ const camera = createOrbitCamera(canvas, {
 });
 window.__camera = camera;
 
-const ui = { Om: 0.3, OL: 0.7, H0: 1.0, time: 0, dir: 1, running: true };
+const ui = { Om: 0.3, OL: 0.7, H0: 1.0, time: 0, dir: 1, running: !prefersReducedMotion() };
 let sol = integrateScaleFactor({ m: ui.Om, L: ui.OL }, ui.H0, { dt: 0.004, tMax: 40 });
 const pulses = [];
 

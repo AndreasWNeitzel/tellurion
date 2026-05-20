@@ -6,6 +6,7 @@
 import { makeTDSE, setPacket, setPotential, sculptV, step, norm, fluxSplit, rectBarrierT } from './sim.js';
 import { setupTDSELandscapeGL } from '../../../shared/js/engine-gl/tdse-landscape-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -20,7 +21,7 @@ const controlsEl = document.getElementById('controls');
 
 const NGRID = 2048, DOM = 240;
 const sim = makeTDSE(NGRID, DOM);
-const ui = { V0: 6, bw: 3, k0: 3, sigma: 5, kind: 'rect', running: true };
+const ui = { V0: 6, bw: 3, k0: 3, sigma: 5, kind: 'rect', running: !prefersReducedMotion() };
 function relaunch() {
   setPacket(sim, -55, ui.k0, ui.sigma);
   setPotential(sim, ui.kind, ui.V0, ui.bw);

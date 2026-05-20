@@ -5,6 +5,7 @@
 import { precessionLongitude, nutation, obliquity, EPS0_DEG } from '../../../shared/js/engine/earth-rotation-cpu.js';
 import { setupEarthGL } from '../../../shared/js/engine-gl/earth-rotation.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -46,7 +47,7 @@ function buildButtons() {
 // Time model: yearsElapsed is a clean accumulator. log10TimeAccel is the
 // simulated-years-per-real-second exponent. The "year" readout = epoch + yearsElapsed.
 const st = { yearsElapsed: 0, log10TimeAccel: 6, epochYear: 2000, spinPhase: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 // Diurnal spin is driven by WALL-CLOCK time, not the (hugely
 // accelerated) precession year clock. Tying it to yearsElapsed made
 // 365.25 * accelerated-years alias to noise every frame, so the Earth

@@ -5,6 +5,7 @@
 import { bCritSchwarzschild, iscoKerr, deflectionAngleSchwarzschild, deflectionWeakField, photonSphereSchwarzschild } from '../../../shared/js/engine/schwarzschild-kerr-cpu.js';
 import { setupBHGL } from '../../../shared/js/engine-gl/schwarzschild-kerr.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -45,7 +46,7 @@ function buildButtons() {
 
 const DEFAULTS = Object.freeze({ aOverM: 0, diskInner: 6, diskOuter: 55, radius: 35, azimuthDeg: 35, elevationDeg: 3 });
 const st = { aOverM: DEFAULTS.aOverM, diskInner: DEFAULTS.diskInner, diskOuter: DEFAULTS.diskOuter, t: 0 };
-let running = true;
+let running = !prefersReducedMotion();
 
 const sliders = {
   aOverM:    buildSlider('a/M',        -1,  1, 0.05, st.aOverM,    v => { st.aOverM = v; }),
