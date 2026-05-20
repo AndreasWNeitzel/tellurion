@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Eclipse Prediction</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 880px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas:active { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Earth, Moon, Sun and eclipse prediction</h1>
+<p><strong>What you are seeing:</strong> the Sun, Earth, and Moon in a 3D heliocentric view, with the Moon's orbit tilted 5.145° from the ecliptic. The geometry is exact for the angular-size test that detects an eclipse; bodies and orbits are scaled for visualization. Scrub the time slider or hit "next solar" / "next lunar" to jump to the next eclipse. Drag to rotate the camera. Source: Meeus, <em>Astronomical Algorithms</em>, 2nd ed. (<code>meeus1998</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="880" height="600"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">day:</span><span class="value" id="readout-day">0</span>
+  <span class="label">θ (Sun-Moon):</span><span class="value" id="readout-theta">--</span>
+  <span class="label">state:</span><span class="value" id="readout-state">no eclipse</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Sun-Earth-Moon 3D geometry with the Moon's tilted orbital plane. <em>Method:</em> closed-form circular-orbit ephemeris + angular-radius eclipse condition. <em>Source:</em> Meeus, Astronomical Algorithms, 2nd ed., Ch. 47 and 54.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">time (days)</span><input aria-label="time" type="range" id="slider-t" min="0" max="730" step="0.25" value="0"><span class="value" id="value-t">0</span></div>
+<div class="row"><span class="label">camera tilt</span><input aria-label="tilt" type="range" id="slider-tilt" min="0.1" max="1.4" step="0.05" value="0.5"><span class="value" id="value-tilt">0.50</span></div>
+<div class="row buttons"><button id="btn-next-solar" type="button">Next solar</button><button id="btn-next-lunar" type="button">Next lunar</button><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
