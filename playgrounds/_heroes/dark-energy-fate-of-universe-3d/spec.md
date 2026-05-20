@@ -1,7 +1,8 @@
 ---
 title: Dark Energy and the Fate of the Universe (Hero)
 slug: dark-energy-fate-of-universe-3d
-status: verified
+status: superseded
+superseded_by: expanding-universe-3d
 audience: portfolio
 created: 2026-05-20
 primary_uc: AST3017
