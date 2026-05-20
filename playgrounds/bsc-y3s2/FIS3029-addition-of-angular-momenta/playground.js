@@ -24,6 +24,33 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 
 const st = { j1: 0.5, j2: 0.5, t: 0, jIdx: 0 };
 let running = true;
+
+// Per-frame hit-test rectangles for the clickable J rows in the
+// decomposition panel. Populated each render().
+const clickRegions = [];
+// Click-to-select handler is wired up below the canvas reference
+// (the canvas const is defined further down). Implemented as a
+// deferred bind once the DOM is ready.
+function bindClickRegions() {
+  const cv = document.getElementById('stage');
+  if (!cv) return;
+  cv.addEventListener('click', (e) => {
+    const r = cv.getBoundingClientRect();
+    const x = (e.clientX - r.left) * (cv.width / r.width);
+    const y = (e.clientY - r.top) * (cv.height / r.height);
+    for (const reg of clickRegions) {
+      if (x >= reg.x && x <= reg.x + reg.w && y >= reg.y && y <= reg.y + reg.h) {
+        st.jIdx = reg.i;
+        running = false;
+        const btnP2 = document.getElementById('btn-pause');
+        if (btnP2) { btnP2.textContent = 'Play'; btnP2.setAttribute('aria-pressed', 'true'); }
+        break;
+      }
+    }
+  });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindClickRegions, { once: true });
+else bindClickRegions();
 const jLabel = (v) => (v % 1 === 0 ? `${v}` : `${v * 2}/2`);
 sJ1.addEventListener('input', () => { st.j1 = parseFloat(sJ1.value) / 2; vJ1.textContent = jLabel(st.j1); st.jIdx = 0; });
 sJ2.addEventListener('input', () => { st.j2 = parseFloat(sJ2.value) / 2; vJ2.textContent = jLabel(st.j2); st.jIdx = 0; });
@@ -155,17 +182,34 @@ function render() {
   tlabel(`angle(j1,j2) = ${th.toFixed(1)} deg`, CX - 90, CY + 168, 'rgba(200,206,224,0.9)');
   tlabel('semiclassical vector model: j1 + j2 = J, precessing about z', CX - 168, 36, 'rgba(160,170,190,0.85)');
 
-  // diagnostic panel: the Clebsch-Gordan decomposition and dimensions
+  // Clebsch-Gordan decomposition panel: each J row is a CLICKABLE
+  // rectangle (the user feedback asked for clickable squares). The
+  // hit-test rectangles are stored in clickRegions so the click
+  // handler below can map screen->jIdx.
   const PX = 540;
   ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PX - 12, 60, W - PX - 8, 360);
   ctx.strokeStyle = 'rgba(226,232,240,0.12)'; ctx.strokeRect(PX - 11.5, 60.5, W - PX - 9, 359);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('decomposition (diagnostic)', PX, 78);
+  ctx.fillText('click a J to select  (decomposition)', PX, 78);
   ctx.fillStyle = '#ffd166'; ctx.font = '14px ui-monospace, monospace';
   ctx.fillText(`${jLabel(j1)} (x) ${jLabel(j2)} =`, PX, 104);
+  clickRegions.length = 0;
   Js.forEach((Jx, i) => {
     const yy = 130 + i * 26;
     const sel = i === idx;
+    const rectY = yy - 16, rectH = 22, rectW = W - PX - 24;
+    // Hit-test rectangle for this J row.
+    clickRegions.push({ i, x: PX - 6, y: rectY, w: rectW, h: rectH });
+    // Selection highlight.
+    if (sel) {
+      ctx.fillStyle = 'rgba(255, 209, 102, 0.18)';
+      ctx.fillRect(PX - 6, rectY, rectW, rectH);
+      ctx.strokeStyle = 'rgba(255, 209, 102, 0.55)'; ctx.lineWidth = 1.2;
+      ctx.strokeRect(PX - 6 + 0.5, rectY + 0.5, rectW - 1, rectH - 1);
+    } else {
+      ctx.strokeStyle = 'rgba(120, 165, 130, 0.30)'; ctx.lineWidth = 1.0;
+      ctx.strokeRect(PX - 6 + 0.5, rectY + 0.5, rectW - 1, rectH - 1);
+    }
     ctx.fillStyle = sel ? '#ffd166' : '#06d6a0';
     ctx.font = `${sel ? 'bold ' : ''}14px ui-monospace, monospace`;
     ctx.fillText(`${sel ? '>' : ' '} J = ${jLabel(Jx)}   (2J+1 = ${2 * Jx + 1})`, PX, yy);
