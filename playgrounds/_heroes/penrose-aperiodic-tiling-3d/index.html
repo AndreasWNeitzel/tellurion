@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Penrose Aperiodic Tiling</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 760px; margin-inline: auto; } .pg-figure canvas { width: 100%; height: auto; background: #04060c; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Penrose aperiodic tiling</h1>
+<p><strong>What you are seeing:</strong> a Penrose P3 rhombus tiling built by Conway-Penrose deflation from a 10-fold "Sun" seed. Two prototiles (thick 72/108 and thin 36/144 rhombi); 10-fold local symmetry; no global periodicity. The A/B count ratio converges to the golden ratio $\phi = (1+\sqrt 5)/2 \approx 1.618$. Source: Senechal, <em>Quasicrystals and Geometry</em>, Ch. 6 (<code>senechal-quasicrystals</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="720" height="720"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">deflations:</span><span class="value" id="readout-n">--</span>
+  <span class="label">total tiles:</span><span class="value" id="readout-N">--</span>
+  <span class="label">A (thick):</span><span class="value" id="readout-A">--</span>
+  <span class="label">B (thin):</span><span class="value" id="readout-B">--</span>
+  <span class="label">A / B ratio:</span><span class="value" id="readout-ratio">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Penrose P3 tiling after N Conway-Penrose deflations from a 10-fold Sun seed; A/B count ratio converges to phi. Method: deflation of Robinson triangles. Source: Senechal, Quasicrystals and Geometry, Ch. 6.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">deflation steps</span><input aria-label="steps" type="range" id="slider-steps" min="0" max="6" step="1" value="4"><span class="value" id="value-steps">4</span></div>
+<div class="row"><span class="label">edge style</span><select aria-label="edges" id="select-edges"><option value="on" selected>edges on</option><option value="off">edges off</option></select><span class="value" id="value-edges">on</span></div>
+<div class="row"><span class="label">rotation</span><input aria-label="rotation" type="range" id="slider-rot" min="0" max="360" step="1" value="0"><span class="value" id="value-rot">0 deg</span></div>
+<div class="row"><span class="label">zoom</span><input aria-label="zoom" type="range" id="slider-zoom" min="0.7" max="1.4" step="0.05" value="1.0"><span class="value" id="value-zoom">1.00</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
