@@ -1,7 +1,8 @@
 ---
 title: Radial Velocity Curve from Orbital Elements
 slug: radial-velocity-orbital-trace
-status: verified
+status: superseded
+superseded_by: radial-velocity-exoplanet-detection-3d
 audience: portfolio
 created: 2026-05-14
 primary_uc: AST2004

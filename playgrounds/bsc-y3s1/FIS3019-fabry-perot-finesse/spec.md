@@ -1,7 +1,8 @@
 ---
 title: Fabry-Perot Finesse
 slug: fabry-perot-finesse
-status: verified
+status: superseded
+superseded_by: fabry-perot-spectrometer
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3019
