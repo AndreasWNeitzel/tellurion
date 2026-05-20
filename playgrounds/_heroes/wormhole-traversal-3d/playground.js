@@ -20,7 +20,7 @@ const controlsEl = document.getElementById('controls');
 let engine = null;
 try { engine = setupWormholeGL(canvas); } catch (e) { console.warn('[wormhole] GL init failed', e); engine = null; }
 
-const ui = { b0: 1.2, lCam: 12, yaw: 0, tidal: 1.0, running: true, dir: -1, t: 0 };
+const ui = { b0: 1.2, lCam: 12, yaw: 0, tidal: 1.0, running: true, dir: -1, t: 0, mode: 'traverse', yawAuto: 0 };
 
 const RKEYS = ['throat b0', 'ship l', 'proper dist', 'tidal scale', 'region', 'traverse if b<'];
 const rEls = {};
@@ -51,10 +51,17 @@ function sel(label, opts, on) {
   s.addEventListener('change', () => on(s.value)); row.append(lab, s, v); controlsEl.appendChild(row); return s;
 }
 sel('preset', ['approach the throat', 'traverse', 'orbit the mouth', 'look back after traversal'], (p) => {
-  if (p === 'approach the throat') { ui.lCam = 12; ui.yaw = 0; ui.running = false; }
-  else if (p === 'traverse') { ui.lCam = 14; ui.yaw = 0; ui.dir = -1; ui.running = true; }
-  else if (p === 'orbit the mouth') { ui.lCam = 3.0; ui.running = false; }
-  else { ui.lCam = -7; ui.yaw = 3.14; ui.running = false; }
+  // Every preset now animates so the user actually sees something
+  // moving. 'approach' creeps in toward the throat then resets; 'traverse'
+  // does a full pass through to the far universe then auto-rebounds;
+  // 'orbit' holds at the mouth while the yaw sweeps; 'look back' sits
+  // in the far universe with the yaw scanning the lensed home sky.
+  ui.mode = p;
+  ui.running = true;
+  if (p === 'approach the throat') { ui.lCam = 12; ui.yaw = 0; ui.dir = -1; }
+  else if (p === 'traverse') { ui.lCam = 14; ui.yaw = 0; ui.dir = -1; }
+  else if (p === 'orbit the mouth') { ui.lCam = 2.2; ui.yaw = 0; ui.dir = 0; }
+  else { ui.lCam = -7; ui.yaw = 3.14; ui.dir = 0; }
   sL.value = ui.lCam.toFixed(1);
 });
 const btnRow = document.createElement('div'); btnRow.className = 'row buttons';
@@ -112,9 +119,32 @@ let last = performance.now();
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now; ui.t += dt;
   if (ui.running) {
-    ui.lCam += ui.dir * dt * 3.0;
-    if (ui.lCam < -15) { ui.lCam = -15; ui.running = false; }
-    if (ui.lCam > 15) { ui.lCam = 15; ui.running = false; }
+    if (ui.mode === 'approach the throat') {
+      // Creep toward the throat from l = 12 to l = 1.5 then reset.
+      ui.lCam += ui.dir * dt * 1.5;
+      if (ui.lCam <= 1.5) { ui.lCam = 12; }
+    } else if (ui.mode === 'traverse') {
+      // Full pass through; auto-rebound at the far end so the user
+      // gets a continuous loop and sees the sky-swap repeatedly.
+      ui.lCam += ui.dir * dt * 3.0;
+      if (ui.lCam < -14) { ui.dir = 1; }
+      if (ui.lCam > 14)  { ui.dir = -1; }
+    } else if (ui.mode === 'orbit the mouth') {
+      // Hold at l ~ 2 with the yaw sweeping a half-circle (the throat
+      // disc visibly rotates around the screen).
+      ui.yaw += dt * 0.35;
+      if (ui.yaw > 1.4) ui.yaw = -1.4;
+    } else if (ui.mode === 'look back after traversal') {
+      // In the far universe, yaw scans the home sky framed by the
+      // throat.
+      ui.yaw += dt * 0.18;
+      if (ui.yaw > 4.0) ui.yaw = 2.4;
+    } else {
+      // Default (no mode): legacy linear drift.
+      ui.lCam += ui.dir * dt * 3.0;
+      if (ui.lCam < -15) ui.lCam = -15;
+      if (ui.lCam > 15)  ui.lCam = 15;
+    }
     sL.value = ui.lCam.toFixed(1);
   }
   frame();
