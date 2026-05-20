@@ -67,16 +67,31 @@ const cS = buildSlider('speed (m/s)', 14, 45, 1, st.speed, 'speed');
 const cE = buildSlider('elevation (deg)', 12, 70, 1, st.elev, 'elev');
 const cW = buildSlider('max |spin| (rad/s)', 0, 110, 2, st.spinMax, 'spinMax');
 const cN = buildSlider('balls in the volley', 5, 21, 2, st.n, 'n');
-const cAz = buildSlider('camera azimuth', 0, 359, 1, st.camAz, 'camAz', v => v.toFixed(0));
-const cEl = buildSlider('camera height', 6, 70, 1, st.camEl, 'camEl', v => v.toFixed(0));
+// Camera is now drag-to-orbit on the canvas (the user's preferred
+// interaction across the rest of the suite); the az/el sliders have
+// been removed.
+let camDragging = false, camLastX = 0, camLastY = 0;
+canvas.addEventListener('pointerdown', (e) => {
+  camDragging = true; camLastX = e.clientX; camLastY = e.clientY;
+  canvas.setPointerCapture?.(e.pointerId);
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (!camDragging) return;
+  st.camAz = ((st.camAz - (e.clientX - camLastX) * 0.4) % 360 + 360) % 360;
+  st.camEl = Math.max(4, Math.min(84, st.camEl - (e.clientY - camLastY) * 0.3));
+  camLastX = e.clientX; camLastY = e.clientY;
+});
+canvas.addEventListener('pointerup', () => { camDragging = false; });
+canvas.addEventListener('pointercancel', () => { camDragging = false; });
 const bRow = document.createElement('div'); bRow.className = 'row buttons';
 const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running));
 bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
 bReset.addEventListener('click', () => {
-  for (const [inp, v] of [[cS, 34], [cE, 38], [cW, 70], [cN, 13], [cAz, 36], [cEl, 22]]) {
+  for (const [inp, v] of [[cS, 34], [cE, 38], [cW, 70], [cN, 13]]) {
     inp.value = String(v); inp.dispatchEvent(new Event('input'));   // updates st, label, rebuild
   }
+  st.camAz = 36; st.camEl = 22;
   st.t = 0; running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
 });
 bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
@@ -134,17 +149,52 @@ function spinColor(s, alpha = 1) {
 }
 
 function render() {
-  ctx.fillStyle = '#06070b'; ctx.fillRect(0, 0, W, H);
+  // Sky gradient (cool blue at the horizon, deeper at the zenith).
+  const skyG = ctx.createLinearGradient(0, 0, 0, H);
+  skyG.addColorStop(0, '#13243a');
+  skyG.addColorStop(0.7, '#1a3556');
+  skyG.addColorStop(1, '#11243d');
+  ctx.fillStyle = skyG; ctx.fillRect(0, 0, W, H);
   const cam = camera();
 
-  // Perspective ground grid (z = 0), fades with depth.
-  const seg = (A, B, al) => {
+  // GRASS FIELD: fill the ground quad (the visible portion of z = 0)
+  // with a green polygon, then sprinkle perspective tufts. Per user
+  // feedback: 'it would be nice if there was an actual ground, like
+  // a green grassy field, or a stadium field'.
+  const corners = [
+    [-WX * 0.2, -WY * 1.6, 0], [WX * 1.2, -WY * 1.6, 0],
+    [WX * 1.2,  WY * 1.6, 0], [-WX * 0.2,  WY * 1.6, 0],
+  ];
+  const projC = corners.map(c => project(cam, c)).filter(Boolean);
+  if (projC.length === 4) {
+    const fieldG = ctx.createLinearGradient(0, H * 0.4, 0, H);
+    fieldG.addColorStop(0, '#2a4d1f');
+    fieldG.addColorStop(0.6, '#3a6b27');
+    fieldG.addColorStop(1, '#4d8030');
+    ctx.fillStyle = fieldG;
+    ctx.beginPath(); ctx.moveTo(projC[0][0], projC[0][1]);
+    for (let i = 1; i < 4; i += 1) ctx.lineTo(projC[i][0], projC[i][1]);
+    ctx.closePath(); ctx.fill();
+  }
+  // Alternating mowed-stripe bands along the field length, plus a
+  // dotted yardline grid for distance reference.
+  for (let x = 0; x < WX; x += 11) {
+    const c1 = project(cam, [x, -WY, 0]), c2 = project(cam, [x + 11, -WY, 0]);
+    const c3 = project(cam, [x + 11,  WY, 0]), c4 = project(cam, [x,  WY, 0]);
+    if (!c1 || !c2 || !c3 || !c4) continue;
+    ctx.fillStyle = (Math.floor(x / 11) & 1) ? 'rgba(50, 110, 38, 0.30)' : 'rgba(74, 138, 56, 0.18)';
+    ctx.beginPath(); ctx.moveTo(c1[0], c1[1]); ctx.lineTo(c2[0], c2[1]); ctx.lineTo(c3[0], c3[1]); ctx.lineTo(c4[0], c4[1]); ctx.closePath(); ctx.fill();
+  }
+  // Dotted yardlines for distance reference (every 11 m).
+  const seg = (A, B, col, al, dashed) => {
     const a = project(cam, A), b = project(cam, B); if (!a || !b) return;
-    ctx.strokeStyle = `rgba(120,150,200,${al})`; ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(${col},${al})`; ctx.lineWidth = 1;
+    if (dashed) ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    if (dashed) ctx.setLineDash([]);
   };
-  for (let x = 0; x <= WX; x += 11) seg([x, -WY, 0], [x, WY, 0], 0.14);
-  for (let y = -WY; y <= WY; y += 6.5) seg([0, y, 0], [WX, y, 0], y === 0 ? 0.3 : 0.12);
+  for (let x = 0; x <= WX; x += 11) seg([x, -WY, 0], [x, WY, 0], '255,255,255', 0.18, true);
+  seg([0, 0, 0], [WX, 0, 0], '255,255,255', 0.45, false);    // centreline
 
   // Volley progress: a shared phase so all balls fly out together and
   // the fan opens in real time.
@@ -171,14 +221,34 @@ function render() {
     ctx.beginPath(); started = false;
     for (let k = 0; k <= last; k += 1) { const p = project(cam, pts[k]); if (!p) { started = false; continue; } started ? ctx.lineTo(p[0], p[1]) : (ctx.moveTo(p[0], p[1]), started = true); }
     ctx.stroke();
-    // Ball head.
+    // Ball head: animated rotation about the sidespin axis. The
+    // visible seam is drawn as a chord across the disc whose angle
+    // varies as omega * t, so the ball appears to spin in real time
+    // (user feedback: 'the balls are not rotating').
     const hp = project(cam, pts[last]);
     if (hp) {
       const r = Math.max(3, 7 * CAM_DIST / (hp[2] * 1.6));
-      const gl = ctx.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], r * 2.1);
-      gl.addColorStop(0, '#ffffff'); gl.addColorStop(0.5, spinColor(sh.s, 0.8)); gl.addColorStop(1, 'rgba(0,0,0,0)');
+      const gl = ctx.createRadialGradient(hp[0] - r * 0.3, hp[1] - r * 0.3, 0, hp[0], hp[1], r * 2.1);
+      gl.addColorStop(0, 'rgba(255,255,255,0.8)'); gl.addColorStop(0.5, spinColor(sh.s, 0.85)); gl.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(hp[0], hp[1], r * 2.1, 0, 6.28); ctx.fill();
-      ctx.fillStyle = spinColor(sh.s, 1); ctx.beginPath(); ctx.arc(hp[0], hp[1], r, 0, 6.28); ctx.fill();
+      // Solid ball with a soft Lambertian shade
+      const baseG = ctx.createRadialGradient(hp[0] - r * 0.35, hp[1] - r * 0.35, 0, hp[0], hp[1], r);
+      baseG.addColorStop(0, spinColor(sh.s, 1));
+      baseG.addColorStop(1, 'rgba(15, 22, 35, 0.95)');
+      ctx.fillStyle = baseG; ctx.beginPath(); ctx.arc(hp[0], hp[1], r, 0, 6.28); ctx.fill();
+      // Spin seam: a chord whose angle on the disc tracks omega * t.
+      const ang = sh.spin * st.t * 0.16;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)'; ctx.lineWidth = Math.max(1.2, r * 0.18);
+      ctx.beginPath();
+      ctx.moveTo(hp[0] + Math.cos(ang) * r * 0.85, hp[1] + Math.sin(ang) * r * 0.85);
+      ctx.lineTo(hp[0] - Math.cos(ang) * r * 0.85, hp[1] - Math.sin(ang) * r * 0.85);
+      ctx.stroke();
+      // Small spin indicator dot near the seam tip so the rotation
+      // sense is unambiguous.
+      ctx.fillStyle = 'rgba(255, 235, 200, 0.95)';
+      ctx.beginPath();
+      ctx.arc(hp[0] + Math.cos(ang) * r * 0.55, hp[1] + Math.sin(ang) * r * 0.55, Math.max(1, r * 0.18), 0, 6.28);
+      ctx.fill();
     }
   }
 
