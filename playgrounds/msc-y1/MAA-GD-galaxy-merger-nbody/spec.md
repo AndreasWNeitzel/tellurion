@@ -1,7 +1,8 @@
 ---
 title: "Galaxy Merger N-Body"
 slug: galaxy-merger-nbody
-status: verified
+status: superseded
+superseded_by: galaxy-collision-3d
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-GD
