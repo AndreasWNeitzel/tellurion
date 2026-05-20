@@ -28,10 +28,28 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   const grid = occupy(state.L, state.p, SEED ^ state.seedSalt);
   const { labels, sizes } = cluster(grid, state.L);
-  // Find largest
+  // Find largest cluster and the SPANNING cluster (a cluster that
+  // touches both the top and bottom rows; the percolation order
+  // parameter).
   let maxLabel = 0, maxSize = 0;
   for (const [lab, sz] of sizes.entries()) {
     if (sz > maxSize) { maxSize = sz; maxLabel = lab; }
+  }
+  // Identify the spanning cluster label by checking which labels
+  // appear in BOTH the top row (j = 0) and the bottom row (j = L-1).
+  const topLabels = new Set(), botLabels = new Set();
+  for (let i = 0; i < state.L; i += 1) {
+    const lt = labels[i];
+    const lb = labels[(state.L - 1) * state.L + i];
+    if (lt > 0) topLabels.add(lt);
+    if (lb > 0) botLabels.add(lb);
+  }
+  let spanLabel = 0, spanSize = 0;
+  for (const lab of topLabels) {
+    if (botLabels.has(lab)) {
+      const sz = sizes.get(lab) || 0;
+      if (sz > spanSize) { spanSize = sz; spanLabel = lab; }
+    }
   }
   const cell = Math.floor((W - 40) / state.L);
   const x0 = (W - state.L * cell) / 2, y0 = 20;
@@ -39,7 +57,11 @@ function drawAll() {
     for (let i = 0; i < state.L; i += 1) {
       const k = j * state.L + i;
       if (!grid[k]) continue;
-      ctx.fillStyle = labels[k] === maxLabel ? '#f1d28a' : '#69a8d6';
+      // Three-colour scheme: spanning cluster (warm gold) -> largest
+      // non-spanning (cool teal) -> generic occupied (light blue).
+      if (labels[k] === spanLabel && spanLabel > 0) ctx.fillStyle = '#f1c14a';
+      else if (labels[k] === maxLabel) ctx.fillStyle = '#7ed4c1';
+      else ctx.fillStyle = '#69a8d6';
       ctx.fillRect(x0 + i * cell, y0 + j * cell, cell, cell);
     }
   }
@@ -66,6 +88,49 @@ function drawAll() {
     ctx.fillText(v, 260, y);
     y += 14;
   }
+
+  // P_c inline marker on a p-bar across the bottom: shows the current
+  // p relative to the critical value 0.59275 so the user can see how
+  // close they are to threshold.
+  const barW = W - 360 - 20, barX = 280, barY = H - 18, barH = 10;
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(barX, barY, barW, barH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.strokeRect(barX + 0.5, barY + 0.5, barW - 1, barH - 1);
+  // p_c tick (gold)
+  const pcX = barX + (P_C - 0) / 1.0 * barW;
+  ctx.fillStyle = '#f1c14a'; ctx.fillRect(pcX - 1, barY - 4, 2, barH + 8);
+  ctx.font = '9px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('p_c', pcX, barY - 6);
+  // current p marker
+  const pX = barX + state.p * barW;
+  ctx.fillStyle = '#7ed4c1'; ctx.fillRect(pX - 1, barY - 4, 2, barH + 8);
+  ctx.fillStyle = '#9aa0a6'; ctx.textAlign = 'left';
+  ctx.fillText('0', barX - 2, barY + barH + 11);
+  ctx.textAlign = 'right'; ctx.fillText('1', barX + barW + 2, barY + barH + 11);
+
+  // Cluster-size histogram inset (top-right): log-log bin counts so
+  // the power-law n(s) ~ s^-tau at the critical point is visible.
+  const hX = W - 200, hY = 24, hW = 180, hH = 96;
+  ctx.fillStyle = 'rgba(15, 18, 28, 0.85)'; ctx.fillRect(hX, hY, hW, hH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.strokeRect(hX + 0.5, hY + 0.5, hW - 1, hH - 1);
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '9px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('cluster sizes log10(n) vs log10(s)', hX + 4, hY + 12);
+  const NB = 12;
+  const bins = new Array(NB).fill(0);
+  const maxLogS = Math.max(1, Math.log10(state.L * state.L));
+  for (const sz of sizes.values()) {
+    const bi = Math.min(NB - 1, Math.max(0, Math.floor(Math.log10(Math.max(1, sz)) / maxLogS * NB)));
+    bins[bi] += 1;
+  }
+  let mx = 0; for (const b of bins) if (b > mx) mx = b;
+  const logMx = Math.log10(Math.max(1, mx));
+  const bw = (hW - 12) / NB;
+  for (let i = 0; i < NB; i += 1) {
+    const h = bins[i] > 0 ? (Math.log10(bins[i]) / Math.max(0.1, logMx)) * (hH - 28) : 0;
+    ctx.fillStyle = (i + 1) / NB * maxLogS > Math.log10(spanSize) ? 'rgba(241, 193, 74, 0.7)' : 'rgba(105, 168, 214, 0.7)';
+    ctx.fillRect(hX + 6 + i * bw, hY + hH - 8 - h, bw - 1, h);
+  }
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.fillText('s', hX + hW - 12, hY + hH - 3);
 }
 
 sliderP.addEventListener('input', () => {
