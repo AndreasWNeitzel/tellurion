@@ -3,6 +3,7 @@
 // wire it to canvas, expose a ?seed=N&deterministic=1 URL contract for capture.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // import * as engine from '../../../shared/js/engine/<engine>.js';
 
 const params         = new URLSearchParams(location.search);
@@ -21,6 +22,9 @@ let simClock     = 0;
 let accumulator  = 0;
 let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 let frame        = 0;
+// Respect the OS prefers-reduced-motion accessibility preference: start
+// paused for those users. A pause/play button toggles it.
+let running      = !prefersReducedMotion();
 
 const _rng = makeRng(SEED);
 
@@ -54,12 +58,13 @@ function updateReadout() {
 function tick(now) {
   const frameDt = Math.min((now - lastTime) / 1000, 0.1);
   lastTime = now;
-  accumulator += frameDt;
-
-  while (accumulator >= PHYSICS_DT) {
-    sim.step(PHYSICS_DT);
-    simClock += PHYSICS_DT;
-    accumulator -= PHYSICS_DT;
+  if (running) {
+    accumulator += frameDt;
+    while (accumulator >= PHYSICS_DT) {
+      sim.step(PHYSICS_DT);
+      simClock += PHYSICS_DT;
+      accumulator -= PHYSICS_DT;
+    }
   }
 
   render();
