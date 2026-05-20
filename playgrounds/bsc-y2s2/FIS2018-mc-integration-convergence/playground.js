@@ -87,10 +87,41 @@ function drawAll() {
   ctx.moveTo(padL, yP(EXACT)); ctx.lineTo(padL + PW, yP(EXACT));
   ctx.stroke();
   ctx.setLineDash([]);
+
+  // Hit-or-miss dart throw: render up to NDARTS uniform random points
+  // in [0, 1] x [0, 2]; green if under f(x) (counted), red if rejected.
+  // The fraction below the curve times the rectangle area is the
+  // running plain-MC estimate of integral f. Deterministic mulberry32
+  // seeded by N so the goldens are stable.
+  const NDARTS = Math.min(N, 360);
+  function mulb(seed) { let x = seed >>> 0; return () => { x = (x + 0x6D2B79F5) | 0; let t = Math.imul(x ^ (x >>> 15), 1 | x); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  const dr = mulb((SEED + 12345 + (N & 0xFFFF)) | 0);
+  let hits = 0;
+  for (let i = 0; i < NDARTS; i += 1) {
+    const x = dr(), y = dr() * 2.0;
+    const fy = testFn(x);
+    const under = y < fy;
+    if (under) hits += 1;
+    ctx.fillStyle = under ? 'rgba(143, 219, 130, 0.70)' : 'rgba(232, 124, 124, 0.55)';
+    ctx.fillRect(xP(x) - 1.0, yP(y) - 1.0, 2.0, 2.0);
+  }
+  // Redraw f(x) on top so the curve stays clear of dart over-cover.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.88)';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = 0; i < NPTS; i += 1) {
+    const x = i / (NPTS - 1);
+    const f = testFn(x);
+    if (i === 0) ctx.moveTo(xP(x), yP(f)); else ctx.lineTo(xP(x), yP(f));
+  }
+  ctx.stroke();
+
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
   ctx.textAlign = 'left';
   ctx.fillText('f(x) = 1 + 10 (x - 0.5)^4', padL + 6, topY + 14);
+  ctx.fillStyle = 'rgba(143, 219, 130, 0.95)';
+  ctx.fillText(`hits ${hits}/${NDARTS}, I_hit ~ ${(2.0 * hits / NDARTS).toFixed(3)}`, padL + 6, topY + 30);
 
   // Bottom: convergence
   const botY = topY + topH + 30, botH = H - botY - 80;
