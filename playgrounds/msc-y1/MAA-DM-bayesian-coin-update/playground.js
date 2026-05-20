@@ -145,13 +145,40 @@ function drawAll() {
 
   const ci = credibleInterval(post.a, post.b, 0.95);
   const sigma = Math.sqrt(betaVariance(post.a, post.b));
+  const meanPrior = betaMean(state.a0, state.b0);
+  const meanData = state.n > 0 ? state.k / state.n : 0.5;
+  const priorStrength = state.a0 + state.b0;
+  const dataStrength = state.n;
+  const pull = dataStrength / (priorStrength + dataStrength);   // 0 = all prior, 1 = all data
+
+  // Tick marks at each of the three means so the user SEES the pull
+  // from prior to data through posterior.
+  ctx.lineWidth = 1.2;
+  for (const [m, c, lab] of [
+    [meanPrior, tok.cat1, 'prior'],
+    [meanData,  tok.cat2, 'data'],
+    [meanPost,  tok.cat3, 'post'],
+  ]) {
+    const p = px(m, 0);
+    ctx.strokeStyle = c;
+    ctx.beginPath();
+    ctx.moveTo(p.px, PLOT.y + PLOT.h - 18);
+    ctx.lineTo(p.px, PLOT.y + PLOT.h - 2);
+    ctx.stroke();
+    ctx.fillStyle = c; ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(lab, p.px, PLOT.y + PLOT.h - 20);
+  }
+
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
   const rows = [
+    ['prior mean',  meanPrior.toFixed(4)],
+    ['data mean',   meanData.toFixed(4)],
+    ['post mean',   meanPost.toFixed(4)],
     ['k / n',       `${state.k} / ${state.n}`],
-    ['mean',        meanPost.toFixed(4)],
     ['sigma',       sigma.toFixed(4)],
-    ['95% CI low',  ci.lo.toFixed(4)],
-    ['95% CI high', ci.hi.toFixed(4)],
+    ['95% CI',      `${ci.lo.toFixed(3)}..${ci.hi.toFixed(3)}`],
+    ['pull (data)', `${(pull * 100).toFixed(0)}%`],
   ];
   const xL = W - 190, xR = W - 16;
   let y = 20;
@@ -175,8 +202,21 @@ function applyControls() {
   drawAll();
 }
 [sliderA0, sliderB0, sliderK, sliderN].forEach(s => s.addEventListener('input', applyControls));
+// Prior preset dropdown: snaps alpha0, beta0 to one of four classic
+// hyperprior choices so the user can see the prior bias dominate when
+// it is strong and recede when data are abundant.
+const PRIOR_PRESETS = {
+  'flat': [2, 2], 'bias-heads': [18, 4], 'bias-tails': [4, 18], 'skeptic': [12, 12],
+};
+const selPrior = document.getElementById('select-prior');
+if (selPrior) selPrior.addEventListener('change', () => {
+  const p = PRIOR_PRESETS[selPrior.value]; if (!p) return;
+  sliderA0.value = String(p[0]); sliderB0.value = String(p[1]);
+  applyControls();
+});
 btnReset.addEventListener('click', () => {
   sliderA0.value = '2'; sliderB0.value = '2'; sliderK.value = '7'; sliderN.value = '10';
+  if (selPrior) selPrior.value = 'flat';
   applyControls();
 });
 btnFlip.addEventListener('click', () => {
