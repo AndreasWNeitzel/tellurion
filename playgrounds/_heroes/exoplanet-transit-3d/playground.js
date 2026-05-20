@@ -16,6 +16,46 @@ const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const plot = document.getElementById('plot');
 const pctx = plot.getContext('2d');
+const tspec = document.getElementById('tspectrum');
+const tctx = tspec ? tspec.getContext('2d') : null;
+// Toy atmospheric model for transmission spectroscopy. The effective
+// transit radius depends on wavelength because Rayleigh scattering and
+// molecular lines (Na D 589 nm, K 770 nm, H2O bands around 950, 1380,
+// 1900 nm) make the atmosphere opaque at those wavelengths so the
+// planet looks bigger:
+//   Rp(lambda) = Rp + N_atm * H_atm * sigma(lambda)
+// with H_atm the atmospheric scale height and N_atm the column-density
+// scale. Reference: Seager and Sasselov, ApJ 537 (2000) 916; Madhusudhan,
+// ARAA 57 (2019) 617.
+const ATMOSPHERE = {
+  // wavelength bins, nm
+  lam0: 400, lam1: 2000, nBins: 96,
+  // cross section "spikes" at known features (centre nm, width nm, strength)
+  features: [
+    { c: 589,  w: 8,   s: 0.6 },        // Na D doublet
+    { c: 770,  w: 10,  s: 0.5 },        // K I
+    { c: 950,  w: 60,  s: 0.4 },        // H2O band
+    { c: 1380, w: 80,  s: 0.6 },        // H2O band
+    { c: 1900, w: 100, s: 0.7 },        // H2O band
+  ],
+  // Rayleigh scattering: optical depth ~ lambda^{-4}
+  rayleighA: 0.18,
+};
+function sigmaLambda(lambda) {
+  let sig = 0;
+  for (const f of ATMOSPHERE.features) {
+    const z = (lambda - f.c) / f.w;
+    sig += f.s * Math.exp(-0.5 * z * z);
+  }
+  // Rayleigh slope.
+  sig += ATMOSPHERE.rayleighA * Math.pow(500 / lambda, 4);
+  return sig;
+}
+function transmissionDepth(lambda, Rp, H_atm_units) {
+  // R_eff = Rp + H_atm * sigma(lambda); depth = (R_eff)^2
+  const R_eff = Rp + H_atm_units * sigmaLambda(lambda);
+  return R_eff * R_eff;
+}
 const readoutEl = document.getElementById('readout');
 const controlsEl = document.getElementById('controls');
 
@@ -44,7 +84,7 @@ function fitCamera() {
 }
 window.__camera = camera;
 
-const ui = { Rp: 0.1, aOverRs: 6, inc: Math.PI / 2, period: 4, u1: 0.45, u2: 0.20, running: true, hoverPhase: -1 };
+const ui = { Rp: 0.1, aOverRs: 6, inc: Math.PI / 2, period: 4, u1: 0.45, u2: 0.20, running: true, hoverPhase: -1, H_atm: 0.020 };
 let sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });
 function resolve() {
   sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });
@@ -183,12 +223,95 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+function drawTransmissionSpectrum() {
+  if (!tctx) return;
+  const W = tspec.width, H = tspec.height;
+  tctx.fillStyle = '#07080b';
+  tctx.fillRect(0, 0, W, H);
+  const pad = { l: 56, r: 16, t: 22, b: 30 };
+  const ax = pad.l, ay = pad.t;
+  const aw = W - pad.l - pad.r, ah = H - pad.t - pad.b;
+  tctx.strokeStyle = 'rgba(255,255,255,0.45)';
+  tctx.beginPath();
+  tctx.moveTo(ax, ay); tctx.lineTo(ax, ay + ah); tctx.lineTo(ax + aw, ay + ah);
+  tctx.stroke();
+  tctx.fillStyle = 'rgba(255,255,255,0.65)';
+  tctx.font = '11px ui-monospace, monospace';
+  tctx.textAlign = 'left';
+  tctx.fillText('transit depth (Rp_eff / Rs)^2', 8, ay - 4);
+  tctx.textAlign = 'center';
+  tctx.fillText('wavelength λ (nm)', ax + aw / 2, H - 8);
+
+  // Sample the transmission spectrum.
+  const Rp = ui.Rp;
+  const H_atm = ui.H_atm;
+  let dMin = Infinity, dMax = -Infinity;
+  const depths = new Float64Array(ATMOSPHERE.nBins + 1);
+  const lams = new Float64Array(ATMOSPHERE.nBins + 1);
+  for (let i = 0; i <= ATMOSPHERE.nBins; i += 1) {
+    const lambda = ATMOSPHERE.lam0 + (i / ATMOSPHERE.nBins) * (ATMOSPHERE.lam1 - ATMOSPHERE.lam0);
+    const d = transmissionDepth(lambda, Rp, H_atm);
+    lams[i] = lambda; depths[i] = d;
+    if (d < dMin) dMin = d; if (d > dMax) dMax = d;
+  }
+  const dPad = 0.1 * (dMax - dMin) || 1e-4;
+  dMin -= dPad; dMax += dPad;
+  const xToPx = (lam) => ax + (lam - ATMOSPHERE.lam0) / (ATMOSPHERE.lam1 - ATMOSPHERE.lam0) * aw;
+  const yToPx = (d) => ay + (1 - (d - dMin) / (dMax - dMin)) * ah;
+
+  // Y-axis ticks.
+  tctx.fillStyle = 'rgba(255,255,255,0.55)';
+  tctx.textAlign = 'right';
+  for (let k = 0; k <= 3; k += 1) {
+    const d = dMin + (k / 3) * (dMax - dMin);
+    tctx.fillText(d.toExponential(2), ax - 4, yToPx(d) + 3);
+    tctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    tctx.beginPath(); tctx.moveTo(ax, yToPx(d)); tctx.lineTo(ax + aw, yToPx(d)); tctx.stroke();
+  }
+
+  // X-axis ticks at canonical wavelengths.
+  tctx.fillStyle = 'rgba(255,255,255,0.55)';
+  tctx.textAlign = 'center';
+  for (const xv of [500, 700, 900, 1100, 1300, 1500, 1700, 1900]) {
+    tctx.fillText(String(xv), xToPx(xv), ay + ah + 14);
+  }
+
+  // Mark canonical features.
+  for (const f of ATMOSPHERE.features) {
+    const x = xToPx(f.c);
+    tctx.strokeStyle = 'rgba(255,209,102,0.30)';
+    tctx.setLineDash([3, 3]);
+    tctx.beginPath(); tctx.moveTo(x, ay); tctx.lineTo(x, ay + ah); tctx.stroke();
+    tctx.setLineDash([]);
+    const label = f.c < 700 ? 'Na' : (f.c < 850 ? 'K' : 'H₂O');
+    tctx.fillStyle = 'rgba(255,209,102,0.7)';
+    tctx.fillText(label, x, ay + 12);
+  }
+
+  // Curve.
+  tctx.strokeStyle = '#5bc0eb';
+  tctx.lineWidth = 1.8;
+  tctx.beginPath();
+  for (let i = 0; i <= ATMOSPHERE.nBins; i += 1) {
+    const px = xToPx(lams[i]), py = yToPx(depths[i]);
+    if (i === 0) tctx.moveTo(px, py); else tctx.lineTo(px, py);
+  }
+  tctx.stroke();
+
+  // Annotation strip.
+  tctx.fillStyle = 'rgba(255,255,255,0.85)';
+  tctx.textAlign = 'left';
+  tctx.font = '11px ui-monospace, monospace';
+  tctx.fillText(`atmosphere scale: H_atm = ${(H_atm).toFixed(3)} Rs    bands: Na D 589, K 770, H₂O 950 / 1380 / 1900 nm`, ax, ay + ah + 28);
+}
+
 function bootSync() {
   if (CAPTURE_NAME) {
     sim.t = CAPTURE_FRAC * sim.period;
     camera.setAzimuthDeg(CAPTURE_FRAC * 18);
     rebuildCurve();
     frame();
+    drawTransmissionSpectrum();
     if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
@@ -197,6 +320,8 @@ function bootSync() {
   }
   rebuildCurve();
   frame();
+  drawTransmissionSpectrum();
+  setInterval(drawTransmissionSpectrum, 250);
 }
 
 window.__physicsCheck = async () => {

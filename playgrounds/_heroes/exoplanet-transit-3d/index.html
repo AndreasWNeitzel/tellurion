@@ -10,6 +10,7 @@
   .pg-figure { max-width: 1100px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 4px; }
   canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; cursor: crosshair; }
+  canvas#tspectrum { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
   .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(2,3,9,0.62); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 15ch 13ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
   .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
   figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
@@ -28,6 +29,7 @@
   <canvas id="stage" width="1100" height="500" tabindex="0"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
   <canvas id="plot" width="1100" height="220" aria-label="Light curve: stellar flux versus orbital phase."></canvas>
+  <canvas id="tspectrum" width="1100" height="200" aria-label="Transmission spectrum: transit depth versus wavelength."></canvas>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Star + planet on a Keplerian orbit; light curve from intensity-weighted overlap of a quadratic limb-darkened disc and the planet's circular shadow. Source: Mandel and Agol, ApJ 580 (2002) L171.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>
