@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quasar Relativistic Jet</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 920px; } .pg-figure canvas { width: 100%; height: auto; background: #03040a; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Quasar relativistic jet</h1>
+<p><strong>What you are seeing:</strong> a supermassive black hole with a glowing accretion disk and a bipolar relativistic jet at bulk Lorentz factor $\Gamma$. The viewer angle $\theta_{\rm obs}$ from the jet axis controls Doppler boosting: the approaching side is amplified by $\delta_+^{3-\alpha}$ and the receding side dimmed by $\delta_-^{3-\alpha}$. Source: Rybicki and Lightman, <em>Radiative Processes in Astrophysics</em>, Section 4.8 (<code>rybicki-lightman</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="560"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">Gamma:</span><span class="value" id="readout-gamma">--</span>
+  <span class="label">beta = v/c:</span><span class="value" id="readout-beta">--</span>
+  <span class="label">theta_obs:</span><span class="value" id="readout-theta">--</span>
+  <span class="label">flux ratio (jet / cj):</span><span class="value" id="readout-ratio">--</span>
+  <span class="label">beta_app (jet):</span><span class="value" id="readout-bapp">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Doppler-boosted jet pair from a SMBH; viewing-angle sweep shows blazar (theta_obs ~ 0) vs radio galaxy (theta_obs ~ 90 deg) regimes. Method: delta_pm = 1/(Gamma (1 -+ beta cos theta)), flux ~ delta^(3 - alpha). Source: Rybicki and Lightman, Section 4.8.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">Lorentz Gamma</span><input aria-label="gamma" type="range" id="slider-gamma" min="1.2" max="20" step="0.1" value="10"><span class="value" id="value-gamma">10.0</span></div>
+<div class="row"><span class="label">theta_obs (deg)</span><input aria-label="theta" type="range" id="slider-theta" min="0" max="90" step="0.5" value="20"><span class="value" id="value-theta">20.0</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row"><span class="label">show counter-jet</span><select aria-label="cj" id="select-cj"><option value="1" selected>show counter-jet</option><option value="0">hide counter-jet</option></select><span class="value" id="value-cj">on</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
