@@ -18,39 +18,41 @@ import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
 export const L = 32;
 
-export function createBTW({ L_size = L, seed = DEFAULT_SEED } = {}) {
+export function createBTW({ L_size = L, seed = DEFAULT_SEED, zc = 4 } = {}) {
   const grid = new Int16Array(L_size * L_size);
   return {
     L: L_size,
     grid,
     rng: makeRng(seed),
     t: 0,
-    avalanches: [],   // array of avalanche sizes since last reset
+    zc,                 // toppling threshold; defaults to 4 (square lattice)
+    avalanches: [],     // array of avalanche sizes since last reset
     lastAvalanche: 0,
-    lastTopples: [],  // (x, y, count) cells that toppled during last avalanche
+    lastTopples: [],
   };
 }
 
-// Drop one grain and topple to stability.
+// Drop one grain and topple to stability. Threshold zc is read from
+// the state so the user can switch between 3 (sub-critical, fast) and
+// 6 (super-critical, large avalanches) without rebuilding.
 export function stepBTW(s) {
   const idx = Math.floor(s.rng() * s.L * s.L);
   s.grid[idx] += 1;
+  const zc = s.zc || 4;
   let toppleCount = 0;
-  const touched = new Set();
   const queue = [idx];
   while (queue.length > 0) {
     const i = queue.pop();
-    if (s.grid[i] < 4) continue;
-    s.grid[i] -= 4;
+    if (s.grid[i] < zc) continue;
+    s.grid[i] -= zc;
     toppleCount += 1;
-    touched.add(i);
     const x = i % s.L, y = Math.floor(i / s.L);
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const nx = x + dx, ny = y + dy;
-      if (nx < 0 || nx >= s.L || ny < 0 || ny >= s.L) continue;  // boundary loss
+      if (nx < 0 || nx >= s.L || ny < 0 || ny >= s.L) continue;
       const ni = ny * s.L + nx;
       s.grid[ni] += 1;
-      if (s.grid[ni] >= 4) queue.push(ni);
+      if (s.grid[ni] >= zc) queue.push(ni);
     }
   }
   s.avalanches.push(toppleCount);

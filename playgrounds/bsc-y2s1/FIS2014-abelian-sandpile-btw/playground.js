@@ -57,28 +57,66 @@ function drawAll() {
   const padL = 30, padR = 30, gap = 30;
   const panelGap = 30;
   const panelTop = 60;
-  // Square lattice panel
+  // ISOMETRIC 3D rendering of the sandpile: each lattice cell is a
+  // tower whose height equals the local grain count. The user sees the
+  // pile literally build up and avalanche down. Reference toppling
+  // threshold zc is read from state.sim.
   const latticeSize = Math.min(360, H - panelTop - 80);
   const latticeX = padL;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(latticeX, panelTop, latticeSize, latticeSize);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(latticeX + 0.5, panelTop + 0.5, latticeSize - 1, latticeSize - 1);
-  const cellSize = latticeSize / L;
-  for (let y = 0; y < L; y += 1) {
-    for (let x = 0; x < L; x += 1) {
-      const v = state.sim.grid[y * L + x];
-      const r = 40 + v * 60;
-      const g = 40 + v * 30;
-      const b = 50 + v * 50;
+  const zc = state.sim.zc || 4;
+  // Isometric projection: world (i, j, h) -> screen (sx, sy)
+  // sx = ax * (i - j),  sy = ay * (i + j) - hz * h
+  // with ax, ay, hz chosen so the projected square footprint fits the
+  // panel and tall towers can extend up to height ~ 3 zc.
+  const cells = L;
+  const ax = (latticeSize * 0.46) / cells;
+  const ay = ax * 0.55;
+  const hz = ay * 0.85;
+  const ox = latticeX + latticeSize / 2;
+  const oy = panelTop + latticeSize * 0.30;
+  // Render from BACK (large i + j) to FRONT (small i + j) so closer
+  // towers correctly occlude distant ones.
+  for (let s = 2 * (cells - 1); s >= 0; s -= 1) {
+    for (let j = Math.max(0, s - (cells - 1)); j <= Math.min(cells - 1, s); j += 1) {
+      const i = s - j;
+      const h = state.sim.grid[j * L + i];
+      if (h <= 0) continue;
+      const sx = ox + ax * (i - j);
+      const sy = oy + ay * (i + j) - hz * h;
+      // Tower top diamond
+      const A = [sx, sy], B = [sx + ax, sy + ay], C = [sx, sy + 2 * ay], D = [sx - ax, sy + ay];
+      // Hue: green for sub-threshold (h < zc - 1), yellow approaching, red at threshold
+      const ratio = Math.min(1, h / zc);
+      const r = Math.round(70 + 180 * ratio);
+      const g = Math.round(200 - 100 * ratio);
+      const b = Math.round(110 - 60 * ratio);
+      // Right face
+      ctx.fillStyle = `rgb(${Math.round(r * 0.7)}, ${Math.round(g * 0.7)}, ${Math.round(b * 0.7)})`;
+      ctx.beginPath();
+      ctx.moveTo(B[0], B[1]); ctx.lineTo(C[0], C[1]);
+      ctx.lineTo(C[0], C[1] + hz * h); ctx.lineTo(B[0], B[1] + hz * h);
+      ctx.closePath(); ctx.fill();
+      // Left face
+      ctx.fillStyle = `rgb(${Math.round(r * 0.5)}, ${Math.round(g * 0.5)}, ${Math.round(b * 0.5)})`;
+      ctx.beginPath();
+      ctx.moveTo(D[0], D[1]); ctx.lineTo(C[0], C[1]);
+      ctx.lineTo(C[0], C[1] + hz * h); ctx.lineTo(D[0], D[1] + hz * h);
+      ctx.closePath(); ctx.fill();
+      // Top diamond
       ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-      ctx.fillRect(latticeX + x * cellSize, panelTop + y * cellSize, cellSize, cellSize);
+      ctx.beginPath();
+      ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.lineTo(C[0], C[1]); ctx.lineTo(D[0], D[1]);
+      ctx.closePath(); ctx.fill();
     }
   }
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('lattice (heights 0..3)', latticeX + 6, panelTop - 6);
+  ctx.fillText(`sandpile heights, toppling threshold z_c = ${zc}`, latticeX + 6, panelTop - 6);
 
   // Histogram panel
   const histX = latticeX + latticeSize + panelGap;
@@ -137,6 +175,18 @@ function tickN(n) {
 }
 
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
+// z_c slider: update toppling threshold and rebuild the pile so the
+// new threshold takes effect from a clean state. Lower z_c gives
+// faster cascades; higher z_c gives rarer but larger avalanches.
+const sliderZc = document.getElementById('slider-zc'), valueZc = document.getElementById('value-zc');
+if (sliderZc) {
+  sliderZc.addEventListener('input', () => {
+    const zc = parseInt(sliderZc.value, 10);
+    valueZc.textContent = String(zc);
+    state.sim = createBTW({ L_size: L, seed: SEED, zc });
+    drawAll();
+  });
+}
 btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
