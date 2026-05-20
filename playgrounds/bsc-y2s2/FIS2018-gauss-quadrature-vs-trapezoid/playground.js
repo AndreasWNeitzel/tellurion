@@ -74,42 +74,82 @@ function drawAll() {
   yLo -= ymarg; yHi += ymarg;
   function xP(x) { return padL + 4 + (PW - 8) * (x + 1) / 2; }
   function yP(y) { return topY + topH - 4 - (topH - 12) * (y - yLo) / (yHi - yLo); }
-  // Function curve
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
   const NPTS = PW - 8;
+
+  // Trapezoid panels shaded (so the user SEES the linear-interpolation
+  // approximation that gives the trap rule its name).
+  const trH = 2 / state.n;
+  ctx.fillStyle = 'rgba(214, 138, 105, 0.18)';
+  ctx.strokeStyle = 'rgba(214, 138, 105, 0.55)';
+  ctx.lineWidth = 1.0;
+  for (let k = 0; k < state.n; k += 1) {
+    const xL = -1 + k * trH;
+    const xR = -1 + (k + 1) * trH;
+    const yL = fn(xL), yR = fn(xR);
+    const yBase = Math.max(yLo, 0);
+    ctx.beginPath();
+    ctx.moveTo(xP(xL), yP(yBase));
+    ctx.lineTo(xP(xL), yP(yL));
+    ctx.lineTo(xP(xR), yP(yR));
+    ctx.lineTo(xP(xR), yP(yBase));
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  }
+
+  // GL bars: width 2 / n centred on each node, height set to f(node),
+  // alpha proportional to weight (so the eye reads which nodes
+  // contribute most to the integral).
+  const glN = GL[state.n];
+  let wMax = 0; for (const w of glN.weights) if (w > wMax) wMax = w;
+  ctx.strokeStyle = 'rgba(127, 177, 216, 0.55)';
+  for (let k = 0; k < glN.nodes.length; k += 1) {
+    const xc = glN.nodes[k], yc = fn(xc), wc = glN.weights[k];
+    const halfW = (PW - 8) / (NPTS - 1) * 1.4;
+    const yBase = Math.max(yLo, 0);
+    ctx.fillStyle = `rgba(127, 177, 216, ${0.12 + 0.32 * wc / wMax})`;
+    ctx.beginPath();
+    ctx.rect(xP(xc) - halfW, Math.min(yP(yc), yP(yBase)), 2 * halfW, Math.abs(yP(yc) - yP(yBase)));
+    ctx.fill(); ctx.stroke();
+  }
+
+  // Function curve drawn LAST so it sits cleanly on top.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
   for (let i = 0; i < NPTS; i += 1) {
     const x = -1 + 2 * i / (NPTS - 1);
     const y = fn(x);
     if (i === 0) ctx.moveTo(xP(x), yP(y)); else ctx.lineTo(xP(x), yP(y));
   }
   ctx.stroke();
-  // Trapezoid nodes (orange dots, on x-axis)
-  const trH = 2 / state.n;
+  // Trapezoid node dots and GL node dots on top of the shading.
   for (let k = 0; k <= state.n; k += 1) {
     const xt = -1 + k * trH;
     ctx.fillStyle = tok.accentWarm;
-    ctx.beginPath();
-    ctx.arc(xP(xt), yP(fn(xt)), 4, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(xP(xt), yP(fn(xt)), 3.5, 0, Math.PI * 2); ctx.fill();
   }
-  // GL nodes (cyan)
-  for (const xc of GL[state.n].nodes) {
+  for (const xc of glN.nodes) {
     ctx.fillStyle = tok.accentCool;
-    ctx.beginPath();
-    ctx.arc(xP(xc), yP(fn(xc)), 4, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(xP(xc), yP(fn(xc)), 3.5, 0, Math.PI * 2); ctx.fill();
   }
-  // labels
+
+  // Physics-context caption per function.
+  const PHYSICS = {
+    'cos':       'cos x: simple-harmonic-oscillator energy integral',
+    'gaussian':  'exp(-4 x^2): Maxwell-Boltzmann / partition-function kernel',
+    'runge':     '1 / (1 + 25 x^2): Runge phenomenon (polynomial-fit pitfall)',
+    'sqrt-abs':  'sqrt|x|: integrand with an algebraic singularity at 0',
+  };
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.fillText(`f(x)`, padL + 6, topY + 14);
   ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('trapezoid', padL + 60, topY + 14);
+  ctx.fillText('trapezoid panels', padL + 60, topY + 14);
   ctx.fillStyle = tok.accentCool;
-  ctx.fillText('Gauss-Legendre', padL + 160, topY + 14);
+  ctx.fillText('Gauss-Legendre bars (alpha ~ weight)', padL + 200, topY + 14);
+  ctx.fillStyle = 'rgba(220, 220, 220, 0.70)';
+  ctx.fillText(PHYSICS[fnKey] ?? '', padL + 6, topY + topH - 8);
 
   // Bottom: convergence
   const botY = topY + topH + 30, botH = H - botY - 80;
