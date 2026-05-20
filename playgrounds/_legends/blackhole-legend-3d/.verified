@@ -1,1 +1,1 @@
-2026-05-20: invariants 18/18, smoke OK, visual 5/5 x3 (8 modes; Luminet-style disk; prograde-vs-retrograde frame-drag; supersedes 4 BH heroes)
+2026-05-20: invariants 18/18, smoke OK, visual 5/5 x3 (8 modes; WebGL2 ray-traced lensed disk recycled from blackhole-geodesics-3d; orbit camera drag-to-rotate + scroll-to-zoom; mode-aware control visibility; twisting Lense-Thirring grid in frame-drag mode; ringdown rewrite with large oscillating bell + strain h(t) panel + GW150914 fit label; supersedes 4 BH heroes)
