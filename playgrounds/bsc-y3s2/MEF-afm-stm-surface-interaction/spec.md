@@ -32,35 +32,76 @@ ferocious distance sensitivity is what gives scanning-probe microscopes
 their atomic resolution. The playground shows both contrast mechanisms
 versus tip height.
 
-### STM: exponential tunneling current
+### STM: exponential tunnelling current
 
-A bias voltage drives electrons to tunnel across the vacuum gap of
-width $d$. The barrier is classically forbidden, so the current decays
-exponentially with gap:
+A bias voltage $V$ drives electrons to tunnel across the vacuum gap
+of width $d$. The vacuum is a classically forbidden barrier of
+height $\phi$ (the sample work function); inside it the
+wavefunction decays as $\psi(z) \propto e^{-\kappa z}$ with
 
-$$I \;\propto\; V\,e^{-2\kappa d},
-  \qquad \kappa = \frac{\sqrt{2m\phi}}{\hbar},$$
+$$\kappa = \frac{\sqrt{2 m_e \phi}}{\hbar}.$$
 
-with $\phi$ the work function. For a typical $\phi$, the current
-changes by about a factor of 10 per angstrom of height. That single
-exponential is why STM resolves single atoms: a one-atom bump under the
-tip swamps everything else in the current.
+The transmission probability through a barrier of width $d$ is then
+$T \propto e^{-2\kappa d}$, so the tunnelling current is
+
+$$\boxed{\;I(d) \;\propto\; V\,e^{-2\kappa d}.\;}$$
+
+For a typical metal work function $\phi \approx 4.5\,\mathrm{eV}$,
+$2\kappa \approx 2.2\,\mathrm{\AA^{-1}}$, so the current changes
+by about a factor of $e^{2.2} \approx 9$ per angstrom of height.
+That single exponential is why STM resolves single atoms: a one-
+atom bump under the tip multiplies the current by roughly 10, which
+swamps every other contrast mechanism.
+
+A more detailed treatment due to Tersoff and Hamann (1985) gives
+
+$$I \propto V\,\rho_s(E_F, \vec r_{\rm tip})\,e^{-2\kappa d},$$
+
+where $\rho_s(E_F, \vec r_{\rm tip})$ is the sample's local density
+of states at the Fermi level at the tip position. So the STM image
+is the contour of constant LDOS, not literally of the topography.
 
 ### AFM: the tip-sample force
 
-When tunneling is not available (insulators), atomic-force microscopy
-measures the mechanical interaction, a Lennard-Jones-like force,
-long-range van der Waals attraction turning to hard Pauli repulsion on
-contact:
+When tunnelling is not available (insulators) the atomic-force
+microscope measures the mechanical interaction directly. A common
+model is the Lennard-Jones (1924) pair potential between tip and
+sample atoms,
 
-$$F(d) \;\propto\; \left(\frac{\sigma}{d}\right)^{13}
-  - \left(\frac{\sigma}{d}\right)^{7}.$$
+$$\boxed{\;U_{\rm LJ}(d) = 4\,\epsilon\,\left[\left(\frac{\sigma}{d}\right)^{12}
+       - \left(\frac{\sigma}{d}\right)^{6}\right],\;}$$
 
-A cantilever senses this; in tapping/non-contact mode the resonance
-frequency shifts with the force gradient $dF/dd$, again steeply
-distance-dependent. The playground sweeps the tip height and shows the
-tunneling current and the force/force-gradient, so the exponential and
-the LJ well are explicit.
+with force $F(d) = -dU_{\rm LJ}/dd$:
+
+$$F(d) = \frac{24\,\epsilon}{\sigma}\,\left[2\,\left(\frac{\sigma}{d}\right)^{13}
+        - \left(\frac{\sigma}{d}\right)^{7}\right].$$
+
+The $r^{-6}$ term is the long-range van der Waals (London dispersion)
+attraction; the $r^{-12}$ term is the hard Pauli repulsion on contact.
+The force passes through zero at $d = \sigma\,2^{1/6}$ and has its
+minimum (deepest attraction) at $d = \sigma\,2^{1/6}$ as well.
+
+In tapping or non-contact AFM the cantilever oscillates at its
+mechanical resonance $\omega_0$; the resonance frequency shifts with
+the LOCAL force gradient $k_{\rm ts} = -dF/dd$,
+
+$$\Delta\omega \approx -\frac{\omega_0}{2 k}\,k_{\rm ts},$$
+
+where $k$ is the cantilever stiffness. So AFM measures $dF/dd$ at
+sub-angstrom resolution.
+
+### Symbols, at a glance
+
+- $V$, tip-sample bias voltage (V).
+- $d$, tip-sample gap (m or angstroms).
+- $\phi$, sample work function (eV).
+- $m_e$, electron mass; $\hbar$, reduced Planck constant.
+- $\kappa = \sqrt{2 m_e \phi}/\hbar$, the decay length inside the
+  vacuum barrier (about $1.1\,\mathrm{\AA^{-1}}$ for typical $\phi$).
+- $\epsilon$, $\sigma$, the Lennard-Jones depth and length scale
+  (set by the chemistry of the tip and sample atoms).
+- $F$, tip-sample force; $k_{\rm ts} = -dF/dd$ the force gradient.
+- $\omega_0$, $k$, cantilever resonance frequency and stiffness.
 
 ### Things to try
 
@@ -71,11 +112,18 @@ the LJ well are explicit.
 - Compare the two: STM needs a conductor; AFM works on anything but
   reads force, not current.
 
-### Where this comes from
+### Bibliographic origin
 
-The exponential tunneling current and the Lennard-Jones tip-sample
-force follow the scanning-probe treatment in Binnig and Rohrer's STM
-work (1982) and Sarid, *Scanning Force Microscopy*.
+STM was invented at IBM Zurich: Binnig and Rohrer, *Helv. Phys. Acta*
+**55** (1982) 726, with the first atomic-resolution image of Si(111)
+in Binnig, Rohrer, Gerber and Weibel, *Phys. Rev. Lett.* **50** (1983)
+120 (1986 Nobel Prize). The LDOS interpretation: Tersoff and Hamann,
+*Phys. Rev. B* **31** (1985) 805. AFM: Binnig, Quate and Gerber,
+*Phys. Rev. Lett.* **56** (1986) 930. Lennard-Jones potential:
+Lennard-Jones, *Proc. R. Soc. A* **106** (1924) 463. Modern textbook
+treatments: Wiesendanger, *Scanning Probe Microscopy and
+Spectroscopy* (Cambridge 1994), Ch. 1, 2; Sarid, *Scanning Force
+Microscopy* (Oxford 1991).
 
 ## Physical setup
 
