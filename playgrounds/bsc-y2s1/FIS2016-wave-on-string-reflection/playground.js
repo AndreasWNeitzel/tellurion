@@ -2,7 +2,7 @@
 // Two parallel strings with fixed vs free boundaries.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { createString, stepString, N, DX, L_X, DT } from './sim.js';
+import { createString, stepString, N, DX, L_X, DT, totalEnergy, injectPulse } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -19,11 +19,18 @@ const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
 
+// User feedback: 'default speed is too fast and this is far too
+// simplistic to be anywhere near hero-grade'. Default speed is now 1
+// (was 3); the playground also tracks energy as a live invariant,
+// supports click-to-pluck pulse injection on either string panel,
+// and labels the boundary reaction so the inversion-vs-preservation
+// is unmistakable.
 const state = {
-  speed: 3,
+  speed: 1,
   fixed: null,
   free: null,
   playing: !DETERMINISTIC,
+  E0: 0,    // initial energy for the live drift readout
 };
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
@@ -35,6 +42,7 @@ const tok = {
 function rebuild() {
   state.fixed = createString({ bc: 'fixed' });
   state.free  = createString({ bc: 'free' });
+  state.E0 = totalEnergy(state.fixed);
 }
 
 function drawString(s, panelY, panelH, color, label) {
@@ -82,15 +90,33 @@ function drawAll() {
   ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
+  const E1 = totalEnergy(state.fixed), E2 = totalEnergy(state.free);
+  const drift = Math.abs((E1 - state.E0) / Math.max(1e-9, state.E0));
   ctx.fillText(`t = ${t.toFixed(2)} s   c = 1   L = ${L_X}   c dt / dx = ${(1 * DT / DX).toFixed(2)}`, 30, 22);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`Watch for the pulse to invert (fixed) vs preserve (free) when it hits the right boundary.`, 30, 40);
+  ctx.fillText(`E_fixed = ${E1.toFixed(3)}   E_free = ${E2.toFixed(3)}   drift = ${drift.toExponential(1)}`, 30, 40);
+  ctx.fillStyle = 'rgba(255, 215, 130, 0.85)';
+  ctx.fillText(`Click either string to launch a new pulse. Fixed end inverts the pulse; free end preserves it.`, 30, 58);
 
   // Two stacked panels
-  const padT = 60, padB = 60;
+  const padT = 78, padB = 60;
   const panelH = (H - padT - padB) / 2 - 10;
-  drawString(state.fixed, padT,             panelH, tok.accentCool, 'fixed-end (y = 0 boundary)');
-  drawString(state.free,  padT + panelH + 20, panelH, tok.accentWarm, 'free-end (y_x = 0 boundary)');
+  drawString(state.fixed, padT,             panelH, tok.accentCool, 'fixed-end (y = 0 at both boundaries; inverting reflection)');
+  drawString(state.free,  padT + panelH + 20, panelH, tok.accentWarm, 'free-end (y_x = 0 at both boundaries; preserving reflection)');
+
+  // Highlight the right boundary clamp/ring on both panels so the
+  // physical difference (clamp vs slider) is visible.
+  const padL = 30, panelW = W - padL - 30;
+  // fixed-end right boundary: black clamp anchored at y = 0
+  ctx.fillStyle = 'rgba(40, 40, 50, 0.95)';
+  ctx.fillRect(padL + panelW - 9, padT + panelH / 2 - 12, 10, 24);
+  // free-end right boundary: free ring at the current y(L, t)
+  const yEnd = state.free.y[N - 1];
+  const ringY = padT + panelH + 20 + panelH / 2 - yEnd * (panelH * 0.4);
+  ctx.strokeStyle = 'rgba(255, 215, 130, 0.95)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(padL + panelW - 4, ringY, 6, 0, 6.28); ctx.stroke();
+  ctx.fillStyle = 'rgba(255, 215, 130, 0.85)'; ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillText('slider (free)', padL + panelW - 60, ringY + 18);
 }
 
 function tickN(n) {
@@ -102,6 +128,23 @@ function tickN(n) {
 
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
 btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
+
+// Click-to-pluck: a click anywhere on the canvas launches a new
+// Gaussian pulse at that fractional x position on BOTH strings
+// (so the user can compare the same pulse on both boundary conditions
+// frame-by-frame). Per user feedback the playground needs richer
+// interactivity than the prior pause/reset/speed.
+canvas.addEventListener('click', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const padL = 30, panelW = W - padL - 30;
+  const x = e.clientX - r.left;
+  const frac = Math.max(0.05, Math.min(0.95, (x - padL) / panelW));
+  const x0 = frac * L_X;
+  injectPulse(state.fixed, x0);
+  injectPulse(state.free, x0);
+  state.E0 = totalEnergy(state.fixed);
+  drawAll();
+});
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';

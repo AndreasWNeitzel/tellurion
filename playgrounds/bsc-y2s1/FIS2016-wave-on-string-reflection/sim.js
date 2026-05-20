@@ -58,3 +58,32 @@ export function peakX(s) {
   }
   return { x: idx * DX, y: s.y[idx] };
 }
+
+// Total wave energy on the string (kinetic + elastic) in arbitrary
+// units. The conserved quantity for an ideal wave equation with
+// reflecting boundaries; the user reads it as a live invariant.
+export function totalEnergy(s) {
+  let E = 0;
+  for (let i = 1; i < N - 1; i += 1) {
+    // Kinetic from finite-difference time derivative
+    const vt = (s.y[i] - s.yOld[i]) / DT;
+    E += 0.5 * vt * vt;
+    // Elastic from c^2 (y_x)^2 (use forward difference)
+    const yx = (s.y[i + 1] - s.y[i]) / DX;
+    E += 0.5 * C * C * yx * yx;
+  }
+  return E * DX;
+}
+
+// Inject a Gaussian pulse at the user-clicked position x0 with
+// configurable amplitude. Sets y and yOld so the pulse moves
+// rightward (toward +x).
+export function injectPulse(s, x0, amplitude = 1.0, sigma = 0.12) {
+  for (let i = 0; i < N; i += 1) {
+    const x = i * DX;
+    s.y[i] = amplitude * Math.exp(-((x - x0) ** 2) / (2 * sigma * sigma));
+    const x_prev = x + C * DT;
+    s.yOld[i] = amplitude * Math.exp(-((x_prev - x0) ** 2) / (2 * sigma * sigma));
+  }
+  s.t = 0; s.nSteps = 0;
+}
