@@ -54,6 +54,17 @@ function build(deterministic) {
 
 function advance(dt) {
   step(s, dt);
+  // Detect when ALL vortices have drifted out of view (the user
+  // complaint was "dipole/quadrupole leave screen") and auto-restart
+  // the simulation with the same preset so the pattern stays visible
+  // indefinitely. Avoids breaking the Hamiltonian by torus-wrapping
+  // the vortex positions, which would corrupt the 1/r interaction.
+  let allOut = true;
+  for (let i = 0; i < s.n; i += 1) {
+    if (s.x[i] >= -VIEW * 1.2 && s.x[i] <= VIEW * 1.2
+        && s.y[i] >= -VIEW * 1.2 && s.y[i] <= VIEW * 1.2) { allOut = false; break; }
+  }
+  if (allOut) { build(false); }
   for (const tr of tracers) {
     const [vx, vy] = inducedVelocity(s, tr[0], tr[1]);
     tr[0] += vx * dt; tr[1] += vy * dt;
