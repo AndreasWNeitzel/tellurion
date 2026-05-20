@@ -32,40 +32,88 @@ arms, the same way model galaxies do.
 
 ### The physics
 
-Each particle obeys Newtonian gravity from the collective potential:
+Each particle obeys Newtonian gravity sourced by the collective mass
+distribution:
 
-$$m_i\,\ddot{\mathbf x}_i = -\nabla\phi(\mathbf x_i),
-  \qquad \nabla^2\phi = 4\pi G\rho.$$
+$$\boxed{\;m_i\,\ddot{\mathbf x}_i = -\nabla\phi(\mathbf x_i),
+       \qquad \nabla^2 \phi = 4 \pi G \rho.\;}$$
 
-Solving Poisson's equation for every particle pair is the expensive
-part.
+A direct sum over pairs costs $O(N^2)$ per step; for $N = 1500$ that
+is 2.25 million force evaluations every step. The particle-mesh
+method drops the cost to $O(N + N_g \log N_g)$ where $N_g$ is the
+grid resolution.
 
-### The particle-mesh method
+### The particle-mesh algorithm
 
-Instead of summing pairs, four cheap steps:
+Four cheap steps per timestep:
 
-1. Deposit each particle's mass onto a grid by cloud-in-cell (each
-   particle smeared over its 4 nearest cells).
-2. Solve $\nabla^2\phi = 4\pi G\rho$ on the grid in one shot with
-   FFTs (Poisson is trivial in Fourier space: $\hat\phi_k =
-   -4\pi G\hat\rho_k / k^2$).
-3. Finite-difference the grid potential to get the force.
-4. Interpolate the force back to the particles and leapfrog them
-   forward.
+1. *Mass deposition* (cloud-in-cell). For each particle at position
+   $\mathbf x_i$, distribute its mass to the four nearest grid nodes
+   by bilinear weights:
 
-Cost scales as $N + N_\text{grid}\log N_\text{grid}$ instead of
-$N^2$, which is why cosmological simulations use this scheme for
-billions of particles. The trade-off is resolution: forces are softened
-at the grid scale.
+   $$\rho_g = \frac{1}{\Delta x^2}\,\sum_i m_i\,W(\mathbf x_i - \mathbf x_g),$$
 
-### Why spiral arms appear
+   where $W$ is the CIC kernel $W(\mathbf r) = (1 - |r_x|/\Delta x)(1 - |r_y|/\Delta x)$
+   for $|r| < \Delta x$ and zero otherwise.
 
-A cold, rotating, self-gravitating disk is not perfectly stable. Small
-density ripples get sheared by differential rotation and amplified by
-self-gravity (swing amplification), so the disk spontaneously grows
-transient trailing spiral arms, the same mechanism invoked for real
-galactic spirals. The playground evolves the disk and you watch arms
-form, wind up, and dissolve.
+2. *Solve Poisson by FFT*. In Fourier space $\nabla^2 \to -k^2$, so
+
+   $$\hat\phi(\mathbf k) = -\,\frac{4 \pi G\,\hat\rho(\mathbf k)}{k^2},
+   \qquad k = |\mathbf k|.$$
+
+   The $k = 0$ mode is set to zero (the mean density does not
+   gravitate in a periodic box). One forward FFT + one division by
+   $k^2$ + one inverse FFT and the potential is everywhere on the
+   grid.
+
+3. *Differentiate*. The gravitational acceleration is the gradient,
+   computed by centred finite differences:
+
+   $$\mathbf g_g = -\nabla\phi_g \approx -\frac{1}{2\,\Delta x}
+   \left[\phi_{g+\hat x} - \phi_{g-\hat x},\;
+         \phi_{g+\hat y} - \phi_{g-\hat y}\right].$$
+
+4. *Interpolate back* to each particle (CIC again, same weights), then
+   advance positions with a kick-drift-kick leapfrog:
+
+   $$\mathbf v^{n+1/2} = \mathbf v^n + \tfrac{1}{2}\,\Delta t\,\mathbf g^n,\quad
+   \mathbf x^{n+1} = \mathbf x^n + \Delta t\,\mathbf v^{n+1/2},\quad
+   \mathbf v^{n+1} = \mathbf v^{n+1/2} + \tfrac{1}{2}\,\Delta t\,\mathbf g^{n+1}.$$
+
+The leapfrog is second-order accurate and symplectic, so energy
+drift is bounded over long integrations.
+
+### Why a cold disk grows spiral arms: Toomre's Q and swing amplification
+
+The local stability of a thin self-gravitating disk against axisymmetric
+perturbations is set by the Toomre (1964) parameter
+
+$$\boxed{\;Q = \frac{\sigma_R\,\kappa}{3.36\,G\,\Sigma},\;}$$
+
+where $\sigma_R$ is the radial velocity dispersion, $\kappa$ the
+epicyclic frequency, $\Sigma$ the surface mass density, and $G$
+Newton's constant. $Q < 1$ collapses; $Q > 1$ is axisymmetrically
+stable. But for $1 < Q \lesssim 2$ the disk is still NON-axisymmetrically
+unstable: trailing density perturbations get sheared into a tighter
+pitch, and during the brief window when the pattern is sheared in
+phase with self-gravitational response, the amplitude is boosted by
+factors of 30 to 100 (Goldreich and Lynden-Bell 1965, Toomre 1981).
+This is *swing amplification*. The arms are transient, recurrent,
+and "flocculent" rather than rigid grand-design patterns.
+
+### Symbols, at a glance
+
+- $\mathbf x_i$, $\mathbf v_i$, $m_i$, particle position, velocity,
+  mass.
+- $\rho(\mathbf x, t)$, mass density; $\phi(\mathbf x, t)$, gravitational
+  potential.
+- $G = 6.674 \times 10^{-11}\,\mathrm{m^3\,kg^{-1}\,s^{-2}}$.
+- $\Delta x$, grid spacing; $\Delta t$, timestep.
+- $\Sigma$, disk surface density (mass per area).
+- $\sigma_R$, radial velocity dispersion.
+- $\kappa = \sqrt{R\,d\Omega^2/dR + 4\Omega^2}$, the epicyclic
+  frequency, set by the rotation curve $\Omega(R)$.
+- $Q$, Toomre stability parameter.
 
 ### Things to try
 
@@ -75,12 +123,17 @@ form, wind up, and dissolve.
   on fixed tracks.
 - Recall the cost: this is N-body gravity made affordable by the grid.
 
-### Where this comes from
+### Bibliographic origin
 
-The particle-mesh Poisson solve follows Hockney and Eastwood,
-*Computer Simulation Using Particles*; the swing-amplification origin
-of spiral arms follows Binney and Tremaine, *Galactic Dynamics*, 2nd
-ed.
+Particle-mesh + leapfrog with PM Poisson: Hockney and Eastwood,
+*Computer Simulation Using Particles* (2nd ed., CRC 1988), Ch. 5, 6.
+The Toomre Q criterion: Toomre, *Astrophys. J.* **139** (1964) 1217.
+Swing amplification: Goldreich and Lynden-Bell, *Mon. Not. R. Astron.
+Soc.* **130** (1965) 125, and the modern treatment in Toomre, in
+*The Structure and Evolution of Normal Galaxies*, ed. Fall and
+Lynden-Bell (Cambridge 1981), 111. Modern galactic-dynamics textbook:
+Binney and Tremaine, *Galactic Dynamics* (2nd ed., Princeton 2008),
+Ch. 6 (instabilities), Sec. 3.2 (Poisson solver).
 
 ## Physical setup
 
