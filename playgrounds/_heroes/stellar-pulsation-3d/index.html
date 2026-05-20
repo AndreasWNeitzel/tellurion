@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Stellar Pulsation 3D</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas:active { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Stellar pulsation modes in 3D</h1>
+<p><strong>What you are seeing:</strong> a 3D star whose surface oscillates in the angular pattern of the spherical harmonic $Y_l^m(\theta, \phi)$, animated by $\cos(\omega t)$. Pick $(l, m)$ and watch the iconic asteroseismic mode patterns. Drag to orbit, slider to scrub time. Source: Aerts et al., <em>Asteroseismology</em>, Ch. 3 (<code>aerts-asteroseism</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="620"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">(l, m):</span><span class="value" id="readout-lm">(2, 2)</span>
+  <span class="label">phase:</span><span class="value" id="readout-phase">0</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> 3D star surface displaced by $Y_l^m(\theta, \phi)\cos(\omega t)$, colored by signed radial displacement. <em>Method:</em> Legendre-recurrence spherical harmonic, Canvas2D perspective rendering of the displaced lat-lon mesh. <em>Source:</em> Aerts et al., Asteroseismology, Ch. 3.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">degree ℓ</span><input aria-label="degree l" type="range" id="slider-l" min="1" max="6" step="1" value="2"><span class="value" id="value-l">2</span></div>
+<div class="row"><span class="label">order m</span><input aria-label="order m" type="range" id="slider-m" min="-6" max="6" step="1" value="2"><span class="value" id="value-m">2</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="1"><span class="value" id="value-speed">1</span></div>
+<div class="row"><span class="label">amplitude</span><input aria-label="amplitude" type="range" id="slider-amp" min="0.05" max="0.30" step="0.01" value="0.16"><span class="value" id="value-amp">0.16</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
