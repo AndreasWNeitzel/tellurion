@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Slit Experiment Legend</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+.pg-figure { max-width: 1000px; } .pg-figure canvas { width: 100%; height: auto; background: #04060c; }
+.pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+.pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 10ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+.pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+.pg-controls input[type="range"], .pg-controls select { width: 100%; }
+.pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+.legend-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; background: linear-gradient(90deg, #b9d8ff, #ff9ed7); color: #000; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; margin-left: 8px; vertical-align: 2px; }
+</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Slit experiment<span class="legend-badge">LEGEND</span></h1>
+<p><strong>What you are seeing:</strong> a source, an N-slit mask, and a screen, viewed through four interchangeable modes (Wave field, Particle accumulator, Grating, Davisson-Germer). The Fraunhofer formula $I(\theta) = (\sin\alpha/\alpha)^2 (\sin N\beta/\sin\beta)^2$ governs every mode. Source: Hecht, <em>Optics</em>, 5th ed., Ch. 10 (<code>hecht-optics</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="960" height="640"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">mode:</span><span class="value" id="readout-mode">--</span>
+  <span class="label">N slits:</span><span class="value" id="readout-N">--</span>
+  <span class="label">lambda (nm):</span><span class="value" id="readout-lam">--</span>
+  <span class="label">a, d (um):</span><span class="value" id="readout-ad">--</span>
+  <span class="label">first max (deg):</span><span class="value" id="readout-max">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Slit experiment legend: source, N-slit mask, screen, with wave/particle/grating/Davisson-Germer modes. Method: closed-form Fraunhofer (sin alpha / alpha)^2 (sin N beta / sin beta)^2 + rejection-sampled particle hits. Source: Hecht, Optics, 5th ed., Ch. 10.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">mode</span><select aria-label="mode" id="select-mode">
+  <option value="wave" selected>Wave field</option>
+  <option value="particles">Particle accumulator</option>
+  <option value="grating">Grating (multi-slit)</option>
+  <option value="davisson">Davisson-Germer (electron crystal)</option>
+</select><span class="value" id="value-mode">wave</span></div>
+<div class="row"><span class="label">N slits</span><input aria-label="N" type="range" id="slider-N" min="1" max="10" step="1" value="2"><span class="value" id="value-N">2</span></div>
+<div class="row"><span class="label">slit width a (um)</span><input aria-label="a" type="range" id="slider-a" min="0.2" max="20" step="0.1" value="2.0"><span class="value" id="value-a">2.0</span></div>
+<div class="row"><span class="label">slit pitch d (um)</span><input aria-label="d" type="range" id="slider-d" min="2" max="50" step="0.5" value="10"><span class="value" id="value-d">10</span></div>
+<div class="row"><span class="label">particle</span><select aria-label="particle" id="select-particle">
+  <option value="photon" selected>photon (visible)</option>
+  <option value="electron">electron</option>
+</select><span class="value" id="value-particle">ph</span></div>
+<div class="row"><span class="label">wavelength (nm)</span><input aria-label="lambda" type="range" id="slider-lambda" min="50" max="800" step="5" value="532"><span class="value" id="value-lambda">532</span></div>
+<div class="row"><span class="label">electron E (eV)</span><input aria-label="E" type="range" id="slider-E" min="10" max="500" step="2" value="54"><span class="value" id="value-E">54</span></div>
+<div class="row"><span class="label">particle rate</span><input aria-label="rate" type="range" id="slider-rate" min="1" max="50" step="1" value="15"><span class="value" id="value-rate">15</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset hits</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>

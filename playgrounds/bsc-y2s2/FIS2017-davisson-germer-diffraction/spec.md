@@ -1,7 +1,8 @@
 ---
 title: Davisson-Germer Electron Diffraction
 slug: davisson-germer-diffraction
-status: verified
+status: superseded
+superseded_by: slit-experiment-legend-3d
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2017

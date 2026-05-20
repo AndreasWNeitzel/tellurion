@@ -1,7 +1,8 @@
 ---
 title: Single, Double, and Multi-Slit Diffraction
 slug: single-double-multi-slit
-status: verified
+status: superseded
+superseded_by: slit-experiment-legend-3d
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2016

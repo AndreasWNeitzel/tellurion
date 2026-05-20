@@ -1,7 +1,8 @@
 ---
 title: Quantum Double Slit, One Particle at a Time
 slug: quantum-double-slit-accumulator
-status: verified
+status: superseded
+superseded_by: slit-experiment-legend-3d
 audience: portfolio
 created: 2026-05-17
 hook: 'Each particle lands as one random dot, yet ten thousand of them paint the interference fringes; switch on the which-path detector and the pattern dissolves.'

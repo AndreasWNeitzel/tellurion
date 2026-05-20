@@ -1,7 +1,8 @@
 ---
 title: Double-Slit Single-Photon Accumulator (Hero)
 slug: double-slit-single-photon-accumulator-3d
-status: verified
+status: superseded
+superseded_by: slit-experiment-legend-3d
 audience: portfolio
 created: 2026-05-20
 primary_uc: FIS3003
