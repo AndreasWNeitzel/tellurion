@@ -1,7 +1,8 @@
 ---
 title: Slow-Roll Inflation
 slug: inflation-slow-roll
-status: verified
+status: superseded
+superseded_by: inflation-quantum-fluctuations
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3017

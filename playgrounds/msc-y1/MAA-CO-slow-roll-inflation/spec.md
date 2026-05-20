@@ -1,7 +1,8 @@
 ---
 title: "Slow-Roll Inflation: Ball on the Potential"
 slug: slow-roll-inflation
-status: verified
+status: superseded
+superseded_by: inflation-quantum-fluctuations
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-CO

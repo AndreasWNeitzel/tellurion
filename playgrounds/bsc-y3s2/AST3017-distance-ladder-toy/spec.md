@@ -1,7 +1,8 @@
 ---
 title: Cosmic Distance Ladder
 slug: distance-ladder-toy
-status: verified
+status: superseded
+superseded_by: cosmic-distance-ladder
 audience: portfolio
 created: 2026-05-14
 primary_uc: AST3017
