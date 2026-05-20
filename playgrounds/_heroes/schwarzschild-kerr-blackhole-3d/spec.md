@@ -3,7 +3,8 @@ title: Schwarzschild-Kerr Black Hole 3D (Hero)
 description: "A real per-pixel null-geodesic ray-march of a black hole. Every pixel traces a light ray bent by curved spacetime: you see the dark shadow, the thin photon ring, and the accretion disk gravitationally lensed into the Interstellar double arc with a Doppler-brightened side. Schwarzschild geometry with an approximate spin twist; sliders set spin and disk radii, drag to orbit, scroll to zoom."
 caption: "Figure 1. Per-pixel null-geodesic ray-march of a Schwarzschild black hole: the shadow, the photon ring at b = 3 sqrt(3) M, and a Novikov-Thorne accretion disk gravitationally lensed into the double arc with relativistic Doppler beaming. The a/M slider adds a perturbative frame-drag twist. Method: backward geodesic integration of u(phi) with velocity-Verlet and null-condition renormalization. Source: Shapiro and Teukolsky, Black Holes, White Dwarfs and Neutron Stars, Ch. 12."
 slug: schwarzschild-kerr-blackhole-3d
-status: verified
+status: superseded
+superseded_by: blackhole-legend-3d
 audience: portfolio
 created: 2026-05-14
 primary_uc: M3007

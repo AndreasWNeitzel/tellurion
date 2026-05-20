@@ -15,7 +15,7 @@
 </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
 <h1>Black Hole<span class="legend-badge">LEGEND</span></h1>
-<p><strong>What you are seeing:</strong> a Schwarzschild / Kerr black hole rendered through five interchangeable modes (Overview, Photons, Lensing, Frame drag, Spacetime). All overlays (event horizon, photon sphere, ISCO, ergosphere, coordinate grid) are toggleable. Source: Misner, Thorne, Wheeler, <em>Gravitation</em>, Ch. 25 (<code>mtw-gravitation</code>).</p>
+<p><strong>What you are seeing:</strong> a Schwarzschild / Kerr black hole rendered through eight interchangeable modes (Overview, Photons, Lensing, Frame drag, Spacetime, Ringdown, Hawking radiation, TDE flare). All overlays (event horizon, photon sphere, ISCO, ergosphere, coordinate grid) are toggleable. Source: Misner, Thorne, Wheeler, <em>Gravitation</em>, Ch. 25 (<code>mtw-gravitation</code>).</p>
 <figure class="pg-figure"><canvas id="stage" width="960" height="640"></canvas>
 <div class="readout" id="readout" role="status" aria-live="polite">
   <span class="label">M (M_sun):</span><span class="value" id="readout-M">--</span>
@@ -32,6 +32,9 @@
   <option value="lensing">Lensing</option>
   <option value="framedrag">Frame drag (Kerr)</option>
   <option value="spacetime">Spacetime (Flamm)</option>
+  <option value="ringdown">Ringdown (QNM)</option>
+  <option value="hawking">Hawking radiation</option>
+  <option value="tde">TDE flare</option>
 </select><span class="value" id="value-mode">over</span></div>
 <div class="row"><span class="label">log10 M (M_sun)</span><input aria-label="logM" type="range" id="slider-logM" min="0" max="10" step="0.1" value="6.0"><span class="value" id="value-logM">6.0</span></div>
 <div class="row"><span class="label">spin chi = a/M</span><input aria-label="chi" type="range" id="slider-chi" min="0" max="0.99" step="0.01" value="0.0"><span class="value" id="value-chi">0.00</span></div>

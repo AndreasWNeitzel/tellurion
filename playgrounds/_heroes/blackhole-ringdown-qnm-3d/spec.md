@@ -1,7 +1,8 @@
 ---
 title: Black-Hole Ringdown (Hero)
 slug: blackhole-ringdown-qnm-3d
-status: verified
+status: superseded
+superseded_by: blackhole-legend-3d
 audience: portfolio
 created: 2026-05-20
 primary_uc: AST3014

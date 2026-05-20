@@ -1,10 +1,12 @@
 // Headless physics for the Black-Hole Legend. A legend playground
 // is a hero-of-heroes: full laboratory for a single object. This one
-// covers Schwarzschild and Kerr black holes through five modes:
+// covers Schwarzschild and Kerr black holes through eight modes:
 // overview (disk + photon sphere + ISCO), photons (impact-parameter
 // scan), lensing (movable background source with Einstein ring),
-// frame drag (Kerr ergosphere + ISCO retreat), and spacetime
-// (embedding-diagram wireframe). All physics is closed-form.
+// frame drag (Kerr ergosphere + ISCO retreat), spacetime
+// (embedding-diagram wireframe), ringdown (Kerr quasinormal modes),
+// hawking (T_H, evaporation timescale), and TDE (tidal disruption
+// event lightcurve). All physics is closed-form.
 //
 // References:
 //   Misner, Thorne, Wheeler, Gravitation, W. H. Freeman 1973.
@@ -12,6 +14,9 @@
 //   Bardeen, Press, Teukolsky, ApJ 178 (1972) 347. `bardeen-press-teukolsky-1972`.
 //   Luminet, Astron. Astrophys. 75 (1979) 228 (BH image). `luminet-1979`.
 //   Refsdal, Mon. Not. R. Astron. Soc. 128 (1964) 295 (gravitational lensing). `refsdal-1964`.
+//   Berti, Cardoso, Will, Phys. Rev. D 73 (2006) 064030 (QNM). `berti-cardoso-will-qnm`.
+//   Hawking, Commun. Math. Phys. 43 (1975) 199 (Hawking radiation). `hawking-1975`.
+//   Rees, Nature 333 (1988) 523 (TDE). `rees-1988-tde`.
 
 const G = 6.6743e-11;            // m^3 kg^-1 s^-2
 const C = 2.998e8;                // m/s
@@ -202,3 +207,84 @@ export function classifyPhoton(M_solar, b_m) {
 
 // Convenience: schwarzschild radius in convenient units (km).
 export function rsKm(M_solar) { return schwarzschildRadius_m(M_solar) / 1000; }
+
+// =========================================================================
+// QUASINORMAL MODE (Kerr) ringdown frequency table from Berti-Cardoso-Will
+// 2006 PRD 73 064030, dominant (l, m, n) = (2, 2, 0). M omega in geometric
+// units; multiply by c^3 / (G M_sun) * (M_sun / M) to get Hz.
+// =========================================================================
+const QNM_TABLE = [
+  [0.00, 0.37367, -0.08896],
+  [0.10, 0.38716, -0.08899],
+  [0.30, 0.41912, -0.08879],
+  [0.50, 0.46044, -0.08775],
+  [0.70, 0.51746, -0.08446],
+  [0.90, 0.61554, -0.07408],
+  [0.99, 0.71988, -0.04540],
+];
+
+export function qnmFrequency(chi) {
+  const c = Math.max(0, Math.min(0.99, chi));
+  for (let k = 0; k < QNM_TABLE.length - 1; k++) {
+    if (c <= QNM_TABLE[k + 1][0]) {
+      const t = (c - QNM_TABLE[k][0]) / (QNM_TABLE[k + 1][0] - QNM_TABLE[k][0]);
+      return {
+        omegaR_M: QNM_TABLE[k][1] * (1 - t) + QNM_TABLE[k + 1][1] * t,
+        omegaI_M: QNM_TABLE[k][2] * (1 - t) + QNM_TABLE[k + 1][2] * t,
+      };
+    }
+  }
+  return { omegaR_M: QNM_TABLE.at(-1)[1], omegaI_M: QNM_TABLE.at(-1)[2] };
+}
+
+export function ringdownProperties(M_solar, chi) {
+  const { omegaR_M, omegaI_M } = qnmFrequency(chi);
+  const M_SUN_SEC = G * M_SUN / Math.pow(C, 3);   // ~ 4.925e-6 s per M_sun
+  const M_sec = M_solar * M_SUN_SEC;
+  return {
+    f_Hz: omegaR_M / (2 * Math.PI * M_sec),
+    tau_s: -1 / omegaI_M * M_sec,
+    Q: -omegaR_M / (2 * omegaI_M),
+  };
+}
+
+// =========================================================================
+// HAWKING RADIATION evaporation timescale (T_H is already exported above).
+// =========================================================================
+const HBAR = 1.0546e-34;
+const SECONDS_PER_YEAR = 3.156e7;
+
+export function hawkingEvaporationTime_yr(M_solar) {
+  // t_evap = 5120 pi G^2 M^3 / (hbar c^4); approx 2.1e67 yr per (M/M_sun)^3.
+  const M_kg = M_solar * M_SUN;
+  const t_s = (5120 * Math.PI * G * G * Math.pow(M_kg, 3)) / (HBAR * Math.pow(C, 4));
+  return t_s / SECONDS_PER_YEAR;
+}
+
+// =========================================================================
+// TIDAL DISRUPTION EVENT.
+// =========================================================================
+export function tdeTidalRadius_m(M_BH_solar, M_star_solar = 1, R_star_solar = 1) {
+  // R_T = R_star * (M_BH / M_star)^(1/3).
+  return R_star_solar * 6.957e8 * Math.pow(M_BH_solar / M_star_solar, 1 / 3);
+}
+
+export function tdePeakTime_days(M_BH_solar, M_star_solar = 1, R_star_solar = 1) {
+  const R_T = tdeTidalRadius_m(M_BH_solar, M_star_solar, R_star_solar);
+  // t_peak = pi R_T^(3/2) / sqrt(2 G M_star)
+  const t_s = Math.PI * Math.pow(R_T, 1.5) / Math.sqrt(2 * G * M_star_solar * M_SUN);
+  return t_s / 86400;
+}
+
+// Phenomenological lightcurve: t^2 rise -> t^(-5/3) decay (Rees 1988).
+export function tdeLightcurve(t_days, t_peak_days) {
+  if (t_days < 0) return 0;
+  if (t_days < t_peak_days) return Math.pow(t_days / t_peak_days, 4);
+  return Math.pow(t_days / t_peak_days, -5 / 3);
+}
+
+// Whether the SMBH swallows the star whole (Hills mass cutoff).
+export function tdeIsDisrupted(M_BH_solar) {
+  // R_T > R_S requires M_BH < ~ 10^8 M_sun for a sun-like star.
+  return tdeTidalRadius_m(M_BH_solar, 1, 1) > schwarzschildRadius_m(M_BH_solar);
+}

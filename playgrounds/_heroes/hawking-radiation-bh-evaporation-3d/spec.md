@@ -1,7 +1,8 @@
 ---
 title: Hawking Radiation and BH Evaporation (Hero)
 slug: hawking-radiation-bh-evaporation-3d
-status: verified
+status: superseded
+superseded_by: blackhole-legend-3d
 audience: portfolio
 created: 2026-05-20
 primary_uc: FIS3007

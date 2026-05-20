@@ -13,6 +13,8 @@ import {
   lightBendingAngle_rad, einsteinRingRadius_rad, lensImagePositions_rad,
   lensMagnification, hawkingTemperature_K, gravRedshift, diskDopplerFactor,
   tracePhoton, classifyPhoton, makeRng, rsKm,
+  qnmFrequency, ringdownProperties, hawkingEvaporationTime_yr,
+  tdeTidalRadius_m, tdePeakTime_days, tdeLightcurve, tdeIsDisrupted,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
@@ -177,46 +179,108 @@ function drawCoordinateGrid() {
   }
 }
 
-// Accretion disk (Doppler-beamed thin disk, used in Overview mode).
+// Accretion disk: continuous Luminet-style pixel-level rendering with
+// Doppler asymmetry, gravitational redshift, and a secondary lensed
+// image visible above/below the BH.
 function drawAccretionDisk() {
   const r_inner = Math.max(rIscoRs(), rHorizonRs() * 1.1);
-  const r_outer = 6;
-  const N_r = 40, N_phi = 90;
+  const r_outer = 7;
   const incl = st.incl * DEG;
   const sin_i = Math.sin(incl), cos_i = Math.cos(incl);
-  // Render in back-to-front order based on apparent y of each cell.
-  const cells = [];
-  for (let ir = 0; ir < N_r; ir++) {
-    const t = (ir + 0.5) / N_r;
-    const r = r_inner + (r_outer - r_inner) * t;
-    for (let iphi = 0; iphi < N_phi; iphi++) {
-      const phi = (iphi / N_phi) * 2 * Math.PI + st.t * 0.3 / Math.max(0.5, r);
-      const x = r * Math.cos(phi);
-      const z = r * Math.sin(phi);
-      // Project: inclination tilts about world-x axis. Disk in xy-plane.
-      const ys = z * sin_i;
-      const xs = x;
-      const depth = z * cos_i;          // for sort
-      cells.push({ xs, ys, r, phi, depth });
+  // Pixel-grid region around the BH. Use a moderate-resolution offscreen
+  // image for performance.
+  const NX = 280, NY = 180;
+  const halfWorld = r_outer * 1.05;
+  const img = ctx.createImageData(NX, NY);
+  const data = img.data;
+  for (let j = 0; j < NY; j++) {
+    for (let i = 0; i < NX; i++) {
+      const idx = (j * NX + i) * 4;
+      // Map pixel to world (x_world, y_world) before deprojection.
+      const xw = ((i + 0.5) / NX - 0.5) * 2 * halfWorld;
+      const yw = ((j + 0.5) / NY - 0.5) * 2 * halfWorld;
+      // Primary image: deproject by inclination (yw = z * sin_i).
+      // Try both primary (z = yw/sin_i) and secondary (z negated).
+      let bestR = 0, bestG = 0, bestB = 0, bestA = 0;
+      // Skip pixels behind the horizon (apparent radius < r_horizon * scale on plane of sky).
+      const rApp = Math.hypot(xw, yw);
+      if (rApp < rHorizonRs() * 1.05) {
+        // Dark disk + photon-ring brightening
+        const t = rApp / (rHorizonRs() * 1.05);
+        const ringArg = (rApp - rHorizonRs() * 1.5) / 0.2;
+        const ring = (rApp > rHorizonRs()) ? Math.exp(-(ringArg * ringArg)) : 0;
+        const c = Math.round(255 * ring);
+        data[idx + 0] = c;
+        data[idx + 1] = Math.round(c * 0.6);
+        data[idx + 2] = Math.round(c * 0.2);
+        data[idx + 3] = 255;
+        continue;
+      }
+      if (sin_i < 1e-3) {
+        // Face-on: x and y are disk coordinates directly.
+        const r = Math.hypot(xw, yw);
+        if (r >= r_inner && r <= r_outer) {
+          const phi = Math.atan2(yw, xw) + st.t * 0.3;
+          const col = diskPixelColor(r, phi, incl);
+          bestR = col.r; bestG = col.g; bestB = col.b; bestA = col.a;
+        }
+      } else {
+        for (const sign of [+1, -1]) {
+          const z = (sign * yw) / Math.max(0.05, sin_i);
+          const x = xw;
+          const r = Math.hypot(x, z);
+          if (r < r_inner || r > r_outer) continue;
+          const phi = Math.atan2(z, x) + st.t * 0.3 / Math.max(0.5, r);
+          const col = diskPixelColor(r, phi, incl);
+          // Primary is visible only when the front face is toward us
+          // (sign chosen accordingly). Apply lensing attenuation for
+          // the back-side secondary image.
+          const lensFactor = sign > 0 ? 1.0 : 0.35;
+          const a = col.a * lensFactor;
+          if (a > bestA) { bestR = col.r * lensFactor; bestG = col.g * lensFactor; bestB = col.b * lensFactor; bestA = a; }
+        }
+      }
+      data[idx + 0] = Math.min(255, Math.max(0, bestR | 0));
+      data[idx + 1] = Math.min(255, Math.max(0, bestG | 0));
+      data[idx + 2] = Math.min(255, Math.max(0, bestB | 0));
+      data[idx + 3] = Math.min(255, Math.max(0, bestA | 0));
     }
   }
-  cells.sort((a, b) => a.depth - b.depth);
-  for (const c of cells) {
-    const p = w2s(c.xs, c.ys);
-    const Rs = rsM();
-    // Doppler beaming: factor ~ delta^4. Use Newtonian v + relativistic
-    // boost; clamp.
-    const D4 = diskDopplerFactor(M_solar(), c.r * Rs, incl, c.phi);
-    // Gravitational redshift factor.
-    const gz = 1 / (1 + gravRedshift(M_solar(), c.r * Rs));
-    const intensity = Math.min(1.5, D4 * gz);
-    const huePhase = 1 - Math.min(1, (c.r - r_inner) / (r_outer - r_inner));
-    const baseR = 255, baseG = Math.round(140 + 80 * huePhase), baseB = Math.round(60 + 40 * huePhase);
-    const alpha = Math.min(0.95, 0.25 + 0.55 * intensity);
-    const r_px = 2.2;
-    ctx.fillStyle = `rgba(${Math.round(baseR * Math.min(1, intensity))}, ${Math.round(baseG * Math.min(1, intensity))}, ${Math.round(baseB * Math.min(1, intensity))}, ${alpha.toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(p.x, p.y, r_px, 0, Math.PI * 2); ctx.fill();
-  }
+  // Draw the offscreen image scaled to canvas region around the BH.
+  const c2 = document.createElement('canvas');
+  c2.width = NX; c2.height = NY;
+  c2.getContext('2d').putImageData(img, 0, 0);
+  const drawW = halfWorld * 2 * SCALE_PX_PER_RS;
+  const drawH = halfWorld * 2 * SCALE_PX_PER_RS;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.globalAlpha = 0.95;
+  ctx.drawImage(c2, CENTER.x - drawW / 2, CENTER.y - drawH / 2, drawW, drawH);
+  ctx.globalAlpha = 1.0;
+}
+
+// Per-pixel disk color: orange/yellow with Doppler beaming and
+// gravitational redshift baked in.
+function diskPixelColor(r, phi, incl) {
+  const Rs = rsM();
+  const D4 = diskDopplerFactor(M_solar(), r * Rs, incl, phi);
+  const gz = 1 / (1 + gravRedshift(M_solar(), r * Rs));
+  const intensity = Math.min(2.2, D4 * gz);
+  // Color profile: hot inner ring (white-blue), warm outer (orange-red).
+  const u = Math.min(1, Math.max(0, (r - 1.0) / 5.0));
+  // Mix inner (blue-white) and outer (orange) as u rises.
+  const innerR = 220, innerG = 230, innerB = 255;
+  const outerR = 255, outerG = 140, outerB = 60;
+  const r0 = innerR * (1 - u) + outerR * u;
+  const g0 = innerG * (1 - u) + outerG * u;
+  const b0 = innerB * (1 - u) + outerB * u;
+  const I = Math.min(1.6, intensity);
+  return {
+    r: r0 * I,
+    g: g0 * I,
+    b: b0 * I,
+    a: Math.min(255, Math.round(40 + 200 * Math.min(1, I))),
+  };
 }
 
 // Photon traces. For Photons mode we shoot a fan of rays.
@@ -340,46 +404,261 @@ function drawLensingMode() {
   ctx.fillText(`magnification mu = ${mu.toFixed(2)}`, 14, H - 14);
 }
 
-// Frame-drag mode: draws the ergosphere as a flattened shape and the
-// retreating ISCO with a precessing test orbit.
+// Frame-drag mode: shows test photon trajectories twisting around the
+// rotating BH (prograde and retrograde geodesics differ markedly),
+// plus the ergosphere bulge and ISCO retreat.
 function drawFrameDragMode() {
-  // Already draws ergosphere + ISCO via toggles; here force them on.
   if (!st.flags.ergo) {
-    // Temporarily push.
     const saved = st.flags.ergo;
     st.flags.ergo = true;
     drawErgo();
     st.flags.ergo = saved;
   }
-  // Lense-Thirring precession indicator: a test orbit at r = 2.5 R_s
-  // precesses with rate Omega_LT = 2 J / (c^2 r^3). We draw the orbit
-  // and a small arrow showing the precession direction.
+  // Test orbits: prograde, retrograde, equatorial, at the same r.
+  // We render multiple photon-like null geodesics in the equatorial
+  // plane; the prograde ones close, the retrograde ones get smeared.
   const r_orbit_rs = Math.max(rIscoRs() * 1.2, 2.0);
   const r_px = r_orbit_rs * SCALE_PX_PER_RS;
   const flatten = Math.cos(st.incl * DEG);
-  // The orbit precesses; precession rate proportional to chi.
-  const prec_angle = st.t * 0.4 * st.chi;
-  ctx.strokeStyle = 'rgba(140, 240, 200, 0.7)';
-  ctx.lineWidth = 1.4;
-  ctx.beginPath();
+  // Lense-Thirring drag rate per spin level (kinematic).
+  const dragRate = st.chi * 0.6;
+  // Draw a fan of test geodesic paths starting at the same x, with
+  // small velocity perturbations, traced out as they wind around.
+  const N_STREAMS = 5;
+  for (let s = 0; s < N_STREAMS; s++) {
+    const r0 = (2.0 + s * 0.7);
+    const r_px_s = r0 * SCALE_PX_PER_RS;
+    // Two senses: prograde and retrograde.
+    for (const sense of [+1, -1]) {
+      ctx.strokeStyle = sense > 0
+        ? `rgba(140, 240, 200, ${(0.45 + 0.1 * (s / N_STREAMS)).toFixed(3)})`
+        : `rgba(255, 130, 110, ${(0.35 - 0.04 * s).toFixed(3)})`;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      const N_PTS = 120;
+      // Phase progression: prograde gets phase + dragRate t; retrograde
+      // gets phase - dragRate t (i.e. the drag wins against retrograde
+      // motion when |chi| is large enough, so the curve still winds
+      // forward but slower).
+      for (let k = 0; k < N_PTS; k++) {
+        const phi = sense * (k / N_PTS) * 4 * Math.PI - st.t * 0.5 * sense;
+        // Frame dragging adds a phase offset that grows with t and chi.
+        const dragOffset = dragRate * (k / N_PTS) * Math.PI * 2;
+        const phiActual = phi + dragOffset;
+        const px = CENTER.x + r_px_s * Math.cos(phiActual);
+        const py = CENTER.y + r_px_s * flatten * Math.sin(phiActual);
+        if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+  }
+  // Test particle markers (one prograde, one retrograde).
+  const phaseP = st.t * 0.8 + dragRate * Math.PI;
+  const phaseR = -st.t * 0.8 + dragRate * Math.PI;
+  const r_mark = (rIscoRs() + 0.5) * SCALE_PX_PER_RS;
+  ctx.fillStyle = 'rgba(140, 240, 200, 1)';
+  ctx.beginPath(); ctx.arc(CENTER.x + r_mark * Math.cos(phaseP), CENTER.y + r_mark * flatten * Math.sin(phaseP), 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255, 130, 110, 1)';
+  ctx.beginPath(); ctx.arc(CENTER.x + r_mark * Math.cos(phaseR), CENTER.y + r_mark * flatten * Math.sin(phaseR), 5, 0, Math.PI * 2); ctx.fill();
+  // Annotations.
+  ctx.fillStyle = 'rgba(140, 240, 200, 0.95)';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText(`prograde orbits (green): co-rotating, ISCO = ${rIscoRs().toFixed(2)} R_s`, 14, H - 68);
+  ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
+  ctx.fillText('retrograde orbits (red): dragged by spin into a slower wind', 14, H - 50);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.fillText(`Lense-Thirring phase offset at chi = ${st.chi.toFixed(2)}: ${(dragRate / DEG).toFixed(1)} deg per orbit`, 14, H - 32);
+  ctx.fillText(`outer horizon r_+ = ${rHorizonRs().toFixed(2)} R_s, ergosphere outer = 1.00 R_s (equator)`, 14, H - 14);
+}
+
+// Ringdown mode: a perturbed Kerr horizon oscillating in the (2,2,0)
+// QNM, with the strain h(t) panel underneath.
+function drawRingdownMode() {
+  const { omegaR_M, omegaI_M } = qnmFrequency(st.chi);
+  const props = ringdownProperties(M_solar(), st.chi);
+  // Time progresses with st.t. Compute decay envelope (in units of tau_M).
+  const t_M = st.t * 0.8;
+  const phase = omegaR_M * t_M;
+  const decay = Math.exp(omegaI_M * t_M);
+  // Draw the horizon as an oblate spheroid with a 2-lobe ripple.
+  const Rpx = rHorizonRs() * SCALE_PX_PER_RS * 1.0;
   ctx.save();
   ctx.translate(CENTER.x, CENTER.y);
-  ctx.rotate(prec_angle);
-  ctx.ellipse(0, 0, r_px, r_px * flatten, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  const N = 96;
+  for (let k = 0; k <= N; k++) {
+    const a = (k / N) * 2 * Math.PI;
+    const r = Rpx * (1 + 0.15 * decay * Math.cos(2 * a + phase));
+    const x = r * Math.cos(a);
+    const y = r * Math.sin(a) * Math.cos(st.incl * DEG);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = `rgba(255, 200, 120, ${(0.5 + 0.4 * decay).toFixed(3)})`;
+  ctx.lineWidth = 1.8;
   ctx.stroke();
-  // Test particle dot.
-  const phi = st.t * (1.5 / Math.pow(r_orbit_rs, 1.5));
-  const px = r_px * Math.cos(phi);
-  const py = r_px * flatten * Math.sin(phi);
-  ctx.fillStyle = 'rgba(255, 255, 240, 1)';
-  ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
-  // Annotations.
-  ctx.fillStyle = 'rgba(140, 240, 200, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
-  ctx.fillText(`Lense-Thirring orbit at r = ${r_orbit_rs.toFixed(1)} R_s`, 14, H - 50);
-  ctx.fillText(`prograde ISCO = ${rIscoRs().toFixed(2)} R_s (chi = ${st.chi.toFixed(2)})`, 14, H - 32);
-  ctx.fillText(`outer horizon r_+ = ${rHorizonRs().toFixed(2)} R_s`, 14, H - 14);
+  // Strain panel.
+  const px0 = 0.18 * W, py0 = H - 130, pw = 0.55 * W, ph = 100;
+  ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
+  ctx.fillRect(px0, py0, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('strain h(t)', px0 + 8, py0 - 6);
+  const midY = py0 + ph / 2;
+  ctx.strokeStyle = 'rgba(200, 210, 230, 0.18)';
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(px0, midY); ctx.lineTo(px0 + pw, midY); ctx.stroke();
+  ctx.setLineDash([]);
+  // Draw the decaying sinusoid.
+  ctx.strokeStyle = 'rgba(120, 240, 200, 0.95)';
+  ctx.lineWidth = 1.7;
+  ctx.beginPath();
+  const tMax = 18;
+  for (let k = 0; k <= 240; k++) {
+    const tau = (k / 240) * tMax;
+    const e = Math.exp(omegaI_M * tau);
+    const ph_t = omegaR_M * tau;
+    const h = e * Math.cos(ph_t);
+    const x = px0 + 30 + (tau / tMax) * (pw - 50);
+    const y = midY - h * (ph * 0.4);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Current marker at t_M = st.t * 0.8.
+  const xc = px0 + 30 + (t_M / tMax) * (pw - 50);
+  const yc = midY - decay * Math.cos(phase) * (ph * 0.4);
+  ctx.fillStyle = 'rgba(255, 255, 200, 1)';
+  ctx.beginPath(); ctx.arc(xc, yc, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`f = ${props.f_Hz.toExponential(2)} Hz  tau = ${(props.tau_s * 1000).toFixed(2)} ms  Q = ${props.Q.toFixed(1)}`, 14, H - 14);
+}
+
+// Hawking mode: particle pair flashes at the horizon + M(t)/T_H(t) curves.
+function drawHawkingMode() {
+  // Glow at horizon and stochastic pair flashes.
+  const Rpx = rHorizonRs() * SCALE_PX_PER_RS;
+  const halo = ctx.createRadialGradient(CENTER.x, CENTER.y, Rpx * 0.8, CENTER.x, CENTER.y, Rpx * 2.5);
+  halo.addColorStop(0, 'rgba(255, 170, 100, 0.55)');
+  halo.addColorStop(0.5, 'rgba(255, 100, 200, 0.20)');
+  halo.addColorStop(1, 'rgba(60, 80, 220, 0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(CENTER.x, CENTER.y, Rpx * 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(CENTER.x, CENTER.y, Rpx, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 180, 100, 0.7)';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(CENTER.x, CENTER.y, Rpx, 0, Math.PI * 2); ctx.stroke();
+  // Particle pair flashes around the horizon.
+  const rng = makeRng(((st.t * 100) | 0) ^ 0xdeadbeef);
+  for (let i = 0; i < 6; i++) {
+    const angle = rng() * 2 * Math.PI;
+    const dist = Rpx * (1.05 + 0.3 * rng());
+    const intensity = 0.6 + 0.4 * Math.sin(st.t * 6 + i);
+    const px = CENTER.x + dist * Math.cos(angle);
+    const py = CENTER.y + dist * Math.sin(angle);
+    const g = ctx.createRadialGradient(px, py, 0, px, py, 16);
+    g.addColorStop(0, `rgba(255, 255, 220, ${intensity.toFixed(3)})`);
+    g.addColorStop(1, 'rgba(255, 130, 100, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(px, py, 16, 0, Math.PI * 2); ctx.fill();
+    // Escaping quantum trail.
+    const ax = CENTER.x + dist * 2.4 * Math.cos(angle);
+    const ay = CENTER.y + dist * 2.4 * Math.sin(angle);
+    ctx.strokeStyle = `rgba(190, 230, 255, ${(0.5 * intensity).toFixed(3)})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ax, ay); ctx.stroke();
+  }
+  // Diagnostic readouts: T_H, evaporation timescale.
+  const T = hawkingTemperature_K(M_solar());
+  const tEvap = hawkingEvaporationTime_yr(M_solar());
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.font = '13px ui-monospace, monospace';
+  ctx.fillText(`T_H = ${T.toExponential(2)} K`, 14, H - 50);
+  ctx.fillText(`t_evap = ${tEvap.toExponential(2)} yr`, 14, H - 32);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
+  ctx.font = '11px system-ui, sans-serif';
+  ctx.fillText('pairs nucleate at horizon; positive-energy quantum escapes (cyan), negative-energy mode falls in', 14, H - 14);
+}
+
+// TDE mode: a star approaching, getting torn apart, debris stream returning + lightcurve.
+function drawTdeMode() {
+  const Rpx = rHorizonRs() * SCALE_PX_PER_RS;
+  const halo = ctx.createRadialGradient(CENTER.x, CENTER.y, Rpx * 0.8, CENTER.x, CENTER.y, Rpx * 2.2);
+  halo.addColorStop(0, 'rgba(255, 170, 100, 0.55)');
+  halo.addColorStop(0.5, 'rgba(255, 100, 200, 0.20)');
+  halo.addColorStop(1, 'rgba(60, 80, 220, 0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(CENTER.x, CENTER.y, Rpx * 2.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(CENTER.x, CENTER.y, Rpx, 0, Math.PI * 2); ctx.fill();
+  // Disrupted? If not, just the swallowed-whole case.
+  const isDisr = tdeIsDisrupted(M_solar());
+  const t_peak_days = tdePeakTime_days(M_solar(), 1, 1);
+  // Stream: rotating spiral of orange dots.
+  const phase = st.t * 0.4;
+  for (let i = 0; i < 240; i++) {
+    const u = i / 240;
+    const r_rs = 1.5 + 5 * u;     // spiraling in
+    const ang = phase - u * 4 * Math.PI;     // wraps several times
+    const px = CENTER.x + r_rs * SCALE_PX_PER_RS * Math.cos(ang);
+    const py = CENTER.y + r_rs * SCALE_PX_PER_RS * Math.sin(ang);
+    const alpha = 0.4 + 0.5 * (1 - u);
+    ctx.fillStyle = `rgba(255, 200, 120, ${alpha.toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(px, py, 1.6 + 1.2 * (1 - u), 0, Math.PI * 2); ctx.fill();
+  }
+  // Approaching star (yellow disc, fading once disrupted).
+  const star_phase = Math.min(1, st.t * 0.15);
+  if (star_phase < 0.95) {
+    const sx = CENTER.x + (1 - star_phase) * 0.35 * W - 30;
+    const sy = CENTER.y - (1 - star_phase) * 0.2 * H + 30;
+    const sg = ctx.createRadialGradient(sx, sy, 1, sx, sy, 14);
+    sg.addColorStop(0, 'rgba(255, 255, 220, 1)');
+    sg.addColorStop(1, 'rgba(255, 180, 80, 0)');
+    ctx.fillStyle = sg;
+    ctx.beginPath(); ctx.arc(sx, sy, 14, 0, Math.PI * 2); ctx.fill();
+  }
+  // Lightcurve panel.
+  const px0 = 0.18 * W, py0 = H - 130, pw = 0.55 * W, ph = 100;
+  ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
+  ctx.fillRect(px0, py0, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('lightcurve L(t) ~ t^(-5/3) fallback', px0 + 8, py0 - 6);
+  const tMax = 6 * t_peak_days;
+  ctx.strokeStyle = 'rgba(255, 220, 120, 0.95)';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let k = 0; k < 200; k++) {
+    const t = (k / 199) * tMax;
+    const L = tdeLightcurve(t, t_peak_days);
+    const x = px0 + 30 + (k / 199) * (pw - 50);
+    const y = py0 + ph - 16 - Math.min(1, L) * (ph - 30);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // t_peak marker.
+  const xPk = px0 + 30 + (t_peak_days / tMax) * (pw - 50);
+  ctx.strokeStyle = 'rgba(120, 200, 255, 0.7)';
+  ctx.setLineDash([3, 4]);
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xPk, py0 + 8); ctx.lineTo(xPk, py0 + ph - 16); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(120, 200, 255, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`t_peak = ${t_peak_days.toFixed(0)} d`, xPk + 4, py0 + 22);
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.font = '13px ui-monospace, monospace';
+  ctx.fillText(isDisr ? 'disrupted (flaring)' : 'swallowed whole (no flare)', 14, H - 14);
 }
 
 // Spacetime mode: Flamm-paraboloid embedding diagram of the spatial
@@ -497,8 +776,11 @@ function drawModeTab() {
     overview: 'OVERVIEW  (disk + horizon + ISCO)',
     photons: 'PHOTONS  (impact-parameter scan)',
     lensing: 'LENSING  (Einstein ring)',
-    framedrag: 'FRAME DRAG  (Kerr ergosphere)',
+    framedrag: 'FRAME DRAG  (prograde vs retrograde)',
     spacetime: 'SPACETIME  (Flamm embedding)',
+    ringdown: 'RINGDOWN  (Kerr QNM)',
+    hawking: 'HAWKING  (T_H + evaporation)',
+    tde: 'TDE FLARE  (tidal disruption)',
   };
   ctx.fillText(labels[st.mode] || st.mode, 20, 26);
 }
@@ -537,6 +819,12 @@ function draw() {
   } else if (st.mode === 'spacetime') {
     drawSpacetimeMode();
     drawHorizon();
+  } else if (st.mode === 'ringdown') {
+    drawRingdownMode();
+  } else if (st.mode === 'hawking') {
+    drawHawkingMode();
+  } else if (st.mode === 'tde') {
+    drawTdeMode();
   }
   drawSidePanel();
   drawModeTab();
@@ -589,11 +877,13 @@ mountShareButton(document.getElementById('share-mount'), SHARE_KEYS);
 //   0.00 -> overview, 0.25 -> photons, 0.50 -> lensing,
 //   0.75 -> framedrag, 1.00 -> spacetime.
 function captureModeForFraction(f) {
-  if (f < 0.1) return 'overview';
-  if (f < 0.35) return 'photons';
-  if (f < 0.6) return 'lensing';
-  if (f < 0.85) return 'framedrag';
-  return 'spacetime';
+  // 5 golden frames sample 5 of the 8 modes; the other 3 (photons,
+  // lensing, spacetime) are accessible via the dropdown.
+  if (f < 0.15) return 'overview';
+  if (f < 0.35) return 'framedrag';
+  if (f < 0.6)  return 'ringdown';
+  if (f < 0.85) return 'hawking';
+  return 'tde';
 }
 
 if (CAPTURE_NAME) {
