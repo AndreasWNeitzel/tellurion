@@ -1,7 +1,8 @@
 ---
 title: Magnetar Burst (Hero)
 slug: magnetar-burst-3d
-status: verified
+status: superseded
+superseded_by: neutron-star-legend-3d
 audience: portfolio
 created: 2026-05-20
 primary_uc: AST3014
