@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Aurora Borealis Dipole Trap</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas:active { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Aurora borealis: charged particles in Earth's dipole field</h1>
+<p><strong>What you are seeing:</strong> the solar wind injects charged particles into Earth's dipole magnetic field; they gyrate around field lines, bounce between magnetic mirror points, and where they dip into the upper atmosphere near the magnetic poles they excite oxygen to glow green (lower aurora) and red (higher aurora). Drag to rotate. Source: Stormer, <em>The Polar Aurora</em>, Oxford 1955 (<code>stormer1955</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="620"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">particles:</span><span class="value" id="readout-n">--</span>
+  <span class="label">aurora hits:</span><span class="value" id="readout-hits">0</span>
+  <span class="label">step:</span><span class="value" id="readout-step">0</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Charged particles spiraling along Earth's dipole field, exciting the auroral oval. <em>Method:</em> Boris pusher (symplectic Lorentz integration); dipole $\vec B \propto (3(\hat r \cdot \hat z)\hat r - \hat z)/r^3$; atmospheric excitation triggered below 600 km near the poles. <em>Source:</em> Stormer, The Polar Aurora, Oxford 1955.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">injection rate</span><input aria-label="injection" type="range" id="slider-inject" min="0" max="6" step="1" value="3"><span class="value" id="value-inject">3</span></div>
+<div class="row"><span class="label">dipole strength</span><input aria-label="dipole" type="range" id="slider-mdip" min="0.5" max="2.5" step="0.1" value="1.4"><span class="value" id="value-mdip">1.4</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row"><span class="label">camera tilt</span><input aria-label="tilt" type="range" id="slider-tilt" min="0.1" max="1.4" step="0.05" value="0.5"><span class="value" id="value-tilt">0.50</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
