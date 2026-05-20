@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Gravity in n Dimensions</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 880px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Gravity in n spatial dimensions</h1>
+<p><strong>What you are seeing:</strong> a test particle orbiting a heavy mass under the generalized force $\vec F = -k\,\vec r/r^{d-1}$ that you would get if space had $d$ rather than $3$ spatial dimensions. Drag $d$ from 2 to 6 and watch what happens to the orbit. Only $d = 3$ gives the closed Kepler ellipse; $d = 2$ precesses, $d = 4$ is marginal, $d \ge 5$ plunges. Source: Tangherlini, Nuovo Cim. 27 (1963) 636 (<code>tangherlini1963</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="880" height="560"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">d:</span><span class="value" id="readout-d">3</span>
+  <span class="label">L:</span><span class="value" id="readout-L">--</span>
+  <span class="label">E:</span><span class="value" id="readout-E">--</span>
+  <span class="label">r/r0:</span><span class="value" id="readout-r">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Orbit traces under the generalized central force; the trail accumulates many revolutions. <em>Method:</em> velocity-Verlet on the inverse-power central force. <em>Source:</em> Tangherlini, Nuovo Cim. 27 (1963) 636 (<code>tangherlini1963</code>).</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">dimension d</span><input aria-label="dimension d" type="range" id="slider-d" min="2" max="6" step="0.05" value="3"><span class="value" id="value-d">3.00</span></div>
+<div class="row"><span class="label">initial r₀</span><input aria-label="initial r0" type="range" id="slider-r0" min="0.5" max="2.5" step="0.05" value="1.0"><span class="value" id="value-r0">1.00</span></div>
+<div class="row"><span class="label">eccentricity f</span><input aria-label="eccentricity" type="range" id="slider-ecc" min="0.8" max="1.3" step="0.01" value="1.05"><span class="value" id="value-ecc">1.05</span></div>
+<div class="row"><span class="label">trail length</span><input aria-label="trail length" type="range" id="slider-trail" min="200" max="3000" step="100" value="1500"><span class="value" id="value-trail">1500</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
