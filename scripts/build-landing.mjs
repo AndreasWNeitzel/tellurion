@@ -79,6 +79,11 @@ cards.sort((a, b) => a.title.localeCompare(b.title));
 
 const TAGS = ['mechanics', 'quantum', 'electromagnetism', 'optics', 'statistical-physics', 'fluids-mhd', 'solid-state', 'cosmology', 'relativity', 'stellar', 'medical-physics', 'numerics'];
 const heroes = cards.filter(c => c.hero_candidate).slice(0, 4);
+// Summer School Suite: every playground hosted under playgrounds/_heroes/
+// (curriculum_year === 'hero'), excluding those already shown in the
+// Featured row above so the suite is genuinely additional content.
+const featuredSlugs = new Set(heroes.map(h => h.slug));
+const suiteCards = cards.filter(c => c.curriculum_year === 'hero' && !featuredSlugs.has(c.slug));
 
 // Map an arbitrary first-tag to one of the 12 canonical categories
 // (specs carry a free tags[] list, not a primary_tag field).
@@ -140,6 +145,7 @@ function cardHTML(c, featured = false) {
 
 const cardsHTML = cards.map(c => cardHTML(c)).join('');
 const heroHTML = heroes.length ? heroes.map(h => cardHTML(h, true)).join('') : '<p class="t-small" style="color:var(--text-dimmed)">Featured coming soon.</p>';
+const suiteHTML = suiteCards.length ? suiteCards.map(c => cardHTML(c, true)).join('') : '';
 const chipRail = TAGS.map(t => `<button class="chip" data-tag="${t}">${t}</button>`).join('');
 
 const html = `<!doctype html>
@@ -418,6 +424,12 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
   <h2 class="sec">Featured</h2>
   <div class="heroes">${heroHTML}</div>
 </section>
+
+${suiteHTML ? `<section>
+  <h2 class="sec">Summer School Suite</h2>
+  <p class="t-small" style="color:var(--text-dimmed);margin:0 0 10px">Hero-grade playgrounds (KdV solitons, black hole geodesics, expanding universe, wormhole traversal, quantum tunnelling, superconductor Meissner, laser cavity, exoplanet transits and interiors, the chaotic N-body orrery). Each one ships its own physics engine and WebGL2 or Canvas2D renderer.</p>
+  <div class="heroes">${suiteHTML}</div>
+</section>` : ''}
 
 <section id="browse">
   <h2 class="sec">Browse</h2>
