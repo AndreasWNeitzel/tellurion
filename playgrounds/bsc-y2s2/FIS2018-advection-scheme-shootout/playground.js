@@ -44,6 +44,26 @@ const tok = {
   accentWarm: cssVar('--accent-warm', '#C13B27'),
 };
 
+// hex (#rrggbb) -> 'rgb(r, g, b)' helper for the waterfall ribbons.
+function hexToRgbStr(hex) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+// Per-scheme time history (rolling buffer) so we can render the
+// waterfall 3D surface u(x, t) for each scheme.
+const WATERFALL_DEPTH = 32;
+const history = { ftcs: [], upwind: [], lw: [], mac: [] };
+function pushHistory() {
+  for (const k of ['ftcs', 'upwind', 'lw', 'mac']) {
+    history[k].push(new Float64Array(state[k]));
+    if (history[k].length > WATERFALL_DEPTH) history[k].shift();
+  }
+}
+
 function rebuild() {
   state.u0 = initSquare();
   state.ftcs = new Float64Array(state.u0);
@@ -51,6 +71,8 @@ function rebuild() {
   state.lw = new Float64Array(state.u0);
   state.mac = new Float64Array(state.u0);
   state.t = 0; state.steps = 0;
+  history.ftcs.length = 0; history.upwind.length = 0; history.lw.length = 0; history.mac.length = 0;
+  pushHistory();
 }
 
 function tickN(n) {
@@ -63,6 +85,36 @@ function tickN(n) {
     stepMacCormack(state.mac, state.c, dt);
     state.t += dt;
     state.steps += 1;
+    if (state.steps % 3 === 0) pushHistory();
+  }
+}
+
+// Render a 3D waterfall surface for one scheme. Each historical
+// time-slice is drawn as a ribbon offset back-and-up in screen
+// space, so the scheme's evolution u(x, t) reads as a tilted
+// surface. Used INSIDE each scheme panel so the existing 4-panel
+// layout becomes 4 surface renderings.
+function drawWaterfall(x0, y0, panelW, panelH, hist, color, ymin, ymax) {
+  if (!hist || hist.length === 0) return;
+  // Project (i, k) -> (sx, sy) with isometric-ish offsets.
+  const dxBack = panelW * 0.25;        // total back-shift across depth
+  const dyBack = panelH * 0.22;
+  const N = hist[0].length;
+  for (let k = 0; k < hist.length; k += 1) {
+    const u = hist[k];
+    const t = k / Math.max(1, hist.length - 1);   // 0 = oldest, 1 = newest
+    const offX = (1 - t) * dxBack;                 // older slices pushed back-right
+    const offY = -(1 - t) * dyBack;
+    const alpha = 0.18 + 0.82 * t;                 // older = fainter
+    ctx.strokeStyle = color.replace('rgb', 'rgba').replace(')', `,${alpha})`);
+    ctx.lineWidth = (k === hist.length - 1) ? 1.6 : 0.9;
+    ctx.beginPath();
+    for (let i = 0; i < N; i += 1) {
+      const px = x0 + offX + (panelW - dxBack) * (i / (N - 1));
+      const py = y0 + offY + panelH * (1 - (u[i] - ymin) / (ymax - ymin));
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
   }
 }
 
@@ -99,15 +151,13 @@ function drawPanel(u, label, idx, color) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Scheme
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.4;
-  ctx.beginPath();
-  for (let i = 0; i < NX; i += 1) {
-    const p = toPx(i, u[i]);
-    if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-  }
-  ctx.stroke();
+  // 3D WATERFALL: render the scheme's u(x, t_k) for the last
+  // WATERFALL_DEPTH time slices as ribbons offset back-and-up, giving
+  // the 3D surface impression the user asked for. The current
+  // time-slice is drawn brightest; older slices fade.
+  const histKey = ['ftcs', 'upwind', 'lw', 'mac'][idx];
+  const baseRGB = color.startsWith('#') ? hexToRgbStr(color) : color;
+  drawWaterfall(x0, y0, PANEL_W, PANEL_H, history[histKey], baseRGB, ymin, ymax);
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
