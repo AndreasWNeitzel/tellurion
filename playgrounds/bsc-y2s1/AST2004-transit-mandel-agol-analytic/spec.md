@@ -1,7 +1,8 @@
 ---
 title: Mandel-Agol Analytic Transit
 slug: transit-mandel-agol-analytic
-status: verified
+status: superseded
+superseded_by: exoplanet-transit-3d
 audience: portfolio
 created: 2026-05-14
 primary_uc: AST2004
