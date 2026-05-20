@@ -1,7 +1,8 @@
 ---
 title: Stellar Habitable Zone
 slug: habitable-zone-stellar-flux
-status: verified
+status: superseded
+superseded_by: stellar-habitable-zone
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-AB
