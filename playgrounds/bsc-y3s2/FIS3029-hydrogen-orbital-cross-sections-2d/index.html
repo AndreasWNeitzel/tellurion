@@ -44,6 +44,11 @@
   <figure class="pg-figure">
     <canvas id="stage" width="760" height="640" tabindex="0"
             aria-label="Probability density heatmap of a hydrogen orbital in the xz plane."></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">(n, ℓ, m):</span><span class="value" id="readout-nlm">--</span>
+      <span class="label">radial nodes:</span><span class="value" id="readout-nodes">--</span>
+      <span class="label">span (a₀):</span><span class="value" id="readout-span">--</span>
+    </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
       $|\psi_{n\ell m}(r, \theta, \phi = 0)|^2$ for the selected orbital,

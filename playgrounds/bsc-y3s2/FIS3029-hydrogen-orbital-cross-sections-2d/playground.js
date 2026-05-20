@@ -37,6 +37,10 @@ function fillOptions() {
   }
 }
 
+const readoutNLM = document.getElementById('readout-nlm');
+const readoutNodes = document.getElementById('readout-nodes');
+const readoutSpan = document.getElementById('readout-span');
+
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
@@ -45,6 +49,9 @@ function drawAll() {
   const PLOT_X = (W - PLOT_SIDE) / 2;
   const PLOT_Y = 30;
   const orb = ORBITALS[state.idx];
+  if (readoutNLM) readoutNLM.textContent = `(${orb.n}, ${orb.l}, ${orb.m})`;
+  if (readoutNodes) readoutNodes.textContent = String(orb.n - orb.l - 1);
+  if (readoutSpan) readoutSpan.textContent = state.span.toFixed(1);
 
   const NF = 256;
   const { field, zMax } = densityField({ n: orb.n, l: orb.l, m: orb.m, N: NF, span: state.span });
