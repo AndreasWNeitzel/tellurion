@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Wormhole Legend</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+.pg-figure { max-width: 1000px; }
+.pg-figure canvas { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 8px; }
+.pg-figure canvas.dragging { cursor: grabbing; }
+.pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+.pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 10ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+.pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+.pg-controls .row.hidden { display: none; }
+.pg-controls input[type="range"], .pg-controls select { width: 100%; }
+.pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+.legend-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; background: linear-gradient(90deg, #ffd28a, #ff7c8a); color: #000; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; margin-left: 8px; vertical-align: 2px; }
+</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Wormhole<span class="legend-badge">LEGEND</span></h1>
+<p><strong>What you are seeing:</strong> the Morris-Thorne / Ellis traversable wormhole rendered through four modes (Overview, Traversal, Embedding, Exotic). The same throat radius b_0 is shared across modes. Drag the canvas to orbit (in Embedding mode), or rely on the animated traversal in the other modes. Source: Morris and Thorne, <em>Am. J. Phys.</em> 56 (1988) 395 (<code>morris-thorne-wormhole-1988</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="960" height="640" aria-label="Wormhole legend"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">throat b_0:</span><span class="value" id="readout-b0">--</span>
+  <span class="label">l_cam:</span><span class="value" id="readout-l">--</span>
+  <span class="label">r(l):</span><span class="value" id="readout-r">--</span>
+  <span class="label">rho throat (J/m^3):</span><span class="value" id="readout-rho">--</span>
+  <span class="label">mode:</span><span class="value" id="readout-mode">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Wormhole Legend, mode-switchable laboratory for the Morris-Thorne / Ellis traversable wormhole. Method: shared wormhole-cpu engine (circumferential r(l), embedding z(l), null geodesics, exotic-matter density), shared wormhole-3d WebGL2 ray-march shader. Source: Morris and Thorne 1988; Ellis 1973.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row" data-row="mode"><span class="label">mode</span><select aria-label="mode" id="select-mode">
+  <option value="overview" selected>Overview (throat + two skies)</option>
+  <option value="traversal">Traversal (camera flythrough)</option>
+  <option value="embedding">Embedding (two-funnel paraboloid)</option>
+  <option value="exotic">Exotic (rho, ANEC, tidal)</option>
+</select><span class="value" id="value-mode">over</span></div>
+<div class="row" data-row="b0"><span class="label">throat radius b_0</span><input aria-label="b0" type="range" id="slider-b0" min="0.5" max="3.0" step="0.05" value="1.0"><span class="value" id="value-b0">1.00</span></div>
+<div class="row" data-row="lcam"><span class="label">camera l / b_0</span><input aria-label="lcam" type="range" id="slider-lcam" min="-4" max="4" step="0.05" value="2.5"><span class="value" id="value-lcam">2.50</span></div>
+<div class="row" data-row="yaw"><span class="label">camera yaw (deg)</span><input aria-label="yaw" type="range" id="slider-yaw" min="-90" max="90" step="1" value="0"><span class="value" id="value-yaw">0</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
