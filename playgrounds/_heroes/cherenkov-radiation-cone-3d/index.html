@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cherenkov Radiation Cone</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Cherenkov radiation cone</h1>
+<p><strong>What you are seeing:</strong> a charged particle traversing a transparent medium of refractive index $n$ at speed $\beta c$. Each point on its track emits a spherical light wavelet that expands at $c/n$; when $\beta n > 1$ those wavelets pile up on a cone of half-angle $\cos\theta_C = 1/(\beta n)$. Source: Jackson, <em>Classical Electrodynamics</em>, Section 13.4 (<code>jackson3e</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="540"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">β:</span><span class="value" id="readout-beta">--</span>
+  <span class="label">θ_C:</span><span class="value" id="readout-theta">--</span>
+  <span class="label">intensity:</span><span class="value" id="readout-int">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Cherenkov wavelets from a charged particle moving through a medium with refractive index n; the cone envelope appears once beta*n exceeds 1. Method: closed-form geometry of spherical wavelets emitted along the particle track. Source: Jackson, Classical Electrodynamics, Section 13.4.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">β = v/c</span><input aria-label="beta" type="range" id="slider-beta" min="0.2" max="0.99" step="0.01" value="0.85"><span class="value" id="value-beta">0.85</span></div>
+<div class="row"><span class="label">medium</span><select aria-label="medium" id="select-n"><option value="1.0">vacuum (n=1.00)</option><option value="1.33" selected>water (n=1.33)</option><option value="1.45">silica (n=1.45)</option><option value="1.5">acrylic (n=1.50)</option><option value="1.7">lead glass (n=1.70)</option></select><span class="value" id="value-n">1.33</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row"><span class="label">wavelets shown</span><input aria-label="wavelets" type="range" id="slider-Nw" min="8" max="40" step="2" value="24"><span class="value" id="value-Nw">24</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
