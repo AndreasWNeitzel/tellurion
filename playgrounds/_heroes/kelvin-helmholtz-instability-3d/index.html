@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kelvin-Helmholtz</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 920px; } .pg-figure canvas { width: 100%; height: auto; background: #04060c; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Kelvin-Helmholtz instability</h1>
+<p><strong>What you are seeing:</strong> two fluid layers sliding past one another at a sheared interface. The Stuart 1967 streamfunction $\psi = -\ln(\cosh y + A \cos x)$ generates the exact cats-eye flow as a function of the amplitude $A$. As $A$ increases from 0, the interface rolls up into a row of vortices and the layers mix. Source: Chandrasekhar, <em>Hydrodynamic and Hydromagnetic Stability</em>, Ch. 11 (<code>chandrasekhar-hydro</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="560"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">A (Stuart):</span><span class="value" id="readout-A">--</span>
+  <span class="label">wavelength lambda:</span><span class="value" id="readout-lam">--</span>
+  <span class="label">vortex count:</span><span class="value" id="readout-N">--</span>
+  <span class="label">sigma (k=1, U=1):</span><span class="value" id="readout-sig">--</span>
+  <span class="label">tracers:</span><span class="value" id="readout-tr">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Kelvin-Helmholtz cats-eye flow. Method: closed-form Stuart 1967 streamfunction + RK4 tracer advection. Source: Chandrasekhar, Hydrodynamic and Hydromagnetic Stability, Ch. 11.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">Stuart A</span><input aria-label="A" type="range" id="slider-A" min="0.0" max="0.7" step="0.005" value="0.30"><span class="value" id="value-A">0.30</span></div>
+<div class="row"><span class="label">tracer count</span><input aria-label="N" type="range" id="slider-N" min="500" max="4000" step="100" value="2000"><span class="value" id="value-N">2000</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row"><span class="label">show streamlines</span><select aria-label="streamlines" id="select-stream"><option value="on" selected>show</option><option value="off">hide</option></select><span class="value" id="value-stream">on</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
