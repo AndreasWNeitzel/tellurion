@@ -53,7 +53,9 @@ function drawAll() {
     for (let i = 0; i < L; i += 1) {
       const t = theta[j * L + i];
       const h = ((t / (2 * Math.PI)) + 1) % 1;
-      const [r, g, b] = hsv(h, 0.85, 0.85);
+      // Darker palette per user feedback: lower value + slightly lower
+      // saturation gives a richer, less candy-bright cell colour.
+      const [r, g, b] = hsv(h, 0.80, 0.60);
       ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
       ctx.fillRect(x0 + i * cell, y0 + j * cell, cell, cell);
     }
@@ -77,8 +79,9 @@ function drawAll() {
 
   const m = magnetization(state.xy);
   const e = energyPerSite(state.xy);
+  // Legend in the TOP-LEFT (per user request), inside a semi-opaque
+  // panel so it stays readable over the colourful cell field.
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const rows = [
     ['T',            state.T.toFixed(2)],
     ['T_BKT',        T_BKT.toFixed(3)],
@@ -89,14 +92,22 @@ function drawAll() {
     ['vortices (+)', String(nPlus)],
     ['vortices (-)', String(nMinus)],
   ];
-  let y = H - 130;
+  const pad = 8;
+  const panelW = 250, panelH = rows.length * 14 + pad * 2;
+  ctx.fillStyle = 'rgba(10, 12, 18, 0.78)';
+  ctx.fillRect(10, 10, panelW, panelH);
+  ctx.strokeStyle = 'rgba(220, 225, 235, 0.45)';
+  ctx.strokeRect(10.5, 10.5, panelW - 1, panelH - 1);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
+  let y = 10 + pad + 12;
   for (const [k, v2] of rows) {
     ctx.textAlign = 'left';
-    ctx.fillText(k, 20, y);
+    ctx.fillText(k, 18, y);
     ctx.textAlign = 'right';
-    ctx.fillText(v2, 280, y);
+    ctx.fillText(v2, 10 + panelW - 8, y);
     y += 14;
   }
+  ctx.textAlign = 'left';
 }
 
 function tickN(n) { if (state.xy) sweep(state.xy, n); }
