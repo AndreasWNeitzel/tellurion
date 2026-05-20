@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Foucault Pendulum</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Foucault pendulum on a rotating Earth</h1>
+<p><strong>What you are seeing:</strong> a pendulum's bob traces a rosette on the local floor while its plane of oscillation rotates at $\Omega_\oplus \sin\phi$. The globe shows the suspension point at the chosen latitude as Earth turns. At the pole the rosette closes in one sidereal day; at the equator the bob just swings back and forth on a single line. Source: Goldstein, <em>Classical Mechanics</em>, Ch. 4.10 (<code>goldstein-mechanics</code>); Foucault 1851.</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="540"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">latitude:</span><span class="value" id="readout-lat">--</span>
+  <span class="label">plane angle:</span><span class="value" id="readout-ang">--</span>
+  <span class="label">precession T:</span><span class="value" id="readout-T">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Foucault pendulum trace on the local floor + rotating Earth with suspension point at latitude phi. Method: Boris-style symplectic step in the co-rotating frame; Coriolis term as exact 2D rotation. Source: Goldstein, Classical Mechanics, Ch. 4.10.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">latitude (deg)</span><input aria-label="latitude" type="range" id="slider-lat" min="0" max="90" step="1" value="49"><span class="value" id="value-lat">49</span></div>
+<div class="row"><span class="label">amplitude</span><input aria-label="amplitude" type="range" id="slider-amp" min="0.3" max="1.4" step="0.05" value="1.0"><span class="value" id="value-amp">1.00</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
