@@ -9,12 +9,22 @@ const sM1 = document.getElementById('slider-m1'), vM1 = document.getElementById(
 const sM2 = document.getElementById('slider-m2'), vM2 = document.getElementById('value-m2');
 const sK = document.getElementById('slider-K'), vK = document.getElementById('value-K');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { m1: 1, m2: 2, K: 1 }; let running = true;
+let st = { m1: 1, m2: 2, K: 1, pol: 'transverse' }; let running = true;
 sM1.addEventListener('input', () => { st.m1 = parseFloat(sM1.value); vM1.textContent = st.m1.toFixed(2); });
 sM2.addEventListener('input', () => { st.m2 = parseFloat(sM2.value); vM2.textContent = st.m2.toFixed(2); });
 sK.addEventListener('input', () => { st.K = parseFloat(sK.value); vK.textContent = st.K.toFixed(2); });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+// Polarization toggle (transverse / longitudinal). Both share the
+// same dispersion in a 1D chain; the difference is the direction of
+// the atomic displacement, which is what the user sees in the strip.
+const btnPol = document.getElementById('btn-polarization');
+if (btnPol) {
+  btnPol.addEventListener('click', () => {
+    st.pol = (st.pol === 'transverse') ? 'longitudinal' : 'transverse';
+    btnPol.textContent = `Polarization: ${st.pol}`;
+  });
+}
 // Plot occupies the top; a dedicated lattice band sits below it so the
 // atoms never overlap the axis or the readout. The y-axis uses a FIXED
 // omega scale (not auto-scaled by the data), so raising K visibly
@@ -114,26 +124,34 @@ function renderLattice() {
   ctx.fillStyle = 'rgba(220,220,240,0.07)';
   ctx.fillRect(0, stripY - 16, W, 32);
   const k = selected.k;
+  // Equilibrium-position markers (faint) so longitudinal compression
+  // shows up as a visible bunching.
+  ctx.strokeStyle = 'rgba(180, 185, 210, 0.18)'; ctx.lineWidth = 1;
+  for (let i = 0; i < NATOMS; i += 1) {
+    const xe = x0 + i * dx;
+    ctx.beginPath(); ctx.moveTo(xe, stripY - 8); ctx.lineTo(xe, stripY + 8); ctx.stroke();
+  }
   for (let i = 0; i < NATOMS; i += 1) {
     let disp;
     if (selected.branch === 'monatomic') {
       disp = AMP * Math.sin(k * i - phase);
     } else {
-      // Diatomic: cell index = floor(i/2); sub-lattice sign.
       const cell = Math.floor(i / 2);
       const isM2 = (i & 1) === 1;
-      // Acoustic: both sub-lattices in phase. Optical: anti-phase.
       const cellPhase = k * cell - phase;
       const sub = (selected.branch === 'optical' && isM2) ? -1 : 1;
       disp = AMP * sub * Math.sin(cellPhase);
     }
     const isA = (i & 1) === 0;
-    const x = x0 + i * dx;
+    const xe = x0 + i * dx;
+    // Longitudinal: shift atom along x; Transverse: shift along y.
+    const px = (st.pol === 'longitudinal') ? xe + disp : xe;
+    const py = (st.pol === 'longitudinal') ? stripY : stripY + disp;
     ctx.fillStyle = isA ? '#7c9cff' : '#ffd57f';
-    ctx.beginPath(); ctx.arc(x, stripY + disp, 6, 0, 2 * Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, 6, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px sans-serif';
-  ctx.fillText(`Lattice: ${selected.branch} mode, k=${selected.k.toFixed(2)} (click the curve to change)`, 12, stripY - 20);
+  ctx.fillText(`Lattice: ${selected.branch} mode, k=${selected.k.toFixed(2)}, ${st.pol}  (click the curve to change)`, 12, stripY - 20);
 }
 
 function tick() { render(); renderLattice(); requestAnimationFrame(tick); }
