@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Supernova Light Curve (Hero)</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+.pg-figure { max-width: 1000px; }
+.pg-figure canvas { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 8px; }
+.pg-figure canvas.dragging { cursor: grabbing; }
+.pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+.pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 10ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+.pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+.pg-controls input[type="range"], .pg-controls select { width: 100%; }
+.pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Supernova Light Curve <span style="font-size:12px;color:var(--fg-muted)">(Hero)</span></h1>
+<p><strong>What you are seeing:</strong> a supernova fireball expanding homologously, with its bolometric light curve L(t) and the 56Ni -> 56Co -> 56Fe radioactive decay chain that powers it. Toggle between SN 2011fe (Type Ia, the standard candle) and SN 1987A (Type II core-collapse). Drag the canvas to orbit, scroll to zoom. Source: Arnett, <em>ApJ</em> 253 (1982) 785 (<code>arnett-1982</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="960" height="640" aria-label="Supernova fireball + light curve"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">type:</span><span class="value" id="readout-type">--</span>
+  <span class="label">t (d):</span><span class="value" id="readout-t">--</span>
+  <span class="label">L (erg/s):</span><span class="value" id="readout-L">--</span>
+  <span class="label">M_V:</span><span class="value" id="readout-mv">--</span>
+  <span class="label">r (cm):</span><span class="value" id="readout-r">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Supernova in 3D: homologously expanding fireball (left), bolometric light curve L(t) with the Ni decay tail and Co tail (right), and the live mass partition Ni / Co / Fe (lower). Method: Arnett 1982 decay-chain + diffusion trapping; closed-form Bateman equations for the chain mass partition. Source: Arnett, ApJ 253 (1982) 785.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">SN preset</span><select aria-label="preset" id="select-preset">
+  <option value="ia_2011fe" selected>SN 2011fe (Type Ia)</option>
+  <option value="ii_1987a">SN 1987A (Type II)</option>
+</select><span class="value" id="value-preset">2011fe</span></div>
+<div class="row"><span class="label">56Ni mass (M_sun)</span><input aria-label="m_ni" type="range" id="slider-mni" min="0.02" max="1.0" step="0.01" value="0.60"><span class="value" id="value-mni">0.60</span></div>
+<div class="row"><span class="label">diffusion time (d)</span><input aria-label="tdiff" type="range" id="slider-tdiff" min="5" max="60" step="1" value="14"><span class="value" id="value-tdiff">14</span></div>
+<div class="row"><span class="label">v_ej (km/s)</span><input aria-label="vej" type="range" id="slider-vej" min="2000" max="20000" step="500" value="11000"><span class="value" id="value-vej">11000</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
