@@ -1,7 +1,8 @@
 ---
 title: "Cosmic-Ray Air Shower"
 slug: cosmic-ray-air-shower
-status: verified
+status: superseded
+superseded_by: cosmic-ray-air-shower-3d
 audience: portfolio
 created: 2026-05-15
 primary_uc: FIS3030
