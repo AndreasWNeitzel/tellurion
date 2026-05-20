@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dark Matter Halo Rotation Curve</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Dark matter halo and the galactic rotation curve</h1>
+<p><strong>What you are seeing:</strong> a 3D galactic disk with its dark-matter halo (transparent purple sphere) on the left, and the rotation curve $v_c(r)$ on the right. The bulge (gold), exponential disk (cyan), and NFW dark halo (purple) contributions to $v_c$ are plotted separately, with the total (white) on top. Toggle the dark halo off to see the flat plateau collapse into a Keplerian fall. Source: Navarro, Frenk and White, <em>ApJ</em> 462 (1996) 563 (<code>navarro-frenk-white-1996</code>); Rubin and Ford 1970.</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="560"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">v_c(plateau):</span><span class="value" id="readout-vp">--</span>
+  <span class="label">M_DM/M_visible:</span><span class="value" id="readout-ratio">--</span>
+  <span class="label">DM:</span><span class="value" id="readout-dm">ON</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Three-component galactic rotation curve (Hernquist bulge, exponential disk, NFW dark halo) with 3D disk + halo inset. Method: closed-form enclosed-mass integrals; v_c(r) = sqrt(G M(&lt;r) / r). Source: Navarro, Frenk, White, ApJ 462 (1996) 563.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">M_DM</span><input aria-label="M_DM" type="range" id="slider-MDM" min="20" max="200" step="5" value="80"><span class="value" id="value-MDM">80</span></div>
+<div class="row"><span class="label">concentration c</span><input aria-label="c" type="range" id="slider-c" min="4" max="20" step="0.5" value="12"><span class="value" id="value-c">12</span></div>
+<div class="row"><span class="label">scale radius r_s</span><input aria-label="r_s" type="range" id="slider-rs" min="10" max="40" step="1" value="20"><span class="value" id="value-rs">20</span></div>
+<div class="row"><span class="label">dark halo</span><input aria-label="halo" type="checkbox" id="toggle-dm" checked style="grid-column: span 2; justify-self: start;"></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
