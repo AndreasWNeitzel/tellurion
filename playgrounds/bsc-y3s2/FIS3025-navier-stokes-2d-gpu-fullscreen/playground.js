@@ -17,9 +17,9 @@
 
 import {
   createState, setBlockObstacle, setDiskObstacle, step, divergenceMax,
-  cellVelocity, advectScalar,
+  cellVelocity, advectScalar, vorticity,
 } from '../../../shared/js/engine/chorin-2d-cpu.js';
-import { viridis } from '../../../shared/js/render/colormaps.js';
+import { viridis, divBlack } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 
 const params = new URLSearchParams(location.search);
@@ -53,18 +53,23 @@ const GX = 220, GY = 140, DT = 0.09, VMAX = 1.8, YSHIFT = 6, DIFF = 4, CONF = 0.
 const SUBSTEPS = 2;
 const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 4e-3, maxIter: 20 }, bfecc: false, confine: CONF };
 const REGIME_RE = { stokes: 8, steady: 60, vonkarman: 300, turbulent: 600 };
-const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: true };
+const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: true, field: 'vorticity' };
+const selField = document.getElementById('select-field');
 
 let state, dye, off, peakW = 0;
 const offCanvas = document.createElement('canvas');
 offCanvas.width = GX; offCanvas.height = GY;
 const offCtx = offCanvas.getContext('2d');
 
-// Speed |u| through viridis: nonzero everywhere (free stream, the
-// wake deficit, the acceleration around the body), so the whole
-// canvas carries structure that visibly responds to Re and the
-// obstacle, the standard vivid flow-past-a-body visualization. peakW
-// here is the max speed (the readout).
+// Two render modes:
+//  - 'speed': |u| through viridis. Carries structure everywhere (the
+//    free stream is non-zero) but the alternating shed vortices read
+//    only as faint dimples.
+//  - 'vorticity': signed curl(u) through an RdBu diverging palette,
+//    red for cw rotation and blue for ccw. This is the iconic
+//    von-Karman-street visualization: each shed core is a sharp red or
+//    blue blob and the alternating sign as the street propagates
+//    downstream is unmistakable.
 function paintSpeed() {
   if (!off) off = offCtx.createImageData(GX, GY);
   const d = off.data;
@@ -74,6 +79,29 @@ function paintSpeed() {
     const s = Math.hypot(uc[k], vc[k]);
     if (s > mx) mx = s;
     const c = viridis(Math.min(1, s / VMAX));
+    const j = k * 4;
+    d[j] = c.r; d[j + 1] = c.g; d[j + 2] = c.b; d[j + 3] = 255;
+  }
+  peakW = mx;
+}
+
+function paintVorticity() {
+  if (!off) off = offCtx.createImageData(GX, GY);
+  const d = off.data;
+  const { uc, vc } = cellVelocity(state);
+  const om = vorticity(state);
+  // Robust scale from a fixed percentile of the magnitude. Using a
+  // fixed VORT_SCALE rather than the per-frame max keeps the colors
+  // stable as vortices shed (a momentarily quiet field would over-
+  // saturate otherwise). 4.0 is chosen so the von-Karman street at
+  // Re=300 saturates ~ 80% of the range.
+  const VORT_SCALE = 4.0;
+  let mx = 0;
+  for (let k = 0; k < GX * GY; k += 1) {
+    const s = Math.hypot(uc[k], vc[k]);
+    if (s > mx) mx = s;
+    const t = Math.max(0, Math.min(1, 0.5 + 0.5 * om[k] / VORT_SCALE));
+    const c = divBlack(t);
     const j = k * 4;
     d[j] = c.r; d[j + 1] = c.g; d[j + 2] = c.b; d[j + 3] = 255;
   }
@@ -96,7 +124,7 @@ function build(warm) {
 }
 
 function render() {
-  paintSpeed();
+  if (st.field === 'vorticity') paintVorticity(); else paintSpeed();
   if (st.tracer) {
     for (let k = 0; k < GX * GY; k += 1) {
       if (dye[k] > 0.05) {
@@ -148,11 +176,12 @@ sRe.addEventListener('input', () => {
   syncLabels(); build(60); render();
 });
 selObs.addEventListener('change', () => { st.obs = selObs.value; build(80); render(); });
+selField.addEventListener('change', () => { st.field = selField.value; render(); });
 sSpd.addEventListener('input', () => { st.speed = parseInt(sSpd.value, 10); syncLabels(); });
 tTracer.addEventListener('change', () => { st.tracer = tTracer.checked; build(60); render(); });
 bR.addEventListener('click', () => {
-  st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.speed = 2; st.running = true;
-  selReg.value = 'vonkarman'; sRe.value = '300'; selObs.value = 'cylinder'; sSpd.value = '2'; tTracer.checked = false;
+  st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.speed = 2; st.running = true; st.field = 'vorticity';
+  selReg.value = 'vonkarman'; sRe.value = '300'; selObs.value = 'cylinder'; sSpd.value = '2'; tTracer.checked = false; selField.value = 'vorticity';
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); syncLabels(); build(80); render();
 });
 bP.addEventListener('click', () => { st.running = !st.running; bP.textContent = st.running ? 'Pause' : 'Play'; bP.setAttribute('aria-pressed', String(!st.running)); });
@@ -173,12 +202,20 @@ function bootSync() {
   restoreState(); syncLabels();
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
-    st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false;
+    // Long developed-wake warmup; the von Karman street takes ~ 8
+    // shedding cycles at Re=300 (St ~ 0.21, T ~ 4.8 dimensionless
+    // time units, so we want ~ 40 t.u. = 450 steps minimum). Sweep
+    // the capture across half a shedding period after warmup so the
+    // five goldens catch the alternating sign of the shed cores.
+    st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.field = 'vorticity';
+    selField.value = 'vorticity';
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state = createState(GX, GY, st.Re);
     setDiskObstacle(state, 0.22, 17, YSHIFT);
     dye = new Float64Array(GX * GY);
-    const steps = Math.round(40 + f * 820);
+    const warm = 600;
+    const sweep = Math.round(f * 60);
+    const steps = warm + sweep;
     for (let n = 0; n < steps; n += 1) step(state, DT, STEP_OPTS);
     render();
   } else {
