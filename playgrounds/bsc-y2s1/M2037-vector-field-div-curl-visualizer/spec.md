@@ -62,16 +62,73 @@ conservative vs non-conservative fields). By Stokes' theorem the curl
 integrated over a region equals the line integral (circulation)
 around its boundary.
 
-### Why the split matters
+### The integral theorems
 
-The Helmholtz decomposition says any well-behaved field is the sum of
-a curl-free part (a gradient, like an electrostatic field) and a
-divergence-free part (a rotation, like a magnetic field). Divergence
-and curl are exactly the two probes that separate them, which is why
-Maxwell's equations are written entirely in terms of div and curl.
-The playground lets you pick a field (source, vortex, shear, saddle)
-and move the probe to read $\nabla\cdot\mathbf F$ and
-$(\nabla\times\mathbf F)_z$ with a little expanding/spinning glyph.
+The differential div and curl are the local-density forms of two
+integral identities. The DIVERGENCE THEOREM (Gauss):
+
+$$\boxed{\;\iint_A (\nabla \cdot \mathbf F)\,dA
+       = \oint_{\partial A} \mathbf F \cdot \hat n\,d\ell,\;}$$
+
+where $\hat n$ is the outward unit normal: the total source strength
+inside equals the net flux out across the boundary. STOKES' THEOREM
+in 2D (the same identity as the *circulation* playground):
+
+$$\boxed{\;\iint_A (\nabla \times \mathbf F)_z\,dA
+       = \oint_{\partial A} \mathbf F \cdot d\boldsymbol\ell.\;}$$
+
+The differential div and curl are these integral statements made
+local by shrinking the region $A$ to zero area.
+
+### Helmholtz decomposition: why div and curl are enough
+
+Helmholtz's theorem (1858) says any smooth, decaying-at-infinity
+2D or 3D vector field can be uniquely decomposed as
+
+$$\mathbf F = -\nabla\phi + \nabla \times \vec A,$$
+
+with $\phi$ a scalar "irrotational" potential ($\nabla \times \nabla\phi
+\equiv 0$) and $\vec A$ a "solenoidal" vector potential
+($\nabla \cdot (\nabla \times \vec A) \equiv 0$). The two pieces are
+exactly what divergence and curl probe:
+
+- $\nabla \cdot \mathbf F = -\nabla^2 \phi$ comes only from the
+  irrotational part.
+- $\nabla \times \mathbf F = \nabla \times \nabla \times \vec A$
+  comes only from the solenoidal part.
+
+This is why Maxwell's equations are written entirely in terms of div
+and curl. The electrostatic field has $\nabla \times \mathbf E = 0$
+(it is a gradient $-\nabla\phi$); the magnetostatic field has
+$\nabla \cdot \mathbf B = 0$ (it is a curl $\nabla \times \vec A$).
+
+### A worked example: the central field
+
+Take $\mathbf F = (x, y) = r\hat r$. Then
+
+$$\nabla \cdot \mathbf F = \frac{\partial x}{\partial x}
+       + \frac{\partial y}{\partial y} = 2.$$
+
+So the divergence is the constant $2$ everywhere: every point is a
+source. The curl is
+
+$$(\nabla \times \mathbf F)_z = \frac{\partial y}{\partial x}
+       - \frac{\partial x}{\partial y} = 0 - 0 = 0,$$
+
+a pure source with no rotation. The vortex field $\mathbf F = (-y, x)$
+has $\nabla \cdot \mathbf F = 0$ and
+$(\nabla \times \mathbf F)_z = 2$: pure rotation.
+
+### Symbols, at a glance
+
+- $\mathbf F = (F_x, F_y)$, the 2D vector field.
+- $\nabla \cdot \mathbf F = \partial_x F_x + \partial_y F_y$, divergence
+  (units of $\mathbf F$ per length).
+- $(\nabla \times \mathbf F)_z = \partial_x F_y - \partial_y F_x$,
+  scalar curl.
+- $\phi$, scalar potential of the irrotational part.
+- $\vec A$, vector potential of the solenoidal part.
+- $A$, planar region; $\partial A$, its boundary.
 
 ### Things to try
 
@@ -82,11 +139,16 @@ $(\nabla\times\mathbf F)_z$ with a little expanding/spinning glyph.
 - Find a saddle/shear where one is zero and the other is not, and a
   point where both vanish.
 
-### Where this comes from
+### Bibliographic origin
 
-Divergence, curl, and the divergence/Stokes theorems follow Griffiths,
-*Introduction to Electrodynamics*, Chapter 1, and Arfken and Weber,
-*Mathematical Methods for Physicists*, Chapter 3.
+The Helmholtz decomposition: Helmholtz, *Crelle's Journal* **55**
+(1858) 25. Divergence and Stokes' theorems were established by Gauss
+(1813), Ostrogradsky (1828), Kelvin (1850) and Stokes (1854). Modern
+treatment: Griffiths, *Introduction to Electrodynamics* (5th ed.,
+Cambridge 2024), Ch. 1; Arfken, Weber and Harris, *Mathematical
+Methods for Physicists* (7th ed., Academic 2012), Ch. 3, 4; Spivak,
+*Calculus on Manifolds* (Westview 1971), Ch. 4 for the modern
+differential-forms generalisation $\int_M d\omega = \int_{\partial M} \omega$.
 
 ## Physical setup
 
