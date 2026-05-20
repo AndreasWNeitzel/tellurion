@@ -39,6 +39,13 @@ sG.addEventListener('input', () => { st.GSig = parseFloat(sG.value); vG.textCont
 btnR.addEventListener('click', () => { st.sigma = 1.5; st.kappa = 1.5; st.GSig = 3; st.t = 0; sS.value = '1.5'; vS.textContent = '1.50'; sK.value = '1.5'; vK.textContent = '1.50'; sG.value = '3'; vG.textContent = '3.00'; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
+// Track Q state changes so the growth clock resets each time the disc
+// crosses into the unstable regime. Without this the user saw the
+// arms 'instantly spawn' when Q is dropped below 1 after the sim has
+// been running, because the exponential growth was already saturated;
+// physically the arms grow from a seed perturbation on timescale
+// 1/gamma each time Q becomes < 1.
+let lastStable = true, tUnstable = 0;
 function render() {
   if (!CAPTURE_NAME && running) st.t += 0.02;
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -51,10 +58,16 @@ function render() {
   let nu2min = Infinity, kStar = 0.5;
   for (let kk = 0.05; kk <= 6; kk += 0.02) { const v = nuSquared(kk, st.kappa, st.sigma, GS); if (v < nu2min) { nu2min = v; kStar = kk; } }
   const gamma = Math.sqrt(Math.max(0, -nu2min));
-  // wave amplitude: grows when unstable (saturating), stays small &
-  // winds up (phase-mixes) when stable
-  const tt = st.t;
-  const ampU = 0.95 * (1 - Math.exp(-gamma * tt * 1.1));  // strong arms when unstable
+
+  // State machine on Q crossing 1: when entering the unstable regime,
+  // restart the growth clock so the user sees the arms grow over
+  // ~1/gamma rather than appearing already-saturated.
+  if (Q < 1 && lastStable) { tUnstable = 0; }
+  if (Q < 1 && running) tUnstable += 0.02;
+  lastStable = (Q >= 1);
+
+  const tt = tUnstable;
+  const ampU = 0.95 * (1 - Math.exp(-gamma * tt * 1.1));   // physical e-fold ~ 1/gamma
   const amp = Q < 1 ? Math.min(1.05, ampU) : 0.06;
   const mArms = 2;
   // a loosely-wound grand-design spiral (real pitch angles are ~15
