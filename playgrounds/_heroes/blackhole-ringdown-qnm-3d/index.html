@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Black-Hole Ringdown</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 920px; } .pg-figure canvas { width: 100%; height: auto; background: #03050b; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Black-hole ringdown</h1>
+<p><strong>What you are seeing:</strong> the merger remnant of a binary BH coalescence settling to a Kerr black hole by radiating its lowest quasinormal mode $(\ell, m, n) = (2, 2, 0)$. The horizon (oblate spheroid) wobbles with a damped sinusoid; the strain panel below shows $h(t)$ with the LIGO-style ringdown signature. Source: Berti, Cardoso, Will, <em>Phys. Rev. D</em> 73 (2006) 064030 (<code>berti-cardoso-will-qnm</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="600"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">M (M_sun):</span><span class="value" id="readout-M">--</span>
+  <span class="label">chi = a/M:</span><span class="value" id="readout-chi">--</span>
+  <span class="label">f (Hz):</span><span class="value" id="readout-f">--</span>
+  <span class="label">tau (ms):</span><span class="value" id="readout-tau">--</span>
+  <span class="label">Q-factor:</span><span class="value" id="readout-Q">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Ringdown of a perturbed Kerr black hole, dominant (2, 2, 0) QNM. The horizon wobble is set by complex M omega_220(chi); the strain h(t) decays at rate -omega_I. Method: closed-form Berti et al. 2006 QNM lookup interpolated in chi. Source: Berti, Cardoso, Will, Phys. Rev. D 73 (2006) 064030.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">remnant mass M</span><input aria-label="mass" type="range" id="slider-M" min="5" max="200" step="1" value="62"><span class="value" id="value-M">62 M_sun</span></div>
+<div class="row"><span class="label">spin chi = a/M</span><input aria-label="chi" type="range" id="slider-chi" min="0" max="0.99" step="0.01" value="0.69"><span class="value" id="value-chi">0.69</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row"><span class="label">amplitude</span><input aria-label="amp" type="range" id="slider-amp" min="0.05" max="0.4" step="0.01" value="0.20"><span class="value" id="value-amp">0.20</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
