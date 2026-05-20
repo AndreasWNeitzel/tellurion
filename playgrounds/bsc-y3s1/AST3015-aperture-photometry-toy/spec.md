@@ -33,35 +33,63 @@ synthesizes a star, lets you size the aperture and annulus, and shows
 the measured flux chase the true value, with the trade-off every
 observer lives with.
 
-### The star and the sky
+### The point-spread function
 
-A real point source is smeared by the atmosphere and optics into a
-point-spread function. A good model is the Moffat profile
+A real point source is smeared by the atmosphere and the optics into
+a *point-spread function* (PSF). The Moffat (1969) profile
 
-$$I(r) = I_0\left[1 + \left(\frac{r}{\alpha}\right)^2\right]^{-\beta},$$
+$$\boxed{\;I(r) = I_0\,\left[1 + \left(\frac{r}{\alpha}\right)^2\right]^{-\beta}\;}$$
 
-which has the broad wings real seeing produces (a Gaussian falls off
-too fast). It sits on a roughly flat sky background plus shot noise.
+fits ground-based seeing well: it has the broad wings that real
+seeing produces (a Gaussian falls off too fast and underestimates the
+flux in the wings). The FWHM and the total flux of a Moffat are
+
+$$\mathrm{FWHM} = 2 \alpha\,\sqrt{2^{1/\beta} - 1},\qquad
+F_{\rm total} = \int_0^\infty I(r)\,2\pi r\,dr
+              = \frac{\pi\,\alpha^2\,I_0}{\beta - 1}\quad (\beta > 1).$$
+
+Typical ground-based seeing has $\beta \approx 3$ and FWHM 0.6 to
+1.5 arcseconds. The PSF sits on a roughly flat sky background $b$
+(per pixel) plus shot noise.
 
 ### Aperture photometry
 
-The measured flux is
+The measured flux of the star is
 
-$$F = \sum_{\text{aperture}} C_i \;-\; n_\text{ap}\,\bar b,$$
+$$\boxed{\;F = \sum_{i \in {\rm aperture}} C_i \;-\; n_{\rm ap}\,\bar b,\;}$$
 
-the total counts inside the aperture minus the per-pixel sky level
-$\bar b$ (estimated robustly from a surrounding annulus that excludes
-the star) times the number of aperture pixels. The headline trade-off:
+where $C_i$ is the total counts in pixel $i$, the sum runs over the
+$n_{\rm ap}$ pixels inside the aperture, and $\bar b$ is the per-
+pixel sky level estimated from a surrounding annulus that excludes
+the star. The signal-to-noise ratio in the shot-noise regime is
 
-- Aperture too small: you miss the Moffat wings, the flux is
-  systematically low.
-- Aperture too large: you capture all the star but also pile in sky
-  shot noise, so the measurement gets noisier.
+$$\frac{S}{N} = \frac{F_\star}{\sqrt{F_\star + n_{\rm ap}\,b + n_{\rm ap}\,b\,(n_{\rm ap}/n_{\rm sky})}},$$
 
-There is a sweet spot (roughly a couple of seeing radii) that maximizes
-signal-to-noise. The playground shows the recovered flux converging to
-truth as you widen the aperture, then the noise growing, exactly the
-balance a real observer optimizes.
+where $n_{\rm sky}$ is the number of annulus pixels (its $n_{\rm ap}/n_{\rm sky}$
+term comes from how the noise on the SKY estimate propagates back
+into the per-aperture-pixel subtraction). The headline trade-off:
+
+- *Aperture too small*: you miss the Moffat wings, so the recovered
+  flux is systematically LOW.
+- *Aperture too large*: you capture all the star but also pile in
+  sky shot noise $\sqrt{n_{\rm ap} b}$, so the measurement gets
+  NOISIER even though the bias is gone.
+
+There is a sweet spot near $r_{\rm ap} \approx 1.5 \times \mathrm{FWHM}$
+that maximises $S/N$ for typical seeing and sky brightness.
+
+### Symbols, at a glance
+
+- $r$, radial distance from the centroid of the star (pixels or
+  arcseconds).
+- $I(r)$, intensity profile of the star.
+- $\alpha$, $\beta$, the Moffat parameters; $\alpha$ sets the core
+  width, $\beta$ sets the wing decay.
+- $C_i$, counts in pixel $i$ (ADU or electrons).
+- $F$, recovered stellar flux; $F_\star$, the true flux.
+- $b$, per-pixel sky brightness.
+- $n_{\rm ap}$, $n_{\rm sky}$, number of pixels in the aperture and
+  in the sky annulus.
 
 ### Things to try
 
@@ -72,8 +100,12 @@ balance a real observer optimizes.
 - Move the sky annulus onto the star and watch the background
   over-subtract: the flux goes wrong.
 
-### Where this comes from
+### Bibliographic origin
 
-The Moffat PSF, aperture-plus-annulus photometry, and the aperture
-size signal-to-noise trade-off follow Howell, *Handbook of CCD
-Astronomy*.
+The Moffat profile: Moffat, *Astron. Astrophys.* **3** (1969) 455.
+Aperture-and-annulus photometry as the standard technique: Stetson,
+*Publ. Astron. Soc. Pacific* **99** (1987) 191 (DAOPHOT). The S/N
+analysis is Howell, *Handbook of CCD Astronomy* (2nd ed., Cambridge
+2006), Ch. 5; modern survey work uses the more sophisticated PSF
+photometry of Stetson 1987 or Anderson and King, *Publ. Astron.
+Soc. Pacific* **112** (2000) 1360 (HST-style effective-PSF fitting).
