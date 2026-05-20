@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>pp Chain vs CNO Cycle</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>pp chain vs CNO cycle</h1>
+<p><strong>What you are seeing:</strong> the two main hydrogen-burning networks in stellar cores, with their energy-generation rate compared across temperature. The pp chain (left) goes as $\varepsilon \propto T^4$; the CNO cycle (right) goes as $\varepsilon \propto T^{17}$. The cross-over is near $1.8 \times 10^7$ K. The Sun (T_core = $1.55 \times 10^7$ K) is about 99% pp; an O-star is essentially 100% CNO. Source: Kippenhahn, Weigert, Weiss, <em>Stellar Structure and Evolution</em>, Ch. 18 (<code>kippenhahn-stellar-structure</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="600"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">T:</span><span class="value" id="readout-T">--</span>
+  <span class="label">pp fraction:</span><span class="value" id="readout-pp">--</span>
+  <span class="label">CNO fraction:</span><span class="value" id="readout-cno">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> pp-chain (left) and CNO-cycle (right) reaction networks; live pp/CNO contribution as a function of core T; Q = 26.73 MeV per net synthesis. Method: epsilon_pp ~ T^4, epsilon_CNO ~ T^17, normalized so the Sun is 99% pp. Source: Kippenhahn, Weigert, Weiss, Ch. 18.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">core T (10^7 K)</span><input aria-label="T7" type="range" id="slider-T" min="0.8" max="4.0" step="0.05" value="1.55"><span class="value" id="value-T">1.55</span></div>
+<div class="row"><span class="label">preset</span><select aria-label="preset" id="select-preset"><option value="0.8">M dwarf (0.8)</option><option value="1.55" selected>Sun (1.55)</option><option value="1.9">F star (1.9)</option><option value="2.5">A star (2.5)</option><option value="3.5">O star (3.5)</option></select><span class="value" id="value-preset">Sun</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
