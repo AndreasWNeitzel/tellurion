@@ -1,5 +1,10 @@
-// Stellar aberration playground. Polar plot of star positions at
-// uniformly spaced rest angles, then their observer-frame angles.
+// Stellar aberration playground. The primary scene is now a 3D POV
+// sky as the observer accelerates: a procedural star field on a unit
+// sphere is boosted along +x by speed beta = v/c, and each star's
+// apparent angle in the observer's frame is mapped onto the screen.
+// As beta grows, stars STREAM forward into a tight cone (the visible
+// effect on a relativistic ship). The original polar plot is demoted
+// to a small inset diagnostic.
 
 import {
   thetaObs, aberrationShift, BETA_EARTH_ORBIT,
@@ -36,81 +41,133 @@ function colors() {
 
 const RAD_TO_AS = 180 * 3600 / Math.PI;
 
+// Deterministic procedural star field on a unit sphere. Mulberry32
+// seeded once so the goldens are stable.
+function mulb(seed) { let x = seed >>> 0; return () => { x = (x + 0x6D2B79F5) | 0; let t = Math.imul(x ^ (x >>> 15), 1 | x); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const STAR_FIELD = (() => {
+  const rnd = mulb(0xAB17AB5);
+  const stars = [];
+  for (let i = 0; i < 360; i += 1) {
+    // Uniform on the sphere
+    const u = 2 * rnd() - 1, phi = 2 * Math.PI * rnd();
+    const s = Math.sqrt(1 - u * u);
+    stars.push({
+      x: s * Math.cos(phi), y: s * Math.sin(phi), z: u,
+      mag: 0.3 + 0.7 * rnd(),
+      hue: 0.5 + 0.5 * rnd(),
+    });
+  }
+  return stars;
+})();
+
+// Relativistic aberration of a star whose rest-frame direction (in
+// the lab frame, with motion along +x) is (sx, sy, sz). The observer's
+// boosted direction (with motion along +x at speed beta) is:
+//   cos(theta') = (cos(theta) - beta) / (1 - beta cos(theta))
+// where cos(theta) = sx (angle from +x).
+// The (sy, sz) components are scaled so that the unit vector stays
+// normalised in the boosted frame.
+function aberrate(sx, sy, sz, beta) {
+  const cosTheta = sx;
+  const cosThetaP = (cosTheta - beta) / (1 - beta * cosTheta);
+  const sinTheta = Math.sqrt(Math.max(0, 1 - cosTheta * cosTheta));
+  const sinThetaP = Math.sqrt(Math.max(0, 1 - cosThetaP * cosThetaP));
+  // Preserve azimuth around the +x axis
+  const aziScale = sinTheta > 1e-9 ? sinThetaP / sinTheta : 0;
+  return [cosThetaP, sy * aziScale, sz * aziScale];
+}
+
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const cxPx = canvas.width / 2, cyPx = canvas.height / 2;
-  const R = Math.min(canvas.width, canvas.height) * 0.38;
+  const W = canvas.width, H = canvas.height;
   const beta = Math.pow(10, logBeta);
 
-  // Concentric circle and axes.
-  ctx.strokeStyle = c.grid;
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(cxPx, cyPx, R, 0, 2 * Math.PI); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cxPx - R, cyPx); ctx.lineTo(cxPx + R, cyPx); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cxPx, cyPx - R); ctx.lineTo(cxPx, cyPx + R); ctx.stroke();
-
-  // Motion direction arrow.
-  ctx.strokeStyle = c.muted;
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(cxPx, cyPx); ctx.lineTo(cxPx + R * 0.92, cyPx); ctx.stroke();
-  ctx.fillStyle = c.muted;
-  ctx.beginPath();
-  ctx.moveTo(cxPx + R * 0.92, cyPx);
-  ctx.lineTo(cxPx + R * 0.92 - 8, cyPx - 5);
-  ctx.lineTo(cxPx + R * 0.92 - 8, cyPx + 5);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('v', cxPx + R * 0.94, cyPx + 4);
-
-  // Rest-frame stars at uniform angles.
-  const N = 18;
+  // 3D POV sky: each star is aberrated by beta toward +x (direction of
+  // motion), then projected with a wide-FOV perspective onto the screen.
+  // Stars behind the observer (cos(theta') < some threshold) are
+  // culled. Forward streaming is the visible effect.
+  const fovDeg = 70, fov = fovDeg * Math.PI / 180;
+  const f = 1 / Math.tan(fov / 2);                       // focal length
+  const pxK = Math.min(W, H) * 0.5;                      // pixel scale
+  ctx.save();
   let maxShift = 0;
-  for (let i = 0; i < N; i += 1) {
-    const tr = 2 * Math.PI * i / N;
-    const to = thetaObs(tr, beta) * (tr > Math.PI ? -1 : 1);
-    // For tr in [pi, 2pi] we mirror.
-    const trDisplay = tr > Math.PI ? -(2 * Math.PI - tr) : tr;
-    const px_r = cxPx + R * Math.cos(trDisplay);
-    const py_r = cyPx - R * Math.sin(trDisplay);
-    const px_o = cxPx + R * Math.cos(to);
-    const py_o = cyPx - R * Math.sin(to);
-    ctx.strokeStyle = c.accent;
-    ctx.globalAlpha = 0.5;
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(px_r, py_r); ctx.lineTo(px_o, py_o); ctx.stroke();
-    ctx.globalAlpha = 1.0;
-
-    ctx.fillStyle = c.blue;
-    ctx.beginPath(); ctx.arc(px_r, py_r, 4, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = c.orange;
-    ctx.beginPath(); ctx.arc(px_o, py_o, 5, 0, 2 * Math.PI); ctx.fill();
-
-    const shift = Math.abs(aberrationShift(tr, beta));
+  for (const s of STAR_FIELD) {
+    const [bx, by, bz] = aberrate(s.x, s.y, s.z, beta);
+    if (bx <= 0.05) continue;                            // behind the observer
+    // Project onto screen with the +x axis pointing into the page.
+    // Screen-x is the +y world component (azimuth around motion axis),
+    // screen-y is the +z component (height above the motion plane).
+    const screenX = W / 2 + pxK * f * by / bx;
+    const screenY = H / 2 - pxK * f * bz / bx;
+    if (screenX < -20 || screenX > W + 20 || screenY < -20 || screenY > H + 20) continue;
+    // Brightness scales with the Doppler factor cubed (intensity boost
+    // for forward-moving sources) so the on-axis sky brightens at
+    // high beta. Cap at the rendering range.
+    const D = 1 / (Math.sqrt(Math.max(1e-9, 1 - beta * beta)) * (1 - beta * bx));
+    const bright = Math.min(1.0, s.mag * Math.pow(D, 0.6));
+    const blue = Math.round(180 + 75 * s.hue);
+    const red  = Math.round(220 - 80 * (1 - s.hue));
+    ctx.fillStyle = `rgba(${red}, ${Math.round(200 + 30 * s.hue)}, ${blue}, ${bright})`;
+    const r = 1.0 + 1.2 * bright;
+    ctx.beginPath(); ctx.arc(screenX, screenY, r, 0, 6.2832); ctx.fill();
+    // For inner stars, draw a glow halo.
+    if (bright > 0.55) {
+      const g = ctx.createRadialGradient(screenX, screenY, 0, screenX, screenY, r * 4);
+      g.addColorStop(0, `rgba(${red}, ${Math.round(220 * s.hue + 220 * (1 - s.hue))}, ${blue}, ${0.25 * bright})`);
+      g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(screenX, screenY, r * 4, 0, 6.2832); ctx.fill();
+    }
+    // Track the largest aberration shift relative to the rest position.
+    const restAng = Math.atan2(Math.sqrt(s.y * s.y + s.z * s.z), s.x);
+    const obsAng  = Math.atan2(Math.sqrt(by * by + bz * bz), bx);
+    const shift = Math.abs(restAng - obsAng);
     if (shift > maxShift) maxShift = shift;
   }
+  ctx.restore();
 
-  // Observer dot.
+  // Crosshair marking the direction of motion (+x): the point on the
+  // sky directly ahead of the ship.
+  ctx.strokeStyle = 'rgba(255, 220, 130, 0.45)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W / 2 - 14, H / 2); ctx.lineTo(W / 2 + 14, H / 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W / 2, H / 2 - 14); ctx.lineTo(W / 2, H / 2 + 14); ctx.stroke();
+  ctx.fillStyle = 'rgba(255, 220, 130, 0.7)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('+v (direction of motion)', W / 2 + 18, H / 2 + 4);
+
+  // INSET: tiny polar diagnostic of rest-vs-observer angles for a
+  // few stars. Kept as a quantitative cross-check, demoted to inset.
+  const inX = 18, inY = H - 138, inR = 56;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.85)'; ctx.fillRect(inX - 8, inY - 70, inR * 2 + 28, inR * 2 + 26);
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(inX + inR, inY, inR, 0, 6.2832); ctx.stroke();
+  ctx.fillStyle = c.muted; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('polar diagnostic', inX, inY - 56);
+  for (let i = 0; i < 12; i += 1) {
+    const tr = 2 * Math.PI * i / 12;
+    const to = thetaObs(tr, beta) * (tr > Math.PI ? -1 : 1);
+    const trD = tr > Math.PI ? -(2 * Math.PI - tr) : tr;
+    const xr = inX + inR + inR * Math.cos(trD), yr = inY - inR * Math.sin(trD);
+    const xo = inX + inR + inR * Math.cos(to), yo = inY - inR * Math.sin(to);
+    ctx.strokeStyle = 'rgba(255, 210, 100, 0.4)';
+    ctx.beginPath(); ctx.moveTo(xr, yr); ctx.lineTo(xo, yo); ctx.stroke();
+    ctx.fillStyle = c.blue; ctx.beginPath(); ctx.arc(xr, yr, 1.6, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = c.orange; ctx.beginPath(); ctx.arc(xo, yo, 2, 0, 6.2832); ctx.fill();
+  }
+
+  // Legend / readout
   ctx.fillStyle = c.fg;
-  ctx.beginPath(); ctx.arc(cxPx, cyPx, 5, 0, 2 * Math.PI); ctx.fill();
-
-  // Legend.
-  ctx.fillStyle = c.blue;
-  ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText('rest frame', 12, 20);
-  ctx.fillStyle = c.orange;
-  ctx.fillText('observer frame (boosted)', 12, 38);
+  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('3D POV: stars stream forward as v/c grows', 12, 20);
   ctx.fillStyle = c.muted;
-  ctx.fillText(`beta = ${beta.toExponential(2)}`, 12, 56);
+  ctx.fillText(`beta = ${beta.toExponential(2)}`, 12, 38);
   ctx.fillStyle = c.accent;
-  ctx.fillText(`max shift = ${(maxShift * RAD_TO_AS).toFixed(2)} arcsec`, 12, 74);
+  ctx.fillText(`max aberration = ${(maxShift * RAD_TO_AS).toFixed(2)} arcsec`, 12, 56);
   if (Math.abs(logBeta - Math.log10(BETA_EARTH_ORBIT)) < 0.05) {
     ctx.fillStyle = c.accent;
-    ctx.fillText('(this is Earth\'s annual orbital beta)', 12, 92);
+    ctx.fillText('(this is Earth\'s annual orbital beta)', 12, 74);
   }
 }
 
