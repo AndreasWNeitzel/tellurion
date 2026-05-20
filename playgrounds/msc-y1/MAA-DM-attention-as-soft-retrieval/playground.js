@@ -85,6 +85,21 @@ function drawKeyPanel(weights) {
   ctx.moveTo(o.px, KEY.y); ctx.lineTo(o.px, KEY.y + KEY.h);
   ctx.stroke();
 
+  // Attention lines: query -> each key, line width and alpha
+  // proportional to the attention weight w_i. The user sees who
+  // the query is 'paying attention to' as a visual fan that
+  // collapses to a single line as tau -> 0.
+  const qPx = pxKey(state.query[0], state.query[1]);
+  for (let i = 0; i < state.keys.length; i += 1) {
+    const w = weights[i];
+    const k = state.keys[i]; const p = pxKey(k[0], k[1]);
+    ctx.strokeStyle = tok.accent;
+    ctx.globalAlpha = 0.15 + 0.85 * w;
+    ctx.lineWidth = 0.5 + 5.5 * w;
+    ctx.beginPath(); ctx.moveTo(qPx.px, qPx.py); ctx.lineTo(p.px, p.py); ctx.stroke();
+  }
+  ctx.globalAlpha = 1; ctx.lineWidth = 1;
+
   // keys: radius proportional to attention weight
   for (let i = 0; i < state.keys.length; i += 1) {
     const k = state.keys[i];
@@ -106,11 +121,12 @@ function drawKeyPanel(weights) {
     ctx.fillText(`k${i + 1}`, p.px, p.py - r - 4);
   }
 
-  // query
-  const q = pxKey(state.query[0], state.query[1]);
+  // query: draw on top, with a soft halo so the draggable affordance reads
+  ctx.fillStyle = 'rgba(193, 59, 39, 0.18)';
+  ctx.beginPath(); ctx.arc(qPx.px, qPx.py, 12, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = tok.accentWarm;
   ctx.beginPath();
-  ctx.arc(q.px, q.py, 6, 0, 2 * Math.PI);
+  ctx.arc(qPx.px, qPx.py, 6, 0, 2 * Math.PI);
   ctx.fill();
   ctx.strokeStyle = tok.fg;
   ctx.lineWidth = 0.9;
@@ -118,13 +134,13 @@ function drawKeyPanel(weights) {
   ctx.fillStyle = tok.fg;
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
   ctx.textAlign = 'left';
-  ctx.fillText('query', q.px + 8, q.py - 4);
+  ctx.fillText('drag query', qPx.px + 9, qPx.py - 4);
 
   // panel label
   ctx.fillStyle = tok.fgMuted;
   ctx.font = '12px "Inter", system-ui, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('Keys (k_i) and query', KEY.x, KEY.y - 8);
+  ctx.fillText('Keys (k_i) and query   (drag the red dot; line width = attention)', KEY.x, KEY.y - 8);
 }
 
 function drawValuePanel(weights, output) {
@@ -235,6 +251,29 @@ function applyControls() {
   drawAll();
 }
 [sliderTau, sliderQx, sliderQy].forEach(s => s.addEventListener('input', applyControls));
+
+// Drag-the-query: pointerdown on the key panel sets the query position
+// to the cursor; pointermove drags it. Updates the qx, qy sliders so
+// the readout stays in sync. The user can now interact with the
+// retrieval kinematically instead of via two sliders.
+let qDragging = false;
+function setQueryFromEvent(e) {
+  const r = canvas.getBoundingClientRect();
+  const px = (e.clientX - r.left) * (canvas.width / r.width);
+  const py = (e.clientY - r.top) * (canvas.height / r.height);
+  if (px < KEY.x || px > KEY.x + KEY.w || py < KEY.y || py > KEY.y + KEY.h) return false;
+  const wx = KEY.xmin + (KEY.xmax - KEY.xmin) * (px - KEY.x) / KEY.w;
+  const wy = KEY.ymin + (KEY.ymax - KEY.ymin) * (1 - (py - KEY.y) / KEY.h);
+  state.query = [wx, wy];
+  sliderQx.value = wx.toFixed(2); valueQx.textContent = wx.toFixed(2);
+  sliderQy.value = wy.toFixed(2); valueQy.textContent = wy.toFixed(2);
+  drawAll();
+  return true;
+}
+canvas.addEventListener('pointerdown', (e) => { if (setQueryFromEvent(e)) { qDragging = true; canvas.setPointerCapture?.(e.pointerId); } });
+canvas.addEventListener('pointermove', (e) => { if (qDragging) setQueryFromEvent(e); });
+window.addEventListener('pointerup', () => { qDragging = false; });
+
 btnReset.addEventListener('click', () => { sliderTau.value = '0.5'; sliderQx.value = '0'; sliderQy.value = '0'; applyControls(); });
 btnShuffle.addEventListener('click', () => {
   state.shuffleSeed = (state.shuffleSeed ?? 0) + 1;
