@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BEC Vortex Lattice</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 720px; margin-inline: auto; } .pg-figure canvas { width: 100%; height: auto; background: #04060c; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 10ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>BEC vortex lattice in a rotating trap</h1>
+<p><strong>What you are seeing:</strong> a 2D Bose-Einstein condensate in a harmonic trap, rotated at $\Omega / \omega_{\rm trap}$. The cyan-magenta cloud is the Thomas-Fermi density; the black holes are singly-quantized vortices on an Abrikosov triangular lattice. Each vortex carries one quantum of circulation $h/m$. Vortex area density is $n_v = m \Omega / (\pi \hbar)$ (Feynman 1955). Source: Pitaevskii and Stringari, <em>Bose-Einstein Condensation and Superfluidity</em>, Ch. 11 (<code>pitaevskii-stringari-bec</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="720" height="720"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">Omega / w_trap:</span><span class="value" id="readout-omega">--</span>
+  <span class="label">N_v vortices:</span><span class="value" id="readout-nv">--</span>
+  <span class="label">R_TF / a_ho:</span><span class="value" id="readout-rtf">--</span>
+  <span class="label">xi / a_ho:</span><span class="value" id="readout-xi">--</span>
+  <span class="label">L_z / N hbar:</span><span class="value" id="readout-lz">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> 2D BEC in a rotating harmonic trap. Density profile is Thomas-Fermi; phase is encoded as hue rings around each quantized vortex; cores form a triangular Abrikosov lattice. Method: kinematic Gross-Pitaevskii ansatz, density n_TF * Prod tanh^2(|r-r_v|/xi). Source: Pitaevskii and Stringari, Ch. 11.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">Omega / omega_trap</span><input aria-label="omega" type="range" id="slider-omega" min="0.0" max="0.92" step="0.01" value="0.78"><span class="value" id="value-omega">0.78</span></div>
+<div class="row"><span class="label">interaction (N a_s / a_ho)</span><input aria-label="Na" type="range" id="slider-Na" min="200" max="6000" step="100" value="2500"><span class="value" id="value-Na">2500</span></div>
+<div class="row"><span class="label">phase overlay</span><input aria-label="phase-overlay" type="range" id="slider-phase" min="0" max="1" step="0.05" value="0.5"><span class="value" id="value-phase">0.50</span></div>
+<div class="row"><span class="label">resolution</span><input aria-label="res" type="range" id="slider-res" min="120" max="320" step="20" value="220"><span class="value" id="value-res">220</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
