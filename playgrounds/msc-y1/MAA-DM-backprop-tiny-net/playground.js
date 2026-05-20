@@ -51,6 +51,14 @@ const state = {
   acc: 0,
   lossHistory: [],
   probeT: 0,
+  // Draggable-probe state (with spring-return per user feedback).
+  // probePos = current rendered position (world coords); probeVel =
+  // velocity. When the user pulls the probe away from the auto-sweep
+  // path, releasing it lets a critically-damped spring pull it back
+  // to the current sweep point.
+  probePos: [0, 0],
+  probeVel: [0, 0],
+  dragging: false,
   playing: !DETERMINISTIC,
 };
 
@@ -101,12 +109,34 @@ function computeAccuracy() {
 // every frame so the hidden-node glow on the right shows how that test
 // input propagates through the layers. A plain circle (not a Lissajous)
 // reads as a deliberate sweep rather than random motion.
-function probePoint(rng) {
+function probeTargetPoint(rng) {
   const t = state.probeT * 0.45;
   const cx = (rng.xmin + rng.xmax) / 2, cy = (rng.ymin + rng.ymax) / 2;
   const rad = 0.34 * Math.min(rng.xmax - rng.xmin, rng.ymax - rng.ymin);
   return [cx + rad * Math.cos(t), cy + rad * Math.sin(t)];
 }
+
+// Critically-damped spring step: probePos chases probeTarget. When
+// dragging, probePos snaps to the user-supplied mouse position
+// (vel = 0); when released, vel and target drive the spring.
+function stepProbe(rng) {
+  const target = probeTargetPoint(rng);
+  if (state.dragging) {
+    state.probeVel[0] = 0;
+    state.probeVel[1] = 0;
+    return state.probePos;
+  }
+  const k = 80, c = 18;     // stiffness, damping (critically damped)
+  const dt = 1 / 60;
+  for (let i = 0; i < 2; i += 1) {
+    const a = -k * (state.probePos[i] - target[i]) - c * state.probeVel[i];
+    state.probeVel[i] += a * dt;
+    state.probePos[i] += state.probeVel[i] * dt;
+  }
+  return state.probePos;
+}
+
+function probePoint(rng) { return stepProbe(rng); }
 
 function drawDecisionSurface(rng, probe) {
   const GRID = 64;
@@ -347,6 +377,37 @@ sliderH.addEventListener('input', () => {
 sliderLR.addEventListener('input', () => { state.lr = parseFloat(sliderLR.value); valueLR.textContent = state.lr.toFixed(2); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
 btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
+
+// Pointer events on the decision-surface panel: pick up the probe,
+// drag it anywhere inside the panel, release to spring back to the
+// auto-sweep point. Coordinates are converted from screen pixels to
+// world (rng) coordinates. Outside the panel, drag is a no-op.
+function panelXYToWorld(px, py) {
+  if (!state.data) return null;
+  const rng = state.data.range || { xmin: -1.5, xmax: 1.5, ymin: -1.5, ymax: 1.5 };
+  if (px < DX || px > DX + DW || py < DY || py > DY + DH) return null;
+  const wx = rng.xmin + (rng.xmax - rng.xmin) * (px - DX) / DW;
+  const wy = rng.ymin + (rng.ymax - rng.ymin) * (1 - (py - DY) / DH);
+  return [wx, wy];
+}
+canvas.addEventListener('pointerdown', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const px = (e.clientX - r.left) * (canvas.width / r.width);
+  const py = (e.clientY - r.top) * (canvas.height / r.height);
+  const w = panelXYToWorld(px, py); if (!w) return;
+  state.dragging = true;
+  state.probePos = w; state.probeVel = [0, 0];
+  canvas.setPointerCapture?.(e.pointerId);
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (!state.dragging) return;
+  const r = canvas.getBoundingClientRect();
+  const px = (e.clientX - r.left) * (canvas.width / r.width);
+  const py = (e.clientY - r.top) * (canvas.height / r.height);
+  const w = panelXYToWorld(px, py); if (!w) return;
+  state.probePos = w;
+});
+window.addEventListener('pointerup', () => { state.dragging = false; });
 btnStep.addEventListener('click', () => { trainOnce(); state.acc = computeAccuracy(); drawAll(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
