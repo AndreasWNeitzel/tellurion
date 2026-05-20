@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Stellar Rotation Line Broadening</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Stellar rotation and line broadening</h1>
+<p><strong>What you are seeing:</strong> a rotating limb-darkened star and the resulting broadened absorption line. The Doppler shift on each surface element makes the approaching limb blue, the receding limb red, and the line profile is the limb-darkened-weighted sum of every shifted copy. Vary $v\sin i$ and watch the line widen and hollow out. Source: Gray, <em>Observation and Analysis of Stellar Photospheres</em>, Ch. 17 (<code>gray2005</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="620"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">v sin i:</span><span class="value" id="readout-vsini">--</span>
+  <span class="label">HWHD/σ:</span><span class="value" id="readout-hw">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Rotating star (Doppler-coloured surface) and its broadened absorption line. <em>Method:</em> disk-integral sum of Doppler-shifted Gaussians weighted by quadratic limb darkening. <em>Source:</em> Gray, Stellar Photospheres, Ch. 17.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">v sin i (km/s)</span><input aria-label="v sin i" type="range" id="slider-vsini" min="0" max="120" step="1" value="30"><span class="value" id="value-vsini">30</span></div>
+<div class="row"><span class="label">σ (intrinsic)</span><input aria-label="intrinsic sigma" type="range" id="slider-sigma" min="0.002" max="0.030" step="0.001" value="0.012"><span class="value" id="value-sigma">0.012</span></div>
+<div class="row"><span class="label">depth</span><input aria-label="depth" type="range" id="slider-depth" min="0.2" max="0.9" step="0.05" value="0.7"><span class="value" id="value-depth">0.70</span></div>
+<div class="row"><span class="label">inclination (°)</span><input aria-label="inclination" type="range" id="slider-inc" min="0" max="90" step="1" value="90"><span class="value" id="value-inc">90</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
