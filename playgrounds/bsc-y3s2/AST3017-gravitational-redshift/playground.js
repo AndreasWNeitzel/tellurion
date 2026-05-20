@@ -22,6 +22,9 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
+const readoutR = document.getElementById('readout-r');
+const readoutF = document.getElementById('readout-f');
+const readoutZ = document.getElementById('readout-z');
 
 const state = {
   rRatio: 2.0,     // r_em / 2M
@@ -48,6 +51,9 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`r_em / 2M = ${state.rRatio.toFixed(2)}   f_obs / f_em = ${f.toFixed(5)}   z = ${z.toFixed(3)}`, 30, 22);
+  if (readoutR) readoutR.textContent = state.rRatio.toFixed(2);
+  if (readoutF) readoutF.textContent = f.toFixed(5);
+  if (readoutZ) readoutZ.textContent = Number.isFinite(z) ? z.toFixed(3) : '∞';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText(`clock rate = sqrt(1 - 2M/r) = ${cr.toFixed(5)}`, 30, 40);
 

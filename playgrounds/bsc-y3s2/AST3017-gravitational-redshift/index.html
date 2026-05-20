@@ -46,6 +46,11 @@
   <figure class="pg-figure">
     <canvas id="stage" width="760" height="540" tabindex="0"
             aria-label="Gravitational-redshift factor curve and reddened source visualization."></canvas>
+    <div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">r_em / 2M:</span><span class="value" id="readout-r">2.00</span>
+      <span class="label">f_obs / f_em:</span><span class="value" id="readout-f">--</span>
+      <span class="label">z:</span><span class="value" id="readout-z">--</span>
+    </div>
     <figcaption>
       <span class="figure-number">Figure 1.</span>
       Gravitational redshift outside a Schwarzschild horizon. Method:
