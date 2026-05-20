@@ -69,20 +69,79 @@ mechanical analogue of two coupled pendulums and of energy exchange
 in molecules. The playground shows the two masses, lets you pick the
 mode mix, and plots the energy in each.
 
+### The matrix form and the eigenvalue problem
+
+The two EoMs can be written compactly as
+
+$$\boxed{\;m\,\ddot{\vec x} = -K\,\vec x,
+       \quad
+       K = k\,\begin{pmatrix} 2 & -1 \\ -1 & 2 \end{pmatrix},
+       \quad
+       \vec x = \begin{pmatrix} x_1 \\ x_2 \end{pmatrix}.\;}$$
+
+Trying $\vec x(t) = \vec e\,\cos(\omega t)$ turns Newton into an
+eigenvalue problem:
+
+$$K\,\vec e = m\,\omega^2\,\vec e.$$
+
+The eigenvalues of $K$ are $\lambda_1 = k$ (with eigenvector
+$\vec e_1 = (1, 1)/\sqrt 2$) and $\lambda_2 = 3 k$ (with eigenvector
+$\vec e_2 = (1, -1)/\sqrt 2$). So
+
+$$\omega_1 = \sqrt{\frac{k}{m}},\qquad \omega_2 = \sqrt{\frac{3 k}{m}}.$$
+
+In mode 1 the masses move TOGETHER ($\vec e_1$) and the middle spring
+never stretches, hence the low frequency $\sqrt{k/m}$. In mode 2 they
+move OPPOSITELY ($\vec e_2$) and the middle spring is doubly stressed,
+hence $\omega_2 = \sqrt 3 \omega_1$.
+
+### Beats: a sum of two close modes
+
+If only one mass is displaced initially, both modes are excited
+equally. Their slightly different frequencies make the amplitude
+*beat* between the masses:
+
+$$x_1(t) = A\,\cos(\bar\omega\,t)\,\cos(\Delta\omega\,t / 2),$$
+
+with $\bar\omega = (\omega_1 + \omega_2)/2$ and
+$\Delta\omega = \omega_2 - \omega_1$. The fast carrier $\bar\omega$
+is modulated by the slow envelope $\cos(\Delta\omega t / 2)$; energy
+sloshes from mass 1 to mass 2 and back at period
+$T_{\rm beat} = 2\pi / \Delta\omega$. This is the mechanical analogue
+of two-state quantum oscillation, of the audible beat between two
+mistuned guitar strings, and of mode coupling in molecules and
+optical cavities.
+
+### Symbols, at a glance
+
+- $x_1(t)$, $x_2(t)$, mass displacements.
+- $m$, identical mass; $k$, identical spring constant.
+- $K$, stiffness matrix; eigenvalues are the normal-mode squared
+  frequencies $m\omega^2$.
+- $\vec e_1$, $\vec e_2$, the eigenvectors (the two normal modes).
+- $\omega_1$, $\omega_2$, normal-mode frequencies; $\bar\omega$,
+  $\Delta\omega$, their mean and difference.
+- $T_{\rm beat}$, the slow modulation period.
+
 ### Things to try
 
 - Excite the in-phase mode (push both the same way) and see a single
   clean frequency, the middle spring slack.
 - Excite the out-of-phase mode (push them oppositely) and see the
-  higher frequency $\sqrt{3}$ times faster.
+  higher frequency $\sqrt 3$ times faster.
 - Displace just one mass and watch the energy beat fully back and
   forth between the two (a sum of both modes).
 
-### Where this comes from
+### Bibliographic origin
 
-Coupled oscillators, normal modes, and the beating of a mixed state
-follow French, *Vibrations and Waves*, Chapter 5, and Taylor,
-*Classical Mechanics*, Chapter 11.
+The normal-mode analysis of coupled oscillators is classical: see
+French, *Vibrations and Waves* (Norton 1971), Ch. 5, and Taylor,
+*Classical Mechanics* (University Science 2005), Ch. 11. The matrix
+formulation is in Goldstein, Poole and Safko, *Classical Mechanics*
+(3rd ed., Addison-Wesley 2002), Ch. 6 (small oscillations). The
+quantum analogue (two-level Rabi oscillation) is in Sakurai and
+Napolitano, *Modern Quantum Mechanics* (2nd ed., Cambridge 2017),
+Ch. 5.
 
 ## Physical setup
 
