@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cepheid Period-Luminosity</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 920px; } .pg-figure canvas { width: 100%; height: auto; background: #04060c; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Cepheid period-luminosity relation</h1>
+<p><strong>What you are seeing:</strong> a Type I Cepheid variable star pulsating with period $P$. Left: the star (size + color from radius + $T_{\rm eff}$). Middle: the V-band lightcurve. Right: the Leavitt Law $M_V = -2.78 \log_{10} P - 1.35$ (Madore + Freedman 1991) with the current star and known Galactic calibrators. Source: Madore + Freedman, <em>PASP</em> 103 (1991) 933 (<code>madore-freedman-1991</code>).</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="600"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">period P (days):</span><span class="value" id="readout-P">--</span>
+  <span class="label">mean M_V:</span><span class="value" id="readout-MV">--</span>
+  <span class="label">L (L_sun):</span><span class="value" id="readout-L">--</span>
+  <span class="label">R (R_sun):</span><span class="value" id="readout-R">--</span>
+  <span class="label">T_eff (K):</span><span class="value" id="readout-T">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Pulsating Cepheid + V-band lightcurve + Leavitt period-luminosity diagram. Method: kinematic radial pulsation R(t), Madore-Freedman 1991 PL fit. Source: Madore + Freedman, PASP 103 (1991) 933.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">period (days)</span><input aria-label="period" type="range" id="slider-P" min="1.0" max="80" step="0.1" value="10.0"><span class="value" id="value-P">10.0</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row"><span class="label">preset</span><select aria-label="preset" id="select-preset"><option value="delta">delta Cep (P = 5.4 d)</option><option value="eta">eta Aql (P = 7.2 d)</option><option value="zeta" selected>zeta Gem (P = 10.2 d)</option><option value="l_car">l Car (P = 35.5 d)</option><option value="rs_pup">RS Pup (P = 41.4 d)</option></select><span class="value" id="value-preset">zG</span></div>
+<div class="row"><span class="label">distance (pc)</span><input aria-label="d" type="range" id="slider-d" min="100" max="10000" step="10" value="360"><span class="value" id="value-d">360</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
