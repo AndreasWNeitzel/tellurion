@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Double-Slit Single-Photon Accumulator</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>.pg-figure { max-width: 900px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
+<h1>Double-slit single-photon accumulator</h1>
+<p><strong>What you are seeing:</strong> photons fired one at a time at a double slit. Each lands at one point, but the hit-position probability follows the classical two-slit intensity $I(y) = \operatorname{sinc}^2(\pi a \sin\theta / \lambda)\cos^2(\pi d \sin\theta / \lambda)$. The hit histogram converges to that profile as the photon count grows. Source: Hecht, <em>Optics</em>, Ch. 10 (<code>hecht-optics</code>); Tonomura 1989.</p>
+<figure class="pg-figure"><canvas id="stage" width="900" height="540"></canvas>
+<div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">photons:</span><span class="value" id="readout-n">0</span>
+  <span class="label">fringe Δy:</span><span class="value" id="readout-fring">--</span>
+  <span class="label">d / λ:</span><span class="value" id="readout-dlambda">--</span>
+</div>
+<figcaption><span class="figure-number">Figure 1.</span> Single-photon hits accumulate behind a double slit. Detector histogram (white bars) converges to the closed-form intensity (yellow). Method: Fraunhofer two-slit profile; rejection-sampled photon hits. Source: Hecht, Optics, Ch. 10.</figcaption></figure>
+<div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">slit separation d</span><input aria-label="d" type="range" id="slider-d" min="0.2" max="1.5" step="0.05" value="0.6"><span class="value" id="value-d">0.60</span></div>
+<div class="row"><span class="label">slit width a</span><input aria-label="a" type="range" id="slider-a" min="0.05" max="0.30" step="0.01" value="0.12"><span class="value" id="value-a">0.12</span></div>
+<div class="row"><span class="label">wavelength λ</span><input aria-label="lambda" type="range" id="slider-lam" min="0.20" max="0.80" step="0.02" value="0.40"><span class="value" id="value-lam">0.40</span></div>
+<div class="row"><span class="label">rate (photons/frame)</span><input aria-label="rate" type="range" id="slider-rate" min="0" max="80" step="2" value="20"><span class="value" id="value-rate">20</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
