@@ -6,7 +6,7 @@
 // interaction only.
 
 import {
-  PROJECTIONS, PROJECTION_KEYS, rotate, tissot,
+  PROJECTIONS, PROJECTION_KEYS, rotate, unrotate, tissot,
 } from './sim.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -37,23 +37,13 @@ const st = {
 const earthImg = new Image();
 let texData = null, texW = 0, texH = 0;
 function buildTexData() {
-  texW = 1024; texH = 512;
+  texW = earthImg.naturalWidth || 2048;
+  texH = earthImg.naturalHeight || 1024;
   const off = document.createElement('canvas');
   off.width = texW; off.height = texH;
   const octx = off.getContext('2d', { willReadFrequently: true });
   octx.drawImage(earthImg, 0, 0, texW, texH);
   texData = octx.getImageData(0, 0, texW, texH).data;
-}
-// Texture colour at a geographic point (radians). Longitude 0 is the
-// centre column of the image, latitude +90 the top row.
-function sampleTex(lonRad, latRad) {
-  let u = (lonRad / Math.PI + 1) / 2;
-  u -= Math.floor(u);
-  const v = Math.min(0.999, Math.max(0, 0.5 - latRad / Math.PI));
-  const tx = Math.min(texW - 1, (u * texW) | 0);
-  const ty = Math.min(texH - 1, (v * texH) | 0);
-  const i = (ty * texW + tx) * 4;
-  return `rgb(${texData[i]},${texData[i + 1]},${texData[i + 2]})`;
 }
 
 // ---- projection + fit ---------------------------------------------------
@@ -141,7 +131,10 @@ function render() {
   ctx.fillStyle = '#0a0c12';
   ctx.fillRect(0, 0, W, H);
 
-  if (st.showEarth) drawEarth(fit);
+  if (st.showEarth) {
+    renderEarth(fit, dragging);
+    if (earthKey) ctx.drawImage(earthCanvas, 0, 0, W, H);
+  }
 
   if (st.showGraticule) {
     for (const { pts, edge } of GRATICULE) {
@@ -158,41 +151,48 @@ function render() {
   refreshRail();
 }
 
-// Drape the Blue Marble texture as a mesh of quads. Each cell of a
-// 2.5-degree geographic grid is forward-projected and filled with the
-// texture colour at its centre; cells that straddle the antimeridian
-// seam or the projection boundary are skipped. Each quad is also
-// stroked in its own colour to close the hairline anti-aliasing gaps
-// between neighbours.
-function drawEarth(fit) {
-  if (!texData) return;
-  const STEP = 2.5;
-  for (let la = -90; la < 90; la += STEP) {
-    for (let lo = -180; lo < 180; lo += STEP) {
-      const c0 = projectGeo(lo, la), c1 = projectGeo(lo + STEP, la);
-      const c2 = projectGeo(lo + STEP, la + STEP), c3 = projectGeo(lo, la + STEP);
-      if (!c0 || !c1 || !c2 || !c3) continue;
-      const s0 = toScreen(c0, fit), s1 = toScreen(c1, fit);
-      const s2 = toScreen(c2, fit), s3 = toScreen(c3, fit);
-      const xs = [s0.x, s1.x, s2.x, s3.x], ys = [s0.y, s1.y, s2.y, s3.y];
-      const spanX = Math.max(...xs) - Math.min(...xs);
-      const spanY = Math.max(...ys) - Math.min(...ys);
-      // A 2.5-degree cell that projects larger than this is in a
-      // blow-up region (gnomonic / stereographic fringe) or straddles
-      // the antimeridian seam; either way it must not be drawn.
-      if (spanX > W * 0.14 || spanY > H * 0.14) continue;
-      const col = sampleTex((lo + STEP / 2) * DEG, (la + STEP / 2) * DEG);
-      ctx.fillStyle = col;
-      ctx.strokeStyle = col;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(s0.x, s0.y); ctx.lineTo(s1.x, s1.y);
-      ctx.lineTo(s2.x, s2.y); ctx.lineTo(s3.x, s3.y);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+// Offscreen buffer holding the draped Earth. Rebuilt only when the
+// projection or the globe centre changes.
+const earthCanvas = document.createElement('canvas');
+const earthCtx = earthCanvas.getContext('2d', { willReadFrequently: true });
+let earthKey = '';
+
+// Render the Earth by inverse-projecting every output pixel and
+// sampling the full-resolution Blue Marble image. During a drag the
+// buffer is built at half resolution and scaled up; a settled view is
+// rendered at full resolution for a crisp map. Pixels that inverse-
+// project outside the map are left transparent.
+function renderEarth(fit, lowRes) {
+  const inv = PROJECTIONS[st.projection].inv;
+  if (!texData || !inv) { earthKey = ''; return; }
+  const scale = lowRes ? 2 : 1;
+  const ew = Math.ceil(W / scale), eh = Math.ceil(H / scale);
+  const key = `${st.projection}|${st.lon0.toFixed(4)}|${st.lat0.toFixed(4)}|${scale}`;
+  if (key === earthKey && earthCanvas.width === ew) return;
+  earthKey = key;
+  earthCanvas.width = ew;
+  earthCanvas.height = eh;
+  const img = earthCtx.createImageData(ew, eh);
+  const d = img.data;
+  for (let j = 0; j < eh; j += 1) {
+    const Y = -((j * scale) - H / 2) / fit.s + fit.cy;
+    for (let i = 0; i < ew; i += 1) {
+      const X = ((i * scale) - W / 2) / fit.s + fit.cx;
+      const ll = inv(X, Y);
+      const o = (j * ew + i) * 4;
+      if (!ll) { d[o + 3] = 0; continue; }
+      const [lon, lat] = unrotate(ll[0], ll[1], st.lon0, st.lat0);
+      let u = (lon / Math.PI + 1) / 2;
+      u -= Math.floor(u);
+      const v = Math.min(0.999, Math.max(0, 0.5 - lat / Math.PI));
+      const ti = (((v * texH) | 0) * texW + ((u * texW) | 0)) * 4;
+      d[o] = texData[ti];
+      d[o + 1] = texData[ti + 1];
+      d[o + 2] = texData[ti + 2];
+      d[o + 3] = 255;
     }
   }
+  earthCtx.putImageData(img, 0, 0);
 }
 
 // Tissot indicatrices on a 30-degree grid. Each ellipse is the image
@@ -407,7 +407,9 @@ canvas.addEventListener('pointerdown', (e) => {
   dragging = true; lastX = e.clientX; lastY = e.clientY;
   canvas.setPointerCapture?.(e.pointerId);
 });
-window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointerup', () => {
+  if (dragging) { dragging = false; render(); }   // settled: full-res pass
+});
 window.addEventListener('pointermove', (e) => {
   if (!dragging) return;
   const rect = canvas.getBoundingClientRect();

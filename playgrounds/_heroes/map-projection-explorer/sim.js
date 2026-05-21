@@ -43,6 +43,22 @@ export function rotate(lon, lat, lambda0, phi0) {
   return [lon2, lat2];
 }
 
+// Inverse of rotate(): map a point in the recentred frame back to its
+// geographic coordinates. Undoes the y rotation then the z rotation.
+export function unrotate(lon, lat, lambda0, phi0) {
+  const cl = Math.cos(lat);
+  const x = cl * Math.cos(lon);
+  const y = cl * Math.sin(lon);
+  const z = Math.sin(lat);
+  const cP = Math.cos(phi0), sP = Math.sin(phi0);
+  const x1 = x * cP - z * sP;
+  const z1 = x * sP + z * cP;
+  const cL = Math.cos(lambda0), sL = Math.sin(lambda0);
+  const x0 = x1 * cL - y * sL;
+  const y0 = x1 * sL + y * cL;
+  return [Math.atan2(y0, x0), Math.asin(clamp(z1, -1, 1))];
+}
+
 // ---- Forward projections ------------------------------------------------
 // Each takes (lon, lat) in radians, already recentred via rotate().
 
@@ -144,23 +160,135 @@ function robinson(lon, lat) {
   return { x: 0.8487 * X * lon, y: 1.3523 * Y * Math.sign(lat) };
 }
 
+// ---- Inverse projections ------------------------------------------------
+// (x, y) in projection units -> [lon, lat] radians, or null if (x, y)
+// lies outside the projected map. Used for per-pixel texture draping.
+
+function equirectangularInv(x, y) {
+  if (Math.abs(x) > Math.PI + 1e-6 || Math.abs(y) > HALF_PI + 1e-6) return null;
+  return [x, y];
+}
+function mercatorInv(x, y) {
+  if (Math.abs(x) > Math.PI + 1e-6) return null;
+  const lat = 2 * Math.atan(Math.exp(y)) - HALF_PI;
+  if (Math.abs(lat) > 1.4835) return null;
+  return [x, lat];
+}
+function sinusoidalInv(x, y) {
+  if (Math.abs(y) > HALF_PI + 1e-6) return null;
+  const lon = x / Math.cos(y);
+  if (Math.abs(lon) > Math.PI + 1e-6) return null;
+  return [lon, y];
+}
+function mollweideInv(x, y) {
+  if ((x / (2 * SQRT2)) ** 2 + (y / SQRT2) ** 2 > 1 + 1e-6) return null;
+  const theta = Math.asin(clamp(y / SQRT2, -1, 1));
+  const lat = Math.asin(clamp((2 * theta + Math.sin(2 * theta)) / Math.PI, -1, 1));
+  const ct = Math.cos(theta);
+  const lon = ct > 1e-9 ? Math.PI * x / (2 * SQRT2 * ct) : 0;
+  if (Math.abs(lon) > Math.PI + 1e-6) return null;
+  return [lon, lat];
+}
+function hammerInv(x, y) {
+  const zz = 1 - (x / 4) ** 2 - (y / 2) ** 2;
+  if (zz < 0) return null;
+  const z = Math.sqrt(zz);
+  const lon = 2 * Math.atan2(z * x, 2 * (2 * z * z - 1));
+  const lat = Math.asin(clamp(z * y, -1, 1));
+  if (Math.abs(lon) > Math.PI + 1e-6) return null;
+  return [lon, lat];
+}
+function orthographicInv(x, y) {
+  const rr = x * x + y * y;
+  if (rr > 1) return null;
+  return [Math.atan2(x, Math.sqrt(Math.max(0, 1 - rr))), Math.asin(clamp(y, -1, 1))];
+}
+function stereographicInv(x, y) {
+  const rho = Math.hypot(x, y);
+  if (rho < 1e-9) return [0, 0];
+  const c = 2 * Math.atan(rho / 2);
+  if (c > 127 * Math.PI / 180) return null;
+  return [
+    Math.atan2(x * Math.sin(c), rho * Math.cos(c)),
+    Math.asin(clamp(y * Math.sin(c) / rho, -1, 1)),
+  ];
+}
+function gnomonicInv(x, y) {
+  const rho = Math.hypot(x, y);
+  if (rho < 1e-9) return [0, 0];
+  const c = Math.atan(rho);
+  if (c > 63 * Math.PI / 180) return null;
+  return [
+    Math.atan2(x * Math.sin(c), rho * Math.cos(c)),
+    Math.asin(clamp(y * Math.sin(c) / rho, -1, 1)),
+  ];
+}
+function azimuthalEquidistantInv(x, y) {
+  const rho = Math.hypot(x, y);
+  if (rho > Math.PI) return null;
+  if (rho < 1e-9) return [0, 0];
+  const lon = Math.atan2(x * Math.sin(rho), rho * Math.cos(rho));
+  if (Math.abs(lon) > Math.PI + 1e-6) return null;
+  return [lon, Math.asin(clamp(y * Math.sin(rho) / rho, -1, 1))];
+}
+function robinsonInv(x, y) {
+  const yn = Math.abs(y) / 1.3523;
+  if (yn > 1 + 1e-6) return null;
+  let i = 0;
+  while (i < 17 && ROBINSON_Y[i + 1] < yn) i += 1;
+  const span = (ROBINSON_Y[i + 1] - ROBINSON_Y[i]) || 1;
+  const f = clamp((yn - ROBINSON_Y[i]) / span, 0, 1);
+  const lat = Math.sign(y) * (i + f) / 18 * HALF_PI;
+  const X = ROBINSON_X[i] + (ROBINSON_X[i + 1] - ROBINSON_X[i]) * f;
+  const lon = x / (0.8487 * X);
+  if (Math.abs(lon) > Math.PI + 1e-6) return null;
+  return [lon, lat];
+}
+// Aitoff and Winkel tripel have no closed-form inverse; solve
+// forward(lon, lat) = (x, y) by Newton iteration from an
+// equirectangular initial guess.
+function newtonInverse(fwd, x, y) {
+  let lon = clamp(x, -Math.PI, Math.PI);
+  let lat = clamp(y, -HALF_PI, HALF_PI);
+  for (let it = 0; it < 10; it += 1) {
+    const f = fwd(lon, lat);
+    if (!f) return null;
+    const dx = f.x - x, dy = f.y - y;
+    if (dx * dx + dy * dy < 1e-12) break;
+    const h = 1e-5;
+    const fl = fwd(lon + h, lat), fp = fwd(lon, lat + h);
+    if (!fl || !fp) return null;
+    const j00 = (fl.x - f.x) / h, j10 = (fl.y - f.y) / h;
+    const j01 = (fp.x - f.x) / h, j11 = (fp.y - f.y) / h;
+    const det = j00 * j11 - j01 * j10;
+    if (Math.abs(det) < 1e-12) return null;
+    lon = clamp(lon - (j11 * dx - j01 * dy) / det, -Math.PI, Math.PI);
+    lat = clamp(lat - (-j10 * dx + j00 * dy) / det, -HALF_PI, HALF_PI);
+  }
+  const f = fwd(lon, lat);
+  if (!f || (f.x - x) ** 2 + (f.y - y) ** 2 > 1e-6) return null;
+  return [lon, lat];
+}
+function aitoffInv(x, y) { return newtonInverse(aitoff, x, y); }
+function winkelTripelInv(x, y) { return newtonInverse(winkelTripel, x, y); }
+
 // ---- Registry -----------------------------------------------------------
 // family: cylindrical | pseudocylindrical | azimuthal | modified-azimuthal
 // property: conformal | equal-area | equidistant | compromise | perspective
 
 export const PROJECTIONS = {
-  equirectangular: { name: 'Equirectangular', family: 'cylindrical', property: 'equidistant', fn: equirectangular },
-  mercator: { name: 'Mercator', family: 'cylindrical', property: 'conformal', fn: mercator },
-  sinusoidal: { name: 'Sinusoidal', family: 'pseudocylindrical', property: 'equal-area', fn: sinusoidal },
-  mollweide: { name: 'Mollweide', family: 'pseudocylindrical', property: 'equal-area', fn: mollweide },
-  hammer: { name: 'Hammer', family: 'modified-azimuthal', property: 'equal-area', fn: hammer },
-  aitoff: { name: 'Aitoff', family: 'modified-azimuthal', property: 'compromise', fn: aitoff },
-  winkelTripel: { name: 'Winkel tripel', family: 'modified-azimuthal', property: 'compromise', fn: winkelTripel },
-  robinson: { name: 'Robinson', family: 'pseudocylindrical', property: 'compromise', fn: robinson },
-  orthographic: { name: 'Orthographic', family: 'azimuthal', property: 'perspective', fn: orthographic },
-  stereographic: { name: 'Stereographic', family: 'azimuthal', property: 'conformal', fn: stereographic },
-  gnomonic: { name: 'Gnomonic', family: 'azimuthal', property: 'perspective', fn: gnomonic },
-  azimuthalEquidistant: { name: 'Azimuthal equidistant', family: 'azimuthal', property: 'equidistant', fn: azimuthalEquidistant },
+  equirectangular: { name: 'Equirectangular', family: 'cylindrical', property: 'equidistant', fn: equirectangular, inv: equirectangularInv },
+  mercator: { name: 'Mercator', family: 'cylindrical', property: 'conformal', fn: mercator, inv: mercatorInv },
+  sinusoidal: { name: 'Sinusoidal', family: 'pseudocylindrical', property: 'equal-area', fn: sinusoidal, inv: sinusoidalInv },
+  mollweide: { name: 'Mollweide', family: 'pseudocylindrical', property: 'equal-area', fn: mollweide, inv: mollweideInv },
+  hammer: { name: 'Hammer', family: 'modified-azimuthal', property: 'equal-area', fn: hammer, inv: hammerInv },
+  aitoff: { name: 'Aitoff', family: 'modified-azimuthal', property: 'compromise', fn: aitoff, inv: aitoffInv },
+  winkelTripel: { name: 'Winkel tripel', family: 'modified-azimuthal', property: 'compromise', fn: winkelTripel, inv: winkelTripelInv },
+  robinson: { name: 'Robinson', family: 'pseudocylindrical', property: 'compromise', fn: robinson, inv: robinsonInv },
+  orthographic: { name: 'Orthographic', family: 'azimuthal', property: 'perspective', fn: orthographic, inv: orthographicInv },
+  stereographic: { name: 'Stereographic', family: 'azimuthal', property: 'conformal', fn: stereographic, inv: stereographicInv },
+  gnomonic: { name: 'Gnomonic', family: 'azimuthal', property: 'perspective', fn: gnomonic, inv: gnomonicInv },
+  azimuthalEquidistant: { name: 'Azimuthal equidistant', family: 'azimuthal', property: 'equidistant', fn: azimuthalEquidistant, inv: azimuthalEquidistantInv },
 };
 
 export const PROJECTION_KEYS = Object.keys(PROJECTIONS);
