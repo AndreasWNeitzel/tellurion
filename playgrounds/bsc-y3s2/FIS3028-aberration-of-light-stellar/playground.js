@@ -94,7 +94,6 @@ function render() {
   const f = 1 / Math.tan(fov / 2);                       // focal length
   const pxK = Math.min(W, H) * 0.5;                      // pixel scale
   ctx.save();
-  let maxShift = 0;
   for (const s of STAR_FIELD) {
     const [bx, by, bz] = aberrate(s.x, s.y, s.z, beta);
     if (bx <= 0.05) continue;                            // behind the observer
@@ -122,11 +121,6 @@ function render() {
       ctx.fillStyle = g;
       ctx.beginPath(); ctx.arc(screenX, screenY, r * 4, 0, 6.2832); ctx.fill();
     }
-    // Track the largest aberration shift relative to the rest position.
-    const restAng = Math.atan2(Math.sqrt(s.y * s.y + s.z * s.z), s.x);
-    const obsAng  = Math.atan2(Math.sqrt(by * by + bz * bz), bx);
-    const shift = Math.abs(restAng - obsAng);
-    if (shift > maxShift) maxShift = shift;
   }
   ctx.restore();
 
@@ -165,7 +159,7 @@ function render() {
   ctx.fillStyle = c.muted;
   ctx.fillText(`beta = ${beta.toExponential(2)}`, 12, 38);
   ctx.fillStyle = c.accent;
-  ctx.fillText(`max aberration = ${(maxShift * RAD_TO_AS).toFixed(2)} arcsec`, 12, 56);
+  ctx.fillText(`max aberration = ${(aberrationShift(Math.PI / 2, beta) * RAD_TO_AS).toFixed(2)} arcsec`, 12, 56);
   if (Math.abs(logBeta - Math.log10(BETA_EARTH_ORBIT)) < 0.05) {
     ctx.fillStyle = c.accent;
     ctx.fillText('(this is Earth\'s annual orbital beta)', 12, 74);
