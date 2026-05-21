@@ -12,6 +12,7 @@ import {
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { makeGrid, stepBarriered, makeSponge } from '../../../shared/js/engine/wave-2d-cpu.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -59,6 +60,10 @@ function rebuild() {
   }
   st.ratio = st.m2 / (st.m1 + st.m2);                    // mass ratio for body sizes
   st.ph = 0; st.running = true;
+  // Fresh FDTD wave grid + absorbing sponge for the radiated field.
+  st.wave = makeGrid(NW, 1);
+  st.sponge = makeSponge(NW, 26, 0.86);
+  st.gwPhase = 0;
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false');
 }
 
@@ -70,45 +75,74 @@ function panel(x, y, w, h, title) {
 }
 
 // Primary: the inspiral and its two-arm quadrupole ripple field.
-const BL = 5;
+// The field is a real FDTD solution of the 2D wave equation
+// u_tt = c^2 grad^2 u (shared/js/engine/wave-2d-cpu.js): the binary
+// is a rotating mass quadrupole forcing at the grid centre, the
+// leapfrog integrator propagates the strain outward at the grid wave
+// speed, and an absorbing sponge at the border stops reflections.
+const NW = 200, WAVE_C = 0.62, WAVE_DT = 0.5, RS = 9;
+const wCanvas = document.createElement('canvas');
+wCanvas.width = NW; wCanvas.height = NW;
+const wCtx = wCanvas.getContext('2d');
+const wImg = wCtx.createImageData(NW, NW);
+
+function injectQuadrupole(grid, amp, phase) {
+  const N = grid.N, cc = N >> 1, u = grid.u;
+  for (let dy = -RS; dy <= RS; dy += 1) {
+    for (let dx = -RS; dx <= RS; dx += 1) {
+      const r = Math.hypot(dx, dy);
+      if (r > RS) continue;
+      const g = Math.exp(-(r * r) / ((RS * 0.55) ** 2));
+      const th = Math.atan2(dy, dx);
+      u[(cc + dy) * N + (cc + dx)] += amp * g * Math.cos(2 * th - 2 * phase);
+    }
+  }
+}
+// One FDTD step. phFrac in [0,1] is the inspiral progress: it sets the
+// orbital angular frequency (chirp) and the source amplitude.
+function stepWave(phFrac) {
+  if (!st.wave) return;
+  const omega = 0.055 + 0.42 * phFrac * phFrac * phFrac;
+  st.gwPhase += omega;
+  const amp = phFrac >= 0.985
+    ? 0.95 * Math.exp(-(phFrac - 0.985) * 55)
+    : 0.12 + 0.80 * phFrac * phFrac;
+  injectQuadrupole(st.wave, amp, st.gwPhase);
+  stepBarriered(st.wave, WAVE_C, 0, WAVE_DT, null, st.sponge);
+}
 function drawInspiral(x, y, w, h) {
-  panel(x, y, w, h, 'compact-binary inspiral: two black holes radiating gravitational waves to merger');
-  const cx = x + w / 2, cy = y + h / 2 + 6;
+  panel(x, y, w, h, 'compact-binary inspiral: 2D FDTD wave equation, two black holes radiating to merger');
   const n = st.wf.f.length;
   const idx = Math.min(n - 1, Math.max(0, Math.floor(st.ph * (n - 1))));
   const aR = st.aRel[idx];                               // current separation (relative)
-  const fNow = st.wf.f[idx];
   const merged = st.ph >= 0.985;
-  const orbPx = Math.min(w, h) * 0.30 * Math.max(0.0, aR);
-  const Rmax = Math.min(w, h) * 0.48;
-  // ripple wavenumber rises with the chirp; envelope grows to merger
-  // then rings down. h(r, phi) ~ env * cos(2 phi - k r + Phi).
-  const k = 0.018 + 0.052 * Math.min(1, fNow / 300);
-  const Phi = st.cum[idx];
-  const env = merged
-    ? Math.exp(-(st.ph - 0.985) * 90)                    // ringdown decay
-    : 0.55 + 0.45 * (1 - aR);                             // grows as it tightens
-  ctx.save();
-  ctx.beginPath(); ctx.rect(x + 1, y + 16, w - 2, h - 18); ctx.clip();
-  for (let py = y + 16; py < y + h; py += BL) {
-    for (let px = x + 1; px < x + w; px += BL) {
-      const dx = px - cx, dy = py - cy;
-      const r = Math.hypot(dx, dy);
-      if (r > Rmax) continue;
-      const phi = Math.atan2(dy, dx);
-      // Wave-zone strain: quadrupole (2 phi), outgoing (- k r), and a
-      // 1/r amplitude falloff softened near the source.
-      const fall = 1 / (0.35 + r * 0.012);
-      const hh = env * fall * Math.cos(2 * phi - k * r + Phi);
-      const v = Math.max(-1, Math.min(1, hh * 2.4));
-      if (Math.abs(v) < 0.015) continue;
-      const a = Math.abs(v);
-      const rC = v > 0 ? 255 : 70, gC = 110 + 70 * (1 - a), bC = v < 0 ? 255 : 90;
-      ctx.fillStyle = `rgba(${rC | 0},${gC | 0},${bC | 0},${(0.62 * a + 0.05).toFixed(3)})`;
-      ctx.fillRect(px, py, BL, BL);
+  // The FDTD grid is shown as a square centred in the panel; the
+  // binary sits at the grid centre (the quadrupole source).
+  const sq = Math.min(w - 4, h - 22);
+  const dx0 = x + (w - sq) / 2, dy0 = y + 17 + (h - 18 - sq) / 2;
+  const cx = dx0 + sq / 2, cy = dy0 + sq / 2;
+  const orbPx = (sq / NW) * RS * 1.6 * Math.max(0.05, aR);
+  // Paint the propagating strain field from the FDTD grid, scaled
+  // smoothly into the panel.
+  if (st.wave) {
+    const u = st.wave.u, data = wImg.data;
+    for (let i = 0; i < NW * NW; i += 1) {
+      let v = u[i] * 2.0;
+      v = v < -1 ? -1 : (v > 1 ? 1 : v);
+      const a = Math.abs(v), j = i * 4;
+      // diverging map, near-black at zero strain: red (+), blue (-).
+      data[j]     = 9 + (v > 0 ? 242 * a : 26 * a);
+      data[j + 1] = 11 + 74 * a;
+      data[j + 2] = 15 + (v < 0 ? 232 * a : 26 * a);
+      data[j + 3] = 255;
     }
+    wCtx.putImageData(wImg, 0, 0);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x + 1, y + 16, w - 2, h - 18); ctx.clip();
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(wCanvas, dx0, dy0, sq, sq);
+    ctx.restore();
   }
-  ctx.restore();
   // the two bodies (or the merged remnant)
   const R1 = 5 + 16 * (1 - st.ratio), R2 = 5 + 16 * st.ratio;
   function hole(bx, by, rad, glow) {
@@ -131,7 +165,7 @@ function drawInspiral(x, y, w, h) {
     hole(b1x, b1y, R1, 'rgba(255,170,120,0.55)');
   }
   ctx.fillStyle = 'rgba(210,220,240,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`f_GW = ${fNow.toFixed(0)} Hz   separation ${(aR).toFixed(2)} a0   ${merged ? 'MERGED: ringdown' : 'inspiral'}`, x + 10, y + h - 10);
+  ctx.fillText(`f_GW = ${st.wf.f[idx].toFixed(0)} Hz   separation ${(aR).toFixed(2)} a0   ${merged ? 'MERGED: ringdown' : 'inspiral'}`, x + 10, y + h - 10);
 }
 
 function drawChirp(x, y, w, h) {
@@ -199,7 +233,11 @@ function draw() {
 
 const LIVE = 1 / 360;
 function tick() {
-  if (st.running) { st.ph += LIVE; if (st.ph >= 1) { st.ph = 1; st.running = false; bP.textContent = 'Play'; bP.setAttribute('aria-pressed', 'true'); } }
+  if (st.running) {
+    st.ph += LIVE;
+    if (st.ph >= 1) { st.ph = 1; st.running = false; bP.textContent = 'Play'; bP.setAttribute('aria-pressed', 'true'); }
+    stepWave(st.ph); stepWave(st.ph);                    // advance the FDTD field
+  }
   draw();
   requestAnimationFrame(tick);
 }
@@ -234,6 +272,10 @@ function boot() {
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
     st.ph = f * 0.999;
+    // Pre-roll the FDTD field deterministically so the captured frame
+    // matches the live evolution at this inspiral fraction.
+    const preroll = Math.round(720 * f);
+    for (let k = 0; k < preroll; k += 1) stepWave((k / Math.max(1, preroll)) * f);
     draw();
   } else {
     draw();
