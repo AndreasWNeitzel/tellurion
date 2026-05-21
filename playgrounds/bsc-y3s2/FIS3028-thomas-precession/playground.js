@@ -4,6 +4,7 @@
 
 import { gamma, thomasFactor } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -104,7 +105,7 @@ function render() {
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(mx, my, 4, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`(gamma-1) per orbit vs beta`, px0 + 6, py0 + 14);
   ctx.fillText(
     `beta=${st.beta.toFixed(2)} gamma=${gamma(st.beta).toFixed(3)}  accumulated axis angle = ${st.precess.toFixed(3)} rad (${(st.precess / (2 * Math.PI)).toFixed(2)} turns)`,
@@ -167,3 +168,27 @@ window.__physicsCheck = async () => {
   if (err > 0.005) return { name: 'Thomas precession per orbit', pass: false, msg: `got ${perOrbit.toFixed(4)} expected ${expected.toFixed(4)}` };
   return { name: 'Thomas precession per orbit', pass: true, msg: `beta=0.866 gamma=${g.toFixed(2)}: per-orbit axis rotation ${perOrbit.toFixed(4)} rad ((gamma-1)*2pi)` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

@@ -10,6 +10,7 @@
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { shapiroDelay, shapiroDelayFull, M_GEOM } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -109,7 +110,7 @@ function drawAll() {
   const delay = shapiroDelay(state.r, state.r, state.b);
   const delayFull = shapiroDelayFull(state.r, state.r, state.b);
 
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`b / M = ${state.b.toFixed(1)}   r_E = r_R = ${state.r.toFixed(0)} M`, 30, 22);
@@ -176,7 +177,7 @@ function drawAll() {
   photon(refP, 'rgba(200, 210, 230, 0.95)');     // reference photon
   photon(realP, '#ffd166');                       // real (delayed) photon
   // Legend.
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 230, 0.9)';
   ctx.fillText('● reference photon (flat spacetime)', padL + 10, topY + 18);
   ctx.fillStyle = '#ffd166';
@@ -206,9 +207,9 @@ function drawAll() {
   const cPx = padL + 6 + (blW - 12) * (state.b - bMin) / (bMax - bMin);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.moveTo(cPx, botY + 8); ctx.lineTo(cPx, botY + botH - 18); ctx.stroke();
-  ctx.fillStyle = tok.accentCool; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = tok.accentCool; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Δt vs impact parameter b', padL + 8, botY + 16);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   for (const bb of [10, 25, 50, 75, 100]) {
     ctx.fillText(`${bb}`, padL + 6 + (blW - 12) * (bb - bMin) / (bMax - bMin), botY + botH - 4);
@@ -224,7 +225,7 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(brX + 0.5, botY + 0.5, brW - 1, botH - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('race status', brX + 10, botY + 18);
   // Current gap between the photons (in M).
   const refDone = state.tau >= pathCache.tRefTotal;
@@ -232,7 +233,7 @@ function drawAll() {
   // The lag is how far behind (in cumulative real-time) the real
   // photon is at the moment the reference arrives.
   const lagNow = Math.max(0, Math.min(state.tau, pathCache.tRealTotal) - Math.min(state.tau, pathCache.tRefTotal));
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
   ctx.fillText(`reference: ${refDone ? 'ARRIVED' : 'in transit'}`, brX + 10, botY + 44);
   ctx.fillStyle = '#ffd166';
@@ -240,9 +241,9 @@ function drawAll() {
   // Big delay number.
   const finalDelay = pathCache.tRealTotal - pathCache.tRefTotal;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-  ctx.font = 'bold 26px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'title', 'mono', 600);
   ctx.fillText(`${finalDelay.toFixed(1)} M`, brX + 10, botY + 104);
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 230, 0.7)';
   ctx.fillText('total Shapiro delay (path model)', brX + 10, botY + 120);
   // Gap bar.
@@ -313,4 +314,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

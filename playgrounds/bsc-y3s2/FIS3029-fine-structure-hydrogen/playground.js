@@ -1,5 +1,6 @@
 import { bohrEnergy, fineStructureDelta, fsLevel } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -23,7 +24,7 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height, pad = { l: 70, r: 30, t: 30, b: 40 };
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('E (eV)', 12, pad.t + 10);
   const eMin = -14, eMax = 0;
   const yToPx = (e) => H - pad.b - (e - eMin) / (eMax - eMin) * (H - pad.t - pad.b);
@@ -40,7 +41,7 @@ function render() {
     const xCol = pad.l + 50 + (n - 1) * 140;
     ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xCol - 30, yToPx(E)); ctx.lineTo(xCol + 30, yToPx(E)); ctx.stroke();
-    ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`n=${n}`, xCol - 10, yToPx(E) - 6);
     for (let l = 0; l < n; l += 1) {
       const jvals = l === 0 ? [0.5] : [l - 0.5, l + 0.5];
@@ -50,15 +51,39 @@ function render() {
         const xSub = xCol + (j === 0.5 ? -10 : 30) + l * 12;
         ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(xSub - 15, py); ctx.lineTo(xSub + 15, py); ctx.stroke();
-        ctx.fillStyle = '#ffd166'; ctx.font = '11px ui-monospace, monospace';
+        ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
         ctx.fillText(`${'spdfg'[l]}${j === 0.5 ? '½' : j === 1.5 ? '3/2' : j === 2.5 ? '5/2' : `${j}`}`, xSub - 12, py - 4);
       }
     }
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`FS magnification x${st.mag}, max ΔE_FS ≈ ${(maxFS * 1e6).toFixed(0)} μeV`, 12, H - 14);
   rF.textContent = `${(maxFS * 1e6).toFixed(0)} μeV`;
 }
 function tick() { render(); requestAnimationFrame(tick); }
 function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

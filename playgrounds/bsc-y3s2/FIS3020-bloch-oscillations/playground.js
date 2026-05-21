@@ -7,6 +7,7 @@
 // sim.js. Reference: Ashcroft and Mermin, Solid State Physics, Ch. 12.
 import { blochFrequency, quasiMomentum, position } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -34,7 +35,7 @@ function render() {
   const PX = 16, PY = 28, PW = CW - 32, PH = Math.round(CH * 0.6) - 28;
   ctx.fillStyle = '#0a0b12'; ctx.fillRect(PX, PY, PW, PH);
   ctx.strokeStyle = 'rgba(220,225,235,0.18)'; ctx.strokeRect(PX + 0.5, PY + 0.5, PW - 1, PH - 1);
-  ctx.fillStyle = 'rgba(220,225,235,0.6)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(220,225,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('electron in a tilted lattice: the DC force makes it oscillate, it does not run away', PX + 10, PY + 18);
   const xc = position(st.t, 0, st.F, st.W);             // wavepacket centre, real space
   const span = Math.max(2.2, A * 2.6);                  // visible x range (lattice units)
@@ -55,7 +56,7 @@ function render() {
   ctx.strokeStyle = 'rgba(120,235,180,0.30)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(X(-A), PY + 24); ctx.lineTo(X(-A), PY + PH - 8);
   ctx.moveTo(X(A), PY + 24); ctx.lineTo(X(A), PY + PH - 8); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(120,235,180,0.7)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(120,235,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Wannier-Stark width = W / 2F', X(-A) + 6, PY + PH - 12);
   // centre-of-mass trail (shows the back-and-forth, not a drift)
   ctx.strokeStyle = 'rgba(91,192,235,0.5)'; ctx.lineWidth = 1.4; ctx.beginPath();
@@ -84,7 +85,7 @@ function render() {
   function dpanel(x, w, title) {
     ctx.fillStyle = '#0a0b12'; ctx.fillRect(x, DY, w, DH);
     ctx.strokeStyle = 'rgba(220,225,235,0.16)'; ctx.strokeRect(x + 0.5, DY + 0.5, w - 1, DH - 1);
-    ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText(title, x + 8, DY + 14);
+    ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(title, x + 8, DY + 14);
   }
   dpanel(PX, DW, 'band E(k), Brillouin-zone sweep');
   const bx0 = PX + 10, bx1 = PX + DW - 10, byc = DY + DH * 0.56, bAmp = DH * 0.30;
@@ -111,7 +112,7 @@ function render() {
   const tn = st.t % tMax, xn = position(tn, 0, st.F, st.W);
   ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(px0 + (px1 - px0) * tn / tMax, pyc - Math.max(-1, Math.min(1, xn / span)) * pAmp, 5, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = 'rgba(200,206,224,0.7)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,206,224,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T_B = ${T_B.toFixed(2)}   amplitude W/2F = ${A.toFixed(2)}   omega_B = ${omega_B.toFixed(2)}`, PX + 4, CH - 4);
   rT.textContent = T_B.toFixed(2);
 }
@@ -129,3 +130,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

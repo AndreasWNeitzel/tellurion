@@ -10,6 +10,7 @@
 // Ch. 2; Aharonov and Bohm, Phys. Rev. 115, 485 (1959).
 import { intensity } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -90,7 +91,7 @@ function render() {
   drawField();
 
   // source
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('electron source', 18, CY - 86);
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(SRC[0], SRC[1], 6, 0, 2 * Math.PI); ctx.fill();
@@ -104,7 +105,7 @@ function render() {
   ctx.moveTo(SLIT_X, SLIT_Y1 + 7); ctx.lineTo(SLIT_X, SLIT_Y2 - 7);
   ctx.moveTo(SLIT_X, SLIT_Y2 + 7); ctx.lineTo(SLIT_X, H - 60);
   ctx.stroke();
-  ctx.fillStyle = '#e7ebf0'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#e7ebf0'; ctx.font = fontString(canvas, 'caption', 'mono');
   tlabel('slit 1', SLIT_X + 6, SLIT_Y1 - 12);
   tlabel('slit 2', SLIT_X + 6, SLIT_Y2 + 22);
 
@@ -126,15 +127,15 @@ function render() {
   ctx.lineTo(SOL[0] + 17 * Math.cos(aa) - 7, SOL[1] + 17 * Math.sin(aa) - 2);
   ctx.lineTo(SOL[0] + 17 * Math.cos(aa) + 1, SOL[1] + 17 * Math.sin(aa) + 7);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#ffd166'; ctx.font = 'bold 13px ui-monospace, monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'body', 'mono', 600);
   tlabel('flux line  Phi', SOL[0] + 24, SOL[1] - 18);
-  ctx.fillStyle = '#ffe6a8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#ffe6a8'; ctx.font = fontString(canvas, 'caption', 'mono');
   tlabel('B = 0 on both paths; only A is nonzero', SOL[0] - 116, SOL[1] + 42);
 
   // screen and the time-averaged intensity it records (diagnostic strip)
   ctx.strokeStyle = '#cdd3da'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(SCREEN_X, 70); ctx.lineTo(SCREEN_X, H - 70); ctx.stroke();
-  ctx.fillStyle = '#cdd3da'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#cdd3da'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('detector', SCREEN_X - 4, 62);
   ctx.beginPath();
   for (let y = 72; y <= H - 72; y += 1) {
@@ -154,7 +155,7 @@ function render() {
   }
   ctx.stroke();
 
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '13px ui-monospace, monospace';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`Phi / Phi_0 = ${st.phi.toFixed(2)}    fringe shift = ${st.phi.toFixed(2)} cycles    path phase split = ${(2 * st.phi).toFixed(2)} pi`, 14, H - 16);
   rP.textContent = st.phi.toFixed(2);
 }
@@ -189,4 +190,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

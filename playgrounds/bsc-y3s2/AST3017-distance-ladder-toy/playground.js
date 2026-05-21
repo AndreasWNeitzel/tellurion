@@ -1,5 +1,6 @@
 import { distanceModulus, ladderUncertainty, RANGE_PC } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -27,7 +28,7 @@ function render() {
     ctx.fillStyle = '#9aa0a6'; ctx.fillText(`10^${i}`, x - 12, pad.t + 75);
   }
   ctx.moveTo(pad.l, pad.t + 55); ctx.lineTo(W - pad.r, pad.t + 55); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('d (pc)', W - 50, pad.t + 75);
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('d (pc)', W - 50, pad.t + 75);
   const rungs = [
     { name: 'Parallax', range: [0, 3], color: '#5bc0eb', sigma: st.s1 },
     { name: 'Cepheids', range: [3, 8], color: '#ffd166', sigma: st.s2 },
@@ -50,13 +51,13 @@ function render() {
     ctx.strokeRect(x0, y - half, x1 - x0, 2 * half); ctx.globalAlpha = 1;
     ctx.strokeStyle = r.color; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
-    ctx.fillStyle = r.color; ctx.font = '12px ui-monospace, monospace';
+    ctx.fillStyle = r.color; ctx.font = fontString(canvas, 'caption', 'mono');
     const lbl = `${r.name}  σ = ${(r.sigma * 100).toFixed(1)}%  (+-${half.toFixed(0)} px)`;
     const lx = Math.min(x0, W - pad.r - lbl.length * 7.2);
     ctx.fillText(lbl, Math.max(pad.l, lx), y - half - 6);
   });
   const sigma_total = ladderUncertainty([st.s1, st.s2, st.s3]);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Compounded σ at the Hubble flow: ${(sigma_total * 100).toFixed(1)}% (orthogonal sum)`, 12, H - 12);
   rS.textContent = `${(sigma_total * 100).toFixed(1)}%`;
 }
@@ -77,3 +78,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

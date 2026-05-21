@@ -1,5 +1,6 @@
 import { bindingEnergy, pairWavefunction } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -45,7 +46,7 @@ function renderLeftPanel(w, h) {
   ctx.stroke();
 
   ctx.fillStyle = '#9aa0a6';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('log10(E_b / hω_D)', x0 + 8, y0 + pad.t - 5);
   ctx.save();
   ctx.translate(x0 + 10, y0 + h / 2);
@@ -87,7 +88,7 @@ function renderLeftPanel(w, h) {
   ctx.fill();
 
   ctx.fillStyle = '#06d6a0';
-  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText(`E_b = ${Ecur.toExponential(2)} hω_D`, x0 + pad.l, y0 + h - 12);
 
   rE.textContent = Ecur.toExponential(2);
@@ -115,7 +116,7 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.stroke();
 
   ctx.fillStyle = '#9aa0a6';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('|g(ξ)|', x0 + 8, y0 + pad.t - 3);
   ctx.fillText('ξ / ℏω_D (fixed window)', x0 + w - 130, y0 + h - pad.b + 12);
 
@@ -145,7 +146,7 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.setLineDash([]);
 
   ctx.fillStyle = '#9aa0a6';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('FWHM ~ E_b (broadens with coupling)', x0 + pad.l + 5, y0 + pad.t + 15);
 }
 
@@ -183,4 +184,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

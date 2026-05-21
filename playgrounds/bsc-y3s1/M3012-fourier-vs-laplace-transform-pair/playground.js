@@ -6,6 +6,7 @@
 // are diagnostic strips. Reference: Arfken-Weber Ch. 15.
 import { fourierMag2, laplaceComplex, timeFn } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -71,14 +72,14 @@ function render() {
   const poles = [];
   if (st.fn === 'exp' || st.fn === 'ramp') poles.push([-a, 0]);
   if (st.fn === 'cos') { poles.push([-a, st.omega0]); poles.push([-a, -st.omega0]); }
-  ctx.strokeStyle = '#fb7185'; ctx.lineWidth = 2; ctx.font = '13px ui-monospace, monospace';
+  ctx.strokeStyle = '#fb7185'; ctx.lineWidth = 2; ctx.font = fontString(canvas, 'body', 'mono');
   for (const [pr, pi] of poles) {
     const qx = PX + PW * (pr - SX0) / (SX1 - SX0), qy = PY + PH * (SY1 - pi) / (SY1 - SY0);
     ctx.beginPath(); ctx.moveTo(qx - 6, qy - 6); ctx.lineTo(qx + 6, qy + 6);
     ctx.moveTo(qx + 6, qy - 6); ctx.lineTo(qx - 6, qy + 6); ctx.stroke();
   }
   ctx.lineWidth = 1;
-  ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('complex s-plane: F(s) domain-coloured (hue = phase, brightness = |F|)', PX + 8, PY + 16);
   ctx.fillStyle = 'rgba(120,200,255,0.9)';
   ctx.fillText('Fourier axis  s = i omega', x0 + 6, PY + PH - 8);
@@ -89,7 +90,7 @@ function render() {
   function dp(x, w, label) {
     ctx.fillStyle = '#0a0b12'; ctx.fillRect(x, DY, w, DH);
     ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.strokeRect(x + 0.5, DY + 0.5, w - 1, DH - 1);
-    ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText(label, x + 8, DY + 13);
+    ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(label, x + 8, DY + 13);
   }
   dp(PX, DW, 'f(t)');
   let fMax = 1e-9; for (let i = 0; i <= 160; i += 1) fMax = Math.max(fMax, Math.abs(timeFn(i / 160 * 6, st.fn, p)));
@@ -133,3 +134,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

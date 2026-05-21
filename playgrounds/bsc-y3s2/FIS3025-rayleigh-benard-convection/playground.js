@@ -10,6 +10,7 @@ import { RA_C, K_C, discreteRaC, linearSigma } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -108,7 +109,7 @@ function drawRolls(disp) {
   }
   ctx.stroke();
   ctx.lineWidth = 1;
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '12px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('cold plate  T = 0', 12, 16);
   ctx.fillText('hot plate  T = 1', 12, FH - 10);
 }
@@ -130,7 +131,7 @@ function drawNeutralCurve() {
   // critical point
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(K_C), Yv(RA_C), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Ra_c = 27 pi^4/4 at k_c = pi/sqrt2', X(K_C) - 4, Yv(RA_C) - 8);
   // operating point
   const unstable = linearSigma(NY, st.Ra, st.Pr, st.k) > 0;
@@ -231,4 +232,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

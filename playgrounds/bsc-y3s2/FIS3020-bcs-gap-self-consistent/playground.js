@@ -1,5 +1,6 @@
 import { gapAtT, Tc, gapZero } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -69,7 +70,7 @@ function render() {
     ctx.beginPath(); ctx.arc(x1, y1, 3.5, 0, 2 * Math.PI); ctx.fill();
     ctx.beginPath(); ctx.arc(x2, y2, 3.5, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Fermi surface + gap band  (T/Tc = ${tCur.toFixed(2)}, Delta/Delta0 = ${dRel.toFixed(3)})`,
     14, 22);
   ctx.fillText(dRel < 0.02 ? 'NORMAL STATE (gap closed, pairs broken)' : 'SUPERCONDUCTING (Cooper pairs bound)',
@@ -79,7 +80,7 @@ function render() {
   const pad = { l: 56, r: 24, t: sceneH + 14, b: 34 };
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Delta(T)/Delta0', 10, pad.t - 4); ctx.fillText('T/Tc', W - 46, H - pad.b + 12);
   const xToPx = (t) => pad.l + t * (W - pad.l - pad.r);
   // 1.08 headroom so the flat Delta(T~0) ~ 1 segment does not graze the
@@ -107,10 +108,10 @@ function render() {
   ctx.fillRect(tx, pad.t, (W - pad.r) - tx, (H - pad.b) - pad.t);
   ctx.strokeStyle = '#f472b6'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(tx, pad.t); ctx.lineTo(tx, H - pad.b); ctx.stroke();
-  ctx.fillStyle = '#f472b6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#f472b6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T/Tc = ${tCur.toFixed(2)}`, Math.min(tx + 4, W - pad.r - 78), pad.t + 12);
   ctx.beginPath(); ctx.arc(tx, yToPx(dRel), 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`N(0)V=${st.N0V.toFixed(3)}  Tc=${Tc_v.toFixed(3)}  2Δ₀/kBTc=${(2 * Delta0 / Tc_v).toFixed(3)}`, 12, H - 8);
   rD.textContent = dRel.toFixed(3);
 }
@@ -137,3 +138,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

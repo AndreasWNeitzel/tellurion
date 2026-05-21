@@ -8,6 +8,7 @@
 import { E, ageGyr, comovingDistanceMpc } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -101,7 +102,7 @@ function drawAofT(c, tNow, tMax) {
   // Today (a = 1) and Big Bang markers.
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(t0), Y(1), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`today  t0=${t0.toFixed(1)} Gyr`, X(t0), Y(1) - 10);
   ctx.fillStyle = '#ef476f';
   ctx.beginPath(); ctx.arc(X(0), Y(0), 4, 0, 2 * Math.PI); ctx.fill();
@@ -112,7 +113,7 @@ function drawAofT(c, tNow, tMax) {
   ctx.beginPath(); ctx.moveTo(X(tNow), y0); ctx.lineTo(X(tNow), y1); ctx.stroke();
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(tNow), Y(aAt(tNow)), 4, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('scale factor a(t): decelerate (matter) -> accelerate (Lambda)', x0 + 4, y0 + 10);
   ctx.textAlign = 'right'; ctx.fillText('t (Gyr) ->', x1 - 2, y1 + 16);
 }
@@ -134,9 +135,9 @@ function drawUniverse(c, aNow, tNow, zNow) {
     ctx.beginPath(); ctx.arc(x, y, g.s, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.restore();
-  ctx.fillStyle = c.fg; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'body'); ctx.textAlign = 'left';
   ctx.fillText('comoving patch: separations scale with a(t)', x0 + 8, y0 + 16);
-  ctx.font = '20px ui-monospace, monospace'; ctx.fillStyle = '#ffd166';
+  ctx.font = fontString(canvas, 'title', 'mono'); ctx.fillStyle = '#ffd166';
   ctx.fillText(`t = ${tNow.toFixed(1)} Gyr   a = ${aNow.toFixed(2)}   z = ${zNow > -0.01 ? zNow.toFixed(2) : zNow.toFixed(2)}`, x0 + 8, y0 + ph - 14);
 }
 
@@ -190,4 +191,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

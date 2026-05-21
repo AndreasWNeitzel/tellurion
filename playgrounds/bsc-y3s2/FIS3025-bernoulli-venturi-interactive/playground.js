@@ -8,6 +8,7 @@
 import { pipeArea, velocity, pressure, diagnostics, airfoilLift } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -82,7 +83,7 @@ function drawColumns() {
     ctx.strokeStyle = '#7fb2ff'; ctx.lineWidth = 1; ctx.strokeRect(px - 6, top - colH, 12, colH);
     ctx.fillStyle = '#bcd6ff'; ctx.fillRect(px - 6, top - colH, 12, 3);
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('piezometer columns: height ~ static pressure (lowest at the throat)', PIPE_X0, H - 14);
 }
 
@@ -106,7 +107,7 @@ function drawAirfoil() {
   // Same Bernoulli principle: faster over the curved top -> lower
   // pressure -> upward lift. Cartoon inset, bottom-right.
   const cx = Math.round(W * 0.5), cy = PIPE_CY + PIPE_HALF + 82, ch = 92;
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('same Bernoulli principle: airfoil lift', cx - 100, cy - 50);
   ctx.beginPath();
   ctx.moveTo(cx - ch / 2, cy);
@@ -211,4 +212,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

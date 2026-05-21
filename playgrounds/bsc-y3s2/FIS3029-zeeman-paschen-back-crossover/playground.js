@@ -1,5 +1,6 @@
 import { zeeman2pLevels, BOHR_MAGNETON_eV_T, FS_2P_eV } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -40,9 +41,9 @@ function render() {
   ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
   // Vertical y-axis title, clear of the tick numbers.
   ctx.save(); ctx.translate(14, (y0 + y1) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('ΔE (μeV)', 0, 0); ctx.restore();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('B (T)', x1 - 34, y1 + 16);
   for (let g = 0; g <= 4; g += 1) {
     const e = eMin + (eMax - eMin) * g / 4;
@@ -72,11 +73,11 @@ function render() {
   ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.moveTo(cx, y0); ctx.lineTo(cx, y1); ctx.stroke();
   ctx.restore();
-  ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`B_c ≈ ${Bc.toFixed(2)} T`, Math.min(xToPx(Bc) + 4, x1 - 90), y0 - 8);
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
   ctx.fillText(`B = ${st.B.toFixed(2)} T`, Math.min(Math.max(cx, x0 + 36), x1 - 36), y1 + 32);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(st.B < Bc ? 'Zeeman regime (split ∝ g_J m_J)' : 'Paschen-Back regime (split ∝ m_L+2m_S)', x0, y1 + 50);
 
   // Right panel: the six sublevels at the current B as energy sticks
@@ -91,13 +92,13 @@ function render() {
   // clear gap so the two never touch.
   const bandTop = y0 + 22, bandBot = y1 - 90;
   const ry = (e) => bandTop + ((hi + padE) - e) / ((hi - lo) + 2 * padE) * (bandBot - bandTop);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('2p sublevels at this B', rx0, y0 - 8);
   for (let i = 0; i < lv.length; i += 1) {
     const yE = ry(eVals[i]);
     ctx.strokeStyle = colorOf(lv[i].mJ); ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(rx0 + 6, yE); ctx.lineTo(rx1 - 96, yE); ctx.stroke();
-    ctx.fillStyle = colorOf(lv[i].mJ); ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = colorOf(lv[i].mJ); ctx.font = fontString(canvas, 'caption', 'mono');
     const sign = lv[i].mJ > 0 ? '+' : '';
     ctx.fillText(`m_J=${sign}${lv[i].mJ}  ${eVals[i] >= 0 ? '+' : ''}${eVals[i].toFixed(0)}`, rx1 - 92, yE + 3);
   }
@@ -113,7 +114,7 @@ function render() {
     ctx.strokeStyle = colorOf(lv[i].mJ); ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(px, combY - 13); ctx.lineTo(px, combY + 13); ctx.stroke();
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('emission comb (σ/π splitting)', rx0, combY + 30);
 
   rB.textContent = `${st.B.toFixed(2)} T`;
@@ -125,3 +126,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

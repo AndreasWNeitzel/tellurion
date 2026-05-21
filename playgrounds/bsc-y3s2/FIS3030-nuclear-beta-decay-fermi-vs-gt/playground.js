@@ -12,6 +12,7 @@
 
 import { transitionType, kurie, betaSpectrum } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -65,7 +66,7 @@ function render() {
   const yC = 116;
   ctx.fillStyle = '#2a2f3a'; ctx.beginPath(); ctx.arc(150, yC, 30, 0, 2 * Math.PI); ctx.fill();
   ctx.strokeStyle = '#9aa0a6'; ctx.stroke();
-  ctx.fillStyle = '#cdd1d6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#cdd1d6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('parent', 150, yC + 50); ctx.fillText(`J_i = ${jLabel(st.Ji)}`, 150, yC + 66);
   arrow(150, yC, 0, -(22 + 16 * st.Ji), '#ffd166', 3);
 
@@ -80,7 +81,7 @@ function render() {
 
   // Decay arrow.
   arrow(190, yC, 198, 0, 'rgba(154,160,166,0.7)', 2);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('β⁻', 290, yC - 10);
 
   if (allowed) {
@@ -98,7 +99,7 @@ function render() {
     spinGlyph(nx, ny, triplet, triplet ? '#9aa0a6' : '#ef476f');
 
     // Lepton-pair label.
-    ctx.fillStyle = color; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = color; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(triplet ? 'lepton pair: TRIPLET  S=1  (spins ∥)' : 'lepton pair: SINGLET  S=0  (spins anti∥)', 470, yC - 28);
 
     // Vector triangle J_i = J_f + S_lep, drawn as a genuine closed
@@ -107,7 +108,7 @@ function render() {
     // version computed the closing vector with a muddled scalar-as-
     // vector expression and did not actually close.)
     const tx = 620, ty = 232, sc = 24, S = triplet ? 1 : 0;
-    ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('J_i = J_f + S_lep   (L = 0, allowed)', tx - 80, ty - 78);
     const Li = sc * (st.Ji + 0.6);
     const Lf = sc * (st.Jf + 0.6);
@@ -125,15 +126,15 @@ function render() {
     ctx.fillText(`|ΔJ| = ${Math.abs(st.Jf - st.Ji)}`, tx - 30, ty + 26);
     ctx.fillText(`S_lep = ${S}`, tx - 30, ty + 42);
   } else {
-    ctx.fillStyle = '#ef476f'; ctx.font = '15px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'heading', 'mono'); ctx.textAlign = 'left';
     const why = st.dPi !== 0 ? 'parity change ⇒ needs L ≥ 1 (not an allowed transition)'
       : Math.abs(st.Jf - st.Ji) > 1 ? '|ΔJ| > 1 ⇒ leptons cannot carry it at L=0'
         : 'forbidden by the allowed selection rules';
-    ctx.fillText('FORBIDDEN', 470, yC - 6); ctx.font = '12px ui-monospace, monospace';
+    ctx.fillText('FORBIDDEN', 470, yC - 6); ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillStyle = '#cdd1d6'; ctx.fillText(why, 470, yC + 16);
   }
 
-  ctx.fillStyle = color; ctx.font = '20px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = color; ctx.font = fontString(canvas, 'title', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(type, 40, 36);
 
   // Lower strip: spectrum (left) and Kurie (right), fixed E axis.
@@ -143,7 +144,7 @@ function render() {
   const drawAxis = (a, b, label) => {
     ctx.strokeStyle = '#3a3a44'; ctx.lineWidth = 1; ctx.beginPath();
     ctx.moveTo(a, gyt); ctx.lineTo(a, gyb); ctx.lineTo(b, gyb); ctx.stroke();
-    ctx.fillStyle = '#6e727a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#6e727a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     for (let E = 0; E <= EMAX; E += 1000) ctx.fillText(`${E}`, xOf(a, b, E), gyb + 13);
     ctx.fillStyle = '#9aa0a6'; ctx.textAlign = 'left'; ctx.fillText(label, a + 2, gyt - 6);
   };
@@ -163,7 +164,7 @@ function render() {
       ctx.strokeStyle = 'rgba(239,71,111,0.55)'; ctx.setLineDash([5, 4]);
       ctx.beginPath(); ctx.moveTo(xOf(a, b, st.Q), gyt); ctx.lineTo(xOf(a, b, st.Q), gyb); ctx.stroke(); ctx.setLineDash([]);
     }
-    ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(`Q = ${st.Q.toFixed(0)} keV (Kurie hits 0 here)`, gx1b + 4, gyt + 12);
   }
   rT.textContent = type;
@@ -178,3 +179,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); startLoop(); }, { once: true }); } else { bootSync(); startLoop(); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

@@ -12,6 +12,7 @@ import {
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -53,7 +54,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -67,7 +68,7 @@ function drawDispersion(x, y, w, h) {
   ctx.fillStyle = 'rgba(127,209,255,0.07)'; ctx.fillRect(x0, y0, X(CUTOFF) - x0, y1 - y0);
   ctx.strokeStyle = 'rgba(127,209,255,0.4)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(CUTOFF), y0); ctx.lineTo(X(CUTOFF), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('V = 2.405', X(CUTOFF) + 4, y0 + 12);
   ctx.fillText('single-mode', x0 + 6, y1 - 8);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
@@ -145,7 +146,7 @@ function drawModeShape(x, y, w, h) {
   }
   ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();   // core boundary r=a
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('core r = a', cx + R * 0.7, cy - R - 6);
   // radial profile strip on the right
   const px0 = x + w - 96, py0 = y + 30, pw = 80, ph = h - 56;
@@ -191,7 +192,7 @@ function drawPulse(x, y, w, h) {
   // amplitude T0/T so the pulse energy is conserved)
   ctx.strokeStyle = 'rgba(150,170,210,0.4)'; ctx.lineWidth = 1; gauss(T0, 0.92);
   ctx.strokeStyle = '#f1c069'; ctx.lineWidth = 1.9; gauss(Tt, 0.92 * T0 / Tt);
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('time t / T0 ->', x1 - 96, y1 + 14);
   ctx.fillStyle = '#f1c069';
   ctx.fillText(`z/L_D = ${(st.zNow / st.LD).toFixed(2)}   T/T0 = ${Tt.toFixed(2)}`, x0 + 4, y0 + 10);
@@ -265,4 +266,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

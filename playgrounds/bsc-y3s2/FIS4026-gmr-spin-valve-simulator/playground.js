@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -63,7 +64,7 @@ function stateAt(idx) {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -76,7 +77,7 @@ function drawLoop(x, y, w, h, idx) {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
   for (const rr of [1, st.rAP]) { ctx.beginPath(); ctx.moveTo(x0, Y(rr)); ctx.lineTo(x1, Y(rr)); ctx.stroke(); }
   ctx.beginPath(); ctx.moveTo(X(0), y0); ctx.lineTo(X(0), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('R_P', x + 8, Y(1) + 3); ctx.fillText('R_AP', x + 6, Y(st.rAP) + 3);
   // full loop faint, revealed part bright
   const Lp = st.loop;
@@ -101,7 +102,7 @@ function arrow(cx, cy, dir, col, label) {
   const L = 26 * dir;
   ctx.beginPath(); ctx.moveTo(cx - L, cy); ctx.lineTo(cx + L, cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx + L, cy); ctx.lineTo(cx + L - 7 * dir, cy - 5); ctx.lineTo(cx + L - 7 * dir, cy + 5); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgba(220,230,250,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(220,230,250,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(label, cx - 70, cy + 4);
 }
 
@@ -116,14 +117,14 @@ function drawStack(x, y, w, h, sAt) {
   // exchange-bias hatch under the pinned layer
   ctx.strokeStyle = 'rgba(231,155,255,0.6)'; ctx.lineWidth = 1;
   for (let i = 0; i < lw; i += 7) { ctx.beginPath(); ctx.moveTo(cx - lw / 2 + i, yPin + 14); ctx.lineTo(cx - lw / 2 + i + 5, yPin + 22); ctx.stroke(); }
-  ctx.fillStyle = 'rgba(231,155,255,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(231,155,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('antiferromagnet (exchange bias)', cx - lw / 2, yPin + 36);
   arrow(cx, yFree - 3, sAt.mFree, '#7fd1ff', 'free');
   arrow(cx, yPin - 3, sAt.mPin, '#f1c069', 'pinned');
   ctx.fillStyle = 'rgba(220,230,250,0.7)';
   ctx.fillText(st.model === 'tmr' ? 'tunnel barrier' : 'metal spacer', cx + lw / 2 + 6, ySpace + 2);
   const par = sAt.state === 'parallel';
-  ctx.fillStyle = par ? '#8fe39b' : '#ff8f8f'; ctx.font = '12px monospace';
+  ctx.fillStyle = par ? '#8fe39b' : '#ff8f8f'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(par ? 'PARALLEL  (low resistance R_P)' : 'ANTIPARALLEL  (high resistance R_AP)', x + 14, y + h - 14);
 }
 
@@ -139,7 +140,7 @@ function drawModelCurve(x, y, w, h) {
   ctx.stroke();
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(st.P), Y(st.mr), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(st.model === 'tmr' ? 'P ->' : 'beta ->', x1 - 34, y1 + 14);
   ctx.fillText(`MR = ${(st.mr * 100).toFixed(0)}%`, x0 + 6, y0 + 12);
 }
@@ -214,4 +215,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

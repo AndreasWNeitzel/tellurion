@@ -15,6 +15,7 @@ import {
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -64,7 +65,7 @@ function wAt(t) {                                      // analytic W at arbitrar
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -76,7 +77,7 @@ function drawInversion(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
   for (const wv of [1, 0, -1]) { ctx.beginPath(); ctx.moveTo(x0, Y(wv)); ctx.lineTo(x1, Y(wv)); ctx.stroke(); }
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('+1', x + 8, Y(1) + 3); ctx.fillText(' 0', x + 8, Y(0) + 3); ctx.fillText('-1', x + 8, Y(-1) + 3);
   const tc = collapseTime(st.g), tr = revivalTime(st.nbar, st.g);
   ctx.strokeStyle = 'rgba(127,209,255,0.5)'; ctx.setLineDash([3, 3]);
@@ -119,7 +120,7 @@ function drawPhotonDist(x, y, w, h) {
   const mx = x0 + st.nbar * bw + bw / 2;
   ctx.strokeStyle = 'rgba(241,192,105,0.8)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(mx, y0); ctx.lineTo(mx, y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(241,192,105,0.9)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`nbar = ${st.nbar.toFixed(1)}`, Math.min(mx + 4, x1 - 70), y0 + 10);
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
   ctx.fillText('n ->', x1 - 28, y1 + 16); ctx.fillText('P(n)', x + 6, y0 + 4);
@@ -150,7 +151,7 @@ function drawWigner(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(PX(0), PY(PR[0])); ctx.lineTo(PX(0), PY(PR[1])); ctx.stroke();
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(PX(xq), PY(0), 3, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('x = sqrt2 Re(alpha) ->', x1c - 150, y1c + 16);
   ctx.fillText('p', PX(0) + 4, y0c + 6);
   ctx.fillText('|alpha|=sqrt(nbar)', Math.min(PX(xq) + 6, x1c - 110), PY(0) - 6);
@@ -224,4 +225,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

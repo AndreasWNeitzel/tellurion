@@ -14,6 +14,7 @@ import {
 } from './sim.js';
 import { parseUrlState, applyState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -153,7 +154,7 @@ function drawString(c, x0, y0, w, h, t) {
   ctx.fillStyle = c.fg;
   for (const je of [0, ng - 1]) { ctx.beginPath(); ctx.arc(xPix(je), midY, 4.5, 0, 2 * Math.PI); ctx.fill(); }
 
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('clamped string  -(T y′)′ = λ ρ(x) y    line weight = local density ρ', x0 + padL, y0 + 17);
   ctx.fillStyle = 'rgba(255,255,255,0.42)'; ctx.textAlign = 'right';
   ctx.fillText(pluckP === null ? 'click string to pluck' : 'plucked', x0 + w - padR, y0 + 17);
@@ -173,7 +174,7 @@ function drawSpectrum(c, x0, y0, w, h) {
 
   ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0 + padL, y0 + padT + plotH); ctx.lineTo(x0 + padL + plotW, y0 + padT + plotH); ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('spectrum  λₖ   (open ticks: uniform-string reference n²)', x0 + padL, y0 + 15);
 
   for (let k = 1; k <= K; k += 1) {
@@ -186,7 +187,7 @@ function drawSpectrum(c, x0, y0, w, h) {
     ctx.fillStyle = modeColor(k, K, 1);
     ctx.beginPath(); ctx.arc(xr, yv, 3.4, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('k = 1', xk(1), y0 + padT + plotH + 14);
   ctx.fillText(`k = ${K}`, xk(K), y0 + padT + plotH + 14);
 }
@@ -197,7 +198,7 @@ function drawSpectrum(c, x0, y0, w, h) {
 function drawGallery(c, x0, y0, w, h, t) {
   ctx.fillStyle = c.bg; ctx.fillRect(x0, y0, w, h);
   const padT = 20, padB = 8, padX = 8;
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`normal modes ψₖ(x) cos(√λₖ t)   (showing all ${N})`, x0 + padX + 4, y0 + 14);
 
   const cols = N <= 4 ? N : (N <= 9 ? Math.ceil(N / 2) : (N <= 15 ? 5 : Math.ceil(N / 4)));
@@ -223,7 +224,7 @@ function drawGallery(c, x0, y0, w, h, t) {
       (j ? ctx.lineTo : ctx.moveTo).call(ctx, xx, yy);
     }
     ctx.stroke();
-    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(`k=${k}`, cx + 7, cy + 11);
   }
 }
@@ -300,4 +301,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

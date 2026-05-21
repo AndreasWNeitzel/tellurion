@@ -3,6 +3,7 @@
 
 import { dispersion, fermiEnergyAtFilling, densityOfStates } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -68,7 +69,7 @@ function drawBZ(c, x0, y_off, w, h) {
   ctx.strokeRect(cxPx - size, cyPx - size, 2 * size, 2 * size);
 
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Gamma (0, 0)', cxPx - 32, cyPx + 14);
   ctx.fillText('M (pi, pi)', cxPx + size - 60, cyPx - size + 14);
   ctx.fillText('Brillouin zone [-pi, pi]^2', x0 + 12, y_off + 16);
@@ -98,7 +99,7 @@ function drawDOS(c, x0, y_off, w, h) {
     const x = x0 + padL + plotW * i / 4;
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     const E = dos.Emin + (dos.Emax - dos.Emin) * i / 4;
     ctx.fillText(`${E.toFixed(1)}`, x - 8, y_off + padT + plotH + 14);
   }
@@ -121,11 +122,11 @@ function drawDOS(c, x0, y_off, w, h) {
   ctx.beginPath(); ctx.moveTo(xf, y_off + padT); ctx.lineTo(xf, y_off + padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = c.red;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`E_F = ${Ef.toFixed(3)} t`, xf + 4, y_off + padT + 14);
 
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('E / t', x0 + padL + plotW - 24, y_off + padT + plotH + 28);
   ctx.fillText('DOS(E)', x0 + 12, y_off + 14);
 }
@@ -153,7 +154,7 @@ function render() {
     ctx.lineTo(sx + ux * L - 7 * ux + 4 * uy, sy + uy * L - 7 * uy - 4 * ux);
     ctx.lineTo(sx + ux * L - 7 * ux - 4 * uy, sy + uy * L - 7 * uy + 4 * ux);
     ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ff5d5d'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#ff5d5d'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`v_F=(${vArrow.vx.toFixed(2)}, ${vArrow.vy.toFixed(2)})`, sx + 8, sy - 8);
   }
 }
@@ -235,4 +236,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

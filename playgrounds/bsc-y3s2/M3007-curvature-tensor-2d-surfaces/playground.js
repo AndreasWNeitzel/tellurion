@@ -1,5 +1,6 @@
 import { torusK, sphereK, hyperbolicK, cylinderK } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -40,7 +41,7 @@ function render() {
       ctx.fillRect(px - 4, py - 4, 8, 8);
     }
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Torus: red = K > 0 (outer), blue = K < 0 (inner)', 12, 20);
   // Below: reference surfaces.
   const refY = 360, refSize = 60;
@@ -53,7 +54,7 @@ function render() {
     const x0 = canvas.width / 4 + i * canvas.width / 4 - canvas.width / 8;
     ctx.fillStyle = r.color;
     ctx.beginPath(); ctx.arc(x0, refY, refSize / 2, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#060608'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#060608'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(r.name, x0 - 60, refY + 60);
     ctx.fillStyle = '#9aa0a6'; ctx.fillText(`K = ${r.K.toFixed(2)}`, x0 - 25, refY + 75);
   });
@@ -74,7 +75,7 @@ function drawKDiagnostic(R, r, kMax) {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('Gaussian curvature  K(θ) around the tube', px + 8, py + 16);
   const ax = px + 40, ay = py + 26, aw = pw - 52, ah = ph - 48;
   const km = kMax > 0 ? kMax : 1;
@@ -93,7 +94,7 @@ function drawKDiagnostic(R, r, kMax) {
     ctx.moveTo(xOf(th0), yOf(K0)); ctx.lineTo(xOf(th1), yOf(K1));
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('+K', px + 8, ay + 8);
   ctx.fillText('-K', px + 8, ay + ah);
   ctx.fillText('θ: 0', ax, ay + ah + 14);
@@ -103,3 +104,27 @@ function drawKDiagnostic(R, r, kMax) {
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
 function bootSync() { st.t = 1; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

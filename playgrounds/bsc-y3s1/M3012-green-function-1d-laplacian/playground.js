@@ -9,6 +9,7 @@
 // Mathematical Methods (7th ed.), Ch. 10; Riley and Hobson Ch. 21.
 import { greenFn, solve } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -80,11 +81,11 @@ const STRIP = { y: 426, h: 60 };
 function render() {
   if (!CAPTURE_NAME && running) { st.t += 1; if (st.sweep < 1) st.sweep = Math.min(1, st.sweep + 0.012); }
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '15px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading'); ctx.textAlign = 'left';
   ctx.fillText("Green's function = the shape a pinned string takes under one poke", 18, 24);
 
   // TOP panel: a unit point poke at x0, the string sags into G(x, x0)
-  ctx.fillStyle = '#64748b'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('one unit poke at x0   ->   string shape  G(x, x0)', 22, TOP.y0 - 4);
   for (let i = 0; i <= N; i += 1) {
     const tgt = greenFn(i / N, st.x0, 1);
@@ -99,7 +100,7 @@ function render() {
   pinnedString(TOP.base, dTop, SC_T, '#ffd166', true);
   ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(bx, by, 5.5, 0, 6.2832); ctx.fill();
   ctx.restore();
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`x0 = ${st.x0.toFixed(2)}   G_max = ${(st.x0 * (1 - st.x0)).toFixed(3)}   (drag the string)`, 22, TOP.y0 + TOP.h - 6);
 
   // BOTTOM panel: distributed load f, u(x) = integral G f built as a
@@ -107,7 +108,7 @@ function render() {
   const r = solve(f, 1, N);
   let uMax = 1e-9; for (let i = 0; i < r.u.length; i += 1) uMax = Math.max(uMax, Math.abs(r.u[i]));
   const SC_B = BOT.sag / uMax;                          // auto-fit, bounded to sag
-  ctx.fillStyle = '#64748b'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`distributed load f(x) = ${st.fn}   ->   u(x) = integral G(x,s) f(s) ds   (sum of pokes)`, 22, BOT.y0 - 4);
   ctx.save(); ctx.beginPath(); ctx.rect(8, BOT.y0, W - 16, BOT.h); ctx.clip();
   // f(x) as little down-arrows just under the rest line
@@ -140,7 +141,7 @@ function render() {
     ctx.beginPath(); ctx.moveTo(sxp, BOT.y0 + 4); ctx.lineTo(sxp, BOT.y0 + BOT.h - 4); ctx.stroke(); ctx.setLineDash([]);
     // Explanatory label so the line's purpose is unmistakable.
     ctx.fillStyle = 'rgba(255, 209, 102, 0.95)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`adding pokes up to s = ${p.toFixed(2)}`, sxp + 6, BOT.y0 + 18);
     // Arrow indicating direction.
     ctx.strokeStyle = 'rgba(255, 209, 102, 0.6)';
@@ -150,7 +151,7 @@ function render() {
     ctx.stroke();
   } else if (!CAPTURE_NAME && p >= 1) {
     ctx.fillStyle = 'rgba(91, 192, 235, 0.85)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('full superposition: u(x) = ∫ G(x,s) f(s) ds', xToPx(0.3), BOT.y0 + 18);
   }
   ctx.restore();
@@ -160,7 +161,7 @@ function render() {
   ctx.fillStyle = '#0d1117'; ctx.fillRect(X0P, dy, X1P - X0P, STRIP.h);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(X0P + 0.5, dy + 0.5, X1P - X0P - 1, STRIP.h - 1);
   ctx.save(); ctx.beginPath(); ctx.rect(X0P, dy, X1P - X0P, STRIP.h); ctx.clip();
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: analytic u(x) cyan, f(x) green', X0P + 6, dy + 12);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.4; ctx.beginPath();
   for (let i = 0; i < r.u.length; i += 1) {
@@ -202,3 +203,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

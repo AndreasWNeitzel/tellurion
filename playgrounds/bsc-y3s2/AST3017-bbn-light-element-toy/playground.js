@@ -8,6 +8,7 @@
 // in sim.js. Reference: Liddle, Cosmology Ch. 11; Kolb and Turner Ch. 4.
 import { Yp, DH, Li7H, ETA_PLANCK, OBS_Yp, OBS_DH, OBS_Li7H } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -74,7 +75,7 @@ function render() {
     ctx.beginPath(); ctx.arc(cx + dx, cy + dy, inHe ? 2.6 : 2.2, 0, 6.2832); ctx.fill();
     placed += 1;
   }
-  ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   const Tmev = (1.0 * Math.pow(0.07, tau)).toFixed(2);
   const tsec = (1 + tau * 1000).toFixed(0);
   ctx.fillText(`early universe assembling light nuclei   T ~ ${Tmev} MeV   t ~ ${tsec} s`, BX + 10, BY + 16);
@@ -89,12 +90,12 @@ function render() {
   ctx.fillStyle = '#1e2a3a'; ctx.fillRect(BX, cy0, cbW, cbH);
   ctx.fillStyle = '#6b7280'; ctx.fillRect(BX, cy0, cbW * Xh, cbH);
   ctx.fillStyle = '#d4a843'; ctx.fillRect(BX + cbW * Xh, cy0, cbW * yp, cbH);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`H  ${(100 * Xh).toFixed(1)}%`, BX + 8, cy0 + 19);
   ctx.fillText(`4He  Y_p = ${yp.toFixed(3)}`, BX + cbW * Xh + 8, cy0 + 19);
   const dh = DH(st.eta), li = Li7H(st.eta);
   const okY = Math.abs(yp - OBS_Yp) < 0.006, okD = Math.abs(dh - OBS_DH) / OBS_DH < 0.15, okL = li / OBS_Li7H < 1.6;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = okY ? '#34d399' : '#fb7185'; ctx.fillText(`Y_p ${yp.toFixed(3)} (obs ${OBS_Yp})`, BX, cy0 + cbH + 18);
   ctx.fillStyle = okD ? '#34d399' : '#fb7185'; ctx.fillText(`D/H ${dh.toExponential(2)} (obs ${OBS_DH.toExponential(2)})`, BX + 210, cy0 + cbH + 18);
   ctx.fillStyle = okL ? '#34d399' : '#fb7185'; ctx.fillText(`7Li/H ${li.toExponential(2)} (obs ${OBS_Li7H.toExponential(2)})`, BX + 470, cy0 + cbH + 18);
@@ -136,7 +137,7 @@ function render() {
     }
     // Y-axis tick labels (decade marks).
     ctx.fillStyle = 'rgba(200,206,224,0.65)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     const loCeil = Math.ceil(lo);
     const hiFloor = Math.floor(hi);
     for (let d = loCeil; d <= hiFloor; d += 1) {
@@ -178,7 +179,7 @@ function render() {
     ctx.beginPath(); ctx.arc(X(st.eta), yNow, 4.5, 0, 6.2832); ctx.stroke();
     // Panel label.
     ctx.fillStyle = color;
-    ctx.font = 'bold 11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono', 600);
     ctx.fillText(label, BX + 64, py0 + 14);
   }
 
@@ -188,12 +189,12 @@ function render() {
 
   // X-axis label below the bottom panel.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('baryon-to-photon ratio  η_10', BX + dW / 2 - 80, dY + dH2 + 8);
 
   // Planck label at top-right corner.
   ctx.fillStyle = 'rgba(251, 113, 133, 0.95)';
-  ctx.font = 'bold 10px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono', 600);
   ctx.fillText('Planck η_10 = 6.10', X(ETA_PLANCK) + 6, dY + 12);
 
   rE.textContent = st.eta.toFixed(2);
@@ -217,3 +218,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

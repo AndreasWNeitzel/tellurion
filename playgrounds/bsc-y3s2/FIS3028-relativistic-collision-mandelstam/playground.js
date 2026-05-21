@@ -1,5 +1,6 @@
 import { fixedTargetS, colliderS, sqrtS } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -39,7 +40,7 @@ function drawScattering(SX, SY, SW, SH) {
   // Beam-pipe baseline
   ctx.strokeStyle = 'rgba(150, 165, 195, 0.35)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(SX + 14, cy); ctx.lineTo(SX + SW - 14, cy); ctx.stroke();
-  ctx.fillStyle = 'rgba(150, 165, 195, 0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(150, 165, 195, 0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   if (st.geom === 'fixed') {
     ctx.fillText('FIXED-TARGET: m1 beam slams into a stationary m2 target', SX + 16, SY + 16);
   } else {
@@ -104,12 +105,12 @@ function drawScattering(SX, SY, SW, SH) {
       ctx.beginPath(); ctx.moveTo(collideX, cy); ctx.lineTo(jx, jy); ctx.stroke();
       ctx.globalAlpha = 1;
     }
-    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`${N_JETS} outgoing tracks  (multiplicity ~ ln sqrt s)`, cx, SY + SH - 10);
   }
 
   // Energy budget readout overlay
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'; ctx.font = 'bold 13px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'right';
   ctx.fillText(`E_lab = ${Ecur.toExponential(2)} GeV`, SX + SW - 14, SY + 18);
   ctx.fillText(`sqrt(s) = ${roots.toExponential(2)} GeV`, SX + SW - 14, SY + 36);
 }
@@ -120,7 +121,7 @@ function drawParticle(x, y, r, col, label) {
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r * 0.5, 0, 6.2832); ctx.fill();
   if (label) {
-    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(label, x, y - r - 6);
   }
 }
@@ -134,7 +135,7 @@ function drawStreak(x, y, col, dir) {
 function drawPlot(SX, SY, SW, SH) {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(SX, SY, SW, SH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(SX, SY, SW, SH);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('log10 sqrt(s) (GeV) vs log10 E_lab (GeV)   (diagnostic plot)', SX + 10, SY + 14);
   const pad = { l: 50, r: 16, t: 24, b: 24 };
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath();
@@ -167,7 +168,7 @@ function drawPlot(SX, SY, SW, SH) {
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(xToPx(st.logE), yToPx(Math.log10(sqrtS(sf))), 5, 0, 2 * Math.PI); ctx.fill();
   ctx.beginPath(); ctx.arc(xToPx(st.logE), yToPx(Math.log10(sqrtS(sc))), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('fixed-target sqrt(s) ~ sqrt(E)', SX + pad.l + 6, SY + pad.t + 14);
   ctx.fillStyle = '#ffd166';
   ctx.fillText('symmetric collider sqrt(s) ~ E', SX + pad.l + 6, SY + pad.t + 28);
@@ -202,3 +203,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

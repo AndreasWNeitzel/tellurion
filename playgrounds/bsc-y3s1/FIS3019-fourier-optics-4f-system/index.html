@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The 4f Fourier-Optics Processor</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The 4f Fourier-Optics Processor</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
@@ -25,37 +26,81 @@
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>The 4f Fourier-Optics Processor</h1>
-    <p>A lens placed one focal length from an object produces, one focal length beyond it, the exact 2D Fourier transform of the object's transmittance. Put a mask in that back focal plane and a second lens transforms back: that is the 4f coherent processor. Block the outer (high-frequency) part of the spectrum and the image is low-pass filtered, blurred; block the centre (the DC and low frequencies) and only edges survive, the Abbe-Porter experiment. With no mask the second transform inverts the first and the image is the object. The middle panel is $|\mathcal{F}\{t(x,y)\}|$ on a log scale with the filter drawn on it. Source: Goodman, Introduction to Fourier Optics (4th ed.), Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <div class="stage-wrap">
-      <canvas id="stage" width="760" height="362" aria-label="Object plane, Fourier plane with the spatial filter, and the filtered image of the 4f processor"></canvas>
-      <div class="readout-panel" id="readout" role="status" aria-live="polite">
-        <span><span class="label">filter</span> <span class="value" id="readout-filter">none</span></span>
-        <span><span class="label">radius</span> <span class="value" id="readout-rc">0</span></span>
-        <span><span class="label">throughput</span> <span class="value" id="readout-thru">1.000</span></span>
-        <span><span class="label">RMS o-i</span> <span class="value" id="readout-rms">0.0e+0</span></span>
-      </div>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">The 4f Fourier-Optics Processor</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The 4f Fourier-Optics Processor</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A lens placed one focal length from an object produces, one focal length beyond it, the exact 2D Fourier transform of the object's transmittance. Put a mask in that back focal plane and a second lens transforms back: that is the 4f coherent processor. Block the outer (high-frequency) part of the spectrum and the image is low-pass filtered, blurred; block the centre (the DC and low frequencies) and only edges survive, the Abbe-Porter experiment. With no mask the second transform inverts the first and the image is the object. The middle panel is <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="script">F</mi><mo stretchy="false">{</mo><mi>t</mi><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo stretchy="false">)</mo><mo stretchy="false">}</mo><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|\mathcal{F}\{t(x,y)\}|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">∣</span><span class="mord mathcal" style="margin-right: 0.0993em;">F</span><span class="mopen">{</span><span class="mord mathnormal">t</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">y</span><span class="mclose">)}</span><span class="mord">∣</span></span></span></span></span> on a log scale with the filter drawn on it. Source: Goodman, Introduction to Fourier Optics (4th ed.), Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="362" aria-label="Object plane, Fourier plane with the spatial filter, and the filtered image of the 4f processor"></canvas>
     </div>
-    <figcaption>
-      Figure 1. The 4f coherent optical processor: object, Fourier plane with the filter, and the filtered image.
-      <em>Method:</em> in-line radix-2 2D FFT, frequency-domain mask, inverse FFT; intensity image.
-      <em>Source:</em> Goodman, Introduction to Fourier Optics (4th ed.), Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. The 4f coherent optical processor: object, Fourier plane with the filter, and the filtered image.
+      <em>Method:</em> in-line radix-2 2D FFT, frequency-domain mask, inverse FFT; intensity image.
+      <em>Source:</em> Goodman, Introduction to Fourier Optics (4th ed.), Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">object</span><select aria-label="object" id="select-object" style="grid-column: span 2;"><option value="grating">grating</option><option value="aperture">circular aperture</option><option value="doubleslit">double slit</option><option value="bars">checker pattern</option></select></div>
     <div class="row"><span class="label">filter</span><select aria-label="spatial filter" id="select-filter" style="grid-column: span 2;"><option value="low">low-pass</option><option value="none">none</option><option value="high">high-pass</option><option value="slit">vertical slit</option></select></div>
     <div class="row" id="row-rc"><span class="label">filter radius</span><input aria-label="filter radius in pixels" type="range" id="slider-rc" min="1" max="40" step="1" value="10"><span class="value" id="value-rc">10</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span><span class="label">filter</span> <span class="value" id="readout-filter">none</span></span>
+        <span><span class="label">radius</span> <span class="value" id="readout-rc">0</span></span>
+        <span><span class="label">throughput</span> <span class="value" id="readout-thru">1.000</span></span>
+        <span><span class="label">RMS o-i</span> <span class="value" id="readout-rms">0.0e+0</span></span>
+      </div><span class="value" id="readout-filter">none</span><span class="value" id="readout-rc">0</span><span class="value" id="readout-thru">1.000</span><span class="value" id="readout-rms">0.0e+0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

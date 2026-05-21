@@ -11,6 +11,7 @@
 // and Lightman, Radiative Processes in Astrophysics, Ch. 1.
 import { transmitOptical, profileVsTau } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -46,7 +47,7 @@ function intColor(v, vmax) {
 function render() {
   if (!CAPTURE_NAME && running) st.t += 1;
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Shine a light through a cloud: thin lets it through, thick shows only the cloud', 18, 26);
 
   const vmax = Math.max(st.Iin, st.S, 1);
@@ -58,7 +59,7 @@ function render() {
   sg.addColorStop(0, intColor(st.Iin, vmax)); sg.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.globalAlpha = srcA; ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(120, SY, 60, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1;
   ctx.fillStyle = intColor(st.Iin, vmax); ctx.beginPath(); ctx.arc(120, SY, 16, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = '#94a3b8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`source  I_in = ${st.Iin.toFixed(2)}`, 70, SY + 78);
 
   // the slab: opacity grows with tau, tinted by its own emission S
@@ -66,7 +67,7 @@ function render() {
   ctx.fillStyle = `rgba(${120 + 26 * st.S | 0},${90 + 20 * st.S | 0},${70},${opac.toFixed(3)})`;
   ctx.fillRect(SX0, SY - 120, SX1 - SX0, 240);
   ctx.strokeStyle = 'rgba(226,232,240,0.25)'; ctx.strokeRect(SX0 + 0.5, SY - 119.5, SX1 - SX0 - 1, 239);
-  ctx.fillStyle = '#64748b'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`slab:  tau = ${st.tau.toFixed(2)}    S = ${st.S.toFixed(2)}`, SX0 + 8, SY - 100);
 
   // beam: I(s) relaxes from I_in toward S across the slab
@@ -94,12 +95,12 @@ function render() {
   }
   // observer + emergent value + regime
   ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.arc(660, SY, 10, 0, 6.2832); ctx.stroke();
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '13px ui-monospace, monospace';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`I_out = ${Iout.toFixed(3)}`, 612, SY + 40);
   const regime = st.tau < 0.4 ? 'optically thin: I_out ~ I_in (slab transparent)'
     : st.tau > 3 ? 'optically thick: I_out ~ S (only the slab is seen)'
       : 'intermediate: I_out between I_in and S';
-  ctx.fillStyle = '#ffd166'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(regime, SX0, SY + 132);
 
   // spectrum strip: continuum at I_in with the slab's line
@@ -112,7 +113,7 @@ function render() {
   ctx.moveTo(50, contY); ctx.lineTo(360, contY);
   ctx.lineTo(380, lineY); ctx.lineTo(420, lineY); ctx.lineTo(440, contY);
   ctx.lineTo(W - 50, contY); ctx.stroke();
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   const lab = Math.abs(st.S - st.Iin) < 0.03 ? 'no line (S = I_in)' : st.S < st.Iin ? 'absorption line (S < I_in): the slab darkens the source' : 'emission line (S > I_in): the slab brightens it';
   ctx.fillText('observed spectrum:  ' + lab, 50, spY + 14);
 
@@ -120,7 +121,7 @@ function render() {
   const dx0 = 40, dx1 = W - 40, dy0 = 414, dy1 = H - 22;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: I(tau) relaxes exponentially toward S', dx0 + 8, dy0 + 13);
   const r = profileVsTau(st.Iin, st.S, st.tau, 160);
   const xP = (tt) => dx0 + 10 + tt / st.tau * (dx1 - dx0 - 20);
@@ -157,3 +158,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

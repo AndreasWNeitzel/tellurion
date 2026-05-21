@@ -3,6 +3,7 @@
 
 import { LEVELS, MAGIC, fillIndex, isMagic, levelEnergyMeV } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -104,7 +105,7 @@ function drawNucleus(x0, y0, w, h, c) {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.22)';
   ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('the nucleus  (A = ' + N + ' nucleons)', x0 + 10, y0 + 16);
 
   const cx = x0 + w / 2, cy = y0 + h / 2 + 8;
@@ -153,7 +154,7 @@ function drawNucleus(x0, y0, w, h, c) {
     ctx.beginPath(); ctx.arc(it.sx, it.sy, nucR, 0, Math.PI * 2); ctx.fill();
   }
   // Legend + radius readout.
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#ef6e6e';
   ctx.beginPath(); ctx.arc(x0 + 14, y0 + h - 30, 4, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(220,230,255,0.85)'; ctx.fillText('proton', x0 + 22, y0 + h - 26);
@@ -164,7 +165,7 @@ function drawNucleus(x0, y0, w, h, c) {
   ctx.fillText(`R = r0 A^(1/3) = ${Rworld.toFixed(2)} r0`, x0 + 10, y0 + h - 10);
   if (closed) {
     ctx.fillStyle = '#ffd166';
-    ctx.font = 'bold 12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono', 600);
     ctx.fillText('closed shell', x0 + w - 96, y0 + h - 10);
   }
 }
@@ -220,7 +221,7 @@ function render() {
 
     // Label.
     ctx.fillStyle = isMagicHere ? c.accent : c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(lvl.label, padL - 50, y + 4);
 
     // Cumulative count on right.
@@ -240,7 +241,7 @@ function render() {
   ctx.setLineDash([]);
 
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`N = ${N} (${isMagic(N) ? 'magic shell closure' : 'open shell'})`, padL, padT - 14);
 
   const now = performance.now();
@@ -262,7 +263,7 @@ function render() {
     ctx.fillStyle = 'rgba(255, 209, 102, 0.14)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#ffd166';
-    ctx.font = 'bold 20px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'title', 'mono', 600);
     ctx.fillText('SHELL CLOSURE', canvas.width / 2 - 80, padT + 8);
     // Binding-energy local-max up-arrow glyph.
     ctx.fillText('^', canvas.width - 40, padT + 8);
@@ -322,4 +323,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

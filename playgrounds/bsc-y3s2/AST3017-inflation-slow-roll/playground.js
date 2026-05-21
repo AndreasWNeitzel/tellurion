@@ -2,6 +2,7 @@
 
 import { nsR, withinPlanckBox, PLANCK_NS, PLANCK_NS_SIG, PLANCK_R_UPPER } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -68,7 +69,7 @@ function render() {
     const x = padL + plotW * i / 5;
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${(nsMin + (nsMax - nsMin) * i / 5).toFixed(2)}`, x - 12, padT + plotH + 14);
   }
   for (let i = 0; i <= 6; i += 1) {
@@ -89,7 +90,7 @@ function render() {
   ctx.lineWidth = 2;
   ctx.strokeRect(x_lo, y_top, x_hi - x_lo, y_bot - y_top);
   ctx.fillStyle = c.green;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Planck 2018 box', x_lo + 4, y_top + 14);
 
   // Plot model trajectories from N = 50 to N = 80.
@@ -135,13 +136,13 @@ function render() {
     ctx.fillStyle = MODEL_COLORS[m];
     ctx.fillRect(padL + plotW - 130, ly - 10, 12, 3);
     ctx.fillStyle = m === model ? MODEL_COLORS[m] : c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(m, padL + plotW - 110, ly);
     ly += 14;
   }
 
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('n_s', padL + plotW - 12, padT + plotH + 28);
   ctx.save(); ctx.translate(16, padT + plotH / 2 + 24); ctx.rotate(-Math.PI / 2);
   ctx.fillText('r (tensor-to-scalar)', 0, 0); ctx.restore();
@@ -198,4 +199,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

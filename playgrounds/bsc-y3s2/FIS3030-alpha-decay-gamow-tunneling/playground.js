@@ -8,6 +8,7 @@
 import { geigerNuttallLogT, gamowExponent } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -65,7 +66,7 @@ function drawBarrier(c) {
 
   ctx.strokeStyle = c.muted; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('V(r) (MeV)', 10, y0 + 8);
   ctx.fillText('r (fm)', x1 - 36, y1 + 16);
 
@@ -121,7 +122,7 @@ function drawBarrier(c) {
   // Mark the classically forbidden region.
   ctx.fillStyle = 'rgba(239,71,111,0.10)';
   ctx.fillRect(xToPx(R_NUC), y0, xToPx(rOut) - xToPx(R_NUC), y1 - y0);
-  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('tunneling region', xToPx(R_NUC) + 6, y0 + 14);
   ctx.fillStyle = c.muted; ctx.textAlign = 'left';
   ctx.fillText('alpha wavefunction tunnels the Coulomb barrier', 12, 16);
@@ -167,7 +168,7 @@ function drawNuclearScene(c) {
     }
   }
 
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('daughter + emitted alphas', x0 + 8, y0 + 14);
   ctx.fillText(`emitted: ${emitted}`, x0 + 8, y1 - 8);
 }
@@ -190,7 +191,7 @@ function drawGeigerNuttall(c) {
 
   ctx.strokeStyle = c.muted; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('log10 T_1/2 (s)', 8, y0 + 8);
   ctx.textAlign = 'center';
   ctx.fillText('Q^-1/2 (Geiger-Nuttall)', (x0 + x1) / 2, H - 8);
@@ -206,7 +207,7 @@ function drawGeigerNuttall(c) {
   const lCur = geigerNuttallLogT(st.Z, st.Q);
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(xFor(st.Q), yFor(lCur), 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`Z = ${st.Z}, Q = ${st.Q.toFixed(2)} MeV  ->  T_1/2 ~ 10^${lCur.toFixed(1)} s`, 12, H - 8);
   rT.textContent = `10^${lCur.toFixed(1)} s`;
 }
@@ -270,4 +271,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

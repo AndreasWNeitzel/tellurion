@@ -12,6 +12,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -56,7 +57,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -85,7 +86,7 @@ function drawIV(x, y, w, h) {
   for (let i = 0; i < st.iv.V.length; i += 1) { const xx = X(st.iv.V[i]), yy = Yp(st.iv.P[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();
   // markers
-  ctx.fillStyle = 'rgba(127,209,255,0.9)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(127,209,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('I_sc', x + 8, Yi(isc) + 3);
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([2, 4]);
   ctx.beginPath(); ctx.moveTo(X(st.voc), y0); ctx.lineTo(X(st.voc), y1); ctx.stroke(); ctx.setLineDash([]);
@@ -106,7 +107,7 @@ function drawGeneration(x, y, w, h) {
   panel(x, y, w, h, 'photon rain above the gap and electron-hole generation');
   const cellTop = y + h - 46, cx0 = x + 16, cx1 = x + w - 16;
   ctx.fillStyle = '#1d2740'; ctx.fillRect(cx0, cellTop, cx1 - cx0, 34);          // the cell
-  ctx.fillStyle = 'rgba(220,230,250,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(220,230,250,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`E_g = ${st.Eg.toFixed(2)} eV`, cx0 + 6, cellTop + 21);
   // deterministic photon rain: a fixed set of streams falling onto
   // the cell, phase advanced by the sweep. Photons above the gap
@@ -127,7 +128,7 @@ function drawGeneration(x, y, w, h) {
       ctx.fillStyle = '#ff8f8f'; ctx.beginPath(); ctx.arc(fx + 6, cellTop + 14, 3, 0, 2 * Math.PI); ctx.fill();  // hole
     }
   }
-  ctx.fillStyle = 'rgba(255,205,110,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,205,110,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('photons (amber: hv > E_g, absorbed)', cx0 + 6, y + 30);
   // photocurrent arrows out to the load (magnitude tracks I(V))
   const Iop = Math.max(0, cellCurrent(st.ph * st.voc, st.p));
@@ -147,7 +148,7 @@ function drawSQ(x, y, w, h) {
   const Y = (v) => y1 - (y1 - y0) * v / (ym * 1.1);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
   ctx.beginPath(); ctx.moveTo(x0, Y(ym)); ctx.lineTo(x1, Y(ym)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${(ym * 100).toFixed(0)}%`, x + 6, Y(ym) + 3);
   ctx.strokeStyle = '#8fe39b'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < st.sq.Eg.length; i += 1) { const xx = X(st.sq.Eg[i]), yy = Y(st.sq.eta[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
@@ -229,4 +230,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

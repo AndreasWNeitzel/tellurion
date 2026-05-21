@@ -11,6 +11,7 @@ import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { beamingHalfAngle, doppler, aberratedAngle } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -114,7 +115,7 @@ function drawLobe() {
   ctx.beginPath(); ctx.moveTo(tip.sx, tip.sy);
   ctx.lineTo(tip.sx - 11, tip.sy - 6); ctx.lineTo(tip.sx - 11, tip.sy + 6);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#ef476f'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('beta (velocity)', tip.sx + 8, tip.sy + 4);
 }
 
@@ -131,7 +132,7 @@ function drawRestInset() {
   }
   ctx.beginPath(); ctx.arc(ix, iy, r, 0, 2 * Math.PI); ctx.stroke();
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ix, iy, 3, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('rest frame: isotropic', ix, iy + r + 16);
 }
 
@@ -149,7 +150,7 @@ function drawReadout() {
     ['D(pi) back', Dpi.toFixed(3)],
     ['I(0)/I(pi)', Math.pow(D0 / Dpi, p).toExponential(2)],
   ];
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   let y = 26;
   for (const [k, v] of rows) {
     ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'left'; ctx.fillText(k, 16, y);
@@ -168,7 +169,7 @@ function drawDiagPanel() {
   ctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)'; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('intensity vs lab angle  I(θ) = D(θ)^{3+α}', px + 8, py + 16);
   const beta = betaOf(st.gamma), p = 3 + st.alpha;
   const ax = px + 40, ay = py + 30;
@@ -202,11 +203,11 @@ function drawDiagPanel() {
   ctx.strokeStyle = '#ef476f'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(xOfTh(tb), ay + 8); ctx.lineTo(xOfTh(tb), ay + ah - 22); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`θ_b = 1/γ = ${(tb * 180 / Math.PI).toFixed(2)}°`, xOfTh(tb) + 4, ay + 18);
   // Axes.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   for (const tDeg of [0, 30, 60, 90, 120, 150, 180]) {
     ctx.fillText(`${tDeg}°`, xOfTh((tDeg / 180) * Math.PI), ay + ah - 8);
@@ -265,4 +266,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -7,6 +7,7 @@
 
 import { ckmModulus, trianglePoints, angleBeta, angleGamma, CKM_DEFAULT } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -35,7 +36,7 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 
 function drawMatrix() {
   const mL = 24, mT = 54, cell = 46;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('|V_ij|', mL, mT - 14);
   const ckm = ckmModulus({ ...CKM_DEFAULT, rho: st.rho, eta: st.eta });
   const cols = ['d', 's', 'b'], rows = ['u', 'c', 't'];
@@ -46,7 +47,7 @@ function drawMatrix() {
       const v = ckm[j][i];
       ctx.fillStyle = `rgba(255,209,102,${Math.min(1, v) * 0.85 + 0.05})`;
       ctx.fillRect(mL + cell * i, mT + cell * j, cell - 4, cell - 4);
-      ctx.fillStyle = '#0b0b0e'; ctx.font = '11px ui-monospace, monospace';
+      ctx.fillStyle = '#0b0b0e'; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(v.toFixed(3), mL + cell * i + 5, mT + cell * j + cell / 2 + 3);
     }
   }
@@ -63,7 +64,7 @@ function drawTriangle() {
   ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(X(-0.05), Y(0)); ctx.lineTo(X(1.15), Y(0)); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(X(0), Y(-0.04)); ctx.lineTo(X(0), Y(0.85)); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('rho-bar', X(1.0), Y(0) + 16);
   ctx.fillText('eta-bar', X(0) + 6, Y(0.8));
 
@@ -90,7 +91,7 @@ function drawTriangle() {
     ctx.lineTo(qx - 11 * Math.cos(ang - 0.4), qy - 11 * Math.sin(ang - 0.4));
     ctx.lineTo(qx - 11 * Math.cos(ang + 0.4), qy - 11 * Math.sin(ang + 0.4));
     ctx.closePath(); ctx.fill();
-    ctx.fillStyle = cols[k]; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = cols[k]; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(names[k], (px + qx) / 2, (py + qy) / 2 - 8);
   }
   // Travelling closure marker. Suppressed during reference capture: it
@@ -115,11 +116,11 @@ function drawTriangle() {
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.arc(X(0), Y(0), 28, -gamma, 0); ctx.stroke();
   ctx.beginPath(); ctx.arc(X(1), Y(0), 28, Math.PI - beta, Math.PI); ctx.stroke();
-  ctx.fillStyle = '#dcdde2'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`gamma=${(gamma * 180 / Math.PI).toFixed(0)}`, X(0) + 30, Y(0) - 8);
   ctx.fillText(`beta=${(beta * 180 / Math.PI).toFixed(0)}`, X(1) - 70, Y(0) - 8);
   ctx.fillText(`alpha=${(alpha * 180 / Math.PI).toFixed(0)}`, X(A[0]) + 8, Y(A[1]) - 8);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('apex (rho-bar, eta-bar)', X(A[0]) + 8, Y(A[1]) + 14);
 }
 
@@ -131,7 +132,7 @@ function drawCP() {
   const s2b = Math.sin(2 * beta);
   const bx = W - 220, by = 70, bw = 190, bh = 150;
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(bx, by, bw, bh);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('CP asymmetry (golden mode)', bx + 6, by - 8);
   // Time-dependent interference: A_CP(t) = sin(2 beta) sin(dm t). Under
   // reference capture the oscillation is frozen at its peak so the bar
@@ -145,14 +146,14 @@ function drawCP() {
     const hgt = val * (bh - 36);
     ctx.fillStyle = col;
     ctx.fillRect(cx - 26, baseY - hgt, 52, hgt);
-    ctx.fillStyle = '#dcdde2'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(lab, cx, baseY + 14);
   };
   drawBar(bx + 55, rateB, '#5bc0eb', 'B0');
   drawBar(bx + 135, rateBbar, '#ef476f', 'B0-bar');
   const cpv = s2b > 0.12;
   ctx.fillStyle = cpv ? '#06d6a0' : '#9aa0a6';
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`sin 2beta = ${s2b.toFixed(3)}`, bx + 6, by + bh + 16);
   ctx.fillStyle = '#9aa0a6';
   ctx.fillText(cpv ? 'rates differ: CP is violated' : 'near-flat triangle: CP suppressed', bx + 6, by + bh + 30);
@@ -166,7 +167,7 @@ function render() {
   drawCP();
   // Jarlskog (proportional to twice the triangle area in this scaling).
   const area = 0.5 * Math.abs(st.eta);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`triangle area ~ Jarlskog J (CP violation) = ${area.toFixed(3)}`, 24, H - 14);
   rE.textContent = st.eta.toFixed(3);
 }
@@ -199,4 +200,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

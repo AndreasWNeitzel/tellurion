@@ -13,6 +13,7 @@
 // Griffiths, Introduction to Elementary Particles, Ch. 9; PDG.
 import { u_v, d_v, gluon, sea, sampleX } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -96,7 +97,7 @@ function drawProton() {
   ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(BAG.cx, BAG.cy, BAG.rx, BAG.ry, 0, 0, 6.2832); ctx.fill();
   ctx.strokeStyle = 'rgba(160,170,220,0.45)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 5]);
   ctx.beginPath(); ctx.ellipse(BAG.cx, BAG.cy, BAG.rx, BAG.ry, 0, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(200,206,224,0.7)'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = 'rgba(200,206,224,0.7)'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('proton (confinement bag)', BAG.cx - BAG.rx + 6, BAG.cy - BAG.ry - 8);
 
   for (const p of partons) {
@@ -115,7 +116,7 @@ function drawProton() {
       const gg = ctx.createRadialGradient(px, py, 0, px, py, rad);
       gg.addColorStop(0, '#fff'); gg.addColorStop(0.4, col); gg.addColorStop(1, 'rgba(0,0,0,0.2)');
       ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(px, py, rad, 0, 6.2832); ctx.fill();
-      ctx.fillStyle = '#0b0b12'; ctx.font = 'bold 11px ui-monospace, monospace';
+      ctx.fillStyle = '#0b0b12'; ctx.font = fontString(canvas, 'caption', 'mono', 600);
       ctx.fillText(p.kind === 'u' ? 'u' : 'd', px - 3, py + 4);
     } else if (p.kind === 'g') {
       ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
@@ -132,33 +133,33 @@ function drawProton() {
     ctx.beginPath();
     for (let s = 0; s <= 16; s += 1) { const a = s / 16; ctx.lineTo(hx + Math.sin(a * 22) * 6, 14 + a * (BAG.cy - 14)); }
     ctx.stroke();
-    ctx.fillStyle = 'rgba(255,240,150,0.9)'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = 'rgba(255,240,150,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('e- probe (DIS)', hx + 8, 24);
   }
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (const xt of [0.001, 0.01, 0.1, 1]) { const bx = xToBag(xt); ctx.fillText(`${xt}`, bx - 6, BAG.cy + BAG.ry + 14); ctx.strokeStyle = 'rgba(100,116,139,0.4)'; ctx.beginPath(); ctx.moveTo(bx, BAG.cy + BAG.ry - 2); ctx.lineTo(bx, BAG.cy + BAG.ry + 4); ctx.stroke(); }
   ctx.fillText('momentum fraction x  (log scale)', BAG.cx - 80, BAG.cy + BAG.ry + 28);
 }
 
 function drawBudget() {
   const bx0 = 500, bw = W - bx0 - 24, by = 70;
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('Momentum budget', bx0, by - 8);
   let acc = 0;
   for (const b of BUDGET) {
     const x0 = bx0 + acc * bw, ww = b.frac * bw;
     ctx.fillStyle = b.col; ctx.fillRect(x0, by, ww - 1, 26);
-    ctx.fillStyle = '#0b0b12'; ctx.font = 'bold 10px ui-monospace, monospace';
+    ctx.fillStyle = '#0b0b12'; ctx.font = fontString(canvas, 'tick', 'mono', 600);
     if (ww > 26) ctx.fillText(`${(b.frac * 100) | 0}%`, x0 + 4, by + 17);
     acc += b.frac;
   }
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   let ly = by + 44;
   for (const b of BUDGET) { ctx.fillStyle = b.col; ctx.fillRect(bx0, ly - 8, 9, 9); ctx.fillStyle = '#cbd5e1'; ctx.fillText(`${b.name}: ${(b.frac * 100).toFixed(0)}% of momentum`, bx0 + 14, ly); ly += 17; }
   const sum = BUDGET.reduce((a, b) => a + b.frac, 0);
-  ctx.fillStyle = '#06d6a0'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`sum rule: Sum x f = ${sum.toFixed(3)}`, bx0, ly + 8);
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('valence: 2u + 1d (number rule)', bx0, ly + 25);
   ctx.fillText('quarks ~58%, gluon ~42%:', bx0, ly + 46);
   ctx.fillText('nearly half is glue, not quarks.', bx0, ly + 61);
@@ -169,7 +170,7 @@ function drawStrip() {
   const dx0 = 60, dx1 = W - 24, dy0 = H - 116, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`diagnostic: x f(x) vs x  (${st.scale === 'lin' ? 'linear' : 'log'} x; same toy PDFs)`, dx0 + 8, dy0 + 12);
   const xpx = (x) => st.scale === 'lin' ? dx0 + 10 + x * (dx1 - dx0 - 20) : dx0 + 10 + (Math.log10(Math.max(1e-3, x)) + 3) / 3 * (dx1 - dx0 - 20);
   let yMax = 0;
@@ -192,7 +193,7 @@ function drawStrip() {
 
 function render() {
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A proton is a swarm: valence quarks, glue, and a sea', 18, 24);
   drawProton();
   const sum = drawBudget();
@@ -209,3 +210,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

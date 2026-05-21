@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Schwarzschild Light Bending</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schwarzschild Light Bending</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 720px; }
     .pg-figure canvas { width: 100%; height: auto; }
     .pg-readout {
@@ -43,65 +48,107 @@
       grid-column: span 2;
     }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Schwarzschild light bending</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Schwarzschild light bending</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Schwarzschild light bending</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     A horizontal plane wave of photons enters from the left and meets a non-rotating
     black hole at the origin. Geometric units G = c = M = 1. Each photon obeys a
     null geodesic with conserved energy E and angular momentum L; its fate is fixed
-    by the impact parameter b = L / E. Photons with |b| &lt; 3&radic;3 &asymp; 5.196
+    by the impact parameter b = L / E. Photons with |b| &lt; 3√3 ≈ 5.196
     cross the photon sphere at r = 3 and are swallowed (red); photons with
-    |b| &gt; 3&radic;3 are deflected (blue), with photons just above critical
+    |b| &gt; 3√3 are deflected (blue), with photons just above critical
     looping the photon sphere multiple times before escaping. Drag the sliders to
     vary the photon count and the impact-parameter range.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="720" height="480" tabindex="0"
-            aria-label="Plane wave of photons deflecting around a Schwarzschild black hole."></canvas>
-
-    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
-      <span class="label">N photons:</span>    <span class="value" id="readout-N">41</span>
-      <span class="label">b<sub>max</sub>:</span> <span class="value" id="readout-bMax">9.00</span>
-      <span class="label">b<sub>crit</sub> = 3&radic;3:</span> <span class="value" id="readout-bCrit">5.1962</span>
-      <span class="label">swallowed:</span>     <span class="value" id="readout-swallowed">0</span>
-      <span class="label">deflected:</span>     <span class="value" id="readout-deflected">0</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="720" height="480" tabindex="0" aria-label="Plane wave of photons deflecting around a Schwarzschild black hole."></canvas>
     </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Plane wave of null geodesics in the Schwarzschild equatorial plane (M = 1).
       Method: per-photon velocity-Verlet on the radial Hamiltonian
-      H = p<sub>r</sub><sup>2</sup>/2 + L<sup>2</sup>(1&minus;2/r)/(2r<sup>2</sup>) from
-      <code>shared/js/engine/symplectic.js</code>; angular coordinate &phi; advances as
-      L/r<sup>2</sup>. Source: Carroll, Spacetime and Geometry, Sections 5.1, 5.3, 5.4.
-    </figcaption>
-  </figure>
+      H = p<sub>r</sub><sup>2</sup>/2 + L<sup>2</sup>(1−2/r)/(2r<sup>2</sup>) from
+      <code>shared/js/engine/symplectic.js</code>; angular coordinate φ advances as
+      L/r<sup>2</sup>. Source: Carroll, Spacetime and Geometry, Sections 5.1, 5.3, 5.4.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row">
       <span class="label">N</span>
-      <input type="range" id="slider-N" min="11" max="81" step="2" value="41"
-             aria-label="Number of photons in the plane wave">
+      <input type="range" id="slider-N" min="11" max="81" step="2" value="41" aria-label="Number of photons in the plane wave">
       <span class="value" id="value-N">41</span>
     </div>
     <div class="row">
       <span class="label">b<sub>max</sub></span>
-      <input type="range" id="slider-bMax" min="3" max="12" step="0.5" value="9"
-             aria-label="Half-width of the impact-parameter range">
+      <input type="range" id="slider-bMax" min="3" max="12" step="0.5" value="9" aria-label="Half-width of the impact-parameter range">
       <span class="value" id="value-bMax">9.00</span>
     </div>
     <div class="row buttons">
       <label style="font-size: 13px; color: var(--fg); display: inline-flex; align-items: center; gap: 6px;">
-        <input type="checkbox" id="chk-bcrit" checked>
-        Show b<sub>crit</sub> = 3&radic;3 reference lines and critical photon
+        <input type="checkbox" id="chk-bcrit" checked="">
+        Show b<sub>crit</sub> = 3√3 reference lines and critical photon
       </label>
       <button id="btn-reset" type="button" aria-label="Reset to defaults">Reset</button>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">N photons:</span>    <span class="value" id="readout-N">41</span>
+      <span class="label">b<sub>max</sub>:</span> <span class="value" id="readout-bMax">9.00</span>
+      <span class="label">b<sub>crit</sub> = 3√3:</span> <span class="value" id="readout-bCrit">5.1962</span>
+      <span class="label">swallowed:</span>     <span class="value" id="readout-swallowed">0</span>
+      <span class="label">deflected:</span>     <span class="value" id="readout-deflected">0</span>
+    </div><span class="value" id="readout-N">41</span><span class="value" id="readout-bMax">9.00</span><span class="value" id="readout-bCrit">5.1962</span><span class="value" id="readout-swallowed">0</span><span class="value" id="readout-deflected">0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

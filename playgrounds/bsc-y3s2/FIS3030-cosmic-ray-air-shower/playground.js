@@ -6,6 +6,7 @@
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
@@ -146,7 +147,7 @@ function drawPhase(p) {
     g.addColorStop(1, 'rgba(220,240,255,0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(cx, yHead, 16, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#dcdde2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left';
     ctx.fillText(`primary ${state.species}  E0 = ${E.toExponential(1)} GeV`, cx + 22, Math.max(16, yHead));
   }
 
@@ -236,7 +237,7 @@ function drawPhase(p) {
     ctx.strokeStyle = 'rgba(255,213,127,0.55)'; ctx.setLineDash([4, 4]);
     ctx.beginPath(); ctx.moveTo(0, yMax); ctx.lineTo(W, yMax); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#dcdde2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left';
     ctx.fillText(`Xmax ~ ${Xmax.toFixed(0)} g/cm^2`, 12, yMax - 4);
   }
 
@@ -312,3 +313,27 @@ window.__physicsCheck = async () => {
   if (Math.abs(Xmax - expected) / expected > 1e-9) return { name: 'Xmax', pass: false, msg: `Xmax=${Xmax}` };
   return { name: 'Heitler Xmax = X0 ln(E/Ec)', pass: true, msg: `Xmax(1e17 eV) = ${Xmax.toFixed(1)} g/cm^2` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

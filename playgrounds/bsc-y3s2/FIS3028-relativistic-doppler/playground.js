@@ -3,6 +3,7 @@
 
 import { gamma, dopplerFactor } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -98,7 +99,7 @@ function drawCartesian(c, x0, y0, w, h) {
 
   // Labels.
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', x0 + padL - 6, y0 + padT + plotH + 14);
   ctx.fillText('pi/2', x0 + padL + plotW / 2 - 12, y0 + padT + plotH + 14);
   ctx.fillText('pi', x0 + padL + plotW - 8, y0 + padT + plotH + 14);
@@ -106,12 +107,12 @@ function drawCartesian(c, x0, y0, w, h) {
   ctx.fillText('1.00', x0 + padL - 28, yFor(1) + 3);
   ctx.fillText(yMin.toFixed(2), x0 + padL - 32, y0 + padT + plotH);
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('theta (rad)', x0 + padL + plotW - 60, y0 + padT + plotH + 26);
   ctx.save(); ctx.translate(x0 + 12, y0 + padT + plotH / 2 + 30); ctx.rotate(-Math.PI / 2);
   ctx.fillText('f_obs / f_src (log)', 0, 0); ctx.restore();
   ctx.fillStyle = c.accent;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`beta = ${beta.toFixed(3)}, gamma = ${gamma(beta).toFixed(2)}`, x0 + padL + 8, y0 + 14);
 }
 
@@ -130,7 +131,7 @@ function drawPolar(c, x0, y0, w, h) {
     ctx.beginPath(); ctx.arc(cxPx, cyPx, Rmax * r, 0, 2 * Math.PI); ctx.stroke();
   }
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const r of [0.25, 0.5, 0.75]) {
     ctx.fillText(`r=${r.toFixed(2)}`, cxPx + Rmax * r + 4, cyPx + 4);
   }
@@ -172,7 +173,7 @@ function drawPolar(c, x0, y0, w, h) {
   ctx.closePath();
   ctx.fill();
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('v', cxPx + Rmax * 0.9 + 6, cyPx + 4);
 
   // Marker at current theta.
@@ -240,4 +241,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

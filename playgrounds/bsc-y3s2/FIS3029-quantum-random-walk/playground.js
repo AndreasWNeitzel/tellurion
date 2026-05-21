@@ -2,6 +2,7 @@
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -80,7 +81,7 @@ function render() {
   for (let i = 0; i < N; i += 1) { if (pC[i] > mx) mx = pC[i]; if (pQ[i] > mx) mx = pQ[i]; }
   const ys = (H - 110) / Math.max(mx, 1e-9);
 
-  ctx.fillStyle = '#dcdde2'; ctx.font = '14px sans-serif';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('Classical (binomial)', 20, 28);
   ctx.fillStyle = '#7c9cff';
   for (let i = 0; i < N; i += 1) ctx.fillRect(i * dx + 4, baseY - pC[i] * ys, dx - 1.5, pC[i] * ys);
@@ -128,3 +129,27 @@ window.__physicsCheck = async () => {
   if (vQ < 75) return { name: 'quantum speedup', pass: false, msg: `var_Q(50) = ${vQ.toFixed(2)}` };
   return { name: 'unitarity + speedup', pass: true, msg: `sum=1 var_C=${vC.toFixed(2)} var_Q=${vQ.toFixed(2)}` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

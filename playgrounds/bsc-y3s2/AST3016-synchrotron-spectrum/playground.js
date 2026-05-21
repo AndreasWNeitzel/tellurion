@@ -1,5 +1,6 @@
 import { nu_c, singleSpec, spectralIndex } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -42,7 +43,7 @@ function render() {
   ctx.lineTo(mainW - padR, H - padB);
   ctx.stroke();
 
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('log F', 8, padT + 10);
   ctx.fillText('log ν (Hz)', padL + (mainW - padL - padR) / 2 - 28, H - padB + 32);
 
@@ -85,7 +86,7 @@ function render() {
     return H - padB - u * (H - padT - padB);
   };
   // Decade grid + labels on the frequency axis.
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   for (let d = Math.ceil(lnumin); d <= Math.floor(lnumax); d += 1) {
     const px = xToPx(d);
     ctx.strokeStyle = '#1b1b1f'; ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, H - padB); ctx.stroke();
@@ -110,14 +111,14 @@ function render() {
     ctx.moveTo(xToPx(la), yToPx(fa));
     ctx.lineTo(xToPx(lb), yToPx(fa - alpha * (lb - la)));
     ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`slope = -α = -(p-1)/2 = ${(-alpha).toFixed(2)}`, xToPx(la), yToPx(fa) - 8);
   }
   const lcut = Math.log10(st.mode === 'single' ? nu_peak : nu_c(gMax, B));
   ctx.strokeStyle = '#ef476f'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xToPx(lcut), padT); ctx.lineTo(xToPx(lcut), H - padB); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`ν_c = ${Math.pow(10, lcut).toExponential(1)} Hz`, Math.min(xToPx(lcut) + 4, mainW - 120), padT + 12);
 
   // Right panel: top = an animated relativistic electron gyrating in B
@@ -133,7 +134,7 @@ function render() {
     const orbR = Math.min((W - rPadR - rPadL), (splitY - padT)) * 0.30;
     ctx.strokeStyle = '#2c2f36'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(ecx, ecy, orbR, 0, 2 * Math.PI); ctx.stroke();
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('relativistic electron + 1/γ beam', rPadL, padT + 10);
     // Gyrofrequency ~ B / gamma; beam half-angle ~ 1/gamma.
     const gyro = 0.7 + 0.5 * (st.logB + 5);
@@ -164,7 +165,7 @@ function render() {
     const rPadT2 = splitY + 14;
     ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(rPadL, rPadT2); ctx.lineTo(rPadL, H - padB); ctx.lineTo(W - rPadR, H - padB); ctx.stroke();
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('log N', mainW + 4, rPadT2 + 10);
     ctx.fillText('log γ', mainW + rightW * 0.4, H - padB + 16);
     const lgmin = 0, lgmax = 4.5;
@@ -182,7 +183,7 @@ function render() {
     ctx.restore();
   }
 
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`γ = ${st.gamma.toFixed(0)}, B = 10^${st.logB.toFixed(1)} G, p = ${st.p.toFixed(2)}, α = ${alpha.toFixed(2)}`, padL + 70, 16);
   rA.textContent = alpha.toFixed(2);
 }
@@ -202,3 +203,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

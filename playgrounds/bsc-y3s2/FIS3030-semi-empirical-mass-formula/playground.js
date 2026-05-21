@@ -6,6 +6,7 @@
 
 import { COEFFS } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -114,7 +115,7 @@ function render() {
     }
     ctx.strokeStyle = 'rgba(220,220,240,0.35)';
     ctx.strokeRect(ox, 40, pw, ph);
-    ctx.fillStyle = '#dcdde2'; ctx.font = '12px ui-monospace, monospace';
+    ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(labels[panel], ox + 4, 28);
     ctx.fillText('N ->', ox + pw - 34, 40 + ph + 16);
   }
@@ -124,7 +125,7 @@ function render() {
   readoutBa.textContent = `chi^2 = ${chi.toFixed(0)} MeV^2`;
   readoutPeak.textContent = matched ? 'MATCH' : 'fitting...';
   ctx.fillStyle = matched ? '#06d6a0' : '#9aa0a6';
-  ctx.font = 'bold 16px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'heading', 'mono', 600);
   ctx.fillText(matched
     ? `MATCH  (aV=${TARGET.aV} aS=${TARGET.aS} aC=${TARGET.aC} aA=${TARGET.aA} aP=${TARGET.aP})`
     : `chi^2 = ${chi.toFixed(0)} MeV^2  (target < 50)`, pad, H - 18);
@@ -185,3 +186,27 @@ window.__physicsCheck = async () => {
   if (chiZero <= 10000) return { name: 'SEMF fit', pass: false, msg: `chi^2 at zero = ${chiZero}` };
   return { name: 'SEMF chi-squared puzzle', pass: true, msg: `canonical chi^2=${chiMatch.toFixed(1)} (<50), zero chi^2=${chiZero.toFixed(0)} (>10000)` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

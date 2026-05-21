@@ -8,6 +8,7 @@
 
 import { transmission, coefficientFinesse, finesse, fwhmPhi } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -70,14 +71,14 @@ function drawCavity(c, phi) {
   // Input beam from the left.
   ctx.fillStyle = 'rgba(120,180,255,0.55)';
   ctx.fillRect(0, cy - beamW / 2, m1, beamW);
-  ctx.fillStyle = '#7cb4ff'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#7cb4ff'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('input', 10, cy - beamW);
 
   // Mirrors (partial reflectors).
   ctx.fillStyle = '#b8c4d8';
   ctx.fillRect(m1 - 4, cy - SCENE_H * 0.32, 5, SCENE_H * 0.64);
   ctx.fillRect(m2 - 1, cy - SCENE_H * 0.32, 5, SCENE_H * 0.64);
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`R = ${R.toFixed(3)}`, m1 - 4, cy - SCENE_H * 0.34);
 
   // A few bouncing rays with geometric decay r^(2k) to convey the
@@ -104,7 +105,7 @@ function drawCavity(c, phi) {
   ctx.fillStyle = '#ffd166'; ctx.textAlign = 'right';
   ctx.fillText('transmitted', W - 10, cy - tw);
 
-  ctx.textAlign = 'left'; ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace';
+  ctx.textAlign = 'left'; ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('scanned Fabry-Perot cavity (bright = on resonance)', 12, 18);
   ctx.fillStyle = c.accent; ctx.textAlign = 'right';
   ctx.fillText(T > 0.85 ? 'ON RESONANCE' : (T < 0.1 ? 'off resonance' : 'near resonance'), W - 12, 18);
@@ -123,7 +124,7 @@ function drawCurve(c, phi) {
   for (let i = 0; i <= 4; i += 1) {
     const y = y0 + (y1 - y0) * i / 4;
     ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
-    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
     ctx.fillText((1 - i / 4).toFixed(1), x0 - 6, y + 3);
   }
   for (let m = 0; m <= 2; m += 1) {
@@ -148,7 +149,7 @@ function drawCurve(c, phi) {
   ctx.fillStyle = '#7cb4ff';
   ctx.beginPath(); ctx.arc(xFor(pm), yFor(Tm), 4, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('Airy transmission T(phi)', 10, y0 + 6);
   ctx.textAlign = 'center';
   ctx.fillText(`finesse F* = ${finesse(R).toFixed(1)}  (FWHM = ${fwhmPhi(R).toFixed(3)} rad)`, (x0 + x1) / 2, H - 8);
@@ -202,4 +203,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

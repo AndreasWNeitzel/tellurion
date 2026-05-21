@@ -6,6 +6,7 @@
 import { energyLevel, confinementGap, levels, dos, absorptionOnset } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -32,7 +33,7 @@ function drawWell() {
   const { x, y, w, h } = LPAN;
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('infinite well: levels E_n and wavefunctions psi_n(x) = sin(n pi x / L)', x + 6, y + 14);
   // energy axis: show the first 5 levels and their psi_n
   const Emax = energyLevel(6, st.L, st.m);
@@ -55,7 +56,7 @@ function drawWell() {
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.lineWidth = 1.6; ctx.stroke();
-    ctx.fillStyle = 'rgba(220,230,245,0.8)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(220,230,245,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('n=' + n + '  E=' + E.toFixed(2), wx1 + 6, yy + 3);
   }
 }
@@ -65,7 +66,7 @@ function drawDOS() {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   const label = { bulk: '3D bulk:  g ~ E^1/2', well: '2D well:  g = staircase', wire: '1D wire:  g ~ (E-E_c)^-1/2 (van Hove)', dot: '0D dot:  g = discrete delta peaks' }[st.dim];
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('density of states  ' + label, x + 6, y + 14);
   const Emax = Math.max(8, 6 * confinementGap(st.L, st.m) * 4);
   let gMax = 1e-9;
@@ -87,7 +88,7 @@ function drawDOS() {
   const ox = x + 8 + (w - 16) * (onset / Emax);
   ctx.strokeStyle = 'rgba(255,180,90,0.8)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(ox, y + 22); ctx.lineTo(ox, y + h - 22); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,180,90,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,180,90,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('absorption onset', Math.min(ox + 4, x + w - 100), y + 34);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.fillText('E ->', x + w - 34, y + h - 6);
@@ -97,7 +98,7 @@ function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   drawWell();
   drawDOS();
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('change dimensionality: the DOS shape changes qualitatively (E^1/2 / step / spike / delta)', 30, H - 64);
 
   const e1 = energyLevel(1, st.L, st.m), e2 = energyLevel(2, st.L, st.m);
@@ -155,4 +156,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }
