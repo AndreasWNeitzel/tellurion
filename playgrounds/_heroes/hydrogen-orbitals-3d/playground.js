@@ -264,25 +264,39 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the quantum numbers, the orbital energy, and the radial
+// node count.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'n', label: 'principal n', value: st.n },
+      { key: 'l', label: 'azimuthal l', value: st.l },
+      { key: 'm', label: 'magnetic m', value: st.m },
+      { key: 'energy', label: 'energy E_n (eV)', value: energyEV(st.n), format: 'float' },
+      { key: 'radial-nodes', label: 'radial nodes n-l-1', value: st.n - st.l - 1 },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // The quantum numbers must satisfy 0 <= l < n and -l <= m <= l.
+  const valid = st.l >= 0 && st.l < st.n && Math.abs(st.m) <= st.l;
+  // The bound-state energy is the Bohr ladder E_n = -13.606 eV / n^2,
+  // degenerate in l and m.
+  const bohr = -13.606 / (st.n * st.n);
+  return [
+    {
+      key: 'quantum-numbers',
+      label: 'quantum numbers valid (0<=l<n, |m|<=l)',
+      value: `${st.n},${st.l},${st.m}`,
+      status: valid ? 'pass' : 'drift',
+    },
+    {
+      key: 'bohr-energy',
+      label: 'energy on the Bohr ladder -13.6/n^2 eV',
+      value: `${energyEV(st.n).toFixed(3)} eV`,
+      status: Math.abs(energyEV(st.n) - bohr) < 0.05 ? 'pass' : 'drift',
+    },
+  ];
+};
