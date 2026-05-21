@@ -75,11 +75,16 @@ function buildPath() {
   const tRef = new Float64Array(NPATH);
   const tReal = new Float64Array(NPATH);
   for (let i = 1; i < NPATH; i += 1) {
-    const ds = Math.hypot(xs[i] - xs[i - 1], ys[i] - ys[i - 1]);
-    tRef[i] = tRef[i - 1] + ds;
-    // Coordinate light speed is reduced near the Sun: dt = ds (1 + 2M/r).
-    const rMid = 0.5 * (rr[i] + rr[i - 1]);
-    tReal[i] = tReal[i - 1] + ds * (1 + 2 * M_GEOM / Math.max(1, rMid));
+    // The drawn ray bend is exaggerated for visibility, so it must NOT
+    // enter the time integral. The Shapiro delay is the potential term
+    // integrated along the true (near-straight) ray at impact
+    // parameter b, where r_true = sqrt(x^2 + b^2); this makes the
+    // path-model total agree with 2M ln(4 r_E r_R / b^2).
+    const dx = xs[i] - xs[i - 1];
+    const rMid = 0.5 * (Math.hypot(xs[i - 1], b) + Math.hypot(xs[i], b));
+    tRef[i] = tRef[i - 1] + dx;
+    // Coordinate light speed is reduced near the Sun: dt = dx (1 + 2M/r).
+    tReal[i] = tReal[i - 1] + dx * (1 + 2 * M_GEOM / Math.max(1, rMid));
   }
   pathCache = { xs, ys, rr, tRef, tReal, tRefTotal: tRef[NPATH - 1], tRealTotal: tReal[NPATH - 1] };
 }
