@@ -132,9 +132,11 @@ function drawLightcurve() {
   ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('lightcurve  L(phi)', x + 8, y - 6);
 
-  // Two-period lightcurve over phase axis [-0.2, 1.8].
+  // One-period phase-folded lightcurve over [0, 1], so the sweeping
+  // marker (st.phase wraps in [0,1)) spans the full plot from the
+  // left edge to the right edge and the loop is in sync with it.
   const N = 200;
-  const phi_min = -0.2, phi_max = 1.8;
+  const phi_min = 0, phi_max = 1;
   let Lmin = Infinity, Lmax = -Infinity;
   const Ls = [];
   for (let k = 0; k < N; k++) {
