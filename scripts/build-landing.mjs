@@ -864,4 +864,4 @@ const catalogue = cards.map(c => ({
 }));
 mkdirSync('shared', { recursive: true });
 writeFileSync('shared/playgrounds-catalogue.json', JSON.stringify(catalogue));
-console.log(`Wrote dist/index.html, index.html, shared/playgrounds-catalogue.json (${cards.length} cards, ${heroes.length} heroes).`);
+console.log(`Wrote dist/index.html, index.html, shared/playgrounds-catalogue.json (${cards.length} cards, ${heroPool.length} hero-tier).`);
