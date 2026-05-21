@@ -322,33 +322,33 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The defining property of Brewster's angle: p-polarised light is
+// perfectly transmitted, R_p = 0. Checking it ties the Brewster
+// formula to the Fresnel equations.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const ti = theta_rad(), a = n1(), b = n2();
+  return {
+    fields: [
+      { key: 'theta-i', label: 'incidence angle', value: `${st.theta_deg.toFixed(1)} deg` },
+      { key: 'n1', label: 'n1 (incident medium)', value: a.toFixed(3), format: 'float' },
+      { key: 'n2', label: 'n2 (transmit medium)', value: b.toFixed(3), format: 'float' },
+      { key: 'reflectance-s', label: 'R_s', value: fresnel_rs(ti, a, b).R.toFixed(4), format: 'float' },
+      { key: 'reflectance-p', label: 'R_p', value: fresnel_rp(ti, a, b).R.toFixed(4), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const a = n1(), b = n2();
+  const thB = brewsterAngle(a, b);
+  const RpB = fresnel_rp(thB, a, b).R;
+  return [
+    {
+      key: 'brewster',
+      label: 'R_p vanishes at the Brewster angle',
+      value: RpB.toExponential(2),
+      status: RpB < 1e-6 ? 'pass' : (RpB < 1e-3 ? 'pending' : 'drift'),
+    },
+  ];
+};
