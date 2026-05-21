@@ -187,6 +187,35 @@ function drawPlot() {
   pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
   pctx.fillText('stellar flux vs orbital phase   (yellow = current; hover for value)', 8, 12);
   pctx.fillText('1.0000', 8, y0 + 4); pctx.fillText(fLo.toFixed(4), 8, y1);
+
+  // Zoomed inset: the reflected-light phase curve and the
+  // secondary-eclipse dip. That signal is ~1e-4 of the stellar flux,
+  // far too small to read on the primary-transit scale, so the inset
+  // magnifies the band just above flux = 1.
+  let fmax = 1;
+  for (let i = 0; i < curve.length; i += 1) if (curve[i] > fmax) fmax = curve[i];
+  if (fmax > 1 + 1e-7) {
+    const iw = 168, ih = 56, ix = x1 - iw - 6, iy = y0 + 16;
+    pctx.fillStyle = 'rgba(10,12,16,0.94)';
+    pctx.fillRect(ix, iy, iw, ih);
+    pctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    pctx.strokeRect(ix + 0.5, iy + 0.5, iw - 1, ih - 1);
+    const margin = (fmax - 1) * 0.18;
+    const top = fmax + margin, bot = 1 - margin;
+    const iyOf = (f) => iy + ih - 6 - ((f - bot) / (top - bot)) * (ih - 12);
+    pctx.strokeStyle = 'rgba(255,255,255,0.22)'; pctx.setLineDash([2, 3]);
+    pctx.beginPath(); pctx.moveTo(ix + 4, iyOf(1)); pctx.lineTo(ix + iw - 4, iyOf(1)); pctx.stroke();
+    pctx.setLineDash([]);
+    pctx.strokeStyle = '#ffd166'; pctx.lineWidth = 1.4; pctx.beginPath();
+    for (let i = 0; i < curve.length; i += 1) {
+      const X = ix + 4 + (i / curve.length) * (iw - 8);
+      const Y = iyOf(Math.max(bot, Math.min(top, curve[i])));
+      i ? pctx.lineTo(X, Y) : pctx.moveTo(X, Y);
+    }
+    pctx.stroke();
+    pctx.fillStyle = 'rgba(255,255,255,0.6)'; pctx.textAlign = 'left';
+    pctx.fillText('reflected light + secondary eclipse (zoom)', ix + 2, iy - 3);
+  }
 }
 
 function refreshReadout() {
