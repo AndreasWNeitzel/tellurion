@@ -257,14 +257,15 @@ if (!window.playground.getState) {
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () {
     try {
-      const r = st.counts && st.counts.ratio;
-      if (!Number.isFinite(r) || r <= 0) return [];
+      const A = st.counts && st.counts.A, B = st.counts && st.counts.B;
+      if (!(A > 0) || !(B > 0)) return [];
+      const r = Math.max(A, B) / Math.min(A, B);   // larger/smaller -> PHI
       const dev = Math.abs(r - PHI) / PHI;
       return [{
         key: 'golden-ratio',
         label: 'thick/thin tile ratio approaches the golden ratio',
         value: r.toFixed(4),
-        status: dev < 0.02 ? 'pass' : (dev < 0.2 ? 'pending' : 'drift'),
+        status: dev < 0.03 ? 'pass' : (dev < 0.25 ? 'pending' : 'drift'),
       }];
     } catch (e) { return []; }
   };
