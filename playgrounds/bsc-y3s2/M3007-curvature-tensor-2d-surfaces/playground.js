@@ -20,7 +20,9 @@ function colorForK(K, kMax) {
 }
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const cx = canvas.width / 2, cy = 200;
+  // Torus shifted left of centre so the K(theta) diagnostic panel in
+  // the top-right corner no longer overlaps the rotating surface.
+  const cx = canvas.width * 0.36, cy = 200;
   const R = 100, r = 100 / st.Rr;
   let kMax = 0;
   for (let i = 0; i < 60; i += 1) {
