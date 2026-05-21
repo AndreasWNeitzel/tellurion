@@ -1,48 +1,100 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
   .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
 </head>
 <body>
-  <h1>Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray</h1>
+<main class="playground-layout" data-focus="false">
 
-  <figure>
-    <canvas id="stage" width="900" height="560" aria-label="An ion chamber with recoil electrons and drifting ion pairs, the recombination saturation curve, and the charge-to-dose chain">
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="560" aria-label="An ion chamber with recoil electrons and drifting ion pairs, the recombination saturation curve, and the charge-to-dose chain">
     </canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">voltage:</span><span class="value" id="readout-v">300 V</span>
-      <span class="label">collection f:</span><span class="value" id="readout-f">0.999</span>
-      <span class="label">charge:</span><span class="value" id="readout-q">0 C</span>
-      <span class="label">D_medium:</span><span class="value" id="readout-d">0 Gy</span>
     </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Photons Compton-scatter in the cavity gas; the recoil electrons create ion pairs at one pair per W = 33.97 eV; the pairs drift to the electrodes under the collecting voltage, where recombination at low voltage reduces the collected charge (the Boag saturation curve). The dose follows from D = (Q/m)(W/e), converted to medium dose by the Bragg-Gray stopping-power ratio.
       <em>Method:</em> seeded Monte Carlo recoil sampling plus the Boag and Bragg-Gray relations; Canvas2D, deterministic.
-      <em>Source:</em> ICRU Report 90; Boag 1950; Attix 1986.
-    </figcaption>
-  </figure>
+      <em>Source:</em> ICRU Report 90; Boag 1950; Attix 1986.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">photon energy (keV)</span><input aria-label="photon energy in keV" type="range" id="slider-e" min="30" max="600" step="10" value="100"><span class="value" id="value-e">100</span></div>
     <div class="row"><span class="label">collecting voltage (V)</span><input aria-label="collecting voltage in volts, log scale x100" type="range" id="slider-v" min="100" max="350" step="2" value="248"><span class="value" id="value-v">300</span></div>
     <div class="row"><span class="label">dose rate (rel.)</span><input aria-label="relative dose rate" type="range" id="slider-dr" min="1" max="12" step="1" value="1"><span class="value" id="value-dr">1</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">voltage:</span><span class="value" id="readout-v">300 V</span>
+      <span class="label">collection f:</span><span class="value" id="readout-f">0.999</span>
+      <span class="label">charge:</span><span class="value" id="readout-q">0 C</span>
+      <span class="label">D_medium:</span><span class="value" id="readout-d">0 Gy</span>
+    </div><span class="value" id="readout-v">300 V</span><span class="value" id="readout-f">0.999</span><span class="value" id="readout-q">0 C</span><span class="value" id="readout-d">0 Gy</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

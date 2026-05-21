@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MCMC Sampler Comparator</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
-          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCMC Sampler Comparator</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 860px; }
     .pg-figure canvas { width: 100%; height: auto; }
     .pg-controls {
@@ -34,54 +35,70 @@
     }
     .pg-controls select { width: 100%; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>MCMC sampler comparator</h1>
-  <p>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">MCMC sampler comparator</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">MCMC sampler comparator</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     <strong>What you are seeing:</strong> three different random-walk
     algorithms trying to sample from the same probability density
-    $\pi(x, y)$. The grey shading on the left is the density itself
+    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\pi(x, y)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">π</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">y</span><span class="mclose">)</span></span></span></span></span>. The grey shading on the left is the density itself
     (darker = higher probability). Each colored trail is one sampler
     laying down points: it tries to walk in a way that, in the long run,
-    spends time at each $(x, y)$ in proportion to $\pi$.
+    spends time at each <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(x, y)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">y</span><span class="mclose">)</span></span></span></span></span> in proportion to <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi></mrow><annotation encoding="application/x-tex">\pi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">π</span></span></span></span></span>.
   </p>
-  <p>
+      <p class="t-body">
     A "good" sampler explores the whole region quickly and decorrelates;
     a "bad" sampler gets stuck. The right panels are live trace plots of
-    the $x$ coordinate of each chain, plus its acceptance rate and
-    effective sample size $N_\text{eff}$. Switch the target to the banana
+    the <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span> coordinate of each chain, plus its acceptance rate and
+    effective sample size <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mtext>eff</mtext></msub></mrow><annotation encoding="application/x-tex">N_\text{eff}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span class="" style="top: -2.55em; margin-left: -0.109em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord mtight">eff</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. Switch the target to the banana
     or the funnel to see HMC pull ahead; switch to the mixture to see
     samplers getting trapped in one mode.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="900" height="500" tabindex="0"
-            aria-label="MCMC sampler comparator: contour map of the target with three accepted-state trails overlaid; right-hand panel of live diagnostics."></canvas>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="500" tabindex="0" aria-label="MCMC sampler comparator: contour map of the target with three accepted-state trails overlaid; right-hand panel of live diagnostics."></canvas>
+    </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Three MCMC samplers running simultaneously on a 2D target.
       Method: <code>shared/js/engine/mcmc-harness.js</code>; ESS via the
       initial monotone sequence estimator from
       <code>shared/js/invariants/ess.js</code>. Source: MacKay, Information
       Theory, Inference, and Learning Algorithms, Sections 29.4, 30.1;
       Robert and Casella, Monte Carlo Statistical Methods 2e, Sections 7.2,
-      7.6; Bishop and Bishop, Deep Learning, Section 14.3; Gelman BDA3 11.6.
-    </figcaption>
-  </figure>
+      7.6; Bishop and Bishop, Deep Learning, Section 14.3; Gelman BDA3 11.6.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Sampler and target controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Sampler and target controls">
     <div class="row">
       <span class="label">Target</span><select aria-label="Target" id="select-target">
         <option value="gaussian2d">Gaussian 2D</option>
-        <option value="banana" selected>Banana</option>
+        <option value="banana" selected="">Banana</option>
         <option value="mixture2d">Mixture 2D</option>
         <option value="funnel">Neal's funnel</option>
       </select>
     </div>
     <div class="row">
       <span class="label">Sampler A</span><select aria-label="Sampler A" id="select-a">
-        <option value="rwm" selected>RWM</option>
+        <option value="rwm" selected="">RWM</option>
         <option value="adaptive-rwm">Adaptive RWM</option>
         <option value="mala">MALA</option>
         <option value="hmc">HMC</option>
@@ -91,7 +108,7 @@
       <span class="label">Sampler B</span><select aria-label="Sampler B" id="select-b">
         <option value="rwm">RWM</option>
         <option value="adaptive-rwm">Adaptive RWM</option>
-        <option value="mala" selected>MALA</option>
+        <option value="mala" selected="">MALA</option>
         <option value="hmc">HMC</option>
       </select>
     </div>
@@ -100,7 +117,7 @@
         <option value="rwm">RWM</option>
         <option value="adaptive-rwm">Adaptive RWM</option>
         <option value="mala">MALA</option>
-        <option value="hmc" selected>HMC</option>
+        <option value="hmc" selected="">HMC</option>
       </select>
     </div>
     <div class="row">
@@ -114,7 +131,37 @@
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>
   </div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

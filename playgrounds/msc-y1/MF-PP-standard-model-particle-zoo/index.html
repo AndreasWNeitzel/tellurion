@@ -1,47 +1,99 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Standard Model Particle Zoo: PDG Data and Conservation Laws</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standard Model Particle Zoo: PDG Data and Conservation Laws</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
   .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
 </head>
 <body>
-  <h1>Standard Model Particle Zoo: PDG Data and Conservation Laws</h1>
+<main class="playground-layout" data-focus="false">
 
-  <figure>
-    <canvas id="stage" width="900" height="560" aria-label="Standard Model chart, the selected particle card, and a decay-chain conservation check">
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Standard Model Particle Zoo: PDG Data and Conservation Laws</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Standard Model Particle Zoo: PDG Data and Conservation Laws</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Standard Model Particle Zoo: PDG Data and Conservation Laws.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="560" aria-label="Standard Model chart, the selected particle card, and a decay-chain conservation check">
     </canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">particle:</span><span class="value" id="readout-p">electron</span>
-      <span class="label">mass:</span><span class="value" id="readout-m">0.511 MeV</span>
-      <span class="label">Q:</span><span class="value" id="readout-q">-1</span>
-      <span class="label">decay:</span><span class="value" id="readout-d">allowed</span>
     </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       The Standard Model: six quarks and six leptons in three generations, the gauge bosons and the Higgs, with PDG masses, charges and spins; a decay-chain checker confirms electric charge, baryon number and lepton flavour are conserved and the decay is kinematically allowed.
       <em>Method:</em> embedded PDG 2024 data plus an additive-quantum-number checker; Canvas2D, deterministic.
-      <em>Source:</em> PDG 2024 (Navas et al.); Griffiths; Halzen and Martin.
-    </figcaption>
-  </figure>
+      <em>Source:</em> PDG 2024 (Navas et al.); Griffiths; Halzen and Martin.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">force filter</span><select aria-label="highlight particles feeling a force" id="select-force" style="grid-column: span 2;"><option value="none">no filter</option><option value="strong">strong</option><option value="em">electromagnetic</option><option value="weak">weak</option></select></div>
     <div class="row"><span class="label">decay</span><select aria-label="decay chain to check" id="select-decay" style="grid-column: span 2;"></select></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">particle:</span><span class="value" id="readout-p">electron</span>
+      <span class="label">mass:</span><span class="value" id="readout-m">0.511 MeV</span>
+      <span class="label">Q:</span><span class="value" id="readout-q">-1</span>
+      <span class="label">decay:</span><span class="value" id="readout-d">allowed</span>
+    </div><span class="value" id="readout-p">electron</span><span class="value" id="readout-m">0.511 MeV</span><span class="value" id="readout-q">-1</span><span class="value" id="readout-d">allowed</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

@@ -8,6 +8,7 @@
 import { N, S_l, cavities } from './sim.js';
 import { rdbu } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 // User feedback: 'the white flashing while useful to signify
 // oscillation, is irritating to the eyes. Consider a different
@@ -152,7 +153,7 @@ function drawStar(c, omega, l, tphase) {
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, 2 * Math.PI); ctx.stroke();
 
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`pulsating star: where the mode lives (l=${l}, omega=${omega.toFixed(2)})`, 12, 18);
   // Mode-energy split between the g- and p-cavities (sim.js classifies
   // the segments; we integrate xi^2 over each).
@@ -198,7 +199,7 @@ function drawDiagram(c, omega, l) {
   ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(x0, yToPx(omega)); ctx.lineTo(x1, yToPx(omega)); ctx.stroke(); ctx.setLineDash([]);
 
-  ctx.fillStyle = '#ffd166'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('N (buoyancy)', x0 + 8, y0 + 12);
   ctx.fillStyle = '#5bc0eb'; ctx.fillText(`S_l (Lamb, l=${l})`, x0 + 8, y0 + 26);
   ctx.fillStyle = '#06d6a0'; ctx.fillText(`omega = ${omega.toFixed(2)}`, x0 + 8, y0 + 40);
@@ -249,4 +250,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

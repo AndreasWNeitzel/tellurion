@@ -1,47 +1,99 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gravitational Waves: Inspiral, Merger, and Detection</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gravitational Waves: Inspiral, Merger, and Detection</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
   .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
 </head>
 <body>
-  <h1>Gravitational Waves: Inspiral, Merger, and Detection</h1>
+<main class="playground-layout" data-focus="false">
 
-  <figure>
-    <canvas id="stage" width="900" height="560" aria-label="two black holes spiralling to merger and the radiated gravitational-wave ripple, with the chirp strain, matched filter, and LIGO arm strain"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">M_chirp:</span><span class="value" id="readout-mc">26.1</span>
-      <span class="label">f_GW:</span><span class="value" id="readout-f">0</span>
-      <span class="label">h_peak:</span><span class="value" id="readout-h">0</span>
-      <span class="label">MF SNR:</span><span class="value" id="readout-snr">0</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Gravitational Waves: Inspiral, Merger, and Detection</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Gravitational Waves: Inspiral, Merger, and Detection</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Gravitational Waves: Inspiral, Merger, and Detection.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="560" aria-label="two black holes spiralling to merger and the radiated gravitational-wave ripple, with the chirp strain, matched filter, and LIGO arm strain"></canvas>
     </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Two black holes spiral together on a shrinking orbit and radiate a two-arm gravitational-wave ripple that tightens into the merger and rings down; the chirp strain, a matched filter that recovers the chirp mass, and a LIGO arm changing length by h L / 2 (a sub-proton displacement) are shown as diagnostics.
       <em>Method:</em> Keplerian inspiral with leading-quadrupole radiation, the chirp-mass frequency sweep, antenna response, and matched filtering; Canvas2D, deterministic.
-      <em>Source:</em> Peters 1964; Maggiore, Gravitational Waves Vol. 1; Abbott et al. 2016.
-    </figcaption>
-  </figure>
+      <em>Source:</em> Peters 1964; Maggiore, Gravitational Waves Vol. 1; Abbott et al. 2016.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">m1 (Msun)</span><input aria-label="primary mass, solar masses" type="range" id="slider-m1" min="5" max="80" step="1" value="30"><span class="value" id="value-m1">30</span></div>
     <div class="row"><span class="label">m2 (Msun)</span><input aria-label="secondary mass, solar masses" type="range" id="slider-m2" min="5" max="80" step="1" value="30"><span class="value" id="value-m2">30</span></div>
     <div class="row"><span class="label">distance (Mpc)</span><input aria-label="luminosity distance, Mpc" type="range" id="slider-d" min="50" max="1500" step="10" value="400"><span class="value" id="value-d">400</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">M_chirp:</span><span class="value" id="readout-mc">26.1</span>
+      <span class="label">f_GW:</span><span class="value" id="readout-f">0</span>
+      <span class="label">h_peak:</span><span class="value" id="readout-h">0</span>
+      <span class="label">MF SNR:</span><span class="value" id="readout-snr">0</span>
+    </div><span class="value" id="readout-mc">26.1</span><span class="value" id="readout-f">0</span><span class="value" id="readout-h">0</span><span class="value" id="readout-snr">0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

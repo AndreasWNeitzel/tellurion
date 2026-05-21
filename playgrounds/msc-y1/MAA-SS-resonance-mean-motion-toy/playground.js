@@ -9,6 +9,7 @@
 import { resonanceSemiMajor, KIRKWOOD_RATIOS } from './sim.js';
 import { makeRng } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -127,7 +128,7 @@ function render() {
   ctx.fillStyle = '#7c9cff';
   ctx.beginPath(); ctx.arc(cx + PX * st.aJ * Math.cos(jth), cy + PX * st.aJ * Math.sin(jth), 7, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`t = ${st.t.toFixed(0)} (secular)   alive = ${alive}   resonance-pumped = ${pumped}`, 14, 22);
   ctx.fillText(`a_Jupiter = ${st.aJ.toFixed(2)} AU   gaps carved by resonant ejection (Reset to refill)`, 14, H - 14);
   rR.textContent = `${alive} alive`;
@@ -148,7 +149,7 @@ function drawHistogram(W, H, res) {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('asteroid count vs semi-major axis', px + 8, py + 16);
   // Bin the alive asteroids.
   const bins = new Float64Array(HBINS);
@@ -169,7 +170,7 @@ function drawHistogram(W, H, res) {
     ctx.beginPath(); ctx.moveTo(xr, ay); ctx.lineTo(xr, ay + ah); ctx.stroke();
     ctx.setLineDash([]);
     if (r.label) {
-      ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '11px ui-monospace, monospace';
+      ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(r.label, xr - 8, ay - 4);
     }
   }
@@ -181,7 +182,7 @@ function drawHistogram(W, H, res) {
     ctx.fillRect(ax + k * bw, ay + ah - bh, Math.max(1, bw - 0.5), bh);
   }
   // Axes.
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${A_IN.toFixed(1)}`, ax - 4, ay + ah + 14);
   ctx.fillText(`${A_OUT.toFixed(1)} AU`, ax + aw - 36, ay + ah + 14);
   ctx.fillText('a (AU)', ax + aw / 2 - 18, ay + ah + 14);
@@ -207,3 +208,27 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 sSpeed.addEventListener('input', () => { st.speed = parseFloat(sSpeed.value); vSpeed.textContent = st.speed.toFixed(1); });
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

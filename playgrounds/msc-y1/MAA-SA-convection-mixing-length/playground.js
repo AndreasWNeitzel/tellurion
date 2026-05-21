@@ -18,6 +18,7 @@
 import { schwarzschild, vConv } from './sim.js';
 import { makeRng } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -187,12 +188,12 @@ function render() {
     ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx, cy - Rc); ctx.lineTo(cx, cy - Rc - lm); ctx.stroke();
     for (const yy of [cy - Rc, cy - Rc - lm]) { ctx.beginPath(); ctx.moveTo(cx - 5, yy); ctx.lineTo(cx + 5, yy); ctx.stroke(); }
-    ctx.fillStyle = '#cfd3d8'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#cfd3d8'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('l_m = α·H_p', cx + 9, cy - Rc - lm / 2);
   }
 
   // Side annotation.
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   const reg = schwarzschild(0.5 + st.dnabla, 0.5);
   const tx = cx + R + 18;
   ctx.fillText(conv ? 'convective envelope' : 'radiative envelope', tx, cy - 78);
@@ -219,3 +220,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

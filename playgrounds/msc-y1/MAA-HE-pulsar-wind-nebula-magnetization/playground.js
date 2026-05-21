@@ -13,6 +13,7 @@
 import { terminationRadius } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -122,7 +123,7 @@ function render() {
   ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(cx, cy, 14, 0, 6.28); ctx.fill();
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 6.28); ctx.fill();
 
-  ctx.fillStyle = '#cdd1d6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#cdd1d6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`R_TS = ${R_TS_pc < 0.01 ? R_TS_pc.toExponential(2) : R_TS_pc.toFixed(3)} pc`, 14, 22);
   ctx.fillText(`log L_sd = ${st.logL.toFixed(1)}   log P_ext = ${st.logP.toFixed(1)}`, 14, 40);
   ctx.fillStyle = s < 0.1 ? '#ff9d6e' : '#7cdfff';
@@ -149,9 +150,9 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   // ===== Top panel: R_TS(P_ext) curve =====
   const tp = { x: d.x + 8, y: d.y + 6, w: d.w - 16, h: Math.floor(d.h * 0.50) - 8 };
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('R_TS  vs  log P_ext', tp.x + 2, tp.y + 12);
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 240, 0.65)';
   ctx.fillText(`L_sd fixed at 10^${st.logL.toFixed(1)} erg/s`, tp.x + 2, tp.y + 24);
 
@@ -183,7 +184,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   // Crab reference.
   ctx.fillStyle = 'rgba(255, 210, 110, 0.95)';
   ctx.beginPath(); ctx.arc(xOfP(-9), yOfR(Math.log10(0.1)), 4, 0, 6.28); ctx.fill();
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Crab', xOfP(-9) + 6, yOfR(Math.log10(0.1)) - 6);
   // Current point.
   ctx.fillStyle = '#fff';
@@ -193,7 +194,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   ctx.beginPath(); ctx.arc(xOfP(st.logP), yOfR(lrNow), 5, 0, 6.28); ctx.stroke();
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let lp = pLo; lp <= pHi; lp += 2) ctx.fillText(`${lp}`, xOfP(lp) - 6, axY + 12);
   for (let lr = rLo; lr <= rHi; lr += 1) ctx.fillText(`10^${lr}`, axX - 28, yOfR(lr) + 3);
   ctx.fillText('log P_ext (dyn/cm²)', axX + axW / 2 - 40, axY + 22);
@@ -206,9 +207,9 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   // ===== Bottom panel: σ -> jet vs torus power =====
   const bp = { x: d.x + 8, y: d.y + Math.floor(d.h * 0.50) + 8, w: d.w - 16, h: Math.floor(d.h * 0.50) - 16 };
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('σ  →  jet vs torus power', bp.x + 2, bp.y + 12);
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 240, 0.70)';
   ctx.fillText('jet f = σ/(1+σ),  torus f = 1/(1+σ)', bp.x + 2, bp.y + 24);
   const bAxY = bp.y + bp.h - 22, bAxX = bp.x + 36;
@@ -252,7 +253,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   }
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let ls = sLo; ls <= sHi; ls += 1) ctx.fillText(`10^${ls}`, xOfS(ls) - 10, bAxY + 12);
   for (let f = 0; f <= 1.01; f += 0.25) ctx.fillText(f.toFixed(2), bAxX - 28, yOfF(f) + 3);
   ctx.fillText('σ', bAxX + bAxW + 6, bAxY + 4);
@@ -260,7 +261,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   ctx.fillStyle = '#7cdfff';
   ctx.fillRect(bp.x + 4, bp.y + 36, 10, 3);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('jet', bp.x + 18, bp.y + 40);
   ctx.fillStyle = '#ff9d6e';
   ctx.fillRect(bp.x + 50, bp.y + 36, 10, 3);
@@ -276,3 +277,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); startLoop(); }, { once: true }); } else { bootSync(); startLoop(); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

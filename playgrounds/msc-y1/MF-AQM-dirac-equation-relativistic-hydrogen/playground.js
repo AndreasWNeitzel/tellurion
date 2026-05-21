@@ -12,6 +12,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -35,7 +36,7 @@ const st = { Z: DEF_Z, p: DEF_P, running: !prefersReducedMotion(), t: 0 };
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -49,7 +50,7 @@ function drawLevels(x, y, w, h) {
   const Y = (e) => y0 + (y1 - y0) * (eMax - e) / (eMax - eMin);
   const xS = x + w * 0.30, xD = x + w * 0.66, colW = w * 0.18;
   const norm = RY_EV * st.Z * st.Z;
-  ctx.fillStyle = 'rgba(127,160,210,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(127,160,210,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Schrodinger', xS - colW / 2, y0 - 6);
   ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.fillText('Dirac (n, j)', xD - colW / 2, y0 - 6);
   for (let n = 1; n <= NMAX; n += 1) {
@@ -72,7 +73,7 @@ function drawLevels(x, y, w, h) {
         ctx.beginPath(); ctx.moveTo(xS + colW / 2, Y(eS)); ctx.lineTo(xD - colW / 2, yy); ctx.stroke();
       }
       const ly = Math.abs(yy - yPrev) < 11 ? yPrev + 11 : yy;   // de-collide labels
-      ctx.fillStyle = 'rgba(241,192,105,0.7)'; ctx.font = '11px monospace';
+      ctx.fillStyle = 'rgba(241,192,105,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(`j=${j}`, xD + colW / 2 + 5, ly + 3);
       yPrev = ly;
     });
@@ -82,7 +83,7 @@ function drawLevels(x, y, w, h) {
   const ix = x + w * 0.34, iy = y + h * 0.40, iw = 230, ih = 96;
   ctx.fillStyle = '#0d0f16'; ctx.fillRect(ix, iy, iw, ih);
   ctx.strokeStyle = 'rgba(241,192,105,0.4)'; ctx.strokeRect(ix + 0.5, iy + 0.5, iw - 1, ih - 1);
-  ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('n=2 fine structure (zoom)', ix + 6, iy + 12);
   const e12 = diracLevel(2, 0.5, st.Z), e32 = diracLevel(2, 1.5, st.Z);
   const lo = Math.min(e12, e32), hi = Math.max(e12, e32), pad = (hi - lo) * 0.5 + 1e-9;
@@ -95,7 +96,7 @@ function drawLevels(x, y, w, h) {
   const fsEv = fineStructureSplit(2, st.Z);
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
   ctx.fillText(`dE_FS = ${fsEv > 1 ? fsEv.toFixed(2) + ' eV' : (fsEv * 1e6).toFixed(1) + ' ueV'}`, ix + 6, iy + ih - 6);
-  ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('E / (Ry Z^2), levels at true scale', x + 10, y1 + 14);
 }
 
@@ -121,7 +122,7 @@ function drawZB(x, y, w, h) {
   ctx.stroke();
   const here = zbPosition(tNow, st.p);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(tNow), Y(here.x), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t (hbar / m c^2) ->', x1 - 130, y1 + 14);
   ctx.fillText('x (Compton wavelengths)', x + 6, y0 + 4);
   ctx.fillStyle = 'rgba(255,209,102,0.85)';
@@ -140,7 +141,7 @@ function drawScaling(x, y, w, h) {
   // slope-4 guide line
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(0), Y(ys[0])); ctx.lineTo(X(Math.log10(zMax)), Y(ys[0] + 4 * Math.log10(zMax))); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('slope 4', X(Math.log10(zMax)) - 60, Y(ys[0] + 4 * Math.log10(zMax)) - 4);
   ctx.strokeStyle = '#8fe39b'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < xs.length; i += 1) { const px = X(xs[i]), py = Y(ys[i]); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); }
@@ -217,4 +218,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

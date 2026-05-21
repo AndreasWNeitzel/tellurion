@@ -2,6 +2,7 @@
 
 import { temperatureKEdd, limbDarkening } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -50,7 +51,7 @@ function drawTau(c, x0, y_off, w, h) {
     const x = x0 + padL + plotW * i / 5;
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${i}`, x - 4, y_off + padT + plotH + 14);
   }
   for (let i = 0; i <= 4; i += 1) {
@@ -78,11 +79,11 @@ function drawTau(c, x0, y_off, w, h) {
   ctx.beginPath(); ctx.moveTo(xFor(2 / 3), y_off + padT); ctx.lineTo(xFor(2 / 3), y_off + padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = c.blue;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`tau = 2/3 (T = T_eff)`, xFor(2 / 3) + 4, y_off + padT + 14);
 
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T_eff = ${Teff} K`, x0 + padL + plotW - 130, y_off + 14);
   ctx.fillText('tau', x0 + padL + plotW - 16, y_off + padT + plotH + 24);
   ctx.save(); ctx.translate(x0 + 16, y_off + padT + plotH / 2 + 24); ctx.rotate(-Math.PI / 2);
@@ -107,7 +108,7 @@ function drawLimb(c, x0, y_off, w, h) {
   }
 
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Eddington limb darkening I(mu) = 0.4 + 0.6 mu', x0 + 12, y_off + 14);
 }
 
@@ -154,7 +155,7 @@ function drawDisk(c, x0, y0, w, h) {
     }
   }
   ctx.putImageData(img, x0, y0);
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Limb-darkened disk  I(mu)=0.4+0.6 mu, T_eff=${Math.round(Teff)} K`, x0 + 12, y0 + 18);
 }
 
@@ -211,4 +212,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

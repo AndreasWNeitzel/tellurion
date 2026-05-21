@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -34,7 +35,7 @@ const G = gibbsConstant();
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -70,16 +71,16 @@ function drawSeries(x, y, w, h) {
     ctx.strokeStyle = '#ff9d6f'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(X(gj.xAt), Y(gj.peak)); ctx.lineTo(X(gj.xAt), Y(1)); ctx.stroke();
     ctx.fillStyle = '#ff9d6f'; ctx.beginPath(); ctx.arc(X(gj.xAt), Y(gj.peak), 3, 0, 2 * Math.PI); ctx.fill();
-    ctx.font = '11px monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     const lbl = `Gibbs overshoot ~ ${(gj.frac * 100).toFixed(1)}% of the jump`;
     const lw = lbl.length * 6.6;
     const lxp = X(gj.xAt) + 8 + lw > px + pw ? X(gj.xAt) - 8 - lw : X(gj.xAt) + 8;
     ctx.fillText(lbl, Math.max(px + 4, lxp), Y(gj.peak) - 2);
   } else {
-    ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('continuous wave: no jump, no Gibbs overshoot', px + 6, py + 28);
   }
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('Fourier sum', px + 6, py + 13);
   ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.fillText('target', px + 92, py + 13);
   ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.fillText('-pi', px - 2, py + ph + 14);
@@ -120,7 +121,7 @@ function drawEpicycles(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,209,102,0.35)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(cx + tip.x * sc, cy - tip.y * sc); ctx.lineTo(curX, curY); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(curX, curY, 3, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('vector chain', x + 12, y + h - 10);
   ctx.fillText('traced output ->', gx, y + h - 10);
 }
@@ -154,7 +155,7 @@ function drawConvergence(x, y, w, h) {
   // current N marker
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(X(st.n), py); ctx.lineTo(X(st.n), py + ph); ctx.stroke(); ctx.setLineDash([]);
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + ph - 30, 252, 28);
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('Parseval energy / total -> 1', px + 8, py + ph - 18);
   if (st.tgt === 'square') { ctx.fillStyle = '#ff9d6f'; ctx.fillText('Gibbs fraction -> 8.9% (flat, persists)', px + 8, py + ph - 5); }
@@ -222,4 +223,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

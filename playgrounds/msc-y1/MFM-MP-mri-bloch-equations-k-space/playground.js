@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -81,7 +82,7 @@ function kCentred(kmag, n) {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -119,7 +120,7 @@ function drawBloch(x, y, w, h) {
   for (const [vx, vy, vz, lab] of [[1.2, 0, 0, 'x'], [0, 1.2, 0, 'y'], [0, 0, 1.2, 'z (B0)']]) {
     const [ax, ay] = proj(0, 0, 0), [bx, by] = proj(vx, vy, vz);
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-    ctx.fillStyle = 'rgba(180,195,225,0.65)'; ctx.font = '11px monospace'; ctx.fillText(lab, bx + 2, by);
+    ctx.fillStyle = 'rgba(180,195,225,0.65)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, bx + 2, by);
   }
   // M evolves over one TR, looping; trail of recent positions
   const p = cache.p, T = (st.ph * p.TR);
@@ -136,7 +137,7 @@ function drawBloch(x, y, w, h) {
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(o0x, o0y); ctx.lineTo(mx, my); ctx.stroke();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(mx, my, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(230,236,250,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(230,236,250,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`t = ${T.toFixed(0)} ms   Mz = ${m.mz.toFixed(3)}   |Mxy| = ${Math.hypot(m.mx, m.my).toFixed(3)}`, x + 12, y + h - 10);
 }
 
@@ -155,7 +156,7 @@ function drawFID(x, y, w, h) {
     if (k === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(111,180,255,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(111,180,255,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('FID  ~ e^{-t/T2*} cos(wt)', ax + 6, ay + 12);
   // spectrum
   const sy = ay + ah + 14;
@@ -183,7 +184,7 @@ function drawImage(x, y, w, h) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(imgCanvas(cache.recon, N, cache.imax, false), x + 14, iy, sz, sz);
   ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(x + 14, iy, sz, sz);
-  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`image (${st.kf}% of k-space)`, x + 14, iy + sz + 14);
   const kx = x + 14 + sz + 14;
   ctx.drawImage(imgCanvas(kCentred(cache.kmag, N), N, cache.kmax, true), kx, iy, sz, sz);
@@ -193,7 +194,7 @@ function drawImage(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,209,102,0.7)'; ctx.setLineDash([3, 3]);
   ctx.strokeRect(kx + sz / 2 - keep / 2, iy + sz / 2 - keep / 2, keep, keep); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.fillText('k-space (log |.|)', kx, iy + sz + 14);
-  ctx.fillStyle = 'rgba(155,232,176,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('CSF / grey / white contrast set by TR and TE', x + 14, y + h - 10);
 }
 
@@ -261,4 +262,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

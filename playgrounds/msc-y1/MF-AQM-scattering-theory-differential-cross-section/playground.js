@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -72,7 +73,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -87,7 +88,7 @@ function drawSurface(x, y, w, h) {
     const wx = x + 16 + ((m * 26 + st.ph * 52) % 150);
     ctx.beginPath(); ctx.moveTo(wx, y + 26); ctx.lineTo(wx, y + h - 14); ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(127,160,210,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(127,160,210,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('incident plane wave', x + 12, y + h - 8);
   // outgoing spherical wave
   ctx.strokeStyle = 'rgba(241,192,105,0.12)';
@@ -131,7 +132,7 @@ function drawSurface(x, y, w, h) {
     j === 0 ? ctx.moveTo(p.sx, p.sy) : ctx.lineTo(p.sx, p.sy);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(255,209,102,0.9)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,209,102,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`theta = ${(thProbe * 180 / Math.PI).toFixed(0)} deg`, x + w - 150, y + 28);
   // beam axis arrow
   ctx.strokeStyle = 'rgba(241,192,105,0.7)'; ctx.lineWidth = 1.5;
@@ -162,7 +163,7 @@ function drawPartial(x, y, w, h) {
       ctx.fillStyle = 'rgba(241,192,105,0.8)';
       ctx.fillRect(x0 + l * bw + 2, sBot - (sBot - sTop) * s2, Math.max(2, bw - 4), (sBot - sTop) * s2);
     }
-    ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('delta_l', x + 6, tTop + 4);
     ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.fillText('sin^2', x + 6, sTop + 8);
     ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.fillText('l ->', x1 - 24, sBot + 14);
@@ -180,7 +181,7 @@ function drawPartial(x, y, w, h) {
     ctx.strokeStyle = '#8fe39b'; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 0; i <= 240; i += 1) { const r = rMax * i / 240 + 1e-3; const xx = X(r), yy = Y(potential(r)); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
     ctx.stroke();
-    ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('r ->', x1 - 24, y1 + 14); ctx.fillText('V(r)', x + 6, y0 + 2);
   }
 }
@@ -208,7 +209,7 @@ function drawPolar(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + S * Math.cos(thP), cy - S * Math.sin(thP)); ctx.stroke();
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(cx + S * rP * Math.cos(thP), cy - S * rP * Math.sin(thP), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('theta=0', cx + S * 0.9, cy - 6); ctx.fillText('theta=pi', cx - S - 4, cy - 6);
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
   ctx.fillText(`sigma_tot = ${st.sigma.toFixed(3)}   dsigma/dOmega(${(thP * 180 / Math.PI).toFixed(0)}) = ${st.R[Math.round(thP / Math.PI * NTH)].toFixed(2)}`, x + 10, y + h - 10);
@@ -282,4 +283,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

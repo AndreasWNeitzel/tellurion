@@ -14,6 +14,7 @@
 // PASJ 27, 533 (1975).
 import { leapfrogMeridional, effPotential, orbitEnergy, forceR } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -84,7 +85,7 @@ function step() {
 function render() {
   if (!CAPTURE_NAME && running) step();
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A disk-galaxy orbit never closes: it draws a rosette', 18, 26);
 
   // LEFT PANEL: face-on rosette in the galactic plane
@@ -111,7 +112,7 @@ function render() {
     const pe = trailXY[trailXY.length - 1];
     ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(lcx + pe[0] * sXY, lcy - pe[1] * sXY, 5, 0, 6.2832); ctx.fill();
   }
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('face-on plane  (x, y)', lcx - lR + 4, lcy + lR + 16);
   ctx.fillStyle = 'rgba(91,192,235,0.8)'; ctx.fillText('apocentre', lcx + 60, lcy + lR + 16);
   ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.fillText('pericentre', lcx + 140, lcy + lR + 16);
@@ -149,14 +150,14 @@ function render() {
     const e = trailRz[trailRz.length - 1];
     ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(RtoX(e[0]), ztoY(e[1]), 4, 0, 6.2832); ctx.fill();
   }
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('meridional plane  (R, z)   shaded: Phi_eff <= E', px0, py1 + 16);
 
   // CONSERVED QUANTITIES: the live invariant readout
   const E = orbitEnergy(state, Mg, aD, bD, Lz);
   const dE = Math.abs((E - E0) / E0);
   const Rk = state[0] / KPC, zk = state[1] / KPC;
-  ctx.fillStyle = '#cbd5e1'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono');
   let yy = py0 + 14;
   ctx.fillText(`R   = ${Rk.toFixed(2)} kpc`, px0 + 8, yy); yy += 17;
   ctx.fillText(`z   = ${zk.toFixed(2)} kpc`, px0 + 8, yy); yy += 17;
@@ -165,7 +166,7 @@ function render() {
   ctx.fillText(`L_z = ${(Lz / (KPC * 1000)).toFixed(0)} kpc km/s  (const)`, px0 + 8, yy); yy += 17;
   ctx.fillText(`|dE/E| = ${dE.toExponential(1)}`, px0 + 8, yy);
 
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   const vc = vCirc(st.R0 * KPC) / 1000;
   ctx.fillText(`v_phi = ${st.vphi} km/s  (v_circ ~ ${vc.toFixed(0)});  v_phi < v_circ tightens the rosette`, 18, H - 10);
 
@@ -183,3 +184,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

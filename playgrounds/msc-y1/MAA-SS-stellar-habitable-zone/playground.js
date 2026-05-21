@@ -2,6 +2,7 @@
 
 import { luminosity, Teq as simTeq, radiusAtT } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -42,7 +43,7 @@ function render() {
 
   // AU reference rings.
   ctx.strokeStyle = 'rgba(150,160,185,0.18)'; ctx.fillStyle = 'rgba(170,180,205,0.45)';
-  ctx.font = '11px ui-monospace, monospace'; ctx.setLineDash([2, 4]);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.setLineDash([2, 4]);
   for (let au = 1; au * sc < Math.min(W, H) * 0.5; au += 1) {
     ctx.beginPath(); ctx.arc(cx, cy, au * sc, 0, 2 * Math.PI); ctx.stroke();
     ctx.fillText(`${au} AU`, cx + au * sc + 3, cy - 3);
@@ -87,7 +88,7 @@ function render() {
 
   // Compact HUD (no overlap with the orbit; bottom-left).
   ctx.fillStyle = 'rgba(14,14,19,0.7)'; ctx.fillRect(10, H - 64, 250, 54);
-  ctx.fillStyle = '#dfe3ea'; ctx.font = '13px ui-monospace, monospace';
+  ctx.fillStyle = '#dfe3ea'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`a = ${state.a_AU.toFixed(2)} AU    T_eq = ${T.toFixed(0)} K`, 20, H - 42);
   ctx.fillStyle = pCol;
   ctx.fillText(tag, 20, H - 22);
@@ -109,7 +110,7 @@ function drawTeqDiagnostic(cx, cy, r_in, r_out, Tnow) {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('T_eq vs orbital radius', px + 8, py + 14);
   const ax = px + 34, ay = py + 24, aw = pw - 46, ah = ph - 42;
   const aMax = Math.max(3, state.a_AU * 1.2, r_out * 1.1);
@@ -133,7 +134,7 @@ function drawTeqDiagnostic(cx, cy, r_in, r_out, Tnow) {
   ctx.fillStyle = '#fff';
   ctx.beginPath(); ctx.arc(xOf(state.a_AU), yOf(Math.min(tMax, Tnow)), 4, 0, 6.28); ctx.fill();
   // Axes.
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('273', px + 8, yOf(273) + 3);
   ctx.fillText('200', px + 8, yOf(200) + 3);
   ctx.fillText('0', ax - 8, ay + ah + 9);
@@ -200,3 +201,27 @@ window.__physicsCheck = async () => {
   if (Math.abs(T - 254) > 5) return { name: 'Earth T_eq', pass: false, msg: `T_eq(1 AU, A=0.3) = ${T}` };
   return { name: 'Earth equilibrium T', pass: true, msg: `T_eq(1 AU, A=0.3) = ${T.toFixed(1)} K` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

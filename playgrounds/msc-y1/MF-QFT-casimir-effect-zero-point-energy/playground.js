@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -42,7 +43,7 @@ function dNow() { return st.dT * (3 - 2 * st.ph); }
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -67,14 +68,14 @@ function drawPlates(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${st.nm} allowed modes (k_n = n pi / d)`, pL - 6, cy - ph2 - 8);
   // excluded long-wavelength modes (lambda > 2 d): drawn faint red in
   // the clear region to the LEFT of the plates, each spanning more
   // than the gap so it visibly fails to fit.
   const exX0 = x + 16, exX1 = pL - 22;
   if (exX1 - exX0 > 60) {
-    ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('excluded: lambda > 2d', exX0, cy - ph2 - 8);
     for (let m = 0; m < 3; m += 1) {
       const lamPx = gapPx * (2.2 + 1.3 * m);            // wider than the gap -> cannot fit
@@ -109,7 +110,7 @@ function drawLaw(x, y, w, h) {
   const Y = (ly) => y1 - (y1 - y0) * (ly - ly0) / (ly1 - ly0);
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(lx0), Y(Math.log10(c.P[0]))); ctx.lineTo(X(lx1), Y(Math.log10(c.P[0]) - 4 * (lx1 - lx0))); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '11px monospace'; ctx.fillText('slope -4', X(lx1) - 56, Y(Math.log10(c.P[0]) - 4 * (lx1 - lx0)) - 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('slope -4', X(lx1) - 56, Y(Math.log10(c.P[0]) - 4 * (lx1 - lx0)) - 4);
   ctx.strokeStyle = '#8fe39b'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < n; i += 1) { const xx = X(Math.log10(c.d[i])), yy = Y(Math.log10(c.P[i])); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();
@@ -138,7 +139,7 @@ function drawEnergy(x, y, w, h) {
     ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath();
     for (let i = 0; i < n; i += 1) { const xx = X(Math.log10(c.d[i])), yy = Y(Math.log10(arr[i])); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
     ctx.stroke();
-    ctx.fillStyle = col; ctx.font = '11px monospace'; ctx.fillText(lab, X(lx0) + 6, Y(Math.log10(arr[0])) - 4);
+    ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, X(lx0) + 6, Y(Math.log10(arr[0])) - 4);
   };
   line(c.P, '#8fe39b', 'P ~ d^-4');
   line(E, '#e79bff', '|E/A| ~ d^-3');
@@ -212,4 +213,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

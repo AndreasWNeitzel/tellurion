@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -97,7 +98,7 @@ function substep() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -124,7 +125,7 @@ function plot(x, y, w, h, num, ana, label) {
   ctx.strokeStyle = '#6fb4ff'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < N; i += 1) { const xx = X(i), yy = Y(num[i]); if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('x', px + pw / 2, py + ph + 14);
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('numeric', px + 6, py + 13);
   if (ana) { ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.fillText('analytic (exact)', px + 70, py + 13); }
@@ -159,7 +160,7 @@ function drawSecondary(x, y, w, h) {
       if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
     }
     ctx.stroke();
-    ctx.font = '11px monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + 3, 168, 14);
     ctx.fillStyle = 'rgba(255,157,111,0.9)';
     ctx.fillText(`max |error| = ${mx.toExponential(2)}`, px + 8, py + 13);
@@ -186,13 +187,13 @@ function drawSecondary(x, y, w, h) {
       });
       ctx.stroke();
       ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + 3, 250, 14);
-      ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.font = '11px monospace';
+      ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(st.eq === 'schrodinger'
         ? `norm = ${st.hist[st.hist.length - 1].toFixed(6)} (unitary: stays flat at 1)`
         : `energy ${st.hist[0].toFixed(3)} -> ${st.hist[st.hist.length - 1].toFixed(3)} (viscous decay)`,
       px + 8, py + 13);
     }
-    ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('time ->', px + pw / 2 - 16, py + ph + 14);
   }
 }
@@ -212,12 +213,12 @@ function drawInfo(x, y, w, h) {
       'integral of u conserved; u^2 decays', 'the 1D Navier-Stokes analogue'],
   };
   const rows = INFO[st.eq];
-  ctx.font = '12px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   rows.forEach((r, i) => {
     ctx.fillStyle = i === 0 ? '#6fb4ff' : 'rgba(220,228,245,0.85)';
     ctx.fillText((i === 0 ? '' : '- ') + r, x + 14, y + 38 + i * 24);
   });
-  ctx.fillStyle = 'rgba(155,232,176,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('see also the standalone Laplace, TDSE and', x + 14, y + h - 26);
   ctx.fillText('Navier-Stokes hero playgrounds', x + 14, y + h - 12);
 }
@@ -276,7 +277,7 @@ function drawWaterfall(x, y, w, h) {
   ctx.drawImage(off, px, py, pw, ph);
   ctx.imageSmoothingEnabled = true;
   // Axis labels.
-  ctx.fillStyle = 'rgba(200, 210, 235, 0.65)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200, 210, 235, 0.65)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('x ->', px + pw - 30, py + ph + 12);
   ctx.fillText('t (newest at top)', px + 4, py - 4);
   // Colorbar.
@@ -293,7 +294,7 @@ function drawWaterfall(x, y, w, h) {
     ctx.fillStyle = `rgb(${R},${G},${B})`;
     ctx.fillRect(cbx, py + cbh - 1 - r, cbw, 1);
   }
-  ctx.fillStyle = 'rgba(200, 210, 235, 0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200, 210, 235, 0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(hi.toFixed(2), cbx - 4, py + 8);
   ctx.fillText(lo.toFixed(2), cbx - 4, py + cbh - 2);
 }
@@ -419,4 +420,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

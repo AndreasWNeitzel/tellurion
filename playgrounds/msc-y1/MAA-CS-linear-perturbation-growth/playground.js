@@ -14,6 +14,7 @@
 
 import { Omega_m_at, growthFactor, deltaGrowth } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -104,7 +105,7 @@ function render() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(leftX + 0.5, ltY0 + 0.5, halfW - 1, ltY1 - ltY0 - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText(`density field ρ(x) = 1 + δ(x)   at a = ${a.toExponential(2)}`, leftX + 8, ltY0 + 16);
   // Plot.
   const rho = densityField(a, st.Om);
@@ -137,7 +138,7 @@ function render() {
   ctx.stroke();
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   for (const yv of [0.5, 0.75, 1.0, 1.25, 1.5]) ctx.fillText(yv.toFixed(2), px0 - 4, yOf(yv) + 3);
   ctx.textAlign = 'center';
@@ -151,7 +152,7 @@ function render() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(leftX + 0.5, lbY0 + 0.5, halfW - 1, lbY1 - lbY0 - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('density map ρ(x)  (red over, blue under)', leftX + 8, lbY0 + 16);
   // One-row colored strip.
   const cpx0 = leftX + 28, cpy0 = lbY0 + 28, cpw = halfW - 40, cph = lbY1 - lbY0 - 40;
@@ -180,7 +181,7 @@ function render() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(rt.x0 + 0.5, rt.y0 + 0.5, rt.x1 - rt.x0 - 1, rt.y1 - rt.y0 - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('Ω_m(a) and growth index f(a) = Ω_m(a)^{0.55}', rt.x0 + 8, rt.y0 + 16);
   const rtX0 = rt.x0 + 38, rtX1 = rt.x1 - 14;
   const rtY0 = rt.y0 + 26, rtY1 = rt.y1 - 22;
@@ -218,7 +219,7 @@ function render() {
   ctx.setLineDash([]);
   // Axes.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   for (let l = -3; l <= 0; l += 1) ctx.fillText(`10^${l}`, xOfA(Math.pow(10, l)), rtY1 + 12);
   ctx.textAlign = 'right';
@@ -235,7 +236,7 @@ function render() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(rb.x0 + 0.5, rb.y0 + 0.5, rb.x1 - rb.x0 - 1, rb.y1 - rb.y0 - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('linear growth function δ(a) / δ(today)', rb.x0 + 8, rb.y0 + 16);
   const rbX0 = rb.x0 + 38, rbX1 = rb.x1 - 14;
   const rbY0 = rb.y0 + 26, rbY1 = rb.y1 - 22;
@@ -269,7 +270,7 @@ function render() {
   ctx.beginPath(); ctx.arc(xOfA2(a), yOfDelta(dNow), 5, 0, 6.28); ctx.stroke();
   // Axes.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   for (let l = -3; l <= 0; l += 1) ctx.fillText(`10^${l}`, xOfA2(Math.pow(10, l)), rbY1 + 12);
   ctx.textAlign = 'right';
@@ -279,7 +280,7 @@ function render() {
 
   // Footer.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Ω_m,0 = ${st.Om.toFixed(3)}   a = ${a.toExponential(2)}   δ/δ_today = ${dNow.toFixed(3)}`, 12, H - 14);
   rD.textContent = dNow.toFixed(3);
 }
@@ -310,4 +311,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

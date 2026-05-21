@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -46,13 +47,13 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 function axes(x, y, w, h) {
   const px = x + 38, py = y + 26, pw = w - 52, ph = h - 50;
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (let d = 0; d <= ZMAX; d += 10) {
     const xx = px + pw * d / ZMAX;
     ctx.fillText(`${d}`, xx - 5, py + ph + 14);
@@ -79,14 +80,14 @@ function drawMain(x, y, w, h) {
     const so = cache.so;
     ctx.fillStyle = 'rgba(255,209,102,0.10)';
     ctx.fillRect(A.X(so.Rmin), A.py, A.X(so.Rmax) - A.X(so.Rmin), A.ph);
-    ctx.fillStyle = 'rgba(255,209,102,0.6)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(255,209,102,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('tumour target', A.X(so.Rmin) + 4, A.py + A.ph - 8);
   }
   curve(cache.xr, A, '#8aa0c8', 2);                       // photon reference
   if (sobpMode) curve(cache.so.dose, A, '#6fb4ff', 2.5);
   else curve(cache.p.dose, A, '#ffd166', 2.5);
   // legend
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(A.px + 6, A.py + 4, 210, 30);
   ctx.fillStyle = '#8aa0c8'; ctx.fillText('X-ray (photon) PDD', A.px + 12, A.py + 16);
   ctx.fillStyle = sobpMode ? '#6fb4ff' : '#ffd166';
@@ -114,7 +115,7 @@ function drawSOBP(x, y, w, h) {
   }
   curve(so.dose, A, '#6fb4ff', 2.5);
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(A.px + 6, A.py + 4, 220, 30);
-  ctx.fillStyle = '#ffd166'; ctx.font = '11px monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${so.peaks.length} weighted pristine peaks`, A.px + 12, A.py + 16);
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('their sum (flat SOBP)', A.px + 12, A.py + 29);
 }
@@ -140,17 +141,17 @@ function drawPatient(x, y, w, h) {
       ctx.fillRect(X(Z[i]), yy, (pw / Z.length) * 2 + 1, rowH);
     }
     ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(px, yy, pw, rowH);
-    ctx.fillStyle = 'rgba(220,228,245,0.8)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(220,228,245,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(lab, px, yy - 4);
   }
   // tumour bracket
   ctx.strokeStyle = 'rgba(255,120,120,0.8)'; ctx.lineWidth = 2;
   ctx.strokeRect(X(tumLo), y + 36, X(tumHi) - X(tumLo), y + 40 + rowH - (y + 36) + 4);
-  ctx.fillStyle = 'rgba(255,150,150,0.9)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,150,150,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('tumour', X(tumLo) + 2, y + 34);
   // distal sparing note
   const r90 = distalDepth(dose, Z, 0.9);
-  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`proton dose ends at ~${r90.toFixed(1)} cm; X-ray irradiates the far side`, px, y + h - 12);
 }
 
@@ -161,7 +162,7 @@ function draw() {
   if (st.mode === 'sobp') drawSOBP(20 + half + 12, 20, half, (H - 46) / 2);
   else {
     panel(20 + half + 12, 20, half, (H - 46) / 2, 'SOBP construction (switch mode to spread-out Bragg peak)');
-    ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('A single pristine peak is too narrow to cover a tumour.', 20 + half + 28, 20 + (H - 46) / 4);
     ctx.fillText('Select "spread-out Bragg peak" to see the superposition.', 20 + half + 28, 20 + (H - 46) / 4 + 18);
   }
@@ -225,4 +226,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -1,52 +1,95 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MRI: the Bloch Equations, the FID and k-Space Imaging</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
-<body>
-  <h1>MRI: the Bloch Equations, the FID and k-Space Imaging</h1>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MRI: the Bloch Equations, the FID and k-Space Imaging</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 
-  <figure>
-    <canvas id="stage" width="900" height="560" aria-label="The magnetization on the Bloch sphere, the free induction decay and its spectrum, and the brain image with its k-space">
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">MRI: the Bloch Equations, the FID and k-Space Imaging</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">MRI: the Bloch Equations, the FID and k-Space Imaging</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">MRI: the Bloch Equations, the FID and k-Space Imaging.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="560" aria-label="The magnetization on the Bloch sphere, the free induction decay and its spectrum, and the brain image with its k-space">
     </canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">weighting:</span><span class="value" id="readout-w">T2</span>
-      <span class="label">seq:</span><span class="value" id="readout-seq">spin echo</span>
-      <span class="label">TR/TE:</span><span class="value" id="readout-trte">3000/90 ms</span>
-      <span class="label">k-space:</span><span class="value" id="readout-kf">100%</span>
     </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       The Bloch equations: a magnetization vector precesses and relaxes (T2 transverse decay, T1 longitudinal recovery), giving the free induction decay and its Lorentzian spectrum; a brain phantom is imaged by a spin-echo or gradient-echo sequence and reconstructed from k-space by the 2D inverse Fourier transform, with the T1, T2 and proton-density contrast set by TR and TE.
       <em>Method:</em> analytic Bloch solution, the SE/GRE signal equations and a radix-2 2D FFT; Canvas2D, deterministic.
-      <em>Source:</em> Bloch 1946; Liang and Lauterbur 2000.
-    </figcaption>
-  </figure>
+      <em>Source:</em> Bloch 1946; Liang and Lauterbur 2000.</figcaption>
 
-  <style>
-    /* Local fix: previous version used a bare .controls grid with
-       three full-width selects that overlapped each other. We add an
-       explicit two-column grid so each control gets its own row. */
-    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 18ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-  </style>
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">weighting</span><select aria-label="image weighting" id="select-w"><option value="t2">T2-weighted (long TR, long TE)</option><option value="t1">T1-weighted (short TR, short TE)</option><option value="pd">proton-density (long TR, short TE)</option></select><span class="value" id="value-w">T2</span></div>
     <div class="row"><span class="label">sequence</span><select aria-label="pulse sequence" id="select-seq"><option value="se">spin echo</option><option value="gre">gradient echo</option></select><span class="value" id="value-seq">SE</span></div>
     <div class="row"><span class="label">phantom</span><select aria-label="anatomy phantom" id="select-phantom"><option value="brain">brain</option><option value="abdomen">abdomen</option><option value="knee">knee</option><option value="shepp">Shepp-Logan</option></select><span class="value" id="value-phantom">brain</span></div>
     <div class="row"><span class="label">k-space kept (%)</span><input aria-label="fraction of k-space acquired, percent" type="range" id="slider-kf" min="6" max="100" step="2" value="100"><span class="value" id="value-kf">100</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">weighting:</span><span class="value" id="readout-w">T2</span>
+      <span class="label">seq:</span><span class="value" id="readout-seq">spin echo</span>
+      <span class="label">TR/TE:</span><span class="value" id="readout-trte">3000/90 ms</span>
+      <span class="label">k-space:</span><span class="value" id="readout-kf">100%</span>
+    </div><span class="value" id="readout-w">T2</span><span class="value" id="readout-seq">spin echo</span><span class="value" id="readout-trte">3000/90 ms</span><span class="value" id="readout-kf">100%</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

@@ -26,6 +26,7 @@ function divBlackRed(t) {
 }
 const divBlack = divBlackRed;
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -108,7 +109,7 @@ function render() {
   if (dirty) { paintSky(); dirty = false; }
 
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('The CMB sky is a sum of frozen acoustic standing waves', 18, 26);
 
   // the synthesized microwave-background patch
@@ -116,12 +117,12 @@ function render() {
   ctx.drawImage(off, 0, 0, GRID, GRID, SX, SY, SKY, SKY);
   ctx.strokeStyle = 'rgba(226,232,240,0.22)'; ctx.lineWidth = 1;
   ctx.strokeRect(SX + 0.5, SY + 0.5, SKY - 1, SKY - 1);
-  ctx.fillStyle = '#cbd5e1'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('synthetic CMB temperature patch (flat-sky)', SX + 6, SY + SKY + 18);
 
   // right column: colour key + readouts
   const rx = SX + SKY + 26;
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('hotter / colder than the', rx, SY + 16);
   ctx.fillText('2.725 K average', rx, SY + 34);
   const cbY = SY + 52, cbH = 150, cbW = 22;
@@ -131,12 +132,12 @@ function render() {
     ctx.fillRect(rx, cbY + i, cbW, 1);
   }
   ctx.strokeStyle = 'rgba(226,232,240,0.3)'; ctx.strokeRect(rx + 0.5, cbY + 0.5, cbW, cbH);
-  ctx.fillStyle = '#f08a8a'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#f08a8a'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('hot', rx + cbW + 8, cbY + 10);
   ctx.fillStyle = '#7aa6e8'; ctx.fillText('cold', rx + cbW + 8, cbY + cbH);
 
   const spotDeg = 180 / st.lPeak;
-  ctx.fillStyle = '#94a3b8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   let ty = cbY + cbH + 34;
   ctx.fillText(`l_peak  = ${st.lPeak.toFixed(0)}`, rx, ty); ty += 18;
   ctx.fillText(`l_damp  = ${st.lDamp.toFixed(0)}`, rx, ty); ty += 18;
@@ -144,7 +145,7 @@ function render() {
   ctx.fillText(`spot ~ ${spotDeg.toFixed(2)} deg`, rx, ty); ty += 18;
   ctx.fillStyle = '#94a3b8';
   ctx.fillText(`modes  = ${built} / ${MTOT}`, rx, ty); ty += 24;
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('l_peak sets the spot', rx, ty); ty += 15;
   ctx.fillText('size; l_damp smooths', rx, ty); ty += 15;
   ctx.fillText('the fine structure.', rx, ty);
@@ -153,7 +154,7 @@ function render() {
   const dx0 = SX, dx1 = W - 22, dy0 = H - 64, dy1 = H - 10;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: power spectrum  D_l vs l', dx0 + 8, dy0 + 12);
   const lMin = 2, lMax = 2600, NS = 360;
   const vals = new Float64Array(NS); let dmax = 1e-30;
@@ -190,3 +191,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

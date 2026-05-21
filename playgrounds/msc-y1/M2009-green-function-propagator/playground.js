@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -66,7 +67,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 function frame(x, y, w, h) {
@@ -95,14 +96,14 @@ function drawSolution(x, y, w, h) {
     }
     ctx.stroke(); ctx.setLineDash([]);
     if (lbl) {
-      ctx.fillStyle = col; ctx.font = '11px monospace';
+      ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(`${lbl} (peak ${amp.toExponential(1)})`, lx, cy - ph / 2 - 4);
     }
   };
   band(cache.f, topY + ph / 2, '#ff9d6f', 1.8, false, 'source f(x)', px + 6);
   band(cache.uRef, midY + ph / 2, 'rgba(155,232,176,0.7)', 3, true, '', px + pw - 130);
   band(cache.u, midY + ph / 2, '#6fb4ff', 2.2, false, 'solution u(x)  (green dashed = direct-solve check)', px + 6);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', px - 4, y + h - 8); ctx.fillText('L', px + pw - 6, y + h - 8);
 }
 
@@ -139,7 +140,7 @@ function drawTent(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(X(xp), fr.py); ctx.lineTo(X(xp), fr.py + fr.ph); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(xp), Y(greenG(xp, xp)), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#ffd166'; ctx.fillText(`G(x, x'=${xp.toFixed(2)}): zero at both walls, kink at x'`, fr.px + 6, fr.py + 13);
   ctx.fillStyle = 'rgba(200,210,235,0.6)';
   ctx.fillText('faint = the tents that sum to u', fr.px + 6, fr.py + fr.ph - 6);
@@ -161,9 +162,9 @@ function drawResidual(x, y, w, h) {
     if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`max | -u'' - f | = ${mx.toExponential(2)}  (~ 0: u solves the ODE)`, fr.px + 6, fr.py + 13);
-  ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.font = '12px monospace';
+  ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   const facts = [
     "G(x, x') = G(x', x)  (symmetric)",
     "G(0, x') = G(L, x') = 0  (Dirichlet)",
@@ -262,4 +263,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

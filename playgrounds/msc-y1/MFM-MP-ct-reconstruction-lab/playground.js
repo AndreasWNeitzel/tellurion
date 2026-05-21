@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -102,7 +103,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -115,7 +116,7 @@ function drawAcq(x, y, w, h) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(cache.phC, phx, phy, sz, sz);
   ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(phx, phy, sz, sz);
-  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('phantom (Shepp-Logan)', phx, phy + sz + 14);
   // rotating gantry ray over the phantom
   const cx = phx + sz / 2, cy = phy + sz / 2, ga = st.ph * Math.PI;
@@ -143,7 +144,7 @@ function drawRecon(x, y, w, h) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(cache.reconC, ix, iy, sz, sz);
   ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(ix, iy, sz, sz);
-  ctx.fillStyle = cache.rmse < 0.08 ? '#9be8b0' : '#ffd166'; ctx.font = '12px monospace';
+  ctx.fillStyle = cache.rmse < 0.08 ? '#9be8b0' : '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`RMSE = ${cache.rmse.toFixed(4)}   SNR = ${cache.snr.toFixed(2)}`, ix, iy + sz + 18);
 }
 
@@ -163,7 +164,7 @@ function drawCurves(x, y, w, h) {
   cv.forEach((c, i) => { const xx = Xna(c.na), yy = Y(c.rmse); if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); });
   ctx.stroke();
   for (const c of cv) { ctx.fillStyle = '#6fb4ff'; ctx.beginPath(); ctx.arc(Xna(c.na), Y(c.rmse), 2.5, 0, 2 * Math.PI); ctx.fill(); }
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + 3, 130, 14);
   ctx.fillStyle = 'rgba(111,180,255,0.9)';
   ctx.fillText('FBP RMSE vs angles', px + 8, py + 13);
@@ -248,4 +249,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

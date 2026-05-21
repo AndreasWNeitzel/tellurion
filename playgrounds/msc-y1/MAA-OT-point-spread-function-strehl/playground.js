@@ -14,6 +14,7 @@
 import { airyIntensity, strehl, firstNullArcsec } from './sim.js';
 import { viridis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -101,7 +102,7 @@ function render() {
   const resolved = fn <= SEP / 1.0 && S > 0.35;     // Rayleigh: sources resolved if first null <= separation
 
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Two stars through one telescope: resolve them, or lose them', 18, 24);
 
   // the sky image (fixed FOV; PSF size is physical)
@@ -114,14 +115,14 @@ function render() {
   const barPx = Math.min(IMG - 20, fn / (2 * FOV) * IMG);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(x0 + 12, y0 + IMG - 14); ctx.lineTo(x0 + 12 + Math.max(2, barPx), y0 + IMG - 14); ctx.stroke();
-  ctx.fillStyle = '#ffd166'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`1.22 lambda/D = ${fn.toFixed(3)}"`, x0 + 12, y0 + IMG - 20);
   ctx.fillStyle = '#94a3b8';
   ctx.fillText(`FOV ${(2 * FOV).toFixed(2)}"   sep ${SEP.toFixed(2)}"`, x0 + 8, y0 + IMG + 16);
 
   // right column: readouts + verdict
   const rx = x0 + IMG + 26;
-  ctx.font = '13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   let yy = y0 + 16;
   ctx.fillStyle = '#cbd5e1';
   ctx.fillText(`lambda = ${st.lambda} nm`, rx, yy); yy += 20;
@@ -131,16 +132,16 @@ function render() {
   ctx.fillStyle = S > 0.8 ? '#34d399' : (S > 0.4 ? '#ffd166' : '#f87272');
   ctx.fillText(`Strehl S = ${S.toFixed(3)}${S > 0.8 ? '  (diffraction-limited)' : ''}`, rx, yy); yy += 26;
   ctx.fillStyle = resolved ? '#34d399' : '#f87272';
-  ctx.font = 'bold 13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono', 600);
   ctx.fillText(resolved ? 'PAIR RESOLVED' : 'PAIR NOT RESOLVED', rx, yy); yy += 22;
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (const ln of ['Bigger D or shorter', 'lambda shrinks the', 'Airy disk: the pair', 'splits. Wavefront', 'error drains the core', 'into the speckle halo', 'and S collapses.']) { ctx.fillText(ln, rx, yy); yy += 14; }
 
   // demoted diagnostic: log radial cut through both stars
   const dx0 = x0, dx1 = W - 22, dy0 = H - 96, dy1 = H - 12;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: log I along the line through the two stars (dashed = star positions)', dx0 + 8, dy0 + 12);
   const xP = (ax) => dx0 + 12 + (ax + FOV) / (2 * FOV) * (dx1 - dx0 - 24);
   const yP = (logI) => dy1 - 6 - (logI + 5) / 5 * (dy1 - dy0 - 24);
@@ -173,3 +174,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

@@ -8,6 +8,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -42,7 +43,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -53,14 +54,14 @@ function drawChamber(x, y, w, h) {
   // electrodes
   ctx.fillStyle = 'rgba(255,120,120,0.5)'; ctx.fillRect(gx, gy - 10, gw, 8);
   ctx.fillStyle = 'rgba(120,160,255,0.5)'; ctx.fillRect(gx, gy + gh + 2, gw, 8);
-  ctx.fillStyle = 'rgba(255,150,150,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,150,150,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('+ anode', gx + 4, gy - 14);
   ctx.fillStyle = 'rgba(160,190,255,0.85)'; ctx.fillText('- cathode', gx + 4, gy + gh + 24);
   ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.strokeRect(gx, gy, gw, gh);
   // incoming photon
   ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(gx - 18, gy + gh * 0.5); ctx.lineTo(gx + gw * 0.45, gy + gh * 0.5); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,209,102,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,209,102,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('photon ->', gx - 18, gy + gh * 0.5 - 6);
   // a Compton recoil electron track from the interaction site
   const ix = gx + gw * 0.45, iy = gy + gh * 0.5;
@@ -90,7 +91,7 @@ function drawChamber(x, y, w, h) {
       ctx.beginPath(); ctx.arc(px, gy + gh * (0.2 + pp.y * 0.3) + 0.35 * gh, 4, 0, 2 * Math.PI); ctx.stroke();
     }
   });
-  ctx.fillStyle = 'rgba(200,210,235,0.65)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.65)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('+ ions drift down, electrons drift up; faded pairs recombine (lost)', gx, y + h - 10);
 }
 
@@ -114,17 +115,17 @@ function drawSaturation(x, y, w, h) {
   // f = 1 reference
   ctx.strokeStyle = 'rgba(155,232,176,0.4)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(px, Y(1)); ctx.lineTo(px + pw, Y(1)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(155,232,176,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('f = 1 (full collection)', px + pw - 134, Y(1) - 4);
   // operating point
   const V0 = volts(), f0 = collectionEfficiency(V0, st.dr, 1);
   ctx.fillStyle = '#6fb4ff';
   ctx.beginPath(); ctx.arc(X(V0), Y(f0), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (const V of [10, 100, 1000]) ctx.fillText(`${V}`, X(V) - 8, py + ph + 14);
   ctx.fillText('collecting voltage (V, log)', px + pw / 2 - 64, py + ph + 26);
   ctx.fillText('f', px - 16, py + 8);
-  ctx.fillStyle = f0 > 0.99 ? '#9be8b0' : '#ffd166'; ctx.font = '11px monospace';
+  ctx.fillStyle = f0 > 0.99 ? '#9be8b0' : '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`V = ${V0} V:  f = ${f0.toFixed(4)}  (recombination loss ${((1 - f0) * 100).toFixed(2)}%)`, px + 6, py + ph + 40);
 }
 function collectionEfficiencyInvV(target, dr) {
@@ -148,7 +149,7 @@ function drawChain(x, y, w, h) {
     [`x (S/rho) = ${SR} -> D_med`, `${R.Dmed.toExponential(3)} Gy`, '#ff6b9d'],
   ];
   const bx = x + 16, bw = w - 32, rowH = (h - 50) / steps.length;
-  ctx.font = '12px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   steps.forEach((stp, i) => {
     const yy = y + 30 + i * rowH;
     ctx.fillStyle = stp[2]; ctx.fillRect(bx, yy - 12, 8, 8);
@@ -159,7 +160,7 @@ function drawChain(x, y, w, h) {
       ctx.beginPath(); ctx.moveTo(bx + 4, yy - 2); ctx.lineTo(bx + 4, yy + rowH - 14); ctx.stroke();
     }
   });
-  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('one ion pair per W; D scales with Q and with W', bx, y + h - 10);
 }
 
@@ -232,4 +233,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

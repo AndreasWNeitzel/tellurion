@@ -7,6 +7,7 @@
 
 import { amd } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -93,7 +94,7 @@ function render() {
 
   // Panel A: top-down orbits (left half).
   const ax = W * 0.27, ay = H * 0.5, aS = 150;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('orbits from above (slow breathing + precession)', 14, 20);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(ax, ay, 5, 0, 2 * Math.PI); ctx.fill();
   const a1 = 0.62, a2 = 1.0;
@@ -162,7 +163,7 @@ function render() {
   ctx.beginPath(); ctx.moveTo(tx(st.t), cy0); ctx.lineTo(tx(st.t), cy1); ctx.stroke(); ctx.setLineDash([]);
 
   const A = amd(s.e1, s.e2);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`coupling = ${st.coupling.toFixed(2)}   AMD = e1^2 + e2^2 = ${A.toFixed(4)} (conserved)`, 14, H - 14);
   rE.textContent = `e1=${s.e1.toFixed(3)} e2=${s.e2.toFixed(3)}`;
 }
@@ -179,3 +180,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

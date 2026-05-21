@@ -10,6 +10,7 @@
 import { delayMs, dynamicSpectrum, dedisperse, snr } from './sim.js';
 import { cividis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -92,7 +93,7 @@ function drawPulsar(px, py, R) {
     ctx.lineTo(px + Math.cos(ang + 0.16) * 250, py + Math.sin(ang + 0.16) * 250);
     ctx.closePath(); ctx.fill();
   }
-  ctx.fillStyle = '#9fb0cc'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9fb0cc'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('neutron star', px, py + R + 44);
   ctx.fillText(`P = ${st.period.toFixed(2)} s`, px, py + R + 60);
   return align < 0.16;                              // beam crossing the LOS now
@@ -109,10 +110,10 @@ function render() {
   const flagCol = flag === 'MATCH' ? '#34d399' : (flag === 'near' ? '#ffd166' : '#f87272');
 
   // on-canvas readout band (the DOM panel overlapped the canvas)
-  ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = '#cdd3e2';
   ctx.fillText('A pulsar flash, smeared by the interstellar medium, then realigned', 18, 22);
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#8893a6';
   ctx.fillText(`true DM ${st.trueDM} pc/cm3`, 18, 42);
   ctx.fillText(`trial DM ${st.guessDM}`, 200, 42);
@@ -136,7 +137,7 @@ function render() {
   }
   ctx.strokeStyle = 'rgba(120,150,200,0.25)';
   ctx.strokeRect(20.5, 60.5, 280, 300);
-  ctx.fillStyle = '#5a6477'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('beam sweeps the line of sight once per rotation', 160, 350);
 
   // right: dynamic spectrum, de-dispersed at the trial DM
@@ -145,7 +146,7 @@ function render() {
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(off, 0, 0, NT, NCH, wx0, wy0, wW, wHh);
   ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(wx0 + 0.5, wy0 + 0.5, wW - 1, wHh - 1);
-  ctx.fillStyle = '#cdd3e2'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#cdd3e2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('dynamic spectrum (trial-DM corrected)', wx0 + 6, wy0 - 6);
   ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.textAlign = 'left';
   ctx.fillText(`${F_HI} MHz`, wx0 + 6, wy0 + 14);
@@ -161,7 +162,7 @@ function render() {
   const py0 = 392, pH = H - py0 - 26;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(wx0, py0, wW, pH);
   ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(wx0 + 0.5, py0 + 0.5, wW - 1, pH - 1);
-  ctx.fillStyle = '#cdd3e2'; ctx.textAlign = 'left'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#cdd3e2'; ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('de-dispersed profile (sum over channels)', wx0 + 6, py0 + 14);
   let mx = 1e-9; for (let j = 0; j < NT; j += 1) if (ded[j] > mx) mx = ded[j];
   ctx.strokeStyle = flagCol; ctx.lineWidth = 1.6; ctx.beginPath();
@@ -173,7 +174,7 @@ function render() {
   ctx.stroke();
 
   // left-of-profile: the f^-2 law reminder + DM meaning
-  ctx.fillStyle = '#5a6477'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('dt = DM/2.41e-4 (1/f^2 - 1/fref^2) ms     DM = integral n_e dl  (electron column -> distance)', 22, py0 + pH - 4);
 
   if (readoutEl) readoutEl.textContent = `true DM ${st.trueDM}, trial DM ${st.guessDM}, S/N ${sn.toFixed(1)} [${flag}]`;
@@ -226,3 +227,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

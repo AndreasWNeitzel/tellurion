@@ -9,6 +9,7 @@
 // Binney and Tremaine, Galactic Dynamics (2nd ed.), Ch. 6.
 import { nuSquared, ToomreQ, kCrit } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -50,7 +51,7 @@ let lastStable = true, tUnstable = 0;
 function render() {
   if (!CAPTURE_NAME && running) st.t += 0.02;
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Toomre Q decides it: below 1 the disk fragments into spiral arms', 18, 26);
 
   const GS = st.GSig / (2 * Math.PI);
@@ -99,7 +100,7 @@ function render() {
   }
   // galactic centre
   ctx.fillStyle = 'rgba(255,220,150,0.9)'; ctx.beginPath(); ctx.arc(CX, CY, 5, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = Q < 1 ? '#ef476f' : '#06d6a0'; ctx.font = '13px ui-monospace, monospace';
+  ctx.fillStyle = Q < 1 ? '#ef476f' : '#06d6a0'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(Q < 1 ? `UNSTABLE  Q = ${Q.toFixed(2)} < 1  (growing spiral, rate ${gamma.toFixed(2)})`
     : `STABLE  Q = ${Q.toFixed(2)} > 1  (perturbation shears away)`, 26, 470);
 
@@ -107,7 +108,7 @@ function render() {
   const dx = 500, dy = 70, dw = canvas.width - dx - 24, dh = 360;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx, dy, dw, dh);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx + 0.5, dy + 0.5, dw - 1, dh - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('dispersion nu^2(k)  (diagnostic)', dx + 8, dy + 16);
   const kMax = 6, y0 = -6, y1 = 12;
   const xPk = (k) => dx + 10 + k / kMax * (dw - 20);
@@ -124,10 +125,10 @@ function render() {
     ctx.fillRect(dx + 10, yPk(0), dw - 20, dy + dh - 14 - yPk(0));
     ctx.strokeStyle = 'rgba(239,71,111,0.7)'; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(xPk(kStar), dy + 18); ctx.lineTo(xPk(kStar), dy + dh - 14); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`k* = ${kStar.toFixed(2)}`, xPk(kStar) + 4, dy + 30);
   }
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('k', dx + dw - 16, dy + dh - 2); ctx.fillText('nu^2', dx + 6, dy + 28);
   ctx.fillText(`k_crit(cs=0) = ${kCrit(st.kappa, GS).toFixed(2)}`, dx + 8, dy + dh - 4);
 
@@ -148,3 +149,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

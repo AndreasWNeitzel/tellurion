@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -64,7 +65,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -126,7 +127,7 @@ function drawInspiral(x, y, w, h) {
     hole(b2x, b2y, R2, 'rgba(120,150,255,0.55)');
     hole(b1x, b1y, R1, 'rgba(255,170,120,0.55)');
   }
-  ctx.fillStyle = 'rgba(210,220,240,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(210,220,240,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`f_GW = ${fNow.toFixed(0)} Hz   separation ${(aR).toFixed(2)} a0   ${merged ? 'MERGED: ringdown' : 'inspiral'}`, x + 10, y + h - 10);
 }
 
@@ -158,7 +159,7 @@ function drawMatched(x, y, w, h) {
   s.forEach((p, i) => { const xx = X(p.lag), yy = Y(p.snr); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); });
   ctx.stroke();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(st.mf.peakLag), Y(st.mf.peak), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.72)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.72)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`M_chirp ${st.McSun.toFixed(1)} (rec ${st.recMc.toFixed(1)}) Msun`, x + 10, y + h - 9);
 }
 
@@ -174,7 +175,7 @@ function drawDetector(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx, by - ly); ctx.stroke();
   ctx.fillStyle = '#dfe6f4'; ctx.fillRect(bx + lx, by - 8, 4, 16); ctx.fillRect(bx - 8, by - ly - 4, 16, 4);
   ctx.fillStyle = '#9a3b3b'; ctx.fillRect(bx - 34, by - 5, 16, 10);
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`dL ${(0.5 * Math.abs(hNow) * 4000).toExponential(1)} m  (x${VIS.toExponential(0)})`, x + 8, y + h - 8);
 }
 
@@ -247,4 +248,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -9,6 +9,7 @@
 // Reference: Carroll and Ostlie, Modern Astrophysics (2nd ed.), Ch. 7.
 import { L_solar, MS_lifetime_Gyr } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -55,14 +56,14 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 function render() {
   if (!CAPTURE_NAME && running) st.tau += 0.05;
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Mass sets a star: bigger mass means far brighter and far shorter-lived', 18, 26);
 
   // selected star + physical readout (top)
   const M = st.M, L = L_solar(M), t = MS_lifetime_Gyr(M), T = Trel(M) * 5772;
   const selX = 110, selY = 110;
   drawStar(selX, selY, Math.max(7, Math.min(28, Rstar(M) * 7)), M, Math.max(0.4, Math.min(3.2, Math.log10(L + 1) * 1.1)));
-  ctx.fillStyle = '#94a3b8'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('selected star', 300, 70);
   ctx.fillStyle = '#e2e8f0';
   ctx.fillText(`M  = ${M.toFixed(2)} Msun`, 300, 92);
@@ -73,7 +74,7 @@ function render() {
   ctx.fillText(`t_MS = ${tTxt}`, 300, 152);
 
   // the living main sequence: a population aging on its own clocks
-  ctx.fillStyle = '#64748b'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('the main sequence: each star ages at age = elapsed / t_MS(M); massive ones die young', 26, 196);
   const sy = 268, x0 = 60, x1 = W - 40;
   ctx.strokeStyle = 'rgba(120,130,150,0.25)'; ctx.lineWidth = 1;
@@ -94,7 +95,7 @@ function render() {
     ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(px - 16, sy + 40, 32, 4);
     ctx.fillStyle = age > 0.9 ? '#ef476f' : '#5bc0eb'; ctx.fillRect(px - 16, sy + 40, 32 * age, 4);
     ctx.fillStyle = Math.abs(Mk - M) < 1e-6 ? '#ffd166' : '#94a3b8';
-    ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`${Mk}`, px, sy + 64);
     if (Math.abs(Mk - M) < 0.06) { ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, sy, rad + 7, 0, 6.2832); ctx.stroke(); }
   }
@@ -104,7 +105,7 @@ function render() {
   const dx0 = 60, dx1 = W - 40, dy0 = H - 96, dy1 = H - 30;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0 - 10, dx1 - dx0, dy1 - dy0 + 22);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 - 9.5, dx1 - dx0 - 1, dy1 - dy0 + 21);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: log L vs log M  (slope ~ 3.5)', dx0 + 8, dy0 + 4);
   const xPx = (lm) => dx0 + (lm + 1) / 3 * (dx1 - dx0);
   const yPx = (ll) => dy1 - (ll + 2) / 9 * (dy1 - dy0);
@@ -133,3 +134,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

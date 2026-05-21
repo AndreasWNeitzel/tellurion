@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -62,7 +63,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -78,7 +79,7 @@ function drawPotential(x, y, w, h) {
   // phi_end marker (epsilon = 1)
   ctx.strokeStyle = 'rgba(255,143,143,0.6)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(st.phiEnd), y0); ctx.lineTo(X(st.phiEnd), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('phi_end (eps=1)', X(st.phiEnd) + 4, y0 + 12);
   // rolling inflaton
   const phi = st.traj[Math.min(st.ST, Math.floor(st.ph * st.ST))];
@@ -103,7 +104,7 @@ function drawModes(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,143,143,0.7)'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let i = 0; i < nN; i += 1) { const xx = X(m0.Ne[i]), yy = Y(m0.horizon[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '11px monospace'; ctx.fillText('Hubble horizon 1/H', x0 + 4, Y(m0.horizon[0]) - 4);
+  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('Hubble horizon 1/H', x0 + 4, Y(m0.horizon[0]) - 4);
   const cols = ['#7fd1ff', '#8fe39b', '#e79bff'];
   st.modes.forEach((m, mi) => {
     ctx.strokeStyle = cols[mi]; ctx.lineWidth = 1.6; ctx.beginPath();
@@ -127,7 +128,7 @@ function drawSpectrum(x, y, w, h) {
   // scale-invariant reference (n_s = 1, flat)
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(x0, Y(ref)); ctx.lineTo(x1, Y(ref)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('n_s = 1 (scale invariant)', x0 + 6, Y(ref) - 4);
   ctx.strokeStyle = '#f1c069'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 160; i += 1) {
@@ -207,4 +208,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

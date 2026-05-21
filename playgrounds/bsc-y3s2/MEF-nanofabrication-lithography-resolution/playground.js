@@ -8,6 +8,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -33,7 +34,7 @@ const st = { lam: 'arf', NA: 1.0, k1: 0.5, running: !prefersReducedMotion(), pha
 function lamNm() { return WAVELENGTHS[st.lam]; }
 
 function band(y0, h, label) {
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(label, 30, y0 - 4);
 }
 
@@ -82,10 +83,10 @@ function draw() {
     const bh = (CH - 30) * Math.max(0, Math.min(1, c));
     ctx.fillStyle = resolved ? '#7fd1ff' : '#ff6b6b';
     ctx.fillRect(bx, CY + CH - 16 - bh, bw, bh);
-    ctx.fillStyle = 'rgba(220,228,240,0.75)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(220,228,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(PITCHES[z] + 'nm', bx, CY + CH - 4);
   }
-  ctx.fillStyle = 'rgba(255,210,120,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,210,120,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Rayleigh R = k1 lambda / NA = ' + R.toFixed(1) + ' nm  (zones < R: not resolved, red)', X0 + 8, CY + 14);
 
   rLam.textContent = lam.toFixed(1) + ' nm';
@@ -140,4 +141,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

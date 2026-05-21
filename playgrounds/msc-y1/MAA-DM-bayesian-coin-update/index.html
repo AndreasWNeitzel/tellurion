@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bayesian Coin Update</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayesian Coin Update</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 760px; }
     .pg-figure canvas { width: 100%; height: auto; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
@@ -15,10 +20,24 @@
     .pg-controls input[type="range"] { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Bayesian coin update</h1>
-  <p>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Bayesian coin update</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Bayesian coin update</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     Conjugate Bayesian inference for the bias theta of an unfair coin.
     Prior: Beta(alpha0, beta0). Data: k heads observed in n flips.
     Posterior: Beta(alpha0 + k, beta0 + n - k). The plot overlays the
@@ -26,21 +45,24 @@
     n - k, renormalized for display), and the posterior (cat-3). Drag k
     and n to see the posterior sharpen.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="500" tabindex="0"
-            aria-label="Beta-Binomial conjugate posterior over a coin bias theta."></canvas>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="500" tabindex="0" aria-label="Beta-Binomial conjugate posterior over a coin bias theta."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Beta-Binomial conjugate update for an unfair coin. Method:
       closed-form posterior plus numerical Beta-CDF for the 95 percent
       credible interval. Source: Gelman et al., Bayesian Data Analysis
       3e, Section 2.2 (Beta-binomial conjugate analysis); Murphy PML I
-      Section 11.2.
-    </figcaption>
-  </figure>
+      Section 11.2.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Beta-Binomial controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Beta-Binomial controls">
     <div class="row"><span class="label">prior preset</span><select id="select-prior" aria-label="prior preset"><option value="flat">Flat / Jeffreys-ish (Beta 2, 2)</option><option value="bias-heads">Strong prior: heads (Beta 18, 4)</option><option value="bias-tails">Strong prior: tails (Beta 4, 18)</option><option value="skeptic">Skeptical-fair (Beta 12, 12)</option><option value="custom">Custom (use sliders)</option></select><span class="value" id="value-prior"></span></div>
     <div class="row"><span class="label">alpha_0</span><input aria-label="alpha_0" type="range" id="slider-a0" min="0.5" max="20" step="0.5" value="2"><span class="value" id="value-a0">2.0</span></div>
     <div class="row"><span class="label">beta_0</span><input aria-label="beta_0" type="range" id="slider-b0" min="0.5" max="20" step="0.5" value="2"><span class="value" id="value-b0">2.0</span></div>
@@ -51,7 +73,37 @@
       <button id="btn-flip" type="button">Flip 5 (random)</button>
     </div>
   </div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

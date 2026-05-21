@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -42,7 +43,7 @@ function rebuild() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -60,7 +61,7 @@ function drawPacket(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,143,143,0.5)'; ctx.setLineDash([4, 4]);
   for (const xc of [t, -t]) { const px = X(xc); ctx.beginPath(); ctx.moveTo(px, y0); ctx.lineTo(px, y1); ctx.stroke(); }
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   if (X(t) < x1 - 30) ctx.fillText('x = t (light cone)', X(t) + 4, y0 + 12);
   // initial packet (faint) for spreading comparison
   ctx.strokeStyle = 'rgba(150,170,210,0.4)'; ctx.lineWidth = 1; ctx.beginPath();
@@ -87,7 +88,7 @@ function drawDispersion(x, y, w, h) {
   // light line omega = |k|
   ctx.strokeStyle = 'rgba(255,143,143,0.45)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(kMax), Y(kMax)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '11px monospace'; ctx.fillText('omega = |k| (light)', X(kMax) - 110, Y(kMax) + 14);
+  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('omega = |k| (light)', X(kMax) - 110, Y(kMax) + 14);
   ctx.strokeStyle = '#7fd1ff'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 160; i += 1) { const k = kMax * i / 160; const xx = X(k), yy = Y(omega(k, m)); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();
@@ -113,7 +114,7 @@ function drawTracks(x, y, w, h) {
   // light cone x = t
   ctx.strokeStyle = 'rgba(255,143,143,0.5)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(X(0), Yc(0)); ctx.lineTo(X(tMax), Yc(tMax)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '11px monospace'; ctx.fillText('x = t', X(tMax) - 36, Yc(tMax) + 4);
+  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('x = t', X(tMax) - 36, Yc(tMax) + 4);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 0; i < n; i += 1) { const xx = X(e.t[i]), yy = Yc(e.cen[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();
@@ -197,4 +198,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

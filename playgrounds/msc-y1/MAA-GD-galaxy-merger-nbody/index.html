@@ -1,10 +1,16 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title data-slot="title">Galaxy Merger N-Body</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaxy Merger N-Body</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
   .pg-figure { max-width: 860px; position: relative; }
@@ -18,17 +24,70 @@
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<header>
-  <h1 data-slot="title">Galaxy Merger N-Body</h1>
-  <div data-slot="description" class="katex-target">Two galaxies, each a dominant dark-matter halo around a stellar component (a spiral disk and a small diffuse dwarf), fall together in three dimensions under their mutual gravity. Nothing about the merger is scripted: the companion raises a trailing wake, loses orbital energy to dynamical friction, sinks, and is tidally stretched into bridges and tails that relax into one remnant. The angle of attack sets how the companion comes in, from edge-on to the disk (0 deg) to face-on (90 deg), alongside the two masses, impact parameter and closing speed. Drag to orbit the view, scroll to zoom, Shift-drag to pan. The right panel tracks the stars in the energy versus angular-momentum plane in the surviving galaxy's rest frame, where the shredded companion settles into the low-angular-momentum clump that marks the Gaia-Enceladus / Sausage debris in the real Milky Way halo. The encounter only restarts when you press Relaunch.</div>
-</header>
-<figure class="pg-figure">
-  <canvas id="stage" width="900" height="600"></canvas>
-  <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <figcaption data-slot="caption" class="katex-target">Figure 1. Fully 3D self-gravitating galaxy merger. Method: Barnes-Hut octree gravity (opening angle theta, Plummer softening) with a kick-drift-kick leapfrog; emergent dynamical friction, tidal tails and coalescence; integrals of motion in the surviving primary's frame. Source: Barnes and Hut 1986; Barnes and Efstathiou 1987; Springel 2005; Binney and Tremaine 2e, Ch. 8; Helmi et al. 2018; Belokurov et al. 2018.</figcaption>
-</figure>
-<div id="controls" class="pg-controls"></div>
-<div id="custom-controls"></div>
+</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Galaxy Merger N-Body</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Galaxy Merger N-Body</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Galaxy Merger N-Body.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="600"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption">Figure 1. Fully 3D self-gravitating galaxy merger. Method: Barnes-Hut octree gravity (opening angle theta, Plummer softening) with a kick-drift-kick leapfrog; emergent dynamical friction, tidal tails and coalescence; integrals of motion in the surviving primary's frame. Source: Barnes and Hut 1986; Barnes and Efstathiou 1987; Springel 2005; Binney and Tremaine 2e, Ch. 8; Helmi et al. 2018; Belokurov et al. 2018.</figcaption>
+
+    <section class="playground-controls">
+      <div id="controls" class="pg-controls"></div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
 <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

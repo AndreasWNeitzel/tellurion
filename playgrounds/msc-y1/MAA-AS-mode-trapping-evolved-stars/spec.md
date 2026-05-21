@@ -18,6 +18,19 @@ hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
+invariants:
+  - key: runs
+    label: simulation advances each frame
+    tolerance: 1
+  - key: bounded
+    label: state stays finite
+    tolerance: 1
+  - key: deterministic
+    label: fixed seed reproduces the run
+    tolerance: 1
+what_to_try:
+  - Vary each control and watch the rail readouts respond.
+  - Compare the diagnostic plot against the live scene.
 ---
 # Mode trapping in evolved stars
 Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018 (`mosser2018-trap`); Aerts et al. Ch. 3 (`aerts-asteroseism`).

@@ -1,47 +1,99 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inflation: Slow Roll, Superhorizon Fluctuations, n_s</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inflation: Slow Roll, Superhorizon Fluctuations, n_s</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
   .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
   .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
 </head>
 <body>
-  <h1>Inflation: Slow Roll, Superhorizon Fluctuations, n_s</h1>
+<main class="playground-layout" data-focus="false">
 
-  <figure>
-    <canvas id="stage" width="900" height="560" aria-label="Inflaton potential, modes stretched past the horizon, and the scalar power spectrum"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">N:</span><span class="value" id="readout-n">57</span>
-      <span class="label">n_s:</span><span class="value" id="readout-ns">0.965</span>
-      <span class="label">r:</span><span class="value" id="readout-r">0.003</span>
-      <span class="label">epsilon:</span><span class="value" id="readout-eps">0</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Inflation: Slow Roll, Superhorizon Fluctuations, n_s</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Inflation: Slow Roll, Superhorizon Fluctuations, n_s</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Inflation: Slow Roll, Superhorizon Fluctuations, n_s.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="560" aria-label="Inflaton potential, modes stretched past the horizon, and the scalar power spectrum"></canvas>
     </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Single-field slow-roll inflation: the inflaton rolls down a flat potential while quantum fluctuations are stretched exponentially past the nearly constant Hubble horizon and freeze, seeding a nearly scale-invariant scalar spectrum with tilt n_s ~ 0.965.
       <em>Method:</em> slow-roll parameters from V(phi), e-fold integral, P_s(k) ~ k^{n_s-1}; Canvas2D, deterministic.
-      <em>Source:</em> Mukhanov; Baumann, Cosmology; Starobinsky 1980; Planck 2018.
-    </figcaption>
-  </figure>
+      <em>Source:</em> Mukhanov; Baumann, Cosmology; Starobinsky 1980; Planck 2018.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">potential</span><select aria-label="inflaton potential" id="select-pot" style="grid-column: span 2;"><option value="starobinsky">Starobinsky plateau (Planck-favoured)</option><option value="quadratic">quadratic m^2 phi^2</option></select></div>
     <div class="row"><span class="label">e-folds N</span><input aria-label="number of e-folds" type="range" id="slider-n" min="45" max="65" step="1" value="57"><span class="value" id="value-n">57</span></div>
     <div class="row"><span class="label">mode wavelength</span><input aria-label="comoving wavelength, log" type="range" id="slider-lam" min="0" max="40" step="1" value="14"><span class="value" id="value-lam">1.0e-3</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">N:</span><span class="value" id="readout-n">57</span>
+      <span class="label">n_s:</span><span class="value" id="readout-ns">0.965</span>
+      <span class="label">r:</span><span class="value" id="readout-r">0.003</span>
+      <span class="label">epsilon:</span><span class="value" id="readout-eps">0</span>
+    </div><span class="value" id="readout-n">57</span><span class="value" id="readout-ns">0.965</span><span class="value" id="readout-r">0.003</span><span class="value" id="readout-eps">0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

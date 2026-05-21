@@ -18,6 +18,7 @@ import {
   SIGMA_T, M_E_KG, C, YEAR_S,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -111,11 +112,11 @@ function render() {
   for (let lt = tMinLog; lt <= tMaxLog; lt += 3) {
     const y = yTcool(lt);
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + leftW, y); ctx.stroke();
-    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`10^${lt}`, padL - 36, y + 3);
   }
   for (let lg = gMinLog; lg <= gMaxLog; lg += 3) {
-    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`10^${lg}`, xLeft(lg) - 14, padT + plotH + 14);
   }
   // Hubble-time reference.
@@ -123,7 +124,7 @@ function render() {
   ctx.strokeStyle = c.red; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(padL, yH); ctx.lineTo(padL + leftW, yH); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = c.red; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = c.red; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Hubble time', padL + leftW - 100, yH - 4);
   // t_cool(gamma) curve.
   ctx.strokeStyle = c.accent; ctx.lineWidth = 2;
@@ -145,7 +146,7 @@ function render() {
   ctx.fillStyle = c.blue;
   ctx.fillText('γ = 10⁴', xRef + 4, padT + 14);
   // Title.
-  ctx.fillStyle = c.accent; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = c.accent; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T = ${T.toFixed(2)} K  U_ph = ${U.toExponential(2)} J/m³`, padL + 12, padT + 14);
   ctx.fillStyle = c.muted;
   ctx.fillText('t_cool (yr, log)', padL + 12, padT + plotH - 8);
@@ -160,10 +161,10 @@ function render() {
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
   }
   for (let lg = gMinLog; lg <= gMaxLog; lg += 3) {
-    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`10^${lg}`, xRight(lg) - 14, padT + plotH + 14);
   }
-  ctx.fillStyle = c.fg; ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('electron cooling on a γ axis', rightX, padT - 6);
 
   // Evolve each electron and plot it as a dot. Draw a trail from its
@@ -211,7 +212,7 @@ function render() {
   }
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)'; ctx.lineWidth = 1;
   ctx.strokeRect(rightX, histY, rightW, histH);
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`N(γ)  alive = ${nAlive}/${N_ELECTRONS}`, rightX + 4, histY - 4);
   ctx.fillText(`elapsed t = ${timeElapsedYr.toExponential(2)} yr`, rightX + rightW - 160, histY - 4);
   ctx.fillText('log γ', rightX + rightW / 2 - 12, padT + plotH + 28);
@@ -277,4 +278,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

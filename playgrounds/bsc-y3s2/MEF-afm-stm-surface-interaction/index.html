@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AFM and STM: Tip-Surface Interaction</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function r(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false }); else setTimeout(r, 50); } r(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFM and STM: Tip-Surface Interaction</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 820px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
@@ -24,37 +25,91 @@
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>AFM and STM: Tip-Surface Interaction</h1>
-    <p>The two workhorses of nanoscale imaging. A sharp tip scans an atomically corrugated surface. In atomic force microscopy the tip feels the Lennard-Jones interaction $V(d)=4\varepsilon[(\sigma/d)^{12}-(\sigma/d)^6]$: strongly repulsive when it touches, weakly attractive further out, zero force at $d=2^{1/6}\sigma$. In scanning tunnelling microscopy the tip draws a current that decays exponentially with the gap, $I\propto V\,e^{-2\kappa d}$ with $\kappa=\sqrt{2m\phi}/\hbar$; for a metallic work function ($\phi\sim5$ eV) that is roughly a factor of ten in current per angstrom of gap, which is why STM resolves single atoms. Pick AFM (force curve and scan), STM constant-height (atomic-contrast current map) or STM constant-current (the topograph that reproduces the surface). The tip sweeps across the lattice and the bottom panel traces the signal. Everything is closed form (gate-tested). Source: Chen, Introduction to Scanning Tunneling Microscopy, 2nd ed., OUP 2008 (`chen2008`); Binnig, Quate and Gerber, Phys. Rev. Lett. 56 (1986) 930 (`binnig1986`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <div style="position:relative;">
-      <canvas id="stage" width="820" height="640" aria-label="Scanning-probe tip over a corrugated surface with the interaction law and the scan trace"></canvas>
-      <div class="readout-panel" id="readout" role="status" aria-live="polite">
-        <span class="label">gap d</span><span class="value" id="readout-gap">0</span>
-        <span class="label">kappa</span><span class="value" id="readout-kappa">0</span>
-        <span class="label">per A</span><span class="value" id="readout-decade">0</span>
-        <span class="label">signal</span><span class="value" id="readout-signal">0</span>
-      </div>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">AFM and STM: Tip-Surface Interaction</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">AFM and STM: Tip-Surface Interaction</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">The two workhorses of nanoscale imaging. A sharp tip scans an atomically corrugated surface. In atomic force microscopy the tip feels the Lennard-Jones interaction <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false">(</mo><mi>d</mi><mo stretchy="false">)</mo><mo>=</mo><mn>4</mn><mi>ε</mi><mo stretchy="false">[</mo><mo stretchy="false">(</mo><mi>σ</mi><mi mathvariant="normal">/</mi><mi>d</mi><msup><mo stretchy="false">)</mo><mn>12</mn></msup><mo>−</mo><mo stretchy="false">(</mo><mi>σ</mi><mi mathvariant="normal">/</mi><mi>d</mi><msup><mo stretchy="false">)</mo><mn>6</mn></msup><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">V(d)=4\varepsilon[(\sigma/d)^{12}-(\sigma/d)^6]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.2222em;">V</span><span class="mopen">(</span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord">4</span><span class="mord mathnormal">ε</span><span class="mopen">[(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">σ</span><span class="mord">/</span><span class="mord mathnormal">d</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">12</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">σ</span><span class="mord">/</span><span class="mord mathnormal">d</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">6</span></span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span></span>: strongly repulsive when it touches, weakly attractive further out, zero force at <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><msup><mn>2</mn><mrow><mn>1</mn><mi mathvariant="normal">/</mi><mn>6</mn></mrow></msup><mi>σ</mi></mrow><annotation encoding="application/x-tex">d=2^{1/6}\sigma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.888em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.888em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1/6</span></span></span></span></span></span></span></span></span><span class="mord mathnormal" style="margin-right: 0.0359em;">σ</span></span></span></span></span>. In scanning tunnelling microscopy the tip draws a current that decays exponentially with the gap, <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo>∝</mo><mi>V</mi> <msup><mi>e</mi><mrow><mo>−</mo><mn>2</mn><mi>κ</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">I\propto V\,e^{-2\kappa d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.0785em;">I</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">∝</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord mathnormal" style="margin-right: 0.2222em;">V</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">2</span><span class="mord mathnormal mtight">κ</span><span class="mord mathnormal mtight">d</span></span></span></span></span></span></span></span></span></span></span></span></span> with <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>κ</mi><mo>=</mo><msqrt><mrow><mn>2</mn><mi>m</mi><mi>ϕ</mi></mrow></msqrt><mi mathvariant="normal">/</mi><mi mathvariant="normal">ℏ</mi></mrow><annotation encoding="application/x-tex">\kappa=\sqrt{2m\phi}/\hbar</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">κ</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.085em; vertical-align: -0.25em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.835em;"><span class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord" style="padding-left: 0.833em;"><span class="mord">2</span><span class="mord mathnormal">m</span><span class="mord mathnormal">ϕ</span></span></span><span class="" style="top: -2.795em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.205em;"><span class=""></span></span></span></span></span><span class="mord">/ℏ</span></span></span></span></span>; for a metallic work function (<span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∼</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">\phi\sim5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">5</span></span></span></span></span> eV) that is roughly a factor of ten in current per angstrom of gap, which is why STM resolves single atoms. Pick AFM (force curve and scan), STM constant-height (atomic-contrast current map) or STM constant-current (the topograph that reproduces the surface). The tip sweeps across the lattice and the bottom panel traces the signal. Everything is closed form (gate-tested). Source: Chen, Introduction to Scanning Tunneling Microscopy, 2nd ed., OUP 2008 (`chen2008`); Binnig, Quate and Gerber, Phys. Rev. Lett. 56 (1986) 930 (`binnig1986`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="640" aria-label="Scanning-probe tip over a corrugated surface with the interaction law and the scan trace"></canvas>
     </div>
-    <figcaption>
-      Figure 1. A scanning probe over an atomically corrugated surface (top), the interaction law (Lennard-Jones force for AFM, or the exponential tunnelling decay for STM, middle), and the scan signal versus tip position (bottom).
-      <em>Method:</em> closed-form Lennard-Jones potential/force and the STM tunnelling law I ~ V exp(-2 kappa d) (gate-tested sim.js), Canvas2D; the live readouts are the gap, kappa, the per-angstrom current factor, and the instantaneous signal.
-      <em>Source:</em> Chen, OUP 2008 (`chen2008`); Binnig, Quate and Gerber (1986) (`binnig1986`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. A scanning probe over an atomically corrugated surface (top), the interaction law (Lennard-Jones force for AFM, or the exponential tunnelling decay for STM, middle), and the scan signal versus tip position (bottom).
+      <em>Method:</em> closed-form Lennard-Jones potential/force and the STM tunnelling law I ~ V exp(-2 kappa d) (gate-tested sim.js), Canvas2D; the live readouts are the gap, kappa, the per-angstrom current factor, and the instantaneous signal.
+      <em>Source:</em> Chen, OUP 2008 (`chen2008`); Binnig, Quate and Gerber (1986) (`binnig1986`).</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">mode</span><select aria-label="probe mode" id="select-mode" style="grid-column: span 2;"><option value="afm">AFM (Lennard-Jones force)</option><option value="stm-ch">STM constant height</option><option value="stm-cc">STM constant current (topograph)</option></select></div>
     <div class="row"><span class="label">gap / setpoint</span><input aria-label="tip gap in angstrom, x100" type="range" id="slider-gap" min="200" max="900" step="5" value="500"><span class="value" id="value-gap">5.00</span></div>
     <div class="row"><span class="label">work fn phi (eV)</span><input aria-label="work function in eV, x100" type="range" id="slider-phi" min="100" max="800" step="5" value="500"><span class="value" id="value-phi">5.00</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+        <span class="label">gap d</span><span class="value" id="readout-gap">0</span>
+        <span class="label">kappa</span><span class="value" id="readout-kappa">0</span>
+        <span class="label">per A</span><span class="value" id="readout-decade">0</span>
+        <span class="label">signal</span><span class="value" id="readout-signal">0</span>
+      </div><span class="value" id="readout-gap">0</span><span class="value" id="readout-kappa">0</span><span class="value" id="readout-decade">0</span><span class="value" id="readout-signal">0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js?v=20260518r1"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

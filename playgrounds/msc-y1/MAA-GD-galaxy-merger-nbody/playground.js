@@ -16,6 +16,7 @@
 
 import { buildGalaxies, setVelocities, G, THETA, EPS, NTOT, DT } from './model.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -121,9 +122,9 @@ function render() {
     bloom(b1x, b1y, b1n, '255,190,118');
     ctx.globalCompositeOperation = 'source-over';
   }
-  ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0b0'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`3D self-gravitating merger (${NTOT}-body Barnes-Hut, COM frame)`, 12, 20);
-  ctx.fillStyle = 'rgba(154,160,176,0.7)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(154,160,176,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('drag: rotate   wheel: zoom   shift-drag: pan', 12, H - 14);
 
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
@@ -152,7 +153,7 @@ function render() {
       ctx.fillRect(Xp, Yp, 1.5, 1.5);
     }
   }
-  ctx.fillStyle = '#9aa0b0'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0b0'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('integrals of motion (stars, COM frame)', px0, 22);
   ctx.fillText('L_z  (angular momentum)', px0 + 60, H - 16);
   ctx.save();
@@ -311,3 +312,27 @@ window.__physicsCheck = async () => {
   for (let k = 0; k < 3 * snap.NP; k += 311) if (!Number.isFinite(snap.X[k])) finite = false;
   return { name: 'BH state finite', pass: finite, msg: finite ? '10k-body 3D state finite' : 'non-finite state' };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

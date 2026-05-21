@@ -12,6 +12,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -60,7 +61,7 @@ function eraName(a) {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -87,7 +88,7 @@ function drawGrid(x, y, w, h) {
   ctx.strokeStyle = 'rgba(127,209,255,0.55)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.arc(cx, cy, Math.min(Math.min(w, h) * 0.4, hubbleRadius(a, st.p) * uH), 0, 2 * Math.PI); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('particle horizon', x + 12, y + 28);
   ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.fillText('Hubble radius', x + 12, y + 42);
   ctx.fillStyle = 'rgba(200,215,240,0.75)';
@@ -111,7 +112,7 @@ function drawScale(x, y, w, h) {
   // now (a = 1) marker
   ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(st.age0), y0); ctx.lineTo(X(st.age0), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`now: ${st.age0.toFixed(1)} Gyr`, X(st.age0) - 4, y0 + 12);
   const a = curA();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(ageAt(a, st.p, 1500)), Ya(a), 4, 0, 2 * Math.PI); ctx.fill();
@@ -144,9 +145,9 @@ function drawBands(x, y, w, h) {
     ctx.setLineDash(lab === 'now' ? [] : [3, 3]);
     ctx.beginPath(); ctx.moveTo(lx, y0); ctx.lineTo(lx, y1); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = lab === 'now' ? 'rgba(255,209,102,0.9)' : 'rgba(255,255,255,0.6)';
-    ctx.font = '11px monospace'; ctx.fillText(lab, lx + 2, y0 + 10);
+    ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, lx + 2, y0 + 10);
   }
-  ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('log10 a ->', x1 - 64, y1 + 14);
   ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.fillText('rad', x0 + 4, y1 - 4);
   ctx.fillStyle = 'rgba(231,155,255,0.8)'; ctx.fillText('Lambda', x0 + 4, y0 + 22);
@@ -219,4 +220,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

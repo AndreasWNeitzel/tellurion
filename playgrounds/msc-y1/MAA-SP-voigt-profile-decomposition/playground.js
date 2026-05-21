@@ -7,6 +7,7 @@
 
 import { gaussian, lorentzian, voigtConv } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -42,7 +43,7 @@ function render() {
   const ty = (v) => t1 - v / topMax * (t1 - t0 - 16);
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(padL, t1); ctx.lineTo(W - padR, t1); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('Lorentzian (natural) with sliding Gaussian (thermal) kernel', padL, t0 - 8);
   ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let i = 0; i <= 300; i += 1) { const x = -XR + 2 * XR * i / 300; const p = xToPx(x), y = ty(lorentzian(x, st.gamma)); i === 0 ? ctx.moveTo(p, y) : ctx.lineTo(p, y); }
@@ -93,7 +94,7 @@ function render() {
   ctx.beginPath(); ctx.arc(xToPx(tau), by(vTau), 5, 0, 2 * Math.PI); ctx.fill();
 
   const fwhm = Math.sqrt(8 * Math.log(2)) * st.sigma + 2 * st.gamma;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`σ_Gauss = ${st.sigma.toFixed(2)}   γ_Lor = ${st.gamma.toFixed(2)}   Voigt FWHM ~ ${fwhm.toFixed(2)}   V(τ) = ${vTau.toFixed(3)}`, 14, H - 14);
   rF.textContent = fwhm.toFixed(2);
 }
@@ -110,3 +111,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

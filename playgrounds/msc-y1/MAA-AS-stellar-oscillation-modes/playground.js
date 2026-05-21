@@ -3,6 +3,7 @@
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -112,13 +113,13 @@ function render() {
     ctx.fill(); ctx.stroke();
   }
   ctx.fillStyle = 'rgba(220,225,235,0.85)';
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`pulsation mode Y_${state.l}^${state.m} (displacement exaggerated)`, 16, H - 14);
 
   // Propagation diagram (placeholder Lamb and Brunt-Vaisala for an n=3 polytrope).
   const px0 = W * 0.55, py0 = H * 0.2, pw = W * 0.4, ph = H * 0.6;
   ctx.strokeStyle = 'rgba(220,220,240,0.4)'; ctx.strokeRect(px0, py0, pw, ph);
-  ctx.fillStyle = '#dcdde2'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('Propagation diagram (n=3 polytrope)', px0 + 8, py0 + 16);
   ctx.fillText('r/R', px0 + pw - 28, py0 + ph - 6);
   ctx.fillText('freq (uHz)', px0 + 6, py0 + 14 + 14);
@@ -202,3 +203,27 @@ window.__physicsCheck = async () => {
   if (Math.abs(v00 - expected) > 1e-9) return { name: 'Y_0^0 normalization', pass: false, msg: `${v00} vs ${expected}` };
   return { name: 'Y_l^m surface harmonic', pass: true, msg: `Y_0^0 = ${v00.toFixed(6)}` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

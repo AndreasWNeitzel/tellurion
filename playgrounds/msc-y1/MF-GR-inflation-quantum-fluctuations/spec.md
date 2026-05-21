@@ -17,6 +17,19 @@ hero_candidate: true
 renderer: canvas2d
 estimated_engagement_minutes: 6
 share_state_keys: [pot, n, lam]
+invariants:
+  - key: runs
+    label: simulation advances each frame
+    tolerance: 1
+  - key: bounded
+    label: state stays finite
+    tolerance: 1
+  - key: deterministic
+    label: fixed seed reproduces the run
+    tolerance: 1
+what_to_try:
+  - Vary each control and watch the rail readouts respond.
+  - Compare the diagnostic plot against the live scene.
 ---
 
 # Inflation: Slow Roll, Superhorizon Fluctuations, n_s

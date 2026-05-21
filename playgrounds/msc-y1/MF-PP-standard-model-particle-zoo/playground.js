@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -46,7 +47,7 @@ function selId() { return ORDER[Math.min(ORDER.length - 1, Math.floor(st.ph * OR
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -63,9 +64,9 @@ function drawChart(x, y, w, h) {
     ctx.fillRect(px + 3, py + 3, cw - 6, ch - 6);
     if (id === sel) { ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3; ctx.strokeRect(px + 3, py + 3, cw - 6, ch - 6); }
     ctx.globalAlpha = 1;
-    ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.font = '15px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.font = fontString(canvas, 'heading', 'mono');
     ctx.fillText(P.sym, px + 12, py + ch / 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`Q=${P.Q.toFixed(2)}`, px + 12, py + ch / 2 + 16);
   }
   // Higgs tile (right column, spanning)
@@ -74,10 +75,10 @@ function drawChart(x, y, w, h) {
   ctx.fillRect(hx, hy, 80, 4 * ch - 6);
   if (sel === 'H') { ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3; ctx.strokeRect(hx, hy, 80, 4 * ch - 6); }
   ctx.globalAlpha = 1;
-  ctx.fillStyle = '#fff'; ctx.font = '15px monospace'; ctx.fillText('H', hx + 30, hy + 2 * ch);
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px monospace'; ctx.fillText('Higgs', hx + 22, hy + 2 * ch + 16);
+  ctx.fillStyle = '#fff'; ctx.font = fontString(canvas, 'heading', 'mono'); ctx.fillText('H', hx + 30, hy + 2 * ch);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('Higgs', hx + 22, hy + 2 * ch + 16);
   // legend
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   let lx = gx;
   for (const [t, col] of Object.entries(TYPE_COL)) {
     if (t === 'hadron') continue;
@@ -98,7 +99,7 @@ function drawCard(x, y, w, h) {
     ['baryon B', P.B.toFixed(3)], ['lepton (e,mu,tau)', `${P.Le}, ${P.Lmu}, ${P.Ltau}`],
     ['forces', P.forces.join(', ')],
   ];
-  ctx.font = '12px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   rows.forEach((rw, i) => {
     const yy = y + 40 + i * 22;
     ctx.fillStyle = 'rgba(160,180,220,0.8)'; ctx.fillText(rw[0], x + 16, yy);
@@ -112,21 +113,21 @@ function drawDecay(x, y, w, h) {
   const r = checkDecay(D.parent, D.daughters);
   const pSym = PARTICLES[D.parent.id].sym;
   const dStr = D.daughters.map((l) => (l.anti ? 'anti-' : '') + PARTICLES[l.id].sym).join(' + ');
-  ctx.fillStyle = 'rgba(235,240,250,0.95)'; ctx.font = '13px monospace';
+  ctx.fillStyle = 'rgba(235,240,250,0.95)'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`${pSym}  ->  ${dStr}`, x + 16, y + 38);
   const laws = [['charge', r.laws.charge], ['baryon', r.laws.baryon], ['L_e', r.laws.Le], ['L_mu', r.laws.Lmu], ['L_tau', r.laws.Ltau]];
-  ctx.font = '12px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   laws.forEach((lw, i) => {
     const yy = y + 64 + i * 22;
     ctx.fillStyle = 'rgba(160,180,220,0.8)'; ctx.fillText(lw[0], x + 20, yy);
     ctx.fillStyle = lw[1] ? '#8fe39b' : '#ff8f8f';
     ctx.fillText(lw[1] ? 'conserved  OK' : 'VIOLATED  X', x + 130, yy);
   });
-  ctx.font = '12px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(160,180,220,0.8)'; ctx.fillText('Q-value', x + 20, y + 64 + 5 * 22);
   ctx.fillStyle = r.kinematic ? '#8fe39b' : '#ff8f8f';
   ctx.fillText(`${r.Qvalue.toFixed(2)} MeV ${r.kinematic ? '(allowed)' : '(forbidden)'}`, x + 130, y + 64 + 5 * 22);
-  ctx.font = '13px monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillStyle = r.allowed ? '#8fe39b' : '#ff8f8f';
   ctx.fillText(r.allowed ? 'DECAY ALLOWED' : 'DECAY FORBIDDEN', x + 16, y + h - 12);
 }
@@ -194,4 +195,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

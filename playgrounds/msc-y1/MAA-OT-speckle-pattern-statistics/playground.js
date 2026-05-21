@@ -8,6 +8,7 @@
 // Goodman, Speckle Phenomena in Optics; Roddier, Adaptive Optics.
 import { boilField, expectedSpeckleCount, negExpPdf } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -56,7 +57,7 @@ function blit(I, target, x0, y0, gamma) {
 function render() {
   if (!CAPTURE_NAME && running) st.t += 0.05;
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A star through turbulence does not make a dot, it boils into speckles', 18, 26);
 
   const Deff = Math.sqrt(modes());
@@ -69,7 +70,7 @@ function render() {
   const longAvg = new Float64Array(NP * NP);
   for (let i = 0; i < longAvg.length; i += 1) longAvg[i] = longSum[i] / Math.max(1, longN);
   blit(longAvg, idLong, lxR, gy0, 0.5);
-  ctx.fillStyle = '#64748b'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('short exposure (boiling speckle)', gx0, gy0 + IMG + 18);
   ctx.fillText(`long exposure (seeing disk, ${longN} frames)`, lxR, gy0 + IMG + 18);
   ctx.fillStyle = '#ffd166';
@@ -103,13 +104,13 @@ function render() {
   ctx.strokeStyle = 'rgba(226,232,240,0.14)';
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = '#94a3b8';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('intensity histogram (cyan) vs analytic ground-truth p(x) = exp(-x) (red)', px0 + 8, py0 + 15);
   const innerW = pw - 50, baseY = py0 + ph - 24, plotH = ph - 44;
   // Y-axis gridlines + labels.
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
   ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let yv = 0.0; yv <= yMax + 1e-6; yv += 0.25) {
     const yy = baseY - (yv / yMax) * plotH;
     ctx.beginPath(); ctx.moveTo(px0 + 36, yy); ctx.lineTo(px0 + 36 + innerW, yy); ctx.stroke();
@@ -149,19 +150,19 @@ function render() {
   ctx.fillStyle = 'rgba(91, 192, 235, 0.85)';
   ctx.fillRect(px0 + pw - 240, py0 + 22, 14, 8);
   ctx.fillStyle = '#94a3b8';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`observed histogram (N = ${nInRange})`, px0 + pw - 222, py0 + 30);
   ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 2.4;
   ctx.beginPath(); ctx.moveTo(px0 + pw - 240, py0 + 42); ctx.lineTo(px0 + pw - 226, py0 + 42); ctx.stroke();
   ctx.fillStyle = '#94a3b8';
   ctx.fillText('analytic p(x) = exp(-x)', px0 + pw - 222, py0 + 46);
   ctx.fillStyle = '#ffd166';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillText(`speckle contrast V = sigma/mean = ${V.toFixed(2)}  (fully developed -> 1)`, px0 + pw - 8, py0 + 15);
   ctx.textAlign = 'left';
 
-  ctx.fillStyle = '#94a3b8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('short exposure freezes speckles; the long exposure averages them into the seeing disk', 18, H - 16);
   rN.textContent = expectedSpeckleCount(st.Dr0, 1).toFixed(0);
 }
@@ -182,3 +183,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

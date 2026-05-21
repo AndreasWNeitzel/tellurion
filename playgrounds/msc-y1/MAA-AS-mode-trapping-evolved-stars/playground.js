@@ -14,6 +14,7 @@
 // Asteroseismology, Ch. 3.
 import { deltaP, modePeriods, trapping, gModeEnvelope, gModePhase } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -64,7 +65,7 @@ function render() {
   const nOrd = 7 + i * 0.5;
 
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A buoyancy glitch traps some g-modes: the eigenfunction shows which', 18, 24);
 
   // star-interior panel
@@ -82,7 +83,7 @@ function render() {
   const ng = ctx.createLinearGradient(0, nTop, 0, nBot);
   ng.addColorStop(0, 'rgba(91,192,235,0.5)'); ng.addColorStop(1, 'rgba(91,192,235,0.05)');
   ctx.fillStyle = ng; ctx.fill();
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('buoyancy frequency N(r)', x0 + 8, nTop + 12);
   // glitch marker
   ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
@@ -115,23 +116,23 @@ function render() {
   ctx.strokeStyle = trap > 0.5 ? 'rgba(255,209,102,0.25)' : 'rgba(6,214,160,0.22)';
   ctx.lineWidth = 6; ctx.stroke();
   ctx.lineWidth = 1;
-  ctx.fillStyle = trap > 0.5 ? '#ffd166' : '#06d6a0'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = trap > 0.5 ? '#ffd166' : '#06d6a0'; ctx.font = fontString(canvas, 'body');
   ctx.fillText(trap > 0.5 ? 'mode TRAPPED: rings at the glitch (a deltaP dip)' : 'mode propagating across the cavity', x0 + 8, 48);
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('radial displacement xi(r)   <-- centre        fractional radius r/R        surface -->', x0 + 8, pb + 16);
 
   // recovered asymptotic spacing: the live invariant
   let mean = 0;
   for (let k = 0; k < NM - 1; k += 1) mean += ps[k + 1] - ps[k];
   mean /= (NM - 1);
-  ctx.fillStyle = '#cbd5e1'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`mean deltaP = ${mean.toFixed(2)} s   (asymptotic Pi_1 = ${st.Pi.toFixed(0)} s)   P_trap = ${st.Ptrap.toFixed(0)} s   mode n ~ ${nOrd.toFixed(0)}   trapping = ${(trap * 100).toFixed(0)}%`, 18, pb + 38);
 
   // demoted diagnostic: the period-spacing diagram deltaP(P) vs P
   const dx0 = 60, dx1 = W - 24, dy0 = H - 110, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: period-spacing  deltaP vs P  (what Kepler/TESS observe)', dx0 + 8, dy0 + 12);
   const Pmin = ps[1], Pmax = ps[NM - 1];
   const dLo = st.Pi * (1 - st.A) * 0.9, dHi = st.Pi * (1 + st.A) * 1.1;
@@ -159,3 +160,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

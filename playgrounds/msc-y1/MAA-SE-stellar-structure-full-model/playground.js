@@ -11,6 +11,7 @@ import {
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -60,7 +61,7 @@ function vcol(t, a = 1) {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -128,7 +129,7 @@ function drawStar(x, y, w, h) {
   // legend (only zones that occur)
   const present = new Set(); for (let i = 1; i <= n; i += 1) present.add(zoneOf(m, i));
   let ly = y + h - 10;
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   let lx = x + 10;
   for (let z = 0; z < 4; z += 1) {
     if (!present.has(z)) continue;
@@ -158,7 +159,7 @@ function drawProfiles(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 2, py + 2, 150, 16);
   let lx = px + 6;
   for (const [name, , , col] of series) {
@@ -193,7 +194,7 @@ function drawEpsHR(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(ax + 2, ay + 2, 96, 16);
   let lx = ax + 6;
   for (const [name, , col] of comps) { ctx.fillStyle = col; ctx.fillText(name, lx, ay + 13); lx += name.length * 7 + 14; }
@@ -219,7 +220,7 @@ function drawEpsHR(x, y, w, h) {
   const zp = zamsPoint(massMsun());
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(HX(Math.log10(zp.Teff)), HY(Math.log10(zp.L)), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('ZAMS', hx + 6, hy + 12);
   ctx.fillText('hot  <- log Teff', hx + 4, hy + hh + 14);
   ctx.save(); ctx.translate(hx - 4, hy + hh / 2); ctx.rotate(-Math.PI / 2);
@@ -321,4 +322,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -10,6 +10,7 @@
 // Eisenstein et al. 2005; Weinberg, Cosmology Ch. 8.
 import { soundSpeed, soundHorizon, baoXi, C_KM_S } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -38,7 +39,7 @@ const mpcToPx = (mpc) => mpc / MPC_VIEW * MAXR;
 function render() {
   if (!CAPTURE_NAME && running) { st.t += 4; if (st.t > T_REC + 220) st.t = 0; }
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A ripple in the infant universe freezes into a 150 Mpc standard ruler', 18, 26);
 
   const cs = soundSpeed(st.R);
@@ -79,11 +80,11 @@ function render() {
     const rpx = mpcToPx(rs);
     ctx.strokeStyle = 'rgba(255,209,102,0.55)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(CX + rpx, CY); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#ffd166'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`r_s = ${rs.toFixed(0)} Mpc`, CX + rpx / 2, CY - 8);
     ctx.textAlign = 'left';
   }
-  ctx.fillStyle = '#94a3b8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('CDM core', CX - 30, CY + 44);
   ctx.fillStyle = shellFrozen ? '#ffd166' : '#64748b';
   ctx.fillText(shellFrozen ? 'baryon shell FROZEN at the sound horizon' : `sound wave expanding at c_s = ${cs.toFixed(0)} km/s`, 26, 56);
@@ -95,7 +96,7 @@ function render() {
   ctx.fillStyle = '#5bc0eb'; ctx.fillRect(tlx, tly, tlw * Math.min(1, st.t / (T_REC + 220)), 5);
   const recx = tlx + tlw * T_REC / (T_REC + 220);
   ctx.strokeStyle = '#ffd166'; ctx.beginPath(); ctx.moveTo(recx, tly - 5); ctx.lineTo(recx, tly + 10); ctx.stroke();
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`t = ${st.t.toFixed(0)} kyr`, tlx, tly - 8);
   ctx.fillStyle = '#ffd166'; ctx.fillText('recombination ~380 kyr', recx - 60, tly + 24);
 
@@ -103,7 +104,7 @@ function render() {
   const pX = 470, pY = 90, pW = W - pX - 24, pH = 150;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(pX, pY, pW, pH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(pX + 0.5, pY + 0.5, pW - 1, pH - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('density profile rho(r)', pX + 8, pY + 14);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let i = 0; i <= 120; i += 1) {
@@ -122,7 +123,7 @@ function render() {
   const qX = 470, qY = pY + pH + 20, qW = pW, qH = 150;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(qX, qY, qW, qH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(qX + 0.5, qY + 0.5, qW - 1, qH - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('galaxy correlation xi(r): the BAO bump at r_s', qX + 8, qY + 14);
   let xmax = 1e-9;
   for (let i = 5; i <= 120; i += 1) xmax = Math.max(xmax, baoXi(i / 120 * MPC_VIEW, rs));
@@ -137,7 +138,7 @@ function render() {
   const bx = qX + 8 + rs / MPC_VIEW * (qW - 16);
   ctx.strokeStyle = 'rgba(255,209,102,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(bx, qY + 16); ctx.lineTo(bx, qY + qH - 14); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#ffd166'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('r_s', bx, qY + qH - 3); ctx.textAlign = 'left';
 
   rR.textContent = `${rs.toFixed(0)} Mpc`;
@@ -156,3 +157,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

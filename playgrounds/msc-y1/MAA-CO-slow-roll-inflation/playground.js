@@ -9,6 +9,7 @@
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { V as simV, Vp as simVp, Vpp as simVpp, epsilon as simEpsilon, eta as simEta, nsR_atN as simNsRatN } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -104,7 +105,7 @@ function drawPotential() {
     const ex = xFor(phiEnd);
     ctx.strokeStyle = '#ff5d5d'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(ex, y0 - plotH); ctx.lineTo(ex, y0); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#ff5d5d'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#ff5d5d'; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left';
     ctx.fillText('epsilon = 1: inflation ends -> reheating', ex + 6, y0 - plotH + 26);
   }
 
@@ -121,9 +122,9 @@ function drawPotential() {
   ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(bx, by, 16, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(bx, by, 6, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = '#dcdde2'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'body'); ctx.textAlign = 'left';
   ctx.fillText('inflaton rolling down V(phi)', x0 + 8, y0 - plotH + 14);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px sans-serif';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption');
   ctx.fillText('phi', x0 + plotW - 18, y0 + 16);
   const inflating = epsilon(state.phi) < 1;
   ctx.fillStyle = inflating ? '#06d6a0' : '#ff5d5d';
@@ -160,11 +161,11 @@ function drawUniverse() {
   }
   ctx.restore();
 
-  ctx.fillStyle = '#dcdde2'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'body'); ctx.textAlign = 'left';
   ctx.fillText('comoving patch of the universe', px0 + 8, py0 + 16);
-  ctx.font = '22px ui-monospace, monospace'; ctx.fillStyle = '#ffd57f';
+  ctx.font = fontString(canvas, 'title', 'mono'); ctx.fillStyle = '#ffd57f';
   ctx.fillText(`N = ${state.N.toFixed(1)} e-folds`, px0 + 8, py0 + ph - 36);
-  ctx.font = '11px sans-serif'; ctx.fillStyle = '#9aa0a6';
+  ctx.font = fontString(canvas, 'caption'); ctx.fillStyle = '#9aa0a6';
   ctx.fillText('~60 e-folds solve the horizon/flatness problems', px0 + 8, py0 + ph - 14);
 }
 
@@ -180,7 +181,7 @@ function drawNsR() {
   ctx.fillStyle = 'rgba(6,214,160,0.16)';
   ctx.beginPath(); ctx.ellipse(sx(0.965), sy(0.02), pw * 0.10, ph * 0.16, 0, 0, 2 * Math.PI); ctx.fill();
   ctx.strokeStyle = 'rgba(6,214,160,0.5)'; ctx.stroke();
-  ctx.fillStyle = '#06d6a0'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left';
   ctx.fillText('Planck-favoured', sx(0.965) - 36, sy(0.02) - ph * 0.16 - 4);
 
   // Inflation track: the slow-roll prediction versus the number of
@@ -201,9 +202,9 @@ function drawNsR() {
   const { ns: nsC, r: rC } = nsR_atN(55);
   const cxp = sx(Math.max(nsMin, Math.min(nsMax, nsC))), cyp = sy(Math.min(rMax, rC));
   ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(cxp, cyp, 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#dcdde2'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`(n_s, r) at N=55   model: ${state.model}   n_s=${nsC.toFixed(3)} r=${rC.toFixed(3)}`, x0 + 8, y0 + 16);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'right';
   ctx.fillText('n_s ->', x0 + pw - 6, y0 + ph - 6);
 }
 
@@ -267,3 +268,27 @@ window.__physicsCheck = async () => {
   if (Math.abs(e - expected) > 1e-4) return { name: 'epsilon', pass: false, msg: `e(8) = ${e}` };
   return { name: 'slow-roll epsilon', pass: true, msg: `epsilon_phi2(8) = ${e.toFixed(4)} (expected 0.0156)` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

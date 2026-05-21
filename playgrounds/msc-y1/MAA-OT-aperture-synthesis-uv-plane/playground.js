@@ -12,6 +12,7 @@
 import { stationXYZ, baselineLambda, uv, maxBaseline, resolutionMas, dirtyBeam } from './sim.js';
 import { cividis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -132,7 +133,7 @@ function dirtyStep() {
 function panel(x, y, w, h, title) {
   ctx.strokeStyle = 'rgba(220,226,240,0.28)'; ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = '#cdd3e2'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#cdd3e2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(title, x + 8, y + 16);
 }
 
@@ -164,7 +165,7 @@ function render() {
     const t = telescopes[i], [x, y] = mapXY(t.lat, t.lon);
     ctx.fillStyle = st.drag === i ? '#fff' : '#ffd57f';
     ctx.beginPath(); ctx.arc(x, y, st.drag === i ? 6 : 4.5, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = '#aeb6c6'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#aeb6c6'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(t.name, x + 7, y + 3);
   }
 
@@ -183,7 +184,7 @@ function render() {
     ctx.fillStyle = `hsla(${(sm.pair * 47) % 360},75%,62%,0.55)`;
     ctx.fillRect(x, y, 1.6, 1.6);
   }
-  ctx.fillStyle = '#8893a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#8893a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right'; ctx.fillText(`${(uvMax / 1e6).toFixed(0)} Mλ`, UVp.x + UVp.w - 6, cy - 4);
   ctx.textAlign = 'left';
   ctx.fillText('u', UVp.x + UVp.w - 14, cy + 14);
@@ -210,7 +211,7 @@ function render() {
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(off, 0, 0, IMG_N, IMG_N, UVp.x + (UVp.w - sz) / 2, botY + 24, sz, sz);
   } else {
-    ctx.fillStyle = '#5a6477'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText('accumulating UV coverage...', UVp.x + UVp.w / 2, botY + botH / 2);
     ctx.textAlign = 'left';
   }
@@ -218,7 +219,7 @@ function render() {
   // readout drawn on-canvas in the clear top band (the DOM overlay
   // collided with the map); hidden DOM node kept for the aria role.
   const res = resolutionMas(xyz, LAMBDA_MM);
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = '#cdd3e2';
   ctx.fillText('Earth-rotation aperture synthesis', MAP.x, 22);
   ctx.fillStyle = '#8893a6';
@@ -301,3 +302,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

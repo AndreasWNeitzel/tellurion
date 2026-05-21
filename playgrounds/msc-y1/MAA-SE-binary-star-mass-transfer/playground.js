@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -49,7 +50,7 @@ function current() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -76,7 +77,7 @@ function drawRoche(x, y, w, h) {
     ctx.stroke();
   }
   // Lagrange points
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const [name, p] of Object.entries(lp)) {
     ctx.fillStyle = 'rgba(200,210,235,0.8)';
     ctx.beginPath(); ctx.arc(PX(p[0]), PY(p[1]), 2.5, 0, 2 * Math.PI); ctx.fill();
@@ -114,7 +115,7 @@ function drawRoche(x, y, w, h) {
     }
     ctx.fillStyle = '#ffd166'; ctx.fillText('L1 overflow stream + disk', x + 12, y + h - 10);
   } else {
-    ctx.fillStyle = 'rgba(155,232,176,0.8)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(155,232,176,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('detached: donor under-fills its Roche lobe', x + 12, y + h - 10);
   }
 }
@@ -140,15 +141,15 @@ function drawEvolution(x, y, w, h) {
   let iMin = 0; for (let i = 1; i <= N; i += 1) if (aArr[i] < aArr[iMin]) iMin = i;
   ctx.strokeStyle = 'rgba(255,120,120,0.55)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(iMin), py); ctx.lineTo(X(iMin), py + ph); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,150,150,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,150,150,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('a min (q->1)', X(iMin) + 4, py + ph - 6);
   // current operating point
   const dmNow = Math.min(dmKg(), 0.8 * M1), iNow = Math.round(N * dmNow / dmMax);
   ctx.fillStyle = '#6fb4ff';
   ctx.beginPath(); ctx.arc(X(iNow), Ya(aArr[Math.min(N, iNow)]), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(230,236,250,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(230,236,250,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`a = ${(aArr[Math.min(N, iNow)] / RSUN).toFixed(2)} Rsun,  P = ${(pArr[Math.min(N, iNow)] / DAY).toFixed(3)} d`, px, y + 30);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('a (Rsun)', x + 8, py + 4);
   ctx.fillText('0', px - 4, py + ph + 14); ctx.fillText('transferred dM ->', px + pw / 2 - 36, py + ph + 14);
 }
@@ -177,7 +178,7 @@ function drawStability(x, y, w, h) {
   for (const [z, col, lab] of [[0.6, 'rgba(111,180,255,0.7)', 'radiative zeta=0.6'], [-1 / 3, 'rgba(155,232,176,0.7)', 'convective zeta=-1/3']]) {
     ctx.strokeStyle = col; ctx.setLineDash([4, 3]);
     ctx.beginPath(); ctx.moveTo(px, Y(z)); ctx.lineTo(px + pw, Y(z)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = col; ctx.font = '11px monospace'; ctx.fillText(lab, px + pw - 116, Y(z) - 4);
+    ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, px + pw - 116, Y(z) - 4);
   }
   // current q marker + classification
   const cls = classify(s.M1, s.M2, s.a, fillFrac() * s.a * eggletonRL(s.q), 0.6);
@@ -185,12 +186,12 @@ function drawStability(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(X(s.q), py); ctx.lineTo(X(s.q), py + ph); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#fff';
   ctx.beginPath(); ctx.arc(X(s.q), Y(Math.max(zMin, Math.min(zMax, zetaLobe(s.M1, s.M2, s.a)))), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (const q of [0.1, 0.5, 1, 2, 5, 10]) ctx.fillText(`${q}`, X(q) - 5, py + ph + 13);
   ctx.fillText('q = M1/M2 (log)', px + pw / 2 - 44, py + ph + 25);
   ctx.fillText('zeta_L', x + 8, py + 4);
   const col = cls.state === 'detached' ? '#9be8b0' : cls.state === 'stable transfer' ? '#6fb4ff' : '#ff8f8f';
-  ctx.fillStyle = col; ctx.font = '12px monospace';
+  ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`state: ${cls.state.toUpperCase()}   R/R_L = ${cls.fill.toFixed(2)}`, px, y + h - 9);
 }
 
@@ -261,4 +262,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

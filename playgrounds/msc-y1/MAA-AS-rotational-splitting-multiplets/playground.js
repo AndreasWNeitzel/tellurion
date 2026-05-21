@@ -14,6 +14,7 @@
 
 import { ledoux, splittedFreq } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -82,7 +83,7 @@ function drawStar(cx, cy, RST, ph) {
   // Rotation axis and spin arrow.
   ctx.strokeStyle = 'rgba(220,225,235,0.55)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(cx, cy - RST * cT - 18); ctx.lineTo(cx, cy + RST * cT + 18); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#dcdde2'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`Ω = ${st.Omega.toFixed(2)} μHz`, cx, cy + RST + 30);
   ctx.fillText(`ℓ = ${l},  m = ±ℓ sectoral,  ${st.isG ? 'g' : 'p'}-mode`, cx, cy + RST + 48);
   ctx.textAlign = 'left';
@@ -101,7 +102,7 @@ function drawSpectrum(x0, x1, yb, yt) {
   const TH = st.isG ? { f: 'rgba(76,201,240,0.18)', s: '#4cc9f0' } : { f: 'rgba(255,209,102,0.16)', s: '#ffd166' };
   ctx.strokeStyle = '#3a3a44'; ctx.lineWidth = 1; ctx.beginPath();
   ctx.moveTo(x0, yb); ctx.lineTo(x1, yb); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('observed multiplet', x0, yt - 10);
   // Rigid m*Omega reference comb.
   for (let m = -st.l; m <= st.l; m += 1) {
@@ -119,13 +120,13 @@ function drawSpectrum(x0, x1, yb, yt) {
     const pxc = xOf(c.nu), pk = yb - power(c.nu) / pmax * (yb - yt) * 0.92;
     ctx.strokeStyle = c.m === 0 ? '#06d6a0' : TH.s; ctx.lineWidth = c.m === 0 ? 2 : 1;
     ctx.beginPath(); ctx.moveTo(pxc, yb); ctx.lineTo(pxc, pk); ctx.stroke();
-    ctx.fillStyle = c.m === 0 ? '#06d6a0' : TH.s; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = c.m === 0 ? '#06d6a0' : TH.s; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`m=${c.m}`, pxc, pk - 5); ctx.textAlign = 'left';
   }
   ctx.fillStyle = 'rgba(6,214,160,0.6)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(xOf(NU0), yt - 4); ctx.lineTo(xOf(NU0), yb); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#06d6a0'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('ν₀', xOf(NU0) + 4, yt + 4);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('ν₀', xOf(NU0) + 4, yt + 4);
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`C=${C.toFixed(3)}  δν=${split.toFixed(3)} μHz  (2ℓ+1)=${2 * st.l + 1}`, x0, yb + 22);
   ctx.fillText('dashed: rigid m·Ω (C=0)', x0, yb + 38);
   rD.textContent = split.toFixed(3);
@@ -147,3 +148,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); startLoop(); }, { once: true }); } else { bootSync(); startLoop(); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

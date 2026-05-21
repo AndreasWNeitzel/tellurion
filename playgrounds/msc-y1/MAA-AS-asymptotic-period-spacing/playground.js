@@ -7,6 +7,7 @@
 // closed-form WKB construction and references.
 import { PROFILES, brunt, phaseIntegral, pi1FromProfile, Pi_l, evolutionStage, modeProfileArray } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -139,7 +140,7 @@ function drawCrossSection(ox, oy, R) {
 
   // Labels.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('photosphere', ox + R + 4, oy - R + 6);
   ctx.fillStyle = 'rgba(120,200,255,0.75)';
@@ -164,7 +165,7 @@ function drawBruntPanel(x0, y0, w, h) {
   ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillText('8', ax - 4, ay + 8);
   ctx.fillText('0', ax - 4, ay + ah);
@@ -230,7 +231,7 @@ function drawCombPanel(x0, y0, w, h) {
   const xToPx = (P) => ax + (P - Pmin) / (Pmax - Pmin) * aw;
 
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`P (s),  Π_${st.l} = ${st.Pi1.toFixed(1)}`, ax, ay - 4);
 
@@ -273,7 +274,7 @@ function render() {
 
   // Title strip under the star.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`profile: ${st.profile.toUpperCase()}    ℓ = ${st.l}    n = ${st.n}`, 20, 22);
   const stage = evolutionStage(Pi_l(pi1FromProfile(PROFILES[st.profile]) * Math.sqrt(2), 1));
@@ -356,4 +357,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

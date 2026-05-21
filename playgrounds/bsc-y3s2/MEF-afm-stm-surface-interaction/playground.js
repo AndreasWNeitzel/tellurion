@@ -14,6 +14,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -90,9 +91,9 @@ function drawMicrograph() {
   ctx.fillStyle = '#ffcf6b';
   ctx.beginPath(); ctx.moveTo(tipX - 7, sy - 26); ctx.lineTo(tipX, sy); ctx.lineTo(tipX + 7, sy - 26); ctx.closePath(); ctx.fill();
   ctx.strokeStyle = 'rgba(226,232,240,0.3)'; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, s - 1, s - 1);
-  ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('micrograph: the tip raster-scans an atomic lattice', x, y - 8);
-  ctx.fillStyle = '#8893a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#8893a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${XMAX} A`, x + s - 30, y + s + 14);
 }
 
@@ -102,7 +103,7 @@ function drawLaw(px0, py0, pw, ph) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(px0, py0, pw, ph);
   ctx.strokeStyle = 'rgba(226,232,240,0.2)'; ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.save(); ctx.beginPath(); ctx.rect(px0, py0, pw, ph); ctx.clip();
-  ctx.fillStyle = 'rgba(226,232,240,0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(226,232,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   if (st.mode === 'afm') {
     ctx.fillText('Lennard-Jones force F(d): F=0 at 2^(1/6) sigma', px0 + 8, py0 + 14);
     const dMin = 1.6, dMax = 9;
@@ -149,7 +150,7 @@ function rowProfile(wy) {
 function drawScan(px0, py0, pw, ph) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(px0, py0, pw, ph);
   ctx.strokeStyle = 'rgba(226,232,240,0.2)'; ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = 'rgba(226,232,240,0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(226,232,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   const lbl = st.mode === 'afm' ? 'AFM force along the current scan row'
     : st.mode === 'stm-ch' ? 'STM constant-height current along the row'
       : 'STM constant-current tip height along the row (topograph)';
@@ -229,4 +230,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

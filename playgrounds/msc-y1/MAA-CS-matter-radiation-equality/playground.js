@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -114,13 +115,13 @@ function drawUniverse(c, a) {
   }
   ctx.restore();
 
-  ctx.fillStyle = c.fg; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'body'); ctx.textAlign = 'left';
   ctx.fillText('expanding universe: contents by epoch', x0 + 8, y0 + 16);
-  ctx.font = '20px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'title', 'mono');
   ctx.fillStyle = ep === 'radiation' ? '#ef6fa0' : ep === 'matter' ? '#ffd166' : '#a78bfa';
   ctx.fillText(`${ep}-dominated`, x0 + 8, y0 + ph - 34);
   const z = 1 / a - 1;
-  ctx.font = '12px ui-monospace, monospace'; ctx.fillStyle = c.muted;
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = c.muted;
   ctx.fillText(`a = ${a.toExponential(2)}   z = ${z > 0 ? z.toExponential(2) : '0'}`, x0 + 8, y0 + ph - 12);
   ctx.textAlign = 'right'; ctx.fillStyle = '#5bc0eb';
   ctx.fillText('photons redshift + dilute ~ a^-4', x0 + pw - 8, y0 + 16);
@@ -164,14 +165,14 @@ function drawDensity(c, a) {
     const xe = xFor(Math.log10(aeq));
     ctx.strokeStyle = '#ef476f'; ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(xe, y0); ctx.lineTo(xe, y1); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('a_eq', xe + 4, y0 + 12);
   }
   // Synced marker at the current scale factor.
   const xm = xFor(Math.max(aMinLog, Math.min(aMaxLog, Math.log10(a))));
   ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(xm, y0); ctx.lineTo(xm, y1); ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('rho/rho_crit  vs  a   (blue=radiation, gold=matter, violet=Lambda)', x0 + 6, y0 + 10);
   ctx.textAlign = 'right';
   ctx.fillText('a ->', x1 - 4, y1 + 14);
@@ -221,4 +222,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

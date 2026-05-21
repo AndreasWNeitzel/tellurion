@@ -10,6 +10,7 @@
 // and Madore, ARA&A 48, 673 (2010).
 import { dParallax, MVCepheid, dHubble, ladder, H0 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -78,9 +79,9 @@ function render() {
     if (!state.dragging) state.targetLog = 5.2 + 4.4 * (0.5 + 0.5 * Math.sin(state.phase * 0.5));
   }
   ctx.fillStyle = '#080b14'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '17px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Cosmic distance ladder: one logarithmic ruler of the universe', 18, 28);
-  ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Each method has a working range; neighbours overlap, and that overlap is where the calibration is handed up.', 18, 48);
 
   // signpost objects above the ruler
@@ -91,13 +92,13 @@ function render() {
     ctx.beginPath(); ctx.arc(x, RY - 70, 2.6, 0, 6.2832); ctx.fill();
     ctx.strokeStyle = 'rgba(100,116,139,0.4)'; ctx.beginPath(); ctx.moveTo(x, RY - 66); ctx.lineTo(x, RY - 6); ctx.stroke();
     ctx.save(); ctx.translate(x, RY - 76); ctx.rotate(-Math.PI / 4);
-    ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace'; lbl(o.n, 0, 0); ctx.restore();
+    ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono'); lbl(o.n, 0, 0); ctx.restore();
   }
   // the ruler + labelled unit ticks
   ctx.strokeStyle = 'rgba(226,232,240,0.5)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(AX.x0, RY); ctx.lineTo(AX.x1, RY); ctx.stroke(); ctx.lineWidth = 1;
   const TICKS = [[0, '1 pc'], [1, '10 pc'], [2, '100 pc'], [3, '1 kpc'], [4, '10 kpc'], [5, '100 kpc'], [6, '1 Mpc'], [7, '10 Mpc'], [8, '100 Mpc'], [9, '1 Gpc'], [10, '10 Gpc']];
-  ctx.textAlign = 'center'; ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'center'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (const [L, lab] of TICKS) {
     const x = xOf(L);
     ctx.strokeStyle = 'rgba(148,163,184,0.25)'; ctx.beginPath(); ctx.moveTo(x, RY - 6); ctx.lineTo(x, RY + 6); ctx.stroke();
@@ -118,13 +119,13 @@ function render() {
       if (ob > oa) {
         ctx.fillStyle = 'rgba(245,200,66,0.14)';
         ctx.fillRect(oa, p.yc + 8, ob - oa, (r.yc - 8) - (p.yc + 8));
-        ctx.fillStyle = '#e8c878'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#e8c878'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
         lbl('calibration handed up', (oa + ob) / 2, (p.yc + r.yc) / 2 + 3); ctx.textAlign = 'left';
       }
     }
-    ctx.fillStyle = '#e2e8f0'; ctx.font = '12px sans-serif';
+    ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'caption');
     lbl(`${r.name}`, xa + 4, r.yc - 13);
-    ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
     lbl(`${fmtPc(Math.pow(10, r.lo))} - ${fmtPc(Math.pow(10, r.hi))}`, xa + 4, r.yc + 22);
     // the slider-driven anchor for this rung (where its physics is set)
     const anchorPc = ladder(state)[i];
@@ -147,7 +148,7 @@ function render() {
   const dpc = Math.pow(10, state.targetLog);
   const act = activeRungs(state.targetLog);
   const lx = Math.max(AX.x0 + 78, Math.min(AX.x1 - 82, cx));   // keep label clear of edges and the readout panel
-  ctx.fillStyle = '#f5c842'; ctx.font = 'bold 14px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#f5c842'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'center';
   lbl(`${fmtPc(dpc)}   +/- ${(errF * 100).toFixed(0)}%`, lx, RY - 94);
   ctx.textAlign = 'left';
 
@@ -155,7 +156,7 @@ function render() {
   const dy = H - 96, dh = 78;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(AX.x0, dy, AX.x1 - AX.x0, dh);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(AX.x0 + 0.5, dy + 0.5, AX.x1 - AX.x0 - 1, dh - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('cumulative distance error climbing the ladder (diagnostic)', AX.x0 + 8, dy + 14);
   ctx.strokeStyle = '#4f9cf9'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let k = 0; k <= 200; k += 1) {
@@ -230,3 +231,27 @@ window.__physicsCheck = async () => {
   if (Math.abs(MVCepheid(10) + 4.13) > 0.01) return { name: 'Leavitt', pass: false, msg: 'M_V(10 d) wrong' };
   return { name: 'parallax + Cepheid + Hubble', pass: true, msg: `d(1 mas)=1000 pc; M_V(10 d)=-4.13; d(z=0.1)=${(dHubble(0.1) / 1e6).toFixed(0)} Mpc` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

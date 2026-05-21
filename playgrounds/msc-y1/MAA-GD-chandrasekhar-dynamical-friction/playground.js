@@ -14,6 +14,7 @@
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { fOfX, chandrasekharDecel } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const SEED = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
@@ -139,7 +140,7 @@ function render() {
       `<span class="label">f(X)</span><span class="value">${fOfX(X).toFixed(3)}</span>` +
       `<span class="label">t</span><span class="value">${state.t.toFixed(1)}</span>`;
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('satellite sinking by dynamical friction; heavier ⇒ faster inspiral, bigger wake', 16, H - 14);
 }
 
@@ -187,3 +188,27 @@ window.__physicsCheck = async () => {
   if (fLo >= 0.05) return { name: 'friction at V=0.1σ', pass: false, msg: `f=${fLo.toFixed(3)}` };
   return { name: 'Chandrasekhar f(X) limits', pass: true, msg: `f(3σ)=${fHi.toFixed(3)}, f(0.1σ)=${fLo.toFixed(3)}` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

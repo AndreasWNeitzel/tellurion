@@ -12,6 +12,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -43,7 +44,7 @@ function ballRho() {
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -88,7 +89,7 @@ function drawSurface(x, y, w, h) {
   // the ball at (rho_ball, theta = pi/4)
   const pb = P3(Math.min(rhoMax, ballRho()), Math.PI / 4);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(pb.sx, pb.sy, 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`v(T) = ${ballRho().toFixed(3)}  (v0 = ${vev(mu2(), lam()).toFixed(3)})`, x + 12, y + h - 10);
 }
 
@@ -110,7 +111,7 @@ function drawSlice(x, y, w, h) {
   const vb = ballRho();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(vb), Y(Vfinite(vb, mu2(), lam(), T)) - 6, 5, 0, 2 * Math.PI); ctx.fill();
   if (T < Tc(mu2())) {
-    ctx.fillStyle = 'rgba(143,227,155,0.85)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(143,227,155,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('Goldstone: flat around the brim (m_G = 0)', x0 + 6, y1 - 6);
     ctx.fillStyle = 'rgba(241,192,105,0.85)';
     ctx.fillText(`Higgs: m_H = ${higgsMass(mu2()).toFixed(2)} (radial curvature)`, x0 + 6, y0 + 14);
@@ -132,7 +133,7 @@ function drawOrder(x, y, w, h) {
   ctx.stroke();
   ctx.strokeStyle = 'rgba(255,143,143,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(tc), y0); ctx.lineTo(X(tc), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T_c = ${tc.toFixed(2)}`, X(tc) + 4, y0 + 12);
   const T = tNow();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(Math.min(tMax, T)), Y(vevT(mu2(), lam(), T)), 4.5, 0, 2 * Math.PI); ctx.fill();
@@ -205,4 +206,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

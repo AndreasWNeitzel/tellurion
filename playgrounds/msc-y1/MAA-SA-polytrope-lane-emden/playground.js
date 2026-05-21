@@ -7,6 +7,7 @@
 import { solveLaneEmden, KNOWN_XI1 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -155,7 +156,7 @@ function drawStar(c, s) {
   ctx.fillStyle = c.accent;
   ctx.beginPath(); ctx.arc(cx + probeFr * R * Math.cos(pa), cy + probeFr * R * Math.sin(pa), 3, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   // Short title only; the "finite radius / diffuse" status is drawn
   // right-aligned on the same line, so keep the title compact enough
   // that the two cannot collide on a narrow star panel.
@@ -207,7 +208,7 @@ function drawProfile(c, s, probe) {
     const y0 = yTop + padT, y1 = yTop + half - padB;
     ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
     ctx.strokeRect(PLOTS.x + 6.5, yTop + 6.5, PLOTS.w - 14, half - 14);
-    ctx.fillStyle = c.fg; ctx.font = 'bold 12px system-ui, sans-serif';
+    ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'caption', 'sans', 600);
     ctx.fillText(label, x0 - 30, yTop + 18);
     return { x0, x1, y0, y1 };
   }
@@ -251,11 +252,11 @@ function drawProfile(c, s, probe) {
     ctx.strokeStyle = c.accent; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xm, tp.y0); ctx.lineTo(xm, tp.y1); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = c.accent; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = c.accent; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`ξ₁ = ${s.xi1.toFixed(3)}`, xm + 4, tp.y0 + 14);
   }
   // Axis labels + ticks.
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   for (let yv = 0; yv <= 1.01; yv += 0.25) ctx.fillText(yv.toFixed(2), tp.x0 - 4, yForUnit(tp, yv) + 3);
   ctx.textAlign = 'center';
@@ -313,7 +314,7 @@ function drawProfile(c, s, probe) {
   }
   ctx.globalAlpha = 1;
   // Axis labels + ticks.
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   for (let yv = 0; yv <= 1.01; yv += 0.25) ctx.fillText(yv.toFixed(2), bp.x0 - 4, yForUnit(bp, yv) + 3);
   ctx.textAlign = 'center';
@@ -394,4 +395,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

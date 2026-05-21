@@ -12,6 +12,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -44,7 +45,7 @@ for (let i = 0; i < CURVE.sig.length; i += 1) SIGMAX = Math.max(SIGMAX, CURVE.si
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(title, x + 8, y + 14);
 }
 
@@ -60,7 +61,7 @@ function fermion(x0, y0, x1, y1, col, label, lx, ly) {
   ctx.lineTo(mx - 6 * Math.cos(a) + 5 * Math.sin(a), my - 6 * Math.sin(a) - 5 * Math.cos(a));
   ctx.lineTo(mx - 6 * Math.cos(a) - 5 * Math.sin(a), my - 6 * Math.sin(a) + 5 * Math.cos(a));
   ctx.closePath(); ctx.fill();
-  if (label) { ctx.font = '13px monospace'; ctx.fillText(label, lx, ly); }
+  if (label) { ctx.font = fontString(canvas, 'body', 'mono'); ctx.fillText(label, lx, ly); }
 }
 
 // a wavy photon propagator between (x0,y) and (x1,y)
@@ -103,7 +104,7 @@ function drawDiagram(x, y, w, h) {
   pulse(xV2, cy, xmOut, cy - dy, fl, cMU);
   if (V === 2) {
     photon(xV1, xV2, cy, cG);
-    ctx.fillStyle = cG; ctx.font = '12px monospace';
+    ctx.fillStyle = cG; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('gamma*  (q^2 = s)', (xV1 + xV2) / 2 - 44, cy - 16);
   } else {
     // photon -> fermion loop (vacuum polarisation) -> photon
@@ -116,17 +117,17 @@ function drawDiagram(x, y, w, h) {
     ctx.fillStyle = cL;
     ctx.beginPath(); ctx.arc(lcx + lr * Math.cos(la), cy + 22 * Math.sin(la), 3.5, 0, 2 * Math.PI); ctx.fill();
     ctx.beginPath(); ctx.arc(lcx + lr * Math.cos(la + Math.PI), cy + 22 * Math.sin(la + Math.PI), 3.5, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = cL; ctx.font = '11px monospace';
+    ctx.fillStyle = cL; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('e+e- loop', lcx - 26, cy - 30);
     for (const xv of [xa, xb]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 3, 0, 2 * Math.PI); ctx.fill(); }
   }
   // vertices
   for (const xv of [xV1, xV2]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 4, 0, 2 * Math.PI); ctx.fill(); }
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('vertex (factor e)', xV1 - 30, cy + 26);
   // amplitude / |M|^2 alpha-power tags
   const aE = amplitudeAlphaExponent(V), mP = matrixElementAlphaPower(V);
-  ctx.font = '13px monospace'; ctx.fillStyle = '#9be8b0';
+  ctx.font = fontString(canvas, 'body', 'mono'); ctx.fillStyle = '#9be8b0';
   ctx.fillText(`M  ~  alpha^${aE}` + (V === 2 ? '  (= alpha)' : ''), x + 16, y + h - 36);
   ctx.fillStyle = '#ffd166';
   ctx.fillText(`|M|^2 ~ sigma ~ alpha^${mP}` + (V === 4 ? '   (suppressed by alpha^2 ~ 1/137^2 vs tree)' : '   (tree level)'), x + 16, y + h - 14);
@@ -144,7 +145,7 @@ function drawSigma(x, y, w, h) {
   };
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
   ctx.strokeRect(px, py, pw, ph);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (let d = 0; d <= decades; d += 1) {
     const yy = py + ph * d / decades; ctx.fillText(`1e${(logMax - d).toFixed(0)}`, x + 6, yy + 4);
     ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.beginPath(); ctx.moveTo(px, yy); ctx.lineTo(px + pw, yy); ctx.stroke();
@@ -172,7 +173,7 @@ function drawSigma(x, y, w, h) {
   const E0 = Math.max(SMIN, Math.min(SMAX, sqrtS())), s0 = sigmaNb(E0);
   ctx.fillStyle = '#6fb4ff';
   ctx.beginPath(); ctx.arc(X(E0), Y(s0), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(160,200,255,0.95)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(160,200,255,0.95)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`sqrt s = ${E0.toFixed(2)} GeV,  sigma = ${s0 < 1e-3 ? s0.toExponential(2) : s0.toFixed(2)} nb`, px + 8, py + 14);
   ctx.fillStyle = 'rgba(155,232,176,0.8)';
   ctx.fillText('threshold turn-on, peak, then straight 1/s line', px + 8, py + 28);
@@ -187,7 +188,7 @@ function drawAux(x, y, w, h) {
   const bx = x + 20, by = y + 38, bw = w - 130;
   const scale = (bw / 2) / Math.max(m.s, Math.abs(m.t), Math.abs(m.u), 1e-6);
   const x0 = bx + bw / 2;
-  ctx.font = '11px monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   [['s', m.s, '#6fb4ff'], ['t', m.t, '#ff9d6f'], ['u', m.u, '#9be8b0']].forEach((r, i) => {
     const yy = by + i * 24;
     ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.fillText(r[0], bx - 14, yy + 4);
@@ -199,7 +200,7 @@ function drawAux(x, y, w, h) {
   });
   ctx.strokeStyle = 'rgba(255,255,255,0.25)';
   ctx.beginPath(); ctx.moveTo(x0, by - 12); ctx.lineTo(x0, by + 3 * 24 - 6); ctx.stroke();
-  ctx.font = '12px monospace'; ctx.fillStyle = ok ? '#8fe39b' : '#ff8f8f';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = ok ? '#8fe39b' : '#ff8f8f';
   ctx.fillText(`s+t+u = ${sum.toExponential(3)} = 2m_e^2+2m_mu^2  ${ok ? 'OK' : 'X'}`, bx - 4, by + 3 * 24 + 10);
   // angular distribution
   const gx = x + 52, gy = y + 132, gw = w - 70, gh = h - 132 - 24;
@@ -218,7 +219,7 @@ function drawAux(x, y, w, h) {
   ctx.strokeStyle = 'rgba(111,180,255,0.7)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xt, gy); ctx.lineTo(xt, gy + gh); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', gx - 4, gy + gh + 14); ctx.fillText('90', gx + gw / 2 - 8, gy + gh + 14);
   ctx.fillText('180', gx + gw - 16, gy + gh + 14);
   ctx.fillText('dsigma/dOmega vs theta -- symmetric about 90 deg', gx + 8, gy + 14);
@@ -290,4 +291,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }
