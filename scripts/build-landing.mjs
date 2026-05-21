@@ -149,6 +149,25 @@ const cardsHTML = cards.map(c => cardHTML(c)).join('');
 const heroHTML = heroes.length ? heroes.map(h => cardHTML(h, true)).join('') : '<p class="t-small" style="color:var(--text-dimmed)">Featured coming soon.</p>';
 const chipRail = TAGS.map(t => `<button class="chip" data-tag="${t}">${t}</button>`).join('');
 
+// Hero stats line. Each number is computed from the catalogue; a stat
+// that cannot be computed (count 0) is dropped together with its
+// divider rather than shown as "0" or "N/A".
+const nHeroTier = cards.filter(c => c.tier === 'hero').length;
+const nCategories = new Set(cards.map(c => c.ptag).filter(Boolean)).size;
+const nYears = new Set(cards.map(c => c.badge).filter(b => /Y\d/.test(b))).size;
+const heroStats = [
+  [cards.length, 'simulations'],
+  [nHeroTier, 'hero-tier'],
+  [nCategories, 'categories'],
+  [nYears, 'curricular years'],
+].filter(([n]) => n > 0);
+const heroStatsHTML = heroStats.map(([n, label], i) => {
+  const divider = i > 0 ? '<span class="hero-stat-divider">&middot;</span>' : '';
+  const numAttr = i === 0 ? ` id="statn" data-target="${n}"` : '';
+  return `${divider}<span class="hero-stat"><span class="hero-stat-num"${numAttr}>${n}</span>`
+    + `<span class="hero-stat-label">${label}</span></span>`;
+}).join('');
+
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Playgrounds Portfolio. Andreas W. Neitzel</title>
@@ -194,6 +213,15 @@ body{max-width:1280px;margin:0 auto;padding:0 24px 0;background:transparent;colo
   font-family:var(--f-ui);font-size:15px;font-weight:400;position:relative;z-index:0;line-height:1.6}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
 .header{padding-top:118px}
+.landing-hero{padding:118px 0 48px;max-width:880px}
+.landing-hero h1{margin:0}
+.hero-subtitle{color:var(--text-secondary);max-width:640px;margin:16px 0 0;line-height:1.6}
+.hero-stats{color:var(--text-secondary);font-family:var(--f-mono);margin-top:16px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.hero-stat-num{color:var(--text-primary);font-weight:500;font-variant-numeric:tabular-nums}
+.hero-stat-label{color:var(--text-secondary);margin-left:4px}
+.hero-stat-divider{color:var(--text-dimmed)}
+.hero-search-bar{margin-top:32px;display:flex;gap:12px;align-items:center;max-width:720px}
+.hero-filter-chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 /* Navigation bar (site-structure spec). Fixed, frosted, persistent. */
 .nav{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;background:var(--bg-frosted);
   -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
@@ -417,19 +445,11 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
   mountCursor();
 </script>
 
-<div class="header">
-  <h1 class="site-title">Playgrounds Portfolio</h1>
-  <p><span id="statn" data-target="${cards.length}">${cards.length}</span> interactive simulations across physics, astronomy, statistical mechanics, and machine learning, aligned to the University of Porto BSc in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
-</div>
-
-<section>
-  <h2 class="sec">Featured</h2>
-  <div class="heroes">${heroHTML}</div>
-</section>
-
-<section id="browse">
-  <h2 class="sec">Browse</h2>
-  <div class="controls">
+<section class="landing-hero">
+  <h1 class="t-display">Playgrounds Portfolio</h1>
+  <p class="hero-subtitle t-body">Interactive simulations across physics, astronomy, statistical mechanics, and machine learning, aligned to the University of Porto BSc in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
+  <div class="hero-stats t-small">${heroStatsHTML}</div>
+  <div class="hero-search-bar">
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
       <input id="search-input" type="text" placeholder="Search simulations..." aria-label="Search simulations">
@@ -440,7 +460,16 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
       <option value="curriculum">Curriculum order</option>
     </select>
   </div>
-  <div class="tags-rail" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
+  <div class="hero-filter-chips" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
+</section>
+
+<section>
+  <h2 class="sec">Featured</h2>
+  <div class="heroes">${heroHTML}</div>
+</section>
+
+<section id="browse">
+  <h2 class="sec">Browse</h2>
   <div class="card-grid" id="card-grid">${cardsHTML}</div>
 </section>
 
