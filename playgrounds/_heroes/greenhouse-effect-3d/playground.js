@@ -172,9 +172,10 @@ function stepPhotons(dt) {
     } else if (p.kind === 'lw_back') {
       if (p.y >= surfaceY) st.photons.splice(i, 1);
     }
-    // Hard cap.
-    if (st.photons.length > 600) st.photons.splice(0, st.photons.length - 600);
   }
+  // Hard cap, applied after the step loop: splicing the front of the
+  // array mid-loop would shift every index and read past the new end.
+  if (st.photons.length > 600) st.photons.splice(0, st.photons.length - 600);
 }
 
 function currentTsurf() {
