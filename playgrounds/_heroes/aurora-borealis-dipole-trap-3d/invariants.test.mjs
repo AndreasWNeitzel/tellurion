@@ -7,18 +7,19 @@ describe('aurora-borealis-dipole-trap-3d', () => {
     expect(bx).toBe(0); expect(by).toBe(0); expect(bz).toBe(0);
   });
 
-  it('dipole field on +z axis: B = (0, 0, 2 m / z^3)', () => {
-    const [bx, by, bz] = dipoleField(0, 0, 2, 1);
+  it('dipole field on +y axis: B = (0, 2 m / y^3, 0)', () => {
+    // Dipole moment is along +y (matches the render's pole axis).
+    const [bx, by, bz] = dipoleField(0, 2, 0, 1);
     expect(Math.abs(bx)).toBeLessThan(1e-12);
-    expect(Math.abs(by)).toBeLessThan(1e-12);
-    expect(bz).toBeCloseTo(2 / 8, 12);    // 2 m / r^3 = 2 / 8
+    expect(Math.abs(bz)).toBeLessThan(1e-12);
+    expect(by).toBeCloseTo(2 / 8, 12);    // 2 m / r^3 = 2 / 8
   });
 
-  it('dipole field on equator: B has only z-component', () => {
+  it('dipole field on equator (x-z plane): B has only y-component', () => {
     const [bx, by, bz] = dipoleField(2, 0, 0, 1);
     expect(Math.abs(bx)).toBeLessThan(1e-12);
-    expect(Math.abs(by)).toBeLessThan(1e-12);
-    expect(bz).toBeLessThan(0);                // anti-parallel on equator
+    expect(Math.abs(bz)).toBeLessThan(1e-12);
+    expect(by).toBeLessThan(0);                // anti-parallel on equator
   });
 
   it('Boris push conserves |v| exactly', () => {
@@ -49,20 +50,20 @@ describe('aurora-borealis-dipole-trap-3d', () => {
   });
 
   it('checkAuroralExcitation triggers near the magnetic pole at low altitude', () => {
-    // Magnetic dipole axis is z, so the pole is along z.
-    const p = { x: 0.0, y: 0.0, z: REARTH * 1.02 };
+    // Magnetic dipole axis is y, so the pole is along y.
+    const p = { x: 0.0, y: REARTH * 1.04, z: 0.0 };
     const result = checkAuroralExcitation(p);
     expect(result).toBe('green');
   });
 
   it('checkAuroralExcitation does not trigger at the equator', () => {
-    const p = { x: REARTH * 1.02, y: 0, z: 0 };
+    const p = { x: REARTH * 1.04, y: 0, z: 0 };
     const result = checkAuroralExcitation(p);
     expect(result).toBe(null);
   });
 
-  it('green / red altitude split: 102% Earth radius is green, 105% is red', () => {
-    expect(checkAuroralExcitation({ x: 0, y: 0, z: REARTH * 1.02 })).toBe('green');
-    expect(checkAuroralExcitation({ x: 0, y: 0, z: REARTH * 1.05 })).toBe('red');
+  it('green / red altitude split: low altitude is green, higher is red', () => {
+    expect(checkAuroralExcitation({ x: 0, y: REARTH * 1.04, z: 0 })).toBe('green');
+    expect(checkAuroralExcitation({ x: 0, y: REARTH * 1.14, z: 0 })).toBe('red');
   });
 });

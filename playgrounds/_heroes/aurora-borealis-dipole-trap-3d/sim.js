@@ -23,14 +23,18 @@ export const RTRAP = 6.0;           // outermost trapping shell
 //   B = (mu0 m_dip / 4 pi) * (3 (m.r) r - r^2 m) / r^5
 // in units where mu0 m_dip / 4 pi = 1.
 export function dipoleField(x, y, z, m_dip = 1.0) {
+  // Dipole moment along +y, matching the render (poles drawn at +/-y,
+  // equator in the x-z plane). The previous code put m along z while
+  // the render used y, so funnelled particles never reached the drawn
+  // poles and almost none lit the oval.
   const r2 = x * x + y * y + z * z;
   if (r2 < 1e-8) return [0, 0, 0];
   const r = Math.sqrt(r2);
   const r5 = r2 * r2 * r;
-  const mdotr = m_dip * z;            // m = (0, 0, m_dip)
+  const mdotr = m_dip * y;            // m = (0, m_dip, 0)
   const Bx = 3 * mdotr * x / r5;
-  const By = 3 * mdotr * y / r5;
-  const Bz = (3 * mdotr * z - r2 * m_dip) / r5;
+  const By = (3 * mdotr * y - r2 * m_dip) / r5;
+  const Bz = 3 * mdotr * z / r5;
   return [Bx, By, Bz];
 }
 
@@ -79,54 +83,36 @@ export function stepLorentz(p, dt, qOverM = 1.0, m_dip = 1.0) {
   p.z += 0.5 * dt * p.vz;
 }
 
-// Spawn a particle TRAPPED on a dipole field line. Real solar-wind
-// particles that get captured into the magnetosphere bounce between
-// magnetic mirror points along a field line. Spawning them with the
-// right initial conditions (mostly perpendicular velocity at the
-// equator of a particular L-shell) gives bouncing motion that funnels
-// them toward the poles, where they spiral in tighter and tighter
-// until they hit the atmosphere. Spawning them on a free incoming
-// trajectory from the solar-wind direction (the old version) does
-// NOT reproduce the auroral oval; most particles fly past Earth
-// without being trapped.
+// Sunward injection radius: the solar wind enters the frame here.
+export const RSPAWN = 6.5;
+
+// Spawn an INCOMING solar-wind particle. The solar wind streams toward
+// Earth from the sunward side (here -x). Far from Earth the dipole
+// field is negligible (B ~ 1/r^3), so the stream travels essentially
+// straight. As a particle approaches, the strengthening field deflects
+// it: most of the stream is turned aside, but the fraction that enters
+// the polar cusps becomes magnetised (gyroradius far smaller than the
+// field-line scale) and spirals down the converging field lines to the
+// poles, precipitating into the atmosphere as aurora. The Boris pusher
+// (stepLorentz) integrates the real Lorentz force; this function only
+// sets up the incoming beam.
 export function spawnParticle(rng) {
-  // Choose an L-shell between 3 and 6 (the auroral L-shell range; the
-  // Van Allen inner belt is ~ 1.5-3, outer belt ~ 4-7).
-  const L = 3.0 + rng() * 3.0;
-  // Pick an azimuthal angle (longitude on the magnetic equator).
-  const phi = rng() * 2 * Math.PI;
-  // The field-line geometry: r(lambda) = L cos^2(lambda). Start at the
-  // equator where lambda = 0, so r = L.
-  const x0 = L * Math.cos(phi);
-  const y0 = 0;        // y = z = 0 at the equator (here z = magnetic-axis direction)
-  const z0 = L * Math.sin(phi);
-  // Wait — our axis convention has z = magnetic-axis vertical. We need
-  // the equator to be in the (x, y) plane, with z = up to north pole.
-  // Re-do: spawn at (x = L cos phi, y = L sin phi, z = 0).
-  const xe = L * Math.cos(phi);
-  const ye = L * Math.sin(phi);
-  const ze = 0;
-  // Velocity: mostly perpendicular to the field (large pitch angle),
-  // with a small parallel component so it bounces. At the equator the
-  // field points in -z (toward south pole through the planet) wait
-  // actually for a dipole moment along +z, at the equator B points
-  // along -z direction (well, downward through the magnetic equator).
-  // We give the velocity in the (rho, phi, z) frame: v_perp along
-  // -rho_hat (so it rotates around the field), v_par small along z.
-  const rho_hat_x = Math.cos(phi), rho_hat_y = Math.sin(phi);
-  const phi_hat_x = -Math.sin(phi), phi_hat_y = Math.cos(phi);
-  const vPerp = 0.5 + 0.3 * rng();
-  const vPar = (rng() - 0.5) * 0.4;       // small longitudinal speed → bounces between mirror points.
-  const vx = vPerp * phi_hat_x;            // gyration direction (azimuthal)
-  const vy = vPerp * phi_hat_y;
-  const vz = vPar;
+  // Position: a broad sheet on the sunward face, spanning enough
+  // latitude to feed both the equatorial trapping region and the
+  // high-latitude cusps.
+  const x0 = -RSPAWN + (rng() - 0.5) * 1.0;
+  const y0 = (rng() * 2 - 1) * 4.6;
+  const z0 = (rng() * 2 - 1) * 4.6;
+  // Bulk velocity toward Earth (+x) with a small thermal spread.
+  const V0 = 0.70 + 0.25 * rng();
   return {
-    x: xe, y: ye, z: ze,
-    vx, vy, vz,
+    x: x0, y: y0, z: z0,
+    vx: V0,
+    vy: (rng() - 0.5) * 0.06,
+    vz: (rng() - 0.5) * 0.06,
     age: 0,
     excited: false,
     color: 'green',
-    L,                                       // remember the launch L-shell
   };
 }
 
@@ -135,14 +121,12 @@ export function spawnParticle(rng) {
 // region, else the emission color.
 export function checkAuroralExcitation(p) {
   const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
-  // The auroral oval is at radius ~ RAURORA; we accept hits between
-  // RAURORA and 1.5 * REARTH (so the bouncing particle deposits when
-  // it dips below the trap).
-  if (r > REARTH * 1.18 || r < REARTH * 0.98) return null;
-  // High magnetic latitude: |z| / r > sin(60 deg) = 0.866 (oval at
-  // |lat| ~ 60-75 deg).
-  const sinLat = Math.abs(p.z) / Math.max(1e-6, r);
-  if (sinLat < 0.85) return null;
-  if (r < REARTH * 1.05) return 'green';
-  return 'red';
+  // A particle precipitates when it reaches the upper atmosphere.
+  if (r > REARTH * 1.22 || r < REARTH * 0.97) return null;
+  // High magnetic latitude (poles along y): the auroral oval sits at
+  // |lat| ~ 60-75 deg, i.e. |y|/r above sin(58 deg).
+  const sinLat = Math.abs(p.y) / Math.max(1e-6, r);
+  if (sinLat < 0.84) return null;
+  // Green (atomic-oxygen 557.7 nm) lower down, red (630.0 nm) higher.
+  return r < REARTH * 1.08 ? 'green' : 'red';
 }

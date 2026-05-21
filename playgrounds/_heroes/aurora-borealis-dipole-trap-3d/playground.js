@@ -23,7 +23,6 @@ const rStep = document.getElementById('readout-step');
 const sInject = document.getElementById('slider-inject'), vInject = document.getElementById('value-inject');
 const sMdip = document.getElementById('slider-mdip'), vMdip = document.getElementById('value-mdip');
 const sSpeed = document.getElementById('slider-speed'), vSpeed = document.getElementById('value-speed');
-const sTilt = document.getElementById('slider-tilt'), vTilt = document.getElementById('value-tilt');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
@@ -31,7 +30,7 @@ const st = {
   inject: 3, mdip: 1.4, speed: 2, tilt: 0.5, az: 0.6, zoom: 1.0,
   running: !prefersReducedMotion(),
   particles: [], hits: [], nSteps: 0, nHits: 0,
-  MAX_PARTICLES: 200, MAX_HITS: 80,
+  MAX_PARTICLES: 420, MAX_HITS: 120,
   // Diagnostic: hits binned by magnetic latitude (in degrees, -90..+90).
   latHist: new Int32Array(36),
   // Time series of particle count.
@@ -174,25 +173,41 @@ function drawAuroralOval() {
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
-    // Labels at the pole.
-    const labelLat = 80;
-    const lamL = (90 - labelLat) * Math.PI / 180;
-    const r = REARTH * 1.10;
-    const p = project(0, sign * r * Math.cos(lamL), 0);
-    ctx.fillStyle = 'rgba(80, 235, 130, 0.85)';
+    // Labels, placed well clear of the globe along the polar axis.
+    const p = project(0, sign * 2.15, 0);
+    ctx.fillStyle = 'rgba(110, 240, 150, 0.9)';
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(sign > 0 ? 'aurora borealis (N)' : 'aurora australis (S)', p.x - 50, p.y);
+    ctx.textAlign = 'center';
+    ctx.fillText(sign > 0 ? 'aurora borealis (N)' : 'aurora australis (S)', p.x, p.y);
+    ctx.textAlign = 'left';
   }
 }
 
 function drawParticles() {
-  // Z-order by depth.
+  // Each particle is drawn as a short streak along its velocity, so
+  // the incoming solar wind reads as a directed flow rather than a
+  // dot cloud. Colour encodes the phase: cool blue in the free
+  // streaming region, pale blue once gyrating in the magnetosphere,
+  // and green as it magnetises and funnels along a field line toward
+  // a pole. Z-ordered back-to-front.
   const ps = st.particles.map((p) => ({ p, proj: project(p.x, p.y, p.z) }));
   ps.sort((a, b) => b.proj.depth - a.proj.depth);
   for (const { p, proj } of ps) {
-    if (proj.x < 0 || proj.x > W || proj.y < 0 || proj.y > H) continue;
-    ctx.fillStyle = 'rgba(200, 220, 255, 0.9)';
-    ctx.beginPath(); ctx.arc(proj.x, proj.y, 1.6, 0, 2 * Math.PI); ctx.fill();
+    if (proj.x < -30 || proj.x > W + 30 || proj.y < -30 || proj.y > H + 30) continue;
+    const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+    const sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz) || 1e-6;
+    const k = 0.7 / sp;                              // streak ~ fixed world length
+    const tail = project(p.x - p.vx * k, p.y - p.vy * k, p.z - p.vz * k);
+    const sinLat = Math.abs(p.y) / Math.max(1e-6, r);
+    let col;
+    if (r > 4.6) col = 'rgba(140, 190, 255, 0.5)';            // free solar wind
+    else if (sinLat > 0.6) col = 'rgba(120, 240, 160, 0.95)';  // funnelling to a pole
+    else col = 'rgba(195, 220, 255, 0.85)';                    // gyrating / trapped
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(tail.x, tail.y); ctx.lineTo(proj.x, proj.y); ctx.stroke();
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(proj.x, proj.y, 1.4, 0, 2 * Math.PI); ctx.fill();
   }
 }
 
@@ -228,7 +243,11 @@ function update(dt) {
   // Step each particle.
   for (let i = st.particles.length - 1; i >= 0; i -= 1) {
     const p = st.particles[i];
-    stepLorentz(p, dt, 1.0, st.mdip);
+    // q/m raised so the gyroradius is far smaller than the field-line
+    // scale near Earth: the particle becomes magnetised, follows the
+    // converging field lines, and funnels to the poles. Far out the
+    // field is negligible so the stream still travels nearly straight.
+    stepLorentz(p, dt, 8.0, st.mdip);
     p.age += dt;
     // Check excitation
     const color = checkAuroralExcitation(p);
@@ -248,9 +267,11 @@ function update(dt) {
       st.particles.splice(i, 1);
       continue;
     }
-    // Particle escaped too far
+    // Retire particles that escape or have lived long enough; keeping
+    // long-lived trapped particles only builds a stale cloud that
+    // hides the incoming stream.
     const r2 = p.x * p.x + p.y * p.y + p.z * p.z;
-    if (r2 > 100 || p.age > 30) st.particles.splice(i, 1);
+    if (r2 > 121 || p.age > 20) st.particles.splice(i, 1);
   }
   st.nSteps += 1;
   // Sample particle count time series every 4 steps.
@@ -386,18 +407,17 @@ function syncLabels() {
   vInject.textContent = String(st.inject);
   vMdip.textContent = st.mdip.toFixed(1);
   vSpeed.textContent = String(st.speed);
-  vTilt.textContent = st.tilt.toFixed(2);
 }
 
 sInject.addEventListener('input', () => { st.inject = parseInt(sInject.value, 10); syncLabels(); });
 sMdip.addEventListener('input', () => { st.mdip = parseFloat(sMdip.value); syncLabels(); });
 sSpeed.addEventListener('input', () => { st.speed = parseInt(sSpeed.value, 10); syncLabels(); });
-sTilt.addEventListener('input', () => { st.tilt = parseFloat(sTilt.value); syncLabels(); });
 btnReset.addEventListener('click', () => {
-  st.inject = 3; st.mdip = 1.4; st.speed = 2; st.tilt = 0.5;
+  st.inject = 3; st.mdip = 1.4; st.speed = 2;
   st.particles.length = 0; st.hits.length = 0; st.nHits = 0; st.nSteps = 0;
+  st.latHist.fill(0);
   _seed = 0xC0FFEE;
-  sInject.value = '3'; sMdip.value = '1.4'; sSpeed.value = '2'; sTilt.value = '0.5';
+  sInject.value = '3'; sMdip.value = '1.4'; sSpeed.value = '2';
   syncLabels();
 });
 btnPause.addEventListener('click', () => {
@@ -406,15 +426,20 @@ btnPause.addEventListener('click', () => {
   btnPause.setAttribute('aria-pressed', String(!st.running));
 });
 
-// Drag to rotate; wheel to zoom.
-let dragging = false, lastX = 0;
-canvas.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; });
-window.addEventListener('mouseup', () => { dragging = false; });
-window.addEventListener('mousemove', (e) => {
+// Camera is fully drag-controlled: horizontal drag orbits (azimuth),
+// vertical drag tilts. Wheel zooms. No camera slider (a slider for a
+// 3D view reads as broken; direct drag is the expected interaction).
+let dragging = false, lastX = 0, lastY = 0;
+function dragStart(x, y) { dragging = true; lastX = x; lastY = y; }
+function dragMove(x, y) {
   if (!dragging) return;
-  st.az += (e.clientX - lastX) * 0.005;
-  lastX = e.clientX;
-});
+  st.az += (x - lastX) * 0.006;
+  st.tilt = Math.max(-1.45, Math.min(1.45, st.tilt + (y - lastY) * 0.006));
+  lastX = x; lastY = y;
+}
+canvas.addEventListener('pointerdown', (e) => { dragStart(e.clientX, e.clientY); canvas.setPointerCapture?.(e.pointerId); });
+window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointermove', (e) => dragMove(e.clientX, e.clientY));
 canvas.addEventListener('wheel', (e) => {
   e.preventDefault();
   st.zoom = Math.max(0.4, Math.min(6, st.zoom * Math.exp(-e.deltaY * 0.0015)));
