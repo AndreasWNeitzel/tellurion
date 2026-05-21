@@ -633,6 +633,20 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The double pendulum is Hamiltonian; the velocity-Verlet integrator
+// is symplectic, so the total mechanical energy stays bounded. The
+// engine already tracks the relative energy drift.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const d = engineDiagnostics(state.inst);
+      const drift = Math.abs(d.energyDrift);
+      return [{
+        key: 'energy',
+        label: 'total energy conserved (symplectic)',
+        value: drift.toExponential(2),
+        status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
