@@ -219,33 +219,32 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// A central force conserves energy and angular momentum in any
+// spatial dimension (only the orbit's closure depends on d). The
+// relative drift of each under the velocity-Verlet step is the
+// invariant.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  if (!st.state) return { fields: [] };
+  return {
+    fields: [
+      { key: 'dimension', label: 'force-law dimension d', value: st.d.toFixed(2), format: 'float' },
+      { key: 'energy', label: 'total energy', value: energy(st.state).toFixed(3), format: 'float' },
+      { key: 'angular-momentum', label: 'angular momentum', value: angularMomentum(st.state).toFixed(3), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!st.state) return [];
+  const dE = Math.abs(energy(st.state) - st.E0) / Math.max(1e-12, Math.abs(st.E0));
+  const dL = Math.abs(angularMomentum(st.state) - st.L0) / Math.max(1e-12, Math.abs(st.L0));
+  const mk = (key, label, d) => ({
+    key, label, value: d.toExponential(2),
+    status: d < 1e-3 ? 'pass' : (d < 1e-2 ? 'pending' : 'drift'),
+  });
+  return [
+    mk('energy', 'total energy conserved (rel. drift)', dE),
+    mk('angular-momentum', 'angular momentum conserved (rel. drift)', dL),
+  ];
+};
