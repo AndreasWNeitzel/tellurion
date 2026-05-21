@@ -3,6 +3,17 @@
    inline pedagogical sections, and focus mode. Consumes tokens.css.
    See the v2 master specification for the authoritative rules. */
 
+/* base.css clamps <body> to --content-max (760px) and adds page
+   padding. A v2 playground page must NOT inherit that clamp: the
+   two-zone grid is ~1188px wide and manages its own width and
+   padding. Without this reset the whole layout is squeezed into
+   760px and stranded with dead lateral space. */
+body:has(.playground-layout) {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* ---- 4. GRID LAYOUT ----------------------------------------------------- */
 
 .playground-layout {
