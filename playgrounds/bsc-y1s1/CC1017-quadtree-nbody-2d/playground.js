@@ -25,7 +25,11 @@ const btnPause = document.getElementById('btn-pause');
 
 const VIEW = 1.4;                            // world half-width in code units
 const DT = 0.005;
-const G = 1, EPS = 0.03;
+// Plummer softening. 0.03 was too small: the innermost disk stars
+// then had orbital periods shorter than the timestep, so leapfrog
+// went unstable and pumped the disk to unbound. 0.20 keeps every
+// orbit resolved and the total energy conserved to a few 0.1 %.
+const G = 1, EPS = 0.20;
 const st = {
   N: 500, theta: 0.7, use_tree: true, show_tree: true,
   running: !prefersReducedMotion(), state: null,
@@ -40,7 +44,7 @@ function totalEnergy() {
 }
 
 function reseed() {
-  st.state = makeDisk(st.N, { seed: 0xC0FFEE, M_core: 50 });
+  st.state = makeDisk(st.N, { seed: 0xC0FFEE, M_core: 50, eps: EPS });
   // Warm one accel evaluation so leapfrog half-kick has a valid a.
   if (st.use_tree) accBH(st.state, st.theta, G, EPS);
   else accDirect(st.state, G, EPS);

@@ -30,7 +30,7 @@ export function rng32(seed) {
 // central mass M_core fixes the rotation curve, and outer particles
 // are placed on circular orbits with a thin velocity dispersion.
 export function makeDisk(N, opts = {}) {
-  const { seed = 0xC0FFEE, M_core = 50, R_max = 1.0, R_scale = 0.35, dispersion = 0.02 } = opts;
+  const { seed = 0xC0FFEE, M_core = 50, R_max = 1.0, R_scale = 0.35, dispersion = 0.02, eps = 0.03 } = opts;
   const rng = rng32(seed);
   const state = csImported(N);
   // body 0 is the heavy core at the origin.
@@ -46,9 +46,11 @@ export function makeDisk(N, opts = {}) {
     state.x[2 * i]     = r * cx;
     state.x[2 * i + 1] = r * sy;
     state.m[i] = 1 / N;                         // total disk mass ~ 1
-    // Circular speed from the core mass at radius r (ignoring disk
-    // self-gravity for initial conditions).
-    const vCirc = Math.sqrt(M_core / Math.max(r, 0.05));
+    // Circular speed in the SOFTENED core potential (ignoring disk
+    // self-gravity): v^2 = G M r^2 / (r^2 + eps^2)^1.5. Using the
+    // softened form, not the bare Kepler GM/r, keeps the disk in
+    // equilibrium so it does not heat up and unbind.
+    const vCirc = Math.sqrt(M_core * r * r / Math.pow(r * r + eps * eps, 1.5));
     const vx = -vCirc * sy + dispersion * (rng() - 0.5);
     const vy =  vCirc * cx + dispersion * (rng() - 0.5);
     state.v[2 * i] = vx;
