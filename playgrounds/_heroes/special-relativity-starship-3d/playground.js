@@ -103,39 +103,101 @@ canvas.addEventListener('pointerup', (e) => {
 });
 
 // Lab-frame external view + twin clocks + gamma curve.
+// The diagnostic panel is styled as a starship cockpit HUD: dark
+// glass, a faint scan grid, cyan corner brackets, and instrument
+// gauges for the length contraction, the twin clocks, and the
+// velocity / Lorentz-factor bars.
+const HUD = (a) => `rgba(95,208,224,${a})`;
+const AMB = (a) => `rgba(255,209,102,${a})`;
+
+function hudClock(cxp, cyp, R, frac, label, time, col) {
+  pctx.strokeStyle = col(0.85); pctx.lineWidth = 1.6;
+  pctx.beginPath(); pctx.arc(cxp, cyp, R, 0, 2 * Math.PI); pctx.stroke();
+  // tick marks every 30 degrees
+  pctx.strokeStyle = col(0.45); pctx.lineWidth = 1;
+  for (let k = 0; k < 12; k += 1) {
+    const a = k * Math.PI / 6;
+    const r0 = R - (k % 3 === 0 ? 7 : 4);
+    pctx.beginPath();
+    pctx.moveTo(cxp + r0 * Math.sin(a), cyp - r0 * Math.cos(a));
+    pctx.lineTo(cxp + R * Math.sin(a), cyp - R * Math.cos(a));
+    pctx.stroke();
+  }
+  // sweeping hand
+  const ang = frac * 2 * Math.PI;
+  pctx.strokeStyle = col(1); pctx.lineWidth = 2;
+  pctx.beginPath();
+  pctx.moveTo(cxp, cyp);
+  pctx.lineTo(cxp + (R - 6) * Math.sin(ang), cyp - (R - 6) * Math.cos(ang));
+  pctx.stroke();
+  pctx.fillStyle = col(1); pctx.beginPath(); pctx.arc(cxp, cyp, 2.6, 0, 2 * Math.PI); pctx.fill();
+  pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'center';
+  pctx.fillStyle = col(0.7); pctx.fillText(label, cxp, cyp + R + 14);
+  pctx.fillStyle = col(1); pctx.fillText(time, cxp, cyp + R + 28);
+}
+
+function hudBar(x, y, w, lab, frac, valStr, col) {
+  pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
+  pctx.fillStyle = col(0.75); pctx.fillText(lab, x, y - 6);
+  pctx.strokeStyle = col(0.5); pctx.lineWidth = 1;
+  pctx.strokeRect(x + 0.5, y + 0.5, w - 1, 9);
+  pctx.fillStyle = col(0.85);
+  pctx.fillRect(x + 1.5, y + 1.5, Math.max(0, Math.min(1, frac)) * (w - 3), 6);
+  pctx.fillStyle = col(1); pctx.textAlign = 'right';
+  pctx.fillText(valStr, x + w, y - 6);
+}
+
 function drawPlot() {
   const W = plot.width, H = plot.height;
-  pctx.fillStyle = '#07080b'; pctx.fillRect(0, 0, W, H);
   const g = gamma(ui.beta);
-  // marker rings (lab, contracted) + the ship
-  const cyl = H * 0.5, x0 = 60, x1 = W - 230;
-  pctx.strokeStyle = '#2a2d34'; pctx.lineWidth = 1;
+  const tau = properTime(ui.labT, ui.beta);
+  // HUD glass + scan grid.
+  pctx.fillStyle = '#04060a'; pctx.fillRect(0, 0, W, H);
+  pctx.strokeStyle = HUD(0.06); pctx.lineWidth = 1;
+  for (let gx = 40; gx < W; gx += 40) { pctx.beginPath(); pctx.moveTo(gx, 0); pctx.lineTo(gx, H); pctx.stroke(); }
+  for (let gy = 40; gy < H; gy += 40) { pctx.beginPath(); pctx.moveTo(0, gy); pctx.lineTo(W, gy); pctx.stroke(); }
+  // corner brackets.
+  pctx.strokeStyle = HUD(0.85); pctx.lineWidth = 1.6;
+  const cb = 16, mg = 6;
+  for (const [cx, cy, dx, dy] of [[mg, mg, 1, 1], [W - mg, mg, -1, 1], [mg, H - mg, 1, -1], [W - mg, H - mg, -1, -1]]) {
+    pctx.beginPath();
+    pctx.moveTo(cx + dx * cb, cy); pctx.lineTo(cx, cy); pctx.lineTo(cx, cy + dy * cb);
+    pctx.stroke();
+  }
+  pctx.fillStyle = HUD(0.95); pctx.font = fontString(canvas, 'caption', 'mono', 600); pctx.textAlign = 'left';
+  pctx.fillText('LAB-FRAME TELEMETRY', 24, 16);
+  pctx.fillStyle = HUD(0.5); pctx.font = fontString(canvas, 'caption', 'mono');
+  pctx.fillText(`hull L/L0 ${contractedLength(1, ui.beta).toFixed(3)}   (dashed = rest length)`, 190, 16);
+
+  // Length-contraction lane: rest-length ghost + contracted hull.
+  const cyl = 70, x0 = 60, x1 = W - 250;
+  pctx.strokeStyle = HUD(0.25); pctx.lineWidth = 1;
   pctx.beginPath(); pctx.moveTo(x0, cyl); pctx.lineTo(x1, cyl); pctx.stroke();
   const ringN = 9;
   for (let r = 0; r < ringN; r += 1) {
-    const xx = x0 + (x1 - x0) * (r / (ringN - 1)) / 1;
-    pctx.strokeStyle = `rgba(110,190,255,${0.35 + 0.5 * r / ringN})`;
-    pctx.beginPath(); pctx.ellipse(xx, cyl, 5, 26, 0, 0, 2 * Math.PI); pctx.stroke();
+    const xx = x0 + (x1 - x0) * (r / (ringN - 1));
+    pctx.strokeStyle = HUD(0.20 + 0.45 * r / ringN);
+    pctx.beginPath(); pctx.ellipse(xx, cyl, 5, 24, 0, 0, 2 * Math.PI); pctx.stroke();
   }
-  // ship: proper length 60 px, contracted by 1/gamma
-  const shipL = 60 / g, sx = x0 + (x1 - x0) * 0.32;
-  pctx.fillStyle = '#cfe6ff';
+  const L0 = 60, shipL = L0 / g, sx = x0 + (x1 - x0) * 0.34;
+  pctx.strokeStyle = HUD(0.4); pctx.setLineDash([4, 4]); pctx.lineWidth = 1;
   pctx.beginPath();
-  pctx.moveTo(sx, cyl); pctx.lineTo(sx - shipL, cyl - 12); pctx.lineTo(sx - shipL, cyl + 12);
-  pctx.closePath(); pctx.fill();
-  pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
-  pctx.fillText('lab frame: ship length-contracted by 1/gamma; marker rings', 8, 14);
-  // twin clocks
-  const c2 = W - 200;
-  function clock(cxp, cyp, ang, lab, col) {
-    pctx.strokeStyle = col; pctx.lineWidth = 2;
-    pctx.beginPath(); pctx.arc(cxp, cyp, 28, 0, 2 * Math.PI); pctx.stroke();
-    pctx.beginPath(); pctx.moveTo(cxp, cyp); pctx.lineTo(cxp + 24 * Math.sin(ang), cyp - 24 * Math.cos(ang)); pctx.stroke();
-    pctx.fillStyle = col; pctx.textAlign = 'center'; pctx.fillText(lab, cxp, cyp + 46);
-  }
-  const tau = properTime(ui.labT, ui.beta);
-  clock(c2, H * 0.5, (ui.labT % 6) / 6 * 2 * Math.PI, `lab ${ui.labT.toFixed(1)}s`, '#ffd166');
-  clock(c2 + 95, H * 0.5, (tau % 6) / 6 * 2 * Math.PI, `ship ${tau.toFixed(1)}s`, '#5fd0e0');
+  pctx.moveTo(sx, cyl); pctx.lineTo(sx - L0, cyl - 12); pctx.lineTo(sx - L0, cyl + 12); pctx.closePath();
+  pctx.stroke(); pctx.setLineDash([]);
+  pctx.fillStyle = HUD(0.22); pctx.strokeStyle = HUD(1); pctx.lineWidth = 1.6;
+  pctx.beginPath();
+  pctx.moveTo(sx, cyl); pctx.lineTo(sx - shipL, cyl - 12); pctx.lineTo(sx - shipL, cyl + 12); pctx.closePath();
+  pctx.fill(); pctx.stroke();
+
+  // Twin clocks as HUD gauges.
+  const cR = 22, c2 = W - 188, cy = 66;
+  hudClock(c2, cy, cR, (ui.labT % 6) / 6, 'LAB', `${ui.labT.toFixed(1)} s`, AMB);
+  hudClock(c2 + 104, cy, cR, (tau % 6) / 6, 'SHIP', `${tau.toFixed(1)} s`, HUD);
+
+  // Velocity and Lorentz-factor bars along the bottom.
+  const by = H - 14;
+  hudBar(24, by, 150, 'VELOCITY v/c', ui.beta, ui.beta.toFixed(3), HUD);
+  hudBar(W - 174, by, 150, 'LORENTZ gamma', 1 - 1 / g, g.toFixed(2), AMB);
 }
 
 function refreshReadout() {
