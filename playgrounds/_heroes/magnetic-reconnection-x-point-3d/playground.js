@@ -450,6 +450,27 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Maxwell: the magnetic field has no divergence (no monopoles). The
+// X-point field must satisfy div B = 0; the sampled numerical
+// divergence is the invariant.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const h = 1e-3;
+      let maxDiv = 0;
+      for (let i = 0; i < 24; i += 1) {
+        const x = ((i * 0.6180339) % 1) * 2 - 1;
+        const y = ((i * 0.3819660) % 1) * 2 - 1;
+        const div = (fieldAt(x + h, y).Bx - fieldAt(x - h, y).Bx) / (2 * h)
+          + (fieldAt(x, y + h).By - fieldAt(x, y - h).By) / (2 * h);
+        if (Math.abs(div) > maxDiv) maxDiv = Math.abs(div);
+      }
+      return [{
+        key: 'div-b',
+        label: 'magnetic field is divergence-free',
+        value: maxDiv.toExponential(2),
+        status: maxDiv < 1e-6 ? 'pass' : (maxDiv < 1e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
