@@ -42,7 +42,6 @@ html{background:var(--bg-void);scrollbar-width:thin;scrollbar-color:var(--border
 body{max-width:1280px;margin:0 auto;padding:0 24px 0;background:transparent;color:var(--text-primary);
   font-family:var(--f-ui);font-size:15px;font-weight:400;position:relative;z-index:0;line-height:1.6}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
-.header{padding-top:118px}
 .landing-hero{padding:118px 0 48px;max-width:880px}
 .landing-hero h1{margin:0}
 .hero-subtitle{color:var(--text-secondary);max-width:640px;margin:16px 0 0;line-height:1.6}
@@ -86,8 +85,6 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .t-label{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase}
 .t-mono{font-family:var(--f-mono);font-size:0.8125rem}
 #ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}
-.site-title{font-size:clamp(2rem,5vw,3.2rem);font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin:0 0 16px;color:var(--text-primary)}
-.header p{color:var(--text-secondary);max-width:560px;font-size:0.9375rem;margin:0}
 .sec{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);margin:48px 0 16px}
 .uc{font-family:var(--f-mono);font-weight:400;font-size:0.8125rem;color:var(--text-secondary)}
 /* Featured: one large daily-rotated spotlight card beside a column of
@@ -103,7 +100,6 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   .spotlight-grid{grid-template-columns:1fr}
   .spotlight-row{grid-template-rows:none}
 }
-.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0 14px}
 .search{position:relative;flex:1;max-width:640px;min-width:240px}
 .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-secondary);pointer-events:none}
 .search input{width:100%;padding:10px 14px 10px 40px;background:var(--bg-surface);border:1px solid var(--border-dim);
@@ -113,7 +109,6 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .sortsel{padding:9px 12px;background:var(--bg-surface);border:1px solid var(--border-dim);
   color:var(--text-secondary);border-radius:6px;font-family:var(--f-ui);font-size:0.8125rem;outline:none;transition:border-color var(--t-fast)}
 .sortsel:focus{border-color:var(--border-active)}
-.tags-rail{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;align-items:center}
 .chip{padding:4px 12px;background:transparent;border:1px solid var(--border-dim);color:var(--text-secondary);
   border-radius:20px;font-size:0.8125rem;font-family:var(--f-ui);cursor:pointer;transition:all var(--t-fast)}
 .chip:hover{border-color:var(--border-subtle)}
@@ -144,8 +139,6 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .card.preanim{opacity:0;transform:translateY(12px)}
 .card.inview{opacity:1;transform:translateY(0);transition:opacity 400ms ease-out,transform 400ms ease-out}
 .card.fhide{opacity:0!important;transform:scale(0.97)!important;transition:opacity 200ms ease,transform 200ms ease}
-.heroes .card-f.fpre{opacity:0;transform:translateX(-10px)}
-.heroes .card-f.fin{opacity:1;transform:translateX(0);transition:opacity 500ms ease-out,transform 500ms ease-out}
 .cimg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,9,15,0.2) 0%,rgba(7,9,15,0.6) 70%,rgba(7,9,15,0.95) 100%)}
 .cph{position:absolute;left:30%;top:36%;width:40%;height:28%;background:#fff;opacity:0.07}
 .lvl{position:absolute;top:8px;right:8px;z-index:3;font-family:var(--f-mono);font-size:10px;font-weight:500;
@@ -200,7 +193,7 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
    fixed star-field canvas (z-index:-1 on <html>) shows through at
    all scroll positions. Only <html>, the nav, cards, the back
    button and the footer carry a background. */
-section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rail{background:transparent}
+section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .about{padding:100px 0 80px}
 .about .lab,.credits .lab{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;
   text-transform:uppercase;color:var(--text-secondary);margin:0 0 48px}
@@ -3215,17 +3208,6 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
     },{threshold:0.1});
     cards.forEach(function(c){ eio.observe(c); });
   } else { cards.forEach(function(c){ c.classList.add('inview'); }); }
-
-  // D4: featured row enters once per session, left to right.
-  try{
-    var fseen=sessionStorage.getItem('pg:fseen');
-    var fcards=[].slice.call(document.querySelectorAll('.heroes .card-f'));
-    if(!reduce && !fseen && fcards.length){
-      fcards.forEach(function(f,i){ f.classList.add('fpre');
-        setTimeout(function(){ f.classList.add('fin'); f.classList.remove('fpre'); },120*i); });
-      sessionStorage.setItem('pg:fseen','1');
-    }
-  }catch(e){}
 
   // D5: stat counter 0 -> N over 1200ms ease-out, integer only.
   var stn=document.getElementById('statn');
