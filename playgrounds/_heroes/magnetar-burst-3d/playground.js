@@ -7,6 +7,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -191,7 +192,7 @@ function drawLightCurve() {
   ctx.lineWidth = 1;
   ctx.strokeRect(LC.x + 0.5, LC.y + 0.5, LC.w - 1, LC.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('X-ray lightcurve (last 20 s)', LC.x + 8, LC.y - 6);
 
   if (st.lightCurve.length < 2) return;
@@ -211,7 +212,7 @@ function drawLightCurve() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('L', LC.x + 8, LC.y + 18);
   ctx.fillText('t (s)', LC.x + LC.w / 2 - 14, LC.y + LC.h - 4);
 }
@@ -224,15 +225,15 @@ function drawSidePanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Magnetar diagnostics', x + 8, y - 6);
   let yy = y + 24;
   const row = (k, v, c = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(k, x + 10, yy);
     ctx.fillStyle = c;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(v, x + 10, yy + 14);
     yy += 30;
   };
@@ -266,7 +267,7 @@ function draw() {
   updateReadout();
   // Caption strip.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`B = ${B_G().toExponential(1)} G, P = ${st.P.toFixed(1)} s, ${isInBurstingRegime(B_G()) ? 'bursting' : 'quiescent'}`, 14, SCENE.cy + SCENE.r * 2.4 + 14);
 }
 
@@ -334,4 +335,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

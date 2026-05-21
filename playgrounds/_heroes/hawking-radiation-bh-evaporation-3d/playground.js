@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -177,7 +178,7 @@ function drawSidePanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Evaporation timeline', x + 8, y - 6);
 
   // Top half: M(t) curve. Bottom half: T_H(t) curve.
@@ -235,13 +236,13 @@ function drawSidePanel() {
 
   // Labels
   ctx.fillStyle = 'rgba(140, 220, 255, 0.95)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('M(t) (linear)', x + 24, y + 18);
   ctx.fillStyle = 'rgba(255, 150, 120, 0.95)';
   ctx.fillText('T_H(t) (log)', x + 24, midY + 14);
   // Axis labels (time).
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', x + 20, y + h - 10);
   ctx.fillText('t_evap', x + w - 45, y + h - 10);
 }
@@ -267,7 +268,7 @@ function draw() {
   updateReadout();
   // Caption strip
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`M0 = ${M0_kg().toExponential(2)} kg, t/t_evap = ${st.frac.toFixed(2)}`, 14, H - 14);
 }
 
@@ -331,4 +332,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -144,7 +145,7 @@ function drawAxes() {
   ctx.setLineDash([]);
   // Title strip.
   ctx.fillStyle = 'rgba(255, 220, 120, 0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('upper layer (yellow)', 14, 22);
   ctx.fillStyle = 'rgba(120, 220, 255, 0.85)';
   ctx.fillText('lower layer (cyan)', 14, H - 14);
@@ -166,7 +167,7 @@ function draw() {
   updateReadout();
   // Caption
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`Stuart A = ${st.A.toFixed(2)} (A = 0 plain shear, A approaching 1 sharp vortices)`, 14, H / 2 + 16);
 }
 
@@ -226,4 +227,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

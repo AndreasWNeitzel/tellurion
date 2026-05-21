@@ -25,6 +25,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -216,7 +217,7 @@ function drawScene() {
   ctx.beginPath(); ctx.moveTo(x0, atmY + atmH); ctx.lineTo(x0 + SCENE.w, atmY + atmH); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(220, 220, 255, 0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('top of atmosphere', x0 + 8, atmY - 4);
   ctx.fillText(`greenhouse layer  τ_LW = ${tau.toFixed(3)}`, x0 + 8, atmY + atmH / 2 + 4);
   // Surface (Earth crust + sun-warmed reds; colour gets hotter with
@@ -241,7 +242,7 @@ function drawScene() {
   ctx.fillStyle = `rgb(${Math.round(sc[0])}, ${Math.round(sc[1])}, ${Math.round(sc[2])})`;
   ctx.fillRect(x0, surfY, SCENE.w, SCENE.y + SCENE.h - surfY);
   ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
-  ctx.font = 'bold 13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono', 600);
   ctx.fillText(`surface  T = ${Tsurf.toFixed(1)} K  (${(Tsurf - 273.15).toFixed(1)} °C)`,
     x0 + 8, surfY + 18);
 
@@ -258,7 +259,7 @@ function drawScene() {
   ctx.fillStyle = `rgb(${Math.round(sc[0])}, ${Math.round(sc[1])}, ${Math.round(sc[2])})`;
   ctx.fillRect(thermX - 8, thermY + thermH - fillH - 2, 14, fillH);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const T of [200, 300, 400, 500, 600, 700]) {
     const u = (T - 200) / 550;
     const y = thermY + thermH - u * (thermH - 4);
@@ -280,7 +281,7 @@ function drawScene() {
   ctx.fillStyle = 'rgba(255, 245, 220, 1)';
   ctx.beginPath(); ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Sun S = ${S_SOLAR_WM2.toFixed(0)} W/m²`, x0 + 8, y0 + 14);
 
   // Photons. Each rendered as a glowing disc with a fading motion
@@ -322,7 +323,7 @@ function drawScene() {
     ctx.fillStyle = col;
     ctx.beginPath(); ctx.arc(lxx, lyy, 3, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(220, 230, 255, 0.95)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(txt, lxx + 7, lyy + 3);
     lxx += ctx.measureText(txt).width + 26;
   }
@@ -343,7 +344,7 @@ function drawCurvePanel() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('surface temperature  T_surf  vs  CO₂', p.x + 10, p.y + 16);
   // x = log10(co2_ppm) in [log10(50), log10(1e6)]; y = T_surf in [200, 400] K.
   const ax = p.x + 40, ay = p.y + 30;
@@ -381,7 +382,7 @@ function drawCurvePanel() {
     if (T < yLo || T > yHi) return;
     ctx.fillStyle = color;
     ctx.beginPath(); ctx.arc(xOf(c), yOf(T), 3.5, 0, Math.PI * 2); ctx.fill();
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(label, xOf(c) + 5, yOf(T) - 4);
   }
   refPt(280, '1850 (280)', 'rgba(126, 212, 193, 0.95)');
@@ -395,7 +396,7 @@ function drawCurvePanel() {
   ctx.beginPath(); ctx.arc(xOf(st.co2_ppm), yOf(curT), 6, 0, Math.PI * 2); ctx.stroke();
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let dec = 2; dec <= 6; dec += 1) ctx.fillText(`10^${dec}`, xOf(Math.pow(10, dec)) - 8, ay + ah + 12);
   for (let T = 200; T <= 400; T += 50) ctx.fillText(`${T}`, ax - 30, yOf(T) + 3);
   ctx.fillText('CO₂ (ppm)', ax + aw / 2 - 26, ay + ah + 24);
@@ -416,7 +417,7 @@ function drawBudgetPanel() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('energy budget  (W / m²)', p.x + 10, p.y + 16);
   const tau = tauFromCO2(st.co2_ppm);
   const Sin = S_SOLAR_WM2 / 4;                                  // global mean SW.
@@ -448,7 +449,7 @@ function drawBudgetPanel() {
     ctx.fillStyle = b.color;
     ctx.fillRect(bx + i * bw + 4, by + bh - h, bw - 8, h);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'center';
     ctx.fillText(`${b.value.toFixed(0)}`, bx + i * bw + bw / 2, by + bh - h - 4);
     ctx.fillText(b.label, bx + i * bw + bw / 2, by + bh + 14);
@@ -456,7 +457,7 @@ function drawBudgetPanel() {
   ctx.textAlign = 'left';
   // y axis label.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`max ${maxV.toFixed(0)}`, p.x + 6, by + 8);
 }
 
@@ -470,7 +471,7 @@ function drawSpectrumPanel() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('surface emission spectrum + CO₂ / H₂O bands', p.x + 10, p.y + 16);
   const ax = p.x + 40, ay = p.y + 30;
   const aw = p.w - 60, ah = p.h - 50;
@@ -503,7 +504,7 @@ function drawSpectrumPanel() {
   ctx.fillRect(xOf(5.5e-6), ay, xOf(7.0e-6) - xOf(5.5e-6), ah);  // H2O vibrational.
   // Labels.
   ctx.fillStyle = 'rgba(255, 200, 200, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('CO₂ 15 µm', xOf(co2Center) - 22, ay + 12);
   ctx.fillStyle = 'rgba(160, 220, 255, 0.95)';
   ctx.fillText('H₂O rot.', xOf(23e-6), ay + 12);
@@ -519,7 +520,7 @@ function drawSpectrumPanel() {
   ctx.stroke();
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const lamUm of [5, 10, 15, 20, 25, 30]) {
     const lam = lamUm * 1e-6;
     if (lam > lamHi) continue;
@@ -646,4 +647,28 @@ if (CAPTURE_NAME) {
 } else {
   requestAnimationFrame(tick);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

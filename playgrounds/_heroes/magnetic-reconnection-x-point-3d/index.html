@@ -1,23 +1,91 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Magnetic Reconnection at an X-point</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Magnetic Reconnection at an X-point</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #050609; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Magnetic reconnection at an X-point</h1>
-<p><strong>What you are seeing:</strong> two oppositely directed magnetic fields driven together at an inflow speed $v_{\rm in}$. In the thin yellow current sheet, frozen-in flux breaks and field lines reconnect across the X-point; the released magnetic tension ejects the plasma along the sheet as twin jets at the Alfven speed $v_A$. Source: Priest and Forbes, <em>Magnetic Reconnection</em>, Section 4.2 (<code>priest-forbes-reconnection</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="900" height="600"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
+<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #050609; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Magnetic reconnection at an X-point</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Magnetic reconnection at an X-point</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> two oppositely directed magnetic fields driven together at an inflow speed <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">v_{\rm in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3175em;"><span class="" style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">in</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. In the thin yellow current sheet, frozen-in flux breaks and field lines reconnect across the X-point; the released magnetic tension ejects the plasma along the sheet as twin jets at the Alfven speed <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>A</mi></msub></mrow><annotation encoding="application/x-tex">v_A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span class="" style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. Source: Priest and Forbes, <em>Magnetic Reconnection</em>, Section 4.2 (<code>priest-forbes-reconnection</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="600"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> X-point reconnection of two anti-parallel magnetic field regions, with twin outflow jets along the current sheet. Method: kinematic flow + analytic hyperbolic field, Sweet-Parker scalings M_A = S^-1/2, delta = L / sqrt(S). Source: Priest and Forbes, Magnetic Reconnection, Section 4.2.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">log10 eta</span><input aria-label="log-eta" type="range" id="slider-log-eta" min="-8" max="-1" step="0.1" value="-3"><span class="value" id="value-log-eta">-3.0</span></div>
+<div class="row"><span class="label">Alfven speed v_A</span><input aria-label="v-a" type="range" id="slider-v-a" min="0.5" max="2" step="0.1" value="1.0"><span class="value" id="value-v-a">1.0</span></div>
+<div class="row"><span class="label">preset</span><select aria-label="preset" id="select-preset"><option value="laboratory">laboratory (S = 1e3)</option><option value="solar_corona" selected="">solar corona (S = 1e8)</option><option value="fast_petschek">fast / Petschek-like</option></select><span class="value" id="value-preset">corona</span></div>
+<div class="row"><span class="label">tracer count</span><input aria-label="tracer-count" type="range" id="slider-Np" min="60" max="240" step="10" value="120"><span class="value" id="value-Np">120</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
   <span class="label">log10 eta:</span><span class="value" id="readout-eta">--</span>
   <span class="label">Lundquist S:</span><span class="value" id="readout-S">--</span>
   <span class="label">M_A = v_in/v_A:</span><span class="value" id="readout-MA">--</span>
   <span class="label">delta / L:</span><span class="value" id="readout-delta">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> X-point reconnection of two anti-parallel magnetic field regions, with twin outflow jets along the current sheet. Method: kinematic flow + analytic hyperbolic field, Sweet-Parker scalings M_A = S^-1/2, delta = L / sqrt(S). Source: Priest and Forbes, Magnetic Reconnection, Section 4.2.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">log10 eta</span><input aria-label="log-eta" type="range" id="slider-log-eta" min="-8" max="-1" step="0.1" value="-3"><span class="value" id="value-log-eta">-3.0</span></div>
-<div class="row"><span class="label">Alfven speed v_A</span><input aria-label="v-a" type="range" id="slider-v-a" min="0.5" max="2" step="0.1" value="1.0"><span class="value" id="value-v-a">1.0</span></div>
-<div class="row"><span class="label">preset</span><select aria-label="preset" id="select-preset"><option value="laboratory">laboratory (S = 1e3)</option><option value="solar_corona" selected>solar corona (S = 1e8)</option><option value="fast_petschek">fast / Petschek-like</option></select><span class="value" id="value-preset">corona</span></div>
-<div class="row"><span class="label">tracer count</span><input aria-label="tracer-count" type="range" id="slider-Np" min="60" max="240" step="10" value="120"><span class="value" id="value-Np">120</span></div>
-<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
-</div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+</div><span class="value" id="readout-eta">--</span><span class="value" id="readout-S">--</span><span class="value" id="readout-MA">--</span><span class="value" id="readout-delta">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

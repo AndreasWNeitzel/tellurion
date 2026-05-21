@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -160,7 +161,7 @@ function drawMap() {
 
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 215, 245, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let lon = -180; lon <= 180; lon += 60) {
     const p = ll2px(0, lon);
     ctx.fillText(`${lon}°`, p.x + 2, MAP_Y + MAP_H - 4);
@@ -254,7 +255,7 @@ function drawEclipse() {
   ctx.moveTo(maxP.x, maxP.y - 6); ctx.lineTo(maxP.x, maxP.y + 6);
   ctx.stroke();
   ctx.fillStyle = 'rgba(255, 240, 200, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`greatest ${ecl.max_ut} UT`, maxP.x + 8, maxP.y - 4);
 
   // Current umbra position (interpolated along path by t_frac). The
@@ -343,7 +344,7 @@ function drawClickedLocation() {
   ctx.lineWidth = 1;
   ctx.strokeRect(insetX + 0.5, insetY + 0.5, insetW - 1, insetH - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('observer view', insetX + 8, insetY + 14);
   const sx = insetX + insetW / 2, sy = insetY + insetH / 2 + 6;
   const Rsun = 38;
@@ -375,7 +376,7 @@ function drawClickedLocation() {
     ctx.beginPath(); ctx.arc(moonX, moonY, Rmoon, 0, Math.PI * 2); ctx.stroke();
   }
   ctx.fillStyle = 'rgba(220, 230, 255, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`mag = ${magObs.toFixed(3)}`, insetX + 8, insetY + insetH - 10);
   ctx.fillStyle = vis.totality ? '#ff8080' : vis.visible ? '#ffd166' : '#9aa0a6';
   ctx.fillText(
@@ -399,10 +400,10 @@ function drawTitleBar() {
   ctx.fillStyle = '#050810';
   ctx.fillRect(0, 0, W, MAP_Y);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.95)';
-  ctx.font = 'bold 15px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'heading', 'sans', 600);
   ctx.fillText(ecl.label, 14, 22);
   ctx.fillStyle = 'rgba(200, 215, 245, 0.78)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(ecl.region, 14, 40);
 }
 
@@ -412,7 +413,7 @@ function drawLegend() {
   ctx.fillRect(x, y, 540, 30);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.18)';
   ctx.strokeRect(x + 0.5, y + 0.5, 539, 29);
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   // Total band swatch.
   ctx.fillStyle = 'rgba(180, 80, 100, 0.85)';
   ctx.fillRect(x + 8, y + 8, 18, 14);
@@ -580,4 +581,28 @@ if (CAPTURE_NAME) {
   btnPause.setAttribute('aria-pressed', String(!st.running));
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -1,23 +1,91 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Gravitational Lensing</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gravitational Lensing</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: crosshair; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Gravitational lensing</h1>
-<p><strong>What you are seeing:</strong> a point-mass gravitational lens at the origin distorts the background. The image-plane render shows the source pattern pulled back through the inverse lens map; the two yellow dots mark the discrete image positions of a movable point source (red marker on the source plane below). Drag the canvas to move the source. Source: Schneider, Ehlers, Falco, <em>Gravitational Lenses</em>, Ch. 5 (<code>sef1992</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="900" height="620"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
-  <span class="label">β:</span><span class="value" id="readout-beta">(0, 0)</span>
-  <span class="label">image radii:</span><span class="value" id="readout-radii">--</span>
-  <span class="label">magnification:</span><span class="value" id="readout-mag">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> Image-plane lensed view of a stripe pattern. The yellow points are the two solved point-mass images of the source (red dot). The dashed ring is the Einstein radius. Method: closed-form point-mass lens equation; numerical Jacobian for magnification field. Source: Schneider, Ehlers, Falco, Ch. 5.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
+<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: crosshair; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Gravitational lensing</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Gravitational lensing</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a point-mass gravitational lens at the origin distorts the background. The image-plane render shows the source pattern pulled back through the inverse lens map; the two yellow dots mark the discrete image positions of a movable point source (red marker on the source plane below). Drag the canvas to move the source. Source: Schneider, Ehlers, Falco, <em>Gravitational Lenses</em>, Ch. 5 (<code>sef1992</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="620"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Image-plane lensed view of a stripe pattern. The yellow points are the two solved point-mass images of the source (red dot). The dashed ring is the Einstein radius. Method: closed-form point-mass lens equation; numerical Jacobian for magnification field. Source: Schneider, Ehlers, Falco, Ch. 5.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">β_x</span><input aria-label="beta x" type="range" id="slider-bx" min="-2.0" max="2.0" step="0.01" value="0.3"><span class="value" id="value-bx">0.30</span></div>
 <div class="row"><span class="label">β_y</span><input aria-label="beta y" type="range" id="slider-by" min="-2.0" max="2.0" step="0.01" value="0.1"><span class="value" id="value-by">0.10</span></div>
-<div class="row"><span class="label">pattern</span><select aria-label="pattern" id="select-pattern"><option value="stripes" selected>stripes</option><option value="checker">checker</option><option value="bullseye">bullseye</option></select><span class="value" id="value-pattern">stripes</span></div>
+<div class="row"><span class="label">pattern</span><select aria-label="pattern" id="select-pattern"><option value="stripes" selected="">stripes</option><option value="checker">checker</option><option value="bullseye">bullseye</option></select><span class="value" id="value-pattern">stripes</span></div>
 <div class="row"><span class="label">u_min</span><input aria-label="uMin" type="range" id="slider-umin" min="0.02" max="1.0" step="0.01" value="0.20"><span class="value" id="value-umin">0.20</span></div>
 <div class="row"><span class="label">shear γ</span><input aria-label="external shear" type="range" id="slider-shear" min="0.05" max="0.55" step="0.01" value="0.25"><span class="value" id="value-shear">0.25</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><button id="btn-microlensing" type="button" aria-pressed="false">Microlensing</button><button id="btn-caustics" type="button" aria-pressed="false">Caustics</button><span id="share-mount"></span></div>
 </div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">β:</span><span class="value" id="readout-beta">(0, 0)</span>
+  <span class="label">image radii:</span><span class="value" id="readout-radii">--</span>
+  <span class="label">magnification:</span><span class="value" id="readout-mag">--</span>
+</div><span class="value" id="readout-beta">(0, 0)</span><span class="value" id="readout-radii">--</span><span class="value" id="readout-mag">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

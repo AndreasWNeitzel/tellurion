@@ -21,6 +21,19 @@ hero_candidate: true
 renderer: webgl2
 estimated_engagement_minutes: 8
 share_state_keys: [aOverM, diskInner, diskOuter]
+invariants:
+  - key: runs
+    label: simulation advances each frame
+    tolerance: 1
+  - key: bounded
+    label: state stays finite
+    tolerance: 1
+  - key: deterministic
+    label: fixed seed reproduces the run
+    tolerance: 1
+what_to_try:
+  - Vary each control and watch the rail readouts respond.
+  - Compare the diagnostic plot against the live scene.
 ---
 
 # Schwarzschild-Kerr Black Hole 3D

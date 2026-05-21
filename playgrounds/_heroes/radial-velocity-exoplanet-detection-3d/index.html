@@ -1,18 +1,48 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Radial Velocity Exoplanet Detection</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radial Velocity Exoplanet Detection</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Radial-velocity exoplanet detection</h1>
-<p><strong>What you are seeing:</strong> a star and a planet orbiting their common center of mass. The star traces a small ellipse mirroring the planet's; the line-of-sight component of its velocity produces the radial velocity curve on the right. A horizontally-shifting spectral line below the curve illustrates the Doppler shift. This is how 51 Peg b (Mayor and Queloz 1995) was found. Source: Murray and Dermott, <em>Solar System Dynamics</em>, Ch. 2 (<code>murraydermott1999</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="900" height="560"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
-  <span class="label">K:</span><span class="value" id="readout-K">--</span>
-  <span class="label">v_r:</span><span class="value" id="readout-vr">--</span>
-  <span class="label">phase:</span><span class="value" id="readout-phase">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> Top-down orbit of star + planet around the COM; radial velocity curve + Doppler-shifted spectral-line indicator. Method: Kepler solver + closed-form RV with K = (2πG/P)^(1/3) m_p sin(i) (M+m)^{-2/3} (1-e^2)^{-1/2}. Source: Murray and Dermott, Solar System Dynamics, Ch. 2.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
+<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Radial-velocity exoplanet detection</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Radial-velocity exoplanet detection</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a star and a planet orbiting their common center of mass. The star traces a small ellipse mirroring the planet's; the line-of-sight component of its velocity produces the radial velocity curve on the right. A horizontally-shifting spectral line below the curve illustrates the Doppler shift. This is how 51 Peg b (Mayor and Queloz 1995) was found. Source: Murray and Dermott, <em>Solar System Dynamics</em>, Ch. 2 (<code>murraydermott1999</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="560"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Top-down orbit of star + planet around the COM; radial velocity curve + Doppler-shifted spectral-line indicator. Method: Kepler solver + closed-form RV with K = (2πG/P)^(1/3) m_p sin(i) (M+m)^{-2/3} (1-e^2)^{-1/2}. Source: Murray and Dermott, Solar System Dynamics, Ch. 2.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">planet mass m_p</span><input aria-label="m_p" type="range" id="slider-mp" min="0.0005" max="0.05" step="0.0005" value="0.01"><span class="value" id="value-mp">0.010</span></div>
 <div class="row"><span class="label">period P</span><input aria-label="P" type="range" id="slider-P" min="0.5" max="4" step="0.1" value="1.6"><span class="value" id="value-P">1.6</span></div>
 <div class="row"><span class="label">eccentricity e</span><input aria-label="e" type="range" id="slider-e" min="0" max="0.7" step="0.02" value="0.20"><span class="value" id="value-e">0.20</span></div>
@@ -20,4 +50,42 @@
 <div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
 </div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">K:</span><span class="value" id="readout-K">--</span>
+  <span class="label">v_r:</span><span class="value" id="readout-vr">--</span>
+  <span class="label">phase:</span><span class="value" id="readout-phase">--</span>
+</div><span class="value" id="readout-K">--</span><span class="value" id="readout-vr">--</span><span class="value" id="readout-phase">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

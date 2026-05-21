@@ -8,6 +8,7 @@
 // density layered planet, hydrostatic central pressure, mass-radius).
 
 import { RHO, solvePlanet, massRadiusCurve, pressureProfile, normaliseFractions } from './sim.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -55,7 +56,7 @@ function drawLayeredSphere() {
   // Frame
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(NX, NY, NW, NH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(NX, NY, NW, NH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('layered planet (3D cutaway, slow rotation)', NX + 14, NY + 22);
 
   // Slow yaw rotation; viewer is at +z looking -z. The cutaway wedge
@@ -171,7 +172,7 @@ function drawLayeredSphere() {
     const col = LCOL[L.name];
     ctx.fillStyle = col.fill; ctx.fillRect(NX + 14, ly - 8, 12, 12);
     ctx.strokeStyle = col.edge; ctx.strokeRect(NX + 14, ly - 8, 12, 12);
-    ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     const pct = (L.M / sol.Mtot * 100).toFixed(1);
     ctx.fillText(`${col.label} (rho = ${L.rho} kg/m3, ${pct}% mass)`, NX + 32, ly + 2);
     ly -= 18;
@@ -181,7 +182,7 @@ function drawLayeredSphere() {
 function drawMRcurve() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(PX, PY, PW, PH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('mass-radius curve (Earth units)', PX + 14, PY + 20);
 
   const M_axis = [];
@@ -222,12 +223,12 @@ function drawMRcurve() {
   const X = xp(sol.M_earth), Y = yp(sol.R_earth);
   ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(X, Y, 6.5, 0, 6.2832); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.arc(X, Y, 6.5, 0, 6.2832); ctx.stroke();
-  ctx.fillStyle = '#ffd24a'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffd24a'; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText(`this planet (${sol.M_earth.toFixed(2)} Me, ${sol.R_earth.toFixed(2)} Re)`, X + 10, Y - 8);
 
   // legend
   let ly = PY + 40;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const c of curves) {
     ctx.fillStyle = c.col; ctx.fillRect(PX + PW - 200, ly - 6, 14, 6);
     ctx.fillStyle = '#c8ccd6'; ctx.fillText(c.lab, PX + PW - 182, ly);
@@ -244,7 +245,7 @@ function drawMRcurve() {
 function drawPressureProfile() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(PSX, PSY, PSW, PSH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(PSX, PSY, PSW, PSH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('pressure profile from centre to surface', PSX + 14, PSY + 20);
 
   const N = 220;
@@ -270,7 +271,7 @@ function drawPressureProfile() {
   ctx.lineWidth = 1;
 
   // axes
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('radius r (m)', PSX + PSW / 2, PSY + PSH - 6);
   ctx.save(); ctx.translate(PSX + 16, PSY + PSH / 2 + 12); ctx.rotate(-Math.PI / 2);
   ctx.fillText('pressure P (Pa)', 0, 0); ctx.restore();
@@ -285,7 +286,7 @@ function drawPressureProfile() {
   ctx.textAlign = 'left';
 
   // central pressure annotation
-  ctx.fillStyle = '#ffd24a'; ctx.font = 'bold 12px ui-monospace, monospace';
+  ctx.fillStyle = '#ffd24a'; ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText(`P(0) = ${sol.centralPressure.toExponential(2)} Pa`, PSX + pad + 14, PSY + padT + 22);
 }
 
@@ -394,3 +395,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'CPU-only (closed-form layered 
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

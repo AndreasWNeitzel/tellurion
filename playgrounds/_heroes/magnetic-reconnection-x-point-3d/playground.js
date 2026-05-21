@@ -9,6 +9,7 @@
 import { PRESETS, lundquist, reconnectionRate, inflowSpeed, sheetHalfWidth, fieldAt, makeRng } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -269,7 +270,7 @@ function drawXPoint() {
 
 function drawLabels() {
   ctx.fillStyle = 'rgba(180, 220, 255, 0.75)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('B above sheet  ->', 14, 22);
   ctx.fillStyle = 'rgba(255, 180, 130, 0.75)';
   ctx.fillText('<-  B below sheet', W - 130, H - 12);
@@ -290,7 +291,7 @@ function drawReconnectionDiagnostic() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('reconnection rate  M_A vs Lundquist S', px + 8, py + 14);
   const ax = px + 40, ay = py + 22, aw = pw - 52, ah = ph - 42;
   // Sweep log_eta to span S and M_A; collect (logS, logMA).
@@ -319,7 +320,7 @@ function drawReconnectionDiagnostic() {
     ctx.fillStyle = '#fff';
     ctx.beginPath(); ctx.arc(xOf(Math.log10(Snow)), yOf(Math.log10(MAnow)), 4, 0, 6.28); ctx.fill();
   }
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('log S', ax + aw / 2 - 14, py + ph - 4);
   ctx.save(); ctx.translate(px + 12, ay + ah / 2 + 18); ctx.rotate(-Math.PI / 2);
   ctx.fillText('log M_A', 0, 0); ctx.restore();
@@ -419,4 +420,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

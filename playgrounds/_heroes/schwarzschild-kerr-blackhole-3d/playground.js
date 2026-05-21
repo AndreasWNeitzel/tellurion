@@ -6,6 +6,7 @@ import { bCritSchwarzschild, iscoKerr, deflectionAngleSchwarzschild, deflectionW
 import { setupBHGL } from '../../../shared/js/engine-gl/schwarzschild-kerr.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -130,7 +131,7 @@ function drawBHDiagnostic() {
   const w = bhDiag.width, h = bhDiag.height;
   bhctx.clearRect(0, 0, w, h);
   bhctx.fillStyle = 'rgba(220,230,255,0.92)';
-  bhctx.font = 'bold 11px ui-monospace, monospace';
+  bhctx.font = fontString(canvas, 'caption', 'mono', 600);
   bhctx.fillText('ISCO radius  r_ISCO(a/M)', 8, 14);
   const ax = 34, ay = 24, aw = w - 46, ah = h - 44;
   const xOf = (a) => ax + a * aw;
@@ -151,7 +152,7 @@ function drawBHDiagnostic() {
   const rNow = st.aOverM === 0 ? 6 : iscoKerr(st.aOverM);
   bhctx.fillStyle = '#fff';
   bhctx.beginPath(); bhctx.arc(xOf(st.aOverM), yOf(rNow), 4, 0, 6.28); bhctx.fill();
-  bhctx.fillStyle = 'rgba(200,210,240,0.78)'; bhctx.font = '9px ui-monospace, monospace';
+  bhctx.fillStyle = 'rgba(200,210,240,0.78)'; bhctx.font = fontString(canvas, 'tick', 'mono');
   bhctx.fillText('6M', 10, yOf(6) + 3);
   bhctx.fillText('0', 20, yOf(0));
   bhctx.fillText('a/M: 0', ax, ay + ah + 11);
@@ -225,3 +226,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'BH hero validates via physics 
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

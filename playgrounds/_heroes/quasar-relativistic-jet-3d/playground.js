@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -235,7 +236,7 @@ function drawSceneFrame(center, scale) {
   ctx.beginPath(); ctx.moveTo(aA.x, aA.y); ctx.lineTo(aB.x, aB.y); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('jet axis', aA.x + 8, aA.y + 4);
   ctx.fillText('counter-jet', aB.x + 8, aB.y);
 }
@@ -251,7 +252,7 @@ function drawSidePanel() {
   ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
   // Title
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Doppler boost diagnostics', x0 + 8, y0 - 6);
   // Compute quantities.
   const beta = betaFromGamma(st.Gamma);
@@ -265,10 +266,10 @@ function drawSidePanel() {
   let y = y0 + 24;
   const drawRow = (label, value, color = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(label, x0 + 10, y);
     ctx.fillStyle = color;
-    ctx.font = '13px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'body', 'mono');
     ctx.fillText(value, x0 + 165, y);
     y += 22;
   };
@@ -295,7 +296,7 @@ function drawSidePanel() {
   const wCj = barW * Math.pow(dm, FLUX_EXPONENT) / Math.max(1e-12, Fmax);
   ctx.fillRect(barX, yCj, wCj, barH);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('F_jet', barX + 4, yJ - 2);
   ctx.fillText('F_cj', barX + 4, yCj - 2);
 
@@ -304,7 +305,7 @@ function drawSidePanel() {
   const plotX0 = x0 + 44, plotX1 = x1 - 14;
   const plotY1 = y1 - 28;
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText('δ(θ) and β_app(θ)', x0 + 10, plotY0 - 8);
   // Axes: theta 0..90 deg; left y = delta (0..2 Gamma), right = beta_app.
   const deltaMax = 2.1 * st.Gamma;
@@ -319,7 +320,7 @@ function drawSidePanel() {
     const xx = xOfT(td);
     ctx.beginPath(); ctx.moveTo(xx, plotY0); ctx.lineTo(xx, plotY1); ctx.stroke();
     ctx.fillStyle = 'rgba(200, 210, 240, 0.7)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${td}°`, xx - 8, plotY1 + 12);
   }
   // delta curve (cyan).
@@ -346,7 +347,7 @@ function drawSidePanel() {
   ctx.beginPath(); ctx.moveTo(xOfT(st.thetaDeg), plotY0); ctx.lineTo(xOfT(st.thetaDeg), plotY1); ctx.stroke();
   ctx.setLineDash([]);
   // Legend.
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('δ', plotX0 + 4, plotY0 + 10);
   ctx.fillStyle = '#ffd166';
   ctx.fillText('β_app', plotX0 + 16, plotY0 + 10);
@@ -376,7 +377,7 @@ function draw() {
   updateReadout();
   // Caption
   ctx.fillStyle = 'rgba(220, 230, 255, 0.6)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`Gamma = ${st.Gamma.toFixed(1)}, theta_obs = ${st.thetaDeg.toFixed(0)} deg`, 14, H - 14);
 }
 
@@ -448,4 +449,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

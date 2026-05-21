@@ -11,6 +11,7 @@ import {
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { rdbu } from '../../../shared/js/render/colormaps.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -133,9 +134,9 @@ function drawMicrolensingPanel(muTot) {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText('microlensing event A(t)', px + 6, py + 14);
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 240, 0.65)';
   ctx.fillText(`u_min = ${st.uMin.toFixed(2)}   t / t_E = ${st.tNorm.toFixed(2)}`, px + 6, py + 28);
   // Axis: t/t_E in [-3, 3], A in [0.9, A_peak * 1.1].
@@ -169,7 +170,7 @@ function drawMicrolensingPanel(muTot) {
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(xOfT(st.tNorm), yOfA(aNow), 4, 0, 6.28); ctx.stroke();
   // y-axis ticks.
-  ctx.fillStyle = 'rgba(200, 210, 240, 0.85)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillText('1', ax - 3, yOfA(1) + 3);
   ctx.fillText(APeak.toFixed(1), ax - 3, yOfA(APeak) + 3);
@@ -238,7 +239,7 @@ function renderCaustics() {
   ctx.fillStyle = 'rgba(6, 8, 14, 0.78)';
   ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(255,255,255,0.92)';
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`point lens + external shear γ = ${st.shear.toFixed(2)}   (Chang-Refsdal)`, 24, 20);
   const nImg = images.length;
   ctx.fillStyle = nImg >= 4 ? '#9be8b0' : 'rgba(255,255,255,0.8)';
@@ -246,7 +247,7 @@ function renderCaustics() {
   ctx.fillStyle = 'rgba(200,210,240,0.7)';
   ctx.fillText('drag the source; cyan = critical curve, gold = caustic', 24, 52);
   // Legend keys bottom-left.
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#5bc0eb'; ctx.fillText('— critical curve (image plane)', 24, H - 30);
   ctx.fillStyle = '#ffc45a'; ctx.fillText('— caustic / astroid (source plane)', 24, H - 14);
 
@@ -297,7 +298,7 @@ function render() {
   ctx.fillStyle = 'rgba(6, 8, 14, 0.72)';
   ctx.fillRect(0, 0, W, 50);
   ctx.fillStyle = 'rgba(255,255,255,0.92)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`source β = (${st.bx.toFixed(2)}, ${st.by.toFixed(2)})    Einstein ring θ_E = 1`, 24, 22);
   ctx.fillText(`drag to move the source; yellow dots are the two images`, 24, 40);
@@ -441,4 +442,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

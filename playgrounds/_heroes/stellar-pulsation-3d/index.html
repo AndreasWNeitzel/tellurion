@@ -1,21 +1,89 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Stellar Pulsation 3D</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stellar Pulsation 3D</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas:active { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Stellar pulsation modes in 3D</h1>
-<p><strong>What you are seeing:</strong> a 3D star whose surface oscillates in the angular pattern of the spherical harmonic $Y_l^m(\theta, \phi)$, animated by $\cos(\omega t)$. Pick $(l, m)$ and watch the iconic asteroseismic mode patterns. Drag to orbit, slider to scrub time. Source: Aerts et al., <em>Asteroseismology</em>, Ch. 3 (<code>aerts-asteroseism</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="900" height="620"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
-  <span class="label">(l, m):</span><span class="value" id="readout-lm">(2, 2)</span>
-  <span class="label">phase:</span><span class="value" id="readout-phase">0</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> 3D star surface displaced by $Y_l^m(\theta, \phi)\cos(\omega t)$, colored by signed radial displacement. <em>Method:</em> Legendre-recurrence spherical harmonic, Canvas2D perspective rendering of the displaced lat-lon mesh. <em>Source:</em> Aerts et al., Asteroseismology, Ch. 3.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
+<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas:active { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Stellar pulsation modes in 3D</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Stellar pulsation modes in 3D</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a 3D star whose surface oscillates in the angular pattern of the spherical harmonic <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mi>l</mi><mi>m</mi></msubsup><mo stretchy="false">(</mo><mi>θ</mi><mo separator="true">,</mo><mi>ϕ</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">Y_l^m(\theta, \phi)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0331em; vertical-align: -0.2831em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.2222em;">Y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span class="" style="top: -2.4169em; margin-left: -0.2222em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0197em;">l</span></span></span><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2831em;"><span class=""></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">ϕ</span><span class="mclose">)</span></span></span></span></span>, animated by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>ω</mi><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\cos(\omega t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">cos</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">ω</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></span>. Pick <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>l</mi><mo separator="true">,</mo><mi>m</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(l, m)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0197em;">l</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> and watch the iconic asteroseismic mode patterns. Drag to orbit, slider to scrub time. Source: Aerts et al., <em>Asteroseismology</em>, Ch. 3 (<code>aerts-asteroseism</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="620"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> 3D star surface displaced by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mi>l</mi><mi>m</mi></msubsup><mo stretchy="false">(</mo><mi>θ</mi><mo separator="true">,</mo><mi>ϕ</mi><mo stretchy="false">)</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>ω</mi><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">Y_l^m(\theta, \phi)\cos(\omega t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0331em; vertical-align: -0.2831em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.2222em;">Y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span class="" style="top: -2.4169em; margin-left: -0.2222em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0197em;">l</span></span></span><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2831em;"><span class=""></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">ϕ</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">cos</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">ω</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></span>, colored by signed radial displacement. <em>Method:</em> Legendre-recurrence spherical harmonic, Canvas2D perspective rendering of the displaced lat-lon mesh. <em>Source:</em> Aerts et al., Asteroseismology, Ch. 3.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">degree ℓ</span><input aria-label="degree l" type="range" id="slider-l" min="1" max="6" step="1" value="2"><span class="value" id="value-l">2</span></div>
 <div class="row"><span class="label">order m</span><input aria-label="order m" type="range" id="slider-m" min="-6" max="6" step="1" value="2"><span class="value" id="value-m">2</span></div>
 <div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="1"><span class="value" id="value-speed">1</span></div>
 <div class="row"><span class="label">amplitude</span><input aria-label="amplitude" type="range" id="slider-amp" min="0.05" max="0.30" step="0.01" value="0.16"><span class="value" id="value-amp">0.16</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
 </div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">(l, m):</span><span class="value" id="readout-lm">(2, 2)</span>
+  <span class="label">phase:</span><span class="value" id="readout-phase">0</span>
+</div><span class="value" id="readout-lm">(2, 2)</span><span class="value" id="readout-phase">0</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

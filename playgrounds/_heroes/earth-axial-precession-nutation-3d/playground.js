@@ -6,6 +6,7 @@ import { precessionLongitude, nutation, obliquity, EPS0_DEG } from '../../../sha
 import { setupEarthGL } from '../../../shared/js/engine-gl/earth-rotation.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -207,7 +208,7 @@ function drawPrecessionDiagnostic(axis) {
   const w = epDiag.width, h = epDiag.height;
   epctx.clearRect(0, 0, w, h);
   epctx.fillStyle = 'rgba(220,230,255,0.92)';
-  epctx.font = 'bold 11px ui-monospace, monospace';
+  epctx.font = fontString(canvas, 'caption', 'mono', 600);
   epctx.fillText('precession circle', 8, 14);
   const cx = w / 2, cy = h / 2 + 8, rad = Math.min(w, h) * 0.34;
   epctx.strokeStyle = 'rgba(255,255,255,0.10)';
@@ -229,7 +230,7 @@ function drawPrecessionDiagnostic(axis) {
   epctx.arc(cx + axis[0] * rad, cy + axis[2] * rad, 4, 0, 6.28);
   epctx.fill();
   epctx.fillStyle = 'rgba(200,210,240,0.7)';
-  epctx.font = '9px ui-monospace, monospace';
+  epctx.font = fontString(canvas, 'tick', 'mono');
   epctx.fillText('ecliptic-plane projection', 8, h - 6);
 }
 
@@ -328,3 +329,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'earth hero has no GPU physics 
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

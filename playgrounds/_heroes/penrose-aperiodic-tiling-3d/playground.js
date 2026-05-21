@@ -5,6 +5,7 @@
 import { buildTiling, countByType, totalArea, PHI } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -96,7 +97,7 @@ function drawTiling() {
   ctx.fillStyle = 'rgba(120, 200, 240, 0.92)';
   ctx.fillRect(14, 14, 14, 14);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('A (thick, 72/108)', 34, 26);
   ctx.fillStyle = 'rgba(240, 160, 100, 0.92)';
   ctx.fillRect(14, 36, 14, 14);
@@ -105,7 +106,7 @@ function drawTiling() {
 
   // Count + ratio
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = '13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`tiles: ${st.counts.total}`, 14, H - 36);
   ctx.fillText(`A / B: ${st.counts.ratio.toFixed(4)} (phi = ${PHI.toFixed(4)})`, 14, H - 18);
 
@@ -123,7 +124,7 @@ function drawConvergenceDiagnostic() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('tile ratio A/B converges to φ', px + 8, py + 14);
   const ax = px + 34, ay = py + 24, aw = pw - 46, ah = ph - 44;
   const NMAX = 12;
@@ -143,7 +144,7 @@ function drawConvergenceDiagnostic() {
   ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(ax, yOf(PHI)); ctx.lineTo(ax + aw, yOf(PHI)); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255, 209, 102, 0.9)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 209, 102, 0.9)'; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('φ', ax + aw - 10, yOf(PHI) - 3);
   // Convergence curve.
   ctx.strokeStyle = '#78c8f0'; ctx.lineWidth = 2;
@@ -159,7 +160,7 @@ function drawConvergenceDiagnostic() {
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([2, 2]);
   ctx.beginPath(); ctx.moveTo(xOf(nNow), ay); ctx.lineTo(xOf(nNow), ay + ah); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('depth 0', ax, ay + ah + 11);
   ctx.fillText(`${NMAX}`, ax + aw - 8, ay + ah + 11);
 }
@@ -220,4 +221,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

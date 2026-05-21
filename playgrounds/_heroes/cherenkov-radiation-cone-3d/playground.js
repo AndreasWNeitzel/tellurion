@@ -5,6 +5,7 @@
 import { cherenkovAngle, frankTammFactor, wavelets, particleX } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -104,7 +105,7 @@ function drawCone() {
   ctx.moveTo(apex.x, apex.y); ctx.lineTo(top.x, top.y); ctx.lineTo(bot.x, bot.y); ctx.closePath();
   ctx.fill();
   ctx.fillStyle = 'rgba(255, 209, 102, 0.9)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`theta_C = ${(theta * 180 / Math.PI).toFixed(1)} deg`, apex.x + 14, apex.y - 14);
 }
@@ -133,7 +134,7 @@ function drawDiagnostic() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText('Cherenkov angle  θ_C(β)', px + 8, py + 14);
   const ax = px + 32, ay = py + 24, aw = pw - 44, ah = ph - 46;
   // x: beta in [0, 1]; y: theta in [0, 90 deg].
@@ -150,7 +151,7 @@ function drawDiagnostic() {
   ctx.beginPath(); ctx.moveTo(xOf(bThr), ay); ctx.lineTo(xOf(bThr), ay + ah); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(125, 211, 252, 0.9)';
-  ctx.font = '9px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('βn=1', xOf(bThr) + 2, ay + 10);
   // theta_C(beta) curve.
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
@@ -172,7 +173,7 @@ function drawDiagnostic() {
   }
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 240, 0.8)';
-  ctx.font = '9px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('0', ax - 8, ay + ah + 9);
   ctx.fillText('1', ax + aw - 4, ay + ah + 9);
   ctx.fillText('β', ax + aw / 2, ay + ah + 11);
@@ -191,7 +192,7 @@ function render() {
   const theta = cherenkovAngle(st.beta, st.n);
   const fac = frankTammFactor(st.beta, st.n);
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`beta = ${st.beta.toFixed(2)}    n = ${st.n.toFixed(2)}    beta*n = ${(st.beta * st.n).toFixed(3)}`, 24, 22);
   if (theta === null) {
@@ -270,4 +271,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

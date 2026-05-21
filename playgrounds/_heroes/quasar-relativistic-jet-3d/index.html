@@ -1,24 +1,92 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quasar Relativistic Jet</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quasar Relativistic Jet</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #03040a; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Quasar relativistic jet</h1>
-<p><strong>What you are seeing:</strong> a supermassive black hole with a glowing accretion disk and a bipolar relativistic jet at bulk Lorentz factor $\Gamma$. The viewer angle $\theta_{\rm obs}$ from the jet axis controls Doppler boosting: the approaching side is amplified by $\delta_+^{3-\alpha}$ and the receding side dimmed by $\delta_-^{3-\alpha}$. Source: Rybicki and Lightman, <em>Radiative Processes in Astrophysics</em>, Section 4.8 (<code>rybicki-lightman</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="900" height="560"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
+<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #03040a; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Quasar relativistic jet</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Quasar relativistic jet</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a supermassive black hole with a glowing accretion disk and a bipolar relativistic jet at bulk Lorentz factor <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Γ</mi></mrow><annotation encoding="application/x-tex">\Gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord">Γ</span></span></span></span></span>. The viewer angle <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">b</mi><mi mathvariant="normal">s</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\theta_{\rm obs}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8444em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span class="" style="top: -2.55em; margin-left: -0.0278em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">obs</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span> from the jet axis controls Doppler boosting: the approaching side is amplified by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>δ</mi><mo>+</mo><mrow><mn>3</mn><mo>−</mo><mi>α</mi></mrow></msubsup></mrow><annotation encoding="application/x-tex">\delta_+^{3-\alpha}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.1361em; vertical-align: -0.2819em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0379em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8542em;"><span class="" style="top: -2.4765em; margin-left: -0.0379em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span><span class="" style="top: -3.1031em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right: 0.0037em;">α</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2819em;"><span class=""></span></span></span></span></span></span></span></span></span></span> and the receding side dimmed by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>δ</mi><mo>−</mo><mrow><mn>3</mn><mo>−</mo><mi>α</mi></mrow></msubsup></mrow><annotation encoding="application/x-tex">\delta_-^{3-\alpha}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.1361em; vertical-align: -0.2819em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0379em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8542em;"><span class="" style="top: -2.4765em; margin-left: -0.0379em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">−</span></span></span><span class="" style="top: -3.1031em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right: 0.0037em;">α</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2819em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. Source: Rybicki and Lightman, <em>Radiative Processes in Astrophysics</em>, Section 4.8 (<code>rybicki-lightman</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="560"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Doppler-boosted jet pair from a SMBH; viewing-angle sweep shows blazar (theta_obs ~ 0) vs radio galaxy (theta_obs ~ 90 deg) regimes. Method: delta_pm = 1/(Gamma (1 -+ beta cos theta)), flux ~ delta^(3 - alpha). Source: Rybicki and Lightman, Section 4.8.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">Lorentz Gamma</span><input aria-label="gamma" type="range" id="slider-gamma" min="1.2" max="20" step="0.1" value="10"><span class="value" id="value-gamma">10.0</span></div>
+<div class="row"><span class="label">theta_obs (deg)</span><input aria-label="theta" type="range" id="slider-theta" min="0" max="90" step="0.5" value="20"><span class="value" id="value-theta">20.0</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+<div class="row"><span class="label">show counter-jet</span><select aria-label="cj" id="select-cj"><option value="1" selected="">show counter-jet</option><option value="0">hide counter-jet</option></select><span class="value" id="value-cj">on</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
   <span class="label">Gamma:</span><span class="value" id="readout-gamma">--</span>
   <span class="label">beta = v/c:</span><span class="value" id="readout-beta">--</span>
   <span class="label">theta_obs:</span><span class="value" id="readout-theta">--</span>
   <span class="label">flux ratio (jet / cj):</span><span class="value" id="readout-ratio">--</span>
   <span class="label">beta_app (jet):</span><span class="value" id="readout-bapp">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> Doppler-boosted jet pair from a SMBH; viewing-angle sweep shows blazar (theta_obs ~ 0) vs radio galaxy (theta_obs ~ 90 deg) regimes. Method: delta_pm = 1/(Gamma (1 -+ beta cos theta)), flux ~ delta^(3 - alpha). Source: Rybicki and Lightman, Section 4.8.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">Lorentz Gamma</span><input aria-label="gamma" type="range" id="slider-gamma" min="1.2" max="20" step="0.1" value="10"><span class="value" id="value-gamma">10.0</span></div>
-<div class="row"><span class="label">theta_obs (deg)</span><input aria-label="theta" type="range" id="slider-theta" min="0" max="90" step="0.5" value="20"><span class="value" id="value-theta">20.0</span></div>
-<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="2"><span class="value" id="value-speed">2</span></div>
-<div class="row"><span class="label">show counter-jet</span><select aria-label="cj" id="select-cj"><option value="1" selected>show counter-jet</option><option value="0">hide counter-jet</option></select><span class="value" id="value-cj">on</span></div>
-<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
-</div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+</div><span class="value" id="readout-gamma">--</span><span class="value" id="readout-beta">--</span><span class="value" id="readout-theta">--</span><span class="value" id="readout-ratio">--</span><span class="value" id="readout-bapp">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

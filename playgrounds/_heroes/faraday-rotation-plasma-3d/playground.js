@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -61,7 +62,7 @@ function drawHelixColumn() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('plasma column (B || k)', x + 8, y - 6);
 
   // Plasma shading (subtle gradient + B-field arrows).
@@ -79,7 +80,7 @@ function drawHelixColumn() {
     drawArrowY(xx, y + 20, xx, y + h - 20);
   }
   ctx.fillStyle = 'rgba(180, 100, 220, 0.7)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('B', x + w - 14, y + h / 2);
 
   // Polarization vector along z.
@@ -110,7 +111,7 @@ function drawHelixColumn() {
   }
   // Endpoint labels.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.8)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('phi_in', midX + arrowLen + 10, y + 24);
   const chiTot = rotationAngleDeg(RM, lambda_m());
   ctx.fillText(`phi_out = phi_in + ${chiTot.toFixed(0)} deg`, x + 8, y + h - 8);
@@ -142,7 +143,7 @@ function drawMultiwavelength() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('multi-wavelength rotation', x + 8, y - 6);
 
   const RM = currentRM();
@@ -158,7 +159,7 @@ function drawMultiwavelength() {
     const cx = x + 15 + bi * colWidth + colWidth / 2;
     const arrowLen = colWidth * 0.35;
     ctx.fillStyle = band.color;
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(band.name, cx - 24, y + 22);
     const chiTot = rotationAngle(RM, band.lam);
     for (let i = 0; i < N; i++) {
@@ -177,7 +178,7 @@ function drawMultiwavelength() {
     }
     // Label rotation total
     ctx.fillStyle = band.color;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${rotationAngleDeg(RM, band.lam).toFixed(0)} deg`, cx - 18, y + h - 8);
   }
 }
@@ -191,7 +192,7 @@ function drawChiLambda2() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('chi(lambda^2) line fit', x + 8, y - 6);
 
   const RM = currentRM();
@@ -245,12 +246,12 @@ function drawChiLambda2() {
     const yy = y + h / 2 - cd * (h - 50) / 360;
     ctx.fillStyle = band.color;
     ctx.beginPath(); ctx.arc(xx, yy, 5, 0, Math.PI * 2); ctx.fill();
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(band.name, xx + 8, yy + 4);
   }
   // Axis labels
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', x + 30, y + h - 16);
   ctx.fillText(`${lam2_max.toFixed(2)}`, x + w - 30, y + h - 16);
   ctx.fillText('lambda^2 (m^2)', x + w / 2 - 30, y + h - 4);
@@ -328,7 +329,7 @@ function draw() {
   updateReadout();
   // Bottom caption
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`RM = ${currentRM().toExponential(2)} rad/m^2, lambda = ${lambda_m().toFixed(3)} m, chi = ${rotationAngleDeg(currentRM(), lambda_m()).toFixed(1)} deg`, 14, H - 14);
 }
 
@@ -347,4 +348,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

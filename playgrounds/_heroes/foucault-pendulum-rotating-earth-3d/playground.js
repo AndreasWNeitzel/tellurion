@@ -6,6 +6,7 @@
 import { step, planeAngle, energy, ic, precessionPeriod, PENDULUM_OMEGA, OMEGA_EARTH } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -105,7 +106,7 @@ function drawEarth() {
 
   // Labels.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText(`φ = ${st.latDeg}°`, cx, cy - R - 14);
   ctx.fillStyle = 'rgba(255, 209, 102, 0.85)';
@@ -129,7 +130,7 @@ function drawTrace() {
   ctx.stroke();
   // Compass labels
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('N', cx, cy - R - 4);
   ctx.fillText('S', cx, cy + R + 14);
@@ -162,7 +163,7 @@ function drawTrace() {
   }
 
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('local floor (bob trace)', cx, cy - R - 14);
 }
@@ -179,7 +180,7 @@ function render() {
   const T_prec = precessionPeriod(phi);
   const T_prec_str = Number.isFinite(T_prec) ? `${T_prec.toFixed(1)} t.u.` : 'infinite';
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`Coriolis Ω = Ω_earth · sin(φ) = ${(OMEGA_EARTH * Math.sin(phi)).toFixed(3)}`, 24, 26);
   ctx.fillText(`precession period = ${T_prec_str}    (sidereal "day" = ${(2 * Math.PI / OMEGA_EARTH).toFixed(1)} t.u.)`, 24, 44);
@@ -209,7 +210,7 @@ function drawAngleDiagnostic() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('swing-plane azimuth vs time', px + 8, py + 14);
   if (angHistory.length < 2) return;
   const ax = px + 34, ay = py + 22, aw = pw - 46, ah = ph - 40;
@@ -227,7 +228,7 @@ function drawAngleDiagnostic() {
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${aMax.toFixed(0)}°`, px + 4, ay + 8);
   ctx.fillText(`${aMin.toFixed(0)}°`, px + 4, ay + ah);
   ctx.fillText('t', ax + aw / 2, py + ph - 4);
@@ -312,4 +313,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

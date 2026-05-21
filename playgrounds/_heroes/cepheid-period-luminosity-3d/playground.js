@@ -12,6 +12,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -55,7 +56,7 @@ function drawStar() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('pulsating Cepheid', x + 8, y - 6);
 
   const cx = x + w / 2, cy = y + h / 2;
@@ -107,7 +108,7 @@ function drawStar() {
   ctx.setLineDash([]);
   // Readouts.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`R = ${R_Rsun.toFixed(1)} R_sun`, x + 8, y + h - 52);
   ctx.fillText(`T_eff = ${T_K.toFixed(0)} K`, x + 8, y + h - 38);
   ctx.fillText(`L / <L> = ${lumFactor.toFixed(2)}`, x + 8, y + h - 24);
@@ -116,7 +117,7 @@ function drawStar() {
   // Phase arrow.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
   const dPhase = Math.cos(2 * Math.PI * st.phase);
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(dPhase > 0 ? '(expanding)' : '(contracting)', x + 8, y + 18);
 }
 
@@ -128,7 +129,7 @@ function drawLightcurve() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('lightcurve  L(phi)', x + 8, y - 6);
 
   // Two-period lightcurve over phase axis [-0.2, 1.8].
@@ -173,7 +174,7 @@ function drawLightcurve() {
   }
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('phi = 0', x + 40, y + h - 10);
   ctx.fillText('1', x + 40 + ((1 - phi_min) / (phi_max - phi_min)) * (w - 60) - 4, y + h - 10);
   ctx.fillText('2', x + 40 + ((1.8 - phi_min) / (phi_max - phi_min)) * (w - 60) - 4, y + h - 10);
@@ -181,7 +182,7 @@ function drawLightcurve() {
   ctx.fillText('L_max', x + 8, y + 14);
   // Period text.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`P = ${st.P.toFixed(1)} days`, x + w - 90, y + h - 8);
 }
 
@@ -193,7 +194,7 @@ function drawPLDiagram() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Leavitt period-luminosity', x + 8, y - 6);
 
   // x-axis: log10 P from 0 to 2 (1 to 100 days).
@@ -214,7 +215,7 @@ function drawPLDiagram() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(120, 220, 255, 0.8)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('M_V = -2.78 log P - 1.35', px(0.4), py(-7.4));
 
   // Calibrators.
@@ -225,7 +226,7 @@ function drawPLDiagram() {
     const xx = px(lP), yy = py(MV);
     ctx.beginPath(); ctx.arc(xx, yy, 5, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(c.name, xx + 7, yy + 4);
     ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   }
@@ -242,7 +243,7 @@ function drawPLDiagram() {
 
   // Axis labels and ticks.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let lP = 0; lP <= 2; lP += 0.5) {
     const xx = px(lP);
     ctx.fillText(`10^${lP.toFixed(1)}`, xx - 14, y + h - 8);
@@ -252,7 +253,7 @@ function drawPLDiagram() {
     ctx.fillText(`${MV}`, x + 12, yy + 4);
   }
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('log P (days)', x + w / 2 - 30, y + h - 8);
   ctx.save(); ctx.translate(x + 8, y + h / 2 + 20); ctx.rotate(-Math.PI / 2);
   ctx.fillText('M_V', 0, 0);
@@ -324,7 +325,7 @@ function draw() {
   drawPLDiagram();
   // Bottom caption
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`P = ${st.P.toFixed(1)} d, M_V = ${periodLuminosity_MV(st.P).toFixed(2)}, mu = ${distanceModulus(st.distance_pc).toFixed(2)}, m_V = ${apparentMag(periodLuminosity_MV(st.P), st.distance_pc).toFixed(2)}`, 14, H - 14);
   updateReadout();
 }
@@ -354,4 +355,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

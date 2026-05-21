@@ -6,6 +6,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -86,7 +87,7 @@ function drawInterface() {
   ctx.setLineDash([]);
   // Labels
   ctx.fillStyle = 'rgba(180, 210, 255, 0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`n_1 = ${n1().toFixed(3)} (${st.n1_key})`, SCENE.x + 14, cy - 14);
   ctx.fillStyle = 'rgba(220, 180, 240, 0.85)';
   ctx.fillText(`n_2 = ${n2().toFixed(3)} (${st.n2_key})`, SCENE.x + 14, cy + 22);
@@ -113,7 +114,7 @@ function drawRays() {
   ctx.lineWidth = 3;
   drawRayWithArrow(inc_start_x, inc_start_y, cx, cy);
   ctx.fillStyle = 'rgba(255, 220, 120, 0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`incident (theta_i = ${st.theta_deg.toFixed(1)} deg)`, inc_start_x + 6, inc_start_y - 6);
 
   // Reflected ray (mirror about normal: angle = theta_i, on the other side).
@@ -139,19 +140,19 @@ function drawRays() {
   } else {
     // TIR indicator.
     ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
-    ctx.font = 'bold 14px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'body', 'sans', 600);
     ctx.fillText('TOTAL INTERNAL REFLECTION', cx + 30, cy + 24);
   }
 
   // Regime label.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body');
   const reg = regime(ti, n1(), n2());
   ctx.fillText(`regime: ${reg}`, SCENE.x + 14, SCENE.y + 24);
 
   // R_s and R_p numerical labels.
   ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`R_s = ${Rs.toFixed(4)}`, refl_end_x + 6, refl_end_y + 14);
   ctx.fillStyle = 'rgba(120, 220, 255, 0.95)';
   ctx.fillText(`R_p = ${Rp.toFixed(4)}`, refl_end_x + 6, refl_end_y + 30);
@@ -179,7 +180,7 @@ function drawPlot() {
   ctx.lineWidth = 1;
   ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('R_s, R_p vs theta_i', PLOT.x + 8, PLOT.y - 6);
 
   // Plot R_s (red) and R_p (cyan) curves.
@@ -209,7 +210,7 @@ function drawPlot() {
   ctx.beginPath(); ctx.moveTo(xB, PLOT.y + 12); ctx.lineTo(xB, PLOT.y + PLOT.h - 30); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 220, 120, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`theta_B = ${(tB / DEG).toFixed(1)} deg`, xB + 4, PLOT.y + 28);
 
   // Critical-angle marker (if applicable).
@@ -235,14 +236,14 @@ function drawPlot() {
 
   // Legend
   ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('R_s (s-polarized)', PLOT.x + 8, PLOT.y + PLOT.h - 12);
   ctx.fillStyle = 'rgba(120, 220, 255, 0.95)';
   ctx.fillText('R_p (p-polarized)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h - 12);
 
   // Axes labels
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', PLOT.x + 38, PLOT.y + PLOT.h - 32);
   ctx.fillText('90 deg', PLOT.x + PLOT.w - 50, PLOT.y + PLOT.h - 32);
   ctx.fillText('R = 0', PLOT.x + 8, PLOT.y + PLOT.h - 32);
@@ -318,4 +319,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

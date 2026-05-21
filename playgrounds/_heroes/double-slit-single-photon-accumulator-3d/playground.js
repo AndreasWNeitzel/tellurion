@@ -7,6 +7,7 @@
 import { intensity, samplePhoton, fringeSpacing } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -87,7 +88,7 @@ function drawBarrier() {
   ctx.strokeRect(SLIT_X - 6, 50, 12, H - 100);
   // Labels
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`d = ${st.d.toFixed(2)}`, SLIT_X + 16, w2sY(0));
 }
@@ -104,7 +105,7 @@ function drawSource() {
   ctx.beginPath(); ctx.arc(cx, cy, 8, 0, 2 * Math.PI); ctx.fill();
   // "photon" label
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('photon source', cx, cy + 36);
 }
@@ -124,7 +125,7 @@ function drawScreen() {
   }
   // Label
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('detector', SCR_X + 4, H - 60);
 }
@@ -186,7 +187,7 @@ function drawHistogramAndOverlay() {
   ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('detector histogram vs Fraunhofer intensity profile', hX + 6, hY - hH + 14);
   ctx.textAlign = 'right';
@@ -206,7 +207,7 @@ function render() {
 
   // Top label band
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`fringe spacing Δy = λ D / d = ${fringeSpacing(st.d, st.lambda, D_screen).toFixed(2)}`, 24, 22);
   ctx.fillText(`a = ${st.a.toFixed(2)}    d = ${st.d.toFixed(2)}    λ = ${st.lambda.toFixed(2)}    D = ${D_screen}`, 24, 40);
@@ -286,4 +287,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

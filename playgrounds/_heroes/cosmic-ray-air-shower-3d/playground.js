@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -79,7 +80,7 @@ function drawAtmosphere() {
   ctx.fillRect(0, altToScreenY(0), SCENE.w, SCENE.h - altToScreenY(0) + 30);
   // Altitude tick marks.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let h = 0; h <= ALT_TOP_KM; h += 5) {
     const y = altToScreenY(h);
     ctx.fillText(`${h} km`, 6, y + 3);
@@ -192,7 +193,7 @@ function drawCascade() {
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`X_max = ${Xmax_v.toFixed(0)} g cm^-2`, 50, Xmax_y - 6);
 
   // Interaction-point bright flashes (additive blend).
@@ -237,14 +238,14 @@ function drawCascade() {
 
   // Header.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`primary ${st.primary}, E_0 = 10^${st.logE.toFixed(1)} eV  ·  zenith = ${st.zenithDeg.toFixed(0)}°`, 50, 24);
   ctx.fillText(`live particles: ${st.particles.length}    cycle ${st.cycle}`, 50, 42);
   // Species legend.
   let lyx = 50, lyy = SCENE.h - 18;
   function leg(col, txt) {
     ctx.fillStyle = col; ctx.beginPath(); ctx.arc(lyx, lyy, 3, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(txt, lyx + 8, lyy + 4);
     lyx += ctx.measureText(txt).width + 30;
   }
@@ -261,7 +262,7 @@ function drawProfile() {
   ctx.lineWidth = 1;
   ctx.strokeRect(PROF.x + 0.5, PROF.y + 0.5, PROF.w - 1, PROF.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Gaisser-Hillas N(X)', PROF.x + 8, PROF.y - 6);
 
   // Plot N(X) for X in [0, 1500] g cm^-2.
@@ -287,7 +288,7 @@ function drawProfile() {
   ctx.beginPath(); ctx.moveTo(xMaxX, PROF.y + 12); ctx.lineTo(xMaxX, PROF.y + PROF.h - 30); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`X_max`, xMaxX + 4, PROF.y + 22);
 
   // Sea-level marker.
@@ -302,7 +303,7 @@ function drawProfile() {
 
   // Axes.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', PROF.x + 30, PROF.y + PROF.h - 12);
   ctx.fillText('1500', PROF.x + PROF.w - 38, PROF.y + PROF.h - 12);
   ctx.fillText('X (g cm^-2)', PROF.x + PROF.w / 2 - 36, PROF.y + PROF.h - 12);
@@ -317,7 +318,7 @@ function drawProfile() {
     ctx.beginPath(); ctx.moveTo(xIron, PROF.y + 12); ctx.lineTo(xIron, PROF.y + PROF.h - 30); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(180, 180, 180, 0.75)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('iron X_max', xIron - 60, PROF.y + 56);
   }
 }
@@ -392,4 +393,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -5,6 +5,7 @@
 import { vCirc, vCircVisible, massBulge, massDisk, massDM, MW_PARAMS, G } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -120,7 +121,7 @@ function drawGalaxy3D() {
     ctx.beginPath(); ctx.arc(cx, cy, haloR, 0, 2 * Math.PI); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(170, 130, 220, 0.65)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'center';
     ctx.fillText('NFW dark halo', cx, cy + haloR + 14);
   }
@@ -157,7 +158,7 @@ function drawGalaxy3D() {
 
   // Top label
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`3D galactic disk + DM halo`, 24, 22);
   ctx.fillStyle = st.includeDM ? 'rgba(170, 130, 220, 0.85)' : 'rgba(120, 120, 130, 0.65)';
@@ -189,7 +190,7 @@ function drawRotationCurve() {
 
   // Y-axis ticks
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   for (let v = 0; v <= V_MAX; v += 0.4) {
     ctx.fillText(v.toFixed(1), ax - 4, yToPx(v) + 3);
@@ -311,7 +312,7 @@ function drawRotationCurve() {
     { label: 'observed v(r)', color: '#ffd166', dot: true },
   ].filter(Boolean);
   ctx.textAlign = 'left';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let i = 0; i < legend.length; i += 1) {
     const item = legend[i];
     const yy = legendY + i * 14;
@@ -342,7 +343,7 @@ function render() {
 
   // Bottom HUD: Rubin-Ford historical note.
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('Rubin and Ford 1970: flat rotation curves out to many disk scale lengths require dark matter', W / 2, H - 14);
 
@@ -447,4 +448,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

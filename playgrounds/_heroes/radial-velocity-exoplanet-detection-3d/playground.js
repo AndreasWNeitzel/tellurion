@@ -5,6 +5,7 @@
 import { positions, radialVelocity, rvSemiAmplitude, dopplerShift } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -100,13 +101,13 @@ function drawOrbit() {
   ctx.lineTo(cx - 5, cy + R + 10); ctx.moveTo(cx, cy + R + 4); ctx.lineTo(cx + 5, cy + R + 10);
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('observer', cx, cy + R + 30);
 
   // Title
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('top-down orbit (star + planet around COM)', cx - R, cy - R - 10);
 }
@@ -133,7 +134,7 @@ function drawRVCurve() {
   ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`v_r(t)    K = ${K.toFixed(4)}`, x0 + 8, ay - 4);
   ctx.textAlign = 'center';
@@ -178,7 +179,7 @@ function drawRVCurve() {
   // Spectral-line indicator below
   const lineX0 = ax + 20, lineX1 = ax + aw - 20, lineY = y0 + h - 50;
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('Doppler-shifted spectral line:', lineX0, lineY - 18);
   // Faint reference line
@@ -220,7 +221,7 @@ function render() {
 
   // Top label band
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`m_p = ${st.m_p.toFixed(3)}, P = ${st.P.toFixed(2)}, e = ${st.e.toFixed(2)}, i = ${st.incDeg}°`, 24, 22);
   ctx.fillText(`Mayor & Queloz 1995: first exoplanet around a Sun-like star (51 Peg b) found via RV wobble`, 24, H - 12);
@@ -303,4 +304,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

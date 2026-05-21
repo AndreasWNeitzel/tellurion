@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -111,7 +112,7 @@ function drawScene() {
   ctx.fillStyle = 'rgba(120, 180, 255, 0.95)';
   ctx.beginPath(); ctx.arc(eP.x, eP.y, 6, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(220, 240, 255, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Earth', eP.x + 8, eP.y + 4);
 
   // Pole label (current).
@@ -124,7 +125,7 @@ function drawScene() {
 
   // Caption strip.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.78)';
-  ctx.font = '13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body');
   ctx.fillText(`alpha = ${st.alpha} deg, i = ${st.incl} deg, rho = ${st.rho} deg, P = ${st.period.toFixed(2)} s`, 14, H - 16);
 }
 
@@ -254,7 +255,7 @@ function drawProfile() {
   ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
   // Title
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Pulse profile I(phi)', x0 + 8, y0 - 6);
   // Curve
   const prof = pulseProfile(st.alpha, st.incl, st.rho, 256);
@@ -284,7 +285,7 @@ function drawProfile() {
   // Axes labels (curve is normalized to its peak, so the y-axis is
   // relative flux I/I_peak; max I_peak is shown to the right).
   ctx.fillStyle = 'rgba(220, 230, 255, 0.5)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('0', x0 + 2, y1 + 14);
   ctx.fillText('phase = 1', x1 - 60, y1 + 14);
   ctx.fillText('0', x0 - 14, y1);
@@ -350,4 +351,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -6,6 +6,7 @@ import { densityAt, energyEV } from '../../../shared/js/engine/hydrogen-orbital-
 import { setupOrbitalGL } from '../../../shared/js/engine-gl/hydrogen-orbital.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -131,7 +132,7 @@ function drawRadialDiagnostic() {
   const w = hDiagCanvas.width, h = hDiagCanvas.height;
   hdctx.clearRect(0, 0, w, h);
   hdctx.fillStyle = 'rgba(220,230,255,0.92)';
-  hdctx.font = 'bold 11px ui-monospace, monospace';
+  hdctx.font = fontString(canvas, 'caption', 'mono', 600);
   hdctx.fillText('radial distribution  P(r) = r²∫|ψ|²dΩ', 8, 14);
   // Sample P(r): for each r, average densityAt over a small (theta,phi)
   // grid, multiply by 4 pi r^2.
@@ -164,7 +165,7 @@ function drawRadialDiagnostic() {
     if (i === 0) hdctx.moveTo(x, y); else hdctx.lineTo(x, y);
   }
   hdctx.stroke();
-  hdctx.fillStyle = 'rgba(200,210,240,0.75)'; hdctx.font = '9px ui-monospace, monospace';
+  hdctx.fillStyle = 'rgba(200,210,240,0.75)'; hdctx.font = fontString(canvas, 'tick', 'mono');
   hdctx.fillText('0', ax - 2, ay + ah + 10);
   hdctx.fillText(`${rMax.toFixed(0)} a₀`, ax + aw - 26, ay + ah + 10);
   hdctx.fillText('r', ax + aw / 2, ay + ah + 10);
@@ -261,3 +262,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

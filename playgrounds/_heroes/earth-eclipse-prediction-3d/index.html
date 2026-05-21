@@ -1,6 +1,15 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Eclipse Prediction</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eclipse Prediction</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
 .pg-figure { max-width: 860px; }
@@ -13,23 +22,80 @@
 .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 .local-circ { margin-top: var(--space-3); font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); padding: var(--space-2); background: rgba(20,28,44,0.6); border: 1px solid var(--border-dim); border-radius: 4px; min-height: 1.2em; }
 </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Earth eclipse prediction</h1>
-<p><strong>What you are seeing:</strong> a world map (equirectangular projection) showing the path of the Moon's shadow across Earth for upcoming solar eclipses. The dark band is the path of totality (umbra), the lighter band is the partial-eclipse region (penumbra). Pick an eclipse from the dropdown, scrub the time slider to watch the shadow sweep across the planet, or click any location to check whether the eclipse is visible there. Data: Espenak and Meeus, <em>Five-Millennium Canon of Solar Eclipses</em>, NASA TP-2006-214141 (eclipse.gsfc.nasa.gov).</p>
-<figure class="pg-figure"><canvas id="stage" width="960" height="640" aria-label="Eclipse map; click to query a location"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
-  <span class="label">date:</span><span class="value" id="readout-date">--</span>
-  <span class="label">type:</span><span class="value" id="readout-type">--</span>
-  <span class="label">greatest UT:</span><span class="value" id="readout-gut">--</span>
-  <span class="label">duration:</span><span class="value" id="readout-dur">--</span>
-  <span class="label">magnitude:</span><span class="value" id="readout-mag">--</span>
-</div>
-<div class="local-circ" id="local-circ">Click anywhere on the map to query local visibility.</div>
-<figcaption><span class="figure-number">Figure 1.</span> Upcoming solar-eclipse paths plotted on an equirectangular world map. <em>Method:</em> central-line tabulated from NASA's Five-Millennium Canon (Espenak and Meeus 2006), with umbra width and approximate penumbra extent overlaid. <em>Source:</em> Meeus, Astronomical Algorithms, 2nd ed., Ch. 54.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Earth eclipse prediction</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Earth eclipse prediction</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a world map (equirectangular projection) showing the path of the Moon's shadow across Earth for upcoming solar eclipses. The dark band is the path of totality (umbra), the lighter band is the partial-eclipse region (penumbra). Pick an eclipse from the dropdown, scrub the time slider to watch the shadow sweep across the planet, or click any location to check whether the eclipse is visible there. Data: Espenak and Meeus, <em>Five-Millennium Canon of Solar Eclipses</em>, NASA TP-2006-214141 (eclipse.gsfc.nasa.gov).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="960" height="640" aria-label="Eclipse map; click to query a location"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Upcoming solar-eclipse paths plotted on an equirectangular world map. <em>Method:</em> central-line tabulated from NASA's Five-Millennium Canon (Espenak and Meeus 2006), with umbra width and approximate penumbra extent overlaid. <em>Source:</em> Meeus, Astronomical Algorithms, 2nd ed., Ch. 54.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
 <div class="row eclipse"><span class="label">eclipse</span><select aria-label="eclipse" id="select-eclipse"></select></div>
 <div class="row"><span class="label">time (frac)</span><input aria-label="time" type="range" id="slider-t" min="0" max="1" step="0.01" value="0.5"><span class="value" id="value-t">0.50</span></div>
 <div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="1"><span class="value" id="value-speed">1</span></div>
 <div class="row buttons"><button id="btn-prev" type="button">Previous</button><button id="btn-next" type="button">Next eclipse</button><button id="btn-pause" type="button" aria-pressed="false">Play</button></div>
 </div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">date:</span><span class="value" id="readout-date">--</span>
+  <span class="label">type:</span><span class="value" id="readout-type">--</span>
+  <span class="label">greatest UT:</span><span class="value" id="readout-gut">--</span>
+  <span class="label">duration:</span><span class="value" id="readout-dur">--</span>
+  <span class="label">magnitude:</span><span class="value" id="readout-mag">--</span>
+</div><span class="value" id="readout-date">--</span><span class="value" id="readout-type">--</span><span class="value" id="readout-gut">--</span><span class="value" id="readout-dur">--</span><span class="value" id="readout-mag">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

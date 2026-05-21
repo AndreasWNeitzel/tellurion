@@ -1,6 +1,15 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Greenhouse Effect (Hero)</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greenhouse Effect (Hero)</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
 .pg-figure { max-width: 860px; }
@@ -12,22 +21,40 @@
 .pg-controls input[type="range"], .pg-controls select { width: 100%; }
 .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Greenhouse Effect <span style="font-size:12px;color:var(--fg-muted)">(Hero)</span></h1>
-<p><strong>What you are seeing:</strong> a 3D Earth in radiative balance with the Sun. Solar shortwave (cyan) streams in, the surface re-emits as IR (red), and a fraction of the IR is trapped by the atmospheric greenhouse layer. The equilibrium surface temperature T_surf is set by the balance. Drag to orbit, scroll to zoom. Source: Pierrehumbert, <em>Principles of Planetary Climate</em>, CUP 2010, Ch. 4 (<code>pierrehumbert-pp</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="960" height="640" aria-label="Greenhouse effect Earth + Sun"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
-  <span class="label">CO2 (ppm):</span><span class="value" id="readout-co2">--</span>
-  <span class="label">albedo A:</span><span class="value" id="readout-A">--</span>
-  <span class="label">tau_LW:</span><span class="value" id="readout-tau">--</span>
-  <span class="label">T_eff (K):</span><span class="value" id="readout-Teff">--</span>
-  <span class="label">T_surf (K):</span><span class="value" id="readout-Tsurf">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> 3D Earth + Sun in radiative balance. Cyan photons = incoming visible; red = outgoing IR; trapped IR re-absorbed by atmospheric layer warms surface. Right: T_surf = T_eff (2/(1+tau))^(1/4) curve over tau_LW. Method: single-layer grey-atmosphere energy balance (Pierrehumbert 2010, Ch. 4); log-CO2 parametrisation tuned to 3 K / doubling. Source: Pierrehumbert, Principles of Planetary Climate, CUP 2010, Ch. 4.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Greenhouse Effect (Hero)</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Greenhouse Effect (Hero)</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a 3D Earth in radiative balance with the Sun. Solar shortwave (cyan) streams in, the surface re-emits as IR (red), and a fraction of the IR is trapped by the atmospheric greenhouse layer. The equilibrium surface temperature T_surf is set by the balance. Drag to orbit, scroll to zoom. Source: Pierrehumbert, <em>Principles of Planetary Climate</em>, CUP 2010, Ch. 4 (<code>pierrehumbert-pp</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="960" height="640" aria-label="Greenhouse effect Earth + Sun"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> 3D Earth + Sun in radiative balance. Cyan photons = incoming visible; red = outgoing IR; trapped IR re-absorbed by atmospheric layer warms surface. Right: T_surf = T_eff (2/(1+tau))^(1/4) curve over tau_LW. Method: single-layer grey-atmosphere energy balance (Pierrehumbert 2010, Ch. 4); log-CO2 parametrisation tuned to 3 K / doubling. Source: Pierrehumbert, Principles of Planetary Climate, CUP 2010, Ch. 4.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">preset</span><select aria-label="preset" id="select-preset">
   <option value="preindustrial">Pre-industrial (1850)</option>
-  <option value="current" selected>Current (2025)</option>
+  <option value="current" selected="">Current (2025)</option>
   <option value="doubled_co2">2x CO2 (IPCC)</option>
   <option value="snowball">Snowball Earth</option>
   <option value="venus_runaway">Venus runaway</option>
@@ -37,4 +64,44 @@
 <div class="row"><span class="label">photon density</span><input aria-label="rho" type="range" id="slider-rho" min="20" max="200" step="5" value="80"><span class="value" id="value-rho">80</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
 </div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">CO2 (ppm):</span><span class="value" id="readout-co2">--</span>
+  <span class="label">albedo A:</span><span class="value" id="readout-A">--</span>
+  <span class="label">tau_LW:</span><span class="value" id="readout-tau">--</span>
+  <span class="label">T_eff (K):</span><span class="value" id="readout-Teff">--</span>
+  <span class="label">T_surf (K):</span><span class="value" id="readout-Tsurf">--</span>
+</div><span class="value" id="readout-co2">--</span><span class="value" id="readout-A">--</span><span class="value" id="readout-tau">--</span><span class="value" id="readout-Teff">--</span><span class="value" id="readout-Tsurf">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

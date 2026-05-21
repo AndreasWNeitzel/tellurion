@@ -6,6 +6,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -138,13 +139,13 @@ function drawGravityArrow() {
   ctx.lineTo(W - 25, 62);
   ctx.closePath();
   ctx.fill();
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('g', W - 36, 22);
 }
 
 function drawLabels() {
   ctx.fillStyle = 'rgba(255, 130, 110, 0.9)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('heavy (red)', 14, 22);
   ctx.fillStyle = 'rgba(120, 220, 255, 0.9)';
   ctx.fillText('light (cyan)', 14, H - 12);
@@ -154,7 +155,7 @@ function drawLabels() {
               : (st.amplitude < 0.2) ? 'transitional'
               : 'nonlinear (spikes + bubbles)';
   ctx.fillStyle = 'rgba(255, 240, 200, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`A = ${st.A.toFixed(2)}, k = ${st.k}, sigma = ${sigma.toFixed(2)}, amp = ${st.amplitude.toFixed(3)}`, 14, H / 2 - 6);
   ctx.fillText(`stage: ${stage}`, 14, H / 2 + 14);
 }
@@ -184,7 +185,7 @@ function drawAmpDiagnostic() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('amplitude  log₁₀ a(t)', px + 8, py + 14);
   if (ampHistory.length < 2) return;
   const ax = px + 34, ay = py + 22, aw = pw - 46, ah = ph - 40;
@@ -204,7 +205,7 @@ function drawAmpDiagnostic() {
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (let l = lLo; l <= lHi; l += 1) ctx.fillText(`${l}`, px + 6, yOf(l) + 3);
   ctx.fillText('t', ax + aw / 2, py + ph - 4);
 }
@@ -283,4 +284,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

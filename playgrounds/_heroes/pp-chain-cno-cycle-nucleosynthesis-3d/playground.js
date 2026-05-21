@@ -6,6 +6,7 @@
 import { epsilonPP, epsilonCNO, ppFraction, cnoFraction, A_PP, A_CNO, T7_CROSSOVER, PRESETS, Q_HELIUM } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -42,7 +43,7 @@ function drawNucleus(x, y, r, label, color) {
   ctx.lineWidth = 0.8;
   ctx.stroke();
   ctx.fillStyle = '#fff';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(label, x, y);
@@ -72,7 +73,7 @@ function drawArrow(x0, y0, x1, y1, color, glow) {
 function drawPPChain(x0, y0) {
   const glowPP = st.phasePP < 1.5;
   ctx.fillStyle = 'rgba(255, 230, 140, 0.9)';
-  ctx.font = '13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('pp chain (Sun-like)', x0, y0 - 12);
 
@@ -82,7 +83,7 @@ function drawPPChain(x0, y0) {
   drawArrow(x0 + 50, y0 + 50, x0 + 130, y0 + 90, glowPP ? '#ffd166' : 'rgba(255,255,255,0.35)', glowPP);
   drawArrow(x0 + 100, y0 + 50, x0 + 130, y0 + 90, glowPP ? '#ffd166' : 'rgba(255,255,255,0.35)', glowPP);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('e⁺ + ν_e', x0 + 145, y0 + 75);
 
   // Second row: deuteron + proton -> 3He
@@ -91,7 +92,7 @@ function drawPPChain(x0, y0) {
   drawArrow(x0 + 165, y0 + 130, x0 + 200, y0 + 170, glowPP ? '#7dd3fc' : 'rgba(255,255,255,0.35)', glowPP);
   drawArrow(x0 + 200, y0 + 130, x0 + 200, y0 + 170, glowPP ? '#7dd3fc' : 'rgba(255,255,255,0.35)', glowPP);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('γ', x0 + 210, y0 + 150);
 
   // Third row: 3He + 3He -> 4He + 2p
@@ -103,7 +104,7 @@ function drawPPChain(x0, y0) {
   // Output: 4He
   drawNucleus(x0 + 130, y0 + 275, 26, '⁴He', '#ff8080');
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('+ 2¹H + 26.73 MeV', x0 + 165, y0 + 280);
 }
@@ -111,7 +112,7 @@ function drawPPChain(x0, y0) {
 function drawCNOCycle(x0, y0) {
   const glowCNO = st.phaseCNO < 1.5;
   ctx.fillStyle = 'rgba(125, 211, 252, 0.9)';
-  ctx.font = '13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('CNO cycle (hot stars)', x0, y0 - 12);
 
@@ -146,7 +147,7 @@ function drawCNOCycle(x0, y0) {
   }
   // Centre note: "4p in, 4He out + 26.73 MeV"
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('4¹H → ⁴He', cx, cy - 4);
   ctx.fillText('+ 26.73 MeV', cx, cy + 12);
@@ -166,7 +167,7 @@ function drawContributionBar(x0, y0, w, h) {
   ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
   // Labels
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`pp ${(fpp * 100).toFixed(1)}%`, x0 + 6, y0 + 14);
   ctx.textAlign = 'right';
@@ -188,7 +189,7 @@ function drawEpsilonCurve(x0, y0, w, h) {
   ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('log ε(T)', x0 + 6, ay - 2);
   ctx.textAlign = 'center';
@@ -260,7 +261,7 @@ function render() {
 
   // Bottom area
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`core T = ${st.T7.toFixed(2)} × 10⁷ K    Q = ${Q_HELIUM} MeV per 4 ¹H → ⁴He`, 40, 22);
 
@@ -271,7 +272,7 @@ function render() {
 
   // Bottom note
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('Sun-like cores: pp dominant; above ~ 1.8 × 10⁷ K, CNO takes over (∝ T¹⁷ vs T⁴)', W / 2, H - 14);
 
@@ -346,4 +347,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

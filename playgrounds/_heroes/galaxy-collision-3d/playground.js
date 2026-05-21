@@ -6,6 +6,7 @@
 import { makeTwoGalaxies, leapfrog } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -79,7 +80,7 @@ function render() {
 
   // Top-left HUD.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`N = ${s.N.toLocaleString()}    step = ${s.nSteps}    tree evals/step ≈ ${s.evals.toLocaleString()}`, 24, 22);
   // Core separation.
@@ -110,7 +111,7 @@ function drawSepDiagnostic() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('core separation vs step', px + 8, py + 14);
   if (sepHistory.length < 2) return;
   const ax = px + 30, ay = py + 22, aw = pw - 42, ah = ph - 40;
@@ -129,7 +130,7 @@ function drawSepDiagnostic() {
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(sMax.toFixed(1), px + 4, ay + 8);
   ctx.fillText('step', ax + aw / 2 - 12, py + ph - 4);
 }
@@ -210,4 +211,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

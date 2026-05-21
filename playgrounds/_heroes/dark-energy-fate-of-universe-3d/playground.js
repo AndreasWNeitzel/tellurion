@@ -5,6 +5,7 @@
 import { integrateScaleFactor, scaleAt, PRESETS, fateOf } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -129,7 +130,7 @@ function drawLattice() {
   }
   // Title strip.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`a = ${a.toFixed(3)}    t = ${st.time.toFixed(2)} (today = 0)`, 24, 22);
   ctx.fillText(`Ω_m = ${st.m.toFixed(2)}    Ω_Λ = ${st.L.toFixed(2)}    fate: ${fateOf({ r: 0, m: st.m, L: st.L })}`, 24, 40);
@@ -149,7 +150,7 @@ function drawCurve(x0, y0, w, h) {
   ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah);
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('a(t)', x0 + 8, ay - 4);
   ctx.textAlign = 'center';
@@ -168,7 +169,7 @@ function drawCurve(x0, y0, w, h) {
   ctx.beginPath(); ctx.moveTo(xToPx(0), ay); ctx.lineTo(xToPx(0), ay + ah); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('today', xToPx(0), ay + ah + 14);
 
@@ -270,4 +271,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }
