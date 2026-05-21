@@ -251,6 +251,21 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Penrose inflation obeys A_{n+1} = A_n + B_n, B_{n+1} = A_n, so the
+// thick/thin tile-count ratio converges to the golden ratio. Its
+// approach to PHI is the invariant.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const r = st.counts && st.counts.ratio;
+      if (!Number.isFinite(r) || r <= 0) return [];
+      const dev = Math.abs(r - PHI) / PHI;
+      return [{
+        key: 'golden-ratio',
+        label: 'thick/thin tile ratio approaches the golden ratio',
+        value: r.toFixed(4),
+        status: dev < 0.02 ? 'pass' : (dev < 0.2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
