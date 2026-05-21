@@ -9,6 +9,7 @@
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { buildCity, dijkstra, astarWeighted, WALL } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -128,7 +129,7 @@ function drawBolt(pts, ft) {
 
 function drawPanel(x0, title, res, ft) {
   const g = st.g;
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(title, x0, TOP - 12);
   // Once this search has reached its goal (ft >= 0) its panel holds the
   // full settled field while the other may still be flooding.
@@ -162,7 +163,7 @@ function drawPanel(x0, title, res, ft) {
   // while Dijkstra still says "scanning...".
   const settledHere = Math.min(revealed, res.expanded);
   const arrival = goalRank >= 0 ? goalRank + 1 : res.expanded;
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
   if (reachedHere) {
     ctx.fillStyle = '#9be19b';
     ctx.fillText(`done ${arrival} -> path ${res.path.length}`, x0 + PANEL_W, TOP - 12);
@@ -195,7 +196,7 @@ function render() {
     let tail = '(A* drives a beam, Dijkstra floods)';
     if (aDone && !dDone) tail = '(A* solved; Dijkstra still flooding)';
     else if (dDone && !aDone) tail = '(Dijkstra solved; A* still searching)';
-    ctx.fillStyle = 'rgba(160,200,255,0.9)'; ctx.font = '12px ui-monospace, monospace';
+    ctx.fillStyle = 'rgba(160,200,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`Dijkstra ${dLive} scanned    A* ${aLive} scanned    ${tail}`, W / 2, H - 12);
   } else {
     // w = 1: identical optimal path, A* just cheaper to compute.
@@ -205,7 +206,7 @@ function render() {
     const aCost = Number.isFinite(st.as.cost) ? st.as.cost : Infinity;
     const dCost = Number.isFinite(st.dj.cost) ? st.dj.cost : Infinity;
     const suboptimal = aCost > dCost + 1e-9;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     if (suboptimal) {
       const over = (((aCost - dCost) / dCost) * 100).toFixed(0);
       ctx.fillStyle = 'rgba(255,140,90,0.95)';
@@ -300,4 +301,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

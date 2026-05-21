@@ -20,6 +20,19 @@ tier: legend
 renderer: canvas2d
 estimated_engagement_minutes: 12
 share_state_keys: [mass_solar, spin_chi, mode, inclination_deg, impact_b_rs, source_beta_arcsec]
+invariants:
+  - key: runs
+    label: simulation advances each frame
+    tolerance: 1
+  - key: bounded
+    label: state stays finite
+    tolerance: 1
+  - key: deterministic
+    label: fixed seed reproduces the run
+    tolerance: 1
+what_to_try:
+  - Vary each control and watch the rail readouts respond.
+  - Compare the diagnostic plot against the live scene.
 ---
 
 # Black Hole Legend

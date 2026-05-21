@@ -7,6 +7,7 @@
 
 import { biotSavart, buildPreset, axialBz, K } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -151,7 +152,7 @@ function render() {
   const ax0 = 22, ay0 = H - 132, aw = 250, ah = 110;
   ctx.fillStyle = '#0b0b13'; ctx.fillRect(ax0, ay0, aw, ah);
   ctx.strokeStyle = '#2a2a34'; ctx.strokeRect(ax0, ay0, aw, ah);
-  ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('B_z on axis (z)', ax0 + 8, ay0 + 14);
   const prof = axialBz(segs, -ext, ext, 90);
   // Fixed scale (per the same I-independent reference) so the profile
@@ -187,3 +188,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

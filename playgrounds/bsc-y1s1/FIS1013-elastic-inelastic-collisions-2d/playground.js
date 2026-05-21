@@ -7,6 +7,7 @@
 
 import { collide2d, ke2d } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -110,7 +111,7 @@ function render() {
 
   const keNow = ke2d(st.m1, v1, st.m2, v2);
   const loss = KE0() > 0 ? 100 * (1 - keNow / KE0()) : 0;
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`2D oblique collision   e = ${st.e.toFixed(2)}   impact b = ${st.u2.toFixed(2)}`, 12, 20);
   ctx.fillText(`|v1| = ${Math.hypot(v1[0], v1[1]).toFixed(2)}   |v2| = ${Math.hypot(v2[0], v2[1]).toFixed(2)}   KE loss = ${loss.toFixed(1)}%`, 12, 38);
   ctx.fillText(`p_x conserved = ${(st.m1 * v1[0] + st.m2 * v2[0]).toFixed(3)} (in: ${(st.m1 * Math.max(0.3, st.u1)).toFixed(3)})`, 12, 56);
@@ -150,4 +151,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

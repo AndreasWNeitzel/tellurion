@@ -7,6 +7,7 @@
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { createSystem, step, SHAPES, ARRANGEMENTS, diagnostics } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const SEED = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -123,7 +124,7 @@ function draw() {
   readoutE.textContent = d.E.toFixed(2);
   readoutV.textContent = d.maxSpeed.toFixed(2);
   readoutState.textContent = d.maxSpeed < 0.4 ? 'settled' : (st.e >= 0.999 ? 'bouncing (lossless)' : 'bouncing');
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`${SHAPES[st.shape].label}   ${ARRANGEMENTS[st.arrangement].label}   n = ${st.n}   e = ${st.e.toFixed(2)}`, 16, 24);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.fillText('every ball obeys the same law, so the figure dissolves into the bowl motion', 16, H - 14);
@@ -188,4 +189,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

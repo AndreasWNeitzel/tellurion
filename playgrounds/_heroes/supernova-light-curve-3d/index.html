@@ -1,6 +1,15 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Supernova Light Curve (Hero)</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supernova Light Curve (Hero)</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
 .pg-figure { max-width: 860px; }
@@ -12,21 +21,39 @@
 .pg-controls input[type="range"], .pg-controls select { width: 100%; }
 .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Supernova Light Curve <span style="font-size:12px;color:var(--fg-muted)">(Hero)</span></h1>
-<p><strong>What you are seeing:</strong> a supernova fireball expanding homologously, with its bolometric light curve L(t) and the 56Ni -> 56Co -> 56Fe radioactive decay chain that powers it. Toggle between SN 2011fe (Type Ia, the standard candle) and SN 1987A (Type II core-collapse). Drag the canvas to orbit, scroll to zoom. Source: Arnett, <em>ApJ</em> 253 (1982) 785 (<code>arnett-1982</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="960" height="640" aria-label="Supernova fireball + light curve"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
-  <span class="label">type:</span><span class="value" id="readout-type">--</span>
-  <span class="label">t (d):</span><span class="value" id="readout-t">--</span>
-  <span class="label">L (erg/s):</span><span class="value" id="readout-L">--</span>
-  <span class="label">M_V:</span><span class="value" id="readout-mv">--</span>
-  <span class="label">r (cm):</span><span class="value" id="readout-r">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> Supernova in 3D: homologously expanding fireball (left), bolometric light curve L(t) with the Ni decay tail and Co tail (right), and the live mass partition Ni / Co / Fe (lower). Method: Arnett 1982 decay-chain + diffusion trapping; closed-form Bateman equations for the chain mass partition. Source: Arnett, ApJ 253 (1982) 785.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Supernova Light Curve (Hero)</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Supernova Light Curve (Hero)</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a supernova fireball expanding homologously, with its bolometric light curve L(t) and the 56Ni -&gt; 56Co -&gt; 56Fe radioactive decay chain that powers it. Toggle between SN 2011fe (Type Ia, the standard candle) and SN 1987A (Type II core-collapse). Drag the canvas to orbit, scroll to zoom. Source: Arnett, <em>ApJ</em> 253 (1982) 785 (<code>arnett-1982</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="960" height="640" aria-label="Supernova fireball + light curve"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Supernova in 3D: homologously expanding fireball (left), bolometric light curve L(t) with the Ni decay tail and Co tail (right), and the live mass partition Ni / Co / Fe (lower). Method: Arnett 1982 decay-chain + diffusion trapping; closed-form Bateman equations for the chain mass partition. Source: Arnett, ApJ 253 (1982) 785.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">SN preset</span><select aria-label="preset" id="select-preset">
-  <option value="ia_2011fe" selected>SN 2011fe (Type Ia)</option>
+  <option value="ia_2011fe" selected="">SN 2011fe (Type Ia)</option>
   <option value="ii_1987a">SN 1987A (Type II)</option>
 </select><span class="value" id="value-preset">2011fe</span></div>
 <div class="row"><span class="label">56Ni mass (M_sun)</span><input aria-label="m_ni" type="range" id="slider-mni" min="0.02" max="1.0" step="0.01" value="0.60"><span class="value" id="value-mni">0.60</span></div>
@@ -34,4 +61,44 @@
 <div class="row"><span class="label">v_ej (km/s)</span><input aria-label="vej" type="range" id="slider-vej" min="2000" max="20000" step="500" value="11000"><span class="value" id="value-vej">11000</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
 </div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">type:</span><span class="value" id="readout-type">--</span>
+  <span class="label">t (d):</span><span class="value" id="readout-t">--</span>
+  <span class="label">L (erg/s):</span><span class="value" id="readout-L">--</span>
+  <span class="label">M_V:</span><span class="value" id="readout-mv">--</span>
+  <span class="label">r (cm):</span><span class="value" id="readout-r">--</span>
+</div><span class="value" id="readout-type">--</span><span class="value" id="readout-t">--</span><span class="value" id="readout-L">--</span><span class="value" id="readout-mv">--</span><span class="value" id="readout-r">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

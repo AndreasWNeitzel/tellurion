@@ -11,6 +11,7 @@ import { mulberry32, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { setupTokamakGL } from '../../../shared/js/engine-gl/tokamak.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -259,7 +260,7 @@ function drawTokamakDiagnostic() {
   const w = tkDiag.width, h = tkDiag.height;
   tkctx.clearRect(0, 0, w, h);
   tkctx.fillStyle = 'rgba(220,230,255,0.92)';
-  tkctx.font = 'bold 11px ui-monospace, monospace';
+  tkctx.font = fontString(canvas, 'caption', 'mono', 600);
   tkctx.fillText('safety factor  q(r)', 8, 14);
   const ax = 32, ay = 24, aw = w - 44, ah = h - 44;
   const qMax = Math.max(4, qEdge * 1.15);
@@ -270,7 +271,7 @@ function drawTokamakDiagnostic() {
     tkctx.strokeStyle = col; tkctx.setLineDash([4, 3]);
     tkctx.beginPath(); tkctx.moveTo(ax, yOf(qv)); tkctx.lineTo(ax + aw, yOf(qv)); tkctx.stroke();
     tkctx.setLineDash([]);
-    tkctx.fillStyle = col; tkctx.font = '9px ui-monospace, monospace';
+    tkctx.fillStyle = col; tkctx.font = fontString(canvas, 'tick', 'mono');
     tkctx.fillText(lab, ax + aw - 22, yOf(qv) - 3);
   }
   tkctx.strokeStyle = '#5bc0eb'; tkctx.lineWidth = 2;
@@ -282,7 +283,7 @@ function drawTokamakDiagnostic() {
     if (k === 0) tkctx.moveTo(x, y); else tkctx.lineTo(x, y);
   }
   tkctx.stroke();
-  tkctx.fillStyle = 'rgba(200,210,240,0.78)'; tkctx.font = '9px ui-monospace, monospace';
+  tkctx.fillStyle = 'rgba(200,210,240,0.78)'; tkctx.font = fontString(canvas, 'tick', 'mono');
   tkctx.fillText('0', 22, yOf(0));
   tkctx.fillText(`${qMax.toFixed(0)}`, 16, yOf(qMax) + 6);
   tkctx.fillText('r/a: 0 (axis)', ax, ay + ah + 11);
@@ -364,3 +365,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'tokamak plasma is JS guiding-c
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

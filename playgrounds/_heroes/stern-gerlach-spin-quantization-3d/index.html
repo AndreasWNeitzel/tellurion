@@ -1,24 +1,92 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Stern-Gerlach Spin Quantization</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stern-Gerlach Spin Quantization</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #050709; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Stern-Gerlach spin quantization</h1>
-<p><strong>What you are seeing:</strong> a beam of neutral atoms of angular momentum $J$ entering a magnet with field gradient $\mathrm{d}B_z/\mathrm{d}z$. The transverse force $F_z = \mu_z \mathrm{d}B_z/\mathrm{d}z$ deflects each atom by an amount proportional to its projection $m_J$. The screen on the right shows $2J+1$ discrete spots (quantum) or a continuous band (classical, for comparison). Source: Sakurai and Napolitano, <em>Modern Quantum Mechanics</em>, Sec. 1.1 (<code>sakurai-napolitano</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="880" height="540"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
+<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #050709; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Stern-Gerlach spin quantization</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Stern-Gerlach spin quantization</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a beam of neutral atoms of angular momentum <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi></mrow><annotation encoding="application/x-tex">J</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.0962em;">J</span></span></span></span></span> entering a magnet with field gradient <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">d</mi><msub><mi>B</mi><mi>z</mi></msub><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi><mi>z</mi></mrow><annotation encoding="application/x-tex">\mathrm{d}B_z/\mathrm{d}z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathrm">d</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0502em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0502em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.044em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mord">/</span><span class="mord mathrm">d</span><span class="mord mathnormal" style="margin-right: 0.044em;">z</span></span></span></span></span>. The transverse force <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mi>z</mi></msub><mo>=</mo><msub><mi>μ</mi><mi>z</mi></msub><mi mathvariant="normal">d</mi><msub><mi>B</mi><mi>z</mi></msub><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi><mi>z</mi></mrow><annotation encoding="application/x-tex">F_z = \mu_z \mathrm{d}B_z/\mathrm{d}z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.1389em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.1389em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.044em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.044em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mord mathrm">d</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0502em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0502em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.044em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mord">/</span><span class="mord mathrm">d</span><span class="mord mathnormal" style="margin-right: 0.044em;">z</span></span></span></span></span> deflects each atom by an amount proportional to its projection <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>J</mi></msub></mrow><annotation encoding="application/x-tex">m_J</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0962em;">J</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. The screen on the right shows <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>J</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2J+1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span class="mord">2</span><span class="mord mathnormal" style="margin-right: 0.0962em;">J</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> discrete spots (quantum) or a continuous band (classical, for comparison). Source: Sakurai and Napolitano, <em>Modern Quantum Mechanics</em>, Sec. 1.1 (<code>sakurai-napolitano</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="880" height="540"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Stern-Gerlach apparatus: oven, magnet pair with B_z gradient, and screen. Atoms are deflected by F_z = mu_z dB_z/dz; the screen histogram shows 2J+1 discrete spots (quantum) versus a continuous band (classical). Method: classical Newton with quantized m_J. Source: Sakurai and Napolitano, Sec. 1.1.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">spin J</span><select aria-label="J" id="select-J"><option value="0.5" selected="">spin-1/2 (silver)</option><option value="1.0">spin-1</option><option value="1.5">spin-3/2</option><option value="2.0">spin-2</option></select><span class="value" id="value-J">1/2</span></div>
+<div class="row"><span class="label">gradient dB/dz</span><input aria-label="grad" type="range" id="slider-grad" min="0.05" max="0.40" step="0.01" value="0.20"><span class="value" id="value-grad">0.20</span></div>
+<div class="row"><span class="label">atom rate</span><input aria-label="rate" type="range" id="slider-rate" min="1" max="20" step="1" value="6"><span class="value" id="value-rate">6</span></div>
+<div class="row"><span class="label">mode</span><select aria-label="mode" id="select-mode"><option value="quantum" selected="">quantum (1922 result)</option><option value="classical">classical (continuous)</option><option value="both">overlay (compare)</option></select><span class="value" id="value-mode">Q</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
   <span class="label">spin J:</span><span class="value" id="readout-J">--</span>
   <span class="label">spots predicted:</span><span class="value" id="readout-spots">--</span>
   <span class="label">dB/dz (norm):</span><span class="value" id="readout-grad">--</span>
   <span class="label">atoms fired:</span><span class="value" id="readout-N">--</span>
   <span class="label">mode:</span><span class="value" id="readout-mode">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> Stern-Gerlach apparatus: oven, magnet pair with B_z gradient, and screen. Atoms are deflected by F_z = mu_z dB_z/dz; the screen histogram shows 2J+1 discrete spots (quantum) versus a continuous band (classical). Method: classical Newton with quantized m_J. Source: Sakurai and Napolitano, Sec. 1.1.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">spin J</span><select aria-label="J" id="select-J"><option value="0.5" selected>spin-1/2 (silver)</option><option value="1.0">spin-1</option><option value="1.5">spin-3/2</option><option value="2.0">spin-2</option></select><span class="value" id="value-J">1/2</span></div>
-<div class="row"><span class="label">gradient dB/dz</span><input aria-label="grad" type="range" id="slider-grad" min="0.05" max="0.40" step="0.01" value="0.20"><span class="value" id="value-grad">0.20</span></div>
-<div class="row"><span class="label">atom rate</span><input aria-label="rate" type="range" id="slider-rate" min="1" max="20" step="1" value="6"><span class="value" id="value-rate">6</span></div>
-<div class="row"><span class="label">mode</span><select aria-label="mode" id="select-mode"><option value="quantum" selected>quantum (1922 result)</option><option value="classical">classical (continuous)</option><option value="both">overlay (compare)</option></select><span class="value" id="value-mode">Q</span></div>
-<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
-</div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+</div><span class="value" id="readout-J">--</span><span class="value" id="readout-spots">--</span><span class="value" id="readout-grad">--</span><span class="value" id="readout-N">--</span><span class="value" id="readout-mode">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

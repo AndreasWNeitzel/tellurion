@@ -19,6 +19,19 @@ tier: hero
 renderer: canvas2d
 estimated_engagement_minutes: 6
 share_state_keys: [sn_type, m_ni, preset]
+invariants:
+  - key: runs
+    label: simulation advances each frame
+    tolerance: 1
+  - key: bounded
+    label: state stays finite
+    tolerance: 1
+  - key: deterministic
+    label: fixed seed reproduces the run
+    tolerance: 1
+what_to_try:
+  - Vary each control and watch the rail readouts respond.
+  - Compare the diagnostic plot against the live scene.
 ---
 
 # Supernova Light Curve

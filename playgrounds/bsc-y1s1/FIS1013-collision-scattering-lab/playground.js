@@ -6,6 +6,7 @@
 
 import { reducedMass, chiOf, relTrajectory, dsigmaRutherford } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -98,7 +99,7 @@ function render() {
   // back-to-back; thick fading trails fill the scene; a bold dashed
   // deflection wedge with an arc shows chi.
   const cmx = W / 2, cmy = 248, sceneH = 430;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '13px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText('Centre-of-mass frame', 18, 26);
   ctx.strokeStyle = 'rgba(255,209,102,0.55)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(cmx - 150, cmy); ctx.lineTo(cmx + 150, cmy); ctx.stroke();
@@ -106,7 +107,7 @@ function render() {
   ctx.setLineDash([]);
   ctx.strokeStyle = 'rgba(255,209,102,0.5)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(cmx, cmy, 46, -chi, 0); ctx.stroke();
-  ctx.fillStyle = '#ffd166'; ctx.font = '14px ui-monospace, monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`χ = ${(chi * 180 / Math.PI).toFixed(1)}°`, cmx + 54, cmy - 20);
   for (const [sign, mfac, col, rad] of [[+1, m2 / M, '#5bc6ff', r1m], [-1, m1 / M, '#ff9d6e', r2m]]) {
     ctx.strokeStyle = col; ctx.lineWidth = 3.5; ctx.beginPath();
@@ -123,7 +124,7 @@ function render() {
   const lx = 22, ly = 60, lw = 250, lh = 150;
   ctx.fillStyle = '#0b0b13'; ctx.fillRect(lx, ly, lw, lh);
   ctx.strokeStyle = '#2a2a34'; ctx.strokeRect(lx, ly, lw, lh);
-  ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('LAB frame (target at rest)', lx + 8, ly + 14);
   const lsc = 14, lcy = ly + lh * 0.6;
   for (const [sign, mfac, col] of [[+1, m2 / M, '#5bc6ff'], [-1, m1 / M, '#ff9d6e']]) {
@@ -137,7 +138,7 @@ function render() {
   // reshape it. Rutherford analytic overlaid for the inverse-square law.
   const py0 = H - 150, pcx = W / 2, pcy = H - 22, pr = 122;
   ctx.fillStyle = '#0b0b13'; ctx.fillRect(8, py0, W - 16, 142);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('dσ/dΩ  (polar; radius = log decades, fixed scale)', pcx, py0 + 16);
   ctx.textAlign = 'left';
   ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.arc(pcx, pcy, pr, Math.PI, 2 * Math.PI); ctx.stroke();
@@ -146,7 +147,7 @@ function render() {
   // potential selector, so that control is always perceptible.
   const vx0 = 26, vy0 = py0 + 26, vw = 220, vh = 96;
   ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(vx0, vy0); ctx.lineTo(vx0, vy0 + vh); ctx.lineTo(vx0 + vw, vy0 + vh); ctx.stroke();
-  ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('V(r): ' + st.kind, vx0 + 4, vy0 - 4); ctx.fillText('r', vx0 + vw - 8, vy0 + vh + 12);
   ctx.strokeStyle = '#9d8bff'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 80; i += 1) {
@@ -217,3 +218,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

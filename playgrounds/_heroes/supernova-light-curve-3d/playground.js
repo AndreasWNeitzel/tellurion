@@ -9,6 +9,7 @@ import {
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -207,7 +208,7 @@ function drawLightcurvePanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('bolometric L(t) (log) over 200 days', px + 8, py - 6);
   // Compute L(t).
   const N = 200;
@@ -232,7 +233,7 @@ function drawLightcurvePanel() {
     const Y = py + ph - 28 - (lv - Llog_min) / (Llog_max - Llog_min) * (ph - 50);
     ctx.beginPath(); ctx.moveTo(px + 30, Y); ctx.lineTo(px + pw - 20, Y); ctx.stroke();
     ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`1e${lv}`, px + 4, Y + 4);
   }
   for (let t = 0; t <= 200; t += 50) {
@@ -268,7 +269,7 @@ function drawLightcurvePanel() {
   ctx.beginPath(); ctx.arc(xc, yc, 5, 0, 2 * Math.PI); ctx.fill();
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t (d)', px + pw - 32, py + ph - 8);
   ctx.fillText('L (erg/s, log)', px + 4, py + 14);
   ctx.fillText('0', xForT(0) - 4, py + ph - 12);
@@ -279,7 +280,7 @@ function drawLightcurvePanel() {
   // Current readout strip.
   const Mv = absoluteBolMag(Lnow);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`t = ${st.t_d.toFixed(0)} d; L = ${Lnow.toExponential(2)} erg/s; M_bol = ${Mv.toFixed(2)}`,
     px + 8, py + ph + 18);
 
@@ -296,7 +297,7 @@ function drawMassPartitionPanel() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('mass partition Ni -> Co -> Fe (M_sun)', px + 8, py - 6);
   // Plot three lines over t.
   const N = 200;
@@ -332,14 +333,14 @@ function drawMassPartitionPanel() {
     ctx.fillStyle = colors[species];
     ctx.fillRect(px + pw - 80, lyy - 7, 10, 3);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.90)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(species, px + pw - 66, lyy - 4);
     lyy += 14;
   }
   // Current numbers.
   const p = massPartition(st.t_d, st.m_Ni);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`@ t = ${st.t_d.toFixed(0)} d: Ni = ${p.mNi.toFixed(3)}, Co = ${p.mCo.toFixed(3)}, Fe = ${p.mFe.toFixed(3)}`,
     px + 8, py + ph + 18);
 }
@@ -354,16 +355,16 @@ function drawInfoPanel() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('SN preset', px + 8, py - 6);
   const p = SN_PRESETS[st.preset];
   let yy = py + 24;
   const row = (k, v, c = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(k, px + 10, yy);
     ctx.fillStyle = c;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(v, px + 10, yy + 14);
     yy += 30;
   };
@@ -409,7 +410,7 @@ function draw() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.40)';
   ctx.strokeRect(10.5, 8.5, 259, 25);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText(`SUPERNOVA (${SN_PRESETS[st.preset].type})`, 20, 26);
   updateReadout(Lnow);
 }
@@ -483,4 +484,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

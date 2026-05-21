@@ -9,6 +9,7 @@
 
 import { createOrbit, step, energy, angularMomentum, vEff, orbitClass, MU } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -113,7 +114,7 @@ function render() {
   // V_eff(r) panel (right, below the HUD).
   const ax0 = 560, ax1 = W - 26, ayb = H - 40, ayt = 168;
   ctx.fillStyle = '#0b0b13'; ctx.fillRect(ax0 - 8, ayt - 26, ax1 - ax0 + 34, ayb - ayt + 52);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('V_eff(r) = V(r) + L²/2μr²', ax0, ayt - 8);
   const rLo = 0.25, rHi = Math.max(3.5, maxR * 1.25);
   const E = energy(orbit);
@@ -125,7 +126,7 @@ function render() {
   const X = (rr) => ax0 + (rr - rLo) / (rHi - rLo) * (ax1 - ax0);
   const Y = (v) => ayb - (Math.max(vlo, Math.min(vhi, v)) - vlo) / (vhi - vlo) * (ayb - ayt);
   ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(ax0, ayt); ctx.lineTo(ax0, ayb); ctx.lineTo(ax1, ayb); ctx.stroke();
-  ctx.fillStyle = '#6e727a'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('r', ax1 - 8, ayb + 14);
+  ctx.fillStyle = '#6e727a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('r', ax1 - 8, ayb + 14);
   // V_eff curve.
   ctx.strokeStyle = '#7cc6ff'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 0; i <= NS; i += 1) { const rr = rLo + (rHi - rLo) * i / NS; i ? ctx.lineTo(X(rr), Y(vv[i])) : ctx.moveTo(X(rr), Y(vv[i])); }
@@ -193,3 +194,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

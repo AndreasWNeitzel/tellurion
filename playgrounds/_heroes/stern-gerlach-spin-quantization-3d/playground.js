@@ -7,6 +7,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -107,7 +108,7 @@ function drawOven(center, scale) {
   ctx.fillStyle = '#000';
   ctx.beginPath(); ctx.arc(cen.x, cen.y, 4, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.8)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('oven', cen.x - 50, cen.y + 26);
 }
 
@@ -150,7 +151,7 @@ function drawMagnet(center, scale) {
     // Pole label
     const lab = projectScene({ x: (MAGNET_X0 + MAGNET_X1) / 2, y: 0, z: yTopBot - 0.05 }, center, scale);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.font = 'bold 14px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'body', 'sans', 600);
     ctx.fillText(polarity, lab.x - 4, lab.y + 5);
   };
   drawPole(+1, 'N');
@@ -177,7 +178,7 @@ function drawScreen(center, scale) {
   // Label
   const lab = projectScene({ x: SCREEN_X, y: 0, z: -0.56 }, center, scale);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('screen', lab.x - 18, lab.y);
 }
 
@@ -282,7 +283,7 @@ function drawScreenHistogram(center, scale) {
   ctx.lineWidth = 1;
   ctx.strokeRect(xPanel + 0.5, yPanel0 + 0.5, W - xPanel - 15, yPanel1 - yPanel0 - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Screen histogram', xPanel + 8, yPanel0 - 6);
   // Draw bars
   const barX0 = xPanel + 50;
@@ -326,7 +327,7 @@ function drawScreenHistogram(center, scale) {
   }
   // Label the m_J ticks.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const m of mJValues(st.J)) {
     const z = m * z_per_mJ;
     const yMid = yPanel0 + ((nBins - 1 - ((z + zMax) / (2 * zMax) * nBins)) / nBins) * (yPanel1 - yPanel0);
@@ -334,7 +335,7 @@ function drawScreenHistogram(center, scale) {
   }
   // Legend
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`hits: ${st.hits.length}`, xPanel + 8, yPanel1 - 8);
 }
 
@@ -360,7 +361,7 @@ function draw() {
   drawScreenHistogram(center, scale);
   // Caption
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`J = ${st.J}, dB/dz = ${st.dBdz.toFixed(2)}, mode = ${st.mode}, atoms fired = ${st.hits.length}`, 14, H - 14);
   updateReadout();
 }
@@ -433,4 +434,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

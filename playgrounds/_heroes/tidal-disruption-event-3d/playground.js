@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -86,7 +87,7 @@ function drawScene() {
   ctx.beginPath(); ctx.arc(cx, cy, RT_canvas, 0, Math.PI * 2); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(100, 220, 255, 0.75)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('R_T (tidal radius)', cx + RT_canvas * 0.7, cy - RT_canvas * 0.7);
 
   // SMBH at center: black disc with photon ring.
@@ -128,7 +129,7 @@ function drawScene() {
     ctx.beginPath(); ctx.arc(sx, sy, starR * 1.3, 0, Math.PI * 2); ctx.fill();
     // Label
     ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText('star', sx + starR + 4, sy + 4);
   } else if (st.phase < 0.55) {
     // Disruption: stretched ellipsoid at pericentre.
@@ -151,7 +152,7 @@ function drawScene() {
     ctx.restore();
     // Pericentre arrows
     ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText('stretched debris', px + 12, py);
   } else {
     // Stream + accretion disk forming.
@@ -162,14 +163,14 @@ function drawScene() {
     drawDisk(cx, cy, u);
     // Label
     ctx.fillStyle = 'rgba(255, 200, 120, 0.85)';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText('returning debris stream', cx + RT_canvas + 8, cy + 100);
     ctx.fillText('accretion disk', cx + 50, cy - 30);
   }
 
   // Caption
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   const phaseLabel = st.phase < 0.4 ? 'approach' : (st.phase < 0.55 ? 'disruption' : 'fallback');
   ctx.fillText(`phase = ${phaseLabel}, M_BH = 10^${st.logMBH.toFixed(1)} M_sun, ${currentDisrupted() ? 'disrupting' : 'swallow-whole'}`, 14, SCENE.h - 14);
 }
@@ -217,7 +218,7 @@ function drawLightcurve() {
   ctx.lineWidth = 1;
   ctx.strokeRect(LC.x + 0.5, LC.y + 0.5, LC.w - 1, LC.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Lightcurve L(t): t^-5/3 fallback after the peak', LC.x + 8, LC.y - 6);
 
   const tpDays = currentTpkDays();
@@ -252,7 +253,7 @@ function drawLightcurve() {
   ctx.beginPath(); ctx.moveTo(xPeak, LC.y + 8); ctx.lineTo(xPeak, LC.y + LC.h - 24); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(120, 200, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`t_peak = ${tpDays.toFixed(0)} days`, xPeak + 4, LC.y + 22);
   // Current-time marker (advances with st.phase).
   const sliderT = Math.max(0, Math.min(1, (st.phase - 0.55) / 0.45)) * tmax;
@@ -265,7 +266,7 @@ function drawLightcurve() {
   }
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', LC.x + 36, LC.y + LC.h - 8);
   ctx.fillText(`${(tmax / 86400).toFixed(0)} days`, LC.x + LC.w - 70, LC.y + LC.h - 8);
   ctx.fillText('L', LC.x + 20, LC.y + 16);
@@ -332,4 +333,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

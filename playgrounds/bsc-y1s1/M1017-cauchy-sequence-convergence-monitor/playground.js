@@ -8,6 +8,7 @@
 
 import { SEQUENCES, cauchyWidth } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -64,7 +65,7 @@ function render() {
     ctx.strokeStyle = '#ef476f'; ctx.setLineDash([4, 4]);
     ctx.beginPath(); ctx.moveTo(valToX(S.limit), nlY - 60); ctx.lineTo(valToX(S.limit), nlY + 60); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`limit ${S.limit.toFixed(4)}`, valToX(S.limit), nlY - 66);
   }
   ctx.strokeStyle = 'rgba(255,209,102,0.7)'; ctx.lineWidth = 1;
@@ -72,7 +73,7 @@ function render() {
     const ex = valToX(centre + sgn * st.eps);
     ctx.beginPath(); ctx.moveTo(ex, nlY - 56); ctx.lineTo(ex, nlY + 56); ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(255,209,102,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,209,102,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('epsilon tube', valToX(centre), nlY + 74);
   // term dots: early grey, tail blue
   for (let n = 1; n <= NMAX; n += 1) {
@@ -82,7 +83,7 @@ function render() {
   }
   const w = cauchyWidth(st.name, st.N0, NMAX);
   const ok = w < st.eps;
-  ctx.font = 'bold 14px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillStyle = ok ? '#06d6a0' : '#ef476f';
   ctx.fillText(ok ? `tail fits in epsilon  ->  Cauchy at N0 = ${st.N0}`
                    : `tail diameter ${w.toExponential(2)} > epsilon  ->  not yet`, 60, 40);
@@ -90,7 +91,7 @@ function render() {
   // Cauchy. (isCauchy with a tight epsilon and a short horizon would
   // mislabel slowly-converging series such as the Leibniz sum.)
   const convergent = Number.isFinite(S.limit);
-  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`sequence: ${S.label}    ${convergent ? 'Cauchy (converges)' : 'NOT Cauchy (diverges)'}`, 60, 60);
 
   // Convergence trace (bottom).
@@ -110,7 +111,7 @@ function render() {
   const nx = nToX(st.N0);
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(nx, tY0); ctx.lineTo(nx, tY1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`N0 = ${st.N0}`, nx, tY1 + 14);
   ctx.textAlign = 'left'; ctx.fillText('partial value a_n  vs  n', tX0 + 6, tY0 + 14);
 
@@ -145,3 +146,27 @@ function bootSync() {
 }
 
 bootSync();
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

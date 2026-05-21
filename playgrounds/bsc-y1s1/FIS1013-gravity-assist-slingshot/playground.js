@@ -4,6 +4,7 @@
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -148,7 +149,7 @@ function render() {
   // Planet velocity in solar frame: +x at unit speed.
   ctx.strokeStyle = 'rgba(220,220,240,0.4)';
   ctx.strokeRect(W * 0.65, H * 0.25, W * 0.32, H * 0.5);
-  ctx.fillStyle = '#dcdde2'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('Solar-system frame', W * 0.66, H * 0.27);
 
   const v_p = { x: 1, y: 0 };
@@ -234,3 +235,27 @@ window.__physicsCheck = async () => {
   }
   return { name: 'hyperbola energy symmetric', pass: true, msg: `E_in=${ein.toFixed(4)} E_out=${eout.toFixed(4)} (delta < 1%)` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

@@ -13,6 +13,7 @@ import {
   createRacket, step, rotationMatrix, diagnostics, energy, angularMomentumMag,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -180,7 +181,7 @@ function drawScene() {
     const tp = project(applyR(R, e));
     ctx.strokeStyle = axCol[k]; ctx.lineWidth = k === st.axis ? 3.5 : 1.6;
     ctx.beginPath(); ctx.moveTo(O.sx, O.sy); ctx.lineTo(tp.sx, tp.sy); ctx.stroke();
-    ctx.fillStyle = axCol[k]; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = axCol[k]; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(axNm[k], tp.sx + 4, tp.sy);
   }
 }
@@ -188,7 +189,7 @@ function drawScene() {
 function drawPanel() {
   const x0 = SCENE_W + 16, x1 = W - 16, yt = 64, yb = H - 96, mid = (yt + yb) / 2;
   ctx.fillStyle = '#0b0c12'; ctx.fillRect(x0 - 8, yt - 30, x1 - x0 + 24, yb - yt + 60);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('body-frame omega(t)', x0, yt - 12);
   ctx.strokeStyle = '#2a2a34'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, mid); ctx.lineTo(x1, mid); ctx.moveTo(x0, yt); ctx.lineTo(x0, yb); ctx.stroke();
@@ -205,13 +206,13 @@ function drawPanel() {
     });
     ctx.stroke();
   }
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = cols[0]; ctx.fillText('w1', x1 - 70, yt + 10);
   ctx.fillStyle = cols[1]; ctx.fillText('w2', x1 - 46, yt + 10);
   ctx.fillStyle = cols[2]; ctx.fillText('w3', x1 - 22, yt + 10);
   // Conserved quantities (flat lines are the proof the solver is exact).
   const E = energy(st.sim), L = angularMomentumMag(st.sim);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`I = [${st.I.map((v) => v.toFixed(3)).join(', ')}]`, x0, yb + 16);
   ctx.fillText(`E=${E.toFixed(2)}  |L|=${L.toFixed(2)}  (conserved)`, x0, yb + 31);
   ctx.fillText('w-sign reversals = the flips', x0, yb + 46);
@@ -225,7 +226,7 @@ function draw() {
   readoutW.textContent = `${d.w[0].toFixed(2)}, ${d.w[1].toFixed(2)}, ${d.w[2].toFixed(2)}`;
   readoutE.textContent = d.energyDrift.toExponential(2);
   readoutFlips.textContent = String(st.flips);
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   const names = ['major (stable)', 'intermediate (flips)', 'minor (stable)'];
   ctx.fillText(`${OBJECTS[st.object].label} spinning about its ${names[st.axis]} axis`, 16, 22);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
@@ -297,4 +298,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

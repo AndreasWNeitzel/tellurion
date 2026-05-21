@@ -12,6 +12,7 @@
 
 import { trajectory } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -255,20 +256,20 @@ function render() {
 
   // Launch marker + world-axis gnomon (from the camera basis).
   const o0 = project(cam, [0, 0, 0]);
-  if (o0) { ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.fillText('launch', o0[0] - 6, o0[1] + 16); }
+  if (o0) { ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.fillText('launch', o0[0] - 6, o0[1] + 16); }
   const gx = 46, gy = H - 40, gL = 26;
   for (const [v, c, lab] of [[[1, 0, 0], '#ff8d6b', 'x range'], [[0, 1, 0], '#7ad88a', 'y side'], [[0, 0, 1], '#7ab6ff', 'z up']]) {
     const ex = dot(v, cam.right), ey = dot(v, cam.up);
     const tx = gx + ex * gL, ty = gy - ey * gL;
     ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(tx, ty); ctx.stroke();
-    ctx.fillStyle = c; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = c; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = ex < -0.2 ? 'right' : 'left';
     ctx.fillText(lab, tx + (ex < -0.2 ? -3 : 3), ty + (ey < -0.2 ? 9 : -2));
   }
   ctx.textAlign = 'left';
 
   // Spin colour legend (top-left), the continuous range topspin..none..backspin.
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('sidespin:  - (curves one way)   0   + (the other)', 16, 22);
   for (let k = 0; k <= 40; k += 1) { const s = k / 40 * 2 - 1; ctx.fillStyle = spinColor(s, 1); ctx.fillRect(16 + k * 4, 28, 4, 8); }
 
@@ -310,3 +311,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

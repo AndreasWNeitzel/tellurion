@@ -7,6 +7,7 @@ import { setupWave2DGL } from '../../../shared/js/engine-gl/wave-2d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { rayHeightfieldCell } from '../../../shared/js/gl/raycast.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -227,7 +228,7 @@ function drawWaveDiagnostic() {
   const w = whDiag.width, h = whDiag.height;
   whctx.clearRect(0, 0, w, h);
   whctx.fillStyle = 'rgba(220,230,255,0.92)';
-  whctx.font = 'bold 11px ui-monospace, monospace';
+  whctx.font = fontString(canvas, 'caption', 'mono', 600);
   whctx.fillText('wave energy  E(t)', 8, 14);
   if (eHistory.length < 2) return;
   const ax = 30, ay = 22, aw = w - 40, ah = h - 38;
@@ -242,7 +243,7 @@ function drawWaveDiagnostic() {
   whctx.beginPath();
   eHistory.forEach((p, i) => { const x = xOf(p.t), y = yOf(p.E); if (i === 0) whctx.moveTo(x, y); else whctx.lineTo(x, y); });
   whctx.stroke();
-  whctx.fillStyle = 'rgba(200,210,240,0.78)'; whctx.font = '9px ui-monospace, monospace';
+  whctx.fillStyle = 'rgba(200,210,240,0.78)'; whctx.font = fontString(canvas, 'tick', 'mono');
   whctx.fillText(eMax.toFixed(1), 4, ay + 6);
   whctx.fillText('0', 20, yOf(0) + 3);
   whctx.fillText('t (last 3 s)', ax + aw / 2 - 22, h - 5);
@@ -325,3 +326,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'wave hero uses physics check' 
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

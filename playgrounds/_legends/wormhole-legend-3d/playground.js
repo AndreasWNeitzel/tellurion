@@ -12,6 +12,7 @@ import { setupWormholeGL } from '../../../shared/js/engine-gl/wormhole-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -141,10 +142,10 @@ function drawOverviewMode() {
   // The background is already the throat render.
   const rNow = circumferentialR(st.lCam * st.b0, st.b0);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText(`Ellis throat: b_0 = ${st.b0.toFixed(2)}, camera at l / b_0 = ${st.lCam.toFixed(2)}`, 14, H - 50);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Photons with impact parameter |L/E| < b_0 pass through to the other universe.', 14, H - 32);
   ctx.fillText(`Circumferential radius r(l) = sqrt(b_0^2 + l^2) = ${rNow.toFixed(2)}.`, 14, H - 14);
 }
@@ -175,16 +176,16 @@ function drawTraversalMode() {
   ctx.fillStyle = 'rgba(255, 180, 100, 0.85)';
   ctx.fillRect(fromL(0) - 1, py - 2, 2, ph + 4);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Universe A', px + 6, py - 4);
   ctx.fillText('throat', fromL(0) - 16, py - 4);
   ctx.fillText('Universe B', px + pw - 68, py - 4);
   // Strip.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText(`Camera traversing the wormhole: l(t) = ${lCam.toFixed(2)} b_0`, 14, H - 80);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('No event horizon, no singularity. The two skies smoothly exchange in the field of view.', 14, H - 14);
 }
 
@@ -273,10 +274,10 @@ function drawEmbeddingMode(cam) {
   ctx.stroke();
   // Captions.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText(`Flamm embedding: r(l) = sqrt(b_0^2 + l^2), z(l) = b_0 asinh(l/b_0)`, 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Two-funnel paraboloid; the throat (yellow ring) is the narrowest waist at l = 0.', 14, 70);
   ctx.fillText(`Universe A is l > 0 (upper funnel); Universe B is l < 0 (lower funnel).`, 14, 88);
 }
@@ -292,7 +293,7 @@ function drawExoticMode() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('exotic matter density rho(l), running ANEC, and tidal scale', px + 8, py - 6);
   // Axes: l in [-4, 4] (units of b_0).
   const L_MIN = -4, L_MAX = 4;
@@ -331,7 +332,7 @@ function drawExoticMode() {
   for (const s of strips) {
     // Strip background label.
     ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-    ctx.font = 'bold 10px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'tick', 'sans', 600);
     ctx.fillText(s.label, px + 10, s.y0 - 4);
     // Zero line.
     const yZero = s.y0 + s.height / 2;
@@ -358,15 +359,15 @@ function drawExoticMode() {
   ctx.beginPath(); ctx.moveTo(xForL(0), py + 16); ctx.lineTo(xForL(0), py + ph - 14); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 220, 120, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('throat (l = 0)', xForL(0) + 4, py + ph - 22);
   // X-axis label.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('l / b_0', px + pw - 40, py + ph - 8);
   // Caption.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Morris-Thorne 1988: rho < 0 at the throat; ANEC violated. Real matter cannot do this.', px + 8, py + ph + 18);
 }
 
@@ -380,15 +381,15 @@ function drawSidePanel() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('wormhole', x + 8, y - 6);
   let yy = y + 24;
   const row = (k, v, c = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(k, x + 10, yy);
     ctx.fillStyle = c;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(v, x + 10, yy + 14);
     yy += 30;
   };
@@ -409,7 +410,7 @@ function drawModeTab() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.40)';
   ctx.strokeRect(10.5, 8.5, 289, 25);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   const labels = {
     overview: 'OVERVIEW (throat + two skies)',
     traversal: 'TRAVERSAL (camera flythrough)',
@@ -504,4 +505,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

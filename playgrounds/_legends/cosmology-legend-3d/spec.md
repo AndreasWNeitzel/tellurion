@@ -20,6 +20,19 @@ renderer: canvas2d
 estimated_engagement_minutes: 8
 share_state_keys: [omega_m, omega_l, mode]
 supersedes: [expanding-universe-3d, inflation-quantum-fluctuations, cmb-power-spectrum-toy, matter-radiation-equality]
+invariants:
+  - key: runs
+    label: simulation advances each frame
+    tolerance: 1
+  - key: bounded
+    label: state stays finite
+    tolerance: 1
+  - key: deterministic
+    label: fixed seed reproduces the run
+    tolerance: 1
+what_to_try:
+  - Vary each control and watch the rail readouts respond.
+  - Compare the diagnostic plot against the live scene.
 ---
 
 # Cosmology Legend

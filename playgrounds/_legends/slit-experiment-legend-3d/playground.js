@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -105,7 +106,7 @@ function drawSource() {
   ctx.fillStyle = grad;
   ctx.beginPath(); ctx.arc(SRC_X, AXIS_Y, 22, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   const lines = (st.particle === 'electron')
     ? [`electron source`, `${st.E_eV} eV`, `lambda = ${(lambda_m() * 1e9).toFixed(3)} nm`]
     : [`photon source`, `lambda = ${st.lambda_nm} nm`];
@@ -150,7 +151,7 @@ function drawMask() {
     ctx.strokeRect(MASK_X - 8.5, y0 - 0.5, 17, slitW_px + 1);
   }
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${N} slits, a=${st.a_um.toFixed(1)} um, d=${st.d_um.toFixed(1)} um`, MASK_X - 70, AXIS_Y + mask_h / 2 + 16);
 }
 
@@ -167,7 +168,7 @@ function drawCrystal() {
     }
   }
   ctx.fillStyle = 'rgba(120, 220, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Ni (111) lattice, d = 2.15 Angstrom', MASK_X - 78, AXIS_Y + 90);
 }
 
@@ -179,7 +180,7 @@ function drawScreen() {
   ctx.lineTo(SCREEN_X, AXIS_Y + SCREEN_HALF);
   ctx.stroke();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('screen', SCREEN_X + 6, AXIS_Y - SCREEN_HALF - 8);
 }
 
@@ -217,7 +218,7 @@ function drawWaveField() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('I(theta)', SCREEN_X + 24, AXIS_Y - SCREEN_HALF - 8);
 
   const slitYs = slitYsPx();
@@ -287,7 +288,7 @@ function drawHits() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255, 240, 200, 0.9)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${st.hits.length} hits`, SCREEN_X + 24, AXIS_Y - SCREEN_HALF - 8);
 }
 
@@ -380,11 +381,11 @@ function drawDavissonRays() {
     ctx.fillStyle = 'rgba(255, 240, 200, 0.95)';
     ctx.beginPath(); ctx.arc(SCREEN_X, y_end, 4, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(255, 220, 120, 0.85)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`theta_B = ${(thetaB / DEG).toFixed(1)} deg`, SCREEN_X - 80, y_end + (sign > 0 ? -12 : 18));
   }
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`E = ${st.E_eV} eV gives lambda = ${(lam * 1e10).toFixed(2)} Angstrom`, MASK_X - 80, AXIS_Y + 110);
   ctx.fillText('Davisson and Germer 1927: 54 eV gives theta_B near 23 deg', MASK_X - 80, AXIS_Y + 124);
 }
@@ -396,7 +397,7 @@ function drawHeader() {
   ctx.lineWidth = 1;
   ctx.strokeRect(10.5, 8.5, 359, 25);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   const labels = {
     wave: 'WAVE FIELD  (continuous intensity)',
     particles: 'PARTICLE ACCUMULATOR  (one at a time)',
@@ -414,15 +415,15 @@ function drawSidePanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Slit-experiment readout', x + 8, y - 6);
   let yy = y + 24;
   const row = (k, v, c = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(k, x + 10, yy);
     ctx.fillStyle = c;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(v, x + 10, yy + 14);
     yy += 32;
   };
@@ -542,4 +543,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -1,6 +1,15 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Neutron Star Legend</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neutron Star Legend</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
 .pg-figure { max-width: 860px; }
@@ -14,21 +23,39 @@
 .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 .legend-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; background: linear-gradient(90deg, #ffd28a, #ff7c8a); color: #000; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; margin-left: 8px; vertical-align: 2px; }
 </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>Neutron Star<span class="legend-badge">LEGEND</span></h1>
-<p><strong>What you are seeing:</strong> a rotating 1.4 M_sun neutron star rendered through five modes (Overview, Lighthouse, Magnetar, Structure, Spindown). The same NS object is shared across modes so you build one mental model of the second-most-extreme object in the universe. Drag the canvas to orbit the camera, scroll to zoom. Source: Shapiro and Teukolsky, <em>Black Holes, White Dwarfs and Neutron Stars</em>, 1983, Ch. 9 (<code>shapiro-teukolsky-bh-wd-ns</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="960" height="640" aria-label="Neutron star legend, drag to orbit"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
-  <span class="label">M (M_sun):</span><span class="value" id="readout-M">--</span>
-  <span class="label">P (ms):</span><span class="value" id="readout-P">--</span>
-  <span class="label">log10 B (G):</span><span class="value" id="readout-B">--</span>
-  <span class="label">tau (yr):</span><span class="value" id="readout-tau">--</span>
-  <span class="label">mode:</span><span class="value" id="readout-mode">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> Neutron Star Legend, mode-switchable laboratory. Method: 3D Canvas2D depth-sorted sphere + magnetic-dipole field-line geometry + Gaussian beam pulse profile (Rankin 1993) + parametric SLy/APR/FPS mass-radius curves (Lattimer-Prakash 2001) + classical magnetic-dipole spindown + Hurley 2005 magnetar-flare profile + vortex-unpinning glitch (Anderson-Itoh 1975). Source: Shapiro and Teukolsky 1983, Ch. 9.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Neutron StarLEGEND</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Neutron StarLEGEND</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a rotating 1.4 M_sun neutron star rendered through five modes (Overview, Lighthouse, Magnetar, Structure, Spindown). The same NS object is shared across modes so you build one mental model of the second-most-extreme object in the universe. Drag the canvas to orbit the camera, scroll to zoom. Source: Shapiro and Teukolsky, <em>Black Holes, White Dwarfs and Neutron Stars</em>, 1983, Ch. 9 (<code>shapiro-teukolsky-bh-wd-ns</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="960" height="640" aria-label="Neutron star legend, drag to orbit"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Neutron Star Legend, mode-switchable laboratory. Method: 3D Canvas2D depth-sorted sphere + magnetic-dipole field-line geometry + Gaussian beam pulse profile (Rankin 1993) + parametric SLy/APR/FPS mass-radius curves (Lattimer-Prakash 2001) + classical magnetic-dipole spindown + Hurley 2005 magnetar-flare profile + vortex-unpinning glitch (Anderson-Itoh 1975). Source: Shapiro and Teukolsky 1983, Ch. 9.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
 <div class="row" data-row="mode"><span class="label">mode</span><select aria-label="mode" id="select-mode">
-  <option value="overview" selected>Overview (NS + dipole + beam)</option>
+  <option value="overview" selected="">Overview (NS + dipole + beam)</option>
   <option value="lighthouse">Lighthouse (pulse profile)</option>
   <option value="magnetar">Magnetar (B-field flare)</option>
   <option value="structure">Structure (TOV mass-radius)</option>
@@ -40,10 +67,50 @@
 <div class="row" data-row="alpha"><span class="label">alpha (deg)</span><input aria-label="alpha" type="range" id="slider-alpha" min="0" max="90" step="1" value="35"><span class="value" id="value-alpha">35</span></div>
 <div class="row" data-row="beta"><span class="label">beta los (deg)</span><input aria-label="beta" type="range" id="slider-beta" min="0" max="90" step="1" value="30"><span class="value" id="value-beta">30</span></div>
 <div class="row" data-row="eos"><span class="label">EOS</span><select aria-label="EOS" id="select-eos">
-  <option value="SLy" selected>SLy (medium)</option>
+  <option value="SLy" selected="">SLy (medium)</option>
   <option value="APR">APR (stiff)</option>
   <option value="FPS">FPS (soft)</option>
 </select><span class="value" id="value-eos">SLy</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
 </div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+  <span class="label">M (M_sun):</span><span class="value" id="readout-M">--</span>
+  <span class="label">P (ms):</span><span class="value" id="readout-P">--</span>
+  <span class="label">log10 B (G):</span><span class="value" id="readout-B">--</span>
+  <span class="label">tau (yr):</span><span class="value" id="readout-tau">--</span>
+  <span class="label">mode:</span><span class="value" id="readout-mode">--</span>
+</div><span class="value" id="readout-M">--</span><span class="value" id="readout-P">--</span><span class="value" id="readout-B">--</span><span class="value" id="readout-tau">--</span><span class="value" id="readout-mode">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

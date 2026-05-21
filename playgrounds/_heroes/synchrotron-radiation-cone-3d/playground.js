@@ -7,6 +7,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -89,7 +90,7 @@ function drawBField() {
     }
   }
   ctx.fillStyle = 'rgba(180, 100, 220, 0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   const Btxt = project3D(1.5, 1.5, 0.8);
   ctx.fillText(`B = ${B_T().toExponential(1)} T`, Btxt.x, Btxt.y);
 }
@@ -173,7 +174,7 @@ function drawBeamingCone() {
   ctx.beginPath(); ctx.moveTo(apex.x, apex.y); ctx.lineTo(axisEnd.x, axisEnd.y); ctx.stroke();
   // Label beaming half-angle.
   ctx.fillStyle = 'rgba(255, 200, 120, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   const half_deg = (half * 180 / Math.PI).toFixed(2);
   ctx.fillText(`1/gamma = ${half_deg} deg`, axisEnd.x + 6, axisEnd.y);
 }
@@ -187,7 +188,7 @@ function drawObserver() {
   ctx.fillStyle = 'rgba(120, 200, 255, 0.85)';
   ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('observer', p.x + 12, p.y + 4);
   // Dotted line to electron.
   const ePhase = st.phase;
@@ -222,7 +223,7 @@ function drawPulse() {
   ctx.lineWidth = 1;
   ctx.strokeRect(PULSE.x + 0.5, PULSE.y + 0.5, PULSE.w - 1, PULSE.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('observed pulse I(phi)', PULSE.x + 8, PULSE.y - 6);
 
   const N = 200;
@@ -252,7 +253,7 @@ function drawPulse() {
   ctx.beginPath(); ctx.arc(xc, yc, 4, 0, Math.PI * 2); ctx.fill();
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('-pi', PULSE.x + 32, PULSE.y + PULSE.h - 10);
   ctx.fillText('0', PULSE.x + PULSE.w / 2 - 4, PULSE.y + PULSE.h - 10);
   ctx.fillText('+pi', PULSE.x + PULSE.w - 36, PULSE.y + PULSE.h - 10);
@@ -265,7 +266,7 @@ function drawSpectrum() {
   ctx.lineWidth = 1;
   ctx.strokeRect(SPEC.x + 0.5, SPEC.y + 0.5, SPEC.w - 1, SPEC.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('spectrum F(nu/nu_c)', SPEC.x + 8, SPEC.y - 6);
 
   // Log-log of F(x) for x in [0.01, 10].
@@ -298,7 +299,7 @@ function drawSpectrum() {
   ctx.beginPath(); ctx.moveTo(xNuC, SPEC.y + 10); ctx.lineTo(xNuC, SPEC.y + SPEC.h - 24); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 220, 120, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('nu_c', xNuC + 4, SPEC.y + 24);
   // Power-law indicator nu^(1/3) at low frequency.
   ctx.fillStyle = 'rgba(120, 240, 200, 0.85)';
@@ -306,7 +307,7 @@ function drawSpectrum() {
   ctx.fillText('exp cutoff', SPEC.x + SPEC.w - 90, SPEC.y + 24);
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0.01', SPEC.x + 30, SPEC.y + SPEC.h - 10);
   ctx.fillText('1', SPEC.x + SPEC.w / 2 - 4, SPEC.y + SPEC.h - 10);
   ctx.fillText('10', SPEC.x + SPEC.w - 24, SPEC.y + SPEC.h - 10);
@@ -333,7 +334,7 @@ function draw() {
   updateReadout();
   // Caption
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`gamma = ${gamma().toExponential(1)}, B = ${B_T().toExponential(1)} T, 1/gamma = ${(beamingHalfAngle_rad(gamma()) * 180 / Math.PI).toExponential(2)} deg`, 14, SCENE.h - 10);
 }
 
@@ -379,4 +380,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

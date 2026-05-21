@@ -6,6 +6,7 @@
 import { broadenedLine, gaussianLine, limbDarkening, halfWidthHalfDepth } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -138,7 +139,7 @@ function drawProfilePanel(x0, y0, w, h) {
   ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('F / F_continuum', x0 + 10, ay - 4);
   ctx.textAlign = 'center';
@@ -178,7 +179,7 @@ function drawProfilePanel(x0, y0, w, h) {
   ctx.stroke();
 
   // Legend.
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255, 209, 102, 0.95)';
   ctx.fillText('non-rotating', ax + aw - 110, ay + 14);
@@ -196,7 +197,7 @@ function render() {
 
   // Top-left small labels.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`v sin i = ${st.vsiniKmS.toFixed(0)} km/s    i = ${st.inc.toFixed(0)}°`, 24, 22);
   ctx.fillText('blue limb approaches → blueshift; red limb recedes → redshift', 24, 40);
@@ -211,7 +212,7 @@ function render() {
 
   // Caption strip at bottom.
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('the line shape is the limb-darkened sum of every disk element\'s Doppler-shifted Gaussian', W / 2, H - 14);
 }
@@ -285,4 +286,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

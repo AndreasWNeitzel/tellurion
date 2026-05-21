@@ -1,24 +1,92 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>White-Dwarf Cooling Sequence</title>
-<link rel="stylesheet" href="../../../shared/css/tokens.css"><link rel="stylesheet" href="../../../shared/css/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>White-Dwarf Cooling Sequence</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #04060c; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style><link rel="stylesheet" href="../../../shared/css/explainer.css"></head><body>
-<h1>White-dwarf cooling sequence</h1>
-<p><strong>What you are seeing:</strong> a white dwarf of mass $M$ cooling under the Mestel law $L(t) \propto M t^{-7/5}$. The HR diagram at the top traces the cooling track (blue point = current age); the WD sphere and cross-section on the bottom show the photosphere colour by $T_{\rm eff}$ and the inward-growing crystal core (yellow) once $\Gamma > 175$. Source: Fontaine, Brassard, Bergeron, <em>PASP</em> 113 (2001) 409 (<code>fontaine-brassard-bergeron-2001</code>).</p>
-<figure class="pg-figure"><canvas id="stage" width="900" height="600"></canvas>
-<div class="readout" id="readout" role="status" aria-live="polite">
+<style>.pg-figure { max-width: 860px; } .pg-figure canvas { width: 100%; height: auto; background: #04060c; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"], .pg-controls select { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }</style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">White-dwarf cooling sequence</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">White-dwarf cooling sequence</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body"><strong>What you are seeing:</strong> a white dwarf of mass <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.109em;">M</span></span></span></span></span> cooling under the Mestel law <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>∝</mo><mi>M</mi><msup><mi>t</mi><mrow><mo>−</mo><mn>7</mn><mi mathvariant="normal">/</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">L(t) \propto M t^{-7/5}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">L</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">∝</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.888em;"></span><span class="mord mathnormal" style="margin-right: 0.109em;">M</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.888em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">7/5</span></span></span></span></span></span></span></span></span></span></span></span></span>. The HR diagram at the top traces the cooling track (blue point = current age); the WD sphere and cross-section on the bottom show the photosphere colour by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub></mrow><annotation encoding="application/x-tex">T_{\rm eff}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.1389em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span class="" style="top: -2.55em; margin-left: -0.1389em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight" style="margin-right: 0.0778em;">eff</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span> and the inward-growing crystal core (yellow) once <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Γ</mi><mo>&gt;</mo><mn>175</mn></mrow><annotation encoding="application/x-tex">\Gamma &gt; 175</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7224em; vertical-align: -0.0391em;"></span><span class="mord">Γ</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">175</span></span></span></span></span>. Source: Fontaine, Brassard, Bergeron, <em>PASP</em> 113 (2001) 409 (<code>fontaine-brassard-bergeron-2001</code>).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="600"></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> White-dwarf cooling: HR-diagram track + interior crystallization front. Method: Mestel L ~ M t^(-7/5), Stefan-Boltzmann T_eff = (L / 4 pi R^2 sigma)^(1/4), Eggleton M-R relation. Source: Fontaine, Brassard, Bergeron, PASP 113 (2001) 409.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">mass M / M_sun</span><input aria-label="mass" type="range" id="slider-mass" min="0.40" max="1.20" step="0.01" value="0.60"><span class="value" id="value-mass">0.60</span></div>
+<div class="row"><span class="label">log age (years)</span><input aria-label="logt" type="range" id="slider-logt" min="7.0" max="10.2" step="0.05" value="9.0"><span class="value" id="value-logt">9.00</span></div>
+<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="1"><span class="value" id="value-speed">1</span></div>
+<div class="row"><span class="label">show LF bump</span><select aria-label="bump" id="select-bump"><option value="on" selected="">show</option><option value="off">hide</option></select><span class="value" id="value-bump">on</span></div>
+<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+</div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
   <span class="label">M (M_sun):</span><span class="value" id="readout-M">--</span>
   <span class="label">age:</span><span class="value" id="readout-age">--</span>
   <span class="label">log L/L_sun:</span><span class="value" id="readout-L">--</span>
   <span class="label">T_eff (K):</span><span class="value" id="readout-T">--</span>
   <span class="label">crystal frac f_X:</span><span class="value" id="readout-fX">--</span>
-</div>
-<figcaption><span class="figure-number">Figure 1.</span> White-dwarf cooling: HR-diagram track + interior crystallization front. Method: Mestel L ~ M t^(-7/5), Stefan-Boltzmann T_eff = (L / 4 pi R^2 sigma)^(1/4), Eggleton M-R relation. Source: Fontaine, Brassard, Bergeron, PASP 113 (2001) 409.</figcaption></figure>
-<div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">mass M / M_sun</span><input aria-label="mass" type="range" id="slider-mass" min="0.40" max="1.20" step="0.01" value="0.60"><span class="value" id="value-mass">0.60</span></div>
-<div class="row"><span class="label">log age (years)</span><input aria-label="logt" type="range" id="slider-logt" min="7.0" max="10.2" step="0.05" value="9.0"><span class="value" id="value-logt">9.00</span></div>
-<div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="3" step="1" value="1"><span class="value" id="value-speed">1</span></div>
-<div class="row"><span class="label">show LF bump</span><select aria-label="bump" id="select-bump"><option value="on" selected>show</option><option value="off">hide</option></select><span class="value" id="value-bump">on</span></div>
-<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
-</div>
-<script type="module" src="./playground.js"></script><script type="module" src="../../../shared/js/explainer.js"></script></body></html>
+</div><span class="value" id="readout-M">--</span><span class="value" id="readout-age">--</span><span class="value" id="readout-L">--</span><span class="value" id="readout-T">--</span><span class="value" id="readout-fX">--</span></div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>

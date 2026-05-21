@@ -36,6 +36,7 @@ import { setupBHGL } from '../../../shared/js/engine-gl/schwarzschild-kerr.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -451,7 +452,7 @@ function labelAt(cam, p3, text, color = 'rgba(220, 230, 255, 0.92)', dx = 8, dy 
   const s = worldToScreen(p3, cam);
   if (!s) return;
   ctx.fillStyle = color;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(text, s.x + dx, s.y + dy);
 }
 
@@ -485,7 +486,7 @@ function drawSky2D() {
   ctx.lineWidth = 1.6;
   ctx.beginPath(); ctx.arc(W * 0.5, H * 0.5, 60, 0, Math.PI * 2); ctx.stroke();
   ctx.fillStyle = 'rgba(255, 90, 110, 0.95)';
-  ctx.font = '13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText('WebGL2 unavailable; using 2D fallback', W * 0.5 - 130, H - 14);
 }
 
@@ -579,7 +580,7 @@ function drawOverviewMode(cam) {
   drawCoordinateGrid(cam);
   if (st.flags.labels) {
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText('lensed accretion disk; redshifted (back) side dim, blueshifted (front) side bright', 14, 52);
     ctx.fillText('drag canvas to orbit, scroll to zoom; inclination slider sets camera elevation', 14, 70);
   }
@@ -620,12 +621,12 @@ function drawPhotonsMode(cam) {
   // Legend strip.
   const cls = classifyPhoton(M_solar(), b_target);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body');
   ctx.fillText(`b / R_s = ${st.b_rs.toFixed(2)};  critical b_c / R_s = ${bCritRs().toFixed(3)}`, 14, H - 50);
   ctx.fillStyle = cls === 'capture' ? 'rgba(255, 130, 130, 0.95)' : cls === 'orbit' ? 'rgba(255, 230, 110, 0.95)' : 'rgba(140, 220, 255, 0.95)';
   ctx.fillText(`outcome at chosen b: ${cls.toUpperCase()}`, 14, H - 32);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('red = capture; yellow = unstable orbit on the photon sphere; blue = escape', 14, H - 14);
 }
 
@@ -694,7 +695,7 @@ function drawLensingMode(cam) {
     ctx.setLineDash([]);
     if (st.flags.labels) {
       ctx.fillStyle = 'rgba(120, 220, 200, 0.92)';
-      ctx.font = '11px ui-monospace, monospace';
+      ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText('source (drag me on canvas)', sGhost.x + 14, sGhost.y + 4);
     }
     st._sourceScreenPos = { x: sGhost.x, y: sGhost.y };
@@ -721,8 +722,8 @@ function drawLensingMode(cam) {
   ctx.fillStyle = 'rgba(255, 200, 120, 0.98)';
   if (sP) { ctx.beginPath(); ctx.arc(sP.x, sP.y, dotR(mu_plus), 0, Math.PI * 2); ctx.fill(); }
   if (sM) { ctx.beginPath(); ctx.arc(sM.x, sM.y, dotR(mu_minus), 0, Math.PI * 2); ctx.fill(); }
-  if (st.flags.labels && sP) { ctx.fillStyle = 'rgba(255, 200, 120, 0.95)'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('+ image', sP.x + 12, sP.y - 4); }
-  if (st.flags.labels && sM) { ctx.fillStyle = 'rgba(255, 200, 120, 0.95)'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('- image', sM.x + 12, sM.y - 4); }
+  if (st.flags.labels && sP) { ctx.fillStyle = 'rgba(255, 200, 120, 0.95)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('+ image', sP.x + 12, sP.y - 4); }
+  if (st.flags.labels && sM) { ctx.fillStyle = 'rgba(255, 200, 120, 0.95)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('- image', sM.x + 12, sM.y - 4); }
 
   // Connecting line through lens center showing the axis.
   if (sP && sM) {
@@ -735,16 +736,16 @@ function drawLensingMode(cam) {
   // Readout strip.
   const mu = lensMagnification(beta, 1.0);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('LENSING (Refsdal 1964): drag the cyan source dot on the canvas to move it across the BH.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('When the source crosses the BH (beta = 0), the two images merge into a complete Einstein ring.', 14, 70);
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`beta = (${bx.toFixed(2)}, ${by.toFixed(2)}) theta_E,  |beta| = ${beta.toFixed(2)} theta_E`, 14, H - 50);
   ctx.fillText(`mu_+ = ${mu_plus.toFixed(2)}  mu_- = ${mu_minus.toFixed(2)}  mu_total = ${mu.toFixed(2)}`, 14, H - 32);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`theta_E (world units, scales as sqrt M) = ${theta_E_world.toFixed(2)}`, 14, H - 14);
 }
 
@@ -800,20 +801,20 @@ function drawShadowMode(cam) {
   const thetaSh = (D) => (bc_m / D) * (180 / Math.PI) * 3600 * 1e6;  // uas
 
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('SHADOW: the dark disc inside the photon ring (b_c = 2.598 R_s) seen from infinity.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('What the Event Horizon Telescope resolves. Independent of accretion details, the boundary is set by geometry.', 14, 70);
 
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`mass M = ${M.toExponential(2)} M_sun;  R_s = ${rsKm(M).toExponential(2)} km`, 14, H - 78);
   ctx.fillText(`angular shadow at D = 8.27 kpc (Sgr A*):    theta_sh = ${thetaSh(D_SgrA).toFixed(2)} uas`, 14, H - 60);
   ctx.fillText(`angular shadow at D = 16.8 Mpc (M87*):      theta_sh = ${thetaSh(D_M87).toFixed(2)} uas`, 14, H - 42);
   ctx.fillText(`angular shadow at D = 410 Mpc (GW150914):   theta_sh = ${thetaSh(D_GW).toExponential(2)} uas`, 14, H - 24);
   ctx.fillStyle = 'rgba(255, 180, 100, 0.82)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('EHT 2019: M87* theta_sh = 42 uas; EHT 2022: Sgr A* theta_sh = 51.8 uas.', 14, H - 6);
 }
 
@@ -935,25 +936,25 @@ function drawFrameDragMode(cam) {
   // Readout strip.
   const Omega_H = kerrHorizonAngularVel_radps(M_solar(), a);
   ctx.fillStyle = 'rgba(255, 200, 120, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Frame dragging (Lense-Thirring 1918): a Kerr BH twists nearby inertial frames forward.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Each arrow is a GYROSCOPE that started pointing to "infinity-anchored north." It precesses at omega(r) ~ 2 chi / r^3.', 14, 70);
   ctx.fillText('White particles dropped at rest from r = 3, 5, 7 M: chi = 0 they fall straight; chi > 0 they spiral with the dragged spacetime.', 14, 88);
   if (a < 0.02) {
     ctx.fillStyle = 'rgba(255, 130, 130, 0.95)';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText('Set chi > 0 to see the gyroscopes precess and the dropped particle spiral inward.', 14, 106);
   }
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Omega_H (horizon angular velocity) = ${Omega_H.toExponential(3)} rad/s`, 14, H - 50);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`omega(r=2.5M) = ${(2*a/15.625).toFixed(3)};  omega(r=4.5M) = ${(2*a/91.125).toFixed(3)};  omega(r=7M) = ${(2*a/343).toFixed(4)}  (M units)`, 14, H - 32);
   ctx.fillStyle = 'rgba(220, 120, 255, 0.85)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Purple wireframe: ergosphere boundary. Inside it, no observer can be at rest with respect to infinity.', 14, H - 14);
 }
 
@@ -1075,13 +1076,13 @@ function drawSpacetimeMode(cam) {
   }
 
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Spacetime as geometry: Flamm embedding + photons traveling on the curved surface.', 14, 52);
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Photons at large b escape after a deflection; at b < 2.598 R_s they spiral down the throat and are captured.', 14, 70);
   ctx.fillText('z(r) = 2 sqrt(R_s (r - R_s)); the surface is the spatial geometry of a t = const, theta = pi/2 slice.', 14, 88);
   ctx.fillStyle = 'rgba(255, 180, 100, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('orange ring: horizon throat; white dashed: photon sphere at 1.5 R_s', 14, H - 14);
 }
 
@@ -1151,10 +1152,10 @@ function drawRingdownMode(_cam) {
   }
 
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Ringdown: the post-merger Kerr BH oscillates and decays in its (l,m,n)=(2,2,0) QNM.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('The bulge co-rotates at the QNM frequency; its amplitude decays by 1/e in tau (damping time).', 14, 70);
   ctx.fillText('LIGO/Virgo measures the resulting damped sinusoid below.', 14, 88);
 
@@ -1166,7 +1167,7 @@ function drawRingdownMode(_cam) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('gravitational-wave strain h(t) = h_0 exp(-t/tau) cos(2 pi f t)', px0 + 8, py0 - 6);
   const midY = py0 + ph / 2;
   ctx.strokeStyle = 'rgba(200, 210, 230, 0.18)';
@@ -1208,10 +1209,10 @@ function drawRingdownMode(_cam) {
   ctx.beginPath(); ctx.arc(xc, yc, 5, 0, Math.PI * 2); ctx.fill();
 
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`f = ${props.f_Hz.toExponential(2)} Hz  tau = ${(props.tau_s * 1000).toFixed(2)} ms  Q = ${props.Q.toFixed(2)}`, px0 + 8, py0 + ph + 18);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('GW150914 fit: f ~ 251 Hz, tau ~ 4 ms (M = 62 Msun, chi = 0.69).', px0 + 8, py0 + ph + 32);
 }
 
@@ -1273,7 +1274,7 @@ function drawHawkingMode(cam) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('Planck spectrum B_nu(T = T_H)  (intensity vs. log nu)', px0 + 8, py0 - 6);
 
   const log_nu_min = 4, log_nu_max = 22;   // Hz.
@@ -1296,7 +1297,7 @@ function drawHawkingMode(cam) {
   for (const band of bands) {
     const xc = px0 + 30 + ((0.5 * (band.lo + band.hi) - log_nu_min) / (log_nu_max - log_nu_min)) * (pw - 50);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'center';
     ctx.fillText(band.name, xc, py0 + ph - 6);
   }
@@ -1345,15 +1346,15 @@ function drawHawkingMode(cam) {
         ctx.beginPath(); ctx.moveTo(xp, py0 + 10); ctx.lineTo(xp, py0 + ph - 18); ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = 'rgba(255, 255, 200, 0.9)';
-        ctx.font = '11px ui-monospace, monospace';
+        ctx.font = fontString(canvas, 'caption', 'mono');
         ctx.fillText(`peak nu = ${peakNu.toExponential(1)} Hz`, xp + 4, py0 + 24);
       } else if (peakLogNu < log_nu_min) {
         ctx.fillStyle = 'rgba(120, 180, 255, 0.85)';
-        ctx.font = '11px ui-monospace, monospace';
+        ctx.font = fontString(canvas, 'caption', 'mono');
         ctx.fillText(`peak below 10^4 Hz (off chart)  T = ${T.toExponential(2)} K`, px0 + 38, py0 + 28);
       } else {
         ctx.fillStyle = 'rgba(255, 100, 80, 0.85)';
-        ctx.font = '11px ui-monospace, monospace';
+        ctx.font = fontString(canvas, 'caption', 'mono');
         ctx.fillText(`peak above 10^22 Hz  T = ${T.toExponential(2)} K`, px0 + 38, py0 + 28);
       }
     }
@@ -1362,23 +1363,23 @@ function drawHawkingMode(cam) {
   // Strip readout text on the right column.
   const tx = px0 + pw + 20;
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Hawking 1975:', tx, py0 + 18);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T_H = ${T.toExponential(2)} K`, tx, py0 + 40);
   ctx.fillText(`t_evap = ${tEvap.toExponential(2)} yr`, tx, py0 + 58);
   const T_CMB = 2.725;
   ctx.fillStyle = T < T_CMB ? 'rgba(120, 180, 255, 0.92)' : 'rgba(255, 130, 130, 0.92)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(T < T_CMB ? 'colder than the CMB (2.73 K)' : 'hotter than the CMB; net evaporating', tx, py0 + 78);
 
   // Top legend.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Hawking radiation: blackbody emission at T_H from the horizon.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Move mass slider through 1e-12 M_sun (primordial, gamma) to 1e9 M_sun (SMBH, deep radio).', 14, 70);
   ctx.fillText('Cyan tail: outgoing positive-energy quantum. Red tail: negative-energy partner sinks in.', 14, 88);
 }
@@ -1464,14 +1465,14 @@ function drawTdeMode(cam) {
 
   // Top legend.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('TDE (pseudo-Newtonian Schwarzschild): star on a parabolic orbit, periastron 7.5 M.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`${particles.pos.length} test particles integrating a = -M/r^2 - 3 M L^2/r^4 (ISCO at 6M).`, 14, 70);
   ctx.fillText('Bound (red) E < 0 fall back; unbound (blue) E > 0 escape. Flare brightness = real kinetic energy across ISCO.', 14, 88);
   ctx.fillStyle = 'rgba(255, 200, 100, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`bound: ${nBound}  unbound: ${nUnbound}  captured: ${nCaptured}  off-screen: ${nFar}`, 14, 108);
   ctx.fillStyle = 'rgba(255, 240, 200, 0.95)';
   ctx.fillText(`L_sim (arb. units) = ${lumRaw.toFixed(3)}   tau = ${particles.sinceReset.toFixed(1)} M`, 14, 126);
@@ -1485,7 +1486,7 @@ function drawTdeMode(cam) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('TDE lightcurve: cyan = simulation luminosity (real particles crossing ISCO); orange = Rees 1988 analytic.', px0 + 8, py0 - 6);
 
   // Find the simulation luminosity peak for autoscaling.
@@ -1527,7 +1528,7 @@ function drawTdeMode(cam) {
   ctx.beginPath(); ctx.arc(xCur, yCur, 5, 0, Math.PI * 2); ctx.fill();
 
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Hills: ${isDisr ? 'r_T > R_s (disruption)' : 'r_T < R_s (swallowed whole, no flare)'}`, px0 + 8, py0 + ph + 14);
 }
 
@@ -1565,14 +1566,14 @@ function drawTidalMode(cam) {
   const aTidal = tidalAccelPerMetre_per_s2(M_solar(), Math.max(1, r_m_now));
 
   ctx.fillStyle = 'rgba(255, 200, 120, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Tidal forces: a real Newtonian particle cluster under BH gravity.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`${particles.pos.length} test particles initialized as a sphere of R = 0.45 M at r = ${st.r_infall_rs.toFixed(2)} R_s.`, 14, 70);
   ctx.fillText('Each particle integrates its own orbit. The inner side falls faster than the outer; the cloud stretches.', 14, 88);
 
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.fillText(`active: ${nActive} / ${particles.pos.length};  captured: ${particles.pos.length - nActive}`, 14, H - 78);
   ctx.fillText(`mean r = ${meanR.toFixed(2)} M;  radial extent = ${radialExtent.toFixed(2)} M;  transverse = ${transvExtent.toFixed(2)} M`, 14, H - 60);
@@ -1583,10 +1584,10 @@ function drawTidalMode(cam) {
   const r_fatal_human = Math.pow(2 * 6.6743e-11 * M_solar() * 1.989e30 * 2 / 50, 1 / 3) / Rs_m;
   const r_fatal_star = Math.pow(2 * 6.6743e-11 * M_solar() * 1.989e30 * R_body_m / g_break, 1 / 3) / Rs_m;
   ctx.fillStyle = 'rgba(255, 130, 110, 0.92)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`fatal-tide radius (R_s): 2 m human ${r_fatal_human.toExponential(2)};  1 R_sun star ${r_fatal_star.toExponential(2)};  tidal a/m = ${aTidal.toExponential(2)} m/s^2`, 14, H - 24);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Move the r-slider to drop the cluster from a different starting radius (resets the simulation).', 14, H - 6);
 }
 
@@ -1601,15 +1602,15 @@ function drawSidePanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('BH diagnostics', x + 8, y - 6);
   let yy = y + 24;
   const row = (k, v, c = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(k, x + 10, yy);
     ctx.fillStyle = c;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(v, x + 10, yy + 14);
     yy += 28;
   };
@@ -1663,7 +1664,7 @@ function drawScaleBar(cam) {
   ctx.beginPath(); ctx.moveTo(x0, y0 - 4); ctx.lineTo(x0, y0 + 4); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x0 + px_len, y0 - 4); ctx.lineTo(x0 + px_len, y0 + 4); ctx.stroke();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${bestW} M  =  ${fmt(phys_m)}`, x0 + 4, y0 - 8);
 }
 
@@ -1674,7 +1675,7 @@ function drawModeTab() {
   ctx.lineWidth = 1;
   ctx.strokeRect(10.5, 8.5, 319, 25);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   const labels = {
     overview: 'OVERVIEW (disk + shadow)',
     photons: 'PHOTONS (impact-parameter fan)',
@@ -1973,4 +1974,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

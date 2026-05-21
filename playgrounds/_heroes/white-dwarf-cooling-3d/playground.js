@@ -9,6 +9,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -71,12 +72,12 @@ function drawHR(cur) {
   ctx.strokeRect(HR.x + 0.5, HR.y + 0.5, HR.w - 1, HR.h - 1);
   // Title
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Hertzsprung-Russell diagram (WD cooling track)', HR.x + 8, HR.y - 6);
   // Gridlines and axis labels
   ctx.strokeStyle = 'rgba(200, 210, 230, 0.10)';
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let logL = -5; logL <= 1; logL += 1) {
     const p = hrXY(LOGTMAX, logL);
     ctx.beginPath(); ctx.moveTo(HR.x, p.y); ctx.lineTo(HR.x + HR.w, p.y); ctx.stroke();
@@ -108,7 +109,7 @@ function drawHR(cur) {
   }
   // Mass labels.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.65)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   for (const [m, lbl] of [[0.40, '0.4'], [0.60, '0.6'], [0.90, '0.9'], [1.20, '1.2']]) {
     // Pick a point on the curve at logT_age = 9.0 to label.
     const t_yr = 1e9;
@@ -134,7 +135,7 @@ function drawHR(cur) {
   ctx.beginPath(); ctx.moveTo(pCut.x - 80, pCut.y); ctx.lineTo(pCut.x + 80, pCut.y); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 180, 100, 0.85)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`disk-age cutoff (~ ${DISK_AGE_GYR} Gyr)`, pCut.x + 6, pCut.y + 14);
   // Current WD position marker
   const pWD = hrXY(Math.log10(cur.T), Math.log10(cur.L));
@@ -159,7 +160,7 @@ function drawSphere(cur) {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('photosphere', x + 8, y - 6);
 
   const cx = x + w / 2, cy = y + h / 2;
@@ -178,7 +179,7 @@ function drawSphere(cur) {
 
   // Labels
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T_eff = ${cur.T.toFixed(0)} K`, x + 8, y + h - 22);
   ctx.fillText(`log L = ${Math.log10(cur.L).toFixed(2)}`, x + 8, y + h - 8);
 }
@@ -191,7 +192,7 @@ function drawCrossSection(cur) {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('interior cross-section', x + 8, y - 6);
 
   const cx = x + w / 2, cy = y + h / 2;
@@ -221,7 +222,7 @@ function drawCrossSection(cur) {
   }
   // Labels
   ctx.fillStyle = 'rgba(180, 200, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('H/He envelope', x + 8, y + 18);
   ctx.fillText('C/O liquid', x + 8, y + 32);
   ctx.fillStyle = 'rgba(255, 240, 160, 0.85)';
@@ -239,7 +240,7 @@ function drawLF(cur) {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('crystallization timeline', x + 8, y - 6);
 
   // x-axis: log10 t (years), 7 to 10.2.
@@ -253,7 +254,7 @@ function drawLF(cur) {
   ctx.lineTo(x + 30, y + h - 30);
   ctx.stroke();
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('1', x + 12, y + 14);
   ctx.fillText('0', x + 12, y + h - 28);
   ctx.fillText('10^7', x + 28, y + h - 14);
@@ -281,7 +282,7 @@ function drawLF(cur) {
   ctx.beginPath(); ctx.arc(xn, yn, 4, 0, Math.PI * 2); ctx.fill();
   // f_X readout.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('f_X(t)', x + 36, y + 22);
 }
 
@@ -365,4 +366,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

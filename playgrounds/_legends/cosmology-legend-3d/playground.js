@@ -16,6 +16,7 @@ import { setupCosmicLatticeGL } from '../../../shared/js/engine-gl/cosmic-lattic
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -135,10 +136,10 @@ function drawExpansionMode(a) {
   // (background is already the lattice via paintBackground)
   // Centred title strip.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText(`a(now) = ${a.toFixed(3)}`, 14, H - 30);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Comoving lattice of galaxies; proper separations scale by a(t).', 14, H - 12);
 }
 
@@ -155,7 +156,7 @@ function drawFateMode(aNow) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('scale factor a(t) for four fates', px + 8, py - 6);
 
   // Axes: t in [-1, 3] (units of 1/H0), a in [0, 4].
@@ -231,12 +232,12 @@ function drawFateMode(aNow) {
   ctx.beginPath(); ctx.moveTo(xForT(0), py + 16); ctx.lineTo(xForT(0), py + ph - 30); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t = now', xForT(0) + 4, py + 28);
 
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t / H_0^-1', px + pw - 56, py + ph - 12);
   ctx.fillText('a(t)', px + 8, py + 18);
   ctx.fillText('0', px + 22, py + ph - 30);
@@ -254,14 +255,14 @@ function drawFateMode(aNow) {
   ctx.fillStyle = 'rgba(255, 140, 220, 1.0)';
   ctx.fillRect(px + pw - 180, lyy - 8, 10, 3);
   ctx.fillStyle = 'rgba(255, 200, 240, 0.95)';
-  ctx.font = 'bold 10px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono', 600);
   ctx.fillText(`your universe (Ω_m=${st.Om.toFixed(2)}, Ω_Λ=${st.Ol.toFixed(2)})`, px + pw - 165, lyy - 4);
   lyy += 16;
   for (const f of fates) {
     ctx.fillStyle = colors[f];
     ctx.fillRect(px + pw - 180, lyy - 8, 10, 3);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(FATE_PRESETS[f].label, px + pw - 165, lyy - 4);
     lyy += 14;
   }
@@ -282,7 +283,7 @@ function drawFateMode(aNow) {
   else if (st.Ol < 0.05) fateLabel = 'Matter-dominated, decelerating: still expands forever if k ≤ 0.';
   else fateLabel = `Mixed cosmology: Ω_m = ${st.Om.toFixed(2)}, Ω_Λ = ${st.Ol.toFixed(2)}, Ω_k = ${(1 - Otot).toFixed(2)}.`;
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(fateLabel, px + 8, py + ph + 18);
 }
 
@@ -405,17 +406,17 @@ function drawCMBMode(cam) {
   drawCMBSphere(cam);
   // Strip with key numbers.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('Cosmic Microwave Background (surface of last scattering)', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Surface of last scattering at z ~ 1100 (380,000 yr after the Big Bang).', 14, 72);
   ctx.fillText('Photons stream freely after recombination; near-perfect blackbody.', 14, 90);
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T_CMB(today) = ${T_CMB_NOW.toFixed(3)} K`, 14, H - 50);
   ctx.fillText(`T_LSS = ${(T_LAST_SCATTERING).toFixed(0)} K (at z = ${Z_LAST_SCATTERING})`, 14, H - 32);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Delta T / T ~ 10^-5 anisotropies are the seeds of all later structure.', 14, H - 14);
 }
 
@@ -431,7 +432,7 @@ function drawInflationMode() {
   ctx.lineWidth = 1;
   ctx.strokeRect(lpx + 0.5, lpy + 0.5, lpw - 1, lph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText(`inflaton potential V(phi): ${POTENTIALS[st.pot].label}`, lpx + 8, lpy - 6);
 
   // Plot V(phi).
@@ -472,11 +473,11 @@ function drawInflationMode() {
   ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(xc, yc); ctx.lineTo(xc, lpy + lph - 30); ctx.stroke();
   ctx.fillStyle = 'rgba(255, 220, 120, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`phi at N = ${st.Nefolds}: ${phi_N.toFixed(2)}`, xc + 8, yc - 8);
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('phi (M_Pl)', lpx + lpw - 60, lpy + lph - 12);
   ctx.fillText('V', lpx + 8, lpy + 18);
 
@@ -487,7 +488,7 @@ function drawInflationMode() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(rpx + 0.5, rpy + 0.5, rpw - 1, rph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('(n_s, r) plane with Planck 2018 2-sigma box', rpx + 8, rpy - 6);
   // Axes: n_s in [0.9, 1.05], r in [0, 0.3].
   const N_MIN = 0.92, N_MAX = 1.02, R_MIN = 0, R_MAX = 0.30;
@@ -508,7 +509,7 @@ function drawInflationMode() {
   ctx.lineWidth = 1.4;
   ctx.strokeRect(xForN(0.957), yForR(0.061), xForN(0.973) - xForN(0.957), yForR(0) - yForR(0.061));
   ctx.fillStyle = 'rgba(120, 220, 200, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Planck 2-sigma', xForN(0.957) + 4, yForR(0.061) + 12);
 
   // Track both potentials' (n_s, r) for N = 30..70.
@@ -543,7 +544,7 @@ function drawInflationMode() {
   }
   // Axes labels and N markers on the current track.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('n_s', rpx + rpw - 24, rpy + rph - 12);
   ctx.fillText('r', rpx + 8, rpy + 18);
   ctx.fillText('0.94', xForN(0.94), rpy + rph - 16);
@@ -563,7 +564,7 @@ function drawInflationMode() {
   }
   // Readouts.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`n_s = ${ns_now.toFixed(4)}, r = ${r_now.toFixed(4)}`, rpx + 8, rpy + rph + 18);
 }
 
@@ -578,15 +579,15 @@ function drawSidePanel(aNow) {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('cosmology', x + 8, y - 6);
   let yy = y + 24;
   const row = (k, v, c = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(k, x + 10, yy);
     ctx.fillStyle = c;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(v, x + 10, yy + 14);
     yy += 30;
   };
@@ -635,7 +636,7 @@ function drawModeTab() {
   ctx.lineWidth = 1;
   ctx.strokeRect(10.5, 8.5, 289, 25);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   const labels = {
     expansion: 'EXPANSION (a(t) lattice)',
     fate: 'FATE (four scenarios)',
@@ -749,4 +750,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -14,6 +14,7 @@ import {
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -418,7 +419,7 @@ function drawSpinAxis(cam) {
   ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(200, 220, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('spin axis', p1.x + 8, p1.y);
 }
 
@@ -437,7 +438,7 @@ function drawLineOfSight(cam) {
   ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
   ctx.fillStyle = 'rgba(255, 230, 120, 0.95)';
   ctx.beginPath(); ctx.arc(p1.x, p1.y, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Earth (line of sight)', p1.x + 8, p1.y + 4);
 }
 
@@ -452,15 +453,15 @@ function drawSidePanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('NS diagnostics', x + 8, y - 6);
   let yy = y + 24;
   const row = (k, v, c = '#e0e8ff') => {
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillText(k, x + 10, yy);
     ctx.fillStyle = c;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(v, x + 10, yy + 14);
     yy += 30;
   };
@@ -483,7 +484,7 @@ function drawModeTab() {
   ctx.lineWidth = 1;
   ctx.strokeRect(10.5, 8.5, 299, 25);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   const labels = {
     overview: 'OVERVIEW (NS + dipole + beam)',
     lighthouse: 'LIGHTHOUSE (pulse profile)',
@@ -521,7 +522,7 @@ function drawLighthouseMode(cam, spinPhase) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('pulse profile I(phi) over one rotation', px + 8, py - 6);
   // Plot intensity over phi in [0, 2 pi].
   const rho = beamHalfAngle_rad(P_s());
@@ -547,14 +548,14 @@ function drawLighthouseMode(cam, spinPhase) {
   ctx.beginPath(); ctx.arc(xc, yc, 4, 0, 2 * Math.PI); ctx.fill();
   // Axes.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.75)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('phi = 0', px + 30, py + ph - 4);
   ctx.fillText('2 pi', px + pw - 30, py + ph - 4);
   ctx.fillText('I = 0', px + 6, py + ph - 16);
   ctx.fillText('I = 1', px + 6, py + 16);
   // Sanity strip.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`rho_beam = ${(rho / DEG).toFixed(1)} deg; pulse visible when (alpha + beta) - rho < theta_los < (alpha + beta) + rho`,
     px + 8, py + ph + 18);
 }
@@ -607,7 +608,7 @@ function drawMagnetarMode(cam, spinPhase) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('X-ray flare lightcurve L(t) (Hurley 2005)', px + 8, py - 6);
   ctx.strokeStyle = 'rgba(255, 200, 100, 0.95)';
   ctx.lineWidth = 1.8;
@@ -630,7 +631,7 @@ function drawMagnetarMode(cam, spinPhase) {
   }
   const L_peak = magnetarPeakLuminosity_ergS(B_T());
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`L_peak ~ ${L_peak.toExponential(2)} erg/s (B^2 scaling vs SGR 1806-20)`, px + 8, py + ph + 18);
 }
 
@@ -665,7 +666,7 @@ function drawStructureMode(cam, spinPhase) {
     ctx.beginPath(); ctx.arc(cx, cy, Rpx * layer.r1, 0, 2 * Math.PI); ctx.stroke();
   }
   // Layer pointer-line labels (right side of cross-section).
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   for (let i = 0; i < NS_LAYERS.length; i++) {
     const layer = NS_LAYERS[i];
@@ -684,7 +685,7 @@ function drawStructureMode(cam, spinPhase) {
   }
   // Cross-section caption.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText(`NS interior @ M = ${st.M_solar.toFixed(2)} M_sun, R = ${R_km().toFixed(1)} km`, cx - Rpx * 1.1, cy - Rpx * 1.25);
 
   // Mass-radius panel. Move LEFT enough to clear the side-diagnostics panel.
@@ -695,7 +696,7 @@ function drawStructureMode(cam, spinPhase) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('mass-radius (Lattimer-Prakash 2001)', px + 8, py - 6);
   // Axes: R in [6, 17] km, M in [0, 2.5] M_sun.
   const R_MIN = 6, R_MAX = 17, M_MIN = 0, M_MAX = 2.5;
@@ -732,7 +733,7 @@ function drawStructureMode(cam, spinPhase) {
   ctx.beginPath(); ctx.arc(x0, y0, 5, 0, 2 * Math.PI); ctx.fill();
   // Labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('R [km]', px + pw - 36, py + ph - 6);
   ctx.fillText('M [Msun]', px + 6, py + 14);
   ctx.fillText('8', xForR(8), py + ph - 8);
@@ -746,7 +747,7 @@ function drawStructureMode(cam, spinPhase) {
     ctx.fillStyle = c.color;
     ctx.fillRect(px + pw - 90, ly - 8, 10, 3);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(c.name, px + pw - 75, ly - 4);
     ly += 14;
   }
@@ -768,7 +769,7 @@ function drawSpindownMode(cam, spinPhase) {
   ctx.lineWidth = 1;
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('rotation period P(t) with glitch event', px + 8, py - 6);
   // Compute P(t) over T_TOTAL years, with a glitch at t = T_GLITCH.
   const pdot = spindownPdot_SperS(st.M_solar, R_m(), B_T(), P_s(), st.alpha_deg * DEG);
@@ -812,17 +813,17 @@ function drawSpindownMode(cam, spinPhase) {
   ctx.beginPath(); ctx.moveTo(xg, py + 16); ctx.lineTo(xg, py + ph - 28); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('glitch', xg + 4, py + 30);
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t (yr)', px + pw / 2, py + ph - 6);
   ctx.fillText(`P min = ${(yMin * 1000).toFixed(3)} ms`, px + 8, py + ph - 12);
   ctx.fillText(`P max = ${(yMax * 1000).toFixed(3)} ms`, px + 8, py + 18);
   const tau_yr = characteristicAge_yr(P_s(), pdot);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Pdot = ${pdot.toExponential(2)} s/s; tau = ${isFinite(tau_yr) ? tau_yr.toExponential(2) + ' yr' : 'inf'}`,
     px + 8, py + ph + 18);
 }
@@ -932,4 +933,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

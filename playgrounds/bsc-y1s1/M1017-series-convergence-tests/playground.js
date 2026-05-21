@@ -7,6 +7,7 @@
 
 import { SERIES, partialSum, ratioTest, rootTest } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -41,7 +42,7 @@ function drawTerms(px, py, pw, ph) {
     ctx.fillRect(px + 8 + (n - 1) * bw, a >= 0 ? mid - hh : mid, Math.max(1, bw - 1), hh);
   }
   ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.beginPath(); ctx.moveTo(px + 8, mid); ctx.lineTo(px + pw - 8, mid); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('term a_n (the addends)', px + 8, py + 14);
 }
 
@@ -53,7 +54,7 @@ function drawTests(px, py, pw, ph) {
   // threshold rho = 1
   ctx.strokeStyle = 'rgba(239,71,111,0.6)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(px + 32, yOf(1)); ctx.lineTo(px + pw - 12, yOf(1)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('rho = 1', px + 34, yOf(1) - 4);
   const curve = (fn, col) => {
     ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath();
@@ -79,9 +80,9 @@ function render() {
   const rho = ratioTest(st.name, st.N);
   const conv = Number.isFinite(S.limit);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`${S.label}    S_${st.N} = ${Sn.toFixed(5)}`, 24, 24);
-  ctx.fillStyle = conv ? '#06d6a0' : '#ef476f'; ctx.font = 'bold 12px ui-monospace, monospace';
+  ctx.fillStyle = conv ? '#06d6a0' : '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText(conv
     ? `converges to ${S.limit.toFixed(5)}   (ratio rho -> ${rho.toFixed(3)})`
     : `diverges   (harmonic: terms ~ 1/n, sum unbounded)`, 24, 42);
@@ -103,7 +104,7 @@ function render() {
   if (conv) {
     ctx.strokeStyle = 'rgba(6,214,160,0.7)'; ctx.setLineDash([4, 4]);
     ctx.beginPath(); ctx.moveTo(tX0, sY(S.limit)); ctx.lineTo(tX1, sY(S.limit)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
     ctx.fillText(`limit ${S.limit.toFixed(4)}`, tX1 - 6, sY(S.limit) - 4);
   }
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.8; ctx.beginPath();
@@ -113,7 +114,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(mx, tY0); ctx.lineTo(mx, tY1); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(mx, sY(Sn), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`N = ${st.N}`, mx, tY1 + 14);
   ctx.textAlign = 'left'; ctx.fillText('partial sum S_N vs N', tX0 + 6, tY0 + 14);
 
@@ -146,3 +147,27 @@ function bootSync() {
 }
 
 bootSync();
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}
