@@ -3,7 +3,7 @@
 // tree vs direct O(N^2)) and the opening angle theta. See sim.js for
 // the initial-condition factory and the imported shared engine.
 
-import { makeDisk, leapfrog, accBH, accDirect, snapshotTree } from './sim.js';
+import { makeDisk, leapfrog, accBH, accDirect, snapshotTree, kineticEnergy, potentialEnergy } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
@@ -16,10 +16,6 @@ const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const W = canvas.width, H = canvas.height;
 
-const rN = document.getElementById('readout-n');
-const rEvals = document.getElementById('readout-evals');
-const rNodes = document.getElementById('readout-nodes');
-const rStep = document.getElementById('readout-step');
 const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
 const sTh = document.getElementById('slider-theta'), vTh = document.getElementById('value-theta');
 const selTree = document.getElementById('select-tree'), vTree = document.getElementById('value-tree');
@@ -34,12 +30,21 @@ const st = {
   N: 500, theta: 0.7, use_tree: true, show_tree: true,
   running: !prefersReducedMotion(), state: null,
 };
+// Latest derived quantities + energy baseline, exposed to the rail.
+const latest = { N: 0, evals: 0, nNodes: 0, nSteps: 0, directPairs: 0, speedup: 1 };
+let energy0 = null;
+
+function totalEnergy() {
+  if (!st.state) return 0;
+  return kineticEnergy(st.state) + potentialEnergy(st.state, G, EPS);
+}
 
 function reseed() {
   st.state = makeDisk(st.N, { seed: 0xC0FFEE, M_core: 50 });
   // Warm one accel evaluation so leapfrog half-kick has a valid a.
   if (st.use_tree) accBH(st.state, st.theta, G, EPS);
   else accDirect(st.state, G, EPS);
+  energy0 = totalEnergy();
 }
 
 // World-to-screen.
@@ -105,29 +110,14 @@ function render() {
     }
   }
 
-  // Top-left readout panel.
-  ctx.fillStyle = 'rgba(6,6,8,0.65)';
-  ctx.fillRect(8, 8, 280, 80);
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText(`N             ${s.N}`, 16, 26);
-  ctx.fillText(`algorithm     ${st.use_tree ? 'Barnes-Hut' : 'direct O(N^2)'}`, 16, 42);
-  ctx.fillText(`evals/step    ${s.evals.toLocaleString()}`, 16, 58);
-  if (st.use_tree) ctx.fillText(`opening θ     ${st.theta.toFixed(2)}`, 16, 74);
-  else ctx.fillText(`direct pairs  ${(s.N * (s.N - 1)).toLocaleString()}`, 16, 74);
-
-  // Bottom: comparison strip.
-  ctx.fillStyle = 'rgba(255,255,255,0.75)';
-  ctx.font = '11px ui-monospace, monospace';
-  ctx.textAlign = 'center';
-  const speedup = st.use_tree && s.evals > 0 ? (s.N * (s.N - 1)) / s.evals : 1;
-  ctx.fillText(`vs direct: ${speedup.toFixed(1)}× fewer pair evaluations`, W / 2, H - 12);
-
-  rN.textContent = String(s.N);
-  rEvals.textContent = s.evals.toLocaleString();
-  rNodes.textContent = String(s.nNodes);
-  rStep.textContent = String(s.nSteps);
+  // State (N, algorithm, evals/step, nodes, step, speedup) now lives
+  // in the rail; record the latest snapshot for getState/getInvariants.
+  latest.N = s.N;
+  latest.evals = s.evals;
+  latest.nNodes = s.nNodes;
+  latest.nSteps = s.nSteps;
+  latest.directPairs = s.N * (s.N - 1);
+  latest.speedup = st.use_tree && s.evals > 0 ? latest.directPairs / s.evals : 1;
 }
 
 function tick() {
@@ -201,3 +191,34 @@ if (document.readyState === 'loading') {
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
+
+// === Diagnostics interface (Layout System v2) ===
+window.playground = window.playground || {};
+window.playground.getState = function getState() {
+  return {
+    fields: [
+      { key: 'N', label: 'bodies N', value: latest.N, format: 'int' },
+      { key: 'algorithm', label: 'algorithm', value: st.use_tree ? 'Barnes-Hut' : 'direct O(N²)' },
+      { key: 'theta', label: 'opening θ', value: st.theta, format: 'fixed-3' },
+      { key: 'evals', label: 'evals / step', value: latest.evals, format: 'int' },
+      { key: 'nodes', label: 'tree nodes', value: latest.nNodes, format: 'int' },
+      { key: 'step', label: 'step', value: latest.nSteps, format: 'int' },
+      { key: 'speedup', label: 'speedup vs direct', value: latest.speedup, unit: '×', format: 'float' },
+    ],
+  };
+};
+window.playground.getInvariants = function getInvariants() {
+  const e = totalEnergy();
+  const drift = energy0 ? Math.abs((e - energy0) / energy0) : 0;
+  // Barnes-Hut must never evaluate more pairs than direct summation.
+  const boundExcess = latest.directPairs > 0
+    ? Math.max(0, latest.evals - latest.directPairs) / latest.directPairs : 0;
+  return [
+    { key: 'energy', label: 'energy conserved', value: drift, tolerance: 0.05,
+      status: drift < 0.05 ? 'pass' : 'drift' },
+    { key: 'bh_bound', label: 'evals ≤ direct N(N-1)', value: boundExcess, tolerance: 1e-9,
+      status: boundExcess < 1e-9 ? 'pass' : 'drift' },
+    { key: 'softening', label: 'Plummer softening ε > 0', value: EPS > 0 ? 0 : 1, tolerance: 1e-9,
+      status: EPS > 0 ? 'pass' : 'drift' },
+  ];
+};

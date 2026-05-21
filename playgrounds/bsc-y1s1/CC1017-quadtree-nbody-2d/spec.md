@@ -18,6 +18,23 @@ hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 5
 share_state_keys: [n_bodies, theta, use_tree, show_tree]
+invariants:
+  - key: energy
+    label: total energy conserved
+    tolerance: 0.05
+  - key: bh_bound
+    label: evals per step <= direct N(N-1)
+    tolerance: 1e-9
+  - key: softening
+    label: Plummer softening epsilon > 0
+    tolerance: 1e-9
+what_to_try:
+  - Switch the algorithm to direct O(N^2) and watch evals per step jump.
+  - Raise the opening angle theta so the tree approximates more aggressively.
+  - Push N toward 1200 and compare the Barnes-Hut speedup against direct summation.
+references:
+  - "Barnes and Hut, A hierarchical O(N log N) force-calculation algorithm, Nature 324 (1986) 446."
+  - "Aarseth, Gravitational N-Body Simulations, Cambridge University Press, 2003."
 ---
 # Quadtree N-body
 2D galactic disk under gravity; live Barnes-Hut tree. Source: Barnes and Hut, Nature 324 (1986) 446 (`barnes-hut1986`).
