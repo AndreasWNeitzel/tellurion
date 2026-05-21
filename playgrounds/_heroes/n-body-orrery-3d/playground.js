@@ -259,33 +259,32 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The orrery is integrated symplectically, so total energy is the
+// invariant: a good integrator keeps the relative drift bounded and
+// small rather than letting it grow secularly.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const planets = st.inst ? st.inst.orrery.n_planets : 0;
+  const t = st.inst ? st.inst.t : 0;
+  return {
+    fields: [
+      { key: 'sim-time', label: 'integration time', value: t.toFixed(2), format: 'float' },
+      { key: 'planets', label: 'planet count', value: planets },
+      { key: 'ghosts', label: 'ghost system shown', value: st.showGhosts ? 'on' : 'off' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!st.inst) return [];
+  const E = diagnostics(st.inst).energy;
+  const dE = Math.abs(E - st.E0) / Math.max(1e-12, Math.abs(st.E0));
+  return [
+    {
+      key: 'energy',
+      label: 'total energy conserved (rel. drift)',
+      value: dE.toExponential(2),
+      status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
+    },
+  ];
+};
