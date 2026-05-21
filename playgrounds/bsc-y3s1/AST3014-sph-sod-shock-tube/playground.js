@@ -222,6 +222,24 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// A conservative SPH scheme conserves total mass exactly (particle
+// masses are fixed) and total energy well (artificial viscosity
+// moves kinetic energy into heat without destroying it). Both
+// baselines are captured at reset.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      if (!state.sim || state.E0 === undefined) return [];
+      const dM = Math.abs(totalMass(state.sim) - state.M0) / Math.max(1e-12, Math.abs(state.M0));
+      const dE = Math.abs(totalEnergy(state.sim) - state.E0) / Math.max(1e-12, Math.abs(state.E0));
+      const mk = (key, label, d, tol) => ({
+        key, label, value: d.toExponential(2),
+        status: d < tol ? 'pass' : (d < tol * 12 ? 'pending' : 'drift'),
+      });
+      return [
+        mk('mass', 'total mass conserved', dM, 1e-6),
+        mk('energy', 'total energy conserved', dE, 5e-3),
+      ];
+    } catch (e) { return []; }
+  };
 }
