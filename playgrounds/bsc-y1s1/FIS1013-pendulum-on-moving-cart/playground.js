@@ -248,13 +248,19 @@ if (!window.playground.getState) {
   };
 }
 // A conservative (Hamiltonian) system: total energy is the
-// invariant. The baseline is captured on the first call.
-let __energy0 = null;
+// invariant. The baseline is the energy at the start of the run and
+// is re-taken whenever a control change steps the energy.
+let __energy0 = null, __energyPrev = null;
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () {
     try {
       const E = energy(state.sim);
       if (!Number.isFinite(E)) return [];
+      if (__energyPrev !== null
+        && Math.abs(E - __energyPrev) > 0.02 * Math.max(1e-9, Math.abs(__energyPrev)) + 1e-9) {
+        __energy0 = E;                    // discontinuity: a control changed the system
+      }
+      __energyPrev = E;
       if (__energy0 === null) __energy0 = E;
       const dE = Math.abs(E - __energy0) / Math.max(1e-12, Math.abs(__energy0));
       return [{
