@@ -90,11 +90,19 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .header p{color:var(--text-secondary);max-width:560px;font-size:0.9375rem;margin:0}
 .sec{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);margin:48px 0 16px}
 .uc{font-family:var(--f-mono);font-weight:400;font-size:0.8125rem;color:var(--text-secondary)}
-/* Featured: 4-up horizontal scroll row, no wrapping (Section 7) */
-.heroes{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:6px;scroll-snap-type:x proximity}
-.heroes .card-f{flex:0 0 calc((100% - 36px)/4);min-width:240px;min-height:220px;scroll-snap-align:start}
-.heroes .card-f .cimg{height:140px}
-@media(max-width:900px){.heroes .card-f{flex:0 0 70%}}
+/* Featured: one large daily-rotated spotlight card beside a column of
+   three standard cards. */
+.spotlight-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
+.spotlight-row{display:grid;grid-template-rows:repeat(3,1fr);gap:12px}
+.spotlight-card::before{width:4px;background:var(--accent)}
+.cimg-lg{height:240px}
+.spotlight-row .cimg{height:100px}
+.cexcerpt{color:var(--text-secondary);font-size:0.875rem;line-height:1.5;margin:6px 0 0;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:1023px){
+  .spotlight-grid{grid-template-columns:1fr}
+  .spotlight-row{grid-template-rows:none}
+}
 .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0 14px}
 .search{position:relative;flex:1;max-width:640px;min-width:240px}
 .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-secondary);pointer-events:none}
@@ -293,41 +301,41 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
   <div class="hero-filter-chips" id="tags-rail"><button class="chip" data-tag="mechanics">mechanics</button><button class="chip" data-tag="quantum">quantum</button><button class="chip" data-tag="electromagnetism">electromagnetism</button><button class="chip" data-tag="optics">optics</button><button class="chip" data-tag="statistical-physics">statistical-physics</button><button class="chip" data-tag="fluids-mhd">fluids-mhd</button><button class="chip" data-tag="solid-state">solid-state</button><button class="chip" data-tag="cosmology">cosmology</button><button class="chip" data-tag="relativity">relativity</button><button class="chip" data-tag="stellar">stellar</button><button class="chip" data-tag="medical-physics">medical-physics</button><button class="chip" data-tag="numerics">numerics</button><button class="clearall" id="clearall">Clear</button></div>
 </section>
 
-<section>
+<section class="landing-spotlight">
   <h2 class="sec">Featured</h2>
-  <div class="heroes">
-  <a class="card card-f" data-title="1d ising renormalization-group flow" data-uc="fis3008" data-year="'L:F-3Y-1S'" data-tags="statistical-mechanics renormalization-group phase-transition flow live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-statistical)" href="playgrounds/bsc-y3s1/FIS3008-renormalization-group-flow-1d/index.html">
-    <div class="cimg" data-thumb="assets/thumbs/thumb-statistical-physics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
+  <div class="spotlight-grid">
+  <a class="card spotlight-card" data-title="laser rate-equation dynamics" data-uc="fis4035" data-year="bsc-y3s2" data-tags="photonics lasers nonlinear-dynamics relaxation-oscillations live-readout" data-order="132" data-group="BSc Year 3, Semester 2" style="--tagc:var(--tag-optics)" href="playgrounds/bsc-y3s2/FIS4035-laser-rate-equations-dynamics/index.html">
+    <div class="cimg cimg-lg" data-thumb="assets/thumbs/card-FIS4035-laser-rate-equations-dynamics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">BSc · Y3</span></div>
     <div class="cbody">
-      <h3 class="ctitle">1D Ising Renormalization-Group Flow</h3>
-      <span class="cuc">FIS3008</span>
-      <div class="ctags"><span class="ctag">statistical-mechanics</span><span class="ctag">renormalization-group</span><span class="ctag">phase-transition</span><span class="ctag">flow</span></div>
+      <h3 class="ctitle t-title">Laser Rate-Equation Dynamics</h3>
+      <p class="cexcerpt">A pumped gain medium in a resonator does not switch on smoothly. Below threshold the cavity is dark; the moment the pump crosses r_th = 1/q0 the inversion clamp</p>
+      <div class="ctags"><span class="ctag">photonics</span><span class="ctag">lasers</span><span class="ctag">nonlinear-dynamics</span><span class="ctag">relaxation-oscillations</span></div>
     </div>
-  </a>
-  <a class="card card-f" data-title="2d wave diffraction: slits and obstacles" data-uc="fis2002" data-year="'L:F-2Y-1S'" data-tags="waves pde diffraction interference animation live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-numerics)" href="playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html">
-    <div class="cimg" data-thumb="assets/thumbs/thumb-numerics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
+  </a><div class="spotlight-row">
+  <a class="card" data-title="the heisenberg uncertainty seesaw" data-uc="fis3003" data-year="'L:F-3Y-1S'" data-tags="quantum fourier animation multi-panel live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-quantum)" href="playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html">
+    <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">Adv</span></div>
     <div class="cbody">
-      <h3 class="ctitle">2D Wave Diffraction: Slits and Obstacles</h3>
-      <span class="cuc">FIS2002</span>
-      <div class="ctags"><span class="ctag">waves</span><span class="ctag">pde</span><span class="ctag">diffraction</span><span class="ctag">interference</span></div>
-    </div>
-  </a>
-  <a class="card card-f" data-title="action-angle variables" data-uc="fis2021" data-year="'L:F-2Y-2S'" data-tags="mechanics hamiltonian action-angle multi-panel live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-mechanics)" href="playgrounds/bsc-y2s2/FIS2021-hamilton-jacobi-action-angle/index.html">
-    <div class="cimg" data-thumb="assets/thumbs/thumb-mechanics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
-    <div class="cbody">
-      <h3 class="ctitle">Action-Angle Variables</h3>
-      <span class="cuc">FIS2021</span>
-      <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">hamiltonian</span><span class="ctag">action-angle</span><span class="ctag">multi-panel</span></div>
-    </div>
-  </a>
-  <a class="card card-f" data-title="adding angular momenta - the vector model" data-uc="fis3003" data-year="'L:F-3Y-1S'" data-tags="quantum angular-momentum 3d multi-panel live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-quantum)" href="playgrounds/bsc-y3s1/FIS3003-angular-momentum-coupling-3d/index.html">
-    <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
-    <div class="cbody">
-      <h3 class="ctitle">Adding Angular Momenta - The Vector Model</h3>
+      <h3 class="ctitle">The Heisenberg Uncertainty Seesaw</h3>
       <span class="cuc">FIS3003</span>
-      <div class="ctags"><span class="ctag">quantum</span><span class="ctag">angular-momentum</span><span class="ctag">3d</span><span class="ctag">multi-panel</span></div>
+      <div class="ctags"><span class="ctag">quantum</span><span class="ctag">fourier</span><span class="ctag">animation</span><span class="ctag">multi-panel</span></div>
     </div>
-  </a></div>
+  </a>
+  <a class="card" data-title="mri: the bloch equations, the fid and k-space imaging" data-uc="mfm-mp" data-year="msc-y1" data-tags="medical-physics mri bloch k-space live-readout" data-order="310" data-group="MSc Year 1" style="--tagc:var(--tag-medical)" href="playgrounds/msc-y1/MFM-MP-mri-bloch-equations-k-space/index.html">
+    <div class="cimg" data-thumb="assets/thumbs/thumb-medical-physics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">MSc · Y1</span></div>
+    <div class="cbody">
+      <h3 class="ctitle">MRI: the Bloch Equations, the FID and k-Space Imaging</h3>
+      <span class="cuc">MFM-MP</span>
+      <div class="ctags"><span class="ctag">medical-physics</span><span class="ctag">mri</span><span class="ctag">bloch</span><span class="ctag">k-space</span></div>
+    </div>
+  </a>
+  <a class="card" data-title="scattering theory: differential cross section and partial waves" data-uc="mf-aqm" data-year="msc-y1" data-tags="quantum-mechanics scattering partial-waves cross-section live-readout" data-order="310" data-group="MSc Year 1" style="--tagc:var(--tag-quantum)" href="playgrounds/msc-y1/MF-AQM-scattering-theory-differential-cross-section/index.html">
+    <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">MSc · Y1</span></div>
+    <div class="cbody">
+      <h3 class="ctitle">Scattering Theory: Differential Cross Section and Partial Waves</h3>
+      <span class="cuc">MF-AQM</span>
+      <div class="ctags"><span class="ctag">quantum-mechanics</span><span class="ctag">scattering</span><span class="ctag">partial-waves</span><span class="ctag">cross-section</span></div>
+    </div>
+  </a></div></div>
 </section>
 
 <section id="browse">

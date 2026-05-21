@@ -74,12 +74,13 @@ for (const path of walk('playgrounds')) {
     tags, level: cur.level, badge: cur.badge, order: cur.order, group: cur.group,
     hero_candidate: fm.hero_candidate === 'true',
     tier: fm.tier || '',
+    hook: (fm.hook || '').replace(/^['"]|['"]$/g, ''),
   });
 }
 cards.sort((a, b) => a.title.localeCompare(b.title));
 
 const TAGS = ['mechanics', 'quantum', 'electromagnetism', 'optics', 'statistical-physics', 'fluids-mhd', 'solid-state', 'cosmology', 'relativity', 'stellar', 'medical-physics', 'numerics'];
-const heroes = cards.filter(c => c.hero_candidate).slice(0, 4);
+const heroPool = cards.filter(c => c.tier === 'hero');
 
 // Map an arbitrary first-tag to one of the 12 canonical categories
 // (specs carry a free tags[] list, not a primary_tag field).
@@ -145,9 +146,43 @@ function cardHTML(c, featured = false) {
   </a>`;
 }
 
+// Larger card for the spotlight slot: taller image, title at t-title
+// scale, a two-line hook excerpt, and an accent left edge (set in CSS
+// via .spotlight-card::before).
+function spotlightCardHTML(c) {
+  const thumb = c.thumb ? `assets/thumbs/${c.thumb}` : '';
+  const excerpt = (c.hook || '').slice(0, 160);
+  return `
+  <a class="card spotlight-card" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-year="${c.curriculum_year}" data-tags="${c.tags.join(' ')}" data-order="${c.order}" data-group="${c.group}" style="--tagc:${c.tagcolor}" href="${c.path}/index.html">
+    <div class="cimg cimg-lg"${thumb ? ` data-thumb="${thumb}"` : ''}><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">${shortBadge(c.badge)}</span></div>
+    <div class="cbody">
+      <h3 class="ctitle t-title">${c.title}</h3>
+      ${excerpt ? `<p class="cexcerpt">${excerpt}</p>` : ''}
+      <div class="ctags">${c.tags.slice(0, 4).map(t => `<span class="ctag">${t}</span>`).join('')}</div>
+    </div>
+  </a>`;
+}
+
 const cardsHTML = cards.map(c => cardHTML(c)).join('');
-const heroHTML = heroes.length ? heroes.map(h => cardHTML(h, true)).join('') : '<p class="t-small" style="color:var(--text-dimmed)">Featured coming soon.</p>';
 const chipRail = TAGS.map(t => `<button class="chip" data-tag="${t}">${t}</button>`).join('');
+
+// Daily-rotated spotlight. An FNV-1a hash of (build date, slug) orders
+// the hero-tier pool deterministically, so the spotlight card and the
+// three featured cards are stable for a given day and rotate the next.
+function fnv1a(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i += 1) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+const rotated = heroPool
+  .map(c => ({ c, k: fnv1a(`${BUILD_DATE}|${c.slug}`) }))
+  .sort((a, b) => a.k - b.k)
+  .map(o => o.c);
+const spotlight = rotated[0] || null;
+const featured3 = rotated.slice(1, 4);
+const spotlightHTML = spotlight
+  ? `<div class="spotlight-grid">${spotlightCardHTML(spotlight)}<div class="spotlight-row">${featured3.map(c => cardHTML(c)).join('')}</div></div>`
+  : '<p class="t-small" style="color:var(--text-dimmed)">Featured coming soon.</p>';
 
 // Hero stats line. Each number is computed from the catalogue; a stat
 // that cannot be computed (count 0) is dropped together with its
@@ -260,11 +295,19 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .header p{color:var(--text-secondary);max-width:560px;font-size:0.9375rem;margin:0}
 .sec{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);margin:48px 0 16px}
 .uc{font-family:var(--f-mono);font-weight:400;font-size:0.8125rem;color:var(--text-secondary)}
-/* Featured: 4-up horizontal scroll row, no wrapping (Section 7) */
-.heroes{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding-bottom:6px;scroll-snap-type:x proximity}
-.heroes .card-f{flex:0 0 calc((100% - 36px)/4);min-width:240px;min-height:220px;scroll-snap-align:start}
-.heroes .card-f .cimg{height:140px}
-@media(max-width:900px){.heroes .card-f{flex:0 0 70%}}
+/* Featured: one large daily-rotated spotlight card beside a column of
+   three standard cards. */
+.spotlight-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
+.spotlight-row{display:grid;grid-template-rows:repeat(3,1fr);gap:12px}
+.spotlight-card::before{width:4px;background:var(--accent)}
+.cimg-lg{height:240px}
+.spotlight-row .cimg{height:100px}
+.cexcerpt{color:var(--text-secondary);font-size:0.875rem;line-height:1.5;margin:6px 0 0;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:1023px){
+  .spotlight-grid{grid-template-columns:1fr}
+  .spotlight-row{grid-template-rows:none}
+}
 .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0 14px}
 .search{position:relative;flex:1;max-width:640px;min-width:240px}
 .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-secondary);pointer-events:none}
@@ -463,9 +506,9 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
   <div class="hero-filter-chips" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
 </section>
 
-<section>
+<section class="landing-spotlight">
   <h2 class="sec">Featured</h2>
-  <div class="heroes">${heroHTML}</div>
+  ${spotlightHTML}
 </section>
 
 <section id="browse">
