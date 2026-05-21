@@ -120,8 +120,9 @@ function drawAll() {
   }
   ctx.stroke();
 
-  // Markers
-  function vline(r, color, label) {
+  // Markers. row staggers the label vertically so the horizon (2M),
+  // photon sphere (3M) and ISCO (6M) labels do not collide.
+  function vline(r, color, label, row = 0) {
     const px = xR(r);
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.2;
@@ -133,14 +134,14 @@ function drawAll() {
     ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
-    ctx.fillText(label, px, padT + 14);
+    ctx.fillText(label, px, padT + 14 + row * 15);
   }
   // ISCO
-  vline(ISCO, '#a3d4a3', 'ISCO = 6M');
-  // Photon sphere
-  vline(PHOTON_SPHERE, '#f1d28a', 'r_g = 3M');
+  vline(ISCO, '#a3d4a3', 'ISCO = 6M', 0);
+  // Photon sphere (3M sits close to the 2M horizon: stagger to row 1)
+  vline(PHOTON_SPHERE, '#f1d28a', 'r_g = 3M', 1);
   // Horizon
-  vline(2 * M, 'rgba(255, 255, 255, 0.50)', 'horizon');
+  vline(2 * M, 'rgba(255, 255, 255, 0.50)', 'horizon', 0);
 
   // Turning points (massive only, when in well)
   if (isMassive && tps.length === 2 && tps[0] !== tps[1]) {
