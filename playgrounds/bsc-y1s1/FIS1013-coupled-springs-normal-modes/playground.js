@@ -330,6 +330,22 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// A conservative (Hamiltonian) system: total energy is the
+// invariant. The baseline is captured on the first call.
+let __energy0 = null;
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const E = totalEnergy(state.sim);
+      if (!Number.isFinite(E)) return [];
+      if (__energy0 === null) __energy0 = E;
+      const dE = Math.abs(E - __energy0) / Math.max(1e-12, Math.abs(__energy0));
+      return [{
+        key: 'energy',
+        label: 'total energy conserved (rel. drift)',
+        value: dE.toExponential(2),
+        status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
