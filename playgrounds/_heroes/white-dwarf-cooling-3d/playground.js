@@ -369,33 +369,36 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// White dwarfs cool by the Mestel law, luminosity falling as
+// t^(-7/5) with cooling age. The late-time log-log slope of the
+// cooling curve is the invariant.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const c = current();
+  return {
+    fields: [
+      { key: 'mass', label: 'WD mass (M_sun)', value: st.M.toFixed(2), format: 'float' },
+      { key: 'cooling-age', label: 'cooling age (yr)', value: c.t_yr.toExponential(2) },
+      { key: 'luminosity', label: 'luminosity (L_sun)', value: c.L.toExponential(2) },
+      { key: 'temperature', label: 'effective temperature (K)', value: Math.round(c.T) },
+      { key: 'crystal-fraction', label: 'crystallised fraction', value: c.fX.toFixed(3), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const t1 = 1e8, t2 = 5e8;
+  const L1 = mestelLuminosity_Lsun(st.M, t1);
+  const L2 = mestelLuminosity_Lsun(st.M, t2);
+  if (!(L1 > 0) || !(L2 > 0)) return [];
+  const slope = Math.log(L2 / L1) / Math.log(t2 / t1);
+  const off = Math.abs(slope + 7 / 5);
+  return [
+    {
+      key: 'mestel-law',
+      label: 'cooling follows the Mestel t^(-7/5) law',
+      value: slope.toFixed(3),
+      status: off < 0.02 ? 'pass' : (off < 0.2 ? 'pending' : 'drift'),
+    },
+  ];
+};
