@@ -80,7 +80,9 @@ function draw() {
     const c = contrast(seg);
     const resolved = PITCHES[z] >= R;
     const bx = X0 + z * zoneW + 6, bw = zoneW - 12;
-    const bh = (CH - 30) * Math.max(0, Math.min(1, c));
+    // CH - 42 (not - 30) leaves headroom so a full-contrast bar does
+    // not run into the Rayleigh header text at the panel top.
+    const bh = (CH - 42) * Math.max(0, Math.min(1, c));
     ctx.fillStyle = resolved ? '#7fd1ff' : '#ff6b6b';
     ctx.fillRect(bx, CY + CH - 16 - bh, bw, bh);
     ctx.fillStyle = 'rgba(220,228,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
