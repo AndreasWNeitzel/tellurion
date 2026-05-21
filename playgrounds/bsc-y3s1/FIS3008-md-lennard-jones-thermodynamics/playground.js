@@ -5,7 +5,7 @@
 
 import {
   makeLJ, ljStep, temperature, pressure, kineticEnergy,
-  radialDistribution, rescaleTo, diagnostics,
+  radialDistribution, rescaleTo, diagnostics, totalMomentum,
 } from './sim.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -217,6 +217,19 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Pairwise Lennard-Jones forces are symmetric and the thermostat
+// rescales every velocity uniformly, so the box's total momentum is
+// conserved; initialised at zero, it stays at the numerical floor.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    if (!state || !state.inst) return [];
+    const p = totalMomentum(state);
+    if (!Number.isFinite(p)) return [];
+    return [{
+      key: 'momentum',
+      label: 'total momentum conserved (|P|)',
+      value: p.toExponential(2),
+      status: p < 1e-6 ? 'pass' : (p < 1e-3 ? 'pending' : 'drift'),
+    }];
+  };
 }
