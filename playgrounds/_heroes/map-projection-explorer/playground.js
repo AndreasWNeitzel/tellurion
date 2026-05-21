@@ -165,7 +165,12 @@ let earthKey = '';
 function renderEarth(fit, lowRes) {
   const inv = PROJECTIONS[st.projection].inv;
   if (!texData || !inv) { earthKey = ''; return; }
-  const scale = lowRes ? 2 : 1;
+  // Aitoff and Winkel tripel have no closed-form inverse, so their
+  // per-pixel render runs a Newton solve and is far costlier; drop
+  // them to a third resolution during a drag so the globe still
+  // turns smoothly. The settled view is always full resolution.
+  const slow = st.projection === 'aitoff' || st.projection === 'winkelTripel';
+  const scale = lowRes ? (slow ? 3 : 2) : 1;
   const ew = Math.ceil(W / scale), eh = Math.ceil(H / scale);
   const key = `${st.projection}|${st.lon0.toFixed(4)}|${st.lat0.toFixed(4)}|${scale}`;
   if (key === earthKey && earthCanvas.width === ew) return;

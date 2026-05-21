@@ -250,11 +250,13 @@ function robinsonInv(x, y) {
 function newtonInverse(fwd, x, y) {
   let lon = clamp(x, -Math.PI, Math.PI);
   let lat = clamp(y, -HALF_PI, HALF_PI);
-  for (let it = 0; it < 10; it += 1) {
+  for (let it = 0; it < 8; it += 1) {
     const f = fwd(lon, lat);
     if (!f) return null;
     const dx = f.x - x, dy = f.y - y;
-    if (dx * dx + dy * dy < 1e-12) break;
+    // 1e-8 in projection units is far below one screen pixel; the
+    // tighter 1e-12 only cost extra iterations.
+    if (dx * dx + dy * dy < 1e-8) break;
     const h = 1e-5;
     const fl = fwd(lon + h, lat), fp = fwd(lon, lat + h);
     if (!fl || !fp) return null;
