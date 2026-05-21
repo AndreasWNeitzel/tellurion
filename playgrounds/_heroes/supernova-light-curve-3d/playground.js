@@ -277,13 +277,8 @@ function drawLightcurvePanel() {
   ctx.fillText('100', xForT(100) - 8, py + ph - 12);
   ctx.fillText('150', xForT(150) - 10, py + ph - 12);
   ctx.fillText('200', xForT(200) - 12, py + ph - 12);
-  // Current readout strip.
-  const Mv = absoluteBolMag(Lnow);
-  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`t = ${st.t_d.toFixed(0)} d; L = ${Lnow.toExponential(2)} erg/s; M_bol = ${Mv.toFixed(2)}`,
-    px + 8, py + ph + 18);
-
+  // The current t, L, and M_bol are reported in the rail; no canvas
+  // strip is drawn here (it overran the mass-partition panel below).
   return { Lmax, Lnow };
 }
 
