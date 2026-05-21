@@ -30,11 +30,12 @@ const st = {
   latDeg: 49, amp: 1.0, speed: 2,
   running: !prefersReducedMotion(),
   state: null, traceX: [], traceY: [], TRACE: 4000,
-  earthRot: 0,
+  earthRot: 0, E0: 0,
 };
 
 function resetState() {
   st.state = ic(st.amp);
+  st.E0 = energy(st.state);
   st.traceX = []; st.traceY = [];
   st.earthRot = 0;
 }
@@ -316,33 +317,30 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The Coriolis rotation does no work and the spring is conservative,
+// so the pendulum's energy is the invariant the symplectic step must
+// hold while the plane precesses.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const phi = st.latDeg * Math.PI / 180;
+  return {
+    fields: [
+      { key: 'latitude', label: 'latitude', value: `${st.latDeg} deg` },
+      { key: 'plane-angle', label: 'pendulum plane angle', value: `${(planeAngle(st.state) * 180 / Math.PI).toFixed(1)} deg` },
+      { key: 'precession-rate', label: 'precession Omega sin(phi)', value: (OMEGA_EARTH * Math.sin(phi)).toFixed(3), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!st.state) return [];
+  const dE = Math.abs(energy(st.state) - st.E0) / Math.max(1e-12, Math.abs(st.E0));
+  return [
+    {
+      key: 'energy',
+      label: 'pendulum energy conserved (rel. drift)',
+      value: dE.toExponential(2),
+      status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
+    },
+  ];
+};
