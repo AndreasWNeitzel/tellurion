@@ -215,25 +215,41 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the impact parameter, its ratio to the critical value, the
+// spin, and the outcome of the most recently fired geodesic.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const g = geods[geods.length - 1];
+  return {
+    fields: [
+      { key: 'impact', label: 'impact parameter b/M', value: ui.b, format: 'float' },
+      { key: 'b-ratio', label: 'b / b_crit', value: ui.b / bCrit(M), format: 'float' },
+      { key: 'spin', label: 'spin a/M', value: ui.spin, format: 'float' },
+      { key: 'outcome', label: 'geodesic outcome', value: g ? g.outcome : 'n/a' },
+      { key: 'periapsis', label: 'periapsis r/M', value: g ? g.periapsis : 0, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Exact constants of the Schwarzschild geometry, in units of the
+  // horizon radius r_s = 2M: the photon sphere sits at 1.5 r_s and the
+  // innermost stable circular orbit at 3 r_s.
+  const rs = schwarzschildRadius(M);
+  const phRatio = photonSphere(M) / rs;
+  const iscoRatio = iscoSchwarzschild(M) / rs;
+  return [
+    {
+      key: 'photon-sphere',
+      label: 'photon sphere at 1.5 r_s',
+      value: phRatio.toFixed(3),
+      status: Math.abs(phRatio - 1.5) < 1e-3 ? 'pass' : 'drift',
+    },
+    {
+      key: 'isco',
+      label: 'ISCO at 3 r_s',
+      value: iscoRatio.toFixed(3),
+      status: Math.abs(iscoRatio - 3) < 1e-3 ? 'pass' : 'drift',
+    },
+  ];
+};
