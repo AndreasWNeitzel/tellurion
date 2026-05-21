@@ -185,79 +185,26 @@ export async function hoverCard() {
 export async function selectPlayground() {
   await playSound((ctx) => {
     const t = ctx.currentTime;
-
-    // Layer 1: bass pulse 55Hz, 730ms
-    const bassOsc = ctx.createOscillator();
-    const bassGain = ctx.createGain();
-    bassOsc.connect(bassGain);
-    bassGain.connect(ctx.destination);
-    bassOsc.type = 'sine';
-    bassOsc.frequency.setValueAtTime(55, t);
-    bassGain.gain.setValueAtTime(0, t);
-    bassGain.gain.linearRampToValueAtTime(0.09, t + 0.03);
-    bassGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.73);
-    bassOsc.start(t);
-    bassOsc.stop(t + 0.73);
-    bassOsc.onended = () => {
-      try { bassOsc.disconnect(); bassGain.disconnect(); } catch {}
+    // A clean digital-confirm chord: a soft G3 body, a C5 with a
+    // detuned twin for warmth, and a resolve up a fifth to G5 with a
+    // faint high sparkle. Not a descending "woosh".
+    const voice = (freq, t0, dur, peak, type = 'sine', detune = 0) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t + t0);
+      if (detune) o.detune.setValueAtTime(detune, t + t0);
+      g.gain.setValueAtTime(0.00001, t + t0);
+      g.gain.linearRampToValueAtTime(peak, t + t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + t0 + dur);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t + t0); o.stop(t + t0 + dur + 0.03);
+      o.onended = () => { try { o.disconnect(); g.disconnect(); } catch {} };
     };
-
-    // Layer 2: descending sweep 320Hz → 60Hz, 570ms
-    const sweepOsc = ctx.createOscillator();
-    const sweepGain = ctx.createGain();
-    const sweepFilter = ctx.createBiquadFilter();
-    sweepOsc.connect(sweepFilter);
-    sweepFilter.connect(sweepGain);
-    sweepGain.connect(ctx.destination);
-    sweepOsc.type = 'sine';
-    sweepOsc.frequency.setValueAtTime(320, t);
-    sweepOsc.frequency.exponentialRampToValueAtTime(60, t + 0.55);
-    sweepFilter.type = 'lowpass';
-    sweepFilter.frequency.setValueAtTime(800, t);
-    sweepFilter.Q.setValueAtTime(1.2, t);
-    sweepGain.gain.setValueAtTime(0, t);
-    sweepGain.gain.linearRampToValueAtTime(0.05, t + 0.02);
-    sweepGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.57);
-    sweepOsc.start(t);
-    sweepOsc.stop(t + 0.57);
-    sweepOsc.onended = () => {
-      try {
-        sweepOsc.disconnect();
-        sweepFilter.disconnect();
-        sweepGain.disconnect();
-      } catch {}
-    };
-
-    // Layer 3: air texture (filtered noise), 540ms
-    const noiseBuffer = ctx.createBuffer(
-      1, ctx.sampleRate * 0.6, ctx.sampleRate
-    );
-    const noiseData = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < noiseData.length; i++) {
-      noiseData[i] = Math.random() * 2 - 1;
-    }
-    const noiseSrc = ctx.createBufferSource();
-    const noiseFilter = ctx.createBiquadFilter();
-    const noiseGain = ctx.createGain();
-    noiseSrc.buffer = noiseBuffer;
-    noiseSrc.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(ctx.destination);
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.setValueAtTime(1200, t);
-    noiseFilter.Q.setValueAtTime(0.4, t);
-    noiseGain.gain.setValueAtTime(0, t);
-    noiseGain.gain.linearRampToValueAtTime(0.022, t + 0.04);
-    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.54);
-    noiseSrc.start(t);
-    noiseSrc.stop(t + 0.54);
-    noiseSrc.onended = () => {
-      try {
-        noiseSrc.disconnect();
-        noiseFilter.disconnect();
-        noiseGain.disconnect();
-      } catch {}
-    };
+    voice(196.00, 0.00, 0.46, 0.024);                 // soft G3 body
+    voice(523.25, 0.00, 0.40, 0.050, 'sine', -3);     // C5
+    voice(523.25, 0.00, 0.40, 0.034, 'sine', 5);      // detuned twin for warmth
+    voice(783.99, 0.085, 0.50, 0.044);                // resolve up a fifth, G5
+    voice(1567.98, 0.085, 0.34, 0.013, 'triangle');   // faint high-octave sparkle
   }, 'selectPlayground');
 }
 
