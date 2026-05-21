@@ -85,13 +85,17 @@ function render() {
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
   pts.forEach((p, i) => { const x = mapV(p.V), y = mapP(p.P); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
   ctx.closePath(); ctx.fillStyle = 'rgba(255,209,102,0.12)'; ctx.fill(); ctx.stroke();
-  const idx = Math.floor((st.t * 30) % pts.length);
+  const len = pts.length;
+  if (len === 0) return;
+  // Positive modulo: a slightly negative st.t (a negative first-frame
+  // dt) must still land on a valid index, not pts[-1].
+  const idx = ((Math.floor(st.t * 30) % len) + len) % len;
   const cur = pts[idx];
   ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(mapV(cur.V), mapP(cur.P), 8, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText(`cycle: ${st.cycle}, η = ${efficiency().toFixed(3)}`, 12, 100);
   rE.textContent = efficiency().toFixed(3);
 }
-function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt * 0.5; render(); requestAnimationFrame(tick); }
+function tick(now) { const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now; if (running) st.t += dt * 0.5; render(); requestAnimationFrame(tick); }
 function bootSync() { st.t = CAPTURE_FRAC * 3; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
