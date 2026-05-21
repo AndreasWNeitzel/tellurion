@@ -110,19 +110,6 @@ function w2s(p, cam) {
   return { x: (xn * 0.5 + 0.5) * W, y: (1.0 - (yn * 0.5 + 0.5)) * H, depth: zf };
 }
 
-const N_TH = 16, N_PH = 24;
-const fireballQuads = [];
-{
-  for (let i = 0; i < N_TH; i++) {
-    const th0 = (i / N_TH) * Math.PI;
-    const th1 = ((i + 1) / N_TH) * Math.PI;
-    for (let j = 0; j < N_PH; j++) {
-      const ph0 = (j / N_PH) * 2 * Math.PI;
-      const ph1 = ((j + 1) / N_PH) * 2 * Math.PI;
-      fireballQuads.push({ th0, th1, ph0, ph1 });
-    }
-  }
-}
 
 // Fireball color based on temperature (proxy: brightness at peak ~ orange/white,
 // late times -> reddish).
@@ -137,64 +124,36 @@ function fireballColor(t_days, L_norm) {
 }
 
 function drawFireball(cam, t_days, L_norm) {
-  // Fireball radius in scene units. We use a scaled visual radius:
-  // r_visual = log(1 + t_days/5).
+  // The expanding photosphere is featureless, so it is drawn as a
+  // smooth limb-darkened disc rather than a faceted sphere mesh: a
+  // hot near-white core grading to the fireball colour, with a
+  // darker limb and a luminosity-scaled outer glow.
   const rVis = 0.5 + 1.5 * Math.log10(1 + t_days / 5);
   const col = fireballColor(t_days, L_norm);
-  const items = [];
-  for (const q of fireballQuads) {
-    const thc = (q.th0 + q.th1) / 2;
-    const phc = (q.ph0 + q.ph1) / 2;
-    const center = [
-      rVis * Math.sin(thc) * Math.cos(phc),
-      rVis * Math.cos(thc),
-      rVis * Math.sin(thc) * Math.sin(phc),
-    ];
-    const dx = center[0] - cam.eye[0], dy = center[1] - cam.eye[1], dz = center[2] - cam.eye[2];
-    const depth = dx * cam.f[0] + dy * cam.f[1] + dz * cam.f[2];
-    if (depth <= 0) continue;
-    const norm = [center[0] / rVis, center[1] / rVis, center[2] / rVis];
-    const facing = (dx * norm[0] + dy * norm[1] + dz * norm[2]);
-    if (facing > 0) continue;
-    items.push({ q, thc, phc, center, depth, norm });
-  }
-  items.sort((a, b) => b.depth - a.depth);
-  for (const it of items) {
-    const { q, center, norm } = it;
-    const verts = [
-      [rVis * Math.sin(q.th0) * Math.cos(q.ph0), rVis * Math.cos(q.th0), rVis * Math.sin(q.th0) * Math.sin(q.ph0)],
-      [rVis * Math.sin(q.th0) * Math.cos(q.ph1), rVis * Math.cos(q.th0), rVis * Math.sin(q.th0) * Math.sin(q.ph1)],
-      [rVis * Math.sin(q.th1) * Math.cos(q.ph1), rVis * Math.cos(q.th1), rVis * Math.sin(q.th1) * Math.sin(q.ph1)],
-      [rVis * Math.sin(q.th1) * Math.cos(q.ph0), rVis * Math.cos(q.th1), rVis * Math.sin(q.th1) * Math.sin(q.ph0)],
-    ];
-    const proj = verts.map(v => w2s(v, cam));
-    if (proj.some(p => p === null)) continue;
-    const toEye = [cam.eye[0] - center[0], cam.eye[1] - center[1], cam.eye[2] - center[2]];
-    const teLen = Math.hypot(...toEye);
-    const dot = (norm[0] * toEye[0] + norm[1] * toEye[1] + norm[2] * toEye[2]) / teLen;
-    const shade = Math.max(0.20, dot) * (0.4 + 0.6 * L_norm);
-    ctx.fillStyle = `rgb(${Math.round(col[0] * shade)}, ${Math.round(col[1] * shade)}, ${Math.round(col[2] * shade)})`;
-    ctx.beginPath();
-    ctx.moveTo(proj[0].x, proj[0].y);
-    ctx.lineTo(proj[1].x, proj[1].y);
-    ctx.lineTo(proj[2].x, proj[2].y);
-    ctx.lineTo(proj[3].x, proj[3].y);
-    ctx.closePath();
-    ctx.fill();
-  }
-  // Outer glow halo (depends on luminosity).
   const center2D = w2s([0, 0, 0], cam);
-  if (center2D) {
-    const refR = w2s([rVis, 0, 0], cam);
-    const RpxBase = refR ? Math.hypot(refR.x - center2D.x, refR.y - center2D.y) : 60;
-    const haloR = RpxBase * (1.8 + 1.0 * L_norm);
-    const glow = ctx.createRadialGradient(center2D.x, center2D.y, RpxBase, center2D.x, center2D.y, haloR);
-    glow.addColorStop(0, `rgba(255, 220, 150, ${(0.40 * L_norm).toFixed(3)})`);
-    glow.addColorStop(0.5, `rgba(255, 140, 100, ${(0.20 * L_norm).toFixed(3)})`);
-    glow.addColorStop(1, 'rgba(255, 100, 80, 0)');
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.arc(center2D.x, center2D.y, haloR, 0, 2 * Math.PI); ctx.fill();
-  }
+  if (!center2D) return;
+  const refR = w2s([rVis, 0, 0], cam);
+  const Rpx = refR ? Math.hypot(refR.x - center2D.x, refR.y - center2D.y) : 60;
+  const bright = 0.45 + 0.55 * L_norm;
+  const clamp8 = (c) => Math.round(Math.max(0, Math.min(255, c)));
+  const [cr, cg, cb] = col;
+  // Outer glow halo.
+  const haloR = Rpx * (1.9 + 1.1 * L_norm);
+  const glow = ctx.createRadialGradient(center2D.x, center2D.y, Rpx * 0.92, center2D.x, center2D.y, haloR);
+  glow.addColorStop(0, `rgba(255, 220, 150, ${(0.42 * L_norm).toFixed(3)})`);
+  glow.addColorStop(0.5, `rgba(255, 140, 100, ${(0.20 * L_norm).toFixed(3)})`);
+  glow.addColorStop(1, 'rgba(255, 100, 80, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(center2D.x, center2D.y, haloR, 0, 2 * Math.PI); ctx.fill();
+  // Photosphere: limb-darkened disc, hot highlight offset toward the viewer.
+  const disc = ctx.createRadialGradient(
+    center2D.x - Rpx * 0.20, center2D.y - Rpx * 0.20, Rpx * 0.04,
+    center2D.x, center2D.y, Rpx);
+  disc.addColorStop(0.00, `rgb(${clamp8(cr * 1.4 + 95)}, ${clamp8(cg * 1.4 + 80)}, ${clamp8(cb * 1.3 + 65)})`);
+  disc.addColorStop(0.55, `rgb(${clamp8(cr * bright)}, ${clamp8(cg * bright)}, ${clamp8(cb * bright)})`);
+  disc.addColorStop(1.00, `rgb(${clamp8(cr * bright * 0.42)}, ${clamp8(cg * bright * 0.42)}, ${clamp8(cb * bright * 0.36)})`);
+  ctx.fillStyle = disc;
+  ctx.beginPath(); ctx.arc(center2D.x, center2D.y, Rpx, 0, 2 * Math.PI); ctx.fill();
 }
 
 // =========================================================================
