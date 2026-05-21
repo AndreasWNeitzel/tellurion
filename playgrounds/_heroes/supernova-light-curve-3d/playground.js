@@ -168,7 +168,7 @@ function drawLightcurvePanel() {
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('bolometric L(t) (log) over 200 days', px + 8, py - 6);
+  ctx.fillText('bolometric luminosity (erg/s, log) over 200 days', px + 8, py - 6);
   // Compute L(t).
   const N = 200;
   const t_arr = [], L_arr = [];
@@ -230,7 +230,6 @@ function drawLightcurvePanel() {
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t (d)', px + pw - 32, py + ph - 8);
-  ctx.fillText('L (erg/s, log)', px + 4, py + 14);
   ctx.fillText('0', xForT(0) - 4, py + ph - 12);
   ctx.fillText('50', xForT(50) - 8, py + ph - 12);
   ctx.fillText('100', xForT(100) - 8, py + ph - 12);
