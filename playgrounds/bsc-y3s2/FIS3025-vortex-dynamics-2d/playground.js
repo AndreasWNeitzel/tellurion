@@ -245,6 +245,21 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Point-vortex dynamics is Hamiltonian: the interaction Hamiltonian
+// is conserved along the flow. The baseline H0 is captured at reset.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      if (!s) return [];
+      const H = hamiltonian(s);
+      if (!Number.isFinite(H)) return [];
+      const drift = Math.abs((H - st.H0) / st.H0);
+      return [{
+        key: 'hamiltonian',
+        label: 'point-vortex Hamiltonian conserved',
+        value: drift.toExponential(2),
+        status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
