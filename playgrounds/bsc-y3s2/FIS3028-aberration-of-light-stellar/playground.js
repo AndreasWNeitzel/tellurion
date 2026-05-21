@@ -62,15 +62,18 @@ const STAR_FIELD = (() => {
 })();
 
 // Relativistic aberration of a star whose rest-frame direction (in
-// the lab frame, with motion along +x) is (sx, sy, sz). The observer's
-// boosted direction (with motion along +x at speed beta) is:
-//   cos(theta') = (cos(theta) - beta) / (1 - beta cos(theta))
-// where cos(theta) = sx (angle from +x).
-// The (sy, sz) components are scaled so that the unit vector stays
+// the lab frame, with motion along +x) is (sx, sy, sz). For an
+// observer moving at speed beta along +x the boosted direction is
+//   cos(theta') = (cos(theta) + beta) / (1 + beta cos(theta)),
+// where cos(theta) = sx (angle from +x). This is the forward
+// transform: as beta grows the stars stream toward +x and crowd
+// into the direction of motion. (The minus-sign form is the inverse
+// de-aberration and made the stars stream backward.)
+// The (sy, sz) components are scaled so the unit vector stays
 // normalised in the boosted frame.
 function aberrate(sx, sy, sz, beta) {
   const cosTheta = sx;
-  const cosThetaP = (cosTheta - beta) / (1 - beta * cosTheta);
+  const cosThetaP = (cosTheta + beta) / (1 + beta * cosTheta);
   const sinTheta = Math.sqrt(Math.max(0, 1 - cosTheta * cosTheta));
   const sinThetaP = Math.sqrt(Math.max(0, 1 - cosThetaP * cosThetaP));
   // Preserve azimuth around the +x axis
