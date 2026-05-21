@@ -274,25 +274,40 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the cosmic time, the scale factor and Hubble rate from the
+// integrated Friedmann solution, and the density parameters.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const a = scaleAt(sol, ui.time);
+  return {
+    fields: [
+      { key: 'time', label: 'cosmic time', value: ui.time, format: 'float' },
+      { key: 'scale', label: 'scale factor a', value: a, format: 'float' },
+      { key: 'hubble', label: 'Hubble rate H(a)', value: hubble(a, sol.Om, ui.H0), format: 'float' },
+      { key: 'omega-m', label: 'Omega_m', value: ui.Om, format: 'float' },
+      { key: 'omega-l', label: 'Omega_Lambda', value: ui.OL, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // The Friedmann equation fixes the density parameters to close:
+  // Omega_m + Omega_Lambda + Omega_k = 1, which is how the curvature
+  // term Omega_k is defined.
+  const sum = ui.Om + ui.OL + sol.Ok;
+  const a = scaleAt(sol, ui.time);
+  return [
+    {
+      key: 'friedmann-closure',
+      label: 'density parameters close to 1',
+      value: sum.toFixed(3),
+      status: Math.abs(sum - 1) < 0.01 ? 'pass' : 'drift',
+    },
+    {
+      key: 'scale-positive',
+      label: 'scale factor stays positive',
+      value: a.toFixed(3),
+      status: a > 0 ? 'pass' : 'drift',
+    },
+  ];
+};
