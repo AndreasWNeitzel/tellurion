@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // The p-n junction (Canvas2D). Left: the band diagram (or the
 // space-charge + field profile). Right: the ideal-diode I-V curve
 // with the operating point. Static (recomputed per control change).
@@ -45,7 +46,7 @@ function drawLeft() {
   // junction line
   ctx.strokeStyle = 'rgba(120,130,150,0.35)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(xOf(0), RY0); ctx.lineTo(xOf(0), RY1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('p', xOf(-span / 2.3), RY1 + 18); ctx.fillText('n', xOf(span / 2.3), RY1 + 18);
   ctx.fillText('position x  (depletion shaded)', (LX0 + LX1) / 2, H - 16);
 
@@ -129,7 +130,7 @@ function drawDevice() {
   const { NA, ND, V } = params3();
   const { xp, xn, W: Wd } = depletionEdges(NA, ND, V);
   const W0 = depletionWidth(NA, ND, 0) || Wd || 1e-9;
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('p-n junction device', (RX0 + RX1) / 2, RY0 - 8);
 
   const bx0 = RX0 + 6, bx1 = RX1 - 6, by0 = 64, by1 = 168, xc = (bx0 + bx1) / 2, barW = bx1 - bx0;
@@ -160,7 +161,7 @@ function drawDevice() {
     glyph(x, yB, '+', 'rgba(91,192,235,0.6)');                       // donor core
     if (x > dR + 2) disc(x, yA, 3.2, '#8fd4f2');                     // mobile electron
   }
-  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('p', bx0 + 16, by1 + 16); ctx.fillText('n', bx1 - 16, by1 + 16);
   ctx.fillStyle = 'rgba(255,209,102,0.9)'; ctx.fillText(`depletion W = ${(Wd * 1e9).toFixed(0)} nm`, xc, by0 - 0.5);
 
@@ -169,7 +170,7 @@ function drawDevice() {
     const yy = by0 + 78 + k * 0;
     arrow(dR - 3, by1 - 14, dL + 3, by1 - 14, 'rgba(255,209,102,0.85)', 2);
   }
-  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('E_internal', xc, by1 - 20);
 
   // contacts + battery; polarity and carrier flow follow the bias
@@ -185,7 +186,7 @@ function drawDevice() {
   ctx.strokeStyle = '#e8ebf2'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(longL, cy - 13); ctx.lineTo(longL, cy + 13); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(shortL, cy - 8); ctx.lineTo(shortL, cy + 8); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(fwd ? 'forward: barrier low, current on'
     : rev ? 'reverse: barrier high, layer wide'
       : 'equilibrium: drift = diffusion', (RX0 + RX1) / 2, cy + 34);
@@ -217,7 +218,7 @@ function drawDevice() {
   ctx.fillStyle = '#06d6a0'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.arc(xOf(Math.max(vLo, Math.min(vHi, V))), yOf(Math.max(-1, Math.min(iHi, iop))), 5, 0, 2 * Math.PI);
   ctx.fill(); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('I-V  (I/I0)  operating point', (ix0 + ix1) / 2, H - 16);
 }
 
@@ -264,4 +265,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

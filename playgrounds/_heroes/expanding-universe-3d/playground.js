@@ -10,6 +10,7 @@ import {
 import { setupCosmicLatticeGL } from '../../../shared/js/engine-gl/cosmic-lattice-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -140,7 +141,7 @@ function drawPlot() {
   pctx.stroke();
   const cx = xOf(Math.max(t0, Math.min(t1, ui.time)));
   pctx.strokeStyle = '#ffd166'; pctx.beginPath(); pctx.moveTo(cx, 18); pctx.lineTo(cx, H - 18); pctx.stroke();
-  pctx.fillStyle = '#7a818c'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'left';
+  pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
   pctx.fillText('scale factor a(t)   (yellow = now; t=0 is today)', 8, 14);
 
   // Density-fraction bands vs log(a). x ranges from log10(a) = -8
@@ -151,7 +152,7 @@ function drawPlot() {
   pctx.strokeStyle = 'rgba(220, 230, 255, 0.20)';
   pctx.strokeRect(40 + 0.5, py0 + 0.5, W - 61, py1 - py0 - 1);
   pctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  pctx.font = 'bold 11px ui-monospace, monospace';
+  pctx.font = fontString(canvas, 'caption', 'mono', 600);
   pctx.fillText('density fractions Ω_r / Ω_m / Ω_Λ  (log a)', 44, py0 + 12);
   const aLo = -8, aHi = 0;
   function xOfLogA(la) { return 50 + ((la - aLo) / (aHi - aLo)) * (W - 70); }
@@ -179,7 +180,7 @@ function drawPlot() {
     pctx.lineTo(xOfLogA(Math.log10(aEq_mr)), bandY + bandH);
     pctx.stroke();
     pctx.setLineDash([]);
-    pctx.fillStyle = '#fff'; pctx.font = '11px ui-monospace, monospace';
+    pctx.fillStyle = '#fff'; pctx.font = fontString(canvas, 'caption', 'mono');
     pctx.fillText('m=r', xOfLogA(Math.log10(aEq_mr)) + 2, bandY + 10);
   }
   if (aEq_mL > Math.pow(10, aLo) && aEq_mL < 1) {
@@ -189,11 +190,11 @@ function drawPlot() {
     pctx.lineTo(xOfLogA(Math.log10(aEq_mL)), bandY + bandH);
     pctx.stroke();
     pctx.setLineDash([]);
-    pctx.fillStyle = '#fff'; pctx.font = '11px ui-monospace, monospace';
+    pctx.fillStyle = '#fff'; pctx.font = fontString(canvas, 'caption', 'mono');
     pctx.fillText('m=Λ', xOfLogA(Math.log10(aEq_mL)) + 2, bandY + 22);
   }
   // x-axis ticks.
-  pctx.fillStyle = 'rgba(200, 210, 240, 0.85)'; pctx.font = '11px ui-monospace, monospace';
+  pctx.fillStyle = 'rgba(200, 210, 240, 0.85)'; pctx.font = fontString(canvas, 'caption', 'mono');
   for (let la = aLo; la <= aHi; la += 2) {
     const xx = xOfLogA(la);
     pctx.fillText(`10^${la}`, xx - 10, py1 - 2);
@@ -271,3 +272,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'GPU is render-only; cosmology 
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

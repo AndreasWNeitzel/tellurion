@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Maximum-Entropy Distributions: A Small Zoo</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
-          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maximum-Entropy Distributions: A Small Zoo</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 860px; }
     .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
@@ -19,51 +20,62 @@
     .pg-controls input[type="range"] { width: 100%; }
     .pg-controls select { width: 100%; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Maximum-entropy distributions: a small zoo</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Maximum-entropy distributions: a small zoo</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Maximum-entropy distributions: a small zoo</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     <strong>What you are seeing:</strong> if all you know about a random
     variable is a couple of summary statistics (its support, mean,
     variance, etc.), what is the most "honest" probability density you
     can write down? The maximum-entropy principle picks the density
-    $p(x)$ that uses no extra structure beyond what those statistics
+    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">p(x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">p</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span> that uses no extra structure beyond what those statistics
     force, by maximizing the differential entropy
-    $h(p) = -\int p(x)\,\log p(x)\,dx$.
+    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mo>−</mo><mo>∫</mo><mi>p</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo> <mi>log</mi><mo>⁡</mo><mi>p</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo> <mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">h(p) = -\int p(x)\,\log p(x)\,dx</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">h</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.1111em; vertical-align: -0.3061em;"></span><span class="mord">−</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop op-symbol small-op" style="margin-right: 0.1945em; position: relative; top: -0.0006em;">∫</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">p</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.0139em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">p</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">x</span></span></span></span></span>.
   </p>
-  <p>
+      <p class="t-body">
     The answer depends entirely on the constraint:
   </p>
-  <ul>
-    <li>support $[a, b]$, no moment constraint $\Rightarrow$ uniform $U(a, b)$, $h = \ln(b - a)$.</li>
-    <li>support $[0, \infty)$, mean $\mu$ $\Rightarrow$ exponential $\text{Exp}(1/\mu)$, $h = 1 + \ln \mu$.</li>
-    <li>support $\mathbb R$, mean $\mu$, variance $\sigma^2$ $\Rightarrow$ Gaussian $N(\mu, \sigma)$, $h = \tfrac12 \ln(2\pi e \sigma^2)$.</li>
-    <li>support $\mathbb R$, mean $\mu$, $E|X - \mu| = b$ $\Rightarrow$ Laplace, $h = 1 + \ln(2 b)$.</li>
-  </ul>
-  <p>
+      <p class="t-body">
     The plot shows the chosen pdf with its analytic entropy and a numerical
     trapezoidal estimate. They agree to a few percent.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="900" height="520" tabindex="0"
-            aria-label="Plot of selected maximum-entropy pdf with live entropy values."></canvas>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="520" tabindex="0" aria-label="Plot of selected maximum-entropy pdf with live entropy values."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       One-dimensional maximum-entropy distributions for four common
       constraint families. Method: closed-form pdfs, trapezoidal entropy
       on a 500-point grid. Source: MacKay 2003, Information Theory,
       Inference, and Learning Algorithms, Section 22.2 (`mackay2003`);
       Cover and Thomas 2006, Elements of Information Theory, 2e, Section
-      12.1.
-    </figcaption>
-  </figure>
+      12.1.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Maxent controls">
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Maxent controls">
     <div class="row">
       <span class="label">family</span><select aria-label="family" id="select-family">
-        <option value="gaussian" selected>Gaussian (mean, variance)</option>
+        <option value="gaussian" selected="">Gaussian (mean, variance)</option>
         <option value="uniform">Uniform (support)</option>
         <option value="exponential">Exponential (mean, support [0, infty))</option>
         <option value="laplace">Laplace (mean, mean absolute deviation)</option>
@@ -76,7 +88,37 @@
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>
   </div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

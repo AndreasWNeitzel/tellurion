@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Canonical transformations (Canvas2D). Left: a phase-space grid and
 // a blob in (q,p). Right: their image under the selected map, which
 // can be morphed continuously from the identity by the "morph t"
@@ -73,7 +74,7 @@ function drawBlob(cx, label, T, underlay) {
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx - 150, CY); ctx.lineTo(cx + 150, CY);
   ctx.moveTo(cx, CY - 150); ctx.lineTo(cx, CY + 150); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(label, cx, H - 14);
 
   // faint reference: the undeformed grid + ellipse (only on the
@@ -113,11 +114,11 @@ const MAP_EQ = {
   pDouble: '(Q,P) = (q, 2p)',
 };
 function drawMapBanner(cx, pb) {
-  ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(91,192,235,0.95)';
   ctx.fillText(MAP_EQ[st.map], cx, 22);
   const canon = Math.abs(pb - 1) < 1e-6;
-  ctx.fillStyle = canon ? '#06d6a0' : '#ef476f'; ctx.font = 'bold 12px ui-monospace, monospace';
+  ctx.fillStyle = canon ? '#06d6a0' : '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText(canon ? '{Q,P} = 1: area preserved (canonical)'
     : `{Q,P} = ${pb.toFixed(0)}: area changes (NOT canonical)`, cx, 39);
 }
@@ -183,4 +184,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Tight-binding band structure (Canvas2D). 1D / SSH: the dispersion
 // E(k) with states filled to E_F and the density of states. 2D: the
 // E(kx,ky) heatmap with the Fermi-surface contour. Static
@@ -48,7 +49,7 @@ function draw1D() {
   const yOf = (E) => PY1 - (E - eLo) / (eHi - eLo) * (PY1 - PY0);
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('wavevector  k  (-pi .. pi)', (PX0 + PX1) / 2, H - 16);
   ctx.save(); ctx.translate(24, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('energy  E(k)', 0, 0); ctx.restore();
   // E_F line + filled shading
@@ -128,7 +129,7 @@ function draw2D() {
     const Y = PY0 + (ky + Math.PI) / (2 * Math.PI) * NY;
     ctx.fillRect(X - 1.2, Y - 1.2, 2.4, 2.4);
   }
-  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('kx (-pi..pi)', (PX0 + PX1) / 2, H - 16);
   ctx.save(); ctx.translate(24, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('ky', 0, 0); ctx.restore();
   ctx.fillStyle = '#06d6a0'; ctx.textAlign = 'left'; ctx.fillText('Fermi surface at E_F', DX0, PY0 + 12);
@@ -181,4 +182,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

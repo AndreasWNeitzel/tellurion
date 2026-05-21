@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Coupled pendulums and normal modes. Left: two shaded pendulums on a
 // pivot beam, coupled by a drawn coil spring, with bob trails. Right:
 // the energy sloshing between the two pendulums (the beat) and the
@@ -147,7 +148,7 @@ function drawEnergyBars(c, x0, y0, w, h) {
   const e1 = e1of(sim), e2 = e2of(sim);
   const E = energy(sim);
   const tot = Math.max(1e-9, E.total);
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('energy exchange (the beat)', x0, y0 - 10);
   const barW = 34, gap = 26, baseY = y0 + h;
   const items = [['E1', e1, c.accent], ['spring', E.spr, c.orange], ['E2', e2, c.blue]];
@@ -184,7 +185,7 @@ function drawPortrait(c, x0, y0, s) {
   ctx.stroke();
   ctx.fillStyle = c.fg;
   ctx.beginPath(); ctx.arc(cx + sim.theta1 * sc, cy - sim.theta2 * sc, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('theta1 vs theta2', x0 + 6, y0 - 6);
   ctx.fillStyle = 'rgba(244,162,97,0.85)'; ctx.fillText('sym', x0 + s - 28, y0 + 26);
   ctx.fillStyle = 'rgba(91,192,235,0.85)'; ctx.fillText('anti', x0 + s - 30, y0 + s - 8);
@@ -227,7 +228,7 @@ function drawTrace(c, x0, y0, w, h) {
     if (!st) { ctx.moveTo(xx, yy); st = true; } else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('theta1', x0 + padL + 6, y0 + padT + 13);
   ctx.fillStyle = c.accent; ctx.fillRect(x0 + padL + 48, y0 + padT + 6, 12, 3);
   ctx.fillStyle = c.muted; ctx.fillText('theta2', x0 + padL + 78, y0 + padT + 13);
@@ -299,4 +300,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

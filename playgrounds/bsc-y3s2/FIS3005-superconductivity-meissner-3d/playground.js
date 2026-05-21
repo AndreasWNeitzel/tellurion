@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // The Meissner effect (Canvas2D). Cross-section of a superconducting
 // sphere in a uniform field: the field lines (streamlines of the
 // perfect-diamagnet field) bend around it and B = 0 inside, until
@@ -102,10 +103,10 @@ function render() {
         drawn += 1;
       }
     }
-    ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText('Abrikosov vortices (1 Phi0 each)', CX, CY + sR + 28);
   } else {
-    ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(sc ? 'B = 0 inside (Meissner)' : 'flux penetrates (normal)', CX, CY + sR + 28);
   }
 
@@ -146,7 +147,7 @@ function render() {
   const inVortex = isII && st.Tr < Tc && st.B0 > Bc1f(st.Tr) && st.B0 < Bc2f(st.Tr);
   ctx.fillStyle = sc ? '#06d6a0' : (inVortex ? '#ffd166' : '#ef476f'); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(xT(st.Tr), yB(st.B0), 6, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('T / Tc', (GX0 + GX1) / 2, H - 22);
   ctx.save(); ctx.translate(GX0 - 18, (GY0 + GY1) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('B', 0, 0); ctx.restore();
   ctx.fillStyle = '#5bc0eb'; ctx.fillText(isII ? 'Bc1 (blue) / Bc2 (gold)' : 'Bc(T): superconducting below', (GX0 + GX1) / 2, GY0 - 8);
@@ -188,4 +189,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

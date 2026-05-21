@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Moving source emits circular wavefronts. Bottom panel shows f_obs(theta).
 
@@ -167,7 +168,7 @@ function drawAll() {
     ctx.moveTo(sxp.px, sxp.py);
     ctx.lineTo(sxp.px - len * cosAng, sxp.py + len * sinAng);
     ctx.stroke();
-    ctx.fillStyle = 'rgba(255, 100, 100, 0.92)'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255, 100, 100, 0.92)'; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
     const machAngDeg = Math.asin(sinAng) * 180 / Math.PI;
     ctx.fillText(`Mach M = ${state.v.toFixed(2)}; cone half-angle ${machAngDeg.toFixed(1)} deg`,
       sxp.px - len * cosAng + 8, sxp.py - len * sinAng - 8);
@@ -341,4 +342,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

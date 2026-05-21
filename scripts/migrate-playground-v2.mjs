@@ -49,15 +49,10 @@ function rewriteFonts(js) {
   });
   if (!changed) return js;
   if (/canvas-type\.js/.test(out)) return out;
-  const importLine = "import { fontString } from '../../../shared/js/canvas-type.js';";
-  const lines = out.split('\n');
-  let lastImport = -1;
-  for (let i = 0; i < Math.min(lines.length, 60); i += 1) {
-    if (/^\s*import\s/.test(lines[i])) lastImport = i;
-  }
-  if (lastImport >= 0) lines.splice(lastImport + 1, 0, importLine);
-  else lines.unshift(importLine);
-  return lines.join('\n');
+  // Always prepend the import. Splicing it after a detected import
+  // line corrupted multi-line `import { ... }` blocks; ES module
+  // imports are hoisted, so order does not matter.
+  return "import { fontString } from '../../../shared/js/canvas-type.js';\n" + out;
 }
 
 function ensureDiagnostics(js) {
@@ -167,6 +162,10 @@ ${headExtras}
     </div>
 
     <figcaption class="t-small playground-caption">${p.captionHtml}</figcaption>
+${p.extraCanvasHtml ? `
+    <div class="playground-extra-canvases">
+      ${p.extraCanvasHtml}
+    </div>` : ''}
 
     <section class="playground-controls">
       ${controls}${legacy}
@@ -214,6 +213,11 @@ async function extractHtml(page, fileUrl) {
     const canvasEl = q('canvas#stage') || q('canvas');
     if (!canvasEl) throw new Error('no canvas');
     if (q('.playground-layout')) throw new Error('already migrated');
+    // Secondary canvases (diagnostic plots) are preserved after the
+    // figcaption inside the center column (spec 12.2).
+    const extraCanvas = Array.from(document.querySelectorAll('canvas'))
+      .filter((c) => c !== canvasEl)
+      .map((c) => c.outerHTML);
     const intros = [];
     let n = h1El ? h1El.nextElementSibling : null;
     while (n && n.tagName !== 'FIGURE' && n.tagName !== 'CANVAS'
@@ -241,6 +245,7 @@ async function extractHtml(page, fileUrl) {
       .filter((s) => s && (s.endsWith('playground.js') || s.includes('explainer.js')));
     return {
       title, h1, canvasHtml: canvasEl.outerHTML, introHtml, captionHtml,
+      extraCanvasHtml: extraCanvas.join('\n      '),
       controlsHtml, legacyHtml: legacyParts.join(''), styleBlocks, explainerCss, scripts,
     };
   });

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Brachistochrone race: cycloid vs straight line vs a concave
 // reference curve vs a USER-DRAWN curve. The user drags two control
@@ -126,7 +127,7 @@ function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.tNow.toFixed(3)} s`, 30, 22);
@@ -154,7 +155,7 @@ function drawAll() {
 
   // Endpoints.
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.font = '13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   ctx.textAlign = 'right';
   ctx.fillText('A', A.px - 10, A.py + 4);
   ctx.textAlign = 'left';
@@ -172,7 +173,7 @@ function drawAll() {
     ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(px.px, px.py, 6.5, 0, Math.PI * 2); ctx.stroke();
     if (label) {
-      ctx.font = '11px ui-monospace, monospace';
+      ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillStyle = color; ctx.textAlign = 'left';
       ctx.fillText(label, px.px + 9, px.py - 6);
     }
@@ -200,7 +201,7 @@ function drawAll() {
     const tFill = Math.min(state.tNow, tStop);
     ctx.fillStyle = color;
     ctx.fillRect(barX + 1, barY + 2, barW * (tFill / tm) - 1, barH - 4);
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.textAlign = 'left';
     ctx.fillText(label, barX, barY - 3);
     ctx.textAlign = 'right';
@@ -295,4 +296,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

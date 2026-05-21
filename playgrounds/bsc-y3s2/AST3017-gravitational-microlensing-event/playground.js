@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Gravitational lensing: an interactive image-plane sandbox. Drag (or
 // let it drift) the background source; watch its lensed images move on
 // the critical curves, an Einstein ring flash at alignment, and the
@@ -132,7 +133,7 @@ function render() {
   }
   const Atot = state.binary ? totM : pointA(Math.hypot(beta.x, beta.y));
   // labels
-  ctx.fillStyle = 'rgba(220,224,236,0.85)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(220,224,236,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`${state.binary ? 'binary' : 'point'} lens   images: ${imgs.length}   A = ${Atot.toFixed(2)}`, 12, 20);
   ctx.fillStyle = 'rgba(255,110,210,0.85)'; ctx.fillText('caustic', 12, 38);
   ctx.fillStyle = 'rgba(120,210,255,0.85)'; ctx.fillText('critical curve', 84, 38);
@@ -156,7 +157,7 @@ function render() {
   ctx.beginPath(); ctx.moveTo(xm, LY); ctx.lineTo(xm, LY + LH); ctx.stroke();
   ctx.fillStyle = '#ffd57f';
   ctx.beginPath(); ctx.arc(xm, LY + LH - (Math.min(Atot, mxA) / mxA) * (LH - 8) - 4, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(220,224,236,0.8)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(220,224,236,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('magnification  A(t)', 8, LY + 14);
 
   readoutInv.textContent = `A=${Atot.toFixed(3)}  images=${imgs.length}  ${state.binary ? `sep=${state.sep.toFixed(2)} q=${state.q.toFixed(2)}` : `u=${Math.hypot(beta.x, beta.y).toFixed(3)}`}`;
@@ -247,3 +248,27 @@ window.__physicsCheck = async () => {
   if (im.length !== 2) return { name: 'point-lens images', pass: false, msg: `found ${im.length}, expected 2` };
   return { name: 'Paczynski A(u) + 2 point-lens images', pass: true, msg: `A(0.3)=${A.toFixed(4)}, ${im.length} images` };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

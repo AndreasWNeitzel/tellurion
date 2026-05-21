@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Gaussian-beam ABCD bench (Canvas2D). The beam envelope w(z) is
 // drawn along an optical axis through a draggable thin lens; the
 // complex q-parameter is propagated by ray-transfer matrices.
@@ -94,7 +95,7 @@ function render() {
   const lx = xOf(zL);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(lx, AYC - AYH - 8); ctx.lineTo(lx, AYC + AYH + 8); ctx.stroke();
-  ctx.fillStyle = '#ffd166'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`lens f=${st.f_mm} mm`, lx, AYC - AYH - 14);
 
   // object (input waist) marker, draggable
@@ -104,7 +105,7 @@ function render() {
   ctx.fillStyle = '#5bc0eb'; ctx.beginPath();
   ctx.moveTo(ox, AYC + AYH + 6); ctx.lineTo(ox - 6, AYC + AYH + 18); ctx.lineTo(ox + 6, AYC + AYH + 18);
   ctx.closePath(); ctx.fill();
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('object (drag)', ox, AYC + AYH + 32);
 
   // focused waist marker
@@ -125,7 +126,7 @@ function render() {
   const sy = 52;
   drawSpot(W - 190, sy, w0 * sScale, 'rgba(91,192,235,1)');
   drawSpot(W - 70, sy, wFoc * sScale, 'rgba(255,209,102,1)');
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('object spot', W - 190, sy + 44);
   ctx.fillText(`${(w0 * 2e6).toFixed(0)} um`, W - 190, sy + 58);
   ctx.fillText('focused spot', W - 70, sy + 44);
@@ -134,7 +135,7 @@ function render() {
   ctx.fillStyle = ratio < 1 ? 'rgba(6,214,160,0.85)' : 'rgba(255,209,102,0.85)';
   ctx.fillText(ratio < 1 ? `focused ${(1 / ratio).toFixed(1)}x tighter` : `${ratio.toFixed(1)}x wider`, W - 130, sy - 40);
 
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('optical axis  z  (drag the object or the lens)', (AX0 + AX1) / 2, H - 14);
 
   // beam size hitting the lens (just before it)
@@ -204,4 +205,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

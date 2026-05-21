@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Habitable-zone playground. Star at center; HZ as a green annulus;
 // reference planet marker at user-set distance.
 
@@ -106,7 +107,7 @@ function render() {
 
   // Labels.
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`star: T = ${T} K, R = ${Rs.toFixed(2)} R_sun`, 12, 20);
   ctx.fillText(`L = ${(L / L_SUN).toExponential(3)} L_sun`, 12, 38);
   ctx.fillStyle = c.green;
@@ -139,7 +140,7 @@ function drawFluxDiagnostic(L, inner, outer, dAu) {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('flux S(d)  (S / S_Earth, log)', px + 8, py + 14);
   const ax = px + 38, ay = py + 24, aw = pw - 50, ah = ph - 42;
   // Relative flux S/S_Earth = (L/L_SUN) / d_AU^2.
@@ -165,7 +166,7 @@ function drawFluxDiagnostic(L, inner, outer, dAu) {
   // Planet point.
   ctx.fillStyle = '#fff';
   ctx.beginPath(); ctx.arc(xOf(dAu), yOf(sOf(dAu)), 4, 0, 6.28); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('10^2', px + 6, ay + 8);
   ctx.fillText('10^0', px + 6, yOf(1) + 3);
   ctx.fillText('0', ax - 4, ay + ah + 10);
@@ -219,4 +220,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

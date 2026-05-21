@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Maximum-entropy zoo, made interactive. Samples rain from the chosen
 // maximum-entropy distribution and pile into a histogram that converges
 // to the analytic pdf (now a diagnostic overlay, not the main object).
@@ -146,14 +147,14 @@ function drawAll() {
   }
 
   // x ticks
-  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'center';
   for (let i = 0; i <= 5; i += 1) { const x = xmin + (xmax - xmin) * (i / 5); ctx.fillText(x.toFixed(1), toPx(x, 0).px, Y1 + 16); }
 
   // title + constraint
   const titleMap = { gaussian: 'Gaussian  (support R, fixed mean and variance)', uniform: 'Uniform  (support [a, b], no moment constraint)', exponential: 'Exponential  (support [0, infty), fixed mean)', laplace: 'Laplace  (support R, fixed mean and E|X - mu|)' };
-  ctx.font = '14px Inter, system-ui, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'body'); ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.textAlign = 'left';
   ctx.fillText(titleMap[state.family], X0, Y0 - 28);
-  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.fillText(`${CONSTRAINTS[state.family]}    -    drawn samples: ${state.n}`, X0, Y1 + 40);
 
   // entropy comparison panel: max-ent vs the structured competitor
@@ -162,7 +163,7 @@ function drawAll() {
   const bx = X1 - 246, by = Y0 + 8, bw = 238, bh = 86;
   ctx.fillStyle = 'rgba(8,10,16,0.74)'; ctx.fillRect(bx, by, bw, bh);
   ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.strokeRect(bx, by, bw, bh);
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = ACCENT; ctx.fillText(`max entropy  h* = ${hMax.toFixed(3)} nats`, bx + 10, by + 20);
   ctx.fillStyle = WARM; ctx.fillText(`this density  h  = ${hCur.toFixed(3)} nats`, bx + 10, by + 38);
   const span = Math.max(0.5, Math.abs(hMax) + 1);
@@ -170,7 +171,7 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(bx + 10, by + 50, barW, 8);
   ctx.fillStyle = ACCENT; ctx.fillRect(bx + 10, by + 50, barW, 8);
   ctx.fillStyle = WARM; ctx.fillRect(bx + 10, by + 50, barW * Math.max(0, Math.min(1, (hCur + span / 2) / span)) / ((hMax + span / 2) / span), 8);
-  ctx.fillStyle = state.struct > 0 ? WARM : ACCENT; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = state.struct > 0 ? WARM : ACCENT; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(state.struct > 0 ? `structure costs ${(hMax - hCur).toFixed(3)} nats` : 'the least-committal choice', bx + 10, by + 76);
 
   // ======================================================================
@@ -188,7 +189,7 @@ function drawAll() {
   ctx.fillStyle = 'rgba(8, 10, 16, 0.74)'; ctx.fillRect(X0, dy0, X1 - X0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)'; ctx.strokeRect(X0 + 0.5, dy0 + 0.5, X1 - X0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.82)';
-  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText('empirical entropy S vs samples drawn  (converges to h*)', X0 + 6, dy0 + 14);
   // y range: between min(hMax, hCur) - 0.5 and max(hMax) + 0.5
   const sMin = Math.min(hMax, hCur) - 0.5;
@@ -201,7 +202,7 @@ function drawAll() {
   ctx.strokeStyle = ACCENT; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.moveTo(xPlot0, yForS(hMax)); ctx.lineTo(xPlot1, yForS(hMax)); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = ACCENT; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = ACCENT; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`h* = ${hMax.toFixed(3)}`, xPlot1 - 80, yForS(hMax) - 4);
   // Structured-density entropy line (if structure > 0).
   if (pStr) {
@@ -219,7 +220,7 @@ function drawAll() {
   }
   ctx.stroke();
   // Axis ticks.
-  ctx.fillStyle = 'rgba(180, 200, 240, 0.70)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.70)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillText(sMin.toFixed(2), xPlot0 - 4, yPlot1 + 3);
   ctx.fillText(sMax.toFixed(2), xPlot0 - 4, yPlot0 + 3);
@@ -271,4 +272,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

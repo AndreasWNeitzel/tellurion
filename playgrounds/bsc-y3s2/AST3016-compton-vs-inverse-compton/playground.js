@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Compton vs inverse-Compton playground. Plot energy axis on log scale
 // with the input photon, the forward-Compton-shifted photon, and the
 // inverse-Compton up-scattered photon marked.
@@ -71,7 +72,7 @@ function render() {
     ctx.fillStyle = b.color;
     ctx.fillRect(xFor(b.from), padT, xFor(b.to) - xFor(b.from), plotH);
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(b.label, xFor(0.5 * (b.from + b.to)) - 20, padT + 14);
   }
 
@@ -82,11 +83,11 @@ function render() {
     const x = xFor(le);
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`1e${le}`, x - 14, padT + plotH + 14);
   }
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('photon energy (eV, log)', padL + plotW - 140, padT + plotH + 28);
 
   // Track lines.
@@ -97,7 +98,7 @@ function render() {
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(label, x + 8, y - 6);
   }
   const yIn = padT + plotH * 0.7;
@@ -159,4 +160,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

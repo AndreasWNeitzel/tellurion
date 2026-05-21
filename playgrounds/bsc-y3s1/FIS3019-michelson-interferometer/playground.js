@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Michelson interferometer playground. Plots I(L) and the envelope V(L).
 
 import {
@@ -71,11 +72,11 @@ function render() {
     const y = padT + plotH * i / 4;
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${(1 - i / 4).toFixed(2)}`, padL - 28, y + 3);
   }
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`L (nm), -${Lmax.toFixed(0)} to ${Lmax.toFixed(0)}`, padL + plotW - 180, padT + plotH + 28);
 
   // Visibility envelope (dashed).
@@ -123,7 +124,7 @@ function render() {
   ctx.beginPath(); ctx.moveTo(x0, padT); ctx.lineTo(x0, padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('L = 0', x0 + 4, padT + 14);
   // Animated current-L cursor (this is THE interactive element).
   const Lcur = Math.max(Lmin, Math.min(Lmax, L_sweep));
@@ -135,7 +136,7 @@ function render() {
   ctx.beginPath(); ctx.arc(xCur, yFor(Inow), 5, 0, 6.28); ctx.fill();
   ctx.strokeStyle = c.blue; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(xCur, yFor(Inow), 5, 0, 6.28); ctx.stroke();
-  ctx.fillStyle = c.blue; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = c.blue; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`L = ${Lcur.toFixed(1)} nm  I = ${Inow.toFixed(3)}`, xCur + 6, padT + 14);
 }
 
@@ -185,7 +186,7 @@ function renderRingInset() {
   const y0 = 16;
   ctx.strokeStyle = 'rgba(220,220,240,0.35)';
   ctx.strokeRect(x0, y0, insetW, insetH);
-  ctx.fillStyle = '#dcdde2'; ctx.font = '11px sans-serif';
+  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Ring view (2D)', x0 + 8, y0 + 14);
   const cx = x0 + insetW / 2, cy = y0 + insetH / 2;
   // Visualize the ring pattern at the CURRENT animated path
@@ -239,4 +240,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync(); renderWithInset();
   if (!CAPTURE_NAME) requestAnimationFrame(animatedLoop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

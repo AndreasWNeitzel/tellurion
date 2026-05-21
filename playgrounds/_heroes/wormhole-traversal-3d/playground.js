@@ -6,6 +6,7 @@
 import { embedZ, circumferentialR, properDistance, tidalScale, criticalImpact } from './sim.js';
 import { setupWormholeGL } from '../../../shared/js/engine-gl/wormhole-3d.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -97,7 +98,7 @@ function drawPlot() {
   const rs = circumferentialR(ui.lCam, ui.b0), zs = embedZ(ui.lCam, ui.b0);
   pctx.fillStyle = '#ffd166'; pctx.beginPath();
   pctx.arc(cx + rs * sc, cy - zs * sc, 5, 0, 7); pctx.fill();
-  pctx.fillStyle = '#7a818c'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'left';
+  pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
   pctx.fillText('embedding funnel  z(l) = b0 asinh(l/b0)   (yellow = ship)', 8, 14);
   pctx.fillText(ui.lCam >= 0 ? 'this universe' : 'far universe', 8, H - 8);
 }
@@ -183,3 +184,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'GPU is the ray-march; geometry
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

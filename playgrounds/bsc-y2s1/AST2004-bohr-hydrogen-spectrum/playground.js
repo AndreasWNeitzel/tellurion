@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Bohr hydrogen spectrum playground.
 // Left half: hydrogen energy ladder with transition arrows. Right half:
 // wavelength axis (log scale) with emission lines color-coded by series.
@@ -98,7 +99,7 @@ function drawLadder(c, x0, y0, w, h) {
     const y = yForE(eMark);
     ctx.beginPath(); ctx.moveTo(x0 + padL, y); ctx.lineTo(x0 + padL + plotW, y); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${eMark.toFixed(1)}`, x0 + padL - 38, y + 3);
   }
   ctx.fillStyle = c.muted;
@@ -112,7 +113,7 @@ function drawLadder(c, x0, y0, w, h) {
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(x0 + padL + 6, y); ctx.lineTo(x0 + padL + plotW - 6, y); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`n=${n}`, x0 + padL + plotW - 30, y - 4);
   }
 
@@ -163,7 +164,7 @@ function drawSpectrum(c, x0, y0, w, h) {
     const x = xForLam(lam);
     ctx.beginPath(); ctx.moveTo(x, y0 + padT); ctx.lineTo(x, y0 + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${lam} nm`, x - 16, y0 + padT + plotH + 14);
   }
   ctx.fillStyle = c.muted;
@@ -203,7 +204,7 @@ function drawSpectrum(c, x0, y0, w, h) {
 
   // Title.
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`emission spectrum (log lambda)`, x0 + padL, y0 + 16);
 }
 
@@ -235,7 +236,7 @@ function drawAtom(c, x0, y0, w, h) {
   const Rmax = Math.min(w, h) * 0.42;
   const rOf = (n) => Rmax * (n * n) / (nMax * nMax);
 
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`Bohr ${nHi}->${nLo}`, x0 + 8, y0 + 16);
 
   for (let n = 1; n <= nMax; n += 1) {
@@ -290,7 +291,7 @@ function drawAtom(c, x0, y0, w, h) {
     }
     ctx.stroke();
   }
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('orbit radius proportional to n^2; photon E = E_hi - E_lo', cx, y0 + h - 10);
 }
 
@@ -362,4 +363,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

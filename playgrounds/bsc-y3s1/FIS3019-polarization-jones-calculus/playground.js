@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Jones calculus playground (Canvas2D). Left: the polarization
 // ellipse traced by the field after a chain of elements. Right: the
 // Poincare sphere with the input and output state points. Static
@@ -98,13 +99,13 @@ function drawBench(vin, vmid, vout) {
   }
   const stage = (cx, vec, col, lab) => {
     drawEllipse(cx, by, gx * 0.42, vec, col, 2, 1, true);
-    ctx.fillStyle = col; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(lab, cx, by + 40);
   };
   const ebox = (cx, text) => {
     ctx.strokeStyle = 'rgba(150,160,180,0.7)'; ctx.lineWidth = 1.4;
     ctx.strokeRect(cx - 44, by - 26, 88, 52);
-    ctx.fillStyle = 'rgba(150,160,180,0.9)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(150,160,180,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(text, cx, by - 32);
   };
   stage(216, vin, '#5bc0eb', 'input');
@@ -131,12 +132,12 @@ function render() {
   ctx.strokeStyle = 'rgba(150,160,180,0.4)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(LCX - S - 16, LCY); ctx.lineTo(LCX + S + 16, LCY);
   ctx.moveTo(LCX, LCY - S - 16); ctx.lineTo(LCX, LCY + S + 16); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('Ex', LCX + S + 6, LCY + 15); ctx.fillText('Ey', LCX - 15, LCY - S - 4);
   ctx.fillText('field ellipse  (arrow = handedness)', LCX, LCY - S - 22);
   drawEllipse(LCX, LCY, S, vin, '#5bc0eb', 2.2, 0.8, true);    // input
   drawEllipse(LCX, LCY, S, vout, '#06d6a0', 3, 1, true);       // output
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillStyle = '#5bc0eb'; ctx.fillText('input', LCX - 64, LCY + S + 34);
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.fillText('/', LCX, LCY + S + 34);
   ctx.fillStyle = '#06d6a0'; ctx.fillText('output', LCX + 64, LCY + S + 34);
@@ -206,4 +207,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

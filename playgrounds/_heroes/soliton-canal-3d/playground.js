@@ -8,6 +8,7 @@ import { setupKdVCanalGL } from '../../../shared/js/engine-gl/kdv-canal-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { rayPlaneIntersect } from '../../../shared/js/gl/raycast.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -168,7 +169,7 @@ function drawPlot() {
     if (i === 0) pctx.moveTo(xx, yy); else pctx.lineTo(xx, yy);
   }
   pctx.stroke();
-  pctx.fillStyle = '#7a818c'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'left';
+  pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
   pctx.fillText('cross-section  u(x)', 8, 14);
 
   // ---- conserved-quantity drift vs time (log y) ----
@@ -201,10 +202,10 @@ function drawPlot() {
     pctx.stroke();
   }
   // y ticks.
-  pctx.fillStyle = '#5a6068'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'right';
+  pctx.fillStyle = '#5a6068'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'right';
   for (let l = lLo; l <= lHi; l += 5) pctx.fillText(`10^${l}`, 28, yDrift(Math.pow(10, l)) + 3);
   // Legend.
-  pctx.textAlign = 'left'; pctx.font = '11px ui-monospace, monospace';
+  pctx.textAlign = 'left'; pctx.font = fontString(canvas, 'caption', 'mono');
   pctx.fillStyle = '#ffd166'; pctx.fillText('mass', 36, dY0 + 12);
   pctx.fillStyle = '#5bc0eb'; pctx.fillText('momentum', 72, dY0 + 12);
   pctx.fillStyle = '#ef476f'; pctx.fillText('energy', 138, dY0 + 12);
@@ -287,3 +288,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'GPU is render-only; physics va
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

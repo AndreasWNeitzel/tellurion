@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Stellar aberration playground. The primary scene is now a 3D POV
 // sky as the observer accelerates: a procedural star field on a unit
 // sphere is boosted along +x by speed beta = v/c, and each star's
@@ -134,7 +135,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255, 220, 130, 0.45)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(W / 2 - 14, H / 2); ctx.lineTo(W / 2 + 14, H / 2); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(W / 2, H / 2 - 14); ctx.lineTo(W / 2, H / 2 + 14); ctx.stroke();
-  ctx.fillStyle = 'rgba(255, 220, 130, 0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255, 220, 130, 0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('+v (direction of motion)', W / 2 + 18, H / 2 + 4);
 
   // INSET: tiny polar diagnostic of rest-vs-observer angles for a
@@ -143,7 +144,7 @@ function render() {
   ctx.fillStyle = 'rgba(8, 12, 22, 0.85)'; ctx.fillRect(inX - 8, inY - 70, inR * 2 + 28, inR * 2 + 26);
   ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(inX + inR, inY, inR, 0, 6.2832); ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('polar diagnostic', inX, inY - 56);
   for (let i = 0; i < 12; i += 1) {
     const tr = 2 * Math.PI * i / 12;
@@ -159,7 +160,7 @@ function render() {
 
   // Legend / readout
   ctx.fillStyle = c.fg;
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('3D POV: stars stream forward as v/c grows', 12, 20);
   ctx.fillStyle = c.muted;
   ctx.fillText(`beta = ${beta.toExponential(2)}`, 12, 38);
@@ -217,4 +218,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

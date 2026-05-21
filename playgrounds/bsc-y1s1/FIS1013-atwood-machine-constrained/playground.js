@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Atwood machine. The point is the gravity-vs-tension interplay, so
 // the default pulley is ideal (massless): each block shows its weight
 // m g (down) and the rope tension T (up); the net (m1-m2)g is what
@@ -130,7 +131,7 @@ function drawBlock(bx, by, m, label, col) {
   const bs = blockSize(m);
   ctx.fillStyle = col; ctx.fillRect(bx - bs / 2, by, bs, bs);
   ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1.5; ctx.strokeRect(bx - bs / 2, by, bs, bs);
-  ctx.fillStyle = '#0b0b10'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#0b0b10'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(label, bx, by + bs / 2 + 4);
   return bs;
 }
@@ -168,7 +169,7 @@ function renderSingle() {
     const wLen = capDown(by, bs, m * G * 3.4), tLen = capUp(by, T * 3.4);
     arrow(bx, by + bs, 0, wLen, '#ef476f', 5);
     arrow(bx, by, 0, -tLen, '#06d6a0', 5);
-    ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillStyle = '#ef476f'; ctx.fillText(`mg=${(m * G).toFixed(0)}`, bx + bs / 2 + 6, by + bs + wLen / 2);
     ctx.fillStyle = '#06d6a0'; ctx.fillText(`T=${T.toFixed(0)}`, bx + bs / 2 + 6, by - tLen / 2);
   }
@@ -216,7 +217,7 @@ function renderDouble() {
     arrow(bx, by + bs, 0, capDown(by, bs, m * G * 2.6), '#ef476f', 4);
   }
   // Tension annotations in the clear lower-right band (below the HUD).
-  ctx.fillStyle = '#06d6a0'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`fixed-pulley rope:    T  = ${T.toFixed(1)} N`, 330, 400);
   ctx.fillText(`movable-pulley rope:  T₂ = ${T2.toFixed(1)} N`, 330, 422);
   ctx.fillStyle = '#9aa0a6';
@@ -239,7 +240,7 @@ function render() {
   for (let x = 24; x < HUD_SAFE_X - 34; x += 16) { ctx.beginPath(); ctx.moveTo(x, FLOOR_Y); ctx.lineTo(x - 8, FLOOR_Y + 9); ctx.lineTo(x + 2, FLOOR_Y); ctx.fill(); }
   if (mode === 'double') renderDouble(); else renderSingle();
   if (drag.active) {
-    ctx.fillStyle = 'rgba(255,209,102,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255,209,102,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('tugging the block; release to resume the dynamics', 24, H - 14);
   }
   // v(t) / a(t) trace (single only), in the clear lower band.
@@ -247,7 +248,7 @@ function render() {
     const px0 = 330, px1 = W - 24, pyt = 372, pyb = H - 26, midY = (pyt + pyb) / 2;
     ctx.fillStyle = '#0c0c14'; ctx.fillRect(px0 - 8, pyt - 22, px1 - px0 + 32, pyb - pyt + 40);
     ctx.strokeStyle = '#2a2a34'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px0, midY); ctx.lineTo(px1, midY); ctx.moveTo(px0, pyt); ctx.lineTo(px0, pyb); ctx.stroke();
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.fillText('v(t)  and  a(t)', px0, pyt - 7);
+    ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.fillText('v(t)  and  a(t)', px0, pyt - 7);
     const plot = (hist, sc, col) => {
       if (hist.length < 2) return;
       ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath();
@@ -368,3 +369,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

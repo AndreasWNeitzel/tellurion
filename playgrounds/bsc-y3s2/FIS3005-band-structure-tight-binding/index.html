@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tight-Binding Band Structure</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tight-Binding Band Structure</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
@@ -24,37 +25,84 @@
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>Tight-Binding Band Structure</h1>
-    <p>The simplest model of a solid: one orbital per site, an on-site energy, and a hopping amplitude $t$ to neighbours. Bloch's theorem turns it into a band $E(k)=\varepsilon_0-2t\cos ka$ for the 1D chain (width $4t$), the curvature at the bottom fixing the effective mass $m^*=\hbar^2/2ta^2$. Dimerize the chain (alternating $t_1,t_2$) and a gap $2|t_1-t_2|$ opens at the zone boundary, the SSH insulator. On the 2D square lattice $E=-2t(\cos k_xa+\cos k_ya)$ has a van Hove saddle and a Fermi surface that you can fill by dragging $E_F$. Source: Kittel, Introduction to Solid State Physics (8th ed.), Ch. 7-9 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 10 (`ashcroft-mermin`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="450" aria-label="Tight-binding dispersion E(k) with the filled states, density of states, and the 2D Fermi surface"></canvas>
-    <div class="readout-panel" id="readout" role="status" aria-live="polite">
-      <span class="label">lattice</span><span class="value" id="readout-lat">1D</span>
-      <span class="label">bandwidth</span><span class="value" id="readout-bw">0</span>
-      <span class="label">gap</span><span class="value" id="readout-gap">0</span>
-      <span class="label">E_F</span><span class="value" id="readout-ef">0</span>
-      <span class="label">filling</span><span class="value" id="readout-fill">0</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Tight-Binding Band Structure</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Tight-Binding Band Structure</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">The simplest model of a solid: one orbital per site, an on-site energy, and a hopping amplitude <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span></span> to neighbours. Bloch's theorem turns it into a band <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>ε</mi><mn>0</mn></msub><mo>−</mo><mn>2</mn><mi>t</mi><mi>cos</mi><mo>⁡</mo><mi>k</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">E(k)=\varepsilon_0-2t\cos ka</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0576em;">E</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7333em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal">ε</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord">2</span><span class="mord mathnormal">t</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">cos</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">ka</span></span></span></span></span> for the 1D chain (width <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>t</mi></mrow><annotation encoding="application/x-tex">4t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">4</span><span class="mord mathnormal">t</span></span></span></span></span>), the curvature at the bottom fixing the effective mass <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>m</mi><mo>∗</mo></msup><mo>=</mo><msup><mi mathvariant="normal">ℏ</mi><mn>2</mn></msup><mi mathvariant="normal">/</mi><mn>2</mn><mi>t</mi><msup><mi>a</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">m^*=\hbar^2/2ta^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6887em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6887em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord"><span class="mord">ℏ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord">/2</span><span class="mord mathnormal">t</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>. Dimerize the chain (alternating <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>t</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">t_1,t_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8095em; vertical-align: -0.1944em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>) and a gap <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi mathvariant="normal">∣</mi><msub><mi>t</mi><mn>1</mn></msub><mo>−</mo><msub><mi>t</mi><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">2|t_1-t_2|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">2∣</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mord">∣</span></span></span></span></span> opens at the zone boundary, the SSH insulator. On the 2D square lattice <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><mo>−</mo><mn>2</mn><mi>t</mi><mo stretchy="false">(</mo><mi>cos</mi><mo>⁡</mo><msub><mi>k</mi><mi>x</mi></msub><mi>a</mi><mo>+</mo><mi>cos</mi><mo>⁡</mo><msub><mi>k</mi><mi>y</mi></msub><mi>a</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">E=-2t(\cos k_xa+\cos k_ya)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.0576em;">E</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">−</span><span class="mord">2</span><span class="mord mathnormal">t</span><span class="mopen">(</span><span class="mop">cos</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0315em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1.0361em; vertical-align: -0.2861em;"></span><span class="mop">cos</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0315em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0359em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mord mathnormal">a</span><span class="mclose">)</span></span></span></span></span> has a van Hove saddle and a Fermi surface that you can fill by dragging <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mi>F</mi></msub></mrow><annotation encoding="application/x-tex">E_F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0576em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span class="" style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.1389em;">F</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. Source: Kittel, Introduction to Solid State Physics (8th ed.), Ch. 7-9 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 10 (`ashcroft-mermin`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="450" aria-label="Tight-binding dispersion E(k) with the filled states, density of states, and the 2D Fermi surface"></canvas>
     </div>
-    <figcaption>
-      Figure 1. Tight-binding dispersion with the filled states and density of states (1D / SSH), or the 2D band and Fermi surface.
-      <em>Method:</em> closed-form Bloch dispersion; SSH 2x2 Hamiltonian; 2D Fermi-surface contouring.
-      <em>Source:</em> Kittel, Introduction to Solid State Physics (8th ed.), Ch. 7-9 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 10 (`ashcroft-mermin`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. Tight-binding dispersion with the filled states and density of states (1D / SSH), or the 2D band and Fermi surface.
+      <em>Method:</em> closed-form Bloch dispersion; SSH 2x2 Hamiltonian; 2D Fermi-surface contouring.
+      <em>Source:</em> Kittel, Introduction to Solid State Physics (8th ed.), Ch. 7-9 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 10 (`ashcroft-mermin`).</figcaption>
+
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">lattice</span><select aria-label="lattice" id="select-lat" style="grid-column: span 2;"><option value="1d">1D chain</option><option value="ssh">dimerized (SSH)</option><option value="2d">2D square + Fermi surface</option></select></div>
     <div class="row"><span class="label">hopping t</span><input aria-label="hopping t" type="range" id="slider-t" min="0.2" max="2.0" step="0.05" value="1.0"><span class="value" id="value-t">1.00</span></div>
     <div class="row" id="row-dim"><span class="label">dimerization</span><input aria-label="dimerization t2/t1" type="range" id="slider-dim" min="0.1" max="2.0" step="0.05" value="0.5"><span class="value" id="value-dim">0.50</span></div>
     <div class="row"><span class="label">Fermi level E_F</span><input aria-label="Fermi level" type="range" id="slider-ef" min="-4.2" max="4.2" step="0.05" value="0"><span class="value" id="value-ef">0.00</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">lattice</span><span class="value" id="readout-lat">1D</span>
+      <span class="label">bandwidth</span><span class="value" id="readout-bw">0</span>
+      <span class="label">gap</span><span class="value" id="readout-gap">0</span>
+      <span class="label">E_F</span><span class="value" id="readout-ef">0</span>
+      <span class="label">filling</span><span class="value" id="readout-fill">0</span>
+    </div><span class="value" id="readout-lat">1D</span><span class="value" id="readout-bw">0</span><span class="value" id="readout-gap">0</span><span class="value" id="readout-ef">0</span><span class="value" id="readout-fill">0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

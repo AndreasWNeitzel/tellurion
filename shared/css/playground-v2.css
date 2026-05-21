@@ -85,6 +85,17 @@ body:has(.playground-layout) {
   line-height: 1.5;
 }
 
+/* Secondary (diagnostic) canvases sit below the caption, full width. */
+.playground-extra-canvases { margin-top: 16px; }
+.playground-extra-canvases canvas {
+  display: block;
+  width: 100%;
+  max-width: var(--col-center-max);
+  height: auto;
+  border-radius: var(--radius-md);
+  margin-top: 12px;
+}
+
 /* ---- CONTROLS ----------------------------------------------------------- */
 
 .playground-controls { margin-block: 32px; }

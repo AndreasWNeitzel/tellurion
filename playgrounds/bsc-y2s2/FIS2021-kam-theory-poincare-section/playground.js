@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // KAM / Chirikov standard map Poincare section (Canvas2D). A grid of
 // seed orbits iterated on the (theta, p) torus; below K_c they lie
 // on nested KAM curves, above it the chaotic sea spreads. sim.js is
@@ -37,7 +38,7 @@ function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   ctx.strokeStyle = 'rgba(150,160,180,0.55)'; ctx.lineWidth = 1.2;
   ctx.strokeRect(BX, BY, BW, BH);
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('theta  (0 .. 2 pi)', BX + BW / 2, H - 14);
   ctx.save(); ctx.translate(28, BY + BH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('p  (0 .. 2 pi)', 0, 0); ctx.restore();
 
@@ -97,4 +98,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

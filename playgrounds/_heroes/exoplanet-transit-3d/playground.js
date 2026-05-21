@@ -8,6 +8,7 @@ import { makeTransit, planetSkyPos, transitFlux, periodFromAxis } from './sim.js
 import { setupTransitGL } from '../../../shared/js/engine-gl/transit-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -180,10 +181,10 @@ function drawPlot() {
     const ph = ui.hoverPhase, hF = transitFlux(sim, ph * sim.period);
     const Xh = x0 + ph * (x1 - x0);
     pctx.strokeStyle = 'rgba(255,255,255,0.55)'; pctx.setLineDash([3, 3]); pctx.beginPath(); pctx.moveTo(Xh, y0); pctx.lineTo(Xh, y1); pctx.stroke(); pctx.setLineDash([]);
-    pctx.fillStyle = '#cdd1d6'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'left';
+    pctx.fillStyle = '#cdd1d6'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
     pctx.fillText(`phase ${ph.toFixed(2)}  flux ${hF.toFixed(5)}`, Xh + 6, y0 + 12);
   }
-  pctx.fillStyle = '#7a818c'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'left';
+  pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
   pctx.fillText('stellar flux vs orbital phase   (yellow = current; hover for value)', 8, 12);
   pctx.fillText('1.0000', 8, y0 + 4); pctx.fillText(fLo.toFixed(4), 8, y1);
 }
@@ -237,7 +238,7 @@ function drawTransmissionSpectrum() {
   tctx.moveTo(ax, ay); tctx.lineTo(ax, ay + ah); tctx.lineTo(ax + aw, ay + ah);
   tctx.stroke();
   tctx.fillStyle = 'rgba(255,255,255,0.65)';
-  tctx.font = '11px ui-monospace, monospace';
+  tctx.font = fontString(canvas, 'caption', 'mono');
   tctx.textAlign = 'left';
   tctx.fillText('transit depth (Rp_eff / Rs)^2', 8, ay - 4);
   tctx.textAlign = 'center';
@@ -302,7 +303,7 @@ function drawTransmissionSpectrum() {
   // Annotation strip.
   tctx.fillStyle = 'rgba(255,255,255,0.85)';
   tctx.textAlign = 'left';
-  tctx.font = '11px ui-monospace, monospace';
+  tctx.font = fontString(canvas, 'caption', 'mono');
   tctx.fillText(`atmosphere scale: H_atm = ${(H_atm).toFixed(3)} Rs    bands: Na D 589, K 770, H₂O 950 / 1380 / 1900 nm`, ax, ay + ah + 28);
 }
 
@@ -338,3 +339,27 @@ window.__cpuVsGpu = () => ({ skip: true, reason: 'GPU is render-only; transit ph
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

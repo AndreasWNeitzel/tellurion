@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Saha + Boltzmann as a grounded model: why A stars have the strongest
 // hydrogen lines. Left: the Saha ionization fraction, the Boltzmann
@@ -54,7 +55,7 @@ function drawCurves() {
     if (T < TMIN || T > TMAX) continue;
     const xx = xOf(T);
     ctx.beginPath(); ctx.moveTo(xx, y0 + 6); ctx.lineTo(xx, y0 + ph - 6); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(lab, xx, y0 + ph + 14);
   }
 
@@ -83,7 +84,7 @@ function drawCurves() {
   ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(xOf(st.T), y0 + 6); ctx.lineTo(xOf(st.T), y0 + ph - 6); ctx.stroke();
 
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = '#5bc0eb'; ctx.fillText('ionized fraction x (Saha)', x0 + 8, y0 + 16);
   ctx.fillStyle = '#f4a261'; ctx.fillText('n=2 population x50 (Boltzmann)', x0 + 8, y0 + 32);
   ctx.fillStyle = '#ffffff'; ctx.fillText('Balmer line strength = (1-x) f2', x0 + 8, y0 + 48);
@@ -128,7 +129,7 @@ function drawGas() {
       ctx.beginPath(); ctx.arc(px, py, 4, 0, 2 * Math.PI); ctx.fill();
     }
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('hydrogen gas at T', x0 + 8, y0 - 8);
   ctx.fillStyle = '#ef476f'; ctx.fillText(`ionized ${(100 * nIon / st.tokenR.length).toFixed(0)}%`, x0 + 8, y0 + bh + 16);
   ctx.fillStyle = '#ffd166'; ctx.fillText(`n=2 (Balmer) ${(100 * nExc / st.tokenR.length).toFixed(0)}%`, x0 + 130, y0 + bh + 16);
@@ -140,7 +141,7 @@ function render() {
   const nTot = Math.pow(10, st.logN);
   const x = ionizationFraction(st.T, nTot);
   const tion = ionizationTemp(nTot);
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`T = ${Math.round(st.T)} K   log n = ${st.logN.toFixed(2)}   x = ${x.toFixed(3)}   Balmer = ${balmerStrength(st.T, nTot).toExponential(2)}`, 24, 22);
   drawCurves();
   drawGas();
@@ -170,3 +171,27 @@ function bootSync() {
 }
 
 bootSync();
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

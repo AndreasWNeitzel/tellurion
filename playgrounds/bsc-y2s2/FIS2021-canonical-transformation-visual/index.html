@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Canonical Transformations</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canonical Transformations</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
@@ -24,37 +25,84 @@
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>Canonical Transformations</h1>
-    <p>A change of phase-space coordinates $(q,p)\to(Q,P)$ is canonical when it preserves the symplectic structure: the Poisson bracket $\{Q,P\}=\partial_qQ\,\partial_pP-\partial_pQ\,\partial_pP=1$, equivalently the Jacobian is unimodular, equivalently it preserves phase-space area (Liouville). The left panel is a blob of phase points; the right is its image under the chosen map. The harmonic scaling turns the energy ellipse into a circle; a rotation spins it; a squeeze stretches it thin but keeps the area; a deliberately non-canonical $p$-doubling balloons it to twice the area, with $\{Q,P\}=2$. A canonical map need not be a symmetry: the squeeze is canonical yet changes the Hamiltonian. Source: Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="430" aria-label="A phase-space blob and its image under a canonical transformation, with the Poisson bracket and area readouts"></canvas>
-    <div class="readout-panel" id="readout" role="status" aria-live="polite">
-      <span class="label">map</span><span class="value" id="readout-map">identity</span>
-      <span class="label">{Q,P}</span><span class="value" id="readout-pb">1.000</span>
-      <span class="label">area in</span><span class="value" id="readout-ai">0</span>
-      <span class="label">area out</span><span class="value" id="readout-ao">0</span>
-      <span class="label">ratio</span><span class="value" id="readout-r">1.000</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Canonical Transformations</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Canonical Transformations</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A change of phase-space coordinates <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>q</mi><mo separator="true">,</mo><mi>p</mi><mo stretchy="false">)</mo><mo>→</mo><mo stretchy="false">(</mo><mi>Q</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(q,p)\to(Q,P)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.1389em;">P</span><span class="mclose">)</span></span></span></span></span> is canonical when it preserves the symplectic structure: the Poisson bracket <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><mi>Q</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">}</mo><mo>=</mo><msub><mi mathvariant="normal">∂</mi><mi>q</mi></msub><mi>Q</mi> <msub><mi mathvariant="normal">∂</mi><mi>p</mi></msub><mi>P</mi><mo>−</mo><msub><mi mathvariant="normal">∂</mi><mi>p</mi></msub><mi>Q</mi> <msub><mi mathvariant="normal">∂</mi><mi>p</mi></msub><mi>P</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\{Q,P\}=\partial_qQ\,\partial_pP-\partial_pQ\,\partial_pP=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">{</span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.1389em;">P</span><span class="mclose">}</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.9805em; vertical-align: -0.2861em;"></span><span class="mord"><span class="mord" style="margin-right: 0.0556em;">∂</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0556em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mord mathnormal">Q</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord" style="margin-right: 0.0556em;">∂</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0556em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mord mathnormal" style="margin-right: 0.1389em;">P</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.9805em; vertical-align: -0.2861em;"></span><span class="mord"><span class="mord" style="margin-right: 0.0556em;">∂</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0556em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mord mathnormal">Q</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord" style="margin-right: 0.0556em;">∂</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0556em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mord mathnormal" style="margin-right: 0.1389em;">P</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>, equivalently the Jacobian is unimodular, equivalently it preserves phase-space area (Liouville). The left panel is a blob of phase points; the right is its image under the chosen map. The harmonic scaling turns the energy ellipse into a circle; a rotation spins it; a squeeze stretches it thin but keeps the area; a deliberately non-canonical <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span>-doubling balloons it to twice the area, with <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><mi>Q</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">}</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\{Q,P\}=2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">{</span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.1389em;">P</span><span class="mclose">}</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>. A canonical map need not be a symmetry: the squeeze is canonical yet changes the Hamiltonian. Source: Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="430" aria-label="A phase-space blob and its image under a canonical transformation, with the Poisson bracket and area readouts"></canvas>
     </div>
-    <figcaption>
-      Figure 1. A phase-space grid and blob (left) and their image under a canonical (or non-canonical) transformation morphed continuously from the identity (right), with the Poisson bracket and the area ratio.
-      <em>Method:</em> analytic Jacobian Poisson bracket; shoelace phase-area; symplectic M^T J M check; one-parameter morph from identity.
-      <em>Source:</em> Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. A phase-space grid and blob (left) and their image under a canonical (or non-canonical) transformation morphed continuously from the identity (right), with the Poisson bracket and the area ratio.
+      <em>Method:</em> analytic Jacobian Poisson bracket; shoelace phase-area; symplectic M^T J M check; one-parameter morph from identity.
+      <em>Source:</em> Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).</figcaption>
+
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">map</span><select aria-label="canonical map" id="select-map" style="grid-column: span 2;"><option value="hoScale">harmonic scaling (ellipse to circle)</option><option value="rotation">phase rotation</option><option value="squeeze">area-preserving squeeze</option><option value="point">point + momentum</option><option value="identity">identity</option><option value="pDouble">p-doubling (NOT canonical)</option></select></div>
     <div class="row"><span class="label">parameter</span><input aria-label="map parameter" type="range" id="slider-par" min="0.3" max="2.6" step="0.02" value="1.7"><span class="value" id="value-par">1.70</span></div>
     <div class="row"><span class="label">morph t</span><input aria-label="morph from identity to the full map" type="range" id="slider-t" min="0" max="1" step="0.01" value="1"><span class="value" id="value-t">1.00</span></div>
     <div class="row"><span class="label">energy E</span><input aria-label="ellipse energy" type="range" id="slider-e" min="0.3" max="2.0" step="0.05" value="1.0"><span class="value" id="value-e">1.00</span></div>
     <div class="row buttons" style="grid-template-columns: 1fr 1fr;"><button id="btn-play" type="button" aria-pressed="false">Play morph</button><button id="btn-reset" type="button">Reset</button></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">map</span><span class="value" id="readout-map">identity</span>
+      <span class="label">{Q,P}</span><span class="value" id="readout-pb">1.000</span>
+      <span class="label">area in</span><span class="value" id="readout-ai">0</span>
+      <span class="label">area out</span><span class="value" id="readout-ao">0</span>
+      <span class="label">ratio</span><span class="value" id="readout-r">1.000</span>
+    </div><span class="value" id="readout-map">identity</span><span class="value" id="readout-pb">1.000</span><span class="value" id="readout-ai">0</span><span class="value" id="readout-ao">0</span><span class="value" id="readout-r">1.000</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

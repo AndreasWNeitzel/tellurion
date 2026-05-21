@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jones Calculus: Polarization Through Elements</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jones Calculus: Polarization Through Elements</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
@@ -24,30 +25,40 @@
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>Jones Calculus: Polarization Through Elements</h1>
-    <p>A fully polarized beam is a Jones vector $(E_x,E_y)$ of complex amplitudes; every polarizer or wave plate is a $2\times2$ Jones matrix, and a stack of them is just the matrix product. The left panel traces the polarization ellipse the field draws in a plane; the right is the Poincare sphere, where every state is a point and each element rotates or projects it. A quarter-wave plate at $45^\circ$ to linear light turns it circular (a quarter turn on the sphere); a half-wave plate reflects linear polarization about its axis; a polarizer projects onto a diameter and dims the beam by Malus's law $\cos^2\Delta\theta$. Source: Hecht, Optics (5th ed.), Ch. 8 (`hecht2017`); Born and Wolf, Principles of Optics (7th ed.), Sec. 1.4 (`born-wolf`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="430" aria-label="Polarization ellipse and Poincare sphere for a Jones vector passed through a chain of optical elements"></canvas>
-    <div class="readout-panel" id="readout" role="status" aria-live="polite">
-      <span class="label">psi</span><span class="value" id="readout-psi">0</span>
-      <span class="label">chi</span><span class="value" id="readout-chi">0</span>
-      <span class="label">handed</span><span class="value" id="readout-hand">linear</span>
-      <span class="label">intensity</span><span class="value" id="readout-int">1.000</span>
-      <span class="label">DOP</span><span class="value" id="readout-dop">1.000</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Jones Calculus: Polarization Through Elements</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Jones Calculus: Polarization Through Elements</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A fully polarized beam is a Jones vector <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><msub><mi>E</mi><mi>x</mi></msub><mo separator="true">,</mo><msub><mi>E</mi><mi>y</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(E_x,E_y)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0361em; vertical-align: -0.2861em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0576em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0576em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0359em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span> of complex amplitudes; every polarizer or wave plate is a <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>×</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">2\times2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span> Jones matrix, and a stack of them is just the matrix product. The left panel traces the polarization ellipse the field draws in a plane; the right is the Poincare sphere, where every state is a point and each element rotates or projects it. A quarter-wave plate at <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><msup><mn>5</mn><mo>∘</mo></msup></mrow><annotation encoding="application/x-tex">45^\circ</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6741em;"></span><span class="mord">4</span><span class="mord"><span class="mord">5</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6741em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∘</span></span></span></span></span></span></span></span></span></span></span></span> to linear light turns it circular (a quarter turn on the sphere); a half-wave plate reflects linear polarization about its axis; a polarizer projects onto a diameter and dims the beam by Malus's law <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mi>cos</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mi mathvariant="normal">Δ</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\cos^2\Delta\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mop"><span class="mop">cos</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span></span></span></span></span>. Source: Hecht, Optics (5th ed.), Ch. 8 (`hecht2017`); Born and Wolf, Principles of Optics (7th ed.), Sec. 1.4 (`born-wolf`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="430" aria-label="Polarization ellipse and Poincare sphere for a Jones vector passed through a chain of optical elements"></canvas>
     </div>
-    <figcaption>
-      Figure 1. An optical bench (beam through each element with the polarization ellipse at every stage), the input-versus-output ellipse, and the stage-by-stage path on the Poincare sphere.
-      <em>Method:</em> 2x2 complex Jones matrices; Stokes vector and ellipse parameters at each stage.
-      <em>Source:</em> Hecht, Optics (5th ed.), Ch. 8 (`hecht2017`); Born and Wolf, Principles of Optics (7th ed.), Sec. 1.4 (`born-wolf`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. An optical bench (beam through each element with the polarization ellipse at every stage), the input-versus-output ellipse, and the stage-by-stage path on the Poincare sphere.
+      <em>Method:</em> 2x2 complex Jones matrices; Stokes vector and ellipse parameters at each stage.
+      <em>Source:</em> Hecht, Optics (5th ed.), Ch. 8 (`hecht2017`); Born and Wolf, Principles of Optics (7th ed.), Sec. 1.4 (`born-wolf`).</figcaption>
+
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">input</span><select aria-label="input polarization" id="select-input" style="grid-column: span 2;"><option value="lin">linear</option><option value="cr">circular right</option><option value="cl">circular left</option></select></div>
     <div class="row" id="row-ang"><span class="label">input angle</span><input aria-label="input linear angle degrees" type="range" id="slider-ang" min="0" max="90" step="1" value="0"><span class="value" id="value-ang">0</span></div>
     <div class="row"><span class="label">element 1</span><select aria-label="element 1" id="select-e1" style="grid-column: span 2;"><option value="qwp">quarter-wave</option><option value="hwp">half-wave</option><option value="pol">polarizer</option><option value="none">none</option></select></div>
@@ -55,7 +66,44 @@
     <div class="row"><span class="label">element 2</span><select aria-label="element 2" id="select-e2" style="grid-column: span 2;"><option value="none">none</option><option value="pol">polarizer (0 deg)</option><option value="qwp">quarter-wave (0 deg)</option><option value="hwp">half-wave (0 deg)</option></select></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">psi</span><span class="value" id="readout-psi">0</span>
+      <span class="label">chi</span><span class="value" id="readout-chi">0</span>
+      <span class="label">handed</span><span class="value" id="readout-hand">linear</span>
+      <span class="label">intensity</span><span class="value" id="readout-int">1.000</span>
+      <span class="label">DOP</span><span class="value" id="readout-dop">1.000</span>
+    </div><span class="value" id="readout-psi">0</span><span class="value" id="readout-chi">0</span><span class="value" id="readout-hand">linear</span><span class="value" id="readout-int">1.000</span><span class="value" id="readout-dop">1.000</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

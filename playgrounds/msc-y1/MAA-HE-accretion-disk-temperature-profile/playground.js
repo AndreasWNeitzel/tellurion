@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Accretion-disc T(r) profile and face-on color rendering.
 
@@ -302,7 +303,7 @@ function drawDisc() {
 // Multicolour-blackbody SED view: F_nu vs nu on log-log axes, with
 // the characteristic nu^(1/3) middle slope marked.
 function drawSED() {
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText('disc-integrated SED  F_ν = ∫ 2πr B_ν(T(r)) dr', 30, 22);
@@ -340,7 +341,7 @@ function drawSED() {
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 209, 102, 0.8)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('F_ν ∝ ν^(1/3)', xN(nB) + 4, yF(fRef) - 6);
   // SED curve.
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.4;
@@ -352,7 +353,7 @@ function drawSED() {
   ctx.stroke();
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   for (let l = Math.ceil(lnuLo); l <= lnuHi; l += 1) ctx.fillText(`10^${l}`, xN(Math.pow(10, l)), padT + drawH + 14);
   ctx.fillText('frequency ν  (T_in units)', padL + drawW / 2, padT + drawH + 30);
@@ -429,4 +430,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Ideal quantum gas statistics visualizer (Canvas2D). The mean
 // occupation n(eps) for Maxwell-Boltzmann, Fermi-Dirac and
 // Bose-Einstein at a shared temperature, each at its own chemical
@@ -92,14 +93,14 @@ function drawCells(tau) {
     }
   }
 
-  ctx.font = 'bold 12px ui-monospace, monospace'; ctx.fillStyle = COL.axis; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.fillStyle = COL.axis; ctx.textAlign = 'center';
   ctx.fillText('occupation cells', (XC0 + XC1) / 2, 18);
-  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = 'rgba(150,160,180,0.62)';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = 'rgba(150,160,180,0.62)';
   ctx.fillText('row eps_k, dot = particle', (XC0 + XC1) / 2, PY1 + 44);
 
   stats.forEach((s, ci) => {
     const cx0 = XC0 + ci * colW;
-    ctx.fillStyle = COL[s]; ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = COL[s]; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'center';
     ctx.fillText(s, cx0 + colW / 2, PY0 - 6);
     for (let k = 0; k < CELL_LV; k += 1) {
       const y = PY1 - (k / (CELL_LV - 1)) * (PY1 - PY0);
@@ -121,7 +122,7 @@ function drawCells(tau) {
     // Bose condensate: the macroscopic ground-state pile, as a bar
     if (s === 'BE' && tau < TC) {
       const cf = condensateFraction(tau);
-      ctx.fillStyle = COL.BE; ctx.font = 'bold 10px ui-monospace, monospace'; ctx.textAlign = 'center';
+      ctx.fillStyle = COL.BE; ctx.font = fontString(canvas, 'tick', 'mono', 600); ctx.textAlign = 'center';
       ctx.fillText('BEC ground', cx0 + colW / 2, PY1 + 18);
       ctx.fillRect(cx0 + 4, PY1 + 24, (colW - 10) * cf, 9);
       ctx.strokeStyle = COL.axis; ctx.lineWidth = 1; ctx.strokeRect(cx0 + 4, PY1 + 24, colW - 10, 9);
@@ -149,7 +150,7 @@ function render() {
   // axes
   ctx.strokeStyle = COL.axis; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
-  ctx.fillStyle = COL.axis; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = COL.axis; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('energy  eps', (PX0 + PX1) / 2, H - 16);
   ctx.save(); ctx.translate(22, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText(st.occupied ? 'occupied  g(eps) n(eps)' : 'occupation  n(eps)', 0, 0); ctx.restore();
@@ -168,7 +169,7 @@ function render() {
     ctx.fillRect(X - 0.5, PY1, 1, 6);
     ctx.beginPath(); ctx.arc(X, PY1 + 12, 2, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(150,160,180,0.6)';
   ctx.fillText('ticks = the cell levels eps_k', PX0 + 4, PY1 + 22);
 
@@ -196,12 +197,12 @@ function render() {
     ctx.strokeStyle = COL.BE; ctx.fillStyle = COL.BE; ctx.lineWidth = 7;
     const yTop = PY1 - cf * (PY1 - PY0);
     ctx.beginPath(); ctx.moveTo(xOf(0) + 4, PY1); ctx.lineTo(xOf(0) + 4, yTop); ctx.stroke();
-    ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
     ctx.fillText(`BEC  N0/N=${cf.toFixed(2)}`, xOf(0) + 12, yTop + 4);
   }
 
   // legend (colored swatch + label)
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   let ly = PY0 + 2;
   for (const [s, lab] of [['MB', 'Maxwell-Boltzmann'], ['FD', 'Fermi-Dirac'], ['BE', 'Bose-Einstein']]) {
     if (st.stat !== 'all' && st.stat !== s) continue;
@@ -262,4 +263,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // Fabry-Perot etalon spectrometer (Canvas2D). Transmitted intensity
 // of the sodium doublet as the plate spacing is scanned: the Airy
 // comb of each line and their sum. Raising the reflectance sharpens
@@ -41,12 +42,12 @@ function drawEtalon(R) {
   ctx.strokeStyle = 'rgba(150,160,180,0.9)'; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.moveTo(x0, yIn - span / 2); ctx.lineTo(x0, yIn + span / 2);
   ctx.moveTo(x1, yIn - span / 2); ctx.lineTo(x1, yIn + span / 2); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('partial mirrors  R', (x0 + x1) / 2, yIn - span / 2 - 8);
   // incident beam
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.4;
   ctx.beginPath(); ctx.moveTo(x0 - 32, yIn - 24); ctx.lineTo(x0, yIn - 14); ctx.stroke();
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('in', x0 - 30, yIn - 30);
   // the zig-zag inside and the transmitted partial beams out the right
   const nB = Math.max(2, Math.min(16, Math.ceil(Math.log(0.015) / Math.log(Math.max(0.06, R)))));
@@ -66,7 +67,7 @@ function drawEtalon(R) {
     yhit = yNext + 16; amp *= R;
     if (yhit > yIn + span / 2 - 6) break;
   }
-  ctx.fillStyle = 'rgba(239,71,111,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(239,71,111,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('transmitted', x1 + 6, yIn + span / 2 + 14);
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'left';
   ctx.fillText(`${nB} beams interfere (> 1.5%)`, 40, yIn + span / 2 + 14);
@@ -98,7 +99,7 @@ function drawRings(R, d0, lam) {
   ctx.putImageData(img, cx - rad, cy - rad);
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.78)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.78)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('ring fringes (eyepiece view)', cx, cy + rad + 15);
   ctx.fillText('sharpen as R rises', cx, cy + rad + 28);
 }
@@ -118,7 +119,7 @@ function render() {
   // axes
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('plate spacing  d  (scanned, micrometres)', (PX0 + PX1) / 2, H - 16);
   ctx.save(); ctx.translate(22, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('transmittance  T', 0, 0); ctx.restore();
@@ -154,7 +155,7 @@ function render() {
   drawCurve(lam2, '#5bc0eb', 2);
 
   // legend (top-left inside the plot, clear of the ring panel)
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = '#ef476f'; ctx.fillText('D2 588.995 nm', PX0 + 12, PY0 + 16);
   ctx.fillStyle = '#5bc0eb'; ctx.fillText(`line 2 (+${st.dl.toFixed(2)} nm)`, PX0 + 12, PY0 + 33);
   ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillText('sum / 2', PX0 + 12, PY0 + 50);
@@ -199,4 +200,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); }, { once: true });
 } else {
   bootSync();
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }
