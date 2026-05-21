@@ -362,6 +362,24 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The Hawking temperature is inversely proportional to the black
+// hole mass, T = hbar c^3 / (8 pi G k M), so the product T*M is a
+// universal constant: comparing it at M and 2M is the invariant.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const M = currentMass_kg();
+      if (!(M > 0)) return [];
+      const p1 = hawkingTemperature_K(M) * M;
+      const p2 = hawkingTemperature_K(2 * M) * (2 * M);
+      if (!(p1 > 0)) return [];
+      const dev = Math.abs(p1 - p2) / p1;
+      return [{
+        key: 'hawking-scaling',
+        label: 'Hawking temperature scales as 1/M',
+        value: dev.toExponential(2),
+        status: dev < 1e-6 ? 'pass' : (dev < 1e-3 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
