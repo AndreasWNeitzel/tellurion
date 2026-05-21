@@ -156,11 +156,11 @@ function drawOverviewMode() {
   const rNow = circumferentialR(st.lCam * st.b0, st.b0);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText(`Ellis throat: b_0 = ${st.b0.toFixed(2)}, camera at l / b_0 = ${st.lCam.toFixed(2)}`, 14, H - 50);
+  ctx.fillText(`Ellis throat: b₀ = ${st.b0.toFixed(2)}, camera at l / b₀ = ${st.lCam.toFixed(2)}`, 14, H - 50);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('Photons with impact parameter |L/E| < b_0 pass through to the other universe.', 14, H - 32);
-  ctx.fillText(`Circumferential radius r(l) = sqrt(b_0^2 + l^2) = ${rNow.toFixed(2)}.`, 14, H - 14);
+  ctx.fillText('Photons with impact parameter |L/E| < b₀ pass through to the other universe.', 14, H - 32);
+  ctx.fillText(`Circumferential radius r(l) = √(b₀² + l²) = ${rNow.toFixed(2)}.`, 14, H - 14);
 }
 
 // =========================================================================
@@ -193,7 +193,7 @@ function drawTraversalMode() {
   // Strip.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText(`Camera traversing the wormhole: l(t) = ${lCam.toFixed(2)} b_0`, 14, H - 80);
+  ctx.fillText(`Camera traversing the wormhole: l(t) = ${lCam.toFixed(2)} b₀`, 14, H - 80);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption');
   ctx.fillText('No event horizon, no singularity. The two skies smoothly exchange in the field of view.', 14, H - 14);
@@ -206,9 +206,9 @@ function drawTraversalMode() {
 
 // Geodesic test particles on the embedding surface. Each carries a
 // conserved Clairaut constant h = r^2 dphi/ds; the unit-speed
-// constraint gives (dl/ds)^2 = 1 - h^2/r^2. A particle with h < b_0
-// slides through the throat (r >= b_0 > h everywhere) into the other
-// universe; one with h > b_0 reaches a turning point at r = h and
+// constraint gives (dl/ds)^2 = 1 - h^2/r^2. A particle with h < b₀
+// slides through the throat (r >= b₀ > h everywhere) into the other
+// universe; one with h > b₀ reaches a turning point at r = h and
 // bounces back without crossing.
 function spawnGeodesic(side) {
   const rng = st.gRng;
@@ -353,16 +353,16 @@ function drawEmbeddingMode(cam) {
   // Captions.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText(`Flamm embedding: r(l) = sqrt(b_0^2 + l^2), z(l) = b_0 asinh(l/b_0)`, 14, 52);
+  ctx.fillText(`Flamm embedding: r(l) = √(b₀² + l²), z(l) = b₀·arsinh(l/b₀)`, 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Two-funnel paraboloid; the throat (yellow ring) is the narrowest waist at l = 0.', 14, 70);
   ctx.fillText(`Universe A is l > 0 (upper funnel); Universe B is l < 0 (lower funnel).`, 14, 88);
-  ctx.fillText('Geodesic particles: cyan (h < b_0) cross the throat, orange (h > b_0) bounce back.', 14, 106);
+  ctx.fillText('Geodesic particles: cyan (h < b₀) cross the throat, orange (h > b₀) bounce back.', 14, 106);
 }
 
 // =========================================================================
-// MODE: EXOTIC. Density rho(l), running ANEC, tidal scale, all on one
+// MODE: EXOTIC. Density ρ(l), running ANEC, tidal scale, all on one
 // composite plot.
 // =========================================================================
 function drawExoticMode() {
@@ -373,8 +373,8 @@ function drawExoticMode() {
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('exotic matter density rho(l), running ANEC, and tidal scale', px + 8, py - 6);
-  // Axes: l in [-4, 4] (units of b_0).
+  ctx.fillText('exotic matter density ρ(l), running ANEC, and tidal scale', px + 8, py - 6);
+  // Axes: l in [-4, 4] (units of b₀).
   const L_MIN = -4, L_MAX = 4;
   function xForL(l) { return px + 40 + (l - L_MIN) / (L_MAX - L_MIN) * (pw - 60); }
   // y axes: rho in [-rho_throat, 0], ANEC in [I_min, 0], tidal in [0, tidal_max].
@@ -404,7 +404,7 @@ function drawExoticMode() {
   const fTidal = fitter(tidalArr);
   // Three sub-strips.
   const strips = [
-    { label: 'rho(l) (units of 1/(8 pi G b_0^2))', color: 'rgba(255, 130, 110, 0.95)', data: rhoArr, fit: fRho, y0: py + 36, height: ph * 0.28 },
+    { label: 'ρ(l) (units of 1/(8 pi G b₀^2))', color: 'rgba(255, 130, 110, 0.95)', data: rhoArr, fit: fRho, y0: py + 36, height: ph * 0.28 },
     { label: 'running ANEC integral (always negative)', color: 'rgba(120, 220, 200, 0.95)', data: anecArr, fit: fAnec, y0: py + 36 + ph * 0.32, height: ph * 0.28 },
     { label: 'tidal scale 1/r(l)^2 (felt by traveller)', color: 'rgba(255, 230, 120, 0.95)', data: tidalArr, fit: fTidal, y0: py + 36 + ph * 0.64, height: ph * 0.28 },
   ];
@@ -443,11 +443,11 @@ function drawExoticMode() {
   // X-axis label.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('l / b_0', px + pw - 40, py + ph - 8);
+  ctx.fillText('l / b₀', px + pw - 40, py + ph - 8);
   // Caption.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('Morris-Thorne 1988: rho < 0 at the throat; ANEC violated. Real matter cannot do this.', px + 8, py + ph + 18);
+  ctx.fillText('Morris-Thorne 1988: ρ < 0 at the throat; ANEC violated. Real matter cannot do this.', px + 8, py + ph + 18);
 }
 
 // =========================================================================
@@ -473,10 +473,10 @@ function drawSidePanel() {
     yy += 30;
   };
   const l_m = st.lCam * st.b0;
-  row('throat b_0', st.b0.toFixed(2));
-  row('l / b_0', st.lCam.toFixed(2));
-  row('r(l) / b_0', (circumferentialR(l_m, st.b0) / st.b0).toFixed(3));
-  row('z(l) / b_0', (embedZ(l_m, st.b0) / st.b0).toFixed(3));
+  row('throat b₀', st.b0.toFixed(2));
+  row('l / b₀', st.lCam.toFixed(2));
+  row('r(l) / b₀', (circumferentialR(l_m, st.b0) / st.b0).toFixed(3));
+  row('z(l) / b₀', (embedZ(l_m, st.b0) / st.b0).toFixed(3));
   row('tidal 1/r^2', (1 / Math.pow(circumferentialR(l_m, st.b0), 2)).toExponential(2));
   const rhoSI = exoticEnergyDensity_SI(st.b0);
   row('rho_throat (J/m^3)', rhoSI.toExponential(2), '#ff908a');
