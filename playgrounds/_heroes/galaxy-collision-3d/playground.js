@@ -241,6 +241,9 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// No invariant is registered: the Barnes-Hut force is an
+// approximation, so it does not hold energy, momentum, or angular
+// momentum tightly enough to report a meaningful conservation check.
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () { return []; };
 }

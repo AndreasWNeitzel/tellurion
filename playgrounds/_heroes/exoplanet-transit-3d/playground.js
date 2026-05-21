@@ -262,7 +262,11 @@ function tick(now) {
   // The camera elevation is the observer's vantage point: the orbital
   // inclination and the light curve follow from it. Dragging the
   // camera retilts the system and re-solves the transit.
-  const incCam = Math.max(0.02, Math.min(Math.PI / 2, (90 - camera.state.elevationDeg) * Math.PI / 180));
+  // Use |elevation|: a camera below the orbital plane is the same
+  // inclination as one the same angle above it. Without the abs,
+  // negative elevations gave inc > 90 deg, clamped to a central
+  // transit, so the light curve dipped while the 3D view showed none.
+  const incCam = Math.max(0.02, Math.min(Math.PI / 2, (90 - Math.abs(camera.state.elevationDeg)) * Math.PI / 180));
   if (Math.abs(incCam - ui.inc) > 5e-4) {
     ui.inc = incCam;
     resolve();
