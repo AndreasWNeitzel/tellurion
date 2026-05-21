@@ -181,25 +181,41 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the packet energy, barrier height, and the transmitted /
+// reflected probability split from the time-dependent solution.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const { T, R } = fluxSplit(sim);
+  return {
+    fields: [
+      { key: 'energy', label: 'packet energy E', value: 0.5 * ui.k0 * ui.k0, format: 'float' },
+      { key: 'barrier', label: 'barrier height V0', value: ui.V0, format: 'float' },
+      { key: 'transmitted', label: 'transmitted |T|^2', value: T, format: 'float' },
+      { key: 'reflected', label: 'reflected |R|^2', value: R, format: 'float' },
+      { key: 'norm', label: 'wavefunction norm', value: norm(sim), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const { T, R } = fluxSplit(sim);
+  const n = norm(sim);
+  return [
+    {
+      // The split-step propagator is unitary: the total probability
+      // integral stays at 1.
+      key: 'unitarity',
+      label: 'wavefunction norm = 1',
+      value: n.toFixed(4),
+      status: Math.abs(n - 1) < 0.01 ? 'pass' : 'drift',
+    },
+    {
+      // No probability is lost at the barrier: transmitted plus
+      // reflected flux sums to the incident flux.
+      key: 'flux-conservation',
+      label: 'transmitted + reflected = 1',
+      value: (T + R).toFixed(3),
+      status: Math.abs(T + R - 1) < 0.03 ? 'pass' : 'pending',
+    },
+  ];
+};
