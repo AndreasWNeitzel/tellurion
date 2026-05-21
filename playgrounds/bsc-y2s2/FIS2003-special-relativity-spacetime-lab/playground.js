@@ -9,7 +9,7 @@
 //
 // Reference: Taylor and Wheeler, Spacetime Physics (2nd ed.), Ch. 3, 4.
 
-import { gamma, contractedLength, twinTrip, boost, dopplerFactor } from './sim.js';
+import { gamma, contractedLength, twinTrip, boost } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -54,9 +54,8 @@ function trainState() {
 // Layout (1200x680 canvas).
 const SX = 30, SY = 50, SW = 1140, SH = 220;        // top: rod-train track + ghost
 const CX_L = 100, CX_R = 320, CKY = 320, CKR = 42;  // twin clocks band
-const KPX = 460, KPY = 290, KPW = 420, KPH = 110;   // contraction graphic
+const KPX = 30, KPY = 470, KPW = 840, KPH = 170;    // contraction graphic
 const PMX = 900, PMY = 290, PMW = 270, PMH = 350;   // Minkowski panel
-const PX = 30, PY = 480, PW = 850, PH = 160;        // educational annotation area
 
 function clockFace(cx, cy, r, frac, label, col, accent) {
   ctx.save();
@@ -93,7 +92,7 @@ function render() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(SX, SY, SW, SH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(SX, SY, SW, SH);
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('the rod is the same OBJECT; the dashed ghost is its rest length, the solid is what the lab measures', SX + 14, SY + 20);
+  ctx.fillText('dashed = rest length L0    solid = lab-measured length', SX + 14, SY + 20);
 
   const trackY = SY + 130;
   const x0 = SX + 60, xPerL = (SW - 120) / Math.max(1, st.L);
@@ -197,16 +196,34 @@ function render() {
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('Minkowski diagram (x right, ct up)', PMX + PMW / 2, PMY + 18);
   const oy = PMY + PMH - 20, ox = PMX + PMW / 2;
-  const sc = Math.min((PMW * 0.42) / Math.max(1, st.L), (PMH - 60) / (2 * Math.max(1, st.L)));
+  const sc = Math.min((PMW * 0.42) / Math.max(1, st.L), (PMH - 44) / Math.max(1, ts.tp.home));
   const mxf = (x) => ox + x * sc, mtf = (t) => oy - t * sc;
   ctx.strokeStyle = 'rgba(255,210,90,0.65)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
   ctx.beginPath(); ctx.moveTo(mxf(-st.L), mtf(st.L)); ctx.lineTo(mxf(st.L), mtf(-st.L)); ctx.moveTo(mxf(st.L), mtf(st.L)); ctx.lineTo(mxf(-st.L), mtf(-st.L)); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255,210,90,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('light cone (v = c)', mxf(st.L * 0.5), mtf(st.L * 0.55));
-  ctx.strokeStyle = '#ffcf5d'; ctx.lineWidth = 2.4;
-  ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0)); ctx.lineTo(mxf(0), mtf(2 * st.L)); ctx.stroke();
-  ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 2.4;
-  ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0)); ctx.lineTo(mxf(st.L), mtf(st.L / st.beta)); ctx.lineTo(mxf(0), mtf(2 * st.L / st.beta)); ctx.stroke();
+  // Worldlines grow with the trip so both twins' histories are seen
+  // evolving. Faint guides show the full round trip; the bright
+  // segments trace only up to the current home-frame time.
+  const tFull = ts.tp.home, tTurn = tFull / 2, tNow = ts.homeNow;
+  const travX = (t) => (t <= tTurn ? st.beta * t : st.beta * (tFull - t));
+  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = 'rgba(255,207,93,0.28)';
+  ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0)); ctx.lineTo(mxf(0), mtf(tFull)); ctx.stroke();
+  ctx.strokeStyle = 'rgba(127,214,255,0.28)';
+  ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0)); ctx.lineTo(mxf(st.beta * tTurn), mtf(tTurn)); ctx.lineTo(mxf(0), mtf(tFull)); ctx.stroke();
+  ctx.lineWidth = 2.6;
+  ctx.strokeStyle = '#ffcf5d';
+  ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0)); ctx.lineTo(mxf(0), mtf(tNow)); ctx.stroke();
+  ctx.strokeStyle = '#7fd6ff';
+  ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0));
+  if (tNow <= tTurn) {
+    ctx.lineTo(mxf(travX(tNow)), mtf(tNow));
+  } else {
+    ctx.lineTo(mxf(st.beta * tTurn), mtf(tTurn));
+    ctx.lineTo(mxf(travX(tNow)), mtf(tNow));
+  }
+  ctx.stroke();
   ctx.lineWidth = 1;
   if (st.showGrid) {
     ctx.strokeStyle = 'rgba(180,140,255,0.55)'; ctx.lineWidth = 1.0; ctx.setLineDash([3, 3]);
@@ -232,21 +249,6 @@ function render() {
   ctx.fillText('yellow: home twin', PMX + 12, PMY + PMH - 50);
   ctx.fillStyle = '#7fd6ff';
   ctx.fillText('cyan: traveller twin', PMX + 12, PMY + PMH - 38);
-
-  // Educational annotation panel
-  ctx.fillStyle = '#0a0c12'; ctx.fillRect(PX, PY, PW, PH);
-  ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#e8ecf4'; ctx.font = fontString(canvas, 'body', 'mono', 600);
-  ctx.fillText('What you are watching', PX + 14, PY + 20);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  const lines = [
-    'The rod is a single object. Its rest length L0 (dashed) is what an observer co-moving with it would measure.',
-    'In the lab frame the rod moves at v/c = beta and is measured shorter by 1/gamma = sqrt(1 minus beta^2).',
-    'The travelling twin returns younger: he ages L0/(gamma beta) less per leg than the home twin.',
-    'The Minkowski diagram is the same trip in spacetime: vertical = home worldline, tilted = traveller.',
-    `Doppler tint: photons from the rod blue-shift on approach (factor ${dopplerFactor(st.beta, ts.ph >= 0.5).toFixed(2)}) and red-shift on recession.`,
-  ];
-  for (let i = 0; i < lines.length; i += 1) ctx.fillText(lines[i], PX + 14, PY + 42 + i * 17);
 
   rEls['beta'].textContent = st.beta.toFixed(3);
   rEls['gamma'].textContent = g.toFixed(3);
