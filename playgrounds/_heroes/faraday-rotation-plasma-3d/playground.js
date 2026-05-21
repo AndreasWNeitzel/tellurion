@@ -378,6 +378,25 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Faraday rotation grows as the square of the wavelength,
+// delta-chi = RM * lambda^2, so doubling the wavelength quadruples
+// the rotation angle. That lambda^2 scaling is the invariant.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const RM = currentRM();
+      const lam = lambda_m();
+      const a1 = rotationAngle(RM, lam);
+      const a2 = rotationAngle(RM, 2 * lam);
+      if (!(Math.abs(a1) > 1e-30)) return [];
+      const ratio = a2 / a1;
+      const dev = Math.abs(ratio - 4) / 4;
+      return [{
+        key: 'lambda-squared',
+        label: 'rotation scales as lambda^2 (ratio at 2x)',
+        value: ratio.toFixed(4),
+        status: dev < 1e-6 ? 'pass' : (dev < 1e-3 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
