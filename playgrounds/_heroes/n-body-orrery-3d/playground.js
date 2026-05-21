@@ -21,7 +21,6 @@ const rDE = document.getElementById('readout-de');
 const rSep = document.getElementById('readout-sep');
 const sDt = document.getElementById('slider-dt'), vDt = document.getElementById('value-dt');
 const sSub = document.getElementById('slider-sub'), vSub = document.getElementById('value-sub');
-const sTilt = document.getElementById('slider-tilt'), vTilt = document.getElementById('value-tilt');
 const tGhosts = document.getElementById('toggle-ghosts');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
@@ -188,16 +187,14 @@ function tick() {
 function syncLabels() {
   vDt.textContent = st.dt.toFixed(3);
   vSub.textContent = String(st.sub);
-  vTilt.textContent = st.tiltX.toFixed(2);
 }
 
 sDt.addEventListener('input', () => { st.dt = parseFloat(sDt.value); syncLabels(); });
 sSub.addEventListener('input', () => { st.sub = parseInt(sSub.value, 10); syncLabels(); });
-sTilt.addEventListener('input', () => { st.tiltX = parseFloat(sTilt.value); syncLabels(); });
 tGhosts.addEventListener('change', () => { st.showGhosts = tGhosts.checked; });
 btnReset.addEventListener('click', () => {
   st.dt = 0.006; st.sub = 6; st.tiltX = 0.55; st.az = 0.6; st.running = true; st.showGhosts = true;
-  sDt.value = '0.006'; sSub.value = '6'; sTilt.value = '0.55'; tGhosts.checked = true;
+  sDt.value = '0.006'; sSub.value = '6'; tGhosts.checked = true;
   btnPause.textContent = 'Pause'; btnPause.setAttribute('aria-pressed', 'false');
   syncLabels(); reseed();
 });
@@ -207,16 +204,19 @@ btnPause.addEventListener('click', () => {
   btnPause.setAttribute('aria-pressed', String(!st.running));
 });
 
-// Drag to orbit (azimuth).
-let dragging = false;
-let lastX = 0;
-canvas.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; });
-window.addEventListener('mouseup', () => { dragging = false; });
-window.addEventListener('mousemove', (e) => {
+// Camera is fully drag-controlled: horizontal drag orbits (azimuth),
+// vertical drag tilts. A slider for a 3D view reads as broken.
+let dragging = false, lastX = 0, lastY = 0;
+canvas.addEventListener('pointerdown', (e) => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  canvas.setPointerCapture?.(e.pointerId);
+});
+window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointermove', (e) => {
   if (!dragging) return;
-  const dx = e.clientX - lastX;
-  st.az += dx * 0.005;
-  lastX = e.clientX;
+  st.az += (e.clientX - lastX) * 0.005;
+  st.tiltX = Math.max(0.05, Math.min(1.45, st.tiltX + (e.clientY - lastY) * 0.005));
+  lastX = e.clientX; lastY = e.clientY;
 });
 
 function getState() { return { seed: 0xC0FFEE, ghost_visible: st.showGhosts ? 1 : 0 }; }
