@@ -314,6 +314,27 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Linear Rayleigh-Taylor theory assumes an incompressible flow, so
+// the linear-mode velocity field must be divergence-free; the
+// sampled numerical divergence is the invariant.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const h = 1e-3, k = st.k, amp = st.amplitude;
+      let maxDiv = 0;
+      for (let i = 0; i < 24; i += 1) {
+        const x = ((i * 0.6180339) % 1) * BOX_X * Math.PI;
+        const y = (((i * 0.3819660) % 1) * 2 - 1) * BOX_Y_HALF * 0.9;
+        const div = (linearVelocity(x + h, y, k, amp).u - linearVelocity(x - h, y, k, amp).u) / (2 * h)
+          + (linearVelocity(x, y + h, k, amp).v - linearVelocity(x, y - h, k, amp).v) / (2 * h);
+        if (Math.abs(div) > maxDiv) maxDiv = Math.abs(div);
+      }
+      return [{
+        key: 'incompressible',
+        label: 'linear-mode velocity is incompressible',
+        value: maxDiv.toExponential(2),
+        status: maxDiv < 1e-3 ? 'pass' : (maxDiv < 1e-1 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
