@@ -26,6 +26,7 @@ body:has(.playground-layout) {
   max-width: calc(var(--col-center-max) + var(--col-rail-gap) + var(--col-rail-width));
   margin: 0 auto;
   padding: 88px 24px 64px;
+  position: relative;          /* anchor for the focus-mode absolute rail */
 }
 
 .playground-center { grid-column: center; min-width: 0; }
@@ -231,7 +232,22 @@ body:has(.playground-layout) {
   grid-template-columns: minmax(0, var(--col-focus-max));
   max-width: var(--col-focus-max);
 }
+/* The named grid lines [center]/[rail] disappear when focus mode
+   rewrites grid-template-columns, so the center column must be
+   re-pinned to the sole track and allowed to take the focus width. */
+.playground-layout[data-focus="true"] .playground-center {
+  grid-column: 1 / -1;
+  max-width: var(--col-focus-max);
+}
+/* In focus mode the rail leaves the grid flow (position absolute) so
+   the single center column can take the full focus width. A
+   translated-but-still-in-flow rail kept a phantom grid column that
+   squeezed and right-shifted the canvas. */
 .playground-layout[data-focus="true"] .playground-rail {
+  position: absolute;
+  top: var(--rail-sticky-top);
+  right: 0;
+  width: var(--col-rail-width);
   transform: translateX(calc(100% + var(--col-rail-gap)));
   opacity: 0;
   transition: transform var(--t-focus), opacity var(--t-focus);
