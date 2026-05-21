@@ -73,6 +73,7 @@ for (const path of walk('playgrounds')) {
     primary_uc: fm.primary_uc || '', curriculum_year: fm.curriculum_year || '',
     tags, level: cur.level, badge: cur.badge, order: cur.order, group: cur.group,
     hero_candidate: fm.hero_candidate === 'true',
+    tier: fm.tier || '',
   });
 }
 cards.sort((a, b) => a.title.localeCompare(b.title));
@@ -132,7 +133,7 @@ for (const c of cards) {
 
 function cardHTML(c, featured = false) {
   const thumb = c.thumb ? `assets/thumbs/${c.thumb}` : '';
-  const star = featured ? '<span class="cstar">&#9733;</span>' : '';
+  const star = c.tier === 'hero' ? '<span class="cstar" aria-label="hero-tier">&#9733;</span>' : '';
   return `
   <a class="card${featured ? ' card-f' : ''}" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-year="${c.curriculum_year}" data-tags="${c.tags.join(' ')}" data-order="${c.order}" data-group="${c.group}" style="--tagc:${c.tagcolor}" href="${c.path}/index.html">
     <div class="cimg"${thumb ? ` data-thumb="${thumb}"` : ''}><div class="cph"></div>${star}<span class="lvl">${shortBadge(c.badge)}</span></div>
@@ -276,7 +277,8 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .cph{position:absolute;left:30%;top:36%;width:40%;height:28%;background:#fff;opacity:0.07}
 .lvl{position:absolute;top:8px;right:8px;z-index:3;font-family:var(--f-mono);font-size:10px;font-weight:500;
   background:rgba(7,9,15,0.7);color:var(--text-secondary);padding:3px 7px;border-radius:4px}
-.cstar{position:absolute;top:10px;left:10px;z-index:3;color:var(--accent-gold);font-size:12px}
+.cstar{position:absolute;top:10px;left:10px;z-index:3;color:var(--accent-gold);font-size:14px;line-height:1;
+  background:rgba(7,9,15,0.6);padding:4px;border-radius:50%;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .cbody{padding:14px 16px 16px;display:flex;flex-direction:column}
 .ctitle{font-size:1.125rem;font-weight:600;letter-spacing:-0.01em;margin:0;color:var(--text-primary);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
