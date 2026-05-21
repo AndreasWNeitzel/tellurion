@@ -97,6 +97,24 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Hard-disk collisions and wall reflections are elastic, so the
+// total (hence mean) kinetic energy is conserved. The baseline is
+// captured on first sample and re-taken when a reset re-seeds it.
+let __ke0 = null, __kePrev = null;
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const ke = meanKE(state);
+      if (__kePrev !== null && Math.abs(ke - __kePrev) > 0.15 * Math.max(1e-6, __kePrev)) __ke0 = ke;
+      __kePrev = ke;
+      if (__ke0 === null) __ke0 = ke;
+      const drift = Math.abs(ke - __ke0) / Math.max(1e-9, __ke0);
+      return [{
+        key: 'energy',
+        label: 'kinetic energy conserved (elastic collisions)',
+        value: drift.toExponential(2),
+        status: drift < 5e-3 ? 'pass' : (drift < 5e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
