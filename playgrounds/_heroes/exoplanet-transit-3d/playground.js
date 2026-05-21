@@ -65,7 +65,7 @@ let engine = null;
 try { engine = setupTransitGL(canvas); } catch (e) { console.warn('[transit] GL init failed', e); engine = null; }
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0], radius: 14, minRadius: 4, maxRadius: 120,
-  azimuthDeg: 0, elevationDeg: 24, fovDeg: 35,
+  azimuthDeg: 0, elevationDeg: 10, fovDeg: 35,
   near: 0.05, far: 400,
 });
 // User feedback: 'star too small'. Star world radius stays at 1 (one
@@ -112,7 +112,7 @@ function slider(label, min, max, stp, value, fmt, onInput) {
 }
 const sRp = slider('Rp / Rs', 0.02, 0.25, 0.005, ui.Rp, (v) => v.toFixed(3), (v) => { ui.Rp = v; resolve(); });
 const sA = slider('a / Rs', 2, 20, 0.1, ui.aOverRs, (v) => v.toFixed(1), (v) => { ui.aOverRs = v; resolve(); });
-const sI = slider('inclination', 1.30, Math.PI / 2, 0.005, ui.inc, (v) => `${(v * 57.3).toFixed(1)} deg`, (v) => { ui.inc = v; resolve(); });
+const sI = slider('inclination', 1.30, Math.PI / 2, 0.005, ui.inc, (v) => `${(v * 57.3).toFixed(1)} deg`, (v) => { camera.setElevationDeg(90 - v * 57.29578); });
 const sP = slider('period', 1.0, 10.0, 0.1, ui.period, (v) => v.toFixed(1), (v) => { ui.period = v; resolve(); });
 slider('limb u1', 0, 0.9, 0.02, ui.u1, (v) => v.toFixed(2), (v) => { ui.u1 = v; resolve(); });
 slider('limb u2', 0, 0.6, 0.02, ui.u2, (v) => v.toFixed(2), (v) => { ui.u2 = v; resolve(); });
@@ -131,7 +131,9 @@ selRow('preset', ['central transit', 'grazing transit', 'no transit', 'hot Jupit
   else if (p === 'hot Jupiter') Object.assign(ui, { Rp: 0.10, aOverRs: 3.5, inc: Math.PI / 2, period: 2.0, u1: 0.45, u2: 0.20 });
   else Object.assign(ui, { Rp: 0.0092, aOverRs: 215, inc: Math.PI / 2, period: 8.0, u1: 0.45, u2: 0.20 });
   sRp.value = ui.Rp.toFixed(3); sA.value = ui.aOverRs.toFixed(1);
-  sI.value = ui.inc.toFixed(3); sP.value = ui.period.toFixed(1); resolve();
+  sP.value = ui.period.toFixed(1);
+  camera.setElevationDeg(90 - ui.inc * 57.29578);   // inclination follows the camera
+  resolve();
 });
 const btnRow = document.createElement('div'); btnRow.className = 'row buttons';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.textContent = 'Pause';
@@ -238,7 +240,10 @@ function frame() {
     // planet radius = Rp/Rs. Camera radius is now A * 1.20 so the
     // star fills more of the panel.
     const A_view = viewOrbitRadius(ui.aOverRs);
-    engine.update(theta, A_view, ui.inc, ui.Rp, [1.0, 0.78, 0.50]);
+    // The orbit ring is drawn edge-on in a fixed plane; the camera
+    // elevation provides the viewing tilt, and the inclination used
+    // for the light curve is derived from that elevation.
+    engine.update(theta, A_view, Math.PI / 2, ui.Rp, [1.0, 0.78, 0.50]);
     engine.render(camera.viewMatrix(), camera.projMatrix(canvas.width / canvas.height), ui.u1, ui.u2, camera.state.fovDeg);
   }
   drawPlot(); refreshReadout();
@@ -249,6 +254,16 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
   if (ui.running) sim.t += dt * (ui.period / 14);    // one orbit in ~14 s (slower so the transit is watchable)
   camera.tickIdle(now);
+  // The camera elevation is the observer's vantage point: the orbital
+  // inclination and the light curve follow from it. Dragging the
+  // camera retilts the system and re-solves the transit.
+  const incCam = Math.max(1.30, Math.min(Math.PI / 2, (90 - camera.state.elevationDeg) * Math.PI / 180));
+  if (Math.abs(incCam - ui.inc) > 5e-4) {
+    ui.inc = incCam;
+    resolve();
+    sI.value = String(ui.inc);
+    if (sI.nextElementSibling) sI.nextElementSibling.textContent = `${(ui.inc * 57.3).toFixed(1)} deg`;
+  }
   rebuildCurve();
   frame();
   requestAnimationFrame(tick);
