@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Damped driven oscillator: x(t) trace and resonance curve.
 
@@ -57,7 +58,7 @@ function drawAll() {
   const peak = resonancePeak(state.gamma);
   const A_at_omega = steadyAmplitude(state.omega, state.gamma);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`omega = ${state.omega.toFixed(2)}   gamma = ${state.gamma.toFixed(3)}   Q = ${Q.toFixed(2)}`, 30, 22);
@@ -107,7 +108,7 @@ function drawAll() {
     }
     ctx.stroke();
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accentCool;
   ctx.textAlign = 'left';
   ctx.fillText('x(t)', padL + 6, traceY + 14);
@@ -155,12 +156,12 @@ function drawAll() {
   ctx.stroke();
   ctx.setLineDash([]);
   // Labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentCool;
   ctx.fillText('A(omega)', padL + 6, curveY + 14);
   // x axis ticks
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (const wTick of [0.5, 1.0, 1.5, 2.0]) {

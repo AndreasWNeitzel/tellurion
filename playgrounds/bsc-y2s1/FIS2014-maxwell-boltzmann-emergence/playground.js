@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Hard-disk gas with speed histogram + MB curve overlay.
 
@@ -47,7 +48,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   if (!state.sim) return;
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`N = ${state.sim.N}   v_0 = ${V0.toFixed(2)}   t = ${state.sim.t.toFixed(2)}`, 30, 22);
@@ -85,7 +86,7 @@ function drawAll() {
     ctx.arc(px, py, RADIUS * scale, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('gas box (color = speed)', boxX + 6, boxY + 14);
@@ -156,7 +157,7 @@ function drawAll() {
   }
   ctx.stroke();
   ctx.setLineDash([]);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
   ctx.fillText('bars: histogram   solid: KDE   dashed: MB analytic', histX + 6, histY + 14);
   // x ticks
@@ -168,7 +169,7 @@ function drawAll() {
   ctx.fillText('speed |v|', histX + histW / 2, histY + histH - 22);
 
   // Bottom: legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(127, 177, 216, 0.85)';
   ctx.fillText('slow disks', 60, H - 32);

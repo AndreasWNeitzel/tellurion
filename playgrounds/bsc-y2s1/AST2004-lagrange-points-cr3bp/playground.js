@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // CR3BP in the synodic frame. Renders the two primaries, the five Lagrange
 // points, and a set of test-particle trails. Click to drop a particle at a
@@ -214,7 +215,7 @@ function drawAll() {
   const L = state.lagrange;
   const labels = ['L1', 'L2', 'L3', 'L4', 'L5'];
   const pts = [L.L1, L.L2, L.L3, L.L4, L.L5];
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   for (let i = 0; i < 5; i += 1) {
     const pp = toPx(pts[i][0], pts[i][1]);
     ctx.fillStyle = '#dcdcdc';
@@ -230,7 +231,7 @@ function drawAll() {
 }
 
 function drawReadout() {
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const stable = state.mu < MU_ROUTH;
   const rows = [

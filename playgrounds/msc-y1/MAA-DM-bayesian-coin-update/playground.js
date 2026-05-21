@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Beta-Binomial conjugate posterior. Three curves over theta in [0, 1]:
 // prior (cat-1), normalized likelihood (cat-2), posterior (cat-3) with its
@@ -62,7 +63,7 @@ function drawAxes() {
   ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
 
   ctx.fillStyle = tok.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (const t of [0, 0.25, 0.5, 0.75, 1]) {
     const p = px(t, 0);
@@ -72,7 +73,7 @@ function drawAxes() {
     ctx.beginPath(); ctx.moveTo(p.px, PLOT.y); ctx.lineTo(p.px, PLOT.y + PLOT.h); ctx.stroke();
   }
   ctx.fillStyle = tok.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'center';
   ctx.fillText('theta (coin bias)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 32);
   ctx.save();
@@ -127,7 +128,7 @@ function drawAll() {
   drawCurve(tok.cat3, t => betaPdf(t, post.a, post.b), 2.0);
   drawCurve(tok.cat2, t => betaPdf(t, state.k + 1, state.n - state.k + 1), 1.2);
 
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   const lx = PLOT.x + 12;
   const items = [
     [tok.cat1, `prior Beta(${state.a0.toFixed(1)}, ${state.b0.toFixed(1)})`],
@@ -166,12 +167,12 @@ function drawAll() {
     ctx.moveTo(p.px, PLOT.y + PLOT.h - 18);
     ctx.lineTo(p.px, PLOT.y + PLOT.h - 2);
     ctx.stroke();
-    ctx.fillStyle = c; ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.fillStyle = c; ctx.font = fontString(canvas, 'tick', 'mono');
     ctx.textAlign = 'center';
     ctx.fillText(lab, p.px, PLOT.y + PLOT.h - 20);
   }
 
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   const rows = [
     ['prior mean',  meanPrior.toFixed(4)],
     ['data mean',   meanData.toFixed(4)],

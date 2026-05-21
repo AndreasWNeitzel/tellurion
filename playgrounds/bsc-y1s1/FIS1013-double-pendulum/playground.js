@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // UI binding for the double-pendulum playground. Wires shared/js/engine/symplectic.js
 // to a Canvas2D rendering, drag-and-drop bob positioning, slider parameter editing,
@@ -274,7 +275,7 @@ function drawPhasePanel() {
 
   // tick labels
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (const [t, lbl] of [[-Math.PI, '-pi'], [0, '0'], [Math.PI, 'pi']]) {
     const { px: x } = phaseToPx(t, 0);
@@ -326,10 +327,10 @@ function drawPhasePanel() {
 
   // labels
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Phase trajectory (theta1 mod 2pi, omega1)', PHASE.x, PHASE.y - 8);
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.fillStyle = tokens.fgFaint;
   ctx.textAlign = 'center';
   ctx.fillText('theta1 (rad)', PHASE.x + PHASE.w / 2, PHASE.y + PHASE.h + 26);

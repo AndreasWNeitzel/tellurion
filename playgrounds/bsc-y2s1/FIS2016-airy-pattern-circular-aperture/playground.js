@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Airy diffraction pattern: 2D intensity heatmap + 1D radial profile.
 
@@ -84,7 +85,7 @@ function drawAll() {
   ctx.lineWidth = 1;
   ctx.strokeRect(HEAT_X, HEAT_Y, HEAT_W, HEAT_H);
 
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   ctx.fillText(`theta in [-${thetaWinAS.toFixed(0)}, +${thetaWinAS.toFixed(0)}] arcsec; ring size = 1.22 lambda / D`,
@@ -141,7 +142,7 @@ function drawAll() {
   ctx.stroke();
 
   // Axes labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('I / I_0 vs theta', PROF_X, PROF_Y - 8);

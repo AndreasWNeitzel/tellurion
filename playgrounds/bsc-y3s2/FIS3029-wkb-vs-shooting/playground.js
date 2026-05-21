@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Compare Bohr-Sommerfeld energy ladder to exact reference for V = |x|^p / p.
 
@@ -74,7 +75,7 @@ function drawAll() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center';
   ctx.fillText('V(x) = |x|^p / p', PLOT_X + PLOT_W * 0.25, PLOT_Y - 8);
 
@@ -133,7 +134,7 @@ function drawAll() {
   }
 
   // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accent;
   ctx.textAlign = 'left';
   ctx.fillText('Bohr-Sommerfeld (WKB)', E_X0 + 8, PLOT_Y - 8);
@@ -142,7 +143,7 @@ function drawAll() {
   ctx.fillText('Exact', E_X1 - 8, PLOT_Y - 8);
 
   // Readout
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   const rows = [

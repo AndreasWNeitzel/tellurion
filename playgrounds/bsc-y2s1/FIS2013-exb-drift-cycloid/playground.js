@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // ExB drift cycloid trajectory.
 
@@ -71,7 +72,7 @@ function drawAll() {
   const drift = state.E / state.B;
   const cycloidAmp = state.E / (state.B * state.B);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`E = ${state.E.toFixed(2)}   B = ${state.B.toFixed(2)}   t = ${state.sim.t.toFixed(2)}`, 30, 22);
@@ -116,7 +117,7 @@ function drawAll() {
     ctx.fillStyle = 'rgba(241, 210, 138, 0.50)';
     ctx.fill();
   }
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(241, 210, 138, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText('E -> +x', worldToPx(-3, 3.5).px, worldToPx(-3, 3.5).py);
@@ -161,7 +162,7 @@ function drawAll() {
   ctx.fill();
 
   // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(241, 210, 138, 0.75)';
   ctx.fillText('E (in +x)', 60, H - 24);

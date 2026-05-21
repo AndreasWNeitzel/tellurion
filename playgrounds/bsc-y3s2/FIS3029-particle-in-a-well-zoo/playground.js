@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Three canonical bound-state wells with selected eigenfunction overlaid.
 
@@ -132,7 +133,7 @@ function drawAll() {
   // Draw all energy levels as faint horizontal lines.
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
   ctx.lineWidth = 0.6;
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   for (const lv of levels) {
     if (lv.E > lim.Emax) continue;
     const yl = toPx(0, lv.E).py;
@@ -194,7 +195,7 @@ function drawAll() {
   ctx.stroke();
 
   // Top-right readout
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'right';
   ctx.fillText(`well: ${state.well}`, X1, 18);
@@ -202,7 +203,7 @@ function drawAll() {
   ctx.fillText(`bound states: ${levels.filter(l => l.E < lim.Emax).length}`, X1, 46);
 
   // x-axis tick
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (let i = 0; i <= 4; i += 1) {

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Render the 1D TDSE wavefunction (Re psi, |psi|^2) with barrier overlay.
 
@@ -104,7 +105,7 @@ function drawAll() {
   // Readout
   const norm = totalNorm(state.tdse);
   const { R, T } = reflectionTransmission(state.tdse);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const rows = [
     ['t',     state.tdse.t.toFixed(2)],
@@ -126,7 +127,7 @@ function drawAll() {
   }
 
   // Color legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillStyle = tok.accent;
   ctx.fillText('Re psi', W - 24, 20);

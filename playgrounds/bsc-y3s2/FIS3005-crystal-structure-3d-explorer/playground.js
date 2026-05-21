@@ -283,7 +283,7 @@ function drawXRD() {
     ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, sel ? y0 - 14 : y0); ctx.stroke();
     if (ln.s <= 8 || sel) {
       ctx.fillStyle = sel ? '#ffd166' : 'rgba(150,160,180,0.75)';
-      ctx.font = `${sel ? 'bold ' : ''}11px ui-monospace, monospace`; ctx.textAlign = 'center';
+      ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'center';
       ctx.fillText(ln.hkl.join(''), x, (sel ? y0 - 20 : y0 - 6));
     }
   }

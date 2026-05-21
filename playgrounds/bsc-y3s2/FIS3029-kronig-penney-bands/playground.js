@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Kronig-Penney: f(qa) and band structure side-by-side.
 
@@ -81,7 +82,7 @@ function drawAll() {
   ctx.stroke();
 
   // Left panel labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('f(q a) vs epsilon = (q a)^2', LX0, LY0 - 8);
@@ -134,7 +135,7 @@ function drawAll() {
   }
 
   // Right panel labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('epsilon(k a) band structure (reduced zone)', RX0, RY0 - 8);

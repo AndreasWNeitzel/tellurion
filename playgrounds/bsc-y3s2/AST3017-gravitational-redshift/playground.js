@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Redshift factor curve and color visualization.
 
@@ -48,7 +49,7 @@ function drawAll() {
   const z = redshift_z(r_em);
   const cr = clockRate(r_em);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`r_em / 2M = ${state.rRatio.toFixed(2)}   f_obs / f_em = ${f.toFixed(5)}   z = ${z.toFixed(3)}`, 30, 22);
@@ -97,11 +98,11 @@ function drawAll() {
   ctx.stroke();
   ctx.setLineDash([]);
   // labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accentCool;
   ctx.textAlign = 'left';
   ctx.fillText('f_obs / f_em = sqrt(1 - 2M / r)', padL + 6, topY + 14);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText('horizon', padL + 6, topY + 28);
   // x ticks
@@ -124,7 +125,7 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
   ctx.strokeRect(padL + 0.5, botY + 0.5, 99, botH - 1);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`source: ${LAMBDA_EM} nm`, padL, botY - 6);
   // Observed swatch (right)

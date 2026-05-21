@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Rossler 1976 attractor visualization. The (x, y) projection is drawn as
 // a fading trail with a moving head. A live tangent-vector estimator
@@ -117,7 +118,7 @@ function drawReadout() {
     ['lambda_1',  lambda.toFixed(3)],
     ['nSteps',    String(state.rossler.inst.nSteps)],
   ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const xLeft = W - 200;
   const xValue = W - 16;

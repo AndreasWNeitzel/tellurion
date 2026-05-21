@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Schwarzschild-effective-potential orbit with tunable GR-strength alpha.
 // Orange: current orbit (last single revolution). Faint blue: four recent
@@ -151,7 +152,7 @@ function drawReadout() {
     ['dE/E',      diag.energyDrift.toExponential(2)],
     ['L',         diag.angularMomentum.toFixed(4)],
   ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   let y = 22;
   for (const [k, v] of rows) {

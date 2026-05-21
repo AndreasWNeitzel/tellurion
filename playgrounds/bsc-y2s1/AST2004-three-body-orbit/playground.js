@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Three-body figure-eight choreography UI. Three colored bodies with trails on
 // the same canvas; one slider for the perturbation dv.
@@ -145,7 +146,7 @@ function drawAll() {
   }
 
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   const entry = ORBIT_CATALOG[state.orbit] || ORBIT_CATALOG['figure-eight'];
   ctx.fillText(`${state.orbit}  (G = m_i = 1, T = ${entry.period.toFixed(3)})`, 20, 22);

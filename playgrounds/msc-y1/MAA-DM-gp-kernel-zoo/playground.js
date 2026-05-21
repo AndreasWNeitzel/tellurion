@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // GP kernel zoo: prior samples on top, posterior on bottom, with observations.
 
@@ -72,7 +73,7 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
   ctx.strokeRect(PRIOR.x + 0.5, PRIOR.y + 0.5, PRIOR.w - 1, PRIOR.h - 1);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('Prior samples (no observations)', PRIOR.x + 8, PRIOR.y - 4);
 

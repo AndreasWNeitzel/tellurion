@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Predator-prey: phase portrait + time series.
 
@@ -56,7 +57,7 @@ function drawAll() {
   const eq = equilibrium({ ...FIXED_PARAMS, K: state.K });
   const KH = hopfThreshold(FIXED_PARAMS);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`K = ${state.K.toFixed(2)}   K_H = ${KH.toFixed(2)}   t = ${state.sim.t.toFixed(2)}`, 30, 22);
@@ -110,7 +111,7 @@ function drawAll() {
     ctx.arc(ppX(eq.x), ppY(eq.y), 5, 0, Math.PI * 2);
     ctx.stroke();
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('phase (x, y)', phaseX + 6, panelY + 14);
@@ -141,7 +142,7 @@ function drawAll() {
       ctx.stroke();
     }
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accentCool;
   ctx.textAlign = 'left';
   ctx.fillText('x(t) prey', traceX + 6, panelY + 14);

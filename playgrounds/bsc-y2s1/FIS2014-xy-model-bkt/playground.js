@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // XY model with vortex overlay.
 
@@ -82,7 +83,7 @@ function drawAll() {
   const e = energyPerSite(state.xy);
   // Legend in the TOP-LEFT (per user request), inside a semi-opaque
   // panel so it stays readable over the colourful cell field.
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   const rows = [
     ['T',            state.T.toFixed(2)],
     ['T_BKT',        T_BKT.toFixed(3)],

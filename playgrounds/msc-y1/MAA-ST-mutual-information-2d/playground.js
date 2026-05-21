@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Joint Gaussian heatmap + marginals + analytic and numerical I(X; Y).
 
@@ -91,7 +92,7 @@ function drawAll() {
   }
   ctx.stroke();
 
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText('p(x)', HEAT_X, HEAT_Y - 60);

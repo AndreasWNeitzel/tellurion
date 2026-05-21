@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Van der Pol oscillator: phase portrait (left) + x(t) trace (right).
 
@@ -48,7 +49,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   if (!state.sim) return;
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`mu = ${state.mu.toFixed(2)}   t = ${state.sim.t.toFixed(1)}   step = ${state.sim.nSteps}`, 30, 22);
@@ -95,7 +96,7 @@ function drawAll() {
   ctx.beginPath();
   ctx.arc(curX, curY, 5, 0, Math.PI * 2);
   ctx.fill();
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText('phase (x, v)', phaseX + 6, panelY + 14);
@@ -125,7 +126,7 @@ function drawAll() {
     }
     ctx.stroke();
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accentCool;
   ctx.textAlign = 'left';
   ctx.fillText('x(t)', traceX + 6, panelY + 14);

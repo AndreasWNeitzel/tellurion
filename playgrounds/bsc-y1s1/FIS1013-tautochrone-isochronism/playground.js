@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Five beads released from different heights on a cycloid bowl arrive at the
 // bottom simultaneously.
@@ -52,7 +53,7 @@ function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.tNow.toFixed(2)} / T_quarter = ${QUARTER_PERIOD.toFixed(3)}`, 30, 22);
@@ -86,7 +87,7 @@ function drawAll() {
   ctx.lineTo(bottomPx.px, bottomPx.py + 6);
   ctx.stroke();
   ctx.setLineDash([]);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   ctx.fillText('bottom', bottomPx.px, bottomPx.py + 18);
@@ -131,7 +132,7 @@ function drawAll() {
     ctx.moveTo(xx, barY); ctx.lineTo(xx, barY + barH);
     ctx.stroke();
   }
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   ctx.fillText('t / T_full', barX + barW / 2, barY - 4);

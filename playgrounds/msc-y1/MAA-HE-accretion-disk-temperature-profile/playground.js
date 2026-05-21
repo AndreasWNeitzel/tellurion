@@ -108,7 +108,7 @@ const tok = {
 };
 
 function drawProfile() {
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`R_in = 1   R_out = ${state.rmax}   R_Tmax = ${R_TMAX.toFixed(3)}`, 30, 22);
@@ -171,7 +171,7 @@ function drawProfile() {
   ctx.setLineDash([]);
 
   // Labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accentCool;
   ctx.textAlign = 'left';
   ctx.fillText('T(r) full', padL + 6, padT + 14);
@@ -181,7 +181,7 @@ function drawProfile() {
   ctx.textAlign = 'center';
   ctx.fillText('peak at r = 49/36', peakX, padT - 4);
   // r ticks (log)
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   for (const r of [1, 2, 5, 10, 20, 50, 100, 200]) {
     if (r > state.rmax) continue;
@@ -282,7 +282,7 @@ function drawDisc() {
     ctx.fillRect(barX, barY + i, barW, 1);
   }
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.strokeRect(barX + 0.5, barY + 0.5, barW, barH);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.textAlign = 'left';
   ctx.fillText('T / T_max', barX - 6, barY - 8);
   ctx.fillText('1.0', barX + barW + 4, barY + 6);
@@ -290,7 +290,7 @@ function drawDisc() {
   ctx.fillText('0', barX + barW + 4, barY + barH);
 
   // Title bar.
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
   ctx.textAlign = 'left';
   ctx.fillText(`Shakura-Sunyaev disc (R_in = 1, R_out = ${state.rmax | 0}, i = 62 deg)`, 30, 22);

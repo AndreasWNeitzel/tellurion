@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // UI binding for the logistic map cobweb and bifurcation playground.
 // All numerics live in ./sim.js; this file is rendering, input, and live readouts.
@@ -194,7 +195,7 @@ function drawCobweb() {
   ctx.fill();
 
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Cobweb', ox, oy - 10);
   ctx.textAlign = 'right';
@@ -202,7 +203,7 @@ function drawCobweb() {
 
   ctx.textAlign = 'center';
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.fillText('x_n', ox + w / 2, oy + h + 14);
   ctx.save();
   ctx.translate(ox - 24, oy + h / 2);
@@ -243,7 +244,7 @@ function drawBifurcation() {
   ctx.setLineDash([]);
 
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (const [rTick, label] of [[2.0, '2.0'], [2.5, '2.5'], [3.0, '3.0'], [3.5, '3.5'], [4.0, '4.0']]) {
     const X = ox + (rTick - BIF.rmin) / (BIF.rmax - BIF.rmin) * w;
@@ -264,7 +265,7 @@ function drawBifurcation() {
   ctx.beginPath(); ctx.arc(xR, oy + 4, 2, 0, Math.PI * 2); ctx.fill();
 
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Bifurcation diagram (drag the vertical to set r)', ox, oy - 10);
   ctx.textAlign = 'center';

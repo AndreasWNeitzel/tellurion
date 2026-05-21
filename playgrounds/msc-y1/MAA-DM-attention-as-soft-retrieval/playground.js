@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Soft retrieval visualization.
 // Left panel: keys in 2D scattered around with the query (red dot).
@@ -117,7 +118,7 @@ function drawKeyPanel(weights) {
     ctx.lineWidth = 0.7;
     ctx.stroke();
     ctx.fillStyle = tok.fg;
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'center';
     ctx.fillText(`k${i + 1}`, p.px, p.py - r - 4);
   }
@@ -133,13 +134,13 @@ function drawKeyPanel(weights) {
   ctx.lineWidth = 0.9;
   ctx.stroke();
   ctx.fillStyle = tok.fg;
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('drag query', qPx.px + 9, qPx.py - 4);
 
   // panel label
   ctx.fillStyle = tok.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Keys (k_i) and query   (drag the red dot; line width = attention)', KEY.x, KEY.y - 8);
 }
@@ -174,7 +175,7 @@ function drawValuePanel(weights, output) {
     ctx.lineWidth = 0.7;
     ctx.strokeRect(x, top, barW * 0.7, height);
     ctx.fillStyle = tok.fg;
-    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'tick', 'mono');
     ctx.textAlign = 'center';
     ctx.fillText(`v${i + 1}`, x + barW * 0.35, y0 + 12);
     ctx.fillText(`w=${weights[i].toFixed(2)}`, x + barW * 0.35, y0 + 24);
@@ -192,7 +193,7 @@ function drawValuePanel(weights, output) {
     ctx.lineWidth = 0.9;
     ctx.strokeRect(x, top, barW * 0.7, height);
     ctx.fillStyle = tok.fg;
-    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'tick', 'mono');
     ctx.textAlign = 'center';
     ctx.fillText('out', x + barW * 0.35, y0 + 12);
     ctx.fillText(v.toFixed(2), x + barW * 0.35, y0 + 24);
@@ -207,7 +208,7 @@ function drawValuePanel(weights, output) {
   ctx.stroke();
 
   ctx.fillStyle = tok.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Values and weighted output', VAL.x, VAL.y - 8);
 }
@@ -216,7 +217,7 @@ function drawReadout(weights, output) {
   const H = entropy(weights);
   const Hmax = Math.log(weights.length);
   const am = argmax(weights);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   const rows = [
     ['tau',         state.tau.toFixed(3)],
     ['entropy',     H.toFixed(3)],

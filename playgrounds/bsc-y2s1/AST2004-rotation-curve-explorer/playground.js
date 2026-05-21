@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Top-down rotating spiral galaxy. Tracer stars are advanced by omega(R) for
 // the selected rotation-curve model. A rotation-curve inset plots v(R) for
@@ -188,7 +189,7 @@ function drawGalaxyPanel() {
 
   // top banner
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Top-down view: spiral galaxy out to R = 15 kpc. Dashed ring = solar circle (8 kpc). Yellow star = Sun.',
                20, 22);
@@ -205,7 +206,7 @@ function drawRotationCurveInset() {
 
   // ticks
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (const R of [0, 10, 20, 30]) {
     const { px: x } = pxPlot(R, 0);
@@ -264,10 +265,10 @@ function drawRotationCurveInset() {
   // axis labels: title above the box, x-axis along the bottom edge inside,
   // y-axis rotated to the left.
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'center';
   ctx.fillText('Rotation curve v(R)', PLOT.x + PLOT.w / 2, PLOT.y - 8);
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.fillStyle = tokens.fgFaint;
   ctx.fillText('R (kpc)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 16);
   ctx.save();
@@ -283,14 +284,14 @@ function drawRotationCurveInset() {
   ctx.beginPath();
   ctx.arc(legX, legY, 2.6, 0, 2 * Math.PI);
   ctx.fill();
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'right';
   ctx.fillText('Observed velocities', legX - 8, legY + 4);
 }
 
 function drawLegendAndReadout() {
   // legend at top-left of the canvas (above the galaxy)
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   const lx = 20;
   let ly = 60;
@@ -319,7 +320,7 @@ function drawLegendAndReadout() {
     ['v(R=8) [km/s]', v8.toFixed(1)],
     ['chi^2',         chi2.toFixed(1)],
   ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tokens.fg;
   const xLabel = W - 160;
   const xValue = W - 16;

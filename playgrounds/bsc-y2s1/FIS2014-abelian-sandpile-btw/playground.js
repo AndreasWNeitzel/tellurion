@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // BTW sandpile lattice + avalanche-size histogram.
 
@@ -47,7 +48,7 @@ function drawAll() {
     ? state.sim.avalanches.reduce((a, b) => a + b, 0) / state.sim.avalanches.length
     : 0;
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.sim.t}   total grains = ${totalGrains}   last avalanche = ${state.sim.lastAvalanche}`, 30, 22);
@@ -114,7 +115,7 @@ function drawAll() {
       ctx.closePath(); ctx.fill();
     }
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText(`sandpile heights, toppling threshold z_c = ${zc}`, latticeX + 6, panelTop - 6);
@@ -163,7 +164,7 @@ function drawAll() {
   }
   ctx.stroke();
   ctx.setLineDash([]);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(127, 177, 216, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText('P(s) histogram', histX + 6, histY + 14);

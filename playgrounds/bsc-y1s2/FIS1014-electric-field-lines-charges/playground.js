@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Field lines from a chosen charge configuration. Includes a moving test
 // charge that drifts under the field.
@@ -101,7 +102,7 @@ function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`preset = ${state.preset}    field lines = ${state.lines.length}`, 30, 22);
@@ -159,7 +160,7 @@ function drawAll() {
     ctx.lineWidth = 1.0;
     ctx.stroke();
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 12px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono', 600);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(c.q > 0 ? '+' : '-', p.px, p.py + 1);
@@ -186,7 +187,7 @@ function drawAll() {
   }
 
   // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentWarm;
   ctx.fillText('+ charge', 60, H - 24);

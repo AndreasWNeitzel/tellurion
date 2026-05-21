@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // MCMC Sampler Comparator. Three chains run on a chosen 2D target. Each frame
 // advances all three by SAMPLES_PER_FRAME steps and re-draws the contour map
@@ -180,7 +181,7 @@ function drawDiagnosticsPanel() {
   ctx.lineWidth = 0.6;
   ctx.strokeRect(PANEL.x + 0.5, PANEL.y + 0.5, PANEL.w - 1, PANEL.h - 1);
 
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillStyle = tokens.fgMuted;
   ctx.textAlign = 'left';
   ctx.fillText('Per-chain trace of x[0]', PANEL.x + 12, PANEL.y + 16);
@@ -228,7 +229,7 @@ function drawDiagnosticsPanel() {
     ctx.beginPath();
     ctx.arc(plot.x + 5, top + 9, 4, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.font = '11px "Inter", system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'caption');
     ctx.fillStyle = tokens.fg;
     ctx.textAlign = 'left';
     ctx.fillText(SAMPLER_LABEL[state.samplers[i]], plot.x + 14, top + 13);
@@ -252,14 +253,14 @@ function drawDiagnosticsPanel() {
     } else {
       essStr = `burn ${n}/${WARMUP}`;
     }
-    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'tick', 'mono');
     ctx.textAlign = 'right';
     ctx.fillStyle = tokens.fgMuted;
     const metricStr = `acc ${(100 * chain.acceptance).toFixed(0)}%  ${essStr}` + (ksStr ? `  ${ksStr}` : '');
     ctx.fillText(metricStr, plot.x + plot.w - 4, top + 13);
   }
 
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillStyle = tokens.fgMuted;
   ctx.fillText(`target = ${state.targetName}`, PANEL.x + 12, PANEL.y + PANEL.h - 12);
 }

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Two-mass three-spring layout with stacked displacement traces and a
 // (x1, x2) phase portrait.
@@ -144,7 +145,7 @@ function drawAll() {
   }
 
   // Title bar
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.sim.t.toFixed(2)}   step = ${state.sim.nSteps}   preset = ${state.preset}`, padX, 22);
@@ -199,7 +200,7 @@ function drawAll() {
       ctx.stroke();
     }
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentCool;
   ctx.fillText('x_1(t)', padX + 6, lowerY + 14);
@@ -238,7 +239,7 @@ function drawAll() {
   ctx.beginPath();
   ctx.arc(cx + state.sim.x1 * RR, cy - state.sim.x2 * RR, 3.0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('phase (x_1, x_2)', phaseX + 6, lowerY + 14);

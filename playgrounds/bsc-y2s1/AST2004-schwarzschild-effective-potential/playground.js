@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Schwarzschild effective-potential plot.
 
@@ -69,7 +70,7 @@ function drawAll() {
   const tps = turningPoints(state.L);
   const isMassive = state.mode === 0;
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`L / M = ${state.L.toFixed(2)}   mode: ${isMassive ? 'massive' : 'photon'}`, 30, 22);
@@ -129,7 +130,7 @@ function drawAll() {
     ctx.moveTo(px, padT); ctx.lineTo(px, padT + drawH);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.fillText(label, px, padT + 14);
@@ -154,7 +155,7 @@ function drawAll() {
   }
 
   // Axis ticks
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (const r of [2, 6, 10, 15, 20, 25, 30]) {

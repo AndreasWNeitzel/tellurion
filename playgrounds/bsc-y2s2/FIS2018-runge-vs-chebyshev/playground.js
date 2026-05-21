@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Runge vs Chebyshev: live interpolation and error curves.
 
@@ -48,7 +49,7 @@ function drawAll() {
   const eEq = maxError(pEq, rungeFn);
   const eCh = maxError(pCh, rungeFn);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`n = ${state.n}   equispaced max error = ${eEq.toExponential(2)}   Chebyshev max error = ${eCh.toExponential(2)}`, 30, 22);
@@ -113,7 +114,7 @@ function drawAll() {
     ctx.fillStyle = tok.accentCool;
     ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2); ctx.fill();
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.fillText('f(x) (truth)', padL + 6, topY + 14);
@@ -159,11 +160,11 @@ function drawAll() {
   ctx.moveTo(cPx, botY + 6); ctx.lineTo(cPx, botY + botH - 6);
   ctx.stroke();
   // Labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('max error vs n (log scale)', padL + 6, botY + 14);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.textAlign = 'center';
   for (const nn of [5, 10, 15, 20, 25, 30]) {
     const px = xN(nn);

@@ -213,7 +213,7 @@ function render() {
       ctx.strokeRect(PX - 6 + 0.5, rectY + 0.5, rectW - 1, rectH - 1);
     }
     ctx.fillStyle = sel ? '#ffd166' : '#06d6a0';
-    ctx.font = `${sel ? 'bold ' : ''}14px ui-monospace, monospace`;
+    ctx.font = fontString(canvas, 'body', 'mono', 600);
     ctx.fillText(`${sel ? '>' : ' '} J = ${jLabel(Jx)}   (2J+1 = ${2 * Jx + 1})`, PX, yy);
   });
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');

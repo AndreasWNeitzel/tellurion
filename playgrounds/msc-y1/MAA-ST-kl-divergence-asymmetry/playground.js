@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // KL-divergence asymmetry visualization. P is a bimodal mixture, Q is a
 // single Gaussian whose mu, sigma the user controls. The plot shows
@@ -116,7 +117,7 @@ function drawAll() {
   ctx.stroke();
 
   // Tick labels on x
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (const xt of [-6, -3, 0, 3, 6]) {
@@ -127,7 +128,7 @@ function drawAll() {
   // Live KL readouts
   const pq = klPQ(p, q);
   const qp = klQP(p, q);
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
   ctx.textAlign = 'left';
   ctx.fillText('D(P || Q) = ' + pq.toFixed(4) + ' nats  (mass-covering)', X0, Y0 - 12);
@@ -139,7 +140,7 @@ function drawAll() {
     const B = state.argmins.argminQP;
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`argmin D(P||Q): mu = ${A.mu.toFixed(2)}, sigma = ${A.sigma.toFixed(2)}  (D = ${A.val.toFixed(3)})`, X0, Y1 + 40);
     ctx.fillText(`argmin D(Q||P): mu = ${B.mu.toFixed(2)}, sigma = ${B.sigma.toFixed(2)}  (D = ${B.val.toFixed(3)})`, X0, Y1 + 56);
   }

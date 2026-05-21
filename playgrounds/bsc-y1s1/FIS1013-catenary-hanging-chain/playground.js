@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Catenary as a hanging suspension bridge. The main cable is the
 // fixed-length catenary through two draggable support towers; vertical
@@ -165,7 +166,7 @@ function drawAll() {
 
   // Readouts.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   const span = Math.abs(R1.x - L1.x);
   const sagv = sol ? (Math.min(L1.y, R1.y) - (sol.a + sol.c)) : 0;
   ctx.fillText('Drag a tower. Cable length is fixed; the catenary re-solves.', 30, 24);

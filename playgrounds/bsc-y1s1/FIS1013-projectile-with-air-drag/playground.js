@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Three projectiles fired simultaneously with different drag laws.
 
@@ -70,7 +71,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   if (!state.sims) return;
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`v_0 = ${state.v0} m/s   angle = ${state.angle} deg   t = ${state.sims.none.t.toFixed(2)} s`, 30, 22);
@@ -118,7 +119,7 @@ function drawAll() {
   }
 
   // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = '#f1d28a';
   ctx.fillText('vacuum (no drag)', 60, H - 24);

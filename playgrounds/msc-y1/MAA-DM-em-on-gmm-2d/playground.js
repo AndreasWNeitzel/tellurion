@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // EM on a 2D Gaussian mixture. Synthetic data from a 3-cluster ground
 // truth; user runs EM, watches ellipses converge.
@@ -177,7 +178,7 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
   ctx.strokeRect(40, PROF_Y, W - 80, PROF_H);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('log-likelihood across EM iterations (monotone non-decreasing)', 44, PROF_Y - 4);
 
@@ -204,7 +205,7 @@ function drawAll() {
   }
 
   // Top-right readout
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'right';
   ctx.fillText(`iter ${state.iter}`, W - 12, 20);

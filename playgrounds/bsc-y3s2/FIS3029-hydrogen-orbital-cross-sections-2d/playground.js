@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Hydrogen orbital |psi_nlm|^2 in the (x, z) plane.
 
@@ -78,7 +79,7 @@ function drawAll() {
   ctx.strokeRect(PLOT_X, PLOT_Y, PLOT_SIDE, PLOT_SIDE);
 
   // Axis labels and centered cross-hair
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   ctx.fillText('x (a_0)', PLOT_X + PLOT_SIDE / 2, PLOT_Y + PLOT_SIDE + 22);
@@ -95,7 +96,7 @@ function drawAll() {
   ctx.fillText('-' + state.span, PLOT_X + 4, PLOT_Y + PLOT_SIDE - 4);
 
   // Top-right labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   const E = -1 / (2 * orb.n * orb.n);  // hydrogen energy in Hartree

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Side-by-side 1D linear advection in four numerical schemes plus exact.
 
@@ -161,7 +162,7 @@ function drawPanel(u, label, idx, color) {
   drawWaterfall(x0, y0, PANEL_W, PANEL_H, history[histKey], baseRGB, ymin, ymax);
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(label, x0 + 8, y0 + 14);
   const tv = totalVariation(u);
@@ -174,7 +175,7 @@ function drawPanel(u, label, idx, color) {
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.t.toFixed(3)}   steps = ${state.steps}   CFL = ${state.cfl.toFixed(2)}   c = ${state.c.toFixed(2)}`, 30, 20);

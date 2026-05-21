@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Thin-film reflectance R(lambda) curve + reflected color swatch + history strip
 // for the d-sweep animation.
@@ -58,7 +59,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   const [cr, cg, cb] = reflectedColor(state.d, state.n);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`d = ${state.d} nm   n_film = ${state.n.toFixed(2)}   n_top = 1.0 (air), n_sub = 1.5 (glass)`, 30, 22);
@@ -96,7 +97,7 @@ function drawAll() {
     ctx.fillRect(padL + 2 + i, curveY + curveH + 4, 1, 12);
   }
   // wavelength ticks
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (const lam of [400, 500, 600, 700]) {
@@ -114,7 +115,7 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
   ctx.strokeRect(padL + 0.5, swatchY + 0.5, 139, swatchH - 1);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('reflected color', padL, swatchY - 6);
 

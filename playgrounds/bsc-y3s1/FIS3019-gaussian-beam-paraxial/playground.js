@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Paraxial Gaussian beam: render intensity field, overlay +/- w(z), mark
 // Rayleigh range.
@@ -116,7 +117,7 @@ function drawAll() {
   ctx.stroke();
 
   // Axis labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (let i = 0; i <= 4; i += 1) {
@@ -142,7 +143,7 @@ function drawAll() {
     ['theta',     theta.toFixed(4) + ' rad'],
     ['M^2',       M2.toFixed(1)],
   ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   let y = PLOT_Y + PLOT_H + 50;
   for (const [k, v] of rows) {

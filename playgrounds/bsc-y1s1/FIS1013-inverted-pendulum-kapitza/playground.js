@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Kapitza pendulum with driven pivot, plus effective-potential panel.
 
@@ -54,7 +55,7 @@ function drawAll() {
   const ratio = stabilityRatio(state.a, state.omega);
   const stable = isStable(state.a, state.omega);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`a = ${state.a.toFixed(3)} m   omega = ${state.omega}   theta = ${state.sim.theta.toFixed(3)}`, 30, 22);
@@ -116,7 +117,7 @@ function drawAll() {
     if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
   }
   ctx.stroke();
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('driven inverted pendulum', sceneX + 6, panelY + 14);
@@ -152,7 +153,7 @@ function drawAll() {
   ctx.beginPath();
   ctx.arc(xT(state.sim.theta), yU(effectivePotential(state.sim.theta, state.a, state.omega)), 5, 0, Math.PI * 2);
   ctx.fill();
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('U_eff(theta)', potX + 6, panelY + 14);

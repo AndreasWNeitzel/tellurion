@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Cyclotron orbit visualization.
 
@@ -73,7 +74,7 @@ function drawAll() {
   const r = cyclotronRadius(state.v, state.B);
   const T = cyclotronPeriod(state.B);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`B = ${state.B.toFixed(2)}   |v| = ${state.v.toFixed(2)}   t = ${state.sim.t.toFixed(2)}`, 30, 22);
@@ -149,7 +150,7 @@ function drawAll() {
   }
 
   // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText('B is out of page (dots)', 60, H - 24);

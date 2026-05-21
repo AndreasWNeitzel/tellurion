@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // FitzHugh-Nagumo voltage trace and (v, w) phase portrait with nullclines.
 
@@ -52,7 +53,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   if (!state.sim) return;
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`I = ${state.I.toFixed(2)}   t = ${state.sim.t.toFixed(1)}   v = ${state.sim.v.toFixed(3)}   w = ${state.sim.w.toFixed(3)}`, 30, 22);
@@ -95,7 +96,7 @@ function drawAll() {
       ctx.stroke();
     }
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentCool;
   ctx.fillText('v(t) voltage', traceX + 6, panelY + 14);
@@ -148,7 +149,7 @@ function drawAll() {
     ctx.arc(ppX(state.sim.v), ppY(state.sim.w), 4, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('phase (v, w)', phaseX + 6, panelY + 14);

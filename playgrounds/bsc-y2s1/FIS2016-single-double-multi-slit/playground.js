@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Single / double / multi-slit diffraction shown as real wave
 // propagation. A plane wave hits an opaque barrier with N slits; to
@@ -162,7 +163,7 @@ function drawIncident(L) {
   ctx.restore();
   // Direction-of-travel arrow so the incident propagation reads clearly.
   ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('plane wave', (PADL + XB) / 2, F_BOT + 14);
   ctx.strokeStyle = 'rgba(150,205,235,0.7)'; ctx.lineWidth = 1.4;
   const ay = F_BOT + 24, ax0 = PADL + 10, ax1 = XB - 10;
@@ -215,7 +216,7 @@ function drawBarrierAndScreen(L) {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('screen', X_SCREEN + 9, F_BOT + 14);
 }
 
@@ -245,7 +246,7 @@ function drawAnalytic(a, d) {
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(214,138,105,0.8)'; ctx.fillText('single-slit envelope', x0 + 6, top + 13);
   ctx.fillStyle = tok.accentCool; ctx.fillText('N-slit Fraunhofer I(theta)', x0 + 168, top + 13);
 }
@@ -263,7 +264,7 @@ function drawAll() {
   const np = principalMaxima(d, LAMBDA, 8).length;
   const z = envelopeZeros(a, LAMBDA, 1).filter((t) => t > 0);
   const firstZeroDeg = z.length ? (z[0] * 180 / Math.PI).toFixed(1) : 'none';
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.textAlign = 'left';
   ctx.fillText(
     `N = ${state.N}   d/a = ${state.ratio.toFixed(1)}   lambda = ${LAMBDA} um   principal maxima = ${np}   1st envelope zero = ${firstZeroDeg} deg`,

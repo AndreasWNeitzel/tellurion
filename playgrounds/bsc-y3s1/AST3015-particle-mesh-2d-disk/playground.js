@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // 2D PM disc render.
 
@@ -98,14 +99,14 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2;
   const b0 = ox + 14, b1 = b0 + side / (2 * HW) * state.R, by = oy + side - 14;
   ctx.beginPath(); ctx.moveTo(b0, by); ctx.lineTo(b1, by); ctx.stroke();
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'left';
   ctx.fillText('1 scale length R', b0, by - 6);
 
   // Readout.
   const M = totalMass(sim);
   const Lz = totalAngularMomentum(sim);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
   ctx.fillText(`t = ${sim.t.toFixed(2)}   N = ${N}   R = ${state.R.toFixed(2)}   M = ${M.toFixed(3)}   L_z = ${Lz.toFixed(3)}`, 24, 18);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';

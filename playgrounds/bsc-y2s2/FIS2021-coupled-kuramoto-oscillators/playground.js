@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Kuramoto oscillators on the unit circle, with r(t) panel.
 
@@ -54,7 +55,7 @@ function drawAll() {
   const r = orderParameter(state.sim);
   const Kc = criticalCoupling(state.gamma);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`K = ${state.K.toFixed(2)}   K_c = ${Kc.toFixed(2)}   r = ${r.toFixed(3)}`, 30, 22);
@@ -107,7 +108,7 @@ function drawAll() {
   ctx.beginPath();
   ctx.arc(arrowEnd.x, arrowEnd.y, 4, 0, Math.PI * 2);
   ctx.fill();
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('oscillator phases on unit circle', circleX + 6, panelY + 14);
@@ -145,7 +146,7 @@ function drawAll() {
     ctx.stroke();
   }
   // r = 1 and 0 labels
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('r = 1', traceX + 6, panelY + 14);

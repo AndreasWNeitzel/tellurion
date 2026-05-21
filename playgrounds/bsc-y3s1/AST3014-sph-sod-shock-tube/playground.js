@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // 1D SPH Sod shock-tube render. Particle ribbon and three stacked traces
 // (density, velocity, pressure).
@@ -65,7 +66,7 @@ function drawAll() {
   const Ec = totalEnergy(state.sim);
   const E_rel = (Ec - state.E0) / Math.abs(state.E0);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.sim.t.toFixed(3)}   step = ${state.sim.nSteps}   N = ${N}`, PADX, 22);
@@ -88,7 +89,7 @@ function drawAll() {
     ctx.fillStyle = i < 320 ? '#7fb1d8' : '#d68a69';
     ctx.fillRect(px - 0.5, py - 2, 1.2, 4);
   }
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.textAlign = 'left';
   ctx.fillText('particles (blue = initially left, orange = initially right)', PADX + 4, ribbonY + ribbonH - 4);
@@ -126,14 +127,14 @@ function drawAll() {
     }
     ctx.stroke();
 
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'left';
     ctx.fillStyle = state.field === p ? '#fff' : 'rgba(255, 255, 255, 0.55)';
     ctx.fillText(pan.label, PADX + 4, py + 14);
   }
 
   const xAxisY = ribbonY + ribbonH + panelGap + 3 * (panelH + panelGap) + 4;
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.textAlign = 'center';
   for (let t = 0; t <= 1; t += 0.2) ctx.fillText(t.toFixed(1), xToPx(t), xAxisY);

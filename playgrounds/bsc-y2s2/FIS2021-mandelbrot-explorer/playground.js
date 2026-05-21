@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Mandelbrot rainbow explorer with auto-zoom. The user clicks anywhere to
 // recenter; the auto-zoom button drives a geometric width decrease at every
@@ -225,7 +226,7 @@ function drawOverlay() {
 
   // top-left title
   ctx.fillStyle = 'rgba(255, 255, 255, 0.80)';
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Mandelbrot set. Click to recenter; auto-zoom drives into the canvas centre.', 12, 18);
 
@@ -238,7 +239,7 @@ function drawOverlay() {
     `zoom    ${zoom.toExponential(2)}`,
     `maxIter ${String(state.maxIter).padStart(6)}`,
   ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   let y = 20;

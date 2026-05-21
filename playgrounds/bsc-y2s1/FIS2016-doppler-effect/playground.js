@@ -74,7 +74,7 @@ function drawAll() {
   if (!state.sim) return;
 
   // Title
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`v / c = ${state.v.toFixed(2)}   t = ${state.sim.t.toFixed(2)}   wavefronts = ${state.sim.wavefronts.length}`, 30, 22);
@@ -144,7 +144,7 @@ function drawAll() {
     ctx.beginPath(); ctx.moveTo(20, axisY); ctx.lineTo(W - 20, axisY); ctx.stroke();
     drawGaps(back, 'rgba(214,138,105,0.85)');     // stretched (warm/red)
     drawGaps(front, 'rgba(127,177,216,0.95)');    // compressed (cool/blue)
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(127,177,216,0.95)';
     ctx.fillText(`lambda_front = c/f - v/f = ${(1 - state.v).toFixed(2)} (compressed)`, 30, sceneY + sceneH - 30);
@@ -205,7 +205,7 @@ function drawAll() {
   ctx.fillStyle = tok.accentWarm;
   ctx.beginPath(); ctx.arc(obs1.px, obs1.py, 5, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(obs2.px, obs2.py, 5, 0, Math.PI * 2); ctx.fill();
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'center';
   ctx.fillText('theta = 0 (in front)',  obs1.px, obs1.py - 10);
@@ -231,11 +231,11 @@ function drawAll() {
   // Line from source to observer
   ctx.strokeStyle = 'rgba(255,255,255,0.30)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(sourcePx.px, sourcePx.py); ctx.lineTo(dragPx.px, dragPx.py); ctx.stroke(); ctx.setLineDash([]);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(220, 230, 245, 0.95)';
   ctx.fillText(`theta = ${(theta * 180 / Math.PI).toFixed(0)} deg`, dragPx.px, dragPx.py - 12);
   ctx.fillText(`f = ${fDrag.toFixed(3)}`, dragPx.px, dragPx.py + 20);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(180, 195, 220, 0.6)';
   ctx.fillText('drag this observer', dragPx.px + 12, dragPx.py + 3);
 
@@ -247,7 +247,7 @@ function drawAll() {
   ctx.fillRect(barX, barY, barW, barH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(barX + 0.5, barY + 0.5, barW - 1, barH - 1);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('observed frequency vs theta (0 to pi)', barX + 6, barY + 14);

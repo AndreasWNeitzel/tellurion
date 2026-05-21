@@ -84,7 +84,7 @@ function drawAll() {
   const cellW = galW / GALLERY_N, cellH = galH / GALLERY_N;
 
   // Title bar
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`a = ${state.a}   b = ${state.b}   delta = ${state.delta.toFixed(2)}   ratio a:b = ${state.a}:${state.b}`, padX, 22);

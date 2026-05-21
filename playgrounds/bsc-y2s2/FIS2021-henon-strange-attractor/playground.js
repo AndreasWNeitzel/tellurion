@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Henon strange attractor. We render in two layers:
 //   1. A faint background of all visited points (so the attractor's shape
@@ -115,7 +116,7 @@ function drawTrail() {
 }
 
 function drawReadout() {
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255,255,255,0.92)';
   const rows = [
     ['a',         state.params.a.toFixed(3)],

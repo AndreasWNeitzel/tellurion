@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Triangular antiferromagnetic Ising (Wannier 1950). The spins never
 // order, but the *three-sublattice chirality field* does form domains
@@ -136,7 +137,7 @@ function drawHistory() {
     ctx.stroke();
   }
   ctx.fillStyle = 'rgba(255,255,255,0.75)';
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('energy/site -1.05..-0.45 (amber)   frustrated fraction 0..0.25 (white)', x0 + 6, HIST_TITLE_Y);
 }
 
@@ -150,7 +151,7 @@ function drawAll() {
   const ff = frustratedFraction(state.af);
 
   // Legend.
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   const lg = [['minority = A', HUE[0]], ['B', HUE[1]], ['C', HUE[2]], ['all-equal (frustrated)', FRUST]];
   let lx = MARGIN;
   const ly = LEGEND_Y;
@@ -163,7 +164,7 @@ function drawAll() {
   drawHistory();
 
   // Live invariant readout (monospace).
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.textAlign = 'left';
   ctx.fillText(
     `T = ${state.T.toFixed(2)}   L = ${state.L}   m = ${m.toFixed(3)}   e/site = ${e.toFixed(3)}   frustrated = ${(100 * ff).toFixed(1)} %`,

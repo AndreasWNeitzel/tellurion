@@ -36,7 +36,9 @@ function roleForPx(px) {
 function rewriteFonts(js) {
   const canvasMatch = js.match(/(?:const|let|var)\s+(\w+)\s*=\s*document\.getElementById\(\s*['"]stage['"]\s*\)/);
   const canvasVar = canvasMatch ? canvasMatch[1] : 'document.getElementById("stage")';
-  const fontRe = /(\w+)\.font\s*=\s*(['"`])((?:[^'"`\\]|\\.)*?)\2/g;
+  // Body matches any character that is not the chosen delimiter quote,
+  // so font strings with a nested family quote ('10px "Inter"') parse.
+  const fontRe = /(\w+)\.font\s*=\s*(['"`])((?:(?!\2)[\s\S])*?)\2/g;
   let changed = false;
   const out = js.replace(fontRe, (full, obj, q, body) => {
     const pxm = body.match(/(\d+(?:\.\d+)?)\s*px/);
@@ -287,6 +289,30 @@ async function verifyPage(page, url) {
 async function main() {
   const args = process.argv.slice(2);
   const manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+  // --fonts-only: re-run just the ctx.font rewrite across every
+  // playground .js (for already-migrated pages the codemod would
+  // otherwise refuse). Used to catch font strings an earlier regex
+  // missed. No HTML or browser verification.
+  if (args.includes('--fonts-only')) {
+    const jsFiles = [];
+    (function walk(d) {
+      for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+        if (e.isDirectory()) {
+          if (e.name === 'references' || e.name === 'node_modules') continue;
+          walk(path.join(d, e.name));
+        } else if (e.name.endsWith('.js')) jsFiles.push(path.join(d, e.name));
+      }
+    }(path.join(ROOT, 'playgrounds')));
+    let n = 0;
+    for (const f of jsFiles) {
+      const src = fs.readFileSync(f, 'utf8');
+      const out = rewriteFonts(src);
+      if (out !== src) { fs.writeFileSync(f, out); n += 1; }
+    }
+    console.log(`fonts-only: rewrote ${n} files`);
+    process.exit(0);
+  }
+
   let targets;
   if (args.includes('--dir')) {
     targets = [path.resolve(ROOT, args[args.indexOf('--dir') + 1])];

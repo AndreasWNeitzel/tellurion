@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // q-state Potts lattice + order-parameter trace.
 
@@ -94,7 +95,7 @@ function drawTraceAndReadout() {
     ['e/site', e.toFixed(3)],
     ['accept', (100 * acc).toFixed(1) + '%'],
   ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   let y = 30;
   for (const [k, v] of rows) {

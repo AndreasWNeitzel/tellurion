@@ -105,7 +105,7 @@ function drawAll() {
 
   const Pinf = maxSize / (state.L * state.L);
   const hasSpan = spans(grid, state.L);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const rows = [
     ['p',         state.p.toFixed(3)],
@@ -133,7 +133,7 @@ function drawAll() {
   // p_c tick (gold)
   const pcX = barX + (P_C - 0) / 1.0 * barW;
   ctx.fillStyle = '#f1c14a'; ctx.fillRect(pcX - 1, barY - 4, 2, barH + 8);
-  ctx.font = '9px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('p_c', pcX, barY - 6);
   // current p marker
   const pX = barX + state.p * barW;
@@ -236,7 +236,7 @@ function drawAll() {
   const hX = opX, hY = opY + opH + 16, hW = opW, hH = 120;
   ctx.fillStyle = 'rgba(15, 18, 28, 0.85)'; ctx.fillRect(hX, hY, hW, hH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.strokeRect(hX + 0.5, hY + 0.5, hW - 1, hH - 1);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '9px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('cluster sizes log10(n) vs log10(s)', hX + 4, hY + 12);
   const NB = 12;
   const bins = new Array(NB).fill(0);

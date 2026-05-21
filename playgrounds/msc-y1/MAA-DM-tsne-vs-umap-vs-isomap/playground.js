@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // 2x2 grid: original 3D dataset (top-down view) plus three 2D embeddings.
 
@@ -78,7 +79,7 @@ function drawRaw() {
   ctx.strokeStyle = tok.fgFaint; ctx.lineWidth = 0.6;
   ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
   ctx.fillStyle = tok.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   const dimLabel = state.data ? `${state.data.D}D` : 'data';
   ctx.fillText(`Original ${dimLabel} data (rotating)`, p.x + 8, p.y - 6);
@@ -126,7 +127,7 @@ function drawRaw() {
     const ex = cx0 + u * L, ey = cy0;
     ctx.strokeStyle = color; ctx.lineWidth = 1.2;
     ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(ex, ey); ctx.stroke();
-    ctx.fillStyle = color; ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.fillStyle = color; ctx.font = fontString(canvas, 'tick', 'mono');
     ctx.fillText(label, ex + 2, ey - 2);
   }
   drawAxis(1, 0, 'rgba(193,59,39,0.9)',  'x');
@@ -134,7 +135,7 @@ function drawRaw() {
   ctx.strokeStyle = 'rgba(85,168,104,0.9)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(cx0, cy0 - L); ctx.stroke();
   ctx.fillStyle = 'rgba(85,168,104,0.9)';
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('y', cx0 + 2, cy0 - L - 2);
 }
 
@@ -143,7 +144,7 @@ function drawEmbedding(p, Y, title) {
   ctx.strokeStyle = tok.fgFaint; ctx.lineWidth = 0.6;
   ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
   ctx.fillStyle = tok.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText(title, p.x + 8, p.y - 6);
   if (!Y || !state.data) {

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Kepler Solar System: the four inner planets orbiting a central mass with
 // realistic (a, e), plus a fifth user-controllable test particle. A live
@@ -195,7 +196,7 @@ function drawKeplerThirdLawInset() {
   ctx.stroke();
   // axis tick labels
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (let v = Math.ceil(KPL.log_a3_min); v <= Math.floor(KPL.log_a3_max); v += 1) {
     const p = pxKepler(v, KPL.log_T2_min);
@@ -236,17 +237,17 @@ function drawKeplerThirdLawInset() {
     ctx.stroke();
     // label
     ctx.fillStyle = tokens.fg;
-    ctx.font = '10px "Inter", system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'tick');
     ctx.textAlign = 'left';
     ctx.fillText(bodies[i].name, p.px + 8, p.py + 3);
   }
 
   // axis labels
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'center';
   ctx.fillText("Kepler's third law: T^2 proportional to a^3", KPL.x + KPL.w / 2, KPL.y - 8);
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.fillStyle = tokens.fgFaint;
   ctx.fillText('a^3 (AU^3)', KPL.x + KPL.w / 2, KPL.y + KPL.h + 26);
   ctx.save();
@@ -258,7 +259,7 @@ function drawKeplerThirdLawInset() {
 
 function drawLegendAndReadout() {
   const bodies = allBodies();
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   let y = 50;
   for (let i = 0; i < bodies.length; i += 1) {
@@ -278,7 +279,7 @@ function drawLegendAndReadout() {
 
   // simulation time
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.t.toFixed(2)} yr`, 20, y + 6);
   ctx.fillText(`speed = ${state.speed.toFixed(1)} yr/s`, 20, y + 22);
@@ -286,7 +287,7 @@ function drawLegendAndReadout() {
 
 function drawTitles() {
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '12px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Inner solar system. Yellow disc = Sun. Four real planets + one custom test orbit.',
                20, 22);

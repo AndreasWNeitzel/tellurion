@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Cart with pendulum render + energy and phase panels.
 
@@ -112,7 +113,7 @@ function drawAll() {
   const E = energy(state.sim);
   const p = horizontalMomentum(state.sim);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`t = ${state.sim.t.toFixed(2)}   theta = ${state.sim.theta.toFixed(3)}   x = ${state.sim.x.toFixed(3)}`, 30, 22);
@@ -149,7 +150,7 @@ function drawAll() {
     ctx.arc(ppX(cur.x), ppY(cur.th), 4, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('phase (x_cart, theta)', phaseX + 6, phaseY + 14);

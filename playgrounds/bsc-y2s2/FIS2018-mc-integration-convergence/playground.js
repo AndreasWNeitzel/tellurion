@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // MC integration: function and convergence curve.
 
@@ -53,7 +54,7 @@ function drawAll() {
   const rPlain = plainMC(N, SEED);
   const rIS = importanceMC(N, SEED + 999);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`N = ${N}   EXACT = ${EXACT.toFixed(4)}`, 30, 22);
@@ -117,7 +118,7 @@ function drawAll() {
   }
   ctx.stroke();
 
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
   ctx.textAlign = 'left';
   ctx.fillText('f(x) = 1 + 10 (x - 0.5)^4', padL + 6, topY + 14);
@@ -172,7 +173,7 @@ function drawAll() {
   ctx.moveTo(cPx, botY + 6); ctx.lineTo(cPx, botY + botH - 6);
   ctx.stroke();
   // Labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accentCool;
   ctx.textAlign = 'left';
   ctx.fillText('plain MC', padL + 6, botY + 14);
@@ -180,7 +181,7 @@ function drawAll() {
   ctx.fillText('importance', padL + 90, botY + 14);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText('1/sqrt(N) reference (dashed)', padL + 200, botY + 14);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.textAlign = 'center';
   for (const lg of [4, 8, 12, 16, 18]) {
     const px = xN(lg);

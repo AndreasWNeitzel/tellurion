@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // UI binding for the lyapunov-spectrum playground. Two panels:
 //   left: attractor scatter in (x, y) for the current (a, b)
@@ -94,7 +95,7 @@ function drawAttractor() {
   ctx.stroke();
 
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (const xt of [-1, 0, 1]) {
     const { px } = pxAtt(xt, 0);
@@ -118,12 +119,12 @@ function drawAttractor() {
   } else {
     ctx.fillStyle = tokens.accentWarm;
     ctx.textAlign = 'center';
-    ctx.font = '13px "Inter", system-ui, sans-serif';
+    ctx.font = fontString(canvas, 'body');
     ctx.fillText('orbit unbounded at these parameters', ox + w / 2, oy + h / 2);
   }
 
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Henon attractor', ox, oy - 10);
   ctx.textAlign = 'right';
@@ -131,7 +132,7 @@ function drawAttractor() {
 
   ctx.textAlign = 'center';
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.fillText('x', ox + w / 2, oy + h + 26);
   ctx.save();
   ctx.translate(ox - 26, oy + h / 2);
@@ -160,7 +161,7 @@ function drawParameterPanel() {
   ctx.stroke();
 
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '9px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (const aTick of [1.0, 1.25, 1.5]) {
     const { px } = pxPar(aTick, 0);
@@ -182,12 +183,12 @@ function drawParameterPanel() {
   ctx.beginPath(); ctx.arc(px, py, 2.5, 0, 2 * Math.PI); ctx.fill();
 
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Parameter (a, b)', ox, oy - 10);
   ctx.textAlign = 'center';
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.fillText('a', ox + w / 2, oy + h + 22);
   ctx.save();
   ctx.translate(ox - 22, oy + h / 2);

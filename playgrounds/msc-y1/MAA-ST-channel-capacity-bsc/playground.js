@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // BSC: capacity curve, repetition-code BER curves, sliding p cursor.
 
@@ -42,7 +43,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   const sim = simulateBSC({ N: 5000, p: state.p, seed: SEED });
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`p = ${state.p.toFixed(3)}   H(p) = ${binaryEntropy(state.p).toFixed(3)}   C(p) = ${capacityBSC(state.p).toFixed(3)}`, 30, 22);
@@ -89,7 +90,7 @@ function drawAll() {
   ctx.moveTo(cPx, topY + 6); ctx.lineTo(cPx, topY + topH - 6);
   ctx.stroke();
   // labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentCool;
   ctx.fillText('C(p) capacity', padL + 6, topY + 14);
@@ -121,7 +122,7 @@ function drawAll() {
     ctx.stroke();
   }
   // Labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   for (let ni = 0; ni < ns.length; ni += 1) {
     ctx.fillStyle = colors[ni];
@@ -135,7 +136,7 @@ function drawAll() {
   ctx.moveTo(cPx2, botY + 6); ctx.lineTo(cPx2, botY + botH - 6);
   ctx.stroke();
   // axis
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (const pt of [0, 0.1, 0.2, 0.3, 0.4, 0.5]) {

@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Tidal stream from a self-gravitating cloud. Render cloud + trail.
 
@@ -68,7 +69,7 @@ function drawAll() {
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 80, 80, 0.55)';
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.textAlign = 'left';
   const rPx = toPx(2.44, 0);
   ctx.fillText('Roche limit r_R = 2.44', rPx.px + 4, rPx.py - 4);
@@ -103,7 +104,7 @@ function drawAll() {
   // Readout
   const r = comDistance(state.cloud);
   const stream = streamLength(state.cloud);
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const rows = [
     ['a',          state.a.toFixed(2)],

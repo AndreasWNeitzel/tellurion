@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Mean-field VI on the Rosenbrock banana. Shows the converged ellipse
 // failing to follow the curvature.
@@ -125,7 +126,7 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
   ctx.strokeRect(PLOT_X + 0.5, LOSS_Y + 0.5, PLOT_W - 1, LOSS_H - 1);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('ELBO over iterations (monotone non-decreasing in expectation)', PLOT_X + 8, LOSS_Y + 12);
   if (state.lossHistory.length >= 2) {
@@ -144,7 +145,7 @@ function drawAll() {
   }
 
   // Readout
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'right';
   const last = state.lossHistory[state.lossHistory.length - 1];

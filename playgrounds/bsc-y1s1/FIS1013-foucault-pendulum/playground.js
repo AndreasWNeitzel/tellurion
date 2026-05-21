@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Foucault pendulum as the museum sand table: a hand-projected 3D scene
 // (Canvas2D, no WebGL) with a ceiling mount, suspension wire and shaded
@@ -236,7 +237,7 @@ function drawAll() {
   ctx.beginPath(); ctx.arc(bob.sx - 4.5, bob.sy - 5.5, 2.3, 0, 2 * Math.PI); ctx.fill();
 
   // Readout (monospace).
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.textAlign = 'left';
   ctx.fillText(`latitude = ${state.lat} deg    t = ${s.t.toFixed(1)} s`, 24, 26);
   const TpStr = Number.isFinite(Tp) ? `${Tp.toFixed(1)} s` : 'no precession';

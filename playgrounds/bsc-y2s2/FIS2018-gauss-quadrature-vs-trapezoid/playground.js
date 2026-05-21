@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Side-by-side quadrature: f(x) + nodes + log-error convergence.
 
@@ -47,7 +48,7 @@ function drawAll() {
   const eGL = Math.abs(gaussLegendre(fn, state.n) - exact);
   const eTr = Math.abs(trapezoid(fn, state.n) - exact);
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`n = ${state.n}   f = ${fnKey}   exact = ${exact.toFixed(6)}`, 30, 22);
@@ -141,7 +142,7 @@ function drawAll() {
     'runge':     '1 / (1 + 25 x^2): Runge phenomenon (polynomial-fit pitfall)',
     'sqrt-abs':  'sqrt|x|: integrand with an algebraic singularity at 0',
   };
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.fillText(`f(x)`, padL + 6, topY + 14);
@@ -187,11 +188,11 @@ function drawAll() {
   ctx.moveTo(cPx, botY + 6); ctx.lineTo(cPx, botY + botH - 6);
   ctx.stroke();
   // Labels
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('log10(|error|) vs n', padL + 6, botY + 14);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.textAlign = 'center';
   for (const nn of [2, 4, 6, 8, 10, 12, 14, 16]) {
     const px = xN(nn);

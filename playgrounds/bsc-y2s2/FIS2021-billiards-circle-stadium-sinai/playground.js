@@ -149,7 +149,7 @@ function drawAll() {
   }
 
   // Readout
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   const integrable = state.geom === 'circle' || state.geom === 'ellipse';

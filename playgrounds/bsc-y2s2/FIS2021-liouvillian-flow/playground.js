@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // UI binding for the liouvillian-flow playground. Single canvas showing the
 // pendulum phase portrait (theta on x, p on y) with the tracer cloud and the
@@ -111,7 +112,7 @@ function drawBackground() {
   ctx.stroke();
 
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.textAlign = 'center';
   for (const [t, lbl] of [[-Math.PI, '-pi'], [-Math.PI / 2, '-pi/2'], [0, '0'], [Math.PI / 2, 'pi/2'], [Math.PI, 'pi']]) {
     const { px: tx } = px(t, 0);
@@ -230,7 +231,7 @@ function drawPendulumPanel() {
 
   // panel label
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'center';
   ctx.fillText('Physical pendulums (red rod = mean angle)',
                PEND.cx, PEND.cy - 38);
@@ -238,12 +239,12 @@ function drawPendulumPanel() {
 
 function drawTitles() {
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Pendulum phase space (drag the dashed circle to set the blob center)', PHASE.x, PHASE.y - 10);
   ctx.textAlign = 'center';
   ctx.fillStyle = tokens.fgFaint;
-  ctx.font = '10px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'tick');
   ctx.fillText('theta', PHASE.x + PHASE.w / 2, PHASE.y + PHASE.h + 26);
   ctx.save();
   ctx.translate(PHASE.x - 38, PHASE.y + PHASE.h / 2);

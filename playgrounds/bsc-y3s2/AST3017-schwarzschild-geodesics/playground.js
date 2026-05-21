@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Plane wave of photons incident on a Schwarzschild black hole, animated.
 // The swarm advances at K substeps per requestAnimationFrame call so the
@@ -170,7 +171,7 @@ function drawFrame() {
     ctx.stroke();
     ctx.setLineDash([]);
     // labels at left edge
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillStyle = tokens.fg;
     ctx.textAlign = 'left';
     ctx.fillText('+b_crit', xLeft + 6, yTopPlus  - 4);
@@ -247,7 +248,7 @@ function drawFrame() {
 
   // titles
   ctx.fillStyle = tokens.fgMuted;
-  ctx.font = '11px "Inter", system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'left';
   ctx.fillText('Plane wave of photons at Schwarzschild BH (M = 1, geometric units)', 20, 20);
   ctx.fillText('Red trails: swallowed.  Blue trails: deflected.  Dashed circle: photon sphere r = 3.', 20, 36);
@@ -262,7 +263,7 @@ function drawFrame() {
     `swallow   ${String(nSwallowed).padStart(4)}`,
     `deflect   ${String(nDeflected).padStart(4)}`,
   ];
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillStyle = tokens.fg;
   const xRight = W - 16;

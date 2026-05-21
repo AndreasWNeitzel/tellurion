@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Magnus-effect trajectory comparison: three trajectories (no spin, current,
 // opposite) on common axes, with a live moving ball.
@@ -70,7 +71,7 @@ function drawAll() {
   if (!state.sim) return;
   const bb = bbox();
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(`v_0 = ${state.v0}   angle = ${state.angle} deg   spin = ${state.spin}`, 30, 22);
@@ -173,7 +174,7 @@ function drawAll() {
   }
 
   // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = '#f1d28a';
   ctx.fillText('no spin (dashed)', padL + 6, padT + 14);

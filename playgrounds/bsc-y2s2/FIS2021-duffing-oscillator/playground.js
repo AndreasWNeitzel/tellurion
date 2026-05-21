@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Driven, damped Duffing oscillator. Left panel: phase portrait with
 // stroboscopic Poincare points sampled once per drive period. Right panel:
@@ -154,7 +155,7 @@ function drawPhase() {
     ctx.fill();
   }
 
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('phase portrait', 10, 16);
@@ -202,7 +203,7 @@ function drawBifurcation() {
   ctx.lineTo(cur.px, H);
   ctx.stroke();
 
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
   ctx.fillText('bifurcation in gamma', RIGHT_X + 8, 16);
@@ -215,7 +216,7 @@ function drawBifurcation() {
 }
 
 function drawReadout() {
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const rows = [
     ['delta',  state.params.delta.toFixed(2)],

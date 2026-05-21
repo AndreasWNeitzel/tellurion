@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Gyroscope precession as a real 3D spinning flywheel (hand-projected
 // Canvas2D, no WebGL): a shaded disc with rotating spokes on an axle
@@ -156,7 +157,7 @@ function drawScene() {
   arrow3(c, [c[0] + tau[0], c[1] + tau[1], c[2] + tau[2]], '#06d6a0', 2.5);
 
   // Vector key.
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   const keyY = H - 70;
   ctx.fillStyle = '#ffd166'; ctx.fillText('L  spin angular momentum', 30, keyY);
   ctx.fillStyle = '#ef476f'; ctx.fillText('W  weight Mg', 30, keyY + 16);
@@ -184,7 +185,7 @@ function drawCurve() {
   ctx.fillStyle = tok.warm;
   const yc = yF(precessionRate(state.omega_s));
   ctx.beginPath(); ctx.arc(xc, yc, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('Omega_p vs omega_s  (1/omega_s)', px + 8, py + 16);
   ctx.textAlign = 'center';
@@ -195,7 +196,7 @@ function drawAll() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
   if (!state.sim) return;
   const Op = precessionRate(state.omega_s), Tp = 2 * Math.PI / Op;
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.textAlign = 'left';
   ctx.fillText(`omega_s = ${state.omega_s}   theta = ${state.theta0.toFixed(2)} rad`, 24, 24);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';

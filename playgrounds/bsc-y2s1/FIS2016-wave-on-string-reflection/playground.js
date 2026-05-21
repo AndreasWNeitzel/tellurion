@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Two parallel strings with fixed vs free boundaries.
 
@@ -76,7 +77,7 @@ function drawString(s, panelY, panelH, color, label) {
   ctx.moveTo(padL + panelW - 4, panelY + 4); ctx.lineTo(padL + panelW - 4, panelY + panelH - 4);
   ctx.stroke();
   // Label
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   ctx.fillText(label, padL + 6, panelY + 14);
@@ -88,7 +89,7 @@ function drawAll() {
   if (!state.fixed) return;
   const t = state.fixed.t;
 
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   const E1 = totalEnergy(state.fixed), E2 = totalEnergy(state.free);
@@ -116,7 +117,7 @@ function drawAll() {
   const ringY = padT + panelH + 20 + panelH / 2 - yEnd * (panelH * 0.4);
   ctx.strokeStyle = 'rgba(255, 215, 130, 0.95)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(padL + panelW - 4, ringY, 6, 0, 6.28); ctx.stroke();
-  ctx.fillStyle = 'rgba(255, 215, 130, 0.85)'; ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 215, 130, 0.85)'; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('slider (free)', padL + panelW - 60, ringY + 18);
 }
 

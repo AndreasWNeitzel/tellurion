@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Live backprop on a configurable MLP: decision surface (left), the
 // network graph with weight-encoded edges and activation-lit nodes
@@ -218,14 +219,14 @@ function drawDecisionSurface(rng, probe) {
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.beginPath(); ctx.arc(ppx, ppy, 2, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,0.8)';
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('probe input', ppx + 9, ppy - 7);
 
   ctx.strokeStyle = 'rgba(255,255,255,0.25)';
   ctx.strokeRect(DX + 0.5, DY + 0.5, DW - 1, DH - 1);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('decision surface  (p>0.5 -> red)', DX + 8, DY + 16);
 }
@@ -309,7 +310,7 @@ function drawNetwork(probe) {
   }
 
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('network  (edge width ~ |w|, glow ~ activation)', NX + 8, NY + 16);
   ctx.fillText('input', nodes[0][0].x - 14, NY + NH - 10);
@@ -322,7 +323,7 @@ function drawLoss() {
   ctx.strokeStyle = 'rgba(255,255,255,0.20)';
   ctx.strokeRect(LX + 0.5, LY + 0.5, LW - 1, LH - 1);
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText('training loss (BCE) vs iterations', LX + 8, LY + 14);
 
@@ -357,7 +358,7 @@ function drawAll() {
   const lossStr = lastLoss !== undefined ? lastLoss.toFixed(4) : '-';
   const accStr = `${(state.acc * 100).toFixed(1)}%`;
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillText(`arch ${archStr}  iter ${state.iter}  loss ${lossStr}  acc ${accStr}`, W - PAD - 6, LY + 14);
   readoutInv.innerHTML =

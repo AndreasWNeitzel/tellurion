@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Standing waves on a fixed-end string. Show selected mode or 1+3 superposition.
 
@@ -51,7 +52,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
 
   // Title bar
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
   const label = state.superpose ? 'modes 1 + 3 superposition' : `mode n = ${state.n}`;
@@ -158,7 +159,7 @@ function drawAll() {
   }
 
   // Legend
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentCool;
   ctx.fillText('y(x, t) = sin(n pi x / L) cos(2 pi f_n t)', 60, H - 24);
