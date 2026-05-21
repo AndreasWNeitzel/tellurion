@@ -327,6 +327,13 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   font-size:0.8125rem;font-family:var(--f-ui);cursor:pointer;padding:4px 6px}
 .clearall:hover{text-decoration:underline}
 .clearall.show{display:inline-block}
+.browse-meta{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:12px 0 24px}
+.browse-meta span{color:var(--text-secondary)}
+.browse-meta strong{color:var(--text-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.curriculum-toggle{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);
+  padding:6px 12px;border-radius:4px;cursor:pointer;font-family:var(--f-ui);transition:border-color var(--t-fast),color var(--t-fast)}
+.curriculum-toggle:hover{border-color:var(--border-active);color:var(--text-primary)}
+.curriculum-toggle[aria-pressed="true"]{background:var(--accent-dim);border-color:var(--accent);color:var(--text-primary)}
 .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
 @media(max-width:900px){.card-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.card-grid{grid-template-columns:1fr}}
@@ -500,7 +507,6 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
     <select class="sortsel" id="sortsel" aria-label="Order">
       <option value="az">A &rarr; Z</option>
       <option value="za">Z &rarr; A</option>
-      <option value="curriculum">Curriculum order</option>
     </select>
   </div>
   <div class="hero-filter-chips" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
@@ -512,7 +518,11 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
 </section>
 
 <section id="browse">
-  <h2 class="sec">Browse</h2>
+  <h2 class="sec">Catalog</h2>
+  <div class="browse-meta">
+    <span class="t-small" id="browse-count">Showing <strong>${cards.length}</strong> simulations</span>
+    <button class="curriculum-toggle t-small" id="cur-toggle" type="button" aria-pressed="false">Group by curriculum</button>
+  </div>
   <div class="card-grid" id="card-grid">${cardsHTML}</div>
 </section>
 
@@ -586,9 +596,12 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
   var grid=document.getElementById('card-grid');
   var sortsel=document.getElementById('sortsel');
   var clearBtn=document.getElementById('clearall');
+  var countEl=document.getElementById('browse-count');
+  var curToggle=document.getElementById('cur-toggle');
   var chips=[].slice.call(document.querySelectorAll('.chip'));
   var cards=[].slice.call(grid.querySelectorAll('.card'));
   var active={};
+  var curMode=false;
   // D1: hide cards before first paint (JS-only) so the staggered
   // entry has no visible -> hidden flash. No-JS users see them.
   if(!reduce && 'IntersectionObserver' in window){ cards.forEach(function(c){ c.classList.add('preanim'); }); }
@@ -612,9 +625,9 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
   function clearGroups(){ [].slice.call(grid.querySelectorAll('.cur-group,.cur-wrap')).forEach(function(e){e.remove();}); }
   function render(){
     clearGroups();
-    var mode=sortsel.value, vis=cards.filter(visible);
+    var vis=cards.filter(visible);
     cards.forEach(function(c){c.style.display='none';});
-    if(mode==='curriculum'){
+    if(curMode){
       grid.classList.add('curr');
       var groups={};
       vis.forEach(function(c){ var key=(+c.dataset.order)+'|'+c.dataset.group; (groups[key]=groups[key]||[]).push(c); });
@@ -635,9 +648,13 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
       grid.classList.remove('curr');
       var arr=vis.slice();
       arr.sort(function(a,b){return a.dataset.title.localeCompare(b.dataset.title);});
-      if(mode==='za')arr.reverse();
+      if(sortsel.value==='za')arr.reverse();
       arr.forEach(function(c){ c.style.display=''; grid.appendChild(c); });
     }
+    var filtered=Object.keys(active).length>0||input.value.trim()!=='';
+    countEl.innerHTML=filtered
+      ?('Showing <strong>'+vis.length+'</strong> of '+cards.length)
+      :('Showing <strong>'+cards.length+'</strong> simulations');
     clearBtn.classList.toggle('show',Object.keys(active).length>0);
     wireGroups();
   }
@@ -659,6 +676,12 @@ section,.header,.heroes,.card-grid,.about-grid,.credits-grid,.controls,.tags-rai
   }
   input.addEventListener('input',render);
   sortsel.addEventListener('change',render);
+  curToggle.addEventListener('click',function(){
+    curMode=!curMode;
+    curToggle.setAttribute('aria-pressed',String(curMode));
+    var a=aud(); if(a){ curMode?a.filterActivate():a.filterDeactivate(); }
+    render();
+  });
   chips.forEach(function(ch){
     ch.addEventListener('mouseenter',ping);
     ch.addEventListener('click',function(){
