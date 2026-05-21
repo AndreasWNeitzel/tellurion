@@ -8,6 +8,7 @@ import {
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -74,7 +75,7 @@ function drawScene() {
   ctx.fillStyle = sgrad;
   ctx.beginPath(); ctx.arc(cx, cy, 24, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('singlet source', cx - 40, cy + 38);
 
   // Detectors (Alice on left, Bob on right).
@@ -99,7 +100,7 @@ function drawScene() {
 
   // Caption strip
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   const {a, ap, b, bp} = asRad();
   ctx.fillText(`S = ${chshS(a, ap, b, bp).toFixed(3)} (classical bound 2, Tsirelson 2.828)`, 14, SCENE.h - 10);
 }
@@ -126,7 +127,7 @@ function drawDetector(x, y, angleDeg, label, color, ghost = false) {
   ctx.beginPath(); ctx.arc(x + dx, y + dy, 3, 0, Math.PI * 2); ctx.fill();
   // Label
   ctx.fillStyle = ghost ? 'rgba(180, 200, 230, 0.65)' : 'rgba(220, 230, 255, 0.95)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText(`${label} = ${angleDeg.toFixed(0)} deg`, x - 30, y + 50);
 }
 
@@ -160,7 +161,7 @@ function drawCorrelationCurve() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('E(a - b) = -cos(2 (a - b)) singlet correlation', x + 8, y - 6);
 
   // Plot E vs delta = (a - b) over [0, 180 deg].
@@ -216,14 +217,14 @@ function drawCorrelationCurve() {
   ctx.beginPath(); ctx.arc(x_now, y_now, 6, 0, Math.PI * 2); ctx.fill();
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', x + 28, y + h - 8);
   ctx.fillText('180 deg', x + w - 50, y + h - 8);
   ctx.fillText('+1', x + 12, y + 14);
   ctx.fillText('-1', x + 12, y + h - 8);
   // Legend
   ctx.fillStyle = 'rgba(255, 220, 120, 0.95)';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   ctx.fillText('quantum E(d)', x + 32, y + 16);
   ctx.fillStyle = 'rgba(120, 200, 255, 0.65)';
   ctx.fillText('LHV envelope', x + 120, y + 16);
@@ -237,7 +238,7 @@ function drawBars() {
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText('CHSH statistic  |S|', x + 8, y - 6);
 
   // S spans [0, 3]. Tick lines at 2 and 2 sqrt 2.
@@ -253,7 +254,7 @@ function drawBars() {
   ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(x_clas, y + 20); ctx.lineTo(x_clas, y + h - 20); ctx.stroke();
   ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('classical', x_clas - 18, y + 18);
   ctx.fillText('|S| = 2', x_clas - 14, y + h - 6);
   // Tsirelson (green).
@@ -278,10 +279,10 @@ function drawBars() {
   ctx.fillRect(x0, y + h / 2 - 12, x_S - x0, 24);
   // Numerical readout.
   ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-  ctx.font = 'bold 16px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'heading', 'mono', 600);
   ctx.fillText(`|S| = ${absS.toFixed(3)}`, x + 8, y + h / 2 + 38);
   ctx.fillStyle = absS > 2 ? 'rgba(120, 240, 160, 0.95)' : 'rgba(255, 130, 110, 0.95)';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption');
   const verdict = absS > 2 ? '> 2 : LHV ruled out' : 'within classical bound';
   ctx.fillText(verdict, x + 8, y + h / 2 + 56);
 }
@@ -378,4 +379,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -10,6 +10,7 @@
 import { thomasFermiRadius, healingLength, vortexLattice, vortexCount, vortexSpacing, angularMomentumPerAtom, density, phase, OMEGA_MAX } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -202,13 +203,13 @@ function drawVorticesAndAxes() {
   ctx.beginPath(); ctx.moveTo(ah.x, ah.y); ctx.lineTo(ah1.x, ah1.y); ctx.lineTo(ah2.x, ah2.y); ctx.closePath(); ctx.fill();
   // Label.
   ctx.fillStyle = 'rgba(255, 240, 200, 0.85)';
-  ctx.font = '13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body');
   ctx.fillText('Omega', c.x + aR * Math.cos((a0 + a1) / 2) + 6, c.y + aR * Math.sin((a0 + a1) / 2));
 }
 
 function drawCount() {
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '13px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'body');
   const txt = `${st.lattice.length} quantized vortices`;
   ctx.fillText(txt, 14, 22);
   // Magic shell numbers.
@@ -282,4 +283,28 @@ if (CAPTURE_NAME) {
   }
   requestAnimationFrame(loop);
   window.__simulationReady = true;
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

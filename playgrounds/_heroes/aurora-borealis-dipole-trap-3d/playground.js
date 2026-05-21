@@ -6,6 +6,7 @@
 import { stepLorentz, dipoleField, spawnParticle, checkAuroralExcitation, REARTH, RAURORA } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -179,7 +180,7 @@ function drawAuroralOval() {
     const r = REARTH * 1.10;
     const p = project(0, sign * r * Math.cos(lamL), 0);
     ctx.fillStyle = 'rgba(80, 235, 130, 0.85)';
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(sign > 0 ? 'aurora borealis (N)' : 'aurora australis (S)', p.x - 50, p.y);
   }
 }
@@ -273,7 +274,7 @@ function drawDiagnostics() {
   ctx.lineWidth = 1;
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, hh - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText('hits / magnetic latitude', px + 8, py - 4);
   // Histogram bars.
   let hmax = 1;
@@ -293,7 +294,7 @@ function drawDiagnostics() {
   }
   // Latitude tick labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const tlat of [-90, -45, 0, 45, 90]) {
     const x = px + 9 + ((tlat + 90) / 180) * (pw - 18);
     ctx.fillText(`${tlat}°`, x - 6, py + hh - 4);
@@ -314,7 +315,7 @@ function drawDiagnostics() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(px + 0.5, py2 + 0.5, pw - 1, ph2 - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText('particle population N(t)', px + 8, py2 - 4);
   const hist = st.particleCountHistory;
   let nmax = 1;
@@ -329,7 +330,7 @@ function drawDiagnostics() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`N_max = ${nmax}`, px + 8, py2 + 14);
   ctx.fillText(`now = ${st.particles.length}`, px + pw - 60, py2 + 14);
 }
@@ -360,7 +361,7 @@ function render() {
 
   // Top-left HUD
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`particles: ${st.particles.length}    aurora hits: ${st.nHits}    step: ${st.nSteps}`, 24, 22);
   ctx.fillText(`solar-wind protons → magnetic mirror → atmospheric oxygen → 558 nm (green) / 630 nm (red)`, 24, 40);
@@ -448,4 +449,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }
