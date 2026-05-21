@@ -203,21 +203,50 @@ export function descentTime(pts) {
   return { time: T, valid };
 }
 
-// Smooth polyline through user control points, anchored at A=(0,0)
-// and B=(X_B,-Y_B). Interior points are sorted by x; we sample with a
-// smoothstep blend so the curve reads cleanly.
+// Smooth curve through the user control points, anchored at A=(0,0)
+// and B=(X_B,-Y_B). A monotone cubic (PCHIP / Fritsch-Carlson) is
+// used: it gives a continuous tangent at every anchor and never
+// overshoots, unlike the old segment-wise smoothstep which forced a
+// flat tangent at each anchor and produced the kinked, unfavourable
+// shape.
 export function userCurve(controlPts, N = 120) {
   const anchors = [[0, 0], ...controlPts.slice().sort((a, b) => a[0] - b[0]), [X_B, -Y_B]];
+  const xs = [], ys = [];
+  for (const [x, y] of anchors) {
+    if (xs.length && x - xs[xs.length - 1] < 1e-4) continue;   // drop equal-x
+    xs.push(x); ys.push(y);
+  }
+  const n = xs.length;
+  if (n < 2) return [[0, 0], [X_B, -Y_B]];
+  // Secant slopes and monotone-cubic tangents.
+  const d = [];
+  for (let k = 0; k < n - 1; k += 1) d.push((ys[k + 1] - ys[k]) / (xs[k + 1] - xs[k]));
+  const m = new Array(n);
+  m[0] = d[0];
+  m[n - 1] = d[n - 2];
+  for (let k = 1; k < n - 1; k += 1) {
+    if (d[k - 1] * d[k] <= 0) {
+      m[k] = 0;
+    } else {
+      const w1 = 2 * (xs[k + 1] - xs[k]) + (xs[k] - xs[k - 1]);
+      const w2 = (xs[k + 1] - xs[k]) + 2 * (xs[k] - xs[k - 1]);
+      m[k] = (w1 + w2) / (w1 / d[k - 1] + w2 / d[k]);
+    }
+  }
+  // Sample the cubic Hermite spline.
   const pts = [];
   for (let i = 0; i <= N; i += 1) {
     const x = X_B * i / N;
-    let lo = 0;
-    while (lo < anchors.length - 2 && anchors[lo + 1][0] < x) lo += 1;
-    const [xa, ya] = anchors[lo];
-    const [xb, yb] = anchors[Math.min(anchors.length - 1, lo + 1)];
-    const f = xb > xa ? (x - xa) / (xb - xa) : 0;
-    const s = f * f * (3 - 2 * f);
-    pts.push([x, ya + (yb - ya) * s]);
+    let k = 0;
+    while (k < n - 2 && xs[k + 1] < x) k += 1;
+    const h = xs[k + 1] - xs[k];
+    const t = h > 0 ? (x - xs[k]) / h : 0;
+    const t2 = t * t, t3 = t2 * t;
+    const y = (2 * t3 - 3 * t2 + 1) * ys[k]
+      + (t3 - 2 * t2 + t) * h * m[k]
+      + (-2 * t3 + 3 * t2) * ys[k + 1]
+      + (t3 - t2) * h * m[k + 1];
+    pts.push([x, y]);
   }
   return pts;
 }
