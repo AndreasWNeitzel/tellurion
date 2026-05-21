@@ -273,6 +273,11 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .catalog-count{color:var(--text-secondary)}
 .catalog-count strong{color:var(--text-primary);font-weight:600;font-variant-numeric:tabular-nums}
 .catalog-controls{margin-bottom:24px}
+.catalog-empty{padding:80px 24px;text-align:center;border:1px dashed var(--border-dim);border-radius:8px}
+.catalog-empty p{margin:0 0 6px}
+.catalog-empty-reset{margin-top:24px;background:transparent;border:1px solid var(--border-subtle);
+  color:var(--text-secondary);padding:8px 20px;border-radius:6px;cursor:pointer;font-family:var(--f-ui)}
+.catalog-empty-reset:hover{border-color:var(--border-active);color:var(--text-primary)}
 .catalog-search-row{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
 .catalog-filter-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;
@@ -555,6 +560,11 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     <div class="catalog-filter-chips" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
   </div>
   <div class="card-grid" id="card-grid">${cardsHTML}</div>
+  <div class="catalog-empty" id="catalog-empty" hidden>
+    <p class="t-body" style="color:var(--text-secondary)">No simulations match your search.</p>
+    <p class="t-small" style="color:var(--text-dimmed)">Try removing a filter or clearing the search.</p>
+    <button class="catalog-empty-reset t-small" id="catalog-empty-reset" type="button">Clear all</button>
+  </div>
 </section>
 
 <section class="about" id="about">
@@ -628,6 +638,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   var sortsel=document.getElementById('sortsel');
   var clearBtn=document.getElementById('clearall');
   var searchClear=document.getElementById('search-clear');
+  var emptyEl=document.getElementById('catalog-empty');
   var countEl=document.getElementById('browse-count');
   var curToggle=document.getElementById('cur-toggle');
   var chips=[].slice.call(document.querySelectorAll('.chip'));
@@ -691,7 +702,14 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       :('Showing <strong>'+cards.length+'</strong> simulations');
     clearBtn.classList.toggle('show',activeTags.length>0);
     if(searchClear)searchClear.hidden=input.value.length===0;
+    if(emptyEl){ var none=vis.length===0; emptyEl.hidden=!none; grid.hidden=none; }
     wireGroups();
+  }
+  function resetAll(){
+    input.value=''; active={};
+    chips.forEach(function(c){c.classList.remove('active');});
+    if(searchClear)searchClear.hidden=true;
+    render();
   }
   // E2: curriculum section headers animate in (rule extends 0->100%,
   // text fades) once per session, on scroll into view.
@@ -731,6 +749,8 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     });
   });
   clearBtn.addEventListener('click',function(){ active={}; chips.forEach(function(c){c.classList.remove('active');}); render(); });
+  var emptyReset=document.getElementById('catalog-empty-reset');
+  if(emptyReset)emptyReset.addEventListener('click',resetAll);
   var ptrans=document.getElementById('ptrans');
   var pgprog=document.getElementById('pgprog');
   // Fade the overlay out on arrival (landing fades in). Reduced motion
