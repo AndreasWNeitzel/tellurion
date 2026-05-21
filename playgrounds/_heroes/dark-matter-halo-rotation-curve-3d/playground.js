@@ -2,7 +2,7 @@
 // galaxy with transparent halo. Right half: rotation curve v_c(r)
 // decomposed by component.
 
-import { vCirc, vCircVisible, massBulge, massDisk, massDM, MW_PARAMS, G } from './sim.js';
+import { vCirc, vCircVisible, massBulge, massDisk, massDM, massTotal, MW_PARAMS, G } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -451,25 +451,44 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the halo parameters and the circular speed sampled in the
+// inner and outer disc.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const p = getParams();
+  return {
+    fields: [
+      { key: 'dark-matter', label: 'dark-matter halo', value: st.includeDM ? 'on' : 'off' },
+      { key: 'halo-mass', label: 'halo mass M_DM', value: st.M_DM, format: 'float' },
+      { key: 'concentration', label: 'concentration c', value: st.c, format: 'float' },
+      { key: 'v-inner', label: 'v_circ at r=8', value: vCirc(8, p), format: 'float' },
+      { key: 'v-outer', label: 'v_circ at r=20', value: vCirc(20, p), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const p = getParams();
+  // Enclosed mass can only grow outward (mass is non-negative).
+  const mIn = massTotal(8, p);
+  const mOut = massTotal(20, p);
+  // The dark-matter signature: with the halo on, the outer rotation
+  // curve is flat, so v(20)/v(8) is close to 1. Visible matter alone
+  // gives a declining (sub-Keplerian) curve, which is the point, so
+  // that case is reported as pending rather than as a failure.
+  const ratio = vCirc(20, p) / Math.max(1e-6, vCirc(8, p));
+  return [
+    {
+      key: 'mass-monotone',
+      label: 'enclosed mass increases outward',
+      value: `${mIn.toFixed(1)} -> ${mOut.toFixed(1)}`,
+      status: mOut >= mIn ? 'pass' : 'drift',
+    },
+    {
+      key: 'flat-curve',
+      label: 'outer rotation curve flat',
+      value: ratio.toFixed(3),
+      status: st.includeDM ? (ratio > 0.85 ? 'pass' : 'drift') : 'pending',
+    },
+  ];
+};
