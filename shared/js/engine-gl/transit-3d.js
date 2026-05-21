@@ -188,29 +188,21 @@ export function setupTransitGL(canvas) {
     ptBuf[o + 4] = starColor[0]; ptBuf[o + 5] = starColor[1]; ptBuf[o + 6] = starColor[2];
     ptBuf[o + 7] = 1.0;                                 // tag: star
 
-    // Place the planet on the SKY-projected position rather than its
-    // true 3D orbital position. Real transits look near-orthographic
-    // because the system distance dwarfs the orbit (~kpc vs ~AU); the
-    // visual planet-to-star angular ratio must be (Rp/Rs) for the
-    // user to see the (Rp/Rs)^2 dip match the light curve. Using the
-    // true 3D position foreshortens the planet when it is between
-    // camera and star, making it look much larger than (Rp/Rs).
-    //
-    // Sky projection: snap world_x (the depth coordinate from the
-    // default camera at +x) to a tiny offset that reflects whether
-    // the planet is in front of or behind the star (so depth-test
-    // hides the planet during secondary eclipse), while world_y and
-    // world_z carry the actual sky position.
+    // Place the planet at its true 3D orbital position so it rides
+    // the drawn orbit ring (both come from orbitPos). The depth
+    // coordinate also lets the depth test hide the planet behind the
+    // star at secondary eclipse. Perspective makes the planet a
+    // little larger on the near side of the orbit, which reads as
+    // correct depth rather than a flaw.
     const [px, py, pz] = orbitPos(theta, A, inc);
-    const depthSign = px >= 0 ? 1 : -1;             // in front (+) or behind (-)
     const o2 = (NBG + 1) * 8;
-    ptBuf[o2] = depthSign * 0.02;                   // tiny offset for depth ordering
-    ptBuf[o2 + 1] = py;                             // sky-y from the orbit projection
-    ptBuf[o2 + 2] = pz;                             // sky-x from the orbit projection
+    ptBuf[o2] = px;                                 // depth toward observer
+    ptBuf[o2 + 1] = py;                             // sky-y
+    ptBuf[o2 + 2] = pz;                             // sky-x
     ptBuf[o2 + 3] = Math.max(1e-4, Rp_world);       // world radius = Rp/Rs
     ptBuf[o2 + 4] = 0.10; ptBuf[o2 + 5] = 0.10; ptBuf[o2 + 6] = 0.12;
     ptBuf[o2 + 7] = 2.0;                            // tag: planet
-    lastPlanet[0] = depthSign * 0.02; lastPlanet[1] = py; lastPlanet[2] = pz;
+    lastPlanet[0] = px; lastPlanet[1] = py; lastPlanet[2] = pz;
     gl.bindBuffer(gl.ARRAY_BUFFER, ptVBO);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, ptBuf);
 

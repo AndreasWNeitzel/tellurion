@@ -65,7 +65,7 @@ let engine = null;
 try { engine = setupTransitGL(canvas); } catch (e) { console.warn('[transit] GL init failed', e); engine = null; }
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0], radius: 14, minRadius: 4, maxRadius: 120,
-  azimuthDeg: 0, elevationDeg: 0, fovDeg: 35,
+  azimuthDeg: 0, elevationDeg: 24, fovDeg: 35,
   near: 0.05, far: 400,
 });
 // User feedback: 'star too small'. Star world radius stays at 1 (one
