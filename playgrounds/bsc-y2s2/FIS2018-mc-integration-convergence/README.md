@@ -1,25 +1,29 @@
 # Monte Carlo integration and 1/sqrt(N) convergence
 
-Estimate integral_0^1 (1 + 10(x - 0.5)^4) dx = 1.125 by plain uniform
-MC and importance sampling with a Beta(2, 2) proposal. Both estimators
-are unbiased; standard error shrinks as sigma / sqrt(N). The log-error
-panel plots both estimators against a 1/sqrt(N) reference line.
+Estimate the area of a shape by hit-or-miss Monte Carlo. A shape sits
+in the unit square; uniform random darts are thrown and accumulate
+continuously, green inside the shape and red outside. The fraction
+inside estimates the area, which is the integral of the shape's
+indicator function. The hit count is Binomial, so the standard error
+shrinks as 1/sqrt(N).
 
-Look for: at N = 16 the plain estimator can be off by 0.1 or more.
-Double N and the typical error shrinks by sqrt(2) ~ 1.4x. The Beta(2, 2)
-importance sampler is worse here because the proposal concentrates mass
-where f is smallest. Optimal IS would use q proportional to |f|.
+Look for: the absolute-error panel on the right plots error against N
+on log-log axes, tracking the dashed 1/sqrt(N) reference, a straight
+line of slope -1/2. The quarter disk has area pi/4, so four times the
+hit fraction estimates pi. Switching shapes restarts the estimate and
+it re-converges to the new exact area.
 
-Use the log2(N) slider for sample count. Speed auto-sweeps. Reset
-returns to N = 16384.
+Use the shape dropdown to choose the region, the darts/frame slider to
+set the throw rate, and Reset to clear the accumulated darts.
 
 ## Reference
 
-- MacKay, Information Theory Ch. 29.
+- MacKay, Information Theory, Inference, and Learning Algorithms, Ch. 29.
+- Press et al., Numerical Recipes 3e, Ch. 7.6.
 
 ## Verification
 
-- Strong invariant: plain MC matches EXACT within 0.05 at N = 1e5;
-  SE scales as 1/sqrt(N).
-- Visual gate: SSIM > 0.92 across 5 frames sweeping N.
+- Strong invariant: each shape estimate matches its exact area within
+  0.01 at N = 4e5; the standard error scales as 1/sqrt(N).
+- Visual gate: SSIM > 0.92 across 5 frames sweeping the dart count.
 - Last verified: see `.verified`.

@@ -1,209 +1,199 @@
-import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
-// MC integration: function and convergence curve.
+// Monte Carlo integration by hit-or-miss sampling. Darts accumulate
+// continuously on the unit square; the running fraction inside the
+// chosen shape estimates its area. A log-log convergence panel tracks
+// the absolute error against the 1/sqrt(N) Monte Carlo reference.
 
+import { fontString } from '../../../shared/js/canvas-type.js';
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
-import {
-  plainMC, importanceMC, convergence, testFn, EXACT,
-} from './sim.js';
+import { SHAPES, shapeByKey, makeEstimator, throwDarts, areaEstimate } from './sim.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const urlParams     = new URLSearchParams(location.search);
+const SEED          = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
+const DETERMINISTIC = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME  = urlParams.get('capture');
+const CAPTURE_FRAC  = parseFloat(urlParams.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderLog    = document.getElementById('slider-log');
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueLog     = document.getElementById('value-log');
-const valueSpeed   = document.getElementById('value-speed');
-const btnReset     = document.getElementById('btn-reset');
+const canvas      = document.getElementById('stage');
+const ctx         = canvas.getContext('2d', { alpha: false });
+const W = canvas.width, H = canvas.height;
+const selShape    = document.getElementById('select-shape');
+const valShape    = document.getElementById('value-shape');
+const sliderSpeed = document.getElementById('slider-speed');
+const valueSpeed  = document.getElementById('value-speed');
+const btnReset    = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
-const W = canvas.width, H = canvas.height;
+const RENDER_CAP = 5000;            // darts kept for rendering (tallies are exact)
 
 const state = {
-  log2N: 14,
-  speed: 2,
-  sweepDir: 1,
+  shape: SHAPES[0],
+  est: makeEstimator(SEED),
+  darts: [],
+  history: [],                      // {n, err}
+  batch: 120,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
-  cachedCurves: null,
 };
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
-};
-
-function buildCurves() {
-  // Compute convergence at fixed seed once.
-  state.cachedCurves = {
-    plain:      convergence(plainMC, 18, SEED),
-    importance: convergence(importanceMC, 18, SEED),
-  };
+// Offscreen shape mask, rebuilt only when the shape changes.
+const maskCanvas = document.createElement('canvas');
+maskCanvas.width = 260;
+maskCanvas.height = 260;
+const maskCtx = maskCanvas.getContext('2d');
+function buildMask() {
+  const n = maskCanvas.width;
+  const img = maskCtx.createImageData(n, n);
+  const d = img.data;
+  for (let j = 0; j < n; j += 1) {
+    const y = 1 - (j + 0.5) / n;
+    for (let i = 0; i < n; i += 1) {
+      const x = (i + 0.5) / n;
+      const k = (j * n + i) * 4;
+      if (state.shape.inside(x, y)) {
+        d[k] = 74; d[k + 1] = 100; d[k + 2] = 138; d[k + 3] = 150;
+      }
+    }
+  }
+  maskCtx.putImageData(img, 0, 0);
 }
 
-function drawAll() {
+// Square dart board on the left; the right column carries the
+// readouts and the convergence panel.
+const BS = Math.min(H - 100, Math.floor(W * 0.46));
+const BX = 24, BY = 58;
+const bx = (x) => BX + x * BS;
+const by = (y) => BY + (1 - y) * BS;
+
+function resetEstimator() {
+  state.est = makeEstimator(SEED);
+  state.darts = [];
+  state.history = [];
+}
+
+function accumulate(n) {
+  const fresh = throwDarts(state.est, state.shape, n);
+  for (const dd of fresh) state.darts.push(dd);
+  if (state.darts.length > RENDER_CAP) {
+    state.darts.splice(0, state.darts.length - RENDER_CAP);
+  }
+  const e = areaEstimate(state.est);
+  state.history.push({ n: e.n, err: Math.abs(e.area - state.shape.area) });
+  if (state.history.length > 1400) state.history.shift();
+}
+
+function draw() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
-  const N = 1 << state.log2N;
-  const rPlain = plainMC(N, SEED);
-  const rIS = importanceMC(N, SEED + 999);
+  const e = areaEstimate(state.est);
 
+  // Dart board.
+  ctx.fillStyle = 'rgba(220,228,240,0.8)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
-  ctx.fillText(`N = ${N}   EXACT = ${EXACT.toFixed(4)}`, 30, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`plain I = ${rPlain.I.toFixed(4)} +/- ${rPlain.se.toFixed(4)}   IS I = ${rIS.I.toFixed(4)} +/- ${rIS.se.toFixed(4)}`, 30, 40);
-
-  const padL = 30, padR = 30;
-  const PW = W - padL - padR;
-
-  // Top: function
-  const topY = 60, topH = 230;
+  ctx.fillText('hit-or-miss darts on the unit square', BX, BY - 10);
   ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(padL, topY, PW, topH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padL + 0.5, topY + 0.5, PW - 1, topH - 1);
-  function xP(x) { return padL + 4 + (PW - 8) * x; }
-  function yP(y) { return topY + topH - 4 - (topH - 12) * y / 2.0; }
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  const NPTS = PW - 8;
-  for (let i = 0; i < NPTS; i += 1) {
-    const x = i / (NPTS - 1);
-    const f = testFn(x);
-    if (i === 0) ctx.moveTo(xP(x), yP(f)); else ctx.lineTo(xP(x), yP(f));
+  ctx.fillRect(BX, BY, BS, BS);
+  ctx.drawImage(maskCanvas, 0, 0, maskCanvas.width, maskCanvas.height, BX, BY, BS, BS);
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+  ctx.strokeRect(BX + 0.5, BY + 0.5, BS - 1, BS - 1);
+  for (const dd of state.darts) {
+    ctx.fillStyle = dd.hit ? 'rgba(127,214,130,0.9)' : 'rgba(232,124,124,0.5)';
+    ctx.fillRect(bx(dd.x) - 1.1, by(dd.y) - 1.1, 2.2, 2.2);
   }
-  ctx.stroke();
-  // EXACT integral line
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
-  ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  ctx.moveTo(padL, yP(EXACT)); ctx.lineTo(padL + PW, yP(EXACT));
-  ctx.stroke();
-  ctx.setLineDash([]);
 
-  // Hit-or-miss dart throw: render up to NDARTS uniform random points
-  // in [0, 1] x [0, 2]; green if under f(x) (counted), red if rejected.
-  // The fraction below the curve times the rectangle area is the
-  // running plain-MC estimate of integral f. Deterministic mulberry32
-  // seeded by N so the goldens are stable.
-  const NDARTS = Math.min(N, 360);
-  function mulb(seed) { let x = seed >>> 0; return () => { x = (x + 0x6D2B79F5) | 0; let t = Math.imul(x ^ (x >>> 15), 1 | x); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-  const dr = mulb((SEED + 12345 + (N & 0xFFFF)) | 0);
-  let hits = 0;
-  for (let i = 0; i < NDARTS; i += 1) {
-    const x = dr(), y = dr() * 2.0;
-    const fy = testFn(x);
-    const under = y < fy;
-    if (under) hits += 1;
-    ctx.fillStyle = under ? 'rgba(143, 219, 130, 0.70)' : 'rgba(232, 124, 124, 0.55)';
-    ctx.fillRect(xP(x) - 1.0, yP(y) - 1.0, 2.0, 2.0);
-  }
-  // Redraw f(x) on top so the curve stays clear of dart over-cover.
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.88)';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  for (let i = 0; i < NPTS; i += 1) {
-    const x = i / (NPTS - 1);
-    const f = testFn(x);
-    if (i === 0) ctx.moveTo(xP(x), yP(f)); else ctx.lineTo(xP(x), yP(f));
-  }
-  ctx.stroke();
-
+  // Right column: readouts.
+  const RX = BX + BS + 30, RW = W - RX - 24;
+  let ry = BY + 8;
+  ctx.fillStyle = '#e8ecf4';
+  ctx.font = fontString(canvas, 'body', 'mono', 600);
+  ctx.fillText(state.shape.name, RX, ry);
+  ry += 22;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-  ctx.textAlign = 'left';
-  ctx.fillText('f(x) = 1 + 10 (x - 0.5)^4', padL + 6, topY + 14);
-  ctx.fillStyle = 'rgba(143, 219, 130, 0.95)';
-  ctx.fillText(`hits ${hits}/${NDARTS}, I_hit ~ ${(2.0 * hits / NDARTS).toFixed(3)}`, padL + 6, topY + 30);
+  ctx.fillStyle = 'rgba(202,212,232,0.88)';
+  const lines = [
+    `darts N        ${e.n}`,
+    `hits inside    ${state.est.nHit}`,
+    `area estimate  ${e.area.toFixed(5)}`,
+    `exact area     ${state.shape.area.toFixed(5)}`,
+    `abs error      ${Math.abs(e.area - state.shape.area).toExponential(2)}`,
+    `std error      ${e.se.toExponential(2)}`,
+  ];
+  for (const ln of lines) { ctx.fillText(ln, RX, ry); ry += 16; }
+  ctx.fillStyle = 'rgba(255,210,120,0.85)';
+  ry += 4;
+  ctx.fillText(state.shape.note, RX, ry);
+  ry += 20;
 
-  // Bottom: convergence
-  const botY = topY + topH + 30, botH = H - botY - 80;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(padL, botY, PW, botH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padL + 0.5, botY + 0.5, PW - 1, botH - 1);
-  // Plot curves: log10|error| vs log2 N
-  if (!state.cachedCurves) buildCurves();
-  const curves = state.cachedCurves;
-  function xN(log2N) { return padL + 4 + (PW - 8) * (log2N - 4) / (18 - 4); }
-  const errMin = -4, errMax = 1;
-  function yE(e) {
-    const l = Math.log10(Math.max(1e-6, e));
-    const c = Math.max(errMin, Math.min(errMax, l));
-    return botY + botH - 4 - (botH - 12) * (c - errMin) / (errMax - errMin);
-  }
-  for (const [data, color] of [[curves.plain, tok.accentCool], [curves.importance, tok.accentWarm]]) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.4;
+  // Right column: convergence panel.
+  const cy0 = ry + 6, cy1 = BY + BS;
+  if (cy1 - cy0 > 70) {
+    ctx.fillStyle = '#0a0a0e';
+    ctx.fillRect(RX, cy0, RW, cy1 - cy0);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.strokeRect(RX + 0.5, cy0 + 0.5, RW - 1, cy1 - cy0 - 1);
+    ctx.fillStyle = 'rgba(255,255,255,0.62)';
+    ctx.fillText('abs error vs N (log-log); dashed = 1/sqrt(N)', RX + 6, cy0 + 14);
+    const nMax = Math.max(256, e.n);
+    const logNMax = Math.log10(nMax);
+    const lxN = (n) => RX + 34 + (RW - 48) * Math.log10(Math.max(1, n)) / logNMax;
+    const errLo = -4, errHi = 0;
+    const lyE = (err) => {
+      const l = Math.max(errLo, Math.min(errHi, Math.log10(Math.max(1e-9, err))));
+      return cy0 + 24 + (cy1 - cy0 - 38) * (errHi - l) / (errHi - errLo);
+    };
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.setLineDash([3, 3]);
     ctx.beginPath();
     let first = true;
-    for (const pt of data) {
-      const lg = Math.log2(pt.N);
-      const err = Math.abs(pt.I - EXACT);
-      const px = xN(lg), py = yE(err);
+    for (let n = 8; n <= nMax; n *= 1.5) {
+      const px = lxN(n), py = lyE(1 / Math.sqrt(n));
       if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
     }
     ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#7fd1ff';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    first = true;
+    for (const h of state.history) {
+      const px = lxN(h.n), py = lyE(h.err);
+      if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
   }
-  // 1 / sqrt(N) reference line
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
-  ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  let first = true;
-  for (let lg = 4; lg <= 18; lg += 1) {
-    const ref = 1 / Math.sqrt(1 << lg);
-    const px = xN(lg), py = yE(ref);
-    if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
-  }
-  ctx.stroke();
-  ctx.setLineDash([]);
-  // Cursor
-  const cPx = xN(state.log2N);
-  ctx.strokeStyle = '#f1d28a';
-  ctx.beginPath();
-  ctx.moveTo(cPx, botY + 6); ctx.lineTo(cPx, botY + botH - 6);
-  ctx.stroke();
-  // Labels
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = tok.accentCool;
-  ctx.textAlign = 'left';
-  ctx.fillText('plain MC', padL + 6, botY + 14);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('importance', padL + 90, botY + 14);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText('1/sqrt(N) reference (dashed)', padL + 200, botY + 14);
-  ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.textAlign = 'center';
-  for (const lg of [4, 8, 12, 16, 18]) {
-    const px = xN(lg);
-    ctx.fillText(`2^${lg}`, px, botY + botH - 4);
-  }
-  ctx.fillText('N (log scale)', padL + PW / 2, botY + botH + 14);
 }
 
-function tickN(n) {
-  for (let i = 0; i < n; i += 1) {
-    state.log2N += state.sweepDir * 0.1;
-    if (state.log2N >= 18) { state.log2N = 18; state.sweepDir = -1; }
-    if (state.log2N <= 4)  { state.log2N = 4;  state.sweepDir = 1; }
-  }
-  const i = Math.round(state.log2N);
-  valueLog.textContent = String(i);
-  sliderLog.value = String(i);
+let raf = 0;
+function tick() {
+  if (state.playing) accumulate(state.batch);
+  draw();
+  raf = requestAnimationFrame(tick);
 }
 
-sliderLog.addEventListener('input', () => { state.log2N = parseInt(sliderLog.value, 10); valueLog.textContent = String(state.log2N); drawAll(); });
-sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { state.log2N = 14; state.sweepDir = 1; sliderLog.value = '14'; valueLog.textContent = '14'; state.cachedCurves = null; drawAll(); });
+for (const s of SHAPES) {
+  const o = document.createElement('option');
+  o.value = s.key;
+  o.textContent = s.name;
+  selShape.appendChild(o);
+}
+selShape.value = state.shape.key;
+valShape.textContent = state.shape.area.toFixed(3);
+
+selShape.addEventListener('change', () => {
+  state.shape = shapeByKey(selShape.value);
+  valShape.textContent = state.shape.area.toFixed(3);
+  buildMask();
+  resetEstimator();
+  draw();
+});
+sliderSpeed.addEventListener('input', () => {
+  state.batch = 40 * parseInt(sliderSpeed.value, 10);
+  valueSpeed.textContent = String(state.batch);
+  draw();
+});
+btnReset.addEventListener('click', () => { resetEstimator(); draw(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
@@ -211,71 +201,67 @@ btnPlayPause.addEventListener('click', () => {
 });
 
 function bootSync() {
-  buildCurves();
+  state.batch = 40 * (parseInt(sliderSpeed.value, 10) || 3);
+  valueSpeed.textContent = String(state.batch);
+  buildMask();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.log2N = 4 + Math.round(frac * 14);
-    sliderLog.value = String(state.log2N); valueLog.textContent = String(state.log2N);
-    drawAll();
+    const target = Math.round(80 + frac * 3600);
+    resetEstimator();
+    let thrown = 0;
+    while (thrown < target) {
+      const chunk = Math.min(80, target - thrown);
+      accumulate(chunk);
+      thrown += chunk;
+    }
+    draw();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.__simulationReady = true;
+        window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+      }));
     }
     return;
   }
-  drawAll();
-}
-
-function tick() {
-  if (state.playing) {
-    if (state.speed > 0) {
-      tickN(state.speed);
-      state.log2N = Math.round(state.log2N);
-    }
-    drawAll();
-  }
-  requestAnimationFrame(tick);
+  draw();
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) raf = requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  bootSync();
+  if (!CAPTURE_NAME) raf = requestAnimationFrame(tick);
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// A correct Monte Carlo estimate is statistically consistent with the
+// truth: the absolute error stays within a few standard errors of
+// zero. That consistency is the invariant.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const e = areaEstimate(state.est);
+  return {
+    fields: [
+      { key: 'shape', label: 'shape', value: state.shape.name },
+      { key: 'darts', label: 'darts thrown', value: e.n },
+      { key: 'area-estimate', label: 'area estimate', value: e.area.toFixed(5), format: 'float' },
+      { key: 'exact-area', label: 'exact area', value: state.shape.area.toFixed(5), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const e = areaEstimate(state.est);
+  if (e.n < 50) return [];
+  const err = Math.abs(e.area - state.shape.area);
+  const sigmas = e.se > 0 ? err / e.se : 0;
+  return [
+    {
+      key: 'consistency',
+      label: 'estimate within 3 sigma of exact area',
+      value: `${sigmas.toFixed(2)} sigma`,
+      status: sigmas < 3 ? 'pass' : (sigmas < 5 ? 'pending' : 'drift'),
+    },
+  ];
+};

@@ -1,78 +1,96 @@
 // sim.js
-// Monte Carlo integration of integral_{0}^{1} f(x) dx using:
-//   1. Plain uniform sampling: I_hat = (1/N) sum f(U_i), U_i ~ U(0, 1).
-//   2. Importance sampling with proposal Beta(2, 2): I_hat = (1/N) sum
-//      f(X_i) / q(X_i), X_i ~ Beta(2, 2).
+// Monte Carlo integration by hit-or-miss sampling. A shape lives in
+// the unit square [0,1]^2; uniform random darts are thrown and the
+// fraction landing inside the shape estimates its area, which is the
+// integral of the shape's indicator function. The estimate is a
+// Binomial proportion, so its standard error shrinks as 1/sqrt(N).
 //
-// The Monte Carlo error decays as 1/sqrt(N). Importance sampling
-// reduces variance when the proposal q is close to |f|.
-//
-// We use the test function f(x) = 1 + 10 (x - 0.5)^4 (smooth, peaked at
-// x = 0.5 ish), with integral exact: int_0^1 (1 + 10 (x - 1/2)^4) dx
-// = 1 + 10 * (1/5) (x - 1/2)^5 |_0^1 = 1 + 10 * 2 * (1/2)^5 / 5 = 1 + 1/8 = 1.125.
-//
-// Reference: MacKay, Information Theory Ch. 29 (`mackay`); Press NR Ch. 7.
+// Reference: MacKay, Information Theory, Inference, and Learning
+// Algorithms, Ch. 29 (`mackay`); Press et al., Numerical Recipes,
+// Ch. 7.6, hit-or-miss Monte Carlo (`press-nr`).
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
-export function testFn(x) { return 1 + 10 * Math.pow(x - 0.5, 4); }
-export const EXACT = 1.125;
+// Each shape: a predicate inside(x, y) on the unit square and its
+// exact area, used as the convergence target the estimate must
+// approach. The unit square has area 1, so the hit fraction is a
+// direct estimate of the area.
+export const SHAPES = [
+  {
+    key: 'quarter-disk',
+    name: 'quarter disk',
+    inside: (x, y) => x * x + y * y <= 1,
+    area: Math.PI / 4,
+    note: 'area = pi/4; 4x the hit fraction gives pi',
+  },
+  {
+    key: 'ellipse',
+    name: 'ellipse',
+    inside: (x, y) => {
+      const u = (x - 0.5) / 0.44;
+      const v = (y - 0.5) / 0.30;
+      return u * u + v * v <= 1;
+    },
+    area: Math.PI * 0.44 * 0.30,
+    note: 'area = pi a b',
+  },
+  {
+    key: 'annulus',
+    name: 'annulus (ring)',
+    inside: (x, y) => {
+      const r2 = (x - 0.5) ** 2 + (y - 0.5) ** 2;
+      return r2 >= 0.19 * 0.19 && r2 <= 0.44 * 0.44;
+    },
+    area: Math.PI * (0.44 * 0.44 - 0.19 * 0.19),
+    note: 'area = pi (R^2 - r^2)',
+  },
+  {
+    key: 'rose',
+    name: 'four-petal rose',
+    inside: (x, y) => {
+      const dx = x - 0.5;
+      const dy = y - 0.5;
+      const r = Math.hypot(dx, dy);
+      return r <= 0.46 * Math.abs(Math.cos(2 * Math.atan2(dy, dx)));
+    },
+    // The region r <= a|cos 2theta| is four petals; the rose
+    // r = a cos 2theta encloses area pi a^2 / 2.
+    area: Math.PI * 0.46 * 0.46 / 2,
+    note: 'area = pi a^2 / 2 for r = a |cos 2 theta|',
+  },
+];
 
-// Box-Muller for normal samples (not used directly; here as utility).
-
-// Sample from Beta(2, 2) via order-statistic: max of two uniforms... actually
-// for Beta(2, 2) = Beta(alpha = 2, beta = 2), use the relation that two
-// independent uniforms gives Beta(1, 1) (uniform). For Beta(2, 2): use the
-// transformation X = (U1 + U2) / 2 where U1, U2 ~ U(0, 1).
-// This gives mean 0.5 and variance 1/24, which matches Beta(2, 2).
-// Actually that gives a triangular distribution, not Beta(2,2). Hmm.
-// For simplicity: use rejection sampling from Beta(2, 2) pdf = 6 x (1 - x).
-function sampleBeta22(rng) {
-  while (true) {
-    const x = rng();
-    const u = rng();
-    if (u < 6 * x * (1 - x) / 1.5) return x;   // 1.5 is M (envelope max)
-  }
+export function shapeByKey(key) {
+  return SHAPES.find((s) => s.key === key) || SHAPES[0];
 }
-function betaPdf22(x) { return 6 * x * (1 - x); }
 
-// Plain MC estimate.
-export function plainMC(N, seed) {
-  const rng = makeRng(seed);
-  let sum = 0, sumSq = 0;
-  for (let i = 0; i < N; i += 1) {
-    const x = rng();
-    const fx = testFn(x);
-    sum += fx;
-    sumSq += fx * fx;
-  }
-  const mean = sum / N;
-  const variance = (sumSq / N - mean * mean) / N;
-  return { I: mean, se: Math.sqrt(Math.max(0, variance)) };
+// A running hit-or-miss estimator: a seeded RNG plus the running
+// tallies. Darts are never stored here; the caller keeps whatever it
+// wants to render.
+export function makeEstimator(seed = DEFAULT_SEED) {
+  return { rng: makeRng(seed), nTotal: 0, nHit: 0 };
 }
 
-// Importance-sampled MC.
-export function importanceMC(N, seed) {
-  const rng = makeRng(seed);
-  let sum = 0, sumSq = 0;
-  for (let i = 0; i < N; i += 1) {
-    const x = sampleBeta22(rng);
-    const ratio = testFn(x) / betaPdf22(x);
-    sum += ratio;
-    sumSq += ratio * ratio;
+// Throw n darts against the shape. Returns the dart list (each
+// {x, y, hit}) for rendering and advances the running tallies.
+export function throwDarts(est, shape, n) {
+  const darts = [];
+  for (let i = 0; i < n; i += 1) {
+    const x = est.rng();
+    const y = est.rng();
+    const hit = shape.inside(x, y);
+    darts.push({ x, y, hit });
+    est.nTotal += 1;
+    if (hit) est.nHit += 1;
   }
-  const mean = sum / N;
-  const variance = (sumSq / N - mean * mean) / N;
-  return { I: mean, se: Math.sqrt(Math.max(0, variance)) };
+  return darts;
 }
 
-// Generate a list of N values to plot the convergence curve.
-export function convergence(method, maxLog2 = 18, seed = DEFAULT_SEED) {
-  const out = [];
-  for (let k = 4; k <= maxLog2; k += 1) {
-    const N = 1 << k;
-    const r = method(N, seed + k);
-    out.push({ N, I: r.I, se: r.se });
-  }
-  return out;
+// Current area estimate and its 1-sigma standard error. The hit
+// count is Binomial(N, p) with p the true area (the box has unit
+// area), so the hit fraction has standard error sqrt(p(1-p)/N).
+export function areaEstimate(est) {
+  const N = Math.max(1, est.nTotal);
+  const p = est.nHit / N;
+  return { area: p, se: Math.sqrt(Math.max(0, p * (1 - p) / N)), n: est.nTotal };
 }
