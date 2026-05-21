@@ -19,25 +19,36 @@ class AudioSystem {
     this.ctx = null;
     this.last = 0;                 // last sound start (ms), for the 30 ms guard
     if (!this.enabled) return;
-    // Create the context on first gesture, and resume it on every
-    // gesture / when the tab becomes visible again. Browsers suspend
-    // the AudioContext on autoplay policy and on tab blur; without an
-    // aggressive resume, later sounds silently never fire.
-    const wake = () => {
+    // The AudioContext must be CREATED inside a genuine user-activation
+    // gesture (pointerdown / keydown). A context created on pointermove
+    // or during a hover, as the old code allowed, is not bound to a
+    // gesture and the autoplay policy can leave it permanently
+    // un-resumable. Whether audio worked then depended on whether the
+    // first interaction happened to be a gesture: that is the reported
+    // inconsistency. pointermove and visibilitychange only RESUME a
+    // context that a gesture has already created.
+    const createOnGesture = () => {
       try {
         if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if (this.ctx && this.ctx.state !== 'running') this.ctx.resume().catch(() => {});
+        if (this.ctx.state !== 'running') this.ctx.resume().catch(() => {});
       } catch { this.ctx = null; this.enabled = false; }
     };
-    window.addEventListener('pointerdown', wake);
-    window.addEventListener('pointermove', wake, { passive: true });
-    window.addEventListener('keydown', wake);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
+    const resumeIfExists = () => {
+      if (this.ctx && this.ctx.state !== 'running') {
+        try { this.ctx.resume().catch(() => {}); } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener('pointerdown', createOnGesture);
+    window.addEventListener('keydown', createOnGesture);
+    window.addEventListener('pointermove', resumeIfExists, { passive: true });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) resumeIfExists(); });
   }
 
   _ready() {
     if (!this.enabled) return null;
-    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return null; } }
+    // Do not create the context here. It is created only inside a real
+    // gesture handler (see the constructor); a hover is not a gesture,
+    // so a context created here would be born un-resumable.
     const c = this.ctx;
     if (!c) return null;
     // Never schedule into a non-running context: its clock is frozen,
