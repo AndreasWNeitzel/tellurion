@@ -77,11 +77,13 @@ function frame(x, y, w, h) {
 }
 
 function drawSolution(x, y, w, h) {
-  panel(x, y, w, h, 'source f(x) and the solution u(x), each on its own scale');
+  panel(x, y, w, h, 'source f(x) and solution u(x), separate scales');
   // f and u are plotted in separate horizontal bands so both shapes
   // are visible (u is typically far smaller than f).
   const px = x + 30, pw = w - 44;
-  const topY = y + 30, midY = y + 30 + (h - 60) * 0.5, ph = (h - 60) * 0.42;
+  // Band region pushed down so the per-band labels (drawn above each
+  // band) clear the panel title instead of colliding with it.
+  const topY = y + 44, midY = y + 44 + (h - 74) * 0.5, ph = (h - 74) * 0.42;
   const X = (i) => px + pw * i / (N - 1);
   const band = (arr, cy, col, lw, dash, lbl, lx) => {
     let a = Infinity, b = -Infinity;
@@ -108,7 +110,7 @@ function drawSolution(x, y, w, h) {
 }
 
 function drawTent(x, y, w, h) {
-  panel(x, y, w, h, "the Green tent G(.,x') and the weighted-tent superposition");
+  panel(x, y, w, h, "Green tent G(x,x') and the weighted-tent sum");
   const fr = frame(x, y, w, h);
   const xp = xpVal();
   const X = (xx) => fr.px + fr.pw * xx / L;
