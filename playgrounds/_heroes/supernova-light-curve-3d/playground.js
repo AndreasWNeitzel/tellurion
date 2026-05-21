@@ -128,7 +128,11 @@ function drawFireball(cam, t_days, L_norm) {
   // smooth limb-darkened disc rather than a faceted sphere mesh: a
   // hot near-white core grading to the fireball colour, with a
   // darker limb and a luminosity-scaled outer glow.
-  const rVis = 0.5 + 1.5 * Math.log10(1 + t_days / 5);
+  // Homologous expansion r = v_ej t: the visual radius scales with
+  // the ejecta velocity (11000 km/s is the reference), so the v_ej
+  // slider visibly speeds up or slows down the fireball growth.
+  const vScale = st.v_ej_kms / 11000;
+  const rVis = 0.5 + 1.5 * Math.log10(1 + t_days * vScale / 5);
   const col = fireballColor(t_days, L_norm);
   const center2D = w2s([0, 0, 0], cam);
   if (!center2D) return;
