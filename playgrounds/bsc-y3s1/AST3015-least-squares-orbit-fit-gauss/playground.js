@@ -46,7 +46,9 @@ let cache = null, cacheKey = '';
 function dataset() {
   const key = `${st.e}|${st.s}|${st.seed}|${st.N}`;
   if (key !== cacheKey) {
-    const times = Array.from({ length: st.N }, (_, i) => i / st.N);
+    // Observations span 2.5 orbital periods, so the noisy track wraps
+    // the orbit a few times rather than sketching a single arc.
+    const times = Array.from({ length: st.N }, (_, i) => (i / st.N) * 2.5);
     cache = generateData(1, st.e, OMEGA, 1, times, st.s, st.seed);
     cacheKey = key;
   }
@@ -63,8 +65,8 @@ let hist = [];
 function render() {
   const full = dataset();
   if (!CAPTURE_NAME && running) {
-    st.k += 0.55;
-    if (st.k >= st.N + 26) { st.k = 3; hist = []; }   // hold the converged (biased) fit, then regrow
+    st.k += 0.18;                                     // slower point-by-point reveal
+    if (st.k >= st.N + 80) { st.k = 3; hist = []; }   // hold the converged (biased) fit, then regrow
   }
   const k = Math.max(3, Math.min(st.N, Math.round(st.k)));
   const data = full.slice(0, k);
