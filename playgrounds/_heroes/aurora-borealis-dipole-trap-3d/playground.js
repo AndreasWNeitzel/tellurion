@@ -237,6 +237,7 @@ function update(dt) {
   for (let k = 0; k < st.inject; k += 1) {
     if (st.particles.length < st.MAX_PARTICLES) {
       const p = spawnParticle(rand);
+      p.v0 = Math.hypot(p.vx, p.vy, p.vz);   // speed at injection (Boris conserves it)
       st.particles.push(p);
     }
   }
@@ -504,6 +505,27 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The dipole field does no work on a charged particle, so the Boris
+// pusher must hold each particle's speed fixed at its injection
+// value. The worst-case relative speed drift is the invariant.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      let maxDrift = 0, n = 0;
+      for (const p of st.particles) {
+        if (!(p.v0 > 0)) continue;
+        const v = Math.hypot(p.vx, p.vy, p.vz);
+        const d = Math.abs(v - p.v0) / p.v0;
+        if (d > maxDrift) maxDrift = d;
+        n += 1;
+      }
+      if (n === 0) return [];
+      return [{
+        key: 'speed',
+        label: 'particle speed conserved (magnetic force does no work)',
+        value: maxDrift.toExponential(2),
+        status: maxDrift < 1e-3 ? 'pass' : (maxDrift < 1e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
