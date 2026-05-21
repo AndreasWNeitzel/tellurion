@@ -237,13 +237,21 @@ function tick() {
 }
 
 function syncLabels() { vKa.textContent = st.ka.toFixed(2); vStr.textContent = st.str.toFixed(2); }
-selT.addEventListener('change', () => { st.target = selT.value; rebuild(); draw(); });
+// A hard sphere has no depth/strength parameter (only its radius
+// matters), so the strength slider is disabled for that target and
+// active for the Yukawa and square-well potentials.
+function syncStrEnabled() {
+  const off = st.target === 'hard';
+  sStr.disabled = off;
+  if (sStr.closest('.row')) sStr.closest('.row').style.opacity = off ? '0.4' : '';
+}
+selT.addEventListener('change', () => { st.target = selT.value; syncStrEnabled(); rebuild(); draw(); });
 sKa.addEventListener('input', () => { st.ka = parseFloat(sKa.value) / 100; syncLabels(); rebuild(); draw(); });
 sStr.addEventListener('input', () => { st.str = parseFloat(sStr.value) / 100; syncLabels(); rebuild(); draw(); });
 bR.addEventListener('click', () => {
   st.target = DEF_T; st.ka = DEF_KA; st.str = DEF_STR;
   selT.value = DEF_T; sKa.value = String(DEF_KA * 100); sStr.value = String(DEF_STR * 100);
-  syncLabels(); rebuild(); draw();
+  syncLabels(); syncStrEnabled(); rebuild(); draw();
 });
 bP.addEventListener('click', () => {
   st.running = !st.running;
@@ -261,7 +269,7 @@ function restoreState() {
 }
 
 function boot() {
-  restoreState(); syncLabels(); rebuild();
+  restoreState(); syncLabels(); syncStrEnabled(); rebuild();
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
