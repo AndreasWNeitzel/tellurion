@@ -65,7 +65,7 @@ let engine = null;
 try { engine = setupTransitGL(canvas); } catch (e) { console.warn('[transit] GL init failed', e); engine = null; }
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0], radius: 14, minRadius: 4, maxRadius: 120,
-  azimuthDeg: 0, elevationDeg: 10, fovDeg: 35,
+  azimuthDeg: 24, elevationDeg: 18, fovDeg: 35,
   near: 0.05, far: 400,
 });
 // User feedback: 'star too small'. Star world radius stays at 1 (one
@@ -112,7 +112,7 @@ function slider(label, min, max, stp, value, fmt, onInput) {
 }
 const sRp = slider('Rp / Rs', 0.02, 0.25, 0.005, ui.Rp, (v) => v.toFixed(3), (v) => { ui.Rp = v; resolve(); });
 const sA = slider('a / Rs', 2, 20, 0.1, ui.aOverRs, (v) => v.toFixed(1), (v) => { ui.aOverRs = v; resolve(); });
-const sI = slider('inclination', 0.02, Math.PI / 2, 0.005, ui.inc, (v) => `${(v * 57.3).toFixed(1)} deg`, (v) => { camera.setElevationDeg(90 - v * 57.29578); });
+const sI = slider('inclination', 0.02, Math.PI / 2, 0.005, ui.inc, (v) => `${(v * 57.3).toFixed(1)} deg`, (v) => { ui.inc = v; resolve(); });
 const sP = slider('period', 1.0, 10.0, 0.1, ui.period, (v) => v.toFixed(1), (v) => { ui.period = v; resolve(); });
 slider('limb u1', 0, 0.9, 0.02, ui.u1, (v) => v.toFixed(2), (v) => { ui.u1 = v; resolve(); });
 slider('limb u2', 0, 0.6, 0.02, ui.u2, (v) => v.toFixed(2), (v) => { ui.u2 = v; resolve(); });
@@ -131,8 +131,7 @@ selRow('preset', ['central transit', 'grazing transit', 'no transit', 'hot Jupit
   else if (p === 'hot Jupiter') Object.assign(ui, { Rp: 0.10, aOverRs: 3.5, inc: Math.PI / 2, period: 2.0, u1: 0.45, u2: 0.20 });
   else Object.assign(ui, { Rp: 0.0092, aOverRs: 215, inc: Math.PI / 2, period: 8.0, u1: 0.45, u2: 0.20 });
   sRp.value = ui.Rp.toFixed(3); sA.value = ui.aOverRs.toFixed(1);
-  sP.value = ui.period.toFixed(1);
-  camera.setElevationDeg(90 - ui.inc * 57.29578);   // inclination follows the camera
+  sP.value = ui.period.toFixed(1); sI.value = ui.inc.toFixed(3);
   resolve();
 });
 const btnRow = document.createElement('div'); btnRow.className = 'row buttons';
@@ -170,11 +169,15 @@ function drawPlot() {
     if (curve[i] < fmin) fmin = curve[i];
     if (curve[i] > fmax) fmax = curve[i];
   }
-  // Frame the transit dip if there is one; otherwise show a gentle
-  // flat band, so a no-transit curve does not collapse the y-axis.
+  // Frame the y-axis to the transit dip, however shallow (an Earth
+  // analogue is only ~80 ppm). fHi sits just above the baseline so
+  // the dip fills the panel; the faint reflected-light bump is shown
+  // separately in the zoomed inset. With no transit, a gentle flat
+  // band is used so the axis does not collapse.
   const depth = 1 - fmin;
-  const fLo = depth > 1e-4 ? Math.max(0, 1 - 1.4 * depth) : 0.985;
-  const fHi = Math.max(1.0008, fmax + 2e-4);
+  const real = depth > 1e-7;
+  const fLo = real ? Math.max(0, 1 - 1.4 * depth) : 0.985;
+  const fHi = real ? 1 + Math.max(0.12 * depth, 6e-5) : 1.003;
   const yOf = (f) => y0 + (1 - (f - fLo) / (fHi - fLo)) * (y1 - y0);
   pctx.strokeStyle = '#5fd0e0'; pctx.lineWidth = 1.8; pctx.beginPath();
   for (let i = 0; i < curve.length; i += 1) { const X = x0 + (i / curve.length) * (x1 - x0); const Y = yOf(curve[i]); i ? pctx.lineTo(X, Y) : pctx.moveTo(X, Y); }
@@ -195,7 +198,8 @@ function drawPlot() {
   }
   pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
   pctx.fillText('stellar flux vs orbital phase', 8, 12);
-  pctx.fillText(fHi.toFixed(4), 8, y0 + 4); pctx.fillText(fLo.toFixed(4), 8, y1);
+  const axDp = depth < 1e-3 ? 6 : 4;                 // more decimals for a shallow transit
+  pctx.fillText(fHi.toFixed(axDp), 8, y0 + 4); pctx.fillText(fLo.toFixed(axDp), 8, y1);
 
   // Zoomed inset: the reflected-light phase curve and the
   // secondary-eclipse dip. That signal is ~1e-4 of the stellar flux,
@@ -245,10 +249,11 @@ function frame() {
     // planet radius = Rp/Rs. Camera radius is now A * 1.20 so the
     // star fills more of the panel.
     const A_view = viewOrbitRadius(ui.aOverRs);
-    // The orbit ring is drawn edge-on in a fixed plane; the camera
-    // elevation provides the viewing tilt, and the inclination used
-    // for the light curve is derived from that elevation.
-    engine.update(theta, A_view, Math.PI / 2, ui.Rp, [1.0, 0.78, 0.50]);
+    // The engine draws the orbit at the true orbital inclination, so
+    // the planet's sky track matches the transitFlux light-curve
+    // model exactly (both use ui.inc in the same convention). The
+    // camera is an independent viewer of the 3D scene.
+    engine.update(theta, A_view, ui.inc, ui.Rp, [1.0, 0.78, 0.50]);
     engine.render(camera.viewMatrix(), camera.projMatrix(canvas.width / canvas.height), ui.u1, ui.u2, camera.state.fovDeg);
   }
   drawPlot(); refreshReadout();
@@ -259,20 +264,6 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
   if (ui.running) sim.t += dt * (ui.period / 14);    // one orbit in ~14 s (slower so the transit is watchable)
   camera.tickIdle(now);
-  // The camera elevation is the observer's vantage point: the orbital
-  // inclination and the light curve follow from it. Dragging the
-  // camera retilts the system and re-solves the transit.
-  // Use |elevation|: a camera below the orbital plane is the same
-  // inclination as one the same angle above it. Without the abs,
-  // negative elevations gave inc > 90 deg, clamped to a central
-  // transit, so the light curve dipped while the 3D view showed none.
-  const incCam = Math.max(0.02, Math.min(Math.PI / 2, (90 - Math.abs(camera.state.elevationDeg)) * Math.PI / 180));
-  if (Math.abs(incCam - ui.inc) > 5e-4) {
-    ui.inc = incCam;
-    resolve();
-    sI.value = String(ui.inc);
-    if (sI.nextElementSibling) sI.nextElementSibling.textContent = `${(ui.inc * 57.3).toFixed(1)} deg`;
-  }
   rebuildCurve();
   frame();
   requestAnimationFrame(tick);
