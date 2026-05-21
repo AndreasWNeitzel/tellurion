@@ -102,14 +102,20 @@ function orthographic(lon, lat) {
 
 function stereographic(lon, lat) {
   const denom = 1 + Math.cos(lat) * Math.cos(lon);
-  if (denom < 1e-3) return null;                         // near antipode
+  // Clip well before the antipode: there the projection diverges to
+  // infinity, which would blow up the auto-fit and collapse the map
+  // to a dot. denom < 0.4 is roughly 127 degrees from the centre.
+  if (denom < 0.4) return null;
   const k = 2 / denom;
   return { x: k * Math.cos(lat) * Math.sin(lon), y: k * Math.sin(lat) };
 }
 
 function gnomonic(lon, lat) {
   const cc = Math.cos(lat) * Math.cos(lon);
-  if (cc <= 1e-3) return null;                           // only the near hemisphere
+  // Gnomonic diverges at 90 degrees from the centre and is only
+  // useful well inside that. Clip at cc = 0.45 (about 63 degrees):
+  // beyond it the magnification explodes into a radial fringe.
+  if (cc <= 0.45) return null;
   return { x: Math.cos(lat) * Math.sin(lon) / cc, y: Math.sin(lat) / cc };
 }
 

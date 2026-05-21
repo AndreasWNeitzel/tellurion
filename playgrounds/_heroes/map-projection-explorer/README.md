@@ -1,7 +1,8 @@
 # Map Projection Explorer
 
 What it shows: twelve classic map projections of the globe, with the
-graticule, coarse coastlines, and a grid of Tissot indicatrices. The
+graticule, the Blue Marble Earth texture, and a grid of Tissot
+indicatrices. The
 indicatrix is the image of a small circle on the sphere; its shape is
 the local distortion. A circular indicatrix means a conformal point
 (angles kept), an equal-area indicatrix means an equal-area point
@@ -17,7 +18,7 @@ distortions bounded. The diagnostic panel plots the area scale and
 the angular distortion along the central meridian against latitude.
 
 Controls: the projection selector switches between the twelve maps;
-the toggles show or hide the graticule, the coastlines, and the
+the toggles show or hide the graticule, the Earth texture, and the
 indicatrices; dragging the canvas recentres the globe (a rigid
 rotation, which adds no distortion of its own); Recentre returns the
 view to the prime meridian and the equator.

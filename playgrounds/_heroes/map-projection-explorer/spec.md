@@ -13,7 +13,7 @@ hero_candidate: true
 tier: hero
 hook: 'No flat map of a round Earth can keep area, angle, and distance all true at once: Gauss''s Theorema Egregium forbids it, and every projection picks which property to sacrifice.'
 one_paragraph: 'A sphere has intrinsic Gaussian curvature and a plane does not, so by Gauss''s Theorema Egregium no map projection can be an isometry: something must be distorted. This playground projects the globe through twelve classic projections (equirectangular, Mercator, sinusoidal, Mollweide, Hammer, Aitoff, Winkel tripel, Robinson, orthographic, stereographic, gnomonic, azimuthal equidistant) and overlays Tissot''s indicatrix, the image of an infinitesimal circle on the sphere. A conformal projection keeps every indicatrix a circle (angles preserved, area not); an equal-area projection keeps every indicatrix the same area (area preserved, shape not); a compromise projection holds neither exactly but lets neither run away. The indicatrix is built from the numerical Jacobian of the forward map expressed in an orthonormal basis on the sphere, so the distortion measure is general. Reference: Snyder, Map Projections: A Working Manual, USGS Professional Paper 1395, 1987.'
-caption: 'Figure 1. The graticule, coarse coastlines, and Tissot indicatrices of the selected projection. Method: forward projection of geographic coordinates with the indicatrix from the numerical Jacobian in an orthonormal sphere basis. Source: Snyder, USGS Professional Paper 1395, 1987.'
+caption: 'Figure 1. The graticule, the Blue Marble Earth texture, and Tissot indicatrices of the selected projection. Method: forward projection of geographic coordinates with the indicatrix from the numerical Jacobian in an orthonormal sphere basis. Source: Snyder, USGS Professional Paper 1395, 1987.'
 tags: [numerics, relativity, interactive, three-d, live-readout]
 difficulty: 3
 renderer: canvas2d
@@ -56,8 +56,9 @@ some specific, measurable way.
 
 A map projection is a rule that turns a longitude and latitude into a
 point on the plane. This playground draws three things through that
-rule: the graticule (the mesh of meridians and parallels), a coarse
-set of coastlines, and a grid of Tissot indicatrices.
+rule: the graticule (the mesh of meridians and parallels), the Blue
+Marble Earth texture draped as a forward-projected mesh, and a grid of
+Tissot indicatrices.
 
 ### Tissot's indicatrix
 
@@ -81,6 +82,7 @@ singular values of that Jacobian are the semi-axes of the ellipse.
 
 ### Controls
 
-Pick a projection, toggle the graticule, coastlines, and indicatrices,
-and drag the canvas to recentre the globe. The diagnostic panel tracks
+Pick a projection, toggle the graticule, the Earth texture, and the
+indicatrices, and drag the canvas to recentre the globe. The
+diagnostic panel tracks
 the area scale and the angular distortion along the central meridian.

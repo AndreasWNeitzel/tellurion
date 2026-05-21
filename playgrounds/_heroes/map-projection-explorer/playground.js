@@ -1,11 +1,12 @@
-// Map Projection Explorer. Canvas2D. Draws the graticule, coarse
-// coastlines, and Tissot indicatrices of a chosen map projection; the
-// globe is recentred by dragging the canvas. The projection
-// mathematics, the spherical rotation, and the Tissot construction all
-// live in sim.js; this file is rendering and interaction only.
+// Map Projection Explorer. Canvas2D. Drapes the Blue Marble Earth
+// texture, the graticule, and Tissot indicatrices over a chosen map
+// projection; the globe is recentred by dragging the canvas. The
+// projection mathematics, the spherical rotation, and the Tissot
+// construction all live in sim.js; this file is rendering and
+// interaction only.
 
 import {
-  PROJECTIONS, PROJECTION_KEYS, rotate, tissot, COASTLINES,
+  PROJECTIONS, PROJECTION_KEYS, rotate, tissot,
 } from './sim.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -25,9 +26,35 @@ const st = {
   projection: 'winkelTripel',
   lon0: 0, lat0: 0,                    // globe centre, radians
   showGraticule: true,
-  showCoastlines: true,
+  showEarth: true,
   showTissot: true,
 };
+
+// ---- Earth texture ------------------------------------------------------
+// The Blue Marble equirectangular image is sampled to colour each cell
+// of the projected mesh. It is decoded once into an offscreen canvas so
+// getImageData gives a fast per-cell pixel lookup.
+const earthImg = new Image();
+let texData = null, texW = 0, texH = 0;
+function buildTexData() {
+  texW = 1024; texH = 512;
+  const off = document.createElement('canvas');
+  off.width = texW; off.height = texH;
+  const octx = off.getContext('2d', { willReadFrequently: true });
+  octx.drawImage(earthImg, 0, 0, texW, texH);
+  texData = octx.getImageData(0, 0, texW, texH).data;
+}
+// Texture colour at a geographic point (radians). Longitude 0 is the
+// centre column of the image, latitude +90 the top row.
+function sampleTex(lonRad, latRad) {
+  let u = (lonRad / Math.PI + 1) / 2;
+  u -= Math.floor(u);
+  const v = Math.min(0.999, Math.max(0, 0.5 - latRad / Math.PI));
+  const tx = Math.min(texW - 1, (u * texW) | 0);
+  const ty = Math.min(texH - 1, (v * texH) | 0);
+  const i = (ty * texW + tx) * 4;
+  return `rgb(${texData[i]},${texData[i + 1]},${texData[i + 2]})`;
+}
 
 // ---- projection + fit ---------------------------------------------------
 
@@ -88,23 +115,6 @@ function graticule() {
 }
 const GRATICULE = graticule();
 
-// Subdivide a coarse polygon so every edge is at most ~4 deg, keeping
-// long coastline segments smooth once the projection bends them.
-function densify(poly) {
-  const out = [];
-  for (let i = 0; i < poly.length - 1; i += 1) {
-    const [lo0, la0] = poly[i];
-    const [lo1, la1] = poly[i + 1];
-    const n = Math.max(1, Math.ceil(Math.hypot(lo1 - lo0, la1 - la0) / 4));
-    for (let k = 0; k < n; k += 1) {
-      out.push([lo0 + (lo1 - lo0) * k / n, la0 + (la1 - la0) * k / n]);
-    }
-  }
-  out.push(poly[poly.length - 1]);
-  return out;
-}
-const COAST = COASTLINES.map(densify);
-
 // ---- polyline drawing ---------------------------------------------------
 
 // Draw a geographic polyline, lifting the pen where the projection is
@@ -131,19 +141,14 @@ function render() {
   ctx.fillStyle = '#0a0c12';
   ctx.fillRect(0, 0, W, H);
 
+  if (st.showEarth) drawEarth(fit);
+
   if (st.showGraticule) {
     for (const { pts, edge } of GRATICULE) {
-      ctx.strokeStyle = edge ? 'rgba(150,170,210,0.55)' : 'rgba(120,140,180,0.22)';
+      ctx.strokeStyle = edge ? 'rgba(225,235,255,0.7)' : 'rgba(210,225,255,0.32)';
       ctx.lineWidth = edge ? 1.4 : 1;
       strokeGeo(pts, fit);
     }
-  }
-
-  if (st.showCoastlines) {
-    ctx.strokeStyle = 'rgba(120,210,170,0.9)';
-    ctx.fillStyle = 'rgba(70,140,115,0.22)';
-    ctx.lineWidth = 1.3;
-    for (const poly of COAST) strokeGeo(poly, fit);
   }
 
   if (st.showTissot) drawTissot(fit);
@@ -151,6 +156,43 @@ function render() {
   drawDistortionDiagnostic();
   drawCaption();
   refreshRail();
+}
+
+// Drape the Blue Marble texture as a mesh of quads. Each cell of a
+// 2.5-degree geographic grid is forward-projected and filled with the
+// texture colour at its centre; cells that straddle the antimeridian
+// seam or the projection boundary are skipped. Each quad is also
+// stroked in its own colour to close the hairline anti-aliasing gaps
+// between neighbours.
+function drawEarth(fit) {
+  if (!texData) return;
+  const STEP = 2.5;
+  for (let la = -90; la < 90; la += STEP) {
+    for (let lo = -180; lo < 180; lo += STEP) {
+      const c0 = projectGeo(lo, la), c1 = projectGeo(lo + STEP, la);
+      const c2 = projectGeo(lo + STEP, la + STEP), c3 = projectGeo(lo, la + STEP);
+      if (!c0 || !c1 || !c2 || !c3) continue;
+      const s0 = toScreen(c0, fit), s1 = toScreen(c1, fit);
+      const s2 = toScreen(c2, fit), s3 = toScreen(c3, fit);
+      const xs = [s0.x, s1.x, s2.x, s3.x], ys = [s0.y, s1.y, s2.y, s3.y];
+      const spanX = Math.max(...xs) - Math.min(...xs);
+      const spanY = Math.max(...ys) - Math.min(...ys);
+      // A 2.5-degree cell that projects larger than this is in a
+      // blow-up region (gnomonic / stereographic fringe) or straddles
+      // the antimeridian seam; either way it must not be drawn.
+      if (spanX > W * 0.14 || spanY > H * 0.14) continue;
+      const col = sampleTex((lo + STEP / 2) * DEG, (la + STEP / 2) * DEG);
+      ctx.fillStyle = col;
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(s0.x, s0.y); ctx.lineTo(s1.x, s1.y);
+      ctx.lineTo(s2.x, s2.y); ctx.lineTo(s3.x, s3.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
 }
 
 // Tissot indicatrices on a 30-degree grid. Each ellipse is the image
@@ -343,8 +385,8 @@ function buildControls() {
     row.append(lab, inp, document.createElement('span'));
     controlsEl.appendChild(row);
   }
+  toggle('toggle-earth', 'Earth texture', 'showEarth');
   toggle('toggle-graticule', 'graticule', 'showGraticule');
-  toggle('toggle-coastlines', 'coastlines', 'showCoastlines');
   toggle('toggle-tissot', 'Tissot indicatrices', 'showTissot');
 
   const btnRow = document.createElement('div');
@@ -381,6 +423,16 @@ window.addEventListener('pointermove', (e) => {
 
 // ---- boot ---------------------------------------------------------------
 
+function finishBoot() {
+  render();
+  if (CAPTURE_NAME) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.__simulationReady = true;
+      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
+    }));
+  }
+}
+
 function boot() {
   buildControls();
   if (CAPTURE_NAME) {
@@ -390,14 +442,18 @@ function boot() {
     document.getElementById('select-projection').value = st.projection;
     st.lon0 = 0.2; st.lat0 = 0.15;
   }
-  render();
-  if (CAPTURE_NAME) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      window.__simulationReady = true;
-      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
-    }));
+  // Wait for the Earth texture so the first frame (and the capture)
+  // shows the map, not bare ocean.
+  if (earthImg.complete && earthImg.naturalWidth) {
+    buildTexData();
+    finishBoot();
+  } else {
+    earthImg.addEventListener('load', () => { buildTexData(); finishBoot(); }, { once: true });
+    earthImg.addEventListener('error', finishBoot, { once: true });
   }
 }
+
+earthImg.src = '../../../assets/maps/earth_bluemarble_2048.jpg';
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot, { once: true });
