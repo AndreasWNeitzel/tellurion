@@ -12,7 +12,7 @@
 // module once.
 
 import { mountStarField } from './starfield.js';
-import { getAudioSystem } from './audio.js';
+import { returnFromPlayground } from './audio.js';
 import { mountCursor } from './cursor.js';
 
 const FENCE = '-'.repeat(3);
@@ -323,7 +323,7 @@ function mountChrome() {
     v2Back.addEventListener('click', (e) => {
       if (reduce) return;
       e.preventDefault();
-      try { getAudioSystem().returnFromPlayground(); } catch { /* ignore */ }
+      try { returnFromPlayground(); } catch { /* ignore */ }
       try { (window.__starfield || mountStarField())?.accelerate('out'); } catch { /* ignore */ }
       document.body.classList.add('pg-leaving');
       const href = v2Back.getAttribute('href') || '../../../index.html';
@@ -340,7 +340,7 @@ function mountChrome() {
     back.addEventListener('click', (e) => {
       if (reduce) return;
       e.preventDefault();
-      try { getAudioSystem().returnFromPlayground(); } catch { /* ignore */ }   // B2 resurface
+      try { returnFromPlayground(); } catch { /* ignore */ }   // B2 resurface
       try { (window.__starfield || mountStarField())?.accelerate('out'); } catch { /* ignore */ }
       document.body.classList.add('pg-leaving');
       setTimeout(() => { location.href = back.getAttribute('href'); }, 170);

@@ -1,198 +1,368 @@
-// Experiential audio (spec Part C). One shared AudioContext, created
-// on the first user gesture. Every sound degrades silently: no Web
-// Audio, mobile ('ontouchstart'), or prefers-reduced-motion -> all
-// methods are no-ops. A 30 ms global guard (C6) prevents audio chaos
-// when the pointer sweeps many cards. Gains are deliberately tiny
-// (Part H1): inaudible on a laptop speaker at 30% with the window in
-// the background; they only register when the user is engaged.
-//
-// Disable the whole layer in one place (spec H4):
-const AUDIO_ENABLED = true;
+// Set to true to log every audio state change and sound attempt
+// to the console. Use this when diagnosing playback failures.
+const DEBUG = false;
 
-class AudioSystem {
-  constructor() {
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const mobile = 'ontouchstart' in window;
-    const ok = AUDIO_ENABLED && !reduce && !mobile
-      && typeof (window.AudioContext || window.webkitAudioContext) === 'function';
-    this.enabled = ok;
-    this.ctx = null;
-    this.last = 0;                 // last sound start (ms), for the 30 ms guard
-    if (!this.enabled) return;
-    // The AudioContext must be CREATED inside a genuine user-activation
-    // gesture (pointerdown / keydown). A context created on pointermove
-    // or during a hover, as the old code allowed, is not bound to a
-    // gesture and the autoplay policy can leave it permanently
-    // un-resumable. Whether audio worked then depended on whether the
-    // first interaction happened to be a gesture: that is the reported
-    // inconsistency. pointermove and visibilitychange only RESUME a
-    // context that a gesture has already created.
-    const createOnGesture = () => {
-      try {
-        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if (this.ctx.state !== 'running') this.ctx.resume().catch(() => {});
-      } catch { this.ctx = null; this.enabled = false; }
-    };
-    const resumeIfExists = () => {
-      if (this.ctx && this.ctx.state !== 'running') {
-        try { this.ctx.resume().catch(() => {}); } catch { /* ignore */ }
-      }
-    };
-    window.addEventListener('pointerdown', createOnGesture);
-    window.addEventListener('keydown', createOnGesture);
-    window.addEventListener('pointermove', resumeIfExists, { passive: true });
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) resumeIfExists(); });
-  }
+let audioContext = null;
+let initialized = false;
+let lastSoundTime = 0;
+const SOUND_GUARD_MS = 30;
+const MAX_PENDING_QUEUE = 8;
+const pendingQueue = [];
 
-  _ready() {
-    if (!this.enabled) return null;
-    // Do not create the context here. It is created only inside a real
-    // gesture handler (see the constructor); a hover is not a gesture,
-    // so a context created here would be born un-resumable.
-    const c = this.ctx;
-    if (!c) return null;
-    // Never schedule into a non-running context: its clock is frozen,
-    // events never fire and nodes leak (audio "randomly stops"). Kick
-    // a resume and skip this one; the next attempt plays.
-    if (c.state !== 'running') { try { c.resume().catch(() => {}); } catch { /* ignore */ } return null; }
-    const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-    if (now - this.last < 30) return null;     // C6 volume guard
-    this.last = now;
-    return c;
-  }
+function log(...args) {
+  if (DEBUG) console.log('[audio]', ...args);
+}
 
-  // Short sine blip with a linear attack and exponential decay.
-  _blip(c, freq, dur, peak, attack, detuneCents) {
-    const t = c.currentTime;
-    const o = c.createOscillator(), g = c.createGain();
-    o.type = 'sine';
-    o.frequency.setValueAtTime(freq, t);
-    if (detuneCents) o.detune.setValueAtTime(detuneCents, t);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(peak, t + attack);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(c.destination);
-    o.start(t); o.stop(t + dur + 0.02);
-    const kill = () => { try { o.disconnect(); g.disconnect(); } catch { /* ignore */ } };
-    o.onended = kill;
-    setTimeout(kill, (dur + 0.1) * 1000);            // fallback if onended never fires
-  }
-
-  _noiseBuffer(c, seconds) {
-    const n = Math.floor(c.sampleRate * seconds);
-    const buf = c.createBuffer(1, n, c.sampleRate);
-    const d = buf.getChannelData(0);
-    let s = 0x9e3779b9;
-    for (let i = 0; i < n; i += 1) { s = (Math.imul(s ^ (s >>> 15), 1 | s)) >>> 0; d[i] = (s / 2147483648) - 1; }
-    return buf;
-  }
-
-  // C1: card hover. 880 Hz sine, 80 ms, +4 cent detune.
-  hoverCard() {
-    const c = this._ready(); if (!c) return;
-    this._blip(c, 880, 0.08, 0.032, 0.005, 4);
-  }
-
-  // C2: playground selected. A smooth digital "confirm": a soft low
-  // body and a clean rising C5 -> G5 interval with a faint high
-  // octave for sparkle. No bass thump, no descending whoosh, no
-  // noise breath (the old "woosh" the user disliked): pure sines,
-  // gentle 12 ms attacks, exponential tails. Soothing and futuristic.
-  selectPlayground() {
-    const c = this._ready(); if (!c) return;
-    const t = c.currentTime;
-    const voice = (freq, t0, dur, peak, type = 'sine', detune = 0) => {
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = type;
-      o.frequency.setValueAtTime(freq, t + t0);
-      if (detune) o.detune.setValueAtTime(detune, t + t0);
-      g.gain.setValueAtTime(0.00001, t + t0);
-      g.gain.linearRampToValueAtTime(peak, t + t0 + 0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + t0 + dur);
-      o.connect(g); g.connect(c.destination);
-      o.start(t + t0); o.stop(t + t0 + dur + 0.03);
-      const kill = () => { try { o.disconnect(); g.disconnect(); } catch { /* ignore */ } };
-      o.onended = kill;
-      setTimeout(kill, (t0 + dur + 0.12) * 1000);
-    };
-    voice(196.00, 0.00, 0.46, 0.024);             // soft G3 body (no thump)
-    voice(523.25, 0.00, 0.40, 0.050, 'sine', -3); // C5
-    voice(523.25, 0.00, 0.40, 0.034, 'sine', 5);  // detuned twin for warmth
-    voice(783.99, 0.085, 0.50, 0.044);            // resolve up a fifth, G5
-    voice(1567.98, 0.085, 0.34, 0.013, 'triangle'); // faint high-octave sparkle
-  }
-
-  // C3: return from a playground. Lighter, ascending: resurfacing.
-  returnFromPlayground() {
-    const c = this._ready(); if (!c) return;
-    const t = c.currentTime;
-    const o1 = c.createOscillator(), g1 = c.createGain();
-    o1.type = 'sine'; o1.frequency.setValueAtTime(70, t);
-    g1.gain.setValueAtTime(0, t);
-    g1.gain.linearRampToValueAtTime(0.055, t + 0.02);
-    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
-    o1.connect(g1); g1.connect(c.destination); o1.start(t); o1.stop(t + 0.42);
-    const o2 = c.createOscillator(), g2 = c.createGain();
-    o2.type = 'sine';
-    o2.frequency.setValueAtTime(80, t);
-    o2.frequency.exponentialRampToValueAtTime(280, t + 0.35);
-    g2.gain.setValueAtTime(0, t);
-    g2.gain.linearRampToValueAtTime(0.038, t + 0.02);
-    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
-    o2.connect(g2); g2.connect(c.destination); o2.start(t); o2.stop(t + 0.4);
-    const src = c.createBufferSource(), g3 = c.createGain(), f3 = c.createBiquadFilter();
-    src.buffer = this._noiseBuffer(c, 0.6);
-    f3.type = 'bandpass'; f3.frequency.value = 1800; f3.Q.value = 0.5;
-    g3.gain.setValueAtTime(0, t);
-    g3.gain.linearRampToValueAtTime(0.015, t + 0.03);
-    g3.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
-    src.connect(f3); f3.connect(g3); g3.connect(c.destination); src.start(t); src.stop(t + 0.34);
-    o1.onended = () => { try { o1.disconnect(); g1.disconnect(); o2.disconnect(); g2.disconnect(); src.disconnect(); f3.disconnect(); g3.disconnect(); } catch { /* ignore */ } };
-  }
-
-  // C4 / C5: filter chip toggled on / off.
-  filterActivate() { const c = this._ready(); if (c) this._blip(c, 660, 0.05, 0.025, 0.004, 0); }
-  filterDeactivate() { const c = this._ready(); if (c) this._blip(c, 520, 0.05, 0.018, 0.004, 0); }
-
-  // G: barely-perceptible ambient drone. Two detuned 40/41.2 Hz sines
-  // beating at ~1.2 Hz, 3 s fade-in. Returns the new on/off state.
-  ambientActive() { return !!this._amb; }
-  toggleAmbient() {
-    if (this._amb) { this._stopAmbient(); return false; }
-    if (!this.enabled) return false;
-    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return false; } }
-    const c = this.ctx; if (!c) return false;
-    if (c.state === 'suspended') { try { c.resume(); } catch { /* ignore */ } }
-    const t = c.currentTime;
-    const mk = (f) => {
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(0.00001, t);
-      g.gain.linearRampToValueAtTime(0.006, t + 3.0);
-      o.connect(g); g.connect(c.destination); o.start(t);
-      return { o, g };
-    };
-    this._amb = [mk(40), mk(41.2)];
+function isAudioDisabled() {
+  // No audio on touch devices
+  if ('ontouchstart' in window) return true;
+  // No audio if user prefers reduced motion
+  if (window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     return true;
   }
-  _stopAmbient() {
-    if (!this._amb) return;
-    const c = this.ctx, t = c ? c.currentTime : 0;
-    for (const n of this._amb) {
-      try {
-        n.g.gain.cancelScheduledValues(t);
-        n.g.gain.setValueAtTime(n.g.gain.value, t);
-        n.g.gain.linearRampToValueAtTime(0.00001, t + 0.4);
-        n.o.stop(t + 0.45);
-        n.o.onended = () => { try { n.o.disconnect(); n.g.disconnect(); } catch { /* ignore */ } };
-      } catch { /* ignore */ }
-    }
-    this._amb = null;
+  return false;
+}
+
+function getAudioContext() {
+  if (audioContext && audioContext.state !== 'closed') {
+    return audioContext;
+  }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) {
+    log('AudioContext not supported');
+    return null;
+  }
+  audioContext = new AC();
+  log('Created AudioContext, initial state:', audioContext.state);
+  // Some browsers fire statechange we can use to log transitions
+  audioContext.addEventListener('statechange', () => {
+    log('AudioContext state changed to:', audioContext.state);
+  });
+  return audioContext;
+}
+
+// Ensures the context exists and is in 'running' state.
+// Returns true if the context is usable, false otherwise.
+// Safe to call repeatedly; cheap when already running.
+async function ensureRunning() {
+  if (isAudioDisabled()) return false;
+  const ctx = getAudioContext();
+  if (!ctx) return false;
+  if (ctx.state === 'running') return true;
+  if (ctx.state === 'closed') {
+    // Context was closed; null it out so next call recreates
+    audioContext = null;
+    return false;
+  }
+  // state is 'suspended' (or 'interrupted' on Safari/iOS)
+  try {
+    await ctx.resume();
+    log('Resumed AudioContext, state now:', ctx.state);
+    return ctx.state === 'running';
+  } catch (err) {
+    log('Failed to resume AudioContext:', err);
+    return false;
   }
 }
 
-let _singleton = null;
-export function getAudioSystem() {
-  if (!_singleton) _singleton = new AudioSystem();
-  return _singleton;
+// Attempt to play a sound. Builder is a function that receives
+// the AudioContext and constructs the sound. If the context is
+// not yet running, the sound is queued (up to MAX_PENDING_QUEUE)
+// and played as soon as the context resumes.
+async function playSound(builder, soundName) {
+  if (isAudioDisabled()) return;
+
+  // Rate-limit rapid-fire sounds (e.g., dragging across cards)
+  const now = performance.now();
+  if (now - lastSoundTime < SOUND_GUARD_MS) {
+    log('Rate-limited:', soundName);
+    return;
+  }
+
+  const running = await ensureRunning();
+  if (!running) {
+    // Queue for later if not running yet
+    if (pendingQueue.length < MAX_PENDING_QUEUE) {
+      pendingQueue.push({ builder, soundName });
+      log('Queued:', soundName, '(queue length:', pendingQueue.length, ')');
+    }
+    return;
+  }
+
+  lastSoundTime = now;
+  try {
+    builder(audioContext);
+    log('Played:', soundName);
+  } catch (err) {
+    log('Error playing', soundName, ':', err);
+  }
+}
+
+// Drain queued sounds after the context becomes running.
+async function drainQueue() {
+  while (pendingQueue.length > 0) {
+    const ctx = getAudioContext();
+    if (!ctx || ctx.state !== 'running') break;
+    const { builder, soundName } = pendingQueue.shift();
+    try {
+      builder(ctx);
+      log('Played from queue:', soundName);
+    } catch (err) {
+      log('Error draining', soundName, ':', err);
+    }
+    // Stagger queue draining so they don't all hit at once
+    await new Promise(r => setTimeout(r, 40));
+  }
+}
+
+// Initialize on the first real user gesture. Listens at the
+// document level for input events that browsers consider user
+// gestures. Removes itself after success.
+function initializeOnFirstGesture() {
+  if (initialized) return;
+  const handler = async () => {
+    log('First user gesture detected');
+    const ok = await ensureRunning();
+    if (ok) {
+      initialized = true;
+      await drainQueue();
+      document.removeEventListener('pointerdown', handler);
+      document.removeEventListener('keydown', handler);
+      document.removeEventListener('touchstart', handler);
+    }
+  };
+  document.addEventListener('pointerdown', handler);
+  document.addEventListener('keydown', handler);
+  document.addEventListener('touchstart', handler);
+}
+
+// Resume the context whenever the page becomes visible again.
+// This is the critical handler that prevents the "worked earlier,
+// silent now" failure mode after tab switches.
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible') {
+    if (audioContext && audioContext.state !== 'closed') {
+      log('Page visible, refreshing AudioContext state');
+      await ensureRunning();
+      await drainQueue();
+    }
+  }
+});
+
+// Also resume on window focus, which fires in cases visibilitychange
+// does not (e.g., refocusing a window without tab switch).
+window.addEventListener('focus', async () => {
+  if (audioContext && audioContext.state !== 'closed') {
+    log('Window focused, refreshing AudioContext state');
+    await ensureRunning();
+    await drainQueue();
+  }
+});
+
+// Public API
+export async function hoverCard() {
+  await playSound((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, t);
+    osc.detune.setValueAtTime(4, t);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.032, t + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+    osc.start(t);
+    osc.stop(t + 0.08);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+  }, 'hoverCard');
+}
+
+export async function selectPlayground() {
+  await playSound((ctx) => {
+    const t = ctx.currentTime;
+
+    // Layer 1: bass pulse 55Hz, 730ms
+    const bassOsc = ctx.createOscillator();
+    const bassGain = ctx.createGain();
+    bassOsc.connect(bassGain);
+    bassGain.connect(ctx.destination);
+    bassOsc.type = 'sine';
+    bassOsc.frequency.setValueAtTime(55, t);
+    bassGain.gain.setValueAtTime(0, t);
+    bassGain.gain.linearRampToValueAtTime(0.09, t + 0.03);
+    bassGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.73);
+    bassOsc.start(t);
+    bassOsc.stop(t + 0.73);
+    bassOsc.onended = () => {
+      try { bassOsc.disconnect(); bassGain.disconnect(); } catch {}
+    };
+
+    // Layer 2: descending sweep 320Hz → 60Hz, 570ms
+    const sweepOsc = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    const sweepFilter = ctx.createBiquadFilter();
+    sweepOsc.connect(sweepFilter);
+    sweepFilter.connect(sweepGain);
+    sweepGain.connect(ctx.destination);
+    sweepOsc.type = 'sine';
+    sweepOsc.frequency.setValueAtTime(320, t);
+    sweepOsc.frequency.exponentialRampToValueAtTime(60, t + 0.55);
+    sweepFilter.type = 'lowpass';
+    sweepFilter.frequency.setValueAtTime(800, t);
+    sweepFilter.Q.setValueAtTime(1.2, t);
+    sweepGain.gain.setValueAtTime(0, t);
+    sweepGain.gain.linearRampToValueAtTime(0.05, t + 0.02);
+    sweepGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.57);
+    sweepOsc.start(t);
+    sweepOsc.stop(t + 0.57);
+    sweepOsc.onended = () => {
+      try {
+        sweepOsc.disconnect();
+        sweepFilter.disconnect();
+        sweepGain.disconnect();
+      } catch {}
+    };
+
+    // Layer 3: air texture (filtered noise), 540ms
+    const noiseBuffer = ctx.createBuffer(
+      1, ctx.sampleRate * 0.6, ctx.sampleRate
+    );
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseData.length; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+    const noiseSrc = ctx.createBufferSource();
+    const noiseFilter = ctx.createBiquadFilter();
+    const noiseGain = ctx.createGain();
+    noiseSrc.buffer = noiseBuffer;
+    noiseSrc.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.setValueAtTime(1200, t);
+    noiseFilter.Q.setValueAtTime(0.4, t);
+    noiseGain.gain.setValueAtTime(0, t);
+    noiseGain.gain.linearRampToValueAtTime(0.022, t + 0.04);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.54);
+    noiseSrc.start(t);
+    noiseSrc.stop(t + 0.54);
+    noiseSrc.onended = () => {
+      try {
+        noiseSrc.disconnect();
+        noiseFilter.disconnect();
+        noiseGain.disconnect();
+      } catch {}
+    };
+  }, 'selectPlayground');
+}
+
+export async function returnFromPlayground() {
+  await playSound((ctx) => {
+    const t = ctx.currentTime;
+
+    const bassOsc = ctx.createOscillator();
+    const bassGain = ctx.createGain();
+    bassOsc.connect(bassGain);
+    bassGain.connect(ctx.destination);
+    bassOsc.type = 'sine';
+    bassOsc.frequency.setValueAtTime(70, t);
+    bassGain.gain.setValueAtTime(0, t);
+    bassGain.gain.linearRampToValueAtTime(0.055, t + 0.02);
+    bassGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.40);
+    bassOsc.start(t);
+    bassOsc.stop(t + 0.40);
+    bassOsc.onended = () => {
+      try { bassOsc.disconnect(); bassGain.disconnect(); } catch {}
+    };
+
+    const sweepOsc = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    sweepOsc.connect(sweepGain);
+    sweepGain.connect(ctx.destination);
+    sweepOsc.type = 'sine';
+    sweepOsc.frequency.setValueAtTime(80, t);
+    sweepOsc.frequency.exponentialRampToValueAtTime(280, t + 0.35);
+    sweepGain.gain.setValueAtTime(0, t);
+    sweepGain.gain.linearRampToValueAtTime(0.038, t + 0.02);
+    sweepGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+    sweepOsc.start(t);
+    sweepOsc.stop(t + 0.38);
+    sweepOsc.onended = () => {
+      try { sweepOsc.disconnect(); sweepGain.disconnect(); } catch {}
+    };
+  }, 'returnFromPlayground');
+}
+
+export async function filterActivate() {
+  await playSound((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(660, t);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.025, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    osc.start(t);
+    osc.stop(t + 0.05);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+  }, 'filterActivate');
+}
+
+export async function filterDeactivate() {
+  await playSound((ctx) => {
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520, t);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.018, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    osc.start(t);
+    osc.stop(t + 0.05);
+    osc.onended = () => {
+      try { osc.disconnect(); gain.disconnect(); } catch {}
+    };
+  }, 'filterDeactivate');
+}
+
+// Expose a diagnostic snapshot for the browser console
+export function audioDiagnostics() {
+  return {
+    contextExists: audioContext !== null,
+    contextState: audioContext ? audioContext.state : 'no-context',
+    initialized,
+    pendingQueueLength: pendingQueue.length,
+    timeSinceLastSound: lastSoundTime
+      ? performance.now() - lastSoundTime
+      : null,
+    audioDisabled: isAudioDisabled(),
+  };
+}
+
+// Bootstrap on module load
+initializeOnFirstGesture();
+
+// Expose on window for browser-console debugging
+if (typeof window !== 'undefined') {
+  window.__audio = {
+    diagnostics: audioDiagnostics,
+    forceResume: ensureRunning,
+    enableDebug: () => {
+      // Cannot truly flip DEBUG const; this is informational
+      console.log('To enable debug, set DEBUG=true at top of audio.js');
+    },
+  };
 }

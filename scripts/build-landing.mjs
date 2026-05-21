@@ -521,10 +521,16 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 <div class="scrollprog" id="scrollprog" aria-hidden="true"><div class="sp-fill" id="sp-fill"></div></div>
 <script type="module">
   import { mountStarField } from './shared/js/starfield.js';
-  import { getAudioSystem } from './shared/js/audio.js';
+  import { filterActivate, filterDeactivate } from './shared/js/audio.js';
+  import './shared/js/card-interactions.js';
+  import { toggleAmbient, ambientActive } from './shared/js/ambient.js';
   import { mountCursor } from './shared/js/cursor.js';
   mountStarField();
-  window.__audio = getAudioSystem();
+  // audio.js gates itself on the first gesture and wires card hover /
+  // click sounds through card-interactions.js; the IIFE below only
+  // needs the filter and ambient calls.
+  window.__sfx = { filterActivate, filterDeactivate };
+  window.__amb = { toggleAmbient, ambientActive };
   mountCursor();
 </script>
 
@@ -652,12 +658,11 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   // entry has no visible -> hidden flash. No-JS users see them.
   if(!reduce && 'IntersectionObserver' in window){ cards.forEach(function(c){ c.classList.add('preanim'); }); }
 
-  // All sound goes through the shared AudioSystem (shared/js/audio.js,
-  // loaded as a module above and exposed as window.__audio). It owns
-  // the mobile / reduced-motion / no-Web-Audio guards and the 30ms
-  // chaos guard, so these are thin call-throughs.
-  function aud(){ return window.__audio || null; }
-  function ping(){ var a=aud(); if(a)a.hoverCard(); }
+  // Card hover and click sounds are wired by card-interactions.js via
+  // event delegation. Filter and ambient sounds go through the
+  // window.__sfx / window.__amb handles set by the module script;
+  // each call is guarded since audio may be disabled.
+  function sfx(){ return window.__sfx || null; }
 
   function visible(c){
     var q=input.value.toLowerCase();
@@ -738,16 +743,15 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   curToggle.addEventListener('click',function(){
     curMode=!curMode;
     curToggle.setAttribute('aria-pressed',String(curMode));
-    var a=aud(); if(a){ curMode?a.filterActivate():a.filterDeactivate(); }
+    var s=sfx(); if(s){ curMode?s.filterActivate():s.filterDeactivate(); }
     render();
   });
   chips.forEach(function(ch){
-    ch.addEventListener('mouseenter',ping);
     ch.addEventListener('click',function(){
       var on=!ch.classList.contains('active');
       ch.classList.toggle('active');
       if(active[ch.dataset.tag])delete active[ch.dataset.tag]; else active[ch.dataset.tag]=1;
-      var a=aud(); if(a){ on?a.filterActivate():a.filterDeactivate(); }
+      var s=sfx(); if(s){ on?s.filterActivate():s.filterDeactivate(); }
       render();
     });
   });
@@ -769,12 +773,10 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     }
   }catch(e){}
   cards.forEach(function(c){
-    c.addEventListener('mouseenter',ping);
     c.addEventListener('click',function(e){
       var href=c.getAttribute('href');
       if(reduce)return;                               // instant nav, no transition
       e.preventDefault();
-      var a=aud(); if(a)a.selectPlayground();          // B1 select woosh
       if(window.__starfield)window.__starfield.accelerate('in');
       c.classList.add('sel');                          // clicked card scales 1.03 + fades
       if(ptrans)ptrans.classList.add('show');          // rest fades to void
@@ -890,8 +892,8 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     var savedOn=false; try{ savedOn=sessionStorage.getItem('pg:amb')==='1'; }catch(e){}
     ambBtn.classList.toggle('on',savedOn);
     ambBtn.addEventListener('click',function(){
-      var a=aud(); if(!a){ return; }
-      var on=a.toggleAmbient();
+      if(!window.__amb){ return; }
+      var on=window.__amb.toggleAmbient();
       ambBtn.classList.toggle('on',on);
       try{ sessionStorage.setItem('pg:amb',on?'1':'0'); }catch(e){}
     });
