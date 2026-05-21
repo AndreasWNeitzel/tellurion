@@ -379,8 +379,7 @@ export function visibilityAtPoint(eclipse, lat, lon) {
   for (const p of eclipse.path) {
     const dlat = lat - p[1];
     let dlon = lon - p[2];
-    while (dlon > 180) dlon -= 360;
-    while (dlon < -180) dlon += 360;
+    dlon = ((dlon % 360) + 540) % 360 - 180;   // O(1) wrap; never spins
     const d = Math.sqrt(dlat * dlat + dlon * dlon * Math.cos(lat * Math.PI / 180) ** 2);
     if (d < minDist) minDist = d;
   }

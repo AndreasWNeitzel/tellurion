@@ -78,8 +78,7 @@ function ll2px(lat, lon) {
   // Wrap longitude difference into (-180, 180] so points on the far side
   // of the map can be off-screen consistently.
   let dlon = lon - view.cx;
-  while (dlon > 180) dlon -= 360;
-  while (dlon < -180) dlon += 360;
+  dlon = ((dlon % 360) + 540) % 360 - 180;   // O(1) wrap; never spins
   const { spanLon, spanLat } = visibleSpan();
   const u = 0.5 + dlon / spanLon;
   const v = 0.5 - (lat - view.cy) / spanLat;
@@ -90,8 +89,7 @@ function px2ll(x, y) {
   const { spanLon, spanLat } = visibleSpan();
   let lon = view.cx + (u - 0.5) * spanLon;
   const lat = view.cy - (v - 0.5) * spanLat;
-  while (lon > 180) lon -= 360;
-  while (lon < -180) lon += 360;
+  lon = ((lon % 360) + 540) % 360 - 180;   // O(1) wrap; never spins
   return { lat, lon };
 }
 

@@ -223,8 +223,7 @@ function drawChiLambda2() {
     // Use absolute value with wrap-aware projection: actually just
     // wrap to [-180, 180] for clarity.
     let cd = (RM * l2 * 180 / Math.PI);
-    while (cd > 180) cd -= 360;
-    while (cd < -180) cd += 360;
+    cd = ((cd % 360) + 540) % 360 - 180;   // O(1) wrap; never spins
     const xx = px(l2);
     const yy = y + h / 2 - cd * (h - 50) / 360;
     if (k === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
@@ -240,8 +239,7 @@ function drawChiLambda2() {
   for (const band of bands) {
     const l2 = band.lam * band.lam;
     let cd = RM * l2 * 180 / Math.PI;
-    while (cd > 180) cd -= 360;
-    while (cd < -180) cd += 360;
+    cd = ((cd % 360) + 540) % 360 - 180;   // O(1) wrap; never spins
     const xx = px(l2);
     const yy = y + h / 2 - cd * (h - 50) / 360;
     ctx.fillStyle = band.color;
