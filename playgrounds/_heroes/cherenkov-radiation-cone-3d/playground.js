@@ -274,25 +274,44 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the particle speed, the medium index, and the Cherenkov
+// cone geometry.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const bn = st.beta * st.n;
+  const theta = cherenkovAngle(st.beta, st.n);
+  return {
+    fields: [
+      { key: 'beta', label: 'particle speed beta = v/c', value: st.beta, format: 'float' },
+      { key: 'index', label: 'refractive index n', value: st.n, format: 'float' },
+      { key: 'beta-n', label: 'beta n', value: bn, format: 'float' },
+      { key: 'cone-angle', label: 'Cherenkov angle (deg)', value: theta * 180 / Math.PI, format: 'float' },
+      { key: 'frank-tamm', label: 'Frank-Tamm intensity', value: frankTammFactor(st.beta, st.n), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const bn = st.beta * st.n;
+  const theta = cherenkovAngle(st.beta, st.n);
+  // Cherenkov radiation is emitted only when the particle outruns
+  // light in the medium, beta n > 1; below that there is no cone.
+  // When emitting, the cone half-angle obeys cos(theta_c) = 1 / (beta n).
+  const consistent = bn <= 1
+    ? true
+    : Math.abs(Math.cos(theta) - 1 / bn) < 1e-3;
+  return [
+    {
+      key: 'threshold',
+      label: 'emission threshold beta n > 1',
+      value: bn.toFixed(3),
+      status: bn > 1 ? 'pass' : 'pending',
+    },
+    {
+      key: 'cone-relation',
+      label: 'cos(theta_c) = 1 / (beta n)',
+      value: bn > 1 ? Math.cos(theta).toFixed(3) : 'no cone',
+      status: consistent ? 'pass' : 'drift',
+    },
+  ];
+};
