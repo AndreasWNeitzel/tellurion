@@ -60,7 +60,7 @@ function buildMask() {
 
 // Square dart board on the left; the right column carries the
 // readouts and the convergence panel.
-const BS = Math.min(H - 100, Math.floor(W * 0.46));
+const BS = Math.min(H - 82, Math.floor(W * 0.46));
 const BX = 24, BY = 58;
 const bx = (x) => BX + x * BS;
 const by = (y) => BY + (1 - y) * BS;
