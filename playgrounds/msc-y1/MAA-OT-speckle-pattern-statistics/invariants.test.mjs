@@ -27,6 +27,14 @@ describe('speckle-pattern-statistics', () => {
     expect(same).toBeLessThan(1e-6);          // same t, same seed -> identical
     expect(moved).toBeGreaterThan(1e-3);      // it boils
   });
+  it('fully developed speckle: intensity contrast V = sigma/mean ~ 1', () => {
+    const I = boilField(96, 8, 3, 0, 0xC0FFEE);
+    let mean = 0; for (const v of I) mean += v; mean /= I.length;
+    let varr = 0; for (const v of I) varr += (v - mean) ** 2; varr /= I.length;
+    const V = Math.sqrt(varr) / mean;
+    expect(V).toBeGreaterThan(0.82);          // negative-exponential statistics
+    expect(V).toBeLessThan(1.18);
+  });
   it('negative-exponential PDF: normalised and mean = Ibar', () => {
     const Ibar = 2.3, dI = 0.002;
     let norm = 0, mean = 0;

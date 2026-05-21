@@ -27,34 +27,40 @@ export function speckleField(N_x, D_r0, lambda_per_D_px, seed = 0xC0FFEE) {
 }
 export function expectedSpeckleCount(D, r0) { return (D / r0) ** 2; }
 
-// Boiling speckle: the same N coherent modes, but each mode's phase
-// advances at its own seeded angular rate, so |sum|^2 decorrelates
-// over time exactly as a short-exposure pattern boils with the
-// turbulence. At t = 0 the phases are the static draw. Goodman,
-// Speckle Phenomena in Optics, Ch. 3.
+// Boiling speckle. The field is a sum of n random plane-wave modes,
+// each one GLOBAL (it spans the whole grid), so every pixel is a sum
+// of n random phasors. By the central limit theorem the real and
+// imaginary parts are then Gaussian and the intensity |sum|^2 is
+// negative-exponential, i.e. fully developed speckle with contrast
+// V = sigma/mean -> 1. (The earlier localised-Gaussian-blob field
+// left most pixels covered by 0-1 modes, which is not a phasor sum
+// and gave V ~ 2.) Each mode's phase advances at its own seeded rate
+// so the pattern boils. The k-vectors fill a disk whose radius sets
+// ~(D/r0)^2 speckles across N_x. The unused w argument is kept for
+// call-signature compatibility. Goodman, Speckle Phenomena, Ch. 3.
 export function boilField(N_x, D_r0, w, t, seed = 0xC0FFEE) {
+  void w;
   const rng = makeRng(seed);
   const n = Math.max(1, Math.round(D_r0 * D_r0));
+  const kMax = Math.PI * Math.max(1, D_r0) / N_x;
   const re = new Float32Array(N_x * N_x);
   const im = new Float32Array(N_x * N_x);
   for (let k = 0; k < n; k += 1) {
-    const x0 = rng() * N_x, y0 = rng() * N_x;
-    const ph0 = rng() * 2 * Math.PI;
+    const ang = rng() * 2 * Math.PI;
+    const kr = kMax * Math.sqrt(rng());           // uniform over the k-disk
+    const kx = kr * Math.cos(ang), ky = kr * Math.sin(ang);
     const om = 0.4 + 1.6 * rng();                 // per-mode boil rate
-    const ph = ph0 + om * t;
-    const cp = Math.cos(ph), sp = Math.sin(ph);
+    const ph0 = rng() * 2 * Math.PI + om * t;
     for (let py = 0; py < N_x; py += 1) {
-      const dy = py - y0;
       for (let px = 0; px < N_x; px += 1) {
-        const dx = px - x0;
-        const g = Math.exp(-(dx * dx + dy * dy) / (w * w));
-        re[py * N_x + px] += g * cp;
-        im[py * N_x + px] += g * sp;
+        const phase = kx * px + ky * py + ph0;
+        re[py * N_x + px] += Math.cos(phase);
+        im[py * N_x + px] += Math.sin(phase);
       }
     }
   }
   const I = new Float32Array(N_x * N_x);
-  for (let i = 0; i < I.length; i += 1) I[i] = re[i] * re[i] + im[i] * im[i];
+  for (let i = 0; i < I.length; i += 1) I[i] = (re[i] * re[i] + im[i] * im[i]) / n;
   return I;
 }
 
