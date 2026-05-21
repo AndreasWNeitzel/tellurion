@@ -1,3 +1,4 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
 // playground.js
 // Method of images, a zoo of the canonical constructions: a charge
 // near a grounded plane, a grounded sphere, a 90 deg conducting wedge,
@@ -197,7 +198,7 @@ function drawCharge(c, real) {
   ctx.lineWidth = real ? 2 : 1; ctx.setLineDash(real ? [] : [3, 3]);
   ctx.beginPath(); ctx.arc(p.px, p.py, real ? 9 : 7, 0, 2 * Math.PI); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(c.q >= 0 ? `+${Math.abs(c.q).toFixed(1)}` : `-${Math.abs(c.q).toFixed(1)}`, p.px, p.py - (real ? 14 : 11));
 }
 
@@ -214,7 +215,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.arc(rp.px, rp.py, 16, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`config = ${st.cfg}   q = ${st.q.toFixed(1)}   images = ${model.images.length}   (drag the bright charge)`, 14, 22);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
   ctx.fillText(`conductor is V = 0; gold lines end normal to it, cyan lines are the images' field. ${model.induced}`, 14, 40);
@@ -265,3 +266,27 @@ function bootSync() {
 }
 
 bootSync();
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

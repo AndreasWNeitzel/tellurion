@@ -1,5 +1,6 @@
 import { semiAmplitudeKMs, radialVelocityKMs, trueAnomaly, solveKepler } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -59,7 +60,7 @@ function render() {
   ctx.strokeStyle = '#3a3a44'; ctx.lineWidth = 1; ctx.beginPath();
   ctx.moveTo(cxR - RvW / 2, cyR); ctx.lineTo(cxR + RvW / 2, cyR);
   ctx.moveTo(cxR - RvW / 2, cyR - RvH / 2); ctx.lineTo(cxR - RvW / 2, cyR + RvH / 2); ctx.stroke();
-  ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
   for (const vv of [-80, -40, 0, 40, 80]) { const yy = yR(vv); ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.moveTo(cxR - RvW / 2, yy); ctx.lineTo(cxR + RvW / 2, yy); ctx.stroke(); ctx.fillText(`${vv}`, cxR - RvW / 2 - 6, yy + 3); }
   ctx.textAlign = 'left'; ctx.fillStyle = '#9aa0a6';
   ctx.fillText('phase', cxR + RvW / 2 - 36, cyR + 18);
@@ -81,7 +82,7 @@ function render() {
   ctx.stroke();
   const v_now = radialVelocityKMs(st.phi, K, omega, st.e);
   ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(xR(st.phi), yR(v_now), 7, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#cdd1d6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#cdd1d6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`K = ${K.toFixed(1)} km/s   2K = ${(2 * K).toFixed(1)} km/s   v_r = ${v_now.toFixed(1)} km/s at phase ${st.phi.toFixed(2)}`, 12, H - 12);
   rK.textContent = K.toFixed(1) + ' km/s';
 }
@@ -90,3 +91,27 @@ function render() {
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.phi = (st.phi + dt * 0.3 / st.p) % 1; render(); requestAnimationFrame(tick); }
 function bootSync() { st.phi = CAPTURE_FRAC; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

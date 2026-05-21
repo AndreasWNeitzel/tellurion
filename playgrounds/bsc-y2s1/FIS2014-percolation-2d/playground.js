@@ -5,6 +5,7 @@
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { occupy, cluster, largestClusterFraction, spans, P_C } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const urlParams      = new URLSearchParams(location.search);
 const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -153,7 +154,7 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(opX + 0.5, opY + 0.5, opW - 1, opH - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.fillText('order parameter  P∞(p)', opX + 10, opY + 14);
 
   // Grid + axes.
@@ -178,7 +179,7 @@ function drawAll() {
   ctx.beginPath(); ctx.moveTo(xpc, plotPy); ctx.lineTo(xpc, plotPy + plotPh); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(251, 113, 133, 0.95)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('p_c', xpc + 4, plotPy + 12);
 
   // P_inf(p) curve.
@@ -211,7 +212,7 @@ function drawAll() {
 
   // Axis labels and ticks.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   for (let yv = 0.0; yv <= 1.0001; yv += 0.25) {
     const yp = plotPy + plotPh - yv * plotPh;
@@ -329,4 +330,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

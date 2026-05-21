@@ -6,6 +6,7 @@ import {
   nToRho, isothermalCs, PC_M, M_SUN,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -83,7 +84,7 @@ function render() {
     const x = xFor(lK);
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`1e${lK}`, x - 18, padT + plotH + 14);
   }
   // zero line.
@@ -126,20 +127,20 @@ function render() {
     ctx.beginPath(); ctx.moveTo(xJ, padT); ctx.lineTo(xJ, padT + plotH); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = c.red;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`k_J = 2pi/lambda_J`, xJ + 4, padT + 12);
   }
 
   // Axis labels.
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('k (1/m)', padL + plotW - 50, padT + plotH + 28);
   ctx.save(); ctx.translate(16, padT + plotH / 2 + 40); ctx.rotate(-Math.PI / 2);
   ctx.fillText('omega^2 (1/s^2), signed-log', 0, 0); ctx.restore();
 
   // Label regions.
   ctx.fillStyle = c.red;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Jeans-unstable (omega^2 < 0)', padL + 12, padT + plotH - 8);
   ctx.fillStyle = c.blue;
   ctx.fillText('sound-wave (omega^2 > 0)', padL + plotW - 180, padT + 24);
@@ -159,7 +160,7 @@ function render() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(simX + 0.5, padT + 0.5, simW - 1, plotH - 1);
   ctx.fillStyle = c.fg;
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('δ(x, t) evolution', simX + 8, padT + 16);
 
   // Two stacked panes: top = density profile, bottom = mode amplitudes
@@ -205,7 +206,7 @@ function render() {
     ctx.fillRect(x, Math.min(y, fy0 + fh / 2), 1.5, Math.abs(d / 2 * fh));
   }
   ctx.fillStyle = 'rgba(200, 210, 230, 0.8)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('δ(x) (3 superposed modes)', fx0, fy0 + 12);
 
   // Mode amplitude time-series panel.
@@ -215,7 +216,7 @@ function render() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.18)';
   ctx.strokeRect(ax0 - 12 + 0.5, ay0 + 0.5, aw + 19, ah + 25);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('mode amplitude vs time', ax0 - 8, ay0 + 14);
   // Y range: log10|A| from -2 to 4 (six decades). The plot area starts
   // BELOW the title (ay0 + 24) so the top y-tick cannot collide with it.
@@ -231,7 +232,7 @@ function render() {
     ctx.beginPath(); ctx.moveTo(ax0, yOfA(la)); ctx.lineTo(ax0 + aw, yOfA(la)); ctx.stroke();
   }
   ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   for (let la = aMin; la <= aMax; la += 2) ctx.fillText(`10^${la}`, ax0 - 2, yOfA(la) + 3);
   ctx.textAlign = 'left';
@@ -260,7 +261,7 @@ function render() {
   // Legend: three entries spread evenly across the panel width so the
   // last one cannot clip the right edge.
   const llyy = ay0 + ah + 12;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   const legStep = (aw - 8) / probeKs.length;
   probeKs.forEach((probe, i) => {
     ctx.fillStyle = probe.col;
@@ -333,4 +334,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

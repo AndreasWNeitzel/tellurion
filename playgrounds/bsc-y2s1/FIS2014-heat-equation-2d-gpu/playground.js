@@ -9,6 +9,7 @@
 import { createGrid, setFixed, step, cflDt, totalHeat, maxResidual } from './sim.js';
 import { fieldToImageData, viridis } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -125,7 +126,7 @@ function boxRect(b, color, label) {
   const ly = (y - 6) < FY + 12 ? y + h + 14 : y - 6;
   const lx = Math.max(FX + 2, Math.min(x, FX + FPX - 130));
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.92)'; ctx.shadowBlur = 3;
-  ctx.fillStyle = color; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = color; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(label, lx, ly); ctx.fillText(label, lx, ly); ctx.restore();
 }
 // Per-cell paint overlay: a small coloured dot on every cell the user
@@ -155,7 +156,7 @@ function drawBrushCursor() {
   ctx.beginPath(); ctx.arc(st.mx, st.my, 3 * CELL, 0, 6.2832); ctx.stroke();
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(st.mx, st.my, 1.5, 0, 6.2832); ctx.fill();
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`${st.brush} brush`, st.mx + 3 * CELL + 4, st.my + 3); ctx.restore();
   ctx.lineWidth = 1;
 }
@@ -221,7 +222,7 @@ function render() {
   const cbX = PX, cbY = 170, cbW = 16, cbH = 160;
   for (let s = 0; s < cbH; s += 1) { const c = viridis(1 - s / cbH); ctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`; ctx.fillRect(cbX, cbY + s, cbW, 1); }
   ctx.strokeStyle = 'rgba(200,205,215,0.4)'; ctx.strokeRect(cbX, cbY, cbW, cbH);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(vmax.toFixed(1), cbX + cbW + 5, cbY + 8);
   ctx.fillText('0.0', cbX + cbW + 5, cbY + cbH);
   ctx.fillText('T', cbX + 3, cbY - 8);
@@ -236,7 +237,7 @@ function render() {
     if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.strokeStyle = '#7fd1ff'; ctx.lineWidth = 1.6; ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('mid-row  T(x)', pX + pW / 2, pY - 8);
   ctx.fillText('x', pX + pW / 2, pY + pH + 16);
   ctx.save(); ctx.translate(pX - 8, pY + pH / 2); ctx.rotate(-Math.PI / 2);
@@ -332,3 +333,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

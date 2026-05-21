@@ -9,6 +9,7 @@
 import { sourcesLine, sourcesArc, fieldAt, farFieldAmplitude, apertureAmplitude } from './sim.js';
 import { divBlack, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -98,14 +99,14 @@ function render() {
     ctx.arc(wx(fx), wy(0), (rr / WX) * FPX, Math.PI - 0.6, Math.PI + 0.6);
   }
   ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('Huygens wavelets (faint) and the reconstructed wavefront (blue)', FX + FPX / 2, FY + FPX + 18);
   ctx.textAlign = 'left';
 
   // side panel: far-field amplitude vs angle
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PX, PY, PW, PH);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('far-field amplitude vs angle', PX + PW / 2, PY - 6);
   const thMax = 0.5;
   const yOf = (th) => PY + ((th + thMax) / (2 * thMax)) * PH;
@@ -117,7 +118,7 @@ function render() {
   ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let p = 0; p <= PH; p += 2) { const th = -thMax + (p / PH) * 2 * thMax; const v = farFieldAmplitude(sources, th, k); const X = PX + 4 + v * (PW - 8); p === 0 ? ctx.moveTo(X, PY + p) : ctx.lineTo(X, PY + p); }
   ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('amplitude', PX + PW / 2, PY + PH + 14);
   ctx.save(); ctx.translate(PX - 7, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('angle', 0, 0); ctx.restore();
   ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(232,200,74,0.9)'; ctx.fillText('sinc envelope', PX + 8, PY + 14);
@@ -189,3 +190,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

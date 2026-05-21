@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rotation Curve Explorer</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotation Curve Explorer</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 860px; }
     .pg-figure canvas { width: 100%; height: auto; }
     .pg-readout {
@@ -46,11 +51,24 @@
       align-items: center;
     }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Rotation curve explorer</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Rotation curve explorer</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Rotation curve explorer</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     A model spiral galaxy seen from above (left panel) and its rotation curve
     seen from the side (right panel). The galaxy carries the same visible
     matter in every case, namely a bulge plus a Miyamoto-Nagai disk. What
@@ -58,46 +76,77 @@
     options to compare. The synthetic observation set (dots with error
     bars on the inset) was drawn from the dark-matter model with 6 km/s
     Gaussian noise; only one of the three model curves is consistent with
-    it at R > 10 kpc.
+    it at R &gt; 10 kpc.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="1100" height="720" tabindex="0"
-            aria-label="Top-down rotating spiral galaxy and an inset rotation-curve plot comparing Keplerian, visible-only, and dark-matter models against synthetic observations."></canvas>
-
-    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Model:</span>                    <span class="value" id="readout-model">Visible + dark matter</span>
-      <span class="label">t (Gyr):</span>                  <span class="value" id="readout-t">0.000</span>
-      <span class="label">v(R = 20 kpc) (km/s):</span>     <span class="value" id="readout-vAt20">0.0</span>
-      <span class="label">&chi;<sup>2</sup> vs data:</span> <span class="value" id="readout-chi2">0.0</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="1100" height="720" tabindex="0" aria-label="Top-down rotating spiral galaxy and an inset rotation-curve plot comparing Keplerian, visible-only, and dark-matter models against synthetic observations."></canvas>
     </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Top-down view of a synthetic spiral galaxy with 320 bulge and 320 disk
-      tracer stars. The stars orbit at &omega;(R) = v(R) / R for the chosen
+      tracer stars. The stars orbit at ω(R) = v(R) / R for the chosen
       rotation-curve model. The inset compares Keplerian (point-mass),
       visible-matter-only (bulge + Miyamoto-Nagai disk), and visible + NFW
       halo against synthetic observations drawn from the third. Method:
       analytic v(R) profiles, no integration. Source: Binney and Tremaine,
-      Galactic Dynamics, 2nd ed., Sections 2.1, 2.2, 2.3.
-    </figcaption>
-  </figure>
+      Galactic Dynamics, 2nd ed., Sections 2.1, 2.2, 2.3.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Model and playback controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Model and playback controls">
     <fieldset>
       <legend>Rotation-curve model</legend>
-      <label><input type="radio" name="model" value="rigid"> Rigid-body (v &prop; R, no winding)</label>
+      <label><input type="radio" name="model" value="rigid"> Rigid-body (v ∝ R, no winding)</label>
       <label><input type="radio" name="model" value="kepler"> Keplerian (point mass)</label>
       <label><input type="radio" name="model" value="visible"> Visible matter only</label>
-      <label><input type="radio" name="model" value="dm" checked> Visible + dark matter</label>
+      <label><input type="radio" name="model" value="dm" checked=""> Visible + dark matter</label>
     </fieldset>
     <div class="buttons">
       <button id="btn-pause" type="button" aria-label="Pause or resume animation">Pause</button>
       <button id="btn-reset" type="button" aria-label="Reset time to zero">Reset t</button>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">Model:</span>                    <span class="value" id="readout-model">Visible + dark matter</span>
+      <span class="label">t (Gyr):</span>                  <span class="value" id="readout-t">0.000</span>
+      <span class="label">v(R = 20 kpc) (km/s):</span>     <span class="value" id="readout-vAt20">0.0</span>
+      <span class="label">χ<sup>2</sup> vs data:</span> <span class="value" id="readout-chi2">0.0</span>
+    </div><span class="value" id="readout-model">Visible + dark matter</span><span class="value" id="readout-t">0.000</span><span class="value" id="readout-vAt20">0.0</span><span class="value" id="readout-chi2">0.0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

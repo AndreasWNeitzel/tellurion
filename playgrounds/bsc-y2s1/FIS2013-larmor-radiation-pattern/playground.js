@@ -8,6 +8,7 @@
 
 import { dPdOmega, Ptotal } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -75,7 +76,7 @@ function chargeAndAccel(aRel) {
   ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(CX, CY + yOff, 8, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('a', CX + 8, CY + yOff - av);
 }
 
@@ -133,7 +134,7 @@ function draw3D() {
   }
   ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(CX, CY - 150); ctx.lineTo(CX, CY + 150); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('toroidal sin^2(theta) pattern about the acceleration axis', CX, CY + 250);
 }
 
@@ -151,7 +152,7 @@ function render() {
   const a_inst = a_peak * aRel;
   const P = Ptotal(a_peak);
   const dpdo = dPdOmega(Math.PI / 2, a_peak);
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`a(t) = ${(a_inst * 1e-9).toFixed(2)} GA/s   a_peak = ${(a_peak * 1e-9).toFixed(2)} GA/s   freq = 1e${st.fExp.toFixed(1)} Hz`, 12, 22);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
   ctx.fillText(`P_tot = ${P.toExponential(2)} W (Larmor)   dP/dOmega|_90 = ${dpdo.toExponential(2)} W/sr`, 12, 40);
@@ -186,4 +187,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

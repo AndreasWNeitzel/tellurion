@@ -1,5 +1,6 @@
 import { intensity, fringesBetween, visibility } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -47,7 +48,7 @@ function render() {
   }
   ctx.putImageData(img, 0, 0);
   ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(8, 8, 240, 56);
-  ctx.fillStyle = '#e8e8e8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#e8e8e8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`d = ${(st.d * 1e9).toFixed(1)} nm`, 16, 26);
   ctx.fillText(`fringes counted: ${st.fringes.toFixed(2)}`, 16, 44);
   ctx.fillText(`V = ${V.toFixed(2)}, lambda = ${(st.lambda * 1e9).toFixed(0)} nm`, 16, 60);
@@ -64,3 +65,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

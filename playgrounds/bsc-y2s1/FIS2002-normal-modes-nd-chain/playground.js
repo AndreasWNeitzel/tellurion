@@ -9,6 +9,7 @@
 
 import { monatomicOmega, modeShape, diatomicBranches, bandGap } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -95,14 +96,14 @@ function render() {
     ctx.beginPath(); ctx.arc(X(i), Y(i), big ? 9 : 7, 0, 6.2832); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.stroke();
   }
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`${st.N}-mass ${st.lattice} chain oscillating in the ${modeInfo().branch === 'mono' ? 'n=' + st.mode : modeInfo().branch} mode`, CHX + CHW / 2, CHY + CHH + 20);
   ctx.textAlign = 'left';
 
   // dispersion panel
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PXX, PXY, PXW, PXH);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PXX, PXY, PXW, PXH);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('dispersion  omega(k)   (click to pick a mode)', PXX + PXW / 2, PXY - 6);
   const wMax = st.lattice === 'monatomic' ? 2 * Math.sqrt(K1 / m) * 1.08 : Math.sqrt(2 * (K1 + st.Kratio * K1) / m) * 1.08;
   const kx = (th) => PXX + 8 + (th / Math.PI) * (PXW - 16);
@@ -126,13 +127,13 @@ function render() {
   }
   // selected-mode marker
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(kx(modeInfo().theta), wy(omegaOf()), 5, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('k a', PXX + PXW / 2, PXY + PXH + 13);
   ctx.save(); ctx.translate(PXX - 7, PXY + PXH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('omega', 0, 0); ctx.restore();
   ctx.textAlign = 'left';
 
   // legend / info
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono');
   const gap = st.lattice === 'diatomic' ? bandGap(K1, st.Kratio * K1, m) : 0;
   ctx.fillText(st.lattice === 'monatomic' ? 'one acoustic branch' : 'acoustic (yellow) + optical (blue)', LGX, PXY + 16);
   ctx.fillText(st.lattice === 'diatomic' ? `band gap = ${gap.toFixed(3)}` : 'no band gap (monatomic)', LGX, PXY + 38);
@@ -236,3 +237,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

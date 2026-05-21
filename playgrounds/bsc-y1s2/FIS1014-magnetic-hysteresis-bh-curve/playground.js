@@ -9,6 +9,7 @@
 import { langevin, dLangevinExact, sweepLoop, PRESETS } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -102,7 +103,7 @@ function render() {
   // PRIMARY: domain lattice. Cells flip toward sign(f) once |f| exceeds
   // their threshold; the rest stay in the prior direction (the lag).
   const lx = 26, ly = 64, lw = W * 0.46, lh = H - 150;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '13px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText('magnetic domains', lx, ly - 14);
   const cw = lw / GX, ch = lh / GY;
   for (let j = 0; j < GY; j += 1) for (let i = 0; i < GX; i += 1) {
@@ -128,7 +129,7 @@ function render() {
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3;
   const hx = lx + lw / 2;
   ctx.beginPath(); ctx.moveTo(hx, ly - 6); ctx.lineTo(hx + Happ / st.Hm * (lw * 0.4), ly - 6); ctx.stroke();
-  ctx.fillStyle = '#ffd166'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`H = ${Happ.toFixed(2)}`, lx + lw - 90, ly - 14);
 
   // SECONDARY: B-H loop panel.
@@ -137,7 +138,7 @@ function render() {
   const sx = (px1 - px0) / (2 * st.Hm * 1.05), sy = (py1 - py0) / (2 * st.Ms * 1.15);
   ctx.strokeStyle = '#2a2a34'; ctx.lineWidth = 1; ctx.beginPath();
   ctx.moveTo(px0, cy0); ctx.lineTo(px1, cy0); ctx.moveTo(cx0, py0); ctx.lineTo(cx0, py1); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('B-H loop', px0, py0 - 14); ctx.fillText('H', px1 - 12, cy0 + 16); ctx.fillText('B', cx0 + 6, py0 + 4);
   // Reference loop (faint), then the live pen.
   ctx.strokeStyle = 'rgba(120,200,255,0.28)'; ctx.lineWidth = 1.4; ctx.beginPath();
@@ -187,3 +188,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

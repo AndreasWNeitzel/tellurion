@@ -1,6 +1,7 @@
 import { forceAt, potentialAt } from './sim.js';
 import { rdbu, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -182,7 +183,7 @@ function render() {
   for (const ch of C) {
     ctx.fillStyle = ch.q >= 0 ? c.pos : c.neg;
     ctx.fillRect(cx + ch.x * scale - 8, cy - ch.y * scale - 8, 16, 16);
-    ctx.fillStyle = c.fg; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText((ch.q >= 0 ? '+' : '') + ch.q.toFixed(1), cx + ch.x * scale, cy - ch.y * scale - 12);
   }
   const f = forceAt(test.x, test.y, C); const v = potentialAt(test.x, test.y, C);
@@ -204,7 +205,7 @@ function render() {
   }
   ctx.fillStyle = c.test; ctx.beginPath(); ctx.arc(tpx, tpy, 7, 0, 2 * Math.PI); ctx.fill();
   ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`F = (${(st.q*f.fx).toFixed(2)}, ${(st.q*f.fy).toFixed(2)})`, 12, 20);
   ctx.fillText(`V = ${v.toFixed(3)}`, 12, 38);
   readF.textContent = Math.sqrt((st.q*f.fx)**2 + (st.q*f.fy)**2).toFixed(2); readV.textContent = v.toFixed(2);
@@ -223,3 +224,27 @@ function bootSync() {
   if (DETERMINISTIC) { requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

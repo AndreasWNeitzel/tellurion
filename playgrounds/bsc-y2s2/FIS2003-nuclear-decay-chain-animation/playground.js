@@ -9,6 +9,7 @@
 
 import { chainOf, qValue, qAlpha, log10HalfLifeAlpha, ELEMENT } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -106,7 +107,7 @@ function drawNucleus(node, prev, phase) {
   // Outer frame.
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(NX, NY, NW, NH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.lineWidth = 1; ctx.strokeRect(NX, NY, NW, NH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('nucleus (red protons, blue neutrons; 3D, slow rotation)', NX + 10, NY + 18);
 
   const A = node.Z + node.N;
@@ -226,9 +227,9 @@ function drawNucleus(node, prev, phase) {
       }
     }
     ctx.globalAlpha = 1;
-    ctx.fillStyle = 'rgba(255,224,140,0.92)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255,224,140,0.92)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('alpha (He-4)', xR - protRad * 1.5, yR - protRad * 2.4);
-    ctx.fillStyle = 'rgba(200,210,225,0.8)'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillStyle = 'rgba(200,210,225,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('2 protons + 2 neutrons', xR - protRad * 1.5, yR + protRad * 3.0);
   } else if (isBeta) {
     // Beta- or beta+: emit an electron (or positron) and anti-neutrino
@@ -256,11 +257,11 @@ function drawNucleus(node, prev, phase) {
       ctx.fillStyle = 'rgba(255,160,220,0.95)';
       ctx.beginPath(); ctx.arc(xE * 0.95, yEmit + 6 + (xE - xStart) * 0.18, 3.5, 0, 6.2832); ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.fillStyle = 'rgba(200,210,225,0.95)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(200,210,225,0.95)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
       ctx.fillText(node.mode === 'beta-minus' ? 'electron e-' : 'positron e+', xE + 8, yEmit - (xE - xStart) * 0.18 + 4);
-      ctx.fillStyle = 'rgba(255,180,225,0.9)'; ctx.font = '11px ui-monospace, monospace';
+      ctx.fillStyle = 'rgba(255,180,225,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(node.mode === 'beta-minus' ? 'anti-neutrino' : 'neutrino', xE * 0.95 + 8, yEmit + 6 + (xE - xStart) * 0.18 + 4);
-      ctx.fillStyle = 'rgba(255,224,140,0.9)'; ctx.font = '12px ui-monospace, monospace';
+      ctx.fillStyle = 'rgba(255,224,140,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(node.mode === 'beta-minus' ? 'n -> p inside the nucleus' : 'p -> n inside the nucleus', NX + 14, NY + NH - 56);
     }
     ctx.lineWidth = 1;
@@ -268,9 +269,9 @@ function drawNucleus(node, prev, phase) {
 
   // Isotope label
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#e8ecf4'; ctx.font = 'bold 18px ui-monospace, monospace';
+  ctx.fillStyle = '#e8ecf4'; ctx.font = fontString(canvas, 'title', 'mono', 600);
   ctx.fillText(isoLabel(node), cx, NY + NH - 36);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Z = ${node.Z} protons, N = ${node.N} neutrons, A = ${node.Z + node.N}`, cx, NY + NH - 16);
   ctx.textAlign = 'left';
 }
@@ -281,7 +282,7 @@ function drawNucleus(node, prev, phase) {
 function drawGeigerNuttall() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(GX, GY, GW, GH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(GX, GY, GW, GH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('Geiger-Nuttall: log10 t1/2 = 1.72 Zd / sqrt(Q) - 53.6', GX + 10, GY + 18);
 
   const pts = [];
@@ -295,7 +296,7 @@ function drawGeigerNuttall() {
     const y = log10HalfLifeAlpha(par.Z, par.N);
     pts.push({ x, y, k, label: isoLabel(par) });
   }
-  if (pts.length === 0) { ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.fillText('(no alpha steps in this series)', GX + 16, GY + 60); return; }
+  if (pts.length === 0) { ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('(no alpha steps in this series)', GX + 16, GY + 60); return; }
 
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
   const xMin = Math.min(...xs) - 1, xMax = Math.max(...xs) + 1;
@@ -317,7 +318,7 @@ function drawGeigerNuttall() {
     if (yv < yMin || yv > yMax) continue;
     ctx.strokeStyle = 'rgba(120,128,140,0.35)'; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(px(xMin), py(yv)); ctx.lineTo(px(xMax), py(yv)); ctx.stroke();
-    ctx.setLineDash([]); ctx.fillStyle = 'rgba(160,170,185,0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.setLineDash([]); ctx.fillStyle = 'rgba(160,170,185,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
     ctx.fillText(lab, px(xMax) - 4, py(yv) - 3);
   }
   ctx.textAlign = 'left';
@@ -329,24 +330,24 @@ function drawGeigerNuttall() {
     ctx.fillStyle = cur ? '#ffd24a' : 'rgba(255,116,108,0.78)';
     ctx.beginPath(); ctx.arc(X, Y, cur ? 7 : 5, 0, 6.2832); ctx.fill();
     if (cur) {
-      ctx.fillStyle = '#e8ecf4'; ctx.font = '12px ui-monospace, monospace';
+      ctx.fillStyle = '#e8ecf4'; ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(p.label, X + 10, Y - 8);
     }
   }
   // Axis labels
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('Z_d / sqrt(Q_MeV)', GX + GW / 2, GY + GH - 8);
   ctx.save(); ctx.translate(GX + 14, GY + GH / 2 + 8); ctx.rotate(-Math.PI / 2);
   ctx.fillText('log10 t_1/2 (s)', 0, 0); ctx.restore();
   ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(160,180,210,0.85)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(160,180,210,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('the steep slope is the Gamow tunnelling barrier', GX + 14, GY + GH - 24);
 }
 
 function drawSegre() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(CHX, CHY, CHW, CHH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(CHX, CHY, CHW, CHH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('Segre chart: N (right) vs Z (up); zigzag = alpha down-left, beta up-left', CHX + 10, CHY + 18);
 
   let nMin = 1e9, nMax = -1e9, zMin = 1e9, zMax = -1e9;
@@ -384,12 +385,12 @@ function drawSegre() {
   }
 
   const last = path[path.length - 1];
-  ctx.fillStyle = '#7fd6ff'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#7fd6ff'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`stable ${isoLabel(last)}`, gx(last.N), gy(last.Z) + 18);
   ctx.fillStyle = '#ffd24a'; ctx.fillText(isoLabel(path[0]), gx(path[0].N), gy(path[0].Z) - 12);
 
   // Axis labels
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('neutron number N', CHX + CHW / 2, CHY + CHH - 6);
   ctx.save(); ctx.translate(CHX + 14, CHY + CHH / 2 + 6); ctx.rotate(-Math.PI / 2);
   ctx.fillText('proton number Z', 0, 0); ctx.restore();
@@ -489,3 +490,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

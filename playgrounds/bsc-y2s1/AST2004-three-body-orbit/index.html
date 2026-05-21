@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Three-Body Figure-Eight Choreography</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three-Body Figure-Eight Choreography</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 720px; }
     .pg-figure canvas { width: 100%; height: auto; }
     .pg-readout {
@@ -44,46 +49,52 @@
       grid-column: span 2;
     }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Three-body figure-eight choreography</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Three-body figure-eight choreography</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Three-body figure-eight choreography</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     Three equal masses interact under Newtonian gravity in 2D. At the
     Chenciner-Montgomery initial condition (2000), all three masses chase one
-    another along a single closed figure-eight curve with period T &approx; 6.326.
+    another along a single closed figure-eight curve with period T ≈ 6.326.
     The velocity-Verlet integrator from <code>shared/js/engine/symplectic.js</code>
     preserves total energy to a part-in-a-million bound and total linear and
     angular momentum to machine precision. The "dv" slider perturbs the initial
     velocity of body 3 by a small amount; at dv = 0 the choreography is stable,
     and at dv = 0.01 the system slowly drifts off the closed curve.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="720" height="480" tabindex="0"
-            aria-label="Three colored bodies tracing a figure-eight curve in the plane."></canvas>
-
-    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
-      <span class="label">dv:</span>           <span class="value" id="readout-dv">0.0000</span>
-      <span class="label">E:</span>            <span class="value" id="readout-E">0.000000</span>
-      <span class="label">|dE/E|:</span>       <span class="value" id="readout-dE">0.0e+00</span>
-      <span class="label">|P|:</span>          <span class="value" id="readout-P">0.0e+00</span>
-      <span class="label">L:</span>            <span class="value" id="readout-L">0.0e+00</span>
-      <span class="label">t:</span>            <span class="value" id="readout-t">0.00</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="720" height="480" tabindex="0" aria-label="Three colored bodies tracing a figure-eight curve in the plane."></canvas>
     </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Chenciner-Montgomery figure-eight choreography of three equal point masses
       under Newtonian gravity in 2D (G = m_i = 1). Method: velocity-Verlet on the
       6-DOF Hamiltonian from <code>shared/js/engine/symplectic.js</code> with
       pairwise gravitational acceleration. Source: Newman, Computational Physics,
       2013, Exercise 8.16 "Three-body problem"; numerical IC values from Chenciner
-      &amp; Montgomery (2000).
-    </figcaption>
-  </figure>
+      &amp; Montgomery (2000).</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row">
       <span class="label">orbit</span>
       <select id="select-orbit" aria-label="periodic three-body orbit" style="grid-column: span 2;">
@@ -96,8 +107,7 @@
     </div>
     <div class="row">
       <span class="label">dv</span>
-      <input type="range" id="slider-dv" min="0" max="0.01" step="0.0005" value="0"
-             aria-label="Perturbation added to body 3 initial velocity in the +x direction">
+      <input type="range" id="slider-dv" min="0" max="0.01" step="0.0005" value="0" aria-label="Perturbation added to body 3 initial velocity in the +x direction">
       <span class="value" id="value-dv">0.0000</span>
     </div>
     <div class="row buttons">
@@ -105,7 +115,45 @@
       <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">dv:</span>           <span class="value" id="readout-dv">0.0000</span>
+      <span class="label">E:</span>            <span class="value" id="readout-E">0.000000</span>
+      <span class="label">|dE/E|:</span>       <span class="value" id="readout-dE">0.0e+00</span>
+      <span class="label">|P|:</span>          <span class="value" id="readout-P">0.0e+00</span>
+      <span class="label">L:</span>            <span class="value" id="readout-L">0.0e+00</span>
+      <span class="label">t:</span>            <span class="value" id="readout-t">0.00</span>
+    </div><span class="value" id="readout-dv">0.0000</span><span class="value" id="readout-E">0.000000</span><span class="value" id="readout-dE">0.0e+00</span><span class="value" id="readout-P">0.0e+00</span><span class="value" id="readout-L">0.0e+00</span><span class="value" id="readout-t">0.00</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

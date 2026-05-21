@@ -15,6 +15,19 @@ estimated_engagement_minutes: 4
 curriculum_year: 'L:F-1Y-2S'
 primary_uc: FIS1004
 share_state_keys: []
+invariants:
+  - key: runs
+    label: simulation advances each frame
+    tolerance: 1
+  - key: bounded
+    label: state stays finite
+    tolerance: 1
+  - key: deterministic
+    label: fixed seed reproduces the run
+    tolerance: 1
+what_to_try:
+  - Vary each control and watch the rail readouts respond.
+  - Compare the diagnostic plot against the live scene.
 ---
 
 # Multipole Expansion: Exact vs Truncated Potential

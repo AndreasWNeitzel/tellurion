@@ -10,6 +10,7 @@
 import { buildScene, stepScene, cflDt, PRESETS, energy } from './sim.js';
 import { fieldToImageData, divBlack } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -77,14 +78,14 @@ function render() {
   const xScreen = Math.round(N * 0.86);
   ctx.strokeStyle = 'rgba(180,230,255,0.35)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(FX + xScreen * CELL, FY); ctx.lineTo(FX + xScreen * CELL, FY + FPX); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('wave displacement field (rigid walls dark, source ring, dashed screen)', FX + FPX / 2, FY + FPX + 18);
   ctx.textAlign = 'left';
 
   // side panel: screen intensity |u| along the dashed column
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PX, PY, PW, PH);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('screen intensity  |u|(y)', PX + PW / 2, PY - 6);
   let aMax = 1e-6; for (let y = 0; y < N; y += 1) aMax = Math.max(aMax, Math.abs(u[y * N + xScreen]));
   ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.5; ctx.beginPath();
@@ -94,7 +95,7 @@ function render() {
     y === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
   }
   ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('|u|', PX + PW / 2, PY + PH + 14);
   ctx.save(); ctx.translate(PX - 7, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('screen y', 0, 0); ctx.restore();
   ctx.textAlign = 'left';
@@ -173,3 +174,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

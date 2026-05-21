@@ -8,6 +8,7 @@
 
 import { fields, avgPoynting, dot, norm } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -96,7 +97,7 @@ function render() {
   arrow(proj(0, 0, Zmin), proj(0, 0, Zmax + 0.6), 'rgba(150,156,166,0.7)', 1.5);
   const za = proj(0, 0, Zmax + 0.9);
   ctx.fillStyle = 'rgba(5,6,10,0.8)'; ctx.fillRect(za[0] - 34, za[1] - 40, 132, 18);
-  ctx.fillStyle = '#cdd1d6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#cdd1d6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('z (propagation)', za[0] - 30, za[1] - 27);
 
   // Moving wavefront planes (equiphase squares).
@@ -167,3 +168,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

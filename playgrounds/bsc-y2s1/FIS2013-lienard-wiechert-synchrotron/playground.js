@@ -10,6 +10,7 @@
 
 import { lobeParallel, lobePerpendicular, betaFromGamma, openingAngle } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -144,7 +145,7 @@ function render() {
     ctx.lineTo(hx + px, hy + py);
     ctx.lineTo(hx - px, hy - py);
     ctx.closePath(); ctx.fill();
-    ctx.fillStyle = color; ctx.font = 'bold 12px ui-monospace, monospace';
+    ctx.fillStyle = color; ctx.font = fontString(canvas, 'caption', 'mono', 600);
     ctx.fillText(label, p1.x + 6, p1.y);
   }
   // Velocity along +y (north pole of the lobe).
@@ -170,7 +171,7 @@ function render() {
   ctx.setLineDash([]);
 
   // HUD.
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`γ = ${st.gamma.toFixed(2)},  β = ${beta.toFixed(4)}`, 12, 22);
   ctx.fillText(`1/γ = ${(opAng * 180 / Math.PI).toFixed(1)}° (cyan cone)`, 12, 40);
   ctx.fillText(`acceleration: ${st.geom === 'par' ? 'parallel to v' : 'perpendicular to v'}`, 12, 58);
@@ -193,4 +194,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

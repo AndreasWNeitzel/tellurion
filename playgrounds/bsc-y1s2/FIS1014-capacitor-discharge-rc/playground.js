@@ -3,6 +3,7 @@
 
 import { vC, iR } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -81,7 +82,7 @@ function drawCircuit(c, x0, y_off, w, h) {
   ctx.lineTo(cx - size + 5, cy + 18);
   ctx.stroke();
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('C', cx - size - 22, cy + 4);
 
   // Charge cloud (size scales with V).
@@ -109,7 +110,7 @@ function drawCircuit(c, x0, y_off, w, h) {
 
   // Labels.
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`V_0 = ${V0.toFixed(1)} V`, x0 + 14, y_off + 20);
   ctx.fillText(`R   = ${(R / 1e3).toFixed(1)} kOhm`, x0 + 14, y_off + 38);
   ctx.fillText(`C   = ${(C / 1e-6).toFixed(1)} uF`, x0 + 14, y_off + 56);
@@ -138,7 +139,7 @@ function drawPlot(c, x0, y_off, w, h) {
     const x = x0 + padL + plotW * i / 6;
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${i}tau`, x - 8, y_off + padT + plotH + 14);
   }
   for (let i = 0; i <= 4; i += 1) {
@@ -166,7 +167,7 @@ function drawPlot(c, x0, y_off, w, h) {
   ctx.beginPath(); ctx.moveTo(xFor(tau), y_off + padT); ctx.lineTo(xFor(tau), y_off + padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('tau', xFor(tau) + 4, y_off + padT + 12);
   ctx.fillText('V0/e', xFor(tau) - 30, yFor(V0 / Math.E) + 3);
 
@@ -184,7 +185,7 @@ function drawPlot(c, x0, y_off, w, h) {
   }
 
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t', x0 + padL + plotW - 12, y_off + padT + plotH + 28);
   ctx.save(); ctx.translate(x0 + 16, y_off + padT + plotH / 2 + 20); ctx.rotate(-Math.PI / 2);
   ctx.fillText('V (volts)', 0, 0); ctx.restore();
@@ -263,4 +264,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -9,6 +9,7 @@
 import { pVdW, observedP, maxwell, spinodal, liquidFraction, criticalPoint } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -120,7 +121,7 @@ function render() {
     ctx.beginPath(); ctx.moveTo(fx, tip); ctx.lineTo(fx - 4, tip + s * 7); ctx.lineTo(fx + 4, tip + s * 7); ctx.closePath(); ctx.fill();
   }
   ctx.lineWidth = 1;
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(sup ? 'supercritical fluid' : twoPhase ? 'liquid + vapour' : (xL > 0.5 ? 'compressed liquid' : 'vapour'), CX + CW / 2, floorY + 20);
   ctx.textAlign = 'left';
 
@@ -146,15 +147,15 @@ function render() {
   if (pObs > P_PMAX) {
     const xx = vX(V);
     ctx.beginPath(); ctx.moveTo(xx, PY + 4); ctx.lineTo(xx - 6, PY + 15); ctx.lineTo(xx + 6, PY + 15); ctx.closePath(); ctx.fill();
-    ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('p off-scale', xx, PY + 27);
+    ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.fillText('p off-scale', xx, PY + 27);
   } else {
     ctx.beginPath(); ctx.arc(vX(V), pY(pObs), 5, 0, 7); ctx.fill();
   }
   // axes labels + legend
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('reduced volume  V / Vc  (log)', PX + PW / 2, PY + PH + 26);
   ctx.save(); ctx.translate(PX - 24, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('reduced pressure  p / pc', 0, 0); ctx.restore();
-  ctx.textAlign = 'left'; ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
   const lg = [['#e8c84a', 'vdW isotherm'], ['#7fd6ff', 'Maxwell'], ['rgba(120,170,255,0.8)', 'binodal'], ['rgba(255,140,120,0.8)', 'spinodal']];
   lg.forEach(([c, txt], k) => { const ly = PY + PH - 56 + k * 15; ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(PX + 12, ly); ctx.lineTo(PX + 32, ly); ctx.stroke(); ctx.fillStyle = '#c8ccd6'; ctx.fillText(txt, PX + 38, ly + 4); });
   ctx.lineWidth = 1;
@@ -234,3 +235,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

@@ -9,6 +9,7 @@
 
 import { exactPotential, multipolePotential, buildDist, monopole, dipole } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -117,7 +118,7 @@ function render() {
     const x0 = 14 + m * (pw + 6);
     ctx.imageSmoothingEnabled = true; ctx.drawImage(off, x0, ptop, pw, ph);
     ctx.strokeStyle = '#2a2a34'; ctx.strokeRect(x0, ptop, pw, ph);
-    ctx.fillStyle = '#cdd1d6'; ctx.font = '12px ui-monospace, monospace'; ctx.fillText(titles[m], x0 + 6, ptop - 8);
+    ctx.fillStyle = '#cdd1d6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(titles[m], x0 + 6, ptop - 8);
     // Charges overlaid.
     for (const c of charges) {
       const px = x0 + ((c.r[0] / (2 * D)) + 0.5) * pw, py = ptop + ((-c.r[1] / (2 * D)) + 0.5) * ph;
@@ -133,7 +134,7 @@ function render() {
   // error(r) panel: small secondary strip beneath the dominant maps.
   const ay0 = ptop + ph + 26, ah = 90, ax0 = 60, ax1 = W - 30;
   ctx.fillStyle = '#0b0b13'; ctx.fillRect(20, ay0 - 16, W - 40, ah + 24);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('relative error |V_exact - V_multipole| / |V_exact|  vs  distance r', 28, ay0 - 2);
   ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(ax0, ay0 + ah); ctx.lineTo(ax1, ay0 + ah); ctx.moveTo(ax0, ay0); ctx.lineTo(ax0, ay0 + ah); ctx.stroke();
   ctx.strokeStyle = '#5bc6ff'; ctx.lineWidth = 2; ctx.beginPath();
@@ -175,3 +176,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

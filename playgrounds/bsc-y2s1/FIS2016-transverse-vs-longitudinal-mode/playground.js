@@ -14,6 +14,7 @@
 import { omegaK, modePosition, totalEnergy } from './sim.js';
 import { rdbu } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -80,7 +81,7 @@ function drawTransverse(cy) {
     g.addColorStop(0, '#bfe9ff'); g.addColorStop(1, '#2b7fb0');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 6, 0, 6.2832); ctx.fill();
   }
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('Transverse: masses move across the chain (string, light, seismic S-wave)', PAD, cy - 78);
   // shake-direction arrow
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.4;
@@ -118,7 +119,7 @@ function drawLongitudinal(cy) {
     g.addColorStop(1, `rgb(${c.r},${c.g},${c.b})`);
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, cy, 6, 0, 6.2832); ctx.fill();
   }
-  ctx.fillStyle = '#ffd166'; ctx.font = '13px sans-serif';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'body');
   ctx.fillText('Longitudinal: masses move along it, compressions and rarefactions (sound, seismic P-wave)', PAD, cy - 78);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.moveTo(W - PAD - 4, cy + 44); ctx.lineTo(W - PAD + 20, cy + 44); ctx.stroke();
@@ -142,7 +143,7 @@ function energyDrift() {
 
 function render() {
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Same dispersion, two polarizations: a string vs a sound wave', 18, 24);
 
   if (st.view === 'both') { drawTransverse(132); drawLongitudinal(258); }
@@ -156,21 +157,21 @@ function render() {
   ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, yRul); ctx.lineTo(x1, yRul); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x0, yRul - 5); ctx.lineTo(x0, yRul + 5); ctx.moveTo(x1, yRul - 5); ctx.lineTo(x1, yRul + 5); ctx.stroke();
-  ctx.fillStyle = '#94a3b8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`wavelength lambda = 2pi/k = ${lamAtoms.toFixed(2)} a`, x0, yRul - 8);
 
   const w = omegaK(st.k);
   const vPh = st.k > 1e-6 ? w / st.k : 1;
   const vGr = Math.cos(st.k / 2);               // dω/dk for ω=2|sin(k/2)|
   const { E, d } = energyDrift();
-  ctx.fillStyle = '#cbd5e1'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`k = ${st.k.toFixed(2)}/a   omega = ${w.toFixed(3)}   v_phase = ${vPh.toFixed(3)}   v_group = ${vGr.toFixed(3)}   E = ${E.toFixed(2)} (|dE/E| < ${eDriftMax.toExponential(1)})`, 18, 354);
 
   // demoted diagnostic: the lattice dispersion over the first Brillouin zone
   const dx0 = 60, dx1 = W - 24, dy0 = 366, dy1 = H - 12;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('dispersion  omega(k) = 2 sqrt(K/m) |sin(ka/2)|  over the first Brillouin zone', dx0 + 8, dy0 + 12);
   const kMax = Math.PI, wMax = 2;
   const xP = (kk) => dx0 + 12 + kk / kMax * (dx1 - dx0 - 24);
@@ -198,3 +199,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

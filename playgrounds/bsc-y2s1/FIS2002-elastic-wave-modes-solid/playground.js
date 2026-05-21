@@ -9,6 +9,7 @@
 import { speeds, cflDt, makeSolid, ricker, step, divergence } from './sim.js';
 import { divBlack, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -117,14 +118,14 @@ function render() {
   ctx.fillStyle = '#ffe46b'; ctx.beginPath(); ctx.arc(FX + STA.i * CELL, FY + STA.j * CELL, 4, 0, 6.2832); ctx.fill();
   ctx.restore();
   ctx.strokeStyle = 'rgba(220,225,235,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(FX, FY, FPX, FPX);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('divergence (compression) + deformed grid; P ring red, S ring blue', FX + FPX / 2, FY + FPX + 18);
   ctx.textAlign = 'left';
 
   // side panel: seismogram at the station
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PX, PY, PW, PH);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('seismogram at the station', PX + PW / 2, PY - 6);
   if (seis.length > 2) {
     const tEnd = HORIZON * DT;
@@ -142,7 +143,7 @@ function render() {
     const tP = d / vP + 14 * DT, tS = d / vS + 14 * DT;
     ctx.strokeStyle = 'rgba(255,120,110,0.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xx(tP), PY + 6); ctx.lineTo(xx(tP), PY + PH - 6); ctx.stroke();
     ctx.strokeStyle = 'rgba(120,200,255,0.5)'; ctx.beginPath(); ctx.moveTo(xx(tS), PY + 6); ctx.lineTo(xx(tS), PY + PH - 6); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('u_x (P)', PX + 8, PY + PH * 0.30 - 30);
     ctx.fillText('u_y (S)', PX + 8, PY + PH * 0.72 - 30);
     ctx.textAlign = 'center'; ctx.fillText('time', PX + PW / 2, PY + PH + 14);
@@ -220,3 +221,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

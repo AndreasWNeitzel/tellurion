@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kepler Solar System Explorer</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kepler Solar System Explorer</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 860px; }
     .pg-figure canvas { width: 100%; height: auto; }
     .pg-controls {
@@ -36,11 +41,24 @@
       grid-column: span 2;
     }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Kepler solar system explorer</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Kepler solar system explorer</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Kepler solar system explorer</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     A central mass at the origin, four inner Solar System planets at their real
     semi-major axes and eccentricities (Mercury through Mars), plus a fifth user-
     controllable test orbit. All five bodies obey the same inverse-square law in
@@ -49,38 +67,37 @@
     regardless of eccentricity. Adjust the test orbit's (a, e) and time-speed; the
     test point's location on the inset moves with the slider.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="900" height="500" tabindex="0"
-            aria-label="Solar System view with five orbiting bodies and a Kepler-third-law log-log inset."></canvas>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="500" tabindex="0" aria-label="Solar System view with five orbiting bodies and a Kepler-third-law log-log inset."></canvas>
+    </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Inner Solar System (Mercury through Mars at their real (a, e)) plus a user-
       controlled test orbit. Method: 2D velocity-Verlet on the inverse-square force
       from <code>shared/js/engine/symplectic.js</code>; ten conservation laws hold per
       body (energy, angular momentum, Laplace-Runge-Lenz vector). Source: Newman,
-      Computational Physics, 2013, Exercise 8.12 "Orbit of the Earth".
-    </figcaption>
-  </figure>
+      Computational Physics, 2013, Exercise 8.12 "Orbit of the Earth".</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row">
       <span class="label">test a (AU)</span>
-      <input type="range" id="slider-test-a" min="0.3" max="2.5" step="0.05" value="1.8"
-             aria-label="Test-orbit semi-major axis in AU">
+      <input type="range" id="slider-test-a" min="0.3" max="2.5" step="0.05" value="1.8" aria-label="Test-orbit semi-major axis in AU">
       <span class="value" id="value-test-a">1.80</span>
     </div>
     <div class="row">
       <span class="label">test e</span>
-      <input type="range" id="slider-test-e" min="0" max="0.6" step="0.02" value="0.45"
-             aria-label="Test-orbit eccentricity">
+      <input type="range" id="slider-test-e" min="0" max="0.6" step="0.02" value="0.45" aria-label="Test-orbit eccentricity">
       <span class="value" id="value-test-e">0.45</span>
     </div>
     <div class="row">
       <span class="label">speed (yr/s)</span>
-      <input type="range" id="slider-speed" min="0.05" max="1.5" step="0.05" value="0.3"
-             aria-label="Time advance rate in years per second">
+      <input type="range" id="slider-speed" min="0.05" max="1.5" step="0.05" value="0.3" aria-label="Time advance rate in years per second">
       <span class="value" id="value-speed">0.3</span>
     </div>
     <div class="row buttons">
@@ -88,7 +105,37 @@
       <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
     </div>
   </div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

@@ -8,6 +8,7 @@
 // unchanged. Reference: Eisberg and Resnick, Quantum Physics, Ch. 5.
 import { density, realPsi, spreadAt, center } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -65,7 +66,7 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 function render() {
   if (!CAPTURE_NAME && running) { st.t += 0.03; if (st.t > 6) { st.t = 0; resetWaterfall(); } if (Math.round(st.t / 0.03) % 2 === 0) pushWaterfall(st.t); }
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A quantum wavepacket: it moves at the group velocity and spreads as it goes', 18, 26);
 
   const sig = spreadAt(st.s0, st.t), c = center(0, st.k0, st.t);
@@ -95,20 +96,20 @@ function render() {
   ctx.beginPath(); ctx.moveTo(xToPx(c), cyT - lane - 14); ctx.lineTo(xToPx(c), cyT + lane + 14); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(xToPx(c - sig), cyT + lane + 10); ctx.lineTo(xToPx(c + sig), cyT + lane + 10); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#06d6a0'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`+/- sigma(t) = ${sig.toFixed(2)}`, xToPx(c) + 6, cyT + lane + 26);
 
   // bottom: (x, t) waterfall, dispersion fans the worldline out
   const wy = 280, wfdrawW = PX1 - PX0;
   ctx.drawImage(wf, PX0, wy, wfdrawW, WFH);
   ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.strokeRect(PX0 + 0.5, wy + 0.5, wfdrawW - 1, WFH - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('(x, t) waterfall: the bright worldline drifts (group velocity) and widens (dispersion)', PX0, wy - 8);
   ctx.fillStyle = '#94a3b8';
   ctx.fillText('x  ->', PX1 - 40, wy + WFH + 16);
   ctx.save(); ctx.translate(PX0 - 6, wy + WFH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('t (old -> new, down)', -40, 0); ctx.restore();
 
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`sigma0 = ${st.s0.toFixed(2)}   k0 = ${st.k0.toFixed(1)}   v_g = hbar k0/m = ${st.k0.toFixed(1)}   t = ${st.t.toFixed(2)}   sigma(t) = ${sig.toFixed(2)}`, 18, H - 14);
   rS.textContent = sig.toFixed(2);
 }
@@ -125,3 +126,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

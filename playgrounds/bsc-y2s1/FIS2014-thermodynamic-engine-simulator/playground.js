@@ -9,6 +9,7 @@
 import { cycleStates, analysis, sampleSeg, carnotEff } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -97,7 +98,7 @@ function render() {
   // the gas (q < 0, into the COLD reservoir). Colours match labels.
   ctx.fillStyle = `rgba(255,90,70,${q > 1 ? 0.55 : 0.12})`; ctx.fillRect(cx0 - 16, cyTop - 26, cylW + 32, 16);            // hot (top, red)
   ctx.fillStyle = `rgba(90,150,255,${q < -1 ? 0.55 : 0.12})`; ctx.fillRect(cx0 - 16, cyTop + cylH + 6, cylW + 32, 16);   // cold (bottom, blue)
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('hot reservoir', cx0, cyTop - 30); ctx.fillText('cold reservoir', cx0, cyTop + cylH + 34);
   // Cylinder walls + gas region.
   ctx.fillStyle = '#0c0d14'; ctx.fillRect(cx0, cyTop, cylW, cylH);
@@ -122,7 +123,7 @@ function render() {
   const X = (v) => gx0 + (v - Vmin) / (Vmax - Vmin) * (gx1 - gx0);
   const Y = (p) => gyb - (p - pmin) / (pmax - pmin) * (gyb - gyt);
   ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(gx0, gyt); ctx.lineTo(gx0, gyb); ctx.lineTo(gx1, gyb); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('P-V diagram', gx0, gyt - 12); ctx.fillText('V', gx1 - 10, gyb + 16); ctx.fillText('P', gx0 - 14, gyt + 4);
   ctx.fillStyle = 'rgba(255,160,90,0.12)'; ctx.beginPath();
   loop.forEach((p, i) => { i ? ctx.lineTo(X(p.V), Y(p.P)) : ctx.moveTo(X(p.V), Y(p.P)); }); ctx.closePath(); ctx.fill();
@@ -140,12 +141,12 @@ function render() {
   const total = Qin;
   const bh = (val) => 10 + 66 * val / total;
   let yy = 214;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(st.reverse ? 'energy flow (refrigerator)' : 'energy flow (engine)', ex0, yy - 10);
   ctx.fillStyle = '#ff5a46'; ctx.fillRect(ex0, yy, ew, bh(Qin)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_hot ${Qin.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Qin) + 14;
   ctx.fillStyle = '#ffd166'; ctx.fillRect(ex0, yy, ew * Wn / total, bh(Wn)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`W ${Wn.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Wn) + 14;
   ctx.fillStyle = '#5b8cff'; ctx.fillRect(ex0, yy, ew * Qout / total, bh(Qout)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_cold ${Qout.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Qout) + 22;
-  ctx.fillStyle = '#06d6a0'; ctx.font = '20px ui-monospace, monospace';
+  ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'title', 'mono');
   ctx.fillText(`η = ${(anal.eff * 100).toFixed(1)}%`, ex0, yy);
 
   rEls.cycle.textContent = st.type;
@@ -175,3 +176,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

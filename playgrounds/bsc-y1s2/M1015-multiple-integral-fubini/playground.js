@@ -8,6 +8,7 @@
 
 import { dxDy, dyDx, innerX, innerY, fAt } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -93,11 +94,11 @@ function panel(px, py, pw, ph, orient) {
     }
     partial = acc;
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('0', xOf(0) - 9, yOf(0) + 12);
   ctx.fillText('x', xOf(DOM) - 6, yOf(0) + 12);
   ctx.fillText('y', xOf(0) - 16, yOf(DOM) + 4);
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(orient === 'x' ? 'order 1: inner over x, then y' : 'order 2: inner over y, then x', px, py - 20);
   ctx.fillStyle = orient === 'x' ? '#06d6a0' : '#f4a261';
   ctx.fillText(`accumulated volume = ${partial.toFixed(4)}`, px, py - 5);
@@ -112,7 +113,7 @@ function render() {
 
   const I1 = dxDy(80, 0, st.A, 0, st.B);
   const I2 = dyDx(80, 0, st.A, 0, st.B);
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`f(x,y) = sin x cos y   region [0, ${st.A.toFixed(2)}] x [0, ${st.B.toFixed(2)}]`, pad, 26);
   ctx.fillStyle = '#06d6a0'; ctx.fillText(`integral dx dy = ${I1.toFixed(6)}`, pad, H - 44);
   ctx.fillStyle = '#f4a261'; ctx.fillText(`integral dy dx = ${I2.toFixed(6)}`, pad, H - 26);
@@ -153,4 +154,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

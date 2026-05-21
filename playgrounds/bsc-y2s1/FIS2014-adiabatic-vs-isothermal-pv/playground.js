@@ -15,6 +15,7 @@
 
 import { adiabaticTemperature, workIsothermal, workAdiabatic } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -114,7 +115,7 @@ function drawPistonPanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(PISTON.x - 8 + 0.5, PISTON.y - 8 + 0.5, PISTON.w + 15, PISTON.h + 15);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('piston cylinders', PISTON.x - 4, PISTON.y - 14);
 
   const cellH = 110;
@@ -154,7 +155,7 @@ function drawPistonPanel() {
     }
     // Label.
     ctx.fillStyle = color;
-    ctx.font = '12px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(label, PISTON.x, yTop - 6);
     // Piston rod handle at the right wall.
     ctx.strokeStyle = 'rgba(220, 230, 255, 0.65)';
@@ -175,7 +176,7 @@ function drawPistonPanel() {
         ctx.fillRect(x + xx, y + h + 2, 4, 6);
       }
       ctx.fillStyle = 'rgba(91, 192, 235, 0.65)';
-      ctx.font = '11px ui-monospace, monospace';
+      ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText('thermal reservoir', x, y + h + 22);
     }, partI, 1.0);
   }
@@ -191,7 +192,7 @@ function drawPistonPanel() {
         ctx.stroke();
       }
       ctx.fillStyle = 'rgba(255, 209, 102, 0.65)';
-      ctx.font = '11px ui-monospace, monospace';
+      ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText('insulated', x, y - 12);
     }, partA, ratio);
   }
@@ -202,7 +203,7 @@ function drawPistonPanel() {
   const Tiso = st.T0;
   const Tadi = adiabaticTemperature(st.V, 1, st.T0, st.gamma);
   ctx.fillStyle = '#5bc0eb';
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   if (showIso) ctx.fillText(`iso  P = ${Piso.toFixed(2)}  T = ${Tiso.toFixed(0)} K`, PISTON.x, PISTON.y + PISTON.h - 10);
   ctx.fillStyle = '#ffd166';
   if (showAdi) ctx.fillText(`adi  P = ${Padi.toFixed(2)}  T = ${Tadi.toFixed(0)} K`, PISTON.x, PISTON.y + PISTON.h + 6);
@@ -222,7 +223,7 @@ function drawPVPanel() {
   ctx.lineWidth = 1;
   ctx.strokeRect(PV.x - 8 + 0.5, PV.y - 8 + 0.5, PV.w + 15, PV.h + 15);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillText('PV diagram', PV.x - 4, PV.y - 14);
 
   // Grid.
@@ -248,7 +249,7 @@ function drawPVPanel() {
   ctx.lineTo(PV.x + PV.w - 20, PV.y + PV.h - 30);
   ctx.stroke();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (let v = 0.5; v <= 2.5; v += 0.5) ctx.fillText(v.toFixed(1), mapV(v) - 6, PV.y + PV.h - 14);
   for (let p = 1; p <= 4; p += 1) ctx.fillText(p.toFixed(0), PV.x + 22, mapP(p) + 4);
   ctx.fillText('V (norm.)', PV.x + PV.w - 70, PV.y + PV.h - 4);
@@ -313,7 +314,7 @@ function drawPVPanel() {
   // collide with the V-axis tick labels along the bottom.
   const W_iso = workIsothermal(1, st.V, st.T0, 1);
   const W_adi = workAdiabatic(1, st.V, 1, 1, st.gamma);
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#5bc0eb';
   if (showIso) ctx.fillText(`W_iso = ${W_iso.toFixed(0)} J/mol`, PV.x + 50, PV.y + 24);
   ctx.fillStyle = '#ffd166';
@@ -326,7 +327,7 @@ function drawPVPanel() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
   ctx.strokeRect(ix + 0.5, iy + 0.5, iw - 1, ih - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('T(V)', ix + 4, iy + 12);
   // T axis: 0 to 2*T0
   const Tmin = 0, Tmax = 2 * st.T0;
@@ -376,7 +377,7 @@ function render() {
   drawPVPanel();
   // Direction indicator.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.65)';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(st.dir > 0 ? 'compression -> expansion' : 'expansion -> compression', PISTON.x, H - 12);
 }
 
@@ -408,4 +409,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }
