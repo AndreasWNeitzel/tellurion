@@ -314,26 +314,42 @@ function mountChrome() {
   mountStarField();
   mountCursor();
 
-  const back = document.createElement('a');
-  back.className = 'pg-back';
-  back.href = '../../../index.html';
-  const ttl = (document.querySelector('h1') ? document.querySelector('h1').textContent : (document.title || 'Back')).trim();
-  back.setAttribute('aria-label', 'Back to all simulations');
-  back.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>'
-    + '<span class="bt">' + esc(ttl.length > 24 ? ttl.slice(0, 24).trim() + '…' : ttl) + '</span>';
-  back.addEventListener('click', (e) => {
-    if (reduce) return;
-    e.preventDefault();
-    try { getAudioSystem().returnFromPlayground(); } catch { /* ignore */ }   // B2 resurface
-    try { (window.__starfield || mountStarField())?.accelerate('out'); } catch { /* ignore */ }
-    document.body.classList.add('pg-leaving');
-    setTimeout(() => { location.href = back.getAttribute('href'); }, 170);
-  });
-  document.body.appendChild(back);
-  // Entry: slide in from the left, 400 ms after load (Section 10).
-  // No mouse parallax: it read as laggy/buggy and is removed.
-  if (reduce) back.classList.add('in');
-  else setTimeout(() => back.classList.add('in'), 400);
+  // The Layout System v2 template provides its own .playground-back.
+  // Only inject the legacy .pg-back on pre-v2 pages; otherwise wire
+  // the leave transition + audio resurface onto the v2 button so it
+  // keeps that behaviour without a duplicate control.
+  const v2Back = document.querySelector('.playground-back');
+  if (v2Back) {
+    v2Back.addEventListener('click', (e) => {
+      if (reduce) return;
+      e.preventDefault();
+      try { getAudioSystem().returnFromPlayground(); } catch { /* ignore */ }
+      try { (window.__starfield || mountStarField())?.accelerate('out'); } catch { /* ignore */ }
+      document.body.classList.add('pg-leaving');
+      const href = v2Back.getAttribute('href') || '../../../index.html';
+      setTimeout(() => { location.href = href; }, 170);
+    });
+  } else {
+    const back = document.createElement('a');
+    back.className = 'pg-back';
+    back.href = '../../../index.html';
+    const ttl = (document.querySelector('h1') ? document.querySelector('h1').textContent : (document.title || 'Back')).trim();
+    back.setAttribute('aria-label', 'Back to all simulations');
+    back.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>'
+      + '<span class="bt">' + esc(ttl.length > 24 ? ttl.slice(0, 24).trim() + '…' : ttl) + '</span>';
+    back.addEventListener('click', (e) => {
+      if (reduce) return;
+      e.preventDefault();
+      try { getAudioSystem().returnFromPlayground(); } catch { /* ignore */ }   // B2 resurface
+      try { (window.__starfield || mountStarField())?.accelerate('out'); } catch { /* ignore */ }
+      document.body.classList.add('pg-leaving');
+      setTimeout(() => { location.href = back.getAttribute('href'); }, 170);
+    });
+    document.body.appendChild(back);
+    // Entry: slide in from the left, 400 ms after load (Section 10).
+    if (reduce) back.classList.add('in');
+    else setTimeout(() => back.classList.add('in'), 400);
+  }
 
   if (!reduce) {
     document.body.classList.add('pg-leaving');
