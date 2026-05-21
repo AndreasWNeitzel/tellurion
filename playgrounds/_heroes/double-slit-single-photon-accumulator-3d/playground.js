@@ -290,33 +290,45 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The playground demonstrates the Born rule: individual photon hits
+// accumulate into the |psi|^2 Fraunhofer pattern. The invariant is
+// the convergence of the hit histogram onto the analytic intensity.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'photons', label: 'photons accumulated', value: st.nPhotons },
+      { key: 'slit-separation', label: 'slit separation d', value: st.d, format: 'float' },
+      { key: 'wavelength', label: 'wavelength lambda', value: st.lambda, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!st.hist || st.nPhotons < 1) return [];
+  // Total-variation distance between the normalised hit histogram and
+  // the analytic intensity, both over the detector bins. It shrinks
+  // towards zero as photons accumulate (the Born rule).
+  const a = new Float64Array(st.NBINS);
+  let aSum = 0, hSum = 0;
+  for (let k = 0; k < st.NBINS; k += 1) {
+    const y = -Y_HALF + ((k + 0.5) / st.NBINS) * 2 * Y_HALF;
+    a[k] = Math.max(0, intensity(y, { d: st.d, a: st.a, lambda: st.lambda, D: D_screen }));
+    aSum += a[k];
+    hSum += st.hist[k];
+  }
+  let tv = 1;
+  if (aSum > 0 && hSum > 0) {
+    tv = 0;
+    for (let k = 0; k < st.NBINS; k += 1) tv += Math.abs(st.hist[k] / hSum - a[k] / aSum);
+    tv *= 0.5;
+  }
+  return [
+    {
+      key: 'born-rule',
+      label: 'hits converge to |psi|^2 (TV distance)',
+      value: tv.toFixed(3),
+      status: st.nPhotons < 200 ? 'pending' : (tv < 0.12 ? 'pass' : 'drift'),
+    },
+  ];
+};
