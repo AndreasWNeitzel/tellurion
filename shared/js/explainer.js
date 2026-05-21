@@ -360,7 +360,12 @@ function mountChrome() {
   // up to 3. Catalogue is fetched at runtime; capture-suppressed, so
   // it never touches the deterministic golden frames.
   fetch('../../../shared/playgrounds-catalogue.json').then((r) => r.ok ? r.json() : null).then((cat) => {
-    if (!Array.isArray(cat) || !cat.length) return;
+    // The v2 template carries an empty .playground-related section in
+    // the content column. Populate THAT (replacing it with the built
+    // strip) rather than appending a detached section to the body, so
+    // the related cards appear where the page reserves space for them.
+    const tmpl = document.querySelector('.playground-related');
+    if (!Array.isArray(cat) || !cat.length) { if (tmpl) tmpl.hidden = true; return; }
     const segs = decodeURIComponent(location.pathname).split('/').filter(Boolean);
     const ix = segs.lastIndexOf('index.html');
     const slug = ix > 0 ? segs[ix - 1] : segs[segs.length - 1];
@@ -370,12 +375,9 @@ function mountChrome() {
     const take = (arr) => { for (const e of arr) { if (pick.length < 3 && !pick.includes(e)) pick.push(e); } };
     if (self.uc) take(pool.filter((e) => e.uc && e.uc === self.uc));
     if (self.tag) take(pool.filter((e) => e.tag === self.tag));
-    take(pool.filter((e) => e.tag === self.tag));               // fill with same-tag
     const rel = pick.slice(0, 3);
-    if (rel.length < 3) return;                                  // strip only when full
-    const sec = document.createElement('section');
-    sec.className = 'pg-related';
-    sec.innerHTML = '<h2>Related</h2><div class="rgrid">' + rel.map((e) => {
+    if (rel.length === 0) { if (tmpl) tmpl.hidden = true; return; }   // nothing related
+    const cardsHTML = rel.map((e) => {
       const thumbHTML = e.thumb
         ? `<img class="rimgsrc" src="../../../assets/thumbs/${e.thumb}" alt="" loading="lazy">`
         : '<div class="rph"></div>';
@@ -384,8 +386,12 @@ function mountChrome() {
         + `<div class="rimg">${thumbHTML}</div>`
         + `<div class="rbody"><h3 class="rt">${esc(e.title)}</h3><div class="ru">${esc(e.uc || '')}</div></div></a>`
       );
-    }).join('') + '</div>';
-    document.body.appendChild(sec);
+    }).join('');
+    const sec = document.createElement('section');
+    sec.className = 'pg-related';
+    sec.innerHTML = '<h2>Related</h2><div class="rgrid">' + cardsHTML + '</div>';
+    if (tmpl) tmpl.replaceWith(sec);
+    else document.body.appendChild(sec);
   }).catch(() => {});
 }
 
