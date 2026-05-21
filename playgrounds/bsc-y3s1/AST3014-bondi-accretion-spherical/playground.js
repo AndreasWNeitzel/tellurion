@@ -1,5 +1,6 @@
 import { bondiRadius, MdotBondi, bondiVelocityIsothermal, M_SUN, G } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -41,7 +42,7 @@ function render() {
   ctx.beginPath(); ctx.arc(cx, cy, rS_px, 0, 2 * Math.PI); ctx.stroke();
   ctx.setLineDash([]);
   // r_B label above its circle, r_s label below, so they never collide.
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('r_B (Bondi)', cx - 28, cy - rB_px - 6);
   ctx.fillStyle = '#ff6b6b'; ctx.fillText('r_s (sonic)', cx - 26, cy + rS_px + 16);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 2 * Math.PI); ctx.fill();
@@ -74,7 +75,7 @@ function render() {
   const vx0 = 40, vy0 = 412, vw = 340, vh = 84;
   const rLo = 0.08 * rB, rHi = 2.0 * rB, machMax = 3;
   ctx.strokeStyle = '#3a3d44'; ctx.lineWidth = 1; ctx.strokeRect(vx0, vy0, vw, vh);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Mach number vs radius (transonic Bondi solution)', vx0 + 2, vy0 - 5);
   ctx.fillText('M', vx0 - 14, vy0 + 10); ctx.fillText('r', vx0 + vw + 4, vy0 + vh - 2);
   const rToX = (r) => vx0 + (Math.log(r / rLo) / Math.log(rHi / rLo)) * vw;
@@ -99,7 +100,7 @@ function render() {
     ctx.strokeStyle = (0.5 * (m0 + m1) > 1) ? '#ff6b6b' : '#5bc0eb';
     ctx.beginPath(); ctx.moveTo(rToX(r0), mToY(m0)); ctx.lineTo(rToX(r1), mToY(m1)); ctx.stroke();
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`r_s = ${(rS / 1.496e11).toExponential(2)} AU`, 12, 20);
   ctx.fillText(`r_B = ${(rB / 1.496e11).toExponential(2)} AU`, 12, 38);
   ctx.fillText(`Mdot = ${(Mdot * 3.155e7 / M_SUN).toExponential(2)} M⊙/yr`, 12, 56);
@@ -109,3 +110,27 @@ function render() {
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
 function bootSync() { if (CAPTURE_NAME) { st.logM = CAPTURE_FRAC * 6; st.t = 1.4; sM.value = String(st.logM); vM.textContent = st.logM.toFixed(2); } render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

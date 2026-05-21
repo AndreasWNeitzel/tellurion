@@ -8,6 +8,7 @@ import { criticalRadius, parkerSpeed, R_SUN } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -83,7 +84,7 @@ function drawScene(cs, rc) {
   ctx.strokeStyle = 'rgba(91,192,235,0.7)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.arc(cx, cy, rcPx, 0, 2 * Math.PI); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`sonic surface  r_c = ${(rc / R_SUN).toFixed(1)} R_sun`, cx + rcPx + 6, cy - 4);
 
   // Plasma parcels, coloured by Mach number u/c_s.
@@ -114,7 +115,7 @@ function drawScene(cs, rc) {
   ctx.fillStyle = '#fff6dc';
   ctx.beginPath(); ctx.arc(cx, cy, R0_PX * 0.55, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('solar wind: parcels accelerate through the sonic surface (color = Mach)', 12, 16);
 }
 
@@ -131,7 +132,7 @@ function drawProfile(cs, rc) {
 
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('u(r) (km/s)', 10, y0 + 8);
   ctx.textAlign = 'center';
   ctx.fillText('r (log, R_sun)', (x0 + x1) / 2, H - 8);
@@ -155,7 +156,7 @@ function drawProfile(cs, rc) {
   const u_1AU = parkerSpeed(r_AU, cs);
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(rToX(r_AU), uToY(u_1AU), 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`u(1 AU) = ${(u_1AU / 1000).toFixed(0)} km/s, T = ${st.T.toFixed(2)} MK`, 12, H - 8);
   rU.textContent = `${(u_1AU / 1000).toFixed(0)} km/s`;
 }
@@ -210,4 +211,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

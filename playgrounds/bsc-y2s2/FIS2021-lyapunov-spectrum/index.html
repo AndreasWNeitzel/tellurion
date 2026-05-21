@@ -1,14 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lyapunov Spectrum of the Henon Map</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lyapunov Spectrum of the Henon Map</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 720px; }
     .pg-figure canvas { width: 100%; height: auto; cursor: crosshair; touch-action: none; }
     .pg-readout {
@@ -25,48 +28,92 @@
       margin-block: var(--space-4);
     }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Lyapunov spectrum of the Henon map</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
-    The Henon map <span class="mono">x<sub>n+1</sub> = 1 &minus; a&nbsp;x<sub>n</sub><sup>2</sup> + y<sub>n</sub></span>,
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Lyapunov spectrum of the Henon map</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Lyapunov spectrum of the Henon map</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
+    The Henon map <span class="mono">x<sub>n+1</sub> = 1 − a&nbsp;x<sub>n</sub><sup>2</sup> + y<sub>n</sub></span>,
     <span class="mono">y<sub>n+1</sub> = b&nbsp;x<sub>n</sub></span> is the canonical 2D chaos benchmark. At
     <span class="mono">(a, b) = (1.4, 0.3)</span> its attractor is a strange set with a positive largest Lyapunov
     exponent and a negative second exponent that sum exactly to <span class="mono">ln|b|</span>. Drag the handle on
     the parameter panel to explore how the attractor morphs and how the spectrum responds. The trace identity
-    <span class="mono">&lambda;<sub>1</sub> + &lambda;<sub>2</sub> = ln|b|</span> is an exact dynamical invariant
+    <span class="mono">λ<sub>1</sub> + λ<sub>2</sub> = ln|b|</span> is an exact dynamical invariant
     that the Benettin QR algorithm preserves to machine precision.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="720" height="480" tabindex="0"
-            aria-label="Henon attractor scatter on the left; draggable (a, b) parameter panel on the right."></canvas>
-
-    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
-      <span class="label">a:</span>                                   <span class="value" id="readout-a">1.400000</span>
-      <span class="label">b:</span>                                   <span class="value" id="readout-b">0.300000</span>
-      <span class="label">&lambda;<sub>1</sub>:</span>                <span class="value" id="readout-lambda1">0.4203</span>
-      <span class="label">&lambda;<sub>2</sub>:</span>                <span class="value" id="readout-lambda2">-1.6242</span>
-      <span class="label">&lambda;<sub>1</sub>+&lambda;<sub>2</sub>:</span> <span class="value" id="readout-sum">-1.2040</span>
-      <span class="label">ln|b|:</span>                                <span class="value" id="readout-target">-1.2040</span>
-      <span class="label">N:</span>                                   <span class="value" id="readout-N">100000</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="720" height="480" tabindex="0" aria-label="Henon attractor scatter on the left; draggable (a, b) parameter panel on the right."></canvas>
     </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Henon attractor (left) and the (a, b) parameter panel (right). Method: 2D Henon iteration plus a
       Benettin QR algorithm on a 2x2 tangent frame with modified Gram-Schmidt re-orthonormalization at each step.
       Source: Strogatz, Nonlinear Dynamics and Chaos, 2e, Section 12.2; Benettin, Galgani, Giorgilli, Strelcyn,
-      Meccanica 15, 9-20 (1980).
-    </figcaption>
-  </figure>
+      Meccanica 15, 9-20 (1980).</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <button id="btn-reset" type="button" aria-label="Reset to canonical (1.4, 0.3)">Reset</button>
     <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
   </div>
+      <div class="v2-legacy" hidden><div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">a:</span>                                   <span class="value" id="readout-a">1.400000</span>
+      <span class="label">b:</span>                                   <span class="value" id="readout-b">0.300000</span>
+      <span class="label">λ<sub>1</sub>:</span>                <span class="value" id="readout-lambda1">0.4203</span>
+      <span class="label">λ<sub>2</sub>:</span>                <span class="value" id="readout-lambda2">-1.6242</span>
+      <span class="label">λ<sub>1</sub>+λ<sub>2</sub>:</span> <span class="value" id="readout-sum">-1.2040</span>
+      <span class="label">ln|b|:</span>                                <span class="value" id="readout-target">-1.2040</span>
+      <span class="label">N:</span>                                   <span class="value" id="readout-N">100000</span>
+    </div><span class="value" id="readout-a">1.400000</span><span class="value" id="readout-b">0.300000</span><span class="value" id="readout-lambda1">0.4203</span><span class="value" id="readout-lambda2">-1.6242</span><span class="value" id="readout-sum">-1.2040</span><span class="value" id="readout-target">-1.2040</span><span class="value" id="readout-N">100000</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mandelbrot Rainbow Explorer</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mandelbrot Rainbow Explorer</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 720px; }
     .pg-figure canvas { width: 100%; height: auto; cursor: crosshair; touch-action: none; background: #060608; }
     .pg-readout {
@@ -35,11 +40,24 @@
       color: var(--fg);
     }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Mandelbrot rainbow explorer</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Mandelbrot rainbow explorer</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Mandelbrot rainbow explorer</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     The Mandelbrot set is the set of complex numbers c for which the iteration
     z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c, started from z<sub>0</sub> = 0, stays
     bounded. Click anywhere on the canvas to recenter on that complex coordinate, or pick
@@ -47,35 +65,28 @@
     depth so deep boundary structure stays resolved. The double-precision floor sits near
     width 1e-13, after which pixel coordinates collide.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="720" height="480" tabindex="0"
-            aria-label="Mandelbrot set rendered with a continuous rainbow palette."></canvas>
-
-    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Re c (center):</span>  <span class="value" id="readout-cr">-0.5000000000</span>
-      <span class="label">Im c (center):</span>  <span class="value" id="readout-ci">0.0000000000</span>
-      <span class="label">view width:</span>     <span class="value" id="readout-width">3.500e+0</span>
-      <span class="label">zoom (3.5/w):</span>   <span class="value" id="readout-zoom">1.00e+0</span>
-      <span class="label">maxIter:</span>        <span class="value" id="readout-maxIter">256</span>
-      <span class="label">iter at hover:</span>  <span class="value" id="readout-iter">NA</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="720" height="480" tabindex="0" aria-label="Mandelbrot set rendered with a continuous rainbow palette."></canvas>
     </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Mandelbrot set rendered by per-pixel iteration of z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c
       from z<sub>0</sub> = 0, with continuous escape-time hue mapping (1024-step palette,
       log(1 + mu) phase). Cardioid and period-2 bulb membership tested in closed form to skip
       the iteration loop. maxIter scales with zoom depth: 256 at the full set, ~ 2200 at zoom 1e9x.
-      Source: Newman, Computational Physics, 2013, Exercise 3.7.
-    </figcaption>
-  </figure>
+      Source: Newman, Computational Physics, 2013, Exercise 3.7.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Mandelbrot controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Mandelbrot controls">
     <div class="buttons">
       <button id="btn-autozoom" type="button" aria-label="Toggle auto-zoom into the current center">Auto-zoom</button>
-      <button id="btn-zoomout"  type="button" aria-label="Zoom out by factor 2">Zoom out</button>
-      <button id="btn-reset"    type="button" aria-label="Reset to the full Mandelbrot set">Reset</button>
+      <button id="btn-zoomout" type="button" aria-label="Zoom out by factor 2">Zoom out</button>
+      <button id="btn-reset" type="button" aria-label="Reset to the full Mandelbrot set">Reset</button>
     </div>
     <div>
       <label for="preset-target">Jump to preset target</label>
@@ -90,7 +101,45 @@
       </select>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">Re c (center):</span>  <span class="value" id="readout-cr">-0.5000000000</span>
+      <span class="label">Im c (center):</span>  <span class="value" id="readout-ci">0.0000000000</span>
+      <span class="label">view width:</span>     <span class="value" id="readout-width">3.500e+0</span>
+      <span class="label">zoom (3.5/w):</span>   <span class="value" id="readout-zoom">1.00e+0</span>
+      <span class="label">maxIter:</span>        <span class="value" id="readout-maxIter">256</span>
+      <span class="label">iter at hover:</span>  <span class="value" id="readout-iter">NA</span>
+    </div><span class="value" id="readout-cr">-0.5000000000</span><span class="value" id="readout-ci">0.0000000000</span><span class="value" id="readout-width">3.500e+0</span><span class="value" id="readout-zoom">1.00e+0</span><span class="value" id="readout-maxIter">256</span><span class="value" id="readout-iter">NA</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

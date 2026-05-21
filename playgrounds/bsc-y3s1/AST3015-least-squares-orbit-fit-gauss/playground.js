@@ -12,6 +12,7 @@
 // Fundamentals of Astrodynamics, Ch. 5 (after Gauss 1809).
 import { generateData, fitCircle, rms } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -74,7 +75,7 @@ function render() {
   if (hist.length === 0 || hist[hist.length - 1].k !== k) hist.push({ k, r: fit.r });
 
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Fitting a circle to a noisy arc: it converges, and it stays wrong', 18, 26);
 
   // faint reference axes through the focus
@@ -132,7 +133,7 @@ function render() {
   ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(CX, CY, 17, 0, 6.2832); ctx.fill();
 
   // legend
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#ffa84c'; ctx.fillText('- true Kepler orbit', 18, 50);
   ctx.fillStyle = '#22d3ee'; ctx.fillText('- least-squares circle', 168, 50);
   ctx.fillStyle = '#34d399'; ctx.fillText('- observations (arc)', 338, 50);
@@ -150,7 +151,7 @@ function render() {
   const dx0 = 60, dx1 = W - 24, dy0 = H - 46, dy1 = H - 8;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: recovered R vs arc length (dashed = true a)', dx0 + 8, dy0 + 12);
   const rLo = 0.6, rHi = 1.4;
   const xP = (kk) => dx0 + 12 + (kk - 3) / Math.max(1, st.N - 3) * (dx1 - dx0 - 24);
@@ -175,3 +176,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

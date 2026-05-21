@@ -10,6 +10,7 @@ import {
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -85,7 +86,7 @@ function axes() {
     const P = proj(ax);
     ctx.strokeStyle = 'rgba(150,160,190,0.30)';
     ctx.beginPath(); ctx.moveTo(O[0], O[1]); ctx.lineTo(P[0], P[1]); ctx.stroke();
-    ctx.fillStyle = col; ctx.font = '11px monospace'; ctx.fillText(lab, P[0] + 3, P[1]);
+    ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, P[0] + 3, P[1]);
   }
 }
 
@@ -98,7 +99,7 @@ function arrow3(a, b, color, label) {
   ctx.lineTo(B[0] - 9 * Math.cos(an - 0.4), B[1] - 9 * Math.sin(an - 0.4));
   ctx.lineTo(B[0] - 9 * Math.cos(an + 0.4), B[1] - 9 * Math.sin(an + 0.4));
   ctx.closePath(); ctx.fill();
-  if (label) { ctx.font = '11px monospace'; ctx.fillText(label, B[0] + 5, B[1] - 4); }
+  if (label) { ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(label, B[0] + 5, B[1] - 4); }
   ctx.lineWidth = 1;
 }
 const DRIFT_LABEL = {
@@ -121,7 +122,7 @@ function render() {
     }
   }
   const blab = proj([cam.x + 1.7, cam.y + 1.7, cam.z + 1.15]);
-  ctx.fillStyle = 'rgba(150,175,230,0.8)'; ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(150,175,230,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('B', blab[0] + 4, blab[1]);
   // helix trail
   ctx.strokeStyle = st.q >= 0 ? 'rgba(255,150,90,0.75)' : 'rgba(110,170,255,0.75)';
@@ -137,7 +138,7 @@ function render() {
     ctx.strokeStyle = 'rgba(150,255,200,0.8)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(G[0] - 5, G[1]); ctx.lineTo(G[0] + 5, G[1]);
     ctx.moveTo(G[0], G[1] - 5); ctx.lineTo(G[0], G[1] + 5); ctx.stroke(); ctx.lineWidth = 1;
-    ctx.fillStyle = 'rgba(150,255,200,0.7)'; ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(150,255,200,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('guiding centre', G[0] + 7, G[1] + 11);
   }
   // particle + its velocity and (E x B) drift vectors
@@ -153,7 +154,7 @@ function render() {
   ctx.fillStyle = st.q >= 0 ? '#ffcaa0' : '#a8ccff';
   ctx.beginPath(); ctx.arc(P[0], P[1], 4, 0, 2 * Math.PI); ctx.fill();
   // active-drift explanation (educational, not just a projection note)
-  ctx.fillStyle = 'rgba(220,228,245,0.9)'; ctx.font = '12px monospace';
+  ctx.fillStyle = 'rgba(220,228,245,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(DRIFT_LABEL[st.preset] || '', 12, H - 12);
 
   rV.textContent = speed(s).toFixed(4);
@@ -227,4 +228,28 @@ if (document.readyState === 'loading') {
 } else {
   boot();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

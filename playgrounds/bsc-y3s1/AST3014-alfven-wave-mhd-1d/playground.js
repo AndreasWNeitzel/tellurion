@@ -8,6 +8,7 @@
 
 import { alfvenSpeedMS, bField, vField, MU0 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -54,7 +55,7 @@ function render() {
   ctx.fillStyle = baseGrad;
   ctx.fillRect(x0 - 30, sceneTop, 70, sceneH);
   ctx.fillStyle = 'rgba(255,200,120,0.85)';
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.save(); ctx.translate(x0 - 16, sceneTop + sceneH / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('coronal-base driver', -60, 0); ctx.restore();
 
@@ -112,10 +113,10 @@ function render() {
   ctx.strokeStyle = 'rgba(255,255,255,0.20)'; ctx.setLineDash([4, 5]);
   ctx.beginPath(); ctx.moveTo(cpx, sceneTop); ctx.lineTo(cpx, sceneTop + sceneH); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('crest -> v_A', cpx, sceneTop - 4);
 
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('shear Alfven wave: magnetic field lines whipped by the driver, propagating along B0 at v_A', 46, 16);
   ctx.fillStyle = 'rgba(91,192,235,0.9)';
   ctx.fillText('cyan = plasma v_y (frozen-in)', 46, sceneTop + sceneH + 18);
@@ -144,7 +145,7 @@ function render() {
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('b_y / v_y (antiphase)', x0, stripTop + 10);
   ctx.textAlign = 'right';
   ctx.fillText(`v_A = ${(vA / 1000).toFixed(0)} km/s   B0 = ${st.B_nT.toFixed(1)} nT   n = ${st.n_amu_cc.toFixed(1)} amu/cm^3`, x1, H - 8);
@@ -181,4 +182,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

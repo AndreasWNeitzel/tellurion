@@ -2,6 +2,7 @@
 
 import { solveKepler, orbitXY, residual } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -91,7 +92,7 @@ function drawOrbit(c, x0, y_off, w, h) {
   ctx.setLineDash([]);
 
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`e = ${e.toFixed(3)}, a = 1`, x0 + 12, y_off + 14);
 }
 
@@ -124,7 +125,7 @@ function drawConvergence(c, x0, y_off, w, h) {
     const x = xFor(i);
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${i}`, x - 6, y_off + padT + plotH + 14);
   }
   for (let le = -16; le <= 0; le += 4) {
@@ -158,7 +159,7 @@ function drawConvergence(c, x0, y_off, w, h) {
   }
 
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('iteration', x0 + padL + plotW - 48, y_off + padT + plotH + 28);
   ctx.save(); ctx.translate(x0 + 16, y_off + padT + plotH / 2 + 30); ctx.rotate(-Math.PI / 2);
   ctx.fillText('|E_n - E_inf|', 0, 0); ctx.restore();
@@ -219,4 +220,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

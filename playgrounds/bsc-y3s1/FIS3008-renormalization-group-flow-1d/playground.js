@@ -11,6 +11,7 @@ import {
 } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -43,7 +44,7 @@ const hOfY = (py) => HMAX - (py - BY0) / (BY1 - BY0) * 2 * HMAX;
 function axes(xlab, ylab) {
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(BX0, BY0); ctx.lineTo(BX0, BY1); ctx.lineTo(BX1, BY1); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText(xlab, (BX0 + BX1) / 2, H - 18);
   ctx.save(); ctx.translate(24, (BY0 + BY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText(ylab, 0, 0); ctx.restore();
@@ -86,7 +87,7 @@ function renderFlow() {
   // fixed points
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(xOfU(0), yOfH(0), 8, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(6,214,160,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(6,214,160,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('stable sink (T = infinity)', xOfU(0) + 12, yOfH(0) - 10);
   ctx.fillStyle = '#ef476f';
   ctx.beginPath(); ctx.arc(xOfU(1), yOfH(0), 8, 0, 2 * Math.PI); ctx.fill();
@@ -111,7 +112,7 @@ function renderFlow() {
     ctx.beginPath(); ctx.arc(x, y, n === 0 ? 6 : 3.2, 0, 2 * Math.PI); ctx.fill();
   }
   const su = uOfK(st.K0), sx = xOfU(su), sy = yOfH(Math.max(-HMAX, Math.min(HMAX, st.h0)));
-  ctx.fillStyle = '#fff'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#fff'; ctx.font = fontString(canvas, 'caption', 'mono');
   if (su > 0.7) { ctx.textAlign = 'right'; ctx.fillText('start (drag me)', sx - 12, sy + 4); }
   else { ctx.textAlign = 'left'; ctx.fillText('start (drag me)', sx + 12, sy + 4); }
 }
@@ -144,7 +145,7 @@ function renderCobweb() {
   }
   ctx.stroke();
   ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(xOfK(0), yOfK(0), 7, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(6,214,160,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(6,214,160,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('K* = 0 (only fixed point at finite T)', xOfK(0) + 12, yOfK(0) - 10);
 }
 
@@ -171,7 +172,7 @@ function makeChain(K, h, len, seed) {
 // flows to 0, so the cascade ends in a disordered (random) chain:
 // the concrete statement that 1D Ising has no finite-T order.
 function renderChain() {
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('real-space decimation (b = 2): keep every other block; K flows toward 0 (disorder)', W / 2, 24);
   const rows = Math.min(st.N + 1, 11);
   const traj = rgFlow(st.K0, st.h0, rows - 1);
@@ -190,14 +191,14 @@ function renderChain() {
     }
     ctx.strokeStyle = 'rgba(150,160,180,0.35)'; ctx.lineWidth = 1;
     ctx.strokeRect(x0, yc - hh / 2, x1 - x0, hh);
-    ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
     ctx.fillText(`n=${n}  K=${K.toFixed(2)}`, x0 - 10, yc + 4);
     if (n > 0) {
       ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.lineWidth = 1.4;
       ctx.beginPath(); ctx.moveTo(x0 - 64, top + (n - 1) * rowH + rowH / 2 + 10); ctx.lineTo(x0 - 64, yc - 10); ctx.stroke();
     }
   }
-  ctx.fillStyle = 'rgba(91,192,235,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(91,192,235,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('blue = spin down', x0, bot + 22);
   ctx.fillStyle = 'rgba(239,71,111,0.9)'; ctx.textAlign = 'left';
   ctx.fillText('red = spin up', x0 + 150, bot + 22);
@@ -266,4 +267,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(function loop() { render(); requestAnimationFrame(loop); });
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

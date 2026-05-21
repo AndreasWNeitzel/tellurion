@@ -12,6 +12,7 @@
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { iterateOrbit, phasePortrait, maxLyapunov, K_CRITICAL } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const urlParams = new URLSearchParams(location.search);
 const SEED = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
@@ -89,7 +90,7 @@ function drawPortrait() {
   ctx.globalAlpha = 1;
   const cur = toPx(state.tr.theta, state.tr.p);
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cur.px, cur.py, 3.4, 0, TWO_PI); ctx.fill();
-  ctx.fillStyle = 'rgba(241,210,138,0.9)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(241,210,138,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('phase portrait  (theta -> , p ^);  gold = this rotor', PP.x + 6, PP.y + PP.h - 8);
 }
 
@@ -111,7 +112,7 @@ function drawRotor() {
   ctx.strokeStyle = `rgba(239,114,114,${flash})`; ctx.lineWidth = 2.5;
   const tx = -Math.sin(ang), ty = -Math.cos(ang);
   ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + tx * kk * 40, ey + ty * kk * 40); ctx.stroke();
-  ctx.fillStyle = '#9fb0cc'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9fb0cc'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('kicked rotor', cx, cy - R - 18);
   ctx.fillText('free spin, then a', cx, cy + R + 26);
   ctx.fillText('kick of K sin(theta)', cx, cy + R + 41);
@@ -190,4 +191,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

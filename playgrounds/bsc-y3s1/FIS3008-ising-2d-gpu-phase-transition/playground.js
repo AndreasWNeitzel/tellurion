@@ -10,6 +10,7 @@ import {
   create, step, diagnostics, magPerSpin, energyPerSpin, onsagerTc, onsagerM,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -71,7 +72,7 @@ function paintLattice() {
   ctx.drawImage(off, GX, GY, GS, GS);
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
   ctx.strokeRect(GX, GY, GS, GS);
-  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`${L} x ${L} spins`, GX + GS / 2, GY - 14);
 }
 
@@ -79,7 +80,7 @@ function paintPlot() {
   // axes
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('temperature  T', (PX0 + PX1) / 2, H - 22);
   ctx.save(); ctx.translate(PX0 - 34, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('|M|', 0, 0); ctx.restore();
@@ -114,7 +115,7 @@ function paintPlot() {
 
   // legend in the empty lower-left (the curve is high on the left,
   // zero on the right, so the bottom-left stays clear)
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillRect(PX0 + 10, PY1 - 34, 16, 4);
   ctx.fillText('Onsager exact', PX0 + 32, PY1 - 28);
   ctx.fillStyle = '#ef476f';
@@ -133,7 +134,7 @@ function render() {
   ctx.fillStyle = 'rgba(120,130,150,0.18)'; ctx.fillRect(GX, by, bw, 16);
   ctx.fillStyle = '#ffd166'; ctx.fillRect(GX, by, bw * (st.speed / 12), 16);
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(GX, by, bw, 16);
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`sweeps / frame: ${st.speed}`, GX, by + 32);
   const m = magPerSpin(inst), e = energyPerSpin(inst);
   pushWin(m);
@@ -199,4 +200,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

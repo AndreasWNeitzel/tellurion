@@ -10,6 +10,7 @@
 
 import { makeState, setPotential, setGaussian, step, norm, expectationX, energy, probRightOf } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -90,7 +91,7 @@ function render() {
   const mx = expectationX(s), mi = (mx + L / 2) / L * (N - 1);
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xpix(mi), PY + 4); ctx.lineTo(xpix(mi), base); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('|psi(x)|^2 phase-coloured over V(x); dashed line = <x>', PX + PW / 2, PY + PH + 18);
   ctx.textAlign = 'left';
 
@@ -104,12 +105,12 @@ function render() {
     for (let k = 0; k < trace.length; k += 1) { const X = TX + (k / M) * TW, Y = TY + TH / 2 - (trace[k] / (L / 2)) * (TH / 2 - 6); k === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
     ctx.stroke(); ctx.lineWidth = 1;
   }
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('<x>(t)', TX + TW / 2, TY + TH + 16); ctx.textAlign = 'left';
 
   // phase colour-wheel legend (anchored below the top-right HUD)
   const LG = 184;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('phase arg(psi)', QX, LG);
   for (let q = 0; q < 60; q += 1) { ctx.fillStyle = `hsl(${(q / 60 * 360).toFixed(0)},85%,60%)`; ctx.fillRect(QX + q * 2.4, LG + 8, 2.6, 14); }
   ctx.fillStyle = '#9aa0ad'; ctx.fillText('-pi', QX, LG + 38); ctx.fillText('+pi', QX + 60 * 2.4 - 16, LG + 38);
@@ -200,3 +201,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

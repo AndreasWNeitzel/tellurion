@@ -7,6 +7,7 @@
 
 import { stepBloch, rodrigues, norm, blochAngles } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -119,7 +120,7 @@ function render() {
     const p = proj(v);
     ctx.strokeStyle = axCol; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(O.x, O.y); ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = col; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(lab, p.x, p.y - 6);
   }
 
@@ -177,13 +178,13 @@ function render() {
   ctx.beginPath(); ctx.arc(tip.x, tip.y, 5.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
 
   // legend
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = '#06d6a0'; ctx.fillText('spin S', W - 168, 24);
   ctx.fillStyle = 'rgba(255,209,102,0.95)'; ctx.fillText('drive axis', W - 168, 42);
   ctx.fillStyle = 'rgba(190,140,255,0.95)'; ctx.fillText('predicted S(t)', W - 168, 60);
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.fillText(st.frame === 'rot' ? 'rotating frame' : 'lab frame', W - 168, 78);
   // why the path looks the way it does, and how to look around
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(st.frame === 'rot'
     ? 'the spin tip rides the purple path: a precession cone about the static effective field'
     : 'the spin tip rides the purple path: a Larmor + Rabi spiral (switch to the rotating frame for the cone)',
@@ -297,4 +298,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

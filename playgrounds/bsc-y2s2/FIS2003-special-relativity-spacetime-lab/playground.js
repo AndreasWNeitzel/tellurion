@@ -11,6 +11,7 @@
 
 import { gamma, contractedLength, twinTrip, boost, dopplerFactor } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -78,7 +79,7 @@ function clockFace(cx, cy, r, frac, label, col, accent) {
   ctx.lineCap = 'butt'; ctx.lineWidth = 1;
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(cx, cy, 3.6, 0, 6.2832); ctx.fill();
   ctx.restore();
-  ctx.fillStyle = accent; ctx.font = 'bold 14px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = accent; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'center';
   ctx.fillText(label, cx, cy + r + 18);
   ctx.textAlign = 'left';
 }
@@ -91,7 +92,7 @@ function render() {
   // Top panel: rod-train track
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(SX, SY, SW, SH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(SX, SY, SW, SH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('the rod is the same OBJECT; the dashed ghost is its rest length, the solid is what the lab measures', SX + 14, SY + 20);
 
   const trackY = SY + 130;
@@ -104,7 +105,7 @@ function render() {
   for (let mk = 0; mk <= st.L; mk += 1) {
     const xm = x0 + mk * xPerL;
     ctx.beginPath(); ctx.moveTo(xm, trackY - 32); ctx.lineTo(xm, trackY + 32); ctx.stroke();
-    ctx.fillStyle = 'rgba(180,190,210,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(180,190,210,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     if (mk === 0) ctx.fillText('x = 0', xm, trackY + 52);
     else if (mk === st.L) ctx.fillText(`x = L = ${st.L}`, xm, trackY + 52);
     else if (st.L <= 10) ctx.fillText(String(mk), xm, trackY + 48);
@@ -112,7 +113,7 @@ function render() {
   ctx.textAlign = 'left';
 
   ctx.fillStyle = '#3a3f4b'; ctx.fillRect(x0 - 22, trackY - 26, 14, 60);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
   ctx.fillText('home', x0 - 26, trackY - 8); ctx.fillText('twin', x0 - 26, trackY + 8);
   ctx.textAlign = 'left';
 
@@ -123,7 +124,7 @@ function render() {
   const rodX = dir > 0 ? cxTrain - Lc : cxTrain;
   ctx.strokeStyle = 'rgba(200,205,215,0.45)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.4;
   ctx.strokeRect(ghostX, trackY - 22, Lpx, 44); ctx.setLineDash([]); ctx.lineWidth = 1;
-  ctx.fillStyle = 'rgba(160,165,180,0.5)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(160,165,180,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`rest length L0 = ${L0_REST.toFixed(2)}`, ghostX + 6, trackY - 26);
 
   const grad = ctx.createLinearGradient(rodX, 0, rodX + Lc, 0);
@@ -141,10 +142,10 @@ function render() {
   const ax = cxTrain + dir * 10;
   ctx.beginPath();
   ctx.moveTo(ax + dir * 14, trackY); ctx.lineTo(ax, trackY - 8); ctx.lineTo(ax, trackY + 8); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgba(190,200,220,0.85)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(190,200,220,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`L = L0 / gamma = ${cf.toFixed(2)}`, rodX + 6, trackY + 32);
 
-  ctx.fillStyle = '#ffd24a'; ctx.font = 'bold 14px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#ffd24a'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'right';
   ctx.fillText(`v / c = ${st.beta.toFixed(2)}    gamma = ${g.toFixed(3)}`, SX + SW - 14, SY + 20);
   ctx.textAlign = 'left';
 
@@ -152,7 +153,7 @@ function render() {
   clockFace(CX_L, CKY, CKR, (ts.homeNow / 12) % 1, 'HOME twin', '#ffcf5d', '#ffcf5d');
   clockFace(CX_R, CKY, CKR, (ts.travelNow / 12) % 1, 'TRAVELLER', '#7fd6ff', '#7fd6ff');
 
-  ctx.fillStyle = 'rgba(190,200,220,0.95)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(190,200,220,0.95)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`elapsed: ${ts.homeNow.toFixed(2)}`, CX_L, CKY + CKR + 36);
   ctx.fillText(`elapsed: ${ts.travelNow.toFixed(2)}`, CX_R, CKY + CKR + 36);
   ctx.fillStyle = '#ffd24a';
@@ -167,40 +168,40 @@ function render() {
   ctx.fillStyle = '#ffcf5d'; ctx.fillRect(barX, barY, barW * homeFrac, barH / 2 - 1);
   ctx.fillStyle = '#7fd6ff'; ctx.fillRect(barX, barY + barH / 2 + 1, barW * trvFrac, barH / 2 - 1);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(barX, barY, barW, barH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`trip progress (home / traveller); age gap so far: ${(ts.homeNow - ts.travelNow).toFixed(2)}`, (barX + barX + barW) / 2, barY + barH + 14);
   ctx.textAlign = 'left';
 
   // Contraction bar graphic
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(KPX, KPY, KPW, KPH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(KPX, KPY, KPW, KPH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('Lorentz length contraction', KPX + 12, KPY + 18);
   const restBarPx = KPW - 50;
   const yA = KPY + 38, yB = KPY + 70;
   ctx.fillStyle = 'rgba(180,190,210,0.55)';
   ctx.fillRect(KPX + 24, yA, restBarPx, 18);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('L0 (rest)', KPX + 28, yA + 14);
   ctx.fillStyle = '#7fd6ff';
   ctx.fillRect(KPX + 24, yB, restBarPx / g, 18);
-  ctx.fillStyle = '#0c0f16'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#0c0f16'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`L0 / gamma = ${(1/g).toFixed(3)} L0`, KPX + 28, yB + 14);
-  ctx.fillStyle = '#ffd24a'; ctx.font = 'bold 14px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#ffd24a'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'right';
   ctx.fillText(`1 / gamma = ${(1/g).toFixed(3)}`, KPX + KPW - 14, KPY + KPH - 12);
   ctx.textAlign = 'left';
 
   // Minkowski diagram (decluttered)
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(PMX, PMY, PMW, PMH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(PMX, PMY, PMW, PMH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('Minkowski diagram (x right, ct up)', PMX + PMW / 2, PMY + 18);
   const oy = PMY + PMH - 20, ox = PMX + PMW / 2;
   const sc = Math.min((PMW * 0.42) / Math.max(1, st.L), (PMH - 60) / (2 * Math.max(1, st.L)));
   const mxf = (x) => ox + x * sc, mtf = (t) => oy - t * sc;
   ctx.strokeStyle = 'rgba(255,210,90,0.65)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
   ctx.beginPath(); ctx.moveTo(mxf(-st.L), mtf(st.L)); ctx.lineTo(mxf(st.L), mtf(-st.L)); ctx.moveTo(mxf(st.L), mtf(st.L)); ctx.lineTo(mxf(-st.L), mtf(-st.L)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,210,90,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,210,90,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('light cone (v = c)', mxf(st.L * 0.5), mtf(st.L * 0.55));
   ctx.strokeStyle = '#ffcf5d'; ctx.lineWidth = 2.4;
   ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0)); ctx.lineTo(mxf(0), mtf(2 * st.L)); ctx.stroke();
@@ -213,7 +214,7 @@ function render() {
       ctx.beginPath(); ctx.moveTo(mxf(-st.L), mtf(st.beta * -st.L + t0)); ctx.lineTo(mxf(st.L), mtf(st.beta * st.L + t0)); ctx.stroke();
     }
     ctx.setLineDash([]); ctx.lineWidth = 1;
-    ctx.fillStyle = 'rgba(200,170,255,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(200,170,255,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('purple: traveller-frame', PMX + 10, PMY + PMH - 30);
     ctx.fillText('simultaneity lines', PMX + 10, PMY + PMH - 18);
   }
@@ -224,7 +225,7 @@ function render() {
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(mxf(evX), mtf(tMink), 6, 0, 6.2832); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.arc(mxf(evX), mtf(tMink), 6, 0, 6.2832); ctx.stroke();
 
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('x', mxf(st.L) - 5, mtf(0) - 6);
   ctx.fillText('ct', mxf(0) + 14, mtf(2 * st.L) + 12);
   ctx.fillStyle = '#ffcf5d'; ctx.textAlign = 'left';
@@ -235,9 +236,9 @@ function render() {
   // Educational annotation panel
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(PX, PY, PW, PH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(PX, PY, PW, PH);
-  ctx.fillStyle = '#e8ecf4'; ctx.font = 'bold 13px ui-monospace, monospace';
+  ctx.fillStyle = '#e8ecf4'; ctx.font = fontString(canvas, 'body', 'mono', 600);
   ctx.fillText('What you are watching', PX + 14, PY + 20);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono');
   const lines = [
     'The rod is a single object. Its rest length L0 (dashed) is what an observer co-moving with it would measure.',
     'In the lab frame the rod moves at v/c = beta and is measured shorter by 1/gamma = sqrt(1 minus beta^2).',
@@ -311,3 +312,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

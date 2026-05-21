@@ -10,6 +10,7 @@
 import { METALS, photonEnergy, thresholdFreqPHz, kMax, emits, stoppingVoltage, photocurrent, einsteinLine, H_EV } from './sim.js';
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -52,7 +53,7 @@ function render() {
   // cathode (metal) and anode plates
   ctx.fillStyle = '#6a7180'; ctx.fillRect(catX - 8, midY - 80, 8, 160);
   ctx.fillStyle = '#3a3f4b'; ctx.fillRect(anX, midY - 80, 8, 160);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`cathode (${st.metal}, phi=${phi.toFixed(2)} eV)`, catX + 30, midY + 100);
   ctx.fillText('anode', anX + 4, midY + 100);
   // photon beam: a bold colour band (hue tracks frequency), opacity
@@ -70,7 +71,7 @@ function render() {
     ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + 18, sy); ctx.stroke();
   }
   ctx.lineWidth = 1;
-  ctx.fillStyle = `hsl(${beamHue},90%,70%)`; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = `hsl(${beamHue},90%,70%)`; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('light source', TX + 8, TY + 20);
   // applied-voltage field in the gap: a large tinted region, green
   // when accelerating (V > 0), red when retarding (V < 0), opacity
@@ -78,7 +79,7 @@ function render() {
   const vNorm = Math.max(-1, Math.min(1, st.V / 6));
   const vCol = vNorm >= 0 ? `rgba(90,210,150,${0.05 + 0.16 * vNorm})` : `rgba(255,110,100,${0.05 + 0.20 * -vNorm})`;
   ctx.fillStyle = vCol; ctx.fillRect(catX, by0, anX - catX, bh);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`V = ${st.V.toFixed(1)} (${st.V >= 0 ? 'accelerating' : 'retarding'})`, (catX + anX) / 2, by0 - 6);
   ctx.textAlign = 'left';
   // ejected electrons: a dense field filling the gap when h nu > phi.
@@ -100,7 +101,7 @@ function render() {
     }
     if (!reach) { ctx.strokeStyle = 'rgba(255,120,110,0.5)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(catX + gap, by0); ctx.lineTo(catX + gap, by0 + bh); ctx.stroke(); ctx.setLineDash([]); }
   }
-  ctx.fillStyle = on ? '#7fd6ff' : '#ff8a78'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = on ? '#7fd6ff' : '#ff8a78'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(on ? (reach ? 'photoelectrons reach the anode: current flows' : 'electrons ejected but the retarding V repels them')
     : 'h nu < phi: NO electrons, at any intensity', TX + TW / 2, TY + TH + 22);
   // ammeter
@@ -115,7 +116,7 @@ function render() {
   function panel(x, y, w, h, title) {
     ctx.fillStyle = '#0b0d13'; ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(x, y, w, h);
-    ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(title, x + w / 2, y - 6); ctx.textAlign = 'left';
   }
   panel(IVX, IVY, IVW, IVH, 'photocurrent vs applied voltage');
@@ -127,7 +128,7 @@ function render() {
   for (let q = 0; q <= 120; q += 1) { const v = Vlo + (Vhi - Vlo) * q / 120; const ii = photocurrent(v, nu, phi, st.intensity); const X = ivx(v), Yy = ivy(ii); q === 0 ? ctx.moveTo(X, Yy) : ctx.lineTo(X, Yy); }
   ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(ivx(st.V), ivy(I), 4, 0, 6.2832); ctx.fill();
-  if (on) { ctx.strokeStyle = 'rgba(255,210,90,0.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(ivx(-Vs), IVY + 4); ctx.lineTo(ivx(-Vs), IVY + IVH - 4); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('-V_stop', ivx(-Vs), IVY + IVH - 2); ctx.textAlign = 'left'; }
+  if (on) { ctx.strokeStyle = 'rgba(255,210,90,0.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(ivx(-Vs), IVY + 4); ctx.lineTo(ivx(-Vs), IVY + IVH - 4); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.fillText('-V_stop', ivx(-Vs), IVY + IVH - 2); ctx.textAlign = 'left'; }
 
   // Einstein line panel
   panel(ELX, ELY, ELW, ELH, 'Einstein line: V_stop vs nu (slope h/e)');
@@ -139,7 +140,7 @@ function render() {
   einsteinLine(phi, NU_MIN, NU_MAX, 80).forEach(([n, v], k) => { const X = elx(n), Yy = ely(v); k === 0 ? ctx.moveTo(X, Yy) : ctx.lineTo(X, Yy); });
   ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(elx(nu), ely(Math.max(0, K)), 4, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`nu0 = ${nu0.toFixed(2)} PHz`, elx(nu0), ELY + ELH - 2);
   ctx.fillText('nu', ELX + ELW / 2, ELY + ELH + 13); ctx.textAlign = 'left';
 
@@ -209,3 +210,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

@@ -4,6 +4,7 @@
 
 import { createLBM, step as lbmStep, macro, addCircle, reset as lbmReset, fluidMass } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -89,7 +90,7 @@ function drawWakeDiagnostic() {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText('wake transverse velocity  u_y(t)', px0 + 8, py0 + 14);
   if (wakeHistory.length < 2) return;
   const ax = px0 + 12, ay = py0 + 22, aw = pw - 24, ah = ph - 36;
@@ -103,7 +104,7 @@ function drawWakeDiagnostic() {
   ctx.beginPath();
   wakeHistory.forEach((v, i) => { const x = xOf(i), y = yOf(v); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
   ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,240,0.72)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200,210,240,0.72)'; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('shedding oscillation -> Strouhal frequency', ax, py0 + ph - 5);
 }
 
@@ -200,3 +201,27 @@ window.__physicsCheck = async () => {
     msg: `fluid mass ${m0.toFixed(1)} -> ${m1.toFixed(1)} over 50 steps`,
   };
 };
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

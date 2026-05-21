@@ -15,6 +15,7 @@
 import { generateImage, aperturePhot, moffat } from './sim.js';
 import { viridis, fieldToImageData } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -99,7 +100,7 @@ function render() {
   paintFrame();
 
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Sum the light in a circle, subtract the sky: pick the radius well', 18, 24);
 
   const IMG = 318, x0 = 20, y0 = 40;
@@ -116,7 +117,7 @@ function render() {
   ctx.beginPath(); ctx.arc(cx, cy, skyIn * p2i, 0, 6.2832); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rOut * p2i, 0, 6.2832); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('synthetic CCD frame (photon + read noise; new exposure ~3/s)', x0, y0 + IMG + 15);
 
   // your measurement on the current noisy frame
@@ -126,7 +127,7 @@ function render() {
   const errPct = (r.flux - st.F) / st.F * 100;
 
   const rx = x0 + IMG + 24;
-  ctx.font = '13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono');
   let yy = y0 + 14;
   ctx.fillStyle = '#cbd5e1';
   ctx.fillText(`F_true  = ${st.F.toFixed(0)}`, rx, yy); yy += 20;
@@ -136,9 +137,9 @@ function render() {
   ctx.fillText(`error   = ${errPct >= 0 ? '+' : ''}${errPct.toFixed(1)} %`, rx, yy); yy += 20;
   ctx.fillStyle = '#ffd166';
   ctx.fillText(`SNR     = ${snr.toFixed(1)}`, rx, yy); yy += 20;
-  ctx.fillStyle = '#64748b'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`n_ap    = ${nAp} px`, rx, yy); yy += 24;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   for (const line of ['Too small loses the', 'Moffat wings; too', 'large piles in sky', 'noise. SNR peaks', 'between them. The', 'frame reshuffles to', 'show photon scatter.']) { ctx.fillText(line, rx, yy); yy += 14; }
 
   // demoted diagnostic: smooth growth curve F(r) and SNR(r) from the
@@ -146,7 +147,7 @@ function render() {
   const dx0 = x0, dx1 = W - 20, dy0 = H - 118, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('growth curve: F (yellow, plateaus at F_true) and SNR (cyan, peaks) vs aperture radius r', dx0 + 8, dy0 + 13);
   const rLo = 2, rHi = 22, NSR = 90;
   const Fv = new Float64Array(NSR), Sv = new Float64Array(NSR);
@@ -192,3 +193,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

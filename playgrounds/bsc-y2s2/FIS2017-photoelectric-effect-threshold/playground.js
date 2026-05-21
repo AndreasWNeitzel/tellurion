@@ -4,6 +4,7 @@
 
 import { METALS, thresholdFreqPhz, keMaxEv } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -68,7 +69,7 @@ function drawPlot(c, x0, y0, w, h) {
     const x = x0 + padL + plotW * i / 6;
     ctx.beginPath(); ctx.moveTo(x, y0 + padT); ctx.lineTo(x, y0 + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${(i * 0.5).toFixed(1)}`, x - 6, y0 + padT + plotH + 12);
   }
   for (let i = 0; i <= 6; i += 1) {
@@ -78,7 +79,7 @@ function drawPlot(c, x0, y0, w, h) {
     ctx.fillText(`${(6 - i)}`, x0 + padL - 14, y + 3);
   }
   ctx.fillStyle = c.muted;
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('nu (PHz = 1e15 Hz)', x0 + padL + plotW / 2 - 50, y0 + padT + plotH + 28);
   ctx.save();
   ctx.translate(x0 + 14, y0 + padT + plotH / 2 + 40);
@@ -106,7 +107,7 @@ function drawPlot(c, x0, y0, w, h) {
     ctx.fill();
 
     ctx.fillStyle = (m.name === metalName) ? m.color : c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${m.name} (${m.phi.toFixed(2)} eV)`, xEnd - 130, yEnd - 6);
   }
   ctx.globalAlpha = 1.0;
@@ -183,4 +184,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -8,6 +8,7 @@
 
 import { allowedJ, clebschGordan, vecLen, cosJ1toJ, cosJ2toJ } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -84,14 +85,14 @@ function render() {
   ctx.lineWidth = 1;
   for (const [p, c, lab] of [[Jt, '#ffd24a', 'J'], [P1, '#7fd6ff', 'J1'], [O, '#c8ccd6', '']]) {
     ctx.fillStyle = c; ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, 6.2832); ctx.fill();
-    if (lab) { ctx.font = '12px ui-monospace, monospace'; ctx.fillText(lab, p[0] + 7, p[1] - 6); }
+    if (lab) { ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, p[0] + 7, p[1] - 6); }
   }
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`J1 (blue) + J2 (orange) = J (yellow);  precessing,  J = ${J}`, VX + VW / 2, VY + VH + 18);
   ctx.textAlign = 'left';
 
   // allowed-J ladder
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('allowed total J:', TX, TY);
   const A = curAllowed();
   A.forEach((Jv, i) => {
@@ -100,16 +101,16 @@ function render() {
     ctx.fillText(String(Jv), x, TY + 22);
     if (sel) { ctx.strokeStyle = '#ffd24a'; ctx.strokeRect(x - 4, TY + 10, 36, 18); }
   });
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('|j1-j2| .. j1+j2 (triangle rule)', TX, TY + 46);
 
   // Clebsch-Gordan table for the selected J: rows M, the |coeff|
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Clebsch-Gordan  <j1 m1 j2 m2 | ${J} M>`, TX, TY + 78);
   const cellW = 40, cellH = 22, gx0 = TX + 40, gy0 = TY + 100;
   const m1s = []; for (let m = j1; m >= -j1 - 1e-9; m -= 1) m1s.push(Math.round(m * 2) / 2);
   const Ms = []; for (let M = J; M >= -J - 1e-9; M -= 1) Ms.push(Math.round(M * 2) / 2);
-  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = '#9aa0ad'; ctx.textAlign = 'right';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = '#9aa0ad'; ctx.textAlign = 'right';
   ctx.fillText('m1=', gx0 - 4, gy0 - 6);
   ctx.textAlign = 'center';
   m1s.forEach((m1, c) => ctx.fillText(String(m1), gx0 + c * cellW + cellW / 2, gy0 - 6));
@@ -121,11 +122,11 @@ function render() {
       const a = Math.abs(v);
       ctx.fillStyle = a < 1e-6 ? 'rgba(40,44,54,0.6)' : `rgba(127,214,255,${0.25 + 0.7 * a})`;
       ctx.fillRect(gx0 + c * cellW + 1, gy0 + r * cellH + 1, cellW - 2, cellH - 2);
-      if (a > 1e-6) { ctx.fillStyle = '#0a0c12'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText(v.toFixed(2), gx0 + c * cellW + cellW / 2, gy0 + r * cellH + 15); }
+      if (a > 1e-6) { ctx.fillStyle = '#0a0c12'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.fillText(v.toFixed(2), gx0 + c * cellW + cellW / 2, gy0 + r * cellH + 15); }
     });
   });
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('cell colour = |coeff|; rows sum to 1 (unitary)', TX, gy0 + Ms.length * cellH + 16);
 
   rEls['j1'].textContent = String(j1);
@@ -200,3 +201,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

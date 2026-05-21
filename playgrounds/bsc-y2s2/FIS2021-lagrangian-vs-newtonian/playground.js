@@ -1,5 +1,6 @@
 import { leapfrog, energy, pendulumRHS } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -27,20 +28,20 @@ function drawPendulum(cx, cy, label, showForces) {
     ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx, by + 40); ctx.stroke();
     ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.moveTo(bx, by + 40); ctx.lineTo(bx - 4, by + 32); ctx.lineTo(bx + 4, by + 32); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('mg', bx + 6, by + 36);
+    ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('mg', bx + 6, by + 36);
     const tx = (cx - bx) * 0.35, ty = (cy - by) * 0.35;
     ctx.strokeStyle = '#5bc0eb';
     ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + tx, by + ty); ctx.stroke();
     ctx.fillStyle = '#5bc0eb'; ctx.fillText('T', bx + tx + 4, by + ty - 4);
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(label, cx - 40, cy - 40);
 }
 function drawPhase(cx, cy, w, h) {
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath();
   ctx.moveTo(cx - w / 2, cy); ctx.lineTo(cx + w / 2, cy);
   ctx.moveTo(cx, cy - h / 2); ctx.lineTo(cx, cy + h / 2); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('θ', cx + w / 2 - 12, cy - 6); ctx.fillText('p', cx + 6, cy - h / 2 + 12);
   for (const E of [-0.8, -0.4, 0, 0.4, 1, 1.5]) {
     ctx.strokeStyle = `rgba(91,192,235,${0.5 + 0.1 * Math.sign(E)})`; ctx.lineWidth = 1; ctx.beginPath();
@@ -86,10 +87,34 @@ function render() {
   } else {
     drawPhase(canvas.width / 2, canvas.height / 2, canvas.width - 60, canvas.height - 80);
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`E = ${energy(st.theta, st.omega).toFixed(3)} (conserved by leapfrog)`, 12, canvas.height - 12);
   rE.textContent = energy(st.theta, st.omega).toFixed(2);
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) step(); render(); requestAnimationFrame(tick); }
 function bootSync() { for (let i = 0; i < CAPTURE_FRAC * 300; i += 1) step(); render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

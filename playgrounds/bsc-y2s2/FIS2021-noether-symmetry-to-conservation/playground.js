@@ -1,5 +1,6 @@
 import { rk4, angularMomentum, energy } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -37,7 +38,7 @@ function render() {
   ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(cx + state[0] * sc, cy - state[1] * sc, 6, 0, 2 * Math.PI); ctx.fill();
   const x0 = W / 2 + 20, y0 = 60, wp = W / 2 - 40, hp = (H - 100) / 2;
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y0 + hp); ctx.lineTo(x0 + wp, y0 + hp); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('L_z(t)', x0 + 4, y0 + 12);
   let lMin = Math.min(...lHist, L0), lMax = Math.max(...lHist, L0);
   if (lMax - lMin < 0.1) { lMin -= 0.05; lMax += 0.05; }
@@ -57,7 +58,7 @@ function render() {
   ctx.beginPath();
   eHist.forEach((v, i) => { const px = x0 + i / eHist.length * wp; const py = y1 + hp - (v - eMin) / (eMax - eMin) * (hp - 14); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
   ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`L_z = ${angularMomentum(state).toFixed(3)} (initial ${L0.toFixed(3)})`, 12, H - 30);
   ctx.fillText(`ε = ${st.eps.toFixed(2)} ${st.eps === 0 ? '(symmetric)' : '(broken)'}`, 12, H - 12);
   rL.textContent = angularMomentum(state).toFixed(3);
@@ -65,3 +66,27 @@ function render() {
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) step(); render(); requestAnimationFrame(tick); }
 function bootSync() { for (let i = 0; i < CAPTURE_FRAC * 800; i += 1) step(); render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

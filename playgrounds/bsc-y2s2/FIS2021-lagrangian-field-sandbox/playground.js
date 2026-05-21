@@ -10,6 +10,7 @@
 import { create, step } from '../../../shared/js/engine/ode-rk.js';
 import { makeRhs, energy, angularMomentum } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -92,7 +93,7 @@ const AXLAB = {
 
 function panelTitle(text, x) {
   ctx.fillStyle = 'rgba(150,160,180,0.78)';
-  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(text, x, 20);
 }
 
@@ -121,7 +122,7 @@ function drawMechanism() {
     ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + y[2] * vsc, py - y[3] * vsc); ctx.stroke();
     bob(px, py, '#06d6a0', 8);                                          // planet
-    ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText('Sun at the focus; gravity sets the period (Kepler III)', 318, H - 58);
     return;
   }
@@ -198,7 +199,7 @@ function drawPhase() {
   const PX = (q) => cx + (q / qmax) * R * 0.92, PY = (pq) => cy - (pq / pmax) * R * 0.92;
   // axis labels (hard rule: every plot has explicit x/y labels)
   const [xl, yl] = AXLAB[st.sys];
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right'; ctx.fillText(xl, cx + R, cy + 15);
   ctx.textAlign = 'left'; ctx.fillText(yl, cx - R + 2, cy - R + 2);
 
@@ -217,7 +218,7 @@ function drawPhase() {
     ctx.beginPath();
     for (let i = 0; i < ls.length; i += 1) { const X = PX(ls[i][0]), Y = PY(ls[i][1]); if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
     ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText('H = E0 level set, area = 2 pi J', cx - R + 2, cy + R - 4);
   } else if (trail.length > 2) {
     // 2-DOF systems have no clean 1-DOF level set; shade the swept
@@ -248,7 +249,7 @@ function render() {
   // speed indicator: a wide bar so the time-speed control changes a
   // dominant static element (it only affects the live rate otherwise)
   const by = H - 22, bw = 280;
-  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`time speed  x${st.speed.toFixed(2)}`, 36, by - 6);
   ctx.fillStyle = 'rgba(120,130,150,0.18)'; ctx.fillRect(36, by, bw, 12);
   ctx.fillStyle = '#ffd166'; ctx.fillRect(36, by, bw * ((st.speed - 0.25) / 2.75), 12);
@@ -316,4 +317,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

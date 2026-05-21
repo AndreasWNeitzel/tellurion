@@ -9,6 +9,7 @@
 
 import { makeGrid, setShape, momentumDensity, sigmaX, sigmaP, HBAR_OVER_2 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -66,9 +67,9 @@ function drawPacket(panel, dens, coord, sig, mean, color, label, unitMax) {
   const x1 = cx(mean - sig), x2 = cx(mean + sig), yb = panel.y + 16;
   ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(x1, yb); ctx.lineTo(x2, yb); ctx.moveTo(x1, yb - 5); ctx.lineTo(x1, yb + 5); ctx.moveTo(x2, yb - 5); ctx.lineTo(x2, yb + 5); ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#ffd24a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd24a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`2 sigma = ${(2 * sig).toFixed(2)}`, (x1 + x2) / 2, yb - 9);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(label, panel.x + 8, panel.y + panel.h - 4);
   ctx.textAlign = 'left';
 }
@@ -85,7 +86,7 @@ function render() {
   drawPacket(XP, xd, g.x, sx.sigma, sx.mean, '#7fd6ff', '|psi(x)|^2  (position space)', L / 2);
   drawPacket(KP, pd, g.k, sp.sigma, sp.mean, '#ff8a5d', '|phi(k)|^2  (momentum space)', Math.PI * N / L * 0.5);
   // seesaw arrows between the two panels
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('Fourier conjugates: narrow one, the other must broaden', XP.x + XP.w / 2, KP.y - 8);
   ctx.textAlign = 'left';
 
@@ -114,15 +115,15 @@ function render() {
   ctx.lineWidth = 1;
   // title + value (top), floor label (on the line), status (bottom)
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('uncertainty product', gcx, GA.y + 20);
-  ctx.fillStyle = barC; ctx.font = '17px ui-monospace, monospace';
+  ctx.fillStyle = barC; ctx.font = fontString(canvas, 'heading', 'mono');
   ctx.fillText(prod.toFixed(3), gcx, GA.y + 42);
-  ctx.fillStyle = 'rgba(226,230,238,0.85)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(226,230,238,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('hbar/2 = 0.50  (hard limit)', gcx, yFloor - 5);
   ctx.fillStyle = '#9aa0ad';
   ctx.fillText('cannot go below', gcx, bot + 16);
-  ctx.fillStyle = barC; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = barC; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(at ? 'minimum (Gaussian)' : 'above the limit', gcx, bot + 30);
   ctx.textAlign = 'left';
 
@@ -206,3 +207,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

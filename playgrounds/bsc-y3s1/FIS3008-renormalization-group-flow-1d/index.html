@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>1D Ising Renormalization-Group Flow</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1D Ising Renormalization-Group Flow</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; cursor: crosshair; }
@@ -23,37 +24,83 @@
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>1D Ising Renormalization-Group Flow</h1>
-    <p>Decimate every other spin of the 1D Ising chain and the remaining spins obey the same model with renormalized couplings. The transformation is exact: $K'=\tfrac14\ln\frac{\cosh(2K+h)\cosh(2K-h)}{\cosh^2 h}$, $h'=h+\tfrac12\ln\frac{\cosh(2K+h)}{\cosh(2K-h)}$, with $K=\beta J$, $h=\beta H$. Iterating this map is the renormalization group. The plane is $(u=\tanh K,\;h)$, so $K=0$ (infinite temperature) is the left edge and $K\to\infty$ (zero temperature) the right. Every trajectory flows left into the disordered sink at the origin: there is no finite-temperature fixed point, the exact statement that the 1D Ising chain has no phase transition. The only critical point sits at $T=0$ ($u=1$), and it is unstable. Summing the per-step free-energy constants reconstructs the exact transfer-matrix free energy. Source: Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="500" aria-label="Renormalization-group flow field in the (tanh K, h) plane with a traced trajectory and the zero-field decimation map"></canvas>
-    <div class="readout-panel" id="readout" role="status" aria-live="polite">
-      <span class="label">K, h</span><span class="value" id="readout-kh">0, 0</span>
-      <span class="label">after N</span><span class="value" id="readout-khn">0, 0</span>
-      <span class="label">xi</span><span class="value" id="readout-xi">0.0</span>
-      <span class="label">f RG</span><span class="value" id="readout-frg">0.000000</span>
-      <span class="label">f exact</span><span class="value" id="readout-fex">0.000000</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">1D Ising Renormalization-Group Flow</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">1D Ising Renormalization-Group Flow</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Decimate every other spin of the 1D Ising chain and the remaining spins obey the same model with renormalized couplings. The transformation is exact: <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>K</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>=</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mi>ln</mi><mo>⁡</mo><mfrac><mrow><mi>cosh</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>2</mn><mi>K</mi><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo><mi>cosh</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>2</mn><mi>K</mi><mo>−</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mrow><msup><mrow><mi>cosh</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mi>h</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">K'=\tfrac14\ln\frac{\cosh(2K+h)\cosh(2K-h)}{\cosh^2 h}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7519em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0715em;">K</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.3813em; vertical-align: -0.3713em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span class="" style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">4</span></span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.345em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">ln</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.01em;"><span class="" style="top: -2.6287em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span><span class="mtight">h</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8019em;"><span class="" style="top: -2.8416em; margin-right: 0.0714em;"><span class="pstrut" style="height: 2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right: 0.1952em;"></span><span class="mord mathnormal mtight">h</span></span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.485em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span><span class="mtight">h</span></span><span class="mopen mtight">(</span><span class="mord mtight">2</span><span class="mord mathnormal mtight" style="margin-right: 0.0715em;">K</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight">h</span><span class="mclose mtight">)</span><span class="mspace mtight" style="margin-right: 0.1952em;"></span><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span><span class="mtight">h</span></span><span class="mopen mtight">(</span><span class="mord mtight">2</span><span class="mord mathnormal mtight" style="margin-right: 0.0715em;">K</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">h</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.3713em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>, <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>h</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>=</mo><mi>h</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>ln</mi><mo>⁡</mo><mfrac><mrow><mi>cosh</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>2</mn><mi>K</mi><mo>+</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><mrow><mi>cosh</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>2</mn><mi>K</mi><mo>−</mo><mi>h</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">h'=h+\tfrac12\ln\frac{\cosh(2K+h)}{\cosh(2K-h)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7519em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">h</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1.53em; vertical-align: -0.52em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span class="" style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.345em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">ln</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.01em;"><span class="" style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span><span class="mtight">h</span></span><span class="mopen mtight">(</span><span class="mord mtight">2</span><span class="mord mathnormal mtight" style="margin-right: 0.0715em;">K</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">h</span><span class="mclose mtight">)</span></span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.485em;"><span class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span><span class="mtight">h</span></span><span class="mopen mtight">(</span><span class="mord mtight">2</span><span class="mord mathnormal mtight" style="margin-right: 0.0715em;">K</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight">h</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.52em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>, with <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mi>β</mi><mi>J</mi></mrow><annotation encoding="application/x-tex">K=\beta J</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.0715em;">K</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord mathnormal" style="margin-right: 0.0528em;">β</span><span class="mord mathnormal" style="margin-right: 0.0962em;">J</span></span></span></span></span>, <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>=</mo><mi>β</mi><mi>H</mi></mrow><annotation encoding="application/x-tex">h=\beta H</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">h</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord mathnormal" style="margin-right: 0.0528em;">β</span><span class="mord mathnormal" style="margin-right: 0.0813em;">H</span></span></span></span></span>. Iterating this map is the renormalization group. The plane is <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>u</mi><mo>=</mo><mi>tanh</mi><mo>⁡</mo><mi>K</mi><mo separator="true">,</mo>  <mi>h</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(u=\tanh K,\;h)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">u</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">tanh</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0715em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">h</span><span class="mclose">)</span></span></span></span></span>, so <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">K=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.0715em;">K</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> (infinite temperature) is the left edge and <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>→</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">K\to\infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.0715em;">K</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord">∞</span></span></span></span></span> (zero temperature) the right. Every trajectory flows left into the disordered sink at the origin: there is no finite-temperature fixed point, the exact statement that the 1D Ising chain has no phase transition. The only critical point sits at <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">T=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.1389em;">T</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> (<span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">u=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">u</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>), and it is unstable. Summing the per-step free-energy constants reconstructs the exact transfer-matrix free energy. Source: Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="500" aria-label="Renormalization-group flow field in the (tanh K, h) plane with a traced trajectory and the zero-field decimation map"></canvas>
     </div>
-    <figcaption>
-      Figure 1. Exact decimation RG of the 1D Ising chain in a field: the flow plane (tanh K, h), the spin-chain decimation cascade, or the zero-field cobweb; all flow to the disordered sink (no finite-T transition).
-      <em>Method:</em> exact real-space decimation (b = 2); free energy reconstructed from the per-step constants; representative seeded chains at each renormalized coupling.
-      <em>Source:</em> Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. Exact decimation RG of the 1D Ising chain in a field: the flow plane (tanh K, h), the spin-chain decimation cascade, or the zero-field cobweb; all flow to the disordered sink (no finite-T transition).
+      <em>Method:</em> exact real-space decimation (b = 2); free energy reconstructed from the per-step constants; representative seeded chains at each renormalized coupling.
+      <em>Source:</em> Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">start K</span><input aria-label="initial coupling K0" type="range" id="slider-k0" min="0.1" max="6.0" step="0.05" value="3.00"><span class="value" id="value-k0">3.00</span></div>
     <div class="row"><span class="label">start h</span><input aria-label="initial field h0" type="range" id="slider-h0" min="-1.5" max="1.5" step="0.02" value="0.00"><span class="value" id="value-h0">0.00</span></div>
     <div class="row"><span class="label">RG steps</span><input aria-label="number of RG steps traced" type="range" id="slider-n" min="0" max="14" step="1" value="9"><span class="value" id="value-n">9</span></div>
     <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="flow">flow plane (tanh K, h)</option><option value="chain">spin chain decimation</option><option value="cobweb">zero-field map cobweb</option></select></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">K, h</span><span class="value" id="readout-kh">0, 0</span>
+      <span class="label">after N</span><span class="value" id="readout-khn">0, 0</span>
+      <span class="label">xi</span><span class="value" id="readout-xi">0.0</span>
+      <span class="label">f RG</span><span class="value" id="readout-frg">0.000000</span>
+      <span class="label">f exact</span><span class="value" id="readout-fex">0.000000</span>
+    </div><span class="value" id="readout-kh">0, 0</span><span class="value" id="readout-khn">0, 0</span><span class="value" id="readout-xi">0.0</span><span class="value" id="readout-frg">0.000000</span><span class="value" id="readout-fex">0.000000</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

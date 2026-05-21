@@ -10,6 +10,7 @@
 // Astrophysics Vol. II, Ch. 17.
 import { shockRadius, shockSpeed, postShockDensity } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -42,7 +43,7 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 function render() {
   if (!CAPTURE_NAME && running) st.t += 0.03;
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A supernova sweeps interstellar gas into a decelerating shell', 18, 26);
 
   const E = Math.pow(10, st.logE) * 1e-7;            // erg -> J
@@ -87,7 +88,7 @@ function render() {
   // explosion site
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(CX, CY, 3, 0, 6.2832); ctx.fill();
 
-  ctx.fillStyle = '#94a3b8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`E = 10^${st.logE.toFixed(1)} erg   n = 10^${st.logn.toFixed(1)} cm^-3`, 18, 50);
   ctx.fillText(`R = ${(Rphys / PC).toFixed(1)} pc   v_s = ${(vs / 1e3).toFixed(0)} km/s   t = ${(tcyc / YR / 1e3).toFixed(1)} kyr`, 18, 68);
   ctx.fillStyle = '#ffd166';
@@ -97,7 +98,7 @@ function render() {
   const dx0 = 60, dx1 = W - 30, dy0 = H - 84, dy1 = H - 24;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('diagnostic: log R vs log t  (slope 2/5)', dx0 + 8, dy0 + 13);
   const t0 = 200 * YR, t1 = 1.2e4 * YR;
   const lr = (tt) => Math.log10(shockRadius(E, tt, rho1) / PC);
@@ -123,3 +124,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

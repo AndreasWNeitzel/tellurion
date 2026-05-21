@@ -1,5 +1,6 @@
 import { thomas, makePoissonRHS, residual, jacobiStep, gaussSeidelStep, conjugateGradientStep, applyA } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -37,7 +38,7 @@ function render() {
   const top1 = pad, mid = H / 2 - 10, bot1 = mid - 10;
   const top2 = mid + 10, bot2 = H - pad;
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad + 30, top1); ctx.lineTo(pad + 30, bot1); ctx.lineTo(W - pad, bot1); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('u(x): cyan = exact, orange = iterative', pad + 30, top1 + 10);
   const xToPx = (i) => pad + 30 + i / (N - 1) * (W - pad - pad - 30);
   let umax = 0; for (let i = 0; i < N; i += 1) umax = Math.max(umax, Math.abs(x_exact[i]));
@@ -68,7 +69,7 @@ function render() {
     });
     ctx.stroke();
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   const r = residual(x_iter, b);
   ctx.fillText(`||r|| = ${r.toExponential(2)}, exact ||r|| = ${residual(x_exact, b).toExponential(2)}`, pad + 30, H - 14);
   rR.textContent = r.toExponential(2);
@@ -76,3 +77,27 @@ function render() {
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) for (let i = 0; i < 1; i += 1) step(); render(); requestAnimationFrame(tick); }
 function bootSync() { for (let i = 0; i < CAPTURE_FRAC * 80; i += 1) step(); render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

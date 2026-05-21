@@ -15,6 +15,7 @@
 
 import { bisect, newton, secant } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -96,7 +97,7 @@ function render() {
     ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
     ctx.beginPath(); ctx.moveTo(X(xv), pad.t); ctx.lineTo(X(xv), H - pad.b); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = col; ctx.beginPath(); ctx.arc(X(xv), Y(f(xv)), 5, 0, 2 * Math.PI); ctx.fill();
-    ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`${lab}=${xv.toFixed(2)}`, X(xv), pad.t - 6); ctx.textAlign = 'left';
   }
 
@@ -128,13 +129,13 @@ function render() {
   if (result.ok && isFinite(result.root)) {
     ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(X(result.root), Y(0), 8, 0, 2 * Math.PI); ctx.stroke();
-    ctx.fillStyle = '#06d6a0'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`root ≈ ${result.root.toFixed(6)}`, X(result.root), Y(0) + 22); ctx.textAlign = 'left';
   }
   ctx.restore();
 
   // Axis labels (outside the clip).
-  ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('x', mainR - 8, Y(0) - 6);
   ctx.textAlign = 'left'; ctx.fillText('f(x)', X(0) + 6, pad.t + 2);
 
@@ -156,7 +157,7 @@ function render() {
   const px0 = mainR + 18, pw = W - pad.r - px0, py0 = pad.t, ph = H - pad.t - pad.b;
   ctx.fillStyle = '#0d0d14'; ctx.fillRect(px0, py0, pw, ph);
   ctx.strokeStyle = '#2a2a34'; ctx.strokeRect(px0, py0, pw, ph);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(st.method === 'bisect' ? 'bracket half-width (log)' : '|xᵢ − root|  (log)', px0 + 10, py0 + 18);
   const gx0 = px0 + 34, gx1 = px0 + pw - 12, gy0 = py0 + 30, gy1 = py0 + ph - 56;
   if (errs.length >= 2) {
@@ -172,13 +173,13 @@ function render() {
     errs.forEach((e, i) => { ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(ex(i), ey(e), 2.5, 0, 2 * Math.PI); ctx.fill(); });
   }
   const expect = st.method === 'bisect' ? '≈ 1 (linear)' : st.method === 'newton' ? '≈ 2 (quadratic)' : '≈ 1.6 (superlinear)';
-  ctx.fillStyle = '#cdd1d6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#cdd1d6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`est. order p ≈ ${isFinite(pOrder) ? pOrder.toFixed(2) : 'n/a'}`, px0 + 10, py0 + ph - 32);
   ctx.fillStyle = '#7e828a';
   ctx.fillText(`expected ${expect}`, px0 + 10, py0 + ph - 16);
 
   // Header / status.
-  ctx.textAlign = 'left'; ctx.font = '12px ui-monospace, monospace';
+  ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
   if (sameSign) {
     ctx.fillStyle = '#ef476f';
     ctx.fillText('f(x0)·f(x1) > 0: no sign change in [x0, x1], move a guide to bracket a root', 14, 24);
@@ -203,3 +204,27 @@ function bootSync() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); startLoop(); }, { once: true }); } else { bootSync(); startLoop(); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

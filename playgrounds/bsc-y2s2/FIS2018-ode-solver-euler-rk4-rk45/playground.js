@@ -1,5 +1,6 @@
 import { euler, rk4, rk45, energy, analyticSolution } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -46,7 +47,7 @@ function render() {
   const padL = 50, padR = 30, padT = 30, padB = 50;
   const left = padL, right = W * 0.6, top = padT, bot = H - padB;
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bot); ctx.lineTo(right, bot); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('x(t)', 12, top + 10); ctx.fillText('t', right - 20, bot + 18);
   const ymax = 3;
   const tmin = trailE.length ? trailE[0][0] : 0; const tmax = tmin + 400 * st.dt;
@@ -67,7 +68,7 @@ function render() {
   const cx = (colX0 + colX1) / 2, cy = (psT + psB) / 2;
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(colX0, cy); ctx.lineTo(colX1, cy); ctx.moveTo(cx, psT); ctx.lineTo(cx, psB); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('phase (x, v): dashed = exact', colX0, psT - 6);
   const ymax2 = 2.5, vmax = 2.5;
   const xToPx = (xx) => cx + xx / ymax2 * (colX1 - colX0) / 2;
@@ -87,7 +88,7 @@ function render() {
   const errL = colX0, errT = Math.round(H / 2) + midGap, errR2 = colX1, errB = H - padB;
   ctx.strokeStyle = '#9aa0a6';
   ctx.beginPath(); ctx.moveTo(errL, errT); ctx.lineTo(errL, errB); ctx.lineTo(errR2, errB); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('log10 |error vs exact|', errL, errT - 6); ctx.fillText('t', errR2 - 14, errB + 16);
   const errMin = -10, errMax = 1;
   const eToPx = (ee) => {
@@ -107,10 +108,34 @@ function render() {
     ctx.stroke();
   });
   const eE = energy(yE, st.omega), eR = energy(yR, st.omega), eA = energy(yA, st.omega);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`E drift: Euler ${((eE / E0 - 1) * 100).toFixed(1)}%, RK4 ${((eR / E0 - 1) * 100).toFixed(2)}%, RK45 ${((eA / E0 - 1) * 100).toFixed(3)}%`, 12, H - 12);
   rE.textContent = `${((eE / E0 - 1) * 100).toFixed(1)}%`;
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) for (let i = 0; i < 2; i += 1) step(); render(); requestAnimationFrame(tick); }
 function bootSync() { for (let i = 0; i < CAPTURE_FRAC * 400; i += 1) step(); render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

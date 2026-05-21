@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lennard-Jones Molecular Dynamics</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lennard-Jones Molecular Dynamics</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
@@ -23,36 +24,82 @@
     .pg-controls input[type="range"] { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>Lennard-Jones Molecular Dynamics</h1>
-    <p>300 disks in a periodic box interacting through the Lennard-Jones potential $U(r)=4\varepsilon[(\sigma/r)^{12}-(\sigma/r)^{6}]$ (reduced units $\sigma=\varepsilon=m=k_B=1$), integrated by velocity-Verlet (the verified shared symplectic engine) with a shifted-force cutoff so energy is conserved. Particles are coloured by kinetic energy. The temperature is read from the kinetic energy by equipartition, the pressure from the virial, and the structure from the radial distribution $g(r)$: a flat $g(r)\to1$ for a gas, a strong first peak near $r=2^{1/6}\sigma$ for a dense liquid. Set it cold and dense and it freezes into a triangular lattice; heat it and it melts. Source: Allen and Tildesley, Computer Simulation of Liquids (2nd ed.), Ch. 1-3 (`allen-tildesley`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="500" aria-label="Lennard-Jones particles coloured by kinetic energy with the live radial distribution function"></canvas>
-    <div class="readout-panel" id="readout" role="status" aria-live="polite">
-      <span class="label">T</span><span class="value" id="readout-t">0.000</span>
-      <span class="label">Pvir</span><span class="value" id="readout-p">0.000</span>
-      <span class="label">E/N</span><span class="value" id="readout-e">0.000</span>
-      <span class="label">dE/N</span><span class="value" id="readout-de">0.0e+0</span>
-      <span class="label">rho</span><span class="value" id="readout-rho">0.000</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Lennard-Jones Molecular Dynamics</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Lennard-Jones Molecular Dynamics</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">300 disks in a periodic box interacting through the Lennard-Jones potential <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>=</mo><mn>4</mn><mi>ε</mi><mo stretchy="false">[</mo><mo stretchy="false">(</mo><mi>σ</mi><mi mathvariant="normal">/</mi><mi>r</mi><msup><mo stretchy="false">)</mo><mn>12</mn></msup><mo>−</mo><mo stretchy="false">(</mo><mi>σ</mi><mi mathvariant="normal">/</mi><mi>r</mi><msup><mo stretchy="false">)</mo><mn>6</mn></msup><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">U(r)=4\varepsilon[(\sigma/r)^{12}-(\sigma/r)^{6}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.109em;">U</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0278em;">r</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord">4</span><span class="mord mathnormal">ε</span><span class="mopen">[(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">σ</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right: 0.0278em;">r</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">12</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">σ</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right: 0.0278em;">r</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">6</span></span></span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span></span> (reduced units <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mi>ε</mi><mo>=</mo><mi>m</mi><mo>=</mo><msub><mi>k</mi><mi>B</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sigma=\varepsilon=m=k_B=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">σ</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">ε</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8444em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span class="" style="top: -2.55em; margin-left: -0.0315em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0502em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>), integrated by velocity-Verlet (the verified shared symplectic engine) with a shifted-force cutoff so energy is conserved. Particles are coloured by kinetic energy. The temperature is read from the kinetic energy by equipartition, the pressure from the virial, and the structure from the radial distribution <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">g(r)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0278em;">r</span><span class="mclose">)</span></span></span></span></span>: a flat <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>→</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">g(r)\to1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0278em;">r</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> for a gas, a strong first peak near <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><msup><mn>2</mn><mrow><mn>1</mn><mi mathvariant="normal">/</mi><mn>6</mn></mrow></msup><mi>σ</mi></mrow><annotation encoding="application/x-tex">r=2^{1/6}\sigma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">r</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.888em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.888em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1/6</span></span></span></span></span></span></span></span></span><span class="mord mathnormal" style="margin-right: 0.0359em;">σ</span></span></span></span></span> for a dense liquid. Set it cold and dense and it freezes into a triangular lattice; heat it and it melts. Source: Allen and Tildesley, Computer Simulation of Liquids (2nd ed.), Ch. 1-3 (`allen-tildesley`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="500" aria-label="Lennard-Jones particles coloured by kinetic energy with the live radial distribution function"></canvas>
     </div>
-    <figcaption>
-      Figure 1. Lennard-Jones molecular dynamics: particles coloured by kinetic energy (left), beside the live radial distribution function g(r) (right), the ratio of the local neighbour density at separation r to the bulk density, whose peaks are the coordination shells visible in the box and whose r to 1 tail is the structureless ideal gas.
-      <em>Method:</em> shifted-force LJ, velocity-Verlet (shared symplectic engine), virial pressure, g(r) from pair histograms.
-      <em>Source:</em> Allen and Tildesley, Computer Simulation of Liquids (2nd ed.), Ch. 1-3 (`allen-tildesley`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. Lennard-Jones molecular dynamics: particles coloured by kinetic energy (left), beside the live radial distribution function g(r) (right), the ratio of the local neighbour density at separation r to the bulk density, whose peaks are the coordination shells visible in the box and whose r to 1 tail is the structureless ideal gas.
+      <em>Method:</em> shifted-force LJ, velocity-Verlet (shared symplectic engine), virial pressure, g(r) from pair histograms.
+      <em>Source:</em> Allen and Tildesley, Computer Simulation of Liquids (2nd ed.), Ch. 1-3 (`allen-tildesley`).</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">temperature T</span><input aria-label="thermostat temperature T" type="range" id="slider-temp" min="0.2" max="3.0" step="0.02" value="1.00"><span class="value" id="value-temp">1.00</span></div>
     <div class="row"><span class="label">density rho</span><input aria-label="number density rho" type="range" id="slider-rho" min="0.1" max="0.95" step="0.01" value="0.55"><span class="value" id="value-rho">0.55</span></div>
     <div class="row"><span class="label">steps / frame</span><input aria-label="integration steps per frame" type="range" id="slider-speed" min="1" max="12" step="1" value="4"><span class="value" id="value-speed">4</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">T</span><span class="value" id="readout-t">0.000</span>
+      <span class="label">Pvir</span><span class="value" id="readout-p">0.000</span>
+      <span class="label">E/N</span><span class="value" id="readout-e">0.000</span>
+      <span class="label">dE/N</span><span class="value" id="readout-de">0.0e+0</span>
+      <span class="label">rho</span><span class="value" id="readout-rho">0.000</span>
+    </div><span class="value" id="readout-t">0.000</span><span class="value" id="readout-p">0.000</span><span class="value" id="readout-e">0.000</span><span class="value" id="readout-de">0.0e+0</span><span class="value" id="readout-rho">0.000</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

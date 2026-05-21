@@ -8,6 +8,7 @@
 
 import { dipolePattern, antennaPattern, totalPowerE, totalPowerM, directivity, C } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -156,14 +157,14 @@ function render() {
   }
   ctx.globalCompositeOperation = 'source-over';
   ctx.lineWidth = 1;
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`${st.source === 'antenna' ? 'half-wave antenna' : st.source + ' dipole'} radiation pattern (rotating)`, SX + SW / 2, SY + SH + 20);
   ctx.textAlign = 'left';
 
   // polar pattern panel
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PX, PYp, PW, PHp);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PX, PYp, PW, PHp);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('angular pattern (axis vertical)', PX + PW / 2, PYp - 6);
   const pcx = PX + PW / 2, pcy = PYp + PHp / 2, pr = Math.min(PW, PHp) * 0.4;
   ctx.strokeStyle = 'rgba(150,160,180,0.3)';
@@ -177,7 +178,7 @@ function render() {
   }
   for (let a = 180; a >= 0; a -= 1) { const th = Math.PI * a / 180, rr = pat(th) * pr; ctx.lineTo(pcx - rr * Math.sin(th), pcy - rr * Math.cos(th)); }
   ctx.closePath(); ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('theta = 0 (null)', pcx, pcy - pr - 12);
   ctx.fillText('theta = 90 (max)', pcx + pr + 2, pcy + 4);
 
@@ -247,3 +248,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

@@ -1,14 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Liouvillian Flow on the Pendulum Phase Space</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liouvillian Flow on the Pendulum Phase Space</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 860px; }
     .pg-figure canvas { width: 100%; height: auto; cursor: grab; touch-action: none; }
     .pg-figure canvas:active { cursor: grabbing; }
@@ -26,47 +29,91 @@
       margin-block: var(--space-4);
     }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Liouvillian flow on the pendulum phase space</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Liouvillian flow on the pendulum phase space</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Liouvillian flow on the pendulum phase space</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     Drop a Gaussian blob of 256 tracers anywhere in the pendulum phase space (theta, p). Each
-    tracer evolves under the Hamiltonian H = p<sup>2</sup>/2 &minus; cos(theta) via velocity-Verlet.
+    tracer evolves under the Hamiltonian H = p<sup>2</sup>/2 − cos(theta) via velocity-Verlet.
     The cloud rotates, shears, and filaments, but its phase-space area is preserved
-    (Liouville's theorem). The dashed curve is the separatrix p = &pm;2 cos(theta/2): below it
+    (Liouville's theorem). The dashed curve is the separatrix p = ±2 cos(theta/2): below it
     orbits librate, above it they rotate. Drag the dashed circle (handle) to set the blob center.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="900" height="480" tabindex="0"
-            aria-label="Pendulum phase portrait on the left with a tracer cloud; physical pendulum bobs on the right showing each tracer's instantaneous configuration."></canvas>
-
-    <div class="readout pg-readout" id="readout" role="status" aria-live="polite">
-      <span class="label">blob &theta;:</span>     <span class="value" id="readout-theta">0.6000</span>
-      <span class="label">blob p:</span>            <span class="value" id="readout-p">0.0000</span>
-      <span class="label">A (cov):</span>           <span class="value" id="readout-area">0.0000</span>
-      <span class="label">&Delta;A / A<sub>0</sub>:</span> <span class="value" id="readout-dArea">0.0e+00</span>
-      <span class="label">E (1st tracer):</span>   <span class="value" id="readout-E0">0.0000</span>
-      <span class="label">N tracers:</span>         <span class="value" id="readout-N">256</span>
-      <span class="label">t (s):</span>             <span class="value" id="readout-t">0.00</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="480" tabindex="0" aria-label="Pendulum phase portrait on the left with a tracer cloud; physical pendulum bobs on the right showing each tracer's instantaneous configuration."></canvas>
     </div>
 
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      Pendulum phase space (theta, p) with a Gaussian tracer cloud evolving under H = p^2/2 &minus; cos(theta).
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Pendulum phase space (theta, p) with a Gaussian tracer cloud evolving under H = p^2/2 − cos(theta).
       Method: 256 independent tracers integrated by velocity-Verlet from
       <code>shared/js/engine/symplectic.js</code>, with the symplectic Jacobian preserving the phase-space
       covariance determinant to within engine accuracy. Source: Strogatz, Nonlinear Dynamics and Chaos,
-      2e, Sections 6.5 and 6.7.
-    </figcaption>
-  </figure>
+      2e, Sections 6.5 and 6.7.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <button id="btn-reset" type="button" aria-label="Reset blob to default (theta=0.6, p=0)">Reset</button>
     <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
   </div>
+      <div class="v2-legacy" hidden><div class="readout pg-readout" id="readout" role="status" aria-live="polite">
+      <span class="label">blob θ:</span>     <span class="value" id="readout-theta">0.6000</span>
+      <span class="label">blob p:</span>            <span class="value" id="readout-p">0.0000</span>
+      <span class="label">A (cov):</span>           <span class="value" id="readout-area">0.0000</span>
+      <span class="label">ΔA / A<sub>0</sub>:</span> <span class="value" id="readout-dArea">0.0e+00</span>
+      <span class="label">E (1st tracer):</span>   <span class="value" id="readout-E0">0.0000</span>
+      <span class="label">N tracers:</span>         <span class="value" id="readout-N">256</span>
+      <span class="label">t (s):</span>             <span class="value" id="readout-t">0.00</span>
+    </div><span class="value" id="readout-theta">0.6000</span><span class="value" id="readout-p">0.0000</span><span class="value" id="readout-area">0.0000</span><span class="value" id="readout-dArea">0.0e+00</span><span class="value" id="readout-E0">0.0000</span><span class="value" id="readout-N">256</span><span class="value" id="readout-t">0.00</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

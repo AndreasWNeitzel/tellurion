@@ -9,6 +9,7 @@
 // Sec. 4.6; Jackson, Classical Electrodynamics (3rd ed.), Sec. 7.3.
 import { snellTheta2, brewster, criticalAngle, fresnel } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -122,7 +123,7 @@ function render() {
   ctx.strokeStyle = 'rgba(190,195,210,0.4)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(OX, SY); ctx.lineTo(OX, SY + SH); ctx.stroke(); ctx.setLineDash([]);
   ctx.strokeStyle = 'rgba(220,225,235,0.5)'; ctx.strokeRect(SX, SY, SW, SH);
-  ctx.font = '12px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   tlabel(`medium 1 (incident)  n1 = ${n1.toFixed(2)}`, SX + 12, SY + 20, '#aab4cc');
   tlabel(`medium 2 (transmit)  n2 = ${n2.toFixed(2)}`, SX + 12, SY + SH - 12, '#aeccc0');
 
@@ -164,20 +165,20 @@ function render() {
     for (let q = 0; q < 6; q += 1) { const xx = ix + 22 + q * 20; ctx.beginPath(); ctx.moveTo(xx, iy + 16); ctx.lineTo(xx, iy + 44); ctx.stroke(); }
     ctx.lineWidth = 1;
   }
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   tlabel(st.pol === 's' ? 's: E out of plane' : st.pol === 'p' ? 'p: E in plane' : 'unpolarized (s shown)', ix + iw / 2, iy + ih - 4, '#c8ccd6');
   ctx.textAlign = 'left';
 
   const reg = tir ? 'total internal reflection'
     : (Math.abs(th1 - tB) < 0.5 * DEG && st.pol !== 's' ? 'Brewster: no reflected p' : 'partial reflection + refraction');
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`incident wave from the top; reflected back up; transmitted down -- ${reg}`, SX + SW / 2, SY + SH + 22);
   ctx.textAlign = 'left';
 
   // Fresnel reflectance diagnostic
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PX, PYp, PW, PHp);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PX, PYp, PW, PHp);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('Fresnel reflectance vs angle (diagnostic)', PX + PW / 2, PYp - 6);
   const gx = (deg) => PX + 8 + (deg / 90) * (PW - 16), gy = (Rv) => PYp + PHp - 18 - Rv * (PHp - 30);
   ctx.strokeStyle = 'rgba(200,205,215,0.25)'; ctx.beginPath();
@@ -191,10 +192,10 @@ function render() {
     ctx.stroke();
   }
   ctx.lineWidth = 1; ctx.globalAlpha = 1;
-  if (tB && tB < Math.PI / 2) { ctx.strokeStyle = 'rgba(255,210,90,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx(tB / DEG), PYp + 6); ctx.lineTo(gx(tB / DEG), PYp + PHp - 6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('Brewster', gx(tB / DEG), PYp + PHp - 4); }
+  if (tB && tB < Math.PI / 2) { ctx.strokeStyle = 'rgba(255,210,90,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx(tB / DEG), PYp + 6); ctx.lineTo(gx(tB / DEG), PYp + PHp - 6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.fillText('Brewster', gx(tB / DEG), PYp + PHp - 4); }
   if (tc !== null) { ctx.strokeStyle = 'rgba(255,150,110,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx(tc / DEG), PYp + 6); ctx.lineTo(gx(tc / DEG), PYp + PHp - 6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.textAlign = 'center'; ctx.fillText('crit', gx(tc / DEG), PYp + 12); }
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(gx(st.thi), gy(Math.min(1, st.pol === 's' ? f.Rs : f.Rp)), 4, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = '#7fb0ff'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.fillText('Rs', PX + 10, PYp + 14);
+  ctx.fillStyle = '#7fb0ff'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.fillText('Rs', PX + 10, PYp + 14);
   ctx.fillStyle = '#ffd24a'; ctx.fillText('Rp', PX + 36, PYp + 14);
   ctx.fillStyle = '#c8ccd6'; ctx.textAlign = 'center'; ctx.fillText('theta_i (deg)', PX + PW / 2, PYp + PHp + 14); ctx.textAlign = 'left';
 
@@ -265,3 +266,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

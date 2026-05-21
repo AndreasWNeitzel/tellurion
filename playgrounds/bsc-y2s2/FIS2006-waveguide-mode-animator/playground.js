@@ -20,6 +20,7 @@ function blueBlackRed(t) {
 }
 const rdbu = blueBlackRed;
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -82,7 +83,7 @@ function render() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(XX, XY, XW, XH);
   ctx.imageSmoothingEnabled = true; ctx.drawImage(offc, XX, XY, XW, XH);
   ctx.strokeStyle = 'rgba(220,225,235,0.7)'; ctx.lineWidth = 2; ctx.strokeRect(XX, XY, XW, XH); ctx.lineWidth = 1;
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`cross-section ${type}${m}${n} field (a = ${st.aMM.toFixed(1)} mm, b = ${B_MM} mm)`, XX + XW / 2, XY + XH + 20);
   ctx.textAlign = 'left';
 
@@ -108,21 +109,21 @@ function render() {
     q === 0 ? ctx.moveTo(LX + q, Y) : ctx.lineTo(LX + q, Y);
   }
   ctx.strokeStyle = p.propagating ? '#7fd6ff' : '#ff8a78'; ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = p.propagating ? '#7fd6ff' : '#ff8a78'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = p.propagating ? '#7fd6ff' : '#ff8a78'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(p.propagating ? `propagating down the guide (lambda_g = ${(p.lambdaG * 1000).toFixed(1)} mm)` : `below cutoff: evanescent, no propagation`, LX + LW / 2, LY + LH + 22);
   ctx.textAlign = 'left';
 
   // cutoff spectrum panel
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PX, PYp, PW, PHp);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PX, PYp, PW, PHp);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('mode cutoff spectrum', PX + PW / 2, PYp - 6);
   const spec = modeSpectrum(a, b).slice(0, 10);
   const fMaxG = Math.max(st.fGHz * 1.15, spec[spec.length - 1].fc / 1e9 * 1.05);
   const fx = (gHz) => PX + 64 + (gHz / fMaxG) * (PW - 78);
   spec.forEach((s, k) => {
     const y = PYp + 22 + k * 26, on = s.fc <= f;
-    ctx.fillStyle = on ? '#7fd6ff' : '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = on ? '#7fd6ff' : '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(`${s.type}${s.m}${s.n}`, PX + 10, y + 4);
     ctx.strokeStyle = 'rgba(150,160,180,0.25)'; ctx.beginPath(); ctx.moveTo(fx(0), y); ctx.lineTo(fx(fMaxG), y); ctx.stroke();
     ctx.fillStyle = on ? 'rgba(127,214,255,0.85)' : 'rgba(255,138,120,0.7)';
@@ -130,7 +131,7 @@ function render() {
   });
   // operating-frequency line
   ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(fx(st.fGHz), PYp + 8); ctx.lineTo(fx(st.fGHz), PYp + PHp - 18); ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#ffd24a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd24a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`f = ${st.fGHz.toFixed(1)} GHz`, fx(st.fGHz), PYp + PHp - 4);
   ctx.fillText('cutoff (blue = propagates)', PX + PW / 2, PYp + PHp + 14);
   ctx.textAlign = 'left';
@@ -199,3 +200,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

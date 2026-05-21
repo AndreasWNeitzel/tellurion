@@ -9,6 +9,7 @@
 
 import { energyLevel, sublevels, spectrumLines, zeemanTriplet, MU_B } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -57,7 +58,7 @@ function render() {
     const y0 = ey(energyLevel(n));
     ctx.strokeStyle = 'rgba(150,160,180,0.35)';
     ctx.beginPath(); ctx.moveTo(DX + 10, y0); ctx.lineTo(DX + DW - 60, y0); ctx.stroke();
-    ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(`n=${n}`, DX + DW - 52, y0 + 4);
     const onU = n === nU, onL = n === nL;
     for (const d of subs) {
@@ -74,16 +75,16 @@ function render() {
   ctx.beginPath(); ctx.moveTo(ax, yU); ctx.lineTo(ax, yL); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(ax, yL); ctx.lineTo(ax - 5, yL - 8); ctx.lineTo(ax + 5, yL - 8); ctx.closePath(); ctx.fill();
   ctx.lineWidth = 1;
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`hydrogen term diagram (${label})`, DX + DW / 2, DY + DH + 18);
-  ctx.fillStyle = '#ff8a8a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ff8a8a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('n=1: no linear Stark', DX + 24, ey(energyLevel(1)) + 22);
   ctx.textAlign = 'left';
 
   // synthetic spectrum: the emission line and its field-split multiplet
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(SX, SY, SW, SH);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(SX, SY, SW, SH);
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('synthetic spectrum', SX + SW / 2, SY - 8);
   const lines = spectrumLines(nU, nL, B, F);
   const E0 = energyLevel(nU) - energyLevel(nL);
@@ -102,10 +103,10 @@ function render() {
     ctx.beginPath(); ctx.moveTo(lx(e), stripY + 6); ctx.lineTo(lx(e), stripY + stripH - 6); ctx.stroke();
   }
   ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`E0 = ${E0.toFixed(3)} eV`, lx(E0), stripY + stripH + 18);
   ctx.fillText(`${lines.length} component${lines.length === 1 ? '' : 's'}  (split <- 0 -> )`, SX + SW / 2, stripY - 8);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('B = Zeeman triplet,  F = Stark multiplet', SX + SW / 2, SY + SH + 18);
   ctx.textAlign = 'left';
 
@@ -174,3 +175,27 @@ window.__physicsCheck = async () => {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
+}

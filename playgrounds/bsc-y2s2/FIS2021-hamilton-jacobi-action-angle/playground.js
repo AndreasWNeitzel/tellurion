@@ -10,6 +10,7 @@ import {
   potential, energyOf, turningPoints, action, omegaOfE, toCircle,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -108,7 +109,7 @@ function drawJStrip(Jnow) {
     if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
   });
   ctx.stroke();
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.fillText('J(t)', x0 + 4, y0 - 4);
   ctx.textAlign = 'right'; ctx.fillStyle = ok ? '#06d6a0' : '#ef476f';
   ctx.fillText(ok ? 'J conserved (adiabatic)' : 'J drifting: ramp too fast', x1, y0 - 4);
@@ -127,7 +128,7 @@ function render() {
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(LCX - 150, CY); ctx.lineTo(LCX + 150, CY);
   ctx.moveTo(LCX, CY - 138); ctx.lineTo(LCX, CY + 138); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(st.pot === 'kepler' ? 'radial phase orbit  (r, p_r)' : 'phase orbit  (q, p)', LCX, H - 14);
   // centre the orbit on its own interval so Kepler (r in [r-,r+])
   // is not pushed off-axis
@@ -148,7 +149,7 @@ function render() {
   }
   ctx.fillStyle = '#ef476f';
   ctx.beginPath(); ctx.arc(LCX + (q - mid) * SC, CY - p * SC, 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('shaded area = 2 pi J', LCX, H - 32);
 
   // right panel: the action-angle loop (a circle for the harmonic)
@@ -238,4 +239,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }
