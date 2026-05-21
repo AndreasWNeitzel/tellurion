@@ -468,6 +468,21 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The Ni-56 -> Co-56 -> Fe-56 decay chain only moves mass between
+// species, so m_Ni(t) + m_Co(t) + m_Fe(t) stays equal to the
+// initial nickel mass at every time.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const p = massPartition(st.t_d, st.m_Ni);
+      const sum = p.mNi + p.mCo + p.mFe;
+      const drift = Math.abs(sum - st.m_Ni) / Math.max(1e-9, st.m_Ni);
+      return [{
+        key: 'mass',
+        label: 'Ni + Co + Fe mass conserved',
+        value: drift.toExponential(2),
+        status: drift < 1e-6 ? 'pass' : (drift < 1e-3 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
