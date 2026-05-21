@@ -94,11 +94,17 @@ function drawStar() {
   grad.addColorStop(0, `rgba(255, 255, ${Math.round(220 + 35 * coreBoost)}, 1)`);
   grad.addColorStop(0.6, `rgba(${col.r}, ${col.g}, ${col.b}, 1)`);
   grad.addColorStop(1, `rgba(${Math.round(col.r * 0.4)}, ${Math.round(col.g * 0.4)}, ${Math.round(col.b * 0.4)}, 1)`);
+  // Apparent 1/d^2 dimming: the whole star body fades with distance,
+  // not just the halo, so the distance slider visibly darkens it.
+  const starAlpha = Math.min(1, 0.22 + 0.78 * distFactor);
+  ctx.save();
+  ctx.globalAlpha = starAlpha;
   ctx.fillStyle = grad;
   ctx.beginPath(); ctx.arc(cx, cy, drawR, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, 0.3)`;
   ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.arc(cx, cy, drawR, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
   // Mean-radius reference ring.
   const meanR_can = 35 + 5 * Math.sqrt(meanRadius_Rsun(st.P));
   ctx.setLineDash([3, 4]);
