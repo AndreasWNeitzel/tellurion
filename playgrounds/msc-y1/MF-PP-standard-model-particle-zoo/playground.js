@@ -210,7 +210,7 @@ window.playground.getState = function () {
   const r = checkDecay(D.parent, D.daughters);
   return {
     fields: [
-      { key: 'decay', label: 'selected decay parent', value: PARTICLES[D.parent].sym },
+      { key: 'decay', label: 'selected decay', value: D.name },
       { key: 'verdict', label: 'verdict', value: r.allowed ? 'allowed' : 'forbidden' },
       { key: 'force', label: 'force shown', value: st.force },
     ],
