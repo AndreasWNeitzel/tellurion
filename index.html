@@ -84,9 +84,12 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   text-decoration:none;transition:border-color var(--t-fast)}
 .nav-mono:hover{border-color:var(--border-active)}
 .nav-links{display:flex;gap:32px}
-.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.01em;color:var(--text-secondary);
-  text-decoration:none;transition:color var(--t-fast)}
+.nav-links a{position:relative;padding:19px 0;font-size:13px;font-weight:500;letter-spacing:0.01em;
+  color:var(--text-secondary);text-decoration:none;transition:color var(--t-fast)}
 .nav-links a:hover,.nav-links a.active{color:var(--text-primary)}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;
+  background:var(--accent);transform:scaleX(0);transform-origin:center;transition:transform 250ms ease}
+.nav-links a.active::after{transform:scaleX(1)}
 .nav-icons{display:flex;gap:20px;align-items:center}
 .nav-icons a{color:var(--text-dimmed);display:flex;transition:color var(--t-fast)}
 .nav-icons a:hover{color:var(--text-secondary)}
@@ -3327,7 +3330,10 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     });
   }
 
-  // Section 5: active nav link follows the section in view (>40%).
+  // Section 5: active nav link follows the section in view. The root
+  // is shrunk to a thin band near the top of the viewport so a very
+  // tall section (the 333-card catalog) is detected just like a short
+  // one; intersectionRatio thresholds cannot do this.
   if('IntersectionObserver' in window){
     var navLinkFor={};
     [].slice.call(document.querySelectorAll('.nav-links a')).forEach(function(a){
@@ -3336,12 +3342,12 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     var secIds=['browse','about','credits'];
     var navObs=new IntersectionObserver(function(es){
       es.forEach(function(en){
-        if(en.intersectionRatio<0.4)return;
-        var id=en.target.id, link=navLinkFor[id]; if(!link)return;
+        if(!en.isIntersecting)return;
+        var link=navLinkFor[en.target.id]; if(!link)return;
         Object.keys(navLinkFor).forEach(function(k){ navLinkFor[k].classList.remove('active'); });
         link.classList.add('active');
       });
-    },{threshold:[0.4,0.6]});
+    },{rootMargin:'-45% 0px -50% 0px',threshold:0});
     secIds.forEach(function(id){ var s=document.getElementById(id); if(s)navObs.observe(s); });
   }
 
