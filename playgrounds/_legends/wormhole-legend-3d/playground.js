@@ -193,6 +193,73 @@ function drawTraversalMode() {
 // MODE: EMBEDDING. The classic two-funnel paraboloid, drawn as a 3D
 // depth-sorted UV mesh with orbit camera.
 // =========================================================================
+
+// Geodesic test particles on the embedding surface. Each carries a
+// conserved Clairaut constant h = r^2 dphi/ds; the unit-speed
+// constraint gives (dl/ds)^2 = 1 - h^2/r^2. A particle with h < b_0
+// slides through the throat (r >= b_0 > h everywhere) into the other
+// universe; one with h > b_0 reaches a turning point at r = h and
+// bounces back without crossing.
+function spawnGeodesic(side) {
+  const rng = st.gRng;
+  const L_MAX = 5 * st.b0;
+  return {
+    h: st.b0 * (0.2 + 1.5 * rng()),
+    l: side * L_MAX * (0.84 + 0.12 * rng()),
+    phi: rng() * 2 * Math.PI,
+    sigma: -side,                                   // heading inward, toward the throat
+    trail: [],
+  };
+}
+function stepGeodesicParticles() {
+  if (!st.gparticles) {
+    st.gRng = makeRng(0x9E0DE51C);
+    st.gparticles = [];
+    for (let i = 0; i < 7; i++) st.gparticles.push(spawnGeodesic(i % 2 === 0 ? 1 : -1));
+  }
+  const L_MAX = 5 * st.b0, ds = 0.035 * st.b0;
+  for (let k = 0; k < st.gparticles.length; k++) {
+    const p = st.gparticles[k];
+    const r = circumferentialR(p.l, st.b0);
+    let v = 1 - (p.h * p.h) / (r * r);
+    if (v <= 1e-4) { p.sigma = -p.sigma; v = 1e-4; }   // turning point: reflect in l
+    p.l += p.sigma * Math.sqrt(v) * ds;
+    p.phi += (p.h / (r * r)) * ds;
+    p.trail.push({ l: p.l, phi: p.phi });
+    if (p.trail.length > 30) p.trail.shift();
+    if (Math.abs(p.l) > L_MAX) st.gparticles[k] = spawnGeodesic(p.l > 0 ? 1 : -1);
+  }
+}
+function drawGeodesicParticles(cam) {
+  if (!st.gparticles) return;
+  const surf = (l, phi) => {
+    const r = circumferentialR(l, st.b0), z = embedZ(l, st.b0);
+    return [r * Math.cos(phi), z, r * Math.sin(phi)];
+  };
+  const facesCamera = (pt, phi) => {
+    const n = [Math.cos(phi), 0, Math.sin(phi)];
+    return (cam.eye[0] - pt[0]) * n[0] + (cam.eye[1] - pt[1]) * n[1] + (cam.eye[2] - pt[2]) * n[2] > 0;
+  };
+  for (const p of st.gparticles) {
+    const col = p.h < st.b0 ? '120,220,255' : '255,170,90';   // cyan crosses, orange bounces
+    for (let i = 1; i < p.trail.length; i++) {
+      const b = surf(p.trail[i].l, p.trail[i].phi);
+      if (!facesCamera(b, p.trail[i].phi)) continue;
+      const pa = w2s(surf(p.trail[i - 1].l, p.trail[i - 1].phi), cam), pb = w2s(b, cam);
+      if (!pa || !pb) continue;
+      ctx.strokeStyle = `rgba(${col},${(0.55 * i / p.trail.length).toFixed(3)})`;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+    }
+    const head = surf(p.l, p.phi);
+    if (!facesCamera(head, p.phi)) continue;
+    const ph = w2s(head, cam);
+    if (!ph) continue;
+    ctx.fillStyle = `rgb(${col})`;
+    ctx.beginPath(); ctx.arc(ph.x, ph.y, 3.2, 0, 2 * Math.PI); ctx.fill();
+  }
+}
+
 function drawEmbeddingMode(cam) {
   const N_L = 40, N_PHI = 60;
   const L_MAX = 5 * st.b0;
@@ -272,6 +339,9 @@ function drawEmbeddingMode(cam) {
     if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
   }
   ctx.stroke();
+  // Geodesic test particles riding the surface, with decaying trails.
+  stepGeodesicParticles();
+  drawGeodesicParticles(cam);
   // Captions.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
@@ -280,6 +350,7 @@ function drawEmbeddingMode(cam) {
   ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Two-funnel paraboloid; the throat (yellow ring) is the narrowest waist at l = 0.', 14, 70);
   ctx.fillText(`Universe A is l > 0 (upper funnel); Universe B is l < 0 (lower funnel).`, 14, 88);
+  ctx.fillText('Geodesic particles: cyan (h < b_0) cross the throat, orange (h > b_0) bounce back.', 14, 106);
 }
 
 // =========================================================================
