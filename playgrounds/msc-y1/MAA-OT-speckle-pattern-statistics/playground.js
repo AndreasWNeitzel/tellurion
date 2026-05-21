@@ -75,33 +75,89 @@ function render() {
   ctx.fillStyle = '#ffd166';
   ctx.fillText(`D / r0 = ${st.Dr0.toFixed(1)}    speckles ~ ${expectedSpeckleCount(st.Dr0, 1).toFixed(0)}`, gx0, 44);
 
-  // intensity statistics: full-width histogram of I/mean vs exp(-x)
+  // intensity statistics: histogram of I/Ibar vs the analytic negative-
+  // exponential ground truth p(x) = exp(-x). Both are plotted in the
+  // SAME probability-density units (bars are normalised so the area
+  // sums to 1 over the visible range; the red analytic line is the
+  // exact PDF).
   let mean = 0; for (let i = 0; i < I.length; i += 1) mean += I[i]; mean /= I.length;
   let varr = 0; for (let i = 0; i < I.length; i += 1) varr += (I[i] - mean) ** 2; varr /= I.length;
   const V = mean > 0 ? Math.sqrt(varr) / mean : 0;
-  const BINS = 40, HXMAX = 6, hist = new Float64Array(BINS);
-  for (let i = 0; i < I.length; i += 1) { const b = ((I[i] / (mean + 1e-12)) / HXMAX * BINS) | 0; if (b >= 0 && b < BINS) hist[b] += 1; }
-  let hmax = 1; for (let b = 0; b < BINS; b += 1) hmax = Math.max(hmax, hist[b]);
+  const BINS = 40, HXMAX = 6;
+  const binW = HXMAX / BINS;
+  const hist = new Float64Array(BINS);
+  let nInRange = 0;
+  for (let i = 0; i < I.length; i += 1) {
+    const x = I[i] / (mean + 1e-12);
+    const b = (x / HXMAX * BINS) | 0;
+    if (b >= 0 && b < BINS) { hist[b] += 1; nInRange += 1; }
+  }
+  // Convert to probability density: density_i = count_i / (N * binW).
+  const density = new Float64Array(BINS);
+  for (let b = 0; b < BINS; b += 1) density[b] = nInRange > 0 ? hist[b] / (nInRange * binW) : 0;
+  // Y range: peak of the analytic curve at x=0 is 1.0; pick 1.2 as the
+  // ceiling so the bar/curve comparison reads in the same units.
+  const yMax = 1.2;
   const px0 = gx0, py0 = gy0 + IMG + 30, pw = W - 80, ph = H - py0 - 34;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(px0, py0, pw, ph);
-  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('intensity statistics: histogram of I/Ibar vs the negative-exponential law exp(-I/Ibar)', px0 + 8, py0 + 15);
-  const innerW = pw - 16, baseY = py0 + ph - 14, plotH = ph - 36;
-  for (let b = 0; b < BINS; b += 1) {
-    const bh = (hist[b] / hmax) * plotH;
-    ctx.fillStyle = 'rgba(91,192,235,0.55)';
-    ctx.fillRect(px0 + 8 + b * innerW / BINS, baseY - bh, innerW / BINS - 1, bh);
+  ctx.strokeStyle = 'rgba(226,232,240,0.14)';
+  ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('intensity histogram (cyan) vs analytic ground-truth p(x) = exp(-x) (red)', px0 + 8, py0 + 15);
+  const innerW = pw - 50, baseY = py0 + ph - 24, plotH = ph - 44;
+  // Y-axis gridlines + labels.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
+  ctx.font = '11px ui-monospace, monospace';
+  for (let yv = 0.0; yv <= yMax + 1e-6; yv += 0.25) {
+    const yy = baseY - (yv / yMax) * plotH;
+    ctx.beginPath(); ctx.moveTo(px0 + 36, yy); ctx.lineTo(px0 + 36 + innerW, yy); ctx.stroke();
+    ctx.textAlign = 'right';
+    ctx.fillText(yv.toFixed(2), px0 + 34, yy + 3);
   }
-  ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 2; ctx.beginPath();
-  for (let s = 0; s <= 120; s += 1) {
-    const xx = s / 120 * HXMAX, yv = negExpPdf(xx, 1);
-    const Xp = px0 + 8 + (xx / HXMAX) * innerW;
-    const Yp = baseY - yv * plotH;
+  // X axis ticks (x = I/Ibar in [0, 6]).
+  ctx.textAlign = 'center';
+  for (let xv = 0; xv <= HXMAX; xv += 1) {
+    const xp = px0 + 36 + (xv / HXMAX) * innerW;
+    ctx.fillText(xv.toFixed(0), xp, baseY + 14);
+  }
+  ctx.textAlign = 'left';
+  ctx.fillText('x = I / Ibar', px0 + 36 + innerW / 2 - 26, baseY + 28);
+  ctx.save(); ctx.translate(px0 + 14, baseY - plotH / 2 + 28); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('p(x)  (density)', 0, 0);
+  ctx.restore();
+  // Histogram bars (cyan).
+  for (let b = 0; b < BINS; b += 1) {
+    const bh = (density[b] / yMax) * plotH;
+    ctx.fillStyle = 'rgba(91, 192, 235, 0.62)';
+    ctx.fillRect(px0 + 36 + b * innerW / BINS, baseY - bh, innerW / BINS - 1, bh);
+  }
+  // Analytic curve p(x) = exp(-x) (red, ground truth).
+  ctx.strokeStyle = '#ef476f';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  for (let s = 0; s <= 240; s += 1) {
+    const xx = (s / 240) * HXMAX;
+    const yv = negExpPdf(xx, 1);
+    const Xp = px0 + 36 + (xx / HXMAX) * innerW;
+    const Yp = baseY - (yv / yMax) * plotH;
     if (s === 0) ctx.moveTo(Xp, Yp); else ctx.lineTo(Xp, Yp);
   }
   ctx.stroke();
-  ctx.fillStyle = '#ffd166'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'right';
+  // Legend.
+  ctx.fillStyle = 'rgba(91, 192, 235, 0.85)';
+  ctx.fillRect(px0 + pw - 240, py0 + 22, 14, 8);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`observed histogram (N = ${nInRange})`, px0 + pw - 222, py0 + 30);
+  ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.moveTo(px0 + pw - 240, py0 + 42); ctx.lineTo(px0 + pw - 226, py0 + 42); ctx.stroke();
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('analytic p(x) = exp(-x)', px0 + pw - 222, py0 + 46);
+  ctx.fillStyle = '#ffd166';
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.textAlign = 'right';
   ctx.fillText(`speckle contrast V = sigma/mean = ${V.toFixed(2)}  (fully developed -> 1)`, px0 + pw - 8, py0 + 15);
   ctx.textAlign = 'left';
 

@@ -121,12 +121,72 @@ function drawParticle() {
   ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI); ctx.fill();
 }
 
+// Diagnostic panel: Cherenkov angle theta_C = arccos(1 / (n beta))
+// versus beta, with the emission threshold (n beta = 1) marked and the
+// current beta shown. Rule-13 mathematical grounding for the cone.
+function drawDiagnostic() {
+  const W = canvas.width, H = canvas.height;
+  const pw = 220, ph = 150;
+  const px = W - pw - 16, py = H - ph - 16;
+  ctx.fillStyle = 'rgba(15, 22, 36, 0.88)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.fillText('Cherenkov angle  θ_C(β)', px + 8, py + 14);
+  const ax = px + 32, ay = py + 24, aw = pw - 44, ah = ph - 46;
+  // x: beta in [0, 1]; y: theta in [0, 90 deg].
+  const xOf = (b) => ax + b * aw;
+  const yOf = (deg) => ay + ah - (deg / 90) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  for (let d = 0; d <= 90; d += 30) {
+    ctx.beginPath(); ctx.moveTo(ax, yOf(d)); ctx.lineTo(ax + aw, yOf(d)); ctx.stroke();
+  }
+  // Threshold beta_thr = 1/n.
+  const bThr = 1 / st.n;
+  ctx.strokeStyle = 'rgba(125, 211, 252, 0.7)';
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(xOf(bThr), ay); ctx.lineTo(xOf(bThr), ay + ah); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(125, 211, 252, 0.9)';
+  ctx.font = '9px ui-monospace, monospace';
+  ctx.fillText('βn=1', xOf(bThr) + 2, ay + 10);
+  // theta_C(beta) curve.
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  let started = false;
+  for (let i = 0; i <= 120; i += 1) {
+    const b = i / 120;
+    const th = cherenkovAngle(b, st.n);
+    if (th === null) { started = false; continue; }
+    const x = xOf(b), y = yOf(th * 180 / Math.PI);
+    if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Current beta marker.
+  const thNow = cherenkovAngle(st.beta, st.n);
+  if (thNow !== null) {
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(xOf(st.beta), yOf(thNow * 180 / Math.PI), 4, 0, 6.28); ctx.fill();
+  }
+  // Axis labels.
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.8)';
+  ctx.font = '9px ui-monospace, monospace';
+  ctx.fillText('0', ax - 8, ay + ah + 9);
+  ctx.fillText('1', ax + aw - 4, ay + ah + 9);
+  ctx.fillText('β', ax + aw / 2, ay + ah + 11);
+  ctx.fillText('90°', ax - 22, ay + 6);
+  ctx.fillText('0°', ax - 16, ay + ah);
+}
+
 function render() {
   drawMedium();
   drawWavelets();
   drawTrack();
   drawCone();
   drawParticle();
+  drawDiagnostic();
 
   const theta = cherenkovAngle(st.beta, st.n);
   const fac = frankTammFactor(st.beta, st.n);

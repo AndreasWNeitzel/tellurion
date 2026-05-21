@@ -88,7 +88,7 @@ function drawSurface(x, y, w, h) {
   // the ball at (rho_ball, theta = pi/4)
   const pb = P3(Math.min(rhoMax, ballRho()), Math.PI / 4);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(pb.sx, pb.sy, 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText(`v(T) = ${ballRho().toFixed(3)}  (v0 = ${vev(mu2(), lam()).toFixed(3)})`, x + 12, y + h - 10);
 }
 
@@ -110,7 +110,7 @@ function drawSlice(x, y, w, h) {
   const vb = ballRho();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(vb), Y(Vfinite(vb, mu2(), lam(), T)) - 6, 5, 0, 2 * Math.PI); ctx.fill();
   if (T < Tc(mu2())) {
-    ctx.fillStyle = 'rgba(143,227,155,0.85)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(143,227,155,0.85)'; ctx.font = '11px monospace';
     ctx.fillText('Goldstone: flat around the brim (m_G = 0)', x0 + 6, y1 - 6);
     ctx.fillStyle = 'rgba(241,192,105,0.85)';
     ctx.fillText(`Higgs: m_H = ${higgsMass(mu2()).toFixed(2)} (radial curvature)`, x0 + 6, y0 + 14);
@@ -132,7 +132,7 @@ function drawOrder(x, y, w, h) {
   ctx.stroke();
   ctx.strokeStyle = 'rgba(255,143,143,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(tc), y0); ctx.lineTo(X(tc), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '11px monospace';
   ctx.fillText(`T_c = ${tc.toFixed(2)}`, X(tc) + 4, y0 + 12);
   const T = tNow();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(Math.min(tMax, T)), Y(vevT(mu2(), lam(), T)), 4.5, 0, 2 * Math.PI); ctx.fill();

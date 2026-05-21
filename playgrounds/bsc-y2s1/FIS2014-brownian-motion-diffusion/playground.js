@@ -80,7 +80,7 @@ function render() {
   const rmsR = Math.sqrt(Math.max(1e-6, 4 * D * t)) * PXSCALE;
   ctx.strokeStyle = 'rgba(127,209,255,0.55)'; ctx.setLineDash([5, 5]);
   ctx.beginPath(); ctx.arc(cx, cy, rmsR, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('sqrt(4Dt)', cx + rmsR * 0.7 + 4, cy - rmsR * 0.7);
   // walker cloud
   ctx.fillStyle = 'rgba(230,200,120,0.5)';
@@ -116,7 +116,7 @@ function render() {
   msdHist.forEach(([tt, vv], k) => { const X = mx(tt), Y = my(vv); k === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); });
   ctx.stroke();
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(mx(t), my(msd(ens)), 3.5, 0, 6.3); ctx.fill();
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('t', QX + QW / 2, M1Y + M1H + 13);
   ctx.save(); ctx.translate(QX - 7, M1Y + M1H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('<r^2>', 0, 0); ctx.restore();
   ctx.textAlign = 'left'; ctx.fillStyle = '#7fd6ff'; ctx.fillText('4 D t', QX + 8, M1Y + 14);
@@ -133,7 +133,7 @@ function render() {
   ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let px = 0; px <= QW; px += 3) { const xv = -span + (px / QW) * 2 * span; const g = Math.exp(-xv * xv / (2 * sig * sig)); const Y = M2Y + M2H - g * (M2H - 16); px === 0 ? ctx.moveTo(QX + px, Y) : ctx.lineTo(QX + px, Y); }
   ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('dx', QX + QW / 2, M2Y + M2H + 13);
   ctx.textAlign = 'left';
 

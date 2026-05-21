@@ -102,6 +102,62 @@ btns.pause.addEventListener('click', () => {
 
 let last = performance.now(), fpsLast = last, fpsFrames = 0;
 
+// Rule-13 diagnostic: the prograde ISCO radius r_ISCO as a function
+// of the Kerr spin parameter a/M. It falls from 6 M (Schwarzschild)
+// to 1 M (extremal Kerr) as the frame-dragging tightens the innermost
+// stable orbit. The main scene is WebGL, so the chart sits on its own
+// 2D overlay canvas. Recomputed only when a/M changes.
+const bhDiag = document.createElement('canvas');
+bhDiag.width = 250; bhDiag.height = 140;
+bhDiag.style.cssText = 'position:absolute;right:10px;bottom:10px;width:250px;height:140px;'
+  + 'background:rgba(8,12,22,0.86);border:1px solid rgba(220,230,255,0.3);border-radius:4px;pointer-events:none';
+if (canvas.parentElement) {
+  const pe = canvas.parentElement;
+  if (getComputedStyle(pe).position === 'static') pe.style.position = 'relative';
+  pe.appendChild(bhDiag);
+}
+const bhctx = bhDiag.getContext('2d');
+let bhDiagKey = -999;
+function drawBHDiagnostic() {
+  if (!bhctx) return;
+  // Pin to the bottom-right of the STAGE canvas, not the figure (whose
+  // caption sits below the canvas and would bleed through the overlay).
+  bhDiag.style.left = `${canvas.offsetLeft + canvas.offsetWidth - bhDiag.width - 10}px`;
+  bhDiag.style.top = `${canvas.offsetTop + canvas.offsetHeight - bhDiag.height - 10}px`;
+  bhDiag.style.right = 'auto'; bhDiag.style.bottom = 'auto';
+  if (Math.abs(st.aOverM - bhDiagKey) < 1e-4) return;
+  bhDiagKey = st.aOverM;
+  const w = bhDiag.width, h = bhDiag.height;
+  bhctx.clearRect(0, 0, w, h);
+  bhctx.fillStyle = 'rgba(220,230,255,0.92)';
+  bhctx.font = 'bold 11px ui-monospace, monospace';
+  bhctx.fillText('ISCO radius  r_ISCO(a/M)', 8, 14);
+  const ax = 34, ay = 24, aw = w - 46, ah = h - 44;
+  const xOf = (a) => ax + a * aw;
+  const yOf = (r) => ay + ah - ((r - 0) / 6.5) * ah;
+  bhctx.strokeStyle = 'rgba(255,255,255,0.09)';
+  for (let r = 0; r <= 6; r += 2) {
+    bhctx.beginPath(); bhctx.moveTo(ax, yOf(r)); bhctx.lineTo(ax + aw, yOf(r)); bhctx.stroke();
+  }
+  bhctx.strokeStyle = '#ffb347'; bhctx.lineWidth = 2;
+  bhctx.beginPath();
+  for (let k = 0; k <= 100; k += 1) {
+    const a = k / 100;
+    const r = a === 0 ? 6 : iscoKerr(a);
+    const x = xOf(a), y = yOf(r);
+    if (k === 0) bhctx.moveTo(x, y); else bhctx.lineTo(x, y);
+  }
+  bhctx.stroke();
+  const rNow = st.aOverM === 0 ? 6 : iscoKerr(st.aOverM);
+  bhctx.fillStyle = '#fff';
+  bhctx.beginPath(); bhctx.arc(xOf(st.aOverM), yOf(rNow), 4, 0, 6.28); bhctx.fill();
+  bhctx.fillStyle = 'rgba(200,210,240,0.78)'; bhctx.font = '9px ui-monospace, monospace';
+  bhctx.fillText('6M', 10, yOf(6) + 3);
+  bhctx.fillText('0', 20, yOf(0));
+  bhctx.fillText('a/M: 0', ax, ay + ah + 11);
+  bhctx.fillText('1 (extremal)', ax + aw - 58, ay + ah + 11);
+}
+
 function render() {
   if (!engine) return;
   const eye = camera.eyePosition();
@@ -109,6 +165,7 @@ function render() {
   rEls['r_ISCO (M)'].textContent = (st.aOverM === 0 ? 6 : iscoKerr(st.aOverM)).toFixed(2);
   rEls['r_photon (M)'].textContent = photonSphereSchwarzschild().toFixed(2);
   rEls['b_crit (M)'].textContent = bCritSchwarzschild().toFixed(3);
+  drawBHDiagnostic();
 }
 
 function tick(now) {

@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1100px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 4px; }
   canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; cursor: crosshair; }
   canvas#tspectrum { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
@@ -26,10 +26,10 @@
   <div data-slot="description" class="katex-target">A planet orbiting a star edge-on; every period its disc crosses the stellar disc and the starlight dips by a sharp fraction. The dip's depth $(R_p/R_s)^2$ tells you the planet's size, the timing tells you the period, the duration tells you the orbit geometry, and the U-shape comes from limb darkening (the limb is dimmer than the centre, so the dip is rounded). Tilt the orbital plane and the transit shrinks to a graze, then vanishes. Drag to orbit; click 'edge-on' for the canonical view.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1100" height="500" tabindex="0"></canvas>
+  <canvas id="stage" width="900" height="500" tabindex="0"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <canvas id="plot" width="1100" height="220" aria-label="Light curve: stellar flux versus orbital phase."></canvas>
-  <canvas id="tspectrum" width="1100" height="200" aria-label="Transmission spectrum: transit depth versus wavelength."></canvas>
+  <canvas id="plot" width="900" height="220" aria-label="Light curve: stellar flux versus orbital phase."></canvas>
+  <canvas id="tspectrum" width="900" height="200" aria-label="Transmission spectrum: transit depth versus wavelength."></canvas>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Star + planet on a Keplerian orbit; light curve from intensity-weighted overlap of a quadratic limb-darkened disc and the planet's circular shadow. Source: Mandel and Agol, ApJ 580 (2002) L171.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>

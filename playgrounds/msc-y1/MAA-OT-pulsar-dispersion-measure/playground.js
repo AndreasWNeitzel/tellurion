@@ -136,7 +136,7 @@ function render() {
   }
   ctx.strokeStyle = 'rgba(120,150,200,0.25)';
   ctx.strokeRect(20.5, 60.5, 280, 300);
-  ctx.fillStyle = '#5a6477'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#5a6477'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('beam sweeps the line of sight once per rotation', 160, 350);
 
   // right: dynamic spectrum, de-dispersed at the trial DM
@@ -173,7 +173,7 @@ function render() {
   ctx.stroke();
 
   // left-of-profile: the f^-2 law reminder + DM meaning
-  ctx.fillStyle = '#5a6477'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#5a6477'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('dt = DM/2.41e-4 (1/f^2 - 1/fref^2) ms     DM = integral n_e dl  (electron column -> distance)', 22, py0 + pH - 4);
 
   if (readoutEl) readoutEl.textContent = `true DM ${st.trueDM}, trial DM ${st.guessDM}, S/N ${sn.toFixed(1)} [${flag}]`;

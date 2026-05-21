@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1100px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #010104; cursor: grab; display: block; border-radius: 4px; }
   canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
   .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(2,2,7,0.62); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 15ch 14ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
@@ -25,9 +25,9 @@
   <div data-slot="description" class="katex-target">A Morris-Thorne traversable wormhole (the zero-tidal Ellis geometry $ds^2=-dt^2+d\ell^2+(b_0^2+\ell^2)\,d\Omega^2$), ray-marched in real time. Looking into the throat you see the far universe warped into a circular window; fly through and the sky swaps. The funnel panel is the real embedding $z(\ell)=b_0\,\mathrm{arcsinh}(\ell/b_0)$. This is a geometry explorer: a real traversable wormhole would require exotic matter that may not exist.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1100" height="640"></canvas>
+  <canvas id="stage" width="960" height="640"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <canvas id="plot" width="1100" height="190" aria-label="Embedding diagram z(l) of the wormhole, with the ship marked."></canvas>
+  <canvas id="plot" width="900" height="190" aria-label="Embedding diagram z(l) of the wormhole, with the ship marked."></canvas>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Ray-marched Ellis/Morris-Thorne wormhole; the throat is a warped window into a second universe. Embedding $z(\ell)=b_0\,\mathrm{arcsinh}(\ell/b_0)$. Source: Morris and Thorne, Am. J. Phys. 56 (1988) 395.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>

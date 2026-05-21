@@ -50,7 +50,7 @@ function render() {
         const xSub = xCol + (j === 0.5 ? -10 : 30) + l * 12;
         ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(xSub - 15, py); ctx.lineTo(xSub + 15, py); ctx.stroke();
-        ctx.fillStyle = '#ffd166'; ctx.font = '10px ui-monospace, monospace';
+        ctx.fillStyle = '#ffd166'; ctx.font = '11px ui-monospace, monospace';
         ctx.fillText(`${'spdfg'[l]}${j === 0.5 ? '½' : j === 1.5 ? '3/2' : j === 2.5 ? '5/2' : `${j}`}`, xSub - 12, py - 4);
       }
     }

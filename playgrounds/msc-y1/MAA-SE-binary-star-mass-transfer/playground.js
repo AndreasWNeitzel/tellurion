@@ -76,7 +76,7 @@ function drawRoche(x, y, w, h) {
     ctx.stroke();
   }
   // Lagrange points
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   for (const [name, p] of Object.entries(lp)) {
     ctx.fillStyle = 'rgba(200,210,235,0.8)';
     ctx.beginPath(); ctx.arc(PX(p[0]), PY(p[1]), 2.5, 0, 2 * Math.PI); ctx.fill();
@@ -140,7 +140,7 @@ function drawEvolution(x, y, w, h) {
   let iMin = 0; for (let i = 1; i <= N; i += 1) if (aArr[i] < aArr[iMin]) iMin = i;
   ctx.strokeStyle = 'rgba(255,120,120,0.55)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(iMin), py); ctx.lineTo(X(iMin), py + ph); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,150,150,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,150,150,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('a min (q->1)', X(iMin) + 4, py + ph - 6);
   // current operating point
   const dmNow = Math.min(dmKg(), 0.8 * M1), iNow = Math.round(N * dmNow / dmMax);
@@ -148,7 +148,7 @@ function drawEvolution(x, y, w, h) {
   ctx.beginPath(); ctx.arc(X(iNow), Ya(aArr[Math.min(N, iNow)]), 5, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(230,236,250,0.85)'; ctx.font = '11px monospace';
   ctx.fillText(`a = ${(aArr[Math.min(N, iNow)] / RSUN).toFixed(2)} Rsun,  P = ${(pArr[Math.min(N, iNow)] / DAY).toFixed(3)} d`, px, y + 30);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('a (Rsun)', x + 8, py + 4);
   ctx.fillText('0', px - 4, py + ph + 14); ctx.fillText('transferred dM ->', px + pw / 2 - 36, py + ph + 14);
 }
@@ -177,7 +177,7 @@ function drawStability(x, y, w, h) {
   for (const [z, col, lab] of [[0.6, 'rgba(111,180,255,0.7)', 'radiative zeta=0.6'], [-1 / 3, 'rgba(155,232,176,0.7)', 'convective zeta=-1/3']]) {
     ctx.strokeStyle = col; ctx.setLineDash([4, 3]);
     ctx.beginPath(); ctx.moveTo(px, Y(z)); ctx.lineTo(px + pw, Y(z)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = col; ctx.font = '10px monospace'; ctx.fillText(lab, px + pw - 116, Y(z) - 4);
+    ctx.fillStyle = col; ctx.font = '11px monospace'; ctx.fillText(lab, px + pw - 116, Y(z) - 4);
   }
   // current q marker + classification
   const cls = classify(s.M1, s.M2, s.a, fillFrac() * s.a * eggletonRL(s.q), 0.6);
@@ -185,7 +185,7 @@ function drawStability(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(X(s.q), py); ctx.lineTo(X(s.q), py + ph); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#fff';
   ctx.beginPath(); ctx.arc(X(s.q), Y(Math.max(zMin, Math.min(zMax, zetaLobe(s.M1, s.M2, s.a)))), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (const q of [0.1, 0.5, 1, 2, 5, 10]) ctx.fillText(`${q}`, X(q) - 5, py + ph + 13);
   ctx.fillText('q = M1/M2 (log)', px + pw / 2 - 44, py + ph + 25);
   ctx.fillText('zeta_L', x + 8, py + 4);

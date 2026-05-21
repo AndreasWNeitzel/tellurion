@@ -135,7 +135,7 @@ function drawProton() {
     ctx.fillStyle = 'rgba(255,240,150,0.9)'; ctx.font = '11px ui-monospace, monospace';
     ctx.fillText('e- probe (DIS)', hx + 8, 24);
   }
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   for (const xt of [0.001, 0.01, 0.1, 1]) { const bx = xToBag(xt); ctx.fillText(`${xt}`, bx - 6, BAG.cy + BAG.ry + 14); ctx.strokeStyle = 'rgba(100,116,139,0.4)'; ctx.beginPath(); ctx.moveTo(bx, BAG.cy + BAG.ry - 2); ctx.lineTo(bx, BAG.cy + BAG.ry + 4); ctx.stroke(); }
   ctx.fillText('momentum fraction x  (log scale)', BAG.cx - 80, BAG.cy + BAG.ry + 28);
 }
@@ -169,7 +169,7 @@ function drawStrip() {
   const dx0 = 60, dx1 = W - 24, dy0 = H - 116, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`diagnostic: x f(x) vs x  (${st.scale === 'lin' ? 'linear' : 'log'} x; same toy PDFs)`, dx0 + 8, dy0 + 12);
   const xpx = (x) => st.scale === 'lin' ? dx0 + 10 + x * (dx1 - dx0 - 20) : dx0 + 10 + (Math.log10(Math.max(1e-3, x)) + 3) / 3 * (dx1 - dx0 - 20);
   let yMax = 0;

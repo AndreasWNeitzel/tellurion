@@ -53,7 +53,7 @@ function drawTests(px, py, pw, ph) {
   // threshold rho = 1
   ctx.strokeStyle = 'rgba(239,71,111,0.6)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(px + 32, yOf(1)); ctx.lineTo(px + pw - 12, yOf(1)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('rho = 1', px + 34, yOf(1) - 4);
   const curve = (fn, col) => {
     ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath();
@@ -103,7 +103,7 @@ function render() {
   if (conv) {
     ctx.strokeStyle = 'rgba(6,214,160,0.7)'; ctx.setLineDash([4, 4]);
     ctx.beginPath(); ctx.moveTo(tX0, sY(S.limit)); ctx.lineTo(tX1, sY(S.limit)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
     ctx.fillText(`limit ${S.limit.toFixed(4)}`, tX1 - 6, sY(S.limit) - 4);
   }
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.8; ctx.beginPath();
@@ -113,7 +113,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(mx, tY0); ctx.lineTo(mx, tY1); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(mx, sY(Sn), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`N = ${st.N}`, mx, tY1 + 14);
   ctx.textAlign = 'left'; ctx.fillText('partial sum S_N vs N', tX0 + 6, tY0 + 14);
 

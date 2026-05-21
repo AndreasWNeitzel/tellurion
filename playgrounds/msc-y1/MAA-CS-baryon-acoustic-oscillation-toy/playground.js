@@ -103,7 +103,7 @@ function render() {
   const pX = 470, pY = 90, pW = W - pX - 24, pH = 150;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(pX, pY, pW, pH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(pX + 0.5, pY + 0.5, pW - 1, pH - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('density profile rho(r)', pX + 8, pY + 14);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let i = 0; i <= 120; i += 1) {
@@ -122,7 +122,7 @@ function render() {
   const qX = 470, qY = pY + pH + 20, qW = pW, qH = 150;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(qX, qY, qW, qH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(qX + 0.5, qY + 0.5, qW - 1, qH - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('galaxy correlation xi(r): the BAO bump at r_s', qX + 8, qY + 14);
   let xmax = 1e-9;
   for (let i = 5; i <= 120; i += 1) xmax = Math.max(xmax, baoXi(i / 120 * MPC_VIEW, rs));

@@ -26,6 +26,8 @@ precision highp float;
 in vec3 vWorld;
 in vec3 vNormal;
 uniform vec3 uSunDir;
+uniform sampler2D uEarthTex;
+uniform float uTexLoaded;     // 1.0 when the real Blue-Marble texture is bound.
 out vec4 oColor;
 float hash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
 float noise(vec3 p) {
@@ -46,20 +48,34 @@ void main() {
   vec3 n = normalize(vNormal);
   vec3 l = normalize(uSunDir);
   float lambert = max(0.0, dot(n, l));
-  // Texture in the model-rotated frame, the same vector the lighting
-  // uses, so continents spin with the diurnal rotation in lockstep with
-  // the day/night terminator (previously the texture used the un-rotated
-  // mesh frame, so the surface stayed frozen while the shadow precessed).
-  vec3 p = normalize(vWorld);
-  float lat = asin(clamp(p.y, -0.999, 0.999));
-  float cont = noise(p * 3.0) * 0.6 + noise(p * 7.0) * 0.3;
-  float ice = smoothstep(1.10, 1.20, abs(lat));
-  vec3 ocean = vec3(0.05, 0.20, 0.45);
-  vec3 land = mix(vec3(0.40, 0.55, 0.25), vec3(0.55, 0.50, 0.30), cont);
-  vec3 base = (cont > 0.45) ? land : ocean;
-  base = mix(base, vec3(0.92, 0.95, 0.98), ice);
+  // Texture coordinate from the surface normal in the model-rotated
+  // frame. Equirectangular mapping: u = 0.5 + atan2(z, x) / (2 pi),
+  // v = 0.5 - asin(y) / pi. The vNormal we receive has already been
+  // rotated by the model matrix, so continents rotate with the Earth.
+  vec3 p = normalize(vNormal);
+  // Flip the longitude sense: with this right-handed (x right, y up,
+  // z toward camera) coord frame, atan(z, x) increases the wrong way
+  // when wrapping the equirectangular texture around the sphere, so
+  // continents read mirrored. Negate to align (East -> East).
+  float u = 0.5 - atan(p.z, p.x) / (2.0 * 3.14159265358979);
+  float v = 0.5 - asin(clamp(p.y, -0.999, 0.999)) / 3.14159265358979;
+  vec3 base;
+  if (uTexLoaded > 0.5) {
+    // Real NASA Blue Marble photograph.
+    base = texture(uEarthTex, vec2(u, v)).rgb;
+  } else {
+    // Fallback procedural Earth (continents from value noise).
+    vec3 q = normalize(vWorld);
+    float lat = asin(clamp(q.y, -0.999, 0.999));
+    float cont = noise(q * 3.0) * 0.6 + noise(q * 7.0) * 0.3;
+    float ice = smoothstep(1.10, 1.20, abs(lat));
+    vec3 ocean = vec3(0.05, 0.20, 0.45);
+    vec3 land = mix(vec3(0.40, 0.55, 0.25), vec3(0.55, 0.50, 0.30), cont);
+    base = (cont > 0.45) ? land : ocean;
+    base = mix(base, vec3(0.92, 0.95, 0.98), ice);
+  }
   float rim = pow(1.0 - max(0.0, dot(n, normalize(vec3(0.0, 0.0, 1.0)))), 3.0) * lambert;
-  vec3 col = base * (0.15 + 1.05 * lambert) + vec3(0.4, 0.55, 0.85) * rim * 0.3;
+  vec3 col = base * (0.30 + 0.90 * lambert) + vec3(0.4, 0.55, 0.85) * rim * 0.3;
   oColor = vec4(aces(col), 1.0);
 }`;
 
@@ -125,7 +141,31 @@ export function setupEarthGL(canvas) {
   const W = canvas.width, H = canvas.height;
   const sceneFBO = createFBO(gl, W, H, { depth: true });
   const post = setupPostProcess(gl, W, H);
-  const sphere = buildUVSphere(36, 48, 1);
+  const sphere = buildUVSphere(48, 64, 1);     // a bit finer than the
+                                                // original 36 x 48 so
+                                                // the photo texture is
+                                                // smoother at the poles.
+
+  // Earth texture (NASA Blue Marble equirectangular). The texture is
+  // allocated with a 1x1 grey placeholder so the shader has something to
+  // sample before the image arrives; setEarthTexture() swaps in the real
+  // pixels once the JPEG finishes loading.
+  const earthTex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, earthTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+    new Uint8Array([60, 90, 130, 255]));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  let texLoaded = 0;
+  function setEarthTexture(img) {
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+    gl.bindTexture(gl.TEXTURE_2D, earthTex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    texLoaded = 1;
+  }
   const vboPos = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vboPos); gl.bufferData(gl.ARRAY_BUFFER, sphere.positions, gl.STATIC_DRAW);
   const vboNorm = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vboNorm); gl.bufferData(gl.ARRAY_BUFFER, sphere.normals, gl.STATIC_DRAW);
   const ibo = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, sphere.indices, gl.STATIC_DRAW);
@@ -172,6 +212,10 @@ export function setupEarthGL(canvas) {
     gl.uniformMatrix4fv(gl.getUniformLocation(sphereProg, 'uMVP'), false, mvp);
     gl.uniformMatrix4fv(gl.getUniformLocation(sphereProg, 'uModel'), false, model);
     gl.uniform3f(gl.getUniformLocation(sphereProg, 'uSunDir'), sunDir[0], sunDir[1], sunDir[2]);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, earthTex);
+    gl.uniform1i(gl.getUniformLocation(sphereProg, 'uEarthTex'), 0);
+    gl.uniform1f(gl.getUniformLocation(sphereProg, 'uTexLoaded'), texLoaded);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboPos); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboNorm); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
@@ -220,21 +264,13 @@ export function setupEarthGL(canvas) {
       gl.drawArrays(gl.LINES, 0, segs * 2);
       gl.disable(gl.BLEND);
     }
-    // Sun marker.
-    gl.useProgram(ptProg);
-    gl.uniform1f(gl.getUniformLocation(ptProg, 'uPointSize'), 30);
-    const sunPos = new Float32Array([sunDir[0] * 4, sunDir[1] * 4, sunDir[2] * 4]);
-    const sunCol = new Float32Array([1.0, 0.95, 0.7]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vboLinePos); gl.bufferData(gl.ARRAY_BUFFER, sunPos, gl.DYNAMIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vboLineCol); gl.bufferData(gl.ARRAY_BUFFER, sunCol, gl.DYNAMIC_DRAW);
-    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE); gl.depthMask(false);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vboLinePos); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vboLineCol); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
-    gl.drawArrays(gl.POINTS, 0, 1);
-    gl.depthMask(true); gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST);
+    // Sun marker removed: the precession playground no longer animates
+    // the sun position. Fixed lighting is provided through the sunDir
+    // uniform (set to a constant world direction by the caller).
+    gl.disable(gl.DEPTH_TEST);
     post.run(sceneFBO.tex, 0.85, 0.25, 0.5);
   }
-  return { gl, render };
+  return { gl, render, setEarthTexture };
 }
 
 function matMul(a, b) {

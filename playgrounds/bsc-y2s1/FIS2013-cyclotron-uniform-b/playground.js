@@ -18,9 +18,13 @@ const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const sliderB      = document.getElementById('slider-B');
 const sliderV      = document.getElementById('slider-v');
+const sliderQ      = document.getElementById('slider-q');
+const sliderM      = document.getElementById('slider-m');
 const sliderSpeed  = document.getElementById('slider-speed');
 const valueB       = document.getElementById('value-B');
 const valueV       = document.getElementById('value-v');
+const valueQ       = document.getElementById('value-q');
+const valueM       = document.getElementById('value-m');
 const valueSpeed   = document.getElementById('value-speed');
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
@@ -30,6 +34,8 @@ const W = canvas.width, H = canvas.height;
 const state = {
   B: 1.0,
   v: 1.0,
+  q: 1.0,
+  m: 1.0,
   speed: 2,
   sim: null,
   trail: [],
@@ -43,7 +49,7 @@ const tok = {
 };
 
 function rebuild() {
-  state.sim = createCyclotron({ B: state.B, v: state.v });
+  state.sim = createCyclotron({ B: state.B, v: state.v, q: state.q, m: state.m });
   state.trail = [];
 }
 
@@ -163,10 +169,32 @@ function tickN(n) {
   }
 }
 
-sliderB.addEventListener('change', () => { state.B = parseFloat(sliderB.value); valueB.textContent = state.B.toFixed(2); rebuild(); drawAll(); });
-sliderB.addEventListener('input', () => { valueB.textContent = parseFloat(sliderB.value).toFixed(2); });
-sliderV.addEventListener('change', () => { state.v = parseFloat(sliderV.value); valueV.textContent = state.v.toFixed(2); rebuild(); drawAll(); });
-sliderV.addEventListener('input', () => { valueV.textContent = parseFloat(sliderV.value).toFixed(2); });
+// Sliders update the LIVE sim's parameters in place (state.sim.B,
+// .q, .m get rewritten on every input event). The trail and the
+// particle position are preserved so the user sees a continuous
+// trajectory whose curvature shifts smoothly as the slider moves.
+// Only the Reset button resets position + clears the trail.
+function applyLiveParams() {
+  if (!state.sim) return;
+  state.sim.B = state.B;
+  state.sim.q = state.q;
+  state.sim.m = state.m;
+}
+sliderB.addEventListener('input', () => { state.B = parseFloat(sliderB.value); valueB.textContent = state.B.toFixed(2); applyLiveParams(); });
+sliderV.addEventListener('input', () => {
+  // Speed change rescales the current velocity vector to the new |v|
+  // while preserving direction; this keeps the trajectory smooth.
+  const newV = parseFloat(sliderV.value);
+  valueV.textContent = newV.toFixed(2);
+  if (state.sim) {
+    const curV = Math.hypot(state.sim.vx, state.sim.vy) || 1;
+    state.sim.vx *= newV / curV;
+    state.sim.vy *= newV / curV;
+  }
+  state.v = newV;
+});
+sliderQ.addEventListener('input', () => { state.q = parseFloat(sliderQ.value); valueQ.textContent = state.q.toFixed(2); applyLiveParams(); });
+sliderM.addEventListener('input', () => { state.m = parseFloat(sliderM.value); valueM.textContent = state.m.toFixed(2); applyLiveParams(); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
 btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
 btnPlayPause.addEventListener('click', () => {

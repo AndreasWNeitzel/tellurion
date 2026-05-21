@@ -125,7 +125,7 @@ function render() {
   const X = (rr) => ax0 + (rr - rLo) / (rHi - rLo) * (ax1 - ax0);
   const Y = (v) => ayb - (Math.max(vlo, Math.min(vhi, v)) - vlo) / (vhi - vlo) * (ayb - ayt);
   ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(ax0, ayt); ctx.lineTo(ax0, ayb); ctx.lineTo(ax1, ayb); ctx.stroke();
-  ctx.fillStyle = '#6e727a'; ctx.font = '10px ui-monospace, monospace'; ctx.fillText('r', ax1 - 8, ayb + 14);
+  ctx.fillStyle = '#6e727a'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('r', ax1 - 8, ayb + 14);
   // V_eff curve.
   ctx.strokeStyle = '#7cc6ff'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 0; i <= NS; i += 1) { const rr = rLo + (rHi - rLo) * i / NS; i ? ctx.lineTo(X(rr), Y(vv[i])) : ctx.moveTo(X(rr), Y(vv[i])); }

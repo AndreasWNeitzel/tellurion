@@ -155,7 +155,7 @@ function drawBrushCursor() {
   ctx.beginPath(); ctx.arc(st.mx, st.my, 3 * CELL, 0, 6.2832); ctx.stroke();
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(st.mx, st.my, 1.5, 0, 6.2832); ctx.fill();
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
-  ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText(`${st.brush} brush`, st.mx + 3 * CELL + 4, st.my + 3); ctx.restore();
   ctx.lineWidth = 1;
 }

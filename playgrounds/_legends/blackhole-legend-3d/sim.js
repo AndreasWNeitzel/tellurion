@@ -288,3 +288,136 @@ export function tdeIsDisrupted(M_BH_solar) {
   // R_T > R_S requires M_BH < ~ 10^8 M_sun for a sun-like star.
   return tdeTidalRadius_m(M_BH_solar, 1, 1) > schwarzschildRadius_m(M_BH_solar);
 }
+
+// =========================================================================
+// KERR STRUCTURE: inner horizon, ergosphere at any latitude, ZAMO angular
+// velocity, frame-dragging at horizon.
+// =========================================================================
+
+// Inner (Cauchy) horizon r_- = M (1 - sqrt(1 - chi^2)) in geometric units.
+// Returns metres.
+export function kerrInnerHorizon_m(M_solar, chi = 0) {
+  const a = Math.max(0, Math.min(0.999, chi));
+  const M = G * M_solar * M_SUN / (C * C);
+  return M * (1 - Math.sqrt(1 - a * a));
+}
+
+// Ergosphere outer surface at polar angle theta (radians from spin axis).
+//   r_e(theta) = M (1 + sqrt(1 - chi^2 cos^2 theta)).
+// Equator (theta = pi/2) gives 2M = R_s; poles give r_+. Returns metres.
+export function kerrErgosphere_m(M_solar, chi, theta_rad) {
+  const a = Math.max(0, Math.min(0.999, chi));
+  const M = G * M_solar * M_SUN / (C * C);
+  const ct = Math.cos(theta_rad);
+  return M * (1 + Math.sqrt(Math.max(0, 1 - a * a * ct * ct)));
+}
+
+// Angular velocity of the horizon (frame-dragging rate of a ZAMO at r_+):
+//   Omega_H = a / (2 M r_+) in geometric units (c = G = 1).
+// Convert to rad/s by multiplying by c^3 / (G M_kg).
+export function kerrHorizonAngularVel_radps(M_solar, chi = 0) {
+  const a = Math.max(0, Math.min(0.999, chi));
+  const M_geo = 1;
+  const r_plus_geo = M_geo * (1 + Math.sqrt(1 - a * a));
+  const Omega_H_geo = a / (2 * M_geo * r_plus_geo);
+  const M_kg = M_solar * M_SUN;
+  return Omega_H_geo * Math.pow(C, 3) / (G * M_kg);
+}
+
+// ZAMO (zero-angular-momentum observer) angular velocity outside the
+// horizon. To leading order in a/r (valid outside the ergosphere):
+//   omega(r) ~ 2 a M / r^3 in geometric units.
+// Returns the dimensionless ratio omega(r) * M (in geometric units), so
+// you can plot it directly against r / M.
+export function zamoAngVelGeometric(chi, r_over_M) {
+  const a = Math.max(0, Math.min(0.999, chi));
+  return 2 * a / (r_over_M * r_over_M * r_over_M);
+}
+
+// Tidal acceleration at radius r: a perfectly radial test rod of length L
+// resting at radius r in Schwarzschild geometry experiences a stretching
+// tidal acceleration delta-a = 2 G M L / r^3 along the radial direction
+// (Misner Thorne Wheeler eq. 31.5). Returns m/s^2 per metre of rod length.
+export function tidalAccelPerMetre_per_s2(M_solar, r_m) {
+  const M_kg = M_solar * M_SUN;
+  return 2 * G * M_kg / Math.pow(r_m, 3);
+}
+
+// Apparent angular diameter of the BH shadow as seen from far away.
+// For Schwarzschild the shadow boundary at infinity is the critical
+// impact parameter b_c = 3 sqrt(3) M = 2.598 R_s. The observed angular
+// radius is theta_sh = b_c / D for distance D. Returns radians (use
+// 1 microarcsec = 4.848e-12 rad to convert).
+export function shadowAngularRadius_rad(M_solar, D_m) {
+  return criticalImpactParameter_m(M_solar) / D_m;
+}
+
+// =========================================================================
+// NAMED BH PRESETS. Each preset is a real astrophysical object the user
+// can jump to. Spin chi values are best-fit literature estimates.
+// =========================================================================
+export const BH_PRESETS = [
+  {
+    id: 'sgrA',
+    label: 'Sgr A* (Milky Way nucleus)',
+    M_solar: 4.297e6,
+    chi: 0.50,
+    D_kpc: 8.27,
+    note: 'EHT 2022. Distance from GRAVITY; spin loosely constrained.',
+  },
+  {
+    id: 'm87',
+    label: 'M87* (Virgo A nucleus)',
+    M_solar: 6.5e9,
+    chi: 0.94,
+    D_kpc: 16800,
+    note: 'EHT 2019. Spin from jet power; D from surface-brightness fluctuations.',
+  },
+  {
+    id: 'gw150914',
+    label: 'GW150914 merger remnant',
+    M_solar: 62,
+    chi: 0.69,
+    D_kpc: 410_000,
+    note: 'LIGO 2016 dominant ringdown fit; first GW detection.',
+  },
+  {
+    id: 'cygx1',
+    label: 'Cygnus X-1 (stellar BH)',
+    M_solar: 21.2,
+    chi: 0.95,
+    D_kpc: 2.22,
+    note: 'Miller-Jones et al. 2021; X-ray reflection spin.',
+  },
+  {
+    id: 'imbh',
+    label: 'IMBH candidate ~ 1e4 Msun',
+    M_solar: 1e4,
+    chi: 0.30,
+    D_kpc: 50_000,
+    note: 'Hypothetical intermediate-mass BH; few good candidates known.',
+  },
+  {
+    id: 'primordial',
+    label: 'Primordial (1e11 kg)',
+    M_solar: 1e11 / M_SUN,
+    chi: 0.0,
+    D_kpc: 0.001,
+    note: 'PBH evaporating today via Hawking radiation (Hawking 1974).',
+  },
+];
+
+// =========================================================================
+// ORBITAL PERIOD AND KEPLERIAN VELOCITY at the equatorial plane (Kerr,
+// prograde). For Kerr equatorial circular geodesics the period in
+// coordinate time t is
+//   T = 2 pi (r^(3/2) + a M^(1/2)) / sqrt(M).
+// Returns seconds.
+// =========================================================================
+export function orbitalPeriod_s(M_solar, chi, r_over_M) {
+  const a = Math.max(0, Math.min(0.999, chi));
+  const M_geo = 1;
+  const T_geo = 2 * Math.PI * (Math.pow(r_over_M, 1.5) + a * Math.sqrt(M_geo));
+  const M_sec = G * M_solar * M_SUN / Math.pow(C, 3);
+  return T_geo * M_sec;
+}

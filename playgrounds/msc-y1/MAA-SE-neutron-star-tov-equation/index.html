@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Neutron Stars: the TOV Equation and the Mass-Radius Diagram</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="The mass-radius diagram for four equations of state with the two-solar-mass line, the interior structure of the selected star, and the equation of state itself">
+    <canvas id="stage" width="900" height="560" aria-label="The mass-radius diagram for four equations of state with the two-solar-mass line, the interior structure of the selected star, and the equation of state itself">
     </canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">EOS:</span><span class="value" id="readout-eos">free Fermi</span>
@@ -29,7 +36,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">equation of state</span><select aria-label="equation of state" id="select-eos" style="grid-column: span 2;"><option value="fermi">free neutron Fermi gas</option><option value="stiff">stiff polytrope</option><option value="soft">soft polytrope</option><option value="quark">MIT-bag quark matter</option></select></div>
     <div class="row"><span class="label">log central density</span><input aria-label="log10 central rest-mass density, kg per cubic metre" type="range" id="slider-rho" min="170" max="192" step="1" value="183"><span class="value" id="value-rho">3.5e18</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>

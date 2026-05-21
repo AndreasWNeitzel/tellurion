@@ -55,7 +55,7 @@ function drawSlab(x, y, w, h) {
   const Y = (yy) => py + ph * (0.5 - yy / (2 * R.halfY));
   ctx.fillStyle = 'rgba(80,110,150,0.10)'; ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.strokeRect(px, py, pw, ph);
-  ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = '11px monospace';
   ctx.fillText('beam ->', px + 4, py - 6);
   const nShow = Math.max(1, Math.floor(R.tracks.length * (0.15 + 0.85 * st.ph)));
   for (let t = 0; t < nShow; t += 1) {
@@ -71,7 +71,7 @@ function drawSlab(x, y, w, h) {
       ctx.beginPath(); ctx.arc(X(ev.x), Y(ev.y), 2.6, 0, 2 * Math.PI); ctx.fill();
     }
   }
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   let lx = px + 6;
   for (let k = 0; k < 3; k += 1) {
     ctx.fillStyle = KCOL[k]; ctx.fillRect(lx, y + h - 20, 10, 9);
@@ -107,7 +107,7 @@ function drawDose(x, y, w, h) {
   const xdm = px + pw * smdm / (nB - 1);
   ctx.strokeStyle = 'rgba(111,214,232,0.7)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xdm, py); ctx.lineTo(xdm, py + dh); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(111,214,232,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(111,214,232,0.85)'; ctx.font = '11px monospace';
   ctx.fillText(`d_max = ${(smdm * R.dz).toFixed(2)} cm`, xdm + 4, py + 12);
   ctx.fillStyle = 'rgba(200,210,235,0.6)';
   ctx.fillText('relative dose', px + 4, py + dh - 6);
@@ -128,7 +128,7 @@ function drawDose(x, y, w, h) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(off, px, my0, pw, mh);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(px, my0, pw, mh);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('2D dose map (depth vs lateral)', px + 4, my0 + 12);
 }
 
@@ -153,11 +153,11 @@ function drawFractions(x, y, w, h) {
   const lE0 = Math.log10(energy());
   ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(X(lE0), py); ctx.lineTo(X(lE0), py + ph); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (const e of [10, 100, 1000]) ctx.fillText(`${e}`, X(Math.log10(e)) - 8, py + ph + 14);
   ctx.fillText('photon energy keV (log)', px + pw / 2 - 56, py + ph + 26);
   ctx.fillText('fraction 0..1', px + 2, py + 10);
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + ph - 16, 210, 14);
   let lx = px + 8;
   for (let k = 0; k < 3; k += 1) { ctx.fillStyle = KCOL[k]; ctx.fillText(KNAME[k], lx, py + ph - 5); lx += KNAME[k].length * 6 + 14; }

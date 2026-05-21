@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 920px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; display: block; }
   .pg-figure canvas.dragging { cursor: grabbing; }
   .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 16ch 12ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: auto; }
@@ -24,7 +24,7 @@
   <div data-slot="description" class="katex-target">A real per-pixel null-geodesic ray-march of a black hole. Every pixel traces one light ray bent by curved spacetime until it falls through the horizon (black), hits the hot disk (coloured), or escapes to the stars. You see the dark shadow, the thin photon ring at $b_c = 3\sqrt{3}\,M$, and the accretion disk gravitationally lensed into the Interstellar double arc (far side bent up and over the top and mirrored underneath), with the side rotating toward you Doppler-beamed brighter. Schwarzschild geometry with an approximate frame-drag twist for spin. Sliders set spin and the disk radii; drag to orbit, scroll to zoom.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1200" height="800"></canvas>
+  <canvas id="stage" width="900" height="800"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Per-pixel null-geodesic ray-march of a Schwarzschild black hole: the shadow, the photon ring at $b_c = 3\sqrt{3}\,M$, and a Novikov-Thorne accretion disk gravitationally lensed into the double arc with relativistic Doppler beaming. The $a/M$ slider adds a perturbative frame-drag twist. Method: backward geodesic integration of $u(\phi)$ with velocity-Verlet and null-condition renormalization. Source: Shapiro and Teukolsky, Black Holes, White Dwarfs and Neutron Stars, Ch. 12.</figcaption>
 </figure>

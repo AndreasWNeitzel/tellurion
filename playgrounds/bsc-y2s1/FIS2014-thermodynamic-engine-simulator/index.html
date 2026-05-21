@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 940px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
   .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 11ch 10ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
   .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
@@ -23,7 +23,7 @@
   <div data-slot="description" class="katex-target">A piston-cylinder engine running a chosen ideal-gas cycle. The gas molecules (left) speed up and slow as the temperature changes and the piston tracks the volume; the P-V loop traces in the centre; the energy-flow diagram on the right splits $Q_{\rm hot}$ into work and $Q_{\rm cold}$ with the live efficiency. Carnot, Otto, Diesel and Stirling cycles; reverse it to run a refrigerator.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="940" height="540"></canvas>
+  <canvas id="stage" width="880" height="540"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Piston-cylinder engine, live P-V loop and energy-flow diagram. Source: Callen, Thermodynamics, Ch. 4 (`callen`).</figcaption>
 </figure>

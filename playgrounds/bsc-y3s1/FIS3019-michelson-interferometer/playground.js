@@ -21,6 +21,12 @@ const valueLogLc = document.getElementById('value-loglc');
 
 let lam = parseFloat(sliderLam.value);
 let logLc = parseFloat(sliderLogLc.value);
+// Continuously-swept mirror displacement L. Cycles between -Lmax and
+// +Lmax over ~ 6 seconds so the ring inset and the I(L) cursor both
+// animate; that makes the playground feel like a working interferometer
+// rather than a static plot.
+let L_sweep = 0;
+let lastWall = performance.now();
 
 sliderLam.addEventListener('input', () => { lam = parseFloat(sliderLam.value); valueLam.textContent = String(lam); });
 sliderLogLc.addEventListener('input', () => { logLc = parseFloat(sliderLogLc.value); valueLogLc.textContent = logLc.toFixed(2); });
@@ -65,7 +71,7 @@ function render() {
     const y = padT + plotH * i / 4;
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${(1 - i / 4).toFixed(2)}`, padL - 28, y + 3);
   }
   ctx.fillStyle = c.muted;
@@ -109,16 +115,28 @@ function render() {
   }
   ctx.stroke();
 
-  // Mark L = 0.
+  // Mark L = 0 (static reference).
   const x0 = xFor(0);
-  ctx.strokeStyle = c.blue;
+  ctx.strokeStyle = c.muted;
   ctx.setLineDash([3, 3]);
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, padT); ctx.lineTo(x0, padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = c.blue;
+  ctx.fillStyle = c.muted;
   ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('L = 0', x0 + 4, padT + 14);
+  // Animated current-L cursor (this is THE interactive element).
+  const Lcur = Math.max(Lmin, Math.min(Lmax, L_sweep));
+  const xCur = xFor(Lcur);
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(xCur, padT); ctx.lineTo(xCur, padT + plotH); ctx.stroke();
+  ctx.fillStyle = '#fff';
+  const Inow = intensity(Lcur, lam, Lc);
+  ctx.beginPath(); ctx.arc(xCur, yFor(Inow), 5, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(xCur, yFor(Inow), 5, 0, 6.28); ctx.stroke();
+  ctx.fillStyle = c.blue; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`L = ${Lcur.toFixed(1)} nm  I = ${Inow.toFixed(3)}`, xCur + 6, padT + 14);
 }
 
 function updateReadout() {
@@ -170,9 +188,11 @@ function renderRingInset() {
   ctx.fillStyle = '#dcdde2'; ctx.font = '11px sans-serif';
   ctx.fillText('Ring view (2D)', x0 + 8, y0 + 14);
   const cx = x0 + insetW / 2, cy = y0 + insetH / 2;
-  // Visualize the ring pattern with current path difference L ~ lam/2.
-  // I(rho) = (1 + cos(4 pi L / lam * (1 - 0.5 rho^2))).
-  const L = lam;
+  // Visualize the ring pattern at the CURRENT animated path
+  // difference L_sweep. As L crosses zero the central spot flips
+  // from bright to dark and the ring count grows with |L|; that's
+  // the experimentalist's view of the interferogram.
+  const L = L_sweep;
   const Imgd = ctx.createImageData(insetW, insetH);
   const data = Imgd.data;
   const rgbR = lam < 500 ? 60  : (lam > 600 ? 220 : 200);
@@ -198,12 +218,25 @@ function renderRingInset() {
 const origRender = render;
 const renderWithInset = function () { origRender(); renderRingInset(); };
 
+function animatedLoop(now) {
+  const dt = Math.min(0.05, (now - lastWall) / 1000);
+  lastWall = now;
+  // Sweep L sinusoidally from -Lmax (~ 6 lambdas + 1.5 Lc) to +Lmax.
+  // Period ~ 8 s. The amplitude grows with both lambda and Lc so the
+  // sweep range always covers the visibility envelope.
+  const Lc = Math.pow(10, logLc);
+  const amp = Math.max(6 * lam, 1.5 * Lc);
+  L_sweep = amp * Math.sin(now * 0.0008);
+  renderWithInset();
+  requestAnimationFrame(animatedLoop);
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     bootSync(); renderWithInset();
-    if (!CAPTURE_NAME) (function loopWithInset() { renderWithInset(); requestAnimationFrame(loopWithInset); })();
+    if (!CAPTURE_NAME) requestAnimationFrame(animatedLoop);
   }, { once: true });
 } else {
   bootSync(); renderWithInset();
-  if (!CAPTURE_NAME) (function loopWithInset() { renderWithInset(); requestAnimationFrame(loopWithInset); })();
+  if (!CAPTURE_NAME) requestAnimationFrame(animatedLoop);
 }

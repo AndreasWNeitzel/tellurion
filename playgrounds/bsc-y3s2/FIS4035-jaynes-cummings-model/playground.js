@@ -37,12 +37,17 @@ const DEF_NBAR = 25, DEF_G = 1;
 const N_SAMPLES = 4000;                                // analytic-curve resolution
 const st = { nbar: DEF_NBAR, g: DEF_G, running: !prefersReducedMotion(), series: null, tWin: 1, tNow: 0, P: null };
 
-function windowTime(nbar, g) {
-  return Math.max(2.4 * revivalTime(nbar, g), 24 / g, 18);
+// The time window is fixed at the DEFAULT coupling g (DEF_G). It used
+// to track 1/g, which auto-rescaled the axis so that g had no visible
+// effect at all (the whole JC dynamics depends only on g*t). With a
+// g-independent window, raising g visibly compresses the Rabi
+// oscillations and packs in more collapse-revival cycles.
+function windowTime(nbar) {
+  return Math.max(2.4 * revivalTime(nbar, DEF_G), 24 / DEF_G, 18);
 }
 
 function rebuild() {
-  st.tWin = windowTime(st.nbar, st.g);
+  st.tWin = windowTime(st.nbar);
   st.series = inversionSeries(st.tWin, N_SAMPLES, st.nbar, st.g);
   st.P = photonDist(st.nbar);
   st.tNow = 0; st.running = true;
@@ -71,7 +76,7 @@ function drawInversion(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
   for (const wv of [1, 0, -1]) { ctx.beginPath(); ctx.moveTo(x0, Y(wv)); ctx.lineTo(x1, Y(wv)); ctx.stroke(); }
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px monospace';
   ctx.fillText('+1', x + 8, Y(1) + 3); ctx.fillText(' 0', x + 8, Y(0) + 3); ctx.fillText('-1', x + 8, Y(-1) + 3);
   const tc = collapseTime(st.g), tr = revivalTime(st.nbar, st.g);
   ctx.strokeStyle = 'rgba(127,209,255,0.5)'; ctx.setLineDash([3, 3]);
@@ -114,7 +119,7 @@ function drawPhotonDist(x, y, w, h) {
   const mx = x0 + st.nbar * bw + bw / 2;
   ctx.strokeStyle = 'rgba(241,192,105,0.8)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(mx, y0); ctx.lineTo(mx, y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(241,192,105,0.9)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.9)'; ctx.font = '11px monospace';
   ctx.fillText(`nbar = ${st.nbar.toFixed(1)}`, Math.min(mx + 4, x1 - 70), y0 + 10);
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
   ctx.fillText('n ->', x1 - 28, y1 + 16); ctx.fillText('P(n)', x + 6, y0 + 4);
@@ -145,7 +150,7 @@ function drawWigner(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(PX(0), PY(PR[0])); ctx.lineTo(PX(0), PY(PR[1])); ctx.stroke();
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(PX(xq), PY(0), 3, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('x = sqrt2 Re(alpha) ->', x1c - 150, y1c + 16);
   ctx.fillText('p', PX(0) + 4, y0c + 6);
   ctx.fillText('|alpha|=sqrt(nbar)', Math.min(PX(xq) + 6, x1c - 110), PY(0) - 6);

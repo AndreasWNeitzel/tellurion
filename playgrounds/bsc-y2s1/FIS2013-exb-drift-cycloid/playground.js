@@ -15,9 +15,13 @@ const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const sliderE      = document.getElementById('slider-E');
 const sliderB      = document.getElementById('slider-B');
+const sliderQ      = document.getElementById('slider-q');
+const sliderM      = document.getElementById('slider-m');
 const sliderSpeed  = document.getElementById('slider-speed');
 const valueE       = document.getElementById('value-E');
 const valueB       = document.getElementById('value-B');
+const valueQ       = document.getElementById('value-q');
+const valueM       = document.getElementById('value-m');
 const valueSpeed   = document.getElementById('value-speed');
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
@@ -27,6 +31,8 @@ const W = canvas.width, H = canvas.height;
 const state = {
   E: 0.5,
   B: 1.0,
+  q: 1.0,
+  m: 1.0,
   speed: 2,
   sim: null,
   trail: [],
@@ -40,7 +46,7 @@ const tok = {
 };
 
 function rebuild() {
-  state.sim = createExB({ E: state.E, B: state.B });
+  state.sim = createExB({ E: state.E, B: state.B, q: state.q, m: state.m });
   state.trail = [];
 }
 
@@ -179,6 +185,10 @@ sliderE.addEventListener('change', () => { state.E = parseFloat(sliderE.value); 
 sliderE.addEventListener('input', () => { valueE.textContent = parseFloat(sliderE.value).toFixed(2); });
 sliderB.addEventListener('change', () => { state.B = parseFloat(sliderB.value); valueB.textContent = state.B.toFixed(2); rebuild(); drawAll(); });
 sliderB.addEventListener('input', () => { valueB.textContent = parseFloat(sliderB.value).toFixed(2); });
+sliderQ.addEventListener('change', () => { state.q = parseFloat(sliderQ.value); valueQ.textContent = state.q.toFixed(2); rebuild(); drawAll(); });
+sliderQ.addEventListener('input', () => { valueQ.textContent = parseFloat(sliderQ.value).toFixed(2); });
+sliderM.addEventListener('change', () => { state.m = parseFloat(sliderM.value); valueM.textContent = state.m.toFixed(2); rebuild(); drawAll(); });
+sliderM.addEventListener('input', () => { valueM.textContent = parseFloat(sliderM.value).toFixed(2); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
 btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
 btnPlayPause.addEventListener('click', () => {

@@ -9,6 +9,7 @@
 import {
   potential, energyOf, turningPoints, action, omegaOfE, toCircle,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';

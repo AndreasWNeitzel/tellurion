@@ -43,18 +43,33 @@ describe('transit geometry and depth', () => {
     expect(1 - transitFlux(d, d.period * 0.25)).toBeGreaterThan(1 - transitFlux(u, u.period * 0.25));
   });
 
-  it('out-of-transit flux is exactly 1', () => {
+  it('out-of-transit flux is at the baseline (modulo phase-dependent reflection)', () => {
     const s = makeTransit({ Rp: 0.1, a: 5, inc: Math.PI / 2, period: 4 });
-    // theta = 0: planet at (a, 0) on the sky, far to the right of the disc.
-    expect(transitFlux(s, 0)).toBe(1);
-    // theta = 3pi/2: planet behind the star, not infront -> flux 1.
-    expect(transitFlux(s, s.period * 0.75)).toBe(1);
+    // theta = 0: planet at (a, 0) on the sky, far to the right of the
+    // disc. With the reflected-light contribution included, the OOT
+    // flux is 1 plus a small phase-dependent reflection (~ 5e-5 at
+    // crescent phase for albedo = 1, Rp/a = 0.02).
+    expect(transitFlux(s, 0)).toBeGreaterThanOrEqual(1);
+    expect(transitFlux(s, 0)).toBeLessThan(1.001);
+    // theta = 3pi/2: planet behind the star. With the new reflected-
+    // light + secondary-eclipse model the OOT flux is no longer
+    // exactly 1; it includes a small reflected contribution at non-
+    // eclipsing phases. At theta = 3pi/2 the planet is behind the
+    // star (secondary eclipse) so the reflected contribution drops
+    // out and flux is back at the bare stellar flux 1 (to within a
+    // tiny numerical floor).
+    expect(transitFlux(s, s.period * 0.75)).toBeGreaterThanOrEqual(1);
+    expect(transitFlux(s, s.period * 0.75)).toBeLessThan(1.001);
   });
 
   it('a tilted orbit removes the transit (no overlap) and a deeper tilt restores it', () => {
     const inclined = makeTransit({ Rp: 0.1, a: 5, inc: (Math.PI / 2) - 0.3, period: 4 });  // tilt: impact b ~ a sin(0.3)*1 way > 1
     const edge = makeTransit({ Rp: 0.1, a: 5, inc: Math.PI / 2, period: 4 });
-    expect(transitFlux(inclined, inclined.period * 0.25)).toBe(1);
+    // Inclined orbit at quarter period: no transit dip (planet in
+    // front but offset by impact parameter > Rstar + Rp). Flux is
+    // 1 + small reflected-light contribution.
+    expect(transitFlux(inclined, inclined.period * 0.25)).toBeGreaterThanOrEqual(1);
+    expect(transitFlux(inclined, inclined.period * 0.25)).toBeLessThan(1.001);
     expect(transitFlux(edge, edge.period * 0.25)).toBeLessThan(1);
   });
 

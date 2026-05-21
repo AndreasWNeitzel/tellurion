@@ -22,14 +22,22 @@ export const M_GEOM = 1.0;  // Schwarzschild mass in geometric units
 
 export function shapiroDelay(rE, rR, b, M = M_GEOM) {
   // Leading-order PPN (Schutz 11.17): delta t = 2 M ln(4 r_E r_R / b^2).
-  return 2 * M * Math.log(4 * rE * rR / (b * b));
+  // Guard against r = 0 / b = 0 (log of zero -> -Infinity / Infinity).
+  const rEc = Math.max(1e-6, rE), rRc = Math.max(1e-6, rR);
+  const bC = Math.max(1e-6, b);
+  return 2 * M * Math.log(4 * rEc * rRc / (bC * bC));
 }
 
 // Full closed-form (Schutz 11.16): delta t = 2 M ln[(rE + sqrt(rE^2 - b^2)) (rR + sqrt(rR^2 - b^2)) / b^2].
+// The impact parameter b is physically bounded by b <= min(rE, rR)
+// (the photon path cannot have a closest approach further than either
+// endpoint). We clamp it so an out-of-range slider/URL value cannot
+// produce sqrt of a negative number (NaN).
 export function shapiroDelayFull(rE, rR, b, M = M_GEOM) {
-  const aE = rE + Math.sqrt(rE * rE - b * b);
-  const aR = rR + Math.sqrt(rR * rR - b * b);
-  return 2 * M * Math.log(aE * aR / (b * b));
+  const bC = Math.max(1e-6, Math.min(b, rE, rR));
+  const aE = rE + Math.sqrt(Math.max(0, rE * rE - bC * bC));
+  const aR = rR + Math.sqrt(Math.max(0, rR * rR - bC * bC));
+  return 2 * M * Math.log(aE * aR / (bC * bC));
 }
 
 // Photon path (Newtonian straight line for visualization).

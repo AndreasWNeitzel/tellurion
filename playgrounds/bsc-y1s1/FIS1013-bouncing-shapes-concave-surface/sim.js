@@ -52,20 +52,59 @@ const STAR = (() => {
   }
   return p;
 })();
-// Asymmetric, recognizable: a lightning bolt. No horizontal or vertical
-// mirror symmetry.
-const BOLT = [
-  [0.25, 0.95], [-0.45, 0.08], [-0.05, 0.08],
-  [-0.30, -0.95], [0.45, 0.0], [0.05, 0.0],
-];
+// Heart polygon, built from the classic parametric heart curve
+//   x = 16 sin^3 t,  y = 13 cos t - 5 cos 2t - 2 cos 3t - cos 4t
+// normalised into [-1, 1]^2. A polygon is far more robust than the
+// implicit (x^2+y^2-1)^3 - x^2 y^3 form, which clipped the bottom
+// cusp at the [-1,1] box and read as a broken blob.
+const HEART = (() => {
+  const p = [];
+  for (let i = 0; i < 80; i += 1) {
+    const t = (i / 80) * 2 * Math.PI;
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+    // x in [-16, 16], y in [-17, 12]. Centre y and scale to [-0.95, 0.95].
+    p.push([x / 17, (y + 2.5) / 16]);
+  }
+  return p;
+})();
+// Asymmetric, recognizable, connotation-free: a tilted crescent moon.
+// The crescent is the lune between two circles: the moon disc A
+// (centre origin, radius R) minus the shadow disc B (centre +dx,
+// radius r). Both circles are chosen so they genuinely overlap, then
+// the whole shape is rotated 35 deg to break both mirror symmetries.
+// (Replaces the former lightning-bolt shape.)
+const CRESCENT = (() => {
+  const R = 0.95, r = 0.82, dx = 0.62;
+  // Intersection points of circle A (x^2+y^2=R^2) and circle B
+  // ((x-dx)^2+y^2=r^2): x* = (R^2 - r^2 + dx^2) / (2 dx).
+  const xStar = (R * R - r * r + dx * dx) / (2 * dx);
+  const yStar = Math.sqrt(Math.max(0, R * R - xStar * xStar));
+  const aA = Math.atan2(yStar, xStar);              // angle on circle A
+  const aB = Math.atan2(yStar, xStar - dx);         // angle on circle B
+  const p = [];
+  // Outer (moon) arc: from +intersection round the LEFT to -intersection.
+  for (let i = 0; i <= 70; i += 1) {
+    const a = aA + (2 * Math.PI - 2 * aA) * i / 70;
+    p.push([R * Math.cos(a), R * Math.sin(a)]);
+  }
+  // Inner (shadow) arc: back from -intersection to +intersection along B.
+  for (let i = 0; i <= 70; i += 1) {
+    const a = -aB + (2 * aB) * i / 70;
+    p.push([dx + r * Math.cos(a), r * Math.sin(a)]);
+  }
+  const tilt = 35 * Math.PI / 180;
+  const ct = Math.cos(tilt), stl = Math.sin(tilt);
+  return p.map(([x, y]) => [ct * x - stl * y, stl * x + ct * y]);
+})();
 export const ARRANGEMENTS = {
   scatter: { label: 'scatter (line)' },
   square:  { label: 'square',         inside: (u, v) => Math.abs(u) <= 0.8 && Math.abs(v) <= 0.8 },
   ball:    { label: 'ball (disk)',    inside: (u, v) => u * u + v * v <= 0.85 * 0.85 },
   star:    { label: '5-pointed star', inside: (u, v) => inPoly(STAR, u, v) },
-  heart:   { label: 'heart',          inside: (u, v) => { const X = u / 0.92, Y = v / 0.92; return (X * X + Y * Y - 1) ** 3 - X * X * Y * Y * Y < 0; } },
+  heart:   { label: 'heart',          inside: (u, v) => inPoly(HEART, u, v) },
   letterA: { label: 'letter A',       inside: (u, v) => segDist(u, v, -0.62, -0.9, 0, 0.92) <= 0.16 || segDist(u, v, 0.62, -0.9, 0, 0.92) <= 0.16 || segDist(u, v, -0.30, -0.10, 0.30, -0.10) <= 0.16 },
-  bolt:    { label: 'lightning bolt', inside: (u, v) => inPoly(BOLT, u, v) },
+  crescent: { label: 'crescent moon', inside: (u, v) => inPoly(CRESCENT, u, v) },
 };
 
 export function createSystem({

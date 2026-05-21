@@ -27,10 +27,14 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  inject: 3, mdip: 1.4, speed: 2, tilt: 0.5, az: 0.6,
+  inject: 3, mdip: 1.4, speed: 2, tilt: 0.5, az: 0.6, zoom: 1.0,
   running: !prefersReducedMotion(),
   particles: [], hits: [], nSteps: 0, nHits: 0,
   MAX_PARTICLES: 200, MAX_HITS: 80,
+  // Diagnostic: hits binned by magnetic latitude (in degrees, -90..+90).
+  latHist: new Int32Array(36),
+  // Time series of particle count.
+  particleCountHistory: [],
 };
 
 // Deterministic LCG so animation is reproducible.
@@ -47,7 +51,9 @@ function project(x, y, z) {
   const ct = Math.cos(st.tilt), stl = Math.sin(st.tilt);
   const yp = ct * y - stl * zp;
   const zr = stl * y + ct * zp;
-  const cam = 15;
+  // Camera distance is divided by zoom: zoom > 1 brings camera closer
+  // (larger Earth, finer field-line detail visible).
+  const cam = 15 / Math.max(0.4, Math.min(6, st.zoom));
   const f = 380 / (cam + zr);
   return { x: W * 0.5 + f * xp, y: H * 0.5 - f * yp, depth: cam + zr, scale: f / 25 };
 }
@@ -67,17 +73,20 @@ function fieldLineFrom(L_shell) {
 }
 
 function drawFieldLines() {
-  // Draw closed dipole field lines for several L-shells, projected.
-  ctx.lineWidth = 0.8;
+  // Closed dipole field lines for several L-shells. Brightened from
+  // the previous nearly-invisible alpha (0.10) so the magnetic
+  // structure that guides charged particles to the poles is plainly
+  // visible. More azimuthal samples (8) give the lines a "cage"
+  // appearance.
+  ctx.lineWidth = 1.1;
   for (const Lshell of [1.6, 2.2, 3.0, 4.0, 5.0, 6.5]) {
-    const azs = [0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4];
+    const azs = [0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4, Math.PI, 5 * Math.PI / 4, 3 * Math.PI / 2, 7 * Math.PI / 4];
     for (const az0 of azs) {
       const ca = Math.cos(az0), sa = Math.sin(az0);
-      ctx.strokeStyle = `rgba(120, 160, 220, ${0.10 + 0.05 * (Lshell / 6)})`;
+      ctx.strokeStyle = `rgba(160, 200, 250, ${(0.22 + 0.10 * (Lshell / 6)).toFixed(2)})`;
       ctx.beginPath();
       const line = fieldLineFrom(Lshell);
       for (let k = 0; k < line.length; k += 1) {
-        // Rotate around z by az0
         const x = line[k][0] * ca - line[k][2] * sa;
         const z = line[k][0] * sa + line[k][2] * ca;
         const y = line[k][1];
@@ -87,6 +96,22 @@ function drawFieldLines() {
       ctx.stroke();
     }
   }
+}
+
+// Ionosphere shell: translucent sphere at R = 1.05 R_E that the
+// auroral oval sits on. Drawn AFTER the field lines and BEFORE the
+// Earth so the structure reads as nested layers (B field outside,
+// ionosphere shell, Earth at the centre).
+function drawIonosphere() {
+  const center = project(0, 0, 0);
+  const refR = project(REARTH * 1.06, 0, 0);
+  const Rpx = Math.hypot(refR.x - center.x, refR.y - center.y);
+  const g = ctx.createRadialGradient(center.x, center.y, Rpx * 0.93, center.x, center.y, Rpx);
+  g.addColorStop(0, 'rgba(60, 180, 230, 0.00)');
+  g.addColorStop(0.85, 'rgba(60, 180, 230, 0.12)');
+  g.addColorStop(1, 'rgba(120, 220, 255, 0.22)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(center.x, center.y, Rpx, 0, Math.PI * 2); ctx.fill();
 }
 
 function drawEarth() {
@@ -122,22 +147,40 @@ function drawEarth() {
 }
 
 function drawAuroralOval() {
-  // Auroral oval at latitude lambda ~ 67 deg.
-  const lamA = (90 - 67) * Math.PI / 180;
+  // Auroral oval at magnetic latitude ~ 67 deg, drawn as a thick glowing
+  // GREEN BAND on the ionosphere shell (north = borealis, south =
+  // australis). Two concentric rings (66 deg, 68 deg) shaded inwards
+  // give the visual impression of a continuous band.
   for (const sign of [1, -1]) {
-    ctx.strokeStyle = sign > 0 ? 'rgba(80, 220, 120, 0.55)' : 'rgba(80, 220, 120, 0.35)';
-    ctx.lineWidth = 2.4;
-    ctx.beginPath();
-    for (let k = 0; k <= 64; k += 1) {
-      const phi = (k / 64) * 2 * Math.PI;
-      const r = REARTH * 1.02;
-      const x = r * Math.sin(lamA) * Math.cos(phi);
-      const z = r * Math.sin(lamA) * Math.sin(phi);
-      const y = sign * r * Math.cos(lamA);
-      const p = project(x, y, z);
-      if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+    for (let layer = 0; layer < 3; layer += 1) {
+      const latDeg = 67 + (layer - 1) * 1.6;
+      const lamA = (90 - latDeg) * Math.PI / 180;
+      const alpha = sign > 0 ? (0.85 - layer * 0.18) : (0.55 - layer * 0.12);
+      ctx.strokeStyle = `rgba(80, 235, 130, ${alpha.toFixed(2)})`;
+      ctx.lineWidth = 3.5 - layer * 0.8;
+      ctx.shadowColor = 'rgba(80, 235, 130, 0.6)';
+      ctx.shadowBlur = layer === 1 ? 12 : 0;
+      ctx.beginPath();
+      for (let k = 0; k <= 96; k += 1) {
+        const phi = (k / 96) * 2 * Math.PI;
+        const r = REARTH * 1.04;
+        const x = r * Math.sin(lamA) * Math.cos(phi);
+        const z = r * Math.sin(lamA) * Math.sin(phi);
+        const y = sign * r * Math.cos(lamA);
+        const p = project(x, y, z);
+        if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
     }
-    ctx.stroke();
+    // Labels at the pole.
+    const labelLat = 80;
+    const lamL = (90 - labelLat) * Math.PI / 180;
+    const r = REARTH * 1.10;
+    const p = project(0, sign * r * Math.cos(lamL), 0);
+    ctx.fillStyle = 'rgba(80, 235, 130, 0.85)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(sign > 0 ? 'aurora borealis (N)' : 'aurora australis (S)', p.x - 50, p.y);
   }
 }
 
@@ -193,6 +236,13 @@ function update(dt) {
       st.hits.push({ x: p.x, y: p.y, z: p.z, color, age: 0 });
       if (st.hits.length > st.MAX_HITS) st.hits.shift();
       st.nHits += 1;
+      // Bin the impact by magnetic latitude (= asin(y / |r|)) into a
+      // 36-bin histogram from -90 to +90 deg. The bimodal peaks at
+      // +/- 67 deg are the auroral ovals.
+      const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+      const latDeg = Math.asin(p.y / Math.max(1e-9, r)) * 180 / Math.PI;
+      const bin = Math.max(0, Math.min(35, Math.floor((latDeg + 90) / 5)));
+      st.latHist[bin] += 1;
       // Remove particle (it deposited its energy).
       st.particles.splice(i, 1);
       continue;
@@ -202,6 +252,86 @@ function update(dt) {
     if (r2 > 100 || p.age > 30) st.particles.splice(i, 1);
   }
   st.nSteps += 1;
+  // Sample particle count time series every 4 steps.
+  if (st.nSteps % 4 === 0) {
+    st.particleCountHistory.push(st.particles.length);
+    if (st.particleCountHistory.length > 240) st.particleCountHistory.shift();
+  }
+}
+
+// Diagnostic panels along the right-hand edge: hits-by-latitude
+// histogram and particle-count time series. These give the visualization
+// physical depth beyond the 3D scene.
+function drawDiagnostics() {
+  // Panel layout: 220 px wide column on the right.
+  const px = W - 232, py = 60, pw = 216;
+  // Hits-by-latitude histogram.
+  const hh = 130;
+  ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
+  ctx.fillRect(px, py, pw, hh);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, hh - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.fillText('hits / magnetic latitude', px + 8, py - 4);
+  // Histogram bars.
+  let hmax = 1;
+  for (let b = 0; b < 36; b += 1) if (st.latHist[b] > hmax) hmax = st.latHist[b];
+  const barW = (pw - 18) / 36;
+  for (let b = 0; b < 36; b += 1) {
+    const h = (st.latHist[b] / hmax) * (hh - 30);
+    // Latitude of this bin (degrees): -90 + (b + 0.5) * 5.
+    const lat = -90 + (b + 0.5) * 5;
+    // Colour: green near +- 67 (auroral oval), faint elsewhere.
+    const auroralBoost = Math.max(0, 1 - Math.abs(Math.abs(lat) - 67) / 12);
+    const r = Math.round(80 + 80 * auroralBoost);
+    const g = Math.round(180 + 40 * auroralBoost);
+    const bcol = Math.round(120 - 40 * auroralBoost);
+    ctx.fillStyle = `rgba(${r}, ${g}, ${bcol}, ${(0.5 + 0.45 * auroralBoost).toFixed(2)})`;
+    ctx.fillRect(px + 9 + b * barW, py + hh - 16 - h, barW - 0.6, h);
+  }
+  // Latitude tick labels.
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
+  ctx.font = '11px ui-monospace, monospace';
+  for (const tlat of [-90, -45, 0, 45, 90]) {
+    const x = px + 9 + ((tlat + 90) / 180) * (pw - 18);
+    ctx.fillText(`${tlat}°`, x - 6, py + hh - 4);
+  }
+  // Auroral-oval reference lines at +- 67 degrees.
+  ctx.strokeStyle = 'rgba(120, 220, 160, 0.65)';
+  ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  for (const tlat of [-67, 67]) {
+    const x = px + 9 + ((tlat + 90) / 180) * (pw - 18);
+    ctx.beginPath(); ctx.moveTo(x, py + 6); ctx.lineTo(x, py + hh - 18); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Particle-count time series.
+  const py2 = py + hh + 20, ph2 = 110;
+  ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
+  ctx.fillRect(px, py2, pw, ph2);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
+  ctx.strokeRect(px + 0.5, py2 + 0.5, pw - 1, ph2 - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.fillText('particle population N(t)', px + 8, py2 - 4);
+  const hist = st.particleCountHistory;
+  let nmax = 1;
+  for (const v of hist) if (v > nmax) nmax = v;
+  ctx.strokeStyle = 'rgba(140, 220, 255, 0.95)';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = 0; i < hist.length; i += 1) {
+    const x = px + 9 + (i / Math.max(1, hist.length - 1)) * (pw - 18);
+    const y = py2 + ph2 - 10 - (hist[i] / nmax) * (ph2 - 28);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`N_max = ${nmax}`, px + 8, py2 + 14);
+  ctx.fillText(`now = ${st.particles.length}`, px + pw - 60, py2 + 14);
 }
 
 function render() {
@@ -218,9 +348,12 @@ function render() {
     ctx.fillRect(u * W, v * H, 1, 1);
   }
 
-  // Order: field lines behind, Earth, auroral oval, particles, hits in front.
+  // Order: field lines behind, Earth, ionosphere shell, auroral oval,
+  // particles, hits in front. Ionosphere is a faint cyan glow ABOVE
+  // the surface that the green oval band sits on.
   drawFieldLines();
   drawEarth();
+  drawIonosphere();
   drawAuroralOval();
   drawParticles();
   drawAuroraHits();
@@ -231,6 +364,8 @@ function render() {
   ctx.textAlign = 'left';
   ctx.fillText(`particles: ${st.particles.length}    aurora hits: ${st.nHits}    step: ${st.nSteps}`, 24, 22);
   ctx.fillText(`solar-wind protons → magnetic mirror → atmospheric oxygen → 558 nm (green) / 630 nm (red)`, 24, 40);
+
+  drawDiagnostics();
 
   rN.textContent = String(st.particles.length);
   rHits.textContent = String(st.nHits);
@@ -270,7 +405,7 @@ btnPause.addEventListener('click', () => {
   btnPause.setAttribute('aria-pressed', String(!st.running));
 });
 
-// Drag to rotate.
+// Drag to rotate; wheel to zoom.
 let dragging = false, lastX = 0;
 canvas.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; });
 window.addEventListener('mouseup', () => { dragging = false; });
@@ -279,6 +414,10 @@ window.addEventListener('mousemove', (e) => {
   st.az += (e.clientX - lastX) * 0.005;
   lastX = e.clientX;
 });
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  st.zoom = Math.max(0.4, Math.min(6, st.zoom * Math.exp(-e.deltaY * 0.0015)));
+}, { passive: false });
 
 function getState() { return { seed: 0xC0FFEE }; }
 function restoreState() { /* nothing to restore beyond defaults */ }

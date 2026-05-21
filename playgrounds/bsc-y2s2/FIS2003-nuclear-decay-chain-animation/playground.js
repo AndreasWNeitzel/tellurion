@@ -317,7 +317,7 @@ function drawGeigerNuttall() {
     if (yv < yMin || yv > yMax) continue;
     ctx.strokeStyle = 'rgba(120,128,140,0.35)'; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(px(xMin), py(yv)); ctx.lineTo(px(xMax), py(yv)); ctx.stroke();
-    ctx.setLineDash([]); ctx.fillStyle = 'rgba(160,170,185,0.7)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.setLineDash([]); ctx.fillStyle = 'rgba(160,170,185,0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
     ctx.fillText(lab, px(xMax) - 4, py(yv) - 3);
   }
   ctx.textAlign = 'left';

@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Solar Cell: I-V, Fill Factor and the Shockley-Queisser Limit</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="Solar cell I-V and power curve, photon generation, and the Shockley-Queisser limit"></canvas>
+    <canvas id="stage" width="900" height="560" aria-label="Solar cell I-V and power curve, photon generation, and the Shockley-Queisser limit"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">V:</span><span class="value" id="readout-v">0.00</span>
       <span class="label">V_oc:</span><span class="value" id="readout-voc">0.00</span>
@@ -28,7 +35,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">spectrum</span><select aria-label="solar spectrum" id="select-spec" style="grid-column: span 2;"><option value="1000">AM1.5G (1000 W/m^2, terrestrial)</option><option value="1353">AM0 (1353 W/m^2, space)</option></select></div>
     <div class="row"><span class="label">bandgap E_g (eV)</span><input aria-label="bandgap energy, x100 eV" type="range" id="slider-eg" min="50" max="300" step="2" value="134"><span class="value" id="value-eg">1.34</span></div>
     <div class="row"><span class="label">concentration (suns)</span><input aria-label="solar concentration, suns" type="range" id="slider-suns" min="1" max="100" step="1" value="1"><span class="value" id="value-suns">1</span></div>

@@ -191,10 +191,10 @@ function render() {
     ctx.stroke();
   }
   ctx.lineWidth = 1; ctx.globalAlpha = 1;
-  if (tB && tB < Math.PI / 2) { ctx.strokeStyle = 'rgba(255,210,90,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx(tB / DEG), PYp + 6); ctx.lineTo(gx(tB / DEG), PYp + PHp - 6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('Brewster', gx(tB / DEG), PYp + PHp - 4); }
+  if (tB && tB < Math.PI / 2) { ctx.strokeStyle = 'rgba(255,210,90,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx(tB / DEG), PYp + 6); ctx.lineTo(gx(tB / DEG), PYp + PHp - 6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('Brewster', gx(tB / DEG), PYp + PHp - 4); }
   if (tc !== null) { ctx.strokeStyle = 'rgba(255,150,110,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx(tc / DEG), PYp + 6); ctx.lineTo(gx(tc / DEG), PYp + PHp - 6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.textAlign = 'center'; ctx.fillText('crit', gx(tc / DEG), PYp + 12); }
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(gx(st.thi), gy(Math.min(1, st.pol === 's' ? f.Rs : f.Rp)), 4, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = '#7fb0ff'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.fillText('Rs', PX + 10, PYp + 14);
+  ctx.fillStyle = '#7fb0ff'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.fillText('Rs', PX + 10, PYp + 14);
   ctx.fillStyle = '#ffd24a'; ctx.fillText('Rp', PX + 36, PYp + 14);
   ctx.fillStyle = '#c8ccd6'; ctx.textAlign = 'center'; ctx.fillText('theta_i (deg)', PX + PW / 2, PYp + PHp + 14); ctx.textAlign = 'left';
 

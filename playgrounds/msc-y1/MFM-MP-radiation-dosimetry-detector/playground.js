@@ -60,7 +60,7 @@ function drawChamber(x, y, w, h) {
   // incoming photon
   ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(gx - 18, gy + gh * 0.5); ctx.lineTo(gx + gw * 0.45, gy + gh * 0.5); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,209,102,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,209,102,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('photon ->', gx - 18, gy + gh * 0.5 - 6);
   // a Compton recoil electron track from the interaction site
   const ix = gx + gw * 0.45, iy = gy + gh * 0.5;
@@ -90,7 +90,7 @@ function drawChamber(x, y, w, h) {
       ctx.beginPath(); ctx.arc(px, gy + gh * (0.2 + pp.y * 0.3) + 0.35 * gh, 4, 0, 2 * Math.PI); ctx.stroke();
     }
   });
-  ctx.fillStyle = 'rgba(200,210,235,0.65)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.65)'; ctx.font = '11px monospace';
   ctx.fillText('+ ions drift down, electrons drift up; faded pairs recombine (lost)', gx, y + h - 10);
 }
 
@@ -114,13 +114,13 @@ function drawSaturation(x, y, w, h) {
   // f = 1 reference
   ctx.strokeStyle = 'rgba(155,232,176,0.4)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(px, Y(1)); ctx.lineTo(px + pw, Y(1)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(155,232,176,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('f = 1 (full collection)', px + pw - 134, Y(1) - 4);
   // operating point
   const V0 = volts(), f0 = collectionEfficiency(V0, st.dr, 1);
   ctx.fillStyle = '#6fb4ff';
   ctx.beginPath(); ctx.arc(X(V0), Y(f0), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (const V of [10, 100, 1000]) ctx.fillText(`${V}`, X(V) - 8, py + ph + 14);
   ctx.fillText('collecting voltage (V, log)', px + pw / 2 - 64, py + ph + 26);
   ctx.fillText('f', px - 16, py + 8);
@@ -183,11 +183,13 @@ function tick() {
 }
 
 function sync() { vE.textContent = String(st.e); vV.textContent = String(volts()); vR.textContent = String(st.dr); }
-slE.addEventListener('input', () => { vE.textContent = slE.value; });
+// Bind both input (during drag) and change (on release) to a full
+// rebuild so the user sees live slider effects, not just on release.
+slE.addEventListener('input', () => { vE.textContent = slE.value; st.e = parseInt(slE.value, 10); rebuild(); draw(); });
 slE.addEventListener('change', () => { st.e = parseInt(slE.value, 10); rebuild(); draw(); });
-slV.addEventListener('input', () => { vV.textContent = String(Math.round(Math.pow(10, slV.value / 100))); });
+slV.addEventListener('input', () => { vV.textContent = String(Math.round(Math.pow(10, slV.value / 100))); st.vRaw = parseInt(slV.value, 10); rebuild(); draw(); });
 slV.addEventListener('change', () => { st.vRaw = parseInt(slV.value, 10); rebuild(); draw(); });
-slR.addEventListener('input', () => { vR.textContent = slR.value; });
+slR.addEventListener('input', () => { vR.textContent = slR.value; st.dr = parseInt(slR.value, 10); rebuild(); draw(); });
 slR.addEventListener('change', () => { st.dr = parseInt(slR.value, 10); rebuild(); draw(); });
 bR.addEventListener('click', () => {
   Object.assign(st, DEF); st.running = true;

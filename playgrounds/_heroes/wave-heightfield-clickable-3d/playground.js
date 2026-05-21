@@ -89,7 +89,10 @@ function bootEngine(nextN) {
     console.warn('[wave hero] webgl2 engine init failed', e);
     engine = null;
   }
-  if (!engine) cpu = makeGrid(N);
+  // The CPU grid is ALWAYS created. When the GPU backend is active it
+  // runs as a shadow simulation that feeds the energy diagnostic
+  // (the GPU backend exposes no per-cell energy readback).
+  cpu = makeGrid(N);
 }
 bootEngine(N);
 
@@ -106,7 +109,8 @@ camera = createOrbitCamera(canvas, {
 window.__camera = camera;
 
 btns.reset.addEventListener('click', () => {
-  if (engine) engine.reset(); else cpu = makeGrid(N);
+  if (engine) engine.reset();
+  cpu = makeGrid(N);
   ui.clicks = 0; rEls.clicks.textContent = '0';
   running = true; btns.pause.textContent = 'Pause'; btns.pause.setAttribute('aria-pressed', 'false');
 });
@@ -119,7 +123,9 @@ btns.pause.addEventListener('click', () => {
 // One Gaussian splat through whichever backend is active.
 function splat(i, j, amp, sig) {
   if (engine) engine.seed(i, j, amp, sig);
-  else seedImpulse(cpu, i, j, amp, sig);
+  // Always seed the CPU shadow grid too, so the energy diagnostic
+  // tracks the same pulses whichever backend is rendering.
+  seedImpulse(cpu, i, j, amp, sig);
 }
 
 // Composite perturbation shapes. point/ring/line seed near the click;
@@ -197,6 +203,51 @@ function recordEnergy(E) {
 let last = performance.now(), fpsLast = last, fpsFrames = 0;
 const aspect = () => canvas.width / canvas.height;
 
+// Rule-13 diagnostic: total wave energy E(t). Each click injects a
+// pulse (E jumps); between clicks the damping term bleeds energy away.
+// The chart makes the conserved/dissipated balance visible. WebGL
+// scene -> 2D overlay canvas, fed from the CPU shadow grid's eHistory.
+const whDiag = document.createElement('canvas');
+whDiag.width = 244; whDiag.height = 120;
+whDiag.style.cssText = 'position:absolute;right:10px;bottom:10px;width:244px;height:120px;'
+  + 'background:rgba(8,12,22,0.86);border:1px solid rgba(220,230,255,0.3);border-radius:4px;pointer-events:none';
+if (canvas.parentElement) {
+  const pe = canvas.parentElement;
+  if (getComputedStyle(pe).position === 'static') pe.style.position = 'relative';
+  pe.appendChild(whDiag);
+}
+const whctx = whDiag.getContext('2d');
+function drawWaveDiagnostic() {
+  if (!whctx) return;
+  // Pin to the bottom-right of the STAGE canvas, not the figure (whose
+  // caption sits below the canvas and would bleed through the overlay).
+  whDiag.style.left = `${canvas.offsetLeft + canvas.offsetWidth - whDiag.width - 10}px`;
+  whDiag.style.top = `${canvas.offsetTop + canvas.offsetHeight - whDiag.height - 10}px`;
+  whDiag.style.right = 'auto'; whDiag.style.bottom = 'auto';
+  const w = whDiag.width, h = whDiag.height;
+  whctx.clearRect(0, 0, w, h);
+  whctx.fillStyle = 'rgba(220,230,255,0.92)';
+  whctx.font = 'bold 11px ui-monospace, monospace';
+  whctx.fillText('wave energy  E(t)', 8, 14);
+  if (eHistory.length < 2) return;
+  const ax = 30, ay = 22, aw = w - 40, ah = h - 38;
+  let eMax = 1e-6;
+  for (const p of eHistory) if (p.E > eMax) eMax = p.E;
+  const t0 = eHistory[0].t, t1 = eHistory[eHistory.length - 1].t;
+  const xOf = (t) => ax + (t1 > t0 ? (t - t0) / (t1 - t0) : 0) * aw;
+  const yOf = (E) => ay + ah - (E / (eMax * 1.1)) * ah;
+  whctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  whctx.beginPath(); whctx.moveTo(ax, yOf(0)); whctx.lineTo(ax + aw, yOf(0)); whctx.stroke();
+  whctx.strokeStyle = '#5bc0eb'; whctx.lineWidth = 2;
+  whctx.beginPath();
+  eHistory.forEach((p, i) => { const x = xOf(p.t), y = yOf(p.E); if (i === 0) whctx.moveTo(x, y); else whctx.lineTo(x, y); });
+  whctx.stroke();
+  whctx.fillStyle = 'rgba(200,210,240,0.78)'; whctx.font = '9px ui-monospace, monospace';
+  whctx.fillText(eMax.toFixed(1), 4, ay + 6);
+  whctx.fillText('0', 20, yOf(0) + 3);
+  whctx.fillText('t (last 3 s)', ax + aw / 2 - 22, h - 5);
+}
+
 function render() {
   if (engine) {
     const view = camera.viewMatrix();
@@ -204,15 +255,12 @@ function render() {
     const eye = camera.eyePosition();
     engine.renderSurfaceWithCamera(canvas.width, canvas.height, 1.4, view, proj, eye);
   }
-  if (cpu) {
-    const E = totalEnergy(cpu, ui.c, 1);
-    rEls['E(t)'].textContent = E.toFixed(3);
-    const g = recordEnergy(E);
-    rEls['γ_obs'].textContent = Number.isFinite(g) ? g.toFixed(2) : '0.00';
-  } else {
-    rEls['E(t)'].textContent = 'GPU';
-    rEls['γ_obs'].textContent = '0.00';
-  }
+  // Energy is read from the CPU shadow grid, which always exists.
+  const E = totalEnergy(cpu, ui.c, 1);
+  rEls['E(t)'].textContent = E.toFixed(3);
+  const g = recordEnergy(E);
+  rEls['γ_obs'].textContent = Number.isFinite(g) ? g.toFixed(2) : '0.00';
+  drawWaveDiagnostic();
 }
 
 function tick(now) {
@@ -222,7 +270,9 @@ function tick(now) {
   if (running) {
     for (let k = 0; k < 4; k += 1) {
       if (engine) engine.step(ui.c, ui.gamma, 0.5);
-      else cpuStep(cpu, ui.c, ui.gamma, 0.5);
+      // Step the CPU shadow grid every frame regardless of backend so
+      // the energy diagnostic stays in sync.
+      cpuStep(cpu, ui.c, ui.gamma, 0.5);
     }
     ui.t += dt;
   }

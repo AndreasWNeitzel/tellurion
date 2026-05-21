@@ -168,7 +168,7 @@ function drawCurve(x0, y0, w, h) {
   ctx.beginPath(); ctx.moveTo(xToPx(0), ay); ctx.lineTo(xToPx(0), ay + ah); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.textAlign = 'center';
   ctx.fillText('today', xToPx(0), ay + ah + 14);
 

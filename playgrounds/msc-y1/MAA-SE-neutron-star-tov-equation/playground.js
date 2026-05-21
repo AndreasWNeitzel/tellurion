@@ -57,7 +57,7 @@ function drawMR(x, y, w, h) {
   const X = (R) => px + pw * (R - Rmin) / (Rmax - Rmin);
   const Y = (M) => py + ph * (1 - (M - Mmin) / (Mmax - Mmin));
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (let M = 0; M <= 3; M += 1) { ctx.fillText(`${M}`, px - 16, Y(M) + 3); ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(px, Y(M)); ctx.lineTo(px + pw, Y(M)); ctx.stroke(); }
   for (let R = 5; R <= 24; R += 5) ctx.fillText(`${R}`, X(R) - 5, py + ph + 15);
   ctx.fillText('R (km)', px + pw / 2 - 18, py + ph + 28);
@@ -88,7 +88,7 @@ function drawMR(x, y, w, h) {
     ctx.beginPath(); ctx.arc(X(Rk), Y(Math.min(Mmax, Mm)), pulse, 0, 2 * Math.PI); ctx.fill();
   }
   // legend
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.82)'; ctx.fillRect(px + 4, py + 4, 246, 64);
   let ly = py + 14;
   for (const k of KEYS) {
@@ -114,7 +114,7 @@ function drawInterior(x, y, w, h) {
     ctx.beginPath(); ctx.arc(ccx, ccy, Math.max(1, rr), 0, 2 * Math.PI); ctx.fill();
   }
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(ccx, ccy, cR, 0, 2 * Math.PI); ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '11px monospace';
   ctx.fillText(`R = ${Rk.toFixed(2)} km`, ccx - 28, ccy + cR + 16);
   // profiles P, eps, m normalised vs r/R
   const px = x + 120, py = y + 26, pw = w - 134, ph = h - 52;
@@ -133,7 +133,7 @@ function drawInterior(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 2, py + 2, 150, 15);
   let lx = px + 6;
   for (const [name, , , col] of series) { ctx.fillStyle = col; ctx.fillText(name, lx, py + 13); lx += name.length * 7 + 18; }
@@ -149,7 +149,7 @@ function drawEOS(x, y, w, h) {
   const X = (lr) => px + pw * (lr - rhoLo) / (rhoHi - rhoLo);
   const Y = (lp) => py + ph * (1 - (lp - pLo) / (pHi - pLo));
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (let l = 17; l <= 19; l += 1) ctx.fillText(`1e${l}`, X(l) - 8, py + ph + 13);
   ctx.fillText('rho (kg/m^3)', px + pw / 2 - 30, py + ph + 25);
   for (let l = 31; l <= 36; l += 1) ctx.fillText(`1e${l}`, x + 6, Y(l) + 3);
@@ -173,7 +173,7 @@ function drawEOS(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(220,228,245,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(220,228,245,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('steeper = stiffer (higher Mmax)', px + 8, py + 14);
   const mm = MMAX[st.eos];
   ctx.fillStyle = mm.Mmax >= 2 ? '#9be8b0' : '#ff8f8f'; ctx.font = '12px monospace';

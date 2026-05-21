@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1100px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #000; cursor: grab; display: block; border-radius: 4px; }
   .pg-figure canvas#stage.dragging { cursor: grabbing; }
   canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #05060a; border-radius: 4px; cursor: crosshair; }
@@ -26,9 +26,9 @@
   <div data-slot="description" class="katex-target">A Schwarzschild black hole, ray-marched: a lensed star field, the glowing photon ring, the true black shadow, and a Doppler-beamed accretion disc. Fire test photons in the plane below and watch the sharp threshold at impact parameter $b = 3\sqrt{3}\,M$: just outside it a photon whips around the photon sphere and escapes; just inside it spirals through the horizon. Drag to orbit the hole; click the plane to launch a ray.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1100" height="640"></canvas>
+  <canvas id="stage" width="960" height="640"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <canvas id="plot" width="1100" height="300" aria-label="Equatorial plane: photon sphere, ISCO, fired geodesics, and the effective potential."></canvas>
+  <canvas id="plot" width="900" height="300" aria-label="Equatorial plane: photon sphere, ISCO, fired geodesics, and the effective potential."></canvas>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Ray-marched Schwarzschild (Kerr spin slider) black hole, with equatorial null/timelike geodesics integrated from the orbit equation $d^2u/d\phi^2 + u = 3Mu^2$. Source: Misner, Thorne and Wheeler, Gravitation, Ch. 25.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>

@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1200px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; border-radius: 4px; }
   .readout-panel { margin-top: var(--space-3); background: rgba(8,10,14,0.7); padding: 10px 14px; border-radius: 4px; display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 14px; row-gap: 4px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; }
   .readout-panel .label { color: var(--fg-muted); font-size: 11px; opacity: 0.75; }
@@ -24,7 +24,7 @@
   <div data-slot="description" class="katex-target">A heavy nucleus (rendered in 3D as close-packed protons and neutrons) walks a decay series to stable lead. Each step is a real transmutation: alpha decay sheds a He-4 cluster ($Z{-}2$, $N{-}2$); beta-minus turns a neutron into a proton ($Z{+}1$, $N{-}1$). The Q value comes from the semi-empirical mass formula and the alpha half-life from the Geiger-Nuttall law $\log_{10} t_{1/2} = 1.72 \, Z_d / \sqrt{Q} - 53.6$, with the slope set by Gamow tunnelling through the Coulomb barrier. The three panels: the nucleus (left), the Geiger-Nuttall log half-life trend (top right), the Segre chart path to the stable endpoint (bottom right).</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1200" height="680"></canvas>
+  <canvas id="stage" width="900" height="680"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Nucleus transmutation along a decay series with the Geiger-Nuttall log half-life trend and the Segre-chart path. Source: Krane, Introductory Nuclear Physics, Ch. 3, 6-8 (`krane-nuclear`).</figcaption>
 </figure>

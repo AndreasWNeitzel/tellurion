@@ -91,7 +91,7 @@ function render() {
     ctx.beginPath(); ctx.arc(x, RY - 70, 2.6, 0, 6.2832); ctx.fill();
     ctx.strokeStyle = 'rgba(100,116,139,0.4)'; ctx.beginPath(); ctx.moveTo(x, RY - 66); ctx.lineTo(x, RY - 6); ctx.stroke();
     ctx.save(); ctx.translate(x, RY - 76); ctx.rotate(-Math.PI / 4);
-    ctx.fillStyle = '#94a3b8'; ctx.font = '10px ui-monospace, monospace'; lbl(o.n, 0, 0); ctx.restore();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace'; lbl(o.n, 0, 0); ctx.restore();
   }
   // the ruler + labelled unit ticks
   ctx.strokeStyle = 'rgba(226,232,240,0.5)'; ctx.lineWidth = 2;
@@ -118,13 +118,13 @@ function render() {
       if (ob > oa) {
         ctx.fillStyle = 'rgba(245,200,66,0.14)';
         ctx.fillRect(oa, p.yc + 8, ob - oa, (r.yc - 8) - (p.yc + 8));
-        ctx.fillStyle = '#e8c878'; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#e8c878'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
         lbl('calibration handed up', (oa + ob) / 2, (p.yc + r.yc) / 2 + 3); ctx.textAlign = 'left';
       }
     }
     ctx.fillStyle = '#e2e8f0'; ctx.font = '12px sans-serif';
     lbl(`${r.name}`, xa + 4, r.yc - 13);
-    ctx.fillStyle = '#94a3b8'; ctx.font = '10px ui-monospace, monospace';
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
     lbl(`${fmtPc(Math.pow(10, r.lo))} - ${fmtPc(Math.pow(10, r.hi))}`, xa + 4, r.yc + 22);
     // the slider-driven anchor for this rung (where its physics is set)
     const anchorPc = ladder(state)[i];

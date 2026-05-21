@@ -55,7 +55,7 @@ function render() {
   ctx.strokeStyle = 'rgba(120,235,180,0.30)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(X(-A), PY + 24); ctx.lineTo(X(-A), PY + PH - 8);
   ctx.moveTo(X(A), PY + 24); ctx.lineTo(X(A), PY + PH - 8); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(120,235,180,0.7)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(120,235,180,0.7)'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('Wannier-Stark width = W / 2F', X(-A) + 6, PY + PH - 12);
   // centre-of-mass trail (shows the back-and-forth, not a drift)
   ctx.strokeStyle = 'rgba(91,192,235,0.5)'; ctx.lineWidth = 1.4; ctx.beginPath();

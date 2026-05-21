@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1100px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 4px; }
   .pg-figure canvas#stage.dragging { cursor: grabbing; }
   canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
@@ -26,9 +26,9 @@
   <div data-slot="description" class="katex-target">Fly a starship toward light speed and see what relativity does to the sky. The throttle sets $\beta = v/c$. Stars bunch toward the bow (aberration), shift blue ahead and red astern (Doppler), and the forward field brightens (relativistic beaming): all the exact Lorentz transform of the incoming photons. The lower panel is the lab's view of your length-contracted ship, with the twin clocks drifting apart. Drag to look around the cockpit, throttle up, watch the sky collapse forward.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1100" height="640"></canvas>
+  <canvas id="stage" width="960" height="640"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <canvas id="plot" width="1100" height="170" aria-label="Lab-frame view: the length-contracted ship, marker rings, and the twin clocks."></canvas>
+  <canvas id="plot" width="900" height="170" aria-label="Lab-frame view: the length-contracted ship, marker rings, and the twin clocks."></canvas>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Cockpit sky under relativistic aberration, Doppler shift and beaming at speed $\beta$, with the lab-frame length-contracted ship and twin clocks below. Method: exact Lorentz transform of photon 4-momenta. Source: Rindler, Relativity, Sec. 4.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>

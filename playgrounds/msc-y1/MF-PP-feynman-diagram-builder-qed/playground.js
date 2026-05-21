@@ -122,7 +122,7 @@ function drawDiagram(x, y, w, h) {
   }
   // vertices
   for (const xv of [xV1, xV2]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 4, 0, 2 * Math.PI); ctx.fill(); }
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px monospace';
   ctx.fillText('vertex (factor e)', xV1 - 30, cy + 26);
   // amplitude / |M|^2 alpha-power tags
   const aE = amplitudeAlphaExponent(V), mP = matrixElementAlphaPower(V);
@@ -144,7 +144,7 @@ function drawSigma(x, y, w, h) {
   };
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
   ctx.strokeRect(px, py, pw, ph);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (let d = 0; d <= decades; d += 1) {
     const yy = py + ph * d / decades; ctx.fillText(`1e${(logMax - d).toFixed(0)}`, x + 6, yy + 4);
     ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.beginPath(); ctx.moveTo(px, yy); ctx.lineTo(px + pw, yy); ctx.stroke();
@@ -218,7 +218,7 @@ function drawAux(x, y, w, h) {
   ctx.strokeStyle = 'rgba(111,180,255,0.7)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xt, gy); ctx.lineTo(xt, gy + gh); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('0', gx - 4, gy + gh + 14); ctx.fillText('90', gx + gw / 2 - 8, gy + gh + 14);
   ctx.fillText('180', gx + gw - 16, gy + gh + 14);
   ctx.fillText('dsigma/dOmega vs theta -- symmetric about 90 deg', gx + 8, gy + 14);

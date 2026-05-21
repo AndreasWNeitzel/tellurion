@@ -31,10 +31,30 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const N = 200;
 const NU = [0.001, 0.003, 0.006, 0.012, 0.02, 0.04];
 const DEF = { eq: 'wave', p: 2 };
+// Space-time waterfall: every frame we push the current u(x) field as
+// a row in a circular buffer. The visualisation then shows the field
+// evolving as a 2D heatmap (x horizontal, time downward) with the
+// classic characteristic cones of wave propagation, the diffusive
+// blur of the heat equation, and so on. This turns the 1D line plot
+// into a genuinely 2D dynamic visualisation.
+const WATERFALL_ROWS = 200;
+const waterfall = new Float64Array(N * WATERFALL_ROWS);
+let waterfallRow = 0;
+function pushWaterfall(field) {
+  const off = waterfallRow * N;
+  for (let i = 0; i < N; i += 1) waterfall[off + i] = field[i];
+  waterfallRow = (waterfallRow + 1) % WATERFALL_ROWS;
+}
+function clearWaterfall() {
+  for (let i = 0; i < waterfall.length; i += 1) waterfall[i] = 0;
+  waterfallRow = 0;
+}
+
 const st = { ...DEF, running: !prefersReducedMotion(), sim: null, hist: [], steady: null };
 
 function build() {
   st.hist = []; st.steady = null;
+  clearWaterfall();
   const p = st.p;
   if (st.eq === 'wave') st.sim = makeWave(N, 1.0, p);
   else if (st.eq === 'heat') st.sim = makeHeat(N, 0.02, p);
@@ -104,7 +124,7 @@ function plot(x, y, w, h, num, ana, label) {
   ctx.strokeStyle = '#6fb4ff'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < N; i += 1) { const xx = X(i), yy = Y(num[i]); if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('x', px + pw / 2, py + ph + 14);
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('numeric', px + 6, py + 13);
   if (ana) { ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.fillText('analytic (exact)', px + 70, py + 13); }
@@ -139,7 +159,7 @@ function drawSecondary(x, y, w, h) {
       if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
     }
     ctx.stroke();
-    ctx.font = '10px monospace';
+    ctx.font = '11px monospace';
     ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + 3, 168, 14);
     ctx.fillStyle = 'rgba(255,157,111,0.9)';
     ctx.fillText(`max |error| = ${mx.toExponential(2)}`, px + 8, py + 13);
@@ -166,13 +186,13 @@ function drawSecondary(x, y, w, h) {
       });
       ctx.stroke();
       ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + 3, 250, 14);
-      ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.font = '10px monospace';
+      ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.font = '11px monospace';
       ctx.fillText(st.eq === 'schrodinger'
         ? `norm = ${st.hist[st.hist.length - 1].toFixed(6)} (unitary: stays flat at 1)`
         : `energy ${st.hist[0].toFixed(3)} -> ${st.hist[st.hist.length - 1].toFixed(3)} (viscous decay)`,
       px + 8, py + 13);
     }
-    ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
     ctx.fillText('time ->', px + pw / 2 - 16, py + ph + 14);
   }
 }
@@ -202,12 +222,125 @@ function drawInfo(x, y, w, h) {
   ctx.fillText('Navier-Stokes hero playgrounds', x + 14, y + h - 12);
 }
 
+// Space-time waterfall: render the circular-buffer field rows as a
+// heatmap. x is the spatial axis, y is time (newest row at the top).
+// The colormap maps signed values (waveuvering wave amplitudes,
+// Burgers shocks, Schrödinger densities) to a red-blue diverging
+// scale (or a single-sided heat for non-negative fields).
+function drawWaterfall(x, y, w, h) {
+  panel(x, y, w, h, st.eq === 'laplace' ? 'space-time view (Poisson is steady; not applicable)' : 'space-time view  (rows = time, newest at top)');
+  if (st.eq === 'laplace') return;
+  const px = x + 36, py = y + 24, pw = w - 50, ph = h - 46;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
+  // Find dynamic range over the buffer.
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < waterfall.length; i += 1) {
+    const v = waterfall[i];
+    if (v < lo) lo = v;
+    if (v > hi) hi = v;
+  }
+  if (!Number.isFinite(lo) || !Number.isFinite(hi) || hi === lo) { hi = 1; lo = -1; }
+  const isSigned = lo < 0;
+  // Render the rows.
+  const img = ctx.createImageData(N, WATERFALL_ROWS);
+  for (let r = 0; r < WATERFALL_ROWS; r += 1) {
+    // Newest row at the top -> read circular buffer in time-reverse.
+    const src = ((waterfallRow - 1 - r) + WATERFALL_ROWS) % WATERFALL_ROWS;
+    const off = src * N;
+    for (let i = 0; i < N; i += 1) {
+      const v = waterfall[off + i];
+      let R, G, B;
+      if (isSigned) {
+        const t = (v - lo) / (hi - lo);     // 0..1
+        // Diverging: blue (cold) -> white -> red (hot).
+        if (t < 0.5) {
+          const u = t / 0.5;
+          R = Math.round(40 + 215 * u); G = Math.round(60 + 195 * u); B = 255;
+        } else {
+          const u = (t - 0.5) / 0.5;
+          R = 255; G = Math.round(255 - 195 * u); B = Math.round(255 - 215 * u);
+        }
+      } else {
+        const t = Math.max(0, Math.min(1, v / hi));
+        // Single-sided: dark -> warm orange.
+        R = Math.round(40 + 215 * t); G = Math.round(50 + 100 * t); B = Math.round(70 - 60 * t);
+      }
+      const idx = (r * N + i) * 4;
+      img.data[idx] = R; img.data[idx + 1] = G; img.data[idx + 2] = B; img.data[idx + 3] = 255;
+    }
+  }
+  // Composite via offscreen canvas to scale to panel size.
+  const off = new OffscreenCanvas(N, WATERFALL_ROWS);
+  off.getContext('2d').putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(off, px, py, pw, ph);
+  ctx.imageSmoothingEnabled = true;
+  // Axis labels.
+  ctx.fillStyle = 'rgba(200, 210, 235, 0.65)'; ctx.font = '11px monospace';
+  ctx.fillText('x ->', px + pw - 30, py + ph + 12);
+  ctx.fillText('t (newest at top)', px + 4, py - 4);
+  // Colorbar.
+  const cbx = x + w - 14, cby = py, cbw = 8, cbh = ph;
+  for (let r = 0; r < cbh; r += 1) {
+    const t = r / cbh;
+    let R, G, B;
+    if (isSigned) {
+      if (t < 0.5) { const u = t / 0.5; R = Math.round(40 + 215 * u); G = Math.round(60 + 195 * u); B = 255; }
+      else { const u = (t - 0.5) / 0.5; R = 255; G = Math.round(255 - 195 * u); B = Math.round(255 - 215 * u); }
+    } else {
+      R = Math.round(40 + 215 * t); G = Math.round(50 + 100 * t); B = Math.round(70 - 60 * t);
+    }
+    ctx.fillStyle = `rgb(${R},${G},${B})`;
+    ctx.fillRect(cbx, py + cbh - 1 - r, cbw, 1);
+  }
+  ctx.fillStyle = 'rgba(200, 210, 235, 0.8)'; ctx.font = '11px monospace';
+  ctx.fillText(hi.toFixed(2), cbx - 4, py + 8);
+  ctx.fillText(lo.toFixed(2), cbx - 4, py + cbh - 2);
+}
+
+// Click the main 1D plot to inject a Gaussian bump into the current
+// field. Gives the user a direct way to perturb the simulation and
+// see how each PDE redistributes the energy.
+function injectBump(xFrac) {
+  if (!st.sim) return;
+  const widthCells = 8;
+  const center = Math.round(xFrac * (N - 1));
+  if (st.eq === 'wave' || st.eq === 'heat' || st.eq === 'burgers') {
+    const u = st.sim.u;
+    for (let i = 0; i < N; i += 1) {
+      const d = i - center;
+      u[i] += 0.6 * Math.exp(-d * d / (2 * widthCells * widthCells));
+    }
+  } else if (st.eq === 'schrodinger') {
+    // Add a Gaussian to the real part (phase 0).
+    for (let i = 0; i < N; i += 1) {
+      const d = i - center;
+      st.sim.re[i] += 0.4 * Math.exp(-d * d / (2 * widthCells * widthCells));
+    }
+  }
+}
+canvas.addEventListener('click', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const cx = (e.clientX - r.left) * (W / r.width);
+  const cy = (e.clientY - r.top) * (H / r.height);
+  const half = (W - 52) / 2;
+  // Inject only when the user clicks inside the main field-plot panel.
+  if (cx >= 20 && cx <= 20 + half && cy >= 20 && cy <= 20 + (H - 46) / 2) {
+    const px = 56;        // approximately matches plot() interior offset.
+    const pw = half - 56;
+    const xFrac = Math.max(0, Math.min(1, (cx - 20 - px) / pw));
+    injectBump(xFrac);
+  }
+});
+
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   const half = (W - 52) / 2;
-  drawMain(20, 20, half, H - 34);
-  drawSecondary(20 + half + 12, 20, half, (H - 46) / 2);
-  drawInfo(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
+  const halfH = (H - 46) / 2;
+  drawMain(20, 20, half, halfH);
+  drawWaterfall(20, 20 + halfH + 6, half, halfH);
+  drawSecondary(20 + half + 12, 20, half, halfH);
+  drawInfo(20 + half + 12, 20 + halfH + 6, half, halfH);
   rEq.textContent = st.eq;
   if (st.eq === 'laplace') {
     rT.textContent = 'steady';
@@ -227,6 +360,7 @@ function draw() {
 function tick() {
   if (st.running && st.eq !== 'laplace') {
     for (let k = 0; k < 6; k += 1) substep();
+    pushWaterfall(curve());
     if (st.eq === 'schrodinger') st.hist.push(schrodingerNorm(st.sim));
     else if (st.eq === 'burgers') st.hist.push(burgersEnergy(st.sim));
     if (st.hist.length > 240) st.hist.shift();

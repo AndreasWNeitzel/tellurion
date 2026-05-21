@@ -128,7 +128,7 @@ function drawStar(x, y, w, h) {
   // legend (only zones that occur)
   const present = new Set(); for (let i = 1; i <= n; i += 1) present.add(zoneOf(m, i));
   let ly = y + h - 10;
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   let lx = x + 10;
   for (let z = 0; z < 4; z += 1) {
     if (!present.has(z)) continue;
@@ -158,7 +158,7 @@ function drawProfiles(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 2, py + 2, 150, 16);
   let lx = px + 6;
   for (const [name, , , col] of series) {
@@ -193,7 +193,7 @@ function drawEpsHR(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(ax + 2, ay + 2, 96, 16);
   let lx = ax + 6;
   for (const [name, , col] of comps) { ctx.fillStyle = col; ctx.fillText(name, lx, ay + 13); lx += name.length * 7 + 14; }
@@ -219,7 +219,7 @@ function drawEpsHR(x, y, w, h) {
   const zp = zamsPoint(massMsun());
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(HX(Math.log10(zp.Teff)), HY(Math.log10(zp.L)), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('ZAMS', hx + 6, hy + 12);
   ctx.fillText('hot  <- log Teff', hx + 4, hy + hh + 14);
   ctx.save(); ctx.translate(hx - 4, hy + hh / 2); ctx.rotate(-Math.PI / 2);

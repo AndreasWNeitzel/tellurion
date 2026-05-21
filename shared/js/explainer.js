@@ -299,6 +299,7 @@ function mountChrome() {
     '.rcard .rimg{position:relative;height:80px;background:var(--bg-card)}',
     '.rcard .rimg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,9,15,0.2),rgba(7,9,15,0.95))}',
     '.rcard .rph{position:absolute;left:30%;top:34%;width:40%;height:28%;background:#fff;opacity:0.07}',
+    '.rcard .rimgsrc{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}',
     '.rcard .rbody{padding:12px 14px}',
     '.rcard .rt{font-size:1.0rem;font-weight:600;letter-spacing:-0.01em;color:var(--text-primary);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
     '.rcard .ru{margin-top:4px;font-family:var(--f-mono,monospace);font-size:0.75rem;color:var(--text-dimmed)}',
@@ -358,11 +359,16 @@ function mountChrome() {
     if (rel.length < 3) return;                                  // strip only when full
     const sec = document.createElement('section');
     sec.className = 'pg-related';
-    sec.innerHTML = '<h2>Related</h2><div class="rgrid">' + rel.map((e) => (
-      `<a class="rcard" style="--rtagc:${e.tagc || '#94a3b8'}" href="../../../${e.path}/index.html">`
-      + '<div class="rimg"><div class="rph"></div></div>'
-      + `<div class="rbody"><h3 class="rt">${esc(e.title)}</h3><div class="ru">${esc(e.uc || '')}</div></div></a>`
-    )).join('') + '</div>';
+    sec.innerHTML = '<h2>Related</h2><div class="rgrid">' + rel.map((e) => {
+      const thumbHTML = e.thumb
+        ? `<img class="rimgsrc" src="../../../assets/thumbs/${e.thumb}" alt="" loading="lazy">`
+        : '<div class="rph"></div>';
+      return (
+        `<a class="rcard" style="--rtagc:${e.tagc || '#94a3b8'}" href="../../../${e.path}/index.html">`
+        + `<div class="rimg">${thumbHTML}</div>`
+        + `<div class="rbody"><h3 class="rt">${esc(e.title)}</h3><div class="ru">${esc(e.uc || '')}</div></div></a>`
+      );
+    }).join('') + '</div>';
     document.body.appendChild(sec);
   }).catch(() => {});
 }

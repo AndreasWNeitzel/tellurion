@@ -101,15 +101,29 @@ function render() {
     ctx.fillStyle = color; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText(triplet ? 'lepton pair: TRIPLET  S=1  (spins ∥)' : 'lepton pair: SINGLET  S=0  (spins anti∥)', 470, yC - 28);
 
-    // Vector triangle J_i = J_f + S_lep.
-    const tx = 600, ty = 230, sc = 26, S = triplet ? 1 : 0;
-    ctx.strokeStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
-    ctx.fillStyle = '#7e828a'; ctx.fillText('J_i = J_f + S_lep   (L=0 allowed)', tx - 70, ty - 70);
-    arrow(tx, ty, 0, -sc * (st.Ji + 0.6), '#ffd166', 2);
-    arrow(tx, ty, sc * (st.Jf + 0.6) * Math.sin(0.6), -sc * (st.Jf + 0.6) * Math.cos(0.6), color, 2);
-    arrow(tx + sc * (st.Jf + 0.6) * Math.sin(0.6), ty - sc * (st.Jf + 0.6) * Math.cos(0.6), -sc * S - sc * (st.Jf + 0.6) * Math.sin(0.6) + 0, 0 - (sc * (st.Ji + 0.6) - sc * (st.Jf + 0.6) * Math.cos(0.6)), '#e06fae', 1.6);
-    ctx.fillStyle = '#cdd1d6'; ctx.fillText(`|ΔJ| = ${Math.abs(st.Jf - st.Ji)}`, tx - 30, ty + 24);
-    ctx.fillText(`S_lep = ${S}`, tx - 30, ty + 40);
+    // Vector triangle J_i = J_f + S_lep, drawn as a genuine closed
+    // triangle: J_i and J_f both from the origin O, and S_lep as the
+    // closing vector from the J_f tip to the J_i tip. (The previous
+    // version computed the closing vector with a muddled scalar-as-
+    // vector expression and did not actually close.)
+    const tx = 620, ty = 232, sc = 24, S = triplet ? 1 : 0;
+    ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillText('J_i = J_f + S_lep   (L = 0, allowed)', tx - 80, ty - 78);
+    const Li = sc * (st.Ji + 0.6);
+    const Lf = sc * (st.Jf + 0.6);
+    const thF = 0.7;                                  // J_f drawn tilted by thF
+    const PiTip = { x: tx, y: ty - Li };
+    const PfTip = { x: tx + Lf * Math.sin(thF), y: ty - Lf * Math.cos(thF) };
+    arrow(tx, ty, PiTip.x - tx, PiTip.y - ty, '#ffd166', 2.4);            // J_i
+    arrow(tx, ty, PfTip.x - tx, PfTip.y - ty, color, 2.4);               // J_f
+    arrow(PfTip.x, PfTip.y, PiTip.x - PfTip.x, PiTip.y - PfTip.y, '#e06fae', 2); // S_lep closes it
+    ctx.fillStyle = '#ffd166'; ctx.fillText('J_i', PiTip.x - 22, PiTip.y - 4);
+    ctx.fillStyle = color; ctx.fillText('J_f', PfTip.x + 6, PfTip.y);
+    ctx.fillStyle = '#e06fae';
+    ctx.fillText('S_lep', (PfTip.x + PiTip.x) / 2 + 6, (PfTip.y + PiTip.y) / 2);
+    ctx.fillStyle = '#cdd1d6';
+    ctx.fillText(`|ΔJ| = ${Math.abs(st.Jf - st.Ji)}`, tx - 30, ty + 26);
+    ctx.fillText(`S_lep = ${S}`, tx - 30, ty + 42);
   } else {
     ctx.fillStyle = '#ef476f'; ctx.font = '15px ui-monospace, monospace'; ctx.textAlign = 'left';
     const why = st.dPi !== 0 ? 'parity change ⇒ needs L ≥ 1 (not an allowed transition)'
@@ -129,7 +143,7 @@ function render() {
   const drawAxis = (a, b, label) => {
     ctx.strokeStyle = '#3a3a44'; ctx.lineWidth = 1; ctx.beginPath();
     ctx.moveTo(a, gyt); ctx.lineTo(a, gyb); ctx.lineTo(b, gyb); ctx.stroke();
-    ctx.fillStyle = '#6e727a'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#6e727a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     for (let E = 0; E <= EMAX; E += 1000) ctx.fillText(`${E}`, xOf(a, b, E), gyb + 13);
     ctx.fillStyle = '#9aa0a6'; ctx.textAlign = 'left'; ctx.fillText(label, a + 2, gyt - 6);
   };

@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Second Quantization: Fock States, Ladder Operators, (Anti)commutators</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="Fock-state ladder, the (anti)commutator identity, and the occupation distribution"></canvas>
+    <canvas id="stage" width="900" height="560" aria-label="Fock-state ladder, the (anti)commutator identity, and the occupation distribution"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">stat:</span><span class="value" id="readout-stat">boson</span>
       <span class="label">&lt;N&gt;:</span><span class="value" id="readout-n">0.00</span>
@@ -28,7 +35,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">statistics</span><select aria-label="particle statistics" id="select-stat" style="grid-column: span 2;"><option value="boson">boson ([a, a-dagger] = 1)</option><option value="fermion">fermion ({a, a-dagger} = 1, Pauli)</option></select></div>
     <div class="row"><span class="label">state</span><select aria-label="state preparation" id="select-mode" style="grid-column: span 2;"><option value="pump">number-state pump (apply a-dagger)</option><option value="coherent">bosonic coherent state |alpha&gt;</option></select></div>
     <div class="row"><span class="label">coherent alpha</span><input aria-label="coherent amplitude, x100" type="range" id="slider-alpha" min="50" max="450" step="10" value="240"><span class="value" id="value-alpha">2.40</span></div>

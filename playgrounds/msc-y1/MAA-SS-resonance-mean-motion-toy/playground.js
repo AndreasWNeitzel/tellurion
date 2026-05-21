@@ -131,6 +131,60 @@ function render() {
   ctx.fillText(`t = ${st.t.toFixed(0)} (secular)   alive = ${alive}   resonance-pumped = ${pumped}`, 14, 22);
   ctx.fillText(`a_Jupiter = ${st.aJ.toFixed(2)} AU   gaps carved by resonant ejection (Reset to refill)`, 14, H - 14);
   rR.textContent = `${alive} alive`;
+
+  drawHistogram(W, H, res);
+}
+
+// Rule-13 diagnostic: histogram of asteroid semi-major axes. The belt
+// starts uniform; as resonant asteroids are ejected the histogram
+// develops dips (the Kirkwood gaps) exactly at the marked mean-motion
+// resonance locations. This is the quantitative companion to the
+// orbital scene.
+const HBINS = 64;
+function drawHistogram(W, H, res) {
+  const px = W * 0.55, py = 60, pw = W * 0.41, ph = H - 130;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.85)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('asteroid count vs semi-major axis', px + 8, py + 16);
+  // Bin the alive asteroids.
+  const bins = new Float64Array(HBINS);
+  for (let i = 0; i < NPART; i += 1) {
+    if (!palive[i]) continue;
+    const f = (pa[i] - A_IN) / (A_OUT - A_IN);
+    if (f < 0 || f >= 1) continue;
+    bins[Math.min(HBINS - 1, (f * HBINS) | 0)] += 1;
+  }
+  let bMax = 1;
+  for (const b of bins) if (b > bMax) bMax = b;
+  const ax = px + 30, ay = py + 26, aw = pw - 42, ah = ph - 56;
+  // Resonance markers (where gaps open).
+  for (const r of res) {
+    if (r.a < A_IN || r.a > A_OUT) continue;
+    const xr = ax + ((r.a - A_IN) / (A_OUT - A_IN)) * aw;
+    ctx.strokeStyle = 'rgba(239,71,111,0.5)'; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(xr, ay); ctx.lineTo(xr, ay + ah); ctx.stroke();
+    ctx.setLineDash([]);
+    if (r.label) {
+      ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '11px ui-monospace, monospace';
+      ctx.fillText(r.label, xr - 8, ay - 4);
+    }
+  }
+  // Bars.
+  ctx.fillStyle = '#5bc0eb';
+  const bw = aw / HBINS;
+  for (let k = 0; k < HBINS; k += 1) {
+    const bh = (bins[k] / bMax) * ah;
+    ctx.fillRect(ax + k * bw, ay + ah - bh, Math.max(1, bw - 0.5), bh);
+  }
+  // Axes.
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`${A_IN.toFixed(1)}`, ax - 4, ay + ah + 14);
+  ctx.fillText(`${A_OUT.toFixed(1)} AU`, ax + aw - 36, ay + ah + 14);
+  ctx.fillText('a (AU)', ax + aw / 2 - 18, ay + ah + 14);
 }
 
 function tick(now) {

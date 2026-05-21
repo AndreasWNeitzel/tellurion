@@ -547,7 +547,7 @@ function drawLighthouseMode(cam, spinPhase) {
   ctx.beginPath(); ctx.arc(xc, yc, 4, 0, 2 * Math.PI); ctx.fill();
   // Axes.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.75)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('phi = 0', px + 30, py + ph - 4);
   ctx.fillText('2 pi', px + pw - 30, py + ph - 4);
   ctx.fillText('I = 0', px + 6, py + ph - 16);
@@ -732,7 +732,7 @@ function drawStructureMode(cam, spinPhase) {
   ctx.beginPath(); ctx.arc(x0, y0, 5, 0, 2 * Math.PI); ctx.fill();
   // Labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('R [km]', px + pw - 36, py + ph - 6);
   ctx.fillText('M [Msun]', px + 6, py + 14);
   ctx.fillText('8', xForR(8), py + ph - 8);
@@ -746,7 +746,7 @@ function drawStructureMode(cam, spinPhase) {
     ctx.fillStyle = c.color;
     ctx.fillRect(px + pw - 90, ly - 8, 10, 3);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(c.name, px + pw - 75, ly - 4);
     ly += 14;
   }
@@ -816,7 +816,7 @@ function drawSpindownMode(cam, spinPhase) {
   ctx.fillText('glitch', xg + 4, py + 30);
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('t (yr)', px + pw / 2, py + ph - 6);
   ctx.fillText(`P min = ${(yMin * 1000).toFixed(3)} ms`, px + 8, py + ph - 12);
   ctx.fillText(`P max = ${(yMax * 1000).toFixed(3)} ms`, px + 8, py + 18);

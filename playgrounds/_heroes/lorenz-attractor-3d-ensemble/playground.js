@@ -104,6 +104,60 @@ btns.pause.addEventListener('click', () => {
 let last = performance.now(), fpsLast = last, fpsFrames = 0;
 const aspect = () => canvas.width / canvas.height;
 
+// Rule-13 diagnostic: the ensemble diameter D(t) grows exponentially
+// (D ~ D_0 e^{lambda t}) until it saturates on the attractor. We plot
+// log10 D vs t in a small Canvas2D overlay; the early-time slope is
+// the leading Lyapunov exponent. The main scene is WebGL so the
+// diagnostic gets its own 2D canvas layered over the corner.
+const diagCanvas = document.createElement('canvas');
+diagCanvas.width = 240; diagCanvas.height = 130;
+diagCanvas.style.cssText = 'position:absolute;right:10px;bottom:10px;width:240px;height:130px;'
+  + 'background:rgba(8,12,22,0.85);border:1px solid rgba(220,230,255,0.3);border-radius:4px;pointer-events:none';
+if (canvas.parentElement) {
+  const pe = canvas.parentElement;
+  if (getComputedStyle(pe).position === 'static') pe.style.position = 'relative';
+  pe.appendChild(diagCanvas);
+}
+const dctx = diagCanvas.getContext('2d');
+const diamHistory = [];      // {t, D}
+function placeOverlay(el) {
+  // Pin to the bottom-right of the STAGE canvas (not the figure, whose
+  // caption sits below the canvas and would show through).
+  el.style.left = `${canvas.offsetLeft + canvas.offsetWidth - el.width - 10}px`;
+  el.style.top = `${canvas.offsetTop + canvas.offsetHeight - el.height - 10}px`;
+  el.style.right = 'auto'; el.style.bottom = 'auto';
+}
+function drawDiagnostic() {
+  if (!dctx) return;
+  placeOverlay(diagCanvas);
+  const w = diagCanvas.width, h = diagCanvas.height;
+  dctx.clearRect(0, 0, w, h);
+  dctx.fillStyle = 'rgba(220,230,255,0.92)';
+  dctx.font = 'bold 11px ui-monospace, monospace';
+  dctx.fillText('ensemble spread  log₁₀ D(t)', 8, 14);
+  if (diamHistory.length < 2) return;
+  const ax = 34, ay = 22, aw = w - 44, ah = h - 40;
+  let tMax = diamHistory[diamHistory.length - 1].t || 1;
+  const lLo = -3, lHi = 2;
+  const xOf = (tt) => ax + (tt / tMax) * aw;
+  const yOf = (l) => ay + ah - ((Math.max(lLo, Math.min(lHi, l)) - lLo) / (lHi - lLo)) * ah;
+  dctx.strokeStyle = 'rgba(255,255,255,0.10)';
+  for (let l = lLo; l <= lHi; l += 1) {
+    dctx.beginPath(); dctx.moveTo(ax, yOf(l)); dctx.lineTo(ax + aw, yOf(l)); dctx.stroke();
+  }
+  dctx.strokeStyle = '#ffd166'; dctx.lineWidth = 1.8;
+  dctx.beginPath();
+  for (let i = 0; i < diamHistory.length; i += 1) {
+    const p = diamHistory[i];
+    const x = xOf(p.t), y = yOf(Math.log10(Math.max(1e-9, p.D)));
+    if (i === 0) dctx.moveTo(x, y); else dctx.lineTo(x, y);
+  }
+  dctx.stroke();
+  dctx.fillStyle = 'rgba(200,210,240,0.75)'; dctx.font = '9px ui-monospace, monospace';
+  for (let l = lLo; l <= lHi; l += 2) dctx.fillText(`${l}`, 6, yOf(l) + 3);
+  dctx.fillText('t', ax + aw / 2, h - 4);
+}
+
 function stepOnce(dt = 0.005) {
   for (let k = 0; k < ui.substeps; k += 1) rk4Step(state, dt);
   t += ui.substeps * dt;
@@ -135,6 +189,12 @@ function render() {
   rEls.centroid.textContent = `${c[0].toFixed(1)},${c[1].toFixed(1)},${c[2].toFixed(1)}`;
   // Naive Lyapunov: diameter grows ~ exp(lambda t) for early time, then saturates.
   if (t > 0.2 && d > 1e-6) rEls['λ_max'].textContent = Math.max(0, Math.min(2, Math.log(d / 1e-3) / t)).toFixed(2);
+  // Record D(t) for the diagnostic overlay (sampled, capped).
+  if (diamHistory.length === 0 || t - diamHistory[diamHistory.length - 1].t > 0.05) {
+    diamHistory.push({ t, D: d });
+    if (diamHistory.length > 400) diamHistory.shift();
+  }
+  drawDiagnostic();
 }
 
 function tick(now) {

@@ -66,6 +66,45 @@ function render() {
       ctx.fillRect(x * cellW, y * cellH, cellW + 1, cellH + 1);
     }
   }
+  recordWakeProbe();
+  drawWakeDiagnostic();
+}
+
+// Rule-13 diagnostic: transverse velocity u_y(t) at a fixed probe in
+// the wake. Once the von Karman street forms, u_y oscillates at the
+// vortex-shedding frequency; the period sets the Strouhal number. The
+// time series is the quantitative signature of the shed vortices.
+const wakeHistory = [];
+function recordWakeProbe() {
+  const pxr = Math.min(NX - 2, Math.floor(NX * 0.62));
+  const pyr = Math.floor(NY / 2);
+  const m = macro(s, pyr * NX + pxr);
+  wakeHistory.push(m.uy);
+  if (wakeHistory.length > 320) wakeHistory.shift();
+}
+function drawWakeDiagnostic() {
+  const pw = 280, ph = 110, px0 = W - pw - 14, py0 = 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px0, py0, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('wake transverse velocity  u_y(t)', px0 + 8, py0 + 14);
+  if (wakeHistory.length < 2) return;
+  const ax = px0 + 12, ay = py0 + 22, aw = pw - 24, ah = ph - 36;
+  let amp = 1e-4;
+  for (const v of wakeHistory) amp = Math.max(amp, Math.abs(v));
+  const xOf = (i) => ax + (i / (wakeHistory.length - 1)) * aw;
+  const yOf = (v) => ay + ah / 2 - (v / (amp * 1.15)) * (ah / 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+  ctx.beginPath(); ctx.moveTo(ax, yOf(0)); ctx.lineTo(ax + aw, yOf(0)); ctx.stroke();
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  wakeHistory.forEach((v, i) => { const x = xOf(i), y = yOf(v); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,240,0.72)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillText('shedding oscillation -> Strouhal frequency', ax, py0 + ph - 5);
 }
 
 let drawing = false;

@@ -80,14 +80,14 @@ function drawGofr() {
   ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '12px ui-monospace, monospace';
   ctx.textAlign = 'center'; ctx.fillText('r  (sigma)', (PX0 + PX1) / 2, H - 28);
   // plain-words caption (kept clear of the top-right readout box)
-  ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('g(r): neighbour density / bulk; peaks = coordination shells in the box', (PX0 + PX1) / 2, H - 12);
   ctx.save(); ctx.translate(PX0 - 30, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('g(r)', 0, 0); ctx.restore();
   // g = 1 reference: an ideal gas has no structure
   ctx.strokeStyle = 'rgba(120,130,150,0.3)'; ctx.setLineDash([5, 4]);
   ctx.beginPath(); ctx.moveTo(PX0, yOf(1)); ctx.lineTo(PX1, yOf(1)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(150,160,180,0.55)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(150,160,180,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
   ctx.fillText('g=1 ideal gas (uncorrelated)', PX1 - 4, yOf(1) - 5);
 
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.2; ctx.beginPath();
@@ -109,10 +109,10 @@ function drawGofr() {
     const lx = PX0 + 8, ly = PY0 + 46;
     ctx.strokeStyle = 'rgba(255,209,102,0.55)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(lx + 92, ly); ctx.stroke();
-    ctx.fillStyle = '#ffd166'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffd166'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText(`1st neighbour shell  r=${r[pk].toFixed(2)} sigma`, lx, ly);
   }
-  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('excluded core (repulsion, g=0)', PX0 + 6, PY1 - 8);
 }
 

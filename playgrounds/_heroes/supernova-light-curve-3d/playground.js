@@ -232,7 +232,7 @@ function drawLightcurvePanel() {
     const Y = py + ph - 28 - (lv - Llog_min) / (Llog_max - Llog_min) * (ph - 50);
     ctx.beginPath(); ctx.moveTo(px + 30, Y); ctx.lineTo(px + pw - 20, Y); ctx.stroke();
     ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`1e${lv}`, px + 4, Y + 4);
   }
   for (let t = 0; t <= 200; t += 50) {
@@ -268,7 +268,7 @@ function drawLightcurvePanel() {
   ctx.beginPath(); ctx.arc(xc, yc, 5, 0, 2 * Math.PI); ctx.fill();
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('t (d)', px + pw - 32, py + ph - 8);
   ctx.fillText('L (erg/s, log)', px + 4, py + 14);
   ctx.fillText('0', xForT(0) - 4, py + ph - 12);
@@ -332,7 +332,7 @@ function drawMassPartitionPanel() {
     ctx.fillStyle = colors[species];
     ctx.fillRect(px + pw - 80, lyy - 7, 10, 3);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.90)';
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(species, px + pw - 66, lyy - 4);
     lyy += 14;
   }

@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>FODO Synchrotron: Betatron Tune, Emittance and Stop Bands</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="The FODO ring with circulating bunch and beta function, the transverse phase-space emittance ellipse, and the tune stability diagram">
+    <canvas id="stage" width="900" height="560" aria-label="The FODO ring with circulating bunch and beta function, the transverse phase-space emittance ellipse, and the tune stability diagram">
     </canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">tune Q:</span><span class="value" id="readout-q">1.72</span>
@@ -29,7 +36,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">quad focal f (m)</span><input aria-label="quadrupole focal length, metres x10" type="range" id="slider-f" min="18" max="140" step="1" value="40"><span class="value" id="value-f">4.0</span></div>
     <div class="row"><span class="label">FODO cells</span><input aria-label="number of FODO cells in the ring" type="range" id="slider-nc" min="4" max="24" step="1" value="8"><span class="value" id="value-nc">8</span></div>
     <div class="row"><span class="label">dipole B (T)</span><input aria-label="dipole field, tesla x10" type="range" id="slider-b" min="5" max="90" step="1" value="12"><span class="value" id="value-b">1.2</span></div>

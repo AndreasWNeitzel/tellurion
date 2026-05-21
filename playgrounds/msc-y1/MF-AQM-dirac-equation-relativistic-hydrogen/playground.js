@@ -49,7 +49,7 @@ function drawLevels(x, y, w, h) {
   const Y = (e) => y0 + (y1 - y0) * (eMax - e) / (eMax - eMin);
   const xS = x + w * 0.30, xD = x + w * 0.66, colW = w * 0.18;
   const norm = RY_EV * st.Z * st.Z;
-  ctx.fillStyle = 'rgba(127,160,210,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(127,160,210,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('Schrodinger', xS - colW / 2, y0 - 6);
   ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.fillText('Dirac (n, j)', xD - colW / 2, y0 - 6);
   for (let n = 1; n <= NMAX; n += 1) {
@@ -72,7 +72,7 @@ function drawLevels(x, y, w, h) {
         ctx.beginPath(); ctx.moveTo(xS + colW / 2, Y(eS)); ctx.lineTo(xD - colW / 2, yy); ctx.stroke();
       }
       const ly = Math.abs(yy - yPrev) < 11 ? yPrev + 11 : yy;   // de-collide labels
-      ctx.fillStyle = 'rgba(241,192,105,0.7)'; ctx.font = '9px monospace';
+      ctx.fillStyle = 'rgba(241,192,105,0.7)'; ctx.font = '11px monospace';
       ctx.fillText(`j=${j}`, xD + colW / 2 + 5, ly + 3);
       yPrev = ly;
     });
@@ -82,7 +82,7 @@ function drawLevels(x, y, w, h) {
   const ix = x + w * 0.34, iy = y + h * 0.40, iw = 230, ih = 96;
   ctx.fillStyle = '#0d0f16'; ctx.fillRect(ix, iy, iw, ih);
   ctx.strokeStyle = 'rgba(241,192,105,0.4)'; ctx.strokeRect(ix + 0.5, iy + 0.5, iw - 1, ih - 1);
-  ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.font = '11px monospace';
   ctx.fillText('n=2 fine structure (zoom)', ix + 6, iy + 12);
   const e12 = diracLevel(2, 0.5, st.Z), e32 = diracLevel(2, 1.5, st.Z);
   const lo = Math.min(e12, e32), hi = Math.max(e12, e32), pad = (hi - lo) * 0.5 + 1e-9;
@@ -121,7 +121,7 @@ function drawZB(x, y, w, h) {
   ctx.stroke();
   const here = zbPosition(tNow, st.p);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(tNow), Y(here.x), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.font = '11px monospace';
   ctx.fillText('t (hbar / m c^2) ->', x1 - 130, y1 + 14);
   ctx.fillText('x (Compton wavelengths)', x + 6, y0 + 4);
   ctx.fillStyle = 'rgba(255,209,102,0.85)';
@@ -140,7 +140,7 @@ function drawScaling(x, y, w, h) {
   // slope-4 guide line
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(0), Y(ys[0])); ctx.lineTo(X(Math.log10(zMax)), Y(ys[0] + 4 * Math.log10(zMax))); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '11px monospace';
   ctx.fillText('slope 4', X(Math.log10(zMax)) - 60, Y(ys[0] + 4 * Math.log10(zMax)) - 4);
   ctx.strokeStyle = '#8fe39b'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < xs.length; i += 1) { const px = X(xs[i]), py = Y(ys[i]); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); }

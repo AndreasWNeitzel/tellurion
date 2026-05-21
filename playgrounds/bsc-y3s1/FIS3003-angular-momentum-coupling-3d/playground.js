@@ -109,7 +109,7 @@ function render() {
   const cellW = 40, cellH = 22, gx0 = TX + 40, gy0 = TY + 100;
   const m1s = []; for (let m = j1; m >= -j1 - 1e-9; m -= 1) m1s.push(Math.round(m * 2) / 2);
   const Ms = []; for (let M = J; M >= -J - 1e-9; M -= 1) Ms.push(Math.round(M * 2) / 2);
-  ctx.font = '10px ui-monospace, monospace'; ctx.fillStyle = '#9aa0ad'; ctx.textAlign = 'right';
+  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = '#9aa0ad'; ctx.textAlign = 'right';
   ctx.fillText('m1=', gx0 - 4, gy0 - 6);
   ctx.textAlign = 'center';
   m1s.forEach((m1, c) => ctx.fillText(String(m1), gx0 + c * cellW + cellW / 2, gy0 - 6));
@@ -121,11 +121,11 @@ function render() {
       const a = Math.abs(v);
       ctx.fillStyle = a < 1e-6 ? 'rgba(40,44,54,0.6)' : `rgba(127,214,255,${0.25 + 0.7 * a})`;
       ctx.fillRect(gx0 + c * cellW + 1, gy0 + r * cellH + 1, cellW - 2, cellH - 2);
-      if (a > 1e-6) { ctx.fillStyle = '#0a0c12'; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText(v.toFixed(2), gx0 + c * cellW + cellW / 2, gy0 + r * cellH + 15); }
+      if (a > 1e-6) { ctx.fillStyle = '#0a0c12'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText(v.toFixed(2), gx0 + c * cellW + cellW / 2, gy0 + r * cellH + 15); }
     });
   });
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('cell colour = |coeff|; rows sum to 1 (unitary)', TX, gy0 + Ms.length * cellH + 16);
 
   rEls['j1'].textContent = String(j1);

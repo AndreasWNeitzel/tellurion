@@ -29,14 +29,38 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const N = 200;
 const DEF = { src: 'sine', p: 2, xpRaw: 50 };
-const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
+// userTents: an array of { x: fractional position in [0, 1], w: signed
+// amplitude } that the user has CLICKED into the source. Their
+// individual Green tents are summed into the solution, and they are
+// rendered on the source plot as vertical sticks. The user can clear
+// them via the Reset button.
+const st = { ...DEF, running: !prefersReducedMotion(), ph: 0, userTents: [] };
 const xpVal = () => st.xpRaw / 100;
 
 let cache = {};
 function rebuild() {
   const g = solveViaGreen(st.src, N, st.p);
   const d = solveDirect(st.src, N, st.p);
-  cache = { x: g.x, f: g.f, u: g.u, uRef: d.u, res: odeResidual(g.x, g.u, g.f) };
+  // Add the user-clicked delta tents to BOTH the source f (so the
+  // residual check stays honest) and the solution u (by summing the
+  // analytic Green tent for each user click).
+  const f = Float64Array.from(g.f);
+  const u = Float64Array.from(g.u);
+  const uRef = Float64Array.from(d.u);
+  for (const t of st.userTents) {
+    const xp = t.x * L;
+    // Approximate delta source: add a narrow Gaussian to f for visual
+    // accuracy; in the closed-form Green decomposition we just add
+    // w * G(x, xp) to u.
+    const sigma = 0.015;
+    for (let i = 0; i < N; i += 1) {
+      const dx = g.x[i] - xp;
+      f[i] += t.w * Math.exp(-dx * dx / (2 * sigma * sigma)) / (sigma * Math.sqrt(2 * Math.PI));
+      u[i] += t.w * greenG(g.x[i], xp);
+      uRef[i] += t.w * greenG(g.x[i], xp);
+    }
+  }
+  cache = { x: g.x, f, u, uRef, res: odeResidual(g.x, u, f) };
 }
 
 function panel(x, y, w, h, title) {
@@ -71,14 +95,14 @@ function drawSolution(x, y, w, h) {
     }
     ctx.stroke(); ctx.setLineDash([]);
     if (lbl) {
-      ctx.fillStyle = col; ctx.font = '10px monospace';
+      ctx.fillStyle = col; ctx.font = '11px monospace';
       ctx.fillText(`${lbl} (peak ${amp.toExponential(1)})`, lx, cy - ph / 2 - 4);
     }
   };
   band(cache.f, topY + ph / 2, '#ff9d6f', 1.8, false, 'source f(x)', px + 6);
   band(cache.uRef, midY + ph / 2, 'rgba(155,232,176,0.7)', 3, true, '', px + pw - 130);
   band(cache.u, midY + ph / 2, '#6fb4ff', 2.2, false, 'solution u(x)  (green dashed = direct-solve check)', px + 6);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('0', px - 4, y + h - 8); ctx.fillText('L', px + pw - 6, y + h - 8);
 }
 
@@ -115,7 +139,7 @@ function drawTent(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(X(xp), fr.py); ctx.lineTo(X(xp), fr.py + fr.ph); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(xp), Y(greenG(xp, xp)), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = '#ffd166'; ctx.fillText(`G(x, x'=${xp.toFixed(2)}): zero at both walls, kink at x'`, fr.px + 6, fr.py + 13);
   ctx.fillStyle = 'rgba(200,210,235,0.6)';
   ctx.fillText('faint = the tents that sum to u', fr.px + 6, fr.py + fr.ph - 6);
@@ -137,7 +161,7 @@ function drawResidual(x, y, w, h) {
     if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = '11px monospace';
   ctx.fillText(`max | -u'' - f | = ${mx.toExponential(2)}  (~ 0: u solves the ODE)`, fr.px + 6, fr.py + 13);
   ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.font = '12px monospace';
   const facts = [
@@ -176,8 +200,28 @@ selS.addEventListener('change', () => { st.src = selS.value; rebuild(); draw(); 
 slP.addEventListener('input', () => { vP.textContent = slP.value; });
 slP.addEventListener('change', () => { st.p = parseInt(slP.value, 10); rebuild(); draw(); });
 slX.addEventListener('input', () => { st.running = false; bP.textContent = 'Play'; bP.setAttribute('aria-pressed', 'true'); st.xpRaw = parseInt(slX.value, 10); vX.textContent = xpVal().toFixed(2); draw(); });
+// Click anywhere in the solution panel (the LEFT half of the canvas)
+// to add a delta source: left-click = +1, right-click = -1. The new
+// tent appears immediately in the source/solution/residual panels.
+// Shift+click clears all user tents.
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+canvas.addEventListener('mousedown', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const cx = (e.clientX - r.left) * (W / r.width);
+  const cy = (e.clientY - r.top) * (H / r.height);
+  const half = (W - 52) / 2;
+  if (cx < 20 || cx > 20 + half) return;
+  if (e.shiftKey) { st.userTents.length = 0; rebuild(); draw(); return; }
+  // Map cx in [20 + 30, 20 + half - 14] to xFrac in [0, 1].
+  const px = 20 + 30, pw = half - 44;
+  const xFrac = Math.max(0, Math.min(1, (cx - px) / pw));
+  const weight = (e.button === 2 ? -1 : 1) * 0.5;
+  st.userTents.push({ x: xFrac, w: weight });
+  rebuild(); draw();
+});
+
 bR.addEventListener('click', () => {
-  Object.assign(st, DEF); st.running = true; st.ph = 0;
+  Object.assign(st, DEF); st.running = true; st.ph = 0; st.userTents = [];
   selS.value = DEF.src; slP.value = String(DEF.p); slX.value = String(DEF.xpRaw);
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); sync(); rebuild(); draw();
 });

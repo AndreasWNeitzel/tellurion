@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1100px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #04050a; cursor: grab; display: block; border-radius: 4px; }
   canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
   .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(3,4,10,0.62); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 15ch 13ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
@@ -25,9 +25,9 @@
   <div data-slot="description" class="katex-target">Cool a superconductor below its critical temperature and it expels the magnetic field from its interior (the Meissner effect), so a magnet above it floats. The field lines, integrated through the real image-dipole field, curve cleanly around the cold sample and thread straight through a warm one. The thin glowing skin is the London penetration layer; the field that does leak in dies over $\lambda_L(T)$. Drag to orbit; warm it past $T_c$ and the magnet drops.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1100" height="640"></canvas>
+  <canvas id="stage" width="960" height="640"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <canvas id="plot" width="1100" height="170" aria-label="Field magnitude versus depth into the sample, showing the exponential London decay."></canvas>
+  <canvas id="plot" width="900" height="170" aria-label="Field magnitude versus depth into the sample, showing the exponential London decay."></canvas>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Image-dipole Meissner screening; field-line streamlines curve around the cold sample, a London skin on the surface, and the magnet levitates. Source: Tinkham, Introduction to Superconductivity, Ch. 1-2.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>

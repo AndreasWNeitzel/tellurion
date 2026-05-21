@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="Null geodesics around a black hole, the effective potential, and FLRW Hubble flow"></canvas>
+    <canvas id="stage" width="900" height="560" aria-label="Null geodesics around a black hole, the effective potential, and FLRW Hubble flow"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">mode:</span><span class="value" id="readout-mode">Schwarzschild</span>
       <span class="label">b_c (M):</span><span class="value" id="readout-bc">5.196</span>
@@ -28,7 +35,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">spacetime</span><select aria-label="spacetime" id="select-mode" style="grid-column: span 2;"><option value="schw">Schwarzschild (photon sphere, b_c, ISCO)</option><option value="kerr">Kerr (ergosphere, frame drag)</option><option value="flrw">FLRW (expansion, Hubble flow)</option></select></div>
     <div class="row"><span class="label">impact b / spin a / Omega_m</span><input aria-label="primary parameter, x100" type="range" id="slider-p" min="10" max="100" step="1" value="52"><span class="value" id="value-p">5.20</span></div>
     <div class="row"><span class="label">secondary (a/M or H0)</span><input aria-label="secondary parameter, x100" type="range" id="slider-q" min="0" max="100" step="1" value="0"><span class="value" id="value-q">0.00</span></div>

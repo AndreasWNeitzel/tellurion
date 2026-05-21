@@ -148,7 +148,7 @@ function drawPlot(c) {
   const yOf = (v) => PLOT_TOP + PLOT_H * (1 - v / yMax);
 
   ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-  ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
   for (let g = 0; g <= 4; g += 1) {
     const y = PLOT_TOP + PLOT_H * g / 4;
     ctx.beginPath(); ctx.moveTo(PLOT_L, y); ctx.lineTo(PLOT_L + PLOT_W, y); ctx.stroke();

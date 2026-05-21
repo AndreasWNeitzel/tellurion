@@ -82,7 +82,7 @@ function draw() {
     const bh = (CH - 30) * Math.max(0, Math.min(1, c));
     ctx.fillStyle = resolved ? '#7fd1ff' : '#ff6b6b';
     ctx.fillRect(bx, CY + CH - 16 - bh, bw, bh);
-    ctx.fillStyle = 'rgba(220,228,240,0.75)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(220,228,240,0.75)'; ctx.font = '11px monospace';
     ctx.fillText(PITCHES[z] + 'nm', bx, CY + CH - 4);
   }
   ctx.fillStyle = 'rgba(255,210,120,0.85)'; ctx.font = '11px monospace';

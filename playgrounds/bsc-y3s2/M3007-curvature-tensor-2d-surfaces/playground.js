@@ -57,7 +57,48 @@ function render() {
     ctx.fillText(r.name, x0 - 60, refY + 60);
     ctx.fillStyle = '#9aa0a6'; ctx.fillText(`K = ${r.K.toFixed(2)}`, x0 - 25, refY + 75);
   });
+  drawKDiagnostic(R, r, kMax);
   rK.textContent = kMax.toExponential(2);
+}
+
+// Rule-13 diagnostic: Gaussian curvature K(θ) around the torus tube.
+// K = cos θ / [r (R + r cos θ)] is positive on the outer equator
+// (θ = 0), zero on the top and bottom circles (θ = ±π/2), and
+// negative on the inner equator (θ = π). The plot is the quantitative
+// companion to the red/blue coloured torus.
+function drawKDiagnostic(R, r, kMax) {
+  const W = canvas.width;
+  const pw = 300, ph = 150, px = W - pw - 16, py = 16;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('Gaussian curvature  K(θ) around the tube', px + 8, py + 16);
+  const ax = px + 40, ay = py + 26, aw = pw - 52, ah = ph - 48;
+  const km = kMax > 0 ? kMax : 1;
+  const xOf = (th) => ax + (th / (2 * Math.PI)) * aw;
+  const yOf = (K) => ay + ah / 2 - (K / km) * (ah / 2);
+  // Zero line.
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.beginPath(); ctx.moveTo(ax, yOf(0)); ctx.lineTo(ax + aw, yOf(0)); ctx.stroke();
+  // K(theta) curve, coloured by sign.
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 120; i += 1) {
+    const th0 = 2 * Math.PI * i / 120, th1 = 2 * Math.PI * (i + 1) / 120;
+    const K0 = torusK(th0, R, r), K1 = torusK(th1, R, r);
+    ctx.strokeStyle = (0.5 * (K0 + K1)) >= 0 ? '#ef476f' : '#5bc0eb';
+    ctx.beginPath();
+    ctx.moveTo(xOf(th0), yOf(K0)); ctx.lineTo(xOf(th1), yOf(K1));
+    ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillText('+K', px + 8, ay + 8);
+  ctx.fillText('-K', px + 8, ay + ah);
+  ctx.fillText('θ: 0', ax, ay + ah + 14);
+  ctx.fillText('π (inner)', xOf(Math.PI) - 24, ay + ah + 14);
+  ctx.fillText('2π', ax + aw - 14, ay + ah + 14);
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
 function bootSync() { st.t = 1; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }

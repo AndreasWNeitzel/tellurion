@@ -65,7 +65,7 @@ function drawChart(x, y, w, h) {
     ctx.globalAlpha = 1;
     ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.font = '15px monospace';
     ctx.fillText(P.sym, px + 12, py + ch / 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '9px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px monospace';
     ctx.fillText(`Q=${P.Q.toFixed(2)}`, px + 12, py + ch / 2 + 16);
   }
   // Higgs tile (right column, spanning)
@@ -75,9 +75,9 @@ function drawChart(x, y, w, h) {
   if (sel === 'H') { ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3; ctx.strokeRect(hx, hy, 80, 4 * ch - 6); }
   ctx.globalAlpha = 1;
   ctx.fillStyle = '#fff'; ctx.font = '15px monospace'; ctx.fillText('H', hx + 30, hy + 2 * ch);
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '9px monospace'; ctx.fillText('Higgs', hx + 22, hy + 2 * ch + 16);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px monospace'; ctx.fillText('Higgs', hx + 22, hy + 2 * ch + 16);
   // legend
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   let lx = gx;
   for (const [t, col] of Object.entries(TYPE_COL)) {
     if (t === 'hadron') continue;

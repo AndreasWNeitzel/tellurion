@@ -43,16 +43,15 @@ const sSpd = document.getElementById('slider-speed'), vSpd = document.getElement
 const tTracer = document.getElementById('toggle-tracer');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-// Higher-resolution grid. To afford ~3x the cells at 60 fps on the
-// CPU, BFECC (3 advection passes) is dropped; the finer grid itself
-// cuts numerical diffusion, and a small, cheap vorticity confinement
-// keeps the wake sharp and Reynolds-sensitive. The speed slider
-// scales the timestep (constant work per frame), so it genuinely
-// speeds the evolution instead of piling unaffordable steps into a
-// frame that then just runs slower.
-const GX = 220, GY = 140, DT = 0.09, VMAX = 1.8, YSHIFT = 6, DIFF = 4, CONF = 0.06;
-const SUBSTEPS = 2;
-const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 4e-3, maxIter: 20 }, bfecc: false, confine: CONF };
+// Higher-resolution grid. Bumped from 220x140 to 320x200 (2.1x the
+// cells) while halving the per-frame work elsewhere (1 substep
+// instead of 2, projection iterations from 20 to 12, diffuse sweeps
+// from 4 to 3) so the effective work per frame is similar to the
+// previous low-res version. Vorticity confinement keeps the wake
+// sharp at the lower projection iteration count.
+const GX = 320, GY = 200, DT = 0.11, VMAX = 1.8, YSHIFT = 8, DIFF = 3, CONF = 0.07;
+const SUBSTEPS = 1;
+const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 5e-3, maxIter: 12 }, bfecc: false, confine: CONF };
 const REGIME_RE = { stokes: 8, steady: 60, vonkarman: 300, turbulent: 600 };
 const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: !prefersReducedMotion(), field: 'vorticity' };
 const selField = document.getElementById('select-field');
@@ -115,8 +114,11 @@ function seedDye() {
 
 function build(warm) {
   state = createState(GX, GY, st.Re);
-  if (st.obs === 'cylinder') setDiskObstacle(state, 0.22, 17, YSHIFT);
-  else if (st.obs === 'square') setBlockObstacle(state, 0.22, 15, 15, YSHIFT);
+  // Obstacle radii scale with the finer grid (was tuned for 220x140;
+  // at 320x200 we keep the same fraction of the channel by using
+  // proportional radii).
+  if (st.obs === 'cylinder') setDiskObstacle(state, 0.22, 25, YSHIFT);
+  else if (st.obs === 'square') setBlockObstacle(state, 0.22, 22, 22, YSHIFT);
   dye = new Float64Array(GX * GY);
   for (let n = 0; n < warm; n += 1) {
     step(state, DT, STEP_OPTS);

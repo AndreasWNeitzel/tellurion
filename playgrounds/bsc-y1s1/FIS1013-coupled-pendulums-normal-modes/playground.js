@@ -184,7 +184,7 @@ function drawPortrait(c, x0, y0, s) {
   ctx.stroke();
   ctx.fillStyle = c.fg;
   ctx.beginPath(); ctx.arc(cx + sim.theta1 * sc, cy - sim.theta2 * sc, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('theta1 vs theta2', x0 + 6, y0 - 6);
   ctx.fillStyle = 'rgba(244,162,97,0.85)'; ctx.fillText('sym', x0 + s - 28, y0 + 26);
   ctx.fillStyle = 'rgba(91,192,235,0.85)'; ctx.fillText('anti', x0 + s - 30, y0 + s - 8);

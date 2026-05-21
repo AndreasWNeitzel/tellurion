@@ -188,6 +188,49 @@ function render() {
   rLat.textContent = `${st.latDeg}°`;
   rAng.textContent = `${(planeAngle(st.state) * 180 / Math.PI).toFixed(1)}°`;
   rT.textContent = T_prec_str;
+
+  // Rule-13 diagnostic: swing-plane azimuth vs time. For a Foucault
+  // pendulum the plane precesses linearly at Omega_earth sin(phi);
+  // the chart should be a straight ramp whose slope is that rate.
+  const angNow = planeAngle(st.state) * 180 / Math.PI;
+  const simT = st.state ? st.state.t : 0;
+  if (angHistory.length === 0 || simT - angHistory[angHistory.length - 1].t > 0.15) {
+    angHistory.push({ t: simT, a: angNow });
+    if (angHistory.length > 360) angHistory.shift();
+  }
+  drawAngleDiagnostic();
+}
+
+const angHistory = [];
+function drawAngleDiagnostic() {
+  const pw = 240, ph = 128, px = W - pw - 14, py = 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('swing-plane azimuth vs time', px + 8, py + 14);
+  if (angHistory.length < 2) return;
+  const ax = px + 34, ay = py + 22, aw = pw - 46, ah = ph - 40;
+  let aMin = Infinity, aMax = -Infinity;
+  for (const p of angHistory) { if (p.a < aMin) aMin = p.a; if (p.a > aMax) aMax = p.a; }
+  if (aMax - aMin < 10) { aMax = aMin + 10; }
+  const t0 = angHistory[0].t, t1 = angHistory[angHistory.length - 1].t;
+  const xOf = (t) => ax + (t1 > t0 ? (t - t0) / (t1 - t0) : 0) * aw;
+  const yOf = (a) => ay + ah - ((a - aMin) / (aMax - aMin)) * ah;
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let i = 0; i < angHistory.length; i += 1) {
+    const p = angHistory[i];
+    const x = xOf(p.t), y = yOf(p.a);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`${aMax.toFixed(0)}°`, px + 4, ay + 8);
+  ctx.fillText(`${aMin.toFixed(0)}°`, px + 4, ay + ah);
+  ctx.fillText('t', ax + aw / 2, py + ph - 4);
 }
 
 function tick() {

@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>MOSFET Operation: Channel, Pinch-off and I-V Regions</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="MOSFET output characteristics, device cross-section, and transfer curve"></canvas>
+    <canvas id="stage" width="900" height="560" aria-label="MOSFET output characteristics, device cross-section, and transfer curve"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">V_GS:</span><span class="value" id="readout-vgs">3.00</span>
       <span class="label">V_DS:</span><span class="value" id="readout-vds">0.00</span>
@@ -28,7 +35,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">gate V_GS</span><input aria-label="gate-source voltage, x100" type="range" id="slider-vgs" min="0" max="500" step="5" value="300"><span class="value" id="value-vgs">3.00</span></div>
     <div class="row"><span class="label">threshold V_th</span><input aria-label="threshold voltage, x100" type="range" id="slider-vth" min="20" max="250" step="5" value="100"><span class="value" id="value-vth">1.00</span></div>
     <div class="row"><span class="label">channel-length mod lambda</span><input aria-label="channel-length modulation, x1000" type="range" id="slider-lam" min="0" max="120" step="2" value="0"><span class="value" id="value-lam">0.000</span></div>

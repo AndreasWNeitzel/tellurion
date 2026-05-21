@@ -91,6 +91,47 @@ function render() {
   rN.textContent = String(s.N);
   rStep.textContent = String(s.nSteps);
   rD.textContent = sep.toFixed(2);
+
+  // Rule-13 diagnostic: core-core separation vs simulation step. The
+  // dips mark pericentre passages; the long-term decay shows the
+  // dynamical-friction-driven inspiral toward merger.
+  if (sepHistory.length === 0 || s.nSteps - sepHistory[sepHistory.length - 1].n >= 4) {
+    sepHistory.push({ n: s.nSteps, sep });
+    if (sepHistory.length > 360) sepHistory.shift();
+  }
+  drawSepDiagnostic();
+}
+
+const sepHistory = [];
+function drawSepDiagnostic() {
+  const pw = 240, ph = 130, px = W - pw - 14, py = H - ph - 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('core separation vs step', px + 8, py + 14);
+  if (sepHistory.length < 2) return;
+  const ax = px + 30, ay = py + 22, aw = pw - 42, ah = ph - 40;
+  let sMax = 1;
+  for (const p of sepHistory) if (p.sep > sMax) sMax = p.sep;
+  const n0 = sepHistory[0].n, n1 = sepHistory[sepHistory.length - 1].n;
+  const xOf = (n) => ax + (n1 > n0 ? (n - n0) / (n1 - n0) : 0) * aw;
+  const yOf = (v) => ay + ah - (v / (sMax * 1.05)) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.beginPath(); ctx.moveTo(ax, yOf(0)); ctx.lineTo(ax + aw, yOf(0)); ctx.stroke();
+  ctx.strokeStyle = '#9bd0ff'; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let i = 0; i < sepHistory.length; i += 1) {
+    const p = sepHistory[i];
+    const x = xOf(p.n), y = yOf(p.sep);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(sMax.toFixed(1), px + 4, ay + 8);
+  ctx.fillText('step', ax + aw / 2 - 12, py + ph - 4);
 }
 
 function tick() {

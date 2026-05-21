@@ -79,36 +79,70 @@ export function stepLorentz(p, dt, qOverM = 1.0, m_dip = 1.0) {
   p.z += 0.5 * dt * p.vz;
 }
 
-// Spawn a particle injected from the solar-wind direction (+x). The
-// initial velocity has both perpendicular and parallel components so
-// the particle's trajectory has a mix of gyration and bouncing along
-// the field line (the classic mirror-trap motion).
+// Spawn a particle TRAPPED on a dipole field line. Real solar-wind
+// particles that get captured into the magnetosphere bounce between
+// magnetic mirror points along a field line. Spawning them with the
+// right initial conditions (mostly perpendicular velocity at the
+// equator of a particular L-shell) gives bouncing motion that funnels
+// them toward the poles, where they spiral in tighter and tighter
+// until they hit the atmosphere. Spawning them on a free incoming
+// trajectory from the solar-wind direction (the old version) does
+// NOT reproduce the auroral oval; most particles fly past Earth
+// without being trapped.
 export function spawnParticle(rng) {
-  const r = 5.5 + rng() * 0.8;     // injected outside the L-shell trap region
-  const z0 = (rng() - 0.5) * 2.0;
-  const y0 = (rng() - 0.5) * 2.0;
+  // Choose an L-shell between 3 and 6 (the auroral L-shell range; the
+  // Van Allen inner belt is ~ 1.5-3, outer belt ~ 4-7).
+  const L = 3.0 + rng() * 3.0;
+  // Pick an azimuthal angle (longitude on the magnetic equator).
+  const phi = rng() * 2 * Math.PI;
+  // The field-line geometry: r(lambda) = L cos^2(lambda). Start at the
+  // equator where lambda = 0, so r = L.
+  const x0 = L * Math.cos(phi);
+  const y0 = 0;        // y = z = 0 at the equator (here z = magnetic-axis direction)
+  const z0 = L * Math.sin(phi);
+  // Wait — our axis convention has z = magnetic-axis vertical. We need
+  // the equator to be in the (x, y) plane, with z = up to north pole.
+  // Re-do: spawn at (x = L cos phi, y = L sin phi, z = 0).
+  const xe = L * Math.cos(phi);
+  const ye = L * Math.sin(phi);
+  const ze = 0;
+  // Velocity: mostly perpendicular to the field (large pitch angle),
+  // with a small parallel component so it bounces. At the equator the
+  // field points in -z (toward south pole through the planet) wait
+  // actually for a dipole moment along +z, at the equator B points
+  // along -z direction (well, downward through the magnetic equator).
+  // We give the velocity in the (rho, phi, z) frame: v_perp along
+  // -rho_hat (so it rotates around the field), v_par small along z.
+  const rho_hat_x = Math.cos(phi), rho_hat_y = Math.sin(phi);
+  const phi_hat_x = -Math.sin(phi), phi_hat_y = Math.cos(phi);
+  const vPerp = 0.5 + 0.3 * rng();
+  const vPar = (rng() - 0.5) * 0.4;       // small longitudinal speed → bounces between mirror points.
+  const vx = vPerp * phi_hat_x;            // gyration direction (azimuthal)
+  const vy = vPerp * phi_hat_y;
+  const vz = vPar;
   return {
-    x: r, y: y0, z: z0,
-    vx: -1.0 - 0.5 * rng(),
-    vy: (rng() - 0.5) * 0.4,
-    vz: (rng() - 0.5) * 0.4,
+    x: xe, y: ye, z: ze,
+    vx, vy, vz,
     age: 0,
-    excited: false,                 // becomes true when it deposits energy near pole
-    color: 'green',                 // or 'red' depending on altitude
+    excited: false,
+    color: 'green',
+    L,                                       // remember the launch L-shell
   };
 }
 
-// Check if particle has reached the auroral layer (height < RAURORA + small)
-// near a magnetic pole. Returns null if not, otherwise the emission
-// color: 'green' (oxygen ~558 nm, lower altitude) or 'red' (oxygen
-// ~630 nm, higher altitude).
+// Check if particle has reached the auroral layer (RAURORA radius)
+// at high magnetic latitude. Returns null if outside the auroral
+// region, else the emission color.
 export function checkAuroralExcitation(p) {
   const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
-  if (r > RAURORA * 1.5) return null;
-  // Near a pole: cos(latitude) low means high latitude
-  const cosLat = Math.abs(p.z) / Math.max(1e-6, r);
-  if (cosLat < 0.7) return null;          // not high-latitude enough
-  // Color depends on altitude:
-  if (r < REARTH * 1.04) return 'green';  // 100-300 km
-  return 'red';                            // 300-600 km
+  // The auroral oval is at radius ~ RAURORA; we accept hits between
+  // RAURORA and 1.5 * REARTH (so the bouncing particle deposits when
+  // it dips below the trap).
+  if (r > REARTH * 1.18 || r < REARTH * 0.98) return null;
+  // High magnetic latitude: |z| / r > sin(60 deg) = 0.866 (oval at
+  // |lat| ~ 60-75 deg).
+  const sinLat = Math.abs(p.z) / Math.max(1e-6, r);
+  if (sinLat < 0.85) return null;
+  if (r < REARTH * 1.05) return 'green';
+  return 'red';
 }

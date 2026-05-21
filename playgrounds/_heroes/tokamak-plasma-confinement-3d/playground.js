@@ -229,6 +229,66 @@ let sceneInfo = null;
 let last = performance.now(), fpsLast = last, fpsFrames = 0;
 const aspect = () => canvas.width / canvas.height;
 
+// Rule-13 diagnostic: the safety-factor profile q(r) across the minor
+// radius. q rises from q_axis at the core to q_edge at the boundary
+// (modelled parabolic, q(r) = q_axis + (q_edge - q_axis)(r/a)^2). The
+// q = 1 and q = 2 rational surfaces are marked: those are where kink
+// and tearing modes set in. WebGL scene, so the chart gets its own
+// 2D overlay canvas; recomputed only when the profile changes.
+const tkDiag = document.createElement('canvas');
+tkDiag.width = 252; tkDiag.height = 140;
+tkDiag.style.cssText = 'position:absolute;right:10px;bottom:10px;width:252px;height:140px;'
+  + 'background:rgba(8,12,22,0.86);border:1px solid rgba(220,230,255,0.3);border-radius:4px;pointer-events:none';
+if (canvas.parentElement) {
+  const pe = canvas.parentElement;
+  if (getComputedStyle(pe).position === 'static') pe.style.position = 'relative';
+  pe.appendChild(tkDiag);
+}
+const tkctx = tkDiag.getContext('2d');
+let tkDiagKey = '';
+function drawTokamakDiagnostic() {
+  if (!tkctx) return;
+  // Pin to the bottom-right of the STAGE canvas, not the figure (whose
+  // caption sits below the canvas and would bleed through the overlay).
+  tkDiag.style.left = `${canvas.offsetLeft + canvas.offsetWidth - tkDiag.width - 10}px`;
+  tkDiag.style.top = `${canvas.offsetTop + canvas.offsetHeight - tkDiag.height - 10}px`;
+  tkDiag.style.right = 'auto'; tkDiag.style.bottom = 'auto';
+  const key = `${qEdge.toFixed(3)}|${qAxis.toFixed(3)}`;
+  if (key === tkDiagKey) return;
+  tkDiagKey = key;
+  const w = tkDiag.width, h = tkDiag.height;
+  tkctx.clearRect(0, 0, w, h);
+  tkctx.fillStyle = 'rgba(220,230,255,0.92)';
+  tkctx.font = 'bold 11px ui-monospace, monospace';
+  tkctx.fillText('safety factor  q(r)', 8, 14);
+  const ax = 32, ay = 24, aw = w - 44, ah = h - 44;
+  const qMax = Math.max(4, qEdge * 1.15);
+  const xOf = (rr) => ax + rr * aw;
+  const yOf = (q) => ay + ah - (q / qMax) * ah;
+  for (const [qv, col, lab] of [[1, 'rgba(239,71,111,0.6)', 'q=1'], [2, 'rgba(255,209,102,0.6)', 'q=2']]) {
+    if (qv > qMax) continue;
+    tkctx.strokeStyle = col; tkctx.setLineDash([4, 3]);
+    tkctx.beginPath(); tkctx.moveTo(ax, yOf(qv)); tkctx.lineTo(ax + aw, yOf(qv)); tkctx.stroke();
+    tkctx.setLineDash([]);
+    tkctx.fillStyle = col; tkctx.font = '9px ui-monospace, monospace';
+    tkctx.fillText(lab, ax + aw - 22, yOf(qv) - 3);
+  }
+  tkctx.strokeStyle = '#5bc0eb'; tkctx.lineWidth = 2;
+  tkctx.beginPath();
+  for (let k = 0; k <= 100; k += 1) {
+    const rr = k / 100;
+    const q = qAxis + (qEdge - qAxis) * rr * rr;
+    const x = xOf(rr), y = yOf(q);
+    if (k === 0) tkctx.moveTo(x, y); else tkctx.lineTo(x, y);
+  }
+  tkctx.stroke();
+  tkctx.fillStyle = 'rgba(200,210,240,0.78)'; tkctx.font = '9px ui-monospace, monospace';
+  tkctx.fillText('0', 22, yOf(0));
+  tkctx.fillText(`${qMax.toFixed(0)}`, 16, yOf(qMax) + 6);
+  tkctx.fillText('r/a: 0 (axis)', ax, ay + ah + 11);
+  tkctx.fillText('1 (edge)', ax + aw - 42, ay + ah + 11);
+}
+
 function render() {
   if (!engine) return;
   if (rebuild) {
@@ -241,6 +301,7 @@ function render() {
   rEls.q_edge.textContent = qEdge.toFixed(2);
   rEls.q_axis.textContent = qAxis.toFixed(2);
   rEls['trapped %'].textContent = (100 * trappedCount / NPART).toFixed(0);
+  drawTokamakDiagnostic();
 }
 
 btns.reset.addEventListener('click', () => {

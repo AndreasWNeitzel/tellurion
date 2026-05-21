@@ -104,7 +104,7 @@ function render() {
     const x = xFor(l);
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`1e${l}`, x - 14, padT + plotH + 14);
   }
 

@@ -122,6 +122,54 @@ function render() {
     ctx.fillStyle = c.muted;
     ctx.fillText('Earth', cx + dEarth + 6, cy - 6);
   }
+
+  drawFluxDiagnostic(L, inner, outer, dAu);
+}
+
+// Rule-13 diagnostic: stellar flux S(d) vs orbital distance, in Earth
+// units (S/S_Earth). S falls as the inverse square of distance; the
+// habitable-zone flux band (the flux received at the HZ inner and
+// outer edges) is shaded. The planet's current (d, S) sits on the
+// curve, tying the orbital scene to the inverse-square law.
+function drawFluxDiagnostic(L, inner, outer, dAu) {
+  const W = canvas.width, H = canvas.height;
+  const pw = 244, ph = 150, px = W - pw - 14, py = 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('flux S(d)  (S / S_Earth, log)', px + 8, py + 14);
+  const ax = px + 38, ay = py + 24, aw = pw - 50, ah = ph - 42;
+  // Relative flux S/S_Earth = (L/L_SUN) / d_AU^2.
+  const Lrel = L / L_SUN;
+  const sOf = (d) => Lrel / (d * d);
+  const dMax = Math.max(2.5, outer * 1.25, dAu * 1.15);
+  const sLo = -2, sHi = 2;                       // log10 S range
+  const xOf = (d) => ax + (d / dMax) * aw;
+  const yOf = (s) => ay + ah - ((Math.max(sLo, Math.min(sHi, Math.log10(Math.max(1e-9, s)))) - sLo) / (sHi - sLo)) * ah;
+  // Habitable flux band: between S at the outer and inner HZ edges.
+  const sInner = sOf(inner), sOuter = sOf(outer);
+  ctx.fillStyle = 'rgba(90, 220, 120, 0.16)';
+  ctx.fillRect(ax, yOf(sInner), aw, yOf(sOuter) - yOf(sInner));
+  // S(d) curve.
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let k = 1; k <= 140; k += 1) {
+    const d = dMax * k / 140;
+    const x = xOf(d), y = yOf(sOf(d));
+    if (k === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Planet point.
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(xOf(dAu), yOf(sOf(dAu)), 4, 0, 6.28); ctx.fill();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillText('10^2', px + 6, ay + 8);
+  ctx.fillText('10^0', px + 6, yOf(1) + 3);
+  ctx.fillText('0', ax - 4, ay + ah + 10);
+  ctx.fillText(`${dMax.toFixed(1)} AU`, ax + aw - 34, ay + ah + 10);
 }
 
 function updateReadout() {

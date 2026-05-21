@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Second-Harmonic Generation: Phase Matching and Conversion</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="SHG intensity along the crystal, phase-matching acceptance, and BBO dispersion"></canvas>
+    <canvas id="stage" width="900" height="560" aria-label="SHG intensity along the crystal, phase-matching acceptance, and BBO dispersion"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">dk:</span><span class="value" id="readout-dk">0.00</span>
       <span class="label">L_c:</span><span class="value" id="readout-lc">inf</span>
@@ -28,7 +35,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">regime</span><select aria-label="conversion regime" id="select-regime" style="grid-column: span 2;"><option value="undepleted">undepleted (sinc^2 / coherence length)</option><option value="depleted">phase-matched, pump depletion (tanh^2)</option></select></div>
     <div class="row"><span class="label">phase mismatch dk</span><input aria-label="phase mismatch, x100 per micron" type="range" id="slider-dk" min="0" max="300" step="2" value="60"><span class="value" id="value-dk">0.60</span></div>
     <div class="row"><span class="label">coupling gamma</span><input aria-label="nonlinear coupling, x100" type="range" id="slider-gamma" min="2" max="120" step="1" value="6"><span class="value" id="value-gamma">0.06</span></div>

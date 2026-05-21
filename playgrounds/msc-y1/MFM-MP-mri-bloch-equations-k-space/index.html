@@ -13,7 +13,7 @@
   <h1>MRI: the Bloch Equations, the FID and k-Space Imaging</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="The magnetization on the Bloch sphere, the free induction decay and its spectrum, and the brain image with its k-space">
+    <canvas id="stage" width="900" height="560" aria-label="The magnetization on the Bloch sphere, the free induction decay and its spectrum, and the brain image with its k-space">
     </canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">weighting:</span><span class="value" id="readout-w">T2</span>
@@ -29,9 +29,20 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
-    <div class="row"><span class="label">weighting</span><select aria-label="image weighting" id="select-w" style="grid-column: span 2;"><option value="t2">T2-weighted (long TR, long TE)</option><option value="t1">T1-weighted (short TR, short TE)</option><option value="pd">proton-density (long TR, short TE)</option></select></div>
-    <div class="row"><span class="label">sequence</span><select aria-label="pulse sequence" id="select-seq" style="grid-column: span 2;"><option value="se">spin echo</option><option value="gre">gradient echo</option></select></div>
+  <style>
+    /* Local fix: previous version used a bare .controls grid with
+       three full-width selects that overlapped each other. We add an
+       explicit two-column grid so each control gets its own row. */
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 18ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  </style>
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <div class="row"><span class="label">weighting</span><select aria-label="image weighting" id="select-w"><option value="t2">T2-weighted (long TR, long TE)</option><option value="t1">T1-weighted (short TR, short TE)</option><option value="pd">proton-density (long TR, short TE)</option></select><span class="value" id="value-w">T2</span></div>
+    <div class="row"><span class="label">sequence</span><select aria-label="pulse sequence" id="select-seq"><option value="se">spin echo</option><option value="gre">gradient echo</option></select><span class="value" id="value-seq">SE</span></div>
+    <div class="row"><span class="label">phantom</span><select aria-label="anatomy phantom" id="select-phantom"><option value="brain">brain</option><option value="abdomen">abdomen</option><option value="knee">knee</option><option value="shepp">Shepp-Logan</option></select><span class="value" id="value-phantom">brain</span></div>
     <div class="row"><span class="label">k-space kept (%)</span><input aria-label="fraction of k-space acquired, percent" type="range" id="slider-kf" min="6" max="100" step="2" value="100"><span class="value" id="value-kf">100</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>

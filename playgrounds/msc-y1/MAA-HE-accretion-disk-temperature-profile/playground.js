@@ -5,6 +5,7 @@ import { DEFAULT_SEED, mulberry32 } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   temperature, temperatureBare, temperatureToRGB, R_IN, R_TMAX, T_MAX,
+  discSED,
 } from './sim.js';
 
 const urlParams      = new URLSearchParams(location.search);
@@ -25,7 +26,7 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const VIEW_NAMES = ['profile', 'disc'];
+const VIEW_NAMES = ['profile', 'disc', 'SED'];
 
 const state = {
   view: 0,
@@ -298,10 +299,76 @@ function drawDisc() {
   ctx.fillText(`hot annulus at r = 1.36 R_in;  rotation phase = ${(state.phase % (2 * Math.PI)).toFixed(2)} rad`, 30, H - 18);
 }
 
+// Multicolour-blackbody SED view: F_nu vs nu on log-log axes, with
+// the characteristic nu^(1/3) middle slope marked.
+function drawSED() {
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.textAlign = 'left';
+  ctx.fillText('disc-integrated SED  F_ν = ∫ 2πr B_ν(T(r)) dr', 30, 22);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.fillText('multicolour blackbody: RJ tail → ν^(1/3) plateau → Wien cutoff', 30, 40);
+
+  const padL = 56, padR = 40, padT = 70, padB = 90;
+  const drawW = W - padL - padR, drawH = H - padT - padB;
+  ctx.fillStyle = '#0a0a0e';
+  ctx.fillRect(padL, padT, drawW, drawH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.strokeRect(padL + 0.5, padT + 0.5, drawW - 1, drawH - 1);
+
+  const { nu, Fnu } = discSED(80, state.rmax);
+  // Log-log axes.
+  let fMax = 1e-30;
+  for (const f of Fnu) if (f > fMax) fMax = f;
+  const lnuLo = Math.log10(nu[0]), lnuHi = Math.log10(nu[nu.length - 1]);
+  const lfLo = Math.log10(fMax) - 4, lfHi = Math.log10(fMax) + 0.4;
+  const xN = (n) => padL + 6 + (drawW - 12) * (Math.log10(n) - lnuLo) / (lnuHi - lnuLo);
+  const yF = (f) => padT + drawH - 6 - (drawH - 14) * (Math.log10(Math.max(1e-30, f)) - lfLo) / (lfHi - lfLo);
+  // Grid.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  for (let l = Math.ceil(lnuLo); l <= lnuHi; l += 1) {
+    ctx.beginPath(); ctx.moveTo(xN(Math.pow(10, l)), padT); ctx.lineTo(xN(Math.pow(10, l)), padT + drawH); ctx.stroke();
+  }
+  // nu^(1/3) reference slope.
+  ctx.strokeStyle = 'rgba(255, 209, 102, 0.5)';
+  ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  const nA = nu[Math.floor(nu.length * 0.25)], nB = nu[Math.floor(nu.length * 0.6)];
+  const fRef = fMax * 0.18;
+  ctx.moveTo(xN(nA), yF(fRef * Math.pow(nA / nB, 1 / 3)));
+  ctx.lineTo(xN(nB), yF(fRef));
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255, 209, 102, 0.8)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('F_ν ∝ ν^(1/3)', xN(nB) + 4, yF(fRef) - 6);
+  // SED curve.
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  for (let k = 0; k < nu.length; k += 1) {
+    const x = xN(nu[k]), y = yF(Fnu[k]);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Axis labels.
+  ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'center';
+  for (let l = Math.ceil(lnuLo); l <= lnuHi; l += 1) ctx.fillText(`10^${l}`, xN(Math.pow(10, l)), padT + drawH + 14);
+  ctx.fillText('frequency ν  (T_in units)', padL + drawW / 2, padT + drawH + 30);
+  ctx.save();
+  ctx.translate(padL - 38, padT + drawH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('F_ν  (log)', 0, 0);
+  ctx.restore();
+}
+
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
-  if (state.view === 0) drawProfile(); else drawDisc();
+  if (state.view === 0) drawProfile();
+  else if (state.view === 1) drawDisc();
+  else drawSED();
 }
 
 function tickN(n) { state.phase += n; }

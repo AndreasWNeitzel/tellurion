@@ -279,6 +279,53 @@ function drawLabels() {
   ctx.fillText('X-point', W / 2 + 18, H / 2 + 4);
 }
 
+// Rule-13 diagnostic: the Sweet-Parker reconnection rate M_A vs the
+// Lundquist number S. The hallmark scaling M_A ~ S^(-1/2) appears as
+// a straight line on log-log axes; the current operating point is
+// marked. Sampled across the playground's eta range.
+function drawReconnectionDiagnostic() {
+  const pw = 250, ph = 138, px = W - pw - 14, py = H - ph - 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('reconnection rate  M_A vs Lundquist S', px + 8, py + 14);
+  const ax = px + 40, ay = py + 22, aw = pw - 52, ah = ph - 42;
+  // Sweep log_eta to span S and M_A; collect (logS, logMA).
+  const base = currentParams();
+  const pts = [];
+  for (let le = -7; le <= -1; le += 0.2) {
+    const p = { ...base, eta: Math.pow(10, le) };
+    const S = lundquist(p), MA = reconnectionRate(p);
+    if (S > 0 && MA > 0) pts.push([Math.log10(S), Math.log10(MA)]);
+  }
+  if (pts.length < 2) return;
+  let sLo = Infinity, sHi = -Infinity, mLo = Infinity, mHi = -Infinity;
+  for (const [s, m] of pts) {
+    if (s < sLo) sLo = s; if (s > sHi) sHi = s;
+    if (m < mLo) mLo = m; if (m > mHi) mHi = m;
+  }
+  const xOf = (s) => ax + (sHi > sLo ? (s - sLo) / (sHi - sLo) : 0) * aw;
+  const yOf = (m) => ay + ah - (mHi > mLo ? (m - mLo) / (mHi - mLo) : 0) * ah;
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  pts.forEach(([s, m], i) => { const x = xOf(s), y = yOf(m); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+  ctx.stroke();
+  // Current operating point.
+  const Snow = lundquist(base), MAnow = reconnectionRate(base);
+  if (Snow > 0 && MAnow > 0) {
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(xOf(Math.log10(Snow)), yOf(Math.log10(MAnow)), 4, 0, 6.28); ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('log S', ax + aw / 2 - 14, py + ph - 4);
+  ctx.save(); ctx.translate(px + 12, ay + ah / 2 + 18); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('log M_A', 0, 0); ctx.restore();
+  ctx.fillText('M_A ~ S^-1/2', ax + 6, ay + 10);
+}
+
 function draw() {
   drawBackground();
   drawFieldLines();
@@ -287,6 +334,7 @@ function draw() {
   drawInflowArrows(currentParams());
   drawParticles();
   drawLabels();
+  drawReconnectionDiagnostic();
   updateReadout();
 }
 

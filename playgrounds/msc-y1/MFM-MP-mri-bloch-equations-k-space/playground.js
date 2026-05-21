@@ -7,6 +7,7 @@
 import {
   blochEvolve, mag, fid, spectrum, ernstAngle,
   brainPhantom, mrImage, imageToK, reconFromK, magnitude,
+  phantomByName,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -25,6 +26,7 @@ const rTrte = document.getElementById('readout-trte');
 const rKf = document.getElementById('readout-kf');
 const selW = document.getElementById('select-w');
 const selS = document.getElementById('select-seq');
+const selP = document.getElementById('select-phantom');
 const slK = document.getElementById('slider-kf'), vK = document.getElementById('value-kf');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
@@ -34,9 +36,10 @@ const PRESET = {
   t1: { TR: 500, TE: 15, name: 'T1' },
   pd: { TR: 3000, TE: 15, name: 'proton density' },
 };
-const DEF = { w: 't2', seq: 'se', kf: 100 };
+const DEF = { w: 't2', seq: 'se', kf: 100, phantom: 'brain' };
 const st = { ...DEF, running: !prefersReducedMotion(), ph: 0 };
-const PH = brainPhantom(N);
+let PH = brainPhantom(N);
+if (selP) selP.addEventListener('change', () => { st.phantom = selP.value; PH = phantomByName(st.phantom, N); rebuild(); });
 // representative grey-matter relaxation for the Bloch-sphere demo
 const GM_T1 = 1000, GM_T2 = 100, OMEGA = 0.05;
 
@@ -116,7 +119,7 @@ function drawBloch(x, y, w, h) {
   for (const [vx, vy, vz, lab] of [[1.2, 0, 0, 'x'], [0, 1.2, 0, 'y'], [0, 0, 1.2, 'z (B0)']]) {
     const [ax, ay] = proj(0, 0, 0), [bx, by] = proj(vx, vy, vz);
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-    ctx.fillStyle = 'rgba(180,195,225,0.65)'; ctx.font = '10px monospace'; ctx.fillText(lab, bx + 2, by);
+    ctx.fillStyle = 'rgba(180,195,225,0.65)'; ctx.font = '11px monospace'; ctx.fillText(lab, bx + 2, by);
   }
   // M evolves over one TR, looping; trail of recent positions
   const p = cache.p, T = (st.ph * p.TR);
@@ -152,7 +155,7 @@ function drawFID(x, y, w, h) {
     if (k === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(111,180,255,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(111,180,255,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('FID  ~ e^{-t/T2*} cos(wt)', ax + 6, ay + 12);
   // spectrum
   const sy = ay + ah + 14;
@@ -180,7 +183,7 @@ function drawImage(x, y, w, h) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(imgCanvas(cache.recon, N, cache.imax, false), x + 14, iy, sz, sz);
   ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(x + 14, iy, sz, sz);
-  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '11px monospace';
   ctx.fillText(`image (${st.kf}% of k-space)`, x + 14, iy + sz + 14);
   const kx = x + 14 + sz + 14;
   ctx.drawImage(imgCanvas(kCentred(cache.kmag, N), N, cache.kmax, true), kx, iy, sz, sz);

@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Optical Fiber: LP Modes, Dispersion and Pulse Broadening</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="b-V dispersion diagram, LP mode cross-section, and GVD pulse broadening"></canvas>
+    <canvas id="stage" width="900" height="560" aria-label="b-V dispersion diagram, LP mode cross-section, and GVD pulse broadening"></canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">V:</span><span class="value" id="readout-v">3.80</span>
       <span class="label">modes:</span><span class="value" id="readout-modes">2</span>
@@ -28,7 +35,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">mode</span><select aria-label="LP mode" id="select-mode" style="grid-column: span 2;"><option value="0,1">LP01 (fundamental)</option><option value="1,1">LP11</option><option value="2,1">LP21</option><option value="0,2">LP02</option></select></div>
     <div class="row"><span class="label">V-number</span><input aria-label="normalised frequency, x100" type="range" id="slider-v" min="60" max="900" step="5" value="380"><span class="value" id="value-v">3.80</span></div>
     <div class="row"><span class="label">dispersion L_D</span><input aria-label="dispersion length, x10" type="range" id="slider-ld" min="5" max="80" step="1" value="20"><span class="value" id="value-ld">2.0</span></div>

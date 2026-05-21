@@ -137,7 +137,7 @@ function render() {
     ctx.strokeStyle = 'rgba(150,255,200,0.8)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(G[0] - 5, G[1]); ctx.lineTo(G[0] + 5, G[1]);
     ctx.moveTo(G[0], G[1] - 5); ctx.lineTo(G[0], G[1] + 5); ctx.stroke(); ctx.lineWidth = 1;
-    ctx.fillStyle = 'rgba(150,255,200,0.7)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(150,255,200,0.7)'; ctx.font = '11px monospace';
     ctx.fillText('guiding centre', G[0] + 7, G[1] + 11);
   }
   // particle + its velocity and (E x B) drift vectors

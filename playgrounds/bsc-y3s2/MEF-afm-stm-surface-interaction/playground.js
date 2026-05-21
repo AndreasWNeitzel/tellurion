@@ -92,7 +92,7 @@ function drawMicrograph() {
   ctx.strokeStyle = 'rgba(226,232,240,0.3)'; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, s - 1, s - 1);
   ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('micrograph: the tip raster-scans an atomic lattice', x, y - 8);
-  ctx.fillStyle = '#8893a6'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#8893a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`${XMAX} A`, x + s - 30, y + s + 14);
 }
 

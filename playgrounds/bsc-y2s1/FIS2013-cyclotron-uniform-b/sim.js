@@ -8,23 +8,31 @@
 //
 // Reference: Jackson, Classical Electrodynamics Ch. 12.
 
-export const Q = 1.0;
-export const M = 1.0;
+// Default species: positive unit charge, unit mass. Both are now
+// slider-controlled in playground.js; pass q and m through the state.
+export const Q_DEFAULT = 1.0;
+export const M_DEFAULT = 1.0;
 
-export function cyclotronOmega(B) { return Q * B / M; }
-export function cyclotronRadius(v, B) { return M * v / (Q * Math.abs(B)); }
-export function cyclotronPeriod(B) { return 2 * Math.PI * M / (Q * Math.abs(B)); }
-
-export function createCyclotron({ B = 1.0, v = 1.0, x0 = 0, y0 = 0, vx0 = null, vy0 = null } = {}) {
-  // If vx0, vy0 not provided, set vx = 0, vy = v (counter-clockwise circle for B > 0).
-  if (vx0 === null) vx0 = 0;
-  if (vy0 === null) vy0 = v;
-  return { x: x0, y: y0, vx: vx0, vy: vy0, B, t: 0, nSteps: 0 };
+export function cyclotronOmega(B, q = Q_DEFAULT, m = M_DEFAULT) { return q * B / m; }
+export function cyclotronRadius(v, B, q = Q_DEFAULT, m = M_DEFAULT) {
+  return m * v / (Math.abs(q) * Math.abs(B));
+}
+export function cyclotronPeriod(B, q = Q_DEFAULT, m = M_DEFAULT) {
+  return 2 * Math.PI * m / (Math.abs(q) * Math.abs(B));
 }
 
-// 4th-order Runge-Kutta for d2 r / dt^2 = (q / m) v x B = (qB/m) (vy, -vx).
+export function createCyclotron({ B = 1.0, v = 1.0, q = Q_DEFAULT, m = M_DEFAULT, x0 = 0, y0 = 0, vx0 = null, vy0 = null } = {}) {
+  if (vx0 === null) vx0 = 0;
+  if (vy0 === null) vy0 = v;
+  return { x: x0, y: y0, vx: vx0, vy: vy0, B, q, m, t: 0, nSteps: 0 };
+}
+
+// 4th-order Runge-Kutta for d^2 r / dt^2 = (q / m) v x B.
+// For B along z-hat: dvx/dt = (qB/m) vy, dvy/dt = -(qB/m) vx.
+// Sign of (qB/m) flips with negative charge or negative B; that flips
+// the rotation sense, which is the correct cyclotron behaviour.
 function deriv(state) {
-  const omega = Q * state.B / M;
+  const omega = state.q * state.B / state.m;
   return {
     dx: state.vx,
     dy: state.vy,
@@ -35,7 +43,7 @@ function deriv(state) {
 
 export function stepCyclotron(s, dt = 0.01) {
   function combine(s0, k, fac) {
-    return { x: s0.x + fac * k.dx, y: s0.y + fac * k.dy, vx: s0.vx + fac * k.dvx, vy: s0.vy + fac * k.dvy, B: s0.B };
+    return { x: s0.x + fac * k.dx, y: s0.y + fac * k.dy, vx: s0.vx + fac * k.dvx, vy: s0.vy + fac * k.dvy, B: s0.B, q: s0.q, m: s0.m };
   }
   const k1 = deriv(s);
   const k2 = deriv(combine(s, k1, dt / 2));

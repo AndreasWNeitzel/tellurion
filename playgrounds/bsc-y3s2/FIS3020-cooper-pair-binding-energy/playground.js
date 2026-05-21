@@ -45,7 +45,7 @@ function renderLeftPanel(w, h) {
   ctx.stroke();
 
   ctx.fillStyle = '#9aa0a6';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('log10(E_b / hω_D)', x0 + 8, y0 + pad.t - 5);
   ctx.save();
   ctx.translate(x0 + 10, y0 + h / 2);
@@ -115,7 +115,7 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.stroke();
 
   ctx.fillStyle = '#9aa0a6';
-  ctx.font = '9px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('|g(ξ)|', x0 + 8, y0 + pad.t - 3);
   ctx.fillText('ξ / ℏω_D (fixed window)', x0 + w - 130, y0 + h - pad.b + 12);
 
@@ -145,7 +145,7 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.setLineDash([]);
 
   ctx.fillStyle = '#9aa0a6';
-  ctx.font = '9px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('FWHM ~ E_b (broadens with coupling)', x0 + pad.l + 5, y0 + pad.t + 15);
 }
 

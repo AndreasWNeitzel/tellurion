@@ -77,20 +77,51 @@ export function planetSkyPos(s, t) {
   return { x: sky_x, y: sky_y, infront: z_los > 0, theta };
 }
 
-// Stellar flux blocked by the planet at time t, in units of the
-// unobscured flux. Returns 1 out of transit, < 1 in transit, exactly
-// equal to (Rp/Rs)^2 at the centre of a no-limb-darkening central
-// transit.
+// Observed flux from the (star + planet) system at time t, in units of
+// the unobscured stellar flux. Includes the standard primary transit
+// (planet in front of star, blocked stellar light) AND the secondary
+// eclipse (planet behind star, reflected planet light vanishes).
+//
+// Reflected-light model: Lambertian sphere with geometric albedo A_g
+// (default 0.4, Jupiter-like). At phase angle alpha (star-planet-observer),
+//   p(alpha) = (sin alpha + (pi - alpha) cos alpha) / pi
+// is the Lambertian phase function, peaking at alpha = 0 (full phase,
+// planet behind the star). Planet/star flux ratio:
+//   F_p / F_s = A_g (R_p / a)^2 p(alpha).
+// When the planet passes BEHIND the stellar disc (secondary eclipse),
+// the reflected light is fully occulted and the flux drops back to 1.
 export function transitFlux(s, t) {
   const P = planetSkyPos(s, t);
-  if (!P.infront) return 1;             // planet behind the star (secondary eclipse ignored)
+  const albedo = s.albedo ?? 0.4;
+  // Phase angle: 0 at superior conjunction (planet farthest = full),
+  // pi at inferior conjunction (planet closest = new). Using theta:
+  // theta = 0 places planet at +x; observer is at +z. The line-of-sight
+  // depth z_los = a sin theta sin inc. With sin inc > 0, far-side
+  // corresponds to sin theta < 0 i.e. theta in (pi, 2 pi) (matches
+  // !P.infront from planetSkyPos).
+  // We use a phase angle defined by the cosine of the angle between
+  // the planet-to-star vector and the planet-to-observer vector.
+  // For an inclined orbit, this is cos alpha = -sin theta * sin inc,
+  // mod foreshortening.
+  const cosAlpha = -Math.sin(P.theta) * Math.sin(s.inc);
+  const alpha = Math.acos(Math.max(-1, Math.min(1, cosAlpha)));
+  const phaseFn = (Math.sin(alpha) + (Math.PI - alpha) * Math.cos(alpha)) / Math.PI;
+  const reflectMax = albedo * (s.Rp / Math.max(0.05, s.a)) * (s.Rp / Math.max(0.05, s.a));
+  const reflectFlux = reflectMax * Math.max(0, phaseFn);
+  // Distance of planet from the star centre on the sky plane.
   const d2 = P.x * P.x + P.y * P.y;
-  if (d2 > (1 + s.Rp) * (1 + s.Rp)) return 1;   // outside the disc altogether
-  // sum intensity in cells outside the planet's projected disc
+  if (!P.infront) {
+    // Planet on far side. Secondary eclipse: planet sits behind the
+    // stellar disc (d < 1 - R_p) so its reflected light is hidden.
+    const occulted = d2 < (1 - s.Rp) * (1 - s.Rp);
+    return 1 + (occulted ? 0 : reflectFlux);
+  }
+  // Near side. Primary transit if sky distance < 1 + R_p.
+  if (d2 > (1 + s.Rp) * (1 + s.Rp)) return 1 + reflectFlux;
   let kept = 0;
   for (let k = 0; k < s.Ipx.length; k += 1) {
     const dx = s.xpx[k] - P.x, dy = s.ypx[k] - P.y;
     if (dx * dx + dy * dy >= s.Rp * s.Rp) kept += s.Ipx[k];
   }
-  return kept / s.total;
+  return kept / s.total + reflectFlux;
 }

@@ -72,7 +72,7 @@ function render() {
   }
 
   // y gridlines and decade labels.
-  ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
   for (let l = Math.ceil(yLo / 5) * 5; l <= yHi; l += 5) {
     const yy = yOf(l);
     ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x1, yy); ctx.stroke();

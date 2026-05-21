@@ -124,7 +124,7 @@ function drawConvergence(c, x0, y_off, w, h) {
     const x = xFor(i);
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${i}`, x - 6, y_off + padT + plotH + 14);
   }
   for (let le = -16; le <= 0; le += 4) {

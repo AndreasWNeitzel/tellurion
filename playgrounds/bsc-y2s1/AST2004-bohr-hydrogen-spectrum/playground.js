@@ -98,7 +98,7 @@ function drawLadder(c, x0, y0, w, h) {
     const y = yForE(eMark);
     ctx.beginPath(); ctx.moveTo(x0 + padL, y); ctx.lineTo(x0 + padL + plotW, y); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${eMark.toFixed(1)}`, x0 + padL - 38, y + 3);
   }
   ctx.fillStyle = c.muted;
@@ -163,7 +163,7 @@ function drawSpectrum(c, x0, y0, w, h) {
     const x = xForLam(lam);
     ctx.beginPath(); ctx.moveTo(x, y0 + padT); ctx.lineTo(x, y0 + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${lam} nm`, x - 16, y0 + padT + plotH + 14);
   }
   ctx.fillStyle = c.muted;
@@ -262,19 +262,30 @@ function drawAtom(c, x0, y0, w, h) {
   ctx.beginPath(); ctx.arc(ex, ey, 5, 0, 2 * Math.PI); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.stroke();
 
-  // Emitted photon: a wavy ray flying outward, coloured by wavelength.
+  // Emitted photon: a wavy ray flying outward radially. The emission
+  // direction is LATCHED at the moment of emission (ph = 0.45) so the
+  // photon travels in a fixed straight line. Recomputing `aa` each frame
+  // from the rotating electron's current angle made the photon appear
+  // to spin with angular momentum it does not carry.
   if (ph >= 0.45) {
     const pf = Math.min(1, (ph - 0.45) / 0.5);
     const pr = rOf(nHi) + pf * (Rmax + 30);
     const pcol = nmToColor(ln.lambdaNm);
+    // Per-cycle emission angle: evaluate ang at the moment ph = 0.45.
+    // ang(t) = atomPhase * 3.2; at ph = 0.45 within this cycle,
+    // atomPhase = floor(atomPhase) + 0.45.
+    const cycleAtEmission = Math.floor(atomPhase) + 0.45;
+    const aaFixed = cycleAtEmission * 3.2 + 0.5;
     ctx.strokeStyle = pcol; ctx.lineWidth = 2;
     ctx.beginPath();
     for (let s = 0; s <= 40; s += 1) {
       const rr = pr - 36 + s * 0.9;
-      const aa = ang + 0.5;
+      // Perpendicular wobble (the EM transverse oscillation), not a
+      // rotational drift of the propagation direction.
+      const perpX = -Math.sin(aaFixed), perpY = Math.cos(aaFixed);
       const wob = Math.sin(s * 0.9) * 4;
-      const px = cx + rr * Math.cos(aa) - wob * Math.sin(aa);
-      const py = cy + rr * Math.sin(aa) + wob * Math.cos(aa);
+      const px = cx + rr * Math.cos(aaFixed) + wob * perpX;
+      const py = cy + rr * Math.sin(aaFixed) + wob * perpY;
       if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.stroke();

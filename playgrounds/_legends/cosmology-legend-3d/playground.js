@@ -177,19 +177,19 @@ function drawFateMode(aNow) {
   ctx.beginPath(); ctx.moveTo(px + 36, yForA(1)); ctx.lineTo(px + pw - 20, yForA(1)); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Plot each fate.
+  // Plot each preset fate as a faint reference curve.
   const fates = ['lcdm', 'matter', 'closed', 'empty'];
   const colors = {
-    lcdm: 'rgba(120, 220, 255, 0.95)',
-    matter: 'rgba(255, 220, 120, 0.85)',
-    closed: 'rgba(255, 130, 110, 0.85)',
-    empty: 'rgba(220, 220, 230, 0.65)',
+    lcdm: 'rgba(120, 220, 255, 0.55)',
+    matter: 'rgba(255, 220, 120, 0.45)',
+    closed: 'rgba(255, 130, 110, 0.45)',
+    empty: 'rgba(220, 220, 230, 0.35)',
   };
   for (const f of fates) {
     const p = FATE_PRESETS[f];
     const sol = integrateScaleFactor({ m: p.Om, L: p.Ol }, 1.0, { dt: 0.004, tMax: 40 });
     ctx.strokeStyle = colors[f];
-    ctx.lineWidth = (f === st.preset) ? 2.6 : 1.3;
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     let started = false;
     for (let k = 0; k < sol.t.length; k++) {
@@ -201,6 +201,30 @@ function drawFateMode(aNow) {
     }
     ctx.stroke();
   }
+  // Draw the USER's current (Om, Ol) curve in bold magenta. This is the
+  // curve that responds live to slider drags so the user immediately
+  // sees what their cosmology does.
+  const userSol = getCosmo();
+  ctx.strokeStyle = 'rgba(255, 140, 220, 1.0)';
+  ctx.lineWidth = 3.0;
+  ctx.shadowBlur = 8;
+  ctx.shadowColor = 'rgba(255, 140, 220, 0.6)';
+  ctx.beginPath();
+  let userStarted = false;
+  for (let k = 0; k < userSol.t.length; k++) {
+    const ti = userSol.t[k], ai = userSol.a[k];
+    if (ti < T_MIN - 0.05 || ti > T_MAX + 0.05) continue;
+    if (ai > A_MAX + 0.1) continue;
+    const x = xForT(ti); const y = yForA(ai);
+    if (!userStarted) { ctx.moveTo(x, y); userStarted = true; } else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Current-time dot on the user curve.
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.beginPath();
+  ctx.arc(xForT(0), yForA(1), 5, 0, Math.PI * 2);
+  ctx.fill();
   // Cosmic time marker: t = 0 (now).
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.setLineDash([2, 4]);
@@ -212,7 +236,7 @@ function drawFateMode(aNow) {
 
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('t / H_0^-1', px + pw - 56, py + ph - 12);
   ctx.fillText('a(t)', px + 8, py + 18);
   ctx.fillText('0', px + 22, py + ph - 30);
@@ -227,24 +251,39 @@ function drawFateMode(aNow) {
 
   // Legend.
   let lyy = py + 30;
+  ctx.fillStyle = 'rgba(255, 140, 220, 1.0)';
+  ctx.fillRect(px + pw - 180, lyy - 8, 10, 3);
+  ctx.fillStyle = 'rgba(255, 200, 240, 0.95)';
+  ctx.font = 'bold 10px ui-monospace, monospace';
+  ctx.fillText(`your universe (Ω_m=${st.Om.toFixed(2)}, Ω_Λ=${st.Ol.toFixed(2)})`, px + pw - 165, lyy - 4);
+  lyy += 16;
   for (const f of fates) {
     ctx.fillStyle = colors[f];
     ctx.fillRect(px + pw - 180, lyy - 8, 10, 3);
-    ctx.fillStyle = 'rgba(220, 230, 255, 0.90)';
-    ctx.font = (f === st.preset) ? 'bold 10px ui-monospace, monospace' : '10px ui-monospace, monospace';
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(FATE_PRESETS[f].label, px + pw - 165, lyy - 4);
     lyy += 14;
   }
-  // Description strip.
+
+  // Classify the user's universe by inspecting the integrated a(t).
+  // Big Crunch if a returns to zero; coasting if (Om, Ol) ~ 0; dark
+  // energy dominated if dark energy > matter; Einstein-de-Sitter limit
+  // if Om = 1, Ol = 0.
+  let aMax = -Infinity, aLast = userSol.a[userSol.a.length - 1];
+  for (const v of userSol.a) if (v > aMax) aMax = v;
+  const futureCollapse = aLast < 0.05 && aMax > 1.1;
+  const Otot = st.Om + st.Ol;
+  let fateLabel = '';
+  if (futureCollapse) fateLabel = 'Big Crunch: a(t) peaks at a_max = ' + aMax.toFixed(2) + ' then recollapses.';
+  else if (Otot < 0.02) fateLabel = 'Empty (Milne) universe: a coasts linearly with t.';
+  else if (st.Ol > 0.6) fateLabel = 'Dark-energy-dominated Big Freeze: a(t) accelerates exponentially.';
+  else if (Math.abs(st.Om - 1.0) < 0.05 && st.Ol < 0.05) fateLabel = 'Einstein-de-Sitter (matter-only flat): a ∝ t^(2/3).';
+  else if (st.Ol < 0.05) fateLabel = 'Matter-dominated, decelerating: still expands forever if k ≤ 0.';
+  else fateLabel = `Mixed cosmology: Ω_m = ${st.Om.toFixed(2)}, Ω_Λ = ${st.Ol.toFixed(2)}, Ω_k = ${(1 - Otot).toFixed(2)}.`;
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = '12px system-ui, sans-serif';
-  const desc = {
-    lcdm: 'LCDM (our universe): a(t) accelerates without bound as dark energy dominates.',
-    matter: 'Matter-only Einstein-de-Sitter: a ~ t^(2/3); decelerating but expands forever.',
-    closed: 'Closed (Big Crunch): a peaks and recollapses; total density above critical.',
-    empty: 'Empty universe: a coasts linearly with t; no matter or dark energy.',
-  };
-  ctx.fillText(desc[st.preset] || '', px + 8, py + ph + 18);
+  ctx.fillText(fateLabel, px + 8, py + ph + 18);
 }
 
 // =========================================================================
@@ -437,7 +476,7 @@ function drawInflationMode() {
   ctx.fillText(`phi at N = ${st.Nefolds}: ${phi_N.toFixed(2)}`, xc + 8, yc - 8);
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('phi (M_Pl)', lpx + lpw - 60, lpy + lph - 12);
   ctx.fillText('V', lpx + 8, lpy + 18);
 
@@ -469,7 +508,7 @@ function drawInflationMode() {
   ctx.lineWidth = 1.4;
   ctx.strokeRect(xForN(0.957), yForR(0.061), xForN(0.973) - xForN(0.957), yForR(0) - yForR(0.061));
   ctx.fillStyle = 'rgba(120, 220, 200, 0.95)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('Planck 2-sigma', xForN(0.957) + 4, yForR(0.061) + 12);
 
   // Track both potentials' (n_s, r) for N = 30..70.
@@ -504,7 +543,7 @@ function drawInflationMode() {
   }
   // Axes labels and N markers on the current track.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('n_s', rpx + rpw - 24, rpy + rph - 12);
   ctx.fillText('r', rpx + 8, rpy + 18);
   ctx.fillText('0.94', xForN(0.94), rpy + rph - 16);
@@ -518,7 +557,7 @@ function drawInflationMode() {
     ctx.fillStyle = t.color;
     ctx.fillRect(rpx + 14, lyy - 8, 10, 3);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-    ctx.font = (t.pot === st.pot) ? 'bold 10px ui-monospace, monospace' : '10px ui-monospace, monospace';
+    ctx.font = (t.pot === st.pot) ? 'bold 10px ui-monospace, monospace' : '11px ui-monospace, monospace';
     ctx.fillText(t.name, rpx + 30, lyy - 4);
     lyy += 14;
   }
@@ -555,11 +594,36 @@ function drawSidePanel(aNow) {
   row('Omega_Lambda', st.Ol.toFixed(2));
   const Ok = 1 - st.Om - st.Ol;
   row('Omega_k', Ok.toFixed(2));
-  row('preset', st.preset, '#ffd28a');
+  // Compute physically meaningful slider-dependent quantities.
+  const sol = getCosmo();
+  // Age of the universe in units of 1/H_0. We integrated from t = -1
+  // to t = +tMax with t = 0 placed at a = 1; the age is therefore the
+  // current cosmic time relative to a = 0.
+  let ageH0 = -Infinity;
+  for (let k = 0; k < sol.a.length; k++) {
+    if (sol.a[k] >= 1.0 && ageH0 === -Infinity) {
+      // First sample where a >= 1; the time at this sample is +ve;
+      // age = first_t_a_at_zero -> first_t_a_at_1.
+      let t0 = sol.t[0];
+      // Find when a first crosses 0+ (start of expansion).
+      for (let i = 0; i < sol.a.length; i++) {
+        if (sol.a[i] > 0.001) { t0 = sol.t[i]; break; }
+      }
+      ageH0 = sol.t[k] - t0;
+      break;
+    }
+  }
+  if (!Number.isFinite(ageH0)) ageH0 = 0;
+  // H_0 = 67.4 km/s/Mpc -> 1/H_0 = 14.5 Gyr.
+  const ageGyr = ageH0 * 14.5;
+  // Deceleration parameter q_0 = Omega_m / 2 - Omega_Lambda (for a flat
+  // matter+Lambda universe). Closed forms; sign of q_0 tells whether
+  // expansion is decelerating (q > 0) or accelerating (q < 0).
+  const q0 = 0.5 * st.Om - st.Ol;
+  row('age (Gyr)', ageGyr > 0 ? ageGyr.toFixed(2) : '∞');
+  row('q_0', q0.toFixed(3), q0 < 0 ? '#88ffaa' : '#ffb088');
   if (st.mode === 'expansion' || st.mode === 'fate') {
     row('a(now)', aNow.toFixed(3));
-  } else {
-    row('a(now)', '-');
   }
   row('mode', st.mode, '#ffd28a');
 }

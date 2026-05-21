@@ -127,7 +127,7 @@ function render() {
   for (let q = 0; q <= 120; q += 1) { const v = Vlo + (Vhi - Vlo) * q / 120; const ii = photocurrent(v, nu, phi, st.intensity); const X = ivx(v), Yy = ivy(ii); q === 0 ? ctx.moveTo(X, Yy) : ctx.lineTo(X, Yy); }
   ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(ivx(st.V), ivy(I), 4, 0, 6.2832); ctx.fill();
-  if (on) { ctx.strokeStyle = 'rgba(255,210,90,0.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(ivx(-Vs), IVY + 4); ctx.lineTo(ivx(-Vs), IVY + IVH - 4); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('-V_stop', ivx(-Vs), IVY + IVH - 2); ctx.textAlign = 'left'; }
+  if (on) { ctx.strokeStyle = 'rgba(255,210,90,0.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(ivx(-Vs), IVY + 4); ctx.lineTo(ivx(-Vs), IVY + IVH - 4); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('-V_stop', ivx(-Vs), IVY + IVH - 2); ctx.textAlign = 'left'; }
 
   // Einstein line panel
   panel(ELX, ELY, ELW, ELH, 'Einstein line: V_stop vs nu (slope h/e)');
@@ -139,7 +139,7 @@ function render() {
   einsteinLine(phi, NU_MIN, NU_MAX, 80).forEach(([n, v], k) => { const X = elx(n), Yy = ely(v); k === 0 ? ctx.moveTo(X, Yy) : ctx.lineTo(X, Yy); });
   ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(elx(nu), ely(Math.max(0, K)), 4, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`nu0 = ${nu0.toFixed(2)} PHz`, elx(nu0), ELY + ELH - 2);
   ctx.fillText('nu', ELX + ELW / 2, ELY + ELH + 13); ctx.textAlign = 'left';
 

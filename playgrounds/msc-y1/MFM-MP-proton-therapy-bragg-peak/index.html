@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="The proton depth-dose Bragg peak against the photon curve, the spread-out Bragg peak as a superposition, and the dose deposited along a patient depth">
+    <canvas id="stage" width="900" height="560" aria-label="The proton depth-dose Bragg peak against the photon curve, the spread-out Bragg peak as a superposition, and the dose deposited along a patient depth">
     </canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">energy:</span><span class="value" id="readout-e">150 MeV</span>
@@ -29,7 +36,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">proton energy (MeV)</span><input aria-label="proton energy in MeV" type="range" id="slider-e" min="60" max="230" step="2" value="150"><span class="value" id="value-e">150</span></div>
     <div class="row"><span class="label">mode</span><select aria-label="display mode" id="select-mode" style="grid-column: span 2;"><option value="pristine">pristine Bragg vs X-ray</option><option value="sobp">spread-out Bragg peak</option></select></div>
     <div class="row"><span class="label">SOBP width (%)</span><input aria-label="SOBP plateau width, percent of range" type="range" id="slider-pw" min="10" max="60" step="2" value="35"><span class="value" id="value-pw">35</span></div>

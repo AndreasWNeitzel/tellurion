@@ -97,7 +97,7 @@ function render() {
     const yE = ry(eVals[i]);
     ctx.strokeStyle = colorOf(lv[i].mJ); ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(rx0 + 6, yE); ctx.lineTo(rx1 - 96, yE); ctx.stroke();
-    ctx.fillStyle = colorOf(lv[i].mJ); ctx.font = '10px ui-monospace, monospace';
+    ctx.fillStyle = colorOf(lv[i].mJ); ctx.font = '11px ui-monospace, monospace';
     const sign = lv[i].mJ > 0 ? '+' : '';
     ctx.fillText(`m_J=${sign}${lv[i].mJ}  ${eVals[i] >= 0 ? '+' : ''}${eVals[i].toFixed(0)}`, rx1 - 92, yE + 3);
   }

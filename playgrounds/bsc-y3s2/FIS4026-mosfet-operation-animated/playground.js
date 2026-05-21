@@ -62,7 +62,7 @@ function drawOutput(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
   for (let f = 0; f <= 1.0001; f += 0.25) { ctx.beginPath(); ctx.moveTo(x0, Y(f * Im)); ctx.lineTo(x1, Y(f * Im)); ctx.stroke(); }
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px monospace';
   ctx.fillText(`${(Im * 1e3).toFixed(1)} mA`, x + 6, Y(Im) + 8); ctx.fillText('0', x + 6, Y(0));
   // pinch-off locus I_D = (kn/2) V_DS^2 (V_DS = V_ov along it)
   ctx.strokeStyle = 'rgba(241,192,105,0.55)'; ctx.setLineDash([4, 3]); ctx.beginPath();
@@ -90,7 +90,7 @@ function drawDevice(x, y, w, h) {
   const dx0 = x + 24, dx1 = x + w - 16, top = y + 34, bot = y + h - 26;
   const midH = bot - top;
   ctx.fillStyle = '#221a2e'; ctx.fillRect(dx0, top, dx1 - dx0, midH);          // p-substrate
-  ctx.fillStyle = 'rgba(210,220,240,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(210,220,240,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('p-substrate (body)', dx0 + 8, bot - 8);
   const sW = (dx1 - dx0) * 0.16;
   ctx.fillStyle = '#2f6ad6';
@@ -130,7 +130,7 @@ function drawTransfer(x, y, w, h) {
   const Y = (i) => y1 - (y1 - y0) * i / Im;
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
   ctx.beginPath(); ctx.moveTo(X(st.vth), y0); ctx.lineTo(X(st.vth), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('V_th', X(st.vth) + 3, y0 + 12);
   ctx.strokeStyle = '#8fe39b'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 240; i += 1) { const xx = X(tc.vgs[i]), yy = Y(tc.id[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }

@@ -96,7 +96,7 @@ function drawRing(x, y, w, h, stable, Q) {
   const ph = (st.turn % 90) / 90, ba = 2 * Math.PI * ph;
   ctx.fillStyle = stable ? '#ffd166' : '#ff6b6b';
   ctx.beginPath(); ctx.arc(cx + Math.cos(ba) * R, cy + Math.sin(ba) * R, 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = '#7fd6a0'; ctx.fillText('F quad', cx - 22, y + h - 18);
   ctx.fillStyle = '#ff9d6f'; ctx.fillText('D quad', cx + 26, y + h - 18);
   if (!stable) {
@@ -106,7 +106,7 @@ function drawRing(x, y, w, h, stable, Q) {
   const gx = x + h + 30, gy = y + 30, gw = w - h - 46, gh = h - 58;
   const prof = betaProfile(focal());
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(gx, gy, gw, gh);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('beta(s) over one FODO cell', gx + 6, gy + 13);
   ctx.fillStyle = stable ? '#9be8b0' : '#ff8f8f'; ctx.font = '12px monospace';
   ctx.fillText(`Q = ${Number.isNaN(Q) ? 'unstable' : Q.toFixed(4)}`, gx + gw - 102, gy + 14);
@@ -123,7 +123,7 @@ function drawRing(x, y, w, h, stable, Q) {
   } else {
     ctx.fillStyle = '#ff8f8f'; ctx.fillText('no periodic solution (cell unstable)', gx + 6, gy + gh / 2);
   }
-  ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = '11px monospace';
   ctx.fillText('F', gx - 2, gy + gh + 15); ctx.fillText('D', gx + gw / 2 - 4, gy + gh + 15); ctx.fillText('F', gx + gw - 8, gy + gh + 15);
 }
 
@@ -138,7 +138,7 @@ function drawPhase(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
   ctx.beginPath(); ctx.moveTo(x + 12, cy); ctx.lineTo(x + w - 8, cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx, y + 22); ctx.lineTo(cx, y + h - 10); ctx.stroke();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('x (mm)', x + w - 52, cy - 6); ctx.fillText("x' (mrad)", cx + 6, y + 32);
   if (tw) {
     ctx.strokeStyle = 'rgba(127,214,160,0.85)'; ctx.lineWidth = 2; ctx.beginPath();
@@ -178,7 +178,7 @@ function drawTune(x, y, w, h) {
     ctx.strokeStyle = 'rgba(127,214,160,0.45)'; ctx.setLineDash([4, 3]);
     ctx.beginPath(); ctx.moveTo(px, Ytr(v)); ctx.lineTo(px + pw, Ytr(v)); ctx.stroke(); ctx.setLineDash([]);
   }
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('trace/2', px + 4, py + 12);
   ctx.fillText('+1', px - 20, Ytr(1) + 3); ctx.fillText('-1', px - 18, Ytr(-1) + 3);
   ctx.fillText('stable |.|<1', px + pw - 78, Ytr(0) - 4);
@@ -193,7 +193,7 @@ function drawTune(x, y, w, h) {
   ctx.fillStyle = 'rgba(255,90,90,0.12)'; ctx.fillRect(px, py, xEdge - px, ph);
   ctx.strokeStyle = 'rgba(255,110,110,0.6)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xEdge, py); ctx.lineTo(xEdge, py + ph); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,140,140,0.85)'; ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(255,140,140,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('stop band', px + 4, py + ph - 6);
   const qy = py + ph + 26, qh = 80;
   let qmax = 0.5;
@@ -219,7 +219,7 @@ function drawTune(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(X(f0), py); ctx.lineTo(X(f0), qy + qh); ctx.stroke(); ctx.setLineDash([]);
   if (Number.isFinite(Q0)) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(f0), Yq(Q0), 4, 0, 2 * Math.PI); ctx.fill(); }
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (const f of [2, 4, 8, 12]) ctx.fillText(`${f}`, X(f) - 4, qy + qh + 13);
   ctx.fillText('focal length f (m)', px + pw / 2 - 44, qy + qh + 25);
   const rho = bendRadius(PMOM, dipB(), QCH), nr = Number.isFinite(Q0) ? nearestResonance(Q0) : null;

@@ -79,7 +79,7 @@ function drawSeries(x, y, w, h) {
     ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = '11px monospace';
     ctx.fillText('continuous wave: no jump, no Gibbs overshoot', px + 6, py + 28);
   }
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('Fourier sum', px + 6, py + 13);
   ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.fillText('target', px + 92, py + 13);
   ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.fillText('-pi', px - 2, py + ph + 14);
@@ -120,7 +120,7 @@ function drawEpicycles(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,209,102,0.35)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(cx + tip.x * sc, cy - tip.y * sc); ctx.lineTo(curX, curY); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(curX, curY, 3, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('vector chain', x + 12, y + h - 10);
   ctx.fillText('traced output ->', gx, y + h - 10);
 }
@@ -154,7 +154,7 @@ function drawConvergence(x, y, w, h) {
   // current N marker
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(X(st.n), py); ctx.lineTo(X(st.n), py + ph); ctx.stroke(); ctx.setLineDash([]);
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + ph - 30, 252, 28);
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('Parseval energy / total -> 1', px + 8, py + ph - 18);
   if (st.tgt === 'square') { ctx.fillStyle = '#ff9d6f'; ctx.fillText('Gibbs fraction -> 8.9% (flat, persists)', px + 8, py + ph - 5); }

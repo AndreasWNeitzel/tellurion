@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="QED Feynman diagram, the cross section vs energy, and the Mandelstam invariants and angular distribution">
+    <canvas id="stage" width="900" height="560" aria-label="QED Feynman diagram, the cross section vs energy, and the Mandelstam invariants and angular distribution">
     </canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">sqrt(s):</span><span class="value" id="readout-e">1.00 GeV</span>
@@ -29,7 +36,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">sqrt(s) (GeV)</span><input aria-label="centre-of-mass energy, x100" type="range" id="slider-e" min="22" max="2000" step="2" value="100"><span class="value" id="value-e">1.00</span></div>
     <div class="row"><span class="label">scattering angle (deg)</span><input aria-label="scattering angle, degrees" type="range" id="slider-th" min="5" max="175" step="5" value="60"><span class="value" id="value-th">60</span></div>
     <div class="row"><span class="label">diagram order</span><select aria-label="diagram order" id="select-order" style="grid-column: span 2;"><option value="tree">tree (2 vertices, alpha^2)</option><option value="loop">one-loop (4 vertices, alpha^4)</option></select></div>

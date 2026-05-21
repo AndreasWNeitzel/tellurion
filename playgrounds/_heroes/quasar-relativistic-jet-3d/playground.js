@@ -40,6 +40,11 @@ const st = {
   running: !prefersReducedMotion(),
   t: 0,
   blobs: [],
+  // User-controlled camera: yaw (drag-x), pitch (drag-y), zoom (wheel).
+  camYaw: 12 * Math.PI / 180,
+  camPitch: 0,
+  camZoom: 1.0,
+  drag: false, lastX: 0, lastY: 0,
 };
 
 function betaFromGamma(G) { return Math.sqrt(1 - 1 / (G * G)); }
@@ -57,17 +62,18 @@ function project(x, y, z, center, scale) {
   // jet (jet axis points at viewer). At theta_obs = 90, jet axis
   // perpendicular to viewer (we see the jet sideways).
   // Implementation: rotate world about x-axis by (90 - theta_obs).
-  const tilt = (90 - st.thetaDeg) * DEG;
+  const tilt = (90 - st.thetaDeg) * DEG + st.camPitch;
   const cT = Math.cos(tilt), sT = Math.sin(tilt);
   const Y2 = cT * y - sT * z;
   const Z2 = sT * y + cT * z;
-  // Add subtle yaw to give 3D feel.
-  const yaw = 12 * DEG;
+  // User-controlled yaw (drag) instead of a fixed 12-degree offset.
+  const yaw = st.camYaw;
   const cY = Math.cos(yaw), sY = Math.sin(yaw);
   const X3 = cY * x + sY * Z2;
   const Z3 = -sY * x + cY * Z2;
   const k = 1 / (1 + Z3 / 12);
-  return { x: center.x + X3 * scale * k, y: center.y - Y2 * scale * k, z: Z3 };
+  const sc = scale * st.camZoom;
+  return { x: center.x + X3 * sc * k, y: center.y - Y2 * sc * k, z: Z3 };
 }
 
 function spawnBlob(jetSide) {
@@ -292,6 +298,58 @@ function drawSidePanel() {
   ctx.font = '11px system-ui, sans-serif';
   ctx.fillText('F_jet', barX + 4, yJ - 2);
   ctx.fillText('F_cj', barX + 4, yCj - 2);
+
+  // ===== DIAGNOSTIC PLOT: delta_+(theta) and beta_app(theta) =====
+  const plotY0 = yCj + barH + 22;
+  const plotX0 = x0 + 44, plotX1 = x1 - 14;
+  const plotY1 = y1 - 28;
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
+  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.fillText('δ(θ) and β_app(θ)', x0 + 10, plotY0 - 8);
+  // Axes: theta 0..90 deg; left y = delta (0..2 Gamma), right = beta_app.
+  const deltaMax = 2.1 * st.Gamma;
+  const bappMax = Math.max(2, 1.1 * st.Gamma);
+  function xOfT(td) { return plotX0 + (td / 90) * (plotX1 - plotX0); }
+  function yOfDelta(d) { return plotY1 - (d / deltaMax) * (plotY1 - plotY0); }
+  function yOfBapp(b) { return plotY1 - (b / bappMax) * (plotY1 - plotY0); }
+  // Grid box.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+  ctx.strokeRect(plotX0, plotY0, plotX1 - plotX0, plotY1 - plotY0);
+  for (let td = 0; td <= 90; td += 30) {
+    const xx = xOfT(td);
+    ctx.beginPath(); ctx.moveTo(xx, plotY0); ctx.lineTo(xx, plotY1); ctx.stroke();
+    ctx.fillStyle = 'rgba(200, 210, 240, 0.7)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`${td}°`, xx - 8, plotY1 + 12);
+  }
+  // delta curve (cyan).
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let i = 0; i <= 90; i += 1) {
+    const d = dopplerFactor(beta, i * DEG, true);
+    const x = xOfT(i), y = yOfDelta(Math.min(deltaMax, d));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // beta_app curve (gold).
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let i = 0; i <= 90; i += 1) {
+    const b = apparentSuperluminal(beta, i * DEG);
+    const x = xOfT(i), y = yOfBapp(Math.min(bappMax, b));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Current-theta marker.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xOfT(st.thetaDeg), plotY0); ctx.lineTo(xOfT(st.thetaDeg), plotY1); ctx.stroke();
+  ctx.setLineDash([]);
+  // Legend.
+  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('δ', plotX0 + 4, plotY0 + 10);
+  ctx.fillStyle = '#ffd166';
+  ctx.fillText('β_app', plotX0 + 16, plotY0 + 10);
 }
 
 function updateReadout() {
@@ -335,6 +393,20 @@ function readSliders() {
 
 [sGamma, sTheta, sSpeed, selCj].forEach(el => el.addEventListener('input', readSliders));
 selCj.addEventListener('change', readSliders);
+
+// Mouse-drag camera orbit + wheel zoom.
+canvas.addEventListener('mousedown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
+window.addEventListener('mouseup', () => { st.drag = false; });
+window.addEventListener('mousemove', (e) => {
+  if (!st.drag) return;
+  st.camYaw += (e.clientX - st.lastX) * 0.006;
+  st.camPitch = Math.max(-1.2, Math.min(1.2, st.camPitch + (e.clientY - st.lastY) * 0.006));
+  st.lastX = e.clientX; st.lastY = e.clientY;
+});
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  st.camZoom = Math.max(0.4, Math.min(4.0, st.camZoom * Math.exp(-e.deltaY * 0.0015)));
+}, { passive: false });
 btnReset.addEventListener('click', () => { st.t = 0; reseedBlobs(); });
 btnPause.addEventListener('click', () => {
   st.running = !st.running;

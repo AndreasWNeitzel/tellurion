@@ -35,6 +35,13 @@ const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
 const NMAX = 4000, BINS = 64;
+// Track h_empirical(n) as samples accumulate so the diagnostic plot
+// (entropy convergence) can be drawn. We sample at n increments to
+// keep the time-series tractable; analyticEntropy and numericEntropy
+// give the target/struct entropy levels.
+const ENTROPY_HISTORY_MAX = 240;
+const entropyHistory = [];
+let lastEntropyN = -1;
 const state = { family: 'gaussian', mu: 0, scale: 1.0, struct: 0, n: 0 };
 let samples = new Float64Array(0), running = true;
 
@@ -60,9 +67,31 @@ function resample() {
   state.n = 0;
 }
 
+// Compute the empirical entropy of the current histogram in nats. We
+// add Laplace smoothing (+ 0.5 per bin) so an empty bin doesn't break
+// the log; for converged samples this is negligible.
+function empiricalEntropyNats(samples, n, xmin, xmax) {
+  if (n <= 1) return null;
+  const hist = new Float64Array(BINS);
+  const dx = (xmax - xmin) / BINS;
+  for (let i = 0; i < n; i += 1) {
+    const b = Math.floor((samples[i] - xmin) / (xmax - xmin) * BINS);
+    if (b >= 0 && b < BINS) hist[b] += 1;
+  }
+  // Convert to density per bin, plus tiny smoothing.
+  let S = 0;
+  for (let b = 0; b < BINS; b += 1) {
+    const p = (hist[b] + 0.5) / (n + 0.5 * BINS) / dx;     // density
+    if (p > 0) S -= p * Math.log(p) * dx;
+  }
+  return S;
+}
+
 function drawAll() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
-  const X0 = 56, X1 = W - 56, Y0 = 54, Y1 = H - 78;
+  // Reserved row at the bottom for the entropy-convergence diagnostic.
+  const DIAG_H = 86;
+  const X0 = 56, X1 = W - 56, Y0 = 54, Y1 = H - 78 - DIAG_H;
   const xs = gridX(state.family), params = paramsFor();
   const pMax = pdf(state.family, params, xs);
   const pStr = state.struct > 0 ? structuredPdf(state.family, params, xs, state.struct) : null;
@@ -143,6 +172,62 @@ function drawAll() {
   ctx.fillStyle = WARM; ctx.fillRect(bx + 10, by + 50, barW * Math.max(0, Math.min(1, (hCur + span / 2) / span)) / ((hMax + span / 2) / span), 8);
   ctx.fillStyle = state.struct > 0 ? WARM : ACCENT; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(state.struct > 0 ? `structure costs ${(hMax - hCur).toFixed(3)} nats` : 'the least-committal choice', bx + 10, by + 76);
+
+  // ======================================================================
+  // DIAGNOSTIC: empirical-entropy convergence (S vs samples drawn).
+  // ======================================================================
+  if (state.n !== lastEntropyN) {
+    const S_emp = empiricalEntropyNats(samples, state.n, xmin, xmax);
+    if (S_emp !== null) {
+      entropyHistory.push({ n: state.n, S: S_emp });
+      if (entropyHistory.length > ENTROPY_HISTORY_MAX) entropyHistory.shift();
+    }
+    lastEntropyN = state.n;
+  }
+  const dy0 = Y1 + 62, dy1 = H - 22;
+  ctx.fillStyle = 'rgba(8, 10, 16, 0.74)'; ctx.fillRect(X0, dy0, X1 - X0, dy1 - dy0);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)'; ctx.strokeRect(X0 + 0.5, dy0 + 0.5, X1 - X0 - 1, dy1 - dy0 - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.82)';
+  ctx.font = 'bold 11px ui-monospace, monospace';
+  ctx.fillText('empirical entropy S vs samples drawn  (converges to h*)', X0 + 6, dy0 + 14);
+  // y range: between min(hMax, hCur) - 0.5 and max(hMax) + 0.5
+  const sMin = Math.min(hMax, hCur) - 0.5;
+  const sMax = Math.max(hMax, hCur) + 0.5;
+  const xPlot0 = X0 + 36, xPlot1 = X1 - 16;
+  const yPlot0 = dy0 + 22, yPlot1 = dy1 - 8;
+  function xForN(n) { return xPlot0 + (xPlot1 - xPlot0) * Math.min(1, n / NMAX); }
+  function yForS(s) { return yPlot1 - (yPlot1 - yPlot0) * (s - sMin) / Math.max(0.01, sMax - sMin); }
+  // h* target line.
+  ctx.strokeStyle = ACCENT; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(xPlot0, yForS(hMax)); ctx.lineTo(xPlot1, yForS(hMax)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = ACCENT; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`h* = ${hMax.toFixed(3)}`, xPlot1 - 80, yForS(hMax) - 4);
+  // Structured-density entropy line (if structure > 0).
+  if (pStr) {
+    ctx.strokeStyle = WARM; ctx.setLineDash([2, 4]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(xPlot0, yForS(hCur)); ctx.lineTo(xPlot1, yForS(hCur)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // Empirical S curve.
+  ctx.strokeStyle = 'rgba(120, 220, 255, 0.95)'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < entropyHistory.length; i += 1) {
+    const p = entropyHistory[i];
+    const x = xForN(p.n), y = yForS(p.S);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Axis ticks.
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.70)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText(sMin.toFixed(2), xPlot0 - 4, yPlot1 + 3);
+  ctx.fillText(sMax.toFixed(2), xPlot0 - 4, yPlot0 + 3);
+  ctx.textAlign = 'center';
+  ctx.fillText('0', xPlot0, yPlot1 + 12);
+  ctx.fillText(`${NMAX}`, xPlot1, yPlot1 + 12);
+  ctx.fillText('samples n', (xPlot0 + xPlot1) / 2, yPlot1 + 12);
+  ctx.textAlign = 'left';
 }
 
 function syncLabels() {
@@ -150,9 +235,10 @@ function syncLabels() {
   valueScale.textContent = state.scale.toFixed(2);
   valueSupp.textContent = state.struct.toFixed(2);
 }
-selFamily.addEventListener('change', () => { state.family = selFamily.value; showRows(); resample(); drawAll(); });
-sliderMu.addEventListener('input', () => { state.mu = parseFloat(sliderMu.value); valueMu.textContent = state.mu.toFixed(2); resample(); drawAll(); });
-sliderScale.addEventListener('input', () => { state.scale = parseFloat(sliderScale.value); valueScale.textContent = state.scale.toFixed(2); resample(); drawAll(); });
+function resetEntropy() { entropyHistory.length = 0; lastEntropyN = -1; }
+selFamily.addEventListener('change', () => { state.family = selFamily.value; showRows(); resetEntropy(); resample(); drawAll(); });
+sliderMu.addEventListener('input', () => { state.mu = parseFloat(sliderMu.value); valueMu.textContent = state.mu.toFixed(2); resetEntropy(); resample(); drawAll(); });
+sliderScale.addEventListener('input', () => { state.scale = parseFloat(sliderScale.value); valueScale.textContent = state.scale.toFixed(2); resetEntropy(); resample(); drawAll(); });
 sliderSupp.addEventListener('input', () => { state.struct = parseFloat(sliderSupp.value); valueSupp.textContent = state.struct.toFixed(2); drawAll(); });
 if (btnPlayPause) btnPlayPause.addEventListener('click', () => {
   running = !running; btnPlayPause.textContent = running ? 'Pause' : 'Play'; btnPlayPause.setAttribute('aria-pressed', String(!running));

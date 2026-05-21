@@ -40,7 +40,7 @@ const ly = (w) => PY1 - (Math.log10(Math.max(WLO, w)) - Math.log10(WLO)) / (Math
 
 function grid() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(120,135,165,0.18)'; ctx.lineWidth = 1; ctx.fillStyle = 'rgba(170,180,205,0.5)'; ctx.font = '10px monospace';
+  ctx.strokeStyle = 'rgba(120,135,165,0.18)'; ctx.lineWidth = 1; ctx.fillStyle = 'rgba(170,180,205,0.5)'; ctx.font = '11px monospace';
   for (let e = -3; e <= 2; e += 1) { const x = lx(10 ** e); ctx.beginPath(); ctx.moveTo(x, PY0); ctx.lineTo(x, PY1); ctx.stroke(); ctx.fillText('1e' + e, x - 8, PY1 + 14); }
   for (let e = -2; e <= 1; e += 1) { const y = ly(10 ** e); ctx.beginPath(); ctx.moveTo(PX0, y); ctx.lineTo(PX1, y); ctx.stroke(); ctx.fillText('1e' + e, 30, y + 3); }
   ctx.fillStyle = 'rgba(200,210,230,0.7)'; ctx.font = '12px monospace';
@@ -62,7 +62,7 @@ function drawXmarks() {
   for (const [val, lab, col] of [[wL, 'wL', '#9fd'], [wR, 'wR', '#9fd'], [wUH, 'wUH (resonance)', '#f9a']]) {
     ctx.strokeStyle = col === '#f9a' ? 'rgba(255,150,170,0.5)' : 'rgba(150,255,210,0.4)';
     ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(PX0, ly(val)); ctx.lineTo(PX1, ly(val)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = col; ctx.font = '10px monospace'; ctx.fillText(lab, PX0 + 4, ly(val) - 3);
+    ctx.fillStyle = col; ctx.font = '11px monospace'; ctx.fillText(lab, PX0 + 4, ly(val) - 3);
   }
 }
 
@@ -96,7 +96,7 @@ function draw() {
       if (i === 0) ctx.moveTo(ix0 + xx * iw, yy); else ctx.lineTo(ix0 + xx * iw, yy);
     }
     ctx.stroke();
-    ctx.fillStyle = 'rgba(180,200,230,0.55)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(180,200,230,0.55)'; ctx.font = '11px monospace';
     ctx.fillText('wave at the marked (k, omega), travelling at the phase speed', ix0, iy + 24);
 
     const vph = mk.w / mk.k;

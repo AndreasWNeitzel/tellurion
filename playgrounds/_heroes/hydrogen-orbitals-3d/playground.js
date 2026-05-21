@@ -102,11 +102,80 @@ btns.pause.addEventListener('click', () => {
 
 let last = performance.now(), fpsLast = last, fpsFrames = 0;
 
+// Rule-13 diagnostic: the radial probability distribution
+// P(r) = r^2 integral |psi|^2 dOmega. The main scene is WebGL, so the
+// chart lives on its own 2D overlay canvas. P(r) peaks at the orbital
+// shells; for (n, l=n-1) the single peak sits near the Bohr-like
+// radius n^2 a0. Recomputed only when (n, l, m) change.
+const hDiagCanvas = document.createElement('canvas');
+hDiagCanvas.width = 250; hDiagCanvas.height = 140;
+hDiagCanvas.style.cssText = 'position:absolute;right:10px;bottom:10px;width:250px;height:140px;'
+  + 'background:rgba(8,12,22,0.86);border:1px solid rgba(220,230,255,0.3);border-radius:4px;pointer-events:none';
+if (canvas.parentElement) {
+  const pe = canvas.parentElement;
+  if (getComputedStyle(pe).position === 'static') pe.style.position = 'relative';
+  pe.appendChild(hDiagCanvas);
+}
+const hdctx = hDiagCanvas.getContext('2d');
+let hDiagKey = '';
+function drawRadialDiagnostic() {
+  if (!hdctx) return;
+  // Pin to the bottom-right of the STAGE canvas, not the figure (whose
+  // caption sits below the canvas and would bleed through the overlay).
+  hDiagCanvas.style.left = `${canvas.offsetLeft + canvas.offsetWidth - hDiagCanvas.width - 10}px`;
+  hDiagCanvas.style.top = `${canvas.offsetTop + canvas.offsetHeight - hDiagCanvas.height - 10}px`;
+  hDiagCanvas.style.right = 'auto'; hDiagCanvas.style.bottom = 'auto';
+  const key = `${st.n}|${st.l}|${st.m}`;
+  if (key === hDiagKey) return;            // only recompute on (n,l,m) change
+  hDiagKey = key;
+  const w = hDiagCanvas.width, h = hDiagCanvas.height;
+  hdctx.clearRect(0, 0, w, h);
+  hdctx.fillStyle = 'rgba(220,230,255,0.92)';
+  hdctx.font = 'bold 11px ui-monospace, monospace';
+  hdctx.fillText('radial distribution  P(r) = r²∫|ψ|²dΩ', 8, 14);
+  // Sample P(r): for each r, average densityAt over a small (theta,phi)
+  // grid, multiply by 4 pi r^2.
+  const rMax = 2.5 * st.n * st.n + 8;
+  const NR = 90, NTH = 8, NPH = 8;
+  const P = new Float64Array(NR);
+  let pMax = 1e-30;
+  for (let i = 0; i < NR; i += 1) {
+    const r = rMax * (i + 0.5) / NR;
+    let s = 0;
+    for (let a = 0; a < NTH; a += 1) {
+      const th = Math.PI * (a + 0.5) / NTH;
+      for (let b = 0; b < NPH; b += 1) {
+        const ph = 2 * Math.PI * (b + 0.5) / NPH;
+        s += densityAt(r, th, ph, st.n, st.l, Math.abs(st.m)) * Math.sin(th);
+      }
+    }
+    const avg = s / (NTH * NPH) * 2;       // <|psi|^2> over solid angle (4pi/(2)) norm
+    P[i] = 4 * Math.PI * r * r * avg;
+    if (P[i] > pMax) pMax = P[i];
+  }
+  const ax = 30, ay = 22, aw = w - 42, ah = h - 40;
+  hdctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  hdctx.strokeRect(ax, ay, aw, ah);
+  hdctx.strokeStyle = '#5bc0eb'; hdctx.lineWidth = 2;
+  hdctx.beginPath();
+  for (let i = 0; i < NR; i += 1) {
+    const x = ax + (i / (NR - 1)) * aw;
+    const y = ay + ah - (P[i] / pMax) * (ah - 4);
+    if (i === 0) hdctx.moveTo(x, y); else hdctx.lineTo(x, y);
+  }
+  hdctx.stroke();
+  hdctx.fillStyle = 'rgba(200,210,240,0.75)'; hdctx.font = '9px ui-monospace, monospace';
+  hdctx.fillText('0', ax - 2, ay + ah + 10);
+  hdctx.fillText(`${rMax.toFixed(0)} a₀`, ax + aw - 26, ay + ah + 10);
+  hdctx.fillText('r', ax + aw / 2, ay + ah + 10);
+}
+
 function render() {
   if (!engine) return;
   if (needsRebuild) { engine.fillVolume(st.n, st.l, Math.abs(st.m)); needsRebuild = false; }
   const mode = st.view === 'iso' ? 1 : (st.view === 'phase' ? 2 : 0);
   engine.render(st.t, mode, 0.05, camera.state.azimuthDeg, camera.state.elevationDeg, camera.state.radius);
+  drawRadialDiagnostic();
 }
 
 function tick(now) {

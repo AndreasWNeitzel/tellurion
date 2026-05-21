@@ -126,7 +126,7 @@ function render() {
   }
   // selected-mode marker
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(kx(modeInfo().theta), wy(omegaOf()), 5, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('k a', PXX + PXW / 2, PXY + PXH + 13);
   ctx.save(); ctx.translate(PXX - 7, PXY + PXH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('omega', 0, 0); ctx.restore();
   ctx.textAlign = 'left';

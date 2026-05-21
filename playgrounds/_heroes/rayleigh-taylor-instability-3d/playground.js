@@ -171,11 +171,55 @@ function updateReadout() {
   rStage.textContent = stage;
 }
 
+// Rule-13 diagnostic: the perturbation amplitude a(t) on a log axis.
+// In the linear regime it grows as a_0 e^{sigma t} (a straight line
+// whose slope is the growth rate sigma); the line bends over as the
+// instability saturates into the nonlinear bubble-and-spike regime.
+const ampHistory = [];
+function drawAmpDiagnostic() {
+  const W = canvas.width, H = canvas.height;
+  const pw = 244, ph = 132, px = W - pw - 14, py = H - ph - 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('amplitude  log₁₀ a(t)', px + 8, py + 14);
+  if (ampHistory.length < 2) return;
+  const ax = px + 34, ay = py + 22, aw = pw - 46, ah = ph - 40;
+  const lLo = -3, lHi = 0;
+  const t0 = ampHistory[0].t, t1 = ampHistory[ampHistory.length - 1].t;
+  const xOf = (t) => ax + (t1 > t0 ? (t - t0) / (t1 - t0) : 0) * aw;
+  const yOf = (l) => ay + ah - ((Math.max(lLo, Math.min(lHi, l)) - lLo) / (lHi - lLo)) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  for (let l = lLo; l <= lHi; l += 1) {
+    ctx.beginPath(); ctx.moveTo(ax, yOf(l)); ctx.lineTo(ax + aw, yOf(l)); ctx.stroke();
+  }
+  ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < ampHistory.length; i += 1) {
+    const p = ampHistory[i];
+    const x = xOf(p.t), y = yOf(Math.log10(Math.max(1e-4, p.a)));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  for (let l = lLo; l <= lHi; l += 1) ctx.fillText(`${l}`, px + 6, yOf(l) + 3);
+  ctx.fillText('t', ax + aw / 2, py + ph - 4);
+}
+
 function draw() {
   drawBackground();
   drawTracers();
   drawGravityArrow();
   drawLabels();
+  // Sample a(t) for the diagnostic.
+  if (ampHistory.length === 0 || st.t - ampHistory[ampHistory.length - 1].t > 0.04) {
+    ampHistory.push({ t: st.t, a: st.amplitude });
+    if (ampHistory.length > 400) ampHistory.shift();
+  }
+  drawAmpDiagnostic();
   updateReadout();
 }
 
@@ -197,7 +241,7 @@ function readSliders() {
 }
 
 [sA, sK, sG, sSpeed].forEach(el => el.addEventListener('input', readSliders));
-btnReset.addEventListener('click', () => { st.t = 0; reseedTracers(); });
+btnReset.addEventListener('click', () => { st.t = 0; reseedTracers(); ampHistory.length = 0; });
 btnPause.addEventListener('click', () => {
   st.running = !st.running;
   btnPause.textContent = st.running ? 'Pause' : 'Resume';

@@ -74,7 +74,7 @@ function render() {
   const vx0 = 40, vy0 = 412, vw = 340, vh = 84;
   const rLo = 0.08 * rB, rHi = 2.0 * rB, machMax = 3;
   ctx.strokeStyle = '#3a3d44'; ctx.lineWidth = 1; ctx.strokeRect(vx0, vy0, vw, vh);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('Mach number vs radius (transonic Bondi solution)', vx0 + 2, vy0 - 5);
   ctx.fillText('M', vx0 - 14, vy0 + 10); ctx.fillText('r', vx0 + vw + 4, vy0 + vh - 2);
   const rToX = (r) => vx0 + (Math.log(r / rLo) / Math.log(rHi / rLo)) * vw;

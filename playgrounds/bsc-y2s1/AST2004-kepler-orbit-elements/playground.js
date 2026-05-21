@@ -53,6 +53,48 @@ function render() {
   ctx.fillText(`a=${st.a.toFixed(2)} AU, e=${st.e.toFixed(2)}, i=${st.i.toFixed(0)}, Ω=${st.O.toFixed(0)}, ω=${st.w.toFixed(0)}`, 12, canvas.height - 30);
   ctx.fillText(`r = ${p.r.toFixed(3)} AU`, 12, canvas.height - 12);
   rR.textContent = p.r.toFixed(2);
+
+  drawOrbitDiagnostic(nu, p.r);
+}
+
+// Rule-13 diagnostic: the orbit radius r(ν) = a(1-e²)/(1+e cos ν) over
+// one full revolution, with the current true anomaly marked. The
+// curve makes the conic-section eccentricity explicit: a circle is
+// flat, a high-e ellipse swings between perihelion and aphelion.
+function drawOrbitDiagnostic(nuNow, rNow) {
+  const pw = 250, ph = 140, px = canvas.width - pw - 14, py = 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('orbit radius  r(ν) = a(1-e²)/(1+e cos ν)', px + 8, py + 14);
+  const ax = px + 36, ay = py + 22, aw = pw - 48, ah = ph - 42;
+  const rPeri = st.a * (1 - st.e), rApo = st.a * (1 + st.e);
+  const rLo = 0, rHi = rApo * 1.1;
+  const xOf = (nu) => ax + (nu / (2 * Math.PI)) * aw;
+  const yOf = (r) => ay + ah - ((r - rLo) / (rHi - rLo)) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  for (const r of [rPeri, rApo]) {
+    ctx.beginPath(); ctx.moveTo(ax, yOf(r)); ctx.lineTo(ax + aw, yOf(r)); ctx.stroke();
+  }
+  ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let k = 0; k <= 120; k += 1) {
+    const nu = 2 * Math.PI * k / 120;
+    const r = st.a * (1 - st.e * st.e) / (1 + st.e * Math.cos(nu));
+    const x = xOf(nu), y = yOf(r);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#ef476f';
+  ctx.beginPath(); ctx.arc(xOf(((nuNow % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)), yOf(rNow), 4, 0, 6.28); ctx.fill();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('peri', px + 4, yOf(rPeri) + 3);
+  ctx.fillText('apo', px + 6, yOf(rApo) + 3);
+  ctx.fillText('ν: 0', ax, ay + ah + 12);
+  ctx.fillText('2π', ax + aw - 14, ay + ah + 12);
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt * 0.3; render(); requestAnimationFrame(tick); }
 function bootSync() { st.t = CAPTURE_FRAC * 2; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }

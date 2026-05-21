@@ -146,7 +146,7 @@ function render() {
   const dx0 = x0, dx1 = W - 20, dy0 = H - 118, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('growth curve: F (yellow, plateaus at F_true) and SNR (cyan, peaks) vs aperture radius r', dx0 + 8, dy0 + 13);
   const rLo = 2, rHi = 22, NSR = 90;
   const Fv = new Float64Array(NSR), Sv = new Float64Array(NSR);

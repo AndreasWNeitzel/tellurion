@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Monte Carlo Photon Transport in a Tissue Slab</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="Photon histories in a tissue slab coloured by interaction type, the depth-dose with build-up, and the interaction fractions versus energy">
+    <canvas id="stage" width="900" height="560" aria-label="Photon histories in a tissue slab coloured by interaction type, the depth-dose with build-up, and the interaction fractions versus energy">
     </canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">energy:</span><span class="value" id="readout-e">1000 keV</span>
@@ -29,7 +36,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">photon energy (keV)</span><input aria-label="photon energy in keV, log scale x100" type="range" id="slider-e" min="120" max="370" step="2" value="300"><span class="value" id="value-e">1000</span></div>
     <div class="row"><span class="label">slab thickness (cm)</span><input aria-label="slab thickness, cm" type="range" id="slider-l" min="4" max="30" step="1" value="15"><span class="value" id="value-l">15</span></div>
     <div class="row"><span class="label">histories (x1000)</span><input aria-label="number of photon histories, thousands" type="range" id="slider-n" min="2" max="20" step="1" value="8"><span class="value" id="value-n">8</span></div>

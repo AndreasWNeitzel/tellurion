@@ -158,7 +158,7 @@ function drawMatched(x, y, w, h) {
   s.forEach((p, i) => { const xx = X(p.lag), yy = Y(p.snr); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); });
   ctx.stroke();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(st.mf.peakLag), Y(st.mf.peak), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.72)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.72)'; ctx.font = '11px monospace';
   ctx.fillText(`M_chirp ${st.McSun.toFixed(1)} (rec ${st.recMc.toFixed(1)}) Msun`, x + 10, y + h - 9);
 }
 
@@ -174,7 +174,7 @@ function drawDetector(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx, by - ly); ctx.stroke();
   ctx.fillStyle = '#dfe6f4'; ctx.fillRect(bx + lx, by - 8, 4, 16); ctx.fillRect(bx - 8, by - ly - 4, 16, 4);
   ctx.fillStyle = '#9a3b3b'; ctx.fillRect(bx - 34, by - 5, 16, 10);
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText(`dL ${(0.5 * Math.abs(hNow) * 4000).toExponential(1)} m  (x${VIS.toExponential(0)})`, x + 8, y + h - 8);
 }
 

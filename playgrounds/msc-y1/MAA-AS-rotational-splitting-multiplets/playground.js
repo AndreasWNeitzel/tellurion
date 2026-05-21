@@ -119,12 +119,12 @@ function drawSpectrum(x0, x1, yb, yt) {
     const pxc = xOf(c.nu), pk = yb - power(c.nu) / pmax * (yb - yt) * 0.92;
     ctx.strokeStyle = c.m === 0 ? '#06d6a0' : TH.s; ctx.lineWidth = c.m === 0 ? 2 : 1;
     ctx.beginPath(); ctx.moveTo(pxc, yb); ctx.lineTo(pxc, pk); ctx.stroke();
-    ctx.fillStyle = c.m === 0 ? '#06d6a0' : TH.s; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = c.m === 0 ? '#06d6a0' : TH.s; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(`m=${c.m}`, pxc, pk - 5); ctx.textAlign = 'left';
   }
   ctx.fillStyle = 'rgba(6,214,160,0.6)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(xOf(NU0), yt - 4); ctx.lineTo(xOf(NU0), yb); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#06d6a0'; ctx.font = '10px ui-monospace, monospace'; ctx.fillText('ν₀', xOf(NU0) + 4, yt + 4);
+  ctx.fillStyle = '#06d6a0'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('ν₀', xOf(NU0) + 4, yt + 4);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`C=${C.toFixed(3)}  δν=${split.toFixed(3)} μHz  (2ℓ+1)=${2 * st.l + 1}`, x0, yb + 22);
   ctx.fillText('dashed: rigid m·Ω (C=0)', x0, yb + 38);

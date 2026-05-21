@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1200px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; border-radius: 4px; }
   .readout-panel { margin-top: var(--space-3); background: rgba(8,10,14,0.7); padding: 10px 14px; border-radius: 4px; display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 14px; row-gap: 4px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; }
   .readout-panel .label { color: var(--fg-muted); font-size: 11px; opacity: 0.75; }

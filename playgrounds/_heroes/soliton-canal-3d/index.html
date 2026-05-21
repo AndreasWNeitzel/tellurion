@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1100px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #060608; cursor: grab; display: block; border-radius: 4px; }
   .pg-figure canvas#stage.dragging { cursor: grabbing; }
   canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
@@ -26,9 +26,9 @@
   <div data-slot="description" class="katex-target">A real Korteweg-de Vries canal: the water surface obeys $u_t + 6 u u_x + u_{xxx} = 0$, solved live by a Fourier pseudo-spectral integrator. A soliton is a single hump that travels without changing shape because nonlinear steepening cancels dispersion; taller solitons move faster ($c = 2a$). Launch one behind another and watch them collide and pass straight through. Drag to orbit, scroll to zoom, click the water to inject a soliton.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1100" height="660"></canvas>
+  <canvas id="stage" width="900" height="660"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
-  <canvas id="plot" width="1100" height="150" aria-label="One-dimensional cross-section u(x) of the canal surface."></canvas>
+  <canvas id="plot" width="900" height="150" aria-label="One-dimensional cross-section u(x) of the canal surface."></canvas>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Height field of the KdV equation $u_t + 6 u u_x + u_{xxx} = 0$ lofted into a 3D reflective canal. Method: Fourier pseudo-spectral derivatives with integrating-factor RK4 (Trefethen 2000, Prog. 27); WebGL2 Fresnel water. Source: Drazin and Johnson, Solitons, Ch. 2.</figcaption>
 </figure>
 <div id="controls" class="pg-controls"></div>

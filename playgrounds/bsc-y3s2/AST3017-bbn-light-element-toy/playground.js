@@ -99,29 +99,102 @@ function render() {
   ctx.fillStyle = okD ? '#34d399' : '#fb7185'; ctx.fillText(`D/H ${dh.toExponential(2)} (obs ${OBS_DH.toExponential(2)})`, BX + 210, cy0 + cbH + 18);
   ctx.fillStyle = okL ? '#34d399' : '#fb7185'; ctx.fillText(`7Li/H ${li.toExponential(2)} (obs ${OBS_Li7H.toExponential(2)})`, BX + 470, cy0 + cbH + 18);
 
-  // Diagnostic strip: abundances vs eta (log), current-eta + Planck.
+  // ====================================================================
+  // DIAGNOSTIC STRIP: three abundance vs eta_10 panels, one per species.
+  // Stacked vertically so each curve has its OWN y-scale with axis
+  // labels and an observation band. The previous version crammed three
+  // very different log-scaled curves into the same panel and was
+  // unreadable.
+  // ====================================================================
   const dY = cy0 + cbH + 28, dH2 = H - dY - 10, dW = BW;
-  ctx.fillStyle = '#0a0b12'; ctx.fillRect(BX, dY, dW, dH2);
-  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(BX + 0.5, dY + 0.5, dW - 1, dH2 - 1);
-  ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('abundances vs baryon-to-photon ratio eta_10  (diagnostic)', BX + 8, dY + 13);
-  const X = (e) => BX + 8 + (dW - 16) * (e - 1) / 19;
-  function mini(fn, lo, hi, color) {
-    ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.beginPath();
-    for (let i = 0; i <= 120; i += 1) {
-      const e = 1 + 19 * i / 120, v = (Math.log10(fn(e)) - lo) / (hi - lo);
-      const yy = dY + dH2 - 8 - Math.max(0, Math.min(1, v)) * (dH2 - 24);
+  const panelH = (dH2 - 12) / 3;
+  const X = (e) => BX + 60 + (dW - 76) * (e - 1) / 19;
+
+  function panel(idx, label, fn, lo, hi, color, obs, obsTol) {
+    const py0 = dY + idx * panelH;
+    // Background.
+    ctx.fillStyle = '#0a0b12';
+    ctx.fillRect(BX, py0, dW, panelH - 4);
+    ctx.strokeStyle = 'rgba(226,232,240,0.16)';
+    ctx.strokeRect(BX + 0.5, py0 + 0.5, dW - 1, panelH - 5);
+    // Observation band (horizontal stripe at the measured value).
+    if (obs > 0) {
+      const obsLog = Math.log10(obs);
+      const obsLow = Math.log10(obs * (1 - obsTol));
+      const obsHigh = Math.log10(obs * (1 + obsTol));
+      const yLow = py0 + panelH - 18 - Math.max(0, Math.min(1, (obsLow - lo) / (hi - lo))) * (panelH - 30);
+      const yHigh = py0 + panelH - 18 - Math.max(0, Math.min(1, (obsHigh - lo) / (hi - lo))) * (panelH - 30);
+      ctx.fillStyle = `${color.replace(/rgb\(/, 'rgba(').replace(/^#/, 'rgba(')}`;
+      ctx.fillStyle = color + '33';  // 20% alpha appended to hex (Canvas accepts #RRGGBBAA).
+      ctx.fillRect(BX + 60, Math.min(yLow, yHigh), dW - 76, Math.abs(yHigh - yLow));
+      // Observation centre line.
+      const yMid = py0 + panelH - 18 - ((obsLog - lo) / (hi - lo)) * (panelH - 30);
+      ctx.strokeStyle = color;
+      ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(BX + 60, yMid); ctx.lineTo(BX + dW - 16, yMid); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // Y-axis tick labels (decade marks).
+    ctx.fillStyle = 'rgba(200,206,224,0.65)';
+    ctx.font = '11px ui-monospace, monospace';
+    const loCeil = Math.ceil(lo);
+    const hiFloor = Math.floor(hi);
+    for (let d = loCeil; d <= hiFloor; d += 1) {
+      const v = (d - lo) / (hi - lo);
+      const yy = py0 + panelH - 18 - v * (panelH - 30);
+      ctx.fillText(`10^${d}`, BX + 6, yy + 3);
+      ctx.strokeStyle = 'rgba(226,232,240,0.06)';
+      ctx.beginPath(); ctx.moveTo(BX + 60, yy); ctx.lineTo(BX + dW - 16, yy); ctx.stroke();
+    }
+    // X-axis ticks (eta = 1, 5, 10, 15, 20).
+    for (const eTick of [1, 5, 10, 15, 20]) {
+      ctx.fillStyle = 'rgba(200,206,224,0.55)';
+      ctx.fillText(`${eTick}`, X(eTick) - 4, py0 + panelH - 6);
+    }
+    // Theoretical curve.
+    ctx.strokeStyle = color; ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    for (let i = 0; i <= 200; i += 1) {
+      const e = 1 + 19 * i / 200;
+      const v = (Math.log10(fn(e)) - lo) / (hi - lo);
+      const yy = py0 + panelH - 18 - Math.max(0, Math.min(1, v)) * (panelH - 30);
       if (i === 0) ctx.moveTo(X(e), yy); else ctx.lineTo(X(e), yy);
     }
     ctx.stroke();
+    // Planck vertical line.
+    ctx.strokeStyle = 'rgba(251,113,133,0.6)';
+    ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(X(ETA_PLANCK), py0 + 18);
+    ctx.lineTo(X(ETA_PLANCK), py0 + panelH - 18);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Current-eta marker.
+    const vNow = (Math.log10(fn(st.eta)) - lo) / (hi - lo);
+    const yNow = py0 + panelH - 18 - Math.max(0, Math.min(1, vNow)) * (panelH - 30);
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(X(st.eta), yNow, 4.5, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(X(st.eta), yNow, 4.5, 0, 6.2832); ctx.stroke();
+    // Panel label.
+    ctx.fillStyle = color;
+    ctx.font = 'bold 11px ui-monospace, monospace';
+    ctx.fillText(label, BX + 64, py0 + 14);
   }
-  mini((e) => Yp(e), -0.7, -0.55, '#d4a843');
-  mini(DH, -5.4, -4.0, '#5bc0eb');
-  mini(Li7H, -10.2, -8.6, '#34d399');
-  ctx.strokeStyle = 'rgba(251,113,133,0.7)'; ctx.setLineDash([4, 3]);
-  ctx.beginPath(); ctx.moveTo(X(ETA_PLANCK), dY + 18); ctx.lineTo(X(ETA_PLANCK), dY + dH2 - 6); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#3b82f6'; ctx.beginPath(); ctx.arc(X(st.eta), dY + dH2 - 8, 4, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = 'rgba(251,113,133,0.85)'; ctx.fillText('Planck eta', X(ETA_PLANCK) + 5, dY + 26);
+
+  panel(0, 'Y_p  (mass fraction of 4He)', (e) => Yp(e), -0.7, -0.55, '#d4a843', OBS_Yp, 0.03);
+  panel(1, 'D / H  (number ratio)',       DH,            -5.4, -4.0,  '#5bc0eb', OBS_DH, 0.15);
+  panel(2, '7Li / H  (number ratio)',     Li7H,          -10.2, -8.6, '#34d399', OBS_Li7H, 0.20);
+
+  // X-axis label below the bottom panel.
+  ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('baryon-to-photon ratio  η_10', BX + dW / 2 - 80, dY + dH2 + 8);
+
+  // Planck label at top-right corner.
+  ctx.fillStyle = 'rgba(251, 113, 133, 0.95)';
+  ctx.font = 'bold 10px ui-monospace, monospace';
+  ctx.fillText('Planck η_10 = 6.10', X(ETA_PLANCK) + 6, dY + 12);
 
   rE.textContent = st.eta.toFixed(2);
 }

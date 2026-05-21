@@ -27,9 +27,16 @@ const btnPause = document.getElementById('btn-pause');
 
 const st = {
   M_DM: 80, c: 12, r_s: 20, includeDM: true,
+  // Rotation-curve preset: which model the bold highlighted curve in
+  // the rotation panel reflects. The galaxy disc colouring also
+  // changes (e.g. rigid-body presets visualize uniform rotation, etc.)
+  preset: 'visible+dm',
   running: !prefersReducedMotion(),
   rotAngle: 0,
 };
+const PRESETS = ['rigid', 'kepler', 'visible', 'visible+dm'];
+// Frozen synthetic observation points (built lazily on first draw).
+let OBS_POINTS = null;
 
 function getParams() {
   return { ...MW_PARAMS, M_DM: st.M_DM, c: st.c, r_s: st.r_s, includeDM: st.includeDM };
@@ -49,9 +56,56 @@ function project3D(x, y, z, cx, cy, scale) {
   return { x: cx + xp * scale * f, y: cy - yr * scale * f, depth: zr };
 }
 
+// =========================================================================
+// LIVE ORBITAL SIMULATION. Stars are tracked individually in (r, phi);
+// each step advances phi by Omega(r) * dt where Omega = v(r) / r. The
+// v(r) law depends on the active preset, so changing the preset
+// VISIBLY changes how the disc shears (rigid: lockstep; Keplerian:
+// inner stars catch up fast; visible-only: dramatic differential
+// rotation; visible+DM: flat curve = uniform tangential speed).
+const N_STARS = 2400;
+const STARS = [];
+function seedStars() {
+  STARS.length = 0;
+  let s = 7;
+  const rnd = () => { s = (s * 16807) | 0; return ((s >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF; };
+  const pitch = 0.55, nArms = 2;
+  for (let k = 0; k < N_STARS; k += 1) {
+    const u = rnd();
+    const r = -3 * Math.log(1 - u * 0.98);
+    if (r < 0.5) continue;
+    const phi_arm_center = (k % nArms) * (2 * Math.PI / nArms);
+    const armPhi = phi_arm_center + pitch * Math.log(Math.max(0.3, r));
+    const sigma = 0.18 + 0.20 * Math.exp(-r / 15);
+    const dPhi = (rnd() - 0.5) * 2 * sigma;
+    const phi = armPhi + dPhi + (rnd() - 0.5) * 0.10;
+    const z = (rnd() - 0.5) * 0.5 * Math.exp(-r / 4);
+    STARS.push({ r, phi, z, dPhi, sigma });
+  }
+}
+seedStars();
+
+// v(r) according to the active preset.
+function vAt(r) {
+  const p = getParams();
+  if (st.preset === 'rigid') {
+    // Match a global rotation speed; pick omega so v(r=5) = vtot(5).
+    const vtot5 = vCirc(5, p);
+    return (vtot5 / 5) * r;
+  }
+  if (st.preset === 'kepler') {
+    const M_kep = p.M_b + p.M_d;
+    return Math.sqrt(G * M_kep / Math.max(0.5, r));
+  }
+  if (st.preset === 'visible') return vCircVisible(r, p);
+  return vCirc(r, p);            // visible + DM
+}
+
 function drawGalaxy3D() {
-  const cx = 220, cy = 230;
-  const scale = 4;
+  // Use most of the LEFT half of the canvas. Scale tied to canvas
+  // height so the disc fills the panel rather than being a tiny dot.
+  const cx = W * 0.25, cy = H * 0.50;
+  const scale = Math.min(W * 0.20, H * 0.34) / 8;     // 8 ~ outer disc radius
 
   // Dark matter halo: large transparent purple sphere.
   if (st.includeDM) {
@@ -77,16 +131,19 @@ function drawGalaxy3D() {
     seed = (seed * 16807) | 0;
     return ((seed >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF;
   };
-  for (let k = 0; k < 800; k += 1) {
-    const u = rand();
-    const r = -3 * Math.log(1 - u * 0.98);
-    const phi = rand() * 2 * Math.PI;
-    const z = (rand() - 0.5) * 0.6 * Math.exp(-r / 4);
-    const x = r * Math.cos(phi);
-    const y = r * Math.sin(phi);
-    const p = project3D(x, y, z, cx, cy, scale);
-    ctx.fillStyle = `rgba(180, 220, 255, ${0.4 + 0.5 * Math.exp(-r / 6)})`;
-    ctx.fillRect(p.x - 0.7, p.y - 0.7, 1.4, 1.4);
+  // Render the LIVE star orbits. Each star tracks its (r, phi) under
+  // Omega(r) = v(r)/r per the active preset; the disc shears as
+  // physics dictates.
+  for (const star of STARS) {
+    const x = star.r * Math.cos(star.phi);
+    const y = star.r * Math.sin(star.phi);
+    const p = project3D(x, y, star.z, cx, cy, scale);
+    const armBright = Math.exp(-(star.dPhi * star.dPhi) / (2 * star.sigma * star.sigma * 0.6));
+    const a = 0.35 + 0.55 * armBright * Math.exp(-star.r / 8);
+    const hue = armBright > 0.6 ? 215 : 35;
+    const sat = armBright > 0.6 ? 90 : 60;
+    ctx.fillStyle = `hsla(${hue}, ${sat}%, 75%, ${a.toFixed(2)})`;
+    ctx.fillRect(p.x - 0.9, p.y - 0.9, 1.8, 1.8);
   }
   // Bulge: bright core
   const pc = project3D(0, 0, 0, cx, cy, scale);
@@ -132,7 +189,7 @@ function drawRotationCurve() {
 
   // Y-axis ticks
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.textAlign = 'right';
   for (let v = 0; v <= V_MAX; v += 0.4) {
     ctx.fillText(v.toFixed(1), ax - 4, yToPx(v) + 3);
@@ -177,11 +234,71 @@ function drawRotationCurve() {
     ctx.stroke();
     if (dash) ctx.setLineDash([]);
   }
-  plotLine(vb, 'rgba(255, 209, 102, 0.8)');
-  plotLine(vd, 'rgba(91, 192, 235, 0.8)');
-  if (p.includeDM) plotLine(vh, 'rgba(170, 130, 220, 0.8)');
-  plotLine(vvis, 'rgba(150, 220, 255, 0.5)', true);          // visible-only dashed
-  plotLine(vtot, 'rgba(255, 255, 255, 0.95)');               // total
+  plotLine(vb, 'rgba(255, 209, 102, 0.55)');
+  plotLine(vd, 'rgba(91, 192, 235, 0.55)');
+  if (p.includeDM) plotLine(vh, 'rgba(170, 130, 220, 0.55)');
+  plotLine(vvis, 'rgba(150, 220, 255, 0.40)', true);
+
+  // Preset-specific overlay curves drawn BOLD on top.
+  const rigid = new Float64Array(NPTS);
+  const kepler = new Float64Array(NPTS);
+  // Rigid body: v ∝ r (uniform angular speed). Normalise to match
+  // vtot at r = 5.
+  const omRigid = vtot[Math.floor(5 / R_MAX * NPTS)] / 5;
+  for (let i = 0; i < NPTS; i += 1) rigid[i] = omRigid * rs[i];
+  // Keplerian point mass: v = sqrt(GM/r). Take M = M_b + M_d.
+  const M_kep = p.M_b + p.M_d;
+  for (let i = 0; i < NPTS; i += 1) kepler[i] = Math.sqrt(G * M_kep / Math.max(0.5, rs[i]));
+
+  // Pick the bold curve based on preset.
+  function bold(values, color) {
+    ctx.strokeStyle = color; ctx.lineWidth = 3.2; ctx.shadowColor = color; ctx.shadowBlur = 8;
+    ctx.beginPath();
+    for (let i = 0; i < NPTS; i += 1) {
+      const px = xToPx(rs[i]);
+      const py = yToPx(Math.max(0, Math.min(V_MAX, values[i])));
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+  if (st.preset === 'rigid') bold(rigid, '#06d6a0');
+  else if (st.preset === 'kepler') bold(kepler, '#ef476f');
+  else if (st.preset === 'visible') bold(vvis, '#5bc0eb');
+  else bold(vtot, 'rgba(255, 255, 255, 0.98)');
+
+  // Observed rotation-curve data points (Rubin-Ford-style): synthetic
+  // measurements with scatter, generated once and frozen. They follow
+  // the FULL visible+DM curve (flat at large r) -- the observational
+  // evidence for dark matter. The points stay fixed while the user
+  // changes the model so the mismatch with the visible-only curve is
+  // obvious.
+  if (!OBS_POINTS) {
+    OBS_POINTS = [];
+    let s = 0x5EED;
+    const rnd = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+    // The "true" universe is the default MW params with DM on.
+    const truth = { ...MW_PARAMS };
+    for (let r = 4; r <= R_MAX - 4; r += 5) {
+      const vTrue = vCirc(r, truth);
+      const noise = (rnd() - 0.5) * 0.10;
+      OBS_POINTS.push({ r, v: vTrue + noise, err: 0.05 + 0.03 * rnd() });
+    }
+  }
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fillStyle = '#ffd166';
+  ctx.lineWidth = 1.2;
+  for (const pt of OBS_POINTS) {
+    const px = xToPx(pt.r);
+    const py = yToPx(pt.v);
+    // Error bar.
+    ctx.beginPath();
+    ctx.moveTo(px, yToPx(pt.v - pt.err));
+    ctx.lineTo(px, yToPx(pt.v + pt.err));
+    ctx.stroke();
+    // Data marker.
+    ctx.beginPath(); ctx.arc(px, py, 3.2, 0, Math.PI * 2); ctx.fill();
+  }
 
   // Legend
   const legendX = ax + aw - 140, legendY = ay + 10;
@@ -190,18 +307,24 @@ function drawRotationCurve() {
     { label: 'disk', color: 'rgba(91, 192, 235, 0.9)' },
     p.includeDM ? { label: 'dark halo (NFW)', color: 'rgba(170, 130, 220, 0.9)' } : null,
     { label: 'visible only', color: 'rgba(150, 220, 255, 0.6)', dash: true },
-    { label: 'total', color: 'rgba(255, 255, 255, 0.95)' },
+    { label: 'total (visible+DM)', color: 'rgba(255, 255, 255, 0.95)' },
+    { label: 'observed v(r)', color: '#ffd166', dot: true },
   ].filter(Boolean);
   ctx.textAlign = 'left';
   ctx.font = '11px ui-monospace, monospace';
   for (let i = 0; i < legend.length; i += 1) {
     const item = legend[i];
     const yy = legendY + i * 14;
-    ctx.strokeStyle = item.color;
-    ctx.lineWidth = 2;
-    if (item.dash) ctx.setLineDash([3, 3]);
-    ctx.beginPath(); ctx.moveTo(legendX, yy); ctx.lineTo(legendX + 18, yy); ctx.stroke();
-    ctx.setLineDash([]);
+    if (item.dot) {
+      ctx.fillStyle = item.color;
+      ctx.beginPath(); ctx.arc(legendX + 9, yy, 3.2, 0, Math.PI * 2); ctx.fill();
+    } else {
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = 2;
+      if (item.dash) ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(legendX, yy); ctx.lineTo(legendX + 18, yy); ctx.stroke();
+      ctx.setLineDash([]);
+    }
     ctx.fillStyle = item.color;
     ctx.fillText(item.label, legendX + 22, yy + 3);
   }
@@ -230,9 +353,26 @@ function render() {
   rDm.textContent = p.includeDM ? 'ON' : 'OFF';
 }
 
-function tick() {
+let _tickLast = performance.now();
+function tick(now) {
+  const wt = now || performance.now();
+  const dt = Math.min(0.05, (wt - _tickLast) / 1000);
+  _tickLast = wt;
   if (st.running) {
     st.rotAngle += 0.005;
+    // Advance each star's azimuth by Omega(r) dt, where Omega = v/r is
+    // dictated by the active preset's rotation curve. This is the
+    // physics simulation the user asked for.
+    // Visual speed scale bumped from 0.5 to 3.0 so the differential
+    // rotation reads clearly within a few seconds: Keplerian orbits
+    // shear FAST (inner stars race ahead), rigid-body holds the
+    // spiral pattern, flat-curve (visible+DM) shears moderately.
+    const SPEED = 3.0;
+    for (const star of STARS) {
+      const v = vAt(star.r);
+      const omega = v / Math.max(0.5, star.r);
+      star.phi += omega * dt * SPEED;
+    }
   }
   render();
   requestAnimationFrame(tick);
@@ -248,6 +388,15 @@ sMDM.addEventListener('input', () => { st.M_DM = parseFloat(sMDM.value); syncLab
 sC.addEventListener('input', () => { st.c = parseFloat(sC.value); syncLabels(); });
 sRs.addEventListener('input', () => { st.r_s = parseFloat(sRs.value); syncLabels(); });
 tDM.addEventListener('change', () => { st.includeDM = tDM.checked; });
+const selPreset = document.getElementById('select-preset');
+const vPreset = document.getElementById('value-preset');
+if (selPreset) selPreset.addEventListener('change', () => {
+  st.preset = selPreset.value;
+  if (vPreset) vPreset.textContent = st.preset;
+  // For Keplerian preset, disable the DM halo so the disc shears
+  // visibly under a 1/sqrt(r) law.
+  if (st.preset === 'kepler') { st.includeDM = false; tDM.checked = false; }
+});
 btnReset.addEventListener('click', () => {
   st.M_DM = 80; st.c = 12; st.r_s = 20; st.includeDM = true;
   sMDM.value = '80'; sC.value = '12'; sRs.value = '20'; tDM.checked = true;

@@ -141,7 +141,7 @@ function drawPlot(c, x0, y_off, w, h) {
     const x = x0 + padL + plotW * i / 4;
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${(i * tMax / 4).toFixed(1)}`, x - 8, y_off + padT + plotH + 12);
   }
   for (let i = 0; i <= 4; i += 1) {

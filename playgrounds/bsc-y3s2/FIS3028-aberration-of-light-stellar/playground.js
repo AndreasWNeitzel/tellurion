@@ -134,7 +134,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255, 220, 130, 0.45)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(W / 2 - 14, H / 2); ctx.lineTo(W / 2 + 14, H / 2); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(W / 2, H / 2 - 14); ctx.lineTo(W / 2, H / 2 + 14); ctx.stroke();
-  ctx.fillStyle = 'rgba(255, 220, 130, 0.7)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255, 220, 130, 0.7)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('+v (direction of motion)', W / 2 + 18, H / 2 + 4);
 
   // INSET: tiny polar diagnostic of rest-vs-observer angles for a
@@ -143,7 +143,7 @@ function render() {
   ctx.fillStyle = 'rgba(8, 12, 22, 0.85)'; ctx.fillRect(inX - 8, inY - 70, inR * 2 + 28, inR * 2 + 26);
   ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(inX + inR, inY, inR, 0, 6.2832); ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('polar diagnostic', inX, inY - 56);
   for (let i = 0; i < 12; i += 1) {
     const tr = 2 * Math.PI * i / 12;

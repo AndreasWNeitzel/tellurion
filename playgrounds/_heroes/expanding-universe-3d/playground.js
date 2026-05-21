@@ -3,7 +3,10 @@
 // comoving galaxy lattice whose proper size is a(t)). The secondary
 // Canvas2D panel is the scale-factor history a(t).
 
-import { integrateScaleFactor, scaleAt, redshift, recession, hubble } from './sim.js';
+import {
+  integrateScaleFactor, scaleAt, redshift, recession, hubble,
+  densityFractions, aEqMatterRadiation, aEqMatterLambda,
+} from './sim.js';
 import { setupCosmicLatticeGL } from '../../../shared/js/engine-gl/cosmic-lattice-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -121,10 +124,16 @@ canvas.addEventListener('pointerup', (e) => {
 function drawPlot() {
   const W = plot.width, H = plot.height;
   pctx.fillStyle = '#07080b'; pctx.fillRect(0, 0, W, H);
+  // Split the plot vertically: top 60 % = a(t), bottom 40 % =
+  // density-fraction bands Omega_r/m/Lambda(a). The bands are the
+  // merged content from the multicomponent playground; they make the
+  // matter-radiation and matter-Lambda equality epochs visible.
+  const topH = Math.round(H * 0.60);
+  const botH = H - topH - 4;
   const t0 = sol.t[0], t1 = sol.t[sol.t.length - 1];
   let aMax = 0; for (const v of sol.a) aMax = Math.max(aMax, v);
   const xOf = (t) => 40 + (t - t0) / (t1 - t0) * (W - 60);
-  const yOf = (a) => H - 22 - (a / aMax) * (H - 40);
+  const yOf = (a) => topH - 22 - (a / aMax) * (topH - 40);
   pctx.strokeStyle = '#23252a'; pctx.beginPath(); pctx.moveTo(40, yOf(0)); pctx.lineTo(W - 20, yOf(0)); pctx.stroke();
   pctx.strokeStyle = '#9b8cff'; pctx.lineWidth = 1.8; pctx.beginPath();
   for (let i = 0; i < sol.t.length; i += 2) { const X = xOf(sol.t[i]), Y = yOf(sol.a[i]); if (i === 0) pctx.moveTo(X, Y); else pctx.lineTo(X, Y); }
@@ -133,6 +142,62 @@ function drawPlot() {
   pctx.strokeStyle = '#ffd166'; pctx.beginPath(); pctx.moveTo(cx, 18); pctx.lineTo(cx, H - 18); pctx.stroke();
   pctx.fillStyle = '#7a818c'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'left';
   pctx.fillText('scale factor a(t)   (yellow = now; t=0 is today)', 8, 14);
+
+  // Density-fraction bands vs log(a). x ranges from log10(a) = -8
+  // (early radiation era) to log10(a) = 0 (today).
+  const py0 = topH + 4, py1 = topH + botH;
+  pctx.fillStyle = 'rgba(15, 22, 36, 0.85)';
+  pctx.fillRect(40, py0, W - 60, py1 - py0);
+  pctx.strokeStyle = 'rgba(220, 230, 255, 0.20)';
+  pctx.strokeRect(40 + 0.5, py0 + 0.5, W - 61, py1 - py0 - 1);
+  pctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  pctx.font = 'bold 11px ui-monospace, monospace';
+  pctx.fillText('density fractions Ω_r / Ω_m / Ω_Λ  (log a)', 44, py0 + 12);
+  const aLo = -8, aHi = 0;
+  function xOfLogA(la) { return 50 + ((la - aLo) / (aHi - aLo)) * (W - 70); }
+  // Stack the bands as a filled area chart.
+  const NSTEPS = 80;
+  const bandY = py0 + 20, bandH = py1 - py0 - 26;
+  for (let i = 0; i < NSTEPS; i += 1) {
+    const la = aLo + (i / (NSTEPS - 1)) * (aHi - aLo);
+    const aLog = Math.pow(10, la);
+    const f = densityFractions(aLog, { Om: ui.Om, OL: ui.OL });
+    const x = xOfLogA(la);
+    const wstep = (W - 70) / NSTEPS + 1;
+    // Bottom: radiation; mid: matter; top: Lambda.
+    pctx.fillStyle = '#5bc0eb'; pctx.fillRect(x, bandY + (1 - f.r) * bandH, wstep, f.r * bandH);
+    pctx.fillStyle = '#ffd166'; pctx.fillRect(x, bandY + (1 - f.r - f.m) * bandH, wstep, f.m * bandH);
+    pctx.fillStyle = '#ef476f'; pctx.fillRect(x, bandY, wstep, f.l * bandH);
+  }
+  // Equality markers.
+  const aEq_mr = aEqMatterRadiation({ Om: ui.Om });
+  const aEq_mL = aEqMatterLambda({ Om: ui.Om, OL: Math.max(1e-6, ui.OL) });
+  if (aEq_mr > Math.pow(10, aLo) && aEq_mr < 1) {
+    pctx.strokeStyle = 'rgba(255, 255, 255, 0.85)'; pctx.setLineDash([3, 3]);
+    pctx.beginPath();
+    pctx.moveTo(xOfLogA(Math.log10(aEq_mr)), bandY);
+    pctx.lineTo(xOfLogA(Math.log10(aEq_mr)), bandY + bandH);
+    pctx.stroke();
+    pctx.setLineDash([]);
+    pctx.fillStyle = '#fff'; pctx.font = '11px ui-monospace, monospace';
+    pctx.fillText('m=r', xOfLogA(Math.log10(aEq_mr)) + 2, bandY + 10);
+  }
+  if (aEq_mL > Math.pow(10, aLo) && aEq_mL < 1) {
+    pctx.strokeStyle = 'rgba(255, 255, 255, 0.85)'; pctx.setLineDash([3, 3]);
+    pctx.beginPath();
+    pctx.moveTo(xOfLogA(Math.log10(aEq_mL)), bandY);
+    pctx.lineTo(xOfLogA(Math.log10(aEq_mL)), bandY + bandH);
+    pctx.stroke();
+    pctx.setLineDash([]);
+    pctx.fillStyle = '#fff'; pctx.font = '11px ui-monospace, monospace';
+    pctx.fillText('m=Λ', xOfLogA(Math.log10(aEq_mL)) + 2, bandY + 22);
+  }
+  // x-axis ticks.
+  pctx.fillStyle = 'rgba(200, 210, 240, 0.85)'; pctx.font = '11px ui-monospace, monospace';
+  for (let la = aLo; la <= aHi; la += 2) {
+    const xx = xOfLogA(la);
+    pctx.fillText(`10^${la}`, xx - 10, py1 - 2);
+  }
 }
 
 function refreshReadout() {

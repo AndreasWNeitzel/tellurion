@@ -169,3 +169,55 @@ export function arcCurve(N = 200) {
   }
   return pts;
 }
+
+// Concave reference path replacing the (slow) circular arc: a
+// steep-start curve y(x) = -Y_B sqrt(x / X_B) that drops fast then
+// flattens. Concave-down; a useful contrast to the cycloid.
+export function concaveCurve(N = 160) {
+  const pts = [];
+  for (let i = 0; i <= N; i += 1) {
+    const x = X_B * i / N;
+    pts.push([x, -Y_B * Math.sqrt(x / X_B)]);
+  }
+  return pts;
+}
+
+// Generic descent time for ANY monotone polyline starting at A=(0,0).
+// T = sum ds / v_mid, with v = sqrt(2 g depth) from energy
+// conservation. Returns { time, valid }; a path that climbs above the
+// release height is flagged invalid (a released bead cannot traverse
+// it). Used both for the reference curves and the user-drawn curve.
+export function descentTime(pts) {
+  if (!pts || pts.length < 2) return { time: Infinity, valid: false };
+  let T = 0, valid = true;
+  for (let i = 1; i < pts.length; i += 1) {
+    const [x0, y0] = pts[i - 1];
+    const [x1, y1] = pts[i];
+    const ds = Math.hypot(x1 - x0, y1 - y0);
+    if (ds < 1e-9) continue;
+    const v0 = Math.sqrt(2 * G * Math.max(0, -y0));
+    const v1 = Math.sqrt(2 * G * Math.max(0, -y1));
+    if (y1 > 1e-6 || y0 > 1e-6) valid = false;
+    T += ds / Math.max(0.05, 0.5 * (v0 + v1));
+  }
+  return { time: T, valid };
+}
+
+// Smooth polyline through user control points, anchored at A=(0,0)
+// and B=(X_B,-Y_B). Interior points are sorted by x; we sample with a
+// smoothstep blend so the curve reads cleanly.
+export function userCurve(controlPts, N = 120) {
+  const anchors = [[0, 0], ...controlPts.slice().sort((a, b) => a[0] - b[0]), [X_B, -Y_B]];
+  const pts = [];
+  for (let i = 0; i <= N; i += 1) {
+    const x = X_B * i / N;
+    let lo = 0;
+    while (lo < anchors.length - 2 && anchors[lo + 1][0] < x) lo += 1;
+    const [xa, ya] = anchors[lo];
+    const [xb, yb] = anchors[Math.min(anchors.length - 1, lo + 1)];
+    const f = xb > xa ? (x - xa) / (xb - xa) : 0;
+    const s = f * f * (3 - 2 * f);
+    pts.push([x, ya + (yb - ya) * s]);
+  }
+  return pts;
+}

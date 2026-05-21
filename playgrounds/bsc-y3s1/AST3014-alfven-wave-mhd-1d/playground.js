@@ -112,7 +112,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255,255,255,0.20)'; ctx.setLineDash([4, 5]);
   ctx.beginPath(); ctx.moveTo(cpx, sceneTop); ctx.lineTo(cpx, sceneTop + sceneH); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('crest -> v_A', cpx, sceneTop - 4);
 
   ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';

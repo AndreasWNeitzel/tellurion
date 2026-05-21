@@ -92,8 +92,52 @@ function render() {
   ctx.fillStyle = pCol;
   ctx.fillText(tag, 20, H - 22);
 
+  drawTeqDiagnostic(cx, cy, r_in, r_out, T);
+
   readoutInv.textContent = `Teff=${state.Teff} R=${state.Rstar} A=${state.A.toFixed(2)} T_eq=${T.toFixed(0)} K`;
   readoutFrame.textContent = '-';
+}
+
+// Rule-13 diagnostic: equilibrium temperature T_eq vs orbital radius.
+// T_eq ~ a^(-1/2) (inverse-square flux, Stefan-Boltzmann balance). The
+// habitable band (200-273 K) is shaded; the planet's current (a, T_eq)
+// sits on the curve, tying the orbital scene to the physics.
+function drawTeqDiagnostic(cx, cy, r_in, r_out, Tnow) {
+  const pw = 232, ph = 150, px = W - pw - 14, py = 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('T_eq vs orbital radius', px + 8, py + 14);
+  const ax = px + 34, ay = py + 24, aw = pw - 46, ah = ph - 42;
+  const aMax = Math.max(3, state.a_AU * 1.2, r_out * 1.1);
+  const tMax = 360;
+  const xOf = (a) => ax + (a / aMax) * aw;
+  const yOf = (t) => ay + ah - (t / tMax) * ah;
+  // Habitable band 200-273 K.
+  ctx.fillStyle = 'rgba(90, 220, 120, 0.16)';
+  ctx.fillRect(ax, yOf(273), aw, yOf(200) - yOf(273));
+  // T_eq(a) curve.
+  ctx.strokeStyle = '#5fe39b'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let k = 1; k <= 120; k += 1) {
+    const a = aMax * k / 120;
+    const t = Teq(a);
+    const x = xOf(a), y = yOf(Math.min(tMax, t));
+    if (k === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Current planet point.
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(xOf(state.a_AU), yOf(Math.min(tMax, Tnow)), 4, 0, 6.28); ctx.fill();
+  // Axes.
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillText('273', px + 8, yOf(273) + 3);
+  ctx.fillText('200', px + 8, yOf(200) + 3);
+  ctx.fillText('0', ax - 8, ay + ah + 9);
+  ctx.fillText(`${aMax.toFixed(1)} AU`, ax + aw - 34, ay + ah + 9);
 }
 
 function buildControls() {

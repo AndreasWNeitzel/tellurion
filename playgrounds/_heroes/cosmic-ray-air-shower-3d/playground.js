@@ -36,9 +36,11 @@ const st = {
   logE: 18.0,
   depth: 1.0,            // fraction of max depth (1030 g/cm^2 at sea level)
   speed: 2,
+  zenithDeg: 0,          // zenith angle (0 = vertical, 90 = horizontal)
   running: !prefersReducedMotion(),
   rng: makeRng(0xC0FFEE),
-  particles: [],
+  particles: [],         // live cascade particles (animated)
+  cycle: 0,              // shower-cycle counter for periodic reseed
   t: 0,
 };
 
@@ -77,7 +79,7 @@ function drawAtmosphere() {
   ctx.fillRect(0, altToScreenY(0), SCENE.w, SCENE.h - altToScreenY(0) + 30);
   // Altitude tick marks.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.55)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   for (let h = 0; h <= ALT_TOP_KM; h += 5) {
     const y = altToScreenY(h);
     ctx.fillText(`${h} km`, 6, y + 3);
@@ -87,59 +89,99 @@ function drawAtmosphere() {
   }
 }
 
+// =========================================================================
+// LIVE CASCADE V3. Multiple simultaneous showers, fast moving, dense
+// branching at each interaction, with bright flash markers at every
+// branch point. Maxes out at ~ 800 live particles; capped by total
+// budget so the page doesn't lag.
+// =========================================================================
+const MAX_PARTICLES = 800;
+const flashes = [];          // {x, y, age, intensity}
+function newShower() {
+  const cx = SCENE.x + SCENE.w / 2;
+  const zen = (st.zenithDeg * Math.PI) / 180;
+  const startH = ALT_TOP_KM - 0.5;
+  // Randomize horizontal entry within the visible scene.
+  const dx_screen = (st.rng() - 0.5) * SCENE.w * 0.4 - SCENE.w * 0.30 * Math.sin(zen);
+  st.particles.push({
+    x: cx + dx_screen, h_km: startH,
+    dx: Math.sin(zen), dh: -Math.cos(zen),
+    E: E_GeV(),
+    kind: 'primary',
+    age: 0,
+    interacted: false,
+    nextInteractH_km: altitudeAtDepth_km(LAMBDA_I) - st.rng() * 5,
+    trail: [{ x: cx + dx_screen, h_km: startH }],
+  });
+  st.cycle += 1;
+}
+function spawnPrimary() {
+  st.particles.length = 0;
+  flashes.length = 0;
+  // Three simultaneous primaries staggered slightly in launch time.
+  for (let i = 0; i < 3; i += 1) newShower();
+}
+function stepCascade(dt) {
+  // Faster propagation: 6 km/sec of wall-clock at speed 2; one shower
+  // clears the atmosphere in ~ 6-7 seconds.
+  const v_km = 4.0 * st.speed;
+  const newParts = [];
+  for (const p of st.particles) {
+    p.h_km += p.dh * v_km * dt;
+    p.x += p.dx * v_km * dt * (SCENE.w * 0.4 / ALT_TOP_KM);
+    p.age += dt;
+    // Interaction check.
+    if (!p.interacted && p.h_km <= p.nextInteractH_km && p.kind !== 'muon') {
+      p.interacted = true;
+      // Burst flash at the interaction point.
+      flashes.push({ x: p.x, y: altToScreenY(p.h_km), age: 0, intensity: p.kind === 'primary' ? 1.0 : 0.6 });
+      // Many secondaries: 6-10 for primary/hadronic, 4-6 for EM.
+      const nBranch = p.kind === 'primary' ? 10 : p.kind === 'hadronic' ? 6 + Math.floor(st.rng() * 4) : 3 + Math.floor(st.rng() * 3);
+      for (let k = 0; k < nBranch; k += 1) {
+        if (st.particles.length + newParts.length >= MAX_PARTICLES) break;
+        const E_new = p.E / nBranch;
+        if (E_new < 0.005) continue;
+        // Wider opening angle for "spectacle".
+        const dTheta = 0.12 + 0.18 / Math.max(0.5, Math.sqrt(E_new));
+        const ang = (st.rng() - 0.5) * dTheta;
+        const ca = Math.cos(ang), sa = Math.sin(ang);
+        const ndx = p.dx * ca - p.dh * sa;
+        const ndh = p.dx * sa + p.dh * ca;
+        const r = st.rng();
+        const kind = r < 0.70 ? 'em' : r < 0.95 ? 'hadronic' : 'muon';
+        const dX = kind === 'em' ? X_0 : (kind === 'hadronic' ? LAMBDA_I : 1e6);
+        const nextH = altitudeAtDepth_km(Math.min(1030, depthAtAltitude_gcm2(p.h_km) + dX * (0.6 + st.rng() * 0.8)));
+        newParts.push({
+          x: p.x, h_km: p.h_km, dx: ndx, dh: ndh,
+          E: E_new, kind, age: 0,
+          interacted: false,
+          nextInteractH_km: nextH,
+          trail: [{ x: p.x, h_km: p.h_km }],
+        });
+      }
+      p.kind = 'dead';
+    }
+    p.trail.push({ x: p.x, h_km: p.h_km });
+    if (p.trail.length > 12) p.trail.shift();
+  }
+  for (const np of newParts) st.particles.push(np);
+  st.particles = st.particles.filter((p) => p.kind !== 'dead' && p.h_km > -1);
+  // Update flashes.
+  for (let i = flashes.length - 1; i >= 0; i -= 1) {
+    flashes[i].age += dt;
+    if (flashes[i].age > 0.6) flashes.splice(i, 1);
+  }
+  // Maintain a steady rain of primaries.
+  if (st.particles.length < 40 && st.cycle - flashes.length < 1000) {
+    newShower();
+  }
+}
+
 function drawCascade() {
-  // Sample particles from the Gaisser-Hillas profile + a Heitler-like
-  // multiplication tree. We render points whose density follows N(X)
-  // and whose horizontal spread grows with sqrt(X / X_max).
   const cx = SCENE.x + SCENE.w / 2;
   const Xmax_v = Xmax();
-  const Nmax_v = Nmax();
   const X1 = LAMBDA_I;
-  // Sample 2500 particles, x-position distributed Gaussian about the
-  // shower axis with width sigma ~ Moliere radius (~78 m at sea level,
-  // 200 m at 5 km, etc. We just use a depth-dependent width).
-  const N_PART = 2500;
-  const maxDepth = 1030 * st.depth;     // up to sea level
-  for (let i = 0; i < N_PART; i++) {
-    // Pick a depth from G-H distribution by inverse-CDF approx (use
-    // rejection on a uniform sample).
-    let X = 0;
-    for (let trial = 0; trial < 30; trial++) {
-      const u = st.rng() * maxDepth;
-      const gh = gaisserHillas(u, 1, Xmax_v, X1);
-      if (st.rng() < gh) {
-        X = u;
-        break;
-      }
-    }
-    if (X <= 0) continue;
-    const h_km = altitudeAtDepth_km(X);
-    const y = altToScreenY(h_km);
-    // x-spread.
-    const sigma_x = 10 + 80 * Math.sqrt(X / Math.max(1, maxDepth));
-    const dx = (st.rng() - 0.5) * 2 * sigma_x;
-    // Species: rough split. EM = 80%, hadronic = 10%, muons = 10%.
-    const r = st.rng();
-    let col;
-    if (r < 0.80) col = 'rgba(120, 220, 255, 0.65)';     // EM
-    else if (r < 0.90) col = 'rgba(255, 130, 110, 0.75)'; // hadronic
-    else col = 'rgba(255, 230, 120, 0.85)';               // muon
-    ctx.fillStyle = col;
-    ctx.fillRect(cx + dx - 0.7, y - 0.7, 1.4, 1.4);
-  }
-  // Primary ray (yellow streak from top down to first interaction).
-  const X1_y = altToScreenY(altitudeAtDepth_km(X1));
-  ctx.strokeStyle = 'rgba(255, 255, 220, 0.85)';
-  ctx.lineWidth = 2.0;
-  ctx.beginPath();
-  ctx.moveTo(cx, altToScreenY(ALT_TOP_KM));
-  ctx.lineTo(cx, X1_y);
-  ctx.stroke();
-  // First-interaction marker.
-  ctx.fillStyle = 'rgba(255, 255, 220, 0.95)';
-  ctx.beginPath(); ctx.arc(cx, X1_y, 5, 0, Math.PI * 2); ctx.fill();
-  ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`first interaction X_1 = ${X1.toFixed(0)} g cm^-2`, cx + 10, X1_y + 4);
+
   // X_max marker (horizontal dashed line).
   const Xmax_y = altToScreenY(altitudeAtDepth_km(Xmax_v));
   ctx.strokeStyle = 'rgba(255, 220, 140, 0.65)';
@@ -150,11 +192,66 @@ function drawCascade() {
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`X_max = ${Xmax_v.toFixed(0)} g cm^-2`, 50, Xmax_y - 6);
-  // Labels.
+
+  // Interaction-point bright flashes (additive blend).
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const f of flashes) {
+    const a = Math.max(0, 1 - f.age / 0.6);
+    const r = (10 + 30 * (1 - a)) * f.intensity;
+    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
+    g.addColorStop(0, `rgba(255, 255, 230, ${(0.85 * a).toFixed(2)})`);
+    g.addColorStop(0.5, `rgba(255, 200, 110, ${(0.45 * a).toFixed(2)})`);
+    g.addColorStop(1, 'rgba(255, 200, 110, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+
+  // LIVE PARTICLES with motion trails.
+  for (const p of st.particles) {
+    const trail = p.trail || p.parentTrail || [];
+    if (trail.length < 2) continue;
+    let col, lw;
+    if (p.kind === 'primary') { col = 'rgba(255, 255, 220, 0.95)'; lw = 2.4; }
+    else if (p.kind === 'em') { col = 'rgba(120, 220, 255, 0.85)'; lw = 1.4; }
+    else if (p.kind === 'hadronic') { col = 'rgba(255, 130, 110, 0.85)'; lw = 1.6; }
+    else if (p.kind === 'muon') { col = 'rgba(255, 230, 120, 0.85)'; lw = 1.4; }
+    else continue;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    for (let k = 0; k < trail.length; k += 1) {
+      const px = trail[k].x;
+      const py = altToScreenY(trail[k].h_km);
+      if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    // Glowing leading dot.
+    const last = trail[trail.length - 1];
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(last.x, altToScreenY(last.h_km), p.kind === 'primary' ? 4 : 2.2, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Header.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
   ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`primary ${st.primary}, E_0 = 10^${st.logE.toFixed(1)} eV`, 50, 24);
+  ctx.fillText(`primary ${st.primary}, E_0 = 10^${st.logE.toFixed(1)} eV  ·  zenith = ${st.zenithDeg.toFixed(0)}°`, 50, 24);
+  ctx.fillText(`live particles: ${st.particles.length}    cycle ${st.cycle}`, 50, 42);
+  // Species legend.
+  let lyx = 50, lyy = SCENE.h - 18;
+  function leg(col, txt) {
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(lyx, lyy, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(txt, lyx + 8, lyy + 4);
+    lyx += ctx.measureText(txt).width + 30;
+  }
+  leg('rgba(120, 220, 255, 0.95)', 'EM (e±, γ)');
+  leg('rgba(255, 130, 110, 0.95)', 'hadronic (π, K)');
+  leg('rgba(255, 230, 120, 0.95)', 'muon');
+  leg('rgba(255, 255, 220, 0.95)', 'primary');
 }
 
 function drawProfile() {
@@ -251,9 +348,17 @@ function readSliders() {
   vSpeed.textContent = String(st.speed);
 }
 
+// Zenith-angle slider lookup (it may not exist yet in the HTML).
+const sZen = document.getElementById('slider-zen');
+const vZen = document.getElementById('value-zen');
+if (sZen) {
+  sZen.addEventListener('input', () => { st.zenithDeg = parseFloat(sZen.value); if (vZen) vZen.textContent = `${st.zenithDeg.toFixed(0)}°`; spawnPrimary(); });
+}
 [selPrim, sLogE, sDepth, sSpeed].forEach(el => el.addEventListener('input', readSliders));
 selPrim.addEventListener('change', readSliders);
-btnReset.addEventListener('click', () => { st.rng = makeRng(0xC0FFEE); });
+selPrim.addEventListener('change', () => spawnPrimary());
+sLogE.addEventListener('change', () => spawnPrimary());
+btnReset.addEventListener('click', () => { st.rng = makeRng(0xC0FFEE); spawnPrimary(); });
 btnPause.addEventListener('click', () => {
   st.running = !st.running;
   btnPause.textContent = st.running ? 'Pause' : 'Resume';
@@ -276,13 +381,12 @@ if (CAPTURE_NAME) {
   draw();
   window.__simulationReady = true;
 } else {
+  spawnPrimary();
   let last = performance.now();
   function loop(now) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (st.running) st.t += dt;
-    // Re-seed RNG each frame so particles look "live" rather than static.
-    st.rng = makeRng((st.t * 1000) | 0);
+    if (st.running) { st.t += dt; stepCascade(dt); }
     draw();
     requestAnimationFrame(loop);
   }

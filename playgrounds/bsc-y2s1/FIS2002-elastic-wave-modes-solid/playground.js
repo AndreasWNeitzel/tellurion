@@ -142,7 +142,7 @@ function render() {
     const tP = d / vP + 14 * DT, tS = d / vS + 14 * DT;
     ctx.strokeStyle = 'rgba(255,120,110,0.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xx(tP), PY + 6); ctx.lineTo(xx(tP), PY + PH - 6); ctx.stroke();
     ctx.strokeStyle = 'rgba(120,200,255,0.5)'; ctx.beginPath(); ctx.moveTo(xx(tS), PY + 6); ctx.lineTo(xx(tS), PY + PH - 6); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText('u_x (P)', PX + 8, PY + PH * 0.30 - 30);
     ctx.fillText('u_y (S)', PX + 8, PY + PH * 0.72 - 30);
     ctx.textAlign = 'center'; ctx.fillText('time', PX + PW / 2, PY + PH + 14);

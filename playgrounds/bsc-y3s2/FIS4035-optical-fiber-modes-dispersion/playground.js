@@ -67,7 +67,7 @@ function drawDispersion(x, y, w, h) {
   ctx.fillStyle = 'rgba(127,209,255,0.07)'; ctx.fillRect(x0, y0, X(CUTOFF) - x0, y1 - y0);
   ctx.strokeStyle = 'rgba(127,209,255,0.4)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(CUTOFF), y0); ctx.lineTo(X(CUTOFF), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '11px monospace';
   ctx.fillText('V = 2.405', X(CUTOFF) + 4, y0 + 12);
   ctx.fillText('single-mode', x0 + 6, y1 - 8);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
@@ -85,35 +85,67 @@ function drawDispersion(x, y, w, h) {
   // operating V
   ctx.strokeStyle = 'rgba(255,255,255,0.55)';
   ctx.beginPath(); ctx.moveTo(X(st.V), y0); ctx.lineTo(X(st.V), y1); ctx.stroke();
-  const cur = solveLP(st.V, st.l, st.m);
+  const cur = cachedSolveLP(st.V, st.l, st.m);
   if (cur) { ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(st.V), Y(cur.b), 4, 0, 2 * Math.PI); ctx.fill(); }
   ctx.fillStyle = 'rgba(200,215,240,0.65)';
   ctx.fillText('V ->', x1 - 30, y1 + 14);
 }
 
+// Cache solveLP per (V, l, m) so it isn't recomputed every frame.
+// solveLP runs a numerical eigenvalue search that is expensive
+// enough to make the page lag when called at 60 Hz.
+const _solveCache = new Map();
+function cachedSolveLP(V, l, m) {
+  const key = `${V.toFixed(4)}|${l}|${m}`;
+  if (!_solveCache.has(key)) {
+    _solveCache.set(key, solveLP(V, l, m));
+    if (_solveCache.size > 32) _solveCache.delete(_solveCache.keys().next().value);
+  }
+  return _solveCache.get(key);
+}
+
+// Also cache the intensity image as an OffscreenCanvas so the per-
+// pixel viridis loop only runs when the mode parameters change.
+let _modeCanvas = null, _modeCacheKey = '';
+
 function drawModeShape(x, y, w, h) {
   const name = `LP${st.l}${st.m}`;
   panel(x, y, w, h, `mode intensity |E|^2 cross-section: ${name}`);
   const cx = x + w * 0.42, cy = y + h * 0.54, R = Math.min(w, h) * 0.34;
-  const mode = solveLP(st.V, st.l, st.m);
+  const mode = cachedSolveLP(st.V, st.l, st.m);
   const cell = 3;
-  if (mode) {
-    for (let py = -R * 1.25; py < R * 1.25; py += cell) {
-      for (let px = -R * 1.25; px < R * 1.25; px += cell) {
-        const rr = Math.sqrt(px * px + py * py) / R;       // in core radii
-        if (rr > 2.4) continue;
-        const phi = Math.atan2(py, px);
-        const az = Math.cos(st.l * phi);
-        const v = modeIntensity(rr, mode) * az * az;
-        const { r, g, b } = viridis(Math.max(0, Math.min(1, v)));
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(cx + px, cy + py, cell + 1, cell + 1);
+  // The per-pixel viridis loop is expensive at 60 Hz. We render it
+  // ONCE per (mode) into an offscreen canvas, then blit the cached
+  // bitmap each frame.
+  const key = `${st.V.toFixed(4)}|${st.l}|${st.m}|${R | 0}`;
+  if (key !== _modeCacheKey || !_modeCanvas) {
+    const D = Math.ceil(R * 2.5);
+    _modeCanvas = new OffscreenCanvas(D, D);
+    const moctx = _modeCanvas.getContext('2d');
+    moctx.clearRect(0, 0, D, D);
+    if (mode) {
+      const cxL = D / 2, cyL = D / 2;
+      for (let py = -R * 1.25; py < R * 1.25; py += cell) {
+        for (let px = -R * 1.25; px < R * 1.25; px += cell) {
+          const rr = Math.sqrt(px * px + py * py) / R;
+          if (rr > 2.4) continue;
+          const phi = Math.atan2(py, px);
+          const az = Math.cos(st.l * phi);
+          const v = modeIntensity(rr, mode) * az * az;
+          const { r, g, b } = viridis(Math.max(0, Math.min(1, v)));
+          moctx.fillStyle = `rgb(${r},${g},${b})`;
+          moctx.fillRect(cxL + px, cyL + py, cell + 1, cell + 1);
+        }
       }
     }
+    _modeCacheKey = key;
+  }
+  if (_modeCanvas) {
+    ctx.drawImage(_modeCanvas, cx - _modeCanvas.width / 2, cy - _modeCanvas.height / 2);
   }
   ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();   // core boundary r=a
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('core r = a', cx + R * 0.7, cy - R - 6);
   // radial profile strip on the right
   const px0 = x + w - 96, py0 = y + 30, pw = 80, ph = h - 56;
@@ -159,7 +191,7 @@ function drawPulse(x, y, w, h) {
   // amplitude T0/T so the pulse energy is conserved)
   ctx.strokeStyle = 'rgba(150,170,210,0.4)'; ctx.lineWidth = 1; gauss(T0, 0.92);
   ctx.strokeStyle = '#f1c069'; ctx.lineWidth = 1.9; gauss(Tt, 0.92 * T0 / Tt);
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('time t / T0 ->', x1 - 96, y1 + 14);
   ctx.fillStyle = '#f1c069';
   ctx.fillText(`z/L_D = ${(st.zNow / st.LD).toFixed(2)}   T/T0 = ${Tt.toFixed(2)}`, x0 + 4, y0 + 10);

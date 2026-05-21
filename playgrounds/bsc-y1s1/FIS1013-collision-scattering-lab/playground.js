@@ -146,7 +146,7 @@ function render() {
   // potential selector, so that control is always perceptible.
   const vx0 = 26, vy0 = py0 + 26, vw = 220, vh = 96;
   ctx.strokeStyle = '#2a2a34'; ctx.beginPath(); ctx.moveTo(vx0, vy0); ctx.lineTo(vx0, vy0 + vh); ctx.lineTo(vx0 + vw, vy0 + vh); ctx.stroke();
-  ctx.fillStyle = '#7e828a'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('V(r): ' + st.kind, vx0 + 4, vy0 - 4); ctx.fillText('r', vx0 + vw - 8, vy0 + vh + 12);
   ctx.strokeStyle = '#9d8bff'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 80; i += 1) {

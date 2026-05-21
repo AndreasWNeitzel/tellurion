@@ -123,7 +123,7 @@ function drawCurve(c, phi) {
   for (let i = 0; i <= 4; i += 1) {
     const y = y0 + (y1 - y0) * i / 4;
     ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
-    ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
     ctx.fillText((1 - i / 4).toFixed(1), x0 - 6, y + 3);
   }
   for (let m = 0; m <= 2; m += 1) {

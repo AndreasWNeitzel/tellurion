@@ -82,7 +82,7 @@ function drawPPChain(x0, y0) {
   drawArrow(x0 + 50, y0 + 50, x0 + 130, y0 + 90, glowPP ? '#ffd166' : 'rgba(255,255,255,0.35)', glowPP);
   drawArrow(x0 + 100, y0 + 50, x0 + 130, y0 + 90, glowPP ? '#ffd166' : 'rgba(255,255,255,0.35)', glowPP);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('e⁺ + ν_e', x0 + 145, y0 + 75);
 
   // Second row: deuteron + proton -> 3He
@@ -91,7 +91,7 @@ function drawPPChain(x0, y0) {
   drawArrow(x0 + 165, y0 + 130, x0 + 200, y0 + 170, glowPP ? '#7dd3fc' : 'rgba(255,255,255,0.35)', glowPP);
   drawArrow(x0 + 200, y0 + 130, x0 + 200, y0 + 170, glowPP ? '#7dd3fc' : 'rgba(255,255,255,0.35)', glowPP);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('γ', x0 + 210, y0 + 150);
 
   // Third row: 3He + 3He -> 4He + 2p
@@ -103,7 +103,7 @@ function drawPPChain(x0, y0) {
   // Output: 4He
   drawNucleus(x0 + 130, y0 + 275, 26, '⁴He', '#ff8080');
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.textAlign = 'left';
   ctx.fillText('+ 2¹H + 26.73 MeV', x0 + 165, y0 + 280);
 }
@@ -188,7 +188,7 @@ function drawEpsilonCurve(x0, y0, w, h) {
   ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.textAlign = 'left';
   ctx.fillText('log ε(T)', x0 + 6, ay - 2);
   ctx.textAlign = 'center';

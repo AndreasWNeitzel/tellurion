@@ -77,7 +77,7 @@ function drawProfile(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([2, 4]);
   for (const v of [0, 0.5, 1]) { ctx.beginPath(); ctx.moveTo(x0, Y(v)); ctx.lineTo(x1, Y(v)); ctx.stroke(); }
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px monospace';
   ctx.fillText('1', x + 8, Y(1) + 3); ctx.fillText('0', x + 8, Y(0) + 3);
   // coherence length marker (undepleted, mismatched)
   if (st.regime !== 'depleted' && st.dk > 1e-6) {
@@ -132,7 +132,7 @@ function drawAcceptance(x, y, w, h) {
   const so = sinc(dkOp * L / 2);
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(Math.max(-dkMax, Math.min(dkMax, dkOp))), Y(so * so), 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('dk = 0', X(0) + 3, y0 + 10);
   ctx.fillText('dk ->', x1 - 34, y1 + 14);
 }
@@ -156,7 +156,7 @@ function drawDispersion(x, y, w, h) {
   ctx.beginPath(); ctx.moveTo(X(lamM), y0); ctx.lineTo(X(lamM), y1); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(lamM), Y(nO(lamM)), 3.5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('n_o(w)', X(0.95), Y(nO(0.95)) - 6);
   ctx.fillStyle = 'rgba(111,160,255,0.85)'; ctx.fillText('n_e(2w)', X(0.62), Y(nE(0.31)) + 12);
   ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.fillText('lambda_FW (micron) ->', x1 - 150, y1 + 14);
@@ -190,8 +190,13 @@ function tick() {
 
 function syncLabels() { vDk.textContent = st.dk.toFixed(2); vG.textContent = st.gamma.toFixed(2); }
 selReg.addEventListener('change', () => { st.regime = selReg.value; rebuild(); syncLabels(); draw(); });
-sDk.addEventListener('input', () => { st.dk = parseFloat(sDk.value) / 100; syncLabels(); rebuild(); });
-sG.addEventListener('input', () => { st.gamma = parseFloat(sG.value) / 100; syncLabels(); rebuild(); });
+// Sliders update params AND immediately advance the sweep cursor to
+// the end so the user sees the new curve INSTANTLY rather than
+// watching it crawl back from zero. Previously rebuild() reset zNow
+// = 0, so the user perceived "nothing happening" until the
+// animation caught up.
+sDk.addEventListener('input', () => { st.dk = parseFloat(sDk.value) / 100; syncLabels(); rebuild(); st.zNow = st.zEnd; st.running = false; draw(); });
+sG.addEventListener('input', () => { st.gamma = parseFloat(sG.value) / 100; syncLabels(); rebuild(); st.zNow = st.zEnd; st.running = false; draw(); });
 bR.addEventListener('click', () => {
   st.regime = 'undepleted'; st.dk = DEF_DK; st.gamma = DEF_G;
   selReg.value = 'undepleted'; sDk.value = String(DEF_DK * 100); sG.value = String(DEF_G * 100);

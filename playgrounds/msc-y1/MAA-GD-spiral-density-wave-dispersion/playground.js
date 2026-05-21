@@ -67,24 +67,28 @@ function render() {
   if (Q < 1 && running) tUnstable += 0.02;
   lastStable = (Q >= 1);
 
+  // Use TWO time clocks: st.t is the always-running wall clock that
+  // drives both disc rotation AND the perturbation phase oscillation,
+  // tUnstable is the growth clock that only advances when the disc
+  // is unstable. Previously both were tied to tUnstable, so in the
+  // stable regime the entire scene froze; in reality, a stable disc
+  // still rotates and still shows an oscillating (non-growing) wake.
+  const tRot = st.t;
   const tt = tUnstable;
   const ampU = 0.95 * (1 - Math.exp(-gamma * tt * 1.1));   // physical e-fold ~ 1/gamma
-  const amp = Q < 1 ? Math.min(1.05, ampU) : 0.06;
+  // Stable: small oscillating amplitude (sheared transient); unstable:
+  // grows exponentially toward saturation.
+  const ampStableOsc = 0.08 * (0.5 + 0.5 * Math.cos(0.6 * tRot));
+  const amp = Q < 1 ? Math.min(1.05, ampU) : ampStableOsc;
   const mArms = 2;
-  // a loosely-wound grand-design spiral (real pitch angles are ~15
-  // deg); kStar drives only the diagnostic marker, not this winding,
-  // since the toy nu^2 minimum can sit past the plotted k range.
   const pitch = 1.7;
 
-  // The density wave: stars crowd azimuthally toward the spiral
-  // potential minima (theta -> theta + amp sin(phase)/m), which makes
-  // genuine bright arms; a small radial breathing adds richness.
   for (let i = 0; i < N; i += 1) {
     const p = part[i];
     const Om = 0.9 / p.r * 90;                            // flat-Vc => Omega ~ 1/r
-    const th0 = p.th + Om * tt * 0.6;
-    const phase = mArms * th0 - pitch * Math.log(p.r / RIN) - st.kappa * tt * 0.2;
-    const th = th0 + (amp / mArms) * Math.sin(phase);     // azimuthal bunching
+    const th0 = p.th + Om * tRot * 0.6;
+    const phase = mArms * th0 - pitch * Math.log(p.r / RIN) - st.kappa * tRot * 0.2;
+    const th = th0 + (amp / mArms) * Math.sin(phase);
     const rr = p.r * (1 + 0.05 * amp * Math.cos(phase));
     const x = CX + rr * Math.cos(th), y = CY + rr * Math.sin(th);
     if (x < 24 || x > 476 || y < 40 || y > 470) continue;
@@ -120,10 +124,10 @@ function render() {
     ctx.fillRect(dx + 10, yPk(0), dw - 20, dy + dh - 14 - yPk(0));
     ctx.strokeStyle = 'rgba(239,71,111,0.7)'; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(xPk(kStar), dy + 18); ctx.lineTo(xPk(kStar), dy + dh - 14); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#ef476f'; ctx.font = '10px ui-monospace, monospace';
+    ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`k* = ${kStar.toFixed(2)}`, xPk(kStar) + 4, dy + 30);
   }
-  ctx.fillStyle = '#94a3b8'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('k', dx + dw - 16, dy + dh - 2); ctx.fillText('nu^2', dx + 6, dy + 28);
   ctx.fillText(`k_crit(cs=0) = ${kCrit(st.kappa, GS).toFixed(2)}`, dx + 8, dy + dh - 4);
 

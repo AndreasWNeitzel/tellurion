@@ -104,7 +104,7 @@ function render() {
   for (let mk = 0; mk <= st.L; mk += 1) {
     const xm = x0 + mk * xPerL;
     ctx.beginPath(); ctx.moveTo(xm, trackY - 32); ctx.lineTo(xm, trackY + 32); ctx.stroke();
-    ctx.fillStyle = 'rgba(180,190,210,0.55)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(180,190,210,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     if (mk === 0) ctx.fillText('x = 0', xm, trackY + 52);
     else if (mk === st.L) ctx.fillText(`x = L = ${st.L}`, xm, trackY + 52);
     else if (st.L <= 10) ctx.fillText(String(mk), xm, trackY + 48);
@@ -123,7 +123,7 @@ function render() {
   const rodX = dir > 0 ? cxTrain - Lc : cxTrain;
   ctx.strokeStyle = 'rgba(200,205,215,0.45)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.4;
   ctx.strokeRect(ghostX, trackY - 22, Lpx, 44); ctx.setLineDash([]); ctx.lineWidth = 1;
-  ctx.fillStyle = 'rgba(160,165,180,0.5)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(160,165,180,0.5)'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`rest length L0 = ${L0_REST.toFixed(2)}`, ghostX + 6, trackY - 26);
 
   const grad = ctx.createLinearGradient(rodX, 0, rodX + Lc, 0);
@@ -167,7 +167,7 @@ function render() {
   ctx.fillStyle = '#ffcf5d'; ctx.fillRect(barX, barY, barW * homeFrac, barH / 2 - 1);
   ctx.fillStyle = '#7fd6ff'; ctx.fillRect(barX, barY + barH / 2 + 1, barW * trvFrac, barH / 2 - 1);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(barX, barY, barW, barH);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`trip progress (home / traveller); age gap so far: ${(ts.homeNow - ts.travelNow).toFixed(2)}`, (barX + barX + barW) / 2, barY + barH + 14);
   ctx.textAlign = 'left';
 
@@ -200,7 +200,7 @@ function render() {
   const mxf = (x) => ox + x * sc, mtf = (t) => oy - t * sc;
   ctx.strokeStyle = 'rgba(255,210,90,0.65)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
   ctx.beginPath(); ctx.moveTo(mxf(-st.L), mtf(st.L)); ctx.lineTo(mxf(st.L), mtf(-st.L)); ctx.moveTo(mxf(st.L), mtf(st.L)); ctx.lineTo(mxf(-st.L), mtf(-st.L)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,210,90,0.8)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,210,90,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('light cone (v = c)', mxf(st.L * 0.5), mtf(st.L * 0.55));
   ctx.strokeStyle = '#ffcf5d'; ctx.lineWidth = 2.4;
   ctx.beginPath(); ctx.moveTo(mxf(0), mtf(0)); ctx.lineTo(mxf(0), mtf(2 * st.L)); ctx.stroke();
@@ -213,7 +213,7 @@ function render() {
       ctx.beginPath(); ctx.moveTo(mxf(-st.L), mtf(st.beta * -st.L + t0)); ctx.lineTo(mxf(st.L), mtf(st.beta * st.L + t0)); ctx.stroke();
     }
     ctx.setLineDash([]); ctx.lineWidth = 1;
-    ctx.fillStyle = 'rgba(200,170,255,0.85)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(200,170,255,0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText('purple: traveller-frame', PMX + 10, PMY + PMH - 30);
     ctx.fillText('simultaneity lines', PMX + 10, PMY + PMH - 18);
   }

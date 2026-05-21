@@ -146,7 +146,7 @@ function render() {
   if (pObs > P_PMAX) {
     const xx = vX(V);
     ctx.beginPath(); ctx.moveTo(xx, PY + 4); ctx.lineTo(xx - 6, PY + 15); ctx.lineTo(xx + 6, PY + 15); ctx.closePath(); ctx.fill();
-    ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('p off-scale', xx, PY + 27);
+    ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillText('p off-scale', xx, PY + 27);
   } else {
     ctx.beginPath(); ctx.arc(vX(V), pY(pObs), 5, 0, 7); ctx.fill();
   }

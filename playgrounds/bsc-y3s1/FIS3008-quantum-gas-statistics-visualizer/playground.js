@@ -94,7 +94,7 @@ function drawCells(tau) {
 
   ctx.font = 'bold 12px ui-monospace, monospace'; ctx.fillStyle = COL.axis; ctx.textAlign = 'center';
   ctx.fillText('occupation cells', (XC0 + XC1) / 2, 18);
-  ctx.font = '10px ui-monospace, monospace'; ctx.fillStyle = 'rgba(150,160,180,0.62)';
+  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = 'rgba(150,160,180,0.62)';
   ctx.fillText('row eps_k, dot = particle', (XC0 + XC1) / 2, PY1 + 44);
 
   stats.forEach((s, ci) => {
@@ -168,7 +168,7 @@ function render() {
     ctx.fillRect(X - 0.5, PY1, 1, 6);
     ctx.beginPath(); ctx.arc(X, PY1 + 12, 2, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(150,160,180,0.6)';
   ctx.fillText('ticks = the cell levels eps_k', PX0 + 4, PY1 + 22);
 

@@ -8,7 +8,17 @@
 // Ch. 8.
 
 import { cutoffFreq, propagation, fieldAt, modeSpectrum } from './sim.js';
-import { rdbu, fieldToImageData } from '../../../shared/js/render/colormaps.js';
+import { fieldToImageData } from '../../../shared/js/render/colormaps.js';
+// Blue-black-red diverging colormap with a DARK midpoint (per user
+// feedback). The shared rdbu has a white midpoint that washes out
+// the dark theme.
+function blueBlackRed(t) {
+  const d = Math.max(-1, Math.min(1, (t - 0.5) * 2));
+  const m = Math.pow(Math.abs(d), 0.85);
+  if (d < 0) return { r: Math.round(30 * m), g: Math.round(110 * m), b: Math.round(255 * m) };
+  return { r: Math.round(255 * m), g: Math.round(50 * m), b: Math.round(45 * m) };
+}
+const rdbu = blueBlackRed;
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
@@ -50,7 +60,10 @@ function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const [type, m, n] = curMode(), a = aM(), b = bM(), f = st.fGHz * 1e9;
   const p = propagation(f, m, n, a, b), fc = p.fc;
-  const omega = 2 * Math.PI * 3;                  // animation rate (display)
+  // Slower animation rate (was 2*pi*3 = 18.85 rad/s, ~ 3 Hz, strobing
+  // and an epilepsy risk per user feedback). 2*pi*0.6 ~ 0.6 Hz: a
+  // gentle, watchable oscillation.
+  const omega = 2 * Math.PI * 0.6;
 
   // cross-section transverse field map
   const GNX = GN, GNY = Math.max(8, Math.round(GN * (b / a)));
@@ -117,7 +130,7 @@ function render() {
   });
   // operating-frequency line
   ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(fx(st.fGHz), PYp + 8); ctx.lineTo(fx(st.fGHz), PYp + PHp - 18); ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#ffd24a'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd24a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`f = ${st.fGHz.toFixed(1)} GHz`, fx(st.fGHz), PYp + PHp - 4);
   ctx.fillText('cutoff (blue = propagates)', PX + PW / 2, PYp + PHp + 14);
   ctx.textAlign = 'left';

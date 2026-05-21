@@ -131,6 +131,89 @@ export function brainPhantom(N) {
   }
   return tag;
 }
+
+// Abdomen phantom: an outer fat ring, large liver and stomach, a
+// vertebra and aorta cross-sections; useful to show different
+// T1/T2 contrast distributions.
+export function abdomenPhantom(N) {
+  const tag = new Int8Array(N * N);
+  for (let j = 0; j < N; j += 1) {
+    const y = 2 * (j + 0.5) / N - 1;
+    for (let i = 0; i < N; i += 1) {
+      const x = 2 * (i + 0.5) / N - 1;
+      const r = Math.hypot(x, y);
+      let t = 0;
+      if (r < 0.95) t = 4;                                       // fat layer
+      if (r < 0.86) t = 2;                                       // soft tissue (grey-matter T values)
+      if (Math.hypot(x + 0.30, y - 0.10) < 0.35) t = 3;          // liver (white-matter-like)
+      if (Math.hypot(x - 0.25, y + 0.15) < 0.20) t = 1;          // stomach (CSF/fluid)
+      if (Math.hypot(x, y + 0.40) < 0.08) t = 3;                 // vertebra
+      if (Math.hypot(x + 0.05, y + 0.30) < 0.05) t = 1;          // aorta
+      tag[j * N + i] = t;
+    }
+  }
+  return tag;
+}
+
+// Knee phantom: femur, tibia, patella with synovial fluid in between.
+export function kneePhantom(N) {
+  const tag = new Int8Array(N * N);
+  for (let j = 0; j < N; j += 1) {
+    const y = 2 * (j + 0.5) / N - 1;
+    for (let i = 0; i < N; i += 1) {
+      const x = 2 * (i + 0.5) / N - 1;
+      const r = Math.hypot(x, y);
+      let t = 0;
+      if (r < 0.92) t = 4;                                       // fat outer layer
+      if (r < 0.80) t = 2;                                       // muscle
+      if (Math.hypot(x, y - 0.40) < 0.30) t = 3;                 // femur
+      if (Math.hypot(x, y + 0.40) < 0.30) t = 3;                 // tibia
+      if (Math.hypot(x - 0.30, y) < 0.18) t = 3;                 // patella
+      if (Math.abs(y) < 0.10 && r < 0.70) t = 1;                 // joint fluid
+      tag[j * N + i] = t;
+    }
+  }
+  return tag;
+}
+
+// Modified Shepp-Logan phantom: classic MRI reconstruction test.
+export function sheppLoganPhantom(N) {
+  // Simplified ellipsoid stack with the canonical intensities mapped
+  // onto our 5-tissue tag set. (Not a full SL but reads as the
+  // "head with structures" canonical phantom.)
+  const tag = new Int8Array(N * N);
+  const ells = [
+    { a: 0.69, b: 0.92, x: 0,     y: 0,    th: 0,  t: 4 },
+    { a: 0.66, b: 0.87, x: 0,     y: 0,    th: 0,  t: 2 },
+    { a: 0.11, b: 0.31, x: -0.22, y: 0,    th: 1.2, t: 3 },
+    { a: 0.16, b: 0.41, x: 0.22,  y: 0,    th: -1.2, t: 3 },
+    { a: 0.21, b: 0.25, x: 0,     y: 0.35, th: 0,  t: 1 },
+    { a: 0.046, b: 0.046, x: 0,   y: 0.10, th: 0, t: 3 },
+  ];
+  for (let j = 0; j < N; j += 1) {
+    const y = 2 * (j + 0.5) / N - 1;
+    for (let i = 0; i < N; i += 1) {
+      const x = 2 * (i + 0.5) / N - 1;
+      let t = 0;
+      for (const e of ells) {
+        const dx = x - e.x, dy = y - e.y;
+        const c = Math.cos(e.th), s = Math.sin(e.th);
+        const xp = c * dx + s * dy, yp = -s * dx + c * dy;
+        if ((xp * xp) / (e.a * e.a) + (yp * yp) / (e.b * e.b) < 1) t = e.t;
+      }
+      tag[j * N + i] = t;
+    }
+  }
+  return tag;
+}
+
+// Dispatch by name.
+export function phantomByName(name, N) {
+  if (name === 'abdomen') return abdomenPhantom(N);
+  if (name === 'knee') return kneePhantom(N);
+  if (name === 'shepp') return sheppLoganPhantom(N);
+  return brainPhantom(N);
+}
 const TBY = [null, 'csf', 'gm', 'wm', 'fat'];
 // Weighted image from the chosen sequence and parameters.
 export function mrImage(tag, N, seq, TR, TE, flip = Math.PI / 2) {

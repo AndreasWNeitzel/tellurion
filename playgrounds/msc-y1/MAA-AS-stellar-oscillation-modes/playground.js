@@ -51,35 +51,69 @@ function modeFrequency(n, l) {
   return (n + l * 0.5 + 1.5) * 60.0; // microhertz
 }
 
+// 3D mesh of the pulsating stellar surface. Each (theta, phi) vertex
+// is displaced RADIALLY by the spherical harmonic:
+//   r(theta, phi, t) = 1 + amp * Y_l^m(theta, phi) * cos(omega t).
+// The camera slowly orbits; quads are depth-sorted and shaded, with
+// fill colour encoding the instantaneous radial displacement.
+const NLAT = 38, NLON = 64;
 function render() {
   ctx.fillStyle = '#0E0E13';
   ctx.fillRect(0, 0, W, H);
 
-  const cx = W * 0.32, cy = H * 0.5;
-  const R = Math.min(W, H) * 0.28;
-  // Render the visible hemisphere by scanning a screen-aligned disk and back-projecting.
+  const cx = W * 0.30, cy = H * 0.5;
+  const R = Math.min(W, H) * 0.30;
   const phase = Math.cos(state.t);
-  for (let dy = -R; dy <= R; dy += 1) {
-    for (let dx = -R; dx <= R; dx += 1) {
-      const d2 = dx * dx + dy * dy;
-      if (d2 > R * R) continue;
-      // (dx, dy) on screen -> spherical (theta, phi).
-      const z = Math.sqrt(R * R - d2);
-      const xN = dx / R, yN = dy / R, zN = z / R;
-      const theta = Math.acos(-yN);
-      const phi   = Math.atan2(xN, zN);
-      const v = realYlm(state.l, state.m, theta, phi) * phase;
-      const a = Math.max(-1, Math.min(1, v * 2.5));
-      // Map a in [-1,1] to a diverging colormap (blue to white to red).
-      let r, g, b;
-      if (a >= 0) { r = 220 * a + 240 * (1 - a); g = 110 * a + 240 * (1 - a); b = 60 * a + 240 * (1 - a); }
-      else { r = 80 * (-a) + 240 * (1 + a); g = 130 * (-a) + 240 * (1 + a); b = 220 * (-a) + 240 * (1 + a); }
-      // Lambertian shading.
-      const shade = 0.5 + 0.5 * zN;
-      ctx.fillStyle = `rgb(${(r * shade) | 0},${(g * shade) | 0},${(b * shade) | 0})`;
-      ctx.fillRect(cx + dx, cy + dy, 1.05, 1.05);
+  const amp = 0.22;                                  // exaggerated for visibility
+  const az = state.t * 0.12;
+  const ca = Math.cos(az), sa = Math.sin(az);
+  const tilt = 0.42, ct = Math.cos(tilt), stl = Math.sin(tilt);
+  function project(theta, phi) {
+    const disp = realYlm(state.l, state.m, theta, phi) * phase;
+    const rr = 1 + amp * disp;
+    const x = rr * Math.sin(theta) * Math.cos(phi);
+    const y = rr * Math.cos(theta);
+    const z = rr * Math.sin(theta) * Math.sin(phi);
+    const xr = ca * x + sa * z;
+    const zr = -sa * x + ca * z;
+    const yr = ct * y - stl * zr;
+    const depth = stl * y + ct * zr;
+    return { sx: cx + xr * R, sy: cy - yr * R, depth, disp };
+  }
+  const quads = [];
+  for (let i = 0; i < NLAT; i += 1) {
+    const th0 = Math.PI * i / NLAT, th1 = Math.PI * (i + 1) / NLAT;
+    for (let j = 0; j < NLON; j += 1) {
+      const ph0 = 2 * Math.PI * j / NLON, ph1 = 2 * Math.PI * (j + 1) / NLON;
+      const p00 = project(th0, ph0), p01 = project(th0, ph1);
+      const p11 = project(th1, ph1), p10 = project(th1, ph0);
+      quads.push({
+        p00, p01, p11, p10,
+        dispMid: 0.25 * (p00.disp + p01.disp + p11.disp + p10.disp),
+        depthMid: 0.25 * (p00.depth + p01.depth + p11.depth + p10.depth),
+      });
     }
   }
+  quads.sort((a, b) => a.depthMid - b.depthMid);
+  for (const q of quads) {
+    const a = Math.max(-1, Math.min(1, q.dispMid * 3.0));
+    let r, g, b;
+    if (a >= 0) { r = 220 * a + 70 * (1 - a); g = 90 * a + 70 * (1 - a); b = 60 * a + 90 * (1 - a); }
+    else { r = 60 * (-a) + 70 * (1 + a); g = 120 * (-a) + 70 * (1 + a); b = 220 * (-a) + 90 * (1 + a); }
+    const shade = 0.45 + 0.55 * Math.max(0, Math.min(1, (q.depthMid + 1.3) / 2.6));
+    ctx.fillStyle = `rgb(${(r * shade) | 0},${(g * shade) | 0},${(b * shade) | 0})`;
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.moveTo(q.p00.sx, q.p00.sy);
+    ctx.lineTo(q.p01.sx, q.p01.sy);
+    ctx.lineTo(q.p11.sx, q.p11.sy);
+    ctx.lineTo(q.p10.sx, q.p10.sy);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(220,225,235,0.85)';
+  ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`pulsation mode Y_${state.l}^${state.m} (displacement exaggerated)`, 16, H - 14);
 
   // Propagation diagram (placeholder Lamb and Brunt-Vaisala for an n=3 polytrope).
   const px0 = W * 0.55, py0 = H * 0.2, pw = W * 0.4, ph = H * 0.6;

@@ -164,7 +164,7 @@ function render() {
     const t = telescopes[i], [x, y] = mapXY(t.lat, t.lon);
     ctx.fillStyle = st.drag === i ? '#fff' : '#ffd57f';
     ctx.beginPath(); ctx.arc(x, y, st.drag === i ? 6 : 4.5, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = '#aeb6c6'; ctx.font = '10px ui-monospace, monospace';
+    ctx.fillStyle = '#aeb6c6'; ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(t.name, x + 7, y + 3);
   }
 
@@ -183,7 +183,7 @@ function render() {
     ctx.fillStyle = `hsla(${(sm.pair * 47) % 360},75%,62%,0.55)`;
     ctx.fillRect(x, y, 1.6, 1.6);
   }
-  ctx.fillStyle = '#8893a6'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#8893a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.textAlign = 'right'; ctx.fillText(`${(uvMax / 1e6).toFixed(0)} Mλ`, UVp.x + UVp.w - 6, cy - 4);
   ctx.textAlign = 'left';
   ctx.fillText('u', UVp.x + UVp.w - 14, cy + 14);

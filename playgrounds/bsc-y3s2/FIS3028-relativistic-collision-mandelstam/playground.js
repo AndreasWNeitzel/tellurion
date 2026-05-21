@@ -120,7 +120,7 @@ function drawParticle(x, y, r, col, label) {
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r * 0.5, 0, 6.2832); ctx.fill();
   if (label) {
-    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(label, x, y - r - 6);
   }
 }
@@ -167,7 +167,7 @@ function drawPlot(SX, SY, SW, SH) {
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(xToPx(st.logE), yToPx(Math.log10(sqrtS(sf))), 5, 0, 2 * Math.PI); ctx.fill();
   ctx.beginPath(); ctx.arc(xToPx(st.logE), yToPx(Math.log10(sqrtS(sc))), 5, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#5bc0eb'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#5bc0eb'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('fixed-target sqrt(s) ~ sqrt(E)', SX + pad.l + 6, SY + pad.t + 14);
   ctx.fillStyle = '#ffd166';
   ctx.fillText('symmetric collider sqrt(s) ~ E', SX + pad.l + 6, SY + pad.t + 28);

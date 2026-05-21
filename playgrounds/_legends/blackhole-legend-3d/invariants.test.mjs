@@ -4,6 +4,8 @@ import {
   iscoRadius_m, kerrHorizonRadius_m, lightBendingAngle_rad,
   einsteinRingRadius_rad, lensImagePositions_rad, lensMagnification,
   hawkingTemperature_K, gravRedshift, tracePhoton, classifyPhoton,
+  kerrInnerHorizon_m, kerrErgosphere_m, kerrHorizonAngularVel_radps,
+  tidalAccelPerMetre_per_s2, orbitalPeriod_s, BH_PRESETS,
 } from './sim.js';
 
 const M_SUN = 1.989e30;
@@ -115,5 +117,56 @@ describe('blackhole-legend-3d', () => {
     expect(classifyPhoton(1, 10 * Rs)).toBe('escape');
     expect(classifyPhoton(1, 0.5 * bc)).toBe('capture');
     expect(classifyPhoton(1, 1.01 * bc)).toBe('orbit');
+  });
+
+  it('Kerr inner horizon r_- vanishes at chi = 0 and matches r_+ at chi = 1', () => {
+    expect(kerrInnerHorizon_m(1, 0)).toBeCloseTo(0, 6);
+    const r_minus_extreme = kerrInnerHorizon_m(1, 0.999);
+    const r_plus_extreme = kerrHorizonRadius_m(1, 0.999);
+    expect(Math.abs(r_minus_extreme - r_plus_extreme) / r_plus_extreme).toBeLessThan(0.1);
+  });
+
+  it('Kerr ergosphere at equator equals R_s independent of chi', () => {
+    const Rs = schwarzschildRadius_m(1);
+    expect(kerrErgosphere_m(1, 0.0, Math.PI / 2) / Rs).toBeCloseTo(1, 6);
+    expect(kerrErgosphere_m(1, 0.7, Math.PI / 2) / Rs).toBeCloseTo(1, 6);
+    expect(kerrErgosphere_m(1, 0.99, Math.PI / 2) / Rs).toBeCloseTo(1, 6);
+  });
+
+  it('Kerr ergosphere at pole equals outer horizon r_+', () => {
+    const r_plus = kerrHorizonRadius_m(1, 0.7);
+    const r_ergo_pole = kerrErgosphere_m(1, 0.7, 0);
+    expect(r_ergo_pole / r_plus).toBeCloseTo(1, 6);
+  });
+
+  it('horizon angular velocity is zero for Schwarzschild', () => {
+    expect(kerrHorizonAngularVel_radps(10, 0)).toBeCloseTo(0, 8);
+  });
+
+  it('horizon angular velocity is finite and positive for spinning Kerr', () => {
+    const Omega = kerrHorizonAngularVel_radps(10, 0.9);
+    expect(Omega).toBeGreaterThan(0);
+    expect(Number.isFinite(Omega)).toBe(true);
+  });
+
+  it('tidal acceleration scales as 1/r^3 and inverse square of mass at fixed r/R_s', () => {
+    const Rs1 = schwarzschildRadius_m(1);
+    const Rs100 = schwarzschildRadius_m(100);
+    const a1 = tidalAccelPerMetre_per_s2(1, 5 * Rs1);
+    const a100 = tidalAccelPerMetre_per_s2(100, 5 * Rs100);
+    expect(a100 / a1).toBeCloseTo(1 / (100 * 100), 1);
+  });
+
+  it('orbital period at r = 6 M is the ISCO period; ~ 0.6 ms for 1 Msun', () => {
+    const T = orbitalPeriod_s(1, 0, 6);
+    expect(T).toBeGreaterThan(4e-4);
+    expect(T).toBeLessThan(2e-3);
+  });
+
+  it('BH_PRESETS contains the headline observed objects', () => {
+    const ids = BH_PRESETS.map(p => p.id);
+    expect(ids).toContain('sgrA');
+    expect(ids).toContain('m87');
+    expect(ids).toContain('gw150914');
   });
 });

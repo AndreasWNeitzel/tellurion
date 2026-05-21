@@ -150,7 +150,7 @@ function render() {
   const dx0 = 60, dx1 = W - 24, dy0 = H - 46, dy1 = H - 8;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('diagnostic: recovered R vs arc length (dashed = true a)', dx0 + 8, dy0 + 12);
   const rLo = 0.6, rHi = 1.4;
   const xP = (kk) => dx0 + 12 + (kk - 3) / Math.max(1, st.N - 3) * (dx1 - dx0 - 24);

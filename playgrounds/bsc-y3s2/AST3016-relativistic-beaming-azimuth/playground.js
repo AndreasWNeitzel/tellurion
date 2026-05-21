@@ -27,16 +27,30 @@ const valueA       = document.getElementById('value-alpha');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const st = { gamma: 5.0, alpha: 0.0, az: 0.5, playing: !(DETERMINISTIC || prefersReducedMotion()) };
+const st = {
+  gamma: 5.0, alpha: 0.0,
+  az: 0.5, el: 0.42,           // user-controlled camera
+  drag: false, lastX: 0, lastY: 0,
+  playing: !(DETERMINISTIC || prefersReducedMotion()),
+};
 
-const CX = W * 0.46, CY = H * 0.52, SC = 150, ELEV = 0.42;
+// Make 3D scene narrower so a diagnostic plot fits on the right.
+const CX = W * 0.32, CY = H * 0.50, SC = 130;
 function proj(x, y, z) {
-  // Velocity axis = world x (points right / +screen-x). Camera orbits.
   const ca = Math.cos(st.az), sa = Math.sin(st.az);
   const ey = y * ca - z * sa;
   const ez = y * sa + z * ca;
-  return { sx: CX + x * SC, sy: CY - ez * SC * Math.cos(ELEV) - ey * SC * Math.sin(ELEV), d: ey };
+  return { sx: CX + x * SC, sy: CY - ez * SC * Math.cos(st.el) - ey * SC * Math.sin(st.el), d: ey };
 }
+
+canvas.addEventListener('mousedown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
+window.addEventListener('mouseup', () => { st.drag = false; });
+window.addEventListener('mousemove', (e) => {
+  if (!st.drag) return;
+  st.az += (e.clientX - st.lastX) * 0.006;
+  st.el = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, st.el + (e.clientY - st.lastY) * 0.006));
+  st.lastX = e.clientX; st.lastY = e.clientY;
+});
 
 function betaOf(g) { return Math.sqrt(1 - 1 / (g * g)); }
 
@@ -105,8 +119,10 @@ function drawLobe() {
 }
 
 function drawRestInset() {
-  // Small isotropic sphere = the rest frame, for contrast.
-  const ix = W - 110, iy = 120, r = 46;
+  // Small isotropic sphere = the rest frame, for contrast. Placed in
+  // the lower-left of the 3D scene area (was top-right, where it
+  // overlapped the diagnostic panel).
+  const ix = 86, iy = H - 96, r = 40;
   ctx.strokeStyle = 'rgba(160,170,190,0.45)'; ctx.lineWidth = 1;
   for (let k = 0; k < 6; k += 1) {
     ctx.beginPath();
@@ -144,10 +160,69 @@ function drawReadout() {
   ctx.fillText('isotropic in rest frame -> beamed forward in lab frame', 16, H - 16);
 }
 
+function drawDiagPanel() {
+  // RIGHT-side panel: intensity I(theta_lab) = D(theta_lab)^{3+alpha}
+  // vs theta_lab on a log y-axis. Shows the headlight effect
+  // mathematically: a sharp peak at theta=0 whose width is ~ 1/gamma.
+  const px = W * 0.60, py = 30, pw = W - px - 24, ph = H - 60;
+  ctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)'; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('intensity vs lab angle  I(θ) = D(θ)^{3+α}', px + 8, py + 16);
+  const beta = betaOf(st.gamma), p = 3 + st.alpha;
+  const ax = px + 40, ay = py + 30;
+  const aw = pw - 56, ah = ph - 56;
+  // theta in [0, pi]; I in log scale [-2, log10(D(0)^p)+0.5]
+  const Imax = Math.pow(doppler(beta, 0), p);
+  const lMin = -2, lMax = Math.log10(Imax) + 0.5;
+  function xOfTh(th) { return ax + (th / Math.PI) * aw; }
+  function yOfL(l) { return ay + ah - 22 - ((l - lMin) / (lMax - lMin)) * (ah - 32); }
+  // Grid.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  for (let th = 0; th <= Math.PI + 1e-3; th += Math.PI / 6) {
+    ctx.beginPath(); ctx.moveTo(xOfTh(th), ay + 8); ctx.lineTo(xOfTh(th), ay + ah - 22); ctx.stroke();
+  }
+  const lLo = Math.ceil(lMin), lHi = Math.floor(lMax);
+  for (let l = lLo; l <= lHi; l += 1) {
+    ctx.beginPath(); ctx.moveTo(ax, yOfL(l)); ctx.lineTo(ax + aw, yOfL(l)); ctx.stroke();
+  }
+  // Curve.
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i += 1) {
+    const th = (i / 200) * Math.PI;
+    const I = Math.pow(doppler(beta, th), p);
+    const l = Math.max(lMin, Math.log10(Math.max(1e-9, I)));
+    if (i === 0) ctx.moveTo(xOfTh(th), yOfL(l)); else ctx.lineTo(xOfTh(th), yOfL(l));
+  }
+  ctx.stroke();
+  // Half-angle marker.
+  const tb = beamingHalfAngle(beta);
+  ctx.strokeStyle = '#ef476f'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xOfTh(tb), ay + 8); ctx.lineTo(xOfTh(tb), ay + ah - 22); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`θ_b = 1/γ = ${(tb * 180 / Math.PI).toFixed(2)}°`, xOfTh(tb) + 4, ay + 18);
+  // Axes.
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'center';
+  for (const tDeg of [0, 30, 60, 90, 120, 150, 180]) {
+    ctx.fillText(`${tDeg}°`, xOfTh((tDeg / 180) * Math.PI), ay + ah - 8);
+  }
+  ctx.fillText('θ_lab (deg)', (ax + ax + aw) / 2, ay + ah + 4);
+  ctx.textAlign = 'right';
+  for (let l = lLo; l <= lHi; l += 1) ctx.fillText(`10^${l}`, ax - 4, yOfL(l) + 3);
+  ctx.textAlign = 'left';
+  ctx.fillText('I (rel.)', px + 8, ay + 30);
+}
+
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
   drawLobe();
   drawRestInset();
+  drawDiagPanel();
   drawReadout();
 }
 
@@ -180,7 +255,9 @@ function bootSync() {
 }
 
 function tick() {
-  if (st.playing) { st.az += 0.006; render(); }
+  // Auto-rotation removed: the camera is now user-controlled (drag);
+  // we just re-render every frame so slider changes show immediately.
+  render();
   requestAnimationFrame(tick);
 }
 

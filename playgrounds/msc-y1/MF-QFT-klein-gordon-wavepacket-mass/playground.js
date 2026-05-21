@@ -60,7 +60,7 @@ function drawPacket(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,143,143,0.5)'; ctx.setLineDash([4, 4]);
   for (const xc of [t, -t]) { const px = X(xc); ctx.beginPath(); ctx.moveTo(px, y0); ctx.lineTo(px, y1); ctx.stroke(); }
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '11px monospace';
   if (X(t) < x1 - 30) ctx.fillText('x = t (light cone)', X(t) + 4, y0 + 12);
   // initial packet (faint) for spreading comparison
   ctx.strokeStyle = 'rgba(150,170,210,0.4)'; ctx.lineWidth = 1; ctx.beginPath();
@@ -87,7 +87,7 @@ function drawDispersion(x, y, w, h) {
   // light line omega = |k|
   ctx.strokeStyle = 'rgba(255,143,143,0.45)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(kMax), Y(kMax)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '10px monospace'; ctx.fillText('omega = |k| (light)', X(kMax) - 110, Y(kMax) + 14);
+  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '11px monospace'; ctx.fillText('omega = |k| (light)', X(kMax) - 110, Y(kMax) + 14);
   ctx.strokeStyle = '#7fd1ff'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 160; i += 1) { const k = kMax * i / 160; const xx = X(k), yy = Y(omega(k, m)); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();
@@ -113,7 +113,7 @@ function drawTracks(x, y, w, h) {
   // light cone x = t
   ctx.strokeStyle = 'rgba(255,143,143,0.5)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(X(0), Yc(0)); ctx.lineTo(X(tMax), Yc(tMax)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '10px monospace'; ctx.fillText('x = t', X(tMax) - 36, Yc(tMax) + 4);
+  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = '11px monospace'; ctx.fillText('x = t', X(tMax) - 36, Yc(tMax) + 4);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 0; i < n; i += 1) { const xx = X(e.t[i]), yy = Yc(e.cen[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();

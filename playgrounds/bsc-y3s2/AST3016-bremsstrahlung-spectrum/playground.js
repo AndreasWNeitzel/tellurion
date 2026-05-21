@@ -322,8 +322,12 @@ function syncLabels() {
   vN.textContent = st.logn.toFixed(1);
 }
 
-sT.addEventListener('input', () => { st.logT = parseFloat(sT.value); syncLabels(); });
-sN.addEventListener('input', () => { st.logn = parseFloat(sN.value); syncLabels(); });
+// Reseed the electron ensemble on slider change so the new T/n
+// values are immediately reflected in the particle velocities (and
+// the visible emission rate, color, and spectrum). Without this the
+// in-flight ensemble keeps its old velocities for many seconds.
+sT.addEventListener('input', () => { st.logT = parseFloat(sT.value); syncLabels(); reseed(); });
+sN.addEventListener('input', () => { st.logn = parseFloat(sN.value); syncLabels(); reseed(); });
 btnR.addEventListener('click', () => {
   st.logT = 7; st.logn = 0; st.paused = false;
   sT.value = '7'; sN.value = '0';

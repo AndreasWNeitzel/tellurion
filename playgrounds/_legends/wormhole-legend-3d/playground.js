@@ -175,7 +175,7 @@ function drawTraversalMode() {
   ctx.fillStyle = 'rgba(255, 180, 100, 0.85)';
   ctx.fillRect(fromL(0) - 1, py - 2, 2, ph + 4);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('Universe A', px + 6, py - 4);
   ctx.fillText('throat', fromL(0) - 16, py - 4);
   ctx.fillText('Universe B', px + pw - 68, py - 4);
@@ -358,11 +358,11 @@ function drawExoticMode() {
   ctx.beginPath(); ctx.moveTo(xForL(0), py + 16); ctx.lineTo(xForL(0), py + ph - 14); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 220, 120, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('throat (l = 0)', xForL(0) + 4, py + ph - 22);
   // X-axis label.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('l / b_0', px + pw - 40, py + ph - 8);
   // Caption.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';

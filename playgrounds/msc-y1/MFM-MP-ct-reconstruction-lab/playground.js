@@ -115,7 +115,7 @@ function drawAcq(x, y, w, h) {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(cache.phC, phx, phy, sz, sz);
   ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(phx, phy, sz, sz);
-  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('phantom (Shepp-Logan)', phx, phy + sz + 14);
   // rotating gantry ray over the phantom
   const cx = phx + sz / 2, cy = phy + sz / 2, ga = st.ph * Math.PI;
@@ -163,7 +163,7 @@ function drawCurves(x, y, w, h) {
   cv.forEach((c, i) => { const xx = Xna(c.na), yy = Y(c.rmse); if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); });
   ctx.stroke();
   for (const c of cv) { ctx.fillStyle = '#6fb4ff'; ctx.beginPath(); ctx.arc(Xna(c.na), Y(c.rmse), 2.5, 0, 2 * Math.PI); ctx.fill(); }
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(px + 4, py + 3, 130, 14);
   ctx.fillStyle = 'rgba(111,180,255,0.9)';
   ctx.fillText('FBP RMSE vs angles', px + 8, py + 13);

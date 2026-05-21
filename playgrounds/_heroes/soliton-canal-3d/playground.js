@@ -132,14 +132,34 @@ canvas.addEventListener('pointerup', (e) => {
 }, true);
 let probeMsg = '', probeUntil = 0;
 
-// Secondary diagnostic: the 1D cross-section u(x).
+// Conserved-quantity history: KdV conserves mass, momentum, energy.
+// Tracking the relative drift over time PROVES the integrator is
+// faithful (a fake animation would not conserve them).
+const invHistory = [];   // {t, dMass, dMom, dEnergy}
+function pushInvHistory() {
+  if (!i0) return;
+  const inv = invariants(sim);
+  const dr = (a, b) => (b ? Math.abs(a - b) / Math.max(Math.abs(b), 1e-9) : 0);
+  invHistory.push({
+    t: sim.t,
+    dMass: dr(inv.mass, i0.mass),
+    dMom: dr(inv.momentum, i0.momentum),
+    dEnergy: dr(inv.energy, i0.energy),
+  });
+  if (invHistory.length > 400) invHistory.shift();
+}
+
+// Secondary diagnostic: TOP = cross-section u(x), BOTTOM = conserved-
+// quantity drift vs time on a log axis.
 function drawPlot() {
   const W = plot.width, H = plot.height;
   pctx.fillStyle = '#07080b'; pctx.fillRect(0, 0, W, H);
+  const topH = Math.floor(H * 0.58);
+  // ---- u(x) cross-section ----
   let umin = -0.15, umax = 0.15;
   for (let i = 0; i < sim.N; i += 1) { if (sim.u[i] > umax) umax = sim.u[i]; if (sim.u[i] < umin) umin = sim.u[i]; }
   const pad = 8;
-  const yOf = (v) => H - pad - (v - umin) / (umax - umin) * (H - 2 * pad);
+  const yOf = (v) => topH - pad - (v - umin) / (umax - umin) * (topH - 2 * pad);
   pctx.strokeStyle = '#2a2d34'; pctx.lineWidth = 1;
   pctx.beginPath(); pctx.moveTo(0, yOf(0)); pctx.lineTo(W, yOf(0)); pctx.stroke();
   pctx.strokeStyle = '#5fd0e0'; pctx.lineWidth = 1.6; pctx.beginPath();
@@ -149,7 +169,45 @@ function drawPlot() {
   }
   pctx.stroke();
   pctx.fillStyle = '#7a818c'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'left';
-  pctx.fillText('cross-section  u(x)   (diagnostic)', 8, 14);
+  pctx.fillText('cross-section  u(x)', 8, 14);
+
+  // ---- conserved-quantity drift vs time (log y) ----
+  const dY0 = topH + 4, dY1 = H - 18;
+  pctx.strokeStyle = '#2a2d34';
+  pctx.strokeRect(30, dY0, W - 40, dY1 - dY0);
+  pctx.fillStyle = '#7a818c';
+  pctx.fillText('conserved-quantity drift (log)', 8, dY0 + 12);
+  // y: log10 drift from -10 to 0.
+  const lLo = -10, lHi = 0;
+  function yDrift(d) {
+    const l = Math.max(lLo, Math.min(lHi, Math.log10(Math.max(1e-12, d))));
+    return dY1 - ((l - lLo) / (lHi - lLo)) * (dY1 - dY0 - 4);
+  }
+  const tMax = invHistory.length > 0 ? invHistory[invHistory.length - 1].t : 1;
+  function xT(t) { return 30 + (t / Math.max(1, tMax)) * (W - 40); }
+  const series = [
+    { key: 'dMass', col: '#ffd166' },
+    { key: 'dMom', col: '#5bc0eb' },
+    { key: 'dEnergy', col: '#ef476f' },
+  ];
+  for (const s of series) {
+    pctx.strokeStyle = s.col; pctx.lineWidth = 1.4;
+    pctx.beginPath();
+    for (let i = 0; i < invHistory.length; i += 1) {
+      const h = invHistory[i];
+      const x = xT(h.t), y = yDrift(h[s.key]);
+      if (i === 0) pctx.moveTo(x, y); else pctx.lineTo(x, y);
+    }
+    pctx.stroke();
+  }
+  // y ticks.
+  pctx.fillStyle = '#5a6068'; pctx.font = '11px ui-monospace, monospace'; pctx.textAlign = 'right';
+  for (let l = lLo; l <= lHi; l += 5) pctx.fillText(`10^${l}`, 28, yDrift(Math.pow(10, l)) + 3);
+  // Legend.
+  pctx.textAlign = 'left'; pctx.font = '11px ui-monospace, monospace';
+  pctx.fillStyle = '#ffd166'; pctx.fillText('mass', 36, dY0 + 12);
+  pctx.fillStyle = '#5bc0eb'; pctx.fillText('momentum', 72, dY0 + 12);
+  pctx.fillStyle = '#ef476f'; pctx.fillText('energy', 138, dY0 + 12);
 }
 
 function refreshReadout() {
@@ -182,6 +240,7 @@ function tick(now) {
   if (ui.running) {
     const stepsPerFrame = Math.max(1, Math.round(7 * ui.speedMul));
     for (let n = 0; n < stepsPerFrame; n += 1) step(sim, DT);
+    pushInvHistory();
   }
   camera.tickIdle(now);
   renderFrame();

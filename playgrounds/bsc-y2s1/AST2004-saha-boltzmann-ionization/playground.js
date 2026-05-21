@@ -54,7 +54,7 @@ function drawCurves() {
     if (T < TMIN || T > TMAX) continue;
     const xx = xOf(T);
     ctx.beginPath(); ctx.moveTo(xx, y0 + 6); ctx.lineTo(xx, y0 + ph - 6); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(lab, xx, y0 + ph + 14);
   }
 

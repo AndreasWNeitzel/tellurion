@@ -38,10 +38,26 @@ sS.addEventListener('input', () => { st.sigma = parseFloat(sS.value); vS.textCon
 btnR.addEventListener('click', () => { Object.assign(st, DEF); sL.value = '38.7'; sP.value = '-9'; sS.value = '0.003'; vL.textContent = '38.7'; vP.textContent = '-9.0'; vS.textContent = '0.003'; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); startLoop(); render(); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); startLoop(); });
 
+// Diagnostic panel layout. Reserve the right ~30% of the canvas for
+// quantitative plots (R_TS vs P_ext sweep, sigma vs jet/torus fraction
+// chart). Required by CLAUDE.md rule 13.
+const DIAG_W_FRAC = 0.32;
+function diagBounds() {
+  const W = canvas.width, H = canvas.height;
+  const x = Math.round(W * (1 - DIAG_W_FRAC));
+  return { x, y: 8, w: W - x - 8, h: H - 16 };
+}
+
 function render() {
-  const W = canvas.width, H = canvas.height, cx = W / 2, cy = H / 2 + 6;
+  const W = canvas.width, H = canvas.height;
+  const diag = diagBounds();
+  // The scene now occupies only the left portion of the canvas; the
+  // termination shock is centred in that sub-region rather than the
+  // full canvas so it doesn't visually collide with the diagnostic.
+  const sceneW = diag.x - 0;
+  const cx = sceneW / 2, cy = H / 2 + 6;
   ctx.fillStyle = '#04040a'; ctx.fillRect(0, 0, W, H);
-  for (const [sx, sy, sr] of stars) { ctx.fillStyle = `rgba(180,195,230,${0.15 + 0.25 * sr / 1.9})`; ctx.fillRect(sx * W, sy * H, sr, sr); }
+  for (const [sx, sy, sr] of stars) { ctx.fillStyle = `rgba(180,195,230,${0.15 + 0.25 * sr / 1.9})`; ctx.fillRect(sx * sceneW, sy * H, sr, sr); }
 
   const L = Math.pow(10, st.logL), Pext = Math.pow(10, st.logP);
   const R_TS_pc = terminationRadius(L, Pext) / PC;
@@ -110,8 +126,146 @@ function render() {
   ctx.fillText(`R_TS = ${R_TS_pc < 0.01 ? R_TS_pc.toExponential(2) : R_TS_pc.toFixed(3)} pc`, 14, 22);
   ctx.fillText(`log L_sd = ${st.logL.toFixed(1)}   log P_ext = ${st.logP.toFixed(1)}`, 14, 40);
   ctx.fillStyle = s < 0.1 ? '#ff9d6e' : '#7cdfff';
-  ctx.fillText(`σ = ${s.toFixed(3)}  ${s < 0.1 ? 'particle-dominated → bright torus (Crab)' : 'magnetically dominated → strong jets'}`, 14, H - 16);
+  ctx.fillText(`σ = ${s.toFixed(3)}  ${s < 0.1 ? 'particle-dominated → torus (Crab)' : 'magnetically dominated → jets'}`, 14, H - 16);
   rR.textContent = `${R_TS_pc < 0.01 ? R_TS_pc.toExponential(2) : R_TS_pc.toFixed(3)} pc`;
+
+  // ======================================================================
+  // DIAGNOSTIC PANELS (right column).
+  //  TOP: R_TS vs log10(P_ext) at the current L_sd.
+  //  BOTTOM: σ-driven jet-vs-torus power fraction with the Crab point.
+  // ======================================================================
+  drawDiagPanels(diag, L, Pext, R_TS_pc, s);
+}
+
+function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
+  const W = canvas.width, H = canvas.height;
+  // Frame.
+  ctx.fillStyle = 'rgba(15, 20, 36, 0.85)';
+  ctx.fillRect(d.x, d.y, d.w, d.h);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(d.x + 0.5, d.y + 0.5, d.w - 1, d.h - 1);
+
+  // ===== Top panel: R_TS(P_ext) curve =====
+  const tp = { x: d.x + 8, y: d.y + 6, w: d.w - 16, h: Math.floor(d.h * 0.50) - 8 };
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('R_TS  vs  log P_ext', tp.x + 2, tp.y + 12);
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.65)';
+  ctx.fillText(`L_sd fixed at 10^${st.logL.toFixed(1)} erg/s`, tp.x + 2, tp.y + 24);
+
+  const pLo = -12, pHi = -6;
+  const rLo = -3, rHi = 1;   // log10(R_TS / pc) range
+  const axY = tp.y + tp.h - 22, axX = tp.x + 30;
+  const axW = tp.w - 36, axH = tp.h - 50;
+  function xOfP(lp) { return axX + ((lp - pLo) / (pHi - pLo)) * axW; }
+  function yOfR(lr) { return axY - ((lr - rLo) / (rHi - rLo)) * axH; }
+  // Grid.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  for (let lp = pLo; lp <= pHi; lp += 1) {
+    ctx.beginPath(); ctx.moveTo(xOfP(lp), tp.y + 30); ctx.lineTo(xOfP(lp), axY); ctx.stroke();
+  }
+  for (let lr = rLo; lr <= rHi; lr += 1) {
+    ctx.beginPath(); ctx.moveTo(axX, yOfR(lr)); ctx.lineTo(axX + axW, yOfR(lr)); ctx.stroke();
+  }
+  // Curve.
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) {
+    const lp = pLo + (i / 120) * (pHi - pLo);
+    const Rpc = terminationRadius(L, Math.pow(10, lp)) / PC;
+    const lr = Math.log10(Math.max(1e-20, Rpc));
+    if (i === 0) ctx.moveTo(xOfP(lp), yOfR(lr));
+    else ctx.lineTo(xOfP(lp), yOfR(lr));
+  }
+  ctx.stroke();
+  // Crab reference.
+  ctx.fillStyle = 'rgba(255, 210, 110, 0.95)';
+  ctx.beginPath(); ctx.arc(xOfP(-9), yOfR(Math.log10(0.1)), 4, 0, 6.28); ctx.fill();
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('Crab', xOfP(-9) + 6, yOfR(Math.log10(0.1)) - 6);
+  // Current point.
+  ctx.fillStyle = '#fff';
+  const lrNow = Math.log10(Math.max(1e-20, R_TS_pc));
+  ctx.beginPath(); ctx.arc(xOfP(st.logP), yOfR(lrNow), 5, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(xOfP(st.logP), yOfR(lrNow), 5, 0, 6.28); ctx.stroke();
+  // Axis labels.
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  for (let lp = pLo; lp <= pHi; lp += 2) ctx.fillText(`${lp}`, xOfP(lp) - 6, axY + 12);
+  for (let lr = rLo; lr <= rHi; lr += 1) ctx.fillText(`10^${lr}`, axX - 28, yOfR(lr) + 3);
+  ctx.fillText('log P_ext (dyn/cm²)', axX + axW / 2 - 40, axY + 22);
+  ctx.save();
+  ctx.translate(tp.x + 6, axY - axH / 2 + 30);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('R_TS (pc)', 0, 0);
+  ctx.restore();
+
+  // ===== Bottom panel: σ -> jet vs torus power =====
+  const bp = { x: d.x + 8, y: d.y + Math.floor(d.h * 0.50) + 8, w: d.w - 16, h: Math.floor(d.h * 0.50) - 16 };
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('σ  →  jet vs torus power', bp.x + 2, bp.y + 12);
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.70)';
+  ctx.fillText('jet f = σ/(1+σ),  torus f = 1/(1+σ)', bp.x + 2, bp.y + 24);
+  const bAxY = bp.y + bp.h - 22, bAxX = bp.x + 36;
+  const bAxW = bp.w - 44, bAxH = bp.h - 52;
+  const sLo = -4, sHi = 1;        // log10(σ) sweep range.
+  function xOfS(ls) { return bAxX + ((ls - sLo) / (sHi - sLo)) * bAxW; }
+  function yOfF(f) { return bAxY - f * bAxH; }
+  // Grid.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  for (let f = 0; f <= 1.01; f += 0.25) {
+    ctx.beginPath(); ctx.moveTo(bAxX, yOfF(f)); ctx.lineTo(bAxX + bAxW, yOfF(f)); ctx.stroke();
+  }
+  for (let ls = sLo; ls <= sHi; ls += 1) {
+    ctx.beginPath(); ctx.moveTo(xOfS(ls), bp.y + 30); ctx.lineTo(xOfS(ls), bAxY); ctx.stroke();
+  }
+  // Curves.
+  function curve(fn, col) {
+    ctx.strokeStyle = col; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= 120; i += 1) {
+      const ls = sLo + (i / 120) * (sHi - sLo);
+      const sig = Math.pow(10, ls);
+      const v = fn(sig);
+      if (i === 0) ctx.moveTo(xOfS(ls), yOfF(v));
+      else ctx.lineTo(xOfS(ls), yOfF(v));
+    }
+    ctx.stroke();
+  }
+  curve((sg) => sg / (1 + sg), '#7cdfff');     // jet fraction
+  curve((sg) => 1 / (1 + sg), '#ff9d6e');      // torus fraction
+  // Current sigma marker.
+  const lsNow = Math.log10(Math.max(1e-10, s));
+  if (lsNow >= sLo && lsNow <= sHi) {
+    ctx.strokeStyle = 'rgba(255, 209, 102, 0.7)';
+    ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xOfS(lsNow), bp.y + 30); ctx.lineTo(xOfS(lsNow), bAxY); ctx.stroke();
+    ctx.setLineDash([]);
+    const jf = s / (1 + s), tf = 1 / (1 + s);
+    ctx.fillStyle = '#7cdfff'; ctx.beginPath(); ctx.arc(xOfS(lsNow), yOfF(jf), 4, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#ff9d6e'; ctx.beginPath(); ctx.arc(xOfS(lsNow), yOfF(tf), 4, 0, 6.28); ctx.fill();
+  }
+  // Axis labels.
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  for (let ls = sLo; ls <= sHi; ls += 1) ctx.fillText(`10^${ls}`, xOfS(ls) - 10, bAxY + 12);
+  for (let f = 0; f <= 1.01; f += 0.25) ctx.fillText(f.toFixed(2), bAxX - 28, yOfF(f) + 3);
+  ctx.fillText('σ', bAxX + bAxW + 6, bAxY + 4);
+  // Legend.
+  ctx.fillStyle = '#7cdfff';
+  ctx.fillRect(bp.x + 4, bp.y + 36, 10, 3);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('jet', bp.x + 18, bp.y + 40);
+  ctx.fillStyle = '#ff9d6e';
+  ctx.fillRect(bp.x + 50, bp.y + 36, 10, 3);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.fillText('torus', bp.x + 64, bp.y + 40);
 }
 
 let rafOn = false;

@@ -94,7 +94,7 @@ function render() {
     y === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
   }
   ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('|u|', PX + PW / 2, PY + PH + 14);
   ctx.save(); ctx.translate(PX - 7, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('screen y', 0, 0); ctx.restore();
   ctx.textAlign = 'left';

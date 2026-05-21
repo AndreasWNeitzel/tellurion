@@ -81,7 +81,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255,228,107,0.55)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(barX + 10, srcY - slitGap); ctx.lineTo(barX + 10, srcY + slitGap); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,228,107,0.8)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,228,107,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText(`d = ${st.d.toFixed(2)}x`, barX + 14, srcY - slitGap + 4);
   ctx.fillText(`a = ${st.a.toFixed(2)}x`, barX + 14, srcY + slitGap + 12);
   ctx.textAlign = 'left';
@@ -89,7 +89,7 @@ function render() {
   if (st.detector > 0.001) {
     ctx.fillStyle = `rgba(255,120,110,${0.3 + 0.6 * st.detector})`;
     for (const sgn of [-1, 1]) { ctx.beginPath(); ctx.arc(barX + 14, srcY + sgn * slitGap, 5, 0, 6.2832); ctx.fill(); }
-    ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText('which-path', barX + 22, srcY - slitGap - 8);
   }
 
@@ -128,7 +128,7 @@ function render() {
   ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let b = 0; b <= BINS; b += 1) { const yv = -Y + (2 * Y * b) / BINS; const I = intensity(yv, p) / imax; const X = HX + 4 + I * (HW - 12), Yy = HY + (b / BINS) * HH; b === 0 ? ctx.moveTo(X, Yy) : ctx.lineTo(X, Yy); }
   ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('counts / |psi|^2', HX + HW / 2, HY + HH + 14);
   ctx.save(); ctx.translate(HX - 7, HY + HH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('screen y', 0, 0); ctx.restore();
   ctx.textAlign = 'left';

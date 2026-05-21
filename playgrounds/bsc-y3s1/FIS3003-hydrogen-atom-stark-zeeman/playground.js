@@ -105,7 +105,7 @@ function render() {
   ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`E0 = ${E0.toFixed(3)} eV`, lx(E0), stripY + stripH + 18);
   ctx.fillText(`${lines.length} component${lines.length === 1 ? '' : 's'}  (split <- 0 -> )`, SX + SW / 2, stripY - 8);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0ad'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('B = Zeeman triplet,  F = Stark multiplet', SX + SW / 2, SY + SH + 18);
   ctx.textAlign = 'left';
 

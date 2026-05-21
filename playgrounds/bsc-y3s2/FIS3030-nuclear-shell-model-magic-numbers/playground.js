@@ -74,12 +74,111 @@ function colors() {
   };
 }
 
+// 3D nucleus render: N nucleons packed into a sphere whose radius
+// scales as A^(1/3) (the empirical nuclear-radius law R = r0 A^(1/3)).
+// Deterministic packing via a Fibonacci-sphere of shells so the
+// cluster looks dense and physical. Depth-sorted shaded spheres,
+// slowly rotating. The number of FILLED shells (magic completion)
+// tints the outer nucleons gold at a closed shell.
+const nucleonCache = { N: -1, pts: null };
+function buildNucleons(count) {
+  if (nucleonCache.N === count) return nucleonCache.pts;
+  const pts = [];
+  // Pack `count` points in a unit ball: concentric Fibonacci shells.
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i += 1) {
+    // Radial layering: cube-root distribution gives uniform density.
+    const frac = (i + 0.5) / count;
+    const rad = Math.cbrt(frac);
+    const y = 1 - 2 * frac;                       // -1..1
+    const rRing = Math.sqrt(Math.max(0, 1 - y * y));
+    const phi = i * golden;
+    pts.push([rad * rRing * Math.cos(phi), rad * y, rad * rRing * Math.sin(phi)]);
+  }
+  nucleonCache.N = count; nucleonCache.pts = pts;
+  return pts;
+}
+function drawNucleus(x0, y0, w, h, c) {
+  ctx.fillStyle = '#05060c';
+  ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.22)';
+  ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('the nucleus  (A = ' + N + ' nucleons)', x0 + 10, y0 + 16);
+
+  const cx = x0 + w / 2, cy = y0 + h / 2 + 8;
+  // Nuclear radius R = r0 A^(1/3); scale so a mid-size nucleus fills
+  // the panel comfortably.
+  const A = Math.max(1, N);
+  const Rworld = Math.cbrt(A);
+  const pxScale = Math.min(w, h) * 0.40 / Math.cbrt(126);
+  const Rpx = Rworld * pxScale;
+  const nucR = Math.max(2.4, pxScale * 0.62);     // single-nucleon radius
+
+  const pts = buildNucleons(A);
+  const t = performance.now() * 0.0004;
+  const ca = Math.cos(t), sa = Math.sin(t);
+  const closed = isMagic(N);
+  // Project + depth-sort.
+  const items = [];
+  for (let i = 0; i < pts.length; i += 1) {
+    const [px, py, pz] = pts[i];
+    // Rotate about y, slight tilt about x.
+    const rx = ca * px + sa * pz;
+    const rz = -sa * px + ca * pz;
+    const ry = py * 0.93 - rz * 0.18;
+    const depth = rz * 0.93 + py * 0.18;
+    items.push({
+      sx: cx + rx * Rpx, sy: cy - ry * Rpx, depth,
+      // Alternate proton (red) / neutron (blue) for a recognisable mix.
+      proton: (i % 2 === 0),
+      shellOuter: i >= pts.length - 12,
+    });
+  }
+  items.sort((a, b) => a.depth - b.depth);
+  for (const it of items) {
+    const lit = 0.55 + 0.45 * (it.depth + 1) / 2;
+    let base;
+    if (closed && it.shellOuter) base = [255, 209, 102];        // gold at shell closure
+    else if (it.proton) base = [239, 110, 110];
+    else base = [110, 170, 235];
+    const g = ctx.createRadialGradient(
+      it.sx - nucR * 0.3, it.sy - nucR * 0.3, nucR * 0.1,
+      it.sx, it.sy, nucR,
+    );
+    g.addColorStop(0, `rgb(${Math.round(base[0] * lit + 40)},${Math.round(base[1] * lit + 40)},${Math.round(base[2] * lit + 40)})`);
+    g.addColorStop(1, `rgb(${Math.round(base[0] * lit * 0.5)},${Math.round(base[1] * lit * 0.5)},${Math.round(base[2] * lit * 0.5)})`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(it.sx, it.sy, nucR, 0, Math.PI * 2); ctx.fill();
+  }
+  // Legend + radius readout.
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#ef6e6e';
+  ctx.beginPath(); ctx.arc(x0 + 14, y0 + h - 30, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(220,230,255,0.85)'; ctx.fillText('proton', x0 + 22, y0 + h - 26);
+  ctx.fillStyle = '#6eaaeb';
+  ctx.beginPath(); ctx.arc(x0 + 90, y0 + h - 30, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(220,230,255,0.85)'; ctx.fillText('neutron', x0 + 98, y0 + h - 26);
+  ctx.fillStyle = 'rgba(200,210,235,0.7)';
+  ctx.fillText(`R = r0 A^(1/3) = ${Rworld.toFixed(2)} r0`, x0 + 10, y0 + h - 10);
+  if (closed) {
+    ctx.fillStyle = '#ffd166';
+    ctx.font = 'bold 12px ui-monospace, monospace';
+    ctx.fillText('closed shell', x0 + w - 96, y0 + h - 10);
+  }
+}
+
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const padL = 60, padR = 130, padT = 30, padB = 30;
+  // Left panel: 3D nucleus. Right: the energy-level diagram.
+  const NUC_W = Math.floor(canvas.width * 0.40);
+  drawNucleus(8, 8, NUC_W - 16, canvas.height - 16, c);
+
+  const padL = NUC_W + 56, padR = 130, padT = 30, padB = 30;
   const plotW = canvas.width - padL - padR;
   const plotH = canvas.height - padT - padB;
 

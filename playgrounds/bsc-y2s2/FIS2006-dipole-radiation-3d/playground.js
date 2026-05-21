@@ -177,7 +177,7 @@ function render() {
   }
   for (let a = 180; a >= 0; a -= 1) { const th = Math.PI * a / 180, rr = pat(th) * pr; ctx.lineTo(pcx - rr * Math.sin(th), pcy - rr * Math.cos(th)); }
   ctx.closePath(); ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('theta = 0 (null)', pcx, pcy - pr - 12);
   ctx.fillText('theta = 90 (max)', pcx + pr + 2, pcy + 4);
 

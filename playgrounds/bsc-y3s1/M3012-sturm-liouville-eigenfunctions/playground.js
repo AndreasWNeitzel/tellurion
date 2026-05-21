@@ -186,7 +186,7 @@ function drawSpectrum(c, x0, y0, w, h) {
     ctx.fillStyle = modeColor(k, K, 1);
     ctx.beginPath(); ctx.arc(xr, yv, 3.4, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('k = 1', xk(1), y0 + padT + plotH + 14);
   ctx.fillText(`k = ${K}`, xk(K), y0 + padT + plotH + 14);
 }
@@ -223,7 +223,7 @@ function drawGallery(c, x0, y0, w, h, t) {
       (j ? ctx.lineTo : ctx.moveTo).call(ctx, xx, yy);
     }
     ctx.stroke();
-    ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText(`k=${k}`, cx + 7, cy + 11);
   }
 }

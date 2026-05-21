@@ -118,7 +118,7 @@ function render() {
   ctx.fillText('uncertainty product', gcx, GA.y + 20);
   ctx.fillStyle = barC; ctx.font = '17px ui-monospace, monospace';
   ctx.fillText(prod.toFixed(3), gcx, GA.y + 42);
-  ctx.fillStyle = 'rgba(226,230,238,0.85)'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(226,230,238,0.85)'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('hbar/2 = 0.50  (hard limit)', gcx, yFloor - 5);
   ctx.fillStyle = '#9aa0ad';
   ctx.fillText('cannot go below', gcx, bot + 16);

@@ -164,7 +164,7 @@ function drawBruntPanel(x0, y0, w, h) {
   ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.textAlign = 'right';
   ctx.fillText('8', ax - 4, ay + 8);
   ctx.fillText('0', ax - 4, ay + ah);
@@ -230,7 +230,7 @@ function drawCombPanel(x0, y0, w, h) {
   const xToPx = (P) => ax + (P - Pmin) / (Pmax - Pmin) * aw;
 
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.textAlign = 'left';
   ctx.fillText(`P (s),  Π_${st.l} = ${st.Pi1.toFixed(1)}`, ax, ay - 4);
 

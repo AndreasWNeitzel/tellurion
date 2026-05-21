@@ -54,18 +54,33 @@ function setPreset(name) {
   reset();
 }
 
+// Gallery layout: an N×N grid of small Lissajous thumbnails on the
+// right showing the (a, b) ratio space. Clicking a thumbnail sets the
+// main parameters. Inspired by the user's lissajous_table.png.
+const GALLERY_N = 6;
+function getGalleryCell(idx) {
+  const a = (idx % GALLERY_N) + 1;
+  const b = Math.floor(idx / GALLERY_N) + 1;
+  return { a, b, delta: Math.PI / 2 };
+}
+
 function drawAll() {
-  ctx.fillStyle = '#060608';
+  ctx.fillStyle = '#040206';
   ctx.fillRect(0, 0, W, H);
 
   const padX = 28;
-  // Layout: big square Lissajous on left, two trace strips on right.
+  // Layout: big square Lissajous on left, gallery on right.
   const mainSize = Math.min(H - 100, 380);
   const mainX = padX;
   const mainY = 56;
   const tracesX = mainX + mainSize + padX;
   const tracesW = W - tracesX - padX;
   const traceH = (mainSize - 16) / 2;
+  // Override: dedicate the right side to the gallery instead of the
+  // x(t)/y(t) trace strips.
+  const galX = tracesX, galY = mainY;
+  const galW = tracesW, galH = mainSize;
+  const cellW = galW / GALLERY_N, cellH = galH / GALLERY_N;
 
   // Title bar
   ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
@@ -107,72 +122,115 @@ function drawAll() {
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  // Pen with a glowing comet trail of its recent path.
+  // Fluorescent tracer: a vivid moving dot with a long additive-blend
+  // trail whose colour shifts along its length. The shifting hue
+  // (cyan -> magenta -> green) produces a fluorescent neon look.
   const tc = state.tNow % T;
   const pxN = ptX(xFn(tc, state.a, state.delta));
   const pyN = ptY(yFn(tc, state.b));
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  const TR = 38;
+  const TR = 80;
   for (let s = TR; s >= 1; s -= 1) {
-    const tt = (((tc - s * 0.01 * T) % T) + T) % T;
-    const a = 1 - s / TR;
+    const tt = (((tc - s * 0.008 * T) % T) + T) % T;
+    const a = 1 - s / TR;     // 0..1 along the trail (1 = current)
     const gx = ptX(xFn(tt, state.a, state.delta));
     const gy = ptY(yFn(tt, state.b));
-    ctx.fillStyle = `rgba(241, 210, 138, ${0.05 + 0.30 * a})`;
-    ctx.beginPath(); ctx.arc(gx, gy, 1.5 + 2.5 * a, 0, Math.PI * 2); ctx.fill();
+    // Hue ramp along the trail.
+    const hue = (180 + 180 * a) % 360;
+    ctx.fillStyle = `hsla(${hue}, 95%, 60%, ${(0.06 + 0.50 * a).toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(gx, gy, 1.2 + 3.5 * a, 0, Math.PI * 2); ctx.fill();
   }
-  const glow = ctx.createRadialGradient(pxN, pyN, 0, pxN, pyN, 14);
-  glow.addColorStop(0, 'rgba(255, 234, 170, 0.9)');
-  glow.addColorStop(1, 'rgba(255, 234, 170, 0)');
+  // Bright glowing tracer dot.
+  const glow = ctx.createRadialGradient(pxN, pyN, 0, pxN, pyN, 22);
+  glow.addColorStop(0, 'rgba(180, 255, 220, 1)');
+  glow.addColorStop(0.4, 'rgba(120, 220, 255, 0.7)');
+  glow.addColorStop(1, 'rgba(120, 220, 255, 0)');
   ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.arc(pxN, pyN, 14, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(pxN, pyN, 22, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
   ctx.fillStyle = '#fff3c8';
   ctx.beginPath(); ctx.arc(pxN, pyN, 4, 0, Math.PI * 2); ctx.fill();
 
-  // x(t) trace
-  function drawTrace(panelY, color, fn, label) {
-    ctx.fillStyle = '#0a0a0e';
-    ctx.fillRect(tracesX, panelY, tracesW, traceH);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.strokeRect(tracesX + 0.5, panelY + 0.5, tracesW - 1, traceH - 1);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+  // Gallery panel: GALLERY_N x GALLERY_N grid of small Lissajous
+  // thumbnails covering the (a, b) frequency-ratio space. The
+  // currently-selected (a, b) cell is highlighted.
+  ctx.fillStyle = '#080612';
+  ctx.fillRect(galX, galY, galW, galH);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.20)';
+  ctx.strokeRect(galX + 0.5, galY + 0.5, galW - 1, galH - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('gallery   (click a cell)', galX + 6, galY - 6);
+  for (let i = 0; i < GALLERY_N * GALLERY_N; i += 1) {
+    const cell = getGalleryCell(i);
+    const cx0 = galX + (i % GALLERY_N) * cellW;
+    const cy0 = galY + Math.floor(i / GALLERY_N) * cellH;
+    const cxm = cx0 + cellW / 2, cym = cy0 + cellH / 2;
+    const cr = Math.min(cellW, cellH) * 0.40;
+    // Highlight current selection.
+    const isCurr = cell.a === state.a && cell.b === state.b;
+    if (isCurr) {
+      ctx.fillStyle = 'rgba(120, 220, 255, 0.15)';
+      ctx.fillRect(cx0 + 1, cy0 + 1, cellW - 2, cellH - 2);
+      ctx.strokeStyle = 'rgba(120, 220, 255, 0.9)';
+      ctx.strokeRect(cx0 + 0.5, cy0 + 0.5, cellW - 1, cellH - 1);
+    } else {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.strokeRect(cx0 + 0.5, cy0 + 0.5, cellW - 1, cellH - 1);
+    }
+    // Each thumbnail uses a hue derived from (a, b).
+    const hue = ((cell.a * 30 + cell.b * 90) % 360);
+    ctx.strokeStyle = `hsla(${hue}, 90%, 65%, 0.95)`;
+    ctx.lineWidth = 1.3;
     ctx.beginPath();
-    ctx.moveTo(tracesX, panelY + traceH / 2);
-    ctx.lineTo(tracesX + tracesW, panelY + traceH / 2);
-    ctx.stroke();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    const Nt = tracesW - 2;
-    for (let i = 0; i < Nt; i += 1) {
-      const t = T * i / (Nt - 1);
-      if (t > state.tNow) break;
-      const v = fn(t);
-      const px = tracesX + 1 + i;
-      const py = panelY + (traceH / 2) - v * (traceH / 2 - 6);
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    const TT = period(cell.a, cell.b);
+    const NN = 200;
+    for (let k = 0; k <= NN; k += 1) {
+      const t = TT * k / NN;
+      const xi = xFn(t, cell.a, cell.delta);
+      const yi = yFn(t, cell.b);
+      const px = cxm + xi * cr;
+      const py = cym - yi * cr;
+      if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.stroke();
-    // pen on trace
-    const tcur = state.tNow % T;
-    const Nti = Math.max(0, Math.floor(tcur / T * (Nt - 1)));
-    const v = fn(tcur);
-    const px = tracesX + 1 + Nti;
-    const py = panelY + (traceH / 2) - v * (traceH / 2 - 6);
-    ctx.fillStyle = '#f1d28a';
-    ctx.beginPath();
-    ctx.arc(px, py, 3.0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-    ctx.fillStyle = color;
-    ctx.textAlign = 'left';
-    ctx.fillText(label, tracesX + 6, panelY + 14);
+    // Ratio label.
+    ctx.fillStyle = isCurr ? 'rgba(255, 255, 255, 0.95)' : 'rgba(220, 230, 255, 0.55)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`${cell.a}:${cell.b}`, cx0 + 4, cy0 + 11);
   }
-  drawTrace(mainY,                       tok.accentCool, (t) => xFn(t, state.a, state.delta), 'x(t)');
-  drawTrace(mainY + traceH + 16,         tok.accentWarm, (t) => yFn(t, state.b),              'y(t)');
 }
+
+// Cache for hit-testing gallery clicks.
+function galleryHit(cx, cy) {
+  // Recompute layout (matches drawAll).
+  const padX = 28;
+  const mainSize = Math.min(H - 100, 380);
+  const mainX = padX, mainY = 56;
+  const tracesX = mainX + mainSize + padX;
+  const tracesW = W - tracesX - padX;
+  const galX = tracesX, galY = mainY;
+  const galW = tracesW, galH = mainSize;
+  const cellW = galW / GALLERY_N, cellH = galH / GALLERY_N;
+  if (cx < galX || cx > galX + galW || cy < galY || cy > galY + galH) return null;
+  const col = Math.floor((cx - galX) / cellW);
+  const row = Math.floor((cy - galY) / cellH);
+  if (col < 0 || col >= GALLERY_N || row < 0 || row >= GALLERY_N) return null;
+  return { a: col + 1, b: row + 1 };
+}
+canvas.addEventListener('click', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const cx = (e.clientX - r.left) * (W / r.width);
+  const cy = (e.clientY - r.top) * (H / r.height);
+  const hit = galleryHit(cx, cy);
+  if (hit) {
+    state.a = hit.a; state.b = hit.b;
+    sliderA.value = String(state.a); valueA.textContent = String(state.a);
+    sliderB.value = String(state.b); valueB.textContent = String(state.b);
+    reset(); drawAll();
+  }
+});
 
 // Slowed from 0.04 so the figure draws at a followable pace.
 function tickN(n) { for (let i = 0; i < n; i += 1) state.tNow += 0.012; }

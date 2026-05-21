@@ -85,23 +85,16 @@ function render() {
     const age = ((st.tau * RATE_GYR_PER_S) / tk) % 1.0;   // fraction of MS life
     const rad = Math.max(3.5, Math.min(22, Rstar(Mk) * 6));
     const glowK = Math.max(0.3, Math.min(3, Math.log10(L_solar(Mk) + 1) * 0.9));
-    // death flash near end of life (brighter, then a remnant dot)
-    let flash = 0;
-    if (age > 0.93) flash = (age - 0.93) / 0.07;
-    if (flash > 0) {
-      ctx.fillStyle = `rgba(220,235,255,${0.5 * flash})`;
-      ctx.beginPath(); ctx.arc(px, sy, rad * (3 + 8 * flash), 0, 6.2832); ctx.fill();
-    }
+    // Death-flash + SN spike removed: with each MS-lifetime cycle
+    // independently triggering a flash, the row read as "random
+    // flickers of luminosity" rather than physics. Stars now glow
+    // steadily; the age bar communicates the cycle progress.
     drawStar(px, sy, rad, Mk, glowK);
-    if (Mk >= 8 && flash > 0.6) {                          // massive: SN spikes
-      ctx.strokeStyle = `rgba(180,210,255,${flash})`; ctx.lineWidth = 1.5;
-      for (let a = 0; a < 6; a += 1) { const an = a * 1.047; ctx.beginPath(); ctx.moveTo(px, sy); ctx.lineTo(px + Math.cos(an) * rad * 5 * flash, sy + Math.sin(an) * rad * 5 * flash); ctx.stroke(); }
-    }
     // age bar
     ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(px - 16, sy + 40, 32, 4);
     ctx.fillStyle = age > 0.9 ? '#ef476f' : '#5bc0eb'; ctx.fillRect(px - 16, sy + 40, 32 * age, 4);
     ctx.fillStyle = Math.abs(Mk - M) < 1e-6 ? '#ffd166' : '#94a3b8';
-    ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(`${Mk}`, px, sy + 64);
     if (Math.abs(Mk - M) < 0.06) { ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, sy, rad + 7, 0, 6.2832); ctx.stroke(); }
   }
@@ -111,7 +104,7 @@ function render() {
   const dx0 = 60, dx1 = W - 40, dy0 = H - 96, dy1 = H - 30;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0 - 10, dx1 - dx0, dy1 - dy0 + 22);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 - 9.5, dx1 - dx0 - 1, dy1 - dy0 + 21);
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('diagnostic: log L vs log M  (slope ~ 3.5)', dx0 + 8, dy0 + 4);
   const xPx = (lm) => dx0 + (lm + 1) / 3 * (dx1 - dx0);
   const yPx = (ll) => dy1 - (ll + 2) / 9 * (dy1 - dy0);

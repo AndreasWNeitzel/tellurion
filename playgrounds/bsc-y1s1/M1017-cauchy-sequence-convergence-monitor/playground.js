@@ -72,7 +72,7 @@ function render() {
     const ex = valToX(centre + sgn * st.eps);
     ctx.beginPath(); ctx.moveTo(ex, nlY - 56); ctx.lineTo(ex, nlY + 56); ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(255,209,102,0.8)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,209,102,0.8)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('epsilon tube', valToX(centre), nlY + 74);
   // term dots: early grey, tail blue
   for (let n = 1; n <= NMAX; n += 1) {
@@ -110,7 +110,7 @@ function render() {
   const nx = nToX(st.N0);
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(nx, tY0); ctx.lineTo(nx, tY1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText(`N0 = ${st.N0}`, nx, tY1 + 14);
   ctx.textAlign = 'left'; ctx.fillText('partial value a_n  vs  n', tX0 + 6, tY0 + 14);
 

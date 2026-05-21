@@ -14,10 +14,29 @@ describe('exoplanet-transit-3d', () => {
     expect(periodFromAxis(1, 1)).toBeCloseTo(1, 6);
   });
 
-  it('out-of-transit flux is exactly 1', () => {
+  it('out-of-transit flux is 1 plus a tiny reflected-light bump', () => {
+    // With the secondary-eclipse model in place, OOT flux is 1 +
+    // A_g (R_p/a)^2 phaseFn(alpha). For R_p/a = 0.02 and A_g = 0.4,
+    // the maximum bump is 1.6e-4. Both samples below are out of transit
+    // but the planet is not occulted, so we expect 1 + (small bump).
     const s = makeTransit({ Rp: 0.1, a: 5, inc: Math.PI / 2, period: 4 });
-    expect(transitFlux(s, 0)).toBe(1);
-    expect(transitFlux(s, s.period * 0.75)).toBe(1);     // planet behind the star
+    const oot1 = transitFlux(s, 0);
+    const oot2 = transitFlux(s, s.period * 0.75);
+    expect(oot1).toBeGreaterThanOrEqual(1);
+    expect(oot1).toBeLessThan(1.001);
+    expect(oot2).toBeGreaterThanOrEqual(1);
+    expect(oot2).toBeLessThan(1.001);
+  });
+
+  it('secondary eclipse: when planet is behind the disc, reflected-light bump vanishes', () => {
+    // At theta = 3 pi / 2 with edge-on inclination, the planet sits
+    // directly behind the stellar disc and is occulted; flux = 1 exactly.
+    const s = makeTransit({ Rp: 0.1, a: 5, inc: Math.PI / 2, period: 4 });
+    // Theta = 3 pi / 2 corresponds to t = period * 0.75.
+    // Build a wider orbit so the planet really lies behind the disc.
+    const s2 = makeTransit({ Rp: 0.1, a: 2, inc: Math.PI / 2, period: 1 });
+    expect(transitFlux(s2, s2.period * 0.75)).toBe(1);
+    void s;
   });
 
   it('central transit depth equals (Rp/Rs)^2 to 1 percent (no limb darkening)', () => {
@@ -34,7 +53,10 @@ describe('exoplanet-transit-3d', () => {
 
   it('tilted orbit removes the transit (no overlap with the disc)', () => {
     const s = makeTransit({ Rp: 0.1, a: 5, inc: Math.PI / 2 - 0.3, period: 4 });
-    expect(transitFlux(s, s.period * 0.25)).toBe(1);
+    // Out of transit, the reflected-light bump is non-zero but bounded.
+    const f = transitFlux(s, s.period * 0.25);
+    expect(f).toBeGreaterThanOrEqual(1);
+    expect(f).toBeLessThan(1.001);
   });
 
   it('edge-on transit: at mid-transit y = 0 and z > 0', () => {

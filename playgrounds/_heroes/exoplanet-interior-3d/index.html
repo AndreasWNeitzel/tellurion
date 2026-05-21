@@ -7,7 +7,7 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 1200px; position: relative; }
+  .pg-figure { max-width: 860px; position: relative; }
   .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; border-radius: 4px; }
   .readout-panel { margin-top: var(--space-3); background: rgba(8,10,14,0.7); padding: 10px 14px; border-radius: 4px; display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 14px; row-gap: 4px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; }
   .readout-panel .label { color: var(--fg-muted); font-size: 11px; opacity: 0.75; }
@@ -24,7 +24,7 @@
   <div data-slot="description" class="katex-target">Pick a composition, watch the cutaway. A layered terrestrial planet (iron core, silicate mantle, optional water and gas envelope) is solved in the constant-density approximation: layer interfaces follow $R_i^3 = R_{i-1}^3 + 3 M_i / (4\pi\rho_i)$ and hydrostatic balance $dP/dr = -\rho g(r)$ gives the central pressure analytically. The 3D cutaway rotates so the user sees the layered structure; the side panels track the mass-radius curve (this planet on a family of compositions) and the pressure profile from the centre to the surface. Reference: Seager+ ApJ 669 (2007) 1279, Zapolsky and Salpeter ApJ 158 (1969) 809.</div>
 </header>
 <figure class="pg-figure">
-  <canvas id="stage" width="1200" height="680"></canvas>
+  <canvas id="stage" width="900" height="680"></canvas>
   <div id="readout" class="readout-panel" role="status" aria-live="polite"></div>
   <figcaption data-slot="caption" class="katex-target">Figure 1. Layered planet cutaway with the mass-radius curve and pressure profile. Source: Seager et al. ApJ 669 (2007) 1279 (`seager-massradius`); Zapolsky and Salpeter ApJ 158 (1969) 809 (`zapolsky-salpeter`).</figcaption>
 </figure>

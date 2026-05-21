@@ -68,15 +68,23 @@ function colors() {
 
 let clock = 0;
 
-function drawStar(c, s) {
-  const top = 0, panelH = H * 0.66;
-  ctx.fillStyle = '#05060a';
-  ctx.fillRect(0, top, W, panelH);
+// Layout: the star takes the LEFT half of the canvas, the diagnostic
+// plots take the RIGHT half. The previous top-bottom split squashed
+// the star into 2/3 of the height and left the right ~40 % of the
+// canvas mostly empty.
+const STAR = { x: 0, y: 0, w: Math.floor(W * 0.50), h: H };
+const PLOTS = { x: STAR.w, y: 0, w: W - STAR.w, h: H };
 
-  const cx = W * 0.40, cy = top + panelH * 0.5;
+function drawStar(c, s) {
+  ctx.fillStyle = '#05060a';
+  ctx.fillRect(STAR.x, STAR.y, STAR.w, STAR.h);
+
   const xiD = displayXi(s);
-  const RMAX = Math.min(W * 0.34, panelH * 0.42);
+  const RMAX = Math.min(STAR.w * 0.44, STAR.h * 0.44);
   const R = Math.max(24, Math.min(RMAX, xiD * (RMAX / XI_SCALE)));
+  // Centre of the star disc inside the STAR panel.
+  const cx = STAR.x + STAR.w / 2;
+  const cy = STAR.y + STAR.h / 2;
 
   // Cutaway sector (interior revealed) on the right side.
   const cutA = -0.42, cutB = 0.42;
@@ -148,33 +156,78 @@ function drawStar(c, s) {
   ctx.beginPath(); ctx.arc(cx + probeFr * R * Math.cos(pa), cy + probeFr * R * Math.sin(pa), 3, 0, 2 * Math.PI); ctx.fill();
 
   ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillText(`polytrope star  n = ${n}  rho/rho_c = theta(xi)^n`, 12, 18);
-  ctx.fillText('(wedge: interior density; rings: isodensity)', 12, panelH - 12);
+  // Short title only; the "finite radius / diffuse" status is drawn
+  // right-aligned on the same line, so keep the title compact enough
+  // that the two cannot collide on a narrow star panel.
+  ctx.fillText(`polytrope star  n = ${n}`, 12, 18);
+  ctx.fillText('rho/rho_c = theta^n  (wedge: cutaway interior)', 12, STAR.h - 12);
   ctx.textAlign = 'right';
   ctx.fillStyle = c.accent;
-  ctx.fillText(xiD < s.xi[s.xi.length - 1] - 1e-6 ? 'finite radius' : 'diffuse (formally infinite)', W - 14, 18);
+  ctx.fillText(xiD < s.xi[s.xi.length - 1] - 1e-6 ? 'finite radius' : 'diffuse', STAR.w - 14, 18);
+  ctx.textAlign = 'left';
 
   return { probeFr };
 }
 
-function drawProfile(c, s, probe) {
-  const top = H * 0.66;
-  ctx.fillStyle = c.bg;
-  ctx.fillRect(0, top, W, H - top);
-  const padL = 52, padR = 16, padT = 12, padB = 26;
-  const x0 = padL, x1 = W - padR, y0 = top + padT, y1 = H - padB;
-  const xiMax = 10;
-  const xFor = (xi) => x0 + (x1 - x0) * Math.min(xi, xiMax) / xiMax;
-  const yFor = (t) => y1 - (y1 - y0) * Math.max(0, Math.min(1, t));
-
-  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-  for (let i = 0; i <= 5; i += 1) {
-    const xx = x0 + (x1 - x0) * i / 5;
-    ctx.beginPath(); ctx.moveTo(xx, y0); ctx.lineTo(xx, y1); ctx.stroke();
+// Compute approximate enclosed-mass profile m(xi) = integral_0^xi xi'^2
+// theta(xi')^n dxi' on the cached solution grid.
+function enclosedMass(si, ni) {
+  const xs = si.xi, ts = si.theta;
+  const N = xs.length;
+  const m = new Float64Array(N);
+  for (let i = 1; i < N; i += 1) {
+    const dxi = xs[i] - xs[i - 1];
+    const ddl = Math.pow(Math.max(0, ts[i]), ni) * xs[i] * xs[i];
+    const ddl0 = Math.pow(Math.max(0, ts[i - 1]), ni) * xs[i - 1] * xs[i - 1];
+    m[i] = m[i - 1] + 0.5 * dxi * (ddl + ddl0);
   }
-  ctx.strokeStyle = c.muted;
-  ctx.beginPath(); ctx.moveTo(x0, yFor(0)); ctx.lineTo(x1, yFor(0)); ctx.stroke();
+  return m;
+}
+const mCache = new Map();
+function mOf(ni) {
+  if (!mCache.has(ni)) mCache.set(ni, enclosedMass(sol(ni), ni));
+  return mCache.get(ni);
+}
 
+function drawProfile(c, s, probe) {
+  // The right-side plot column is split into two stacked panels:
+  //   TOP   theta(xi) (the canonical Lane-Emden plot)
+  //   BOT   m(xi) / m(xi_1) (cumulative mass, the diagnostic).
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(PLOTS.x, PLOTS.y, PLOTS.w, PLOTS.h);
+
+  // The xiMax used to be 10, which clipped the n=5 polytrope (which is
+  // formally infinite) abruptly mid-plot ("random truncation"). Bumped
+  // to 18 so the curve fades to zero smoothly inside the panel.
+  const xiMax = 18;
+  const padL = 50, padR = 14, padT = 24, padB = 28;
+  const half = (PLOTS.h - 8) / 2;
+  function panel(yTop, label) {
+    const x0 = PLOTS.x + padL, x1 = PLOTS.x + PLOTS.w - padR;
+    const y0 = yTop + padT, y1 = yTop + half - padB;
+    ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+    ctx.strokeRect(PLOTS.x + 6.5, yTop + 6.5, PLOTS.w - 14, half - 14);
+    ctx.fillStyle = c.fg; ctx.font = 'bold 12px system-ui, sans-serif';
+    ctx.fillText(label, x0 - 30, yTop + 18);
+    return { x0, x1, y0, y1 };
+  }
+  const xFor = (b, xi) => b.x0 + (b.x1 - b.x0) * Math.min(xi, xiMax) / xiMax;
+  const yForUnit = (b, t) => b.y1 - (b.y1 - b.y0) * Math.max(0, Math.min(1, t));
+
+  // ===== TOP: theta(xi) =====
+  const tp = panel(PLOTS.y, 'θ(ξ)   polytropic structure function');
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i += 1) {
+    const xx = tp.x0 + (tp.x1 - tp.x0) * i / 6;
+    ctx.beginPath(); ctx.moveTo(xx, tp.y0); ctx.lineTo(xx, tp.y1); ctx.stroke();
+  }
+  for (let yv = 0; yv <= 1.01; yv += 0.25) {
+    ctx.beginPath(); ctx.moveTo(tp.x0, yForUnit(tp, yv)); ctx.lineTo(tp.x1, yForUnit(tp, yv)); ctx.stroke();
+  }
+  // zero line emphasised.
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.5)';
+  ctx.beginPath(); ctx.moveTo(tp.x0, yForUnit(tp, 0)); ctx.lineTo(tp.x1, yForUnit(tp, 0)); ctx.stroke();
+  // Curves.
   for (const ni of NS) {
     const si = sol(ni);
     ctx.strokeStyle = COLORS_N[ni];
@@ -184,34 +237,96 @@ function drawProfile(c, s, probe) {
     let started = false;
     for (let i = 0; i < si.xi.length; i += 1) {
       const xi = si.xi[i], t = si.theta[i];
-      if (xi > xiMax || t < 0) break;
-      const xx = xFor(xi), yy = yFor(t);
+      if (xi > xiMax) break;
+      if (t < -0.05) break;
+      const xx = xFor(tp, xi), yy = yForUnit(tp, t);
       if (!started) { ctx.moveTo(xx, yy); started = true; } else ctx.lineTo(xx, yy);
     }
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
-
-  if (s.xi1 < xiMax) {
-    const xm = xFor(s.xi1);
+  // xi_1 marker (only for finite-radius polytropes).
+  if (s.xi1 < xiMax && s.xi1 < s.xi[s.xi.length - 1] - 1e-6) {
+    const xm = xFor(tp, s.xi1);
     ctx.strokeStyle = c.accent; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(xm, y0); ctx.lineTo(xm, y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xm, tp.y0); ctx.lineTo(xm, tp.y1); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = c.accent; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
-    ctx.fillText(`xi_1 = ${s.xi1.toFixed(3)}`, xm + 4, y0 + 12);
+    ctx.fillStyle = c.accent; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`ξ₁ = ${s.xi1.toFixed(3)}`, xm + 4, tp.y0 + 14);
   }
-
-  // Probe marker on the theta(xi) curve at the same fractional radius.
+  // Axis labels + ticks.
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  for (let yv = 0; yv <= 1.01; yv += 0.25) ctx.fillText(yv.toFixed(2), tp.x0 - 4, yForUnit(tp, yv) + 3);
+  ctx.textAlign = 'center';
+  for (let xi = 0; xi <= xiMax; xi += 3) ctx.fillText(`${xi}`, xFor(tp, xi), tp.y1 + 14);
+  ctx.fillText('ξ', (tp.x0 + tp.x1) / 2, tp.y1 + 26);
+  ctx.textAlign = 'left';
+  // Probe marker.
   const xiD = displayXi(s);
   const xiP = probe.probeFr * xiD;
   const tP = thetaOf(s, xiP);
   ctx.fillStyle = c.accent;
-  ctx.beginPath(); ctx.arc(xFor(xiP), yFor(tP), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(xFor(tp, xiP), yForUnit(tp, tP), 4, 0, 2 * Math.PI); ctx.fill();
+  // Legend (compact).
+  let lyy = tp.y0 + 4;
+  for (const ni of NS) {
+    ctx.fillStyle = COLORS_N[ni];
+    ctx.fillRect(tp.x1 - 70, lyy + 1, 10, 2.2);
+    ctx.fillStyle = c.muted; ctx.font = ni === n ? 'bold 10px ui-monospace, monospace' : '11px ui-monospace, monospace';
+    ctx.fillText(`n = ${ni}`, tp.x1 - 56, lyy + 5);
+    lyy += 12;
+  }
 
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.fillText('theta(xi)', 10, y0 + 8);
+  // ===== BOTTOM: enclosed mass m(xi) =====
+  const bp = panel(PLOTS.y + half + 8, 'm(ξ)   enclosed-mass integrand');
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i += 1) {
+    const xx = bp.x0 + (bp.x1 - bp.x0) * i / 6;
+    ctx.beginPath(); ctx.moveTo(xx, bp.y0); ctx.lineTo(xx, bp.y1); ctx.stroke();
+  }
+  for (let yv = 0; yv <= 1.01; yv += 0.25) {
+    ctx.beginPath(); ctx.moveTo(bp.x0, yForUnit(bp, yv)); ctx.lineTo(bp.x1, yForUnit(bp, yv)); ctx.stroke();
+  }
+  // Normalise m by the value at xi = xi_1 (or at xiMax for infinite cases)
+  // so the curve always lies in [0, 1].
+  for (const ni of NS) {
+    const si = sol(ni);
+    const mi = mOf(ni);
+    const xiNorm = Math.min(si.xi1, xiMax);
+    // Find the index near xiNorm.
+    let kn = 0;
+    while (kn < si.xi.length - 1 && si.xi[kn] < xiNorm) kn += 1;
+    const mtot = Math.max(1e-12, mi[kn]);
+    ctx.strokeStyle = COLORS_N[ni];
+    ctx.lineWidth = ni === n ? 2.6 : 1.2;
+    ctx.globalAlpha = ni === n ? 1 : 0.32;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i < si.xi.length; i += 1) {
+      if (si.xi[i] > xiMax) break;
+      const xx = xFor(bp, si.xi[i]);
+      const yy = yForUnit(bp, mi[i] / mtot);
+      if (!started) { ctx.moveTo(xx, yy); started = true; } else ctx.lineTo(xx, yy);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  // Axis labels + ticks.
+  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  for (let yv = 0; yv <= 1.01; yv += 0.25) ctx.fillText(yv.toFixed(2), bp.x0 - 4, yForUnit(bp, yv) + 3);
   ctx.textAlign = 'center';
-  ctx.fillText('xi', (x0 + x1) / 2, H - 8);
+  for (let xi = 0; xi <= xiMax; xi += 3) ctx.fillText(`${xi}`, xFor(bp, xi), bp.y1 + 14);
+  ctx.fillText('ξ', (bp.x0 + bp.x1) / 2, bp.y1 + 26);
+  ctx.textAlign = 'left';
+  // xi_1 marker on the mass plot too.
+  if (s.xi1 < xiMax && s.xi1 < s.xi[s.xi.length - 1] - 1e-6) {
+    const xm = xFor(bp, s.xi1);
+    ctx.strokeStyle = c.accent; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(xm, bp.y0); ctx.lineTo(xm, bp.y1); ctx.stroke();
+    ctx.setLineDash([]);
+  }
 }
 
 function render() {

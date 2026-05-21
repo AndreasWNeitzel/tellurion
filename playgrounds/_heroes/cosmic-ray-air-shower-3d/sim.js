@@ -68,7 +68,9 @@ export function depthAtAltitude_gcm2(h_km) {
 
 // Reverse: altitude where atmosphere has depth X g cm^-2 from the top.
 export function altitudeAtDepth_km(X_gcm2) {
-  return -8.0 * Math.log(X_gcm2 / 1030);
+  // Guard X = 0 (top of atmosphere): log(0) = -Infinity. Floor the
+  // depth at a tiny positive value so the altitude is large-but-finite.
+  return -8.0 * Math.log(Math.max(1e-4, X_gcm2) / 1030);
 }
 
 // Primary candidates: (name, A, Z).

@@ -22,7 +22,29 @@ const btnResample  = document.getElementById('btn-resample');
 const btnPc        = document.getElementById('btn-pc');
 
 const W = canvas.width, H = canvas.height;
-const state = { p: 0.59, L: 80, seedSalt: 0 };
+const state = { p: 0.59, L: 80, seedSalt: 0, pInfHistory: [] };
+
+// Precompute / accumulate P_inf(p) data points by sweeping p and using
+// the spanning-cluster size. Populated on demand.
+const P_INF_NS = 60;
+const pInfData = new Float32Array(P_INF_NS);    // 0..1 at p_i = i / (P_INF_NS - 1).
+let pInfReady = false;
+function buildPInfCurve() {
+  // Sample 60 p-values and average a few independent realisations at
+  // L = state.L (or 60 if too large). A single seed reads as noisy near
+  // p_c so 3 averages smooths it.
+  const Lsim = Math.min(60, state.L);
+  for (let i = 0; i < P_INF_NS; i += 1) {
+    const p = i / (P_INF_NS - 1);
+    let sum = 0;
+    for (let r = 0; r < 3; r += 1) {
+      const g = occupy(Lsim, p, (SEED + i * 1009 + r * 17) | 0);
+      sum += largestClusterFraction(g, Lsim);
+    }
+    pInfData[i] = sum / 3;
+  }
+  pInfReady = true;
+}
 
 function drawAll() {
   ctx.fillStyle = '#060608';
@@ -52,17 +74,28 @@ function drawAll() {
       if (sz > spanSize) { spanSize = sz; spanLabel = lab; }
     }
   }
-  const cell = Math.floor((W - 40) / state.L);
-  const x0 = (W - state.L * cell) / 2, y0 = 20;
+  // Use only the left ~60% of the canvas for the lattice so we can
+  // dock a tall P_inf(p) curve panel on the right.
+  const lattW = Math.min(W - 260, H - 40);
+  const cell = Math.max(1, Math.floor(lattW / state.L));
+  const x0 = 20, y0 = 20;
+  // Each cluster gets a unique hue derived from a hash of its label.
+  // The spanning cluster gets gold; the largest-non-spanning gets teal;
+  // every other cluster gets a hue-stable colour so the user can see
+  // the cluster decomposition at any p.
+  function colourFor(lab) {
+    if (lab === spanLabel && spanLabel > 0) return '#f1c14a';
+    if (lab === maxLabel) return '#7ed4c1';
+    // Pseudo-random hue from the label hash.
+    let h = lab * 2654435761;
+    h = ((h ^ (h >>> 16)) >>> 0) % 360;
+    return `hsl(${h}, 55%, 56%)`;
+  }
   for (let j = 0; j < state.L; j += 1) {
     for (let i = 0; i < state.L; i += 1) {
       const k = j * state.L + i;
       if (!grid[k]) continue;
-      // Three-colour scheme: spanning cluster (warm gold) -> largest
-      // non-spanning (cool teal) -> generic occupied (light blue).
-      if (labels[k] === spanLabel && spanLabel > 0) ctx.fillStyle = '#f1c14a';
-      else if (labels[k] === maxLabel) ctx.fillStyle = '#7ed4c1';
-      else ctx.fillStyle = '#69a8d6';
+      ctx.fillStyle = colourFor(labels[k]);
       ctx.fillRect(x0 + i * cell, y0 + j * cell, cell, cell);
     }
   }
@@ -108,9 +141,98 @@ function drawAll() {
   ctx.fillText('0', barX - 2, barY + barH + 11);
   ctx.textAlign = 'right'; ctx.fillText('1', barX + barW + 2, barY + barH + 11);
 
-  // Cluster-size histogram inset (top-right): log-log bin counts so
-  // the power-law n(s) ~ s^-tau at the critical point is visible.
-  const hX = W - 200, hY = 24, hW = 180, hH = 96;
+  // ====================================================================
+  // ORDER-PARAMETER CURVE P_inf(p). The canonical percolation plot:
+  // the largest-cluster fraction stays ~ 0 until p_c, then rises
+  // steeply. The current (p, P_inf) is highlighted with a dot.
+  // ====================================================================
+  if (!pInfReady) buildPInfCurve();
+  const opX = lattW + 40, opY = 24, opW = W - opX - 20, opH = H - 180;
+  ctx.fillStyle = 'rgba(15, 18, 28, 0.85)';
+  ctx.fillRect(opX, opY, opW, opH);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+  ctx.strokeRect(opX + 0.5, opY + 0.5, opW - 1, opH - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px ui-monospace, monospace';
+  ctx.fillText('order parameter  P∞(p)', opX + 10, opY + 14);
+
+  // Grid + axes.
+  const plotPx = opX + 36, plotPy = opY + 26;
+  const plotPw = opW - 50, plotPh = opH - 60;
+  // Y grid at 0.25 intervals.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.lineWidth = 1;
+  for (let yv = 0.0; yv <= 1.0001; yv += 0.25) {
+    const yp = plotPy + plotPh - yv * plotPh;
+    ctx.beginPath(); ctx.moveTo(plotPx, yp); ctx.lineTo(plotPx + plotPw, yp); ctx.stroke();
+  }
+  // X grid at 0.2 intervals.
+  for (let xv = 0; xv <= 1.0001; xv += 0.2) {
+    const xp = plotPx + xv * plotPw;
+    ctx.beginPath(); ctx.moveTo(xp, plotPy); ctx.lineTo(xp, plotPy + plotPh); ctx.stroke();
+  }
+  // Critical p_c vertical line.
+  ctx.strokeStyle = 'rgba(251, 113, 133, 0.85)';
+  ctx.setLineDash([4, 4]); ctx.lineWidth = 1.3;
+  const xpc = plotPx + P_C * plotPw;
+  ctx.beginPath(); ctx.moveTo(xpc, plotPy); ctx.lineTo(xpc, plotPy + plotPh); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(251, 113, 133, 0.95)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('p_c', xpc + 4, plotPy + 12);
+
+  // P_inf(p) curve.
+  ctx.strokeStyle = 'rgba(126, 212, 193, 0.95)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < P_INF_NS; i += 1) {
+    const pi = i / (P_INF_NS - 1);
+    const yi = pInfData[i];
+    const xp = plotPx + pi * plotPw;
+    const yp = plotPy + plotPh - yi * plotPh;
+    if (i === 0) ctx.moveTo(xp, yp); else ctx.lineTo(xp, yp);
+  }
+  ctx.stroke();
+
+  // Current (p, P_inf) dot.
+  const curX = plotPx + state.p * plotPw;
+  const curY = plotPy + plotPh - Pinf * plotPh;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(curX, curY, 5.5, 0, 6.2832); ctx.fill();
+  ctx.strokeStyle = 'rgba(241, 193, 74, 1)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(curX, curY, 5.5, 0, 6.2832); ctx.stroke();
+  // Drop guide lines.
+  ctx.strokeStyle = 'rgba(241, 193, 74, 0.35)';
+  ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(curX, curY); ctx.lineTo(curX, plotPy + plotPh); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(curX, curY); ctx.lineTo(plotPx, curY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axis labels and ticks.
+  ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  for (let yv = 0.0; yv <= 1.0001; yv += 0.25) {
+    const yp = plotPy + plotPh - yv * plotPh;
+    ctx.fillText(yv.toFixed(2), plotPx - 4, yp + 3);
+  }
+  ctx.textAlign = 'center';
+  for (let xv = 0; xv <= 1.0001; xv += 0.2) {
+    ctx.fillText(xv.toFixed(1), plotPx + xv * plotPw, plotPy + plotPh + 14);
+  }
+  ctx.textAlign = 'left';
+  ctx.fillText('p (occupation)', plotPx + plotPw / 2 - 38, plotPy + plotPh + 28);
+  ctx.save();
+  ctx.translate(opX + 12, plotPy + plotPh / 2 + 18);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('P∞ (largest fraction)', 0, 0);
+  ctx.restore();
+
+  // Cluster-size histogram: log-log bin counts so the power-law
+  // n(s) ~ s^-tau at the critical point is visible. Placed directly
+  // below the P_inf(p) panel so layout stays clean.
+  const hX = opX, hY = opY + opH + 16, hW = opW, hH = 120;
   ctx.fillStyle = 'rgba(15, 18, 28, 0.85)'; ctx.fillRect(hX, hY, hW, hH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.strokeRect(hX + 0.5, hY + 0.5, hW - 1, hH - 1);
   ctx.fillStyle = '#9aa0a6'; ctx.font = '9px "JetBrains Mono", ui-monospace, monospace'; ctx.textAlign = 'left';

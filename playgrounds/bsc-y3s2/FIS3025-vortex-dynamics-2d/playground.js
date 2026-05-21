@@ -107,6 +107,49 @@ function render() {
   const [ipx, ipy] = linearImpulse(s);
   rP.textContent = Math.hypot(ipx, ipy).toFixed(3);
   rL.textContent = angularImpulse(s).toFixed(3);
+
+  if (driftHistory.length === 0 || st.t - driftHistory[driftHistory.length - 1].f >= 0.08) {
+    driftHistory.push({ f: st.t, d: drift });
+    if (driftHistory.length > 360) driftHistory.shift();
+  }
+  drawDriftDiagnostic();
+}
+
+// Rule-13 diagnostic: relative drift of the point-vortex Hamiltonian
+// vs time, on a log axis. The vortex dynamics are Hamiltonian, so a
+// symplectic integrator should keep |ΔH/H_0| bounded and small; a
+// rising trend would expose an integration error. This conserved-
+// quantity check is the mathematical grounding for the animation.
+const driftHistory = [];
+function drawDriftDiagnostic() {
+  const pw = 240, ph = 122, px0 = W - pw - 14, py0 = 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px0, py0, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('Hamiltonian drift  log₁₀|ΔH/H₀|', px0 + 8, py0 + 14);
+  if (driftHistory.length < 2) return;
+  const ax = px0 + 36, ay = py0 + 22, aw = pw - 46, ah = ph - 38;
+  const lLo = -8, lHi = 0;
+  const f0 = driftHistory[0].f, f1 = driftHistory[driftHistory.length - 1].f;
+  const xOf = (f) => ax + (f1 > f0 ? (f - f0) / (f1 - f0) : 0) * aw;
+  const yOf = (l) => ay + ah - ((Math.max(lLo, Math.min(lHi, l)) - lLo) / (lHi - lLo)) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  for (let l = lLo; l <= lHi; l += 2) {
+    ctx.beginPath(); ctx.moveTo(ax, yOf(l)); ctx.lineTo(ax + aw, yOf(l)); ctx.stroke();
+  }
+  ctx.strokeStyle = '#5fe39b'; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  driftHistory.forEach((p, i) => {
+    const x = xOf(p.f), y = yOf(Math.log10(Math.max(1e-9, p.d)));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '9px ui-monospace, monospace';
+  for (let l = lLo; l <= lHi; l += 4) ctx.fillText(`${l}`, px0 + 8, yOf(l) + 3);
+  ctx.fillText('time', ax + aw / 2 - 10, py0 + ph - 4);
 }
 
 function tick() {

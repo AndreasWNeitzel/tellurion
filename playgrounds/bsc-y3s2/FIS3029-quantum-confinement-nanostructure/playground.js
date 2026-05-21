@@ -55,7 +55,7 @@ function drawWell() {
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.lineWidth = 1.6; ctx.stroke();
-    ctx.fillStyle = 'rgba(220,230,245,0.8)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(220,230,245,0.8)'; ctx.font = '11px monospace';
     ctx.fillText('n=' + n + '  E=' + E.toFixed(2), wx1 + 6, yy + 3);
   }
 }
@@ -87,7 +87,7 @@ function drawDOS() {
   const ox = x + 8 + (w - 16) * (onset / Emax);
   ctx.strokeStyle = 'rgba(255,180,90,0.8)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(ox, y + 22); ctx.lineTo(ox, y + h - 22); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,180,90,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,180,90,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('absorption onset', Math.min(ox + 4, x + w - 100), y + 34);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.fillText('E ->', x + w - 34, y + h - 6);

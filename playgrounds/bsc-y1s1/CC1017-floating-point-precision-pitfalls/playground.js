@@ -215,7 +215,7 @@ function drawBattery(firing) {
     fg.addColorStop(0, 'rgba(255,220,140,0.7)'); fg.addColorStop(1, 'rgba(255,150,40,0)');
     ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(BAT.x + 6, BAT.y - 22, 16, 0, 6.2832); ctx.fill();
   }
-  ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('BATTERY', BAT.x, BAT.y + 16);
 }
 
@@ -225,7 +225,7 @@ function drawAsset(destroyed, t) {
     for (let i = 0; i < 14; i += 1) ctx.fillRect(ASSET.x - 26 + srnd(i) * 52, ASSET.y - 4 - srnd(i + 3) * 12, 4 + srnd(i + 7) * 6, 4 + srnd(i + 5) * 5);
     ctx.fillStyle = `rgba(140,140,150,${(0.3 * (1 - t)).toFixed(2)})`;
     ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y - 24, 28 + t * 22, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = COL.bad; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = COL.bad; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText('ASSET DESTROYED', ASSET.x, ASSET.y + 30);
   } else {
     ctx.strokeStyle = '#566173'; ctx.lineWidth = 1.5;
@@ -233,7 +233,7 @@ function drawAsset(destroyed, t) {
     ctx.beginPath(); ctx.moveTo(ASSET.x - 22, ASSET.y - 24); ctx.lineTo(ASSET.x, ASSET.y - 34); ctx.lineTo(ASSET.x + 22, ASSET.y - 24); ctx.stroke();
     ctx.strokeStyle = 'rgba(91,192,235,0.35)';
     ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y, 40, Math.PI, 2 * Math.PI); ctx.stroke();
-    ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText('PROTECTED ASSET', ASSET.x, ASSET.y + 30);
   }
 }
@@ -284,7 +284,7 @@ function drawScene(rangeErr) {
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
-    ctx.fillStyle = gcol; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = gcol; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(lost ? 'GATE (EMPTY - GHOST TRACK)' : 'RANGE GATE', gate.x, gate.y + 30);
   }
 
@@ -358,7 +358,7 @@ function drawCausePanel(timeErr) {
     const x = xOf(h);
     ctx.strokeStyle = COL.grid2; ctx.setLineDash([2, 3]);
     ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x, py + ph); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = COL.muted; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(`${h}h`, x, py + ph + 11);
   }
   ctx.strokeStyle = COL.bad; ctx.lineWidth = 2; ctx.beginPath();
@@ -367,7 +367,7 @@ function drawCausePanel(timeErr) {
   const cx = xOf(state.hours), cy = yOf(state.patched ? 0 : patriotTimeError(state.hours));
   ctx.fillStyle = state.patched ? COL.ok : COL.amber;
   ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = COL.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('clock error (s) vs uptime', px, py - 10);
   ctx.textAlign = 'center';
   ctx.fillText('Dhahran battery: ~100 h up', px + pw / 2, py + ph + 11);

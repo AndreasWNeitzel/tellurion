@@ -1,28 +1,36 @@
 // Black Hole LEGEND. A multi-mode laboratory for Schwarzschild and
-// Kerr black holes. The visual core is the same WebGL2 ray-marched
-// Schwarzschild + first-order-Kerr lensing engine used by the
-// blackhole-geodesics-3d hero, so the lensed accretion disk is the
-// reference quality. Eight modes layer extra physics on top:
-//   Overview, Photons, Lensing, Frame drag, Spacetime, Ringdown,
-//   Hawking, TDE.
+// Kerr black holes. The visual core is a WebGL2 backward ray-march
+// (shared/js/engine-gl/schwarzschild-kerr.js) that handles the lensed
+// accretion disk, photon ring, and shadow. A Canvas2D overlay on top
+// draws geometric overlays, traces, panels, and mode-specific physics.
 //
-// Layout: two stacked canvases. The lower #stage-gl runs the WebGL
-// ray-trace (disk, shadow, lensing). The upper #stage is a Canvas2D
-// overlay (text, panels, geodesic traces, twisted frame-drag grid,
-// strain h(t), lightcurves, particle pair flashes). The 2D overlay
-// has pointer-events: none so the orbit camera on #stage-gl handles
-// drag-to-rotate and scroll-to-zoom.
+// Ten modes are mounted on the same central engine:
+//   overview   disk + horizon overlays
+//   photons    null geodesic fan at impact parameter b
+//   lensing    Refsdal 1964 lens equation, Einstein ring
+//   shadow     EHT-style highlighted photon ring with angular size
+//   framedrag  Kerr ergosphere wireframe and ZAMO ring
+//   spacetime  Flamm embedding diagram with orbiting test particle
+//   ringdown   Berti-Cardoso-Will QNM oscillating bell + h(t)
+//   hawking    pair flashes at horizon + T_H + t_evap
+//   tde        tidal disruption stream + Rees 1988 lightcurve
+//   tidal      spaghettification rod, stretching/squeezing time series
 //
-// Mode-aware controls: each mode shows only the sliders / toggles
-// that affect what it renders; irrelevant rows are hidden via CSS.
+// Layout: one visible canvas (#stage, Canvas2D) and one offscreen
+// canvas where the WebGL engine renders. Every frame we blit the
+// engine output, then draw 2D overlays on top. The orbit camera
+// attaches to the visible canvas. The inclination slider sets the
+// camera elevation; users can still drag-orbit afterwards.
 
 import {
-  schwarzschildRadius_m, criticalImpactParameter_m,
+  schwarzschildRadius_m,
   iscoRadius_m, kerrHorizonRadius_m,
-  lensImagePositions_rad, lensMagnification,
+  lensMagnification,
   hawkingTemperature_K, tracePhoton, classifyPhoton, makeRng, rsKm,
   qnmFrequency, ringdownProperties, hawkingEvaporationTime_yr,
-  tdeTidalRadius_m, tdePeakTime_days, tdeLightcurve, tdeIsDisrupted,
+  tdePeakTime_days, tdeLightcurve, tdeIsDisrupted,
+  kerrHorizonAngularVel_radps,
+  tidalAccelPerMetre_per_s2, BH_PRESETS,
 } from './sim.js';
 import { setupBHGL } from '../../../shared/js/engine-gl/schwarzschild-kerr.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
@@ -34,12 +42,6 @@ const CAPTURE_NAME = params.get('capture');
 const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const DETERMINISTIC = params.get('deterministic') === '1';
 
-// Single visible canvas (the 2D overlay). The WebGL2 ray-tracer
-// runs on an OFFSCREEN canvas; each frame we blit its output into
-// the visible 2D canvas via drawImage, then draw 2D overlays on
-// top. This way the visual test (which screenshots #stage) sees
-// the full composite, and the orbit camera attaches naturally to
-// the visible canvas's pointer events.
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
@@ -51,51 +53,62 @@ let engine = null;
 try { engine = setupBHGL(canvasGL); }
 catch (e) { console.warn('[bh-legend] WebGL2 init failed; falling back to 2D', e); engine = null; }
 
-// Orbit camera attaches to the visible canvas.
 const camera = createOrbitCamera(canvas, {
-  target: [0, 0, 0], radius: 30, minRadius: 9, maxRadius: 90,
-  azimuthDeg: 35, elevationDeg: 18, fovDeg: 62,
+  target: [0, 0, 0], radius: 30, minRadius: 8, maxRadius: 120,
+  azimuthDeg: 35, elevationDeg: 30, fovDeg: 62,
 });
 window.__camera = camera;
+// Expose particle controls to test harnesses. Allows smoke and capture
+// scripts to deterministically advance the simulation without depending
+// on requestAnimationFrame timing (which headless browsers often throttle).
+window.__bh_advance = (steps_M, dt_M = 0.5) => {
+  const n = Math.max(1, Math.floor(steps_M / dt_M));
+  for (let i = 0; i < n; i++) updateParticles(dt_M);
+};
 
-// Readout DOM.
 const rM = document.getElementById('readout-M');
 const rChi = document.getElementById('readout-chi');
 const rRs = document.getElementById('readout-rs');
 const rIsco = document.getElementById('readout-isco');
+const rTH = document.getElementById('readout-th');
 const rMode = document.getElementById('readout-mode');
 
-// Control DOM.
+const selPreset = document.getElementById('select-preset');
 const selMode = document.getElementById('select-mode'), vMode = document.getElementById('value-mode');
 const sLogM = document.getElementById('slider-logM'), vLogM = document.getElementById('value-logM');
 const sChi = document.getElementById('slider-chi'), vChi = document.getElementById('value-chi');
 const sIncl = document.getElementById('slider-incl'), vIncl = document.getElementById('value-incl');
 const sB = document.getElementById('slider-b'), vB = document.getElementById('value-b');
 const sBeta = document.getElementById('slider-beta'), vBeta = document.getElementById('value-beta');
-const tHorizon = document.getElementById('t-horizon');
+const sRinfall = document.getElementById('slider-rinfall'), vRinfall = document.getElementById('value-rinfall');
 const tPhotonsphere = document.getElementById('t-photonsphere');
 const tIsco = document.getElementById('t-isco');
 const tErgo = document.getElementById('t-ergo');
 const tGrid = document.getElementById('t-grid');
 const tTraces = document.getElementById('t-traces');
+const tLabels = document.getElementById('t-labels');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
-// Map mode -> visible control rows. Mode-aware control surface so
-// only the relevant knobs are exposed per mode.
-const MODE_ROWS = {
-  overview:  ['mode', 'logM', 'chi', 'incl', 'toggles'],
-  photons:   ['mode', 'logM', 'b', 'toggles'],
-  lensing:   ['mode', 'logM', 'beta', 'toggles'],
-  framedrag: ['mode', 'logM', 'chi', 'incl', 'toggles'],
-  spacetime: ['mode', 'logM', 'incl', 'toggles'],
-  ringdown:  ['mode', 'logM', 'chi'],
-  hawking:   ['mode', 'logM'],
-  tde:       ['mode', 'logM'],
+// =========================================================================
+// MODE TABLE: visible control rows, default camera, default chi/incl, and
+// whether the WebGL background is dimmed.
+// =========================================================================
+const MODE_TABLE = {
+  overview:  { rows: ['preset', 'mode', 'logM', 'chi', 'incl', 'toggles'], elev: 22, azim: 35, dim: 0.0, ergo: false },
+  photons:   { rows: ['preset', 'mode', 'logM', 'b', 'toggles'],            elev: 70, azim: 35, dim: 0.35, ergo: false },
+  lensing:   { rows: ['preset', 'mode', 'logM', 'beta', 'toggles'],         elev: 6,  azim: 35, dim: 0.0, ergo: false },
+  shadow:    { rows: ['preset', 'mode', 'logM', 'chi', 'toggles'],          elev: 8,  azim: 35, dim: 0.0, ergo: false },
+  framedrag: { rows: ['preset', 'mode', 'logM', 'chi', 'incl', 'toggles'],  elev: 28, azim: 35, dim: 0.40, ergo: true },
+  spacetime: { rows: ['preset', 'mode', 'logM', 'incl', 'toggles'],         elev: 22, azim: 35, dim: 0.75, ergo: false },
+  ringdown:  { rows: ['preset', 'mode', 'logM', 'chi'],                     elev: 8,  azim: 35, dim: 0.85, ergo: false },
+  hawking:   { rows: ['preset', 'mode', 'logM'],                            elev: 14, azim: 35, dim: 0.50, ergo: false },
+  tde:       { rows: ['preset', 'mode', 'logM'],                            elev: 35, azim: 35, dim: 0.30, ergo: false },
+  tidal:     { rows: ['preset', 'mode', 'logM', 'rinfall'],                 elev: 20, azim: 35, dim: 0.55, ergo: false },
 };
 const allRows = Array.from(document.querySelectorAll('#controls .row[data-row]'));
 function syncRowVisibility(mode) {
-  const visible = new Set(MODE_ROWS[mode] || ['mode', 'logM']);
+  const visible = new Set((MODE_TABLE[mode]?.rows) || ['mode', 'logM']);
   for (const row of allRows) {
     const key = row.getAttribute('data-row');
     row.classList.toggle('hidden', !visible.has(key));
@@ -104,18 +117,21 @@ function syncRowVisibility(mode) {
 
 const st = {
   mode: 'overview',
-  logM: 6.0,
+  logM: 6.6,                        // Sgr A* default (4.3e6 M_sun).
   chi: 0.0,
   incl: 60,
   b_rs: 2.65,
   beta_te: 0.30,
+  beta_y: 0.0,         // 2D lens-source vertical offset, in theta_E units.
+  r_infall_rs: 6.0,
   flags: {
-    horizon: true, photonsphere: true, isco: true,
-    ergo: false, grid: false, traces: true,
+    photonsphere: true, isco: true,
+    ergo: false, grid: false, traces: true, labels: true,
   },
   running: !prefersReducedMotion(),
   t: 0,
   rng: makeRng(0xC0FFEE),
+  lensDragging: false,
 };
 
 function M_solar() { return Math.pow(10, st.logM); }
@@ -124,16 +140,12 @@ function rIscoRs() { return iscoRadius_m(M_solar(), st.chi) / rsM(); }
 function rHorizonRs() { return kerrHorizonRadius_m(M_solar(), st.chi) / rsM(); }
 function bCritRs() { return 3 * Math.sqrt(3) / 2; }
 
+// World units in the WebGL shader use M = 1, so R_s = 2 world units.
+function rsToWorld(r_rs) { return r_rs * 2; }
+
 // =========================================================================
-// CAMERA-SPACE PROJECTION for 2D overlays. We render the 2D overlay
-// in the same coordinate frame as the WebGL canvas, projecting
-// world-space points through the same camera. This lets us draw
-// the photon-sphere ring, ISCO ellipse, twisted polar grid, and
-// geodesic traces over the WebGL background.
-//
-// World units: the shader uses M = 1; the disk extends r in [6, 18]
-// in those units. We define a worldToScreen(p) that mirrors the
-// pinhole projection inside basis() in the shader.
+// CAMERA-SPACE PROJECTION. The 2D overlay uses the same projection as the
+// WebGL shader so overlays sit on top of the rendered geometry.
 // =========================================================================
 function makeCamBasis() {
   const eye = camera.eyePosition();
@@ -166,24 +178,298 @@ function worldToScreen(p, cam) {
   return { x: (xn * 0.5 + 0.5) * W, y: (1.0 - (yn * 0.5 + 0.5)) * H, depth: zf };
 }
 
-// =========================================================================
-// MODE DRIVERS. Each mode controls (a) what the WebGL engine renders
-// (always the lensed BH + disk), (b) the 2D overlay content, and
-// (c) whether the WebGL background is dimmed.
-// =========================================================================
+function strokePolyline3D(cam, points, color, width, dash) {
+  ctx.strokeStyle = color; ctx.lineWidth = width;
+  ctx.setLineDash(dash || []);
+  ctx.beginPath();
+  let started = false;
+  for (const p of points) {
+    const s = worldToScreen(p, cam);
+    if (!s) { started = false; continue; }
+    if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
 
-// Blit the offscreen WebGL canvas into the visible 2D canvas as the
-// background. If WebGL failed to init, paint a starry fallback.
-function paintBackground() {
+function ringPoints(rWorld, samples = 80, plane = 'equator') {
+  const pts = [];
+  for (let k = 0; k <= samples; k++) {
+    const a = (k / samples) * 2 * Math.PI;
+    const c = Math.cos(a), s = Math.sin(a);
+    if (plane === 'equator') pts.push([rWorld * c, 0, rWorld * s]);
+    else if (plane === 'xz') pts.push([rWorld * c, 0, rWorld * s]);
+    else if (plane === 'xy') pts.push([rWorld * c, rWorld * s, 0]);
+    else if (plane === 'yz') pts.push([0, rWorld * c, rWorld * s]);
+  }
+  return pts;
+}
+
+// =========================================================================
+// PARTICLE SYSTEM. Schwarzschild geodesics in the pseudo-Newtonian
+// approximation: the radial acceleration carries an extra GR term
+//   a_r = -M/r^2 - 3 M L^2 / r^4
+// from the Schwarzschild effective potential V_eff = -M/r + L^2/(2r^2) -
+// M L^2/r^3. The 3 M L^2/r^4 correction is what shifts the ISCO from r=0
+// (Newtonian) to r=6M (Schwarzschild) and produces realistic capture
+// cross-sections for high-L orbits. L is angular momentum per unit mass.
+// Geometric units G = M = c = 1 throughout.
+//
+// On each step we recompute L = |x cross v| per particle (it is conserved
+// analytically; we recompute to avoid numerical drift contaminating the
+// correction). When a particle crosses the ISCO (r < 6M) we add its
+// kinetic energy to a luminosity accumulator; this is the physical source
+// of the TDE flare brightness.
+// =========================================================================
+const particles = {
+  active: false,
+  mode: null,                         // 'tidal' or 'tde'
+  pos: [], vel: [], captured: [],
+  iscoCrossed: [],                    // true after particle first crosses r < 6M.
+  E: [],                              // specific orbital energy 0.5 v^2 - 1/r.
+  initR: 0,
+  sinceReset: 0,
+  rng: makeRng(0xDEADBEEF),
+  luminosity: 0,                      // running flare brightness.
+  luminosityHistory: [],              // sampled lightcurve for plotting.
+};
+
+function sampleSphere(rng) {
+  // Rejection sample inside the unit ball.
+  let x, y, z, s;
+  do { x = rng()*2 - 1; y = rng()*2 - 1; z = rng()*2 - 1; s = x*x + y*y + z*z; } while (s > 1 || s < 1e-9);
+  return [x, y, z];
+}
+
+function resetTidalParticles(r_infall_M, N = 280, bodyR = 0.45) {
+  particles.active = true;
+  particles.mode = 'tidal';
+  particles.pos = []; particles.vel = []; particles.captured = []; particles.iscoCrossed = []; particles.E = [];
+  particles.initR = r_infall_M;
+  particles.sinceReset = 0;
+  particles.luminosity = 0;
+  particles.luminosityHistory = [];
+  particles.rng = makeRng(0xDEADBEEF ^ ((r_infall_M * 1000) | 0));
+  for (let i = 0; i < N; i++) {
+    const [x, y, z] = sampleSphere(particles.rng);
+    particles.pos.push([r_infall_M + bodyR * x, bodyR * y, bodyR * z]);
+    particles.vel.push([0, 0, 0]);
+    particles.captured.push(false);
+    particles.iscoCrossed.push(false);
+    particles.E.push(-1 / Math.max(1e-3, r_infall_M));
+  }
+}
+
+// Frame-dragging mode: launch test particles at rest from a ring at
+// various radii. With chi=0 they fall straight. With chi>0 the Kerr
+// frame-dragging vector rotates them around the spin axis as they fall,
+// producing a visible spiral.
+function resetFramedragParticles(N = 60) {
+  particles.active = true;
+  particles.mode = 'framedrag';
+  particles.pos = []; particles.vel = []; particles.captured = []; particles.iscoCrossed = []; particles.E = [];
+  particles.initR = 0;
+  particles.sinceReset = 0;
+  particles.luminosity = 0;
+  particles.luminosityHistory = [];
+  particles.rng = makeRng(0xFEED1234);
+  // Three rings at r = 3, 5, 7 M, with N/3 particles each, evenly spaced
+  // in azimuth at z=0 in the equatorial plane. All start at rest.
+  const radii = [3.0, 5.0, 7.0];
+  const perRing = Math.floor(N / radii.length);
+  for (const r of radii) {
+    for (let i = 0; i < perRing; i++) {
+      const phi = (i / perRing) * 2 * Math.PI;
+      particles.pos.push([r * Math.cos(phi), 0, r * Math.sin(phi)]);
+      particles.vel.push([0, 0, 0]);
+      particles.captured.push(false);
+      particles.iscoCrossed.push(false);
+      particles.E.push(-1 / r);
+    }
+  }
+}
+
+function resetTdeParticles(N = 380, r0 = 22, r_p = 7.5, bodyR = 0.55) {
+  particles.active = true;
+  particles.mode = 'tde';
+  particles.pos = []; particles.vel = []; particles.captured = []; particles.iscoCrossed = []; particles.E = [];
+  particles.initR = r0;
+  particles.sinceReset = 0;
+  particles.luminosity = 0;
+  particles.luminosityHistory = [];
+  particles.rng = makeRng(0xC0FFEE ^ ((r_p * 1000) | 0));
+  // Parabolic Newtonian orbit with periastron r_p, plane = xy.
+  // At r0 (on +x axis): v_total = sqrt(2/r0), L = sqrt(2 r_p),
+  // v_t = L/r0, v_r = -sqrt(v_total^2 - v_t^2).
+  const v_total = Math.sqrt(2 / r0);
+  const v_t = Math.sqrt(2 * r_p) / r0;
+  const v_r = -Math.sqrt(Math.max(0, v_total * v_total - v_t * v_t));
+  for (let i = 0; i < N; i++) {
+    const [x, y, z] = sampleSphere(particles.rng);
+    particles.pos.push([r0 + bodyR * x, bodyR * y, bodyR * z]);
+    // Small velocity spread (~1% of v_total) so the star is gravitationally
+    // bound (modulo our skipped self-gravity), not perfectly coherent.
+    const vs = v_total * 0.01;
+    particles.vel.push([
+      v_r + vs * (particles.rng() - 0.5),
+      v_t + vs * (particles.rng() - 0.5),
+      vs * (particles.rng() - 0.5),
+    ]);
+    particles.captured.push(false);
+    particles.iscoCrossed.push(false);
+    particles.E.push(0);
+  }
+}
+
+function updateParticles(dt_sim, substeps = 4) {
+  if (!particles.active) return;
+  const ds = dt_sim / substeps;
+  const r_horizon = (rHorizonRs() * 2) * 1.01;
+  const r_horizon_sq = r_horizon * r_horizon;
+  const r_ISCO = 6;             // 6 M for Schwarzschild.
+  const r_ISCO_sq = r_ISCO * r_ISCO;
+  let lumIncrement = 0;
+  // Kerr frame-dragging angular velocity at radius r (M units).
+  // omega_LT(r) = 2 chi / r^3 in geometric units; we apply it in the
+  // framedrag mode only, advancing each particle azimuthally per step.
+  const applyDrag = (particles.mode === 'framedrag') && (st.chi > 0);
+  const chiLT = st.chi;
+  for (let step = 0; step < substeps; step++) {
+    for (let i = 0; i < particles.pos.length; i++) {
+      if (particles.captured[i]) continue;
+      const p = particles.pos[i];
+      const r2 = p[0]*p[0] + p[1]*p[1] + p[2]*p[2];
+      if (r2 < r_horizon_sq) {
+        // Horizon crossing: deposit final kinetic energy into luminosity.
+        const v = particles.vel[i];
+        const ke = 0.5 * (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        lumIncrement += ke;
+        particles.captured[i] = true;
+        continue;
+      }
+      if (r2 > 10000) continue;       // far field, freeze for speed.
+      const r = Math.sqrt(r2);
+      const v = particles.vel[i];
+      // Specific angular momentum L per unit mass = |x cross v|.
+      // Conserved analytically; we recompute per step to avoid drift.
+      const Lx = p[1]*v[2] - p[2]*v[1];
+      const Ly = p[2]*v[0] - p[0]*v[2];
+      const Lz = p[0]*v[1] - p[1]*v[0];
+      const L2 = Lx*Lx + Ly*Ly + Lz*Lz;
+      // Schwarzschild effective acceleration (pseudo-Newtonian form
+      // derived from V_eff = -M/r + L^2/(2r^2) - M L^2/r^3 with M=1).
+      // a_r = -M/r^2 - 3 M L^2 / r^4. In Cartesian: a = -x/r^3 * (1 + 3 L^2/r^2).
+      const inv_r3 = 1 / (r2 * r);
+      const grFactor = 1 + 3 * L2 / r2;
+      v[0] -= p[0] * inv_r3 * grFactor * ds;
+      v[1] -= p[1] * inv_r3 * grFactor * ds;
+      v[2] -= p[2] * inv_r3 * grFactor * ds;
+      p[0] += v[0] * ds;
+      p[1] += v[1] * ds;
+      p[2] += v[2] * ds;
+      // Frame-dragging step (Kerr): rotate position and velocity about
+      // the spin axis (z) by Delta_phi = omega_LT(r) * dt. This makes
+      // initially-static particles spiral with the spacetime.
+      if (applyDrag) {
+        const omegaLT = 2 * chiLT / (r2 * r);   // = 2 chi / r^3 (M units).
+        const dphi = omegaLT * ds * 16;          // visual scale.
+        const cs = Math.cos(dphi), sn = Math.sin(dphi);
+        const nx = cs * p[0] - sn * p[2];
+        const nz = sn * p[0] + cs * p[2];
+        p[0] = nx; p[2] = nz;
+        const nvx = cs * v[0] - sn * v[2];
+        const nvz = sn * v[0] + cs * v[2];
+        v[0] = nvx; v[2] = nvz;
+      }
+      // ISCO crossing: bound debris that crosses inside 6 M will plunge;
+      // its kinetic energy is dissipated as radiation. Account for this
+      // once per particle.
+      if (!particles.iscoCrossed[i] && r2 < r_ISCO_sq) {
+        const ke = 0.5 * (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        lumIncrement += 0.6 * ke;   // ~ 6 % efficiency for Schwarzschild ISCO.
+        particles.iscoCrossed[i] = true;
+      }
+      // Update specific orbital energy E = 0.5 v^2 - 1/r (Newtonian
+      // proxy; positive E = unbound).
+      const v2 = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+      particles.E[i] = 0.5 * v2 - 1 / r;
+    }
+  }
+  particles.sinceReset += dt_sim;
+  // Luminosity dynamics: rises sharply with infall, decays with thermal/
+  // viscous cooling timescale set so the visible flare lasts a few units.
+  const cooling = 1 / Math.max(1e-3, 4);     // 1/e in ~4 visual seconds.
+  particles.luminosity = particles.luminosity * Math.exp(-cooling * dt_sim) + lumIncrement * 4;
+  // Sample for the lightcurve panel.
+  if (particles.luminosityHistory.length === 0 || particles.sinceReset - particles.luminosityHistory[particles.luminosityHistory.length - 1].t > 0.2) {
+    particles.luminosityHistory.push({ t: particles.sinceReset, L: particles.luminosity });
+    while (particles.luminosityHistory.length > 600) particles.luminosityHistory.shift();
+  }
+}
+
+// Draw particles. If `byEnergy` is true (TDE mode), color bound particles
+// red and unbound ones blue; otherwise use the supplied uniform color.
+function drawParticles(cam, colorActive = 'rgba(255, 220, 140, 0.92)', size = 1.7, byEnergy = false) {
+  if (!particles.active) return;
+  let nActive = 0, nCaptured = 0;
+  for (let i = 0; i < particles.pos.length; i++) {
+    const p = particles.pos[i];
+    const s = worldToScreen(p, cam);
+    if (!s) continue;
+    if (particles.captured[i]) {
+      ctx.fillStyle = 'rgba(255, 80, 90, 0.40)';
+      ctx.beginPath(); ctx.arc(s.x, s.y, 1.0, 0, Math.PI*2); ctx.fill();
+      nCaptured++;
+    } else {
+      const depth = s.depth;
+      const alpha = Math.max(0.4, Math.min(1, 1.4 - depth * 0.02));
+      let fill;
+      if (byEnergy) {
+        const E = particles.E[i];
+        if (E < 0) {
+          // Bound: warm red, brighter near periastron.
+          const sat = Math.min(1, Math.max(0.4, -E * 4));
+          fill = `rgba(255, ${Math.round(120 - 60 * sat)}, ${Math.round(110 - 40 * sat)}, ${(0.85 * alpha).toFixed(2)})`;
+        } else {
+          // Unbound: cool blue.
+          fill = `rgba(120, 200, 255, ${(0.78 * alpha).toFixed(2)})`;
+        }
+      } else {
+        const m = colorActive.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+        fill = m ? `rgba(${m[1]}, ${m[2]}, ${m[3]}, ${(parseFloat(m[4]) * alpha).toFixed(2)})` : colorActive;
+      }
+      ctx.fillStyle = fill;
+      ctx.beginPath(); ctx.arc(s.x, s.y, size, 0, Math.PI*2); ctx.fill();
+      nActive++;
+    }
+  }
+  return { nActive, nCaptured };
+}
+
+function labelAt(cam, p3, text, color = 'rgba(220, 230, 255, 0.92)', dx = 8, dy = 0) {
+  if (!st.flags.labels) return;
+  const s = worldToScreen(p3, cam);
+  if (!s) return;
+  ctx.fillStyle = color;
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(text, s.x + dx, s.y + dy);
+}
+
+// =========================================================================
+// BACKGROUND: blit WebGL render or fallback sky.
+// =========================================================================
+function paintBackground(dim) {
   if (engine) {
     ctx.drawImage(canvasGL, 0, 0, W, H);
   } else {
     drawSky2D();
   }
+  if (dim > 0) {
+    ctx.fillStyle = `rgba(0, 0, 0, ${dim.toFixed(2)})`;
+    ctx.fillRect(0, 0, W, H);
+  }
 }
-
 function drawSky2D() {
-  // Used only when WebGL is unavailable (fallback).
   ctx.fillStyle = '#02030a';
   ctx.fillRect(0, 0, W, H);
   for (let i = 0; i < 220; i++) {
@@ -193,7 +479,6 @@ function drawSky2D() {
     ctx.fillStyle = `rgba(200, 220, 255, ${sb})`;
     ctx.fillRect(ix, iy, 1, 1);
   }
-  // Coarse BH disc.
   ctx.fillStyle = '#000';
   ctx.beginPath(); ctx.arc(W * 0.5, H * 0.5, 60, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = 'rgba(255, 180, 100, 0.7)';
@@ -204,395 +489,622 @@ function drawSky2D() {
   ctx.fillText('WebGL2 unavailable; using 2D fallback', W * 0.5 - 130, H - 14);
 }
 
-// Draw the equatorial disk landmarks (ISCO + photon sphere + horizon
-// outline) projected through the live camera. These give viewers the
-// physical reference frame on top of the WebGL render.
+// =========================================================================
+// SHARED OVERLAYS: photon-sphere ring, ISCO ring, ergosphere envelope,
+// coordinate grid. World units have R_s = 2; so 1.5 R_s = 3, ISCO = 2 *
+// iscoRadius_m / rsM(), ergosphere equator = 2.
+// =========================================================================
 function drawHorizonRings(cam) {
-  const N = 64;
-  function ring(rWorld, color, dash, width, plane) {
-    ctx.strokeStyle = color; ctx.lineWidth = width;
-    if (dash) ctx.setLineDash(dash); else ctx.setLineDash([]);
-    ctx.beginPath();
-    let started = false;
-    for (let k = 0; k <= N; k++) {
-      const a = (k / N) * 2 * Math.PI;
-      const x = rWorld * Math.cos(a);
-      const z = rWorld * Math.sin(a);
-      const p = plane === 'equator' ? [x, 0, z] : [x, z * 0.0, z];
-      const s = worldToScreen(p, cam);
-      if (!s) { started = false; continue; }
-      if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
   if (st.flags.photonsphere) {
-    ring(3.0, 'rgba(255, 255, 255, 0.65)', [4, 4], 1.2, 'equator');
+    const pts = ringPoints(rsToWorld(1.5));
+    strokePolyline3D(cam, pts, 'rgba(255, 255, 255, 0.65)', 1.3, [4, 4]);
+    if (st.flags.labels) labelAt(cam, [rsToWorld(1.5) * 1.02, 0, 0], 'photon sphere 1.5 R_s', 'rgba(255,255,255,0.65)', 8, -6);
   }
   if (st.flags.isco) {
-    // ISCO in M units: 6 for Schwarzschild, decreasing with chi.
-    const rIscoM = iscoRadius_m(M_solar(), st.chi) / (rsM() / 2);
-    ring(rIscoM, 'rgba(255, 220, 120, 0.85)', null, 1.4, 'equator');
+    const r_isco_world = rsToWorld(rIscoRs());
+    strokePolyline3D(cam, ringPoints(r_isco_world), 'rgba(255, 220, 120, 0.85)', 1.4, null);
+    if (st.flags.labels) labelAt(cam, [r_isco_world * 1.02, 0, 0], `ISCO ${rIscoRs().toFixed(2)} R_s`, 'rgba(255,220,120,0.85)', 8, 10);
   }
   if (st.flags.ergo && st.chi > 0.01) {
-    ring(2.0, 'rgba(220, 120, 255, 0.85)', null, 1.4, 'equator');
+    drawErgosphereWireframe(cam);
   }
+}
+
+// Ergosphere is the oblate surface r_e(theta) = M (1 + sqrt(1 - chi^2 cos^2 theta)).
+// In world units (M = 1), r_e(theta) ranges between r_+ (poles) and 2 (equator).
+// We draw a wireframe of concentric latitude circles + meridian arcs.
+function drawErgosphereWireframe(cam) {
+  const a = st.chi;
+  const r_pole = 1 + Math.sqrt(1 - a * a);          // M units
+  const r_eq = 2;                                    // M units
+  const color = `rgba(220, 120, 255, 0.55)`;
+  // Latitude rings at theta = 30, 60, 90, 120, 150 deg from spin axis.
+  for (const thetaDeg of [30, 60, 90, 120, 150]) {
+    const theta = thetaDeg * DEG;
+    const r = 1 + Math.sqrt(Math.max(0, 1 - a * a * Math.cos(theta) ** 2));
+    const radius = r * Math.sin(theta);
+    const height = r * Math.cos(theta);
+    const pts = [];
+    for (let k = 0; k <= 64; k++) {
+      const phi = (k / 64) * 2 * Math.PI;
+      pts.push([radius * Math.cos(phi), height, radius * Math.sin(phi)]);
+    }
+    strokePolyline3D(cam, pts, color, 1.0, null);
+  }
+  // Meridians at four longitudes.
+  for (let lon = 0; lon < 4; lon++) {
+    const phi = (lon / 4) * 2 * Math.PI;
+    const pts = [];
+    for (let k = 0; k <= 64; k++) {
+      const theta = Math.PI * (k / 64);
+      const r = 1 + Math.sqrt(Math.max(0, 1 - a * a * Math.cos(theta) ** 2));
+      pts.push([
+        r * Math.sin(theta) * Math.cos(phi),
+        r * Math.cos(theta),
+        r * Math.sin(theta) * Math.sin(phi),
+      ]);
+    }
+    strokePolyline3D(cam, pts, color, 1.0, null);
+  }
+  if (st.flags.labels) labelAt(cam, [r_eq * 1.05, 0, 0], `ergosphere chi=${a.toFixed(2)}`, color, 8, -22);
+  // Note pole vs equator radius difference.
+  if (st.flags.labels) labelAt(cam, [0.02, r_pole * 1.05, 0], `r_pole = ${r_pole.toFixed(3)} M`, color, 8, 0);
 }
 
 function drawCoordinateGrid(cam) {
   if (!st.flags.grid) return;
   ctx.strokeStyle = 'rgba(120, 200, 255, 0.16)';
   ctx.lineWidth = 1;
+  // Concentric circles in equatorial plane.
   for (let r = 2; r <= 16; r += 2) {
-    ctx.beginPath();
-    let started = false;
-    for (let k = 0; k <= 64; k++) {
-      const a = (k / 64) * 2 * Math.PI;
-      const s = worldToScreen([r * Math.cos(a), 0, r * Math.sin(a)], cam);
-      if (!s) { started = false; continue; }
-      if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
-    }
-    ctx.stroke();
+    strokePolyline3D(cam, ringPoints(r, 64), 'rgba(120, 200, 255, 0.16)', 1, null);
   }
+  // Radial spokes.
   for (let k = 0; k < 12; k++) {
     const a = (k / 12) * 2 * Math.PI;
-    ctx.beginPath();
-    let started = false;
+    const pts = [];
     for (let t = 0; t <= 32; t++) {
       const r = 2 + (16 - 2) * (t / 32);
-      const s = worldToScreen([r * Math.cos(a), 0, r * Math.sin(a)], cam);
-      if (!s) { started = false; continue; }
-      if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
+      pts.push([r * Math.cos(a), 0, r * Math.sin(a)]);
     }
-    ctx.stroke();
+    strokePolyline3D(cam, pts, 'rgba(120, 200, 255, 0.13)', 1, null);
   }
 }
 
 // =========================================================================
-// MODE: OVERVIEW. Just the WebGL disk + lensing render, with optional
-// ISCO / photon-sphere / horizon overlays.
+// MODE: OVERVIEW.
 // =========================================================================
 function drawOverviewMode(cam) {
   drawHorizonRings(cam);
   drawCoordinateGrid(cam);
+  if (st.flags.labels) {
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+    ctx.font = '12px system-ui, sans-serif';
+    ctx.fillText('lensed accretion disk; redshifted (back) side dim, blueshifted (front) side bright', 14, 52);
+    ctx.fillText('drag canvas to orbit, scroll to zoom; inclination slider sets camera elevation', 14, 70);
+  }
 }
 
 // =========================================================================
-// MODE: PHOTONS. Trace null geodesics in the equatorial plane for a
-// fan of impact parameters around the user-selected b. Capture / orbit
-// / escape are color-coded. The traces are drawn ON TOP of the WebGL
-// disk render at the equatorial plane.
+// MODE: PHOTONS. Backward-traced null geodesics for a fan of impact
+// parameters around the user-selected b. The camera moves to a near
+// top-down view (elev = 70 deg) so the bending is clearly visible.
 // =========================================================================
 function drawPhotonsMode(cam) {
   const Rs = rsM();
   const b_target = st.b_rs * Rs;
   const bs = [];
-  for (let k = 0; k < 7; k++) { bs.push(b_target * (1 + 0.12 * (k - 3))); }
+  for (let k = 0; k < 9; k++) { bs.push(b_target * (1 + 0.10 * (k - 4))); }
   for (const b of bs) {
     const { path } = tracePhoton(M_solar(), b);
     const cls = classifyPhoton(M_solar(), b);
     let color;
-    if (cls === 'capture') color = 'rgba(255, 90, 110, 0.9)';
+    if (cls === 'capture') color = 'rgba(255, 90, 110, 0.95)';
     else if (cls === 'orbit') color = 'rgba(255, 230, 110, 1.0)';
-    else color = 'rgba(120, 220, 255, 0.9)';
-    ctx.strokeStyle = color;
-    ctx.lineWidth = (Math.abs(b - b_target) < 1e-9) ? 2.4 : 1.3;
-    ctx.beginPath();
-    let started = false;
-    // Convert (r [m], phi) -> world coords in M units. World M unit
-    // in the shader corresponds to Rs/2 in metres.
+    else color = 'rgba(140, 220, 255, 0.95)';
+    const points = [];
     for (let i = 0; i < path.length; i++) {
-      const rWorld = (path[i].r / Rs) * 2;  // R_s = 2 M.
+      const rWorld = (path[i].r / Rs) * 2;
       const phi = path[i].phi;
-      const x = rWorld * Math.cos(phi), z = rWorld * Math.sin(phi);
-      const s = worldToScreen([x, 0, z], cam);
-      if (!s) { started = false; continue; }
-      if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
+      points.push([rWorld * Math.cos(phi), 0, rWorld * Math.sin(phi)]);
     }
-    ctx.stroke();
+    strokePolyline3D(cam, points, color, (Math.abs(b - b_target) < 1e-9) ? 2.4 : 1.2, null);
   }
-  // Photon ring & ISCO landmarks remain visible.
   drawHorizonRings(cam);
-  // Critical impact parameter dashed circle in the equatorial plane.
-  ctx.strokeStyle = 'rgba(255, 230, 110, 0.45)';
-  ctx.setLineDash([3, 4]);
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  let started = false;
-  const bcWorld = bCritRs() * 2;
-  for (let k = 0; k <= 64; k++) {
-    const a = (k / 64) * 2 * Math.PI;
-    const s = worldToScreen([bcWorld * Math.cos(a), 0, bcWorld * Math.sin(a)], cam);
-    if (!s) { started = false; continue; }
-    if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
-  }
-  ctx.stroke(); ctx.setLineDash([]);
+  // Critical-impact-parameter circle: it represents the asymptotic
+  // sightline along which any straight-line projection meets the BH.
+  // At infinity this is the boundary of the shadow.
+  strokePolyline3D(cam, ringPoints(bCritRs() * 2, 64), 'rgba(255, 230, 110, 0.45)', 1, [3, 4]);
+  if (st.flags.labels) labelAt(cam, [bCritRs() * 2 * 1.02, 0, 0], 'b_c = 2.598 R_s', 'rgba(255,230,110,0.75)', 8, 16);
 
-  // Readout strip.
+  // Legend strip.
   const cls = classifyPhoton(M_solar(), b_target);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = '13px system-ui, sans-serif';
-  ctx.fillText(`impact parameter b / R_s = ${st.b_rs.toFixed(2)}; critical b_c / R_s = ${bCritRs().toFixed(3)}`, 14, H - 32);
-  ctx.fillText(`outcome at chosen b: ${cls.toUpperCase()} (red = capture, yellow = orbit, cyan = escape)`, 14, H - 14);
+  ctx.fillText(`b / R_s = ${st.b_rs.toFixed(2)};  critical b_c / R_s = ${bCritRs().toFixed(3)}`, 14, H - 50);
+  ctx.fillStyle = cls === 'capture' ? 'rgba(255, 130, 130, 0.95)' : cls === 'orbit' ? 'rgba(255, 230, 110, 0.95)' : 'rgba(140, 220, 255, 0.95)';
+  ctx.fillText(`outcome at chosen b: ${cls.toUpperCase()}`, 14, H - 32);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText('red = capture; yellow = unstable orbit on the photon sphere; blue = escape', 14, H - 14);
 }
 
 // =========================================================================
-// MODE: LENSING. A background point source at angular offset beta from
-// the lens (BH). The Refsdal 1964 lens equation produces two images;
-// at beta = 0 a full Einstein ring forms.
+// MODE: LENSING. Refsdal 1964 point-mass lens. The Einstein ring is drawn
+// on the sky plane perpendicular to the line of sight from the observer
+// through the BH, projected as a circle of angular radius theta_E about
+// the BH center as seen by the camera.
 //
-// Visual: the WebGL render shows the lensed disk; a moving 2D source
-// marker at angular offset beta produces image markers at the two
-// roots. As beta -> 0, the two image markers wrap into the full ring
-// (handled by drawing an arc segment at theta_E on top).
+// theta_E in this visualization scales with sqrt(M / M_sun) so the user
+// sees the ring grow with mass. The source is a background point drawn
+// behind the BH, with the two image dots at the Refsdal positions.
 // =========================================================================
+// 2D Refsdal point-mass lens. The source can be anywhere on the sky
+// plane around the lens; the two images appear along the line from
+// lens-center to source position. We use (beta_x, beta_y) in theta_E
+// units (st.beta_te, st.beta_y). The user can drag the source ghost.
 function drawLensingMode(cam) {
   drawHorizonRings(cam);
-  const theta_E_world = 5.5;       // M units. Scales like sqrt(M).
-  const beta_world = st.beta_te * theta_E_world;
-  const u = Math.sqrt(beta_world * beta_world + 4 * theta_E_world * theta_E_world);
-  const xp = 0.5 * (beta_world + u);
-  const xm = 0.5 * (beta_world - u);
+  // Pre-cache theta_E (visual world units; scales as sqrt(M)).
+  const theta_E_world = 5.5 * Math.sqrt(M_solar() / 1e6);
+  // 2D source position in theta_E units.
+  const bx = st.beta_te, by = st.beta_y;
+  const beta = Math.sqrt(bx * bx + by * by);
+  const u = Math.sqrt(beta * beta + 4);    // in theta_E units.
+  // Image positions along the (bx, by) direction:
+  const dirX = beta > 1e-9 ? bx / beta : 1;
+  const dirY = beta > 1e-9 ? by / beta : 0;
+  const xpScalar = 0.5 * (beta + u);
+  const xmScalar = 0.5 * (beta - u);
+  const imgPlus_te = [xpScalar * dirX, xpScalar * dirY];
+  const imgMinus_te = [xmScalar * dirX, xmScalar * dirY];
 
-  // Einstein ring (dashed, only when source is near-aligned).
-  const ringAlpha = Math.max(0.15, 0.85 - 0.6 * Math.abs(st.beta_te));
-  ctx.strokeStyle = `rgba(255, 220, 140, ${ringAlpha.toFixed(2)})`;
-  ctx.lineWidth = 1.4; ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  let started = false;
-  for (let k = 0; k <= 64; k++) {
-    const a = (k / 64) * 2 * Math.PI;
-    const s = worldToScreen([theta_E_world * Math.cos(a), 0.0, theta_E_world * Math.sin(a)], cam);
-    if (!s) { started = false; continue; }
-    if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
+  // Einstein-ring circle on the sky plane (perpendicular to viewing dir).
+  const rg = cam.r, upv = cam.u;
+  const ringPts = [];
+  for (let k = 0; k <= 96; k++) {
+    const a = (k / 96) * 2 * Math.PI;
+    const p = [
+      theta_E_world * (Math.cos(a) * rg[0] + Math.sin(a) * upv[0]),
+      theta_E_world * (Math.cos(a) * rg[1] + Math.sin(a) * upv[1]),
+      theta_E_world * (Math.cos(a) * rg[2] + Math.sin(a) * upv[2]),
+    ];
+    ringPts.push(p);
   }
-  ctx.stroke(); ctx.setLineDash([]);
+  const ringAlpha = Math.max(0.18, 0.92 - 0.35 * Math.min(2, beta));
+  strokePolyline3D(cam, ringPts, `rgba(255, 220, 140, ${ringAlpha.toFixed(2)})`, 1.6, [5, 4]);
 
-  // Source ghost (true unlensed position).
-  const sGhost = worldToScreen([beta_world, 1.5, theta_E_world * 2.0], cam);
+  // Source ghost (unlensed) placed BEHIND the BH along the lens-plane offset.
+  const fwd = cam.f;
+  const eye = cam.eye;
+  const ringDist = Math.hypot(eye[0], eye[1], eye[2]) * 0.5;
+  const srcDepth = ringDist * 2.0;
+  const sourceP = [
+    bx * theta_E_world * rg[0] + by * theta_E_world * upv[0] + fwd[0] * srcDepth,
+    bx * theta_E_world * rg[1] + by * theta_E_world * upv[1] + fwd[1] * srcDepth,
+    bx * theta_E_world * rg[2] + by * theta_E_world * upv[2] + fwd[2] * srcDepth,
+  ];
+  const sGhost = worldToScreen(sourceP, cam);
   if (sGhost) {
     ctx.fillStyle = 'rgba(120, 220, 200, 0.85)';
-    ctx.beginPath(); ctx.arc(sGhost.x, sGhost.y, 6, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(120, 220, 200, 0.92)';
-    ctx.font = '11px ui-monospace, monospace';
-    ctx.fillText('source (no lens)', sGhost.x + 10, sGhost.y + 4);
-  }
-  // Image markers in the equatorial plane.
-  const sP = worldToScreen([xp, 0, 0.4], cam);
-  const sM = worldToScreen([xm, 0, -0.4], cam);
-  ctx.fillStyle = 'rgba(255, 200, 120, 0.95)';
-  if (sP) { ctx.beginPath(); ctx.arc(sP.x, sP.y, 7, 0, Math.PI * 2); ctx.fill(); }
-  if (sM) { ctx.beginPath(); ctx.arc(sM.x, sM.y, 7, 0, Math.PI * 2); ctx.fill(); }
-
-  // Readout.
-  const mu = lensMagnification(st.beta_te, 1.0);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
-  ctx.fillText(`source beta / theta_E = ${st.beta_te.toFixed(2)} (drag slider to move source through alignment)`, 14, H - 50);
-  ctx.fillText(`image positions x_+/_- = ${(xp / theta_E_world).toFixed(2)}, ${(xm / theta_E_world).toFixed(2)} theta_E`, 14, H - 32);
-  ctx.fillText(`total magnification mu = ${mu.toFixed(2)} (diverges as beta -> 0; Einstein ring)`, 14, H - 14);
-}
-
-// =========================================================================
-// MODE: FRAME DRAG. The KEY new visual. A polar spacetime grid in the
-// equatorial plane gets twisted by Lense-Thirring frame dragging:
-//   omega_LT(r) = 2 G J / (c^2 r^3) = 2 chi M^2 / r^3 (in G = c = 1).
-// Integrated phase that an inertial frame is dragged over a unit
-// coordinate-time interval at radius r equals omega_LT(r) * 1.
-// At chi = 0 the grid is straight radial lines. At chi = 0.99 the
-// lines twist into tight spirals near the horizon. Two concentric
-// orbits (prograde and retrograde) ride the grid, showing how the
-// dragging slows / speeds different rotation senses.
-// =========================================================================
-function drawFrameDragMode(cam) {
-  drawHorizonRings(cam);
-
-  // Visual twist amplitude: integrate omega_LT(r) from r_inf to r,
-  // scaled to be visible. We use a phenomenological winding profile
-  // proportional to chi / r^2 so the twist is small at the disk edge
-  // and tight near the horizon.
-  const chi = st.chi;
-  const twistProfile = (r) => chi * 2.0 * (1 / Math.pow(Math.max(r, 1.5), 2));
-
-  // Twisted polar grid. Radial lines start at constant phi at r = 18
-  // and wind by integrating the twist as we step inward. We compute
-  // the cumulative twist by quadrature.
-  ctx.strokeStyle = chi > 0.01
-    ? `rgba(255, 200, 120, ${(0.45 + 0.4 * chi).toFixed(2)})`
-    : 'rgba(180, 200, 240, 0.45)';
-  ctx.lineWidth = 1.2;
-  const N_RADIAL = 18;
-  const N_STEPS = 80;
-  const r_outer = 18;
-  const r_inner = Math.max(rIscoRs() * 2, 4.5);    // M units; R_s = 2 M.
-  for (let k = 0; k < N_RADIAL; k++) {
-    const phi0 = (k / N_RADIAL) * 2 * Math.PI;
-    ctx.beginPath();
-    let started = false;
-    let cumTwist = 0;
-    let rPrev = r_outer;
-    for (let j = 0; j <= N_STEPS; j++) {
-      const t = j / N_STEPS;
-      const r = r_outer * Math.pow(r_inner / r_outer, t);
-      const dr = rPrev - r;
-      cumTwist += twistProfile(r) * dr;
-      rPrev = r;
-      const phi = phi0 + cumTwist + st.t * 0.15;
-      const p = worldToScreen([r * Math.cos(phi), 0, r * Math.sin(phi)], cam);
-      if (!p) { started = false; continue; }
-      if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
+    ctx.beginPath(); ctx.arc(sGhost.x, sGhost.y, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(120, 220, 200, 0.92)';
+    ctx.setLineDash([2, 3]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(sGhost.x, sGhost.y, 12, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    if (st.flags.labels) {
+      ctx.fillStyle = 'rgba(120, 220, 200, 0.92)';
+      ctx.font = '11px ui-monospace, monospace';
+      ctx.fillText('source (drag me on canvas)', sGhost.x + 14, sGhost.y + 4);
     }
-    ctx.stroke();
+    st._sourceScreenPos = { x: sGhost.x, y: sGhost.y };
   }
 
-  // Azimuthal circles (r = const) as faint reference rings.
-  ctx.strokeStyle = 'rgba(120, 180, 240, 0.20)';
-  ctx.lineWidth = 1;
-  for (const r of [r_inner, 6, 9, 12, 15]) {
-    ctx.beginPath();
-    let started = false;
-    for (let k = 0; k <= 64; k++) {
-      const a = (k / 64) * 2 * Math.PI;
-      const s = worldToScreen([r * Math.cos(a), 0, r * Math.sin(a)], cam);
-      if (!s) { started = false; continue; }
-      if (!started) { ctx.moveTo(s.x, s.y); started = true; } else ctx.lineTo(s.x, s.y);
-    }
-    ctx.stroke();
-  }
+  // Image markers on the lens plane (sky plane through BH).
+  const imgP_world = [
+    imgPlus_te[0] * theta_E_world * rg[0] + imgPlus_te[1] * theta_E_world * upv[0],
+    imgPlus_te[0] * theta_E_world * rg[1] + imgPlus_te[1] * theta_E_world * upv[1],
+    imgPlus_te[0] * theta_E_world * rg[2] + imgPlus_te[1] * theta_E_world * upv[2],
+  ];
+  const imgM_world = [
+    imgMinus_te[0] * theta_E_world * rg[0] + imgMinus_te[1] * theta_E_world * upv[0],
+    imgMinus_te[0] * theta_E_world * rg[1] + imgMinus_te[1] * theta_E_world * upv[1],
+    imgMinus_te[0] * theta_E_world * rg[2] + imgMinus_te[1] * theta_E_world * upv[2],
+  ];
+  const sP = worldToScreen(imgP_world, cam);
+  const sM = worldToScreen(imgM_world, cam);
+  // Magnification scales the image dot size.
+  const uRatio = beta;       // beta / theta_E.
+  const mu_plus = Math.abs(0.5 * (uRatio / Math.max(1e-9, u) + 1));
+  const mu_minus = Math.abs(0.5 * (uRatio / Math.max(1e-9, u) - 1));
+  const dotR = (mu) => Math.max(4, Math.min(14, 5 + 7 * Math.sqrt(Math.max(0.5, mu))));
+  ctx.fillStyle = 'rgba(255, 200, 120, 0.98)';
+  if (sP) { ctx.beginPath(); ctx.arc(sP.x, sP.y, dotR(mu_plus), 0, Math.PI * 2); ctx.fill(); }
+  if (sM) { ctx.beginPath(); ctx.arc(sM.x, sM.y, dotR(mu_minus), 0, Math.PI * 2); ctx.fill(); }
+  if (st.flags.labels && sP) { ctx.fillStyle = 'rgba(255, 200, 120, 0.95)'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('+ image', sP.x + 12, sP.y - 4); }
+  if (st.flags.labels && sM) { ctx.fillStyle = 'rgba(255, 200, 120, 0.95)'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('- image', sM.x + 12, sM.y - 4); }
 
-  // Prograde and retrograde test orbits at r = r_inner.
-  const phaseP =  st.t * 1.2 + twistProfile(r_inner) * (r_outer - r_inner) * 0.5;
-  const phaseR = -st.t * 1.2 + twistProfile(r_inner) * (r_outer - r_inner) * 0.5;
-  const pP = worldToScreen([r_inner * Math.cos(phaseP), 0, r_inner * Math.sin(phaseP)], cam);
-  const pR = worldToScreen([r_inner * Math.cos(phaseR), 0, r_inner * Math.sin(phaseR)], cam);
-  if (pP) {
-    ctx.fillStyle = 'rgba(140, 240, 200, 1)';
-    ctx.beginPath(); ctx.arc(pP.x, pP.y, 7, 0, Math.PI * 2); ctx.fill();
-  }
-  if (pR) {
-    ctx.fillStyle = 'rgba(255, 130, 110, 1)';
-    ctx.beginPath(); ctx.arc(pR.x, pR.y, 7, 0, Math.PI * 2); ctx.fill();
+  // Connecting line through lens center showing the axis.
+  if (sP && sM) {
+    ctx.strokeStyle = 'rgba(255, 200, 120, 0.25)';
+    ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sP.x, sP.y); ctx.lineTo(sM.x, sM.y); ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   // Readout strip.
-  const omega_LT_horizon = chi * 2.0 / Math.pow(Math.max(rHorizonRs() * 2, 1.5), 2);
-  ctx.fillStyle = 'rgba(255, 200, 120, 0.95)';
-  ctx.font = 'bold 12px system-ui, sans-serif';
-  ctx.fillText('Frame dragging (Lense-Thirring): spacetime is being dragged around the spinning BH.', 14, 52);
+  const mu = lensMagnification(beta, 1.0);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = '12px system-ui, sans-serif';
-  ctx.fillText(`chi = ${chi.toFixed(2)}: grid lines twist by Omega_LT(r) ~ 2 chi / r^2 (geometric units).`, 14, 70);
-  ctx.fillText('Higher chi = tighter twist near the horizon. chi = 0 gives straight radial lines.', 14, 88);
-  ctx.fillStyle = 'rgba(140, 240, 200, 0.95)';
-  ctx.fillText('green dot = prograde test orbit (co-rotating with BH)', 14, H - 50);
-  ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
-  ctx.fillText('red dot = retrograde test orbit (counter-rotating; dragged forward by spin)', 14, H - 32);
+  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.fillText('LENSING (Refsdal 1964): drag the cyan source dot on the canvas to move it across the BH.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText('When the source crosses the BH (beta = 0), the two images merge into a complete Einstein ring.', 14, 70);
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`beta = (${bx.toFixed(2)}, ${by.toFixed(2)}) theta_E,  |beta| = ${beta.toFixed(2)} theta_E`, 14, H - 50);
+  ctx.fillText(`mu_+ = ${mu_plus.toFixed(2)}  mu_- = ${mu_minus.toFixed(2)}  mu_total = ${mu.toFixed(2)}`, 14, H - 32);
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
   ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`Omega_LT at r_+ = ${omega_LT_horizon.toFixed(2)} (M^-1)`, 14, H - 14);
+  ctx.fillText(`theta_E (world units, scales as sqrt M) = ${theta_E_world.toFixed(2)}`, 14, H - 14);
 }
 
 // =========================================================================
-// MODE: SPACETIME (Flamm embedding). The 2D paraboloid drawn on top
-// of a DIMMED WebGL view. z(r) = 2 sqrt(R_s (r - R_s)) for r > R_s.
-// The WebGL background is dimmed (overdraw with semi-opaque black)
-// so the wireframe reads clearly.
+// MODE: SHADOW. EHT-style highlight of the photon ring (which appears at
+// b_c = 2.598 R_s as seen from infinity) and the BH shadow boundary.
+// We draw a glowing circle of radius b_c on the lens plane, label the
+// angular size for the selected mass, and annotate SgrA*/M87* references.
 // =========================================================================
-function drawSpacetimeMode(cam) {
-  // Dim the background so the embedded surface is the focus.
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-  ctx.fillRect(0, 0, W, H);
+function drawShadowMode(cam) {
+  drawHorizonRings(cam);
+  const rg = cam.r, upv = cam.u;
+  // Photon-ring projected circle (centered on BH, in the sky plane).
+  const r_world = bCritRs() * 2;   // b_c in world units.
+  const ringPts = [];
+  for (let k = 0; k <= 96; k++) {
+    const a = (k / 96) * 2 * Math.PI;
+    const p = [
+      r_world * (Math.cos(a) * rg[0] + Math.sin(a) * upv[0]),
+      r_world * (Math.cos(a) * rg[1] + Math.sin(a) * upv[1]),
+      r_world * (Math.cos(a) * rg[2] + Math.sin(a) * upv[2]),
+    ];
+    ringPts.push(p);
+  }
+  // Outer glow ring.
+  strokePolyline3D(cam, ringPts, 'rgba(255, 200, 120, 0.95)', 3.0, null);
+  // Halo glow around the photon ring as a screen-space radial gradient.
+  const sCenter = worldToScreen([0, 0, 0], cam);
+  const sEdge = worldToScreen(ringPts[0], cam);
+  if (sCenter && sEdge) {
+    const Rpx = Math.hypot(sEdge.x - sCenter.x, sEdge.y - sCenter.y);
+    const grad = ctx.createRadialGradient(sCenter.x, sCenter.y, Rpx * 0.9, sCenter.x, sCenter.y, Rpx * 1.45);
+    grad.addColorStop(0, 'rgba(255, 220, 140, 0.0)');
+    grad.addColorStop(0.45, 'rgba(255, 200, 120, 0.35)');
+    grad.addColorStop(1, 'rgba(255, 120, 60, 0.0)');
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+  // Inner shadow region (rough disk = 2.6 R_s for any chi to leading order).
+  if (st.flags.labels) labelAt(cam, [r_world * Math.SQRT1_2, 0, r_world * Math.SQRT1_2], 'photon ring at b_c', 'rgba(255, 220, 140, 0.95)', 8, -10);
 
-  const N_r = 30, N_phi = 60;
-  const r_min = 1.001, r_max = 6.0;       // R_s units.
-  const tilt = (90 - st.incl) * DEG;
-  const cT = Math.cos(tilt), sT = Math.sin(tilt);
-  const cx = W * 0.5, cy = H * 0.55;
-  const SC = 60;
-  // Vertex grid.
+  // Distance-dependent angular size: we report theta_sh for a few canonical
+  // distances. For Sgr A* (D = 8.27 kpc, M = 4.3e6), theta_sh ~ 25 uas.
+  const M = M_solar();
+  const Rs_km = rsKm(M);
+  const bc_m = (3 * Math.sqrt(3) / 2) * (Rs_km * 1000);
+  const D_SgrA = 8.27 * 3.086e19;       // m
+  const D_M87 = 16800 * 3.086e19;       // m
+  const D_GW = 410e6 * 3.086e19;        // m (LIGO distance scale, 410 Mpc)
+  const thetaSh = (D) => (bc_m / D) * (180 / Math.PI) * 3600 * 1e6;  // uas
+
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.fillText('SHADOW: the dark disc inside the photon ring (b_c = 2.598 R_s) seen from infinity.', 14, 52);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText('What the Event Horizon Telescope resolves. Independent of accretion details, the boundary is set by geometry.', 14, 70);
+
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`mass M = ${M.toExponential(2)} M_sun;  R_s = ${rsKm(M).toExponential(2)} km`, 14, H - 78);
+  ctx.fillText(`angular shadow at D = 8.27 kpc (Sgr A*):    theta_sh = ${thetaSh(D_SgrA).toFixed(2)} uas`, 14, H - 60);
+  ctx.fillText(`angular shadow at D = 16.8 Mpc (M87*):      theta_sh = ${thetaSh(D_M87).toFixed(2)} uas`, 14, H - 42);
+  ctx.fillText(`angular shadow at D = 410 Mpc (GW150914):   theta_sh = ${thetaSh(D_GW).toExponential(2)} uas`, 14, H - 24);
+  ctx.fillStyle = 'rgba(255, 180, 100, 0.82)';
+  ctx.font = '11px system-ui, sans-serif';
+  ctx.fillText('EHT 2019: M87* theta_sh = 42 uas; EHT 2022: Sgr A* theta_sh = 51.8 uas.', 14, H - 6);
+}
+
+// =========================================================================
+// MODE: FRAME DRAG. Redesigned with gyroscope arrows.
+// Three rings of GYROSCOPE arrows are placed in the equatorial plane.
+// At chi = 0 every arrow points to a fixed "infinity-anchored north."
+// As chi increases, each arrow precesses at the local Lense-Thirring
+// rate omega(r) ~ 2 chi / r^3, fastest near the horizon, slower outside.
+// The user clearly sees the field "twist" inward.
+// Plus: a freefalling test photon dropped from rest at r = 6 M.
+// At chi = 0 it falls radially. At chi > 0 it spirals inward.
+// =========================================================================
+function drawFrameDragMode(cam) {
+  // Always show the ergosphere here, regardless of toggle.
+  const savedErgo = st.flags.ergo;
+  st.flags.ergo = true;
+  drawHorizonRings(cam);
+  st.flags.ergo = savedErgo;
+
+  const a = st.chi;
+  const tVis = st.t;
+
+  // If a fresh framedrag init is needed, do it.
+  if (particles.mode !== 'framedrag') resetFramedragParticles();
+
+  // Draw the particle cluster: at chi=0 they fall straight in; at chi>0
+  // they get carried by the dragged spacetime and trace spirals. The
+  // ZAMO ring colour-by-energy is not very illuminating here, so use a
+  // uniform warm colour that contrasts with the gyroscope arrows.
+  drawParticles(cam, 'rgba(255, 240, 200, 0.95)', 2.1, /*byEnergy*/ false);
+
+  // Three gyroscope rings. Each one shows the local "north" direction
+  // of a frame that started anchored to infinity at t = 0. Lense-Thirring
+  // rotates it forward by omega(r) * t. The arrow tail is the position,
+  // the head is the rotated direction.
+  const rings = [
+    { r: 2.5, n: 16, color: 'rgba(255, 130, 130, 0.95)' },
+    { r: 4.5, n: 16, color: 'rgba(255, 200, 120, 0.95)' },
+    { r: 7.0, n: 16, color: 'rgba(140, 220, 255, 0.95)' },
+  ];
+  for (const ring of rings) {
+    const omega_r = 2 * a / Math.pow(ring.r, 3);
+    const precession = omega_r * tVis * 6;     // visual scale.
+    // Reference circle (faint).
+    strokePolyline3D(cam, ringPoints(ring.r, 80), 'rgba(120, 200, 255, 0.18)', 1.0, [3, 4]);
+    // Arrow at each position.
+    for (let k = 0; k < ring.n; k++) {
+      const a0 = (k / ring.n) * 2 * Math.PI;
+      const px = ring.r * Math.cos(a0);
+      const pz = ring.r * Math.sin(a0);
+      // Local "north" direction in equatorial plane is the local +x_hat
+      // direction rotated by precession.
+      const dirX = Math.cos(precession);
+      const dirZ = Math.sin(precession);
+      const len = 0.7;
+      const tipX = px + len * dirX;
+      const tipZ = pz + len * dirZ;
+      const base = [px, 0, pz];
+      const tip = [tipX, 0, tipZ];
+      // Shaft.
+      strokePolyline3D(cam, [base, tip], ring.color, 1.6, null);
+      // Arrowhead: two short segments.
+      const perpX = -dirZ, perpZ = dirX;
+      const hw = 0.15;
+      const head1 = [tipX - 0.20 * dirX + hw * perpX, 0, tipZ - 0.20 * dirZ + hw * perpZ];
+      const head2 = [tipX - 0.20 * dirX - hw * perpX, 0, tipZ - 0.20 * dirZ - hw * perpZ];
+      strokePolyline3D(cam, [head1, tip, head2], ring.color, 1.6, null);
+      // Dot at base (the gyroscope itself).
+      const sBase = worldToScreen(base, cam);
+      if (sBase) {
+        ctx.fillStyle = ring.color;
+        ctx.beginPath(); ctx.arc(sBase.x, sBase.y, 2.6, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    if (st.flags.labels) {
+      const omega_rate = (omega_r * 6).toFixed(2);
+      labelAt(cam, [ring.r * 1.02, 0, 0], `r=${ring.r.toFixed(1)}M omega=${omega_rate} rad/t`, ring.color, 8, -4);
+    }
+  }
+
+  // Freefalling test particle dropped from rest at r = 6.0, advancing
+  // by Lense-Thirring spiral. Period = (visual scale).
+  const cyclePeriod = 5;
+  const photonT = (tVis % cyclePeriod) / cyclePeriod;
+  const r0 = 6.0;
+  const r_drop = r0 * (1 - photonT * 0.92);
+  if (r_drop > rHorizonRs() * 2 * 1.02) {
+    // Approximation: phi accumulates from the Lense-Thirring rate integrated
+    // along the infall path. At chi = 0 the particle falls radially (phi = 0).
+    let phi_acc = 0;
+    let rPrev = r0;
+    const trailPts = [];
+    for (let i = 0; i <= 30; i++) {
+      const u = (i / 30) * photonT;
+      const rAt = r0 * (1 - u * 0.92);
+      const dr = rPrev - rAt;
+      const om = 2 * a / Math.pow(Math.max(rAt, 1.05), 3);
+      // dphi/dt and dr/dt give approximate dphi = om * dt = om * (dr / |dr/dt|).
+      // Use a phenomenological mapping with omega weight.
+      phi_acc += om * dr * 8;
+      rPrev = rAt;
+      trailPts.push([rAt * Math.cos(phi_acc), 0, rAt * Math.sin(phi_acc)]);
+    }
+    strokePolyline3D(cam, trailPts, 'rgba(255, 255, 200, 0.85)', 1.6, null);
+    if (trailPts.length > 0) {
+      const last = trailPts[trailPts.length - 1];
+      const s = worldToScreen(last, cam);
+      if (s) {
+        const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 10);
+        g.addColorStop(0, 'rgba(255, 255, 220, 1)');
+        g.addColorStop(1, 'rgba(255, 200, 120, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(s.x, s.y, 10, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  // Readout strip.
+  const Omega_H = kerrHorizonAngularVel_radps(M_solar(), a);
+  ctx.fillStyle = 'rgba(255, 200, 120, 0.95)';
+  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.fillText('Frame dragging (Lense-Thirring 1918): a Kerr BH twists nearby inertial frames forward.', 14, 52);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText('Each arrow is a GYROSCOPE that started pointing to "infinity-anchored north." It precesses at omega(r) ~ 2 chi / r^3.', 14, 70);
+  ctx.fillText('White particles dropped at rest from r = 3, 5, 7 M: chi = 0 they fall straight; chi > 0 they spiral with the dragged spacetime.', 14, 88);
+  if (a < 0.02) {
+    ctx.fillStyle = 'rgba(255, 130, 130, 0.95)';
+    ctx.font = '12px system-ui, sans-serif';
+    ctx.fillText('Set chi > 0 to see the gyroscopes precess and the dropped particle spiral inward.', 14, 106);
+  }
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`Omega_H (horizon angular velocity) = ${Omega_H.toExponential(3)} rad/s`, 14, H - 50);
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`omega(r=2.5M) = ${(2*a/15.625).toFixed(3)};  omega(r=4.5M) = ${(2*a/91.125).toFixed(3)};  omega(r=7M) = ${(2*a/343).toFixed(4)}  (M units)`, 14, H - 32);
+  ctx.fillStyle = 'rgba(220, 120, 255, 0.85)';
+  ctx.font = '11px system-ui, sans-serif';
+  ctx.fillText('Purple wireframe: ergosphere boundary. Inside it, no observer can be at rest with respect to infinity.', 14, H - 14);
+}
+
+// =========================================================================
+// MODE: SPACETIME. Flamm embedding (paraboloid) with photons traveling
+// along its surface. Some pass through and escape; some at small impact
+// parameter fall into the throat.
+// =========================================================================
+
+// Map a 2D (r, phi) point on the embedded Schwarzschild slice to a 3D
+// world position. r is in R_s units. The standard Flamm embedding has
+// z(r) = 2 sqrt(R_s (r - R_s)): throat (r = R_s) at z = 0, surface
+// rising to z > 0 at large r. The bowl opens UPWARD with the throat
+// at its lowest point (the bottom of the well).
+function embedPoint(r_Rs, phi, vScale) {
+  const r = Math.max(1.001, r_Rs);
+  const z = 2 * Math.sqrt(r - 1) * vScale;
+  // World y is UP; embedding z scales POSITIVELY so the rim is above
+  // the throat and the well looks like a textbook depression.
+  return [2 * r * Math.cos(phi), 2 * z, 2 * r * Math.sin(phi)];
+}
+
+function drawSpacetimeMode(cam) {
+  const N_r = 48, N_phi = 96;
+  const r_min = 1.001, r_max = 14.0;
+  // Vertical scale: deeper for higher mass (visually intuitive even
+  // though physically the embedding is M-invariant).
+  const vScale = 1.0 + 0.20 * (st.logM - 6);
+
+  // Build mesh.
   const grid = [];
   for (let ir = 0; ir < N_r; ir++) {
     const u = ir / (N_r - 1);
     const r = r_min + (r_max - r_min) * u;
-    const z = 2 * Math.sqrt(Math.max(0, r - 1));
     const row = [];
     for (let iphi = 0; iphi < N_phi; iphi++) {
       const phi = (iphi / N_phi) * 2 * Math.PI;
-      const x = r * Math.cos(phi);
-      const y = r * Math.sin(phi);
-      const yRot = y * cT + z * sT;
-      const depth = -y * sT + z * cT;
-      row.push({ x, y: yRot, depth });
+      row.push(embedPoint(r, phi, vScale));
     }
     grid.push(row);
   }
-  const proj = grid.map(row => row.map(p => {
-    const k = 1 / (1 + p.depth / 12);
-    return { x: cx + p.x * SC * k, y: cy - p.y * SC * k };
-  }));
-  ctx.strokeStyle = 'rgba(120, 200, 255, 0.65)';
-  ctx.lineWidth = 1.0;
-  for (let ir = 0; ir < N_r; ir++) {
-    ctx.beginPath();
-    for (let iphi = 0; iphi < N_phi; iphi++) {
-      const p = proj[ir][iphi];
-      if (iphi === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-    }
-    ctx.closePath();
-    ctx.stroke();
+  // Latitudes (rings of constant r).
+  for (let ir = 0; ir < N_r; ir += 2) {
+    const pts = grid[ir].concat([grid[ir][0]]);
+    const alpha = 0.30 + 0.40 * (1 - ir / N_r);
+    strokePolyline3D(cam, pts, `rgba(120, 200, 255, ${alpha.toFixed(2)})`, 1.0, null);
   }
+  // Meridians.
   for (let iphi = 0; iphi < N_phi; iphi += 4) {
-    ctx.beginPath();
-    for (let ir = 0; ir < N_r; ir++) {
-      const p = proj[ir][iphi];
-      if (ir === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-    }
-    ctx.stroke();
+    const pts = grid.map(row => row[iphi]);
+    strokePolyline3D(cam, pts, 'rgba(120, 200, 255, 0.45)', 1.0, null);
   }
-  ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-  ctx.beginPath(); ctx.arc(cx, cy, SC * 0.5, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 180, 100, 0.7)';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath(); ctx.arc(cx, cy, SC * 0.5, 0, Math.PI * 2); ctx.stroke();
+  // Throat highlight (horizon at r = R_s).
+  strokePolyline3D(cam, grid[0], 'rgba(255, 180, 100, 0.95)', 2.0, null);
+  // Photon sphere ring at r = 1.5 R_s on the embedded surface.
+  const psRing = [];
+  for (let k = 0; k <= 96; k++) {
+    const phi = (k / 96) * 2 * Math.PI;
+    psRing.push(embedPoint(1.5, phi, vScale));
+  }
+  strokePolyline3D(cam, psRing, 'rgba(255, 255, 255, 0.55)', 1.2, [3, 4]);
+
+  // Five photons traveling on the embedding. Each starts at r = 8 R_s
+  // with an impact parameter b (in R_s). b > b_c escape (deflected);
+  // b < b_c get captured. Use the Schwarzschild orbit equation to get
+  // the 2D path in the equatorial plane.
+  const bvals = [
+    { b: 4.5, color: 'rgba(140, 220, 255, 0.95)', kind: 'escape' },
+    { b: 3.5, color: 'rgba(140, 220, 255, 0.95)', kind: 'escape' },
+    { b: 2.75, color: 'rgba(255, 230, 110, 0.95)', kind: 'orbit' },
+    { b: 2.50, color: 'rgba(255, 130, 110, 0.95)', kind: 'capture' },
+    { b: 1.8,  color: 'rgba(255, 130, 110, 0.95)', kind: 'capture' },
+  ];
+  // Time-driven phase: each photon traces its path repeatedly, offset by index.
+  const cyclePeriod = 6;
+  const phaseT = (st.t % cyclePeriod) / cyclePeriod;
+  for (let pi = 0; pi < bvals.length; pi++) {
+    const bv = bvals[pi];
+    const Rs = rsM();
+    const b_m = bv.b * Rs;
+    const { path } = tracePhoton(M_solar(), b_m);
+    if (path.length === 0) continue;
+    // Convert path to (r_Rs, phi) tuples.
+    const samples = path.map(p => ({ r_Rs: p.r / Rs, phi: p.phi }));
+    // Show the photon at a position determined by phaseT (modulo per-photon offset).
+    const idxLast = Math.floor(((phaseT + pi * 0.13) % 1) * samples.length);
+    // Long decay trail: 160 samples instead of 40 so the geodesic path
+    // reads as a sweeping arc across the embedded surface.
+    const trailLen = Math.min(160, idxLast);
+    const trailPts = [];
+    for (let s = Math.max(0, idxLast - trailLen); s <= idxLast; s++) {
+      if (s >= samples.length) break;
+      const rR = samples[s].r_Rs;
+      const ph = samples[s].phi - Math.PI / 2 + pi * 0.5;
+      if (rR > 1.001 && rR <= 14) trailPts.push(embedPoint(rR, ph, vScale));
+    }
+    // Draw the trail with a fade tail: oldest segments dim, current dot bright.
+    if (trailPts.length >= 2) {
+      ctx.lineCap = 'round';
+      for (let s = 0; s < trailPts.length - 1; s++) {
+        const f = s / (trailPts.length - 1);
+        const alpha = 0.10 + 0.85 * f;
+        const m = bv.color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+        const stroke = m ? `rgba(${m[1]}, ${m[2]}, ${m[3]}, ${(parseFloat(m[4]) * alpha).toFixed(2)})` : bv.color;
+        strokePolyline3D(cam, [trailPts[s], trailPts[s + 1]], stroke, 1.8, null);
+      }
+    }
+    if (trailPts.length > 0) {
+      const last = trailPts[trailPts.length - 1];
+      const s = worldToScreen(last, cam);
+      if (s) {
+        const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 8);
+        g.addColorStop(0, bv.color);
+        g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(s.x, s.y, 8, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = 'bold 13px system-ui, sans-serif';
-  ctx.fillText('Flamm embedding of a spatial slice', 14, 52);
+  ctx.fillText('Spacetime as geometry: Flamm embedding + photons traveling on the curved surface.', 14, 52);
   ctx.font = '12px system-ui, sans-serif';
-  ctx.fillText('z(r) = 2 sqrt(R_s (r - R_s)) for r > R_s.', 14, 72);
-  ctx.fillText('The well is the geometry of space, not a potential energy. Geodesics roll around its inner lip.', 14, H - 14);
+  ctx.fillText('Photons at large b escape after a deflection; at b < 2.598 R_s they spiral down the throat and are captured.', 14, 70);
+  ctx.fillText('z(r) = 2 sqrt(R_s (r - R_s)); the surface is the spatial geometry of a t = const, theta = pi/2 slice.', 14, 88);
+  ctx.fillStyle = 'rgba(255, 180, 100, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('orange ring: horizon throat; white dashed: photon sphere at 1.5 R_s', 14, H - 14);
 }
 
 // =========================================================================
-// MODE: RINGDOWN. Total rewrite for clarity.
-// The remnant Kerr BH rings like a bell at the dominant (l, m, n) =
-// (2, 2, 0) quasinormal mode. We DIM the WebGL render to ~0.25 alpha
-// and draw a LARGE oblate-spheroid horizon (centred) whose long axis
-// oscillates sinusoidally with the QNM frequency and the amplitude
-// decays exponentially. The strain h(t) panel underneath shows the
-// damped sinusoid LIGO/Virgo actually detect, with a moving cursor.
-// Numbers update live: f (Hz), tau (ms), Q-factor.
+// MODE: RINGDOWN.
 // =========================================================================
 function drawRingdownMode(_cam) {
-  // Dim the background so the ringing bell is the obvious focus.
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.70)';
-  ctx.fillRect(0, 0, W, H);
-
   const { omegaR_M, omegaI_M } = qnmFrequency(st.chi);
   const props = ringdownProperties(M_solar(), st.chi);
-  const t_M = st.t * 0.9;             // time in units of M
+  // Time in M units; loop back when t exceeds 22 M so the strain panel
+  // is always populated and the bell never freezes off-screen.
+  const tMax = 22;
+  const t_M = (st.t * 0.9) % tMax;
   const phase = omegaR_M * t_M;
   const decay = Math.exp(omegaI_M * t_M);
 
-  // Central ringing horizon. The m = 2 mode deforms the equatorial
-  // cross-section into a slowly-rotating ellipse: r(phi) = r0 (1 +
-  // A * decay * cos(2 phi - omegaR t)). We draw the silhouette and
-  // an outer arc that lights up at the maxima.
+  // Bell with m=2 deformation.
   const cx = W * 0.50, cy = H * 0.42;
   const Rpx = 100;
-  const A_max = 0.18;                  // peak fractional amplitude.
+  const A_max = 0.18;
   const amp = A_max * Math.max(decay, 0.04);
 
-  // Glow halo first.
+  // Glow halo.
   const halo = ctx.createRadialGradient(cx, cy, Rpx * 0.9, cx, cy, Rpx * 2.4);
   halo.addColorStop(0, `rgba(255, 180, 100, ${(0.35 + 0.25 * decay).toFixed(3)})`);
   halo.addColorStop(0.5, `rgba(255, 100, 200, ${(0.15 * decay).toFixed(3)})`);
@@ -600,7 +1112,7 @@ function drawRingdownMode(_cam) {
   ctx.fillStyle = halo;
   ctx.beginPath(); ctx.arc(cx, cy, Rpx * 2.4, 0, Math.PI * 2); ctx.fill();
 
-  // Horizon silhouette (the bell).
+  // Bell silhouette.
   ctx.fillStyle = '#000';
   ctx.beginPath();
   const N = 96;
@@ -608,14 +1120,12 @@ function drawRingdownMode(_cam) {
     const a = (k / N) * 2 * Math.PI;
     const r = Rpx * (1 + amp * Math.cos(2 * a - phase));
     const x = cx + r * Math.cos(a);
-    // Vertical squash by spin (oblate; chi -> 1 -> ~ 0.65 flattening).
     const ySq = 1 - 0.22 * st.chi;
     const y = cy + r * Math.sin(a) * ySq;
     if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.closePath();
   ctx.fill();
-  // Rim that glows where the bulge points (m = 2 lobes).
   ctx.strokeStyle = `rgba(255, 220, 140, ${(0.4 + 0.5 * decay).toFixed(2)})`;
   ctx.lineWidth = 2.0;
   ctx.beginPath();
@@ -629,7 +1139,7 @@ function drawRingdownMode(_cam) {
   }
   ctx.closePath(); ctx.stroke();
 
-  // m = 2 lobe markers (arrows pointing where the bulge is right now).
+  // m = 2 lobe markers.
   for (const lobe of [0, Math.PI]) {
     const a = lobe + phase / 2;
     const r = Rpx * (1 + amp);
@@ -640,16 +1150,15 @@ function drawRingdownMode(_cam) {
     ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
   }
 
-  // Titles.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = 'bold 13px system-ui, sans-serif';
-  ctx.fillText('Ringdown of the merger remnant: a Kerr BH oscillates and decays in its (l,m,n)=(2,2,0) quasinormal mode.', 14, 52);
+  ctx.fillText('Ringdown: the post-merger Kerr BH oscillates and decays in its (l,m,n)=(2,2,0) QNM.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = '12px system-ui, sans-serif';
-  ctx.fillText('The bulge rotates at the QNM frequency; its amplitude decays by 1/e in tau (damping time).', 14, 70);
-  ctx.fillText('The wave emitted is a damped sinusoid (h(t) panel below) measured by LIGO/Virgo.', 14, 88);
+  ctx.fillText('The bulge co-rotates at the QNM frequency; its amplitude decays by 1/e in tau (damping time).', 14, 70);
+  ctx.fillText('LIGO/Virgo measures the resulting damped sinusoid below.', 14, 88);
 
-  // STRAIN h(t) PANEL.
+  // Strain panel.
   const px0 = 0.12 * W, py0 = H - 170, pw = 0.76 * W, ph = 120;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.92)';
   ctx.fillRect(px0, py0, pw, ph);
@@ -667,7 +1176,6 @@ function drawRingdownMode(_cam) {
   ctx.strokeStyle = 'rgba(120, 240, 200, 0.95)';
   ctx.lineWidth = 1.7;
   ctx.beginPath();
-  const tMax = 22;
   for (let k = 0; k <= 360; k++) {
     const tau = (k / 360) * tMax;
     const e = Math.exp(omegaI_M * tau);
@@ -678,97 +1186,210 @@ function drawRingdownMode(_cam) {
     if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  // Decay envelope (dashed orange).
+  // Decay envelope.
   ctx.strokeStyle = 'rgba(255, 200, 120, 0.45)';
   ctx.setLineDash([4, 4]); ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  for (let k = 0; k <= 360; k++) {
-    const tau = (k / 360) * tMax;
-    const e = Math.exp(omegaI_M * tau);
-    const x = px0 + 30 + (tau / tMax) * (pw - 50);
-    const y = midY - e * (ph * 0.36);
-    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  for (const sign of [1, -1]) {
+    ctx.beginPath();
+    for (let k = 0; k <= 360; k++) {
+      const tau = (k / 360) * tMax;
+      const e = sign * Math.exp(omegaI_M * tau);
+      const x = px0 + 30 + (tau / tMax) * (pw - 50);
+      const y = midY - e * (ph * 0.36);
+      if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
   }
-  ctx.stroke();
-  ctx.beginPath();
-  for (let k = 0; k <= 360; k++) {
-    const tau = (k / 360) * tMax;
-    const e = Math.exp(omegaI_M * tau);
-    const x = px0 + 30 + (tau / tMax) * (pw - 50);
-    const y = midY + e * (ph * 0.36);
-    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke(); ctx.setLineDash([]);
+  ctx.setLineDash([]);
   // Current marker.
   const xc = px0 + 30 + (t_M / tMax) * (pw - 50);
   const yc = midY - decay * Math.cos(phase) * (ph * 0.36);
   ctx.fillStyle = 'rgba(255, 255, 200, 1)';
   ctx.beginPath(); ctx.arc(xc, yc, 5, 0, Math.PI * 2); ctx.fill();
-  // Numbers strip.
+
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = '12px ui-monospace, monospace';
   ctx.fillText(`f = ${props.f_Hz.toExponential(2)} Hz  tau = ${(props.tau_s * 1000).toFixed(2)} ms  Q = ${props.Q.toFixed(2)}`, px0 + 8, py0 + ph + 18);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('GW150914 fit: f ~ 265 Hz, tau ~ 4 ms (M = 62 Msun, chi = 0.69).', px0 + 8, py0 + ph + 32);
+  ctx.fillText('GW150914 fit: f ~ 251 Hz, tau ~ 4 ms (M = 62 Msun, chi = 0.69).', px0 + 8, py0 + ph + 32);
 }
 
 // =========================================================================
-// MODE: HAWKING. Particle pair flashes at horizon + diagnostic strip.
+// MODE: HAWKING. Thermal-spectrum visualization. Pair flashes still
+// shown at the horizon for narrative; below the BH render is a Planck
+// blackbody curve at T = T_H, with peak frequency / wavelength marked.
+// Mass slider shifts the peak across the EM spectrum: SMBH cold, primordial
+// in gamma-rays.
 // =========================================================================
 function drawHawkingMode(cam) {
   drawHorizonRings(cam);
-  // Find the horizon screen position (the origin in world space).
   const center = worldToScreen([0, 0, 0], cam);
   if (!center) return;
-  // Pair flashes orbiting the horizon (use the projected horizon
-  // radius in screen px). We approximate by projecting two points
-  // and measuring the screen distance.
   const refOuter = worldToScreen([2, 0, 0], cam);
   const Rpx = refOuter ? Math.hypot(refOuter.x - center.x, refOuter.y - center.y) : 60;
+  const T = hawkingTemperature_K(M_solar());
+  const tEvap = hawkingEvaporationTime_yr(M_solar());
+
+  // Pair flashes at the horizon. Intensity scales with T (hotter = more
+  // emission). For T < 1 K (basically all stellar+ BHs) emission is tiny;
+  // for T > 1e6 K (primordial) very intense.
+  const T_log = Math.log10(Math.max(1e-30, T));
+  const emissionFactor = Math.min(1, Math.max(0.05, (T_log + 8) / 16));
+  const nFlashes = Math.round(6 + 20 * emissionFactor);
   const rng = makeRng(((st.t * 100) | 0) ^ 0xdeadbeef);
-  for (let i = 0; i < 8; i++) {
-    const angle = rng() * 2 * Math.PI + i * (Math.PI / 4);
-    const dist = Rpx * (1.05 + 0.18 * rng());
-    const intensity = 0.55 + 0.45 * Math.sin(st.t * 4 + i);
+  for (let i = 0; i < nFlashes; i++) {
+    const angle = rng() * 2 * Math.PI;
+    const dist = Rpx * (1.02 + 0.15 * rng());
+    const intensity = 0.30 + 0.65 * Math.sin(st.t * 3 + i * 0.7);
     const px = center.x + dist * Math.cos(angle);
     const py = center.y + dist * Math.sin(angle);
-    const g = ctx.createRadialGradient(px, py, 0, px, py, 18);
-    g.addColorStop(0, `rgba(255, 255, 220, ${intensity.toFixed(3)})`);
+    const g = ctx.createRadialGradient(px, py, 0, px, py, 14);
+    g.addColorStop(0, `rgba(255, 255, 220, ${(intensity * emissionFactor).toFixed(3)})`);
     g.addColorStop(1, 'rgba(255, 130, 100, 0)');
     ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(px, py, 18, 0, Math.PI * 2); ctx.fill();
-    // Outgoing quantum.
-    const ax = center.x + dist * 2.5 * Math.cos(angle);
-    const ay = center.y + dist * 2.5 * Math.sin(angle);
-    ctx.strokeStyle = `rgba(190, 230, 255, ${(0.45 * intensity).toFixed(3)})`;
-    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(px, py, 14, 0, Math.PI * 2); ctx.fill();
+    // Outgoing cyan particle.
+    const ax = center.x + dist * 3.5 * Math.cos(angle);
+    const ay = center.y + dist * 3.5 * Math.sin(angle);
+    ctx.strokeStyle = `rgba(190, 230, 255, ${(0.55 * intensity * emissionFactor).toFixed(3)})`;
+    ctx.lineWidth = 1.3;
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ax, ay); ctx.stroke();
-    // In-falling quantum (dimmer trail toward center).
-    const ix = center.x + dist * 0.55 * Math.cos(angle);
-    const iy = center.y + dist * 0.55 * Math.sin(angle);
-    ctx.strokeStyle = `rgba(255, 110, 130, ${(0.30 * intensity).toFixed(3)})`;
+    // Infalling red partner.
+    const ix = center.x + dist * 0.5 * Math.cos(angle);
+    const iy = center.y + dist * 0.5 * Math.sin(angle);
+    ctx.strokeStyle = `rgba(255, 110, 130, ${(0.32 * intensity * emissionFactor).toFixed(3)})`;
     ctx.lineWidth = 1.0;
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ix, iy); ctx.stroke();
   }
-  // Diagnostic strip.
-  const T = hawkingTemperature_K(M_solar());
-  const tEvap = hawkingEvaporationTime_yr(M_solar());
+
+  // Planck blackbody spectrum panel.
+  // B_nu(T) for a few decades of frequency; peak at h nu = 2.82 k T.
+  // Use log-log axes covering 1e4 to 1e22 Hz (radio to gamma).
+  const px0 = 0.10 * W, py0 = H - 175, pw = 0.55 * W, ph = 150;
+  ctx.fillStyle = 'rgba(20, 28, 44, 0.90)';
+  ctx.fillRect(px0, py0, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('Planck spectrum B_nu(T = T_H)  (intensity vs. log nu)', px0 + 8, py0 - 6);
+
+  const log_nu_min = 4, log_nu_max = 22;   // Hz.
+  const k_B = 1.380649e-23, h_pl = 6.62607015e-34, c_si = 2.998e8;
+  // Find log_nu axis label bands.
+  const bands = [
+    { lo: 4, hi: 11, name: 'radio', col: 'rgba(120, 180, 255, 0.18)' },
+    { lo: 11, hi: 13, name: 'IR', col: 'rgba(255, 180, 100, 0.18)' },
+    { lo: 13.7, hi: 14.7, name: 'VIS', col: 'rgba(180, 255, 180, 0.22)' },
+    { lo: 15, hi: 16, name: 'UV', col: 'rgba(180, 130, 255, 0.18)' },
+    { lo: 16, hi: 19, name: 'X', col: 'rgba(255, 130, 200, 0.18)' },
+    { lo: 19, hi: 22, name: 'gamma', col: 'rgba(255, 100, 80, 0.18)' },
+  ];
+  for (const band of bands) {
+    const x1 = px0 + 30 + ((band.lo - log_nu_min) / (log_nu_max - log_nu_min)) * (pw - 50);
+    const x2 = px0 + 30 + ((band.hi - log_nu_min) / (log_nu_max - log_nu_min)) * (pw - 50);
+    ctx.fillStyle = band.col;
+    ctx.fillRect(x1, py0 + 14, x2 - x1, ph - 30);
+  }
+  for (const band of bands) {
+    const xc = px0 + 30 + ((0.5 * (band.lo + band.hi) - log_nu_min) / (log_nu_max - log_nu_min)) * (pw - 50);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(band.name, xc, py0 + ph - 6);
+  }
+  ctx.textAlign = 'left';
+
+  // Plot B_nu(T) on log-log axes. For very low T, peak is at low nu; for
+  // high T, peak at high nu.
+  if (T > 1e-30) {
+    const peakNu = 5.879e10 * T;    // Wien for nu: nu_max = 5.879e10 * T (Hz).
+    const peakLogNu = Math.log10(peakNu);
+    // Sample.
+    let maxB = -Infinity;
+    const Ns = 200;
+    const samples = [];
+    for (let k = 0; k < Ns; k++) {
+      const lognu = log_nu_min + (k / (Ns - 1)) * (log_nu_max - log_nu_min);
+      const nu = Math.pow(10, lognu);
+      // B_nu = 2 h nu^3 / c^2 / (exp(h nu / kT) - 1).
+      const x = h_pl * nu / Math.max(1e-300, k_B * T);
+      const expM1 = Math.expm1(Math.min(700, x));
+      const B = (2 * h_pl * Math.pow(nu, 3) / (c_si * c_si)) / Math.max(1e-300, expM1);
+      const logB = B > 1e-300 ? Math.log10(B) : -300;
+      samples.push({ lognu, logB });
+      if (logB > maxB) maxB = logB;
+    }
+    if (maxB > -300) {
+      // Map (lognu, logB) to (px, py). Scale logB to [maxB-12, maxB].
+      const logBmin = maxB - 12;
+      ctx.strokeStyle = 'rgba(255, 220, 140, 0.95)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      let started = false;
+      for (const s of samples) {
+        if (s.logB < logBmin - 2) { started = false; continue; }
+        const xx = px0 + 30 + ((s.lognu - log_nu_min) / (log_nu_max - log_nu_min)) * (pw - 50);
+        const yy = py0 + ph - 18 - ((s.logB - logBmin) / 12) * (ph - 36);
+        if (!started) { ctx.moveTo(xx, yy); started = true; } else ctx.lineTo(xx, yy);
+      }
+      ctx.stroke();
+      // Peak marker.
+      if (peakLogNu >= log_nu_min && peakLogNu <= log_nu_max) {
+        const xp = px0 + 30 + ((peakLogNu - log_nu_min) / (log_nu_max - log_nu_min)) * (pw - 50);
+        ctx.strokeStyle = 'rgba(255, 255, 200, 0.85)';
+        ctx.setLineDash([3, 4]);
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(xp, py0 + 10); ctx.lineTo(xp, py0 + ph - 18); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(255, 255, 200, 0.9)';
+        ctx.font = '11px ui-monospace, monospace';
+        ctx.fillText(`peak nu = ${peakNu.toExponential(1)} Hz`, xp + 4, py0 + 24);
+      } else if (peakLogNu < log_nu_min) {
+        ctx.fillStyle = 'rgba(120, 180, 255, 0.85)';
+        ctx.font = '11px ui-monospace, monospace';
+        ctx.fillText(`peak below 10^4 Hz (off chart)  T = ${T.toExponential(2)} K`, px0 + 38, py0 + 28);
+      } else {
+        ctx.fillStyle = 'rgba(255, 100, 80, 0.85)';
+        ctx.font = '11px ui-monospace, monospace';
+        ctx.fillText(`peak above 10^22 Hz  T = ${T.toExponential(2)} K`, px0 + 38, py0 + 28);
+      }
+    }
+  }
+
+  // Strip readout text on the right column.
+  const tx = px0 + pw + 20;
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = 'bold 13px system-ui, sans-serif';
-  ctx.fillText('Hawking radiation: virtual pairs split at the horizon.', 14, 52);
+  ctx.fillText('Hawking 1975:', tx, py0 + 18);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`T_H = ${T.toExponential(2)} K`, tx, py0 + 40);
+  ctx.fillText(`t_evap = ${tEvap.toExponential(2)} yr`, tx, py0 + 58);
+  const T_CMB = 2.725;
+  ctx.fillStyle = T < T_CMB ? 'rgba(120, 180, 255, 0.92)' : 'rgba(255, 130, 130, 0.92)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(T < T_CMB ? 'colder than the CMB (2.73 K)' : 'hotter than the CMB; net evaporating', tx, py0 + 78);
+
+  // Top legend.
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.fillText('Hawking radiation: blackbody emission at T_H from the horizon.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = '12px system-ui, sans-serif';
-  ctx.fillText('Cyan = positive-energy quantum escaping to infinity; red = negative-energy mode falling in.', 14, 70);
-  ctx.font = '13px ui-monospace, monospace';
-  ctx.fillText(`T_H = ${T.toExponential(2)} K`, 14, H - 50);
-  ctx.fillText(`t_evap = ${tEvap.toExponential(2)} yr`, 14, H - 32);
-  ctx.font = '11px system-ui, sans-serif';
-  ctx.fillText('Solar-mass BH is colder than the CMB; primordial 10^11 kg BHs are exploding now.', 14, H - 14);
+  ctx.fillText('Move mass slider through 1e-12 M_sun (primordial, gamma) to 1e9 M_sun (SMBH, deep radio).', 14, 70);
+  ctx.fillText('Cyan tail: outgoing positive-energy quantum. Red tail: negative-energy partner sinks in.', 14, 88);
 }
 
 // =========================================================================
-// MODE: TDE. Star approaches, disrupts, debris stream returns.
+// MODE: TDE. Real particle simulation. A star (cluster of ~380 test
+// particles) is launched on a parabolic orbit with periastron 2.5 M;
+// each particle integrates under Newtonian gravity from the BH at origin.
+// Differential gravity tears the cluster apart near periastron, scatters
+// it into bound and unbound streams. No fake animation; the lightcurve
+// panel (Rees 1988) cycles in parallel so the analytic curve plays.
 // =========================================================================
 function drawTdeMode(cam) {
   drawHorizonRings(cam);
@@ -778,70 +1399,202 @@ function drawTdeMode(cam) {
   const Rpx = refOuter ? Math.hypot(refOuter.x - center.x, refOuter.y - center.y) : 60;
   const isDisr = tdeIsDisrupted(M_solar());
   const t_peak_days = tdePeakTime_days(M_solar(), 1, 1);
-  // Tidal stream: rotating spiral.
-  const phase = st.t * 0.4;
-  for (let i = 0; i < 240; i++) {
-    const u = i / 240;
-    const r_rs = 1.5 + 5 * u;
-    const ang = phase - u * 4 * Math.PI;
-    const px = center.x + r_rs * Rpx * 0.5 * Math.cos(ang);
-    const py = center.y + r_rs * Rpx * 0.5 * Math.sin(ang);
-    const alpha = 0.45 + 0.45 * (1 - u);
-    ctx.fillStyle = `rgba(255, 200, 120, ${alpha.toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(px, py, 1.6 + 1.4 * (1 - u), 0, Math.PI * 2); ctx.fill();
+
+  // Reset cycle every ~90 seconds, or sooner if everything is gone
+  // (captured AND off-screen). We tolerate ~ 5 % of particles still in
+  // view before forcing a fresh run.
+  const cyclePeriod = 90;
+  let needsReset = particles.mode !== 'tde' || (st.t - particles._lastReset || 0) > cyclePeriod;
+  if (particles.mode === 'tde') {
+    let nInView = 0;
+    for (let i = 0; i < particles.captured.length; i++) {
+      if (!particles.captured[i]) {
+        const p = particles.pos[i];
+        const r2 = p[0]*p[0] + p[1]*p[1] + p[2]*p[2];
+        if (r2 < 4900) nInView++;     // within visualization range (r < 70 M).
+      }
+    }
+    if (nInView < 8) needsReset = true;
   }
-  // Approaching star.
-  const star_phase = Math.min(1, st.t * 0.15);
-  if (star_phase < 0.95) {
-    const sx = center.x + (1 - star_phase) * 0.35 * W - 30;
-    const sy = center.y - (1 - star_phase) * 0.20 * H + 30;
-    const sg = ctx.createRadialGradient(sx, sy, 1, sx, sy, 14);
-    sg.addColorStop(0, 'rgba(255, 255, 220, 1)');
-    sg.addColorStop(1, 'rgba(255, 180, 80, 0)');
-    ctx.fillStyle = sg;
-    ctx.beginPath(); ctx.arc(sx, sy, 14, 0, Math.PI * 2); ctx.fill();
+  if (needsReset) {
+    resetTdeParticles();
+    particles._lastReset = st.t;
   }
-  // Lightcurve panel.
-  const px0 = 0.12 * W, py0 = H - 150, pw = 0.76 * W, ph = 110;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.90)';
+
+  // Color particles by orbital energy (bound red, unbound blue) so the
+  // narrative is visible at a glance.
+  drawParticles(cam, 'rgba(255, 220, 140, 0.92)', 1.7, /*byEnergy*/ true);
+
+  // Particle accounting.
+  let nBound = 0, nUnbound = 0, nCaptured = 0, nFar = 0;
+  for (let i = 0; i < particles.pos.length; i++) {
+    if (particles.captured[i]) { nCaptured++; continue; }
+    const p = particles.pos[i];
+    const r = Math.hypot(p[0], p[1], p[2]);
+    if (r > 30) { nFar++; continue; }
+    if (particles.E[i] < 0) nBound++; else nUnbound++;
+  }
+
+  // BH brightness glow driven by the actual luminosity accumulator.
+  // Particles crossing the ISCO deposit kinetic energy into st.luminosity
+  // (computed in updateParticles); we render that here as the visible flare.
+  const lumRaw = Math.max(0, particles.luminosity);
+  const lumScaled = Math.min(1, lumRaw * 0.18);
+  if (lumScaled > 0.02) {
+    const flareAlpha = Math.min(0.85, 0.12 + 0.95 * lumScaled);
+    const grad = ctx.createRadialGradient(center.x, center.y, Rpx * 0.7, center.x, center.y, Rpx * 4.0);
+    grad.addColorStop(0, `rgba(255, 230, 160, ${flareAlpha.toFixed(3)})`);
+    grad.addColorStop(0.45, `rgba(255, 200, 120, ${(flareAlpha * 0.5).toFixed(3)})`);
+    grad.addColorStop(1, 'rgba(255, 120, 60, 0)');
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    // Bright central kernel.
+    const inner = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, Rpx * 0.6);
+    inner.addColorStop(0, `rgba(255, 250, 220, ${(0.45 * lumScaled).toFixed(3)})`);
+    inner.addColorStop(1, 'rgba(255, 200, 120, 0)');
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = inner;
+    ctx.beginPath(); ctx.arc(center.x, center.y, Rpx * 0.6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // Top legend.
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.fillText('TDE (pseudo-Newtonian Schwarzschild): star on a parabolic orbit, periastron 7.5 M.', 14, 52);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText(`${particles.pos.length} test particles integrating a = -M/r^2 - 3 M L^2/r^4 (ISCO at 6M).`, 14, 70);
+  ctx.fillText('Bound (red) E < 0 fall back; unbound (blue) E > 0 escape. Flare brightness = real kinetic energy across ISCO.', 14, 88);
+  ctx.fillStyle = 'rgba(255, 200, 100, 0.95)';
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText(`bound: ${nBound}  unbound: ${nUnbound}  captured: ${nCaptured}  off-screen: ${nFar}`, 14, 108);
+  ctx.fillStyle = 'rgba(255, 240, 200, 0.95)';
+  ctx.fillText(`L_sim (arb. units) = ${lumRaw.toFixed(3)}   tau = ${particles.sinceReset.toFixed(1)} M`, 14, 126);
+
+  // Lightcurve panel: real luminosity from the particle integration,
+  // plotted alongside the analytic Rees 1988 reference for comparison.
+  const px0 = 0.12 * W, py0 = H - 150, pw = 0.76 * W, ph = 115;
+  ctx.fillStyle = 'rgba(20, 28, 44, 0.92)';
   ctx.fillRect(px0, py0, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.lineWidth = 1;
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = 'bold 12px system-ui, sans-serif';
-  ctx.fillText('TDE lightcurve L(t) ~ t^(-5/3) fallback (Rees 1988)', px0 + 8, py0 - 6);
+  ctx.fillText('TDE lightcurve: cyan = simulation luminosity (real particles crossing ISCO); orange = Rees 1988 analytic.', px0 + 8, py0 - 6);
+
+  // Find the simulation luminosity peak for autoscaling.
+  let lumPeak = 0.05;
+  for (const h of particles.luminosityHistory) if (h.L > lumPeak) lumPeak = h.L;
+  const tWindow = Math.max(8, particles.sinceReset);
+
+  // Analytic Rees curve overlaid for shape comparison (scaled to fit).
   const tMax = 6 * t_peak_days;
-  ctx.strokeStyle = 'rgba(255, 220, 120, 0.95)';
-  ctx.lineWidth = 1.8;
+  ctx.strokeStyle = 'rgba(255, 200, 120, 0.65)';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([4, 4]);
   ctx.beginPath();
   for (let k = 0; k < 200; k++) {
     const t = (k / 199) * tMax;
     const L = tdeLightcurve(t, t_peak_days);
     const x = px0 + 30 + (k / 199) * (pw - 50);
-    const y = py0 + ph - 16 - Math.min(1, L) * (ph - 30);
+    const y = py0 + ph - 16 - Math.min(1, L) * (ph - 36);
     if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  const xPk = px0 + 30 + (t_peak_days / tMax) * (pw - 50);
-  ctx.strokeStyle = 'rgba(120, 200, 255, 0.7)';
-  ctx.setLineDash([3, 4]);
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xPk, py0 + 8); ctx.lineTo(xPk, py0 + ph - 16); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(120, 200, 255, 0.85)';
+
+  // Real simulation luminosity from the accumulator history.
+  ctx.strokeStyle = 'rgba(140, 220, 255, 0.95)';
+  ctx.lineWidth = 1.9;
+  ctx.beginPath();
+  let started = false;
+  for (const h of particles.luminosityHistory) {
+    const x = px0 + 30 + (h.t / tWindow) * (pw - 50);
+    const y = py0 + ph - 16 - (h.L / lumPeak) * (ph - 36);
+    if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Live cursor at the current simulation time.
+  const xCur = px0 + 30 + (particles.sinceReset / tWindow) * (pw - 50);
+  const yCur = py0 + ph - 16 - (lumRaw / lumPeak) * (ph - 36);
+  ctx.fillStyle = 'rgba(255, 255, 200, 1)';
+  ctx.beginPath(); ctx.arc(xCur, yCur, 5, 0, Math.PI * 2); ctx.fill();
+
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`t_peak = ${t_peak_days.toFixed(0)} d`, xPk + 4, py0 + 22);
-  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '13px ui-monospace, monospace';
-  ctx.fillText(isDisr ? 'disrupted (flaring)' : 'swallowed whole (no flare)', 14, py0 - 18);
+  ctx.fillText(`Hills: ${isDisr ? 'r_T > R_s (disruption)' : 'r_T < R_s (swallowed whole, no flare)'}`, px0 + 8, py0 + ph + 14);
 }
 
 // =========================================================================
-// PANELS shared by all modes.
+// MODE: TIDAL. Real particle simulation. A cluster of ~280 test particles
+// initialized as a sphere of bodyR ~ 0.45 M at r = r_infall (slider).
+// Newtonian gravity from the BH at the origin pulls each particle. Inner
+// particles fall faster (delta-a = 2 GM / r^3 * L) so the sphere stretches
+// into a cigar. Transverse particles are pulled toward the axis.
+// =========================================================================
+function drawTidalMode(cam) {
+  drawHorizonRings(cam);
+  if (particles.mode !== 'tidal' || Math.abs(particles.initR - st.r_infall_rs * 2) > 0.05) {
+    resetTidalParticles(st.r_infall_rs * 2);
+  }
+  drawParticles(cam, 'rgba(255, 220, 140, 0.92)', 1.9);
+
+  // Live diagnostics: cluster extent and mean radius.
+  let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity;
+  let sumR = 0, nActive = 0;
+  for (let i = 0; i < particles.pos.length; i++) {
+    if (particles.captured[i]) continue;
+    const p = particles.pos[i];
+    sumR += Math.hypot(p[0], p[1], p[2]);
+    nActive++;
+    if (p[0] < xMin) xMin = p[0]; if (p[0] > xMax) xMax = p[0];
+    if (p[1] < yMin) yMin = p[1]; if (p[1] > yMax) yMax = p[1];
+  }
+  const meanR = nActive > 0 ? sumR / nActive : 0;
+  const radialExtent = nActive > 0 ? (xMax - xMin) : 0;
+  const transvExtent = nActive > 0 ? (yMax - yMin) : 0;
+  const elong = transvExtent > 1e-6 ? radialExtent / transvExtent : Infinity;
+  const Rs_m = rsM();
+  const r_m_now = meanR * Rs_m / 2;       // meanR is in M units; R_s = 2 M.
+  const aTidal = tidalAccelPerMetre_per_s2(M_solar(), Math.max(1, r_m_now));
+
+  ctx.fillStyle = 'rgba(255, 200, 120, 0.95)';
+  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.fillText('Tidal forces: a real Newtonian particle cluster under BH gravity.', 14, 52);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText(`${particles.pos.length} test particles initialized as a sphere of R = 0.45 M at r = ${st.r_infall_rs.toFixed(2)} R_s.`, 14, 70);
+  ctx.fillText('Each particle integrates its own orbit. The inner side falls faster than the outer; the cloud stretches.', 14, 88);
+
+  ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.fillText(`active: ${nActive} / ${particles.pos.length};  captured: ${particles.pos.length - nActive}`, 14, H - 78);
+  ctx.fillText(`mean r = ${meanR.toFixed(2)} M;  radial extent = ${radialExtent.toFixed(2)} M;  transverse = ${transvExtent.toFixed(2)} M`, 14, H - 60);
+  ctx.fillStyle = 'rgba(140, 240, 200, 0.95)';
+  ctx.fillText(`elongation (radial / transverse) = ${Number.isFinite(elong) ? elong.toFixed(2) : '...'}`, 14, H - 42);
+  // Fatal radii readouts (still illuminating context).
+  const R_body_m = 6.957e8, g_break = 1e6;
+  const r_fatal_human = Math.pow(2 * 6.6743e-11 * M_solar() * 1.989e30 * 2 / 50, 1 / 3) / Rs_m;
+  const r_fatal_star = Math.pow(2 * 6.6743e-11 * M_solar() * 1.989e30 * R_body_m / g_break, 1 / 3) / Rs_m;
+  ctx.fillStyle = 'rgba(255, 130, 110, 0.92)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`fatal-tide radius (R_s): 2 m human ${r_fatal_human.toExponential(2)};  1 R_sun star ${r_fatal_star.toExponential(2)};  tidal a/m = ${aTidal.toExponential(2)} m/s^2`, 14, H - 24);
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
+  ctx.font = '11px system-ui, sans-serif';
+  ctx.fillText('Move the r-slider to drop the cluster from a different starting radius (resets the simulation).', 14, H - 6);
+}
+
+// =========================================================================
+// SIDE PANEL: all the headline numbers.
 // =========================================================================
 function drawSidePanel() {
-  const x = 0.78 * W, y = 30, w = W - x - 14, h = 220;
+  const x = 0.78 * W, y = 30, w = W - x - 14, h = 250;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
   ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
@@ -858,7 +1611,7 @@ function drawSidePanel() {
     ctx.fillStyle = c;
     ctx.font = '12px ui-monospace, monospace';
     ctx.fillText(v, x + 10, yy + 14);
-    yy += 30;
+    yy += 28;
   };
   const M = M_solar();
   row('mass M (M_sun)', M.toExponential(2));
@@ -867,35 +1620,82 @@ function drawSidePanel() {
   row('r_+ / R_s', rHorizonRs().toFixed(3));
   row('r_ISCO / R_s', rIscoRs().toFixed(3));
   row('b_c / R_s', bCritRs().toFixed(3));
+  row('T_H (K)', hawkingTemperature_K(M).toExponential(2));
+  row('Omega_H (rad/s)', kerrHorizonAngularVel_radps(M, st.chi).toExponential(2));
   row('mode', st.mode, '#ffd28a');
+}
+
+// Physical scale bar: a short horizontal line whose pixel length corresponds
+// to a chosen physical length in km/AU/ly/pc. The label autoselects the unit.
+function drawScaleBar(cam) {
+  // 1 world unit = 1 M = R_s / 2 in metres = (G M_sun / c^2) * M_solar_value.
+  const M_per_world = (6.6743e-11 * M_solar() * 1.989e30) / Math.pow(2.998e8, 2); // metres per world-unit.
+  // Pick a "round" world length to display.
+  // Compute pixel size of 1 world unit at the BH center.
+  const c0 = worldToScreen([0, 0, 0], cam);
+  const c1 = worldToScreen([1, 0, 0], cam);
+  if (!c0 || !c1) return;
+  const px_per_world = Math.hypot(c1.x - c0.x, c1.y - c0.y);
+  if (!Number.isFinite(px_per_world) || px_per_world < 1) return;
+  // Aim for a bar ~ 80 px long; choose closest world length (1, 2, 5, 10 ...).
+  const ideal_world = 80 / px_per_world;
+  const candidates = [0.5, 1, 2, 5, 10, 20, 50];
+  let bestW = candidates[0];
+  for (const c of candidates) if (Math.abs(c - ideal_world) < Math.abs(bestW - ideal_world)) bestW = c;
+  const px_len = bestW * px_per_world;
+  const phys_m = bestW * M_per_world;
+  // Format physical length with best unit.
+  function fmt(m) {
+    if (m < 1) return `${(m * 1000).toFixed(2)} mm`;
+    if (m < 1e3) return `${m.toFixed(1)} m`;
+    if (m < 1e6) return `${(m / 1e3).toFixed(2)} km`;
+    if (m < 1.496e11 / 100) return `${(m / 1e3).toExponential(2)} km`;
+    if (m < 9.461e15) return `${(m / 1.496e11).toExponential(2)} AU`;
+    if (m < 3.086e16 * 1000) return `${(m / 9.461e15).toExponential(2)} ly`;
+    return `${(m / 3.086e16).toExponential(2)} pc`;
+  }
+  // Draw at bottom-left.
+  const x0 = 16, y0 = H - 8;
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + px_len, y0); ctx.stroke();
+  // Tick marks at the ends.
+  ctx.beginPath(); ctx.moveTo(x0, y0 - 4); ctx.lineTo(x0, y0 + 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0 + px_len, y0 - 4); ctx.lineTo(x0 + px_len, y0 + 4); ctx.stroke();
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`${bestW} M  =  ${fmt(phys_m)}`, x0 + 4, y0 - 8);
 }
 
 function drawModeTab() {
   ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
-  ctx.fillRect(10, 8, 290, 26);
+  ctx.fillRect(10, 8, 320, 26);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.40)';
   ctx.lineWidth = 1;
-  ctx.strokeRect(10.5, 8.5, 289, 25);
+  ctx.strokeRect(10.5, 8.5, 319, 25);
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = 'bold 13px system-ui, sans-serif';
   const labels = {
-    overview: 'OVERVIEW (disk + lensing)',
+    overview: 'OVERVIEW (disk + shadow)',
     photons: 'PHOTONS (impact-parameter fan)',
     lensing: 'LENSING (movable source)',
-    framedrag: 'FRAME DRAG (twisting grid)',
+    shadow: 'SHADOW (EHT photon ring)',
+    framedrag: 'FRAME DRAG (ergosphere + ZAMO)',
     spacetime: 'SPACETIME (Flamm embedding)',
     ringdown: 'RINGDOWN (Kerr QNM bell)',
     hawking: 'HAWKING (T_H + evaporation)',
-    tde: 'TDE FLARE (tidal disruption)',
+    tde: 'TDE FLARE (Rees 1988)',
+    tidal: 'TIDAL (spaghettification)',
   };
   ctx.fillText(labels[st.mode] || st.mode, 20, 26);
 }
 
 function updateReadout() {
-  rM.textContent = `1e${st.logM.toFixed(1)}`;
+  rM.textContent = M_solar().toExponential(2);
   rChi.textContent = st.chi.toFixed(2);
   rRs.textContent = rsKm(M_solar()).toExponential(2) + ' km';
   rIsco.textContent = rIscoRs().toFixed(3);
+  rTH.textContent = hawkingTemperature_K(M_solar()).toExponential(2) + ' K';
   rMode.textContent = st.mode;
 }
 
@@ -903,58 +1703,196 @@ function updateReadout() {
 // MAIN DRAW.
 // =========================================================================
 function draw() {
-  // 1. Offscreen WebGL render (the lensed disk + photon ring + shadow).
-  // Modes that prefer a clean canvas (ringdown, spacetime) push the
-  // disk inner edge out so only the shadow + lensed sky shows.
+  const modeCfg = MODE_TABLE[st.mode] || MODE_TABLE.overview;
   if (engine) {
     const eye = camera.eyePosition();
-    const wantsDisk = st.mode !== 'ringdown' && st.mode !== 'spacetime';
+    // Accretion disk is a procedural texture, NOT a real matter
+    // simulation. Show it ONLY in the dedicated Overview mode. Every
+    // other mode runs a real physics visualization on top of a clean
+    // lensed-sky background.
+    const tooSmallForDisk = st.logM < -1;
+    const wantsDisk = !tooSmallForDisk && st.mode === 'overview';
     const diskInner = wantsDisk ? Math.max(4, (rIscoRs() * 2)) : 100;
     const diskOuter = wantsDisk ? 18 : 100.1;
     engine.render(eye, [0, 0, 0], [0, 1, 0], 62, diskInner, diskOuter, st.chi, st.t);
   }
-
-  // 2. Blit WebGL into visible 2D canvas, then draw overlays.
-  paintBackground();
+  paintBackground(modeCfg.dim);
   const cam = makeCamBasis();
-  if (st.mode === 'overview') drawOverviewMode(cam);
-  else if (st.mode === 'photons') drawPhotonsMode(cam);
-  else if (st.mode === 'lensing') drawLensingMode(cam);
-  else if (st.mode === 'framedrag') drawFrameDragMode(cam);
-  else if (st.mode === 'spacetime') drawSpacetimeMode(cam);
-  else if (st.mode === 'ringdown') drawRingdownMode(cam);
-  else if (st.mode === 'hawking') drawHawkingMode(cam);
-  else if (st.mode === 'tde') drawTdeMode(cam);
+  switch (st.mode) {
+    case 'overview':  drawOverviewMode(cam); break;
+    case 'photons':   drawPhotonsMode(cam); break;
+    case 'lensing':   drawLensingMode(cam); break;
+    case 'shadow':    drawShadowMode(cam); break;
+    case 'framedrag': drawFrameDragMode(cam); break;
+    case 'spacetime': drawSpacetimeMode(cam); break;
+    case 'ringdown':  drawRingdownMode(cam); break;
+    case 'hawking':   drawHawkingMode(cam); break;
+    case 'tde':       drawTdeMode(cam); break;
+    case 'tidal':     drawTidalMode(cam); break;
+    default:          drawOverviewMode(cam);
+  }
   drawSidePanel();
   drawModeTab();
+  // Scale bar: shown on modes where the 3D BH is the focus.
+  if (['overview', 'photons', 'lensing', 'shadow', 'framedrag', 'tidal'].includes(st.mode)) {
+    drawScaleBar(cam);
+  }
   updateReadout();
 }
 
+// =========================================================================
+// CONTROL WIRING.
+// =========================================================================
+function applyMode(newMode) {
+  const prev = st.mode;
+  st.mode = newMode;
+  const cfg = MODE_TABLE[newMode];
+  if (cfg && prev !== newMode) {
+    if (cfg.elev != null) {
+      camera.setElevationDeg(cfg.elev);
+      st.incl = 90 - cfg.elev;
+      sIncl.value = String(st.incl);
+      vIncl.textContent = String(st.incl);
+    }
+    if (cfg.azim != null) camera.setAzimuthDeg(cfg.azim);
+    if (cfg.ergo) tErgo.checked = true;
+    syncRowVisibility(newMode);
+    // Reset particle system on mode entry / exit.
+    if (newMode === 'tidal') {
+      resetTidalParticles(st.r_infall_rs * 2);
+    } else if (newMode === 'tde') {
+      resetTdeParticles();
+      particles._lastReset = st.t;
+    } else if (newMode === 'framedrag') {
+      resetFramedragParticles();
+    } else {
+      particles.active = false;
+    }
+  }
+}
+
 function readSliders() {
-  st.mode = selMode.value;
+  const newMode = selMode.value;
+  if (newMode !== st.mode) applyMode(newMode);
+  else syncRowVisibility(newMode);
   st.logM = parseFloat(sLogM.value);
+  const prevChi = st.chi;
   st.chi = parseFloat(sChi.value);
-  st.incl = parseFloat(sIncl.value);
+  // Restart the framedrag particle cluster when chi changes so the user
+  // immediately sees the effect of the new spin.
+  if (st.mode === 'framedrag' && Math.abs(prevChi - st.chi) > 0.01) {
+    resetFramedragParticles();
+  }
+  const newIncl = parseFloat(sIncl.value);
+  if (newIncl !== st.incl) {
+    st.incl = newIncl;
+    camera.setElevationDeg(90 - newIncl);
+  }
   st.b_rs = parseFloat(sB.value);
   st.beta_te = parseFloat(sBeta.value);
-  st.flags.horizon = tHorizon.checked;
+  st.r_infall_rs = parseFloat(sRinfall.value);
   st.flags.photonsphere = tPhotonsphere.checked;
   st.flags.isco = tIsco.checked;
   st.flags.ergo = tErgo.checked;
   st.flags.grid = tGrid.checked;
   st.flags.traces = tTraces.checked;
+  st.flags.labels = tLabels.checked;
   vMode.textContent = st.mode.slice(0, 5);
   vLogM.textContent = st.logM.toFixed(1);
   vChi.textContent = st.chi.toFixed(2);
   vIncl.textContent = String(st.incl);
   vB.textContent = st.b_rs.toFixed(2);
   vBeta.textContent = st.beta_te.toFixed(2);
-  syncRowVisibility(st.mode);
+  vRinfall.textContent = st.r_infall_rs.toFixed(2);
 }
 
-[selMode, sLogM, sChi, sIncl, sB, sBeta].forEach(el => el.addEventListener('input', readSliders));
-[tHorizon, tPhotonsphere, tIsco, tErgo, tGrid, tTraces].forEach(el => el.addEventListener('change', readSliders));
-btnReset.addEventListener('click', () => { st.t = 0; });
+function applyPreset(id) {
+  if (id === 'custom') return;
+  const preset = BH_PRESETS.find(p => p.id === id);
+  if (!preset) return;
+  const logM = Math.log10(preset.M_solar);
+  st.logM = logM;
+  st.chi = preset.chi;
+  sLogM.value = String(logM);
+  sChi.value = String(preset.chi);
+  vLogM.textContent = logM.toFixed(1);
+  vChi.textContent = preset.chi.toFixed(2);
+}
+
+[selMode, sLogM, sChi, sIncl, sB, sBeta, sRinfall].forEach(el => el.addEventListener('input', readSliders));
+[tPhotonsphere, tIsco, tErgo, tGrid, tTraces, tLabels].forEach(el => el.addEventListener('change', readSliders));
+selPreset.addEventListener('change', () => { applyPreset(selPreset.value); readSliders(); });
+
+// =========================================================================
+// LENSING SOURCE: pointer drag on the canvas in lensing mode picks up
+// the source ghost and lets the user move it in 2D. Reuses the cached
+// screen position from the last drawLensingMode call.
+// =========================================================================
+function canvasToBeta(px, py) {
+  // We need the inverse projection of (px, py) onto the source plane.
+  // Cheap approximation: assume the source ghost lies at a fixed depth
+  // chosen so that screen-space pixel offset maps linearly to theta_E
+  // units. We back-compute by sampling: a delta of theta_E in world
+  // along cam.right corresponds to a screen delta of W * (theta_E /
+  // (depth * tanHalfFov * aspect)).
+  const cam = makeCamBasis();
+  // Source is at depth ~ 3 * eye_distance; ringDist = 0.5 * eye.
+  const eyeR = Math.hypot(cam.eye[0], cam.eye[1], cam.eye[2]);
+  const srcDepth = eyeR * 2.5;     // approx Z to source in camera frame.
+  // Recover pixel-to-theta_E conversion: a unit-vector right in world
+  // at the source depth corresponds to W / (srcDepth * tanHalfFov * aspect / 2) pixels.
+  const theta_E_world = 5.5 * Math.sqrt(M_solar() / 1e6);
+  const px_per_unit_x = W * 0.5 / (srcDepth * cam.tanHalfFov * cam.aspect);
+  const px_per_unit_y = H * 0.5 / (srcDepth * cam.tanHalfFov);
+  // Center of BH in screen.
+  const bhCenter = worldToScreen([0, 0, 0], cam);
+  if (!bhCenter) return null;
+  const dx = px - bhCenter.x, dy = py - bhCenter.y;
+  // Convert to world-units along right (dx) and up (-dy).
+  const worldX = dx / px_per_unit_x;
+  const worldY = -dy / px_per_unit_y;
+  // Convert to theta_E units.
+  return { bx: worldX / theta_E_world, by: worldY / theta_E_world };
+}
+canvas.addEventListener('pointerdown', (e) => {
+  if (st.mode !== 'lensing') return;
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  // Only intercept if user clicked on or near the source ghost (within 30 px).
+  const src = st._sourceScreenPos;
+  if (src && Math.hypot(px - src.x, py - src.y) < 30) {
+    st.lensDragging = true;
+    canvas.setPointerCapture(e.pointerId);
+    e.stopPropagation();
+  }
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (!st.lensDragging) return;
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const beta = canvasToBeta(px, py);
+  if (beta) {
+    st.beta_te = Math.max(-3, Math.min(3, beta.bx));
+    st.beta_y = Math.max(-3, Math.min(3, beta.by));
+    sBeta.value = String(st.beta_te.toFixed(2));
+    vBeta.textContent = st.beta_te.toFixed(2);
+  }
+  e.stopPropagation();
+});
+canvas.addEventListener('pointerup', () => { st.lensDragging = false; });
+canvas.addEventListener('pointercancel', () => { st.lensDragging = false; });
+btnReset.addEventListener('click', () => {
+  st.t = 0;
+  sLogM.value = '6.0'; sChi.value = '0.0'; sIncl.value = '60';
+  sB.value = '2.65'; sBeta.value = '0.30'; sRinfall.value = '6.0';
+  selPreset.value = 'custom';
+  particles.active = false;
+  applyMode('overview');
+  selMode.value = 'overview';
+  readSliders();
+});
 btnPause.addEventListener('click', () => {
   st.running = !st.running;
   btnPause.textContent = st.running ? 'Pause' : 'Resume';
@@ -970,32 +1908,42 @@ const SHARE_KEYS = {
   source_beta_arcsec: { get: () => st.beta_te, set: v => { st.beta_te = parseFloat(v); sBeta.value = v; }, parse: parseFloat },
 };
 parseUrlState(SHARE_KEYS);
+applyMode(st.mode);
 readSliders();
 mountShareButton(document.getElementById('share-mount'), SHARE_KEYS);
 
 // =========================================================================
-// 5-frame golden capture: each frame samples a different mode so the
-// gate visually verifies every major rendering path.
+// GOLDEN-FRAME CAPTURE.
 // =========================================================================
 function captureModeForFraction(f) {
   if (f < 0.15) return 'overview';
   if (f < 0.35) return 'framedrag';
   if (f < 0.6)  return 'ringdown';
-  if (f < 0.85) return 'hawking';
-  return 'tde';
+  if (f < 0.85) return 'shadow';
+  return 'tidal';
 }
 
 if (CAPTURE_NAME) {
-  st.mode = captureModeForFraction(CAPTURE_FRAC || 0);
-  selMode.value = st.mode;
-  if (st.mode === 'framedrag') { st.chi = 0.9; sChi.value = '0.9'; }
-  if (st.mode === 'ringdown') { st.chi = 0.7; sChi.value = '0.7'; }
+  const captureMode = captureModeForFraction(CAPTURE_FRAC || 0);
+  selMode.value = captureMode;
+  if (captureMode === 'framedrag') { st.chi = 0.9; sChi.value = '0.9'; tErgo.checked = true; }
+  if (captureMode === 'ringdown')  { st.chi = 0.7; sChi.value = '0.7'; }
+  if (captureMode === 'shadow')    { st.chi = 0.5; sChi.value = '0.5'; }
+  applyMode(captureMode);          // applyMode flips st.mode and runs its
+                                    // mode-entry block (including particle
+                                    // resets); do NOT set st.mode beforehand.
   readSliders();
   st.t = (CAPTURE_FRAC || 0) * 4 + 0.6;
-  // Set camera for a consistent golden view.
   if (camera.setAzimuthDeg) camera.setAzimuthDeg(35 + CAPTURE_FRAC * 30);
+  // Pre-advance the particle simulation so capture frames show the body
+  // mid-spaghettification, not the initial sphere.
+  if (captureMode === 'tidal' || captureMode === 'tde') {
+    const advance_M = captureMode === 'tidal' ? 30 : 36;
+    const dt_step = 0.5;
+    const steps = Math.floor(advance_M / dt_step);
+    for (let i = 0; i < steps; i++) updateParticles(dt_step);
+  }
   draw();
-  // Wait two extra rAF for the WebGL TAA to settle before declaring ready.
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       window.__simulationReady = true;
@@ -1009,7 +1957,16 @@ if (CAPTURE_NAME) {
   function loop(now) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (st.running) st.t += dt;
+    if (st.running) {
+      st.t += dt;
+      // Advance the particle simulation when a particle-driven mode is active.
+      if (particles.active && (st.mode === 'tidal' || st.mode === 'tde' || st.mode === 'framedrag')) {
+        const dt_sim = dt * 6;
+        updateParticles(dt_sim);
+        window.__particleFrames = (window.__particleFrames || 0) + 1;
+        window.__particleSimT = (window.__particleSimT || 0) + dt_sim;
+      }
+    }
     if (camera.tickIdle) camera.tickIdle(now);
     draw();
     requestAnimationFrame(loop);

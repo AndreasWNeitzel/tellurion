@@ -152,7 +152,7 @@ function drawIntensity(c, x0, y0, w, h) {
     const x = x0 + padL + plotW * i / 5;
     ctx.beginPath(); ctx.moveTo(x, y0 + padT); ctx.lineTo(x, y0 + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${(i * 18)}`, x - 8, y0 + padT + plotH + 14);
   }
   ctx.fillStyle = c.muted;

@@ -47,7 +47,7 @@ function render() {
     const x = xOf(lam);
     ctx.fillRect(x, bandY, (W - pad.l - pad.r) / (lamMax - lamMin) * 2 + 1, bandH);
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '9px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('visible', xOf(560) - 14, bandY - 2);
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';

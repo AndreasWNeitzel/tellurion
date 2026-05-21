@@ -131,9 +131,27 @@ function render() {
   for (let i = 0; i <= N; i += 1) dBot[i] = CAPTURE_NAME ? acc[i] : dBot[i] + (acc[i] - dBot[i]) * 0.4;
   pinnedString(BOT.base, dBot, SC_B, '#5bc0eb', true);
   if (!CAPTURE_NAME && p < 1) {
+    // The yellow sweep line marks the running source point s. The
+    // string shape at any moment is the SUM of one Green tent for
+    // every s from 0 up to this cursor: u(x) = sum_{s <= sweep} G(x,s) f(s) ds.
+    // When the sweep reaches x = 1 the full solution u(x) is built.
     const sxp = xToPx(p);
     ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(sxp, BOT.y0 + 4); ctx.lineTo(sxp, BOT.y0 + BOT.h - 4); ctx.stroke(); ctx.setLineDash([]);
+    // Explanatory label so the line's purpose is unmistakable.
+    ctx.fillStyle = 'rgba(255, 209, 102, 0.95)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(`adding pokes up to s = ${p.toFixed(2)}`, sxp + 6, BOT.y0 + 18);
+    // Arrow indicating direction.
+    ctx.strokeStyle = 'rgba(255, 209, 102, 0.6)';
+    ctx.beginPath();
+    ctx.moveTo(sxp - 6, BOT.y0 + 30); ctx.lineTo(sxp + 6, BOT.y0 + 30);
+    ctx.moveTo(sxp + 2, BOT.y0 + 26); ctx.lineTo(sxp + 6, BOT.y0 + 30); ctx.lineTo(sxp + 2, BOT.y0 + 34);
+    ctx.stroke();
+  } else if (!CAPTURE_NAME && p >= 1) {
+    ctx.fillStyle = 'rgba(91, 192, 235, 0.85)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText('full superposition: u(x) = ∫ G(x,s) f(s) ds', xToPx(0.3), BOT.y0 + 18);
   }
   ctx.restore();
 
@@ -142,7 +160,7 @@ function render() {
   ctx.fillStyle = '#0d1117'; ctx.fillRect(X0P, dy, X1P - X0P, STRIP.h);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(X0P + 0.5, dy + 0.5, X1P - X0P - 1, STRIP.h - 1);
   ctx.save(); ctx.beginPath(); ctx.rect(X0P, dy, X1P - X0P, STRIP.h); ctx.clip();
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('diagnostic: analytic u(x) cyan, f(x) green', X0P + 6, dy + 12);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.4; ctx.beginPath();
   for (let i = 0; i < r.u.length; i += 1) {

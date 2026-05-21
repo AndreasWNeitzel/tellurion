@@ -68,7 +68,7 @@ function render() {
     const x = padL + plotW * i / 5;
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${(nsMin + (nsMax - nsMin) * i / 5).toFixed(2)}`, x - 12, padT + plotH + 14);
   }
   for (let i = 0; i <= 6; i += 1) {

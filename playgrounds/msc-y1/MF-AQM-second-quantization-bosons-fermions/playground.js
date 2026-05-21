@@ -57,7 +57,7 @@ function drawLadder(x, y, w, h, state) {
     const yy = Yr(n);
     ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x0 + 70, yy); ctx.stroke();
-    ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
     ctx.fillText(`|${n}>`, x0 - 34, yy + 3);
     // amplitude bar for the current state
     const c = Math.abs(state[n] ?? 0);
@@ -71,10 +71,10 @@ function drawLadder(x, y, w, h, state) {
     }
   }
   if (st.stat === 'fermion') {
-    ctx.fillStyle = 'rgba(255,143,143,0.9)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(255,143,143,0.9)'; ctx.font = '11px monospace';
     ctx.fillText('Pauli: a^dag|1> = 0 (no |2>)', x0, y0 - 8);
   }
-  ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.font = '11px monospace';
   ctx.fillText('amplitude |c_n|', x0 + 90, y1 + 14);
 }
 
@@ -86,7 +86,7 @@ function bars(x, y, w, h, vals, color, labelFn) {
     const bh = (h - 18) * Math.abs(vals[i]) / mx;
     ctx.fillStyle = color;
     ctx.fillRect(x + 4 + i * bw + 1, y + h - 14 - bh, Math.max(1, bw - 2), bh);
-    if (labelFn && n <= 14) { ctx.fillStyle = 'rgba(200,215,240,0.55)'; ctx.font = '9px monospace'; ctx.fillText(labelFn(i), x + 4 + i * bw + 1, y + h - 3); }
+    if (labelFn && n <= 14) { ctx.fillStyle = 'rgba(200,215,240,0.55)'; ctx.font = '11px monospace'; ctx.fillText(labelFn(i), x + 4 + i * bw + 1, y + h - 3); }
   }
 }
 
@@ -95,7 +95,7 @@ function drawCommutator(x, y, w, h, state) {
   panel(x, y, w, h, isF ? 'anticommutator {a, a^dag} = 1 (and a^2 = 0)' : 'commutator [a, a^dag] = 1');
   const result = commutatorAction(state, st.stat);        // must equal state
   const half = (h - 40) / 2;
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('|psi>', x + 8, y + 30);
   bars(x + 8, y + 32, w - 16, half - 6, Array.from(state), '#7fd1ff');
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
@@ -111,7 +111,7 @@ function drawDist(x, y, w, h, state) {
   const shown = Math.min(state.length, 26);
   const p = []; for (let i = 0; i < shown; i += 1) p.push(state[i] * state[i]);
   bars(x + 8, y + 20, w - 16, h - 50, p, '#f1c069', (i) => (shown <= 14 ? String(i) : ''));
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText(`<N> = ${expectationN(state).toFixed(3)},  norm = ${norm(state).toFixed(4)}`, x + 10, y + h - 10);
   ctx.fillText('n ->', x + w - 34, y + h - 10);
 }

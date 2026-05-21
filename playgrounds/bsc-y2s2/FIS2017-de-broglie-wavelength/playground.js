@@ -189,7 +189,7 @@ function drawCurve(c) {
   for (let lT = TMIN_LOG; lT <= TMAX_LOG; lT += 3) {
     const x = xFor(lT);
     ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
-    ctx.fillStyle = c.muted; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
     ctx.fillText(`1e${lT}`, x, y1 + 14);
   }
   ctx.textAlign = 'left'; ctx.fillStyle = c.muted;

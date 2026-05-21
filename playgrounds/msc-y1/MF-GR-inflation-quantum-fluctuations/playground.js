@@ -78,7 +78,7 @@ function drawPotential(x, y, w, h) {
   // phi_end marker (epsilon = 1)
   ctx.strokeStyle = 'rgba(255,143,143,0.6)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(X(st.phiEnd), y0); ctx.lineTo(X(st.phiEnd), y1); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '11px monospace';
   ctx.fillText('phi_end (eps=1)', X(st.phiEnd) + 4, y0 + 12);
   // rolling inflaton
   const phi = st.traj[Math.min(st.ST, Math.floor(st.ph * st.ST))];
@@ -103,7 +103,7 @@ function drawModes(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,143,143,0.7)'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let i = 0; i < nN; i += 1) { const xx = X(m0.Ne[i]), yy = Y(m0.horizon[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '10px monospace'; ctx.fillText('Hubble horizon 1/H', x0 + 4, Y(m0.horizon[0]) - 4);
+  ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = '11px monospace'; ctx.fillText('Hubble horizon 1/H', x0 + 4, Y(m0.horizon[0]) - 4);
   const cols = ['#7fd1ff', '#8fe39b', '#e79bff'];
   st.modes.forEach((m, mi) => {
     ctx.strokeStyle = cols[mi]; ctx.lineWidth = 1.6; ctx.beginPath();
@@ -127,7 +127,7 @@ function drawSpectrum(x, y, w, h) {
   // scale-invariant reference (n_s = 1, flat)
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(x0, Y(ref)); ctx.lineTo(x1, Y(ref)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px monospace';
   ctx.fillText('n_s = 1 (scale invariant)', x0 + 6, Y(ref) - 4);
   ctx.strokeStyle = '#f1c069'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 160; i += 1) {

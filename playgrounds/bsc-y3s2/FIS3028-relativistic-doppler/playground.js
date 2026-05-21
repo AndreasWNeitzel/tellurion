@@ -98,7 +98,7 @@ function drawCartesian(c, x0, y0, w, h) {
 
   // Labels.
   ctx.fillStyle = c.muted;
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('0', x0 + padL - 6, y0 + padT + plotH + 14);
   ctx.fillText('pi/2', x0 + padL + plotW / 2 - 12, y0 + padT + plotH + 14);
   ctx.fillText('pi', x0 + padL + plotW - 8, y0 + padT + plotH + 14);
@@ -130,7 +130,7 @@ function drawPolar(c, x0, y0, w, h) {
     ctx.beginPath(); ctx.arc(cxPx, cyPx, Rmax * r, 0, 2 * Math.PI); ctx.stroke();
   }
   ctx.fillStyle = c.muted;
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   for (const r of [0.25, 0.5, 0.75]) {
     ctx.fillText(`r=${r.toFixed(2)}`, cxPx + Rmax * r + 4, cyPx + 4);
   }

@@ -12,7 +12,19 @@
 // An Introduction to Modern Cosmology, Ch. 12; Dodelson, Modern
 // Cosmology.
 import { Dl, synthModes } from './sim.js';
-import { rdbu, fieldToImageData } from '../../../shared/js/render/colormaps.js';
+import { fieldToImageData } from '../../../shared/js/render/colormaps.js';
+// CMB-specific diverging colormap: blue (cold) -> BLACK at 2.725 K -> red
+// (hot). The shared divBlack uses warm orange instead of red; the user
+// asked for a clean red endpoint matching the standard CMB convention.
+function divBlackRed(t) {
+  const d = Math.max(-1, Math.min(1, (t - 0.5) * 2));
+  const m = Math.pow(Math.abs(d), 0.8);
+  if (d < 0) {
+    return { r: Math.round(30 * m), g: Math.round(110 * m), b: Math.round(255 * m) };
+  }
+  return { r: Math.round(255 * m), g: Math.round(40 * m), b: Math.round(40 * m) };
+}
+const divBlack = divBlackRed;
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
@@ -80,15 +92,18 @@ function paintSky() {
   const lo = mean - 2.7 * sd, hi = mean + 2.7 * sd;
   const norm = new Float64Array(field.length);
   for (let i = 0; i < field.length; i += 1) norm[i] = field[i] * inv;
-  imgData = fieldToImageData(norm, GRID, GRID, lo, hi, rdbu, imgData);
+  imgData = fieldToImageData(norm, GRID, GRID, lo, hi, divBlack, imgData);
   offCtx.putImageData(imgData, 0, 0);
 }
 
 function render() {
   if (!CAPTURE_NAME && running) {
-    if (built < MTOT) accumulate(5);
-    else if (holdFrames < 46) holdFrames += 1;
-    else { field.fill(0); built = 0; holdFrames = 0; dirty = true; }
+    // Continuously rebuild the sky: every frame add a few more modes
+    // (when below MTOT) OR wipe and start a new realisation. The
+    // previous version had a 46-frame "hold" phase where the image
+    // was static; the user perceived that as the animation stopping.
+    if (built < MTOT) accumulate(4);
+    else { field.fill(0); built = 0; dirty = true; }
   }
   if (dirty) { paintSky(); dirty = false; }
 
@@ -111,7 +126,7 @@ function render() {
   ctx.fillText('2.725 K average', rx, SY + 34);
   const cbY = SY + 52, cbH = 150, cbW = 22;
   for (let i = 0; i < cbH; i += 1) {
-    const c = rdbu(1 - i / (cbH - 1));
+    const c = divBlack(1 - i / (cbH - 1));
     ctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
     ctx.fillRect(rx, cbY + i, cbW, 1);
   }
@@ -138,7 +153,7 @@ function render() {
   const dx0 = SX, dx1 = W - 22, dy0 = H - 64, dy1 = H - 10;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#64748b'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('diagnostic: power spectrum  D_l vs l', dx0 + 8, dy0 + 12);
   const lMin = 2, lMax = 2600, NS = 360;
   const vals = new Float64Array(NS); let dmax = 1e-30;
@@ -155,7 +170,14 @@ function render() {
   rL.textContent = st.lPeak.toFixed(0);
 }
 
-function tick() { render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+// rAF chain wrapped in try/catch so a transient exception (e.g.
+// during a slider event mid-frame) cannot kill the animation
+// silently. Previously a single bad frame stopped the loop until
+// page reload.
+function tick() {
+  try { render(); } catch (e) { console.error('cmb tick failed', e); }
+  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
 function bootSync() {
   rebuildModes();
   if (CAPTURE_NAME && DETERMINISTIC) {

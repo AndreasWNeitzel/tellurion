@@ -85,7 +85,7 @@ function render() {
     return H - padB - u * (H - padT - padB);
   };
   // Decade grid + labels on the frequency axis.
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   for (let d = Math.ceil(lnumin); d <= Math.floor(lnumax); d += 1) {
     const px = xToPx(d);
     ctx.strokeStyle = '#1b1b1f'; ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, H - padB); ctx.stroke();
@@ -117,7 +117,7 @@ function render() {
   ctx.strokeStyle = '#ef476f'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xToPx(lcut), padT); ctx.lineTo(xToPx(lcut), H - padB); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#ef476f'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#ef476f'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`ν_c = ${Math.pow(10, lcut).toExponential(1)} Hz`, Math.min(xToPx(lcut) + 4, mainW - 120), padT + 12);
 
   // Right panel: top = an animated relativistic electron gyrating in B
@@ -133,7 +133,7 @@ function render() {
     const orbR = Math.min((W - rPadR - rPadL), (splitY - padT)) * 0.30;
     ctx.strokeStyle = '#2c2f36'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(ecx, ecy, orbR, 0, 2 * Math.PI); ctx.stroke();
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText('relativistic electron + 1/γ beam', rPadL, padT + 10);
     // Gyrofrequency ~ B / gamma; beam half-angle ~ 1/gamma.
     const gyro = 0.7 + 0.5 * (st.logB + 5);
@@ -164,7 +164,7 @@ function render() {
     const rPadT2 = splitY + 14;
     ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(rPadL, rPadT2); ctx.lineTo(rPadL, H - padB); ctx.lineTo(W - rPadR, H - padB); ctx.stroke();
-    ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace';
+    ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
     ctx.fillText('log N', mainW + 4, rPadT2 + 10);
     ctx.fillText('log γ', mainW + rightW * 0.4, H - padB + 16);
     const lgmin = 0, lgmax = 4.5;

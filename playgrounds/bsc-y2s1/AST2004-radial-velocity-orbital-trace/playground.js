@@ -59,7 +59,7 @@ function render() {
   ctx.strokeStyle = '#3a3a44'; ctx.lineWidth = 1; ctx.beginPath();
   ctx.moveTo(cxR - RvW / 2, cyR); ctx.lineTo(cxR + RvW / 2, cyR);
   ctx.moveTo(cxR - RvW / 2, cyR - RvH / 2); ctx.lineTo(cxR - RvW / 2, cyR + RvH / 2); ctx.stroke();
-  ctx.fillStyle = '#7e828a'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#7e828a'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
   for (const vv of [-80, -40, 0, 40, 80]) { const yy = yR(vv); ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.moveTo(cxR - RvW / 2, yy); ctx.lineTo(cxR + RvW / 2, yy); ctx.stroke(); ctx.fillText(`${vv}`, cxR - RvW / 2 - 6, yy + 3); }
   ctx.textAlign = 'left'; ctx.fillStyle = '#9aa0a6';
   ctx.fillText('phase', cxR + RvW / 2 - 36, cyR + 18);

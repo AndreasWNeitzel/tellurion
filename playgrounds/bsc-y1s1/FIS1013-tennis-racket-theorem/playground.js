@@ -12,6 +12,7 @@
 import {
   createRacket, step, rotationMatrix, diagnostics, energy, angularMomentumMag,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -179,7 +180,7 @@ function drawScene() {
     const tp = project(applyR(R, e));
     ctx.strokeStyle = axCol[k]; ctx.lineWidth = k === st.axis ? 3.5 : 1.6;
     ctx.beginPath(); ctx.moveTo(O.sx, O.sy); ctx.lineTo(tp.sx, tp.sy); ctx.stroke();
-    ctx.fillStyle = axCol[k]; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = axCol[k]; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
     ctx.fillText(axNm[k], tp.sx + 4, tp.sy);
   }
 }
@@ -204,13 +205,13 @@ function drawPanel() {
     });
     ctx.stroke();
   }
-  ctx.font = '10px ui-monospace, monospace';
+  ctx.font = '11px ui-monospace, monospace';
   ctx.fillStyle = cols[0]; ctx.fillText('w1', x1 - 70, yt + 10);
   ctx.fillStyle = cols[1]; ctx.fillText('w2', x1 - 46, yt + 10);
   ctx.fillStyle = cols[2]; ctx.fillText('w3', x1 - 22, yt + 10);
   // Conserved quantities (flat lines are the proof the solver is exact).
   const E = energy(st.sim), L = angularMomentumMag(st.sim);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '10px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText(`I = [${st.I.map((v) => v.toFixed(3)).join(', ')}]`, x0, yb + 16);
   ctx.fillText(`E=${E.toFixed(2)}  |L|=${L.toFixed(2)}  (conserved)`, x0, yb + 31);
   ctx.fillText('w-sign reversals = the flips', x0, yb + 46);

@@ -5,6 +5,7 @@ import {
   jeansLengthM, jeansMassKg, omegaSquared,
   nToRho, isothermalCs, PC_M, M_SUN,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -57,8 +58,11 @@ function render() {
   const n_cm3 = Math.pow(10, logN);
   const rho = nToRho(n_cm3);
 
+  // Layout: dispersion plot on the LEFT, evolving-density simulation
+  // on the RIGHT.
   const padL = 64, padR = 16, padT = 30, padB = 40;
-  const plotW = canvas.width - padL - padR;
+  const SIM_FRAC = 0.40;
+  const plotW = (canvas.width - padL - padR) * (1 - SIM_FRAC) - 16;
   const plotH = canvas.height - padT - padB;
 
   // k range from 1e-22 to 1e-12 /m (log) - covers galactic to subparsec.
@@ -79,7 +83,7 @@ function render() {
     const x = xFor(lK);
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`1e${lK}`, x - 18, padT + plotH + 14);
   }
   // zero line.
@@ -139,7 +143,134 @@ function render() {
   ctx.fillText('Jeans-unstable (omega^2 < 0)', padL + 12, padT + plotH - 8);
   ctx.fillStyle = c.blue;
   ctx.fillText('sound-wave (omega^2 > 0)', padL + plotW - 180, padT + 24);
+
+  // ======================================================================
+  // RIGHT: live evolution of a 1D density field under the dispersion.
+  // delta(x, t) = sum_k A_k cos(k x) * f_k(t), where
+  //   f_k(t) = cos(omega_k t)   if omega_k^2 > 0   (sound wave),
+  //   f_k(t) = cosh(gamma_k t)  if omega_k^2 < 0   (Jeans-unstable).
+  // The user sees stable modes oscillate while unstable ones blow up
+  // exponentially.
+  // ======================================================================
+  const simX = padL + plotW + 16;
+  const simW = canvas.width - padR - simX;
+  ctx.fillStyle = 'rgba(15, 22, 36, 0.85)';
+  ctx.fillRect(simX, padT, simW, plotH);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
+  ctx.strokeRect(simX + 0.5, padT + 0.5, simW - 1, plotH - 1);
+  ctx.fillStyle = c.fg;
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('δ(x, t) evolution', simX + 8, padT + 16);
+
+  // Two stacked panes: top = density profile, bottom = mode amplitudes
+  // tracked vs time (the diagnostic).
+  const topH = plotH * 0.55, botH = plotH - topH - 14;
+  // Density field.
+  const fx0 = simX + 16, fy0 = padT + 28, fw = simW - 32, fh = topH - 30;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  for (let yv = -1; yv <= 1.001; yv += 0.5) {
+    const y = fy0 + fh / 2 - (yv / 2) * fh;
+    ctx.beginPath(); ctx.moveTo(fx0, y); ctx.lineTo(fx0 + fw, y); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
+  ctx.beginPath(); ctx.moveTo(fx0, fy0 + fh / 2); ctx.lineTo(fx0 + fw, fy0 + fh / 2); ctx.stroke();
+  // Pick three probe wavenumbers: one well below k_J (unstable), one
+  // near k_J, one well above (stable sound wave).
+  const NX_FIELD = 240;
+  const tEvolve = simTime;
+  const probeKs = [
+    { k: Math.pow(10, lkJ - 1.2), col: '#ef476f', label: 'k<k_J unstable' },
+    { k: Math.pow(10, lkJ),       col: '#ffd166', label: 'k=k_J marginal' },
+    { k: Math.pow(10, lkJ + 1.2), col: '#5bc0eb', label: 'k>k_J stable' },
+  ];
+  // Amplitude evolution f(t).
+  function f_k(k, t) {
+    const w2 = omegaSquared(k, cs, rho);
+    if (w2 >= 0) return Math.cos(Math.sqrt(w2) * t);
+    return Math.cosh(Math.sqrt(-w2) * t);
+  }
+  // Sum the three probe modes into the density field; cap amplitude
+  // at +/- 1 visually so the unstable mode doesn't blow off-screen.
+  for (let i = 0; i < NX_FIELD; i += 1) {
+    const xFrac = i / (NX_FIELD - 1);
+    const xWorld = xFrac * (2 * Math.PI / probeKs[0].k);     // domain = one wavelength of the longest mode
+    let d = 0;
+    for (const probe of probeKs) {
+      d += 0.25 * Math.cos(probe.k * xWorld) * f_k(probe.k, tEvolve);
+    }
+    d = Math.max(-1, Math.min(1, d));
+    const x = fx0 + xFrac * fw;
+    const y = fy0 + fh / 2 - (d / 2) * fh;
+    ctx.fillStyle = d >= 0 ? 'rgba(239, 71, 111, 0.7)' : 'rgba(91, 192, 235, 0.7)';
+    ctx.fillRect(x, Math.min(y, fy0 + fh / 2), 1.5, Math.abs(d / 2 * fh));
+  }
+  ctx.fillStyle = 'rgba(200, 210, 230, 0.8)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('δ(x) (3 superposed modes)', fx0, fy0 + 12);
+
+  // Mode amplitude time-series panel.
+  const ax0 = simX + 36, ay0 = padT + topH, aw = simW - 50, ah = botH - 30;
+  ctx.fillStyle = 'rgba(8, 14, 24, 0.7)';
+  ctx.fillRect(ax0 - 12, ay0, aw + 20, ah + 26);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.18)';
+  ctx.strokeRect(ax0 - 12 + 0.5, ay0 + 0.5, aw + 19, ah + 25);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('mode amplitude vs time', ax0 - 8, ay0 + 14);
+  // Y range: log10|A| from -2 to 4 (six decades). The plot area starts
+  // BELOW the title (ay0 + 24) so the top y-tick cannot collide with it.
+  const aMin = -2, aMax = 4;
+  const plotTop = ay0 + 24;
+  function yOfA(la) {
+    return plotTop + (1 - (la - aMin) / (aMax - aMin)) * (ay0 + ah - 6 - plotTop);
+  }
+  function xOfT(t) { return ax0 + (t / 18) * aw; }
+  // Axes.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  for (let la = aMin; la <= aMax; la += 1) {
+    ctx.beginPath(); ctx.moveTo(ax0, yOfA(la)); ctx.lineTo(ax0 + aw, yOfA(la)); ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.textAlign = 'right';
+  for (let la = aMin; la <= aMax; la += 2) ctx.fillText(`10^${la}`, ax0 - 2, yOfA(la) + 3);
+  ctx.textAlign = 'left';
+  // Curves.
+  const NPT = 80;
+  for (const probe of probeKs) {
+    ctx.strokeStyle = probe.col; ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= NPT; i += 1) {
+      const t = (i / NPT) * 18;        // 0..18 sim-time units
+      const a = Math.abs(f_k(probe.k, t));
+      if (a < 1e-3) continue;
+      const la = Math.max(aMin, Math.min(aMax, Math.log10(a)));
+      const x = xOfT(t), y = yOfA(la);
+      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  // Current-time marker.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  const xt = xOfT(Math.min(18, simTime));
+  ctx.beginPath(); ctx.moveTo(xt, ay0 + 18); ctx.lineTo(xt, ay0 + ah + 4); ctx.stroke();
+  ctx.setLineDash([]);
+  // Legend: three entries spread evenly across the panel width so the
+  // last one cannot clip the right edge.
+  const llyy = ay0 + ah + 12;
+  ctx.font = '11px ui-monospace, monospace';
+  const legStep = (aw - 8) / probeKs.length;
+  probeKs.forEach((probe, i) => {
+    ctx.fillStyle = probe.col;
+    ctx.fillText(probe.label, ax0 - 8 + i * legStep, llyy);
+  });
 }
+
+// Live cosmic time (simulation seconds; gravity scales set by rho).
+let simTime = 0;
+let lastWall = performance.now();
 
 function updateReadout() {
   const cs = isothermalCs(T);
@@ -151,9 +282,22 @@ function updateReadout() {
   readoutMj.textContent = (M / M_SUN).toFixed(2);
 }
 
-function loop() {
-  render();
-  updateReadout();
+// Honour the OS reduced-motion preference: when set, the time sweep
+// holds at a representative mid-point rather than animating.
+const REDUCED_MOTION = prefersReducedMotion();
+function loop(now) {
+  const dt = Math.min(0.05, (now - lastWall) / 1000);
+  lastWall = now;
+  // Sweep simulation time from 0 to 18 in ~ 9 seconds, then loop.
+  if (REDUCED_MOTION) { simTime = 9; }
+  else {
+    simTime += dt * 2;
+    if (simTime > 18) simTime = 0;
+  }
+  // Guard the render so a transient exception cannot silently kill
+  // the rAF chain (the chain must keep scheduling).
+  try { render(); updateReadout(); }
+  catch (e) { console.error('jeans loop failed', e); }
   requestAnimationFrame(loop);
 }
 

@@ -61,7 +61,10 @@ function drawStar(cx, cy, R) {
   // multiplies the saturation so the limb fades gracefully.
   const inc = (st.inc * Math.PI) / 180;
   const sinI = Math.sin(inc);
-  const vMax = (st.vsiniKmS * sinI / 100);   // for color scaling
+  // Doppler colour scale: tie it to the ACTUAL v sin i so the
+  // v sin i slider visibly changes the disc colour gradient.
+  // 350 km/s maps to the full red/blue endpoints.
+  const vsiniNorm = (st.vsiniKmS * sinI) / 350;
   for (let yy = -R; yy <= R; yy += 1) {
     for (let xx = -R; xx <= R; xx += 1) {
       const rr = Math.sqrt(xx * xx + yy * yy);
@@ -69,12 +72,10 @@ function drawStar(cx, cy, R) {
       const xn = xx / R, yn = yy / R;
       const mu = Math.sqrt(Math.max(0, 1 - xn * xn - yn * yn));
       const I = limbDarkening(mu);
-      // Doppler-LOS: v_LOS = v sin i * x (rotation axis aligned with
-      // sky-y at inc = 90; at inc < 90 the projection of v onto LOS
-      // is reduced by sin i, but we already included that via sinI.
-      const vLOS = xn * sinI;
+      // v_LOS along the line of sight = (v sin i) * x_normalised.
+      const vLOS = xn * vsiniNorm;
       // Color: red side (+v) hot orange, blue side cool blue.
-      const t = Math.max(-1, Math.min(1, vLOS * 1.6));
+      const t = Math.max(-1, Math.min(1, vLOS * 1.8));
       let r, g, b;
       if (t >= 0) {
         const u = t;
@@ -92,6 +93,27 @@ function drawStar(cx, cy, R) {
       ctx.fillStyle = `rgb(${Math.round(r * k)},${Math.round(g * k)},${Math.round(b * k)})`;
       ctx.fillRect(cx + xx, cy + yy, 1, 1);
     }
+  }
+  // Rotating star spots: small dark patches carried around the
+  // rotation axis at an angular rate proportional to v sin i. They
+  // make the rotation speed directly visible (the disc itself is
+  // otherwise axisymmetric). Spots near the limb foreshorten.
+  const spotPhase = st.spotPhase || 0;
+  for (let s = 0; s < 4; s += 1) {
+    const lat = [-0.4, 0.1, 0.45, -0.15][s];        // spot latitudes
+    const lon0 = (s / 4) * 2 * Math.PI;
+    const lon = lon0 + spotPhase;
+    // Spherical -> sky: x = cos(lat) sin(lon), depth = cos(lat) cos(lon).
+    const sx = Math.cos(lat) * Math.sin(lon);
+    const depth = Math.cos(lat) * Math.cos(lon);
+    if (depth < 0) continue;                         // on far side
+    const syv = Math.sin(lat) * sinI - Math.cos(lat) * Math.cos(lon) * Math.cos(inc) * 0 + Math.sin(lat);
+    const skyY = Math.sin(lat);
+    const px = cx + sx * R;
+    const py = cy - skyY * R;
+    const spotR = (3 + 2 * depth) * (0.5 + 0.5 * depth);
+    ctx.fillStyle = `rgba(40, 25, 20, ${(0.35 * depth).toFixed(2)})`;
+    ctx.beginPath(); ctx.ellipse(px, py, spotR * depth, spotR, 0, 0, 2 * Math.PI); ctx.fill();
   }
   // Equator and rotation axis indicators.
   ctx.strokeStyle = 'rgba(255,255,255,0.15)';
@@ -197,9 +219,10 @@ function render() {
 function tick() {
   if (st.running) {
     st.phase += 0.02;
-    // Phase doesn't affect the profile (rotation is in-plane); it just
-    // hints animation by making the star color slightly modulated.
-    // Skip recomputeProfile on every frame; only on slider changes.
+    // Advance the star-spot rotation phase at a rate proportional to
+    // v sin i, so the v sin i slider visibly speeds up the surface
+    // rotation (the spots carried around the disc).
+    st.spotPhase = (st.spotPhase || 0) + 0.0006 * st.vsiniKmS;
   }
   render();
   requestAnimationFrame(tick);

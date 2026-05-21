@@ -203,7 +203,7 @@ function drawNsR() {
   ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(cxp, cyp, 5, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = '#dcdde2'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText(`(n_s, r) at N=55   model: ${state.model}   n_s=${nsC.toFixed(3)} r=${rC.toFixed(3)}`, x0 + 8, y0 + 16);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
   ctx.fillText('n_s ->', x0 + pw - 6, y0 + ph - 6);
 }
 

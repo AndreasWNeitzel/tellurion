@@ -105,18 +105,46 @@ function drawAll() {
   let pMax = 0;
   for (let k = 0; k < bins.length; k += 1) if (bins[k] > pMax) pMax = bins[k];
   pMax = Math.max(pMax, 1.4);
-  // Bars
+  // Bars (faint, as the substrate).
   for (let k = 0; k < bins.length; k += 1) {
     const x0 = histX + 4 + (histW - 8) * k / NBINS;
     const x1 = histX + 4 + (histW - 8) * (k + 1) / NBINS;
     const y0 = histY + histH - 4 - (histH - 24) * bins[k] / pMax;
-    ctx.fillStyle = 'rgba(127, 177, 216, 0.55)';
+    ctx.fillStyle = 'rgba(127, 177, 216, 0.35)';
     ctx.fillRect(x0, y0, x1 - x0 - 1, histY + histH - 4 - y0);
   }
-  // MB curve
+  // Live KDE: Gaussian kernel smoothing of the histogram density. The
+  // bandwidth is ~ 2 bins, smooth enough to read continuously without
+  // hiding sample noise. Drawn as a solid cyan line on top of the bars.
+  const KDE_NPTS = 120;
+  const bw = 2 * (VMAX / NBINS);
+  const kdeY = new Float64Array(KDE_NPTS);
+  for (let i = 0; i < KDE_NPTS; i += 1) {
+    const v = VMAX * i / (KDE_NPTS - 1);
+    let s = 0;
+    for (let k = 0; k < NBINS; k += 1) {
+      const vk = (k + 0.5) * dv;
+      const z = (v - vk) / bw;
+      s += bins[k] * Math.exp(-0.5 * z * z) / (bw * Math.sqrt(2 * Math.PI));
+    }
+    kdeY[i] = s * dv;
+  }
+  ctx.strokeStyle = 'rgba(127, 177, 216, 0.95)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < KDE_NPTS; i += 1) {
+    const v = VMAX * i / (KDE_NPTS - 1);
+    const px = histX + 4 + (histW - 8) * (v / VMAX);
+    const py = histY + histH - 4 - (histH - 24) * kdeY[i] / pMax;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  // MB analytic curve: DASHED, to read as the "target" the histogram
+  // converges to.
   const sigma = V0 / Math.sqrt(2);
   ctx.strokeStyle = tok.accentWarm;
-  ctx.lineWidth = 1.6;
+  ctx.setLineDash([6, 4]);
+  ctx.lineWidth = 1.8;
   ctx.beginPath();
   const NPTS = 200;
   for (let i = 0; i < NPTS; i += 1) {
@@ -127,9 +155,10 @@ function drawAll() {
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText('histogram (bars) vs MB pred (orange)', histX + 6, histY + 14);
+  ctx.setLineDash([]);
+  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+  ctx.fillText('bars: histogram   solid: KDE   dashed: MB analytic', histX + 6, histY + 14);
   // x ticks
   ctx.textAlign = 'center';
   for (let v = 0; v <= 2; v += 0.5) {

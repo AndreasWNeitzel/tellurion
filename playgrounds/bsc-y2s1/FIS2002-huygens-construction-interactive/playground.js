@@ -117,7 +117,7 @@ function render() {
   ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let p = 0; p <= PH; p += 2) { const th = -thMax + (p / PH) * 2 * thMax; const v = farFieldAmplitude(sources, th, k); const X = PX + 4 + v * (PW - 8); p === 0 ? ctx.moveTo(X, PY + p) : ctx.lineTo(X, PY + p); }
   ctx.stroke(); ctx.lineWidth = 1;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#c8ccd6'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
   ctx.fillText('amplitude', PX + PW / 2, PY + PH + 14);
   ctx.save(); ctx.translate(PX - 7, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('angle', 0, 0); ctx.restore();
   ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(232,200,74,0.9)'; ctx.fillText('sinc envelope', PX + 8, PY + 14);

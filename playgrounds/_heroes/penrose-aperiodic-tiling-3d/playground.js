@@ -108,6 +108,60 @@ function drawTiling() {
   ctx.font = '13px ui-monospace, monospace';
   ctx.fillText(`tiles: ${st.counts.total}`, 14, H - 36);
   ctx.fillText(`A / B: ${st.counts.ratio.toFixed(4)} (phi = ${PHI.toFixed(4)})`, 14, H - 18);
+
+  drawConvergenceDiagnostic();
+}
+
+// Rule-13 diagnostic: the thick/thin tile-count ratio A/B versus
+// subdivision depth. Penrose deflation obeys A_{n+1} = 2 A_n + B_n,
+// B_{n+1} = A_n + B_n, so the ratio converges to the golden ratio phi.
+// The chart plots that convergence with the current depth marked.
+function drawConvergenceDiagnostic() {
+  const pw = 252, ph = 140, px = W - pw - 14, py = 14;
+  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('tile ratio A/B converges to φ', px + 8, py + 14);
+  const ax = px + 34, ay = py + 24, aw = pw - 46, ah = ph - 44;
+  const NMAX = 12;
+  // Iterate the deflation recurrence.
+  const ratios = [];
+  let A = 1, B = 1;
+  for (let n = 0; n <= NMAX; n += 1) {
+    ratios.push(A / B);
+    const An = 2 * A + B, Bn = A + B;
+    A = An; B = Bn;
+  }
+  const rLo = 1.0, rHi = 2.2;
+  const xOf = (n) => ax + (n / NMAX) * aw;
+  const yOf = (r) => ay + ah - ((Math.max(rLo, Math.min(rHi, r)) - rLo) / (rHi - rLo)) * ah;
+  // phi asymptote.
+  ctx.strokeStyle = 'rgba(255, 209, 102, 0.6)';
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(ax, yOf(PHI)); ctx.lineTo(ax + aw, yOf(PHI)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255, 209, 102, 0.9)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillText('φ', ax + aw - 10, yOf(PHI) - 3);
+  // Convergence curve.
+  ctx.strokeStyle = '#78c8f0'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ratios.forEach((r, n) => { const x = xOf(n), y = yOf(r); if (n === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+  ctx.stroke();
+  ratios.forEach((r, n) => {
+    ctx.fillStyle = '#78c8f0';
+    ctx.beginPath(); ctx.arc(xOf(n), yOf(r), 2.4, 0, 6.28); ctx.fill();
+  });
+  // Current subdivision depth marker.
+  const nNow = Math.max(0, Math.min(NMAX, st.steps | 0));
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([2, 2]);
+  ctx.beginPath(); ctx.moveTo(xOf(nNow), ay); ctx.lineTo(xOf(nNow), ay + ah); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = '9px ui-monospace, monospace';
+  ctx.fillText('depth 0', ax, ay + ah + 11);
+  ctx.fillText(`${NMAX}`, ax + aw - 8, ay + ah + 11);
 }
 
 function updateReadout() {

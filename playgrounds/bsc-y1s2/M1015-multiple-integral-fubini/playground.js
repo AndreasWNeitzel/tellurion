@@ -93,7 +93,7 @@ function panel(px, py, pw, ph, orient) {
     }
     partial = acc;
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '10px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
   ctx.fillText('0', xOf(0) - 9, yOf(0) + 12);
   ctx.fillText('x', xOf(DOM) - 6, yOf(0) + 12);
   ctx.fillText('y', xOf(0) - 16, yOf(DOM) + 4);

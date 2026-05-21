@@ -82,7 +82,7 @@ function drawBHView(x, y, w, h) {
     ctx.strokeStyle = col; ctx.setLineDash(dash); ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx, cy, r * S, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]);
     // legend stacked at the top-left, not crammed onto the small rings
-    ctx.fillStyle = col; ctx.font = '9px monospace';
+    ctx.fillStyle = col; ctx.font = '11px monospace';
     ctx.fillRect(x + 12, legendY - 6, 14, 2);
     ctx.fillText(lab, x + 30, legendY - 2);
     legendY += 14;
@@ -109,7 +109,7 @@ function drawBHView(x, y, w, h) {
     }
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   const pf = st.fan[st.fan.length - 1];
   ctx.fillText(`probe b = ${st.p.toFixed(2)} M  ->  ${pf.g.captured ? 'CAPTURED' : 'deflected'}`, x + 12, y + h - 10);
   if (kerr) ctx.fillText(`a/M = ${st.aOverM.toFixed(2)} (frame drag, perturbative)`, x + 12, y + h - 26);
@@ -128,7 +128,7 @@ function drawFLRW(x, y, w, h) {
   ctx.beginPath(); ctx.arc(cx, cy, Math.min(w, h) * 0.46, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]);
   ctx.strokeStyle = 'rgba(127,209,255,0.5)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.arc(cx, cy, dH * scaleProp * a, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(127,209,255,0.7)'; ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(127,209,255,0.7)'; ctx.font = '11px monospace';
   ctx.fillText('Hubble radius (v = c)', cx + dH * scaleProp * a * 0.5, cy - dH * scaleProp * a * 0.8);
   ctx.fillStyle = 'rgba(241,192,105,0.7)'; ctx.fillText('particle horizon', cx + 6, y + 26);
   // comoving galaxy lattice; proper distance = comoving * a
@@ -150,7 +150,7 @@ function drawFLRW(x, y, w, h) {
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + ux * L, py + uy * L); ctx.stroke();
   }
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
   ctx.fillText(`a = ${a.toFixed(2)}  (red arrows: v > c, superluminal recession, allowed)`, x + 12, y + h - 10);
 }
 
@@ -166,7 +166,7 @@ function drawPotential(x, y, w, h) {
     ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(dMax), Y(H0 * dMax)); ctx.stroke();
     ctx.strokeStyle = 'rgba(127,209,255,0.5)'; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(X(1 / H0), y0); ctx.lineTo(X(1 / H0), y1); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(127,209,255,0.8)'; ctx.font = '11px monospace';
     ctx.fillText('v = c (Hubble radius)', X(1 / H0) + 4, y0 + 12);
     ctx.fillStyle = 'rgba(200,215,240,0.65)'; ctx.fillText('proper distance d ->', x1 - 130, y1 + 14);
     return;
@@ -185,7 +185,7 @@ function drawPotential(x, y, w, h) {
   const inv = 1 / (st.p * st.p);                          // energy line 1/b^2
   ctx.strokeStyle = 'rgba(255,209,102,0.7)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(x0, Y(inv)); ctx.lineTo(x1, Y(inv)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = '11px monospace';
   ctx.fillText(`1/b^2 (b=${st.p.toFixed(1)}M)`, x0 + 6, Y(inv) - 4);
   ctx.strokeStyle = 'rgba(127,209,255,0.5)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(X(3), y0); ctx.lineTo(X(3), y1); ctx.stroke(); ctx.setLineDash([]);
@@ -206,7 +206,7 @@ function drawMap(x, y, w, h) {
     ctx.stroke();
     const idx = Math.min(n - 1, Math.floor(st.ph * (n - 1)));
     ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(T[idx]), Y(A[idx]), 4, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = '11px monospace';
     ctx.fillText(`a = ${A[idx].toFixed(2)},  z = ${scaleToRedshift(A[idx] / aMax).toFixed(2)}`, x + 10, y + h - 10);
     ctx.fillText('cosmic time ->', x1 - 96, y1 + 14);
     return;
@@ -222,7 +222,7 @@ function drawMap(x, y, w, h) {
   }
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(X(BC), y0 - 6); ctx.lineTo(X(BC), y1 + 6); ctx.stroke();
-  ctx.fillStyle = '#ffd166'; ctx.font = '10px monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = '11px monospace';
   ctx.fillText(`b_c = ${BC.toFixed(3)} M`, X(BC) - 30, y0 - 10);
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.beginPath(); ctx.arc(X(Math.max(bMin, Math.min(bMax, st.p))), (y0 + y1) / 2, 4, 0, 2 * Math.PI); ctx.fill();

@@ -8,12 +8,19 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css"><style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+</style>
+</head>
 <body>
   <h1>Close Binary: Roche Lobes and Conservative Mass Transfer</h1>
 
   <figure>
-    <canvas id="stage" width="860" height="560" aria-label="The Roche figure-eight with Lagrange points and the overflow stream, the orbital separation and period under conservative transfer, and the mass-transfer stability map">
+    <canvas id="stage" width="900" height="560" aria-label="The Roche figure-eight with Lagrange points and the overflow stream, the orbital separation and period under conservative transfer, and the mass-transfer stability map">
     </canvas>
     <div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">q (M1/M2):</span><span class="value" id="readout-q">2.00</span>
@@ -29,7 +36,7 @@
     </figcaption>
   </figure>
 
-  <div class="controls" id="controls" role="group" aria-label="Simulation controls">
+  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">donor M1 (Msun)</span><input aria-label="donor mass, solar masses x10" type="range" id="slider-m1" min="3" max="200" step="1" value="20"><span class="value" id="value-m1">2.0</span></div>
     <div class="row"><span class="label">accretor M2 (Msun)</span><input aria-label="accretor mass, solar masses x10" type="range" id="slider-m2" min="3" max="200" step="1" value="10"><span class="value" id="value-m2">1.0</span></div>
     <div class="row"><span class="label">donor fill R/R_L</span><input aria-label="donor radius over Roche-lobe radius x100" type="range" id="slider-fill" min="40" max="115" step="1" value="80"><span class="value" id="value-fill">0.80</span></div>

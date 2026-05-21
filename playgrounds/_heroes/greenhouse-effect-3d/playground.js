@@ -1,13 +1,28 @@
-// Greenhouse Effect hero. A 3D Earth + Sun radiative-balance scene
-// with photon paths (visible IN, IR OUT, IR trapped in the atmosphere
-// layer). The surface temperature is computed by the single-layer
-// grey-atmosphere model; sliders for CO2, albedo, photon density.
+// Greenhouse Effect hero. Three-panel layout:
+//   LEFT: cross-section of Earth + atmosphere + space, with photon
+//     paths. SW photons (cyan) stream down from the Sun; LW photons
+//     (red) emit from the surface, with a fraction escaping to space
+//     and the rest re-emitted back down by the greenhouse layer.
+//   TOP-RIGHT: T_surf vs CO2 curve, log-x, with the current point
+//     and 1850 / 2025 / 2x CO2 reference points marked.
+//   MID-RIGHT: energy budget bar chart (Trenberth-Fasullo style):
+//     incoming SW, reflected SW, absorbed SW, surface LW emission,
+//     atmospheric back-radiation, top-of-atmosphere LW outflow.
+//   BOTTOM-RIGHT: blackbody emission spectrum at T_surf with CO2 and
+//     H2O absorption bands shown.
+// All four panels update LIVE when CO2, albedo, or solar constant
+// sliders move. The previous version had a 3D Earth scene with
+// imperceptible slider effects; this layout pins each parameter to a
+// visible diagnostic.
+//
+// Reference: Pierrehumbert, Principles of Planetary Climate, CUP 2010,
+// Ch. 4 (single-layer grey atmosphere); Trenberth, Fasullo and Kiehl,
+// BAMS 90 (2009) 311 (energy budget diagram).
 
 import {
-  S_SOLAR_WM2, emissionTemperature_K, surfaceTemperature_K,
+  S_SOLAR_WM2, SIGMA_SB, emissionTemperature_K, surfaceTemperature_K,
   multilayerSurfaceTemperature_K, tauFromCO2, GHE_PRESETS, makeRng,
 } from './sim.js';
-import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 
@@ -17,15 +32,10 @@ const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const DETERMINISTIC = params.get('deterministic') === '1';
 
 const canvas = document.getElementById('stage');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { alpha: false });
 const W = canvas.width, H = canvas.height;
 
-const camera = createOrbitCamera(canvas, {
-  target: [0, 0, 0], radius: 6, minRadius: 2.5, maxRadius: 18,
-  azimuthDeg: 30, elevationDeg: 15, fovDeg: 50,
-});
-
-// Readouts.
+// Readouts (DOM).
 const rCo2 = document.getElementById('readout-co2');
 const rA = document.getElementById('readout-A');
 const rTau = document.getElementById('readout-tau');
@@ -45,10 +55,12 @@ const st = {
   co2_ppm: 420,
   A: 0.30,
   n_layers: 1,
-  rho: 80,        // photons per frame
+  rho: 80,
   running: !prefersReducedMotion(),
   t: 0,
+  photons: [],          // live photons (animated)
 };
+let last = performance.now();
 
 function applyPreset(name) {
   const p = GHE_PRESETS[name];
@@ -62,393 +74,506 @@ function applyPreset(name) {
 }
 
 // =========================================================================
-// 3D PROJECTION (same pattern as other heroes).
+// LAYOUT.
 // =========================================================================
-function makeCamBasis() {
-  const eye = camera.eyePosition();
-  const target = [0, 0, 0];
-  const up = [0, 1, 0];
-  const fx = target[0] - eye[0], fy = target[1] - eye[1], fz = target[2] - eye[2];
-  const fl = Math.hypot(fx, fy, fz);
-  const f = [fx / fl, fy / fl, fz / fl];
-  const rx = f[1] * up[2] - f[2] * up[1];
-  const ry = f[2] * up[0] - f[0] * up[2];
-  const rz = f[0] * up[1] - f[1] * up[0];
-  const rl = Math.hypot(rx, ry, rz);
-  const r = [rx / rl, ry / rl, rz / rl];
-  const ux = r[1] * f[2] - r[2] * f[1];
-  const uy = r[2] * f[0] - r[0] * f[2];
-  const uz = r[0] * f[1] - r[1] * f[0];
-  return { eye, f, r, u: [ux, uy, uz], tanHalfFov: Math.tan(50 * Math.PI / 180 / 2), aspect: W / H };
+const SCENE = { x: 24, y: 36, w: Math.floor(W * 0.46), h: H - 60 };
+const RIGHT_X = SCENE.x + SCENE.w + 24;
+const RIGHT_W = W - RIGHT_X - 24;
+const PANEL_GAP = 16;
+const PANEL_H = (H - 60 - 2 * PANEL_GAP) / 3;
+const PANELS = {
+  curve:     { x: RIGHT_X, y: SCENE.y, w: RIGHT_W, h: PANEL_H },
+  budget:    { x: RIGHT_X, y: SCENE.y + PANEL_H + PANEL_GAP, w: RIGHT_W, h: PANEL_H },
+  spectrum:  { x: RIGHT_X, y: SCENE.y + 2 * (PANEL_H + PANEL_GAP), w: RIGHT_W, h: PANEL_H },
+};
+
+// =========================================================================
+// SCENE: vertical column with space (top), atmosphere band, surface
+// (bottom). Photons are sampled positions with v_y and a 'state' field
+// (sw_down, lw_up, lw_back, lw_escape, reflected).
+// =========================================================================
+function spawnSWPhoton(rng) {
+  return {
+    kind: 'sw',
+    x: SCENE.x + 20 + rng() * (SCENE.w - 40),
+    y: SCENE.y + 10,
+    vy: 110,
+    life: 0,
+  };
 }
-function w2s(p, cam) {
-  const dx = p[0] - cam.eye[0], dy = p[1] - cam.eye[1], dz = p[2] - cam.eye[2];
-  const zf = dx * cam.f[0] + dy * cam.f[1] + dz * cam.f[2];
-  if (zf <= 0.01) return null;
-  const xr = dx * cam.r[0] + dy * cam.r[1] + dz * cam.r[2];
-  const yu = dx * cam.u[0] + dy * cam.u[1] + dz * cam.u[2];
-  const xn = xr / (zf * cam.tanHalfFov * cam.aspect);
-  const yn = yu / (zf * cam.tanHalfFov);
-  return { x: (xn * 0.5 + 0.5) * W, y: (1.0 - (yn * 0.5 + 0.5)) * H, depth: zf };
+function spawnLWPhoton(rng) {
+  return {
+    kind: 'lw_up',
+    x: SCENE.x + 20 + rng() * (SCENE.w - 40),
+    y: SCENE.y + SCENE.h - 50,
+    vy: -90,
+    life: 0,
+  };
+}
+
+let _rng = makeRng(0xC0FFEE);
+
+// Fractional-spawn accumulators so a sub-unit rate per frame still
+// produces a steady stream. Without these, a rate of 0.3 photons/frame
+// rounded to int(0.3) = 0 starves the animation and it stops.
+let _swAccum = 0, _lwAccum = 0;
+function stepPhotons(dt) {
+  const tau = tauFromCO2(st.co2_ppm);
+  const surfaceY = SCENE.y + SCENE.h - 50;
+  const atmTop = SCENE.y + 90;
+  const atmBot = SCENE.y + SCENE.h - 130;
+  // SW photons. Rate scales with the rho slider; the visual flux is
+  // physically tied to (1 - A) but we already paint that via the
+  // reflected fraction at spawn time.
+  _swAccum += st.rho * dt * 1.2;
+  while (_swAccum >= 1) {
+    _swAccum -= 1;
+    const ph = spawnSWPhoton(_rng);
+    if (_rng() < st.A) {
+      ph.kind = 'sw_reflect'; ph.vy = -110;
+      ph.y = SCENE.y + 10 + _rng() * 30;
+    }
+    st.photons.push(ph);
+  }
+  // LW photons. The emission rate at the surface scales as sigma T^4;
+  // we floor the LW rate at 0.4 * rho so even cold (snowball) and hot
+  // (venus) presets keep a visible photon stream.
+  const Tsurf = currentTsurf();
+  const lwScale = Math.max(0.4, Math.min(3.0, (Tsurf / 288) ** 4));
+  _lwAccum += st.rho * dt * 1.2 * lwScale;
+  while (_lwAccum >= 1) {
+    _lwAccum -= 1;
+    st.photons.push(spawnLWPhoton(_rng));
+  }
+  // Step.
+  for (let i = st.photons.length - 1; i >= 0; i -= 1) {
+    const p = st.photons[i];
+    p.y += p.vy * dt;
+    p.life += dt;
+    // Outcome decisions.
+    if (p.kind === 'sw') {
+      // Hits surface? Get absorbed (disappear). Reflected fraction
+      // already handled at spawn.
+      if (p.y >= surfaceY) st.photons.splice(i, 1);
+      else if (p.y < SCENE.y - 4 || p.life > 20) st.photons.splice(i, 1);
+    } else if (p.kind === 'sw_reflect') {
+      if (p.y < SCENE.y - 4) st.photons.splice(i, 1);
+    } else if (p.kind === 'lw_up') {
+      // Decide fate at the atmospheric layer (between atmTop and atmBot).
+      if (p.y < atmTop) {
+        // Now decide: escape with probability tau, else turn back.
+        if (_rng() < tau) p.kind = 'lw_escape';
+        else { p.kind = 'lw_back'; p.vy = 80; }
+      }
+      if (p.y < SCENE.y - 4) st.photons.splice(i, 1);
+    } else if (p.kind === 'lw_escape') {
+      if (p.y < SCENE.y - 4) st.photons.splice(i, 1);
+    } else if (p.kind === 'lw_back') {
+      if (p.y >= surfaceY) st.photons.splice(i, 1);
+    }
+    // Hard cap.
+    if (st.photons.length > 600) st.photons.splice(0, st.photons.length - 600);
+  }
+}
+
+function currentTsurf() {
+  if (st.preset === 'venus_runaway') {
+    return multilayerSurfaceTemperature_K(S_SOLAR_WM2, st.A, tauFromCO2(st.co2_ppm), st.n_layers);
+  }
+  return surfaceTemperature_K(S_SOLAR_WM2, st.A, tauFromCO2(st.co2_ppm));
 }
 
 // =========================================================================
-// STARFIELD background.
+// SCENE rendering.
 // =========================================================================
-const STARS = [];
-{
-  const r = makeRng(0xD15EA5E);
-  for (let i = 0; i < 200; i++) {
-    STARS.push({ x: r() * W, y: r() * H, b: 0.10 + 0.55 * r() });
-  }
-}
-function drawSky() {
+function drawScene() {
+  // Background: space (top), atmosphere band, surface (bottom).
+  const x0 = SCENE.x, y0 = SCENE.y;
   ctx.fillStyle = '#02030a';
-  ctx.fillRect(0, 0, W, H);
-  for (const s of STARS) {
-    ctx.fillStyle = `rgba(200, 220, 255, ${s.b.toFixed(3)})`;
-    ctx.fillRect(s.x, s.y, 1, 1);
+  ctx.fillRect(x0, y0, SCENE.w, SCENE.h);
+  // Stars
+  const r = makeRng(0xD15EA5E);
+  for (let i = 0; i < 60; i++) {
+    const sx = x0 + r() * SCENE.w;
+    const sy = y0 + r() * (SCENE.h * 0.35);
+    ctx.fillStyle = `rgba(200, 220, 255, ${(0.20 + 0.5 * r()).toFixed(2)})`;
+    ctx.fillRect(sx, sy, 1, 1);
   }
-}
+  // Atmosphere band (its opacity depends on CO2 -> tau_LW).
+  const atmY = SCENE.y + 90;
+  const atmH = (SCENE.y + SCENE.h - 130) - atmY;
+  const tau = tauFromCO2(st.co2_ppm);
+  const opacity = Math.max(0.10, 0.85 * (1 - tau));   // visible band thickness/colour scales with greenhouse trap.
+  const grad = ctx.createLinearGradient(0, atmY, 0, atmY + atmH);
+  grad.addColorStop(0, `rgba(180, 130, 80, ${opacity * 0.55})`);
+  grad.addColorStop(1, `rgba(120, 90, 60, ${opacity * 0.85})`);
+  ctx.fillStyle = grad;
+  ctx.fillRect(x0, atmY, SCENE.w, atmH);
+  // Atmosphere top/bottom guide lines.
+  ctx.strokeStyle = 'rgba(220, 220, 255, 0.22)';
+  ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x0, atmY); ctx.lineTo(x0 + SCENE.w, atmY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0, atmY + atmH); ctx.lineTo(x0 + SCENE.w, atmY + atmH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(220, 220, 255, 0.65)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('top of atmosphere', x0 + 8, atmY - 4);
+  ctx.fillText(`greenhouse layer  τ_LW = ${tau.toFixed(3)}`, x0 + 8, atmY + atmH / 2 + 4);
+  // Surface (Earth crust + sun-warmed reds; colour gets hotter with
+  // Tsurf). Three-band gradient: dark blue ice (< 250 K) -> green
+  // habitable (~ 288 K) -> orange (~ 320 K) -> red glowing (> 400 K).
+  const surfY = SCENE.y + SCENE.h - 50;
+  const Tsurf = currentTsurf();
+  function surfColor(T) {
+    if (T < 250) return [40, 80, 160];
+    if (T < 310) {
+      const u = (T - 250) / 60;
+      return [40 + 100 * u, 80 + 110 * u, 160 - 100 * u];
+    }
+    if (T < 420) {
+      const u = (T - 310) / 110;
+      return [140 + 115 * u, 190 - 110 * u, 60 - 60 * u];
+    }
+    const u = Math.min(1, (T - 420) / 320);
+    return [255, 80 + (1 - u) * 30, 30 - u * 30];
+  }
+  const sc = surfColor(Tsurf);
+  ctx.fillStyle = `rgb(${Math.round(sc[0])}, ${Math.round(sc[1])}, ${Math.round(sc[2])})`;
+  ctx.fillRect(x0, surfY, SCENE.w, SCENE.y + SCENE.h - surfY);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+  ctx.font = 'bold 13px ui-monospace, monospace';
+  ctx.fillText(`surface  T = ${Tsurf.toFixed(1)} K  (${(Tsurf - 273.15).toFixed(1)} °C)`,
+    x0 + 8, surfY + 18);
 
-// =========================================================================
-// EARTH (depth-sorted UV sphere with blue/green/white tint based on
-// latitude, plus a polar tilt).
-// =========================================================================
-const N_TH = 18, N_PH = 28;
-const earthQuads = [];
-{
-  for (let i = 0; i < N_TH; i++) {
-    const th0 = (i / N_TH) * Math.PI;
-    const th1 = ((i + 1) / N_TH) * Math.PI;
-    for (let j = 0; j < N_PH; j++) {
-      const ph0 = (j / N_PH) * 2 * Math.PI;
-      const ph1 = ((j + 1) / N_PH) * 2 * Math.PI;
-      earthQuads.push({ th0, th1, ph0, ph1 });
+  // Big surface thermometer on the right of the scene. The mercury
+  // height tracks T_surf directly, providing a strong visual cue when
+  // the user moves CO2 or albedo sliders.
+  const thermX = SCENE.x + SCENE.w - 28, thermY = atmY + atmH + 4, thermH = surfY - thermY - 6;
+  ctx.fillStyle = 'rgba(20, 20, 30, 0.85)';
+  ctx.fillRect(thermX - 10, thermY, 18, thermH);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.45)';
+  ctx.strokeRect(thermX - 10.5, thermY + 0.5, 18, thermH);
+  const thermFrac = Math.min(1, Math.max(0, (Tsurf - 200) / (750 - 200)));
+  const fillH = thermFrac * (thermH - 4);
+  ctx.fillStyle = `rgb(${Math.round(sc[0])}, ${Math.round(sc[1])}, ${Math.round(sc[2])})`;
+  ctx.fillRect(thermX - 8, thermY + thermH - fillH - 2, 14, fillH);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  for (const T of [200, 300, 400, 500, 600, 700]) {
+    const u = (T - 200) / 550;
+    const y = thermY + thermH - u * (thermH - 4);
+    if (u >= 0 && u <= 1) {
+      ctx.fillRect(thermX + 8, y, 4, 1);
+      ctx.fillText(`${T}`, thermX + 14, y + 3);
     }
   }
-}
-
-function earthTint(thc, phc, isVenus) {
-  if (isVenus) {
-    // Yellow-orange Venusian clouds.
-    return [220 + 30 * Math.cos(3 * phc), 180 + 30 * Math.sin(2 * thc), 80];
-  }
-  const lat = Math.cos(thc);    // 1 at pole, -1 at south pole
-  const polar = Math.abs(lat);
-  // Land/ocean mix by longitude.
-  const isLand = Math.cos(4 * phc + 1.7) > 0.1 && polar < 0.85;
-  if (polar > 0.85) {
-    return [220, 235, 250];     // ice cap
-  }
-  if (isLand) {
-    return [60 + 40 * Math.cos(3 * phc), 110 + 40 * Math.sin(2 * thc + phc), 50];
-  }
-  return [40, 80, 160];           // ocean
-}
-
-const R_EARTH = 1.0;
-
-function drawEarth(cam, rotPhase) {
-  const isVenus = st.preset === 'venus_runaway';
-  const items = [];
-  for (const q of earthQuads) {
-    const thc = (q.th0 + q.th1) / 2;
-    const phc = (q.ph0 + q.ph1) / 2 + rotPhase;
-    const center = [
-      R_EARTH * Math.sin(thc) * Math.cos(phc),
-      R_EARTH * Math.cos(thc),
-      R_EARTH * Math.sin(thc) * Math.sin(phc),
-    ];
-    const dx = center[0] - cam.eye[0], dy = center[1] - cam.eye[1], dz = center[2] - cam.eye[2];
-    const depth = dx * cam.f[0] + dy * cam.f[1] + dz * cam.f[2];
-    if (depth <= 0) continue;
-    const norm = [center[0] / R_EARTH, center[1] / R_EARTH, center[2] / R_EARTH];
-    const facing = (dx * norm[0] + dy * norm[1] + dz * norm[2]);
-    if (facing > 0) continue;
-    items.push({ q, thc, phc, center, depth, norm });
-  }
-  items.sort((a, b) => b.depth - a.depth);
-  // Sun direction (for shading): we put Sun far on +x.
-  const sunDir = [1, 0.2, 0]; const sLen = Math.hypot(sunDir[0], sunDir[1], sunDir[2]);
-  const sun = [sunDir[0] / sLen, sunDir[1] / sLen, sunDir[2] / sLen];
-  for (const it of items) {
-    const { q, thc, phc, norm } = it;
-    const verts = [
-      [R_EARTH * Math.sin(q.th0) * Math.cos(q.ph0 + rotPhase), R_EARTH * Math.cos(q.th0), R_EARTH * Math.sin(q.th0) * Math.sin(q.ph0 + rotPhase)],
-      [R_EARTH * Math.sin(q.th0) * Math.cos(q.ph1 + rotPhase), R_EARTH * Math.cos(q.th0), R_EARTH * Math.sin(q.th0) * Math.sin(q.ph1 + rotPhase)],
-      [R_EARTH * Math.sin(q.th1) * Math.cos(q.ph1 + rotPhase), R_EARTH * Math.cos(q.th1), R_EARTH * Math.sin(q.th1) * Math.sin(q.ph1 + rotPhase)],
-      [R_EARTH * Math.sin(q.th1) * Math.cos(q.ph0 + rotPhase), R_EARTH * Math.cos(q.th1), R_EARTH * Math.sin(q.th1) * Math.sin(q.ph0 + rotPhase)],
-    ];
-    const proj = verts.map(v => w2s(v, cam));
-    if (proj.some(p => p === null)) continue;
-    const tint = earthTint(thc, phc, isVenus);
-    const lambert = Math.max(0.10, sun[0] * norm[0] + sun[1] * norm[1] + sun[2] * norm[2]);
-    const r = Math.round(tint[0] * lambert);
-    const g = Math.round(tint[1] * lambert);
-    const b = Math.round(tint[2] * lambert);
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.beginPath();
-    ctx.moveTo(proj[0].x, proj[0].y);
-    ctx.lineTo(proj[1].x, proj[1].y);
-    ctx.lineTo(proj[2].x, proj[2].y);
-    ctx.lineTo(proj[3].x, proj[3].y);
-    ctx.closePath();
-    ctx.fill();
-  }
-  // Atmospheric layer: thin translucent sphere outside Earth.
-  const tau = tauFromCO2(st.co2_ppm);
-  const atmAlpha = (1 - tau) * 0.35;       // more opaque -> visible layer.
-  const center2D = w2s([0, 0, 0], cam);
-  const refR = w2s([R_EARTH * 1.10, 0, 0], cam);
-  if (center2D && refR) {
-    const Rpx = Math.hypot(refR.x - center2D.x, refR.y - center2D.y);
-    const glow = ctx.createRadialGradient(center2D.x, center2D.y, Rpx * 0.95, center2D.x, center2D.y, Rpx * 1.20);
-    glow.addColorStop(0, `rgba(120, 220, 255, ${atmAlpha.toFixed(3)})`);
-    glow.addColorStop(1, 'rgba(120, 220, 255, 0)');
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.arc(center2D.x, center2D.y, Rpx * 1.20, 0, 2 * Math.PI); ctx.fill();
-  }
-}
-
-function drawSun(cam) {
-  // Sun is "behind" the camera direction. We draw it as a bright disk
-  // off-screen-ish; for the photon paths we treat it as at (5.5, 1.1, 0).
-  const sunPos = [5.5, 1.1, 0];
-  const s = w2s(sunPos, cam);
-  if (!s) return;
-  const glow = ctx.createRadialGradient(s.x, s.y, 5, s.x, s.y, 50);
-  glow.addColorStop(0, 'rgba(255, 240, 200, 1)');
-  glow.addColorStop(0.4, 'rgba(255, 200, 100, 0.55)');
-  glow.addColorStop(1, 'rgba(255, 100, 60, 0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.arc(s.x, s.y, 50, 0, 2 * Math.PI); ctx.fill();
+  // Sun marker.
+  const sunR = 18;
+  const sunX = x0 + SCENE.w - 50;
+  const sunY = y0 + 22;
+  const sunG = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 2);
+  sunG.addColorStop(0, 'rgba(255, 240, 200, 1)');
+  sunG.addColorStop(0.5, 'rgba(255, 200, 110, 0.6)');
+  sunG.addColorStop(1, 'rgba(255, 150, 60, 0)');
+  ctx.fillStyle = sunG;
+  ctx.beginPath(); ctx.arc(sunX, sunY, sunR * 2, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(255, 245, 220, 1)';
-  ctx.beginPath(); ctx.arc(s.x, s.y, 14, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
   ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('Sun', s.x + 18, s.y + 4);
+  ctx.fillText(`Sun S = ${S_SOLAR_WM2.toFixed(0)} W/m²`, x0 + 8, y0 + 14);
+
+  // Photons. Each rendered as a glowing disc with a fading motion
+  // trail in the direction of travel. Makes the streams visually pop
+  // and gives a sense of motion in static screenshots.
+  for (const p of st.photons) {
+    let col, glowCol;
+    if (p.kind === 'sw') { col = 'rgba(120, 220, 255, 1)'; glowCol = 'rgba(120, 220, 255, 0.35)'; }
+    else if (p.kind === 'sw_reflect') { col = 'rgba(180, 220, 255, 0.95)'; glowCol = 'rgba(180, 220, 255, 0.30)'; }
+    else if (p.kind === 'lw_up') { col = 'rgba(255, 130, 110, 1)'; glowCol = 'rgba(255, 130, 110, 0.35)'; }
+    else if (p.kind === 'lw_escape') { col = 'rgba(255, 200, 120, 1)'; glowCol = 'rgba(255, 200, 120, 0.40)'; }
+    else if (p.kind === 'lw_back') { col = 'rgba(255, 110, 90, 1)'; glowCol = 'rgba(255, 110, 90, 0.35)'; }
+    // Trail.
+    const trailLen = 14;
+    const trailDy = -p.vy * 0.04;
+    const gr = ctx.createLinearGradient(p.x, p.y, p.x, p.y + trailDy * trailLen);
+    gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.strokeStyle = gr; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + trailDy * trailLen); ctx.stroke();
+    // Glow.
+    const gl = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 6);
+    gl.addColorStop(0, glowCol); gl.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fill();
+    // Core dot.
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Flux arrows were drawn on top of the photon column and made the
+  // scene unreadable. The energy-budget bar chart on the right panel
+  // already conveys the magnitudes; the in-scene arrows added visual
+  // clutter without new information.
+
+  // Legend strip ABOVE the surface band (in the dark lower-atmosphere
+  // region) so it doesn't sit on top of a glowing surface colour.
+  const lyy = surfY - 8;
+  let lxx = x0 + 6;
+  function legend(col, txt) {
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(lxx, lyy, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.95)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(txt, lxx + 7, lyy + 3);
+    lxx += ctx.measureText(txt).width + 26;
+  }
+  legend('rgba(120, 220, 255, 0.95)', 'SW in');
+  legend('rgba(180, 220, 255, 0.75)', 'SW reflected');
+  legend('rgba(255, 130, 110, 0.95)', 'LW up');
+  legend('rgba(255, 180, 120, 0.95)', 'LW escape');
+  legend('rgba(255, 110, 90, 0.95)', 'LW back-rad');
 }
 
 // =========================================================================
-// PHOTON PATHS. Deterministic-seed RNG; we draw N visible-IN photons
-// streaming from the Sun toward Earth (with a few reflected by albedo)
-// and N IR-OUT photons emitted from Earth's day side (with a fraction
-// captured in the atmosphere layer and re-emitted back down).
+// PANEL: T_surf vs CO2 curve.
 // =========================================================================
-function drawPhotons(cam, rng, tau) {
-  const N = st.rho;
-  // Visible IN: from sun position toward Earth. We sample target points
-  // on Earth's "day side" (facing the Sun) and trace cyan lines.
-  const sunPos = [5.5, 1.1, 0];
-  for (let i = 0; i < N; i++) {
-    // Random target on Earth's day-facing hemisphere.
-    const theta = rng() * Math.PI;
-    const phi = -Math.PI / 2 + rng() * Math.PI;
-    const target = [
-      R_EARTH * Math.sin(theta) * Math.cos(phi),
-      R_EARTH * Math.cos(theta),
-      R_EARTH * Math.sin(theta) * Math.sin(phi),
-    ];
-    // Approximate "incoming" point near the sun.
-    const start = [
-      sunPos[0] + (rng() - 0.5) * 0.4,
-      sunPos[1] + (rng() - 0.5) * 0.4,
-      sunPos[2] + (rng() - 0.5) * 0.4,
-    ];
-    const ps = w2s(start, cam);
-    const pt = w2s(target, cam);
-    if (!ps || !pt) continue;
-    const reflected = rng() < st.A;
-    if (reflected) {
-      // Reflected: bounce off surface (line goes from Earth back to space).
-      ctx.strokeStyle = 'rgba(180, 220, 255, 0.40)';
-      ctx.lineWidth = 0.8;
-      const refl = [target[0] * 2.5, target[1] * 2.5, target[2] * 2.5];
-      const pr = w2s(refl, cam);
-      if (pr) {
-        ctx.beginPath(); ctx.moveTo(ps.x, ps.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pr.x, pr.y); ctx.stroke();
-      }
-    } else {
-      ctx.strokeStyle = 'rgba(120, 220, 255, 0.65)';
-      ctx.lineWidth = 0.9;
-      ctx.beginPath(); ctx.moveTo(ps.x, ps.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
-    }
-  }
-  // IR OUT: from Earth surface (random point on full sphere) outward.
-  // Probability of escape = tau (transmissivity). Otherwise the photon
-  // is re-absorbed at the atmosphere and re-emitted down (i.e., the
-  // "trapped IR").
-  for (let i = 0; i < N; i++) {
-    const theta = rng() * Math.PI;
-    const phi = rng() * 2 * Math.PI;
-    const source = [
-      R_EARTH * Math.sin(theta) * Math.cos(phi),
-      R_EARTH * Math.cos(theta),
-      R_EARTH * Math.sin(theta) * Math.sin(phi),
-    ];
-    const ps = w2s(source, cam);
-    if (!ps) continue;
-    if (rng() < tau) {
-      // Escapes to space.
-      const dir = [source[0], source[1], source[2]];
-      const dl = Math.hypot(dir[0], dir[1], dir[2]);
-      const end = [dir[0] / dl * 4.0, dir[1] / dl * 4.0, dir[2] / dl * 4.0];
-      const pe = w2s(end, cam);
-      if (!pe) continue;
-      ctx.strokeStyle = 'rgba(255, 130, 110, 0.40)';
-      ctx.lineWidth = 0.8;
-      ctx.beginPath(); ctx.moveTo(ps.x, ps.y); ctx.lineTo(pe.x, pe.y); ctx.stroke();
-    } else {
-      // Trapped: short outgoing segment then re-emitted toward surface (closer in).
-      const dir = [source[0], source[1], source[2]];
-      const dl = Math.hypot(dir[0], dir[1], dir[2]);
-      const atm = [dir[0] / dl * 1.18, dir[1] / dl * 1.18, dir[2] / dl * 1.18];
-      const back = [dir[0] / dl * 0.5, dir[1] / dl * 0.5, dir[2] / dl * 0.5];
-      const pa = w2s(atm, cam);
-      const pb = w2s(back, cam);
-      if (!pa || !pb) continue;
-      ctx.strokeStyle = 'rgba(255, 200, 130, 0.65)';
-      ctx.lineWidth = 0.9;
-      ctx.beginPath(); ctx.moveTo(ps.x, ps.y); ctx.lineTo(pa.x, pa.y); ctx.stroke();
-      ctx.strokeStyle = 'rgba(255, 150, 100, 0.55)';
-      ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
-    }
-  }
-}
-
-// =========================================================================
-// TEMPERATURE PANEL.
-// =========================================================================
-function drawTemperaturePanel(T_eff, T_surf) {
-  const px = 12, py = 50, pw = 250, ph = 230;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.92)';
-  ctx.fillRect(px, py, pw, ph);
+function drawCurvePanel() {
+  const p = PANELS.curve;
+  ctx.fillStyle = 'rgba(15, 22, 36, 0.85)';
+  ctx.fillRect(p.x, p.y, p.w, p.h);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = 'bold 12px system-ui, sans-serif';
-  ctx.fillText('T_surf vs tau_LW (single-layer model)', px + 8, py - 6);
-  // Plot T_surf as a function of tau_LW in [0, 1].
-  const N = 200;
-  const xs = [], ys = [];
-  let yMin = Infinity, yMax = -Infinity;
-  for (let k = 0; k < N; k++) {
-    const tau = k / (N - 1);
-    const T = surfaceTemperature_K(S_SOLAR_WM2, st.A, tau);
-    xs.push(tau); ys.push(T);
-    if (T < yMin) yMin = T; if (T > yMax) yMax = T;
+  ctx.fillText('surface temperature  T_surf  vs  CO₂', p.x + 10, p.y + 16);
+  // x = log10(co2_ppm) in [log10(50), log10(1e6)]; y = T_surf in [200, 400] K.
+  const ax = p.x + 40, ay = p.y + 30;
+  const aw = p.w - 60, ah = p.h - 50;
+  const xLo = Math.log10(50), xHi = Math.log10(1e6);
+  const yLo = 200, yHi = 400;
+  function xOf(c) { return ax + ((Math.log10(c) - xLo) / (xHi - xLo)) * aw; }
+  function yOf(T) { return ay + ah - ((T - yLo) / (yHi - yLo)) * ah; }
+  // Grid + ticks.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  ctx.lineWidth = 1;
+  for (let dec = 2; dec <= 6; dec += 1) {
+    const xp = xOf(Math.pow(10, dec));
+    ctx.beginPath(); ctx.moveTo(xp, ay); ctx.lineTo(xp, ay + ah); ctx.stroke();
   }
-  function xForTau(tau) { return px + 36 + tau * (pw - 56); }
-  function yForT(T) { return py + ph - 30 - (T - yMin) / Math.max(1e-6, yMax - yMin) * (ph - 50); }
-  // Grid.
-  ctx.strokeStyle = 'rgba(200, 210, 230, 0.10)';
-  for (let tau = 0; tau <= 1; tau += 0.25) {
-    ctx.beginPath(); ctx.moveTo(xForTau(tau), py + 16); ctx.lineTo(xForTau(tau), py + ph - 30); ctx.stroke();
+  for (let T = 200; T <= 400; T += 50) {
+    const yp = yOf(T);
+    ctx.beginPath(); ctx.moveTo(ax, yp); ctx.lineTo(ax + aw, yp); ctx.stroke();
   }
-  // Curve.
-  ctx.strokeStyle = 'rgba(255, 130, 110, 0.95)';
-  ctx.lineWidth = 1.8;
+  // Curve: T_surf(co2) for current A.
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
   ctx.beginPath();
-  for (let k = 0; k < N; k++) {
-    const x = xForTau(xs[k]); const y = yForT(ys[k]);
-    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  let first = true;
+  for (let i = 0; i <= 200; i += 1) {
+    const c = Math.pow(10, xLo + (i / 200) * (xHi - xLo));
+    const T = surfaceTemperature_K(S_SOLAR_WM2, st.A, tauFromCO2(c));
+    if (T < yLo || T > yHi) continue;
+    const xp = xOf(c), yp = yOf(T);
+    if (first) { ctx.moveTo(xp, yp); first = false; } else ctx.lineTo(xp, yp);
   }
   ctx.stroke();
-  // Current tau marker.
-  const tau_now = tauFromCO2(st.co2_ppm);
-  const xc = xForTau(tau_now);
-  // For Venus: use multi-layer formula.
-  const T_surf_now = (st.n_layers > 1)
-    ? multilayerSurfaceTemperature_K(S_SOLAR_WM2, st.A, tauFromCO2(st.co2_ppm), st.n_layers)
-    : T_surf;
-  const yc = yForT(Math.min(yMax, T_surf_now));
-  ctx.fillStyle = 'rgba(255, 255, 200, 1)';
-  ctx.beginPath(); ctx.arc(xc, yc, 6, 0, 2 * Math.PI); ctx.fill();
-  // Axes.
-  ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
-  ctx.font = '10px ui-monospace, monospace';
-  ctx.fillText('tau_LW', px + pw - 32, py + ph - 12);
-  ctx.fillText('T (K)', px + 4, py + 18);
-  ctx.fillText('0', xForTau(0) - 4, py + ph - 14);
-  ctx.fillText('0.5', xForTau(0.5) - 6, py + ph - 14);
-  ctx.fillText('1', xForTau(1) - 4, py + ph - 14);
-  ctx.fillText(yMin.toFixed(0), px + 4, py + ph - 30);
-  ctx.fillText(yMax.toFixed(0), px + 4, py + 30);
-  // Readout strip.
-  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = '12px ui-monospace, monospace';
-  ctx.fillText(`T_eff = ${T_eff.toFixed(1)} K`, px + 8, py + ph + 18);
-  ctx.fillText(`T_surf = ${T_surf_now.toFixed(1)} K (${(T_surf_now - 273.15).toFixed(1)} C)`, px + 8, py + ph + 34);
-}
-
-// =========================================================================
-// LEGEND PANEL (color key).
-// =========================================================================
-function drawLegend() {
-  const px = W - 270, py = H - 110, pw = 256, ph = 90;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
-  ctx.fillRect(px, py, pw, ph);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = 'bold 11px system-ui, sans-serif';
-  ctx.fillText('photon legend', px + 8, py + 16);
-  const rows = [
-    { c: 'rgba(120, 220, 255, 0.85)', t: 'visible IN (solar shortwave)' },
-    { c: 'rgba(180, 220, 255, 0.55)', t: 'reflected IN (albedo)' },
-    { c: 'rgba(255, 130, 110, 0.85)', t: 'IR OUT to space (tau_LW)' },
-    { c: 'rgba(255, 200, 130, 0.85)', t: 'IR trapped in atmosphere' },
-  ];
-  let yy = py + 30;
-  for (const r of rows) {
-    ctx.fillStyle = r.c;
-    ctx.fillRect(px + 10, yy - 6, 12, 3);
-    ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-    ctx.font = '10px ui-monospace, monospace';
-    ctx.fillText(r.t, px + 28, yy - 3);
-    yy += 14;
+  // Reference points (1850, 2025, 2xCO2).
+  function refPt(c, label, color) {
+    const T = surfaceTemperature_K(S_SOLAR_WM2, st.A, tauFromCO2(c));
+    if (T < yLo || T > yHi) return;
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(xOf(c), yOf(T), 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText(label, xOf(c) + 5, yOf(T) - 4);
   }
+  refPt(280, '1850 (280)', 'rgba(126, 212, 193, 0.95)');
+  refPt(420, '2025 (420)', 'rgba(126, 212, 193, 0.95)');
+  refPt(560, '2× (560)',  'rgba(126, 212, 193, 0.95)');
+  // Current point.
+  const curT = surfaceTemperature_K(S_SOLAR_WM2, st.A, tauFromCO2(st.co2_ppm));
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(xOf(st.co2_ppm), yOf(curT), 6, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(xOf(st.co2_ppm), yOf(curT), 6, 0, Math.PI * 2); ctx.stroke();
+  // Axis labels.
+  ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  for (let dec = 2; dec <= 6; dec += 1) ctx.fillText(`10^${dec}`, xOf(Math.pow(10, dec)) - 8, ay + ah + 12);
+  for (let T = 200; T <= 400; T += 50) ctx.fillText(`${T}`, ax - 30, yOf(T) + 3);
+  ctx.fillText('CO₂ (ppm)', ax + aw / 2 - 26, ay + ah + 24);
+  ctx.save();
+  ctx.translate(p.x + 14, ay + ah / 2 + 14);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('T (K)', 0, 0);
+  ctx.restore();
 }
 
 // =========================================================================
-// MAIN DRAW.
+// PANEL: energy budget bar chart.
 // =========================================================================
-function draw() {
-  drawSky();
-  const cam = makeCamBasis();
-  // Compute T_eff, T_surf.
+function drawBudgetPanel() {
+  const p = PANELS.budget;
+  ctx.fillStyle = 'rgba(15, 22, 36, 0.85)';
+  ctx.fillRect(p.x, p.y, p.w, p.h);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+  ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('energy budget  (W / m²)', p.x + 10, p.y + 16);
   const tau = tauFromCO2(st.co2_ppm);
-  const T_eff = emissionTemperature_K(S_SOLAR_WM2, st.A);
-  const T_surf = (st.n_layers > 1)
-    ? multilayerSurfaceTemperature_K(S_SOLAR_WM2, st.A, tau, st.n_layers)
-    : surfaceTemperature_K(S_SOLAR_WM2, st.A, tau);
-  // Earth.
-  const rotPhase = st.t * 0.2;
-  drawEarth(cam, rotPhase);
-  drawSun(cam);
-  // Photons. Use a fresh RNG each frame (deterministic when paused).
-  const rng = makeRng((((st.t * 60) | 0) * 1234) ^ 0xBEEF);
-  drawPhotons(cam, rng, tau);
-  drawTemperaturePanel(T_eff, T_surf);
-  drawLegend();
-  // Title strip.
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
-  ctx.fillRect(10, 8, 300, 26);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.40)';
-  ctx.strokeRect(10.5, 8.5, 299, 25);
-  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.font = 'bold 13px system-ui, sans-serif';
-  ctx.fillText(`GREENHOUSE: ${GHE_PRESETS[st.preset].label}`, 20, 26);
-  // Readouts.
-  rCo2.textContent = st.co2_ppm < 1e4 ? st.co2_ppm.toFixed(0) : st.co2_ppm.toExponential(2);
+  const Sin = S_SOLAR_WM2 / 4;                                  // global mean SW.
+  const SWreflected = Sin * st.A;
+  const SWabsorbed = Sin * (1 - st.A);
+  const Tsurf = currentTsurf();
+  const surfaceLW = SIGMA_SB * Math.pow(Tsurf, 4);
+  // Single-layer grey atmosphere: atmosphere emits eps * sigma * Ta^4
+  // both up and down; for the simple model the back-radiation equals
+  // (1 - tau) * surfaceLW, the part that didn't escape.
+  const LWtoSpace = surfaceLW * tau + (1 - tau) * SWabsorbed;
+  const backRad = (1 - tau) * surfaceLW;
+  // Bars.
+  const bars = [
+    { label: 'SW in',        value: Sin,         color: 'rgba(120, 220, 255, 0.85)' },
+    { label: 'SW reflected', value: SWreflected, color: 'rgba(180, 220, 255, 0.75)' },
+    { label: 'SW absorbed',  value: SWabsorbed,  color: 'rgba(91, 192, 235, 0.85)' },
+    { label: 'surface LW',   value: surfaceLW,   color: 'rgba(255, 130, 110, 0.90)' },
+    { label: 'back-rad',     value: backRad,     color: 'rgba(255, 110, 90, 0.90)' },
+    { label: 'LW to space',  value: LWtoSpace,   color: 'rgba(255, 180, 120, 0.90)' },
+  ];
+  const maxV = Math.max(...bars.map(b => b.value)) * 1.05;
+  const bx = p.x + 40, by = p.y + 28;
+  const bw = (p.w - 60) / bars.length;
+  const bh = p.h - 60;
+  for (let i = 0; i < bars.length; i += 1) {
+    const b = bars[i];
+    const h = (b.value / maxV) * bh;
+    ctx.fillStyle = b.color;
+    ctx.fillRect(bx + i * bw + 4, by + bh - h, bw - 8, h);
+    ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${b.value.toFixed(0)}`, bx + i * bw + bw / 2, by + bh - h - 4);
+    ctx.fillText(b.label, bx + i * bw + bw / 2, by + bh + 14);
+  }
+  ctx.textAlign = 'left';
+  // y axis label.
+  ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(`max ${maxV.toFixed(0)}`, p.x + 6, by + 8);
+}
+
+// =========================================================================
+// PANEL: blackbody spectrum at T_surf with CO2/H2O bands.
+// =========================================================================
+function drawSpectrumPanel() {
+  const p = PANELS.spectrum;
+  ctx.fillStyle = 'rgba(15, 22, 36, 0.85)';
+  ctx.fillRect(p.x, p.y, p.w, p.h);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
+  ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText('surface emission spectrum + CO₂ / H₂O bands', p.x + 10, p.y + 16);
+  const ax = p.x + 40, ay = p.y + 30;
+  const aw = p.w - 60, ah = p.h - 50;
+  // Wavelength range: 4 to 30 micron.
+  const lamLo = 4e-6, lamHi = 30e-6;
+  const Tsurf = currentTsurf();
+  // Planck B_lambda(T) in arbitrary units; we normalize to its peak.
+  function planck(lam, T) {
+    const h = 6.62607015e-34, c = 2.99792458e8, k = 1.380649e-23;
+    return (2 * h * c * c / Math.pow(lam, 5)) / (Math.exp(h * c / (lam * k * T)) - 1);
+  }
+  let bmax = 0;
+  for (let i = 0; i < 200; i += 1) {
+    const lam = lamLo + (i / 199) * (lamHi - lamLo);
+    bmax = Math.max(bmax, planck(lam, Tsurf));
+  }
+  function xOf(lam) { return ax + ((lam - lamLo) / (lamHi - lamLo)) * aw; }
+  function yOf(b) { return ay + ah - (b / bmax) * ah; }
+  // Absorption-band shading. CO2 main band centred at 15 micron; H2O
+  // rotational tails > 20 micron, vibrational band centred at ~ 6.3 micron.
+  // The CO2 band STRENGTH scales with log2(co2_ppm) -- visualize this by
+  // making the band's vertical fill proportional to (1 - exp(-tau_band)).
+  const co2Center = 15e-6, co2Width = 2.5e-6;
+  const co2Strength = Math.min(0.95, 0.30 + 0.50 * Math.log2(st.co2_ppm / 280) / 3);
+  const co2Color = `rgba(255, 130, 110, ${co2Strength.toFixed(2)})`;
+  ctx.fillStyle = co2Color;
+  ctx.fillRect(xOf(co2Center - co2Width), ay, xOf(co2Center + co2Width) - xOf(co2Center - co2Width), ah);
+  ctx.fillStyle = 'rgba(120, 220, 255, 0.20)';
+  ctx.fillRect(xOf(20e-6), ay, xOf(lamHi) - xOf(20e-6), ah);    // H2O rotational tails.
+  ctx.fillRect(xOf(5.5e-6), ay, xOf(7.0e-6) - xOf(5.5e-6), ah);  // H2O vibrational.
+  // Labels.
+  ctx.fillStyle = 'rgba(255, 200, 200, 0.95)';
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText('CO₂ 15 µm', xOf(co2Center) - 22, ay + 12);
+  ctx.fillStyle = 'rgba(160, 220, 255, 0.95)';
+  ctx.fillText('H₂O rot.', xOf(23e-6), ay + 12);
+  ctx.fillText('H₂O 6 µm', xOf(5.6e-6), ay + 24);
+  // Planck curve.
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i += 1) {
+    const lam = lamLo + (i / 200) * (lamHi - lamLo);
+    const b = planck(lam, Tsurf);
+    if (i === 0) ctx.moveTo(xOf(lam), yOf(b)); else ctx.lineTo(xOf(lam), yOf(b));
+  }
+  ctx.stroke();
+  // Axis labels.
+  ctx.fillStyle = 'rgba(200, 210, 230, 0.85)';
+  ctx.font = '11px ui-monospace, monospace';
+  for (const lamUm of [5, 10, 15, 20, 25, 30]) {
+    const lam = lamUm * 1e-6;
+    if (lam > lamHi) continue;
+    ctx.fillText(`${lamUm}`, xOf(lam) - 4, ay + ah + 12);
+  }
+  ctx.fillText('wavelength (µm)', ax + aw / 2 - 36, ay + ah + 24);
+}
+
+// =========================================================================
+// MAIN.
+// =========================================================================
+function render() {
+  ctx.fillStyle = '#02030a';
+  ctx.fillRect(0, 0, W, H);
+  drawScene();
+  drawCurvePanel();
+  drawBudgetPanel();
+  drawSpectrumPanel();
+  // Top banner readouts.
+  const tau = tauFromCO2(st.co2_ppm);
+  const Teff = emissionTemperature_K(S_SOLAR_WM2, st.A);
+  const Tsurf = currentTsurf();
+  rCo2.textContent = st.co2_ppm.toFixed(0);
   rA.textContent = st.A.toFixed(2);
   rTau.textContent = tau.toFixed(3);
-  rTeff.textContent = T_eff.toFixed(1);
-  rTsurf.textContent = T_surf.toFixed(1);
+  rTeff.textContent = Teff.toFixed(1);
+  rTsurf.textContent = Tsurf.toFixed(1);
 }
 
+function tick(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  try {
+    if (st.running) stepPhotons(dt);
+    render();
+  } catch (e) {
+    // Don't let one bad frame kill the rAF loop forever; log and keep
+    // scheduling. Previous versions were vulnerable to a single
+    // exception in render() stopping the animation outright.
+    console.error('greenhouse tick failed', e);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Short labels for the preset readout so long names like
+// "venus_runaway" don't overflow the 10ch value column and visually
+// collide with the dropdown's selected text.
+const PRESET_SHORT = {
+  preindustrial: '1850',
+  current: '2025',
+  doubled_co2: '2× CO2',
+  snowball: 'Snowball',
+  venus_runaway: 'Venus',
+};
 function readSliders() {
   if (selPreset.value !== st.preset) applyPreset(selPreset.value);
   else {
@@ -456,15 +581,32 @@ function readSliders() {
     st.A = parseFloat(sA.value);
   }
   st.rho = parseFloat(sRho.value);
-  vPreset.textContent = selPreset.value;
-  vCo2.textContent = st.co2_ppm < 1e4 ? st.co2_ppm.toFixed(0) : st.co2_ppm.toExponential(2);
+  vPreset.textContent = PRESET_SHORT[st.preset] ?? st.preset.slice(0, 8);
+  vCo2.textContent = String(Math.round(st.co2_ppm));
   vAv.textContent = st.A.toFixed(2);
   vRho.textContent = String(st.rho);
 }
 
 [selPreset, sCo2, sA, sRho].forEach(el => el.addEventListener('input', readSliders));
 selPreset.addEventListener('change', readSliders);
-btnReset.addEventListener('click', () => { st.t = 0; });
+
+// Click anywhere in the scene to spawn a burst of 30 SW photons there.
+// Lets the user "fire" a packet of sunlight and watch the surface heat
+// up; turns the playground from a passive animation into a tangible
+// laboratory.
+canvas.addEventListener('click', (e) => {
+  const r = canvas.getBoundingClientRect();
+  const cx = (e.clientX - r.left) * (W / r.width);
+  const cy = (e.clientY - r.top) * (H / r.height);
+  if (cx < SCENE.x || cx > SCENE.x + SCENE.w || cy < SCENE.y || cy > SCENE.y + SCENE.h) return;
+  for (let i = 0; i < 30; i += 1) {
+    const ph = spawnSWPhoton(_rng);
+    ph.x = cx + (_rng() - 0.5) * 30;
+    ph.y = cy + (_rng() - 0.5) * 10;
+    st.photons.push(ph);
+  }
+});
+btnReset.addEventListener('click', () => { st.t = 0; st.photons.length = 0; applyPreset('current'); readSliders(); });
 btnPause.addEventListener('click', () => {
   st.running = !st.running;
   btnPause.textContent = st.running ? 'Pause' : 'Resume';
@@ -472,25 +614,27 @@ btnPause.addEventListener('click', () => {
 });
 
 const SHARE_KEYS = {
-  preset: { get: () => st.preset, set: v => { st.preset = v; selPreset.value = v; }, parse: x => x },
   co2_ppm: { get: () => st.co2_ppm, set: v => { st.co2_ppm = parseFloat(v); sCo2.value = v; }, parse: parseFloat },
   albedo: { get: () => st.A, set: v => { st.A = parseFloat(v); sA.value = v; }, parse: parseFloat },
+  preset: { get: () => st.preset, set: v => { st.preset = v; selPreset.value = v; }, parse: x => x },
 };
 parseUrlState(SHARE_KEYS);
+mountShareButton(document.getElementById('share-mount'), () => ({
+  co2_ppm: st.co2_ppm.toFixed(0), albedo: st.A.toFixed(2), preset: st.preset,
+}), { label: 'Copy URL' });
+
 applyPreset(st.preset);
 readSliders();
-mountShareButton(document.getElementById('share-mount'), SHARE_KEYS);
-
-const captureMap = ['preindustrial', 'current', 'doubled_co2', 'snowball', 'venus_runaway'];
 
 if (CAPTURE_NAME) {
-  const idx = Math.min(4, Math.max(0, Math.floor((CAPTURE_FRAC || 0) * 5)));
-  selPreset.value = captureMap[idx];
-  applyPreset(captureMap[idx]);
+  const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+  const presets = ['snowball', 'preindustrial', 'current', 'doubled_co2', 'venus_runaway'];
+  const idx = Math.min(presets.length - 1, Math.floor(f * presets.length));
+  applyPreset(presets[idx]);
   readSliders();
-  st.t = (CAPTURE_FRAC || 0) * 4 + 0.5;
-  if (camera.setAzimuthDeg) camera.setAzimuthDeg(30 + CAPTURE_FRAC * 30);
-  draw();
+  // Spawn a few photons for the still frame.
+  for (let i = 0; i < 60; i += 1) stepPhotons(0.08);
+  render();
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       window.__simulationReady = true;
@@ -500,15 +644,6 @@ if (CAPTURE_NAME) {
     window.__simulationReady = true;
   }
 } else {
-  let last = performance.now();
-  function loop(now) {
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    if (st.running) st.t += dt;
-    if (camera.tickIdle) camera.tickIdle(now);
-    draw();
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(tick);
   window.__simulationReady = true;
 }

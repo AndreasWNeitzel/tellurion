@@ -50,7 +50,7 @@ function drawTau(c, x0, y_off, w, h) {
     const x = x0 + padL + plotW * i / 5;
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '10px ui-monospace, monospace';
+    ctx.font = '11px ui-monospace, monospace';
     ctx.fillText(`${i}`, x - 4, y_off + padT + plotH + 14);
   }
   for (let i = 0; i <= 4; i += 1) {

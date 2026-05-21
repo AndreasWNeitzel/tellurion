@@ -59,23 +59,46 @@ function drawStar() {
   ctx.fillText('pulsating Cepheid', x + 8, y - 6);
 
   const cx = x + w / 2, cy = y + h / 2;
-  // Map physical R/R_sun to canvas pixels. delta Cep ~ 45 R_sun;
-  // l Car ~ 180 R_sun. Use sqrt scaling so big stars don't blow up.
   const R_Rsun = radiusAtPhase(st.phase, st.P);
   const T_K = TeffAtPhase(st.phase, st.P);
+  const L_now = luminosity_Lsun(R_Rsun, T_K);
+  const L_mean = luminosity_Lsun(meanRadius_Rsun(st.P), meanTeff_K(st.P));
+  const lumFactor = L_now / Math.max(1e-9, L_mean);    // 1.0 at mean; > 1 at peak; < 1 at trough.
   const drawR = 35 + 5 * Math.sqrt(R_Rsun);
   const col = blackbodyColor(T_K);
+
+  // Distance-driven apparent-brightness factor. The halo and core
+  // intensity scale as 1/d^2 (inverse-square law) so moving the
+  // distance slider visibly dims the star without changing its size
+  // on the canvas. d=300 pc is the calibration distance (around the
+  // delta-Cep neighbourhood) at which the halo is fully bright.
+  const distRef = 300;
+  const distFactor = Math.max(0.05, Math.min(2.5, (distRef / Math.max(50, st.distance_pc)) ** 2));
+
+  // Luminosity-driven halo: a soft radial glow whose intensity tracks
+  // both intrinsic L (phase-modulated) and apparent 1/d^2 dimming.
+  const haloR = drawR * (2.0 + 0.7 * (lumFactor - 1));
+  const haloA = Math.max(0, Math.min(0.85, 0.35 + 0.55 * (lumFactor - 1))) * distFactor;
+  const halo = ctx.createRadialGradient(cx, cy, drawR * 0.95, cx, cy, haloR);
+  halo.addColorStop(0, `rgba(${col.r}, ${col.g}, ${col.b}, ${(haloA * 0.55).toFixed(3)})`);
+  halo.addColorStop(0.5, `rgba(${col.r}, ${col.g}, ${col.b}, ${(haloA * 0.18).toFixed(3)})`);
+  halo.addColorStop(1, `rgba(${col.r}, ${col.g}, ${col.b}, 0)`);
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(cx, cy, haloR, 0, Math.PI * 2); ctx.fill();
+
+  // Star body. Core brightness is also lumFactor-modulated so peak-light
+  // shows as visibly hotter (whiter) core; trough is more saturated colour.
+  const coreBoost = Math.min(1, Math.max(0.55, 0.7 + 0.35 * (lumFactor - 1)));
   const grad = ctx.createRadialGradient(cx - drawR * 0.3, cy - drawR * 0.3, drawR * 0.15, cx, cy, drawR);
-  grad.addColorStop(0, 'rgba(255, 255, 235, 1)');
+  grad.addColorStop(0, `rgba(255, 255, ${Math.round(220 + 35 * coreBoost)}, 1)`);
   grad.addColorStop(0.6, `rgba(${col.r}, ${col.g}, ${col.b}, 1)`);
   grad.addColorStop(1, `rgba(${Math.round(col.r * 0.4)}, ${Math.round(col.g * 0.4)}, ${Math.round(col.b * 0.4)}, 1)`);
   ctx.fillStyle = grad;
   ctx.beginPath(); ctx.arc(cx, cy, drawR, 0, Math.PI * 2); ctx.fill();
-  // limb darkening
   ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, 0.3)`;
   ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.arc(cx, cy, drawR, 0, Math.PI * 2); ctx.stroke();
-  // Pulsation indicator: show the mean-radius ring as dashed.
+  // Mean-radius reference ring.
   const meanR_can = 35 + 5 * Math.sqrt(meanRadius_Rsun(st.P));
   ctx.setLineDash([3, 4]);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
@@ -85,8 +108,11 @@ function drawStar() {
   // Readouts.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
   ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`R = ${R_Rsun.toFixed(1)} R_sun`, x + 8, y + h - 24);
-  ctx.fillText(`T_eff = ${T_K.toFixed(0)} K`, x + 8, y + h - 10);
+  ctx.fillText(`R = ${R_Rsun.toFixed(1)} R_sun`, x + 8, y + h - 52);
+  ctx.fillText(`T_eff = ${T_K.toFixed(0)} K`, x + 8, y + h - 38);
+  ctx.fillText(`L / <L> = ${lumFactor.toFixed(2)}`, x + 8, y + h - 24);
+  ctx.fillStyle = 'rgba(120, 200, 255, 0.85)';
+  ctx.fillText(`apparent 1/d^2 = ${distFactor.toFixed(2)}x`, x + 8, y + h - 10);
   // Phase arrow.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.85)';
   const dPhase = Math.cos(2 * Math.PI * st.phase);
@@ -313,9 +339,15 @@ if (CAPTURE_NAME) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     if (st.running && st.speed > 0) {
-      // Show one period per ~3 seconds, scaled by speed.
-      st.phase += dt * 0.35 * st.speed;
-      if (st.phase > 1) st.phase -= 1;
+      // Period-driven animation. Visual time scale: a P = 10 d Cepheid
+      // takes ~ 5 seconds per cycle at speed = 2. Longer-period stars
+      // pulse visibly slower; shorter-period ones faster. The slider
+      // value 'speed' is a global multiplier (1, 2, 3).
+      const P_ref = 10;            // reference period in days for the
+                                    // visual base rate.
+      const cyclesPerSec = (st.speed * 0.2) * (P_ref / Math.max(1, st.P));
+      st.phase += dt * cyclesPerSec;
+      st.phase = st.phase - Math.floor(st.phase);
     }
     draw();
     requestAnimationFrame(loop);

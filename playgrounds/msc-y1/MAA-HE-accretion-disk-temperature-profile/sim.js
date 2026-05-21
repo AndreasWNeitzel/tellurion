@@ -39,7 +39,40 @@ export const R_TMAX = (49 / 36) * R_IN;
 export const T_MAX  = temperature(R_TMAX);
 
 // Wien-displacement: peak wavelength lambda_max ~ 1 / T (in suitable
-// units). For visualization map T to RGB via a blackbody-like color.
+// units).
+//
+// Planck spectrum B_nu(T) in dimensionless units (h = k = 1), used to
+// build the multicolour-blackbody SED of the whole disc.
+export function planckNu(nu, T) {
+  if (T <= 1e-6 || nu <= 0) return 0;
+  const x = nu / T;
+  if (x > 60) return 0;
+  return (nu * nu * nu) / (Math.exp(x) - 1);
+}
+
+// Disc-integrated SED  F_nu = integral 2 pi r B_nu(T(r)) dr, sampled on
+// a log-frequency grid. The hallmark is the F_nu ~ nu^(1/3) middle
+// segment between the Rayleigh-Jeans tail and the Wien cutoff.
+export function discSED(nNu = 80, rOut = R_OUT) {
+  const nuLo = 0.02, nuHi = 8.0;
+  const nu = new Float64Array(nNu);
+  const Fnu = new Float64Array(nNu);
+  const nR = 240;
+  for (let k = 0; k < nNu; k += 1) {
+    const lnu = Math.log(nuLo) + (Math.log(nuHi) - Math.log(nuLo)) * k / (nNu - 1);
+    nu[k] = Math.exp(lnu);
+    let s = 0;
+    for (let j = 1; j < nR; j += 1) {
+      const r = R_IN * Math.pow(rOut / R_IN, j / (nR - 1));
+      const dr = r - R_IN * Math.pow(rOut / R_IN, (j - 1) / (nR - 1));
+      s += 2 * Math.PI * r * planckNu(nu[k], temperature(r)) * dr;
+    }
+    Fnu[k] = s;
+  }
+  return { nu, Fnu };
+}
+
+// For visualization, map T to RGB via a blackbody-like color.
 export function temperatureToRGB(T) {
   // Map T to color: hot = blue/white, warm = orange, cool = red.
   // Cheap mapping using T / T_max.

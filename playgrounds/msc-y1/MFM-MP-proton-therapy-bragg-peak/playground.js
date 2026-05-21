@@ -52,7 +52,7 @@ function panel(x, y, w, h, title) {
 function axes(x, y, w, h) {
   const px = x + 38, py = y + 26, pw = w - 52, ph = h - 50;
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = '11px monospace';
   for (let d = 0; d <= ZMAX; d += 10) {
     const xx = px + pw * d / ZMAX;
     ctx.fillText(`${d}`, xx - 5, py + ph + 14);
@@ -79,14 +79,14 @@ function drawMain(x, y, w, h) {
     const so = cache.so;
     ctx.fillStyle = 'rgba(255,209,102,0.10)';
     ctx.fillRect(A.X(so.Rmin), A.py, A.X(so.Rmax) - A.X(so.Rmin), A.ph);
-    ctx.fillStyle = 'rgba(255,209,102,0.6)'; ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(255,209,102,0.6)'; ctx.font = '11px monospace';
     ctx.fillText('tumour target', A.X(so.Rmin) + 4, A.py + A.ph - 8);
   }
   curve(cache.xr, A, '#8aa0c8', 2);                       // photon reference
   if (sobpMode) curve(cache.so.dose, A, '#6fb4ff', 2.5);
   else curve(cache.p.dose, A, '#ffd166', 2.5);
   // legend
-  ctx.font = '10px monospace';
+  ctx.font = '11px monospace';
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(A.px + 6, A.py + 4, 210, 30);
   ctx.fillStyle = '#8aa0c8'; ctx.fillText('X-ray (photon) PDD', A.px + 12, A.py + 16);
   ctx.fillStyle = sobpMode ? '#6fb4ff' : '#ffd166';
@@ -114,7 +114,7 @@ function drawSOBP(x, y, w, h) {
   }
   curve(so.dose, A, '#6fb4ff', 2.5);
   ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.fillRect(A.px + 6, A.py + 4, 220, 30);
-  ctx.fillStyle = '#ffd166'; ctx.font = '10px monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = '11px monospace';
   ctx.fillText(`${so.peaks.length} weighted pristine peaks`, A.px + 12, A.py + 16);
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('their sum (flat SOBP)', A.px + 12, A.py + 29);
 }
@@ -146,7 +146,7 @@ function drawPatient(x, y, w, h) {
   // tumour bracket
   ctx.strokeStyle = 'rgba(255,120,120,0.8)'; ctx.lineWidth = 2;
   ctx.strokeRect(X(tumLo), y + 36, X(tumHi) - X(tumLo), y + 40 + rowH - (y + 36) + 4);
-  ctx.fillStyle = 'rgba(255,150,150,0.9)'; ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,150,150,0.9)'; ctx.font = '11px monospace';
   ctx.fillText('tumour', X(tumLo) + 2, y + 34);
   // distal sparing note
   const r90 = distalDepth(dose, Z, 0.9);

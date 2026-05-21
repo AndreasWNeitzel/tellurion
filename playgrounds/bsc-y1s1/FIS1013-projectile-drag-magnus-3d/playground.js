@@ -261,7 +261,7 @@ function render() {
     const ex = dot(v, cam.right), ey = dot(v, cam.up);
     const tx = gx + ex * gL, ty = gy - ey * gL;
     ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(tx, ty); ctx.stroke();
-    ctx.fillStyle = c; ctx.font = '9px ui-monospace, monospace';
+    ctx.fillStyle = c; ctx.font = '11px ui-monospace, monospace';
     ctx.textAlign = ex < -0.2 ? 'right' : 'left';
     ctx.fillText(lab, tx + (ex < -0.2 ? -3 : 3), ty + (ey < -0.2 ? 9 : -2));
   }

@@ -65,8 +65,40 @@ function physFrame(n) {
   }
 }
 
+// Bernoulli pressure field: p = p0 - 1/2 rho v^2. Where the jet is
+// fast the static pressure drops; the low-pressure tube around the
+// ball is what holds it. We render it as a coarse heatmap so the
+// pressure changes are directly visible (blue = low pressure / fast
+// air, dark = ambient still air).
+const PF_NX = 64, PF_NY = 44;
+function drawPressureField() {
+  if (!sim.on) return;
+  const cellW = W / PF_NX, cellH = H / PF_NY;
+  // Find the speed scale for normalisation (peak ~ U0).
+  const vRef = Math.max(2, sim.U0);
+  for (let j = 0; j < PF_NY; j += 1) {
+    for (let i = 0; i < PF_NX; i += 1) {
+      const px = (i + 0.5) * cellW, py = (j + 0.5) * cellH;
+      const wx = (px - NZ_PX.x) / SCx, wy = (NZ_PX.y - py) / SCy;
+      const { speed } = airVelocityAt(sim, wx, wy);
+      // Dimensionless dynamic pressure 1/2 rho v^2 (rho absorbed).
+      const q = Math.min(1, (speed * speed) / (vRef * vRef));
+      if (q < 0.015) continue;                // ambient: leave background
+      // Low static pressure = high q. Blue intensity tracks q.
+      const a = 0.05 + 0.40 * q;
+      ctx.fillStyle = `rgba(70, 130, 220, ${a.toFixed(3)})`;
+      ctx.fillRect(px - cellW / 2, py - cellH / 2, cellW + 1, cellH + 1);
+    }
+  }
+  // Colorbar key.
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.8)';
+  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('blue = low static pressure (fast air, Bernoulli)', 16, 40);
+}
+
 function draw() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
+  drawPressureField();
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, NZ_PX.y); ctx.lineTo(W, NZ_PX.y); ctx.stroke();
   const a = (sim.tiltDeg * Math.PI) / 180;
