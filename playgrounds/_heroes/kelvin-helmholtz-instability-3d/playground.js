@@ -230,33 +230,36 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The Stuart-vortex flow comes from a stream function, so it is
+// incompressible: div(v) = 0 everywhere. The numerical divergence,
+// sampled across the box, is the invariant.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'stuart-a', label: 'Stuart amplitude A', value: st.A, format: 'float' },
+      { key: 'tracers', label: 'tracer particles', value: Math.floor(st.N) },
+      { key: 'sim-time', label: 'time', value: st.t.toFixed(2), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const h = 1e-3;
+  let maxDiv = 0;
+  for (let i = 0; i < 24; i += 1) {
+    const x = ((i * 0.6180339) % 1) * BOX_X;
+    const y = (((i * 0.3819660) % 1) * 2 - 1) * BOX_Y_HALF * 0.9;
+    const div = (velocity(x + h, y, st.A).u - velocity(x - h, y, st.A).u) / (2 * h)
+      + (velocity(x, y + h, st.A).v - velocity(x, y - h, st.A).v) / (2 * h);
+    if (Math.abs(div) > maxDiv) maxDiv = Math.abs(div);
+  }
+  return [
+    {
+      key: 'incompressible',
+      label: 'flow is incompressible (max |div v|)',
+      value: maxDiv.toExponential(2),
+      status: maxDiv < 1e-3 ? 'pass' : (maxDiv < 1e-1 ? 'pending' : 'drift'),
+    },
+  ];
+};
