@@ -84,6 +84,7 @@ function render() {
   let mean = 0; for (let i = 0; i < I.length; i += 1) mean += I[i]; mean /= I.length;
   let varr = 0; for (let i = 0; i < I.length; i += 1) varr += (I[i] - mean) ** 2; varr /= I.length;
   const V = mean > 0 ? Math.sqrt(varr) / mean : 0;
+  st.lastV = V;                                  // exposed to the rail invariant
   const BINS = 40, HXMAX = 6;
   const binW = HXMAX / BINS;
   const hist = new Float64Array(BINS);
@@ -209,6 +210,17 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Fully developed speckle has negative-exponential intensity, for
+// which sigma equals the mean, so the contrast V = sigma/mean -> 1.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    if (typeof st.lastV !== 'number') return [];
+    const drift = Math.abs(st.lastV - 1);
+    return [{
+      key: 'contrast',
+      label: 'speckle contrast V = sigma/mean -> 1',
+      value: st.lastV.toFixed(3),
+      status: drift < 0.22 ? 'pass' : (drift < 0.45 ? 'pending' : 'drift'),
+    }];
+  };
 }
