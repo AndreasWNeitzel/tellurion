@@ -110,18 +110,31 @@ function w2s(p, cam) {
 // =========================================================================
 // BACKGROUND. WebGL throat for overview / traversal; clear for embedding / exotic.
 // =========================================================================
+// Traversal is a one-way crossing: the camera flies A -> throat -> B,
+// holds in universe B (so the throat ends up behind the viewer, not
+// returning into view), then resets to A hidden behind a short fade
+// to black. tau in [0,1] maps to l_cam from +L to -L via traversalEll.
+const TRAV_PERIOD = 7.5;
+function traversalState(t) {
+  const u = (t % TRAV_PERIOD) / TRAV_PERIOD;
+  const CROSS = 0.80;                              // fraction spent flying A -> B
+  const tau = u < CROSS ? u / CROSS : 1;           // then hold in universe B
+  let fade = 0;                                    // fade to black hides the reset
+  if (u > 0.93) fade = (u - 0.93) / 0.07;
+  else if (u < 0.07) fade = 1 - u / 0.07;
+  return { tau, lCam: traversalEll(tau, st.b0, 3.0), fade };
+}
+
 function paintBackground() {
   if ((st.mode === 'overview' || st.mode === 'traversal') && engine) {
-    let lCam = st.lCam * st.b0;
+    let lCam = st.lCam * st.b0, fade = 0;
     if (st.mode === 'traversal') {
-      // Sweep camera from +L to -L and back, smooth ease-in-out.
-      const period = 6.0;
-      const u = ((st.t % period) / period);
-      const tau = (u < 0.5) ? (u * 2) : (1 - (u - 0.5) * 2);
-      lCam = traversalEll(tau, st.b0, 3.0);
+      const ts = traversalState(st.t);
+      lCam = ts.lCam; fade = ts.fade;
     }
     engine.render(st.b0, lCam, st.yaw * DEG, st.t);
     ctx.drawImage(canvasGL, 0, 0, W, H);
+    if (fade > 0) { ctx.fillStyle = `rgba(2,3,10,${fade.toFixed(3)})`; ctx.fillRect(0, 0, W, H); }
   } else {
     ctx.fillStyle = '#02030a';
     ctx.fillRect(0, 0, W, H);
@@ -155,11 +168,8 @@ function drawOverviewMode() {
 // progress strip.
 // =========================================================================
 function drawTraversalMode() {
-  // Background already animates.
-  const period = 6.0;
-  const u = ((st.t % period) / period);
-  const tau = (u < 0.5) ? (u * 2) : (1 - (u - 0.5) * 2);
-  const lCam = traversalEll(tau, st.b0, 3.0);
+  // Background already animates; reuse the one-way crossing state.
+  const lCam = traversalState(st.t).lCam;
   // Progress bar.
   const px = 14, py = H - 60, pw = 0.92 * W, ph = 12;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';

@@ -71,6 +71,7 @@ void main(){
   float az = atan(rd.y, rd.x);
 
   float ldot = (cospsi >= 0.0 ? -1.0 : 1.0) * sqrt(max(0.0, 1.0 - L*L/(rcam*rcam)));
+  float ldot0 = ldot;                // initial sign: toward (-) or away from the throat
   float phi = 0.0;
   bool through = false;
   // integrate the Ellis null geodesic
@@ -96,8 +97,12 @@ void main(){
   vec3 col = sky(outDir, side);
 
   // throat ring glow: where the impact parameter is near b0 the ray
-  // skims the throat and is strongly lensed -> bright rim.
+  // skims the throat and is strongly lensed -> bright rim. Only rays
+  // heading toward the throat skim it: a camera that has crossed into
+  // the far universe and faces onward (uLcam and ldot0 same sign)
+  // sees no rim, so the ring stays behind after a traversal.
   float skim = exp(-pow((L - b0)/(0.10*b0), 2.0));
+  if (uLcam * ldot0 > 0.0) skim = 0.0;
   col += vec3(0.5,0.75,1.0) * skim * 0.7;
 
   o = vec4(aces(col), 1.0);
