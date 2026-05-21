@@ -337,7 +337,7 @@ let __energy0 = null, __energyPrev = null;
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () {
     try {
-      const E = energy(sim);
+      const E = energy(sim).total;            // energy() returns {ke, pe, spr, total}
       if (!Number.isFinite(E)) return [];
       if (__energyPrev !== null
         && Math.abs(E - __energyPrev) > 0.02 * Math.max(1e-9, Math.abs(__energyPrev)) + 1e-9) {
