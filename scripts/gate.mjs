@@ -8,6 +8,7 @@ import { chromium } from '/home/aneitzel/projects/portfolio/playgrounds-portfoli
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { startStaticServer } from '../tests/helpers/static-server.mjs';
+import { collectFiles, lintCanvasFonts } from './lint-layout-v2.mjs';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const ROOT = path.resolve(__dirname, '..');
@@ -580,7 +581,22 @@ async function gateL_doppler_asymmetry() {
   finally { await ctx.close(); }
 }
 
+// Layout System v2 lint (spec Section 11.1): no hardcoded ctx.font
+// pixel sizes. Static check; will fail unmigrated playgrounds, which
+// is expected during the migration.
+function gateLintCanvasFonts() {
+  const jsFiles = collectFiles(pgDir, (n) => n.endsWith('.js'));
+  const v = lintCanvasFonts(jsFiles);
+  if (v.length) {
+    record('N.layout-v2-lint', false,
+      `${v.length} hardcoded ctx.font size(s), e.g. ${path.relative(ROOT, v[0].file)}:${v[0].line}`);
+  } else {
+    record('N.layout-v2-lint', true, 'no hardcoded ctx.font sizes');
+  }
+}
+
 try {
+  gateLintCanvasFonts();
   await gateA(); await gateB(); await gateC(); await gateD(); await gateE(); await gateF(); await gateG();
   await gateJ_disk_above_and_below();
   await gateK_banding();
