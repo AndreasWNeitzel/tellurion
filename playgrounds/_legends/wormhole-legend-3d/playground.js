@@ -246,27 +246,25 @@ function drawGeodesicParticles(cam) {
     const r = circumferentialR(l, st.b0), z = embedZ(l, st.b0);
     return [r * Math.cos(phi), z, r * Math.sin(phi)];
   };
-  const facesCamera = (pt, phi) => {
-    const n = [Math.cos(phi), 0, Math.sin(phi)];
-    return (cam.eye[0] - pt[0]) * n[0] + (cam.eye[1] - pt[1]) * n[1] + (cam.eye[2] - pt[2]) * n[2] > 0;
-  };
+  // The particles are a visual aid, so they are drawn on top of the
+  // funnel from every camera angle (no front-face culling): the only
+  // skip is for points behind the camera, which w2s returns as null.
   for (const p of st.gparticles) {
     const col = p.h < st.b0 ? '120,220,255' : '255,170,90';   // cyan crosses, orange bounces
     for (let i = 1; i < p.trail.length; i++) {
-      const b = surf(p.trail[i].l, p.trail[i].phi);
-      if (!facesCamera(b, p.trail[i].phi)) continue;
-      const pa = w2s(surf(p.trail[i - 1].l, p.trail[i - 1].phi), cam), pb = w2s(b, cam);
+      const pa = w2s(surf(p.trail[i - 1].l, p.trail[i - 1].phi), cam);
+      const pb = w2s(surf(p.trail[i].l, p.trail[i].phi), cam);
       if (!pa || !pb) continue;
-      ctx.strokeStyle = `rgba(${col},${(0.55 * i / p.trail.length).toFixed(3)})`;
-      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = `rgba(${col},${(0.62 * i / p.trail.length).toFixed(3)})`;
+      ctx.lineWidth = 1.8;
       ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
     }
-    const head = surf(p.l, p.phi);
-    if (!facesCamera(head, p.phi)) continue;
-    const ph = w2s(head, cam);
+    const ph = w2s(surf(p.l, p.phi), cam);
     if (!ph) continue;
     ctx.fillStyle = `rgb(${col})`;
-    ctx.beginPath(); ctx.arc(ph.x, ph.y, 3.2, 0, 2 * Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.arc(ph.x, ph.y, 3.6, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = 'rgba(8,12,22,0.9)'; ctx.lineWidth = 1;
+    ctx.stroke();
   }
 }
 
