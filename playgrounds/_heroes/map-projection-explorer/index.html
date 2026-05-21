@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Map Projection Explorer</title>
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<style>
+  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+  .playground-canvas { cursor: grab; }
+  .playground-canvas:active { cursor: grabbing; }
+</style>
+</head>
+<body>
+  <main class="playground-layout" data-focus="false">
+
+    <a href="/" class="playground-back" aria-label="Back to catalog">
+      <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+      <span class="back-title">Map Projection Explorer</span>
+    </a>
+
+    <article class="playground-center">
+
+      <header class="playground-header">
+        <h1 class="t-title playground-title">Map Projection Explorer</h1>
+        <p class="t-small playground-prereqs" hidden>
+          <span class="prereq-label">Prerequisites:</span>
+        </p>
+      </header>
+
+      <section class="playground-intro">
+        <p class="t-body">Every flat map of the round Earth has to distort something: area,
+        angle, distance, or shape. No projection preserves all of them. This explorer projects
+        the globe through twelve classic map projections and overlays Tissot's indicatrix, the
+        small ellipse that turns the invisible local distortion into something you can see.
+        Drag the canvas to recentre the globe and watch the distortion pattern move with it.</p>
+      </section>
+
+      <div class="playground-canvas-frame">
+        <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+          <svg class="focus-icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path>
+          </svg>
+        </button>
+        <canvas class="playground-canvas" id="stage" width="880" height="540" aria-label="Map projection canvas"></canvas>
+      </div>
+
+      <figcaption class="t-small playground-caption">
+        <span class="figure-number">Figure 1.</span>
+        The graticule, coarse coastlines, and Tissot indicatrices of the selected projection.
+        A circular indicatrix marks a conformal point, an equal-area indicatrix marks an
+        equal-area point, and the diagnostic panel tracks both along the central meridian.
+        <em>Method:</em> forward projection of geographic coordinates, with the indicatrix
+        from the numerical Jacobian in an orthonormal sphere basis. <em>Source:</em> Snyder,
+        Map Projections: A Working Manual, USGS Professional Paper 1395, 1987.
+      </figcaption>
+
+      <section class="playground-controls">
+        <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+          <!-- Controls injected by playground.js. -->
+        </div>
+      </section>
+
+      <section class="playground-what-to-try">
+        <h2 class="t-label">WHAT TO TRY</h2>
+        <ul>
+          <li class="t-body">Switch to Mercator and watch the Tissot ellipses inflate toward
+          the poles: the indicatrices stay circular (Mercator is conformal) but their area
+          runs away, which is why Greenland looks the size of Africa.</li>
+          <li class="t-body">Switch to Mollweide or Hammer: every indicatrix now has the same
+          area (equal-area) but they squash into ellipses, so shapes are sacrificed instead.</li>
+          <li class="t-body">Compare Winkel tripel and Robinson, the compromise projections:
+          neither distortion is zero anywhere, but neither runs away either.</li>
+          <li class="t-body">Drag the globe so the orthographic, stereographic, or gnomonic
+          projection recentres on a different hemisphere.</li>
+        </ul>
+      </section>
+
+      <section class="playground-equations" hidden>
+        <button class="equations-toggle t-label" type="button">SHOW EQUATIONS</button>
+        <div class="equations-content"></div>
+      </section>
+
+      <section class="playground-related">
+        <h2 class="t-label">RELATED</h2>
+        <div class="related-strip"></div>
+      </section>
+
+    </article>
+
+    <aside class="playground-rail" aria-label="Diagnostics">
+      <section class="rail-state">
+        <h2 class="t-label">LIVE READOUTS</h2>
+        <table class="rail-state-table"></table>
+      </section>
+      <section class="rail-invariants">
+        <h2 class="t-label">INVARIANTS</h2>
+        <ul class="rail-invariants-list"></ul>
+      </section>
+      <section class="rail-references">
+        <h2 class="t-label">REFERENCES</h2>
+        <ol class="rail-references-list"></ol>
+      </section>
+    </aside>
+
+  </main>
+
+  <script type="module" src="../../../shared/js/rail.js"></script>
+  <script type="module" src="../../../shared/js/focus.js"></script>
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>
