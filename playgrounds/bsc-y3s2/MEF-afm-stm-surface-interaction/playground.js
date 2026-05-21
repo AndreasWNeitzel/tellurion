@@ -46,28 +46,51 @@ let mImg = null;
 
 function hash(i) { const s = Math.sin(i * 12.9898) * 43758.5453; return s - Math.floor(s); }
 
-// Render the greyscale relief micrograph once: Lambert shading of the
-// 2D corrugation under a raking light + fine grain (electron-
-// microscope feel). Recomputed only if amp/lattice change (constant
-// here, so once).
+// The signal the instrument actually senses at a surface point: the
+// Lennard-Jones force (AFM), the tunnelling current (STM constant
+// height), or the corrugation that a constant-current tip tracks
+// (STM topograph). This is what the micrograph images, so it depends
+// on the mode, the gap, and the work function.
+function signalAt(wx, wy) {
+  const z = surfaceProfile2D(wx, wy, AMP, LAT);
+  if (st.mode === 'afm') return ljForce((ljMinDistance(SIG) + st.gap) - z, EPS, SIG);
+  if (st.mode === 'stm-ch') return stmCurrent((st.gap + AMP) - z, BIAS, st.phi);
+  return z;
+}
+
+// Render the greyscale relief micrograph of the sensed signal field,
+// Lambert-shaded under a raking light with fine grain (the electron-
+// microscope look). Rebuilt whenever the mode, gap, or work function
+// changes, so the sliders visibly sharpen or flatten the image.
 function buildMicrograph() {
   mImg = mctx.createImageData(GN, GN);
   const d = mImg.data;
-  const span = XMAX, eps = span / GN;
-  const lx = -0.55, ly = -0.55, lz = 0.63;            // light direction
+  const span = XMAX;
+  const field = new Float64Array(GN * GN);
+  let lo = Infinity, hi = -Infinity;
   for (let j = 0; j < GN; j += 1) {
     const wy = (j / GN) * span;
     for (let i = 0; i < GN; i += 1) {
-      const wx = (i / GN) * span;
-      const z = surfaceProfile2D(wx, wy, AMP, LAT);
-      const zx = (surfaceProfile2D(wx + eps, wy, AMP, LAT) - z) / eps;
-      const zy = (surfaceProfile2D(wx, wy + eps, AMP, LAT) - z) / eps;
+      const s = signalAt((i / GN) * span, wy);
+      field[j * GN + i] = s;
+      if (s < lo) lo = s;
+      if (s > hi) hi = s;
+    }
+  }
+  const range = (hi - lo) || 1;
+  const lx = -0.55, ly = -0.55, lz = 0.63;            // light direction
+  for (let j = 0; j < GN; j += 1) {
+    for (let i = 0; i < GN; i += 1) {
+      const n = (field[j * GN + i] - lo) / range;
+      const il = field[j * GN + Math.max(0, i - 1)];
+      const ir = field[j * GN + Math.min(GN - 1, i + 1)];
+      const ju = field[Math.max(0, j - 1) * GN + i];
+      const jd = field[Math.min(GN - 1, j + 1) * GN + i];
+      const zx = 6 * (ir - il) / range, zy = 6 * (jd - ju) / range;
       const nl = Math.hypot(zx, zy, 1) || 1;
-      let sh = (-zx * lx - zy * ly + lz) / nl;          // Lambert term
-      sh = Math.max(0, sh);
-      const amb = 0.10 + 0.34 * ((z + AMP) / (2 * AMP)); // height -> ambient
-      const grain = (hash(i * 7 + j * 131) - 0.5) * 0.06;
-      const v = Math.max(0, Math.min(1, amb + 0.72 * sh + grain));
+      const sh = Math.max(0, (-zx * lx - zy * ly + lz) / nl);
+      const grain = (hash(i * 7 + j * 131) - 0.5) * 0.05;
+      const v = Math.max(0, Math.min(1, 0.10 + 0.52 * n + 0.48 * sh + grain));
       const g = (16 + 232 * v) | 0;
       const k = (j * GN + i) * 4;
       d[k] = g; d[k + 1] = g; d[k + 2] = g; d[k + 3] = 255;
@@ -192,13 +215,13 @@ function tick() {
 }
 
 function syncLabels() { vGap.textContent = st.gap.toFixed(2); vPhi.textContent = st.phi.toFixed(2); }
-selMode.addEventListener('change', () => { st.mode = selMode.value; draw(); });
-sGap.addEventListener('input', () => { st.gap = parseFloat(sGap.value) / 100; syncLabels(); draw(); });
-sPhi.addEventListener('input', () => { st.phi = parseFloat(sPhi.value) / 100; syncLabels(); draw(); });
+selMode.addEventListener('change', () => { st.mode = selMode.value; buildMicrograph(); draw(); });
+sGap.addEventListener('input', () => { st.gap = parseFloat(sGap.value) / 100; syncLabels(); buildMicrograph(); draw(); });
+sPhi.addEventListener('input', () => { st.phi = parseFloat(sPhi.value) / 100; syncLabels(); buildMicrograph(); draw(); });
 bR.addEventListener('click', () => {
   st.mode = 'stm-cc'; st.gap = 5; st.phi = 5; st.running = true; st.scanY = 0;
   selMode.value = 'stm-cc'; sGap.value = '500'; sPhi.value = '500';
-  bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); syncLabels(); draw();
+  bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); syncLabels(); buildMicrograph(); draw();
 });
 bP.addEventListener('click', () => { st.running = !st.running; bP.textContent = st.running ? 'Pause' : 'Play'; bP.setAttribute('aria-pressed', String(!st.running)); });
 
