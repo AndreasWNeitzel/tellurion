@@ -677,6 +677,23 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// At the emission temperature the planet is in radiative balance:
+// outgoing longwave (sigma T_e^4) equals absorbed shortwave
+// (S(1-A)/4). That top-of-atmosphere balance is the invariant.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const Te = emissionTemperature_K(S_SOLAR_WM2, st.A);
+      const olr = SIGMA_SB * Te * Te * Te * Te;
+      const asw = S_SOLAR_WM2 * (1 - st.A) / 4;
+      if (!(asw > 0)) return [];
+      const dev = Math.abs(olr - asw) / asw;
+      return [{
+        key: 'energy-balance',
+        label: 'top-of-atmosphere radiative balance',
+        value: dev.toExponential(2),
+        status: dev < 1e-6 ? 'pass' : (dev < 1e-3 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
