@@ -1,9 +1,10 @@
 // playground.js
-// Beats from superposition of two close-frequency cosines. Top: y1(t) and
-// y2(t) overlaid. Middle: sum with envelope. Bottom: spectrum bars.
+// Beats from superposition of two close-frequency cosines. Top: y1(t)
+// and y2(t) overlaid. Middle: sum with envelope. Bottom: spectrum bars.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { setCanvasFont } from '../../../shared/js/canvas-type.js';
 import {
   y1, y2, ySum, envelope, envelopeFreq, beatRate, carrierFreq,
 } from './sim.js';
@@ -42,8 +43,6 @@ const tok = {
   accentWarm: cssVar('--accent-warm', '#d68a69'),
 };
 
-// Decaying trails for the oscillating cursor dots (sum, y1, y2). Cleared
-// when the sweep wraps so the comet does not streak across the panel.
 const trails = { sum: [], y1: [], y2: [] };
 function pushTrail(key, x, y) {
   const a = trails[key];
@@ -66,17 +65,14 @@ function drawPanel(x, y, w, h, label) {
   ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  // zero line
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.beginPath();
   ctx.moveTo(x, y + h / 2);
   ctx.lineTo(x + w, y + h / 2);
   ctx.stroke();
-  // label
-  ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
+  setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'left' });
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText(label, x + 6, y + 14);
+  ctx.fillText(label, x + 6, y + 16);
 }
 
 function plotFunc(x, y, w, h, fn, yMin, yMax, color, lw = 1.2) {
@@ -101,18 +97,10 @@ function drawAll() {
   const padX = 30;
   const PANEL_W = W - 2 * padX;
 
-  // Title bar
-  ctx.font = '12px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`f_1 = ${state.f1.toFixed(2)} Hz   f_2 = ${state.f2.toFixed(2)} Hz`, padX, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`carrier f_bar = ${carrierFreq(state.f1, state.f2).toFixed(3)}   envelope f_b = ${envelopeFreq(state.f1, state.f2).toFixed(3)}   audible beat = ${beatRate(state.f1, state.f2).toFixed(3)} Hz`, padX, 40);
-
-  // Panel layout: 3 stacked
+  // Title-bar state (f1, f2, carrier, beat rate) now lives in the rail.
   const panelGap = 14;
-  const panelH = (H - 60 - 3 * panelGap - 20) / 3;
-  const panelY0 = 56;
+  const panelY0 = 16;
+  const panelH = (H - panelY0 - 3 * panelGap - 14) / 3;
   const panelY1 = panelY0 + panelH + panelGap;
   const panelY2 = panelY1 + panelH + panelGap;
 
@@ -123,7 +111,6 @@ function drawAll() {
 
   // Panel 2: y1 + y2 with envelope
   drawPanel(padX, panelY1, PANEL_W, panelH, 'y_1(t) + y_2(t) (with envelope shadow)');
-  // envelope shadow (upper and lower)
   ctx.strokeStyle = 'rgba(241, 210, 138, 0.45)';
   ctx.lineWidth = 1.0;
   ctx.beginPath();
@@ -149,10 +136,8 @@ function drawAll() {
   // Panel 3: spectrum bars
   drawPanel(padX, panelY2, PANEL_W, panelH, 'spectrum |Y(f)|');
   function xF(f) { return padX + 6 + (PANEL_W - 12) * (f - 0) / 9.0; }
-  // axis ticks
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  setCanvasFont(ctx, canvas, 'tick', { family: 'mono', align: 'center' });
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.textAlign = 'center';
   for (let f = 0; f <= 9; f += 1) {
     const px = xF(f);
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
@@ -162,7 +147,6 @@ function drawAll() {
     ctx.stroke();
     ctx.fillText(String(f), px, panelY2 + panelH - 8);
   }
-  // bars at f1 and f2
   function bar(f, color) {
     const px = xF(f);
     ctx.strokeStyle = color;
@@ -174,17 +158,13 @@ function drawAll() {
   }
   bar(state.f1, tok.accentCool);
   bar(state.f2, tok.accentWarm);
-  ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+  setCanvasFont(ctx, canvas, 'tick', { family: 'mono', align: 'left' });
   ctx.fillStyle = tok.accentCool;
-  ctx.textAlign = 'left';
-  ctx.fillText(`f_1`, xF(state.f1) + 4, panelY2 + 28);
+  ctx.fillText('f_1', xF(state.f1) + 4, panelY2 + 28);
   ctx.fillStyle = tok.accentWarm;
-  ctx.fillText(`f_2`, xF(state.f2) + 4, panelY2 + 44);
+  ctx.fillText('f_2', xF(state.f2) + 4, panelY2 + 44);
 
-  // The time window scrolls with state.tNow (oscilloscope), so the
-  // left edge is "now". A fixed reference line marks it; the dots show
-  // the instantaneous y1, y2 and their sum entering the scope. Trails
-  // are cleared only on reset (tNow advances monotonically).
+  // Scrolling-scope reference line + instantaneous dots with trails.
   ctx.strokeStyle = 'rgba(241, 210, 138, 0.70)';
   ctx.lineWidth = 1.2;
   ctx.beginPath();
@@ -193,8 +173,6 @@ function drawAll() {
   ctx.lineTo(cx, panelY1 + panelH);
   ctx.stroke();
 
-  // Oscillating dots with decaying trails: y1, y2 on panel 1 and the
-  // resultant on panel 2, sampled at the current time (left edge).
   const y1v = y1(state.tNow, state.f1), y2v = y2(state.tNow, state.f2);
   const py1 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y1v)) + 1.1) / 2.2);
   const py2 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y2v)) + 1.1) / 2.2);
@@ -214,7 +192,6 @@ function drawAll() {
 }
 
 function tickN(n) {
-  // Slowed an order of magnitude (was 0.02) so the beat is followable.
   for (let i = 0; i < n; i += 1) state.tNow += 0.002;
 }
 
@@ -261,3 +238,30 @@ if (document.readyState === 'loading') {
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
+
+// === Diagnostics interface (Layout System v2) ===
+window.playground = window.playground || {};
+window.playground.getState = function getState() {
+  return {
+    fields: [
+      { key: 'f1', label: 'frequency f₁', value: state.f1, unit: 'Hz', format: 'fixed-3' },
+      { key: 'f2', label: 'frequency f₂', value: state.f2, unit: 'Hz', format: 'fixed-3' },
+      { key: 'carrier', label: 'carrier f̄', value: carrierFreq(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
+      { key: 'envelope', label: 'envelope f_b', value: envelopeFreq(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
+      { key: 'beat', label: 'audible beat', value: beatRate(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
+    ],
+  };
+};
+window.playground.getInvariants = function getInvariants() {
+  // Trig-identity checks for the closed-form superposition.
+  const f1 = state.f1, f2 = state.f2;
+  const mk = (key, label, value, tol) => ({
+    key, label, value, tolerance: tol,
+    status: Math.abs(value) < tol ? 'pass' : 'drift',
+  });
+  return [
+    mk('beat_rate', 'beat = |f₁ - f₂|', beatRate(f1, f2) - Math.abs(f1 - f2), 1e-9),
+    mk('carrier', 'carrier = (f₁+f₂)/2', carrierFreq(f1, f2) - (f1 + f2) / 2, 1e-9),
+    mk('envelope', 'envelope = |f₁-f₂|/2', envelopeFreq(f1, f2) - Math.abs(f1 - f2) / 2, 1e-9),
+  ];
+};

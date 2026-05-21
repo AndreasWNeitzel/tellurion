@@ -16,6 +16,23 @@ hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
+invariants:
+  - key: beat_rate
+    label: beat = |f1 - f2|
+    tolerance: 1e-9
+  - key: carrier
+    label: carrier = (f1+f2)/2
+    tolerance: 1e-9
+  - key: envelope
+    label: envelope = |f1-f2|/2
+    tolerance: 1e-9
+what_to_try:
+  - Move f2 toward f1 and watch the envelope stretch as the beat slows.
+  - Set f1 = f2 exactly so the beats vanish into a pure tone.
+  - Pull f1 and f2 far apart to separate the spectrum bars.
+references:
+  - "Crawford, Waves and Oscillations (Berkeley Physics Course Vol. 3), Ch. 1."
+  - "French, Vibrations and Waves, Ch. 1."
 ---
 
 # Beats from superposition of close frequencies
