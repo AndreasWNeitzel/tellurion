@@ -108,7 +108,7 @@ function drawCommutator(x, y, w, h, state) {
 }
 
 function drawDist(x, y, w, h, state) {
-  panel(x, y, w, h, 'occupation distribution |c_n|^2 (Poissonian for a coherent state)');
+  panel(x, y, w, h, 'occupation |c_n|^2 (Poissonian if coherent)');
   const shown = Math.min(state.length, 26);
   const p = []; for (let i = 0; i < shown; i += 1) p.push(state[i] * state[i]);
   bars(x + 8, y + 20, w - 16, h - 50, p, '#f1c069', (i) => (shown <= 14 ? String(i) : ''));
@@ -214,6 +214,31 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The canonical (anti)commutator [a, a-dag] = 1 (bosons) or
+// {a, a-dag} = 1 (fermions) and the unit norm of the state are the
+// invariants of the second-quantised algebra.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const s = currentState();
+      const r = commutatorAction(s, st.stat);
+      let dev = 0;
+      for (let i = 0; i < s.length; i += 1) dev = Math.max(dev, Math.abs(r[i] - s[i]));
+      const nrm = norm(s);
+      return [
+        {
+          key: 'commutator',
+          label: st.stat === 'fermion' ? '{a, a-dag}|psi> = |psi>' : '[a, a-dag]|psi> = |psi>',
+          value: dev.toExponential(1),
+          status: dev < 1e-9 ? 'pass' : (dev < 1e-4 ? 'pending' : 'drift'),
+        },
+        {
+          key: 'norm',
+          label: 'state norm = 1',
+          value: nrm.toFixed(4),
+          status: Math.abs(nrm - 1) < 1e-6 ? 'pass' : (Math.abs(nrm - 1) < 1e-3 ? 'pending' : 'drift'),
+        },
+      ];
+    } catch (e) { return []; }
+  };
 }
