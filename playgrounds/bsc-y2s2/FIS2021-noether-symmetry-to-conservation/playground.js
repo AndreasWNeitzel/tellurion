@@ -95,6 +95,23 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Noether: time-translation symmetry gives energy conservation, and
+// the potential here is time-independent, so energy is conserved
+// whatever the rotational-symmetry-breaking parameter does to the
+// angular momentum.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      if (state === undefined || E0 === undefined) return [];
+      const E = energy(state, st.eps);
+      if (!Number.isFinite(E)) return [];
+      const dE = Math.abs(E - E0) / Math.max(1e-12, Math.abs(E0));
+      return [{
+        key: 'energy',
+        label: 'energy conserved (time-translation symmetry)',
+        value: dE.toExponential(2),
+        status: dE < 2e-3 ? 'pass' : (dE < 2e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
