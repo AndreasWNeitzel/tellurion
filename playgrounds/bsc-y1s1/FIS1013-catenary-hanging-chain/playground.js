@@ -48,6 +48,7 @@ const state = {
   sway: 0,
   speed: parseInt(sliderSpeed.value, 10) || 2,   // was undefined -> NaN sway
   playing: !(DETERMINISTIC || prefersReducedMotion()),
+  interacted: false,       // the idle sway stops after the first drag
 };
 
 // slider-a now controls cable length L (slack). Map its [0.4,3.0]-ish
@@ -80,6 +81,7 @@ function pxToWorld(cx, cy) {
   };
 }
 canvas.addEventListener('pointerdown', (e) => {
+  state.interacted = true;
   const w = pxToWorld(e.clientX, e.clientY);
   const d1 = Math.hypot(w.x - state.P1.x, w.y - state.P1.y);
   const d2 = Math.hypot(w.x - state.P2.x, w.y - state.P2.y);
@@ -109,7 +111,7 @@ function drawAll() {
 
   const left  = state.P1.x <= state.P2.x ? state.P1 : state.P2;
   const right = state.P1.x <= state.P2.x ? state.P2 : state.P1;
-  const swayY = state.playing ? 0.02 * Math.sin(state.sway) : 0;
+  const swayY = (state.playing && !state.interacted) ? 0.02 * Math.sin(state.sway) : 0;
   const L1 = { x: left.x, y: left.y + swayY }, R1 = { x: right.x, y: right.y - swayY };
   const sol = solveCatenary2pt(L1.x, L1.y, R1.x, R1.y, state.L);
 
@@ -148,6 +150,29 @@ function drawAll() {
       if (yc <= deckY) continue;
       const a = toPx(x, yc), d = toPx(x, deckY);
       ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.lineTo(d.px, d.py); ctx.stroke();
+    }
+    // Faint dashed reference parabola through the same two endpoints
+    // and lowest point. A suspension bridge cable (uniform load per
+    // horizontal length) is a parabola; a free-hanging chain (uniform
+    // per arc length) is the catenary. Drawing both shows they differ.
+    let xm = xs[0], ym = ys[0];
+    for (let i = 1; i < xs.length; i += 1) { if (ys[i] < ym) { ym = ys[i]; xm = xs[i]; } }
+    const x1 = L1.x, y1 = L1.y, x2 = R1.x, y2 = R1.y;
+    if (Math.abs(xm - x1) > 1e-3 && Math.abs(xm - x2) > 1e-3) {
+      const para = (x) => y1 * ((x - x2) * (x - xm)) / ((x1 - x2) * (x1 - xm))
+        + y2 * ((x - x1) * (x - xm)) / ((x2 - x1) * (x2 - xm))
+        + ym * ((x - x1) * (x - x2)) / ((xm - x1) * (xm - x2));
+      ctx.strokeStyle = 'rgba(120,200,255,0.5)'; ctx.lineWidth = 1.4; ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      for (let i = 0; i < xs.length; i += 1) {
+        const p = toPx(xs[i], para(xs[i]));
+        if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+      const lp = toPx(xm, ym - 0.22);
+      ctx.fillStyle = 'rgba(120,200,255,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+      ctx.fillText('parabola (a bridge cable) for comparison', lp.px, lp.py);
+      ctx.textAlign = 'left';
     }
   } else {
     // Cable too short for the span: it pulls taut (straight).
