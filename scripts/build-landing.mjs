@@ -75,6 +75,7 @@ for (const path of walk('playgrounds')) {
     hero_candidate: fm.hero_candidate === 'true',
     tier: fm.tier || '',
     hook: (fm.hook || '').replace(/^['"]|['"]$/g, ''),
+    one_paragraph: (fm.one_paragraph || '').replace(/^['"]|['"]$/g, ''),
   });
 }
 cards.sort((a, b) => a.title.localeCompare(b.title));
@@ -146,21 +147,27 @@ function cardHTML(c, featured = false) {
   </a>`;
 }
 
-// Larger card for the spotlight slot: taller image, title at t-title
-// scale, a two-line hook excerpt, and an accent left edge (set in CSS
-// via .spotlight-card::before).
+// Horizontal spotlight card: thumbnail on the left, title / UC /
+// description excerpt / tags on the right, gold star, accent left
+// edge. One per day, the first of the daily rotation.
 function spotlightCardHTML(c) {
   const thumb = c.thumb ? `assets/thumbs/${c.thumb}` : '';
-  const excerpt = (c.hook || '').slice(0, 160);
+  const desc = (c.one_paragraph || c.hook || '').slice(0, 240);
+  const bg = thumb
+    ? `background-image:linear-gradient(135deg,rgba(7,9,15,0) 0%,rgba(7,9,15,0) 60%,rgba(7,9,15,0.4) 100%),url('${thumb}')`
+    : '';
   return `
-  <a class="card spotlight-card" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-year="${c.curriculum_year}" data-tags="${c.tags.join(' ')}" data-order="${c.order}" data-group="${c.group}" style="--tagc:${c.tagcolor}" href="${c.path}/index.html">
-    <div class="cimg cimg-lg"${thumb ? ` data-thumb="${thumb}"` : ''}><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">${shortBadge(c.badge)}</span></div>
-    <div class="cbody">
-      <h3 class="ctitle t-title">${c.title}</h3>
-      ${excerpt ? `<p class="cexcerpt">${excerpt}</p>` : ''}
-      <div class="ctags">${c.tags.slice(0, 4).map(t => `<span class="ctag">${t}</span>`).join('')}</div>
-    </div>
-  </a>`;
+  <article class="spotlight-card" style="--tagc:${c.tagcolor}">
+    <a class="spotlight-link" href="${c.path}/index.html" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-tags="${c.tags.join(' ')}">
+      <div class="spotlight-image" style="${bg}"><span class="star-marker">&#9733;</span></div>
+      <div class="spotlight-body">
+        <h3 class="spotlight-title t-title">${c.title}</h3>
+        <p class="spotlight-uc t-mono">${c.primary_uc || ''}</p>
+        <p class="spotlight-desc t-body">${desc}</p>
+        <div class="spotlight-tags">${c.tags.slice(0, 4).map(t => `<span class="ctag">${t}</span>`).join('')}</div>
+      </div>
+    </a>
+  </article>`;
 }
 
 const cardsHTML = cards.map(c => cardHTML(c)).join('');
@@ -179,9 +186,9 @@ const rotated = heroPool
   .sort((a, b) => a.k - b.k)
   .map(o => o.c);
 const spotlight = rotated[0] || null;
-const featured3 = rotated.slice(1, 4);
+const featured4 = rotated.slice(1, 5);
 const spotlightHTML = spotlight
-  ? `<div class="spotlight-grid">${spotlightCardHTML(spotlight)}<div class="spotlight-row">${featured3.map(c => cardHTML(c)).join('')}</div></div>`
+  ? `${spotlightCardHTML(spotlight)}<div class="featured-row">${featured4.map(c => cardHTML(c)).join('')}</div>`
   : '<p class="t-small" style="color:var(--text-dimmed)">Featured coming soon.</p>';
 
 // Hero stats line. Each number is computed from the catalogue; a stat
@@ -292,19 +299,31 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 #ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}
 .sec{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);margin:48px 0 16px}
 .uc{font-family:var(--f-mono);font-weight:400;font-size:0.8125rem;color:var(--text-secondary)}
-/* Featured: one large daily-rotated spotlight card beside a column of
-   three standard cards. */
-.spotlight-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
-.spotlight-row{display:grid;grid-template-rows:repeat(3,1fr);gap:12px}
-.spotlight-card::before{width:4px;background:var(--accent)}
-.cimg-lg{height:240px}
-.spotlight-row .cimg{height:100px}
-.cexcerpt{color:var(--text-secondary);font-size:0.875rem;line-height:1.5;margin:6px 0 0;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-@media(max-width:1023px){
-  .spotlight-grid{grid-template-columns:1fr}
-  .spotlight-row{grid-template-rows:none}
-}
+/* Featured: one horizontal daily-rotated spotlight card above a row
+   of four standard cards. */
+.featured-header{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.featured-meta{color:var(--text-secondary);font-family:var(--f-mono)}
+.spotlight-card{background:var(--bg-card);border:1px solid var(--border-dim);border-left:4px solid var(--accent);
+  border-radius:8px;overflow:hidden;margin-bottom:16px;
+  transition:background var(--t-normal),border-color var(--t-normal),transform var(--t-normal),box-shadow var(--t-normal)}
+.spotlight-card:hover{background:var(--bg-card-hover);border-color:var(--border-subtle);
+  transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.spotlight-link{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);min-height:280px;text-decoration:none}
+.spotlight-image{position:relative;background-size:cover;background-position:center;background-color:var(--bg-card-hover)}
+.spotlight-image .star-marker{position:absolute;top:16px;left:16px;color:var(--accent-gold);
+  background:rgba(7,9,15,0.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.spotlight-body{padding:32px 28px;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.spotlight-title{color:var(--text-primary);line-height:1.25;margin:0}
+.spotlight-uc{color:var(--text-secondary);margin:0}
+.spotlight-desc{color:var(--text-secondary);line-height:1.6;margin-top:12px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.spotlight-tags{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px}
+.featured-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media(max-width:1280px){.featured-row{grid-template-columns:repeat(3,minmax(0,1fr))}.featured-row>:nth-child(4){display:none}}
+@media(max-width:900px){.featured-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:768px){.spotlight-link{grid-template-columns:1fr;grid-template-rows:180px auto}}
+@media(max-width:600px){.featured-row{grid-template-columns:1fr}}
 .search{position:relative;flex:1;max-width:640px;min-width:240px}
 .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-secondary);pointer-events:none}
 .search input{width:100%;padding:10px 14px 10px 40px;background:var(--bg-surface);border:1px solid var(--border-dim);
@@ -505,8 +524,11 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <div class="hero-filter-chips" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
 </section>
 
-<section class="landing-spotlight">
-  <h2 class="sec">Featured</h2>
+<section class="landing-featured">
+  <header class="featured-header">
+    <h2 class="sec">Featured today</h2>
+    <span class="t-small featured-meta">Rotates daily &middot; ${heroPool.length} hero-tier playgrounds in the catalog</span>
+  </header>
   ${spotlightHTML}
 </section>
 

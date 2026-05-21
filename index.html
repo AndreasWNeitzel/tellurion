@@ -87,19 +87,31 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 #ambient{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;display:block}
 .sec{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);margin:48px 0 16px}
 .uc{font-family:var(--f-mono);font-weight:400;font-size:0.8125rem;color:var(--text-secondary)}
-/* Featured: one large daily-rotated spotlight card beside a column of
-   three standard cards. */
-.spotlight-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
-.spotlight-row{display:grid;grid-template-rows:repeat(3,1fr);gap:12px}
-.spotlight-card::before{width:4px;background:var(--accent)}
-.cimg-lg{height:240px}
-.spotlight-row .cimg{height:100px}
-.cexcerpt{color:var(--text-secondary);font-size:0.875rem;line-height:1.5;margin:6px 0 0;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-@media(max-width:1023px){
-  .spotlight-grid{grid-template-columns:1fr}
-  .spotlight-row{grid-template-rows:none}
-}
+/* Featured: one horizontal daily-rotated spotlight card above a row
+   of four standard cards. */
+.featured-header{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.featured-meta{color:var(--text-secondary);font-family:var(--f-mono)}
+.spotlight-card{background:var(--bg-card);border:1px solid var(--border-dim);border-left:4px solid var(--accent);
+  border-radius:8px;overflow:hidden;margin-bottom:16px;
+  transition:background var(--t-normal),border-color var(--t-normal),transform var(--t-normal),box-shadow var(--t-normal)}
+.spotlight-card:hover{background:var(--bg-card-hover);border-color:var(--border-subtle);
+  transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.spotlight-link{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);min-height:280px;text-decoration:none}
+.spotlight-image{position:relative;background-size:cover;background-position:center;background-color:var(--bg-card-hover)}
+.spotlight-image .star-marker{position:absolute;top:16px;left:16px;color:var(--accent-gold);
+  background:rgba(7,9,15,0.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.spotlight-body{padding:32px 28px;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.spotlight-title{color:var(--text-primary);line-height:1.25;margin:0}
+.spotlight-uc{color:var(--text-secondary);margin:0}
+.spotlight-desc{color:var(--text-secondary);line-height:1.6;margin-top:12px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.spotlight-tags{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px}
+.featured-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media(max-width:1280px){.featured-row{grid-template-columns:repeat(3,minmax(0,1fr))}.featured-row>:nth-child(4){display:none}}
+@media(max-width:900px){.featured-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:768px){.spotlight-link{grid-template-columns:1fr;grid-template-rows:180px auto}}
+@media(max-width:600px){.featured-row{grid-template-columns:1fr}}
 .search{position:relative;flex:1;max-width:640px;min-width:240px}
 .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-secondary);pointer-events:none}
 .search input{width:100%;padding:10px 14px 10px 40px;background:var(--bg-surface);border:1px solid var(--border-dim);
@@ -300,17 +312,23 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <div class="hero-filter-chips" id="tags-rail"><button class="chip" data-tag="mechanics">mechanics</button><button class="chip" data-tag="quantum">quantum</button><button class="chip" data-tag="electromagnetism">electromagnetism</button><button class="chip" data-tag="optics">optics</button><button class="chip" data-tag="statistical-physics">statistical-physics</button><button class="chip" data-tag="fluids-mhd">fluids-mhd</button><button class="chip" data-tag="solid-state">solid-state</button><button class="chip" data-tag="cosmology">cosmology</button><button class="chip" data-tag="relativity">relativity</button><button class="chip" data-tag="stellar">stellar</button><button class="chip" data-tag="medical-physics">medical-physics</button><button class="chip" data-tag="numerics">numerics</button><button class="clearall" id="clearall">Clear</button></div>
 </section>
 
-<section class="landing-spotlight">
-  <h2 class="sec">Featured</h2>
-  <div class="spotlight-grid">
-  <a class="card spotlight-card" data-title="laser rate-equation dynamics" data-uc="fis4035" data-year="bsc-y3s2" data-tags="photonics lasers nonlinear-dynamics relaxation-oscillations live-readout" data-order="132" data-group="BSc Year 3, Semester 2" style="--tagc:var(--tag-optics)" href="playgrounds/bsc-y3s2/FIS4035-laser-rate-equations-dynamics/index.html">
-    <div class="cimg cimg-lg" data-thumb="assets/thumbs/card-FIS4035-laser-rate-equations-dynamics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">BSc · Y3</span></div>
-    <div class="cbody">
-      <h3 class="ctitle t-title">Laser Rate-Equation Dynamics</h3>
-      <p class="cexcerpt">A pumped gain medium in a resonator does not switch on smoothly. Below threshold the cavity is dark; the moment the pump crosses r_th = 1/q0 the inversion clamp</p>
-      <div class="ctags"><span class="ctag">photonics</span><span class="ctag">lasers</span><span class="ctag">nonlinear-dynamics</span><span class="ctag">relaxation-oscillations</span></div>
-    </div>
-  </a><div class="spotlight-row">
+<section class="landing-featured">
+  <header class="featured-header">
+    <h2 class="sec">Featured today</h2>
+    <span class="t-small featured-meta">Rotates daily &middot; 39 hero-tier playgrounds in the catalog</span>
+  </header>
+  
+  <article class="spotlight-card" style="--tagc:var(--tag-optics)">
+    <a class="spotlight-link" href="playgrounds/bsc-y3s2/FIS4035-laser-rate-equations-dynamics/index.html" data-title="laser rate-equation dynamics" data-uc="fis4035" data-tags="photonics lasers nonlinear-dynamics relaxation-oscillations live-readout">
+      <div class="spotlight-image" style="background-image:linear-gradient(135deg,rgba(7,9,15,0) 0%,rgba(7,9,15,0) 60%,rgba(7,9,15,0.4) 100%),url('assets/thumbs/card-FIS4035-laser-rate-equations-dynamics.jpg')"><span class="star-marker">&#9733;</span></div>
+      <div class="spotlight-body">
+        <h3 class="spotlight-title t-title">Laser Rate-Equation Dynamics</h3>
+        <p class="spotlight-uc t-mono">FIS4035</p>
+        <p class="spotlight-desc t-body">An interactive view of the normalised two-level laser rate equations dn/dt = r - n - n p, dp/dt = n p - p/q0 + s (Siegman 1986, Ch. 13, 25; Saleh and Teich 2007, Ch. 16). Net round-trip gain requires n > 1/q0, so the threshold inversion and</p>
+        <div class="spotlight-tags"><span class="ctag">photonics</span><span class="ctag">lasers</span><span class="ctag">nonlinear-dynamics</span><span class="ctag">relaxation-oscillations</span></div>
+      </div>
+    </a>
+  </article><div class="featured-row">
   <a class="card" data-title="the heisenberg uncertainty seesaw" data-uc="fis3003" data-year="'L:F-3Y-1S'" data-tags="quantum fourier animation multi-panel live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-quantum)" href="playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">Adv</span></div>
     <div class="cbody">
@@ -334,7 +352,15 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <span class="cuc">MF-AQM</span>
       <div class="ctags"><span class="ctag">quantum-mechanics</span><span class="ctag">scattering</span><span class="ctag">partial-waves</span><span class="ctag">cross-section</span></div>
     </div>
-  </a></div></div>
+  </a>
+  <a class="card" data-title="the 4f fourier-optics processor" data-uc="fis3019" data-year="'L:F-3Y-1S'" data-tags="optics fourier image-processing multi-panel live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-optics)" href="playgrounds/bsc-y3s1/FIS3019-fourier-optics-4f-system/index.html">
+    <div class="cimg" data-thumb="assets/thumbs/thumb-optics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">Adv</span></div>
+    <div class="cbody">
+      <h3 class="ctitle">The 4f Fourier-Optics Processor</h3>
+      <span class="cuc">FIS3019</span>
+      <div class="ctags"><span class="ctag">optics</span><span class="ctag">fourier</span><span class="ctag">image-processing</span><span class="ctag">multi-panel</span></div>
+    </div>
+  </a></div>
 </section>
 
 <section id="browse">
