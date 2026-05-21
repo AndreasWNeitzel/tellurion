@@ -99,6 +99,17 @@
 
   /* Focus mode transition */
   --t-focus: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast: var(--motion-fast) var(--easing);
+
+  /* Layout v2 semantic aliases over the base palette, so the v2
+     stylesheet can use the spec's token names verbatim. */
+  --text-primary:   var(--fg);
+  --text-secondary: var(--fg-muted);
+  --text-dimmed:    var(--fg-faint);
+  --border-dim:     var(--grid);
+  --border-subtle:  var(--grid-strong);
+  --bg-frosted:     color-mix(in srgb, var(--bg) 80%, transparent);
+  --accent-gold:    #C9A227;
 }
 
 /* Dark theme */

@@ -1,0 +1,259 @@
+/* === PLAYGROUND LAYOUT SYSTEM v2 ===
+   Two-zone grid (center column + sticky right rail), fluid type,
+   inline pedagogical sections, and focus mode. Consumes tokens.css.
+   See the v2 master specification for the authoritative rules. */
+
+/* ---- 4. GRID LAYOUT ----------------------------------------------------- */
+
+.playground-layout {
+  display: grid;
+  grid-template-columns:
+    [center] minmax(0, var(--col-center-max))
+    [rail]   var(--col-rail-width);
+  column-gap: var(--col-rail-gap);
+  justify-content: center;
+  max-width: calc(var(--col-center-max) + var(--col-rail-gap) + var(--col-rail-width));
+  margin: 0 auto;
+  padding: 88px 24px 64px;
+}
+
+.playground-center { grid-column: center; min-width: 0; }
+.playground-rail   { grid-column: rail; }
+
+/* Width guarantees (all regimes). */
+.playground-center      { max-width: var(--col-center-max); }
+.playground-intro p     { max-width: var(--col-text-max); }
+.playground-caption     { max-width: var(--col-text-max); }
+.playground-what-to-try { max-width: var(--col-text-max); }
+.playground-controls    { max-width: var(--col-controls-max); margin-left: auto; margin-right: auto; }
+.playground-canvas      { width: 100%; max-width: var(--col-center-max); height: auto; }
+
+/* Regime B: mid (1024-1399px) — single column, rail hidden. */
+@media (max-width: 1399px) {
+  .playground-layout {
+    grid-template-columns: minmax(0, var(--col-center-max));
+    max-width: var(--col-center-max);
+  }
+  .playground-rail { display: none; }
+}
+
+/* Regime C: narrow (<1024px) — single column, focus toggle hidden. */
+@media (max-width: 1023px) {
+  .playground-layout { padding: 72px 16px 48px; }
+  .playground-focus-toggle { display: none; }
+  .playground-canvas { max-width: 100%; }
+}
+
+/* ---- HEADER / INTRO ----------------------------------------------------- */
+
+.playground-header { margin-bottom: 24px; }
+.playground-title { margin: 0; line-height: 1.15; letter-spacing: -0.01em; }
+
+.playground-prereqs { color: var(--text-secondary); margin-top: 8px; }
+.prereq-label { color: var(--text-dimmed); }
+.playground-prereqs a { color: var(--text-secondary); text-decoration: none; }
+.playground-prereqs a:hover { color: var(--text-primary); }
+
+.playground-intro { margin-bottom: 24px; }
+.playground-intro p { line-height: 1.6; color: var(--text-primary); }
+
+/* ---- CANVAS FRAME ------------------------------------------------------- */
+
+.playground-canvas-frame { position: relative; }
+.playground-canvas {
+  display: block;
+  border-radius: var(--radius-md);
+  background: #060608;
+}
+
+.playground-caption {
+  display: block;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+/* ---- CONTROLS ----------------------------------------------------------- */
+
+.playground-controls { margin-block: 32px; }
+
+/* ---- 8. INLINE SECTIONS ------------------------------------------------- */
+
+.playground-what-to-try { margin-top: 48px; }
+.playground-what-to-try h2 { color: var(--text-secondary); margin-bottom: 16px; }
+.playground-what-to-try ul { list-style: none; padding-left: 0; }
+.playground-what-to-try li {
+  color: var(--text-secondary);
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+.playground-what-to-try li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.7em;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.playground-equations { margin-top: 32px; }
+.equations-toggle {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+.equations-toggle:hover { color: var(--text-primary); }
+.equations-content { margin-top: 16px; }
+
+.playground-related { margin-top: 48px; }
+.playground-related h2 { color: var(--text-secondary); margin-bottom: 16px; }
+.related-strip { display: flex; gap: 16px; flex-wrap: wrap; }
+
+/* ---- 7. RIGHT RAIL ------------------------------------------------------ */
+
+.playground-rail {
+  position: sticky;
+  top: var(--rail-sticky-top);
+  max-height: calc(100vh - var(--rail-sticky-top) - 24px);
+  overflow-y: auto;
+  align-self: start;
+  border-left: 1px solid var(--border-dim);
+  padding-left: 24px;
+  padding-top: 4px;
+  background: transparent;
+}
+
+.playground-rail > section + section { margin-top: 32px; }
+.playground-rail h2 {
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+}
+
+.rail-state-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.rail-state-table tr { border-bottom: 1px solid var(--border-dim); }
+.state-label {
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: 1.5;
+  color: var(--text-secondary); padding: 6px 0;
+}
+.state-value {
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: 1.5;
+  color: var(--text-primary); text-align: right;
+  font-variant-numeric: tabular-nums; padding: 6px 0;
+}
+
+.rail-invariants-list { list-style: none; padding: 0; margin: 0; }
+.invariant {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; font-size: var(--fs-small);
+}
+.invariant-dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.invariant--pass    .invariant-dot { background: #4ade80; }
+.invariant--drift   .invariant-dot { background: var(--accent-gold); }
+.invariant--pending .invariant-dot { background: var(--text-dimmed); }
+.invariant-label { color: var(--text-secondary); flex: 1; }
+.invariant-value {
+  font-family: var(--font-mono); color: var(--text-dimmed);
+  font-variant-numeric: tabular-nums;
+}
+
+.rail-references-list { padding-left: 18px; margin: 0; }
+.rail-references-list li {
+  color: var(--text-dimmed); margin-bottom: 8px; line-height: 1.5;
+}
+.rail-references-list li:hover { color: var(--text-secondary); }
+.rail-references-list a { color: var(--accent); text-decoration: none; }
+.rail-references-list a:hover { text-decoration: underline; }
+
+.rail-empty { color: var(--text-dimmed); }
+
+/* ---- BACK BUTTON -------------------------------------------------------- */
+
+.playground-back {
+  position: fixed;
+  top: 24px; left: 24px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-frosted);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--fs-small);
+  z-index: 20;
+  transition: width var(--t-focus), padding var(--t-focus);
+}
+.playground-back:hover { color: var(--text-primary); }
+.back-chevron { width: 16px; height: 16px; flex: none; }
+.back-title {
+  max-width: 28ch;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---- 9. FOCUS MODE ------------------------------------------------------ */
+
+.playground-focus-toggle {
+  position: absolute;
+  top: 12px; right: 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px;
+  background: var(--bg-frosted);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  z-index: 10;
+  transition: var(--t-fast);
+}
+.playground-focus-toggle:hover { color: var(--text-primary); }
+.playground-focus-toggle svg { width: 18px; height: 18px; display: block; }
+
+.playground-layout[data-focus="true"] {
+  grid-template-columns: minmax(0, var(--col-focus-max));
+  max-width: var(--col-focus-max);
+}
+.playground-layout[data-focus="true"] .playground-rail {
+  transform: translateX(calc(100% + var(--col-rail-gap)));
+  opacity: 0;
+  transition: transform var(--t-focus), opacity var(--t-focus);
+  pointer-events: none;
+}
+.playground-layout[data-focus="true"] .playground-header,
+.playground-layout[data-focus="true"] .playground-intro,
+.playground-layout[data-focus="true"] .playground-caption,
+.playground-layout[data-focus="true"] .playground-what-to-try,
+.playground-layout[data-focus="true"] .playground-equations,
+.playground-layout[data-focus="true"] .playground-related {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+.playground-layout[data-focus="true"] .playground-back {
+  width: 36px;
+  padding: 8px;
+}
+.playground-layout[data-focus="true"] .playground-back .back-title { display: none; }
+.playground-layout[data-focus="true"] .playground-canvas { max-width: var(--col-focus-max); }
+
+@media (prefers-reduced-motion: reduce) {
+  .playground-layout,
+  .playground-rail,
+  .playground-back,
+  .playground-focus-toggle,
+  .playground-layout[data-focus="true"] .playground-header,
+  .playground-layout[data-focus="true"] .playground-intro,
+  .playground-layout[data-focus="true"] .playground-caption,
+  .playground-layout[data-focus="true"] .playground-what-to-try,
+  .playground-layout[data-focus="true"] .playground-equations,
+  .playground-layout[data-focus="true"] .playground-related {
+    transition-duration: 0ms;
+  }
+}

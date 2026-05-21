@@ -6,35 +6,104 @@
   <title>__TITLE__</title>
   <link rel="stylesheet" href="../../../shared/css/tokens.css">
   <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 <style>
+  /* Control rows. Constrained by .playground-controls to --col-controls-max. */
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
 </style>
 </head>
 <body>
-  <h1>__TITLE__</h1>
+  <!-- PLAYGROUND LAYOUT SYSTEM v2 canonical template.
+       Per-playground migration adapts this; reading order is fixed.
+       The canvas keeps id="stage" so existing playground.js works. -->
+  <main class="playground-layout" data-focus="false">
 
-  <figure>
-    <canvas id="stage" width="720" height="480" aria-label="Simulation canvas"></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">Invariant:</span><span class="value" id="readout-invariant">...</span>
-      <span class="label">Frame:</span><span class="value" id="readout-frame">0</span>
-    </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
-    </figcaption>
-  </figure>
+    <a href="/" class="playground-back" aria-label="Back to catalog">
+      <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+      <span class="back-title">__TITLE__</span>
+    </a>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-    <!-- Controls injected by playground.js. Keep visible count under five. -->
-  </div>
+    <article class="playground-center">
 
+      <header class="playground-header">
+        <h1 class="t-title playground-title">__TITLE__</h1>
+        <p class="t-small playground-prereqs" hidden>
+          <span class="prereq-label">Prerequisites:</span>
+        </p>
+      </header>
+
+      <section class="playground-intro">
+        <p class="t-body">__INTRO__</p>
+      </section>
+
+      <div class="playground-canvas-frame">
+        <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+          <svg class="focus-icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path>
+          </svg>
+        </button>
+        <canvas class="playground-canvas" id="stage" width="880" height="540" aria-label="Simulation canvas"></canvas>
+      </div>
+
+      <figcaption class="t-small playground-caption">
+        <span class="figure-number">Figure 1.</span>
+        __CAPTION__ <em>Method:</em> __METHOD__. <em>Source:</em> __CITATION__.
+      </figcaption>
+
+      <section class="playground-controls">
+        <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+          <!-- Controls injected by playground.js. -->
+        </div>
+      </section>
+
+      <section class="playground-what-to-try">
+        <h2 class="t-label">WHAT TO TRY</h2>
+        <ul>
+          <li class="t-body">__PROMPT__</li>
+        </ul>
+      </section>
+
+      <section class="playground-equations" hidden>
+        <button class="equations-toggle t-label" type="button">SHOW EQUATIONS</button>
+        <div class="equations-content"></div>
+      </section>
+
+      <section class="playground-related">
+        <h2 class="t-label">RELATED</h2>
+        <div class="related-strip"></div>
+      </section>
+
+    </article>
+
+    <aside class="playground-rail" aria-label="Diagnostics">
+      <section class="rail-state">
+        <h2 class="t-label">LIVE READOUTS</h2>
+        <table class="rail-state-table"></table>
+      </section>
+      <section class="rail-invariants">
+        <h2 class="t-label">INVARIANTS</h2>
+        <ul class="rail-invariants-list"></ul>
+      </section>
+      <section class="rail-references">
+        <h2 class="t-label">REFERENCES</h2>
+        <ol class="rail-references-list"></ol>
+      </section>
+    </aside>
+
+  </main>
+
+  <script type="module" src="../../../shared/js/rail.js"></script>
+  <script type="module" src="../../../shared/js/focus.js"></script>
   <script type="module" src="./playground.js"></script>
 </body>
 </html>
