@@ -18,6 +18,23 @@ hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 4
 share_state_keys: []
+invariants:
+  - key: quad_bound
+    label: O(N^2) comparisons <= 1/2 N(N-1)
+    tolerance: 1e-9
+  - key: merge_bound
+    label: merge comparisons <= N ceil(log2 N)
+    tolerance: 1e-9
+  - key: merge_faster
+    label: merge count <= O(N^2) count
+    tolerance: 1e-9
+what_to_try:
+  - Press Sweep N to fill the complexity plot across many array sizes at once.
+  - Switch the O(N^2) algorithm between bubble and insertion sort.
+  - Raise N and watch the gap between the quadratic and N log N curves widen.
+references:
+  - "Cormen, Leiserson, Rivest, Stein, Introduction to Algorithms, 3rd ed., Ch. 2."
+  - "Sedgewick and Wayne, Algorithms, 4th ed., Ch. 2."
 ---
 # Big-O empirical scaling
 

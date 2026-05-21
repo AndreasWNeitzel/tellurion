@@ -7,6 +7,7 @@
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { setCanvasFont } from '../../../shared/js/canvas-type.js';
 import {
   shuffledArray, recordSort, comparisonCount,
   EV_CMP, EV_SWAP, EV_SET,
@@ -22,10 +23,6 @@ const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const W = canvas.width, H = canvas.height;
 
-const readoutN = document.getElementById('readout-n');
-const readoutA = document.getElementById('readout-a');
-const readoutB = document.getElementById('readout-b');
-const readoutRatio = document.getElementById('readout-ratio');
 const sliderN = document.getElementById('slider-N');
 const valueN = document.getElementById('value-N');
 const sliderSpeed = document.getElementById('slider-speed');
@@ -111,12 +108,11 @@ const PLOT_H = H - PLOT_TOP - 34;
 const PLOT_L = PAD + 52, PLOT_W = W - PLOT_L - PAD;
 
 function drawPanel(race, x0, title, barColor, c) {
+  setCanvasFont(ctx, canvas, 'body', { family: 'mono', align: 'left' });
   ctx.fillStyle = c.muted;
-  ctx.font = '13px ui-monospace, monospace';
-  ctx.textAlign = 'left';
   ctx.fillText(title, x0, PANEL_TOP - 34);
   ctx.fillStyle = barColor;
-  ctx.font = 'bold 14px ui-monospace, monospace';
+  setCanvasFont(ctx, canvas, 'heading', { family: 'mono', weight: 600, align: 'left' });
   ctx.fillText(`${race.comp} comparisons`, x0, PANEL_TOP - 14);
 
   const a = race.arr, n = a.length;
@@ -134,7 +130,7 @@ function drawPanel(race, x0, title, barColor, c) {
   ctx.strokeRect(x0, PANEL_TOP, PANEL_W, PANEL_H);
   if (done) {
     ctx.fillStyle = c.muted;
-    ctx.font = '12px ui-monospace, monospace';
+    setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'left' });
     ctx.fillText('sorted', x0 + PANEL_W - 52, PANEL_TOP + 16);
   }
 }
@@ -148,7 +144,8 @@ function drawPlot(c) {
   const yOf = (v) => PLOT_TOP + PLOT_H * (1 - v / yMax);
 
   ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'right';
+  ctx.fillStyle = c.muted;
+  setCanvasFont(ctx, canvas, 'tick', { family: 'mono', align: 'right' });
   for (let g = 0; g <= 4; g += 1) {
     const y = PLOT_TOP + PLOT_H * g / 4;
     ctx.beginPath(); ctx.moveTo(PLOT_L, y); ctx.lineTo(PLOT_L + PLOT_W, y); ctx.stroke();
@@ -189,11 +186,12 @@ function drawPlot(c) {
   ctx.setLineDash([]);
 
   // Labels + legend.
-  ctx.fillStyle = c.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = c.muted;
+  setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'center' });
   ctx.fillText('input size N', PLOT_L + PLOT_W / 2, PLOT_TOP + PLOT_H + 30);
   ctx.save(); ctx.translate(PAD - 6, PLOT_TOP + PLOT_H / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('comparisons', 0, 0); ctx.restore();
-  ctx.textAlign = 'left';
+  setCanvasFont(ctx, canvas, 'legend', { family: 'mono', align: 'left' });
   ctx.fillStyle = c.red; ctx.fillText('1/2 N(N-1), measured O(N^2)', PLOT_L + 8, PLOT_TOP + 14);
   ctx.fillStyle = c.blue; ctx.fillText('N log2 N, measured merge', PLOT_L + 8, PLOT_TOP + 30);
 }
@@ -201,19 +199,12 @@ function drawPlot(c) {
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = c.muted; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = c.muted;
+  setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'left' });
   ctx.fillText('Same shuffle, two algorithms. Counts accumulate on the plot below.', PAD, 18);
   drawPanel(state.A, PAD, `${state.algoA} sort  O(N^2)`, c.red, c);
   drawPanel(state.B, PAD + PANEL_W + GAP, 'merge sort  O(N log N)', c.blue, c);
   drawPlot(c);
-}
-
-function updateReadout() {
-  readoutN.textContent = String(state.N);
-  readoutA.textContent = String(state.A.comp);
-  readoutB.textContent = String(state.B.comp);
-  readoutRatio.textContent = state.B.comp > 0 ? `${(state.A.comp / state.B.comp).toFixed(1)}x` : '-';
 }
 
 function tick() {
@@ -223,7 +214,6 @@ function tick() {
     if (aDone && bDone) recordPoint();
   }
   render();
-  updateReadout();
   requestAnimationFrame(tick);
 }
 
@@ -260,7 +250,7 @@ function bootSync() {
     advance(state.A, Math.floor(f * aN) + 1);
     advance(state.B, Math.floor(f * bN) + 1);
     if (f >= 1) recordPoint();
-    render(); updateReadout();
+    render();
     if (DETERMINISTIC) {
       requestAnimationFrame(() => requestAnimationFrame(() => {
         window.__simulationReady = true;
@@ -271,7 +261,7 @@ function bootSync() {
   }
 
   rebuild();
-  render(); updateReadout();
+  render();
 }
 
 if (document.readyState === 'loading') {
@@ -279,3 +269,38 @@ if (document.readyState === 'loading') {
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
+
+// === Diagnostics interface (Layout System v2) ===
+window.playground = window.playground || {};
+window.playground.getState = function getState() {
+  const ratio = state.B.comp > 0 ? state.A.comp / state.B.comp : 0;
+  return {
+    fields: [
+      { key: 'N', label: 'array size N', value: state.N, format: 'int' },
+      { key: 'algoA', label: 'O(N²) sort', value: state.algoA },
+      { key: 'cmpA', label: 'comparisons O(N²)', value: state.A.comp, format: 'int' },
+      { key: 'cmpB', label: 'comparisons merge', value: state.B.comp, format: 'int' },
+      { key: 'ratio', label: 'ratio A / B', value: ratio, unit: '×', format: 'float' },
+      { key: 'points', label: 'races plotted', value: state.points.size, format: 'int' },
+    ],
+  };
+};
+window.playground.getInvariants = function getInvariants() {
+  const N = state.N;
+  const quadCap = 0.5 * N * (N - 1);
+  const mergeCap = N * Math.ceil(Math.log2(Math.max(2, N)));
+  // Comparison-count bounds: the O(N^2) sort never exceeds 1/2 N(N-1)
+  // and merge sort never exceeds N ceil(log2 N).
+  const quadExcess = quadCap > 0 ? Math.max(0, state.A.comp - quadCap) / quadCap : 0;
+  const mergeExcess = mergeCap > 0 ? Math.max(0, state.B.comp - mergeCap) / mergeCap : 0;
+  return [
+    { key: 'quad_bound', label: 'O(N²) ≤ ½N(N-1)', value: quadExcess, tolerance: 1e-9,
+      status: quadExcess < 1e-9 ? 'pass' : 'drift' },
+    { key: 'merge_bound', label: 'merge ≤ N⌈log₂N⌉', value: mergeExcess, tolerance: 1e-9,
+      status: mergeExcess < 1e-9 ? 'pass' : 'drift' },
+    { key: 'merge_faster', label: 'merge ≤ O(N²) count',
+      value: state.B.comp > 0 && state.A.comp > 0 ? Math.max(0, state.B.comp - state.A.comp) : 0,
+      tolerance: 1e-9,
+      status: (state.A.comp === 0 || state.B.comp <= state.A.comp) ? 'pass' : 'drift' },
+  ];
+};
