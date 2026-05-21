@@ -323,6 +323,18 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Matched filtering must recover the injected chirp mass from the
+// frequency evolution: the relative error of the recovered M_chirp
+// against the true value is the diagnostic.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    if (!(st.McSun > 0) || typeof st.recMc !== 'number') return [];
+    const err = Math.abs(st.recMc - st.McSun) / st.McSun;
+    return [{
+      key: 'chirp-mass',
+      label: 'matched filter recovers M_chirp',
+      value: err.toExponential(2),
+      status: err < 0.05 ? 'pass' : (err < 0.15 ? 'pending' : 'drift'),
+    }];
+  };
 }
