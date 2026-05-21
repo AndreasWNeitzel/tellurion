@@ -50,7 +50,7 @@ function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const j1 = st.j1, j2 = st.j2, J = curJ();
   const L1 = vecLen(j1), L2 = vecLen(j2), LJ = vecLen(J);
-  const yaw = st.t * 0.3, pitch = -0.42, scale = 150 / Math.max(L1 + L2, 1.5);
+  const yaw = st.t * 0.3, pitch = -0.42, scale = 360 / Math.max(L1 + L2, 1.5);
 
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(VX, VY, VW, VH);
   ctx.strokeStyle = 'rgba(220,225,235,0.5)'; ctx.strokeRect(VX, VY, VW, VH);
@@ -87,6 +87,9 @@ function render() {
     ctx.fillStyle = c; ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, 6.2832); ctx.fill();
     if (lab) { ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, p[0] + 7, p[1] - 6); }
   }
+  // label the J2 segment (J1 tip -> J tip) at its midpoint
+  ctx.fillStyle = '#ff9a5d'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText('J2', (P1[0] + Jt[0]) / 2 + 8, (P1[1] + Jt[1]) / 2);
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`J1 (blue) + J2 (orange) = J (yellow);  precessing,  J = ${J}`, VX + VW / 2, VY + VH + 18);
   ctx.textAlign = 'left';
