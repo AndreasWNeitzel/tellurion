@@ -261,6 +261,12 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .hero-stat-num{color:var(--text-primary);font-weight:500;font-variant-numeric:tabular-nums}
 .hero-stat-label{color:var(--text-secondary);margin-left:4px}
 .hero-stat-divider{color:var(--text-dimmed)}
+/* Section rhythm: the hero and the featured row are the "this is the
+   site" zone; a thin rule marks the transition into the browsable
+   catalog. */
+.landing-featured{padding:32px 0 48px}
+.landing-catalog{padding:16px 0 64px}
+.landing-catalog::before{content:'';display:block;height:1px;background:var(--border-dim);margin-bottom:48px}
 /* Catalog section: search, order, filters scoped here so it is clear
    they control the grid below and not the curated featured row. */
 .catalog-header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:20px}
@@ -425,7 +431,7 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
    all scroll positions. Only <html>, the nav, cards, the back
    button and the footer carry a background. */
 section,.card-grid,.about-grid,.credits-grid{background:transparent}
-.about{padding:100px 0 80px}
+.about{padding:96px 0 80px}
 .about .lab,.credits .lab{font-size:0.6875rem;font-weight:500;letter-spacing:0.12em;
   text-transform:uppercase;color:var(--text-secondary);margin:0 0 48px}
 .about-grid{display:flex;gap:56px;align-items:flex-start}
