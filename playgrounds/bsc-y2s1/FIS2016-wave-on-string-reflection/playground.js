@@ -217,6 +217,29 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The string has no damping, so reflection at the ends conserves
+// total energy; the relative drift is the invariant, re-baselined
+// when a new pulse is injected.
+let __energy0 = null, __energyPrev = null;
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      if (!state.fixed) return [];
+      const E = totalEnergy(state.fixed);
+      if (!Number.isFinite(E)) return [];
+      if (__energyPrev !== null
+        && Math.abs(E - __energyPrev) > 0.02 * Math.max(1e-9, Math.abs(__energyPrev)) + 1e-9) {
+        __energy0 = E;
+      }
+      __energyPrev = E;
+      if (__energy0 === null) __energy0 = E;
+      const dE = Math.abs(E - __energy0) / Math.max(1e-12, Math.abs(__energy0));
+      return [{
+        key: 'energy',
+        label: 'string energy conserved (rel. drift)',
+        value: dE.toExponential(2),
+        status: dE < 2e-3 ? 'pass' : (dE < 2e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
