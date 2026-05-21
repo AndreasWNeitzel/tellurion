@@ -1,3 +1,5 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // playground.js
 // Brewster / Fresnel as propagating waves. Left: an incident plane
 // wave crosses a dielectric interface; the reflected wave carries
@@ -109,7 +111,7 @@ function drawScene() {
   ctx.restore();
 
   // Labels.
-  ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = '#7fb1d8'; ctx.fillText('incident', SX + 8, SY + 16);
   ctx.fillStyle = st.pol === 'p' ? '#ef476f' : '#ffd166';
   ctx.fillText(`reflected (|r| = ${Math.abs(r).toFixed(3)})`, SX + 8, SY + 32);
@@ -150,7 +152,7 @@ function drawCurve() {
   ctx.beginPath(); ctx.moveTo(xOf(tB), py + 6); ctx.lineTo(xOf(tB), py + ph - 18); ctx.stroke(); ctx.setLineDash([]);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(xOf(st.thetaDeg), py + 6); ctx.lineTo(xOf(st.thetaDeg), py + ph - 18); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('R_s', px + 8, py + 16);
   ctx.fillStyle = '#ef476f'; ctx.fillText('R_p', px + 36, py + 16);
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillText(`theta_B = ${tB.toFixed(1)}`, xOf(tB) + 4, py + 30);
@@ -164,7 +166,7 @@ function render() {
   const tB = brewsterAngle(n1, n2) * 180 / Math.PI;
   const tc = criticalAngle(n1, n2);
   const tt = snellRefract(th, n1, n2);
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`theta_i = ${st.thetaDeg.toFixed(1)} deg   n1 = 1.00, n2 = ${n2.toFixed(2)}   pol = ${st.pol}`, 24, 26);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
   const ttStr = tt === null ? 'TIR' : `${(tt * 180 / Math.PI).toFixed(1)} deg`;
@@ -217,4 +219,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Crystal Structure Explorer</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false }); else setTimeout(tryRender, 50); } tryRender(); });</script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crystal Structure Explorer</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     body { padding: var(--space-4); }
     .pg-figure { max-width: 760px; position: relative; }
     .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
@@ -24,37 +25,107 @@
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <header>
-    <h1>Crystal Structure Explorer</h1>
-    <p>The three cubic Bravais lattices, simple (SC), body-centred (BCC) and face-centred (FCC), with their conventional cells, a chosen Miller plane $(hkl)$ at spacing $d=a/\sqrt{h^2+k^2+l^2}$, and the powder X-ray pattern. The atom basis sets the geometric structure factor, so some reflections vanish: BCC needs $h+k+l$ even, FCC needs $h,k,l$ all even or all odd, which is why their powder lines follow the sequences 2,4,6,8 and 3,4,8,11. The reciprocal lattice (defined by $\vec b_i\cdot\vec a_j=2\pi\delta_{ij}$) is FCC for a BCC crystal and BCC for an FCC one, so the first Brillouin zones are the rhombic dodecahedron (12 faces) and the truncated octahedron (14 faces). Source: Kittel, Introduction to Solid State Physics (8th ed.), Ch. 1-2 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 4-6 (`ashcroft-mermin`).</p>
-  </header>
+<main class="playground-layout" data-focus="false">
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="440" aria-label="Rotating cubic crystal cell with a Miller plane and the powder X-ray diffraction pattern"></canvas>
-    <div class="readout-panel" id="readout" role="status" aria-live="polite">
-      <span class="label">lattice</span><span class="value" id="readout-lat">FCC</span>
-      <span class="label">atoms/cell</span><span class="value" id="readout-nat">4</span>
-      <span class="label">d_hkl/a</span><span class="value" id="readout-d">0.000</span>
-      <span class="label">BZ faces</span><span class="value" id="readout-bz">14</span>
-      <span class="label">1st line</span><span class="value" id="readout-l1">111</span>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Crystal Structure Explorer</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Crystal Structure Explorer</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">The three cubic Bravais lattices, simple (SC), body-centred (BCC) and face-centred (FCC), with their conventional cells, a chosen Miller plane <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>h</mi><mi>k</mi><mi>l</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(hkl)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0315em;">hk</span><span class="mord mathnormal" style="margin-right: 0.0197em;">l</span><span class="mclose">)</span></span></span></span></span> at spacing <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mi>a</mi><mi mathvariant="normal">/</mi><msqrt><mrow><msup><mi>h</mi><mn>2</mn></msup><mo>+</mo><msup><mi>k</mi><mn>2</mn></msup><mo>+</mo><msup><mi>l</mi><mn>2</mn></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">d=a/\sqrt{h^2+k^2+l^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.1634em; vertical-align: -0.25em;"></span><span class="mord mathnormal">a</span><span class="mord">/</span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.9134em;"><span class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord" style="padding-left: 0.833em;"><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7401em;"><span class="" style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7401em;"><span class="" style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0197em;">l</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7401em;"><span class="" style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span class="" style="top: -2.8734em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.1266em;"><span class=""></span></span></span></span></span></span></span></span></span>, and the powder X-ray pattern. The atom basis sets the geometric structure factor, so some reflections vanish: BCC needs <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>+</mo><mi>k</mi><mo>+</mo><mi>l</mi></mrow><annotation encoding="application/x-tex">h+k+l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">h</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal" style="margin-right: 0.0197em;">l</span></span></span></span></span> even, FCC needs <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo separator="true">,</mo><mi>k</mi><mo separator="true">,</mo><mi>l</mi></mrow><annotation encoding="application/x-tex">h,k,l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord mathnormal">h</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0315em;">k</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0197em;">l</span></span></span></span></span> all even or all odd, which is why their powder lines follow the sequences 2,4,6,8 and 3,4,8,11. The reciprocal lattice (defined by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover accent="true"><mi>b</mi><mo>⃗</mo></mover><mi>i</mi></msub><mo>⋅</mo><msub><mover accent="true"><mi>a</mi><mo>⃗</mo></mover><mi>j</mi></msub><mo>=</mo><mn>2</mn><mi>π</mi><msub><mi>δ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\vec b_i\cdot\vec a_j=2\pi\delta_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.1274em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.9774em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal">b</span></span><span class="" style="top: -3.2634em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.2355em;"><span class="overlay" style="height: 0.714em; width: 0.471em;"><svg width="0.471em" height="0.714em" style="width:0.471em" viewBox="0 0 471 714" preserveAspectRatio="xMinYMin"><path d="M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z"></path></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1.0001em; vertical-align: -0.2861em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.714em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal">a</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.2355em;"><span class="overlay" style="height: 0.714em; width: 0.471em;"><svg width="0.471em" height="0.714em" style="width:0.471em" viewBox="0 0 471 714" preserveAspectRatio="xMinYMin"><path d="M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z"></path></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0572em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.9805em; vertical-align: -0.2861em;"></span><span class="mord">2</span><span class="mord mathnormal" style="margin-right: 0.0359em;">π</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0379em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span class="" style="top: -2.55em; margin-left: -0.0379em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0572em;">ij</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span></span></span></span></span>) is FCC for a BCC crystal and BCC for an FCC one, so the first Brillouin zones are the rhombic dodecahedron (12 faces) and the truncated octahedron (14 faces). Source: Kittel, Introduction to Solid State Physics (8th ed.), Ch. 1-2 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 4-6 (`ashcroft-mermin`).</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="440" aria-label="Rotating cubic crystal cell with a Miller plane and the powder X-ray diffraction pattern"></canvas>
     </div>
-    <figcaption>
-      Figure 1. Cubic crystal cell with a Miller plane, the reciprocal lattice / Brillouin-zone face count, and the powder XRD pattern.
-      <em>Method:</em> closed-form lattice and reciprocal vectors; structure-factor selection rules; Bragg powder lines.
-      <em>Source:</em> Kittel, Introduction to Solid State Physics (8th ed.), Ch. 1-2 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 4-6 (`ashcroft-mermin`).
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
+    <figcaption class="t-small playground-caption">Figure 1. Cubic crystal cell with a Miller plane, the reciprocal lattice / Brillouin-zone face count, and the powder XRD pattern.
+      <em>Method:</em> closed-form lattice and reciprocal vectors; structure-factor selection rules; Bragg powder lines.
+      <em>Source:</em> Kittel, Introduction to Solid State Physics (8th ed.), Ch. 1-2 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics, Ch. 4-6 (`ashcroft-mermin`).</figcaption>
+
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
     <div class="row"><span class="label">lattice</span><select aria-label="lattice type" id="select-lat" style="grid-column: span 2;"><option value="fcc">face-centred (FCC)</option><option value="bcc">body-centred (BCC)</option><option value="sc">simple cubic (SC)</option></select></div>
     <div class="row"><span class="label">view</span><select aria-label="view" id="select-view" style="grid-column: span 2;"><option value="crystal">crystal + Miller plane</option><option value="recip">reciprocal lattice</option><option value="diff2d">2D diffraction pattern</option></select></div>
     <div class="row"><span class="label">Miller (hkl)</span><select aria-label="Miller indices" id="select-hkl" style="grid-column: span 2;"><option value="1,1,1">(111)</option><option value="1,0,0">(100)</option><option value="1,1,0">(110)</option><option value="2,0,0">(200)</option></select></div>
     <div class="row"><span class="label">supercell</span><input aria-label="supercell repeats" type="range" id="slider-sc" min="1" max="3" step="1" value="1"><span class="value" id="value-sc">1</span></div>
     <div class="row buttons" style="grid-template-columns: 1fr 1fr;"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout-panel" id="readout" role="status" aria-live="polite">
+      <span class="label">lattice</span><span class="value" id="readout-lat">FCC</span>
+      <span class="label">atoms/cell</span><span class="value" id="readout-nat">4</span>
+      <span class="label">d_hkl/a</span><span class="value" id="readout-d">0.000</span>
+      <span class="label">BZ faces</span><span class="value" id="readout-bz">14</span>
+      <span class="label">1st line</span><span class="value" id="readout-l1">111</span>
+    </div><span class="value" id="readout-lat">FCC</span><span class="value" id="readout-nat">4</span><span class="value" id="readout-d">0.000</span><span class="value" id="readout-bz">14</span><span class="value" id="readout-l1">111</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

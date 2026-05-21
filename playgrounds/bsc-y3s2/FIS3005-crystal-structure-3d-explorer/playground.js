@@ -1,3 +1,5 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // Crystal structure explorer (Canvas2D, no WebGL: a hand-rolled 3D
 // projection per the stack rule). A rotating cubic cell drawn as a
 // ball-and-stick model with nearest-neighbour bonds, the atoms that
@@ -144,10 +146,10 @@ function drawCrystal() {
     quad.forEach((qq, i) => { const p = proj(qq); if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py); });
     ctx.closePath(); ctx.fill(); ctx.stroke();
     const lab = proj(quad[1]);
-    ctx.fillStyle = '#ffd166'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(`(${st.hkl.join('')})  d = a/${Math.sqrt(h * h + k * k + l * l).toFixed(2)}`, lab.px + 6, lab.py);
   }
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`${st.lat.toUpperCase()} ball-and-stick  |  gold atoms lie on the (${st.hkl.join('')}) plane`, VCX, VCY + HALFH + 14);
 }
 
@@ -189,7 +191,7 @@ function drawReciprocal() {
   ctx.beginPath();
   bragg.forEach((qq, i) => { const p = proj(qq); if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py); });
   ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = 'rgba(120,205,245,0.95)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(120,205,245,0.95)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   const bc = proj(half); ctx.fillText('Bragg plane (BZ face)', bc.px, bc.py - 6);
   // the reciprocal lattice point at G, the (hkl) reflection itself
   sphere(proj(G), 8, [255, 209, 102]);
@@ -201,9 +203,9 @@ function drawReciprocal() {
   ctx.lineTo(g.px - 12 * Math.cos(ang - 0.4), g.py - 12 * Math.sin(ang - 0.4));
   ctx.lineTo(g.px - 12 * Math.cos(ang + 0.4), g.py - 12 * Math.sin(ang + 0.4));
   ctx.closePath(); ctx.fill();
-  ctx.font = 'bold 13px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'left';
   ctx.fillText(`G(${st.hkl.join('')})`, g.px + 8, g.py);
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'center';
   const name = st.lat === 'fcc' ? 'BZ: truncated octahedron (14 faces)' : st.lat === 'bcc' ? 'BZ: rhombic dodecahedron (12)' : 'BZ: cube (6 faces)';
   ctx.fillText(`reciprocal lattice  |  ${name}`, VCX, VCY + HALFH + 14);
 }
@@ -227,7 +229,7 @@ function drawDiffraction2D() {
   ctx.strokeStyle = 'rgba(150,160,180,0.25)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx - HM * sp, cy); ctx.lineTo(cx + HM * sp, cy);
   ctx.moveTo(cx, cy - HM * sp); ctx.lineTo(cx, cy + HM * sp); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('h', cx + HM * sp + 12, cy + 4);
   ctx.fillText('k', cx, cy - HM * sp - 8);
   const [sh, sk, sl] = st.hkl;
@@ -254,14 +256,14 @@ function drawDiffraction2D() {
       if (isSel) {
         ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8;
         ctx.beginPath(); ctx.arc(x, y, r + 5, 0, 2 * Math.PI); ctx.stroke();
-        ctx.fillStyle = '#ffd166'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
         ctx.fillText(`(${sh}${sk}${sl})`, x + r + 8, y - r - 2);
       }
     }
   }
   const rule = st.lat === 'fcc' ? 'absent unless h,k,l all even or all odd'
     : st.lat === 'bcc' ? 'absent unless h+k+l even' : 'all (hkl) allowed';
-  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = '13px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`${st.lat.toUpperCase()} single-crystal pattern, hk${L} layer  |  ${rule}`, VCX, VCY + HALFH + 14);
 }
 
@@ -269,7 +271,7 @@ function drawXRD() {
   const x0 = 40, x1 = W - 24, y0 = H - 104, y1 = H - 38;
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
-  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = '12px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('powder XRD:  intensity vs  2 theta  (Cu K-alpha, a = 4 A)', (x0 + x1) / 2, H - 14);
   const lines = powderLines(st.lat, 4.0, 1.5406, 24);
   const tmax = Math.PI;
@@ -285,7 +287,7 @@ function drawXRD() {
       ctx.fillText(ln.hkl.join(''), x, (sel ? y0 - 20 : y0 - 6));
     }
   }
-  ctx.fillStyle = '#ffd166'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
   const onList = lines.some((ln) => ln.s === selS);
   ctx.fillText(`(${st.hkl.join('')}) ${onList ? 'allowed' : 'forbidden'}`, x0 + 4, y0 - 2);
 }
@@ -343,4 +345,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

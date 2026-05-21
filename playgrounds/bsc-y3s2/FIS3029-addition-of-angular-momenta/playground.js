@@ -1,3 +1,5 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // Addition of two angular momenta, shown as the semiclassical vector
 // model in 3D (hand-rolled projection, no WebGL per the stack rule).
 // j1 and j2 are vectors of length sqrt(j(j+1)); for each allowed total
@@ -153,7 +155,7 @@ function render() {
   ctx.beginPath(); ctx.moveTo(zb.px, zb.py); ctx.lineTo(zt.px, zt.py); ctx.stroke(); ctx.setLineDash([]);
   tlabel('z', zt.px - 4, zt.py - 8, 'rgba(160,170,190,0.9)');
 
-  ctx.font = 'bold 13px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'body', 'mono', 600);
   const o = proj([0, 0, 0], yaw, S);
   if (isSinglet) {
     arrow([0, 0, 0], j1v, '#5bc0eb', 2.6, yaw, S);
@@ -189,9 +191,9 @@ function render() {
   const PX = 540;
   ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PX - 12, 60, W - PX - 8, 360);
   ctx.strokeStyle = 'rgba(226,232,240,0.12)'; ctx.strokeRect(PX - 11.5, 60.5, W - PX - 9, 359);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('click a J to select  (decomposition)', PX, 78);
-  ctx.fillStyle = '#ffd166'; ctx.font = '14px ui-monospace, monospace';
+  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`${jLabel(j1)} (x) ${jLabel(j2)} =`, PX, 104);
   clickRegions.length = 0;
   Js.forEach((Jx, i) => {
@@ -214,7 +216,7 @@ function render() {
     ctx.font = `${sel ? 'bold ' : ''}14px ui-monospace, monospace`;
     ctx.fillText(`${sel ? '>' : ' '} J = ${jLabel(Jx)}   (2J+1 = ${2 * Jx + 1})`, PX, yy);
   });
-  ctx.fillStyle = '#9aa0a6'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   const yb = 130 + Js.length * 26 + 16;
   ctx.fillText(`dim = ${(2 * j1 + 1).toFixed(0)} x ${(2 * j2 + 1).toFixed(0)} = ${multiplicity(j1, j2)}`, PX, yb);
   ctx.fillText(`sum (2J+1)   = ${totalMultiplicityFromJ(j1, j2)}`, PX, yb + 20);
@@ -257,4 +259,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

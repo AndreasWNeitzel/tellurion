@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Free Fall: Vacuum vs Stokes vs Quadratic Drag</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
-          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Fall: Vacuum vs Stokes vs Quadratic Drag</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 760px; }
     .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
@@ -19,42 +20,65 @@
     .pg-controls input[type="range"] { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Free fall under vacuum, Stokes drag, and quadratic drag</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Free fall under vacuum, Stokes drag, and quadratic drag</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Free fall under vacuum, Stokes drag, and quadratic drag</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     <strong>What you are seeing:</strong> three identical balls dropped
-    from the same height at $t = 0$. The yellow one experiences no drag
-    (vacuum, $\dot v = -g$); the cyan one experiences Stokes drag
-    ($\dot v = -g - b v$, linear in velocity); the orange one experiences
-    quadratic drag ($\dot v = -g - c |v| v$). They land at different
+    from the same height at <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">t = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6151em;"></span><span class="mord mathnormal">t</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>. The yellow one experiences no drag
+    (vacuum, <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>v</mi><mo>˙</mo></mover><mo>=</mo><mo>−</mo><mi>g</mi></mrow><annotation encoding="application/x-tex">\dot v = -g</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6679em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.1111em;"><span class="mord">˙</span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.1944em;"></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span></span></span></span></span>); the cyan one experiences Stokes drag
+    (<span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>v</mi><mo>˙</mo></mover><mo>=</mo><mo>−</mo><mi>g</mi><mo>−</mo><mi>b</mi><mi>v</mi></mrow><annotation encoding="application/x-tex">\dot v = -g - b v</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6679em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.1111em;"><span class="mord">˙</span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.1944em;"></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">b</span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span></span></span></span></span>, linear in velocity); the orange one experiences
+    quadratic drag (<span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>v</mi><mo>˙</mo></mover><mo>=</mo><mo>−</mo><mi>g</mi><mo>−</mo><mi>c</mi><mi mathvariant="normal">∣</mi><mi>v</mi><mi mathvariant="normal">∣</mi><mi>v</mi></mrow><annotation encoding="application/x-tex">\dot v = -g - c |v| v</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6679em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.1111em;"><span class="mord">˙</span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.1944em;"></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">c</span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span></span></span></span></span>). They land at different
     times and arrive with different velocities.
   </p>
-  <p>
-    The right-side plot tracks $|v(t)|$ for each ball. Vacuum is a
-    straight line $|v| = g t$. Stokes asymptotes to its terminal
-    $v_t = mg/b$ exponentially. Quadratic asymptotes to $v_t = \sqrt{mg/c}$
-    on a slower-than-exponential approach (think $\tanh$ shape).
-    Crossover between the two drag laws happens at $v_c = b/c$: above
+      <p class="t-body">
+    The right-side plot tracks <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|v(t)|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mord">∣</span></span></span></span></span> for each ball. Vacuum is a
+    straight line <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>v</mi><mi mathvariant="normal">∣</mi><mo>=</mo><mi>g</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">|v| = g t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="mord">∣</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8095em; vertical-align: -0.1944em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mord mathnormal">t</span></span></span></span></span>. Stokes asymptotes to its terminal
+    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>t</mi></msub><mo>=</mo><mi>m</mi><mi>g</mi><mi mathvariant="normal">/</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">v_t = mg/b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.2806em;"><span class="" style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mord">/</span><span class="mord mathnormal">b</span></span></span></span></span> exponentially. Quadratic asymptotes to <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>t</mi></msub><mo>=</mo><msqrt><mrow><mi>m</mi><mi>g</mi><mi mathvariant="normal">/</mi><mi>c</mi></mrow></msqrt></mrow><annotation encoding="application/x-tex">v_t = \sqrt{mg/c}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.2806em;"><span class="" style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.24em; vertical-align: -0.305em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.935em;"><span class="svg-align" style="top: -3.2em;"><span class="pstrut" style="height: 3.2em;"></span><span class="mord" style="padding-left: 1em;"><span class="mord mathnormal">m</span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mord">/</span><span class="mord mathnormal">c</span></span></span><span class="" style="top: -2.895em;"><span class="pstrut" style="height: 3.2em;"></span><span class="hide-tail" style="min-width: 1.02em; height: 1.28em;"><svg width="400em" height="1.28em" viewBox="0 0 400000 1296" preserveAspectRatio="xMinYMin slice"><path d="M263,681c0.7,0,18,39.7,52,119
+c34,79.3,68.167,158.7,102.5,238c34.3,79.3,51.8,119.3,52.5,120
+c340,-704.7,510.7,-1060.3,512,-1067
+l0 -0
+c4.7,-7.3,11,-11,19,-11
+H40000v40H1012.3
+s-271.3,567,-271.3,567c-38.7,80.7,-84,175,-136,283c-52,108,-89.167,185.3,-111.5,232
+c-22.3,46.7,-33.8,70.3,-34.5,71c-4.7,4.7,-12.3,7,-23,7s-12,-1,-12,-1
+s-109,-253,-109,-253c-72.7,-168,-109.3,-252,-110,-252c-10.7,8,-22,16.7,-34,26
+c-22,17.3,-33.3,26,-34,26s-26,-26,-26,-26s76,-59,76,-59s76,-60,76,-60z
+M1001 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.305em;"><span class=""></span></span></span></span></span></span></span></span></span>
+    on a slower-than-exponential approach (think <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>tanh</mi><mo>⁡</mo></mrow><annotation encoding="application/x-tex">\tanh</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mop">tanh</span></span></span></span></span> shape).
+    Crossover between the two drag laws happens at <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>c</mi></msub><mo>=</mo><mi>b</mi><mi mathvariant="normal">/</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">v_c = b/c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">b</span><span class="mord">/</span><span class="mord mathnormal">c</span></span></span></span></span>: above
     this speed quadratic drag dominates, below it Stokes dominates.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="500" tabindex="0"
-            aria-label="Three balls falling under different drag laws; |v(t)| plotted on the right."></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">v_t Stokes (m/s):</span><span class="value" id="readout-vts">0</span>
-      <span class="label">v_t quad (m/s):</span><span class="value" id="readout-vtq">0</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="500" tabindex="0" aria-label="Three balls falling under different drag laws; |v(t)| plotted on the right."></canvas>
     </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
-      Free fall under three drag laws. Method: RK4 at dt = 1/240.
-      Source: Marion and Thornton, Classical Dynamics, Ch. 2.
-    </figcaption>
-  </figure>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Free-fall controls">
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Free fall under three drag laws. Method: RK4 at dt = 1/240.
+      Source: Marion and Thornton, Classical Dynamics, Ch. 2.</figcaption>
+
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Free-fall controls">
     <div class="row"><span class="label">y_0 (m)</span><input aria-label="y_0 (m)" type="range" id="slider-y0" min="20" max="500" step="5" value="120"><span class="value" id="value-y0">120</span></div>
     <div class="row"><span class="label">b (Stokes)</span><input aria-label="b (Stokes)" type="range" id="slider-b" min="0.05" max="2" step="0.01" value="0.5"><span class="value" id="value-b">0.50</span></div>
     <div class="row"><span class="label">c (quad)</span><input aria-label="c (quad)" type="range" id="slider-c" min="0.005" max="0.5" step="0.005" value="0.05"><span class="value" id="value-c">0.050</span></div>
@@ -63,7 +87,41 @@
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">v_t Stokes (m/s):</span><span class="value" id="readout-vts">0</span>
+      <span class="label">v_t quad (m/s):</span><span class="value" id="readout-vtq">0</span>
+    </div><span class="value" id="readout-vts">0</span><span class="value" id="readout-vtq">0</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>

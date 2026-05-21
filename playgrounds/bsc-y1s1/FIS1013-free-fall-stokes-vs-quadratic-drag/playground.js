@@ -1,3 +1,5 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // Free-fall drag playground.
 // Left half: three balls falling vertically. Right half: |v(t)| curves.
 // Three simultaneous fall sims, identical y0, different drag.
@@ -106,7 +108,7 @@ function drawScene(c, x0, y_off, w, h) {
     ctx.lineWidth = 1.2;
     ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(labels[i], cx - 22, ground + 14);
   }
   ctx.fillStyle = c.muted;
@@ -141,7 +143,7 @@ function drawPlot(c, x0, y_off, w, h) {
     const x = x0 + padL + plotW * i / 4;
     ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(`${(i * tMax / 4).toFixed(1)}`, x - 8, y_off + padT + plotH + 12);
   }
   for (let i = 0; i <= 4; i += 1) {
@@ -152,7 +154,7 @@ function drawPlot(c, x0, y_off, w, h) {
   }
 
   ctx.fillStyle = c.muted;
-  ctx.font = '11px ui-monospace, monospace';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('t (s)', x0 + padL + plotW - 24, y_off + padT + plotH + 24);
   ctx.save(); ctx.translate(x0 + 12, y_off + padT + plotH / 2 + 30); ctx.rotate(-Math.PI / 2);
   ctx.fillText('|v| (m/s)', 0, 0); ctx.restore();
@@ -276,4 +278,28 @@ if (document.readyState === 'loading') {
 } else {
   bootSync();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

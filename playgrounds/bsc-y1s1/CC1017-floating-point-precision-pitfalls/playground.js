@@ -1,3 +1,5 @@
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // playground.js
 // The Patriot missile failure (Dhahran, 25 Feb 1991) as a
 // floating-point pitfall you can drive, rendered as a tactical
@@ -215,7 +217,7 @@ function drawBattery(firing) {
     fg.addColorStop(0, 'rgba(255,220,140,0.7)'); fg.addColorStop(1, 'rgba(255,150,40,0)');
     ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(BAT.x + 6, BAT.y - 22, 16, 0, 6.2832); ctx.fill();
   }
-  ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = COL.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('BATTERY', BAT.x, BAT.y + 16);
 }
 
@@ -225,7 +227,7 @@ function drawAsset(destroyed, t) {
     for (let i = 0; i < 14; i += 1) ctx.fillRect(ASSET.x - 26 + srnd(i) * 52, ASSET.y - 4 - srnd(i + 3) * 12, 4 + srnd(i + 7) * 6, 4 + srnd(i + 5) * 5);
     ctx.fillStyle = `rgba(140,140,150,${(0.3 * (1 - t)).toFixed(2)})`;
     ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y - 24, 28 + t * 22, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = COL.bad; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = COL.bad; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText('ASSET DESTROYED', ASSET.x, ASSET.y + 30);
   } else {
     ctx.strokeStyle = '#566173'; ctx.lineWidth = 1.5;
@@ -233,7 +235,7 @@ function drawAsset(destroyed, t) {
     ctx.beginPath(); ctx.moveTo(ASSET.x - 22, ASSET.y - 24); ctx.lineTo(ASSET.x, ASSET.y - 34); ctx.lineTo(ASSET.x + 22, ASSET.y - 24); ctx.stroke();
     ctx.strokeStyle = 'rgba(91,192,235,0.35)';
     ctx.beginPath(); ctx.arc(ASSET.x, ASSET.y, 40, Math.PI, 2 * Math.PI); ctx.stroke();
-    ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = COL.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText('PROTECTED ASSET', ASSET.x, ASSET.y + 30);
   }
 }
@@ -264,7 +266,7 @@ function drawScene(rangeErr) {
   if (!killed) {
     dart(sc.x, sc.y, Math.atan2(tan.y, tan.x), 22, COL.scud);
     reticle(sc.x, sc.y, t * 6, lost ? COL.bad : COL.amber);
-    ctx.fillStyle = COL.scud; ctx.font = 'bold 10px ui-monospace, monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = COL.scud; ctx.font = fontString(canvas, 'tick', 'mono', 600); ctx.textAlign = 'left';
     ctx.fillText('SCUD  M-5', sc.x + 16, sc.y - 12);
   }
 
@@ -284,7 +286,7 @@ function drawScene(rangeErr) {
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
-    ctx.fillStyle = gcol; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = gcol; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(lost ? 'GATE (EMPTY - GHOST TRACK)' : 'RANGE GATE', gate.x, gate.y + 30);
   }
 
@@ -292,7 +294,7 @@ function drawScene(rangeErr) {
   if (offPx > 7 && !killed) {
     ctx.strokeStyle = lost ? COL.bad : COL.amber; ctx.lineWidth = 1.3; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(gate.x, gate.y); ctx.lineTo(sc.x, sc.y); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = lost ? COL.bad : COL.amber; ctx.font = 'bold 10px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = lost ? COL.bad : COL.amber; ctx.font = fontString(canvas, 'tick', 'mono', 600); ctx.textAlign = 'center';
     // Below the gate when the gate is high (avoids the status banner);
     // above it otherwise (avoids the RANGE GATE label below it).
     const labY = gate.y < 70 ? gate.y + 46 : gate.y - 26;
@@ -307,7 +309,7 @@ function drawScene(rangeErr) {
     if (!killed) {
       const a = inter.pts[inter.pts.length - 1], b = inter.pts[inter.pts.length - 2] || a;
       dart(a.x, a.y, Math.atan2(a.y - b.y, a.x - b.x), 17, COL.intc);
-      ctx.fillStyle = COL.intc; ctx.font = 'bold 9px ui-monospace, monospace'; ctx.textAlign = 'left';
+      ctx.fillStyle = COL.intc; ctx.font = fontString(canvas, 'tick', 'mono', 600); ctx.textAlign = 'left';
       ctx.fillText('PAC-2', a.x + 10, a.y - 8);
     }
   }
@@ -335,17 +337,17 @@ function drawScene(rangeErr) {
   const bc = lost ? COL.bad : COL.ok;
   ctx.fillStyle = bc; ctx.globalAlpha = 0.16; ctx.fillRect(26, 16, 9, 22); ctx.globalAlpha = 1;
   ctx.fillStyle = bc; ctx.fillRect(26, 16, 5, 22);
-  ctx.font = 'bold 13px ui-monospace, monospace'; ctx.fillText(msg, 42, 32);
+  ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.fillText(msg, 42, 32);
 }
 
 function drawCausePanel(timeErr) {
   const top = 360;
   ctx.textAlign = 'left';
-  ctx.fillStyle = COL.muted; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillStyle = COL.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Why: 0.1 is not exact in binary.', 40, top);
   ctx.fillStyle = COL.fg;
   ctx.fillText('24 bits: 0.1 ~ 209715 / 2097152 = 0.0999999046...', 40, top + 20);
-  ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace';
+  ctx.fillStyle = COL.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`error/tick = ${PATRIOT_ERR_PER_TICK_S.toExponential(3)} s, never reset`, 40, top + 40);
   ctx.fillText(`clock error now = ${(timeErr * 1000).toFixed(1)} ms  at ${state.hours} h uptime`, 40, top + 58);
 
@@ -358,7 +360,7 @@ function drawCausePanel(timeErr) {
     const x = xOf(h);
     ctx.strokeStyle = COL.grid2; ctx.setLineDash([2, 3]);
     ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x, py + ph); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = COL.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`${h}h`, x, py + ph + 11);
   }
   ctx.strokeStyle = COL.bad; ctx.lineWidth = 2; ctx.beginPath();
@@ -367,7 +369,7 @@ function drawCausePanel(timeErr) {
   const cx = xOf(state.hours), cy = yOf(state.patched ? 0 : patriotTimeError(state.hours));
   ctx.fillStyle = state.patched ? COL.ok : COL.amber;
   ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 6.2832); ctx.fill();
-  ctx.fillStyle = COL.muted; ctx.font = '11px ui-monospace, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = COL.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('clock error (s) vs uptime', px, py - 10);
   ctx.textAlign = 'center';
   ctx.fillText('Dhahran battery: ~100 h up', px + pw / 2, py + ph + 11);
@@ -427,4 +429,28 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
+
+
+// === Diagnostics interface (Layout System v2, generic fallback) ===
+// Reports the live control values as state. A later refinement pass
+// can replace this with playground-specific physical quantities.
+window.playground = window.playground || {};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const fields = [];
+    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
+      if (el.type === 'button') return;
+      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
+      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+      const num = Number(value);
+      if (value !== '' && Number.isFinite(num)) value = num;
+      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
+        format: typeof value === 'number' ? 'float' : undefined });
+    });
+    return { fields };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () { return []; };
 }

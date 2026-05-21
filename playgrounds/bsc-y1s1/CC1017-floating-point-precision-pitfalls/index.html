@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Floating-Point Pitfalls: the Patriot Missile Failure</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
-          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Floating-Point Pitfalls: the Patriot Missile Failure</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
     .pg-figure { max-width: 760px; }
     .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
@@ -21,48 +22,60 @@
     .pg-controls .btns button { font: inherit; padding: 6px 14px; }
     .pg-controls .btns label { font-size: 13px; color: var(--fg-muted); display: flex; gap: 6px; align-items: center; }
   </style>
-<link rel="stylesheet" href="../../../shared/css/explainer.css"></head>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+</head>
 <body>
-  <h1>Floating-point pitfalls: the Patriot missile failure</h1>
+<main class="playground-layout" data-focus="false">
 
-  <p>
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Floating-point pitfalls: the Patriot missile failure</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Floating-point pitfalls: the Patriot missile failure</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">
     <strong>What you are seeing:</strong> Dhahran, 25 February 1991. A
     Patriot battery counts time in 0.1 s ticks and multiplies by a
-    24-bit fixed-point copy of $0.1$. Since $0.1$ is not exact in binary,
-    chopping it to 24 bits gives $209715/2097152 = 0.0999999046\ldots$,
-    so every tick is short by $\approx 9.5\times10^{-8}$ s. The error is
+    24-bit fixed-point copy of <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.1</mn></mrow><annotation encoding="application/x-tex">0.1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.1</span></span></span></span></span>. Since <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.1</mn></mrow><annotation encoding="application/x-tex">0.1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.1</span></span></span></span></span> is not exact in binary,
+    chopping it to 24 bits gives <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>209715</mn><mi mathvariant="normal">/</mi><mn>2097152</mn><mo>=</mo><mn>0.0999999046</mn><mo>…</mo></mrow><annotation encoding="application/x-tex">209715/2097152 = 0.0999999046\ldots</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">209715/2097152</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.0999999046</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="minner">…</span></span></span></span></span>,
+    so every tick is short by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>9.5</mn><mo>×</mo><mn>1</mn><msup><mn>0</mn><mrow><mo>−</mo><mn>8</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\approx 9.5\times10^{-8}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4831em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">9.5</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span></span></span> s. The error is
     never reset while the battery is powered, so it accumulates
     linearly. After about 100 hours of uptime the clock is off by
-    $\approx 0.34$ s.
+    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>0.34</mn></mrow><annotation encoding="application/x-tex">\approx 0.34</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4831em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.34</span></span></span></span></span> s.
   </p>
-  <p>
+      <p class="t-body">
     The radar places its <em>range gate</em> (where it expects the
     tracked target on the next sweep) using that clock. Multiply the
-    time error by the Scud closing speed ($\approx 1676$ m/s, Mach 5)
+    time error by the Scud closing speed (<span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>1676</mn></mrow><annotation encoding="application/x-tex">\approx 1676</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4831em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1676</span></span></span></span></span> m/s, Mach 5)
     and the gate is displaced by roughly half a kilometre. The incoming
     Scud falls outside the gate, the track is dropped, no interceptor
     is fired. Drag <em>uptime</em> up and watch the gate walk off the
     target; toggle the patched software to see the drift vanish.
   </p>
+    </section>
 
-  <figure class="pg-figure">
-    <canvas id="stage" width="760" height="500" tabindex="0"
-            aria-label="Patriot range gate displaced by accumulated floating-point clock error versus uptime."></canvas>
-    <div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">clock error:</span><span class="value" id="readout-time">0 ms</span>
-      <span class="label">range error:</span><span class="value" id="readout-range">0 m</span>
-      <span class="label">track:</span><span class="value" id="readout-status">TRACKING</span>
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="760" height="500" tabindex="0" aria-label="Patriot range gate displaced by accumulated floating-point clock error versus uptime."></canvas>
     </div>
-    <figcaption>
-      <span class="figure-number">Figure 1.</span>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       Accumulated 24-bit fixed-point clock error displacing the Patriot
       range gate. Method: exact IEEE chop error per 0.1 s tick times
       uptime times closing speed. Source: GAO/IMTEC-92-26 (1992);
-      Skeel, SIAM News 25(4) 1992; Goldberg 1991.
-    </figcaption>
-  </figure>
+      Skeel, SIAM News 25(4) 1992; Goldberg 1991.</figcaption>
 
-  <div class="controls pg-controls" id="controls" role="group" aria-label="Scenario controls">
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Scenario controls">
     <div class="row"><span class="label">uptime (hours)</span><input aria-label="uptime in hours" type="range" id="slider-hours" min="0" max="100" step="1" value="18"><span class="value" id="value-hours">18</span></div>
     <div class="row"><span class="label">Scud speed (m/s)</span><input aria-label="Scud closing speed" type="range" id="slider-speed" min="800" max="2000" step="4" value="1676"><span class="value" id="value-speed">1676</span></div>
     <div class="btns">
@@ -71,7 +84,42 @@
       <label><input type="checkbox" id="toggle-fix"> patched software (exact time)</label>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">clock error:</span><span class="value" id="readout-time">0 ms</span>
+      <span class="label">range error:</span><span class="value" id="readout-range">0 m</span>
+      <span class="label">track:</span><span class="value" id="readout-status">TRACKING</span>
+    </div><span class="value" id="readout-time">0 ms</span><span class="value" id="readout-range">0 m</span><span class="value" id="readout-status">TRACKING</span></div>
+    </section>
 
-  <script type="module" src="./playground.js"></script>
-<script type="module" src="../../../shared/js/explainer.js"></script></body>
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
+        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">INVARIANTS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
 </html>
