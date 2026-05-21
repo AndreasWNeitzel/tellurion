@@ -307,33 +307,36 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The orbit is closed and periodic, so the star's orbital radial
+// velocity averages to zero over one full period: that vanishing
+// mean is the invariant the Keplerian solution must hold.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const opts = getOpts();
+  return {
+    fields: [
+      { key: 'period', label: 'orbital period P', value: st.P, format: 'float' },
+      { key: 'eccentricity', label: 'eccentricity e', value: st.e, format: 'float' },
+      { key: 'rv-amplitude', label: 'RV semi-amplitude K', value: rvSemiAmplitude(opts).toFixed(4), format: 'float' },
+      { key: 'vr-now', label: 'current radial velocity', value: radialVelocity(st.t, opts).toFixed(4), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const opts = getOpts();
+  const K = rvSemiAmplitude(opts);
+  if (!(K > 0)) return [];
+  let sum = 0;
+  const N = 480;
+  for (let i = 0; i < N; i += 1) sum += radialVelocity(((i + 0.5) / N) * st.P, opts);
+  const meanOverK = Math.abs(sum / N) / K;
+  return [
+    {
+      key: 'rv-closes',
+      label: 'orbital RV averages to zero over a period',
+      value: meanOverK.toExponential(2),
+      status: meanOverK < 5e-3 ? 'pass' : (meanOverK < 3e-2 ? 'pending' : 'drift'),
+    },
+  ];
+};
