@@ -45,13 +45,14 @@ const st = {
 };
 const focal = () => st.fRaw / 10;
 const dipB = () => st.bRaw / 10;
+const dipRho = () => bendRadius(PMOM, dipB(), QCH);   // bend radius from the dipole field
 
 function reseed() { st.x = X0; st.xp = XP0; st.turn = 0; st.trail = []; }
 
 // Periodic beta function sampled across one FODO cell (Twiss transport
 // through sliced drifts and thin quads).
 function betaProfile(f) {
-  const tw = twiss(fodoCell(L, f));
+  const tw = twiss(fodoCell(L, f, dipRho()));
   if (!tw) return null;
   let b = tw.beta, a = tw.alpha, g = tw.gamma;
   const s = [0], bs = [b];
@@ -130,7 +131,7 @@ function drawRing(x, y, w, h, stable, Q) {
 
 function drawPhase(x, y, w, h) {
   panel(x, y, w, h, 'phase space (x, x-prime): invariant emittance ellipse');
-  const tw = twiss(oneTurn(L, focal(), st.nc));
+  const tw = twiss(oneTurn(L, focal(), st.nc, dipRho()));
   const cx = x + w / 2, cy = y + h / 2 + 8;
   const eps0 = tw ? csInvariant(X0, XP0, tw) : 1e-6;
   const xMax = tw ? Math.sqrt(eps0 * tw.beta) * 1.5 : 6e-3;
@@ -185,7 +186,7 @@ function drawTune(x, y, w, h) {
   ctx.fillText('stable |.|<1', px + pw - 78, Ytr(0) - 4);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 240; i += 1) {
-    const f = fMin + (fMax - fMin) * i / 240, t = Math.max(-2, Math.min(2, trace(fodoCell(L, f)) / 2));
+    const f = fMin + (fMax - fMin) * i / 240, t = Math.max(-2, Math.min(2, trace(fodoCell(L, f, dipRho())) / 2));
     if (i === 0) ctx.moveTo(X(f), Ytr(t)); else ctx.lineTo(X(f), Ytr(t));
   }
   ctx.stroke();
@@ -198,7 +199,7 @@ function drawTune(x, y, w, h) {
   ctx.fillText('stop band', px + 4, py + ph - 6);
   const qy = py + ph + 26, qh = 80;
   let qmax = 0.5;
-  for (let i = 0; i <= 240; i += 1) { const q = tune(L, fMin + (fMax - fMin) * i / 240, st.nc); if (Number.isFinite(q)) qmax = Math.max(qmax, q); }
+  for (let i = 0; i <= 240; i += 1) { const q = tune(L, fMin + (fMax - fMin) * i / 240, st.nc, dipRho()); if (Number.isFinite(q)) qmax = Math.max(qmax, q); }
   qmax = Math.ceil((qmax + 0.25) * 2) / 2;
   const Yq = (q) => qy + qh * (1 - q / qmax);
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, qy, pw, qh);
@@ -211,12 +212,12 @@ function drawTune(x, y, w, h) {
   ctx.strokeStyle = '#6fb4ff'; ctx.lineWidth = 2; ctx.beginPath();
   let started = false;
   for (let i = 0; i <= 240; i += 1) {
-    const f = fMin + (fMax - fMin) * i / 240, q = tune(L, f, st.nc);
+    const f = fMin + (fMax - fMin) * i / 240, q = tune(L, f, st.nc, dipRho());
     if (!Number.isFinite(q)) { started = false; continue; }
     if (!started) { ctx.moveTo(X(f), Yq(q)); started = true; } else ctx.lineTo(X(f), Yq(q));
   }
   ctx.stroke();
-  const f0 = focal(), Q0 = tune(L, f0, st.nc);
+  const f0 = focal(), Q0 = tune(L, f0, st.nc, dipRho());
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(X(f0), py); ctx.lineTo(X(f0), qy + qh); ctx.stroke(); ctx.setLineDash([]);
   if (Number.isFinite(Q0)) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(f0), Yq(Q0), 4, 0, 2 * Math.PI); ctx.fill(); }
@@ -234,12 +235,12 @@ function drawTune(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const f = focal(), M = fodoCell(L, f), stable = isStable(M), Q = tune(L, f, st.nc);
+  const f = focal(), M = fodoCell(L, f, dipRho()), stable = isStable(M), Q = tune(L, f, st.nc, dipRho());
   drawRing(20, 20, W - 40, 248, stable, Q);
   const topY = 282, ph = H - topY - 14, half = (W - 52) / 2;
   drawPhase(20, topY, half, ph);
   drawTune(20 + half + 12, topY, half, ph);
-  const tw = twiss(oneTurn(L, f, st.nc));
+  const tw = twiss(oneTurn(L, f, st.nc, dipRho()));
   rQ.textContent = Number.isNaN(Q) ? 'unstable' : Q.toFixed(4);
   rE.textContent = tw ? `${(csInvariant(st.x, st.xp, tw) * 1e6).toFixed(3)} mm.mrad` : 'undefined';
   rStab.textContent = stable ? 'stable' : 'STOP BAND';
@@ -247,7 +248,7 @@ function draw() {
 }
 
 function advanceTurn() {
-  const M = oneTurn(L, focal(), st.nc);
+  const M = oneTurn(L, focal(), st.nc, dipRho());
   const nx = M[0] * st.x + M[1] * st.xp;
   const nxp = M[2] * st.x + M[3] * st.xp;
   st.x = nx; st.xp = nxp; st.turn += 1;

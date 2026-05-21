@@ -27,17 +27,27 @@ export const det = (M) => M[0] * M[3] - M[1] * M[2];
 export const driftM = (L) => [1, L, 0, 1];
 // Thin lens of focal length f: focusing (f>0) bends x' toward the axis.
 export const thinLens = (f) => [1, 0, -1 / f, 1];
+// Horizontal transfer matrix of a sector dipole of length L and bend
+// radius rho. It carries the 1/rho weak focusing of the bend; as
+// rho -> Infinity (zero field) it reduces exactly to a drift.
+export function dipoleM(L, rho) {
+  if (!Number.isFinite(rho) || rho === 0) return driftM(L);
+  const phi = L / rho;
+  return [Math.cos(phi), rho * Math.sin(phi), -Math.sin(phi) / rho, Math.cos(phi)];
+}
 
 // Symmetric FODO cell of length L with a defocusing quad of focal
 // length f at the centre and two half-strength focusing quads (focal
-// 2f) at the ends; drifts of L/2. Symmetric, so it is a periodic cell.
-export function fodoCell(L, f) {
+// 2f) at the ends. The half-cell sections are sector dipoles of bend
+// radius rho (the bending magnets); with rho = Infinity they are pure
+// drifts. Symmetric, so it is a periodic cell.
+export function fodoCell(L, f, rho = Infinity) {
   const hF = thinLens(2 * f);                          // half focusing quad
   const D = thinLens(-f);                              // full defocusing quad
-  const d = driftM(L / 2);
+  const d = dipoleM(L / 2, rho);
   return matmul(hF, matmul(d, matmul(D, matmul(d, hF))));
 }
-export const oneTurn = (L, f, nCell) => matpow(fodoCell(L, f), nCell);
+export const oneTurn = (L, f, nCell, rho = Infinity) => matpow(fodoCell(L, f, rho), nCell);
 
 export const isStable = (M) => Math.abs(trace(M)) < 2;
 
@@ -49,8 +59,8 @@ export function phaseAdvance(M) {
 }
 
 // Betatron tune of the whole ring (cells x per-cell phase advance).
-export function tune(L, f, nCell) {
-  const mu = phaseAdvance(fodoCell(L, f));
+export function tune(L, f, nCell, rho = Infinity) {
+  const mu = phaseAdvance(fodoCell(L, f, rho));
   return Number.isNaN(mu) ? NaN : nCell * mu / (2 * Math.PI);
 }
 
