@@ -18,6 +18,23 @@ hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
+invariants:
+  - key: perihelion
+    label: perihelion = a(1-e)
+    tolerance: 1e-9
+  - key: aphelion
+    label: aphelion = a(1+e)
+    tolerance: 1e-9
+  - key: semi_latus
+    label: r(90 deg) = a(1-e^2)
+    tolerance: 1e-9
+what_to_try:
+  - Raise eccentricity e toward 0.9 and watch the ellipse flatten.
+  - Set inclination i to 90 degrees to view the orbit plane edge-on.
+  - Sweep the node Omega and argument of periapsis omega to swing and spin the orbit.
+references:
+  - "Carroll and Ostlie, An Introduction to Modern Astrophysics, 2nd ed., Ch. 2."
+  - "Murray and Dermott, Solar System Dynamics, Ch. 2."
 ---
 # Keplerian orbit elements
 Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).
