@@ -99,8 +99,10 @@ function drawRing(x, y, w, h, stable, Q) {
   ctx.fillStyle = stable ? '#ffd166' : '#ff6b6b';
   ctx.beginPath(); ctx.arc(cx + Math.cos(ba) * R, cy + Math.sin(ba) * R, 5, 0, 2 * Math.PI); ctx.fill();
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = '#7fd6a0'; ctx.fillText('F quad', cx - 22, y + h - 18);
-  ctx.fillStyle = '#ff9d6f'; ctx.fillText('D quad', cx + 26, y + h - 18);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#7fd6a0'; ctx.fillText('F quad', cx - 16, y + h - 18);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#ff9d6f'; ctx.fillText('D quad', cx + 16, y + h - 18);
   if (!stable) {
     ctx.fillStyle = '#ff8f8f'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('STOP BAND', cx - 30, cy + 4);
