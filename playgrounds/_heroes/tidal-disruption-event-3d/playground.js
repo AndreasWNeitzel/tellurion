@@ -336,33 +336,37 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The defining signature of a tidal disruption event is the mass
+// fallback rate settling onto the canonical t^(-5/3) power law; the
+// late-time log-log slope is the invariant.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'log-mbh', label: 'log10 M_BH (M_sun)', value: st.logMBH.toFixed(2), format: 'float' },
+      { key: 'm-star', label: 'star mass (M_sun)', value: st.Mstar, format: 'float' },
+      { key: 'r-star', label: 'star radius (R_sun)', value: st.Rstar, format: 'float' },
+      { key: 'regime', label: 'regime', value: currentDisrupted() ? 'disrupting' : 'swallowed whole' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const mbh = currentMBH();
+  const tPeak = peakFallbackTime_s(mbh, st.Mstar, st.Rstar);
+  if (!(tPeak > 0)) return [];
+  const t1 = 20 * tPeak, t2 = 80 * tPeak;
+  const r1 = fallbackRate(t1, mbh, st.Mstar, st.Rstar);
+  const r2 = fallbackRate(t2, mbh, st.Mstar, st.Rstar);
+  if (!(r1 > 0) || !(r2 > 0)) return [];
+  const slope = Math.log(r2 / r1) / Math.log(t2 / t1);
+  const off = Math.abs(slope + 5 / 3);
+  return [
+    {
+      key: 'fallback-law',
+      label: 'late-time fallback follows t^(-5/3)',
+      value: slope.toFixed(3),
+      status: off < 0.05 ? 'pass' : (off < 0.25 ? 'pending' : 'drift'),
+    },
+  ];
+};
