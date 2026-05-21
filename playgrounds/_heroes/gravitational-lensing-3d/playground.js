@@ -104,11 +104,15 @@ function renderLensedImage() {
       const theta_x = -st.VIEW + (xx / (RES - 1)) * 2 * st.VIEW;
       const [bx_src, by_src] = lensPointMass(theta_x, theta_y);
       const v = sourcePattern(bx_src, by_src, st.pattern);     // in [-1, 1]
-      // Diverging blue-white-red colormap (matplotlib RdBu_r). Map v in
-      // [-1, 1] to t in [0, 1]; the colormap returns {r, g, b} bytes.
-      const c = rdbu(0.5 + 0.5 * Math.max(-1, Math.min(1, v)));
+      // Diverging blue-black-red colormap: the RdBu_r hues at the two
+      // ends, but the neutral midpoint is pulled to black instead of
+      // white so the map reads correctly on the dark theme. Brightness
+      // scales with distance from neutral.
+      const vc = Math.max(-1, Math.min(1, v));
+      const c = rdbu(0.5 + 0.5 * vc);
+      const k = Math.abs(vc);
       const idx = (yy * RES + xx) * 4;
-      data[idx] = c.r; data[idx + 1] = c.g; data[idx + 2] = c.b; data[idx + 3] = 255;
+      data[idx] = c.r * k; data[idx + 1] = c.g * k; data[idx + 2] = c.b * k; data[idx + 3] = 255;
     }
   }
   imgOff = document.createElement('canvas');
