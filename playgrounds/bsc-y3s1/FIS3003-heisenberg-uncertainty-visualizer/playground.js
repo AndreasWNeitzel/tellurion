@@ -82,6 +82,7 @@ function render() {
   const pd = momentumDensity(g);
   const sx = sigmaX(g), sp = sigmaP(g, pd);
   const prod = sx.sigma * sp.sigma;
+  st.lastSx = sx.sigma; st.lastSp = sp.sigma; st.lastProd = prod;
 
   drawPacket(XP, xd, g.x, sx.sigma, sx.mean, '#7fd6ff', '|psi(x)|^2  (position space)', L / 2);
   drawPacket(KP, pd, g.k, sp.sigma, sp.mean, '#ff8a5d', '|phi(k)|^2  (momentum space)', Math.PI * N / L * 0.5);
@@ -209,33 +210,38 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the conjugate widths and the uncertainty product.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'shape', label: 'wave-packet shape', value: st.shape },
+      { key: 'sigma-x', label: 'sigma_x (position)', value: st.lastSx || 0, format: 'float' },
+      { key: 'sigma-p', label: 'sigma_p (momentum)', value: st.lastSp || 0, format: 'float' },
+      { key: 'product', label: 'sigma_x sigma_p', value: st.lastProd || 0, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // The Heisenberg uncertainty principle is a bounded inequality, and
+  // a bound that must hold is exactly what an invariant check reports:
+  // sigma_x sigma_p >= hbar/2, with equality only for the Gaussian.
+  const prod = st.lastProd || 0;
+  const ok = prod >= HBAR_OVER_2 - 1e-6;
+  const saturated = Math.abs(prod - HBAR_OVER_2) < 0.02;
+  return [
+    {
+      key: 'uncertainty',
+      label: 'sigma_x sigma_p >= hbar/2',
+      value: prod.toFixed(3),
+      status: ok ? 'pass' : 'drift',
+    },
+    {
+      key: 'gaussian-saturates',
+      label: 'Gaussian saturates the bound',
+      value: saturated ? 'at hbar/2' : 'above hbar/2',
+      status: saturated ? 'pass' : 'pending',
+    },
+  ];
+};
