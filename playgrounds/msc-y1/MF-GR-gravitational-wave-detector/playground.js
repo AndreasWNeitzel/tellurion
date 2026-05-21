@@ -70,7 +70,7 @@ function panel(x, y, w, h, title) {
 }
 
 // Primary: the inspiral and its two-arm quadrupole ripple field.
-const BL = 7;
+const BL = 5;
 function drawInspiral(x, y, w, h) {
   panel(x, y, w, h, 'compact-binary inspiral: two black holes radiating gravitational waves to merger');
   const cx = x + w / 2, cy = y + h / 2 + 6;
@@ -87,7 +87,7 @@ function drawInspiral(x, y, w, h) {
   const Phi = st.cum[idx];
   const env = merged
     ? Math.exp(-(st.ph - 0.985) * 90)                    // ringdown decay
-    : 0.25 + 0.75 * (1 - aR);                             // grows as it tightens
+    : 0.55 + 0.45 * (1 - aR);                             // grows as it tightens
   ctx.save();
   ctx.beginPath(); ctx.rect(x + 1, y + 16, w - 2, h - 18); ctx.clip();
   for (let py = y + 16; py < y + h; py += BL) {
@@ -96,12 +96,15 @@ function drawInspiral(x, y, w, h) {
       const r = Math.hypot(dx, dy);
       if (r > Rmax) continue;
       const phi = Math.atan2(dy, dx);
-      const fall = 1 / (1 + r * 0.012);
+      // Wave-zone strain: quadrupole (2 phi), outgoing (- k r), and a
+      // 1/r amplitude falloff softened near the source.
+      const fall = 1 / (0.35 + r * 0.012);
       const hh = env * fall * Math.cos(2 * phi - k * r + Phi);
-      const v = Math.max(-1, Math.min(1, hh * 1.6));
-      if (Math.abs(v) < 0.02) continue;
-      const rC = v > 0 ? 255 : 90, gC = 120 + 60 * (1 - Math.abs(v)), bC = v < 0 ? 255 : 110;
-      ctx.fillStyle = `rgba(${rC | 0},${gC | 0},${bC | 0},${(0.16 * Math.abs(v) + 0.02).toFixed(3)})`;
+      const v = Math.max(-1, Math.min(1, hh * 2.4));
+      if (Math.abs(v) < 0.015) continue;
+      const a = Math.abs(v);
+      const rC = v > 0 ? 255 : 70, gC = 110 + 70 * (1 - a), bC = v < 0 ? 255 : 90;
+      ctx.fillStyle = `rgba(${rC | 0},${gC | 0},${bC | 0},${(0.62 * a + 0.05).toFixed(3)})`;
       ctx.fillRect(px, py, BL, BL);
     }
   }
