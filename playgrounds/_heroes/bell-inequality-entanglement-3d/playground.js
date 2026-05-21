@@ -382,25 +382,40 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the four polarizer angles and the CHSH statistic computed
+// from the quantum-mechanical singlet correlation.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const { a, ap, b, bp } = asRad();
+  return {
+    fields: [
+      { key: 'a', label: 'Alice angle a', value: st.a_deg },
+      { key: 'ap', label: "Alice angle a'", value: st.ap_deg },
+      { key: 'b', label: 'Bob angle b', value: st.b_deg },
+      { key: 'bp', label: "Bob angle b'", value: st.bp_deg },
+      { key: 'chsh', label: 'CHSH |S|', value: Math.abs(chshS(a, ap, b, bp)), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const { a, ap, b, bp } = asRad();
+  const S = Math.abs(chshS(a, ap, b, bp));
+  return [
+    {
+      // Quantum mechanics can never exceed the Tsirelson bound 2 sqrt 2.
+      key: 'tsirelson',
+      label: 'CHSH within Tsirelson bound 2.828',
+      value: S.toFixed(3),
+      status: S <= TSIRELSON_BOUND + 1e-6 ? 'pass' : 'drift',
+    },
+    {
+      // |S| > 2 is a genuine violation of the classical (local
+      // hidden-variable) bound: entanglement demonstrated.
+      key: 'bell-violation',
+      label: 'Bell inequality violated (|S| > 2)',
+      value: S.toFixed(3),
+      status: S > CLASSICAL_BOUND ? 'pass' : 'pending',
+    },
+  ];
+};
