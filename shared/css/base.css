@@ -122,3 +122,14 @@ button[data-variant="primary"] {
   box-shadow: none;
   border-radius: 0;
 }
+
+/* === PLAYGROUND LAYOUT SYSTEM v2 ===
+   Fluid typography utility classes. Each maps to a clamp()-based
+   token in tokens.css so page text scales with the viewport. */
+.t-display { font-size: var(--fs-display); }
+.t-title   { font-size: var(--fs-title); }
+.t-heading { font-size: var(--fs-heading); }
+.t-body    { font-size: var(--fs-body); }
+.t-small   { font-size: var(--fs-small); }
+.t-label   { font-size: var(--fs-label); }
+.t-mono    { font-size: var(--fs-mono); }

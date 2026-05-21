@@ -70,6 +70,35 @@
   /* Layout */
   --content-max: 760px;
   --figure-min:  520px;
+
+  /* === PLAYGROUND LAYOUT SYSTEM v2 ===
+     Fluid typography and two-zone grid. See docs spec; these
+     supersede any earlier conflicting tokens. */
+
+  /* Fluid typography scale (sizes track the viewport via clamp) */
+  --fs-display: clamp(2rem, 1.6vw + 1.4rem, 2.6rem);
+  --fs-title:   clamp(1.5rem, 0.6vw + 1.3rem, 1.85rem);
+  --fs-heading: clamp(1.125rem, 0.3vw + 1.05rem, 1.3rem);
+  --fs-body:    clamp(0.9375rem, 0.25vw + 0.85rem, 1.125rem);
+  --fs-small:   clamp(0.8125rem, 0.18vw + 0.75rem, 0.95rem);
+  --fs-label:   clamp(0.6875rem, 0.12vw + 0.65rem, 0.8rem);
+  --fs-mono:    clamp(0.8125rem, 0.18vw + 0.75rem, 0.95rem);
+
+  /* Layout columns */
+  --col-center-max:   880px;
+  --col-text-max:     720px;
+  --col-controls-max: 720px;
+  --col-rail-width:   260px;
+  --col-rail-gap:     48px;
+  --col-focus-max:    1280px;
+  --bp-rails-full:    1400px;
+  --bp-single-col:    1023px;
+
+  /* Rail position */
+  --rail-sticky-top: 88px;
+
+  /* Focus mode transition */
+  --t-focus: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Dark theme */
@@ -120,5 +149,6 @@
     --motion-fast: 0ms;
     --motion-base: 0ms;
     --motion-slow: 0ms;
+    --t-focus: 0ms;
   }
 }
