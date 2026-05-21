@@ -303,16 +303,24 @@ function drawScreenHistogram(center, scale) {
   }
   // Theoretical curves overlaid.
   const drawCurve = (densityFn, color, dashed = false) => {
+    // The histogram bars are peak-normalised (tallest bin -> barW).
+    // The theoretical density must use the SAME normalisation or the
+    // two will not overlay: sample it, find its peak, scale to barW.
+    const dens = new Float64Array(nBins);
+    let dMax = 1e-12;
+    for (let i = 0; i < nBins; i++) {
+      const z = -zMax + 2 * zMax * (i / nBins);
+      dens[i] = densityFn(z);
+      if (dens[i] > dMax) dMax = dens[i];
+    }
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.4;
     if (dashed) ctx.setLineDash([3, 4]);
     ctx.beginPath();
     let first = true;
     for (let i = 0; i < nBins; i++) {
-      const z = -zMax + 2 * zMax * (i / nBins);
-      const d = densityFn(z);
       const yMid = yPanel0 + ((nBins - 1 - i) / (nBins - 1)) * (yPanel1 - yPanel0);
-      const x = barX0 + Math.min(1, d * 0.4) * barW;
+      const x = barX0 + (dens[i] / dMax) * barW;
       if (first) { ctx.moveTo(x, yMid); first = false; } else ctx.lineTo(x, yMid);
     }
     ctx.stroke();
