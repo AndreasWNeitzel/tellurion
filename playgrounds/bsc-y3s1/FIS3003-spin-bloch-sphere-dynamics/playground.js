@@ -328,6 +328,18 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// Unitary spin precession is a pure rotation of the Bloch vector, so
+// its length is conserved: the state stays on the unit sphere.
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    const n = norm(st.S);
+    if (!Number.isFinite(n)) return [];
+    const dev = Math.abs(n - 1);
+    return [{
+      key: 'unit-bloch',
+      label: 'Bloch vector stays on the unit sphere',
+      value: n.toFixed(5),
+      status: dev < 1e-3 ? 'pass' : (dev < 1e-2 ? 'pending' : 'drift'),
+    }];
+  };
 }
