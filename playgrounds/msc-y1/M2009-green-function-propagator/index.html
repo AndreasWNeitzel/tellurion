@@ -35,7 +35,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Green's Function: Building a Solution from Tent Responses.</p>
+      <p class="t-body">A Green's-function playground for the 1D problem -u'' = f on [0, 1] with the ends pinned at zero. The response to a single point spike is the tent G(x, x'): zero at both walls, peaked at the spike, with a unit downward kink there. Because the equation is linear, the response to any source is the superposition of tents weighted by the source value, u = integral G f. Panel A shows the source and the solution it produces (each on its own scale, since the solution is usually far smaller); Panel B is the draggable tent and the faint stack of weighted tents that build u; Panel C shows that the recovered u really does satisfy -u'' = f and lists the defining facts. The Green function is symmetric, vanishes at both pinned ends, has a unit downward slope kink at the source point, and the weighted superposition of tents reproduces the exact solution and the analytic sine series. Reference: Arfken, Weber and Harris, Mathematical Methods for Physicists, Chapter 10; Stakgold, Green's Functions and Boundary Value Problems.</p>
     </section>
 
     <div class="playground-canvas-frame">

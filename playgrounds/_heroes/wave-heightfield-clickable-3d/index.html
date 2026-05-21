@@ -42,7 +42,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Wave Heightfield (Clickable Hero).</p>
+      <p class="t-body">This solves the damped two-dimensional wave equation, d2u/dt2 = c^2 (d2u/dx2 + d2u/dy2) minus gamma du/dt, on a 256x256 grid whose edges are clamped to zero (Dirichlet walls, like a drum skin pinned at its rim). Click anywhere on the shaded surface to seed a Gaussian bump of height A and width sigma; it splits into a ring that travels outward at the wave speed c, reflects off the four walls, and passes through earlier ripples, adding where crests meet and cancelling where a crest meets a trough (linear superposition). The gamma slider adds damping, so the energy bleeds away and the surface settles flat; with gamma = 0 the total energy is essentially conserved (the readout tracks it). Raising c makes the rings travel faster and forces a smaller stable time step internally (the explicit scheme is only stable below the Courant limit). The surface is a real Blinn-Phong-lit 3D heightfield, not a flat colour map: drag to orbit, scroll to zoom, and the readout shows the energy, the absorbed-energy fraction, the click count and FPS.</p>
     </section>
 
     <div class="playground-canvas-frame">

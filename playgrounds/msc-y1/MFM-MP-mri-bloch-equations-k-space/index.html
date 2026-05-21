@@ -29,7 +29,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">MRI: the Bloch Equations, the FID and k-Space Imaging.</p>
+      <p class="t-body">An MRI physics playground (Bloch 1946; Liang and Lauterbur 2000). The Bloch equations are solved analytically in the rotating frame: after a 90-degree pulse the magnetization precesses while the transverse component decays with T2 and the longitudinal component recovers to M0 with T1, tracing a spiral on the Bloch sphere and producing the free induction decay whose Fourier transform is a Lorentzian. A brain-like phantom is imaged with the spin-echo equation S ~ rho (1 - e^{-TR/T1}) e^{-TE/T2} or the spoiled gradient-echo Ernst-angle equation; the image is transformed to k-space and reconstructed by a 2D inverse Fourier transform, and discarding the outer k-space lines blurs it. Panel A is the Bloch sphere, Panel B the FID and spectrum, Panel C the image and its k-space. The magnetisation magnitude is conserved under pure precession, T1 and T2 relaxation follow the Bloch laws, the spin-echo signal reaches its expected limits at the Ernst angle, and discarding the outer k-space lines blurs the image. Reference: Liang and Lauterbur, Principles of Magnetic Resonance Imaging; Bloch 1946.</p>
     </section>
 
     <div class="playground-canvas-frame">
