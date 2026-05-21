@@ -112,7 +112,7 @@ function slider(label, min, max, stp, value, fmt, onInput) {
 }
 const sRp = slider('Rp / Rs', 0.02, 0.25, 0.005, ui.Rp, (v) => v.toFixed(3), (v) => { ui.Rp = v; resolve(); });
 const sA = slider('a / Rs', 2, 20, 0.1, ui.aOverRs, (v) => v.toFixed(1), (v) => { ui.aOverRs = v; resolve(); });
-const sI = slider('inclination', 1.30, Math.PI / 2, 0.005, ui.inc, (v) => `${(v * 57.3).toFixed(1)} deg`, (v) => { camera.setElevationDeg(90 - v * 57.29578); });
+const sI = slider('inclination', 0.02, Math.PI / 2, 0.005, ui.inc, (v) => `${(v * 57.3).toFixed(1)} deg`, (v) => { camera.setElevationDeg(90 - v * 57.29578); });
 const sP = slider('period', 1.0, 10.0, 0.1, ui.period, (v) => v.toFixed(1), (v) => { ui.period = v; resolve(); });
 slider('limb u1', 0, 0.9, 0.02, ui.u1, (v) => v.toFixed(2), (v) => { ui.u1 = v; resolve(); });
 slider('limb u2', 0, 0.6, 0.02, ui.u2, (v) => v.toFixed(2), (v) => { ui.u2 = v; resolve(); });
@@ -165,10 +165,17 @@ function drawPlot() {
   const x0 = 56, x1 = W - 16, y0 = 18, y1 = H - 22;
   // baseline
   pctx.strokeStyle = '#23252a'; pctx.beginPath(); pctx.moveTo(x0, y0); pctx.lineTo(x0, y1); pctx.lineTo(x1, y1); pctx.stroke();
-  let fmin = 1;
-  for (let i = 0; i < curve.length; i += 1) if (curve[i] < fmin) fmin = curve[i];
-  const fLo = Math.min(1 - 1.4 * (1 - fmin), 0.9999);
-  const yOf = (f) => y0 + (1 - (f - fLo) / (1 - fLo)) * (y1 - y0);
+  let fmin = 1, fmax = 1;
+  for (let i = 0; i < curve.length; i += 1) {
+    if (curve[i] < fmin) fmin = curve[i];
+    if (curve[i] > fmax) fmax = curve[i];
+  }
+  // Frame the transit dip if there is one; otherwise show a gentle
+  // flat band, so a no-transit curve does not collapse the y-axis.
+  const depth = 1 - fmin;
+  const fLo = depth > 1e-4 ? Math.max(0, 1 - 1.4 * depth) : 0.985;
+  const fHi = Math.max(1.0008, fmax + 2e-4);
+  const yOf = (f) => y0 + (1 - (f - fLo) / (fHi - fLo)) * (y1 - y0);
   pctx.strokeStyle = '#5fd0e0'; pctx.lineWidth = 1.8; pctx.beginPath();
   for (let i = 0; i < curve.length; i += 1) { const X = x0 + (i / curve.length) * (x1 - x0); const Y = yOf(curve[i]); i ? pctx.lineTo(X, Y) : pctx.moveTo(X, Y); }
   pctx.stroke();
@@ -187,15 +194,13 @@ function drawPlot() {
     pctx.fillText(`phase ${ph.toFixed(2)}  flux ${hF.toFixed(5)}`, Xh + 6, y0 + 12);
   }
   pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
-  pctx.fillText('stellar flux vs orbital phase   (yellow = current; hover for value)', 8, 12);
-  pctx.fillText('1.0000', 8, y0 + 4); pctx.fillText(fLo.toFixed(4), 8, y1);
+  pctx.fillText('stellar flux vs orbital phase', 8, 12);
+  pctx.fillText(fHi.toFixed(4), 8, y0 + 4); pctx.fillText(fLo.toFixed(4), 8, y1);
 
   // Zoomed inset: the reflected-light phase curve and the
   // secondary-eclipse dip. That signal is ~1e-4 of the stellar flux,
   // far too small to read on the primary-transit scale, so the inset
-  // magnifies the band just above flux = 1.
-  let fmax = 1;
-  for (let i = 0; i < curve.length; i += 1) if (curve[i] > fmax) fmax = curve[i];
+  // magnifies the band just above flux = 1. (fmax is from above.)
   if (fmax > 1 + 1e-7) {
     const iw = 168, ih = 56, ix = x1 - iw - 6, iy = y0 + 16;
     pctx.fillStyle = 'rgba(10,12,16,0.94)';
@@ -257,7 +262,7 @@ function tick(now) {
   // The camera elevation is the observer's vantage point: the orbital
   // inclination and the light curve follow from it. Dragging the
   // camera retilts the system and re-solves the transit.
-  const incCam = Math.max(1.30, Math.min(Math.PI / 2, (90 - camera.state.elevationDeg) * Math.PI / 180));
+  const incCam = Math.max(0.02, Math.min(Math.PI / 2, (90 - camera.state.elevationDeg) * Math.PI / 180));
   if (Math.abs(incCam - ui.inc) > 5e-4) {
     ui.inc = incCam;
     resolve();
