@@ -290,33 +290,31 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The KdV equation conserves mass, momentum, and energy; the relative
+// drift of each is the invariant the integrator must hold.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const p = peak(sim);
+  return {
+    fields: [
+      { key: 'sim-time', label: 'time', value: sim.t.toFixed(2), format: 'float' },
+      { key: 'peak-amplitude', label: 'peak amplitude a', value: p.amplitude.toFixed(3), format: 'float' },
+      { key: 'soliton-speed', label: 'soliton speed c = 2a', value: (2 * p.amplitude).toFixed(3), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!i0) return [];
+  const inv = invariants(sim);
+  const dr = (a, b) => (b ? Math.abs(a - b) / Math.max(Math.abs(b), 1e-9) : 0);
+  const mk = (key, label, d) => ({
+    key, label, value: d.toExponential(2),
+    status: d < 1e-3 ? 'pass' : (d < 1e-2 ? 'pending' : 'drift'),
+  });
+  return [
+    mk('mass', 'mass conserved (KdV)', dr(inv.mass, i0.mass)),
+    mk('momentum', 'momentum conserved', dr(inv.momentum, i0.momentum)),
+    mk('energy', 'energy conserved', dr(inv.energy, i0.energy)),
+  ];
+};
