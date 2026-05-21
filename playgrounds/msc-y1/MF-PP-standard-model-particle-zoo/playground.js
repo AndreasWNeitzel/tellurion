@@ -198,33 +198,46 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// The Standard Model conservation laws ARE the invariants: every
+// decay must conserve electric charge, baryon number, and each
+// lepton flavour. A "forbidden" decay violates one of them, so the
+// panel reads pass for an allowed decay and drift for the violated
+// law of a forbidden one.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const D = DECAYS[st.decay];
+  const r = checkDecay(D.parent, D.daughters);
+  return {
+    fields: [
+      { key: 'decay', label: 'selected decay parent', value: PARTICLES[D.parent].sym },
+      { key: 'verdict', label: 'verdict', value: r.allowed ? 'allowed' : 'forbidden' },
+      { key: 'force', label: 'force shown', value: st.force },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const D = DECAYS[st.decay];
+  const r = checkDecay(D.parent, D.daughters);
+  const leptonOk = r.laws.Le && r.laws.Lmu && r.laws.Ltau;
+  return [
+    {
+      key: 'charge',
+      label: 'electric charge conserved',
+      value: r.laws.charge ? 'yes' : 'no',
+      status: r.laws.charge ? 'pass' : 'drift',
+    },
+    {
+      key: 'baryon',
+      label: 'baryon number conserved',
+      value: r.laws.baryon ? 'yes' : 'no',
+      status: r.laws.baryon ? 'pass' : 'drift',
+    },
+    {
+      key: 'lepton-flavour',
+      label: 'lepton flavour conserved',
+      value: leptonOk ? 'yes' : 'no',
+      status: leptonOk ? 'pass' : 'drift',
+    },
+  ];
+};
