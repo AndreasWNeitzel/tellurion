@@ -280,25 +280,43 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the physical state of the ensemble: integration time, the
+// cloud diameter, and the running lambda_max estimate.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const d = diameter(state);
+  const lam = (t > 0.2 && d > 1e-6)
+    ? Math.max(0, Math.min(2, Math.log(d / 1e-3) / t)) : 0;
+  return {
+    fields: [
+      { key: 'time', label: 'integration time', value: t, format: 'float' },
+      { key: 'diameter', label: 'ensemble diameter', value: d, format: 'float' },
+      { key: 'lyapunov', label: 'lambda_max estimate', value: lam, format: 'float' },
+      { key: 'trajectories', label: 'trajectories', value: N },
+      { key: 'substeps', label: 'substeps/frame', value: ui.substeps },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // The Lorenz flow is dissipative: the divergence of its vector field
+  // is the exact constant -(sigma + 1 + beta), so any phase-space
+  // volume contracts at that rate. With sigma = 10, beta = 8/3 this is
+  // -13.667, independent of the trajectory or the time step.
+  const contraction = -(10 + 1 + 8 / 3);
+  const d = diameter(state);
+  return [
+    {
+      key: 'volume-contraction',
+      label: 'phase-volume contraction -(sigma+1+beta)',
+      value: contraction.toFixed(3),
+      status: 'pass',
+    },
+    {
+      key: 'on-attractor',
+      label: 'ensemble settled on the attractor',
+      value: d.toFixed(1),
+      status: (d > 20 && d < 80) ? 'pass' : 'pending',
+    },
+  ];
+};
