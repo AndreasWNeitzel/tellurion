@@ -39,17 +39,25 @@ precision highp float;
 in vec4 vCol;
 uniform float uU1;
 uniform float uU2;
+uniform vec3 uLightDir;
 out vec4 o;
 vec3 aces(vec3 x){ return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14),0.0,1.0); }
 void main(){
   vec2 d = gl_PointCoord * 2.0 - 1.0;
   float r2 = dot(d, d);
   if (vCol.a > 1.5) {
-    // planet: opaque dark disc with a soft cool rim
+    // planet: a lit sphere imposter. The sprite-disc coordinate is
+    // read as a sphere normal; a Lambert term against uLightDir (the
+    // direction to the star, in view space) gives the orbital phase:
+    // a dark night side while the planet transits in front of the
+    // star, a lit full disc near secondary eclipse behind it.
     if (r2 > 1.0) discard;
-    float r = sqrt(r2);
-    float core = 1.0 - smoothstep(0.80, 1.00, r);   // 1 at center, 0 at rim
-    vec3 col = vec3(0.030, 0.030, 0.045) * core + vec3(0.10, 0.07, 0.05) * (1.0 - core);
+    vec3 N = vec3(d.x, -d.y, sqrt(max(0.0, 1.0 - r2)));
+    float lit = max(0.0, dot(N, uLightDir));
+    float shade = 0.06 + 0.94 * lit;
+    vec3 col = mix(vec3(0.025, 0.025, 0.040), vec3(0.42, 0.33, 0.24), shade);
+    float rim = smoothstep(0.82, 1.0, sqrt(r2));
+    col += vec3(0.10, 0.13, 0.18) * rim * 0.5;        // cool terminator rim
     o = vec4(col, 1.0);
   } else if (vCol.a > 0.5) {
     // star: limb-darkened
@@ -135,6 +143,10 @@ export function setupTransitGL(canvas) {
   gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 12, 0);
   gl.bindVertexArray(null);
 
+  // Last planet world position, kept so render() can derive the
+  // planet-to-star light direction for the phase-lit planet sprite.
+  const lastPlanet = [1, 0, 0];
+
   function mul(a, b) {
     const o = new Float32Array(16);
     for (let c = 0; c < 4; c += 1) for (let r = 0; r < 4; r += 1)
@@ -198,6 +210,7 @@ export function setupTransitGL(canvas) {
     ptBuf[o2 + 3] = Math.max(1e-4, Rp_world);       // world radius = Rp/Rs
     ptBuf[o2 + 4] = 0.10; ptBuf[o2 + 5] = 0.10; ptBuf[o2 + 6] = 0.12;
     ptBuf[o2 + 7] = 2.0;                            // tag: planet
+    lastPlanet[0] = depthSign * 0.02; lastPlanet[1] = py; lastPlanet[2] = pz;
     gl.bindBuffer(gl.ARRAY_BUFFER, ptVBO);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, ptBuf);
 
@@ -230,6 +243,17 @@ export function setupTransitGL(canvas) {
     gl.uniform1f(gl.getUniformLocation(ptProg, 'uPixK'), pixK);
     gl.uniform1f(gl.getUniformLocation(ptProg, 'uU1'), u1);
     gl.uniform1f(gl.getUniformLocation(ptProg, 'uU2'), u2);
+    // Direction from the planet to the star (at the origin), rotated
+    // into view space, so the planet sprite can be Lambert-lit.
+    let lx = -lastPlanet[0], ly = -lastPlanet[1], lz = -lastPlanet[2];
+    const lm = Math.hypot(lx, ly, lz) || 1;
+    lx /= lm; ly /= lm; lz /= lm;
+    gl.uniform3f(
+      gl.getUniformLocation(ptProg, 'uLightDir'),
+      view[0] * lx + view[4] * ly + view[8] * lz,
+      view[1] * lx + view[5] * ly + view[9] * lz,
+      view[2] * lx + view[6] * ly + view[10] * lz,
+    );
     gl.bindVertexArray(ptVAO);
     gl.drawArrays(gl.POINTS, 0, NBG + 2);
     // orbit ring last (depth-tested against the star + planet).
