@@ -230,6 +230,23 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The Crank-Nicolson step is unitary, so it conserves the
+// wavefunction norm: total probability is the invariant.
+let __norm0 = null;
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const n = norm(s);
+      if (!Number.isFinite(n)) return [];
+      if (__norm0 === null && n > 0) __norm0 = n;
+      if (__norm0 === null) return [];
+      const dev = Math.abs(n - __norm0) / __norm0;
+      return [{
+        key: 'norm',
+        label: 'wavefunction norm conserved (unitary)',
+        value: n.toFixed(6),
+        status: dev < 1e-4 ? 'pass' : (dev < 1e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
