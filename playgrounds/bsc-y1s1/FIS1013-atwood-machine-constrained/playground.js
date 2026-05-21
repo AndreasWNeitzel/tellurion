@@ -398,6 +398,27 @@ if (!window.playground.getState) {
     return { fields };
   };
 }
+// The Atwood machine is conservative: total mechanical energy is the
+// invariant, re-baselined whenever a mass control steps the energy.
+let __energy0 = null, __energyPrev = null;
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    try {
+      const E = energy(s);
+      if (!Number.isFinite(E)) return [];
+      if (__energyPrev !== null
+        && Math.abs(E - __energyPrev) > 0.02 * Math.max(1e-9, Math.abs(__energyPrev)) + 1e-9) {
+        __energy0 = E;
+      }
+      __energyPrev = E;
+      if (__energy0 === null) __energy0 = E;
+      const dE = Math.abs(E - __energy0) / Math.max(1e-12, Math.abs(__energy0));
+      return [{
+        key: 'energy',
+        label: 'total energy conserved (rel. drift)',
+        value: dE.toExponential(2),
+        status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
 }
