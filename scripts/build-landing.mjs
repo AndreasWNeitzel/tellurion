@@ -254,15 +254,25 @@ html{background:var(--bg-void);scrollbar-width:thin;scrollbar-color:var(--border
 body{max-width:1280px;margin:0 auto;padding:0 24px 0;background:transparent;color:var(--text-primary);
   font-family:var(--f-ui);font-size:15px;font-weight:400;position:relative;z-index:0;line-height:1.6}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
-.landing-hero{padding:118px 0 48px;max-width:880px}
+.landing-hero{padding:104px 0 32px;max-width:880px}
 .landing-hero h1{margin:0}
 .hero-subtitle{color:var(--text-secondary);max-width:640px;margin:16px 0 0;line-height:1.6}
 .hero-stats{color:var(--text-secondary);font-family:var(--f-mono);margin-top:16px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
 .hero-stat-num{color:var(--text-primary);font-weight:500;font-variant-numeric:tabular-nums}
 .hero-stat-label{color:var(--text-secondary);margin-left:4px}
 .hero-stat-divider{color:var(--text-dimmed)}
-.hero-search-bar{margin-top:32px;display:flex;gap:12px;align-items:center;max-width:720px}
-.hero-filter-chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+/* Catalog section: search, order, filters scoped here so it is clear
+   they control the grid below and not the curated featured row. */
+.catalog-header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:20px}
+.catalog-count{color:var(--text-secondary)}
+.catalog-count strong{color:var(--text-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.catalog-controls{margin-bottom:24px}
+.catalog-search-row{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.catalog-filter-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;
+  color:var(--text-secondary);font-size:16px;line-height:1;border-radius:50%}
+.search-clear:hover{color:var(--text-primary)}
 /* Navigation bar (site-structure spec). Fixed, frosted, persistent. */
 .nav{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;background:var(--bg-frosted);
   -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
@@ -326,7 +336,7 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 @media(max-width:600px){.featured-row{grid-template-columns:1fr}}
 .search{position:relative;flex:1;max-width:640px;min-width:240px}
 .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-secondary);pointer-events:none}
-.search input{width:100%;padding:10px 14px 10px 40px;background:var(--bg-surface);border:1px solid var(--border-dim);
+.search input{width:100%;padding:10px 34px 10px 40px;background:var(--bg-surface);border:1px solid var(--border-dim);
   color:var(--text-primary);border-radius:6px;font-size:0.9375rem;font-family:var(--f-ui);outline:none;transition:border-color var(--t-fast)}
 .search input::placeholder{color:var(--text-secondary)}
 .search input:focus{border-color:var(--border-active)}
@@ -341,9 +351,6 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   font-size:0.8125rem;font-family:var(--f-ui);cursor:pointer;padding:4px 6px}
 .clearall:hover{text-decoration:underline}
 .clearall.show{display:inline-block}
-.browse-meta{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:12px 0 24px}
-.browse-meta span{color:var(--text-secondary)}
-.browse-meta strong{color:var(--text-primary);font-weight:600;font-variant-numeric:tabular-nums}
 .curriculum-toggle{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);
   padding:6px 12px;border-radius:4px;cursor:pointer;font-family:var(--f-ui);transition:border-color var(--t-fast),color var(--t-fast)}
 .curriculum-toggle:hover{border-color:var(--border-active);color:var(--text-primary)}
@@ -511,17 +518,6 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <h1 class="t-display">Playgrounds Portfolio</h1>
   <p class="hero-subtitle t-body">Interactive simulations across physics, astronomy, statistical mechanics, and machine learning, aligned to the University of Porto BSc in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
   <div class="hero-stats t-small">${heroStatsHTML}</div>
-  <div class="hero-search-bar">
-    <div class="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
-      <input id="search-input" type="text" placeholder="Search simulations..." aria-label="Search simulations">
-    </div>
-    <select class="sortsel" id="sortsel" aria-label="Order">
-      <option value="az">A &rarr; Z</option>
-      <option value="za">Z &rarr; A</option>
-    </select>
-  </div>
-  <div class="hero-filter-chips" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
 </section>
 
 <section class="landing-featured">
@@ -532,11 +528,25 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   ${spotlightHTML}
 </section>
 
-<section id="browse">
-  <h2 class="sec">Catalog</h2>
-  <div class="browse-meta">
-    <span class="t-small" id="browse-count">Showing <strong>${cards.length}</strong> simulations</span>
-    <button class="curriculum-toggle t-small" id="cur-toggle" type="button" aria-pressed="false">Group by curriculum</button>
+<section id="browse" class="landing-catalog">
+  <header class="catalog-header">
+    <h2 class="sec">Catalog</h2>
+    <span class="catalog-count t-small" id="browse-count">Showing <strong>${cards.length}</strong> simulations</span>
+  </header>
+  <div class="catalog-controls">
+    <div class="catalog-search-row">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+        <input id="search-input" type="text" placeholder="Search the catalog..." aria-label="Search the catalog">
+        <button class="search-clear" id="search-clear" type="button" aria-label="Clear search" hidden>&times;</button>
+      </div>
+      <select class="sortsel" id="sortsel" aria-label="Order">
+        <option value="az">A &rarr; Z</option>
+        <option value="za">Z &rarr; A</option>
+      </select>
+      <button class="curriculum-toggle t-small" id="cur-toggle" type="button" aria-pressed="false">Group by curriculum</button>
+    </div>
+    <div class="catalog-filter-chips" id="tags-rail">${chipRail}<button class="clearall" id="clearall">Clear</button></div>
   </div>
   <div class="card-grid" id="card-grid">${cardsHTML}</div>
 </section>
@@ -611,6 +621,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   var grid=document.getElementById('card-grid');
   var sortsel=document.getElementById('sortsel');
   var clearBtn=document.getElementById('clearall');
+  var searchClear=document.getElementById('search-clear');
   var countEl=document.getElementById('browse-count');
   var curToggle=document.getElementById('cur-toggle');
   var chips=[].slice.call(document.querySelectorAll('.chip'));
@@ -666,11 +677,14 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       if(sortsel.value==='za')arr.reverse();
       arr.forEach(function(c){ c.style.display=''; grid.appendChild(c); });
     }
-    var filtered=Object.keys(active).length>0||input.value.trim()!=='';
+    var activeTags=Object.keys(active);
+    var filtered=activeTags.length>0||input.value.trim()!=='';
+    var byline=activeTags.length>0?(', filtered by '+activeTags.join(' &middot; ')):'';
     countEl.innerHTML=filtered
-      ?('Showing <strong>'+vis.length+'</strong> of '+cards.length)
+      ?('Showing <strong>'+vis.length+'</strong> of <strong>'+cards.length+'</strong>'+byline)
       :('Showing <strong>'+cards.length+'</strong> simulations');
-    clearBtn.classList.toggle('show',Object.keys(active).length>0);
+    clearBtn.classList.toggle('show',activeTags.length>0);
+    if(searchClear)searchClear.hidden=input.value.length===0;
     wireGroups();
   }
   // E2: curriculum section headers animate in (rule extends 0->100%,
@@ -690,6 +704,9 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     });
   }
   input.addEventListener('input',render);
+  if(searchClear)searchClear.addEventListener('click',function(){
+    input.value=''; searchClear.hidden=true; input.focus(); render();
+  });
   sortsel.addEventListener('change',render);
   curToggle.addEventListener('click',function(){
     curMode=!curMode;
