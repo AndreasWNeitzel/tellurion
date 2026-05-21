@@ -358,25 +358,44 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Reports the pulsation period and phase and the mean stellar
+// properties along the instability strip.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      const key = (el.id || 'control').replace(/^slider-|^select-|^toggle-/, '');
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label: key.replace(/[-_]/g, ' '), value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'period', label: 'pulsation period (days)', value: st.P, format: 'float' },
+      { key: 'phase', label: 'pulsation phase', value: st.phase, format: 'float' },
+      { key: 'abs-mag', label: 'absolute magnitude M_V', value: periodLuminosity_MV(st.P), format: 'float' },
+      { key: 'mean-radius', label: 'mean radius (Rsun)', value: meanRadius_Rsun(st.P), format: 'float' },
+      { key: 'mean-teff', label: 'mean Teff (K)', value: meanTeff_K(st.P), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Leavitt's period-luminosity relation: a longer-period Cepheid is
+  // intrinsically brighter, so the absolute magnitude is more negative
+  // at a longer period.
+  const mvNow = periodLuminosity_MV(st.P);
+  const mvLong = periodLuminosity_MV(st.P * 2);
+  // The light curve pulsates: the instantaneous luminosity stays in a
+  // bounded band around the mean rather than running away.
+  const lNow = luminosity_Lsun(radiusAtPhase(st.phase, st.P), TeffAtPhase(st.phase, st.P));
+  const lMean = luminosity_Lsun(meanRadius_Rsun(st.P), meanTeff_K(st.P));
+  const ratio = lNow / Math.max(1e-6, lMean);
+  return [
+    {
+      key: 'period-luminosity',
+      label: 'period-luminosity relation (Leavitt law)',
+      value: mvNow.toFixed(2),
+      status: mvLong < mvNow ? 'pass' : 'drift',
+    },
+    {
+      key: 'pulsation-bounded',
+      label: 'pulsation luminosity bounded',
+      value: ratio.toFixed(2),
+      status: (ratio > 0.3 && ratio < 3) ? 'pass' : 'drift',
+    },
+  ];
+};
