@@ -105,7 +105,7 @@ function render() {
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = '#94a3b8';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('intensity histogram (cyan) vs analytic ground-truth p(x) = exp(-x) (red)', px0 + 8, py0 + 15);
+  ctx.fillText('intensity histogram, density p(x)', px0 + 8, py0 + 15);
   const innerW = pw - 50, baseY = py0 + ph - 24, plotH = ph - 44;
   // Y-axis gridlines + labels.
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
@@ -125,9 +125,6 @@ function render() {
   }
   ctx.textAlign = 'left';
   ctx.fillText('x = I / Ibar', px0 + 36 + innerW / 2 - 26, baseY + 28);
-  ctx.save(); ctx.translate(px0 + 14, baseY - plotH / 2 + 28); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('p(x)  (density)', 0, 0);
-  ctx.restore();
   // Histogram bars (cyan).
   for (let b = 0; b < BINS; b += 1) {
     const bh = (density[b] / yMax) * plotH;
@@ -159,7 +156,7 @@ function render() {
   ctx.fillStyle = '#ffd166';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
-  ctx.fillText(`speckle contrast V = sigma/mean = ${V.toFixed(2)}  (fully developed -> 1)`, px0 + pw - 8, py0 + 15);
+  ctx.fillText(`speckle contrast V = sigma/mean = ${V.toFixed(2)}`, px0 + pw - 8, py0 + 15);
   ctx.textAlign = 'left';
 
   ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
