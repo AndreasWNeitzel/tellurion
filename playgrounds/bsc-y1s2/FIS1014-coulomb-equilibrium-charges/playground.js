@@ -229,38 +229,31 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const charges = state.charges || [];
-  const px = sliderX ? parseFloat(sliderX.value) : 0;
-  const py = sliderY ? parseFloat(sliderY.value) : 0;
-  const f = forceAt(px, py, charges);
-  const v = potentialAt(px, py, charges);
+  const C = configCharges();
+  const f = forceAt(test.x, test.y, C);
+  const v = potentialAt(test.x, test.y, C);
   return {
     fields: [
-      { key: 'ncharges', label: 'N charges', value: charges.length, format: 'float' },
-      { key: 'force-x', label: 'F_x', value: f.x, format: 'float' },
-      { key: 'force-y', label: 'F_y', value: f.y, format: 'float' },
-      { key: 'potential', label: 'V', value: v, format: 'float' }
+      { key: 'config', label: 'charge configuration', value: st.cfg, format: 'float' },
+      { key: 'test-q', label: 'test charge q', value: st.q, format: 'float' },
+      { key: 'force-mag', label: '$|F|$ on test charge', value: Math.hypot(st.q*f.fx, st.q*f.fy), format: 'float' },
+      { key: 'potential', label: 'potential V', value: v, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const charges = state.charges || [];
-  if (charges.length === 0) {
-    return [{ key: 'empty', label: 'add charges', value: 'pending', status: 'pending' }];
+  const C = configCharges();
+  if (C.length === 0) {
+    return [{ key: 'empty', label: 'no fixed charges', value: 'pending', status: 'pending' }];
   }
-  const field = [];
-  for (let i = 0; i < charges.length; i++) {
-    const c = charges[i];
-    const f = forceAt(c.x, c.y, charges.filter((_, j) => j !== i));
-    field.push(Math.hypot(f.x, f.y));
-  }
-  const maxF = Math.max(...field);
+  const f = forceAt(test.x, test.y, C);
+  const Fmag = Math.hypot(st.q*f.fx, st.q*f.fy);
   return [
     {
-      key: 'equilibrium',
-      label: 'charges at rest (net force)',
-      value: maxF.toExponential(2),
-      status: maxF < 0.01 ? 'pass' : 'drift'
+      key: 'coulomb-field',
+      label: 'electrostatic force field (non-zero)',
+      value: Fmag.toExponential(2),
+      status: Fmag > 1e-4 ? 'pass' : 'pending'
     }
   ];
 };
