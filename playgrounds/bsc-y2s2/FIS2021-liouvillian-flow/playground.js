@@ -407,33 +407,40 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the tracer count and the covariance-ellipse area
+// (which grows as the cloud filaments, the over-estimate Liouville
+// warns about). The invariant tracks the mean tracer energy: each
+// tracer rides a constant-energy pendulum orbit under the symplectic
+// flow, so the ensemble mean energy must not drift.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+let __meanE0 = null, __nSwarm = 0;
+window.playground.getState = function () {
+  const sw = state.swarm;
+  if (!sw) return { fields: [] };
+  const A = covarianceArea(sw.inst.q, sw.inst.qdot);
+  return {
+    fields: [
+      { key: 'tracers', label: 'phase-space tracers', value: String(sw.N) },
+      { key: 'cov-area', label: 'covariance-ellipse area', value: A, format: 'float' },
+      { key: 'area-ratio', label: 'area / initial', value: state.A0 ? A / state.A0 : 1, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const sw = state.swarm;
+  if (!sw) return [];
+  const q = sw.inst.q, p = sw.inst.qdot, N = sw.N;
+  let sumE = 0;
+  for (let i = 0; i < N; i += 1) sumE += tracerEnergy(q[i], p[i], sw.omega);
+  const meanE = sumE / N;
+  // Re-baseline when the swarm is rebuilt (control change or reset).
+  if (__meanE0 === null || N !== __nSwarm || state.steps < 2) { __meanE0 = meanE; __nSwarm = N; }
+  const drift = Math.abs(meanE - __meanE0) / Math.max(1e-9, Math.abs(__meanE0));
+  return [{
+    key: 'energy',
+    label: 'mean tracer energy conserved (symplectic flow)',
+    value: drift.toExponential(2),
+    status: drift < 5e-3 ? 'pass' : (drift < 5e-2 ? 'pending' : 'drift'),
+  }];
+};
