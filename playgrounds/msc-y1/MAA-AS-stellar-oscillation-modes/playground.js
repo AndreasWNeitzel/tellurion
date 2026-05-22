@@ -205,33 +205,36 @@ window.__physicsCheck = async () => {
 };
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const omega = modeFrequency(state.n, state.l);
+  return {
+    fields: [
+      { key: 'radial-order', label: 'Radial order n', value: state.n, format: 'float' },
+      { key: 'degree-l', label: 'Degree l', value: state.l, format: 'float' },
+      { key: 'azimuth-m', label: 'Azimuth m', value: state.m, format: 'float' },
+      { key: 'frequency', label: 'Frequency (uHz)', value: omega, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const mBound = Math.abs(state.m) <= state.l;
+  const v00 = realYlm(0, 0, Math.PI / 3, 0.7);
+  const expected00 = 1 / (2 * Math.sqrt(Math.PI));
+  const harmonicOk = Math.abs(v00 - expected00) < 1e-8;
+  return [
+    {
+      key: 'azimuth-bound',
+      label: 'Azimuthal number |m| <= l',
+      value: mBound ? 'pass' : 'fail',
+      status: mBound ? 'pass' : 'drift'
+    },
+    {
+      key: 'harmonic-normalization',
+      label: 'Y_0^0 normalization correct',
+      value: harmonicOk ? 'pass' : 'drift',
+      status: harmonicOk ? 'pass' : 'drift'
+    }
+  ];
+};
