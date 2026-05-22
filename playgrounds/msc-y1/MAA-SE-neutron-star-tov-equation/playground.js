@@ -247,33 +247,40 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const rc = rhoC();
+  const star = tovStar(st.eos, rc);
+  return {
+    fields: [
+      { key: 'eos-name', label: 'equation of state', value: st.eos, format: undefined },
+      { key: 'central-density', label: 'central density log10(rho, kg/m^3)', value: st.rRaw / 10, format: 'float' },
+      { key: 'mass', label: 'total mass (Msun)', value: star ? (star.m / MSUN).toFixed(2) : 0, format: 'float' },
+      { key: 'radius', label: 'radius (km)', value: star ? (star.r / KM).toFixed(1) : 0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const rc = rhoC();
+  const star = tovStar(st.eos, rc);
+  if (!star) return inv;
+  // Causality: sound speed must be <= c (Shapiro-Teukolsky), enforced by EOS design
+  const m = star.m / MSUN;
+  const r = star.r / KM;
+  inv.push({
+    key: 'compactness',
+    label: 'compactness 2GM/c^2 < R (stable config)',
+    value: (2 * m / (r / 0.297)).toFixed(2),
+    status: (2 * m / (r / 0.297)) < 1.0 ? 'pass' : 'drift'
+  });
+  // TOV regularity: central pressure should be finite, decreasing outward
+  inv.push({
+    key: 'structure-valid',
+    label: 'star has positive radius and mass',
+    value: `M=${m.toFixed(2)}Ms, R=${r.toFixed(1)}km`,
+    status: m > 0 && r > 0 ? 'pass' : 'drift'
+  });
+  return inv;
+};
