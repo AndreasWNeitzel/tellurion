@@ -136,33 +136,28 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'function-type', label: 'Function type', value: st.fn, format: undefined },
+      { key: 'decay-param', label: 'Decay/amplitude a', value: st.a, format: 'float' },
+      { key: 'oscillation-freq', label: 'Oscillation freq omega0', value: st.omega0, format: 'float' },
+      { key: 'time-param', label: 'Time t', value: st.t, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const validFn = ['exp', 'cos', 'sin', 'ramp'].includes(st.fn);
+  const aInRange = st.a > 0 && st.a < 10;
+  const omegaInRange = st.omega0 > 0 && st.omega0 < 10;
+  return [
+    {
+      key: 'param-bounds',
+      label: 'All parameters in valid range',
+      value: (validFn && aInRange && omegaInRange) ? 'pass' : 'drift',
+      status: (validFn && aInRange && omegaInRange) ? 'pass' : 'drift',
+    },
+  ];
+};
