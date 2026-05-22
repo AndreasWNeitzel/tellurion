@@ -221,11 +221,19 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const idx = Math.max(0, Math.min(NLOOP, Math.round(st.ph * NLOOP)));
+  const sAt = stateAt(idx);
   return { fields: [
-    { key: 'thickness-fm', label: 'FM thickness (nm)', value: Math.round(sim.tFM * 100) / 100, format: 'float' },
-    { key: 'resistance', label: 'total resistance (ohm)', value: Math.round(sim.R * 100) / 100, format: 'float' },
+    { key: 'applied-field', label: 'Applied field H', value: st.loop.H[idx].toFixed(3), format: 'float' },
+    { key: 'resistance', label: 'Total resistance $R$', value: sAt.R.toFixed(2), format: 'float' },
+    { key: 'polarization', label: 'Spin polarization P', value: st.P.toFixed(2), format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  return [ { key: 'r-positive', label: 'R > 0', value: sim.R > 0 ? 'pass' : 'drift', status: sim.R > 0 ? 'pass' : 'drift' } ];
+  const idx = Math.max(0, Math.min(NLOOP, Math.round(st.ph * NLOOP)));
+  const sAt = stateAt(idx);
+  const rValid = sAt.R >= 1 && sAt.R <= st.rAP * 1.01;
+  return [
+    { key: 'resistance-bounds', label: 'Resistance in valid range', value: sAt.R.toFixed(2), status: rValid ? 'pass' : 'drift' },
+  ];
 };
