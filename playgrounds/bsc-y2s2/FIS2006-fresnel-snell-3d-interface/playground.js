@@ -172,7 +172,7 @@ function render() {
   const reg = tir ? 'total internal reflection'
     : (Math.abs(th1 - tB) < 0.5 * DEG && st.pol !== 's' ? 'Brewster: no reflected p' : 'partial reflection + refraction');
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText(`down, reflected up, transmitted -- ${reg}`, SX + SW / 2, SY + SH + 22);
+  ctx.fillText(`incident from top; reflected up; transmitted down -- ${reg}`, SX + SW / 2, SY + SH + 22);
   ctx.textAlign = 'left';
 
   // Fresnel reflectance diagnostic
