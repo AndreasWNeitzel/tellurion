@@ -271,11 +271,9 @@ function drawRotationCurveInset() {
   ctx.font = fontString(canvas, 'tick');
   ctx.fillStyle = tokens.fgFaint;
   ctx.fillText('R (kpc)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 16);
-  ctx.save();
-  ctx.translate(PLOT.x - 36, PLOT.y + PLOT.h / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('v (km/s)', 0, 0);
-  ctx.restore();
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('v (km/s)', PLOT.x - 6, PLOT.y + PLOT.h / 2);
 
   // legend for the observation dots, anchored to the subplot lower-right.
   const legX = PLOT.x + PLOT.w - 14;
