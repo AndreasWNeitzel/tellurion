@@ -230,12 +230,29 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () {
-  return { fields: [
-    { key: 'detuning', label: 'detuning Delta', value: (state.Delta || 0).toFixed(3), format: 'float' },
-    { key: 'coupling', label: 'coupling g', value: (state.g || 0).toFixed(3), format: 'float' },
-  ] };
-};
-window.playground.getInvariants = function () {
-  return [ { key: 'g-nonneg', label: 'g >= 0', value: (state.g || 0) >= 0 ? 'pass' : 'drift', status: (state.g || 0) >= 0 ? 'pass' : 'drift' } ];
-};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const tc = collapseTime(st.g);
+    const tr = revivalTime(st.nbar, st.g);
+    return { fields: [
+      { key: 'photon-number', label: 'mean photon number $\\bar{n}$', value: st.nbar.toFixed(1), format: 'float' },
+      { key: 'coupling', label: 'coupling $g$', value: st.g.toFixed(2), format: 'float' },
+      { key: 'collapse-time', label: 'collapse time $t_c$', value: tc.toFixed(2), format: 'float' },
+    ] };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () {
+    try {
+      if (!st || !st.series) return [];
+      const tc = collapseTime(st.g);
+      const tr = revivalTime(st.nbar, st.g);
+      return [{
+        key: 'collapse-revival',
+        label: '$t_c = \\sqrt{2}/g$; revival near $t_r$',
+        value: `$t_c=${tc.toFixed(2)}$; $t_r=${tr > 0 ? tr.toFixed(2) : '--'}$`,
+        status: st.tWin > tc ? 'pass' : 'pending',
+      }];
+    } catch (e) { return []; }
+  };
+}
