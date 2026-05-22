@@ -655,29 +655,16 @@ if (CAPTURE_NAME) {
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const tau = tauFromCO2(st.co2_ppm);
+  return {
+    fields: [
+      { key: 'co2', label: '$\\mathrm{CO_2}$ (ppm)', value: st.co2_ppm, format: 'float' },
+      { key: 'optical-depth', label: 'IR optical depth $\\tau$', value: tau, format: 'float' },
+      { key: 'surface-temp', label: 'surface temperature (K)', value: surfaceTemperature_K(S_SOLAR_WM2, st.A, tau), format: 'float' },
+    ],
   };
-}
+};
 // At the emission temperature the planet is in radiative balance:
 // outgoing longwave (sigma T_e^4) equals absorbed shortwave
 // (S(1-A)/4). That top-of-atmosphere balance is the invariant.
