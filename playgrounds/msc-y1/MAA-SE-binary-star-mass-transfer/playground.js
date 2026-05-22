@@ -8,6 +8,7 @@
 import {
   MSUN, RSUN, DAY, eggletonRL, fracs, lagrangePoints, criticalPotential,
   keplerPeriod, conservativeTransfer, zetaLobe, classify, equipotentialRing,
+  orbitalJ,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -265,33 +266,41 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const s = current();
+  return {
+    fields: [
+      { key: 'q', label: 'mass ratio M1/M2', value: s.q, format: 'float' },
+      { key: 'separation', label: 'separation (Rsun)', value: s.a / RSUN, format: 'float' },
+      { key: 'period', label: 'orbital period (days)', value: s.P / DAY, format: 'float' },
+      { key: 'fill-frac', label: 'donor fill fraction', value: fillFrac(), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const M1 = M1b(), M2 = M2b();
+  const dm = Math.min(dmKg(), 0.95 * M1);
+  const t = conservativeTransfer(M1, M2, A0, dm);
+  const M_total = t.M1 + t.M2;
+  const J_current = orbitalJ(t.M1, t.M2, t.a);
+  const M_init = M1 + M2;
+  const J_init = orbitalJ(M1, M2, A0);
+  const dM = Math.abs(M_total - M_init) / M_init;
+  const dJ = Math.abs(J_current - J_init) / J_init;
+  return [
+    {
+      key: 'mass-conservation',
+      label: 'total mass conserved',
+      value: dM.toExponential(2),
+      status: dM < 1e-14 ? 'pass' : 'drift',
+    },
+    {
+      key: 'angular-momentum',
+      label: 'orbital J conserved',
+      value: dJ.toExponential(2),
+      status: dJ < 1e-14 ? 'pass' : 'drift',
+    },
+  ];
+};
