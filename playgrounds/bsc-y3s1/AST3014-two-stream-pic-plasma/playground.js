@@ -180,33 +180,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'stream-velocity', label: 'Stream velocity v0', value: state.v0, format: 'float' },
+      { key: 'speed', label: 'Animation speed', value: state.speed, format: 'float' },
+      { key: 'mode-count', label: 'Kmodes', value: KMODES, format: 'float' },
+      { key: 'dt', label: 'Time step dt', value: DT, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.sim || !state.modeHist || state.modeHist.length === 0) {
+    return [{ key: 'state-init', label: 'Initializing', value: 'pending', status: 'pending' }];
+  }
+  const hist = state.modeHist;
+  const latest = hist[hist.length - 1] || { mode1: 0 };
+  const field_mag = Math.sqrt(latest.mode1 || 0);
+  return [
+    {
+      key: 'two-stream-instability',
+      label: 'Two-stream exponential growth active',
+      value: field_mag > 0.001 ? 'growing' : 'linear-regime',
+      status: 'pending'
+    }
+  ];
+};
