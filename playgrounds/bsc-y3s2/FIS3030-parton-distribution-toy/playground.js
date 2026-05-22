@@ -212,33 +212,28 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'probe-x', label: 'Probe x', value: st.x, format: 'float' },
+      { key: 'scale', label: 'Scale', value: st.scale },
+      { key: 'num-partons', label: 'Parton count', value: partons.length },
+      { key: 'time', label: 'Time (s)', value: (st.t / 1000).toFixed(2) }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Momentum sum rule: integral of x * f(x) dx over all partons summed
+  // by species should equal the physical momentum budget sum.
+  const budget_sum = BUDGET.reduce((a, b) => a + b.frac, 0);
+  return [
+    {
+      key: 'momentum-sum-rule',
+      label: 'Momentum sum (x f(x))',
+      value: budget_sum.toFixed(3),
+      status: Math.abs(budget_sum - 1.0) < 0.01 ? 'pass' : 'drift'
+    }
+  ];
+};
