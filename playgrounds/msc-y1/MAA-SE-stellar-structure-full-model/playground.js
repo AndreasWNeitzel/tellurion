@@ -224,7 +224,7 @@ function drawEpsHR(x, y, w, h) {
   ctx.fillText('ZAMS', hx + 6, hy + 12);
   ctx.fillText('hot  <- log Teff', hx + 4, hy + hh + 14);
   ctx.save(); ctx.translate(hx - 4, hy + hh / 2); ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'start'; ctx.fillText('log L/Lsun', 2, 0); ctx.restore();
+  ctx.fillText('log L/Lsun', -28, 0); ctx.restore();
 }
 
 // recompute the three eps components at shell i from the model state

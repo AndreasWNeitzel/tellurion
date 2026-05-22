@@ -84,9 +84,8 @@ function drawAll() {
   ctx.textAlign = 'center';
   ctx.fillText('x (a_0)', PLOT_X + PLOT_SIDE / 2, PLOT_Y + PLOT_SIDE + 22);
   ctx.save();
-  ctx.translate(PLOT_X - 18, PLOT_Y + PLOT_SIDE / 2);
+  ctx.translate(PLOT_X - 16, PLOT_Y + PLOT_SIDE / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'left';
   ctx.fillText('z (a_0)', 0, 0);
   ctx.restore();
 

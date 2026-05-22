@@ -157,8 +157,8 @@ function render() {
   ctx.fillText('integrals of motion (stars, COM frame)', px0, 22);
   ctx.fillText('L_z  (angular momentum)', px0 + 60, H - 16);
   ctx.save();
-  ctx.translate(Wl + 8, (py0 + py1) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('E', 0, 0);
+  ctx.translate(Wl + 18, (py0 + py1) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('E  (orbital energy)', -56, 0);
   ctx.restore();
 
   if (readout) {

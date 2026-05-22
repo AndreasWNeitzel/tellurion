@@ -62,7 +62,7 @@ function drawMR(x, y, w, h) {
   for (let M = 0; M <= 3; M += 1) { ctx.fillText(`${M}`, px - 16, Y(M) + 3); ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(px, Y(M)); ctx.lineTo(px + pw, Y(M)); ctx.stroke(); }
   for (let R = 5; R <= 24; R += 5) ctx.fillText(`${R}`, X(R) - 5, py + ph + 15);
   ctx.fillText('R (km)', px + pw / 2 - 18, py + ph + 28);
-  ctx.save(); ctx.translate(x + 12, py + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'start'; ctx.fillText('M (Msun)', 2, 0); ctx.restore();
+  ctx.save(); ctx.translate(x + 12, py + ph / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('M (Msun)', -22, 0); ctx.restore();
   // 2 Msun observational line
   ctx.strokeStyle = 'rgba(255,120,120,0.6)'; ctx.setLineDash([5, 4]);
   ctx.beginPath(); ctx.moveTo(px, Y(2)); ctx.lineTo(px + pw, Y(2)); ctx.stroke(); ctx.setLineDash([]);

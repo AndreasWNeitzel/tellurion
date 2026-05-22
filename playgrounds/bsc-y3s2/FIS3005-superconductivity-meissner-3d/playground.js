@@ -164,7 +164,7 @@ function render() {
   ctx.beginPath(); ctx.arc(xT(st.Tr), yB(st.B0), 6, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('T / Tc', (GX0 + GX1) / 2, H - 22);
-  ctx.save(); ctx.translate(GX0 - 20, (GY0 + GY1) / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'left'; ctx.fillText('B', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(GX0 - 18, (GY0 + GY1) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('B', 0, 0); ctx.restore();
   ctx.fillStyle = '#5bc0eb'; ctx.fillText(isII ? 'Bc1 (blue) / Bc2 (gold)' : 'Bc(T): superconducting below', (GX0 + GX1) / 2, GY0 - 8);
 
   rState.textContent = sc ? 'Meissner' : (inVortex ? 'vortex' : 'normal');

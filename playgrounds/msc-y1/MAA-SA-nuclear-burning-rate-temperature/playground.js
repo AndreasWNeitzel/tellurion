@@ -84,9 +84,8 @@ function render() {
   ctx.strokeStyle = '#3a3a44'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, yt); ctx.lineTo(x0, yb); ctx.lineTo(x1, yb); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('log₁₀ T (K)', (x0 + x1) / 2, H - 14);
-  ctx.save(); ctx.translate(13, (yt + yb) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'start'; ctx.textBaseline = 'middle'; ctx.fillText('ε', 2, 0); ctx.restore();
-  ctx.textAlign = 'left';
+  ctx.save(); ctx.translate(16, (yt + yb) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('log₁₀ ε (erg g⁻¹ s⁻¹)', 0, 0); ctx.restore();
   ctx.textAlign = 'left';
 
   // Selected-temperature band.

@@ -46,7 +46,7 @@ function axes(xlab, ylab) {
   ctx.beginPath(); ctx.moveTo(BX0, BY0); ctx.lineTo(BX0, BY1); ctx.lineTo(BX1, BY1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText(xlab, (BX0 + BX1) / 2, H - 18);
-  ctx.save(); ctx.translate(16, (BY0 + BY1) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.save(); ctx.translate(24, (BY0 + BY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText(ylab, 0, 0); ctx.restore();
 }
 
@@ -60,7 +60,7 @@ function arrowHead(x, y, ang, s, col) {
 }
 
 function renderFlow() {
-  axes('u = tanh K   (K=0 left, K to infinity right)', 'h');
+  axes('u = tanh K   (K=0 left, K to infinity right)', 'field  h');
   // h = 0 invariant line
   ctx.strokeStyle = 'rgba(120,130,150,0.25)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(BX0, yOfH(0)); ctx.lineTo(BX1, yOfH(0)); ctx.stroke(); ctx.setLineDash([]);

@@ -249,7 +249,6 @@ function drawTitles() {
   ctx.save();
   ctx.translate(PHASE.x - 38, PHASE.y + PHASE.h / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'left';
   ctx.fillText('p', 0, 0);
   ctx.restore();
 }

@@ -121,8 +121,8 @@ function render() {
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('plate spacing  d  (scanned, micrometres)', (PX0 + PX1) / 2, H - 16);
-  ctx.save(); ctx.translate(18, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('T', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(22, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('transmittance  T', 0, 0); ctx.restore();
   ctx.textAlign = 'right';
   for (let g = 0; g <= 4; g += 1) {
     const yy = PY1 - (g / 4) * (PY1 - PY0);

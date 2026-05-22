@@ -208,7 +208,6 @@ function drawCobweb() {
   ctx.save();
   ctx.translate(ox - 24, oy + h / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'left';
   ctx.fillText('x_{n+1}', 0, 0);
   ctx.restore();
 }

@@ -334,11 +334,11 @@ function drawPhasePanel() {
   ctx.fillStyle = tokens.fgFaint;
   ctx.textAlign = 'center';
   ctx.fillText('theta1 (rad)', PHASE.x + PHASE.w / 2, PHASE.y + PHASE.h + 26);
-  // ctx.save();
-  // ctx.translate(PHASE.x - 36, PHASE.y + PHASE.h / 2);
-  // ctx.rotate(-Math.PI / 2);
-  // ctx.fillText('w1', 0, 0);
-  // ctx.restore();
+  ctx.save();
+  ctx.translate(PHASE.x - 32, PHASE.y + PHASE.h / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('omega1 (rad/s)', 0, 0);
+  ctx.restore();
 }
 
 function drawAll() {

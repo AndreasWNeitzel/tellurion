@@ -76,8 +76,11 @@ function drawAxes() {
   ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'center';
   ctx.fillText('theta (coin bias)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 32);
-  ctx.textAlign = 'left';
-  ctx.fillText('p', PLOT.x - 34, PLOT.y + PLOT.h / 2 + 4);
+  ctx.save();
+  ctx.translate(PLOT.x - 38, PLOT.y + PLOT.h / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('density', 0, 0);
+  ctx.restore();
 }
 
 function drawCurve(color, fn, lineWidth = 1.5) {

@@ -107,7 +107,7 @@ function render() {
   ctx.fillText('(x, t) waterfall: the bright worldline drifts (group velocity) and widens (dispersion)', PX0, wy - 8);
   ctx.fillStyle = '#94a3b8';
   ctx.fillText('x  ->', PX1 - 40, wy + WFH + 16);
-  ctx.save(); ctx.translate(PX0 - 6, wy + WFH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('time t', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(PX0 - 6, wy + WFH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('t (old -> new, down)', -40, 0); ctx.restore();
 
   ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`sigma0 = ${st.s0.toFixed(2)}   k0 = ${st.k0.toFixed(1)}   v_g = hbar k0/m = ${st.k0.toFixed(1)}   t = ${st.t.toFixed(2)}   sigma(t) = ${sig.toFixed(2)}`, 18, H - 14);
