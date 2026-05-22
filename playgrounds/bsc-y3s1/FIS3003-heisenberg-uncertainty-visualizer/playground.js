@@ -121,7 +121,7 @@ function render() {
   ctx.fillStyle = barC; ctx.font = fontString(canvas, 'heading', 'mono');
   ctx.fillText(prod.toFixed(3), gcx, GA.y + 42);
   ctx.fillStyle = 'rgba(226,230,238,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('hbar/2 = 0.50  (hard limit)', gcx, yFloor - 5);
+  ctx.fillText('ℏ/2 = 0.50  (hard limit)', gcx, yFloor - 5);
   // One state line below the gauge. The redundant "cannot go below"
   // is dropped: "hard limit" above already says it, and stacking two
   // lines here crowded them against the gauge-box bottom edge.
@@ -218,9 +218,9 @@ window.playground.getState = function () {
   return {
     fields: [
       { key: 'shape', label: 'wave-packet shape', value: st.shape },
-      { key: 'sigma-x', label: 'sigma_x (position)', value: st.lastSx || 0, format: 'float' },
-      { key: 'sigma-p', label: 'sigma_p (momentum)', value: st.lastSp || 0, format: 'float' },
-      { key: 'product', label: 'sigma_x sigma_p', value: st.lastProd || 0, format: 'float' },
+      { key: 'sigma-x', label: '$\\sigma_x$ (position)', value: st.lastSx || 0, format: 'float' },
+      { key: 'sigma-p', label: '$\\sigma_p$ (momentum)', value: st.lastSp || 0, format: 'float' },
+      { key: 'product', label: '$\\sigma_x \\sigma_p$', value: st.lastProd || 0, format: 'float' },
     ],
   };
 };
@@ -234,14 +234,14 @@ window.playground.getInvariants = function () {
   return [
     {
       key: 'uncertainty',
-      label: 'sigma_x sigma_p >= hbar/2',
+      label: '$\\sigma_x \\sigma_p \\ge \\hbar/2$',
       value: prod.toFixed(3),
       status: ok ? 'pass' : 'drift',
     },
     {
       key: 'gaussian-saturates',
       label: 'Gaussian saturates the bound',
-      value: saturated ? 'at hbar/2' : 'above hbar/2',
+      value: saturated ? 'at ℏ/2' : 'above ℏ/2',
       status: saturated ? 'pass' : 'pending',
     },
   ];
