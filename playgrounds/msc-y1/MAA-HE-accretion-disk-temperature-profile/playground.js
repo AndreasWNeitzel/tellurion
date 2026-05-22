@@ -436,8 +436,28 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'radius', label: 'Radius (Rg)', value: state.r || 10, format: 'float' }, { key: 'mdot', label: 'Accretion rate', value: state.mdot || 0.1, format: 'float' }, { key: 'spin', label: 'BH spin', value: state.spin || 0.5, format: 'float' }, { key: 'temperature', label: 'T (K)', value: state.T || 10000, format: 'float' } ] }; };
-window.playground.getInvariants = function () { const T = state.T || 1; return [ { key: 'temp-positive', label: 'Temperature > 0', value: T > 0 ? 'pass' : 'fail', status: T > 0 ? 'pass' : 'drift' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const T_peak = temperature(R_TMAX);
+  return { fields: [
+    { key: 'view', label: 'view', value: VIEW_NAMES[state.view], format: 'string' },
+    { key: 'rmax', label: 'outer radius $R_{\text{out}}$ (in units of $R_{\text{in}}$)', value: state.rmax, format: 'float' },
+    { key: 'T-peak', label: '$T_{\text{peak}}$ (K)', value: T_peak.toExponential(2), format: 'string' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const T_peak = temperature(R_TMAX);
+  const T_in = temperature(R_IN);
+  return [
+    {
+      key: 'T-profile-positive',
+      label: 'Temperature profile $T(r) > 0$',
+      value: T_peak > 0 ? 'pass' : 'drift',
+      status: T_peak > 0 ? 'pass' : 'drift',
+    },
+    {
+      key: 'T-peak-location',
+      label: 'Peak at $R_{\text{Tmax}} = 49/36 R_{\text{in}}$',
+      value: R_TMAX.toFixed(4),
+      status: Math.abs(R_TMAX - 49/36) < 0.01 ? 'pass' : 'drift',
+    },
+  ];
+};
