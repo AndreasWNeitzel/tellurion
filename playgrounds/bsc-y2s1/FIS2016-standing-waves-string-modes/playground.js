@@ -221,33 +221,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the mode number and its frequency. The invariant is
+// the defining property of a standing wave: the nodes are stationary
+// zeros, so the displacement evaluated at every node position must
+// be zero for all time (unlike a travelling wave, where the zeros
+// move).
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'mode', label: 'mode number n', value: String(state.n) },
+      { key: 'frequency', label: 'mode frequency f_n', value: freqN(state.n), format: 'float' },
+      { key: 'superpose', label: 'superposition', value: state.superpose ? 'on' : 'off' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const n = state.n;
+  const nd = nodes(n);
+  let worst = 0;
+  for (let k = 0; k < nd.length; k += 1) {
+    worst = Math.max(worst, Math.abs(yMode(nd[k], state.tNow, n)));
+  }
+  return [{
+    key: 'nodes',
+    label: 'standing-wave nodes are stationary zeros',
+    value: worst.toExponential(2),
+    status: worst < 1e-9 ? 'pass' : (worst < 1e-4 ? 'pending' : 'drift'),
+  }];
+};
