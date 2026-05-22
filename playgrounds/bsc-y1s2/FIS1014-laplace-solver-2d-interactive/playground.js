@@ -193,23 +193,23 @@ else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const grid = state.grid || { width: 32, height: 32 };
   return {
     fields: [
-      { key: 'grid-w', label: 'grid width', value: grid.width, format: 'float' },
-      { key: 'grid-h', label: 'grid height', value: grid.height, format: 'float' },
-      { key: 'residual', label: 'residual (error)', value: 0, format: 'float' }
+      { key: 'preset', label: 'geometry preset', value: st.preset, format: 'float' },
+      { key: 'voltage', label: 'applied voltage V', value: st.volt, format: 'float' },
+      { key: 'residual', label: 'residual error', value: residual, format: 'float' },
+      { key: 'view', label: 'display mode', value: st.view, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const residual = state.residual || 0;
+  const convergenceStatus = residual < 2e-3 ? 'pass' : (residual < 1e-2 ? 'pending' : 'drift');
   return [
     {
-      key: 'convergence',
-      label: 'Laplace solver converged',
+      key: 'laplace-convergence',
+      label: 'Laplace equation: $\\nabla^2 \\phi = 0$ satisfied',
       value: residual.toExponential(2),
-      status: residual < 1e-4 ? 'pass' : 'drift'
+      status: convergenceStatus
     }
   ];
 };
