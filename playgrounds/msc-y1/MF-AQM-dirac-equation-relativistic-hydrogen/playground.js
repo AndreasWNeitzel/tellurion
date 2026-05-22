@@ -221,33 +221,40 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const n = 2;
+  const E_Dirac = diracLevel(n, 1.5, st.Z);
+  return {
+    fields: [
+      { key: 'nuclear-charge', label: 'nuclear charge Z', value: st.Z, format: 'float' },
+      { key: 'dirac-momentum', label: 'Dirac momentum p (units mc)', value: st.p, format: 'float' },
+      { key: 'zitterbewegung-omega', label: 'ZB angular frequency omega (2mc^2/h)', value: zbOmega(st.p), format: 'float' },
+      { key: 'fine-structure-split', label: 'fine structure splitting (eV)', value: fineStructureSplit(n, st.Z), format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  // Binding energy: Dirac should be more negative (stronger binding) than Schrodinger for high-Z
+  const n = 2;
+  const E_Schr = schrodingerLevel(n, st.Z);
+  const E_Dir = diracLevel(n, 1.5, st.Z);
+  inv.push({
+    key: 'relativistic-binding',
+    label: 'Dirac E_binding > Schrodinger (more negative)',
+    value: (E_Dir - E_Schr).toFixed(3),
+    status: E_Dir < E_Schr ? 'pass' : 'pending'
+  });
+  // Fine structure coefficient scales as Z^4 / n^3
+  const fs = fineStructureSplit(n, st.Z);
+  const fs_expected_scaling = Math.pow(st.Z, 4) / Math.pow(n, 3);
+  inv.push({
+    key: 'fine-structure-z4-scaling',
+    label: 'fine structure scales roughly as Z^4/n^3',
+    value: fs.toExponential(2),
+    status: fs > 0 ? 'pass' : 'drift'
+  });
+  return inv;
+};
