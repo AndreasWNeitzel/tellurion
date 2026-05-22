@@ -70,26 +70,34 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const x0 = parseFloat(sliderX0?.value || '0.5');
-  const eps = parseFloat(sliderEps?.value || '0.1');
-  const delta = 0.3;
+  const x0_val = parseFloat(sliderX.value);
+  const eps_val = parseFloat(sliderEps.value);
+  const delta_val = maxDelta(x0_val, eps_val);
   return {
     fields: [
-      { key: 'x0', label: 'x_0 (point)', value: x0, format: 'float' },
-      { key: 'epsilon', label: 'ε (tolerance)', value: eps, format: 'float' },
-      { key: 'delta', label: 'δ (computed)', value: delta, format: 'float' }
+      { key: 'x0', label: 'x_0 (point)', value: x0_val, format: 'float' },
+      { key: 'epsilon', label: 'ε (tolerance)', value: eps_val, format: 'float' },
+      { key: 'delta', label: 'δ (computed)', value: delta_val, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const x0 = parseFloat(sliderX0?.value || '0.5');
-  const eps = parseFloat(sliderEps?.value || '0.1');
+  const x0_val = parseFloat(sliderX.value);
+  const eps_val = parseFloat(sliderEps.value);
+  const delta_val = maxDelta(x0_val, eps_val);
+  const f0 = f(x0_val);
+  let deltaOk = true;
+  const testN = 200;
+  for (let k = 0; k <= testN; k += 1) {
+    const x = x0_val - delta_val + (2 * delta_val) * k / testN;
+    if (Math.abs(f(x) - f0) > eps_val + 1e-10) { deltaOk = false; break; }
+  }
   return [
     {
-      key: 'continuity',
-      label: 'ε-δ condition satisfied',
-      value: 'satisfied',
-      status: 'pass'
+      key: 'continuity_satisfied',
+      label: '$|f(x) - f(x_0)| < \\epsilon$ for $|x - x_0| < \\delta$',
+      value: deltaOk ? 'yes' : 'no',
+      status: deltaOk ? 'pass' : 'drift'
     }
   ];
 };
