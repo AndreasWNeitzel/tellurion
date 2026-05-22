@@ -222,33 +222,43 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the incidence angle, polarization, reflectance and
+// Brewster angle. The invariant is energy conservation at the
+// interface: reflectance plus transmittance must equal 1, where the
+// transmittance carries the (n2 cos_t)/(n1 cos_i) beam-geometry
+// factor. Holds for both polarizations and under total reflection.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const n1 = 1.0, n2 = st.ratio;
+  const th = st.thetaDeg * Math.PI / 180;
+  const R = fresnelR(th, n1, n2);
+  return {
+    fields: [
+      { key: 'theta', label: 'incidence angle (deg)', value: st.thetaDeg, format: 'float' },
+      { key: 'polarization', label: 'polarization', value: st.pol === 'p' ? 'p (TM)' : 's (TE)' },
+      { key: 'reflectance', label: 'reflectance R', value: st.pol === 'p' ? R.Rp : R.Rs, format: 'float' },
+      { key: 'brewster', label: 'Brewster angle (deg)', value: brewsterAngle(n1, n2) * 180 / Math.PI, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const n1 = 1.0, n2 = st.ratio;
+  const th = st.thetaDeg * Math.PI / 180;
+  const a = fresnelAmplitudes(th, n1, n2);
+  let worst;
+  if (a.theta_t === null) {
+    worst = Math.abs(a.rs * a.rs - 1);                 // total internal reflection: R = 1
+  } else {
+    const geom = (n2 * Math.cos(a.theta_t)) / (n1 * Math.cos(th));
+    const sumS = a.rs * a.rs + geom * a.ts * a.ts;
+    const sumP = a.rp * a.rp + geom * a.tp * a.tp;
+    worst = Math.max(Math.abs(sumS - 1), Math.abs(sumP - 1));
+  }
+  return [{
+    key: 'energy',
+    label: 'reflectance + transmittance = 1 (energy conserved)',
+    value: worst.toExponential(2),
+    status: worst < 1e-6 ? 'pass' : (worst < 1e-3 ? 'pending' : 'drift'),
+  }];
+};
