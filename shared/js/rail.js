@@ -62,6 +62,12 @@ async function loadReferences() {
 }
 
 // ---- rendering ----------------------------------------------------------
+// The rail polls at 10/5 Hz. KaTeX label typesetting is expensive, and
+// the label set never changes for a running playground, so each table
+// is built (and its labels typeset) once and afterwards only the value
+// cells are written. Re-typesetting every poll was a measurable,
+// portfolio-wide drag on the animation loop.
+let stateView = null;
 function renderState(tableEl) {
   const pg = window.playground;
   let fields = [];
@@ -71,26 +77,37 @@ function renderState(tableEl) {
   } catch { fields = []; }
 
   if (fields.length === 0) {
-    tableEl.innerHTML = '<tr><td class="rail-empty t-small">Engine not running</td></tr>';
+    if (stateView !== 'empty') {
+      tableEl.innerHTML = '<tr><td class="rail-empty t-small">Engine not running</td></tr>';
+      stateView = 'empty';
+    }
     return;
   }
   // Primary fields first; cap secondary at 5 with a "+N more" line.
   const primary = fields.filter((f) => f.significance !== 'secondary');
   const secondary = fields.filter((f) => f.significance === 'secondary');
   const shown = primary.concat(secondary.slice(0, 5));
-  const rows = shown.map((f) => {
-    const v = formatValue(f.value, f.format);
-    const unit = f.unit ? ` ${f.unit}` : '';
-    return `<tr><td class="state-label">${escapeHtml(labelFor(f))}</td>`
-      + `<td class="state-value">${escapeHtml(v)}${escapeHtml(unit)}</td></tr>`;
-  });
-  if (secondary.length > 5) {
-    rows.push(`<tr><td class="state-label rail-empty">+${secondary.length - 5} more</td><td></td></tr>`);
+  const overflow = secondary.length > 5 ? secondary.length - 5 : 0;
+  const sig = JSON.stringify(shown.map((f) => [f.key, labelFor(f)])) + ':' + overflow;
+  if (!stateView || stateView.sig !== sig) {
+    const rows = shown.map((f) => (
+      `<tr><td class="state-label">${escapeHtml(labelFor(f))}</td>`
+      + '<td class="state-value"></td></tr>'
+    ));
+    if (overflow) {
+      rows.push(`<tr><td class="state-label rail-empty">+${overflow} more</td><td></td></tr>`);
+    }
+    tableEl.innerHTML = rows.join('');
+    typesetMath(tableEl);
+    stateView = { sig, valueCells: [...tableEl.querySelectorAll('.state-value')] };
   }
-  tableEl.innerHTML = rows.join('');
-  typesetMath(tableEl);
+  shown.forEach((f, i) => {
+    const cell = stateView.valueCells[i];
+    if (cell) cell.textContent = formatValue(f.value, f.format) + (f.unit ? ` ${f.unit}` : '');
+  });
 }
 
+let invarView = null;
 function renderInvariants(listEl) {
   const pg = window.playground;
   let invs = [];
@@ -100,21 +117,42 @@ function renderInvariants(listEl) {
   } catch { invs = []; }
 
   if (invs.length === 0) {
-    listEl.innerHTML = '<li class="rail-empty t-small">No invariants registered</li>';
+    if (invarView !== 'empty') {
+      listEl.innerHTML = '<li class="rail-empty t-small">No invariants registered</li>';
+      invarView = 'empty';
+    }
     return;
   }
-  listEl.innerHTML = invs.map((inv) => {
-    const status = inv.status === 'pass' || inv.status === 'drift' || inv.status === 'pending'
-      ? inv.status : 'pending';
-    let val = '';
-    if (typeof inv.value === 'string') val = inv.value;
-    else if (Number.isFinite(inv.value)) val = inv.value.toExponential(2);
-    return `<li class="invariant invariant--${status}">`
+  // Labels are static; only the status and value change each poll. Build
+  // the list (and typeset its KaTeX labels) once, then update in place.
+  const sig = JSON.stringify(invs.map((inv) => inv.label || inv.key));
+  if (!invarView || invarView.sig !== sig) {
+    listEl.innerHTML = invs.map((inv) => (
+      '<li class="invariant invariant--pending">'
       + '<span class="invariant-dot"></span>'
       + `<span class="invariant-label">${escapeHtml(inv.label || inv.key)}</span>`
-      + `<span class="invariant-value">${escapeHtml(val)}</span></li>`;
-  }).join('');
-  typesetMath(listEl);
+      + '<span class="invariant-value"></span></li>'
+    )).join('');
+    typesetMath(listEl);
+    invarView = {
+      sig,
+      items: [...listEl.querySelectorAll('.invariant')],
+      valueCells: [...listEl.querySelectorAll('.invariant-value')],
+    };
+  }
+  invs.forEach((inv, i) => {
+    const status = inv.status === 'pass' || inv.status === 'drift' || inv.status === 'pending'
+      ? inv.status : 'pending';
+    const li = invarView.items[i];
+    if (li) li.className = `invariant invariant--${status}`;
+    const cell = invarView.valueCells[i];
+    if (cell) {
+      let val = '';
+      if (typeof inv.value === 'string') val = inv.value;
+      else if (Number.isFinite(inv.value)) val = inv.value.toExponential(2);
+      cell.textContent = val;
+    }
+  });
 }
 
 function renderReferences(section, listEl, refs) {
