@@ -14,8 +14,6 @@ const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas      = document.getElementById('stage');
 const ctx         = canvas.getContext('2d', { alpha: false });
-const readoutEmax = document.getElementById('readout-emax');
-const readoutReg  = document.getElementById('readout-reg');
 
 const sliderLogE = document.getElementById('slider-logE');
 const sliderLogG = document.getElementById('slider-logG');
@@ -115,16 +113,8 @@ function render() {
   ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Eup)), yUp); ctx.stroke();
 }
 
-function updateReadout() {
-  const E = Math.pow(10, logE);
-  const gam = Math.pow(10, logG);
-  readoutEmax.textContent = icMaxEnergy(gam, E).toExponential(2);
-  readoutReg.textContent = isThomsonRegime(gam, E) ? 'yes' : 'Klein-Nishina';
-}
-
 function loop() {
   render();
-  updateReadout();
   requestAnimationFrame(loop);
 }
 
@@ -138,7 +128,6 @@ function bootSync() {
   valueLogE.textContent = logE.toFixed(2);
   valueLogG.textContent = logG.toFixed(2);
   render();
-  updateReadout();
 
   if (DETERMINISTIC) {
     requestAnimationFrame(() => {
@@ -166,8 +155,34 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'photon-energy', label: 'Photon (keV)', value: state.E_ph || 1, format: 'float' }, { key: 'electron-energy', label: 'Electron (MeV)', value: state.E_e || 1, format: 'float' }, { key: 'cross-section', label: 'Sigma (barn)', value: state.sigma || 1, format: 'float' }, { key: 'scattering-type', label: 'Type', value: state.isInverse ? 'inverse' : 'compton' } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'cross-section-nonneg', label: 'Cross-section >= 0', value: (state.sigma || 0) >= 0 ? 'pass' : 'fail', status: (state.sigma || 0) >= 0 ? 'pass' : 'drift' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const E = Math.pow(10, logE);
+  const gam = Math.pow(10, logG);
+  const Edown = comptonForward(E, Math.PI);
+  const Eup = icMaxEnergy(gam, E);
+  const Etyp = icTypicalThomson(gam, E);
+  const thomson = isThomsonRegime(gam, E);
+  return {
+    fields: [
+      { key: 'E_in', label: 'Input photon (eV)', value: E, format: 'exponential2' },
+      { key: 'gamma', label: 'Electron Lorentz factor', value: gam, format: 'exponential1' },
+      { key: 'E_compton', label: 'Compton backscatter (eV)', value: Edown, format: 'exponential2' },
+      { key: 'E_ic_max', label: 'IC max energy (eV)', value: Eup, format: 'exponential2' },
+      { key: 'E_ic_typ', label: 'IC typical (Thomson) (eV)', value: Etyp, format: 'exponential2' },
+      { key: 'regime', label: 'Scattering regime', value: thomson ? 'Thomson' : 'Klein-Nishina', format: 'string' },
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const E = Math.pow(10, logE);
+  const gam = Math.pow(10, logG);
+  const Edown = comptonForward(E, Math.PI);
+  const Eup = icMaxEnergy(gam, E);
+  const Etyp = icTypicalThomson(gam, E);
+  const thomson = isThomsonRegime(gam, E);
+  return [
+    { key: 'compton-finite', label: 'Compton energy finite', value: Edown > 0 && Edown < E, status: (Edown > 0 && Edown < E) ? 'pass' : 'fail' },
+    { key: 'ic-boosts', label: 'IC energy > input', value: Eup > E, status: Eup > E ? 'pass' : 'fail' },
+    { key: 'ic-typical-scales', label: 'Typical matches gamma^2 scaling', value: Math.abs(Etyp - 4/3 * gam * gam * E) < 1e-10 * Etyp, status: Math.abs(Etyp - 4/3 * gam * gam * E) < 1e-10 * Etyp ? 'pass' : 'fail' },
+    { key: 'thomson-or-kn', label: 'Regime classification consistent', value: thomson === (gam * E < 0.1 * 511e3), status: thomson === (gam * E < 0.1 * 511e3) ? 'pass' : 'fail' },
+  ];
+};
