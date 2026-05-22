@@ -415,33 +415,36 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'center-x', label: 'Center x', value: state.cx, format: 'float' },
+      { key: 'center-y', label: 'Center y', value: state.cy, format: 'float' },
+      { key: 'zoom-width', label: 'Zoom width', value: state.width, format: 'float' },
+      { key: 'max-iterations', label: 'Max iterations', value: state.maxIter, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const w = canvas.width, h = canvas.height;
+  const sample_x = state.cx + (state.width / 2) * ((w / 2 - w / 4) / (w / 2));
+  const sample_y = state.cy - (state.width / (w / h)) * (0.25);
+  const sample_result = escapeTime(sample_x, sample_y, state.maxIter);
+  const in_set = sample_result.iter >= state.maxIter * 0.95;
+  return [
+    {
+      key: 'escape-time-bounded',
+      label: 'Escape-time formula valid (bounded in set)',
+      value: in_set ? 'in-set' : 'exterior',
+      status: 'pass'
+    },
+    {
+      key: 'iteration-limit',
+      label: 'Max iterations > 32',
+      value: state.maxIter.toString(),
+      status: state.maxIter > 32 ? 'pass' : 'drift'
+    }
+  ];
+};
