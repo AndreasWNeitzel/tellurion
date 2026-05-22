@@ -136,11 +136,21 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const T = Math.pow(10, st.logT);
+  const eps = CH.map((c) => c.fn(T, st.rho));
+  const epsTot = eps[0] + eps[1] + eps[2];
   return { fields: [
-    { key: 'temperature', label: 'temperature (K)', value: Math.round(state.T * 100) / 100, format: 'float' },
-    { key: 'reaction-rate', label: 'reaction rate', value: state.rate ? state.rate.toExponential(2) : '0', format: 'string' },
+    { key: 'logT', label: 'log$_{10}$ T (K)', value: st.logT, format: 'float' },
+    { key: 'rho', label: 'density (g/cm$^3$)', value: st.rho, format: 'float' },
+    { key: 'eps-tot', label: 'total $\epsilon$ (erg g$^{-1}$ s$^{-1}$)', value: epsTot.toExponential(2), format: 'string' },
   ] };
 };
 window.playground.getInvariants = function () {
-  return [ { key: 't-positive', label: 'T > 0', value: state.T > 0 ? 'pass' : 'drift', status: state.T > 0 ? 'pass' : 'drift' } ];
+  const T = Math.pow(10, st.logT);
+  const eps = CH.map((c) => c.fn(T, st.rho));
+  const epsTot = eps[0] + eps[1] + eps[2];
+  return [
+    { key: 'T-valid', label: 'T in valid range', value: st.logT >= LOGT_LO && st.logT <= LOGT_HI ? 'pass' : 'drift', status: st.logT >= LOGT_LO && st.logT <= LOGT_HI ? 'pass' : 'drift' },
+    { key: 'eps-positive', label: 'total $\epsilon$ > 0', value: epsTot > 0 ? 'pass' : 'drift', status: epsTot > 0 ? 'pass' : 'drift' },
+  ];
 };
