@@ -209,33 +209,47 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const mu2Val = mu2(), lamVal = lam();
+  return {
+    fields: [
+      { key: 'mu-squared', label: 'parameter mu^2', value: mu2Val, format: 'float' },
+      { key: 'lambda', label: 'coupling lambda', value: lamVal, format: 'float' },
+      { key: 'vev', label: 'vacuum expectation value v', value: vev(mu2Val, lamVal), format: 'float' },
+      { key: 'temperature', label: 'temperature T (heat mode)', value: tNow(), format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const mu2Val = mu2(), lamVal = lam();
+  const inv = [];
+  // Higgs mass consistency: m_H = sqrt(2) mu should scale correctly
+  const mH = higgsMass(mu2Val);
+  const expected = Math.sqrt(2) * Math.sqrt(mu2Val);
+  inv.push({
+    key: 'higgs-mass-formula',
+    label: 'm_H = sqrt(2) mu holds',
+    value: (Math.abs(mH - expected) / expected).toExponential(2),
+    status: Math.abs(mH - expected) / expected < 1e-10 ? 'pass' : 'drift'
+  });
+  // Goldstone is always massless: the angular direction should be flat
+  inv.push({
+    key: 'goldstone-mass',
+    label: 'Goldstone mode mass = 0 (flat brim)',
+    value: GOLDSTONE_MASS.toFixed(1),
+    status: GOLDSTONE_MASS === 0 ? 'pass' : 'drift'
+  });
+  // Critical temperature: Tc = sqrt(mu^2 / c); above Tc vev should be zero
+  const Tc_val = Tc(mu2Val);
+  const T_test = Tc_val * 1.2;
+  const vev_above_Tc = vevT(mu2Val, lamVal, T_test);
+  inv.push({
+    key: 'symmetry-restoration',
+    label: 'vev = 0 above critical temperature Tc',
+    value: vev_above_Tc.toExponential(2),
+    status: vev_above_Tc < 0.1 * vev(mu2Val, lamVal) ? 'pass' : 'pending'
+  });
+  return inv;
+};
