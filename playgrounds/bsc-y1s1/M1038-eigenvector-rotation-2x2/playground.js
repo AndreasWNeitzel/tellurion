@@ -188,33 +188,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const result = eigen2x2(a, b, c, d);
+  const lam1 = result.eigenvalues ? result.eigenvalues[0] : null;
+  const lam2 = result.eigenvalues ? result.eigenvalues[1] : null;
+  return {
+    fields: [
+      { key: 'trace', label: 'Trace (lambda1 + lambda2)', value: result.tr, format: 'float' },
+      { key: 'determinant', label: 'Determinant (lambda1 * lambda2)', value: result.det, format: 'float' },
+      { key: 'lambda-1', label: 'Eigenvalue 1', value: result.real && lam1 !== null ? lam1 : 'complex', format: result.real ? 'float' : undefined },
+      { key: 'lambda-2', label: 'Eigenvalue 2', value: result.real && lam2 !== null ? lam2 : 'complex', format: result.real ? 'float' : undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const result = eigen2x2(a, b, c, d);
+  if (!result.real) {
+    return [
+      { key: 'eigenvalue-type', label: 'Eigenvalues are real', value: 'complex', status: 'pending' }
+    ];
+  }
+  const [lam1, lam2] = result.eigenvalues;
+  const tr_check = a + d;
+  const det_check = a * d - b * c;
+  const tr_drift = Math.abs((lam1 + lam2) - tr_check);
+  const det_drift = Math.abs((lam1 * lam2) - det_check);
+  return [
+    {
+      key: 'trace-identity',
+      label: 'Trace = lambda1 + lambda2',
+      value: tr_drift > 1e-10 ? tr_drift.toExponential(2) : 'pass',
+      status: tr_drift > 1e-10 ? 'drift' : 'pass'
+    }
+  ];
+};
