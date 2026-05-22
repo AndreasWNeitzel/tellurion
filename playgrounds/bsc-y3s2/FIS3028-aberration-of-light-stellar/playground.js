@@ -221,28 +221,16 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const aberrationAngle = st.beta > 0 ? Math.asin(Math.sin(st.theta * Math.PI / 180) / st.beta) * 180 / Math.PI : st.theta;
+  const beta = Math.pow(10, logBeta);
   return { fields: [
-    { key: 'observer-velocity', label: 'Observer velocity beta = v/c', value: st.beta, format: 'float' },
-    { key: 'light-angle', label: 'Light arrival angle (degrees)', value: st.theta, format: 'float' },
-    { key: 'aberration-angle', label: 'Aberrated angle (degrees)', value: aberrationAngle, format: 'float' },
+    { key: 'observer-velocity', label: 'Observer velocity beta = v/c', value: beta, format: 'float' },
+    { key: 'max-aberration-arcsec', label: 'Max aberration (arcsec)', value: aberrationShift(Math.PI / 2, beta) * RAD_TO_AS, format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  const beta = st.beta;
-  const theta = st.theta * Math.PI / 180;
-  const sinTheta = Math.sin(theta);
-  const aberrated = Math.asin(Math.min(1, Math.max(-1, sinTheta / Math.max(beta, 0.001))));
-  const aberrationExp = aberrated * 180 / Math.PI;
-  
-  // Invariant: beta << 1, aberration ~ theta * beta (small angle approx)
-  let smallAngleHolds = true;
-  if (beta < 0.3 && theta < 0.3) {
-    const smallApprox = theta * beta;
-    if (Math.abs(theta - aberrationExp * Math.PI / 180 - smallApprox) > 0.05) smallAngleHolds = false;
-  }
-  
+  const beta = Math.pow(10, logBeta);
+  const abErr = Math.abs(aberrationShift(0.5, beta) / (beta * Math.sin(0.5)) - 1);
   return [
-    { key: 'aberration-formula', label: 'Stellar aberration: sin(theta_lab) = sin(theta_star) / beta', value: 'formula check', status: 'pass' },
+    { key: 'small-angle-approx', label: 'Small-angle approximation holds', value: abErr < 0.05 ? 'pass' : 'drift', status: abErr < 0.05 ? 'pass' : 'drift' },
   ];
 }
