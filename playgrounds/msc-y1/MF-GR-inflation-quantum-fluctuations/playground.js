@@ -117,7 +117,7 @@ function drawModes(x, y, w, h) {
 }
 
 function drawSpectrum(x, y, w, h) {
-  panel(x, y, w, h, 'scalar power spectrum P_s(k) ~ k^{n_s - 1}: near scale invariant');
+  panel(x, y, w, h, 'scalar power spectrum P_s(k)');
   const x0 = x + 34, x1 = x + w - 14, y0 = y + 28, y1 = y + h - 24;
   const decades = 4;
   const X = (lk) => x0 + (x1 - x0) * (lk + decades) / (2 * decades);

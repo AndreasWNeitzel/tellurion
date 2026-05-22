@@ -83,8 +83,7 @@ function drawGofr() {
   // plain-words caption (kept clear of the top-right readout box)
   ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('g(r): neighbor density / bulk', (PX0 + PX1) / 2, H - 12);
-  ctx.save(); ctx.translate(PX0 - 30, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('g(r)', 0, 0); ctx.restore();
+  ctx.textAlign = 'left'; ctx.fillText('g(r)', PX0 - 28, PY0 - 6);
   // g = 1 reference: an ideal gas has no structure
   ctx.strokeStyle = 'rgba(120,130,150,0.3)'; ctx.setLineDash([5, 4]);
   ctx.beginPath(); ctx.moveTo(PX0, yOf(1)); ctx.lineTo(PX1, yOf(1)); ctx.stroke(); ctx.setLineDash([]);
