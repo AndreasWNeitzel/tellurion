@@ -278,23 +278,23 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const fam = family;
-  const xs = gridX(fam);
-  const p = pdf(fam, params, xs);
-  const h_analytic = analyticEntropy(fam, params);
+  const params = paramsFor();
+  const xs = gridX(state.family);
+  const p = pdf(state.family, params, xs);
+  const h_analytic = analyticEntropy(state.family, params);
   return {
     fields: [
-      { key: 'distribution-family', label: 'maxent family', value: fam, format: undefined },
-      { key: 'sample-count', label: 'samples collected', value: samples.length, format: 'float' },
-      { key: 'entropy-analytic', label: 'differential entropy H (nats)', value: h_analytic, format: 'float' },
-      { key: 'entropy-numeric', label: 'entropy from current samples', value: numericEntropy(xs, p), format: 'float' }
+      { key: 'distribution-family', label: 'maxent family', value: state.family, format: undefined },
+      { key: 'sample-count', label: 'samples collected', value: state.n.toFixed(0), format: 'float' },
+      { key: 'entropy-analytic', label: 'differential entropy H (nats)', value: h_analytic.toFixed(3), format: 'float' },
+      { key: 'entropy-numeric', label: 'entropy from current samples', value: numericEntropy(xs, p).toFixed(3), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
   const inv = [];
-  const fam = family;
-  const h_a = analyticEntropy(fam, params);
+  const params = paramsFor();
+  const h_a = analyticEntropy(state.family, params);
   // Entropy must be non-negative (nats)
   inv.push({
     key: 'entropy-nonneg',
@@ -303,9 +303,9 @@ window.playground.getInvariants = function () {
     status: h_a >= -1e-10 ? 'pass' : 'drift'
   });
   // Structured distribution (added lumpiness) must have lower entropy
-  const xs = gridX(fam);
-  const p_max = pdf(fam, params, xs);
-  const p_struct = structuredPdf(fam, params, xs);
+  const xs = gridX(state.family);
+  const p_max = pdf(state.family, params, xs);
+  const p_struct = structuredPdf(state.family, params, xs, state.struct);
   const h_max = numericEntropy(xs, p_max);
   const h_struct = numericEntropy(xs, p_struct);
   const rel_diff = (h_max - h_struct) / Math.max(Math.abs(h_max), 1e-10);
