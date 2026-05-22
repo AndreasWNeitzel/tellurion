@@ -112,33 +112,37 @@ function bootSync() { if (CAPTURE_NAME) { st.logM = CAPTURE_FRAC * 6; st.t = 1.4
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the accretor mass, sound speed and accretion rate.
+// The invariant verifies the flow is transonic: the isothermal
+// Bondi solution must pass through Mach 1 exactly at the sonic
+// radius r_s = r_B / 2.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const M = Math.pow(10, st.logM) * M_SUN;
+  const cs = st.cs * 1000;
+  const rho_inf = Math.pow(10, st.logn) * 1.66e-27 * 1e6;
+  const Mdot = MdotBondi(M, cs, rho_inf);
+  return {
+    fields: [
+      { key: 'mass', label: 'accretor mass', value: `${Math.pow(10, st.logM).toExponential(1)} M_sun` },
+      { key: 'cs', label: 'sound speed (km/s)', value: st.cs, format: 'float' },
+      { key: 'mdot', label: 'accretion rate', value: `${(Mdot * 3.155e7 / M_SUN).toExponential(2)} M_sun/yr` },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const M = Math.pow(10, st.logM) * M_SUN;
+  const cs = st.cs * 1000;
+  const rS = bondiRadius(M, cs) * 0.5;          // isothermal sonic radius
+  // The accretion velocity is signed (negative = inflow); the Mach
+  // number is its magnitude over the sound speed.
+  const mach = Math.abs(bondiVelocityIsothermal(rS, M, cs)) / cs;
+  const drift = Math.abs(mach - 1);
+  return [{
+    key: 'sonic-point',
+    label: 'transonic flow: Mach = 1 at the sonic radius',
+    value: mach.toFixed(4),
+    status: drift < 2e-3 ? 'pass' : (drift < 3e-2 ? 'pending' : 'drift'),
+  }];
+};
