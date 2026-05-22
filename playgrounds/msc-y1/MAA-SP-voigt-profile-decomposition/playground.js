@@ -116,8 +116,22 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'lorentz-width', label: 'Lorentz width', value: state.gamma || 0.1, format: 'float' }, { key: 'gauss-sigma', label: 'Gaussian sigma', value: state.sigma || 0.1, format: 'float' }, { key: 'peak-height', label: 'Peak', value: state.peak || 1, format: 'float' }, { key: 'fwhm', label: 'FWHM', value: state.fwhm || 1, format: 'float' } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'profile-normalized', label: 'Voigt normalization', value: 'pending', status: 'pending' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const peak = voigtConv(0, st.sigma, st.gamma);
+  return {
+    fields: [
+      { key: 'lorentz-width', label: '$\\gamma$ (Lorentz)', value: st.gamma, format: 'float' },
+      { key: 'gauss-sigma', label: '$\\sigma$ (Gaussian)', value: st.sigma, format: 'float' },
+      { key: 'peak-height', label: 'Peak $V(0)$', value: peak, format: 'float' },
+      { key: 'time', label: 'Time (a.u.)', value: st.t, format: 'float' }
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const peak = voigtConv(0, st.sigma, st.gamma);
+  const lorentz_peak = lorentzian(0, st.gamma);
+  const gauss_peak = gaussian(0, st.sigma);
+  return [
+    { key: 'voigt-peak-bounded', label: '$V(0) \\leq \\min(L, G)$', value: peak <= Math.min(lorentz_peak, gauss_peak) ? 'pass' : 'fail', status: peak <= Math.min(lorentz_peak, gauss_peak) ? 'pass' : 'drift' },
+    { key: 'parameters-positive', label: '$\\sigma, \\gamma > 0$', value: st.sigma > 0 && st.gamma > 0 ? 'yes' : 'no', status: st.sigma > 0 && st.gamma > 0 ? 'pass' : 'drift' }
+  ];
+};
