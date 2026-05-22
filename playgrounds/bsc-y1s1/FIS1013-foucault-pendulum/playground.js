@@ -8,7 +8,7 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 // rotating-frame physics unchanged.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { createFoucault, stepFoucault, omegaZ, precessionPeriod } from './sim.js';
+import { createFoucault, stepFoucault, omegaZ, precessionPeriod, OMEGA_0 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const urlParams      = new URLSearchParams(location.search);
@@ -302,33 +302,35 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the latitude, the precession period and the pendulum
+// energy. The invariant checks energy conservation: the Coriolis
+// force is perpendicular to the velocity and does no work, so the
+// harmonic-oscillator energy must stay constant under the swing.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+let __E0 = null;
+window.playground.getState = function () {
+  const s = state.sim;
+  if (!s) return { fields: [] };
+  const E = 0.5 * (s.vx * s.vx + s.vy * s.vy) + 0.5 * OMEGA_0 * OMEGA_0 * (s.x * s.x + s.y * s.y);
+  return {
+    fields: [
+      { key: 'latitude', label: 'latitude (deg)', value: state.lat, format: 'float' },
+      { key: 'precession', label: 'precession period (s)', value: precessionPeriod(state.lat), format: 'float' },
+      { key: 'energy', label: 'pendulum energy', value: E, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const s = state.sim;
+  if (!s) return [];
+  const E = 0.5 * (s.vx * s.vx + s.vy * s.vy) + 0.5 * OMEGA_0 * OMEGA_0 * (s.x * s.x + s.y * s.y);
+  if (__E0 === null || s.nSteps < 2) __E0 = E;       // re-baseline after a reset
+  const drift = Math.abs(E - __E0) / Math.max(1e-9, __E0);
+  return [{
+    key: 'energy',
+    label: 'pendulum energy conserved (Coriolis does no work)',
+    value: drift.toExponential(2),
+    status: drift < 5e-3 ? 'pass' : (drift < 5e-2 ? 'pending' : 'drift'),
+  }];
+};
