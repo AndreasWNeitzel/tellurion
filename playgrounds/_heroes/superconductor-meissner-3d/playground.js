@@ -170,23 +170,22 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'temperature-k', label: 'Temperature', value: st.temperature || 77, format: 'float' },
-      { key: 'critical-temp-k', label: 'Critical temperature', value: st.criticalTemp || 92, format: 'float' },
-      { key: 'field-strength-mt', label: 'Magnetic field', value: st.fieldStrength || 0, format: 'float' }
+      { key: 'temperature-ratio', label: '$T/T_c$', value: ui.TbyTc, format: 'float' },
+      { key: 'applied-field', label: 'Applied field', value: ui.Bapp, format: 'float' },
+      { key: 'london-penetration', label: 'London $\\lambda_L$', value: Math.min(6, lambdaL(ui.TbyTc * TC, TC, ui.lam0)), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  // Check that superconductor is active only below Tc.
-  const T = st.temperature || 77;
-  const Tc = st.criticalTemp || 92;
-  const meissnerActive = T < Tc;
-  const status = meissnerActive ? 'pass' : 'drift';
+  // Check that superconductor transition occurs at T = Tc: London penetration length diverges as T approaches Tc.
+  const sc = isSuperconducting(ui.TbyTc * TC, TC, ui.Bapp, 1);
+  const lam = Math.min(6, lambdaL(ui.TbyTc * TC, TC, ui.lam0));
+  const status = (ui.TbyTc < 1 && sc && lam < 6) || (ui.TbyTc >= 1 && !sc) ? 'pass' : 'drift';
   return [
     {
       key: 'superconductivity-criterion',
-      label: 'T < Tc check',
-      value: meissnerActive ? 'yes' : 'no',
+      label: 'SC state consistent with $T/T_c$',
+      value: sc ? 'superconducting' : 'normal',
       status: status
     }
   ];
