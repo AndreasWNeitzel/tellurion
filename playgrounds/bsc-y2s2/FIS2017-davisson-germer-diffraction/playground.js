@@ -157,7 +157,7 @@ function drawIntensity(c, x0, y0, w, h) {
     ctx.fillText(`${(i * 18)}`, x - 8, y0 + padT + plotH + 14);
   }
   ctx.fillStyle = c.muted;
-  ctx.fillText('theta (deg)', x0 + padL + plotW - 60, y0 + padT + plotH + 24);
+  ctx.fillText('theta', x0 + padL + plotW - 40, y0 + padT + plotH + 24);
   ctx.save(); ctx.translate(x0 + 12, y0 + padT + plotH / 2 + 36); ctx.rotate(-Math.PI / 2);
   ctx.fillText('I(theta)', 0, 0); ctx.restore();
 
