@@ -358,33 +358,24 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const props = ringdownProperties(st.M_solar, st.chi);
+  return { fields: [
+    { key: 'black-hole-mass', label: 'BH mass (solar masses)', value: st.M_solar, format: 'float' },
+    { key: 'spin-parameter', label: 'Dimensionless spin (chi)', value: st.chi, format: 'float' },
+    { key: 'ringdown-frequency', label: 'Ringdown frequency (Hz)', value: props.f_Hz, format: 'float' },
+    { key: 'damping-timescale', label: 'Damping time (ms)', value: props.tau_ms, format: 'float' }
+  ] };
+};
+window.playground.getInvariants = function () {
+  const props = ringdownProperties(st.M_solar, st.chi);
+  const Q = qualityFactor(st.chi);
+  const strainAtT = strain(st.t_ms, st.M_solar, st.chi);
+  const expectedDecay = Math.exp(-st.t_ms / props.tau_ms / 1000);
+  return [
+    { key: 'quality-factor-positive', label: 'Quality factor > 1', value: Q > 1 ? 'pass' : 'drift', status: Q > 1 ? 'pass' : 'drift' },
+    { key: 'strain-decay-exponential', label: 'Strain decays exponentially', value: Math.abs(strainAtT) <= expectedDecay + 0.01 ? 'pass' : 'drift', status: Math.abs(strainAtT) <= expectedDecay + 0.01 ? 'pass' : 'drift' }
+  ];
+};
