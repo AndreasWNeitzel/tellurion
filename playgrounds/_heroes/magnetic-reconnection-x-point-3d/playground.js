@@ -385,6 +385,19 @@ btnPause.addEventListener('click', () => {
   btnPause.setAttribute('aria-pressed', String(!st.running));
 });
 
+// Canvas click interaction: seed a particle at the clicked location.
+canvas.addEventListener('click', (evt) => {
+  const rect = canvas.getBoundingClientRect();
+  const sx = evt.clientX - rect.left;
+  const sy = evt.clientY - rect.top;
+  // Inverse of w2s: convert screen to world coords
+  const x = (sx / W) * (2 * X_HALF) - X_HALF;
+  const y = Y_HALF - (sy / H) * (2 * Y_HALF);
+  if (Math.abs(x) <= X_HALF && Math.abs(y) <= Y_HALF) {
+    st.particles.push({ x, y, age: 0 });
+  }
+});
+
 const SHARE_KEYS = {
   log_eta: { get: () => st.log_eta, set: v => { st.log_eta = parseFloat(v); sLogEta.value = v; }, parse: parseFloat },
   v_a: { get: () => st.v_a, set: v => { st.v_a = parseFloat(v); sVa.value = v; }, parse: parseFloat },
