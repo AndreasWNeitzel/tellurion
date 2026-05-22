@@ -582,33 +582,33 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'earth-sun-distance-au', label: 'Earth-Sun distance', value: st.earthDistance || 1, format: 'float' },
+      { key: 'moon-earth-distance-km', label: 'Moon-Earth distance', value: st.moonDistance || 384400, format: 'float' },
+      { key: 'eclipse-fraction', label: 'Eclipse fraction', value: st.eclipseFraction || 0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check that moon radius / moon distance provides eclipse geometry constraint.
+  const moonDist = st.moonDistance || 384400;
+  const sunDist = st.earthDistance || 1.496e8;
+  const moonRadius = 1737;
+  const sunRadius = 6.96e5;
+  const moonAngularSize = moonRadius / moonDist;
+  const sunAngularSize = sunRadius / sunDist;
+  const ratio = moonAngularSize / sunAngularSize;
+  const status = (ratio > 0.9 && ratio < 1.1) ? 'pass' : 'drift';
+  return [
+    {
+      key: 'angular-size-ratio',
+      label: 'Moon/Sun angular size',
+      value: ratio.toFixed(3),
+      status: status
+    }
+  ];
+};
