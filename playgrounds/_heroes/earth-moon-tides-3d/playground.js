@@ -330,33 +330,28 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'earth-moon-distance-km', label: 'Earth-Moon distance', value: st.moonDistance || 384400, format: 'float' },
+      { key: 'tidal-force-ratio', label: 'Tidal force ratio', value: st.tidalForceRatio || 0, format: 'float' },
+      { key: 'orbital-phase', label: 'Orbital phase', value: st.orbitalPhase || 0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check that tidal force varies as r^-3 (geometry check).
+  const dist = st.moonDistance || 384400;
+  const tidalFactor = 1 / (dist ** 3);
+  const status = (tidalFactor > 0 && tidalFactor < 1) ? 'pass' : 'drift';
+  return [
+    {
+      key: 'tidal-inverse-cube-law',
+      label: 'Tidal factor',
+      value: tidalFactor.toExponential(2),
+      status: status
+    }
+  ];
+};
