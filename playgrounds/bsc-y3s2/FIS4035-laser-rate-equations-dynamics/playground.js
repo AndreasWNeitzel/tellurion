@@ -248,33 +248,43 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
+window.playground.getState = function () {
+  const nth = thresholdPump(st.q0);
+  const fields = [
+    { key: 'regime', label: 'laser regime', value: st.regime, format: 'string' },
+    { key: 'pump-rate', label: 'pump rate r', value: parseFloat(st.r.toFixed(2)), format: 'float' },
+    { key: 'cavity-q', label: 'cavity Q0', value: parseFloat(st.q0.toFixed(2)), format: 'float' },
+    { key: 'threshold-pump', label: 'threshold r_th', value: parseFloat(nth.toFixed(3)), format: 'float' },
+  ];
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const nth = thresholdPump(st.q0);
+  const nSt = steadyInversion(st.r, st.q0);
+  const pSt = steadyPhotons(st.r, st.q0);
+  inv.push({
+    key: 'inversion-nonneg',
+    label: 'inversion n >= 0',
+    value: st.sim.n >= -1e-10 ? 'pass' : 'drift',
+    status: st.sim.n >= -1e-10 ? 'pass' : 'drift',
+  });
+  inv.push({
+    key: 'photons-nonneg',
+    label: 'photons p >= 0',
+    value: st.sim.p >= -1e-10 ? 'pass' : 'drift',
+    status: st.sim.p >= -1e-10 ? 'pass' : 'drift',
+  });
+  if (st.r > nth) {
+    const nErr = Math.abs(st.sim.n - nSt) / nSt;
+    inv.push({
+      key: 'gain-clamp',
+      label: 'gain clamped near n_th',
+      value: nErr.toExponential(2),
+      status: nErr < 0.05 ? 'pass' : (nErr < 0.2 ? 'pending' : 'drift'),
     });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  }
+  return inv;
+};

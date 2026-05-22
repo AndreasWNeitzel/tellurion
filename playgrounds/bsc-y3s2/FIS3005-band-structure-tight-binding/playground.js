@@ -185,33 +185,35 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
+window.playground.getState = function () {
+  const fields = [
+    { key: 'hopping-t', label: 'hopping integral t', value: parseFloat(st.t.toFixed(3)), format: 'float' },
+    { key: 'dimerization', label: 'SSH dimerization ratio', value: parseFloat(st.dim.toFixed(3)), format: 'float' },
+    { key: 'fermi-energy', label: 'Fermi energy EF', value: parseFloat(st.EF.toFixed(3)), format: 'float' },
+    { key: 'band-width', label: 'band width (FWHM)', value: parseFloat((st.lat === '2d' ? 8 * st.t : (st.lat === 'ssh' ? 2 * sshBands(0, st.t, st.t * st.dim).plus : 4 * st.t)).toFixed(3)), format: 'float' },
+  ];
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  if (st.lat === 'ssh') {
+    const gap = sshGap(st.t, st.t * st.dim);
+    inv.push({
+      key: 'gap-consistency',
+      label: 'SSH band gap = 2|t1-t2|',
+      value: (Math.abs(gap - 2 * Math.abs(st.t - st.t * st.dim)) < 1e-10 ? 'pass' : 'drift').toString(),
+      status: Math.abs(gap - 2 * Math.abs(st.t - st.t * st.dim)) < 1e-10 ? 'pass' : 'drift',
     });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  }
+  const bw = st.lat === '2d' ? 8 * st.t : (st.lat === 'ssh' ? 2 * sshBands(0, st.t, st.t * st.dim).plus : 4 * st.t);
+  const efInBand = st.EF >= (st.lat === '2d' ? -4 * st.t : -2 * st.t) && st.EF <= (st.lat === '2d' ? 4 * st.t : 2 * st.t);
+  inv.push({
+    key: 'ef-in-band',
+    label: 'EF within band bounds',
+    value: efInBand ? 'pass' : 'drift',
+    status: efInBand ? 'pass' : 'drift',
+  });
+  return inv;
+};

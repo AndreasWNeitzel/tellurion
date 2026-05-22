@@ -210,33 +210,38 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const vout = applyChain([elemMatrix(st.e1, st.a1), elemMatrix(st.e2, 0)], inputVec());
+  const dop = degreeOfPolarization(vout);
+  const e = ellipse(vout);
+  const fields = [
+    { key: 'input-state', label: 'input polarization', value: st.input === 'lin' ? 'linear' : (st.input === 'cr' ? 'RCP' : 'LCP'), format: 'string' },
+    { key: 'element-1', label: 'optic E1', value: elemLabel(st.e1, st.a1), format: 'string' },
+    { key: 'degree-of-pol', label: 'DOP output', value: parseFloat(dop.toFixed(3)), format: 'float' },
+    { key: 'azimuth', label: 'output azimuth psi (deg)', value: parseFloat((e.psi * 180 / Math.PI).toFixed(1)), format: 'float' },
+  ];
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const vout = applyChain([elemMatrix(st.e1, st.a1), elemMatrix(st.e2, 0)], inputVec());
+  const dop = degreeOfPolarization(vout);
+  inv.push({
+    key: 'dop-bounds',
+    label: 'DOP in [0,1]',
+    value: (dop >= -1e-10 && dop <= 1.001) ? 'pass' : 'drift',
+    status: (dop >= -1e-10 && dop <= 1.001) ? 'pass' : 'drift',
+  });
+  const s = stokes(vout);
+  const s0sq = s[0] * s[0];
+  const sqSum = s[1] * s[1] + s[2] * s[2] + s[3] * s[3];
+  inv.push({
+    key: 'stokes-inequality',
+    label: 'S1^2 + S2^2 + S3^2 <= S0^2',
+    value: (sqSum <= s0sq * 1.001) ? 'pass' : 'drift',
+    status: (sqSum <= s0sq * 1.001) ? 'pass' : 'drift',
+  });
+  return inv;
+};

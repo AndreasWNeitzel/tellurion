@@ -235,33 +235,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const sigma = linearSigma(NY, st.Ra, st.Pr, st.k);
+  const fields = [
+    { key: 'rayleigh-number', label: 'Rayleigh number Ra', value: parseFloat(st.Ra.toFixed(1)), format: 'float' },
+    { key: 'critical-ra', label: 'critical Ra_c', value: parseFloat(RA_C.toFixed(1)), format: 'float' },
+    { key: 'wavenumber', label: 'wavenumber k', value: parseFloat(st.k.toFixed(3)), format: 'float' },
+    { key: 'growth-rate', label: 'growth rate sigma', value: parseFloat(sigma.toFixed(4)), format: 'float' },
+  ];
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const sigma = linearSigma(NY, st.Ra, st.Pr, st.k);
+  const dRa = st.Ra - RA_C;
+  inv.push({
+    key: 'sigma-sign',
+    label: 'sigma sign vs onset',
+    value: (dRa > 0 && sigma > 0) || (dRa < 0 && sigma < 0) || (Math.abs(dRa) < 0.1 && Math.abs(sigma) < 0.01) ? 'pass' : 'drift',
+    status: (dRa > 0 && sigma > 0) || (dRa < 0 && sigma < 0) || (Math.abs(dRa) < 0.1 && Math.abs(sigma) < 0.01) ? 'pass' : 'drift',
+  });
+  inv.push({
+    key: 'k-positive',
+    label: 'wavenumber k > 0',
+    value: st.k > 0 ? 'pass' : 'drift',
+    status: st.k > 0 ? 'pass' : 'drift',
+  });
+  return inv;
+};

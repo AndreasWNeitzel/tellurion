@@ -348,33 +348,37 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const [h, k, l] = st.hkl;
+  const fields = [
+    { key: 'lattice-type', label: 'crystal structure', value: st.lat.toUpperCase(), format: 'string' },
+    { key: 'atoms-per-cell', label: 'atoms per conventional cell', value: atomsPerConventionalCell(st.lat), format: 'float' },
+    { key: 'miller-hkl', label: 'Miller indices (hkl)', value: `(${h}${k}${l})`, format: 'string' },
+    { key: 'd-spacing', label: 'd-spacing (Angstrom)', value: parseFloat(dSpacing(h, k, l, 1).toFixed(4)), format: 'float' },
+  ];
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  const [h, k, l] = st.hkl;
+  const inv = [];
+  const sf = structureFactor(st.lat, h, k, l);
+  const allowed = isAllowed(st.lat, h, k, l);
+  inv.push({
+    key: 'structure-factor-rule',
+    label: 'SF selection rule',
+    value: allowed ? 'allowed' : 'forbidden',
+    status: (allowed ? (sf > 0.1) : (sf < 0.1)) ? 'pass' : 'drift',
+  });
+  const N = atomsPerConventionalCell(st.lat);
+  const maxSF = N;
+  const sfFraction = sf / maxSF;
+  inv.push({
+    key: 'sf-magnitude',
+    label: 'SF fraction of max',
+    value: sfFraction.toFixed(3),
+    status: sfFraction >= 0 && sfFraction <= 1.05 ? 'pass' : 'drift',
+  });
+  return inv;
+};

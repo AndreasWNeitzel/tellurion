@@ -203,33 +203,47 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
+window.playground.getState = function () {
+  const potFn = POTENTIALS.power(state.p);
+  const bs = bohrSommerfeldLadder(potFn, state.nMax, Math.max(8, state.nMax + 2) + 5);
+  const ex = (Math.abs(state.p - 2) < 0.01) ? EXACT_LEVELS[2](0) : (Math.abs(state.p - 4) < 0.01) ? EXACT_LEVELS[4][0] : null;
+  const fields = [
+    { key: 'exponent-p', label: 'potential exponent p', value: parseFloat(state.p.toFixed(2)), format: 'float' },
+    { key: 'nmax', label: 'maximum quantum level', value: state.nMax, format: 'float' },
+    { key: 'e0-bs', label: 'E0 Bohr-Sommerfeld', value: parseFloat(bs[0].toFixed(3)), format: 'float' },
+    { key: 'e0-exact', label: 'E0 exact reference', value: ex !== null ? parseFloat(ex.toFixed(3)) : null, format: 'float' },
+  ];
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const potFn = POTENTIALS.power(state.p);
+  const eMax = Math.max(8, state.nMax + 2);
+  const bs = bohrSommerfeldLadder(potFn, state.nMax, eMax + 5);
+  const ex = (Math.abs(state.p - 2) < 0.01) ? EXACT_LEVELS[2].slice(0, state.nMax) : (Math.abs(state.p - 4) < 0.01) ? EXACT_LEVELS[4].slice(0, state.nMax) : null;
+  if (ex !== null) {
+    const relErr0 = Math.abs((bs[0] - ex[0]) / ex[0]);
+    inv.push({
+      key: 'bs-accuracy',
+      label: 'relative error E0',
+      value: (relErr0 * 100).toExponential(2) + '%',
+      status: relErr0 < 0.1 ? 'pass' : (relErr0 < 0.3 ? 'pending' : 'drift'),
     });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  } else {
+    inv.push({
+      key: 'bs-monotone',
+      label: 'BS levels increasing',
+      value: (bs[state.nMax - 1] > bs[0]) ? 'pass' : 'drift',
+      status: (bs[state.nMax - 1] > bs[0]) ? 'pass' : 'drift',
+    });
+  }
+  inv.push({
+    key: 'positive-levels',
+    label: 'all levels positive',
+    value: bs.slice(0, state.nMax).every(e => e > 0) ? 'pass' : 'drift',
+    status: bs.slice(0, state.nMax).every(e => e > 0) ? 'pass' : 'drift',
+  });
+  return inv;
+};
