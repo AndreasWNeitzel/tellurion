@@ -120,7 +120,8 @@ function render() {
   ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('amplitude', PX + PW / 2, PY + PH + 14);
-  ctx.save(); ctx.translate(PX - 7, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('angle', 0, 0); ctx.restore();
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('angle', PX - 6, PY + PH / 2);
   ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(232,200,74,0.9)'; ctx.fillText('sinc envelope', PX + 8, PY + 14);
   ctx.fillStyle = '#7fd6ff'; ctx.fillText('array of N', PX + 8, PY + 28);
 
