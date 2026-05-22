@@ -202,9 +202,28 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () {
-  return { fields: [ { key: 'snr-db', label: 'SNR (dB)', value: state.snr || 0, format: 'float' }, { key: 'capacity', label: 'Capacity (bits)', value: state.capacity || 0, format: 'float' }, { key: 'bandwidth', label: 'Bandwidth (Hz)', value: state.bandwidth || 1, format: 'float' }, { key: 'entropy', label: 'Entropy (bits)', value: state.entropy || 0, format: 'float' } ] }; };
-window.playground.getInvariants = function () { const c = state.capacity || 0; return [ { key: 'capacity-nonneg', label: 'Capacity >= 0', value: c >= 0 ? 'pass' : 'fail', status: c >= 0 ? 'pass' : 'drift' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+function bscEntropy(p) {
+  if (p <= 0 || p >= 1) return 0;
+  return -p * Math.log2(p) - (1 - p) * Math.log2(1 - p);
 }
+window.playground.getState = function () {
+  const p = state.p;
+  const H = bscEntropy(p);
+  return { fields: [
+    { key: 'flip-prob', label: 'crossover probability $p$', value: p, format: 'float' },
+    { key: 'entropy', label: 'binary entropy $H(p)$ (bits)', value: H, format: 'float' },
+    { key: 'capacity', label: 'channel capacity $C = 1 - H(p)$ (bits)', value: 1 - H, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const p = state.p;
+  // The binary symmetric channel capacity is symmetric under p to 1 - p:
+  // swapping the crossover convention cannot change the information rate.
+  const drift = Math.abs(bscEntropy(p) - bscEntropy(1 - p));
+  return [{
+    key: 'bsc-symmetry',
+    label: 'BSC capacity is symmetric, $C(p) = C(1-p)$',
+    value: drift.toExponential(2),
+    status: drift < 1e-9 ? 'pass' : 'drift',
+  }];
+};
