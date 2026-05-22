@@ -212,7 +212,7 @@ function drawMap(x, y, w, h) {
     ctx.fillText('cosmic time ->', x1 - 96, y1 + 14);
     return;
   }
-  panel(x, y, w, h, 'outcome vs impact parameter b: sharp boundary at b_c = 3 sqrt(3) M');
+  panel(x, y, w, h, 'outcome vs impact parameter b');
   const x0 = x + 16, x1 = x + w - 14, y0 = y + 34, y1 = y + h - 30;
   const bMin = 2, bMax = 9;
   const X = (b) => x0 + (x1 - x0) * (b - bMin) / (bMax - bMin);
