@@ -151,33 +151,38 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const Q = ToomreQ(st.sigma, st.kappa, st.GSig);
+  return {
+    fields: [
+      { key: 'velocity-dispersion', label: 'velocity dispersion sigma', value: st.sigma, format: 'float' },
+      { key: 'epicycle-frequency', label: 'epicycle frequency kappa', value: st.kappa, format: 'float' },
+      { key: 'surface-density', label: 'surface density parameter G*Sigma', value: st.GSig, format: 'float' },
+      { key: 'toomre-q', label: 'Toomre Q = sigma*kappa/(pi*G*Sigma)', value: Q, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const Q = ToomreQ(st.sigma, st.kappa, st.GSig);
+  // Toomre criterion: Q > 1 is stable, Q <= 1 is unstable
+  const stable = Q > 1;
+  inv.push({
+    key: 'toomre-stability',
+    label: 'Toomre Q (unstable if Q < 1)',
+    value: Q.toFixed(3),
+    status: stable ? 'pass' : 'drift'
+  });
+  // Dispersion relation minimum exists for all k > 0 (check at a test wavenumber)
+  const k_test = 1.0;
+  const nu2_test = nuSquared(k_test, st.kappa, st.sigma, st.GSig);
+  inv.push({
+    key: 'dispersion-relation',
+    label: 'dispersion relation nu^2(k) defined',
+    value: nu2_test.toFixed(3),
+    status: Number.isFinite(nu2_test) ? 'pass' : 'drift'
+  });
+  return inv;
+};
