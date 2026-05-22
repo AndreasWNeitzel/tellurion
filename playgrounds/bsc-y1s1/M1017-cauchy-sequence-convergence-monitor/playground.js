@@ -151,27 +151,23 @@ bootSync();
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const seq = SEQUENCES[selSeq.value];
-  const cw = cauchyWidth(selSeq.value, Math.floor(sliderN.value));
   return {
     fields: [
-      { key: 'sequence', label: 'sequence', value: selSeq.value, format: undefined },
-      { key: 'n', label: 'N', value: Math.floor(sliderN.value), format: 'float' },
-      { key: 'cauchy-width', label: 'Cauchy width w(N)', value: cw, format: 'float' }
-    ]
+      { key: 'sequence', label: 'sequence', value: st.name },
+      { key: 'n', label: 'window start $N$', value: st.N0, format: 'float' },
+      { key: 'cauchy-width', label: 'Cauchy width $w(N)$', value: cauchyWidth(st.name, st.N0), format: 'float' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
-  const seq = SEQUENCES[selSeq.value];
-  const N = Math.floor(sliderN.value);
-  const cw = cauchyWidth(selSeq.value, N);
-  const isCauchyEps = isCauchy(selSeq.value, 1e-4, N + 50);
-  return [
-    {
-      key: 'cauchy-criterion',
-      label: 'sequence is Cauchy',
-      value: cw.toExponential(2),
-      status: (cw < 1e-4 || isCauchyEps) ? 'pass' : 'drift'
-    }
-  ];
+  // A Cauchy sequence has a tail width w(N) that does not grow with N:
+  // pushing the window start out by 200 must not widen the spread.
+  const wNear = cauchyWidth(st.name, st.N0);
+  const wFar = cauchyWidth(st.name, st.N0 + 200);
+  return [{
+    key: 'cauchy-width-shrinks',
+    label: 'Cauchy tail width $w(N)$ is non-increasing in $N$',
+    value: wFar.toExponential(2),
+    status: wFar <= wNear + 1e-12 ? 'pass' : 'drift',
+  }];
 };
