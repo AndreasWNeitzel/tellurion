@@ -154,7 +154,7 @@ function render() {
   // axes labels + legend
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('reduced volume  V / Vc  (log)', PX + PW / 2, PY + PH + 26);
-  ctx.save(); ctx.translate(PX - 24, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('reduced pressure  p / pc', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(PX - 8, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'left'; ctx.fillText('p / pc', 0, 4); ctx.restore();
   ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
   const lg = [['#e8c84a', 'vdW isotherm'], ['#7fd6ff', 'Maxwell'], ['rgba(120,170,255,0.8)', 'binodal'], ['rgba(255,140,120,0.8)', 'spinodal']];
   lg.forEach(([c, txt], k) => { const ly = PY + PH - 56 + k * 15; ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(PX + 12, ly); ctx.lineTo(PX + 32, ly); ctx.stroke(); ctx.fillStyle = '#c8ccd6'; ctx.fillText(txt, PX + 38, ly + 4); });
