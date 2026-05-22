@@ -124,7 +124,7 @@ function drawAll() {
   ctx.save();
   ctx.translate(HEAT_X - 14, HEAT_Y + HEAT_H / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('y', 0, 0);
+  ctx.textAlign = 'start'; ctx.fillText('y', 2, 0);
   ctx.restore();
 }
 
