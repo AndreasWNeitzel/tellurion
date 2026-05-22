@@ -7,7 +7,7 @@
 // sim.js. Reference: Jackson, Classical Electrodynamics (3rd ed.),
 // Ch. 8.
 
-import { cutoffFreq, propagation, fieldAt, modeSpectrum } from './sim.js';
+import { cutoffFreq, propagation, fieldAt, modeSpectrum, C } from './sim.js';
 import { fieldToImageData } from '../../../shared/js/render/colormaps.js';
 // Blue-black-red diverging colormap with a DARK midpoint (per user
 // feedback). The shared rdbu has a white midpoint that washes out
@@ -202,33 +202,49 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the mode, operating and cutoff frequencies and the
+// propagation state. The invariant checks the waveguide dispersion
+// relation through the velocity identity v_phase x v_group = c^2,
+// which holds only for the correct beta(f) = (1/c) sqrt(w^2 - wc^2);
+// v_group is taken as a finite difference of beta with respect to f.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const [type, m, n] = curMode();
+  const f = st.fGHz * 1e9;
+  const pr = propagation(f, m, n, aM(), bM());
+  return {
+    fields: [
+      { key: 'mode', label: 'mode', value: `${type}${m}${n}` },
+      { key: 'frequency', label: 'frequency (GHz)', value: st.fGHz, format: 'float' },
+      { key: 'cutoff', label: 'cutoff frequency (GHz)', value: pr.fc / 1e9, format: 'float' },
+      { key: 'state', label: 'propagation', value: pr.propagating ? 'propagating' : 'evanescent' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const [, m, n] = curMode();
+  const a = aM(), b = bM();
+  const f = st.fGHz * 1e9;
+  const pr = propagation(f, m, n, a, b);
+  if (!pr.propagating) {
+    return [{
+      key: 'dispersion',
+      label: 'waveguide dispersion (below cutoff: evanescent)',
+      value: `f < fc = ${(pr.fc / 1e9).toFixed(2)} GHz`,
+      status: 'pending',
+    }];
+  }
+  const df = f * 1e-4;
+  const bHi = propagation(f + df, m, n, a, b).beta;
+  const bLo = propagation(f - df, m, n, a, b).beta;
+  const vPhase = (2 * Math.PI * f) / pr.beta;
+  const vGroup = (2 * Math.PI * 2 * df) / (bHi - bLo);
+  const drift = Math.abs(vPhase * vGroup - C * C) / (C * C);
+  return [{
+    key: 'dispersion',
+    label: 'v_phase x v_group = c^2 (waveguide dispersion)',
+    value: drift.toExponential(2),
+    status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+  }];
+};
