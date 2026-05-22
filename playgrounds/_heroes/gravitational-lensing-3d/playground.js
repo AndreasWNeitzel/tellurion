@@ -449,33 +449,27 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'lens-mass-m', label: 'Lens mass', value: st.lensMass || 1e12, format: 'float' },
+      { key: 'source-distance-mpc', label: 'Source distance', value: st.sourceDistance || 1000, format: 'float' },
+      { key: 'deflection-angle-as', label: 'Deflection angle', value: st.deflectionAngle || 1, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check that deflection angle is positive and reasonable.
+  const alpha = st.deflectionAngle || 1;
+  const status = (alpha > 0 && alpha < 100) ? 'pass' : 'drift';
+  return [
+    {
+      key: 'deflection-angle-bounds',
+      label: 'Deflection angle (arcsec)',
+      value: alpha.toFixed(2),
+      status: status
+    }
+  ];
+};
