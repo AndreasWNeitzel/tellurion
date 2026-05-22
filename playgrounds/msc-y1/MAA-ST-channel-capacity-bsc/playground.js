@@ -200,33 +200,11 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
+window.playground.getState = function () {
+  return { fields: [ { key: 'snr-db', label: 'SNR (dB)', value: state.snr || 0, format: 'float' }, { key: 'capacity', label: 'Capacity (bits)', value: state.capacity || 0, format: 'float' }, { key: 'bandwidth', label: 'Bandwidth (Hz)', value: state.bandwidth || 1, format: 'float' }, { key: 'entropy', label: 'Entropy (bits)', value: state.entropy || 0, format: 'float' } ] }; };
+window.playground.getInvariants = function () { const c = state.capacity || 0; return [ { key: 'capacity-nonneg', label: 'Capacity >= 0', value: c >= 0 ? 'pass' : 'fail', status: c >= 0 ? 'pass' : 'drift' } ]; };
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () { return []; };
 }
