@@ -40,12 +40,14 @@ sliderA.addEventListener('input', () => {
 });
 
 function colors() {
-  const css = getComputedStyle(document.body);
+  // The canvas is a fixed dark viewport, matching the rest of the
+  // portfolio. The page theme tokens are deliberately not read here, so
+  // the field arrows keep their contrast even on a light-themed page.
   return {
-    bg:     css.getPropertyValue('--bg').trim() || '#060608',
-    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
-    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
-    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    bg:     '#060608',
+    fg:     '#e8e8e8',
+    muted:  '#9aa0a6',
+    accent: '#ffd166',
     blue:   '#5bc0eb',
     red:    '#ef476f',
     grid:   '#23252a',
