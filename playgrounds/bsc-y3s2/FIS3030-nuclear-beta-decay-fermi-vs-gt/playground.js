@@ -183,12 +183,27 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () {
-  return { fields: [
-    { key: 'q-value', label: 'Q value (MeV)', value: state.Q.toFixed(2), format: 'float' },
-    { key: 'coupling', label: 'coupling type', value: state.coupling, format: 'string' },
-  ] };
-};
-window.playground.getInvariants = function () {
-  return [ { key: 'q-positive', label: 'Q > 0', value: state.Q > 0 ? 'pass' : 'drift', status: state.Q > 0 ? 'pass' : 'drift' } ];
-};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const typ = transitionType(st.Ji, st.Jf, st.dPi);
+    return { fields: [
+      { key: 'q-value', label: '$Q$ value (keV)', value: st.Q.toFixed(0), format: 'float' },
+      { key: 'delta-j', label: '$\\Delta J = J_f - J_i$', value: (st.Jf - st.Ji).toFixed(1), format: 'float' },
+      { key: 'transition-type', label: 'transition type', value: typ, format: 'string' },
+    ] };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () {
+    try {
+      const typ = transitionType(st.Ji, st.Jf, st.dPi);
+      const allowed = typ !== 'Forbidden';
+      return [{
+        key: 'selection-rules',
+        label: 'selection rules satisfied',
+        value: allowed ? 'allowed' : 'forbidden',
+        status: allowed ? 'pass' : 'drift',
+      }];
+    } catch (e) { return []; }
+  };
+}
