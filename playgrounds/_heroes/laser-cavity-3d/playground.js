@@ -177,23 +177,21 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'cavity-length-mm', label: 'Cavity length', value: st.cavityLength || 0.3, format: 'float' },
-      { key: 'wavelength-nm', label: 'Wavelength', value: st.wavelength || 780, format: 'float' },
-      { key: 'finesse', label: 'Finesse', value: st.finesse || 100, format: 'float' }
+      { key: 'pump-power', label: 'Pump power P', value: ui.P, format: 'float' },
+      { key: 'cavity-loss', label: 'Mirror reflectivity R', value: ui.R, format: 'float' },
+      { key: 'upper-lifetime', label: 'Upper state lifetime', value: ui.tau, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  // Check that FSR = c / (2 L) is consistent.
-  const L = st.cavityLength || 0.3;
-  const c = 3e5;  // km/s = 3e-4 mm/s
-  const FSR = c / (2 * L);
-  const status = FSR > 0 ? 'pass' : 'fail';
+  // Check that cavity lifetime is positive and reasonable (depends on mirror reflectivity).
+  const tauC = cavityLifetime(ui.Lc, ui.R);
+  const status = tauC > 0 && Number.isFinite(tauC) ? 'pass' : 'drift';
   return [
     {
-      key: 'fsr-calculation',
-      label: 'Free spectral range',
-      value: FSR.toExponential(2),
+      key: 'cavity-lifetime-valid',
+      label: 'Cavity lifetime $\\tau_C$',
+      value: tauC.toExponential(2),
       status: status
     }
   ];
