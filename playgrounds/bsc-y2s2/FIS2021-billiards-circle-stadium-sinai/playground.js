@@ -250,33 +250,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the table geometry, the wall-reflection count and the
+// ball speed. The invariant checks speed conservation: the ball is
+// launched at unit speed and every wall hit is a specular reflection,
+// which preserves |v| exactly, so |v| must stay 1.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const b = state.billiard;
+  return {
+    fields: [
+      { key: 'geometry', label: 'billiard table', value: state.geom },
+      { key: 'bounces', label: 'wall reflections', value: String(b ? b.bounces : 0) },
+      { key: 'speed', label: 'ball speed |v|', value: b ? Math.hypot(b.vx, b.vy) : 0, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const b = state.billiard;
+  if (!b) return [];
+  const speed = Math.hypot(b.vx, b.vy);
+  const drift = Math.abs(speed - 1);
+  return [{
+    key: 'speed',
+    label: 'ball speed |v| = 1 (specular reflection)',
+    value: speed.toFixed(6),
+    status: drift < 1e-6 ? 'pass' : (drift < 1e-3 ? 'pending' : 'drift'),
+  }];
+};
