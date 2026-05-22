@@ -201,33 +201,51 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const m_val = st.m / 100;
+  const k_val = st.k0 / 100;
+  const vg = groupVelocity(k_val, m_val);
+  const vp = phaseVelocity(k_val, m_val);
+  return {
+    fields: [
+      { key: 'mass', label: 'particle mass m', value: m_val, format: 'float' },
+      { key: 'central-momentum', label: 'central momentum k0', value: k_val, format: 'float' },
+      { key: 'group-velocity', label: 'group velocity v_g = k/omega', value: vg, format: 'float' },
+      { key: 'phase-velocity', label: 'phase velocity v_p = omega/k', value: vp, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const m_val = st.m / 100;
+  const k_val = st.k0 / 100;
+  const vg = groupVelocity(k_val, m_val);
+  const vp = phaseVelocity(k_val, m_val);
+  // Causality: group velocity must be <= 1 (speed of light in natural units)
+  inv.push({
+    key: 'causality',
+    label: 'group velocity v_g <= 1 (sub-luminal)',
+    value: vg.toFixed(3),
+    status: vg <= 1.0 + 1e-10 ? 'pass' : 'drift'
+  });
+  // Dispersion relation: vg * vp = 1 for Klein-Gordon
+  const product = vg * vp;
+  inv.push({
+    key: 'product-relation',
+    label: 'v_g * v_p = 1',
+    value: product.toFixed(4),
+    status: Math.abs(product - 1.0) < 1e-10 ? 'pass' : 'pending'
+  });
+  // Massless limit: vg -> 1 as m -> 0
+  if (m_val < 0.01) {
+    inv.push({
+      key: 'massless-limit',
+      label: 'massless: v_g ~ 1',
+      value: vg.toFixed(4),
+      status: vg > 0.99 ? 'pass' : 'pending'
+    });
+  }
+  return inv;
+};
