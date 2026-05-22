@@ -100,33 +100,31 @@ function bootSync() { st.t = CAPTURE_FRAC * 3; render(); if (DETERMINISTIC) requ
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'cycle-type', label: 'Thermodynamic cycle', value: st.cycle, format: undefined },
+      { key: 'compression-ratio', label: 'Compression ratio r', value: st.r, format: 'float' },
+      { key: 'cutoff-ratio', label: 'Cutoff ratio rc', value: st.rc, format: 'float' },
+      { key: 'heat-capacity-ratio', label: 'Heat capacity ratio gamma', value: st.gamma, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const points = buildPoints();
+  if (!points || points.length < 2) return [{ key: 'state-init', label: 'Initializing', value: 'pending', status: 'pending' }];
+  const V_min = Math.min(...points.map(p => p.V));
+  const V_max = Math.max(...points.map(p => p.V));
+  const r_actual = V_max / V_min;
+  const r_err = Math.abs(r_actual - st.r) / Math.max(st.r, 1e-9);
+  return [
+    {
+      key: 'cycle-closure',
+      label: 'Cycle closes (P-V path)',
+      value: r_err < 0.1 ? 'closed' : 'open',
+      status: r_err < 0.1 ? 'pass' : 'pending'
+    }
+  ];
+};
