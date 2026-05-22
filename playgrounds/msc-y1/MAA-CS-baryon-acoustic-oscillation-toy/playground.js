@@ -124,7 +124,9 @@ function render() {
   ctx.fillStyle = '#0d1117'; ctx.fillRect(qX, qY, qW, qH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(qX + 0.5, qY + 0.5, qW - 1, qH - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('galaxy correlation xi(r): the BAO bump at r_s', qX + 8, qY + 14);
+  const xiLabel = 'xi(r): BAO bump at r_s';
+  const w = ctx.measureText(xiLabel).width;
+  ctx.fillText(xiLabel, Math.max(qX + 8, Math.min(qX + 8, W - 32 - w)), qY + 14);
   let xmax = 1e-9;
   for (let i = 5; i <= 120; i += 1) xmax = Math.max(xmax, baoXi(i / 120 * MPC_VIEW, rs));
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8; ctx.beginPath();
