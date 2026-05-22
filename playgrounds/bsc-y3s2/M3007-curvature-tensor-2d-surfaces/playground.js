@@ -8,16 +8,42 @@ const canvas = document.getElementById('stage'); const ctx = canvas.getContext('
 const rK = document.getElementById('readout-k');
 const sR = document.getElementById('slider-R'), vR = document.getElementById('value-R');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { Rr: 3, t: 0 }; let running = true;
+let st = { Rr: 3, t: 0, yaw: 0, pitch: 0 }; let running = true;
 sR.addEventListener('input', () => { st.Rr = parseFloat(sR.value); vR.textContent = st.Rr.toFixed(2); });
 btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 let last = performance.now();
+
+// Camera drag handlers
+let dragging = false, lastX = 0, lastY = 0;
+canvas.addEventListener('pointerdown', (e) => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  canvas.setPointerCapture?.(e.pointerId);
+});
+window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  st.yaw += (e.clientX - lastX) * 0.005;
+  st.pitch = Math.max(-1.4, Math.min(1.4, st.pitch + (e.clientY - lastY) * 0.005));
+  lastX = e.clientX; lastY = e.clientY;
+});
 function colorForK(K, kMax) {
   const t = Math.max(-1, Math.min(1, K / kMax));
   if (t > 0) return `rgba(239,71,111,${0.3 + t * 0.5})`;
   return `rgba(91,192,235,${0.3 - t * 0.5})`;
 }
+function projectPoint(x, y, z, cx, cy) {
+  // Apply yaw rotation around Y axis
+  const cy_yaw = Math.cos(st.yaw), sy_yaw = Math.sin(st.yaw);
+  let x1 = x * cy_yaw - z * sy_yaw;
+  let z1 = x * sy_yaw + z * cy_yaw;
+  // Apply pitch rotation around X axis
+  const cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
+  let y1 = y * cp - z1 * sp;
+  let z2 = y * sp + z1 * cp;
+  return { px: cx + x1 + z2 * 0.3, py: cy - y1 + z2 * 0.2 };
+}
+
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   // Torus shifted left of centre so the K(theta) diagnostic panel in
@@ -37,10 +63,10 @@ function render() {
       const X = (R + r * Math.cos(theta)) * Math.cos(phi);
       const Y = r * Math.sin(theta);
       const Z = (R + r * Math.cos(theta)) * Math.sin(phi);
-      const px = cx + X + Z * 0.3, py = cy - Y + Z * 0.2;
+      const p = projectPoint(X, Y, Z, cx, cy);
       const K = torusK(theta, R, r);
       ctx.fillStyle = colorForK(K, kMax);
-      ctx.fillRect(px - 4, py - 4, 8, 8);
+      ctx.fillRect(p.px - 4, p.py - 4, 8, 8);
     }
   }
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
