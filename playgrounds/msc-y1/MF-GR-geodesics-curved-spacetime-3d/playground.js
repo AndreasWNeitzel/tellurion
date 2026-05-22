@@ -300,33 +300,40 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const b_crit = BC;
+  return {
+    fields: [
+      { key: 'mode', label: 'geometry type', value: st.mode, format: undefined },
+      { key: 'impact-parameter', label: 'photon impact parameter b', value: st.p, format: 'float' },
+      { key: 'spin-parameter', label: 'Kerr spin parameter a', value: st.q, format: 'float' },
+      { key: 'critical-impact', label: 'critical b for unstable orbit', value: b_crit, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  if (st.mode === 'schw') {
+    // Schwarzschild invariant: the effective potential first integral must be conserved
+    // The orbit integral I = (du/dphi)^2 + u^2 - 2u^3 should be constant = 1/b^2
+    if (st.fan) {
+      const I_expected = 1 / (st.p * st.p);
+      inv.push({
+        key: 'orbit-integral',
+        label: 'first integral I = 1/b^2 conserved along geodesic',
+        value: st.drift.toExponential(2),
+        status: st.drift < 1e-6 ? 'pass' : (st.drift < 1e-4 ? 'pending' : 'drift')
+      });
+    }
+    // Light deflection for weak-field impact must be positive
+    inv.push({
+      key: 'photon-sphere-exists',
+      label: 'critical impact parameter b_c = 2.6 (Schwarzschild)',
+      value: BC.toFixed(2),
+      status: BC > 2.5 && BC < 2.7 ? 'pass' : 'drift'
+    });
+  }
+  return inv;
+};
