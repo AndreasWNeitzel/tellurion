@@ -117,33 +117,35 @@ function bootSync() { for (let i = 0; i < CAPTURE_FRAC * 400; i += 1) step(); re
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the oscillator frequency, the timestep and the
+// period. The invariant is the order-of-accuracy claim the
+// playground exists to show: integrating the harmonic oscillator at
+// a fixed step, the RK4 error against the analytic solution is far
+// smaller than the Euler error.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'omega', label: 'angular frequency omega', value: st.omega, format: 'float' },
+      { key: 'timestep', label: 'integration timestep dt', value: st.dt, format: 'float' },
+      { key: 'period', label: 'oscillation period 2pi/omega', value: 2 * Math.PI / st.omega, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const w = st.omega, dt = 0.05, T = 10;
+  const n = Math.round(T / dt);
+  let yEu = [1, 0], yRk = [1, 0];
+  for (let i = 0; i < n; i += 1) { yEu = euler(yEu, dt, w); yRk = rk4(yRk, dt, w); }
+  const exact = analyticSolution(n * dt, w, 1, 0);
+  const errEu = Math.hypot(yEu[0] - exact[0], yEu[1] - exact[1]);
+  const errRk = Math.hypot(yRk[0] - exact[0], yRk[1] - exact[1]);
+  const ratio = errEu / Math.max(1e-15, errRk);
+  return [{
+    key: 'rk4-accuracy',
+    label: 'RK4 far more accurate than Euler at the same step',
+    value: `Euler/RK4 error = ${ratio.toExponential(1)}`,
+    status: errRk < errEu ? 'pass' : 'drift',
+  }];
+};
