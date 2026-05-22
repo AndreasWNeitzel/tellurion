@@ -27,6 +27,18 @@ let transportPhase = 0;   // 0..1 progress of the transported vector around the 
 sliderAlpha.addEventListener('input', () => { alphaDeg = parseFloat(sliderAlpha.value); valueAlpha.textContent = String(alphaDeg); });
 sliderBeta.addEventListener('input', () => { betaDeg = parseFloat(sliderBeta.value); valueBeta.textContent = String(betaDeg); });
 
+// Pointer-drag camera (yaw and pitch of the orthographic view).
+let camYaw = -0.4, camPitch = 0.6;
+let dragging = false, lastX = 0, lastY = 0;
+canvas.addEventListener('pointerdown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture?.(e.pointerId); });
+window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  camYaw += (e.clientX - lastX) * 0.006;
+  camPitch = Math.max(-0.2, Math.min(1.4, camPitch + (e.clientY - lastY) * 0.006));
+  lastX = e.clientX; lastY = e.clientY;
+});
+
 function colors() {
   const css = getComputedStyle(document.body);
   return {
@@ -45,8 +57,8 @@ function colors() {
 // looking down toward the north pole at an oblique angle.
 function project(p, cxPx, cyPx, R) {
   // Rotate so y-axis points right, z-axis up, x-axis toward viewer.
-  // Use simple rotation: from (x, y, z) view from (1, -1, 0.7) direction.
-  const yaw = -0.4, pitch = 0.6;
+  // Camera angles are pointer-draggable.
+  const yaw = camYaw, pitch = camPitch;
   const cy = Math.cos(yaw), sy = Math.sin(yaw);
   const cp = Math.cos(pitch), sp = Math.sin(pitch);
   // Rotate around z by yaw.
@@ -194,6 +206,7 @@ function render() {
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`alpha = ${alphaDeg} deg, beta = ${betaDeg} deg`, 12, 20);
+  ctx.fillText('drag to rotate', canvas.width - 112, 20);
   const om = holonomy(alphaR, betaR);
   ctx.fillStyle = c.accent;
   ctx.fillText(`Omega = (1 - cos alpha) beta = ${om.toFixed(4)} sr`, 12, 38);
@@ -259,10 +272,10 @@ window.playground.getState = function () {
   const hol = holonomy(alpha, beta);
   return {
     fields: [
-      { key: 'alpha', label: 'Polar angle alpha (deg)', value: alphaDeg, format: 'float' },
-      { key: 'beta', label: 'Equator span beta (deg)', value: betaDeg, format: 'float' },
-      { key: 'holonomy', label: 'Holonomy (rad)', value: hol, format: 'float' },
-      { key: 'phase', label: 'Transport progress', value: transportPhase, format: 'float' }
+      { key: 'alpha', label: 'polar angle $\\alpha$ (deg)', value: alphaDeg, format: 'float' },
+      { key: 'beta', label: 'equator span $\\beta$ (deg)', value: betaDeg, format: 'float' },
+      { key: 'holonomy', label: 'holonomy $\\theta$ (rad)', value: hol, format: 'float' },
+      { key: 'phase', label: 'transport progress', value: transportPhase, format: 'float' }
     ]
   };
 };
@@ -276,7 +289,7 @@ window.playground.getInvariants = function () {
   return [
     {
       key: 'gauss-bonnet',
-      label: 'Holonomy = solid angle',
+      label: 'holonomy $\\theta = \\iint K\\,dA$ equals the spherical excess (Gauss-Bonnet)',
       value: hol.toFixed(3),
       status: relError < 0.01 ? 'pass' : 'drift'
     }
