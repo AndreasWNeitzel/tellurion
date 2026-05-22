@@ -331,33 +331,28 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'obliquity-degrees', label: 'Axial tilt', value: st.obliquity || 23.5, format: 'float' },
+      { key: 'precession-period-years', label: 'Precession period', value: st.precessionPeriod || 25772, format: 'float' },
+      { key: 'nutation-amplitude-arcsec', label: 'Nutation amplitude', value: st.nutationAmplitude || 9.2, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check that obliquity remains near ~23.5 degrees (secular constraint).
+  const ob = st.obliquity || 23.5;
+  const deviation = Math.abs(ob - 23.5);
+  const status = deviation < 2 ? 'pass' : 'drift';
+  return [
+    {
+      key: 'obliquity-stability',
+      label: 'Obliquity deviation',
+      value: deviation.toFixed(2),
+      status: status
+    }
+  ];
+};
