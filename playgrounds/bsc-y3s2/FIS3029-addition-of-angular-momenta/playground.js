@@ -192,7 +192,7 @@ function render() {
   ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PX - 12, 60, W - PX - 8, 360);
   ctx.strokeStyle = 'rgba(226,232,240,0.12)'; ctx.strokeRect(PX - 11.5, 60.5, W - PX - 9, 359);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('click a J to select  (decomposition)', PX, 78);
+  ctx.fillText('click to select J', PX, 78);
   ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`${jLabel(j1)} (x) ${jLabel(j2)} =`, PX, 104);
   clickRegions.length = 0;
