@@ -7,7 +7,6 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 // (slack). The symmetric y = a cosh(x/a) - a API is kept for the tests.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   tension, solveCatenary2pt, sampleCatenary2pt, catenary2ptY,
 } from './sim.js';
@@ -21,11 +20,8 @@ const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
 const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const sliderA      = document.getElementById('slider-a');
-const sliderSpeed  = document.getElementById('slider-speed');
 const valueA       = document.getElementById('value-a');
-const valueSpeed   = document.getElementById('value-speed');
 const btnReset     = document.getElementById('btn-reset');
-const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
 
@@ -45,10 +41,6 @@ const state = {
   P2: { x:  1.6, y: 2.2 },
   L: 4.2,                  // cable length (slack); slider-controlled
   drag: null,              // 1 | 2 | null
-  sway: 0,
-  speed: parseInt(sliderSpeed.value, 10) || 2,   // was undefined -> NaN sway
-  playing: !(DETERMINISTIC || prefersReducedMotion()),
-  interacted: false,       // the idle sway stops after the first drag
 };
 
 // slider-a now controls cable length L (slack). Map its [0.4,3.0]-ish
@@ -60,15 +52,9 @@ sliderA.addEventListener('input', () => {
   valueA.textContent = state.L.toFixed(2);
   drawAll();
 });
-sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
 btnReset.addEventListener('click', () => {
   state.P1 = { x: -1.6, y: 2.2 }; state.P2 = { x: 1.6, y: 2.2 }; state.L = 4.2;
   sliderA.value = '0.60'; valueA.textContent = '4.20'; drawAll();
-});
-btnPlayPause.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-  btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
 });
 
 function pxToWorld(cx, cy) {
@@ -81,7 +67,6 @@ function pxToWorld(cx, cy) {
   };
 }
 canvas.addEventListener('pointerdown', (e) => {
-  state.interacted = true;
   const w = pxToWorld(e.clientX, e.clientY);
   const d1 = Math.hypot(w.x - state.P1.x, w.y - state.P1.y);
   const d2 = Math.hypot(w.x - state.P2.x, w.y - state.P2.y);
@@ -111,8 +96,7 @@ function drawAll() {
 
   const left  = state.P1.x <= state.P2.x ? state.P1 : state.P2;
   const right = state.P1.x <= state.P2.x ? state.P2 : state.P1;
-  const swayY = (state.playing && !state.interacted) ? 0.02 * Math.sin(state.sway) : 0;
-  const L1 = { x: left.x, y: left.y + swayY }, R1 = { x: right.x, y: right.y - swayY };
+  const L1 = { x: left.x, y: left.y }, R1 = { x: right.x, y: right.y };
   const sol = solveCatenary2pt(L1.x, L1.y, R1.x, R1.y, state.L);
 
   // Towers.
@@ -201,11 +185,6 @@ function drawAll() {
     30, 42);
 }
 
-function tick() {
-  if (state.playing) { state.sway += 0.03 * state.speed; drawAll(); }
-  requestAnimationFrame(tick);
-}
-
 function bootSync() {
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
@@ -229,9 +208,9 @@ function bootSync() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
 } else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  bootSync();
 }
 
 
