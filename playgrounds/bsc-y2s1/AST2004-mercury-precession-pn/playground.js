@@ -262,33 +262,41 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  if (!state.merc) {
+    return { fields: [{ key: 'init', label: 'Initializing', value: 'pending', format: undefined }] };
+  }
+  const diag = mercuryDiagnostics(state.merc);
+  return {
+    fields: [
+      { key: 'post-newtonian-strength', label: 'GR strength alpha', value: state.alpha, format: 'float' },
+      { key: 'eccentricity', label: 'Eccentricity e', value: state.e, format: 'float' },
+      { key: 'orbital-energy', label: 'Orbital energy E', value: diag.energy || 0, format: 'float' },
+      { key: 'angular-momentum', label: 'Angular momentum L', value: diag.angularMomentum || 0, format: 'float' },
+      { key: 'perihelion-passages', label: 'Perihelion count', value: state.perihelions.length, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.merc) {
+    return [{ key: 'state-init', label: 'Initializing', value: 'pending', status: 'pending' }];
+  }
+  const diag = mercuryDiagnostics(state.merc);
+  const E_drift = Math.abs(diag.energyDrift || 0);
+  return [
+    {
+      key: 'energy-conservation',
+      label: 'Relative energy drift',
+      value: E_drift.toExponential(2),
+      status: E_drift < 0.01 ? 'pass' : 'drift'
+    },
+    {
+      key: 'orbit-closure-PN',
+      label: 'Perihelion precession (GR)',
+      value: state.perihelions.length > 2 ? 'yes' : 'accumulating',
+      status: state.perihelions.length > 1 ? 'pending' : 'pending'
+    }
+  ];
+};
