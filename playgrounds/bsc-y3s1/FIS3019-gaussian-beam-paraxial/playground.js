@@ -130,7 +130,7 @@ function drawAll() {
   ctx.save();
   ctx.translate(PLOT_X - 18, PLOT_Y + PLOT_H / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('r (radial)', 0, 0);
+  ctx.fillText('r', 0, 0);
   ctx.restore();
 
   // Readout
