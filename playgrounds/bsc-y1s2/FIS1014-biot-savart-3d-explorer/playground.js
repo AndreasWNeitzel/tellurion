@@ -193,28 +193,29 @@ else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const currents = state.currents || [];
-  const probePos = state.probePos || [0, 0, 0];
-  const B = 0;
+  const nSegments = segs.length;
+  const B = biotSavart(segs, [0, 0, 0]);
+  const Bmag = Math.hypot(...B);
   return {
     fields: [
-      { key: 'n-segments', label: 'wire segments', value: currents.length, format: 'float' },
-      { key: 'probe-x', label: 'probe x', value: probePos[0], format: 'float' },
-      { key: 'b-field', label: 'B magnitude', value: B, format: 'float' }
+      { key: 'preset', label: 'geometry', value: st.preset, format: 'float' },
+      { key: 'I', label: 'current I (A)', value: st.I, format: 'float' },
+      { key: 'B-axis', label: '$|B|$ at origin (T)', value: Bmag, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const currents = state.currents || [];
-  if (currents.length === 0) {
+  if (segs.length === 0) {
     return [{ key: 'empty', label: 'no wire', value: 'pending', status: 'pending' }];
   }
+  const B = biotSavart(segs, [0, 0, 0]);
+  const Bmag = Math.hypot(...B);
   return [
     {
-      key: 'biot-savart',
-      label: 'Biot-Savart computed',
-      value: 'ready',
-      status: 'pass'
+      key: 'biot-savart-computed',
+      label: 'Biot-Savart field computed',
+      value: Bmag.toExponential(2),
+      status: Bmag > 0 ? 'pass' : 'drift'
     }
   ];
 };
