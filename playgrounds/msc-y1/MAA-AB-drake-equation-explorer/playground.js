@@ -144,7 +144,9 @@ function render() {
 
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('log10 N (number of detectable civilizations)', padL + plotW - 200, padT + plotH + 28);
+  const label = 'log10 N (detectable civilizations)';
+  const w = ctx.measureText(label).width;
+  ctx.fillText(label, Math.max(padL, Math.min(padL + plotW - 200, canvas.width - 4 - w)), padT + plotH + 28);
   ctx.fillText('Monte Carlo N = 2000, +/- 0.5 dex around each slider', padL + 8, padT + 14);
 }
 
