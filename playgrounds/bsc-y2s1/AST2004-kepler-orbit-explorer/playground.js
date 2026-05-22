@@ -250,11 +250,11 @@ function drawKeplerThirdLawInset() {
   ctx.font = fontString(canvas, 'tick');
   ctx.fillStyle = tokens.fgFaint;
   ctx.fillText('a^3 (AU^3)', KPL.x + KPL.w / 2, KPL.y + KPL.h + 26);
-  ctx.save();
-  ctx.translate(KPL.x - 36, KPL.y + KPL.h / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('T^2 / (4 pi^2) (yr^2)', 0, 0);
-  ctx.restore();
+  ctx.fillStyle = tokens.fgFaint;
+  ctx.font = fontString(canvas, 'tick');
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Period', KPL.x - 6, KPL.y + KPL.h / 2);
 }
 
 function drawLegendAndReadout() {
