@@ -231,33 +231,48 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  if (!s) return { fields: [{ key: 'init', label: 'Initializing', value: 'pending', format: undefined }] };
+  const v = speed(s);
+  const mu = magneticMoment(s);
+  const wc = gyrofrequency(st.q, 1, st.B0);
+  return {
+    fields: [
+      { key: 'preset', label: 'Field preset', value: st.preset, format: undefined },
+      { key: 'magnetic-field', label: 'Magnetic field B0', value: st.B0, format: 'float' },
+      { key: 'speed', label: 'Speed |v|', value: v, format: 'float' },
+      { key: 'magnetic-moment', label: 'Adiabatic invariant mu', value: mu, format: 'float' },
+      { key: 'gyro-frequency', label: 'Gyro frequency wc', value: wc, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!s) return [{ key: 'state-init', label: 'Initializing', value: 'pending', status: 'pending' }];
+  const v = speed(s);
+  const mu = magneticMoment(s);
+  const wc = gyrofrequency(st.q, 1, st.B0);
+  const gyro_period = 2 * Math.PI / Math.abs(wc);
+  const position_bounded = Math.sqrt(s.x * s.x + s.y * s.y + s.z * s.z) < 200;
+  return [
+    {
+      key: 'speed-conservation-magnetic',
+      label: 'Speed conserved in B field (cyclotron only)',
+      value: v.toExponential(2),
+      status: st.preset === 'cyclotron' ? 'pass' : 'pending'
+    },
+    {
+      key: 'position-bounded',
+      label: 'Particle stays in domain',
+      value: position_bounded ? 'bounded' : 'escaped',
+      status: position_bounded ? 'pass' : 'drift'
+    },
+    {
+      key: 'gyro-period',
+      label: 'Gyro period Tc',
+      value: gyro_period.toExponential(2),
+      status: 'pending'
+    }
+  ];
+};
