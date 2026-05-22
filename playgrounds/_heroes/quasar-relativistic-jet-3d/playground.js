@@ -287,7 +287,7 @@ function drawSidePanel() {
   // Pictograph: two bars.
   const barX = x0 + 16, barW = x1 - x0 - 32;
   const barH = 14;
-  const yJ = y + 6, yCj = y + 26;
+  const yJ = y + 6, yCj = yJ + barH + 18;
   ctx.fillStyle = 'rgba(180, 220, 255, 0.95)';
   const Fmax = Math.max(Math.pow(dp, FLUX_EXPONENT), Math.pow(dm, FLUX_EXPONENT));
   const wJ = barW * Math.pow(dp, FLUX_EXPONENT) / Math.max(1e-12, Fmax);
