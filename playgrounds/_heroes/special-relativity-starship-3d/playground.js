@@ -258,23 +258,22 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'velocity-c', label: 'Velocity (beta)', value: st.velocity || 0.5, format: 'float' },
-      { key: 'lorentz-factor', label: 'Lorentz factor', value: st.lorentzFactor || 1, format: 'float' },
-      { key: 'time-dilation-factor', label: 'Time dilation', value: st.timeDilation || 1, format: 'float' }
+      { key: 'velocity-beta', label: 'Velocity $\\beta = v/c$', value: ui.beta, format: 'float' },
+      { key: 'lorentz-factor', label: 'Lorentz factor $\\gamma$', value: gamma(ui.beta), format: 'float' },
+      { key: 'time-dilation-factor', label: 'Time dilation', value: properTime(1, ui.beta), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  // Check Lorentz factor definition.
-  const beta = st.velocity || 0.5;
-  const gamma = st.lorentzFactor || 1;
-  const expectedGamma = 1 / Math.sqrt(1 - beta * beta);
-  const error = Math.abs(gamma - expectedGamma) / expectedGamma;
+  // Check Lorentz factor definition: gamma = 1 / sqrt(1 - beta^2).
+  const g = gamma(ui.beta);
+  const expectedGamma = 1 / Math.sqrt(1 - ui.beta * ui.beta);
+  const error = Math.abs(g - expectedGamma);
   const status = error < 1e-9 ? 'pass' : 'drift';
   return [
     {
       key: 'relativity-identity',
-      label: 'Lorentz factor check',
+      label: 'Lorentz factor $1/\\sqrt{1-\\beta^2}$',
       value: error.toExponential(2),
       status: status
     }
