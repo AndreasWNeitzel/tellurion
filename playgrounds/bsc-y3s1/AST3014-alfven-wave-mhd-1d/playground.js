@@ -57,7 +57,7 @@ function render() {
   ctx.fillStyle = 'rgba(255,200,120,0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.save(); ctx.translate(x0 - 16, sceneTop + sceneH / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('coronal-base driver', -60, 0); ctx.restore();
+  ctx.textAlign = 'left'; ctx.fillText('driver', 4, 0); ctx.restore();
 
   // Magnetic field lines: equilibrium B0 along +x, each line transversely
   // kinked by b_y(x, t). The kink runs to the right at v_A.
@@ -121,7 +121,7 @@ function render() {
   ctx.fillStyle = 'rgba(91,192,235,0.9)';
   ctx.fillText('cyan = plasma v_y (frozen-in)', 46, sceneTop + sceneH + 18);
   ctx.fillStyle = 'rgba(255,200,120,0.9)';
-  ctx.fillText('orange = b_y; magnetic tension restores; Walen: v_y = -/+ b_y / sqrt(mu0 rho)', 250, sceneTop + sceneH + 18);
+  ctx.fillText('orange = b_y; magnetic tension; Walen: v_y = -/+ b_y', 250, sceneTop + sceneH + 18);
 
   // Quantitative strip: b_y(x) and v_y(x), showing the antiphase.
   const stripTop = sceneTop + sceneH + 30, stripH = H - stripTop - 24;
