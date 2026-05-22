@@ -5,7 +5,7 @@
 // spectrum P_s(k) ~ k^{n_s-1}. Gate-tested sim.js; deterministic.
 // Mukhanov; Baumann; Starobinsky 1980; Planck 2018.
 import {
-  POTENTIALS, epsilon, nsOf, rOf, phiEnd, phiAtN,
+  POTENTIALS, epsilon, nsOf, rOf, ntOf, phiEnd, phiAtN,
   scalarAmplitude, powerSpectrum, modeHistory,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
@@ -211,33 +211,29 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'potential', label: 'potential', value: st.pot, format: undefined },
+      { key: 'e-folds', label: 'e-folds (N)', value: st.N, format: 'float' },
+      { key: 'n-s', label: 'scalar index (n_s)', value: st.ns, format: 'float' },
+      { key: 'tensor-scalar', label: 'tensor/scalar ratio (r)', value: st.r, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const nt = ntOf(st.phi0, st.pot);
+  const rCheck = rOf(st.phi0, st.pot);
+  const ntFromR = -rCheck / 8;
+  const dnt = Math.abs(nt - ntFromR) / Math.max(1e-3, Math.abs(nt));
+  return [
+    {
+      key: 'consistency-relation',
+      label: 'tensor-scalar consistency',
+      value: dnt.toExponential(2),
+      status: dnt < 1e-10 ? 'pass' : 'drift',
+    },
+  ];
+};
