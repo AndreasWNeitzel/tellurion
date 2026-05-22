@@ -124,7 +124,7 @@ function render() {
   ctx.strokeStyle = 'rgba(200,205,215,0.45)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.4;
   ctx.strokeRect(ghostX, trackY - 22, Lpx, 44); ctx.setLineDash([]); ctx.lineWidth = 1;
   ctx.fillStyle = 'rgba(160,165,180,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`rest length L0 = ${L0_REST.toFixed(2)}`, ghostX + 6, trackY - 26);
+  ctx.fillText(`L0 = ${L0_REST.toFixed(2)}`, 28, trackY - 26);
 
   const grad = ctx.createLinearGradient(rodX, 0, rodX + Lc, 0);
   if (dir > 0) { grad.addColorStop(0, '#3a86b5'); grad.addColorStop(0.6, '#7fd6ff'); grad.addColorStop(1, '#c6ecff'); }
@@ -142,7 +142,7 @@ function render() {
   ctx.beginPath();
   ctx.moveTo(ax + dir * 14, trackY); ctx.lineTo(ax, trackY - 8); ctx.lineTo(ax, trackY + 8); ctx.closePath(); ctx.fill();
   ctx.fillStyle = 'rgba(190,200,220,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`L = L0 / gamma = ${cf.toFixed(2)}`, rodX + 6, trackY + 32);
+  ctx.fillText(`L = ${cf.toFixed(2)}`, 28, trackY + 32);
 
   ctx.fillStyle = '#ffd24a'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'right';
   ctx.fillText(`v / c = ${st.beta.toFixed(2)}    gamma = ${g.toFixed(3)}`, SX + SW - 14, SY + 20);
@@ -201,7 +201,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255,210,90,0.65)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
   ctx.beginPath(); ctx.moveTo(mxf(-st.L), mtf(st.L)); ctx.lineTo(mxf(st.L), mtf(-st.L)); ctx.moveTo(mxf(st.L), mtf(st.L)); ctx.lineTo(mxf(-st.L), mtf(-st.L)); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255,210,90,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('light cone (v = c)', mxf(st.L * 0.5), mtf(st.L * 0.55));
+  ctx.fillText('light cone', mxf(st.L * 0.5), mtf(st.L * 0.55));
   // Worldlines grow with the trip so both twins' histories are seen
   // evolving. Faint guides show the full round trip; the bright
   // segments trace only up to the current home-frame time.
