@@ -241,33 +241,49 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const qm = state.qm || 1;
+  const B = state.B || 1;
+  const v = state.v || 1;
+  const omega_c = qm * B;
+  const T_c = 2 * Math.PI / omega_c;
+  const r_cyc = v / omega_c;
+  return {
+    fields: [
+      { key: 'qm-ratio', label: 'q/m', value: qm, format: 'float' },
+      { key: 'b-field', label: 'B field', value: B, format: 'float' },
+      { key: 'velocity', label: 'v', value: v, format: 'float' },
+      { key: 'period', label: 'T_c', value: T_c, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const qm = state.qm || 1;
+  const B = state.B || 1;
+  const v = state.v || 1;
+  const omega_c = qm * B;
+  const T_c = 2 * Math.PI / omega_c;
+  const r_cyc = v / omega_c;
+  const traj = state.trajectory || [];
+  if (traj.length < 2) {
+    return [{ key: 'init', label: 'computing', value: 'pending', status: 'pending' }];
+  }
+  let distSq = 0, count = 0;
+  for (let i = 0; i < Math.min(traj.length, 100); i++) {
+    const x = traj[i].x, y = traj[i].y;
+    distSq += x * x + y * y;
+    count++;
+  }
+  const meanR = Math.sqrt(distSq / count);
+  const ratioDrift = Math.abs(meanR - r_cyc) / (r_cyc + 1e-6);
+  return [
+    {
+      key: 'radius',
+      label: 'cyclotron radius r = v/omega_c',
+      value: ratioDrift.toExponential(2),
+      status: ratioDrift < 0.05 ? 'pass' : 'drift'
+    }
+  ];
+};
