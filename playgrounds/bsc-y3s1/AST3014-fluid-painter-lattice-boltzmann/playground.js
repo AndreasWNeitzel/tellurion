@@ -203,33 +203,37 @@ window.__physicsCheck = async () => {
 };
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const rho_avg = fluidMass(s) / (s.NX * s.NY);
+  return {
+    fields: [
+      { key: 'inlet-velocity', label: 'Inlet velocity uIn', value: s.uIn, format: 'float' },
+      { key: 'relaxation-tau', label: 'Relaxation time tau', value: s.tau, format: 'float' },
+      { key: 'grid-x', label: 'Grid NX', value: s.NX, format: 'float' },
+      { key: 'grid-y', label: 'Grid NY', value: s.NY, format: 'float' },
+      { key: 'average-density', label: 'Average density rho', value: rho_avg, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const rho_total = fluidMass(s);
+  const rho_expected = s.NX * s.NY;
+  const rho_drift = Math.abs(rho_total - rho_expected) / rho_expected;
+  const viscosity = (s.tau - 0.5) / 3;
+  return [
+    {
+      key: 'mass-conservation',
+      label: 'Mass conserved (rho total)',
+      value: rho_drift.toExponential(2),
+      status: rho_drift < 0.05 ? 'pass' : 'drift'
+    },
+    {
+      key: 'stability-criterion',
+      label: 'Stability tau > 0.5 (viscosity > 0)',
+      value: viscosity > 0 ? 'stable' : 'unstable',
+      status: s.tau > 0.5 ? 'pass' : 'drift'
+    }
+  ];
+};
