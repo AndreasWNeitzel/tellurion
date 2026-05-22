@@ -429,33 +429,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const orbit = iterateOrbit(state.r, state.x0, COBWEB_STEPS);
+  const finalX = orbit.length > 0 ? orbit[orbit.length - 1] : state.x0;
+  return {
+    fields: [
+      { key: 'parameter-r', label: 'Parameter r', value: state.r, format: 'float' },
+      { key: 'initial-x0', label: 'Initial condition x0', value: state.x0, format: 'float' },
+      { key: 'period-detected', label: 'Detected period', value: state.period, format: undefined },
+      { key: 'lyapunov-exponent', label: 'Lyapunov exponent', value: state.lambda, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const x_bounded = state.x0 >= 0 && state.x0 <= 1;
+  const r_valid = state.r >= BIF.rmin && state.r <= BIF.rmax;
+  const orbit = iterateOrbit(state.r, state.x0, COBWEB_STEPS);
+  const final_x = orbit.length > 0 ? orbit[orbit.length - 1] : state.x0;
+  const orbit_in_bounds = final_x >= 0 && final_x <= 1;
+  const status = x_bounded && r_valid && orbit_in_bounds ? 'pass' : 'drift';
+  return [
+    {
+      key: 'logistic-bounds',
+      label: 'Orbit in [0,1]',
+      value: orbit_in_bounds ? 'pass' : final_x.toFixed(4),
+      status: status
+    }
+  ];
+};
