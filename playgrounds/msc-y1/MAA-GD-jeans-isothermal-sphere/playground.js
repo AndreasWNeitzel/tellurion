@@ -75,7 +75,7 @@ function drawHalo() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('rho ~ 1/r^2 halo; stars orbit at constant v_c (spoke winds up)', SCENE_CX, SCENE_CY + SCENE_R + 22);
+  ctx.fillText('rho ~ 1/r^2; circular orbits at constant v_c', SCENE_CX, SCENE_CY + SCENE_R + 22);
 }
 
 function drawGraphs() {
