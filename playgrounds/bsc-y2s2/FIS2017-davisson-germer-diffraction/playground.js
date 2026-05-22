@@ -252,13 +252,26 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const lam = electronWavelengthNm(V);
+  const th1 = braggAngleRad(lam, D_NI_NM, 1);
   return {
     fields: [
-      { key: 'E', label: 'Electron energy', value: st.E || 0, format: 'float' },
-      { key: 'd', label: 'Crystal spacing d', value: st.d || 0, format: 'float' }
+      { key: 'voltage', label: 'Electron energy (V)', value: V, format: 'float' },
+      { key: 'wavelength', label: 'Wavelength ($\\mathrm{nm}$)', value: lam, format: 'float' },
+      { key: 'crystal-rows', label: 'Crystal rows $N$', value: N, format: 'int' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  return [{ key: 'bragg-condition', label: 'nλ = 2d sin(θ)', value: 'pass', status: 'pass' }];
+  const lam = electronWavelengthNm(V);
+  const th1 = braggAngleRad(lam, D_NI_NM, 1);
+  const braggSatisfied = Number.isFinite(th1) && th1 > 0;
+  return [
+    {
+      key: 'bragg-condition',
+      label: '$n\\lambda = 2d\\sin(\\theta)$ for $n=1$ exists',
+      value: braggSatisfied ? 'yes' : 'no',
+      status: braggSatisfied ? 'pass' : 'pending'
+    }
+  ];
 };
