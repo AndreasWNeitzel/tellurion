@@ -40,10 +40,11 @@
       <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Two great circles converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Two nearby geodesics and their separation on a selectable surface: converging on the sphere, parallel on the plane, diverging on the saddle. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">Surface</span><select aria-label="Surface" id="select-surface"><option value="sphere">Sphere</option><option value="plane">Plane</option><option value="saddle">Saddle</option></select></div>
 <div class="row"><span class="label">Δφ (init)</span><input aria-label="Δφ (init)" type="range" id="slider-d" min="0.05" max="1.5" step="0.01" value="0.3"><span class="value" id="value-d">0.30</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
@@ -53,8 +54,8 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch between the sphere, plane, and saddle and watch whether the separation shrinks, holds, or grows.</li>
+        <li class="t-body">Drag the canvas to rotate; vary the initial separation and compare against the diagnostic plot.</li>
       </ul>
     </section>
 
