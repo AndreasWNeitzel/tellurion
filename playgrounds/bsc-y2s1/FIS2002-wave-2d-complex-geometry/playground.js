@@ -97,7 +97,8 @@ function render() {
   ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('|u|', PX + PW / 2, PY + PH + 14);
-  ctx.save(); ctx.translate(PX - 7, PY + PH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('screen y', 0, 0); ctx.restore();
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('screen y', PX - 6, PY + PH / 2);
   ctx.textAlign = 'left';
 
   rEls['preset'].textContent = st.preset;
