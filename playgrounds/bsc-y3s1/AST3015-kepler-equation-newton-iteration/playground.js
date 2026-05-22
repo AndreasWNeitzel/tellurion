@@ -160,7 +160,8 @@ function drawConvergence(c, x0, y_off, w, h) {
 
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('iteration', x0 + padL + plotW - 48, y_off + padT + plotH + 28);
+  ctx.textAlign = 'left';
+  ctx.fillText('iter', x0 + padL + plotW - 48, y_off + padT + plotH + 28);
   ctx.save(); ctx.translate(x0 + 16, y_off + padT + plotH / 2 + 30); ctx.rotate(-Math.PI / 2);
   ctx.fillText('|E_n - E_inf|', 0, 0); ctx.restore();
   ctx.fillStyle = c.accent;
