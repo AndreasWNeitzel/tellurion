@@ -289,11 +289,20 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'freq_x', label: 'X frequency', value: st.fx || 0, format: 'float' },
-      { key: 'freq_y', label: 'Y frequency', value: st.fy || 0, format: 'float' }
-    ]
+      { key: 'freq-x', label: 'x frequency $a$', value: state.a, format: 'float' },
+      { key: 'freq-y', label: 'y frequency $b$', value: state.b, format: 'float' },
+      { key: 'phase', label: 'phase offset $\\delta$ (rad)', value: state.delta, format: 'float' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
-  return [{ key: 'phase-relation', label: 'Phase relation locked', value: 'pass', status: 'pass' }];
+  // A Lissajous figure traces a closed curve exactly when the frequency
+  // ratio a/b is rational; with integer a and b it always closes.
+  const rational = Number.isInteger(state.a) && Number.isInteger(state.b);
+  return [{
+    key: 'closed-curve',
+    label: 'closed curve when the ratio $a/b$ is rational',
+    value: rational ? 'a/b rational' : 'a/b irrational',
+    status: rational ? 'pass' : 'pending',
+  }];
 };
