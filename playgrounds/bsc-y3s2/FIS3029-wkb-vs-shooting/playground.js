@@ -222,7 +222,7 @@ window.playground.getInvariants = function () {
   const potFn = POTENTIALS.power(state.p);
   const eMax = Math.max(8, state.nMax + 2);
   const bs = bohrSommerfeldLadder(potFn, state.nMax, eMax + 5);
-  const ex = (Math.abs(state.p - 2) < 0.01) ? EXACT_LEVELS[2].slice(0, state.nMax) : (Math.abs(state.p - 4) < 0.01) ? EXACT_LEVELS[4].slice(0, state.nMax) : null;
+  const ex = (Math.abs(state.p - 2) < 0.01) ? new Array(state.nMax).fill(null).map((_, n) => EXACT_LEVELS[2](n)) : (Math.abs(state.p - 4) < 0.01) ? EXACT_LEVELS[4].slice(0, state.nMax) : null;
   if (ex !== null) {
     const relErr0 = Math.abs((bs[0] - ex[0]) / ex[0]);
     inv.push({
