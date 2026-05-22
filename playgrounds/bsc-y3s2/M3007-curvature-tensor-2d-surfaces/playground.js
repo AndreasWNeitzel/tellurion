@@ -137,11 +137,31 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const R = 100, r = 100 / st.Rr;
   return { fields: [
-    { key: 'surface-type', label: 'surface', value: state.surface || 'sphere', format: 'string' },
-    { key: 'gaussian-curv', label: 'Gaussian curvature', value: state.K ? state.K.toFixed(3) : '0', format: 'string' },
+    { key: 'aspect', label: 'aspect ratio $R/r$', value: st.Rr, format: 'float' },
+    { key: 'k-outer', label: 'outer-equator curvature $K(0)$', value: torusK(0, R, r), format: 'float' },
+    { key: 'k-inner', label: 'inner-equator curvature $K(\\pi)$', value: torusK(Math.PI, R, r), format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  return [ { key: 'dims-valid', label: 'geometry defined', value: state.surface ? 'pass' : 'drift', status: state.surface ? 'pass' : 'drift' } ];
+  const R = 100, r = 100 / st.Rr;
+  // Gauss-Bonnet: the integral of K over a closed surface is 2 pi times
+  // its Euler characteristic. The torus has chi = 0, so the total
+  // Gaussian curvature must vanish (the positive outer rim exactly
+  // cancels the negative inner rim).
+  const N = 240;
+  let integral = 0;
+  for (let i = 0; i < N; i += 1) {
+    const theta = ((i + 0.5) / N) * 2 * Math.PI;
+    const dA = r * (R + r * Math.cos(theta)) * (2 * Math.PI / N) * (2 * Math.PI);
+    integral += torusK(theta, R, r) * dA;
+  }
+  const drift = Math.abs(integral) / (4 * Math.PI * Math.PI * R * r);
+  return [{
+    key: 'gauss-bonnet',
+    label: 'total curvature $\\iint K\\,dA = 0$ on the torus (Gauss-Bonnet, $\\chi = 0$)',
+    value: drift.toExponential(2),
+    status: drift < 1e-6 ? 'pass' : (drift < 1e-3 ? 'pending' : 'drift'),
+  }];
 };
