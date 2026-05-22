@@ -65,8 +65,8 @@ function drawScattering(SX, SY, SW, SH) {
 
   // Pre-collision incoming particles
   if (phase < 0.55) {
-    drawParticle(x1, cy, 12, '#5bc0eb', `m1 = ${st.m1.toFixed(2)} GeV`);
-    drawParticle(x2, cy, 12, '#ffd166', st.geom === 'fixed' ? `m2 = ${st.m2.toFixed(2)} GeV (target)` : `m2 = ${st.m2.toFixed(2)} GeV`);
+    drawParticle(x1, cy, 12, '#5bc0eb', `m1 = ${st.m1.toFixed(2)}`);
+    drawParticle(x2, cy, 12, '#ffd166', st.geom === 'fixed' ? `m2 = ${st.m2.toFixed(2)} (tgt)` : `m2 = ${st.m2.toFixed(2)}`);
     // Trailing motion streaks
     const t1 = st.geom === 'fixed' ? '+' : '+';
     drawStreak(x1 - 8, cy, '#5bc0eb', -1);
