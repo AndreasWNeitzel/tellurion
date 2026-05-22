@@ -302,25 +302,25 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const v0 = parseFloat(sliderV0?.value || '0');
-  const h = parseFloat(sliderH?.value || '1');
+  if (!userTable) rebuildUserTable();
   return {
     fields: [
-      { key: 'height', label: 'height h (m)', value: h, format: 'float' },
-      { key: 'release-speed', label: 'v0 (m/s)', value: v0, format: 'float' },
-      { key: 'grav-speed', label: 'v_grav', value: Math.sqrt(2 * 9.81 * h), format: 'float' }
+      { key: 'elapsed-time', label: 'Elapsed time t (s)', value: state.tNow, format: 'float' },
+      { key: 'speed', label: 'Animation speed', value: state.speed, format: 'float' },
+      { key: 'user-descent-time', label: 'User curve descent time', value: userTable ? userTable.T : 0, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const h = parseFloat(sliderH?.value || '1');
-  const vFinal = Math.sqrt(2 * 9.81 * h);
+  if (!userTable) rebuildUserTable();
+  const userT = userTable ? userTable.T : 0;
+  const isOptimal = userT <= T_CYCLOID + 1e-3;
   return [
     {
-      key: 'energy',
-      label: 'energy conserved (v_final)',
-      value: vFinal.toFixed(2),
-      status: 'pass'
+      key: 'descent-time',
+      label: 'User time vs brachistochrone $T_{user}/T_{opt}$',
+      value: userT > 0 ? (userT / T_CYCLOID).toFixed(3) : 'pending',
+      status: isOptimal ? 'pass' : 'drift'
     }
   ];
 };
