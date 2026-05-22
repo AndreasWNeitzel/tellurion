@@ -154,33 +154,53 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the restitution, mass ratio, live kinetic energy and
+// collision phase. The invariants check that total momentum is
+// conserved through the collision (it must be, for any e), and that
+// kinetic energy is conserved for an elastic collision while never
+// increasing for an inelastic one.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const ke = 0.5 * st.m1 * (v1[0] ** 2 + v1[1] ** 2) + 0.5 * st.m2 * (v2[0] ** 2 + v2[1] ** 2);
+  return {
+    fields: [
+      { key: 'restitution', label: 'restitution e', value: st.e, format: 'float' },
+      { key: 'm-ratio', label: 'mass ratio m1/m2', value: st.m1 / st.m2, format: 'float' },
+      { key: 'ke', label: 'total kinetic energy', value: ke, format: 'float' },
+      { key: 'phase', label: 'phase', value: collided ? 'after collision' : 'approaching' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Disk 2 starts at rest, so the initial momentum is purely m1 u1 x.
+  const p0x = st.m1 * Math.max(0.3, st.u1);
+  const px = st.m1 * v1[0] + st.m2 * v2[0];
+  const py = st.m1 * v1[1] + st.m2 * v2[1];
+  const pDrift = Math.hypot(px - p0x, py) / Math.max(1e-9, Math.abs(p0x));
+  const ke = 0.5 * st.m1 * (v1[0] ** 2 + v1[1] ** 2) + 0.5 * st.m2 * (v2[0] ** 2 + v2[1] ** 2);
+  const ke0 = KE0();
+  const out = [{
+    key: 'momentum',
+    label: 'total momentum conserved',
+    value: pDrift.toExponential(2),
+    status: pDrift < 2e-3 ? 'pass' : (pDrift < 2e-2 ? 'pending' : 'drift'),
+  }];
+  if (st.e >= 0.999) {
+    const keDrift = Math.abs(ke - ke0) / Math.max(1e-9, ke0);
+    out.push({
+      key: 'energy',
+      label: 'kinetic energy conserved (elastic)',
+      value: keDrift.toExponential(2),
+      status: keDrift < 5e-3 ? 'pass' : (keDrift < 5e-2 ? 'pending' : 'drift'),
+    });
+  } else {
+    out.push({
+      key: 'energy',
+      label: 'kinetic energy never increases (inelastic)',
+      value: `${Math.round((100 * ke) / Math.max(1e-9, ke0))}% of initial`,
+      status: ke <= ke0 * 1.002 ? 'pass' : 'drift',
+    });
+  }
+  return out;
+};
