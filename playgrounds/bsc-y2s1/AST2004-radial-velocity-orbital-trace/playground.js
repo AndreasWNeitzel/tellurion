@@ -93,33 +93,37 @@ function bootSync() { st.phi = CAPTURE_FRAC; render(); if (DETERMINISTIC) reques
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the orbit's semi-major axis, eccentricity, period and
+// RV semi-amplitude. The invariant checks that the radial-velocity
+// curve averages to zero over a full period: phase is uniform in the
+// mean anomaly (hence in time), and the orbital RV about the centre-
+// of-mass must have zero time-mean. This cross-checks the Kepler
+// solver and true-anomaly chain.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const sin_i = Math.sin(st.i * Math.PI / 180);
+  return {
+    fields: [
+      { key: 'semi-major', label: 'semi-major axis a (AU)', value: st.a, format: 'float' },
+      { key: 'eccentricity', label: 'eccentricity e', value: st.e, format: 'float' },
+      { key: 'period', label: 'period P (yr)', value: st.p, format: 'float' },
+      { key: 'semi-amplitude', label: 'RV semi-amplitude K (km/s)', value: semiAmplitudeKMs(st.a, st.p, st.e, sin_i), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const omega = st.w * Math.PI / 180;
+  const sin_i = Math.sin(st.i * Math.PI / 180);
+  const K = semiAmplitudeKMs(st.a, st.p, st.e, sin_i);
+  const N = 720;
+  let sum = 0;
+  for (let i = 0; i < N; i += 1) sum += radialVelocityKMs(i / N, K, omega, st.e);
+  const drift = Math.abs(sum / N) / Math.max(1e-6, Math.abs(K));
+  return [{
+    key: 'rv-mean',
+    label: 'radial-velocity curve averages to zero over a period',
+    value: drift.toExponential(2),
+    status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+  }];
+};
