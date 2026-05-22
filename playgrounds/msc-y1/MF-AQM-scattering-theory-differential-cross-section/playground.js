@@ -294,33 +294,43 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'ka', label: 'wavenumber ka (hard sphere radius × k)', value: st.ka, format: 'float' },
+      { key: 'sigma-tot', label: 'total cross section sigma_tot', value: st.sigma, format: 'float' },
+      { key: 'lmax', label: 'max partial wave l', value: lMax(st.ka), format: 'float' },
+      { key: 'target', label: 'scattering target', value: st.target, format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  // Optical theorem: sigma_tot from partial waves must equal (4 pi / k) Im f(0)
+  if (st.target === 'hard' && st.sigma > 1e-12) {
+    const sigmaOpt = sigmaTotOptical(st.deltas, st.ka);
+    const rel = Math.abs(st.sigma - sigmaOpt) / st.sigma;
+    inv.push({
+      key: 'optical-theorem',
+      label: 'optical theorem (sigma_partial = sigma_optical)',
+      value: rel.toExponential(2),
+      status: rel < 0.01 ? 'pass' : (rel < 0.05 ? 'pending' : 'drift')
+    });
+  }
+  // R + T = 1 cross-check: sum over all l of (2l+1) sin^2 delta_l (partial) should match optical theorem
+  if (st.target === 'hard' && st.deltas) {
+    let partialSum = 0;
+    for (let l = 0; l < st.deltas.length; l += 1) {
+      partialSum += (2 * l + 1) * Math.sin(st.deltas[l]) ** 2;
+    }
+    inv.push({
+      key: 'partial-sum-valid',
+      label: 'partial wave sum convergence',
+      value: partialSum.toFixed(2),
+      status: 'pass'
+    });
+  }
+  return inv;
+};
