@@ -425,7 +425,7 @@ function drawCMBMode(cam) {
 // =========================================================================
 function drawInflationMode() {
   // Left half: V(phi) with inflaton trajectory.
-  const lpx = 0.06 * W, lpy = 50, lpw = 0.42 * W, lph = H - 130;
+  const lpx = 0.06 * W, lpy = 50, lpw = 0.31 * W, lph = H - 130;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.92)';
   ctx.fillRect(lpx, lpy, lpw, lph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
@@ -433,7 +433,7 @@ function drawInflationMode() {
   ctx.strokeRect(lpx + 0.5, lpy + 0.5, lpw - 1, lph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText(`inflaton potential V(phi): ${POTENTIALS[st.pot].label}`, lpx + 8, lpy - 6);
+  ctx.fillText(`V(phi): ${POTENTIALS[st.pot].label}`, lpx + 8, lpy - 6);
 
   // Plot V(phi).
   const pot = POTENTIALS[st.pot];
@@ -482,14 +482,14 @@ function drawInflationMode() {
   ctx.fillText('V', lpx + 8, lpy + 18);
 
   // Right half: (n_s, r) plane with Planck box.
-  const rpx = 0.52 * W, rpy = 50, rpw = 0.42 * W, rph = H - 130;
+  const rpx = 0.41 * W, rpy = 50, rpw = 0.31 * W, rph = H - 130;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.92)';
   ctx.fillRect(rpx, rpy, rpw, rph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.strokeRect(rpx + 0.5, rpy + 0.5, rpw - 1, rph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('(n_s, r) plane with Planck 2018 2-sigma box', rpx + 8, rpy - 6);
+  ctx.fillText('(n_s, r) plane, Planck 2018 box', rpx + 8, rpy - 6);
   // Axes: n_s in [0.9, 1.05], r in [0, 0.3].
   const N_MIN = 0.92, N_MAX = 1.02, R_MIN = 0, R_MAX = 0.30;
   function xForN(n) { return rpx + 40 + (n - N_MIN) / (N_MAX - N_MIN) * (rpw - 60); }
