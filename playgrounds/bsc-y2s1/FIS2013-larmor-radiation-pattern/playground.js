@@ -6,7 +6,7 @@
 // along the acceleration axis). Views: field / polar lobe / 3D torus.
 // sim.js (dP/dOmega, Larmor P, integral) is unchanged.
 
-import { dPdOmega, Ptotal } from './sim.js';
+import { dPdOmega, Ptotal, integratedPower } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -190,33 +190,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the peak acceleration, the total Larmor power and the
+// peak dP/dOmega. The invariant checks that the sin^2(theta) angular
+// pattern integrated over the full solid angle reproduces the
+// closed-form Larmor power q^2 a^2 / (6 pi eps0 c^3).
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const a = 1e10 * st.amp;
+  return {
+    fields: [
+      { key: 'acceleration', label: 'peak acceleration (m/s^2)', value: a, format: 'float' },
+      { key: 'total-power', label: 'Larmor power (W)', value: Ptotal(a), format: 'float' },
+      { key: 'peak-dpdomega', label: 'peak dP/dOmega (W/sr)', value: dPdOmega(Math.PI / 2, a), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const a = 1e10 * st.amp;
+  const numeric = integratedPower(a);
+  const closed = Ptotal(a);
+  const drift = Math.abs(numeric - closed) / Math.max(1e-30, closed);
+  return [{
+    key: 'larmor',
+    label: 'angular pattern integrates to the Larmor power',
+    value: drift.toExponential(2),
+    status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+  }];
+};
