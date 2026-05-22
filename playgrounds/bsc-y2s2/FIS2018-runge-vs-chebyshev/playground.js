@@ -231,33 +231,32 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the polynomial degree and the equispaced and
+// Chebyshev sup-norm errors at that degree. The invariant is the
+// Runge phenomenon itself: at high degree, equispaced interpolation
+// of the Runge function blows up while Chebyshev nodes keep the
+// error controlled, so the equispaced/Chebyshev error ratio >> 1.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const n = state.n;
+  return {
+    fields: [
+      { key: 'degree', label: 'polynomial degree n', value: String(n) },
+      { key: 'equi-error', label: 'equispaced max error', value: maxError(buildInterp(equispacedNodes(n), rungeFn), rungeFn), format: 'float' },
+      { key: 'cheb-error', label: 'Chebyshev max error', value: maxError(buildInterp(chebyshevNodes(n), rungeFn), rungeFn), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const N = 24;
+  const eqErr = maxError(buildInterp(equispacedNodes(N), rungeFn), rungeFn);
+  const chErr = maxError(buildInterp(chebyshevNodes(N), rungeFn), rungeFn);
+  const ratio = eqErr / Math.max(1e-12, chErr);
+  return [{
+    key: 'runge',
+    label: 'Chebyshev nodes tame the Runge phenomenon (degree 24)',
+    value: `equi/cheb error = ${ratio.toExponential(1)}`,
+    status: ratio > 1 ? 'pass' : 'drift',
+  }];
+};
