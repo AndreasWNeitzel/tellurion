@@ -225,33 +225,67 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the orbit angular momentum, the particle type, and
+// the relevant circular-orbit radius. The invariant verifies that
+// the analytic circular-orbit radii are genuine extrema of V_eff
+// (a numerical check that the turning-point formula matches the
+// potential), and that the stable massive orbit never sinks below
+// the ISCO at r = 6M.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
+window.playground.getState = function () {
+  const fields = [
+    { key: 'L', label: 'angular momentum L', value: state.L, format: 'float' },
+    { key: 'particle', label: 'particle', value: state.mode === 0 ? 'massive' : 'photon' },
+  ];
+  if (state.mode === 0) {
+    const tps = turningPoints(state.L);
+    fields.push({
+      key: 'r-stable', label: 'stable circular orbit',
+      value: tps.length ? `${Math.max(...tps).toFixed(2)} M` : 'none (L < L_ISCO)',
     });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  } else {
+    fields.push({ key: 'r-photon', label: 'photon sphere', value: `${PHOTON_SPHERE.toFixed(1)} M` });
+  }
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  const h = 1e-3, L = state.L;
+  if (state.mode === 1) {
+    const slope = Math.abs((veffPhoton(PHOTON_SPHERE + h, L) - veffPhoton(PHOTON_SPHERE - h, L)) / (2 * h));
+    return [{
+      key: 'photon-sphere',
+      label: 'dV/dr = 0 at the photon sphere (r = 3M)',
+      value: slope.toExponential(2),
+      status: slope < 2e-3 ? 'pass' : 'drift',
+    }];
+  }
+  const tps = turningPoints(L);
+  if (!tps.length) {
+    return [{
+      key: 'circular-orbit',
+      label: 'massive circular orbits',
+      value: 'none: L < L_ISCO = 2 sqrt(3) M',
+      status: 'pending',
+    }];
+  }
+  let maxSlope = 0;
+  for (const r of tps) {
+    maxSlope = Math.max(maxSlope, Math.abs((veffMassive(r + h, L) - veffMassive(r - h, L)) / (2 * h)));
+  }
+  const rStable = Math.max(...tps);
+  return [
+    {
+      key: 'extremum',
+      label: 'dV/dr = 0 at the circular-orbit radii',
+      value: maxSlope.toExponential(2),
+      status: maxSlope < 2e-3 ? 'pass' : (maxSlope < 2e-2 ? 'pending' : 'drift'),
+    },
+    {
+      key: 'isco',
+      label: 'stable circular orbit r >= 6M',
+      value: `${rStable.toFixed(2)} M`,
+      status: rStable >= ISCO - 1e-3 ? 'pass' : 'drift',
+    },
+  ];
+};
