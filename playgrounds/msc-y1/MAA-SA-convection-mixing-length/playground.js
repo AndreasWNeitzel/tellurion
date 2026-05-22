@@ -15,7 +15,7 @@
 // Evolution, 2nd ed., Ch. 6-7; Hansen and Kawaler, Stellar Interiors,
 // Ch. 5.
 
-import { schwarzschild, vConv } from './sim.js';
+import { schwarzschild, vConv, HpScale } from './sim.js';
 import { makeRng } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -222,33 +222,29 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const vc = st.dnabla > 0 ? vConv(1e3, st.dnabla * 1e6, 1e7, st.alpha * 1e8) : 0;
+  return {
+    fields: [
+      { key: 'dnabla', label: 'superadiabatic excess', value: st.dnabla, format: 'float' },
+      { key: 'alpha', label: 'mixing-length ratio', value: st.alpha, format: 'float' },
+      { key: 'v-conv', label: 'convective speed (m/s)', value: vc, format: 'float' },
+      { key: 'schwarzschild', label: 'regime', value: schwarzschild(0.5 + st.dnabla, 0.5), format: undefined },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const regime = schwarzschild(0.5 + st.dnabla, 0.5);
+  const expected = st.dnabla > 0 ? 'convective' : 'radiative';
+  const match = regime === expected;
+  return [
+    {
+      key: 'schwarzschild-criterion',
+      label: 'Schwarzschild criterion hold',
+      value: regime,
+      status: match ? 'pass' : 'drift',
+    },
+  ];
+};
