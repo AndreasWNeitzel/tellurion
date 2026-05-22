@@ -215,33 +215,29 @@ if (document.readyState === 'loading') {
 } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'parameter-a', label: 'Parameter a', value: state.params.a, format: 'float' },
+      { key: 'parameter-b', label: 'Parameter b', value: state.params.b, format: 'float' },
+      { key: 'position-x', label: 'Current x', value: state.current.x, format: 'float' },
+      { key: 'position-y', label: 'Current y', value: state.current.y, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const x = state.current.x;
+  const y = state.current.y;
+  const attractor_bounded = Math.abs(x) <= 2.0 && Math.abs(y) <= 0.6;
+  const status = attractor_bounded ? 'pass' : 'drift';
+  return [
+    {
+      key: 'attractor-bounded',
+      label: 'Orbit bounded (strange attractor)',
+      value: attractor_bounded ? 'pass' : `x=${x.toFixed(3)}`,
+      status: status
+    }
+  ];
+};
