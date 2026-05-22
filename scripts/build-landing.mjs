@@ -49,7 +49,7 @@ function curOf(cy) {
 // real domain later. No github.com / github.io strings anywhere.
 const RESEARCH_URL = '#';
 const LINKEDIN_URL = '#';
-const CONTACT_EMAIL = 'andreaswneitzel@astro.up.pt';
+const CONTACT_EMAIL = 'andreaswneitzel@gmail.com';
 const BETA_TESTERS = [
   // { name: "...", institution: "..." }
 ];
@@ -693,7 +693,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   </div>
   <div class="corrections" id="corrections">
     <h3>Corrections</h3>
-    <p class="corrections-body">This page lists corrections made to the site, with credit to those who reported them. Reports can be sent to <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>. Substantive corrections are credited here; minor fixes (typos, formatting) are merged silently.</p>
+    <p class="corrections-body">This page lists corrections made to the site, with credit to those who reported them. Reports can be sent to <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
     <p class="corrections-empty">No corrections yet. Be the first.</p>
   </div>
   <div class="credits-ver">v${PKG_VERSION} &middot; Built ${BUILD_DATE} &middot; ${cards.length} simulations</div>
