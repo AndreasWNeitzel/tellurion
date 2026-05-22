@@ -275,33 +275,45 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const fam = family;
+  const xs = gridX(fam);
+  const p = pdf(fam, params, xs);
+  const h_analytic = analyticEntropy(fam, params);
+  return {
+    fields: [
+      { key: 'distribution-family', label: 'maxent family', value: fam, format: undefined },
+      { key: 'sample-count', label: 'samples collected', value: samples.length, format: 'float' },
+      { key: 'entropy-analytic', label: 'differential entropy H (nats)', value: h_analytic, format: 'float' },
+      { key: 'entropy-numeric', label: 'entropy from current samples', value: numericEntropy(xs, p), format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const fam = family;
+  const h_a = analyticEntropy(fam, params);
+  // Entropy must be non-negative (nats)
+  inv.push({
+    key: 'entropy-nonneg',
+    label: 'H(p) >= 0 (nats)',
+    value: h_a.toFixed(3),
+    status: h_a >= -1e-10 ? 'pass' : 'drift'
+  });
+  // Structured distribution (added lumpiness) must have lower entropy
+  const xs = gridX(fam);
+  const p_max = pdf(fam, params, xs);
+  const p_struct = structuredPdf(fam, params, xs);
+  const h_max = numericEntropy(xs, p_max);
+  const h_struct = numericEntropy(xs, p_struct);
+  const rel_diff = (h_max - h_struct) / Math.max(Math.abs(h_max), 1e-10);
+  inv.push({
+    key: 'maxent-principle',
+    label: 'H(structured) < H(maxent)',
+    value: rel_diff.toFixed(3),
+    status: rel_diff > -0.01 ? 'pass' : 'drift'
+  });
+  return inv;
+};
