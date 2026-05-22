@@ -303,33 +303,18 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'theta1', label: 'pendulum 1 angle $\\theta_1$', value: sim.theta1, format: 'float' },
+      { key: 'theta2', label: 'pendulum 2 angle $\\theta_2$', value: sim.theta2, format: 'float' },
+      { key: 'energy1', label: 'pendulum 1 energy $E_1$', value: e1of(sim), format: 'float' },
+      { key: 'energy2', label: 'pendulum 2 energy $E_2$', value: e2of(sim), format: 'float' },
+    ],
   };
-}
+};
 // A conservative (Hamiltonian) system: total energy is the
 // invariant. The baseline is the energy at the start of the run and
 // is re-taken whenever a control change steps the energy.
