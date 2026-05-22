@@ -201,33 +201,30 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const v = Math.sqrt(state.sim.vx ** 2 + state.sim.vy ** 2);
+  return {
+    fields: [
+      { key: 'v0', label: 'Initial speed (m/s)', value: state.v0, format: 'float' },
+      { key: 'angle', label: 'Launch angle (deg)', value: state.angleDeg, format: 'float' },
+      { key: 'drag-mode', label: 'Drag mode', value: state.dragMode, format: undefined },
+      { key: 'velocity', label: 'Current speed (m/s)', value: v, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const v = Math.sqrt(state.sim.vx ** 2 + state.sim.vy ** 2);
+  const v0 = Math.sqrt(state.sim.vx ** 2 + state.sim.vy ** 2);
+  const decreasing = state.dragMode === 'none' ? true : v <= (state.prevV !== undefined ? state.prevV : v0);
+  state.prevV = v;
+  return [
+    {
+      key: 'velocity-monotonic',
+      label: 'v decreases with drag',
+      value: state.dragMode === 'none' ? 'n/a' : (decreasing ? 'pass' : 'warn'),
+      status: state.dragMode === 'none' ? 'pending' : (decreasing ? 'pass' : 'drift')
+    }
+  ];
+};
