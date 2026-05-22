@@ -194,7 +194,7 @@ function drawAll() {
   ctx.fillStyle = 'rgba(127, 177, 216, 0.75)';
   ctx.fillText('analytic circle (dashed)', 260, H - 32);
   ctx.fillStyle = 'rgba(200, 200, 200, 0.7)';
-  ctx.fillText('swarm (blue to red = slow to fast)', 520, H - 32);
+  ctx.fillText('swarm (blue to red = slow to fast)', 260, H - 14);
   ctx.fillStyle = tok.accentWarm;
   ctx.fillText('main particle (orange)', 60, H - 14);
 }
