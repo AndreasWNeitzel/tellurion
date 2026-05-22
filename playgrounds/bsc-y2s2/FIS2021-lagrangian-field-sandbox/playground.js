@@ -320,33 +320,34 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const H = inst && inst.y ? energy(st.sys, inst.y, pOf()) : E0;
+  const L = angularMomentum(st.sys, inst && inst.y ? inst.y : [0,0,0,0]);
+  return {
+    fields: [
+      { key: 'system', label: 'System', value: st.sys, format: undefined },
+      { key: 'gravity', label: 'Gravity (m/s^2)', value: st.g, format: 'float' },
+      { key: 'time', label: 'Simulation time (s)', value: t, format: 'float' },
+      { key: 'energy', label: 'Energy (J/kg)', value: H !== null && H !== undefined ? H : E0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!inst || !inst.y) {
+    return [{ key: 'energy-conserved', label: 'Energy conserved', value: 'pending', status: 'pending' }];
+  }
+  const H = energy(st.sys, inst.y, pOf());
+  const dH = Math.abs(H - E0);
+  const relative_err = E0 !== 0 ? dH / Math.abs(E0) : dH;
+  const status = relative_err < 1e-6 ? 'pass' : (relative_err < 1e-4 ? 'pending' : 'drift');
+  return [
+    {
+      key: 'energy-conserved',
+      label: 'Energy drift (relative)',
+      value: status === 'pass' ? 'pass' : relative_err.toExponential(2),
+      status: status
+    }
+  ];
+};
