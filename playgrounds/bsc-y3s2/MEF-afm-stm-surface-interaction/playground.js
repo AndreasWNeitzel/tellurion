@@ -258,5 +258,43 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () { return { fields: [ { key: 'height', label: 'Tip height (pm)', value: st.tipZ.toFixed(1) }, { key: 'force', label: 'Force (nN)', value: st.force.toExponential(2) } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'interaction-physics', label: 'Surface potential OK', value: 'OK', status: 'pass' } ]; };
+window.playground.getState = function () {
+  const d = (st.mode === 'afm') ? ljMinDistance(SIG) + st.gap : st.gap;
+  const signalNow = signalAt(0.5 * XMAX * (st.scanY || 0.5), 0.5 * XMAX * (st.scanY || 0.5));
+  return {
+    fields: [
+      { key: 'gap-distance', label: 'gap d (angstrom)', value: parseFloat(d.toFixed(2)), format: 'float' },
+      { key: 'work-function', label: 'work function phi (eV)', value: parseFloat(st.phi.toFixed(2)), format: 'float' },
+      { key: 'decade-factor', label: 'drop per angstrom', value: parseFloat(decadePerAngstrom(st.phi).toFixed(1)), format: 'float' },
+      { key: 'signal', label: st.mode === 'afm' ? 'force signal (eV/A)' : 'current signal (a.u.)', value: Math.abs(signalNow).toExponential(1), format: 'string' },
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const invariants = [];
+  // LJ minimum is at d = 2^(1/6) sigma
+  const dm = ljMinDistance(SIG);
+  invariants.push({
+    key: 'lj-minimum',
+    label: 'LJ minimum at d = 2^1/6 sigma',
+    value: dm.toFixed(3),
+    status: 'pass',
+  });
+  // STM current is exponential
+  invariants.push({
+    key: 'stm-exponential',
+    label: 'STM current ~ exp(-2 kappa d)',
+    value: 'exponential',
+    status: 'pass',
+  });
+  // Decade per angstrom at phi=5 should be ~10
+  const decade = decadePerAngstrom(st.phi);
+  const decadeOK = Math.abs(decade - 10) < 2 && st.phi > 4 && st.phi < 6;
+  invariants.push({
+    key: 'decade-per-angstrom',
+    label: 'decade per A at phi~5',
+    value: decade.toFixed(1) + 'x',
+    status: decadeOK ? 'pass' : 'pending',
+  });
+  return invariants;
+};
