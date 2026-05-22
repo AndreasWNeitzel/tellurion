@@ -266,33 +266,35 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const muMB = solveMu('MB', st.tau);
+  const muFD = solveMu('FD', st.tau);
+  const muBE = st.tau < TC ? 0 : solveMu('BE', st.tau);
+  const condensate = st.tau < TC ? condensateFraction(st.tau) : 0;
+  return {
+    fields: [
+      { key: 'temperature-ratio', label: 'T/T_F (temperature ratio)', value: st.tau / EF, format: 'float' },
+      { key: 'chemical-potential', label: 'mu (current stat)', value: (st.stat === 'FD' ? muFD : (st.stat === 'BE' ? muBE : muMB)), format: 'float' },
+      { key: 'fermi-energy', label: 'E_F (Fermi energy)', value: EF, format: 'float' },
+      { key: 'condensate-fraction', label: 'Condensate fraction (BE)', value: condensate, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const muBE = st.tau < TC ? 0 : solveMu('BE', st.tau);
+  const N_be = numberIntegral('BE', muBE, st.tau);
+  const N_be_err = Math.abs(N_be - NTOT);
+  const condensate = st.tau < TC ? condensateFraction(st.tau) : 0;
+  const cond_valid = st.tau < TC && condensate >= 0 && condensate <= 1;
+  const status = N_be_err < 0.01 && cond_valid ? 'pass' : 'pending';
+  return [
+    {
+      key: 'particle-conservation',
+      label: 'N = integral g(E) n(E) dE',
+      value: N_be_err.toExponential(2),
+      status: status
+    }
+  ];
+};
