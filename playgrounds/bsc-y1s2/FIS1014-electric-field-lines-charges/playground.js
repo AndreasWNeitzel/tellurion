@@ -304,33 +304,37 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// Physical state of the charge configuration and the traced field-line set.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const charges = state.charges || [];
+  const netQ = charges.reduce((s, c) => s + c.q, 0);
+  const fields = [
+    { key: 'preset', label: 'configuration', value: state.preset },
+    { key: 'charges', label: 'point charges', value: charges.length, format: 'int' },
+    { key: 'net-charge', label: 'net charge $\\Sigma q_i$', value: netQ, format: 'float' },
+    { key: 'field-lines', label: 'traced field lines', value: (state.lines || []).length, format: 'int' },
+  ];
+  const tc = state.testCharge;
+  if (tc) {
+    fields.push({ key: 'test-speed', label: 'test-charge speed', value: Math.hypot(tc.vx, tc.vy), format: 'float' });
+  }
+  return { fields };
+};
+window.playground.getInvariants = function () {
+  // Gauss's law: the tracer emits a fixed number of field lines per unit
+  // charge, so the traced line count must match the count derived from
+  // the live charges. A mismatch means the line set went stale.
+  const charges = state.charges || [];
+  const expected = charges.reduce((s, c) => s + Math.max(4, Math.round(16 * Math.abs(c.q))), 0);
+  const actual = (state.lines || []).length;
+  return [
+    {
+      key: 'gauss-line-count',
+      label: 'field lines $\\propto$ charge (Gauss)',
+      value: `${actual} / ${expected}`,
+      status: actual === expected ? 'pass' : 'drift',
+    },
+  ];
+};
