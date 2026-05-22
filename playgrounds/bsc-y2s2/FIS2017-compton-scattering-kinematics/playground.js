@@ -6,7 +6,7 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 
 import {
   comptonShift, scatteredWavelength, electronKE, electronRecoilAngle,
-  LAMBDA_C_NM, maxShift,
+  LAMBDA_C_NM, HC_EV_NM, maxShift,
 } from './sim.js';
 
 const params         = new URLSearchParams(location.search);
@@ -270,33 +270,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the scattering angle, the wavelength shift and the
+// electron recoil energy. The invariant verifies energy-momentum
+// conservation: the scattered-photon and recoil-electron momenta
+// (built from the separate Compton-shift, electron-KE and recoil-
+// angle formulas) must sum back to the incident photon momentum.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const lam = lambdaNm(), th = thetaRad();
+  return {
+    fields: [
+      { key: 'theta', label: 'scattering angle (deg)', value: thetaDeg, format: 'float' },
+      { key: 'shift', label: 'wavelength shift (pm)', value: comptonShift(th) * 1e3, format: 'float' },
+      { key: 'electron-ke', label: 'electron recoil energy (eV)', value: electronKE(lam, th), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const lam = lambdaNm(), th = thetaRad();
+  const mec2 = HC_EV_NM / LAMBDA_C_NM;                 // electron rest energy, eV
+  const eg0 = HC_EV_NM / lam;                          // incident photon energy = momentum (eV, eV/c)
+  const egP = HC_EV_NM / scatteredWavelength(lam, th); // scattered photon
+  const ke = electronKE(lam, th);
+  const phi = electronRecoilAngle(lam, th);
+  const pe = Math.sqrt(ke * ke + 2 * ke * mec2);       // relativistic electron momentum, eV/c
+  // Photon enters along +x; the electron recoils opposite the photon.
+  const px = egP * Math.cos(th) + pe * Math.cos(phi);
+  const py = egP * Math.sin(th) - pe * Math.sin(phi);
+  const drift = Math.hypot(px - eg0, py) / Math.max(1e-9, eg0);
+  return [{
+    key: 'momentum',
+    label: 'energy-momentum conserved (Compton kinematics)',
+    value: drift.toExponential(2),
+    status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+  }];
+};
