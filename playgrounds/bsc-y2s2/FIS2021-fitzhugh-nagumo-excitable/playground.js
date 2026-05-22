@@ -216,33 +216,34 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const s = state.sim;
+  const spiking = s && Math.abs(s.dv) > 0.5;
+  return {
+    fields: [
+      { key: 'input-current', label: 'Input current I', value: state.I, format: 'float' },
+      { key: 'voltage', label: 'Voltage v', value: s ? s.v : 0, format: 'float' },
+      { key: 'recovery', label: 'Recovery w', value: s ? s.w : 0, format: 'float' },
+      { key: 'time', label: 'Simulation time', value: s ? s.t : 0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.sim) {
+    return [{ key: 'bounds-voltage', label: '|v| <= 2.5 (physical bound)', value: 'pending', status: 'pending' }];
+  }
+  const s = state.sim;
+  const v_bounded = Math.abs(s.v) <= 2.5;
+  const w_bounded = Math.abs(s.w) <= 2.0;
+  const status = v_bounded && w_bounded ? 'pass' : 'drift';
+  return [
+    {
+      key: 'phase-bounds',
+      label: 'Phase variables bounded',
+      value: status === 'pass' ? 'pass' : `v=${s.v.toFixed(2)},w=${s.w.toFixed(2)}`,
+      status: status
+    }
+  ];
+};
