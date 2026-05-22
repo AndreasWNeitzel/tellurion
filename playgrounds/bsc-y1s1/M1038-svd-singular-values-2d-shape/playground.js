@@ -170,33 +170,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const M = [[a, b], [c, d]];
+  const { s } = svd2x2(M);
+  const cond = Math.max(1e-12, s[0]) / Math.max(1e-12, s[1]);
+  return {
+    fields: [
+      { key: 'det', label: 'det(M) = ad - bc', value: a * d - b * c, format: 'float' },
+      { key: 'sigma-1', label: 'Singular value s1', value: s[0], format: 'float' },
+      { key: 'sigma-2', label: 'Singular value s2', value: s[1], format: 'float' },
+      { key: 'condition', label: 'Condition number', value: cond, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const M = [[a, b], [c, d]];
+  const { s } = svd2x2(M);
+  const s_ordered = s[0] >= s[1];
+  return [
+    {
+      key: 'singular-order',
+      label: 's1 >= s2',
+      value: s_ordered ? 'pass' : `${s[0].toFixed(3)} < ${s[1].toFixed(3)}`,
+      status: s_ordered ? 'pass' : 'drift'
+    }
+  ];
+};
