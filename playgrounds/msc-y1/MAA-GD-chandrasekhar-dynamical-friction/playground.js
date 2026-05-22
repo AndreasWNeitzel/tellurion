@@ -193,8 +193,29 @@ window.__physicsCheck = async () => {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'satellite-mass', label: 'Satellite mass', value: state.m_sat || 0.1, format: 'float' }, { key: 'time', label: 'Time (Gyr)', value: state.t || 0, format: 'float' }, { key: 'semi-major-axis', label: 'Semi-major axis', value: state.a || 100, format: 'float' }, { key: 'friction-force', label: 'Friction |F|', value: state.F_mag || 0, format: 'float' } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'orbit-decays', label: 'Semi-major axis decreases', value: 'pending', status: 'pending' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const X = V0 / (Math.SQRT2 * SIGMA);
+  const aDF = chandrasekharDecel(V0, SIGMA, 1.0, LNL);
+  return { fields: [
+    { key: 'M-sat', label: 'satellite mass $M_{\text{sat}}$ (solar masses)', value: state.M.toFixed(2), format: 'string' },
+    { key: 'r-orbit', label: 'orbital radius $r$ (units of $R_0$)', value: sat.r.toFixed(3), format: 'string' },
+    { key: 'time', label: 'time $t$', value: state.t.toFixed(1), format: 'string' },
+    { key: 'f-X', label: 'Chandrasekhar $f(X)$', value: fOfX(X).toFixed(3), format: 'string' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const X = V0 / (Math.SQRT2 * SIGMA);
+  return [
+    {
+      key: 'orbit-decaying',
+      label: 'orbit $r$ decreases over time',
+      value: sat.r < R0 ? 'pass' : 'pending',
+      status: sat.r < R0 ? 'pass' : 'pending',
+    },
+    {
+      key: 'radius-positive',
+      label: '$r > r_{\min}$',
+      value: sat.r.toExponential(2),
+      status: sat.r > RMIN ? 'pass' : 'drift',
+    },
+  ];
+};
