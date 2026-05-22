@@ -174,33 +174,38 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const gap = gapAtZoneBoundary(st.K, st.m1, st.m2);
+  const monoAtMid = monatomic(Math.PI / 2, st.K, (st.m1 + st.m2) / 2);
+  const diaAtMid = diatomic(Math.PI / 2, st.K, st.m1, st.m2);
+  return {
+    fields: [
+      { key: 'mass-1', label: 'Mass 1', value: st.m1, format: 'float' },
+      { key: 'mass-2', label: 'Mass 2', value: st.m2, format: 'float' },
+      { key: 'spring-constant', label: 'Spring constant K', value: st.K, format: 'float' },
+      { key: 'band-gap', label: 'Optical-acoustic gap', value: gap.high - gap.low, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const gap = gapAtZoneBoundary(st.K, st.m1, st.m2);
+  const diaAtBoundary = diatomic(Math.PI, st.K, st.m1, st.m2);
+  const gapIsNonNeg = gap.high >= gap.low && gap.low >= 0;
+  const opticalAboveAcoustic = diaAtBoundary.optical >= diaAtBoundary.acoustic;
+  return [
+    {
+      key: 'acoustic-optical-order',
+      label: 'Optical branch >= acoustic at zone boundary',
+      value: opticalAboveAcoustic ? 'pass' : 'fail',
+      status: opticalAboveAcoustic ? 'pass' : 'drift'
+    },
+    {
+      key: 'gap-sign',
+      label: 'Band gap magnitude >= 0',
+      value: gapIsNonNeg ? 'pass' : 'fail',
+      status: gapIsNonNeg ? 'pass' : 'drift'
+    }
+  ];
+};
