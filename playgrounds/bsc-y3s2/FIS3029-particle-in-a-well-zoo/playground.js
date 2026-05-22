@@ -74,7 +74,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
 
   const lim = viewLimits();
-  const X0 = 60, X1 = W - 60;
+  const X0 = 110, X1 = W - 60;
   const Y0 = 30, Y1 = H - 50;
 
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
