@@ -163,33 +163,40 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the particle count, initial disk radius and the
+// total angular momentum. The invariant checks total linear
+// momentum: the particle-mesh force is internal (it sums to zero
+// over all particles), so the disk's net momentum must not drift.
+// (Angular momentum is only approximately conserved by the mesh, so
+// it is reported in state but not used as a strict invariant.)
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+let __P0x = null, __P0y = null, __simRef = null;
+window.playground.getState = function () {
+  const s = state.sim;
+  if (!s) return { fields: [] };
+  return {
+    fields: [
+      { key: 'particles', label: 'disk particles', value: String(s.N) },
+      { key: 'disk-radius', label: 'initial disk radius', value: state.R, format: 'float' },
+      { key: 'angular-momentum', label: 'total angular momentum Lz', value: totalAngularMomentum(s), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const s = state.sim;
+  if (!s) return [];
+  let px = 0, py = 0;
+  for (let p = 0; p < s.N; p += 1) {
+    px += s.m[p] * s.v[2 * p];
+    py += s.m[p] * s.v[2 * p + 1];
+  }
+  if (s !== __simRef) { __simRef = s; __P0x = px; __P0y = py; }   // re-baseline on disk rebuild
+  const drift = Math.hypot(px - __P0x, py - __P0y);
+  return [{
+    key: 'momentum',
+    label: 'total linear momentum conserved (particle-mesh force)',
+    value: drift.toExponential(2),
+    status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+  }];
+};
