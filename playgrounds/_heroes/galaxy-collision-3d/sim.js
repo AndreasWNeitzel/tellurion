@@ -69,10 +69,13 @@ export function makeTwoGalaxies(opts = {}) {
       state.x[2 * idx + 1] = core.y + r * sy;
       state.m[idx] = 0;  // Restricted N-body: test particles are massless
       const vCirc = Math.sqrt(M_core / r);
-      // Both galaxies spin counter-clockwise: the classic tidal-tail-
-      // favorable prograde-prograde geometry (Toomre and Toomre 1972).
-      state.v[2 * idx]     = core.vx - vCirc * sy;
-      state.v[2 * idx + 1] = core.vy + vCirc * cx;
+      // Both disks co-rotate with the clockwise encounter orbit (the
+      // cores carry clockwise relative angular momentum, L_z < 0). This
+      // is the prograde-prograde geometry that Toomre and Toomre 1972
+      // showed drives the strongest tidal bridges and tails; a counter-
+      // rotating disk would be retrograde and respond only weakly.
+      state.v[2 * idx]     = core.vx + vCirc * sy;
+      state.v[2 * idx + 1] = core.vy - vCirc * cx;
       idx += 1;
     }
   }
