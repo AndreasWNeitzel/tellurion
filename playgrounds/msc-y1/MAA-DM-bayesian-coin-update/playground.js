@@ -267,20 +267,20 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const p = posteriorParams(state.a0, state.b0, state.k, state.n - state.k);
+  const p = posteriorParams({ a0: state.a0, b0: state.b0, k: state.k, n: state.n });
   const mean = betaMean(p.a, p.b);
-  const ci = credibleInterval95(p.a, p.b);
+  const sigma = Math.sqrt(betaVariance(p.a, p.b));
   return {
     fields: [
-      { key: 'prior-a', label: 'prior alpha', value: state.a0, format: 'float' },
-      { key: 'prior-b', label: 'prior beta', value: state.b0, format: 'float' },
-      { key: 'successes', label: 'heads observed', value: state.k, format: 'float' },
-      { key: 'posterior-mean', label: 'posterior mean', value: mean, format: 'float' },
+      { key: 'prior-a', label: 'prior $\\alpha$', value: state.a0.toFixed(1), format: 'float' },
+      { key: 'posterior-mean', label: 'posterior mean', value: mean.toFixed(4), format: 'float' },
+      { key: 'posterior-sigma', label: 'posterior std dev', value: sigma.toFixed(4), format: 'float' },
+      { key: 'successes', label: 'heads (k/n)', value: `${state.k}/${state.n}`, format: undefined },
     ],
   };
 };
 window.playground.getInvariants = function () {
-  const p = posteriorParams(state.a0, state.b0, state.k, state.n - state.k);
+  const p = posteriorParams({ a0: state.a0, b0: state.b0, k: state.k, n: state.n });
   const expected_a = state.a0 + state.k;
   const expected_b = state.b0 + (state.n - state.k);
   const da = Math.abs(p.a - expected_a) / Math.max(1, expected_a);
@@ -288,7 +288,7 @@ window.playground.getInvariants = function () {
   return [
     {
       key: 'conjugate-posterior',
-      label: 'Beta conjugate posterior',
+      label: 'Beta-Binomial conjugate (a = $\\alpha_0 + k$)',
       value: `a=${p.a.toFixed(1)} b=${p.b.toFixed(1)}`,
       status: da < 1e-10 && db < 1e-10 ? 'pass' : 'drift',
     },
