@@ -137,6 +137,7 @@ function drawAttractor() {
   ctx.save();
   ctx.translate(ox - 26, oy + h / 2);
   ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'left';
   ctx.fillText('y', 0, 0);
   ctx.restore();
 }
@@ -193,6 +194,7 @@ function drawParameterPanel() {
   ctx.save();
   ctx.translate(ox - 22, oy + h / 2);
   ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'left';
   ctx.fillText('b', 0, 0);
   ctx.restore();
 }
