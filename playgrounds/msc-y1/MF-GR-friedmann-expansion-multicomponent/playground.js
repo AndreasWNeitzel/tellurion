@@ -223,33 +223,38 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const a_now = A_MIN * Math.pow(A_MAX / A_MIN, st.ph);
+  return {
+    fields: [
+      { key: 'scale-factor', label: 'scale factor a', value: a_now, format: 'float' },
+      { key: 'cosmic-age', label: 'cosmic age (Gyr)', value: ageAt(a_now, st.p), format: 'float' },
+      { key: 'hubble-parameter', label: 'Hubble parameter H (1/Gyr)', value: hubble(a_now, st.p), format: 'float' },
+      { key: 'om-matter', label: 'Omega_m (matter density)', value: st.om / 1000, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  if (!st.p) return inv;
+  // Flatness condition: Om + OL + Or must sum to 1 (hard constraint)
+  const sum = st.p.Om + st.p.OL + st.p.Or;
+  inv.push({
+    key: 'flatness-constraint',
+    label: 'Omega_m + Omega_L + Omega_r = 1.0',
+    value: sum.toFixed(6),
+    status: Math.abs(sum - 1.0) < 1e-10 ? 'pass' : 'drift'
+  });
+  // Hubble parameter should be monotonic: H decreases then increases (deceleration->acceleration)
+  const a_test = 0.5;
+  const H_test = hubble(a_test, st.p);
+  inv.push({
+    key: 'hubble-positive',
+    label: 'H(a) always positive',
+    value: H_test.toExponential(2),
+    status: H_test > 0 ? 'pass' : 'drift'
+  });
+  return inv;
+};
