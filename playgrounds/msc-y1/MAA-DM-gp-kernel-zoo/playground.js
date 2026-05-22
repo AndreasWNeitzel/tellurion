@@ -187,8 +187,22 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'kernel-type', label: 'Kernel', value: state.kernel || 'RBF', format: 'float' }, { key: 'lengthscale', label: 'Length scale', value: state.lengthscale || 1, format: 'float' }, { key: 'variance', label: 'Variance', value: state.variance || 1, format: 'float' }, { key: 'noise', label: 'Noise', value: state.noise || 0.01, format: 'float' } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'kernel-psd', label: 'Kernel matrix PSD', value: 'pending', status: 'pending' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  return { fields: [
+    { key: 'kernel', label: 'Kernel type', value: state.kernel, format: 'float' },
+    { key: 'lengthscale', label: 'Length scale (ell)', value: state.ell, format: 'float' },
+    { key: 'signal-variance', label: 'Signal variance (sigma_f)', value: state.sf, format: 'float' },
+    { key: 'noise-variance', label: 'Noise variance (sigma_n)', value: state.sn, format: 'float' }
+  ] };
+};
+window.playground.getInvariants = function () {
+  const k = getKernel();
+  if (state.xObs.length === 0) {
+    return [{ key: 'prior-variance', label: 'Prior variance at origin', value: k(0, 0).toFixed(4), status: 'pass' }];
+  }
+  const { mu, std } = posterior(k, state.xs, state.xObs, state.yObs, state.sn);
+  const maxStdRatio = Math.max(...std) / (state.sf * state.sf);
+  return [
+    { key: 'posterior-std-bounded', label: 'Posterior std <= prior', value: maxStdRatio <= 1.0001 ? 'pass' : 'drift', status: maxStdRatio <= 1.0001 ? 'pass' : 'drift' },
+    { key: 'posterior-mean', label: 'Posterior mean evaluated', value: mu.length.toString(), status: 'pass' }
+  ];
+};
