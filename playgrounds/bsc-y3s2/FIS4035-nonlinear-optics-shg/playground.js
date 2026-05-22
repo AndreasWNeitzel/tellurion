@@ -243,33 +243,30 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const Lc = coherenceLength(st.dk);
+  const eta = conversionEfficiency(st.zNow, st.i1[Math.floor(st.zNow * N / st.zEnd)] || 1, st.i2[Math.floor(st.zNow * N / st.zEnd)] || 0);
+  return {
+    fields: [
+      { key: 'regime', label: 'Regime (undepleted/depleted)', value: st.regime, format: undefined },
+      { key: 'phase-mismatch', label: 'Phase mismatch dk', value: st.dk, format: 'float' },
+      { key: 'nonlin-coeff', label: 'Nonlinearity gamma', value: st.gamma, format: 'float' },
+      { key: 'coherence-length', label: 'Coherence length Lc', value: Lc, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!st.i2 || st.i2.length === 0) return [{ key: 'not-computed', label: 'SHG', value: 'pending', status: 'pending' }];
+  const idx = Math.floor((st.zNow / st.zEnd) * N);
+  const I1 = st.i1[idx] || 0;
+  const I2 = st.i2[idx] || 0;
+  if (st.regime === 'depleted') {
+    const sum = I1 + I2;
+    const manleyRowe = Math.abs(sum - 1) < 0.01;
+    return [{ key: 'manley-rowe', label: 'Manley-Rowe conservation I1+I2=1', value: manleyRowe ? 'pass' : Math.abs(sum - 1).toExponential(2), status: manleyRowe ? 'pass' : 'drift' }];
+  }
+  const I2Nonneg = I2 >= 0;
+  return [{ key: 'shg-nonneg', label: 'SHG intensity nonnegative', value: I2Nonneg ? 'pass' : 'drift', status: I2Nonneg ? 'pass' : 'drift' }];
+};
