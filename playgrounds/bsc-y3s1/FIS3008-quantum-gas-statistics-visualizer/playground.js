@@ -152,8 +152,8 @@ function render() {
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
   ctx.fillStyle = COL.axis; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('energy  eps', (PX0 + PX1) / 2, H - 16);
-  ctx.save(); ctx.translate(22, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText(st.occupied ? 'occupied  g(eps) n(eps)' : 'occupation  n(eps)', 0, 0); ctx.restore();
+  ctx.textAlign = 'left';
+  ctx.fillText(st.occupied ? 'occupied  n' : 'occupation  n', 8, PY0 - 6);
   ctx.textAlign = 'right';
   for (let g = 1; g <= 4; g += 1) {
     const yy = PY1 - (g / 4) * (PY1 - PY0);
