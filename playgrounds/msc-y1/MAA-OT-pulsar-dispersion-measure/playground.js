@@ -138,7 +138,7 @@ function render() {
   ctx.strokeStyle = 'rgba(120,150,200,0.25)';
   ctx.strokeRect(20.5, 60.5, 280, 300);
   ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('beam sweeps the line of sight once per rotation', 160, 350);
+  ctx.fillText('beam sweeps the line of sight as it rotates', 160, 350);
 
   // right: dynamic spectrum, de-dispersed at the trial DM
   paintWaterfall();
@@ -151,8 +151,8 @@ function render() {
   ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.textAlign = 'left';
   ctx.fillText(`${F_HI} MHz`, wx0 + 6, wy0 + 14);
   ctx.fillText(`${F_LO} MHz`, wx0 + 6, wy0 + wHh - 7);
-  ctx.fillStyle = '#8893a6'; ctx.save(); ctx.translate(wx0 - 8, wy0 + wHh / 2); ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'center'; ctx.fillText('frequency', 0, 0); ctx.restore();
+  ctx.fillStyle = '#8893a6'; ctx.save(); ctx.translate(14, wy0 + wHh / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'left'; ctx.fillText('f', 0, 0); ctx.restore();
   ctx.textAlign = 'right'; ctx.fillText('time ->', wx0 + wW, wy0 + wHh + 14);
   ctx.textAlign = 'center'; ctx.fillStyle = flagCol;
   ctx.fillText(flag === 'MATCH' ? 'aligned: the sweep stands vertical'
