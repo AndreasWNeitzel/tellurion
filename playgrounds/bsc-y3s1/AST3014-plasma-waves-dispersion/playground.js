@@ -42,11 +42,13 @@ const ly = (w) => PY1 - (Math.log10(Math.max(WLO, w)) - Math.log10(WLO)) / (Math
 function grid() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   ctx.strokeStyle = 'rgba(120,135,165,0.18)'; ctx.lineWidth = 1; ctx.fillStyle = 'rgba(170,180,205,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  for (let e = -3; e <= 2; e += 1) { const x = lx(10 ** e); ctx.beginPath(); ctx.moveTo(x, PY0); ctx.lineTo(x, PY1); ctx.stroke(); ctx.fillText('1e' + e, x - 8, PY1 + 14); }
+  ctx.textAlign = 'center';
+  for (let e = -3; e <= 2; e += 1) { const x = lx(10 ** e); ctx.beginPath(); ctx.moveTo(x, PY0); ctx.lineTo(x, PY1); ctx.stroke(); ctx.fillText('1e' + e, Math.max(PX0 + 8, Math.min(PX1 - 8, x)), PY1 + 14); }
+  ctx.textAlign = 'right';
   for (let e = -2; e <= 1; e += 1) { const y = ly(10 ** e); ctx.beginPath(); ctx.moveTo(PX0, y); ctx.lineTo(PX1, y); ctx.stroke(); ctx.fillText('1e' + e, 30, y + 3); }
-  ctx.fillStyle = 'rgba(200,210,230,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillStyle = 'rgba(200,210,230,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('k  (omega_p / c units)', (PX0 + PX1) / 2 - 60, H - 64);
-  ctx.save(); ctx.translate(16, (PY0 + PY1) / 2 + 30); ctx.rotate(-Math.PI / 2); ctx.fillText('omega / omega_p', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(16, (PY0 + PY1) / 2 + 30); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'left'; ctx.fillText('omega / omega_p', 0, 0); ctx.restore();
   // light line omega = c k
   ctx.strokeStyle = 'rgba(120,200,255,0.4)'; ctx.setLineDash([4, 4]); ctx.beginPath();
   ctx.moveTo(lx(WLO / C), ly(WLO)); ctx.lineTo(lx(WHI / C), ly(WHI)); ctx.stroke(); ctx.setLineDash([]);
@@ -97,8 +99,8 @@ function draw() {
       if (i === 0) ctx.moveTo(ix0 + xx * iw, yy); else ctx.lineTo(ix0 + xx * iw, yy);
     }
     ctx.stroke();
-    ctx.fillStyle = 'rgba(180,200,230,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('wave at the marked (k, omega), travelling at the phase speed', ix0, iy + 24);
+    ctx.fillStyle = 'rgba(180,200,230,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+    ctx.fillText('wave at (k, omega), travelling at phase speed', ix0, iy + 24);
 
     const vph = mk.w / mk.k;
     let vgr = vph;
