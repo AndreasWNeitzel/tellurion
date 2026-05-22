@@ -245,7 +245,7 @@ function drawSigma(x, y, w, h) {
 }
 
 function drawAux(x, y, w, h) {
-  panel(x, y, w, h, 'Mandelstam s, t, u   and   dsigma/dOmega ~ 1 + cos^2(theta)');
+  panel(x, y, w, h, 'Mandelstam s, t, u and dsigma/dOmega');
   const E = sqrtS(), c = cosTh();
   const m = mandelstam(E, c);
   const sum = m.s + m.t + m.u, ok = Math.abs(sum - m.sumMasses) < 1e-9 * Math.max(1, m.s);
