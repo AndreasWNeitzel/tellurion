@@ -173,33 +173,30 @@ function bootSync() {
 bootSync();
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the temperature, log number density and the Saha
+// ionization fraction. The invariant verifies the bisection solver
+// for the ionization temperature: evaluating the Saha ionization
+// fraction at the solved ionization temperature must return 0.5.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const nTot = Math.pow(10, st.logN);
+  return {
+    fields: [
+      { key: 'temperature', label: 'temperature (K)', value: st.T, format: 'float' },
+      { key: 'log-density', label: 'log10 number density (1/m^3)', value: st.logN, format: 'float' },
+      { key: 'ionization', label: 'ionization fraction', value: ionizationFraction(st.T, nTot), format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const nTot = Math.pow(10, st.logN);
+  const tHalf = ionizationTemp(nTot);
+  const drift = Math.abs(ionizationFraction(tHalf, nTot) - 0.5);
+  return [{
+    key: 'ionization-temp',
+    label: 'ionization fraction = 0.5 at the solved ionization temperature',
+    value: drift.toExponential(2),
+    status: drift < 3e-3 ? 'pass' : (drift < 3e-2 ? 'pending' : 'drift'),
+  }];
+};
