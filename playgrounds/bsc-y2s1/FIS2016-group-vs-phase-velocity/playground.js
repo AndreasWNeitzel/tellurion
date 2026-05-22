@@ -91,33 +91,38 @@ function bootSync() { st.t = CAPTURE_FRAC * 2; render(); if (DETERMINISTIC) requ
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const vp = phaseVelocity(st.disp, st.k0);
+  const vg = groupVelocity(st.disp, st.k0);
+  return {
+    fields: [
+      { key: 'k0', label: 'Carrier wavenumber k0', value: st.k0, format: 'float' },
+      { key: 'dk', label: 'Modulation bandwidth dk', value: st.dk, format: 'float' },
+      { key: 'disp', label: 'Dispersion relation', value: st.disp },
+      { key: 'vp', label: 'Phase velocity vp', value: vp, format: 'float' },
+      { key: 'vg', label: 'Group velocity vg', value: vg, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const vp = phaseVelocity(st.disp, st.k0);
+  const vg = groupVelocity(st.disp, st.k0);
+  const ratio = vg / vp;
+  let expectedRatio = 1;
+  switch (st.disp) {
+    case 'light': expectedRatio = 1; break;
+    case 'water-deep': expectedRatio = 0.5; break;
+    case 'shrod': expectedRatio = 2; break;
+    case 'plasma': expectedRatio = (st.k0 * st.k0) / (2 + st.k0 * st.k0); break;
+    case 'anomalous': expectedRatio = -1 / (1 + 4 / (3 * st.k0)); break;
+  }
+  const relErr = Math.abs((ratio - expectedRatio) / Math.max(1, Math.abs(expectedRatio)));
+  return [{
+    key: 'dispersion-relation',
+    label: `v_g / v_p = ${ratio.toFixed(3)} vs expected ${expectedRatio.toFixed(3)}`,
+    value: relErr < 1e-6 ? 'pass' : (relErr < 1e-3 ? 'drift' : 'fail'),
+    status: relErr < 1e-3 ? 'pass' : 'drift'
+  }];
+};
