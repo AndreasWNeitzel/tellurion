@@ -1,62 +1,49 @@
 # Playgrounds Portfolio
 
-Curated set of in-browser physics, astronomy, statistical-mechanics, and machine-learning playgrounds rendered with Canvas2D and SVG. The audience is AI-lab hiring committees and ESA Research Fellowship reviewers. Every artifact reads as research code, not as textbook clipart.
+In-browser physics and astronomy playgrounds rendered with Canvas2D and SVG, with a WebGL2 carve-out for the 3D showcase pieces. Each one is an interactive simulation backed by a headless numerical engine, not a static figure. The portfolio is built to read as research code rather than textbook clipart.
 
 ## What is here
 
-- **203 verified playgrounds** spanning the UPorto FCUP Bachelor in Physics (years 1-3) and the MSc in Astronomy and Astrophysics. Each one ships with a `spec.md` describing physical setup + equations + numerical method + citations, a headless `sim.js`, ≥5 Vitest invariants, a `playground.js` UI, Playwright SSIM visual gates at threshold 0.92, and a `.verified` marker.
-- **6 designated WebGL2 heroes** (`playgrounds/_heroes/`): wave-heightfield-clickable-3d and lorenz-attractor-3d-ensemble shipped as Canvas2D MVPs; hydrogen-orbitals-3d, tokamak-plasma-confinement-3d, earth-axial-precession-nutation-3d, schwarzschild-kerr-blackhole-3d scoped with full visual-standard spec.md and queued for WebGL2 implementation. See `docs/HEROES.md` and `docs/NEEDS-ATTENTION.md`.
-- **Shared infrastructure**: numerical engines under `shared/js/engine/`, render primitives + colormaps under `shared/js/render/`, controls under `shared/js/controls/` (incl. share-state URL contract), engine-gl primitives under `shared/js/engine-gl/`.
-- **Dissemination layer**: landing page (`scripts/build-landing.mjs`, `dist/index.html` and root `index.html`), 24-tag controlled vocabulary (`docs/TAGS.md`), curriculum index (`docs/CURRICULUM.md`), card index (`docs/INDEX.md`).
+- **305 curriculum playgrounds** mapped to the University of Porto FCUP BSc in Physics (years 1-3) and MSc in Astronomy & Astrophysics. Each ships a `spec.md` (physical setup, equations, numerical method, citations, controls, expected features, acceptance thresholds), a headless simulation module, a `playground.js` UI, and the two automated gates described under Testing.
+- **53 heroes** (`playgrounds/_heroes/`) and **5 legends** (`playgrounds/_legends/`): the larger 3D and multi-mode showcase playgrounds. Several use the WebGL2 layer in `shared/js/engine-gl/`, the documented exception to the Canvas2D/SVG rule.
+- **Shared infrastructure**: numerical engines (`shared/js/engine/`), Canvas2D/SVG render primitives and colormaps (`shared/js/render/`), controls including the share-state URL contract (`shared/js/controls/`), and WebGL2 primitives (`shared/js/engine-gl/`).
+- **Dissemination layer**: the landing page (`scripts/build-landing.mjs`, root `index.html`), a controlled tag vocabulary (`docs/TAGS.md`), the curriculum index (`docs/CURRICULUM.md`), and the card index (`docs/INDEX.md`).
 
 ## Curriculum mapping
 
-Every playground is tagged with `primary_uc` and `curriculum_year` in its spec.md frontmatter, drawing from FCUP's BSc Physics and MSc Astronomy & Astrophysics units. Regenerate the chronological index with:
+Every playground carries `primary_uc` and `curriculum_year` in its `spec.md` frontmatter, drawn from FCUP's BSc Physics and MSc Astronomy & Astrophysics units. Regenerate the chronological index with:
 
 ```
 node scripts/build-curriculum-index.mjs   # writes docs/CURRICULUM.md
 ```
 
+## Testing
+
+Each playground carries two automated gates:
+
+- `invariants.test.mjs` (Vitest): conservation and identity checks on the headless simulation (energy, momentum, probability, detailed balance, analytic limiting cases), at thresholds set in the playground's `spec.md`.
+- `visual.test.mjs` (Playwright): SSIM regression at threshold 0.92 against committed golden frames, run under SwiftShader for reproducible headless capture.
+
+These gates check that the numerics are stable and the render has not regressed between commits. They do not establish that the physics setup or the pedagogy is correct; that review is done by people. A `.verified` marker is written for a playground when both gates pass.
+
 ## How to develop
 
-Stack: plain ES2022 modules. No frameworks. KaTeX for math. Canvas2D + SVG only (WebGL2 carve-out for heroes per CLAUDE.md hard rule 8). Tests with Vitest + Playwright.
+Stack: plain ES2022 modules, no frameworks. KaTeX for math. Canvas2D and SVG, with WebGL2 limited to the heroes (CLAUDE.md hard rule 8).
 
 ```
-npm install                                       # one-time
-npx vitest run                                    # invariant tests (currently 1306 passing)
-npx playwright test                               # visual gates (SwiftShader-compatible)
-node scripts/build-landing.mjs                    # regen dist/index.html
-node scripts/build-index.mjs                      # regen docs/INDEX.md
-node scripts/build-curriculum-index.mjs           # regen docs/CURRICULUM.md
-node scripts/lint-playground-html.mjs <slug>      # pre-ship HTML lint (catches raw <,> in $math$)
+npm install                                             # one-time
+npx vitest run                                           # invariant tests (Vitest)
+npx playwright test                                      # visual gates (SwiftShader-compatible)
+node scripts/build-landing.mjs                           # regen the landing page
+node scripts/build-index.mjs                             # regen docs/INDEX.md
+node scripts/build-curriculum-index.mjs                  # regen docs/CURRICULUM.md
+node scripts/lint-playground-html.mjs <slug>             # pre-ship HTML lint
 node scripts/capture-reference.mjs --playground <slug>   # capture deterministic golden frames
 ```
 
-## What "done" means
+## Contributing
 
-Per `CLAUDE.md` section "What done means":
-
-1. spec.md (physical setup, equations, numerics, citations, controls, expected features, invariants, thresholds).
-2. invariants.test.mjs (≥5 conservation/identity tests, all passing offline).
-3. visual.test.mjs (Playwright + SSIM 0.92 against committed golden frames).
-4. Multimodal /critique pass returns "no missing qualitative features".
-5. index.html accessible (keyboard, ARIA, AA contrast), 60 fps on mid-range laptop.
-6. Live invariant readout in a monospace span.
-7. Paper-style caption.
-8. Three-paragraph README in the playground folder.
-9. Share-state contract supported (URL hash, parseUrlState, mountShareButton).
-
-## Hard rules
-
-See `CLAUDE.md`. Highlights: no em-dash, no en-dash, no emoji, no AI-tells in prose, no `Math.random` outside `shared/js/render/rng.js`, no engine duplication, every playground cites a source.
-
-## Status snapshot (2026-05-14)
-
-- 203 verified playgrounds (all gates green).
-- 1306 invariant tests passing (221 test files).
-- 6 heroes designated: 6 Canvas2D MVPs shipped (all invariants green); WebGL2 upgrade queued for each.
-- Phases 0-15 of the dissemination directive complete (frontmatter + tags, landing, share-state, a11y, hero designation, perf budget, license + contributing, visual standard, engine-gl, all 6 heroes on WebGL2 MVP, final polish).
-- See `docs/NEEDS-ATTENTION.md` for hero-polish punch list and `docs/AUDIT.md` for the inventory.
+The shippable bar for a playground (spec, gates, accessibility, a live invariant readout, a diagnostic plot, the share-state contract) is defined in `CLAUDE.md` and `docs/VERIFICATION.md`. New playgrounds scaffold from `playgrounds/_template/`. House style: no em-dash or en-dash, no emoji, every playground cites a source.
 
 ## License
 
@@ -64,4 +51,4 @@ MIT. See `LICENSE`.
 
 ## Maintainer
 
-Andreas W. Neitzel · ORCID 0000-0001-6283-907X · IA/CAUP, U. Porto · andreaswneitzel@gmail.com
+Andreas W. Neitzel. ORCID 0000-0001-6283-907X. IA/CAUP, University of Porto. andreaswneitzel@gmail.com
