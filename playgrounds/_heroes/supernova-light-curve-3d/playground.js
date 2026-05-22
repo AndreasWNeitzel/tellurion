@@ -138,26 +138,32 @@ function drawFireball(cam, t_days, L_norm) {
   if (!center2D) return;
   const refR = w2s([rVis, 0, 0], cam);
   const Rpx = refR ? Math.hypot(refR.x - center2D.x, refR.y - center2D.y) : 60;
+  // Keep the fireball in the left region: the diagnostic panels start
+  // at x = 0.50 W, so the photosphere is centred no further right than
+  // 0.30 W and its radius is capped to stop short of the panels.
+  const fx = Math.min(center2D.x, 0.30 * W);
+  const fy = center2D.y;
+  const fR = Math.max(40, Math.min(Rpx, 0.50 * W - 18 - fx));
   const bright = 0.45 + 0.55 * L_norm;
   const clamp8 = (c) => Math.round(Math.max(0, Math.min(255, c)));
   const [cr, cg, cb] = col;
-  // Outer glow halo.
-  const haloR = Rpx * (1.9 + 1.1 * L_norm);
-  const glow = ctx.createRadialGradient(center2D.x, center2D.y, Rpx * 0.92, center2D.x, center2D.y, haloR);
+  // Outer glow halo, also held clear of the diagnostic panels.
+  const haloR = Math.min(fR * (1.9 + 1.1 * L_norm), 0.52 * W - fx);
+  const glow = ctx.createRadialGradient(fx, fy, fR * 0.92, fx, fy, haloR);
   glow.addColorStop(0, `rgba(255, 220, 150, ${(0.42 * L_norm).toFixed(3)})`);
   glow.addColorStop(0.5, `rgba(255, 140, 100, ${(0.20 * L_norm).toFixed(3)})`);
   glow.addColorStop(1, 'rgba(255, 100, 80, 0)');
   ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.arc(center2D.x, center2D.y, haloR, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(fx, fy, haloR, 0, 2 * Math.PI); ctx.fill();
   // Photosphere: limb-darkened disc, hot highlight offset toward the viewer.
   const disc = ctx.createRadialGradient(
-    center2D.x - Rpx * 0.20, center2D.y - Rpx * 0.20, Rpx * 0.04,
-    center2D.x, center2D.y, Rpx);
+    fx - fR * 0.20, fy - fR * 0.20, fR * 0.04,
+    fx, fy, fR);
   disc.addColorStop(0.00, `rgb(${clamp8(cr * 1.4 + 95)}, ${clamp8(cg * 1.4 + 80)}, ${clamp8(cb * 1.3 + 65)})`);
   disc.addColorStop(0.55, `rgb(${clamp8(cr * bright)}, ${clamp8(cg * bright)}, ${clamp8(cb * bright)})`);
   disc.addColorStop(1.00, `rgb(${clamp8(cr * bright * 0.42)}, ${clamp8(cg * bright * 0.42)}, ${clamp8(cb * bright * 0.36)})`);
   ctx.fillStyle = disc;
-  ctx.beginPath(); ctx.arc(center2D.x, center2D.y, Rpx, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(fx, fy, fR, 0, 2 * Math.PI); ctx.fill();
 }
 
 // =========================================================================
