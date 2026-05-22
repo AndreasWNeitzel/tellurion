@@ -385,33 +385,29 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'planet-radius-rj', label: 'Planet radius', value: st.planetRadius || 1, format: 'float' },
+      { key: 'star-radius-rs', label: 'Star radius', value: st.starRadius || 1, format: 'float' },
+      { key: 'orbital-period-days', label: 'Orbital period', value: st.orbitalPeriod || 3, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check transit depth = (R_p / R_s)^2.
+  const Rp = st.planetRadius || 1;
+  const Rs = st.starRadius || 1;
+  const depth = (Rp / Rs) ** 2;
+  const status = (depth > 0 && depth < 0.1) ? 'pass' : 'drift';
+  return [
+    {
+      key: 'transit-depth-limit',
+      label: 'Transit depth',
+      value: (depth * 100).toFixed(2) + '%',
+      status: status
+    }
+  ];
+};
