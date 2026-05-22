@@ -70,27 +70,36 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const d = parseFloat(sliderD?.value || '0') * 1e-6;
-  const wavelength = parseFloat(sliderLambda?.value || '550') * 1e-9;
-  const order = d / wavelength;
+  const wavelength_nm = parseFloat(sL.value);
+  const wavelength = wavelength_nm * 1e-9;
+  const d_val = st.d;
+  const order = d_val / wavelength;
   return {
     fields: [
-      { key: 'path-diff', label: 'path difference (um)', value: parseFloat(sliderD?.value || '0'), format: 'float' },
-      { key: 'wavelength', label: 'wavelength (nm)', value: parseFloat(sliderLambda?.value || '550'), format: 'float' },
-      { key: 'fringe-order', label: 'fringe order m', value: order, format: 'float' }
+      { key: 'path-diff', label: 'path difference ($\\mu$m)', value: d_val * 1e6, format: 'float' },
+      { key: 'wavelength', label: 'wavelength (nm)', value: wavelength_nm, format: 'float' },
+      { key: 'visibility', label: 'visibility $V$', value: st.vis, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const d = parseFloat(sliderD?.value || '0') * 1e-6;
-  const wavelength = parseFloat(sliderLambda?.value || '550') * 1e-9;
-  const order = d / wavelength;
-  const fringeCount = Math.round(order);
+  const wavelength_nm = parseFloat(sL.value);
+  const wavelength = wavelength_nm * 1e-9;
+  const d_val = st.d;
+  const order = d_val / wavelength;
+  const V = 2 * Math.sqrt(st.vis) / (1 + st.vis);
+  const contrast_ok = V >= 0 && V <= 1;
   return [
     {
-      key: 'fringe-visibility',
-      label: 'fringe order m',
-      value: fringeCount.toString(),
+      key: 'contrast-bounds',
+      label: 'contrast in $[0, 1]$',
+      value: V.toFixed(3),
+      status: contrast_ok ? 'pass' : 'drift'
+    },
+    {
+      key: 'fringe-count',
+      label: 'fringes observed',
+      value: st.fringes.toFixed(1),
       status: 'pass'
     }
   ];
