@@ -292,7 +292,7 @@ function drawReconnectionDiagnostic() {
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
-  ctx.fillText('reconnection rate  M_A vs Lundquist S', px + 8, py + 14);
+  ctx.fillText('reconnection rate vs Lundquist S', px + 8, py + 14);
   const ax = px + 40, ay = py + 22, aw = pw - 52, ah = ph - 42;
   // Sweep log_eta to span S and M_A; collect (logS, logMA).
   const base = currentParams();
