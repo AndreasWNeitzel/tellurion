@@ -325,33 +325,21 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const model = window.st?.model;
+  return {
+    fields: [
+      { key: 'mass', label: 'stellar mass (Msun)', value: (st.mRaw / 10).toFixed(2), format: 'float' },
+      { key: 'radius', label: 'stellar radius (Rsun)', value: model ? (model.R / RSUN).toFixed(2) : 0, format: 'float' },
+      { key: 'teff', label: 'effective temperature (K)', value: model ? model.Teff.toFixed(0) : 0, format: 'float' },
+      { key: 'lum', label: 'luminosity (Lsun)', value: model ? (model.L / LSUN).toFixed(2) : 0, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const model = window.st?.model;
+  if (!model) return [{ key: 'model', label: 'model ready', value: 'pending', status: 'pending' }];
+  return [{ key: 'polytrope', label: 'n=3 polytrope model', value: 'computed', status: 'pass' }];
+};
