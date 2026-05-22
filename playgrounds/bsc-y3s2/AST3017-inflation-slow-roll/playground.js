@@ -204,5 +204,26 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () { return { fields: [ { key: 'model', label: 'Model', value: st.model }, { key: 'n-efolds', label: 'N e-folds', value: st.N, format: 'float' }, { key: 'ns', label: 'n_s', value: st.ns.toFixed(3) }, { key: 'r', label: 'r', value: st.r.toExponential(2) } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'inflation-params', label: 'Observables consistent', value: 'OK', status: 'pass' } ]; };
+window.playground.getState = function () {
+  const { ns, r } = nsR(model, N);
+  return {
+    fields: [
+      { key: 'model', label: 'Model', value: model, format: undefined },
+      { key: 'n-efolds', label: 'N e-folds', value: N, format: 'float' },
+      { key: 'ns', label: '$n_s$ (scalar tilt)', value: ns, format: 'float' },
+      { key: 'r', label: '$r$ (tensor-to-scalar)', value: r, format: 'float' }
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const { ns, r } = nsR(model, N);
+  const consistent = withinPlanckBox(ns, r);
+  return [
+    {
+      key: 'planck-consistency',
+      label: 'Consistent with Planck 2018 constraints',
+      value: consistent ? 'favored' : 'excluded',
+      status: consistent ? 'pass' : 'drift'
+    }
+  ];
+};
