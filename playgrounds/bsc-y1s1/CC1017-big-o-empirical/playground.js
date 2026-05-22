@@ -189,8 +189,8 @@ function drawPlot(c) {
   ctx.fillStyle = c.muted;
   setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'center' });
   ctx.fillText('input size N', PLOT_L + PLOT_W / 2, PLOT_TOP + PLOT_H + 30);
-  ctx.save(); ctx.translate(PAD - 6, PLOT_TOP + PLOT_H / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('comparisons', 0, 0); ctx.restore();
+  // ctx.save(); ctx.translate(14, PLOT_TOP + PLOT_H / 2); ctx.rotate(-Math.PI / 2);
+  // ctx.fillText('n', 0, 0); ctx.restore();
   setCanvasFont(ctx, canvas, 'legend', { family: 'mono', align: 'left' });
   ctx.fillStyle = c.red; ctx.fillText('1/2 N(N-1), measured O(N^2)', PLOT_L + 8, PLOT_TOP + 14);
   ctx.fillStyle = c.blue; ctx.fillText('N log2 N, measured merge', PLOT_L + 8, PLOT_TOP + 30);
