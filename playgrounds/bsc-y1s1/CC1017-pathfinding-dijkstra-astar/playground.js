@@ -314,20 +314,26 @@ window.playground.getState = function () {
       { key: 'weight', label: 'A* heuristic weight', value: st.w, format: 'float' },
       { key: 'dijkstra-cost', label: 'Dijkstra cost', value: dCost, format: 'float' },
       { key: 'astar-cost', label: 'A* cost', value: aCost, format: 'float' },
-      { key: 'dijkstra-scanned', label: 'Dijkstra nodes', value: st.dj.set.size, format: 'float' }
+      { key: 'dijkstra-scanned', label: 'Dijkstra nodes scanned', value: st.dj.expanded, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
   const dCost = Number.isFinite(st.dj.cost) ? st.dj.cost : 0;
   const aCost = Number.isFinite(st.as.cost) ? st.as.cost : 0;
-  const optimal = aCost <= dCost + 1e-6;
+  const ratio = st.dj.expanded > 0 ? st.as.expanded / st.dj.expanded : 1;
   return [
     {
-      key: 'path-validity',
-      label: 'A* cost >= optimal',
-      value: optimal ? 'pass' : (dCost > 0 ? `${(100 * (aCost - dCost) / dCost).toFixed(1)}%` : 'pending'),
-      status: optimal ? 'pass' : 'drift'
+      key: 'cost-optimality',
+      label: 'A* cost $\\leq$ Dijkstra cost',
+      value: aCost <= dCost ? 'pass' : `+${(100 * (aCost - dCost) / dCost).toFixed(1)}%`,
+      status: aCost <= dCost + 1e-6 ? 'pass' : 'drift'
+    },
+    {
+      key: 'search-efficiency',
+      label: 'A* expanded nodes / Dijkstra',
+      value: ratio.toFixed(2),
+      status: ratio < 1 ? 'pass' : 'pending'
     }
   ];
 };
