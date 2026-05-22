@@ -216,33 +216,48 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const d_m = st.dT;
+  return {
+    fields: [
+      { key: 'separation', label: 'plate separation d (nm)', value: st.dnm, format: 'float' },
+      { key: 'pressure', label: 'Casimir pressure (Pa)', value: casimirPressure(d_m), format: 'float' },
+      { key: 'energy-density', label: 'energy per area (J/m^2)', value: casimirEnergyPerArea(d_m), format: 'float' },
+      { key: 'mode-count', label: 'allowed standing modes up to 10th', value: st.nm, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const d_m = st.dT;
+  const P = casimirPressure(d_m);
+  const E = casimirEnergyPerArea(d_m);
+  // Attractive force: pressure and energy must be negative (inward)
+  inv.push({
+    key: 'casimir-attractive',
+    label: 'Casimir pressure is negative (attractive)',
+    value: P.toExponential(2),
+    status: P < 0 ? 'pass' : 'drift'
+  });
+  inv.push({
+    key: 'energy-negative',
+    label: 'binding energy E < 0',
+    value: E.toExponential(2),
+    status: E < 0 ? 'pass' : 'drift'
+  });
+  // Scaling law: P should scale as d^-4
+  const d_test = d_m * 2;
+  const P_test = casimirPressure(d_test);
+  const expected_ratio = Math.pow(d_m / d_test, 4);
+  const actual_ratio = P / P_test;
+  const rel_err = Math.abs(actual_ratio - expected_ratio) / expected_ratio;
+  inv.push({
+    key: 'd-minus-4-scaling',
+    label: 'P(d) ~ d^-4 holds',
+    value: rel_err.toExponential(2),
+    status: rel_err < 0.001 ? 'pass' : 'pending'
+  });
+  return inv;
+};
