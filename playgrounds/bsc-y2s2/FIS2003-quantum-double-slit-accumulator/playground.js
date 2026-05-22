@@ -131,7 +131,7 @@ function render() {
   ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('counts / |psi|^2', HX + HW / 2, HY + HH + 14);
-  ctx.save(); ctx.translate(HX - 7, HY + HH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('screen y', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(HX - 12, HY + HH / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'left'; ctx.fillText('y', 0, 0); ctx.restore();
   ctx.textAlign = 'left';
 
   const V = visibility(p);
