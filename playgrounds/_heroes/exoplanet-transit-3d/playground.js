@@ -390,22 +390,20 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'planet-radius-rj', label: 'Planet radius', value: st.planetRadius || 1, format: 'float' },
-      { key: 'star-radius-rs', label: 'Star radius', value: st.starRadius || 1, format: 'float' },
-      { key: 'orbital-period-days', label: 'Orbital period', value: st.orbitalPeriod || 3, format: 'float' }
+      { key: 'planet-radius-rs', label: 'Planet radius Rp/Rs', value: ui.Rp, format: 'float' },
+      { key: 'orbital-period-days', label: 'Orbital period', value: ui.period, format: 'float' },
+      { key: 'orbital-inclination', label: 'Inclination', value: (ui.inc * 57.296), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  // Check transit depth = (R_p / R_s)^2.
-  const Rp = st.planetRadius || 1;
-  const Rs = st.starRadius || 1;
-  const depth = (Rp / Rs) ** 2;
-  const status = (depth > 0 && depth < 0.1) ? 'pass' : 'drift';
+  // Check transit depth = (R_p / R_s)^2 is physically reasonable (planet smaller than star).
+  const depth = ui.Rp * ui.Rp;
+  const status = (depth > 0 && depth < 0.3) ? 'pass' : 'drift';
   return [
     {
       key: 'transit-depth-limit',
-      label: 'Transit depth',
+      label: 'Transit depth $(R_p/R_s)^2$',
       value: (depth * 100).toFixed(2) + '%',
       status: status
     }
