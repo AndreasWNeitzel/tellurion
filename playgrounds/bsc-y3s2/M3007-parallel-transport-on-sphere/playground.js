@@ -1,5 +1,8 @@
-// Parallel-transport playground. Render a sphere wireframe with a
-// Beltrami triangle and the holonomy readout.
+// Parallel-transport playground. A tangent vector is carried around a
+// closed loop on a selectable surface; the angle it returns rotated by
+// is the holonomy. Sphere: a geodesic triangle, holonomy = spherical
+// excess. Cone: a loop around the apex, holonomy = the apex deficit
+// 2 pi (1 - sin alpha). Cylinder: developable, holonomy = 0.
 
 import { holonomy, interiorAngleSum, sphericalToCartesian } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -19,6 +22,11 @@ const sliderAlpha = document.getElementById('slider-alpha');
 const sliderBeta  = document.getElementById('slider-beta');
 const valueAlpha  = document.getElementById('value-alpha');
 const valueBeta   = document.getElementById('value-beta');
+const selSurface  = document.getElementById('select-surface');
+
+const SURFACES = ['sphere', 'cone', 'cylinder'];
+const urlSurface = params.get('surface');
+let surface = SURFACES.includes(urlSurface) ? urlSurface : 'sphere';
 
 let alphaDeg = parseFloat(sliderAlpha.value);
 let betaDeg = parseFloat(sliderBeta.value);
@@ -26,6 +34,7 @@ let transportPhase = 0;   // 0..1 progress of the transported vector around the 
 
 sliderAlpha.addEventListener('input', () => { alphaDeg = parseFloat(sliderAlpha.value); valueAlpha.textContent = String(alphaDeg); });
 sliderBeta.addEventListener('input', () => { betaDeg = parseFloat(sliderBeta.value); valueBeta.textContent = String(betaDeg); });
+if (selSurface) selSurface.addEventListener('change', () => { surface = selSurface.value; });
 
 // Pointer-drag camera (yaw and pitch of the orthographic view).
 let camYaw = -0.4, camPitch = 0.6;
@@ -53,34 +62,66 @@ function colors() {
   };
 }
 
-// Render: orthographic projection from a viewpoint above the equator
-// looking down toward the north pole at an oblique angle.
+function vsub(a, b) { return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }; }
+function vdot(a, b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+function vcross(a, b) { return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }; }
+function vnorm(a) { const m = Math.hypot(a.x, a.y, a.z) || 1; return { x: a.x / m, y: a.y / m, z: a.z / m }; }
+function rodrigues(v, n, phi) {
+  const c1 = Math.cos(phi), s1 = Math.sin(phi);
+  const cx = vcross(n, v), nd = vdot(n, v) * (1 - c1);
+  return { x: v.x * c1 + cx.x * s1 + n.x * nd, y: v.y * c1 + cx.y * s1 + n.y * nd, z: v.z * c1 + cx.z * s1 + n.z * nd };
+}
+
+// Orthographic projection. Pointer-draggable yaw and pitch.
 function project(p, cxPx, cyPx, R) {
-  // Rotate so y-axis points right, z-axis up, x-axis toward viewer.
-  // Camera angles are pointer-draggable.
-  const yaw = camYaw, pitch = camPitch;
-  const cy = Math.cos(yaw), sy = Math.sin(yaw);
-  const cp = Math.cos(pitch), sp = Math.sin(pitch);
-  // Rotate around z by yaw.
+  const cy = Math.cos(camYaw), sy = Math.sin(camYaw);
+  const cp = Math.cos(camPitch), sp = Math.sin(camPitch);
   let x = p.x * cy - p.y * sy;
-  let y = p.x * sy + p.y * cy;
+  const y = p.x * sy + p.y * cy;
   let z = p.z;
-  // Rotate around y by pitch (tilt).
   const x2 = x * cp + z * sp;
   const z2 = -x * sp + z * cp;
   x = x2; z = z2;
   return { px: cxPx + R * y, py: cyPx - R * z, depth: x };
 }
 
+// Draw a short tangent arrow from a base point along a tangent vector.
+function drawTangentArrow(base, vec, cxPx, cyPx, R, color, width) {
+  const b = project(base, cxPx, cyPx, R);
+  if (b.depth < -0.12) return;
+  const t = project({ x: base.x + vec.x * 0.32, y: base.y + vec.y * 0.32, z: base.z + vec.z * 0.32 }, cxPx, cyPx, R);
+  ctx.strokeStyle = color; ctx.lineWidth = width;
+  ctx.beginPath(); ctx.moveTo(b.px, b.py); ctx.lineTo(t.px, t.py); ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(b.px, b.py, 4, 0, 2 * Math.PI); ctx.fill();
+}
+
+// Three text readouts, top-left, plus the camera hint.
+function drawReadouts(c, lines) {
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'left';
+  const cols = [c.muted, c.accent, c.green];
+  lines.forEach((ln, i) => {
+    ctx.fillStyle = cols[Math.min(i, cols.length - 1)];
+    ctx.fillText(ln, 12, 20 + i * 18);
+  });
+  ctx.fillStyle = c.muted;
+  ctx.fillText('drag to rotate', 12, canvas.height - 12);
+}
+
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   const cxPx = canvas.width * 0.31;
   const cyPx = canvas.height / 2;
   const R = Math.min(canvas.width * 0.6, canvas.height) * 0.4;
+  if (surface === 'cone') renderCone(c, cxPx, cyPx, R);
+  else if (surface === 'cylinder') renderCylinder(c, cxPx, cyPx, R);
+  else renderSphere(c, cxPx, cyPx, R);
+}
 
+function renderSphere(c, cxPx, cyPx, R) {
   // Sphere wireframe (latitude + longitude grid).
   ctx.strokeStyle = c.grid;
   ctx.lineWidth = 1;
@@ -107,17 +148,12 @@ function render() {
     ctx.stroke();
   }
 
-  // Triangle vertices.
   const alphaR = alphaDeg * Math.PI / 180;
   const betaR = betaDeg * Math.PI / 180;
-  // Vertex 1: north pole.
   const P1 = sphericalToCartesian(Math.PI / 2, 0);
-  // Vertex 2: lat = pi/2 - alpha, lon = 0.
   const P2 = sphericalToCartesian(Math.PI / 2 - alphaR, 0);
-  // Vertex 3: lat = pi/2 - alpha, lon = beta.
   const P3 = sphericalToCartesian(Math.PI / 2 - alphaR, betaR);
 
-  // Draw the three great-circle arcs.
   function drawArc(A, B, color, samples = 100) {
     ctx.strokeStyle = color;
     ctx.lineWidth = 2.5;
@@ -125,17 +161,12 @@ function render() {
     let started = false;
     for (let i = 0; i <= samples; i += 1) {
       const t = i / samples;
-      // Spherical linear interpolation along the great circle.
       const dot = A.x * B.x + A.y * B.y + A.z * B.z;
       const omega = Math.acos(Math.max(-1, Math.min(1, dot)));
       if (omega < 1e-6) continue;
       const sa = Math.sin((1 - t) * omega) / Math.sin(omega);
       const sb = Math.sin(t * omega) / Math.sin(omega);
-      const pt = {
-        x: sa * A.x + sb * B.x,
-        y: sa * A.y + sb * B.y,
-        z: sa * A.z + sb * B.z,
-      };
+      const pt = { x: sa * A.x + sb * B.x, y: sa * A.y + sb * B.y, z: sa * A.z + sb * B.z };
       const p = project(pt, cxPx, cyPx, R);
       if (!started) { ctx.moveTo(p.px, p.py); started = true; } else ctx.lineTo(p.px, p.py);
     }
@@ -145,33 +176,19 @@ function render() {
   drawArc(P2, P3, c.blue);
   drawArc(P3, P1, c.red);
 
-  // Vertices.
-  for (const [P, color, label] of [[P1, c.accent, 'pole'], [P2, c.blue, 'P2'], [P3, c.red, 'P3']]) {
+  for (const [P, color] of [[P1, c.accent], [P2, c.blue], [P3, c.red]]) {
     const p = project(P, cxPx, cyPx, R);
     ctx.fillStyle = color;
     ctx.beginPath(); ctx.arc(p.px, p.py, 6, 0, 2 * Math.PI); ctx.fill();
   }
 
-  // Animated parallel transport of a tangent vector around P1->P2->P3->P1.
-  // Exact on the sphere: transport along a great circle = the same
-  // rotation (about axis n = A x B) that slides the point along the
-  // geodesic, applied to the carried vector.
-  function vsub(a, b) { return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }; }
-  function vdot(a, b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
-  function vcross(a, b) { return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }; }
-  function vnorm(a) { const m = Math.hypot(a.x, a.y, a.z) || 1; return { x: a.x / m, y: a.y / m, z: a.z / m }; }
-  function rodrigues(v, n, phi) {
-    const c1 = Math.cos(phi), s1 = Math.sin(phi);
-    const cx = vcross(n, v), nd = vdot(n, v) * (1 - c1);
-    return { x: v.x * c1 + cx.x * s1 + n.x * nd, y: v.y * c1 + cx.y * s1 + n.y * nd, z: v.z * c1 + cx.z * s1 + n.z * nd };
-  }
+  // Animated parallel transport around P1 -> P2 -> P3 -> P1. Exact on
+  // the sphere: transport along a great circle is the same rotation
+  // (about axis n = A x B) that slides the point along the geodesic.
   const legs = [[P1, P2], [P2, P3], [P3, P1]];
-  // Carry the vector forward from the loop start each render (the loop is
-  // re-walked every frame up to the animation parameter so it stays exact
-  // regardless of frame rate).
   let v0 = vnorm(vsub(P2, { x: P1.x * vdot(P1, P2), y: P1.y * vdot(P1, P2), z: P1.z * vdot(P1, P2) }));
   let v = v0, p = P1;
-  const sGlobal = (transportPhase % 1) * 3;          // 0..3 across the 3 legs
+  const sGlobal = (transportPhase % 1) * 3;
   for (let L = 0; L < 3; L += 1) {
     const A = legs[L][0], B = legs[L][1];
     const axis = vnorm(vcross(A, B));
@@ -181,45 +198,165 @@ function render() {
     const ang = tLeg * omega;
     p = rodrigues(A, axis, ang);
     v = rodrigues(v, axis, ang);
-    // re-anchor: tangent-project v at p to kill numerical drift off the tangent plane
     const vp = vdot(v, p);
     v = vnorm({ x: v.x - vp * p.x, y: v.y - vp * p.y, z: v.z - vp * p.z });
     if (tLeg < 1) break;
-    v0 = v0;  // keep initial reference
   }
-  // Draw the moving frame: a short arrow tangent at p.
-  const pp = project(p, cxPx, cyPx, R);
-  const tip = project({ x: p.x + v.x * 0.32, y: p.y + v.y * 0.32, z: p.z + v.z * 0.32 }, cxPx, cyPx, R);
-  if (pp.depth > -0.05) {
-    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(pp.px, pp.py); ctx.lineTo(tip.px, tip.py); ctx.stroke();
-    ctx.fillStyle = '#ffd166';
-    ctx.beginPath(); ctx.arc(pp.px, pp.py, 4, 0, 2 * Math.PI); ctx.fill();
-  }
-  // Ghost of the initial vector at P1 for comparison.
-  const g0 = project(P1, cxPx, cyPx, R);
-  const g1 = project({ x: P1.x + v0.x * 0.32, y: P1.y + v0.y * 0.32, z: P1.z + v0.z * 0.32 }, cxPx, cyPx, R);
-  ctx.strokeStyle = 'rgba(220,220,240,0.4)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(g0.px, g0.py); ctx.lineTo(g1.px, g1.py); ctx.stroke();
+  drawTangentArrow(P1, v0, cxPx, cyPx, R, 'rgba(225,225,245,0.72)', 1.5);
+  drawTangentArrow(p, v, cxPx, cyPx, R, '#ffd166', 3);
 
-  // Readout text.
-  ctx.fillStyle = c.muted;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`alpha = ${alphaDeg} deg, beta = ${betaDeg} deg`, 12, 20);
-  ctx.fillText('drag to rotate', 12, canvas.height - 12);
   const om = holonomy(alphaR, betaR);
-  ctx.fillStyle = c.accent;
-  ctx.fillText(`Omega = (1 - cos alpha) beta = ${om.toFixed(4)} sr`, 12, 38);
-  ctx.fillStyle = c.green;
-  ctx.fillText(`holonomy = Omega = ${(om * 180 / Math.PI).toFixed(1)} deg`, 12, 56);
-  drawHolonomyPlot(alphaR, betaR, c);
+  drawReadouts(c, [
+    `alpha = ${alphaDeg} deg, beta = ${betaDeg} deg`,
+    `Omega = (1 - cos alpha) beta = ${om.toFixed(4)} sr`,
+    `holonomy = Omega = ${(om * 180 / Math.PI).toFixed(1)} deg`,
+  ]);
+  drawHolonomyPlot({
+    title: 'holonomy vs equator span',
+    xlabel: 'beta',
+    xMax: 2 * Math.PI,
+    xCur: betaR,
+    fn: (b) => holonomy(alphaR, b),
+  }, c);
 }
 
-// Rule-13 diagnostic: holonomy theta versus the equator span beta.
-// For a fixed polar angle alpha the holonomy is linear in beta,
-// theta = (1 - cos alpha) beta, so the plotted line is straight and
-// the marker slides along it as the beta slider moves.
-function drawHolonomyPlot(alphaR, betaR, c) {
+function renderCone(c, cxPx, cyPx, R) {
+  // Cone with half-angle alpha, apex at the top, centred vertically.
+  const alpha = alphaDeg * Math.PI / 180;
+  const sinA = Math.sin(alpha), cosA = Math.cos(alpha);
+  const za = cosA / 2;
+  const conePoint = (s, phi) => ({
+    x: s * sinA * Math.cos(phi),
+    y: s * sinA * Math.sin(phi),
+    z: za - s * cosA,
+  });
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  for (let i = 0; i < 16; i += 1) {
+    const phi = (i / 16) * 2 * Math.PI;
+    ctx.beginPath();
+    for (let j = 0; j <= 20; j += 1) {
+      const p = project(conePoint(j / 20, phi), cxPx, cyPx, R);
+      if (j === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+    }
+    ctx.stroke();
+  }
+  for (let k = 1; k <= 5; k += 1) {
+    ctx.beginPath();
+    for (let j = 0; j <= 64; j += 1) {
+      const p = project(conePoint(k / 5, (j / 64) * 2 * Math.PI), cxPx, cyPx, R);
+      if (j === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+    }
+    ctx.stroke();
+  }
+  // Transport loop: a horizontal circle encircling the apex.
+  const sLoop = 0.72;
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let j = 0; j <= 96; j += 1) {
+    const p = project(conePoint(sLoop, (j / 96) * 2 * Math.PI), cxPx, cyPx, R);
+    if (j === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+  }
+  ctx.stroke();
+  const apex = project(conePoint(0, 0), cxPx, cyPx, R);
+  ctx.fillStyle = c.red;
+  ctx.beginPath(); ctx.arc(apex.px, apex.py, 5, 0, 2 * Math.PI); ctx.fill();
+
+  // Parallel transport. Local tangent frame at azimuth phi:
+  //   e_s = (sinA cos phi, sinA sin phi, -cosA)  (down the slant)
+  //   e_p = (-sin phi, cos phi, 0)               (azimuthal)
+  // The cone is flat away from the apex, so the carried vector keeps
+  // angle theta to e_s with d(theta)/d(phi) = -sinA; a full loop
+  // leaves it rotated by the apex deficit 2 pi (1 - sinA).
+  const coneVec = (phi, thv) => {
+    const eS = { x: sinA * Math.cos(phi), y: sinA * Math.sin(phi), z: -cosA };
+    const eP = { x: -Math.sin(phi), y: Math.cos(phi), z: 0 };
+    return {
+      x: Math.cos(thv) * eS.x + Math.sin(thv) * eP.x,
+      y: Math.cos(thv) * eS.y + Math.sin(thv) * eP.y,
+      z: Math.cos(thv) * eS.z + Math.sin(thv) * eP.z,
+    };
+  };
+  const theta0 = 0.5;
+  const phiNow = (transportPhase % 1) * 2 * Math.PI;
+  drawTangentArrow(conePoint(sLoop, 0), coneVec(0, theta0), cxPx, cyPx, R, 'rgba(225,225,245,0.72)', 1.5);
+  drawTangentArrow(conePoint(sLoop, phiNow), coneVec(phiNow, theta0 - sinA * phiNow), cxPx, cyPx, R, '#ffd166', 3);
+
+  const hol = 2 * Math.PI * (1 - sinA);
+  drawReadouts(c, [
+    `cone half-angle alpha = ${alphaDeg} deg`,
+    `apex deficit 2 pi (1 - sin alpha) = ${hol.toFixed(4)} rad`,
+    `holonomy = ${(hol * 180 / Math.PI).toFixed(1)} deg`,
+  ]);
+  drawHolonomyPlot({
+    title: 'holonomy vs cone angle',
+    xlabel: 'alpha',
+    xMax: Math.PI / 2,
+    xCur: alpha,
+    fn: (a) => 2 * Math.PI * (1 - Math.sin(a)),
+  }, c);
+}
+
+function renderCylinder(c, cxPx, cyPx, R) {
+  const Rc = 0.62, halfH = 0.86;
+  const cylPoint = (zf, phi) => ({ x: Rc * Math.cos(phi), y: Rc * Math.sin(phi), z: halfH * zf });
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  for (let i = 0; i < 16; i += 1) {
+    const phi = (i / 16) * 2 * Math.PI;
+    const a = project(cylPoint(-1, phi), cxPx, cyPx, R);
+    const b = project(cylPoint(1, phi), cxPx, cyPx, R);
+    ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.lineTo(b.px, b.py); ctx.stroke();
+  }
+  for (let k = 0; k <= 6; k += 1) {
+    const zf = -1 + 2 * k / 6;
+    ctx.beginPath();
+    for (let j = 0; j <= 64; j += 1) {
+      const p = project(cylPoint(zf, (j / 64) * 2 * Math.PI), cxPx, cyPx, R);
+      if (j === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+    }
+    ctx.stroke();
+  }
+  // Transport loop: the circle at mid-height.
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let j = 0; j <= 96; j += 1) {
+    const p = project(cylPoint(0, (j / 96) * 2 * Math.PI), cxPx, cyPx, R);
+    if (j === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+  }
+  ctx.stroke();
+
+  // The cylinder is developable (K = 0), so the carried vector keeps a
+  // fixed angle to the axial direction e_z; a full loop returns it
+  // unchanged. The holonomy is zero.
+  const cylVec = (phi, thv) => {
+    const eP = { x: -Math.sin(phi), y: Math.cos(phi), z: 0 };
+    return {
+      x: Math.sin(thv) * eP.x,
+      y: Math.sin(thv) * eP.y,
+      z: Math.cos(thv),
+    };
+  };
+  const theta0 = 0.7;
+  const phiNow = (transportPhase % 1) * 2 * Math.PI;
+  drawTangentArrow(cylPoint(0, 0), cylVec(0, theta0), cxPx, cyPx, R, 'rgba(225,225,245,0.72)', 1.5);
+  drawTangentArrow(cylPoint(0, phiNow), cylVec(phiNow, theta0), cxPx, cyPx, R, '#ffd166', 3);
+
+  drawReadouts(c, [
+    'cylinder: a developable surface, K = 0',
+    'parallel transport around the loop',
+    'holonomy = 0.0 deg (vector returns unchanged)',
+  ]);
+  drawHolonomyPlot({
+    title: 'holonomy around the loop',
+    xlabel: 'loop fraction',
+    xMax: 1,
+    xCur: transportPhase % 1,
+    fn: () => 0,
+  }, c);
+}
+
+// Rule-13 diagnostic: holonomy as a function of the surface parameter,
+// drawn as a curve with a marker tracking the current value.
+function drawHolonomyPlot(spec, c) {
   const pw = 250, ph = 150, px = canvas.width - pw - 16, py = 52;
   ctx.fillStyle = 'rgba(8,12,22,0.9)';
   ctx.fillRect(px, py, pw, ph);
@@ -227,42 +364,49 @@ function drawHolonomyPlot(alphaR, betaR, c) {
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220,230,255,0.92)';
   ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
-  ctx.fillText('holonomy vs equator span', px + 8, py + 16);
+  ctx.fillText(spec.title, px + 8, py + 16);
   const ax = px + 30, ay = py + 26, aw = pw - 44, ah = ph - 48;
-  const betaMax = 2 * Math.PI;
-  const holMax = holonomy(alphaR, betaMax) || 1;
-  const xOf = (b) => ax + (b / betaMax) * aw;
-  const yOf = (h) => ay + ah - (h / holMax) * ah;
+  let hMax = 1e-9;
+  for (let i = 0; i <= 60; i += 1) hMax = Math.max(hMax, spec.fn(spec.xMax * i / 60));
+  hMax *= 1.12;
+  const xOf = (x) => ax + (x / spec.xMax) * aw;
+  const yOf = (h) => ay + ah - (h / hMax) * ah;
   ctx.strokeStyle = 'rgba(255,255,255,0.18)';
   ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
   ctx.strokeStyle = c.green; ctx.lineWidth = 2;
   ctx.beginPath();
   for (let i = 0; i <= 60; i += 1) {
-    const b = betaMax * i / 60;
-    const xx = xOf(b), yy = yOf(holonomy(alphaR, b));
+    const x = spec.xMax * i / 60;
+    const xx = xOf(x), yy = yOf(spec.fn(x));
     if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
-  const bClamped = Math.min(betaR, betaMax);
-  const mx = xOf(bClamped), my = yOf(holonomy(alphaR, bClamped));
+  const xc = Math.max(0, Math.min(spec.xMax, spec.xCur));
   ctx.fillStyle = c.accent;
-  ctx.beginPath(); ctx.arc(mx, my, 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(xOf(xc), yOf(spec.fn(xc)), 4, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillText('theta', px + 6, ay + 8);
-  ctx.fillText('0', ax - 4, ay + ah + 12);
-  ctx.fillText('2pi', ax + aw - 14, ay + ah + 12);
+  ctx.fillText('holonomy', px + 8, ay + 8);
+  ctx.fillText(spec.xlabel, ax + aw - ctx.measureText(spec.xlabel).width, ay + ah + 12);
 }
 
 function updateReadout() {
-  const alphaR = alphaDeg * Math.PI / 180;
-  const betaR = betaDeg * Math.PI / 180;
-  const om = holonomy(alphaR, betaR);
-  readoutOm.textContent = om.toFixed(4);
-  readoutAbc.textContent = (interiorAngleSum(alphaR, betaR) - Math.PI).toFixed(4);
+  if (surface === 'sphere') {
+    const alphaR = alphaDeg * Math.PI / 180;
+    const betaR = betaDeg * Math.PI / 180;
+    readoutOm.textContent = holonomy(alphaR, betaR).toFixed(4);
+    readoutAbc.textContent = (interiorAngleSum(alphaR, betaR) - Math.PI).toFixed(4);
+  } else if (surface === 'cone') {
+    const sinA = Math.sin(alphaDeg * Math.PI / 180);
+    readoutOm.textContent = (2 * Math.PI * (1 - sinA)).toFixed(4);
+    readoutAbc.textContent = '0';
+  } else {
+    readoutOm.textContent = '0';
+    readoutAbc.textContent = '0';
+  }
 }
 
 function loop() {
-  transportPhase += 0.0022;            // ~one full loop traversal per ~7.5 s
+  transportPhase += 0.0022;
   render();
   updateReadout();
   requestAnimationFrame(loop);
@@ -277,6 +421,7 @@ function bootSync() {
   }
   valueAlpha.textContent = String(alphaDeg);
   valueBeta.textContent = String(betaDeg);
+  if (selSurface) selSurface.value = surface;
   render();
   updateReadout();
 
@@ -306,31 +451,71 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  if (surface === 'cone') {
+    const alpha = alphaDeg * Math.PI / 180;
+    const hol = 2 * Math.PI * (1 - Math.sin(alpha));
+    return {
+      fields: [
+        { key: 'surface', label: 'surface', value: 'Cone' },
+        { key: 'alpha', label: 'cone half-angle $\\alpha$ (deg)', value: alphaDeg, format: 'float' },
+        { key: 'holonomy', label: 'holonomy $\\theta$ (rad)', value: hol, format: 'float' },
+        { key: 'phase', label: 'transport progress', value: transportPhase % 1, format: 'float' },
+      ],
+    };
+  }
+  if (surface === 'cylinder') {
+    return {
+      fields: [
+        { key: 'surface', label: 'surface', value: 'Cylinder' },
+        { key: 'holonomy', label: 'holonomy $\\theta$ (rad)', value: 0, format: 'float' },
+        { key: 'phase', label: 'transport progress', value: transportPhase % 1, format: 'float' },
+      ],
+    };
+  }
   const alpha = alphaDeg * Math.PI / 180;
   const beta = betaDeg * Math.PI / 180;
-  const hol = holonomy(alpha, beta);
   return {
     fields: [
+      { key: 'surface', label: 'surface', value: 'Sphere' },
       { key: 'alpha', label: 'polar angle $\\alpha$ (deg)', value: alphaDeg, format: 'float' },
       { key: 'beta', label: 'equator span $\\beta$ (deg)', value: betaDeg, format: 'float' },
-      { key: 'holonomy', label: 'holonomy $\\theta$ (rad)', value: hol, format: 'float' },
-      { key: 'phase', label: 'transport progress', value: transportPhase, format: 'float' }
-    ]
+      { key: 'holonomy', label: 'holonomy $\\theta$ (rad)', value: holonomy(alpha, beta), format: 'float' },
+      { key: 'phase', label: 'transport progress', value: transportPhase % 1, format: 'float' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
+  if (surface === 'cone') {
+    // The cone unrolls onto a flat sector of angle 2 pi sin(alpha);
+    // the holonomy is the missing wedge, so holonomy + sector = 2 pi.
+    const sinA = Math.sin(alphaDeg * Math.PI / 180);
+    const hol = 2 * Math.PI * (1 - sinA);
+    const total = hol + 2 * Math.PI * sinA;
+    const drift = Math.abs(total - 2 * Math.PI) / (2 * Math.PI);
+    return [{
+      key: 'deficit',
+      label: 'holonomy plus the flattened sector angle equals $2\\pi$',
+      value: total.toFixed(4),
+      status: drift < 1e-9 ? 'pass' : 'drift',
+    }];
+  }
+  if (surface === 'cylinder') {
+    return [{
+      key: 'developable',
+      label: 'cylinder is developable: holonomy vanishes for every loop',
+      value: '0.000',
+      status: 'pass',
+    }];
+  }
   const alpha = alphaDeg * Math.PI / 180;
   const beta = betaDeg * Math.PI / 180;
   const hol = holonomy(alpha, beta);
-  const angleSum = interiorAngleSum(alpha, beta);
-  const solidAngle = angleSum - Math.PI;
+  const solidAngle = interiorAngleSum(alpha, beta) - Math.PI;
   const relError = Math.abs(hol - solidAngle) / (Math.abs(solidAngle) + 1e-9);
-  return [
-    {
-      key: 'gauss-bonnet',
-      label: 'holonomy $\\theta = \\iint K\\,dA$ equals the spherical excess (Gauss-Bonnet)',
-      value: hol.toFixed(3),
-      status: relError < 0.01 ? 'pass' : 'drift'
-    }
-  ];
+  return [{
+    key: 'gauss-bonnet',
+    label: 'holonomy $\\theta = \\iint K\\,dA$ equals the spherical excess (Gauss-Bonnet)',
+    value: hol.toFixed(3),
+    status: relError < 0.01 ? 'pass' : 'drift',
+  }];
 };

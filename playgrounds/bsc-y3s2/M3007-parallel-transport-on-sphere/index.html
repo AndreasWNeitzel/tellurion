@@ -64,12 +64,15 @@
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Parallel transport around a Beltrami spherical triangle: holonomy
-      = solid angle. Source: do Carmo (cited via `carroll2019` for the
-      same Gauss-Bonnet statement in GR textbooks).</figcaption>
+      Parallel transport of a tangent vector around a closed loop on a
+      selectable surface. The holonomy is the spherical excess on the
+      sphere, the apex deficit on the cone, and zero on the developable
+      cylinder. Source: do Carmo (cited via `carroll2019` for the same
+      Gauss-Bonnet statement in GR textbooks).</figcaption>
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls" role="group" aria-label="Sphere controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Surface controls">
+    <div class="row"><span class="label">Surface</span><select aria-label="Surface" id="select-surface"><option value="sphere">Sphere</option><option value="cone">Cone</option><option value="cylinder">Cylinder</option></select></div>
     <div class="row"><span class="label">alpha (deg)</span><input aria-label="alpha (deg)" type="range" id="slider-alpha" min="5" max="90" step="1" value="60"><span class="value" id="value-alpha">60</span></div>
     <div class="row"><span class="label">beta (deg)</span><input aria-label="beta (deg)" type="range" id="slider-beta" min="10" max="180" step="1" value="90"><span class="value" id="value-beta">90</span></div>
   </div>
@@ -82,8 +85,8 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch between the sphere, cone, and cylinder and compare the holonomy each loop accumulates.</li>
+        <li class="t-body">Drag the canvas to rotate; on the cone, narrow the half-angle to widen the apex deficit.</li>
       </ul>
     </section>
 
