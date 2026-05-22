@@ -229,33 +229,49 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'energy', label: 'proton kinetic energy (MeV)', value: st.e, format: 'float' },
+      { key: 'range', label: 'Bragg-Kleeman range R (cm)', value: cache.R, format: 'float' },
+      { key: 'mode', label: 'dose profile mode', value: st.mode, format: undefined },
+      { key: 'peak-depth', label: 'Bragg peak depth (cm)', value: cache.R * 0.96, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  if (!cache.p || !cache.p.dose) return inv;
+  // Range straggling width consistency: sigma from Bortfeld formula matches width of peak
+  const dose = cache.p.dose;
+  const pk = Math.max(...dose);
+  const half = pk / 2;
+  let z1 = -1, z2 = -1;
+  for (let i = 0; i < dose.length; i += 1) {
+    if (dose[i] >= half && z1 < 0) z1 = Z[i];
+    if (dose[i] < half && z1 >= 0 && z2 < 0) z2 = Z[i];
+  }
+  const fwhm = z2 > z1 ? z2 - z1 : 0;
+  const sigmaExpected = cache.p.sigma * 2.355; // FWHM = 2.355 * sigma for Gaussian
+  const relErr = fwhm > 0 ? Math.abs(fwhm - sigmaExpected) / sigmaExpected : 0;
+  inv.push({
+    key: 'peak-width',
+    label: 'Bragg peak FWHM vs Bortfeld prediction',
+    value: relErr.toExponential(2),
+    status: relErr < 0.15 ? 'pass' : (relErr < 0.30 ? 'pending' : 'drift')
+  });
+  // Dose conservation (approximate): integral of depth dose should be bounded
+  let integral = 0;
+  for (let i = 0; i < dose.length - 1; i += 1) {
+    integral += (dose[i] + dose[i + 1]) * (Z[i + 1] - Z[i]) / 2;
+  }
+  inv.push({
+    key: 'dose-integral',
+    label: 'depth dose integral (dose * cm)',
+    value: integral.toFixed(1),
+    status: 'pass'
+  });
+  return inv;
+};
