@@ -339,29 +339,17 @@ if (CAPTURE_NAME) {
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const M = currentMass_kg();
+  return {
+    fields: [
+      { key: 'mass', label: 'black hole mass (kg)', value: M, format: 'sci' },
+      { key: 'hawking-temp', label: 'Hawking temperature (K)', value: hawkingTemperature_K(M), format: 'sci' },
+      { key: 'hawking-power', label: 'Hawking power (W)', value: hawkingPower_W(M), format: 'sci' },
+      { key: 'schwarzschild', label: 'Schwarzschild radius (m)', value: schwarzschildRadius_m(M), format: 'sci' },
+    ],
   };
-}
+};
 // The Hawking temperature is inversely proportional to the black
 // hole mass, T = hbar c^3 / (8 pi G k M), so the product T*M is a
 // universal constant: comparing it at M and 2M is the invariant.
