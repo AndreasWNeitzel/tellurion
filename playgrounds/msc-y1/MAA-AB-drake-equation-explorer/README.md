@@ -1,10 +1,10 @@
 # Drake equation explorer
 
-$N = R_\star \cdot f_p \cdot n_e \cdot f_l \cdot f_i \cdot f_c \cdot L$ with sliders on the four most uncertain factors and a 2000-trial Monte Carlo that draws each factor log-uniformly within $\pm 0.5$ dex of the slider center. The histogram shows $\log_{10}N$; the dashed white line is the point estimate; the accent line is the MC median.
+The Drake equation estimates how many communicating civilizations exist in the Galaxy right now. It multiplies a star-formation rate by a chain of probabilities (planets, habitability, intelligence, technology, longevity). Four sliders control the four most uncertain factors; the other factors are held at their best-guess astronomical values. Adjust the sliders and watch the estimated number $N$ sweep through many orders of magnitude.
 
-Look for the gap between the optimistic $N \sim 30$ at the Carroll-Ostlie defaults and pessimistic values where $N < 1$. This gap is the Fermi paradox.
+The histogram shows the distribution of $N$ from a 2000-trial Monte Carlo. Each trial draws each factor log-uniformly within a range (plus or minus 0.5 dex) around the slider's central value. The dashed line marks the point estimate at your slider settings; the accent-colored line shows the median of the Monte Carlo samples. The spread, not the headline number, is the real lesson.
 
-Four sliders.
+The Fermi paradox appears as the large gap between optimistic ($N \sim 30$ civilizations at the default settings) and the pessimistic scenarios (where $N < 1$, meaning we might be alone). Explore this gap by varying the civilization lifetime $L$ or the fraction where intelligence arises $f_i$.
 
 ## Reference
 
