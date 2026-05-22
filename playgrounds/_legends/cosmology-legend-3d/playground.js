@@ -253,17 +253,17 @@ function drawFateMode(aNow) {
   // Legend.
   let lyy = py + 30;
   ctx.fillStyle = 'rgba(255, 140, 220, 1.0)';
-  ctx.fillRect(px + pw - 180, lyy - 8, 10, 3);
+  ctx.fillRect(px + pw - 270, lyy - 8, 10, 3);
   ctx.fillStyle = 'rgba(255, 200, 240, 0.95)';
   ctx.font = fontString(canvas, 'tick', 'mono', 600);
-  ctx.fillText(`your universe (Ω_m=${st.Om.toFixed(2)}, Ω_Λ=${st.Ol.toFixed(2)})`, px + pw - 165, lyy - 4);
+  ctx.fillText(`your universe (Ω_m=${st.Om.toFixed(2)})`, px + pw - 255, lyy - 4);
   lyy += 16;
   for (const f of fates) {
     ctx.fillStyle = colors[f];
-    ctx.fillRect(px + pw - 180, lyy - 8, 10, 3);
+    ctx.fillRect(px + pw - 270, lyy - 8, 10, 3);
     ctx.fillStyle = 'rgba(220, 230, 255, 0.75)';
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(FATE_PRESETS[f].label, px + pw - 165, lyy - 4);
+    ctx.fillText(FATE_PRESETS[f].label, px + pw - 255, lyy - 4);
     lyy += 14;
   }
 
