@@ -72,7 +72,11 @@ function render() {
   blit(longAvg, idLong, lxR, gy0, 0.5);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('short exposure (boiling speckle)', gx0, gy0 + IMG + 18);
-  ctx.fillText(`long exposure (seeing disk, ${longN} frames)`, lxR, gy0 + IMG + 18);
+  // Right-aligned to the panel edge; the frame count is dropped so the
+  // label fits under the image instead of running off the canvas.
+  ctx.textAlign = 'right';
+  ctx.fillText('long exposure (seeing disk)', lxR + IMG, gy0 + IMG + 18);
+  ctx.textAlign = 'left';
   ctx.fillStyle = '#ffd166';
   ctx.fillText(`D / r0 = ${st.Dr0.toFixed(1)}    speckles ~ ${expectedSpeckleCount(st.Dr0, 1).toFixed(0)}`, gx0, 44);
 
