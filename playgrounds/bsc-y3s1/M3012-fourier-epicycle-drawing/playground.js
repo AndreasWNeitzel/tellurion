@@ -215,33 +215,45 @@ window.__physicsCheck = async () => {
 };
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'preset', label: 'Path preset', value: state.preset, format: undefined },
+      { key: 'epicycles-m', label: 'Epicycles M', value: state.M, format: 'float' },
+      { key: 'reconstruction-rms', label: 'Reconstruction RMS', value: rmsError(state.coeffs, state.M, state.path), format: 'float' },
+      { key: 'visible-circles', label: 'Visible rings', value: state._circlesDrawn ?? state.M, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const rms = rmsError(state.coeffs, state.M, state.path);
+  let parseval_lhs = 0;
+  for (const c of state.coeffs) parseval_lhs += c.amp * c.amp;
+  let parseval_rhs = 0;
+  for (const p of state.path) parseval_rhs += p.x * p.x + p.y * p.y;
+  parseval_rhs /= state.path.length;
+  const parseval_err = Math.abs(parseval_lhs - parseval_rhs) / Math.max(parseval_rhs, 1e-9);
+  const rmsFull = rmsError(state.coeffs, N >> 1, state.path);
+  return [
+    {
+      key: 'parseval-identity',
+      label: 'Parseval: sum |C|^2 = (1/N) sum |z|^2',
+      value: parseval_err.toExponential(2),
+      status: parseval_err < 1e-6 ? 'pass' : 'drift'
+    },
+    {
+      key: 'full-reconstruction',
+      label: 'Full N/2 reconstruction RMS',
+      value: rmsFull.toExponential(2),
+      status: rmsFull < 1e-3 ? 'pass' : 'drift'
+    },
+    {
+      key: 'monotonic-convergence',
+      label: 'Current M reconstruction',
+      value: rms.toExponential(2),
+      status: 'pending'
+    }
+  ];
+};
