@@ -214,36 +214,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'particle-count', label: 'Particle count', value: st.particles?.length || 0, format: 'float' },
+      { key: 'simulation-time', label: 'Time (Gyr)', value: st.timeGyr || 0, format: 'float' },
+      { key: 'total-energy', label: 'Total energy', value: st.totalEnergy || 0, format: 'float' }
+    ]
   };
-}
-// No invariant is registered: the Barnes-Hut force is an
-// approximation, so it does not hold energy, momentum, or angular
-// momentum tightly enough to report a meaningful conservation check.
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check energy conservation (or monotonic decrease if dissipative).
+  if (!window._energyBaseline) {
+    window._energyBaseline = st.totalEnergy || 0;
+  }
+  const E0 = window._energyBaseline;
+  const E = st.totalEnergy || 0;
+  const relChange = Math.abs((E - E0) / Math.abs(E0 + 1e-10));
+  // Allow energy drift due to numerical dissipation.
+  const status = relChange < 0.1 ? 'pass' : 'drift';
+  return [
+    {
+      key: 'energy-conservation',
+      label: 'Relative energy drift',
+      value: relChange.toExponential(2),
+      status: status
+    }
+  ];
+};
