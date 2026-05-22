@@ -197,33 +197,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const vecs = state.vectors || [];
+  const orthCount = vecs.filter(v => v && v.orthogonal).length || 0;
+  return {
+    fields: [
+      { key: 'vector-count', label: 'vectors', value: vecs.length, format: 'float' },
+      { key: 'ortho-count', label: 'orthogonal', value: orthCount, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const vecs = state.vectors || [];
+  if (vecs.length < 2) {
+    return [{ key: 'pending', label: 'add vectors', value: 'pending', status: 'pending' }];
+  }
+  let dotMax = 0;
+  for (let i = 0; i < vecs.length; i++) {
+    for (let j = i + 1; j < vecs.length; j++) {
+      const v1 = vecs[i], v2 = vecs[j];
+      if (v1 && v2) {
+        const dot = v1.x * v2.x + v1.y * v2.y + (v1.z || 0) * (v2.z || 0);
+        dotMax = Math.max(dotMax, Math.abs(dot));
+      }
+    }
+  }
+  return [
+    {
+      key: 'orthogonality',
+      label: 'vectors orthogonal (max |v_i . v_j|)',
+      value: dotMax.toExponential(2),
+      status: dotMax < 1e-10 ? 'pass' : 'drift'
+    }
+  ];
+};
