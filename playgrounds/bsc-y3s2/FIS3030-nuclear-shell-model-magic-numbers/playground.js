@@ -326,33 +326,38 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'nucleon-count', label: 'total nucleon count N', value: N, format: 'float' },
+      { key: 'filled-level', label: 'highest filled level index', value: fillIndex(N), format: 'float' },
+      { key: 'magic', label: 'is magic number', value: isMagic(N) ? 'yes' : 'no', format: undefined },
+      { key: 'shell-closure', label: 'next magic number', value: MAGIC.find((m) => m > N) ?? 'N/A', format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  // Occupancy filling consistency: cumulative should match N at the filled level
+  const idx = fillIndex(N);
+  const prevCumul = idx > 0 ? LEVELS[idx - 1].cumul : 0;
+  const currCumul = LEVELS[idx].cumul;
+  inv.push({
+    key: 'occupancy-bounds',
+    label: 'filled level bounds N within cumulative occupancy',
+    value: `${prevCumul} <= ${N} <= ${currCumul}`,
+    status: (N >= prevCumul && N <= currCumul) ? 'pass' : 'drift'
+  });
+  // Magic number detection: at magic numbers, should have zero unfilled levels in current shell
+  const atMagic = isMagic(N);
+  const expected = MAGIC.includes(N);
+  inv.push({
+    key: 'magic-detection',
+    label: 'magic number flag vs MAGIC table',
+    value: atMagic === expected ? 'match' : 'mismatch',
+    status: atMagic === expected ? 'pass' : 'drift'
+  });
+  return inv;
+};
