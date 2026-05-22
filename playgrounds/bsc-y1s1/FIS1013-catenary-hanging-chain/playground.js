@@ -214,33 +214,29 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const span = Math.hypot(state.P2.x - state.P1.x, state.P2.y - state.P1.y);
+  return {
+    fields: [
+      { key: 'cable-length', label: 'Cable length L', value: state.L, format: 'float' },
+      { key: 'span', label: 'Tower span', value: span, format: 'float' },
+      { key: 'taut-ratio', label: 'L / span (taut=1)', value: state.L / Math.max(1e-6, span), format: 'float' },
+      { key: 'config', label: 'Configuration', value: state.L > span ? 'slack' : 'taut', format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const span = Math.hypot(state.P2.x - state.P1.x, state.P2.y - state.P1.y);
+  const length_positive = state.L > 0;
+  const length_gt_span = state.L >= span - 1e-6;
+  return [
+    {
+      key: 'geometry-validity',
+      label: 'L >= span',
+      value: length_gt_span ? 'pass' : 'fail',
+      status: length_gt_span ? 'pass' : 'drift'
+    }
+  ];
+};
