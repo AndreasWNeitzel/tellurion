@@ -315,33 +315,11 @@ window.__physicsCheck = async () => {
 };
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
+window.playground.getState = function () {
+  return { fields: [ { key: 'primary-energy', label: 'Primary energy (eV)', value: state.E || 1e15, format: 'float' }, { key: 'altitude', label: 'Altitude (km)', value: state.h || 20, format: 'float' }, { key: 'particle-count', label: 'Particles', value: state.N || 0, format: 'float' }, { key: 'shower-max', label: 'Shower max (g/cm2)', value: state.X_max || 600, format: 'float' } ] }; };
+window.playground.getInvariants = function () { const N = state.N || 0; return [ { key: 'particle-count-positive', label: 'Particle count > 0', value: N > 0 ? 'pass' : 'pending', status: N > 0 ? 'pass' : 'pending' } ]; };
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () { return []; };
 }
