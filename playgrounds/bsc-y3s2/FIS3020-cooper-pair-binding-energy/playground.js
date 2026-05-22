@@ -47,11 +47,12 @@ function renderLeftPanel(w, h) {
 
   ctx.fillStyle = '#9aa0a6';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('log10(E_b / hω_D)', x0 + 8, y0 + pad.t - 5);
+  ctx.fillText('E', x0 + 8, y0 + pad.t - 5);
   ctx.save();
-  ctx.translate(x0 + 10, y0 + h / 2);
+  ctx.translate(x0 - 2, y0 + h / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('N(0)V', 0, 0);
+  ctx.textAlign = 'left';
+  ctx.fillText('ρV', 0, 0);
   ctx.restore();
 
   const xToPx = (n) => x0 + pad.l + (n - 0.05) / 0.95 * (w - pad.l - pad.r);
@@ -89,7 +90,8 @@ function renderLeftPanel(w, h) {
 
   ctx.fillStyle = '#06d6a0';
   ctx.font = fontString(canvas, 'caption', 'mono', 600);
-  ctx.fillText(`E_b = ${Ecur.toExponential(2)} hω_D`, x0 + pad.l, y0 + h - 12);
+  ctx.textAlign = 'left';
+  ctx.fillText(`E_b = ${Ecur.toExponential(2)}`, x0 + pad.l, y0 + h - 12);
 
   rE.textContent = Ecur.toExponential(2);
 }
