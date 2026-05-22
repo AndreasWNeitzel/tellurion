@@ -313,33 +313,40 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const latestShot = shots.length > 0 ? shots[shots.length - 1] : null;
+  const apex = latestShot ? latestShot.apex : 0;
+  const range = latestShot ? latestShot.range : 0;
+  return {
+    fields: [
+      { key: 'launch-speed', label: 'launch speed (m/s)', value: st.speed, format: 'float' },
+      { key: 'elevation', label: 'elevation (deg)', value: st.elev, format: 'float' },
+      { key: 'spin-rate', label: 'max sidespin (rad/s)', value: st.spinMax, format: 'float' },
+      { key: 'apex-height', label: 'apex (m)', value: apex, format: 'float' },
+      { key: 'range-m', label: 'downrange (m)', value: range, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (shots.length === 0) {
+    return [{ key: 'pending', label: 'awaiting launch', value: 'pending', status: 'pending' }];
+  }
+  const latestShot = shots[shots.length - 1];
+  const noSpinShot = shots.find(s => Math.abs(s.spinRate) < 1e-6);
+  if (!noSpinShot || shots.length < 2) {
+    return [{ key: 'compare-ready', label: 'ready for Magnus check', value: 'pending', status: 'pending' }];
+  }
+  const withMagnus = latestShot.range;
+  const noMagnusRange = noSpinShot.range;
+  const rangeChange = Math.abs(withMagnus - noMagnusRange);
+  return [
+    {
+      key: 'magnus-effect',
+      label: 'range varies with spin (m difference)',
+      value: rangeChange.toFixed(2),
+      status: rangeChange > 1.0 ? 'pass' : 'drift'
+    }
+  ];
+};
