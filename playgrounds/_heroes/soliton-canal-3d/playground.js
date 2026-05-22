@@ -176,8 +176,9 @@ function drawPlot() {
   const dY0 = topH + 4, dY1 = H - 18;
   pctx.strokeStyle = '#2a2d34';
   pctx.strokeRect(30, dY0, W - 40, dY1 - dY0);
-  pctx.fillStyle = '#7a818c';
-  pctx.fillText('conserved-quantity drift (log)', 8, dY0 + 12);
+  pctx.fillStyle = '#7a818c'; pctx.textAlign = 'right';
+  pctx.fillText('conserved-quantity drift (log)', W - 12, dY0 + 12);
+  pctx.textAlign = 'left';
   // y: log10 drift from -10 to 0.
   const lLo = -10, lHi = 0;
   function yDrift(d) {
@@ -206,9 +207,9 @@ function drawPlot() {
   for (let l = lLo; l <= lHi; l += 5) pctx.fillText(`10^${l}`, 32, yDrift(Math.pow(10, l)) + 3);
   // Legend.
   pctx.textAlign = 'left'; pctx.font = fontString(canvas, 'caption', 'mono');
-  pctx.fillStyle = '#ffd166'; pctx.fillText('mass', 36, dY0 + 12);
-  pctx.fillStyle = '#5bc0eb'; pctx.fillText('momentum', 72, dY0 + 12);
-  pctx.fillStyle = '#ef476f'; pctx.fillText('energy', 138, dY0 + 12);
+  pctx.fillStyle = '#ffd166'; pctx.fillText('mass', 36, dY0 + 26);
+  pctx.fillStyle = '#5bc0eb'; pctx.fillText('momentum', 72, dY0 + 26);
+  pctx.fillStyle = '#ef476f'; pctx.fillText('energy', 138, dY0 + 26);
 }
 
 function refreshReadout() {
