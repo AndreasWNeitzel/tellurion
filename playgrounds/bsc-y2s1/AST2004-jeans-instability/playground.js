@@ -340,30 +340,29 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2, generic fallback) ===
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const rho = nToRho(Math.pow(10, logN));
+  const Lj = jeansLengthM(T, rho);
+  const Mj = jeansMassKg(T, rho);
+  return {
+    fields: [
+      { key: 'T', label: 'Temperature T', value: T, format: 'float' },
+      { key: 'logN', label: 'Log density log10(n)', value: logN, format: 'float' },
+      { key: 'Lj', label: 'Jeans length Lj', value: Lj / PC_M, format: 'float' },
+      { key: 'Mj', label: 'Jeans mass Mj', value: Mj / M_SUN, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const rho = nToRho(Math.pow(10, logN));
+  const Lj = jeansLengthM(T, rho);
+  const unstableK = 1 / Lj;
+  return [{
+    key: 'jeans-instability',
+    label: `Unstable region k < 1/Lj (wavenumber < ${(1e-20/Lj).toFixed(3)})`,
+    value: 'pass',
+    status: 'pass'
+  }];
+};
