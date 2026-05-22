@@ -78,3 +78,7 @@ export function credibleInterval(a, b, mass = 0.95) {
   }
   return { lo: invCdf(tailMass), hi: invCdf(1 - tailMass) };
 }
+
+export function credibleInterval95(a, b) {
+  return credibleInterval(a, b, 0.95);
+}
