@@ -262,33 +262,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const allowedJs = allowedJ(st.j1, st.j2);
+  const mult = allowedJs.length > 0 ? multiplicity(allowedJs[st.jIdx % allowedJs.length]) : 0;
+  return {
+    fields: [
+      { key: 'j1-quantum', label: 'j1 (quantum number)', value: st.j1, format: 'float' },
+      { key: 'j2-quantum', label: 'j2 (quantum number)', value: st.j2, format: 'float' },
+      { key: 'J-values', label: 'Allowed J values', value: allowedJs.map(j => j.toFixed(1)).join(','), format: undefined },
+      { key: 'J-multiplicity', label: 'Multiplicity (2J+1)', value: mult, format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const allowedJs = allowedJ(st.j1, st.j2);
+  const j_range_valid = allowedJs.length > 0 && Math.abs(st.j1 - st.j2) <= allowedJs[0] && allowedJs[allowedJs.length - 1] <= st.j1 + st.j2;
+  const total_dim = totalMultiplicityFromJ(allowedJs);
+  const dim_formula = (2 * st.j1 + 1) * (2 * st.j2 + 1);
+  const dim_match = Math.abs(total_dim - dim_formula) < 0.001;
+  const status = j_range_valid && dim_match ? 'pass' : 'drift';
+  return [
+    {
+      key: 'coupling-range',
+      label: '|j1-j2| <= J <= j1+j2',
+      value: j_range_valid ? 'pass' : 'invalid',
+      status: status
+    }
+  ];
+};
