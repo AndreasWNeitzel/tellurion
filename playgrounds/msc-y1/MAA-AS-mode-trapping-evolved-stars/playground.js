@@ -162,33 +162,30 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'pi1', label: 'Pi_1 (s)', value: st.Pi, format: 'float' },
+      { key: 'amplitude', label: 'Trapping amplitude A', value: st.A, format: 'float' },
+      { key: 'ptrap', label: 'Trap period (s)', value: st.Ptrap, format: 'float' },
+      { key: 'mode-index', label: 'Mode index', value: st.mi }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const periods = modePeriods(NM, st.Pi, st.A, st.Ptrap, P0);
+  let sum = 0;
+  for (let i = 1; i < periods.length; i++) sum += (periods[i] - periods[i-1]);
+  const meanSpacing = sum / (NM - 1);
+  const relError = Math.abs(meanSpacing - st.Pi) / st.Pi;
+  return [
+    {
+      key: 'mean-spacing-rule',
+      label: 'Mean spacing (should be Pi_1)',
+      value: meanSpacing.toFixed(1) + ' s',
+      status: relError < 0.05 ? 'pass' : 'drift'
+    }
+  ];
+};
