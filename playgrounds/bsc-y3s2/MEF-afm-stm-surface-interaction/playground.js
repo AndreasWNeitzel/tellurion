@@ -140,7 +140,7 @@ function drawLaw(px0, py0, pw, ph) {
     const dm = ljMinDistance(SIG);
     ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(dm), Y(0), 4, 0, 6.2832); ctx.fill();
   } else {
-    ctx.fillText('STM current I ~ V e^(-2 kappa d): a decade per A', px0 + 8, py0 + 14);
+    ctx.fillText('STM current I ~ V e^(-2 kappa d)', px0 + 8, py0 + 14);
     const dMin = 2, dMax = 12;
     const I0 = stmCurrent(dMin, BIAS, st.phi);
     const decades = 8;
@@ -174,9 +174,9 @@ function drawScan(px0, py0, pw, ph) {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(px0, py0, pw, ph);
   ctx.strokeStyle = 'rgba(226,232,240,0.2)'; ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(226,232,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  const lbl = st.mode === 'afm' ? 'AFM force along the current scan row'
-    : st.mode === 'stm-ch' ? 'STM constant-height current along the row'
-      : 'STM constant-current tip height along the row (topograph)';
+  const lbl = st.mode === 'afm' ? 'AFM force along the scan row'
+    : st.mode === 'stm-ch' ? 'STM constant-height current, scan row'
+      : 'STM topograph: constant-current height';
   ctx.fillText(lbl, px0 + 8, py0 + 14);
   const samp = rowProfile(st.scanY * XMAX);
   let lo = Infinity, hi = -Infinity;
