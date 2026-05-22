@@ -216,38 +216,36 @@ window.playground.getState = function () {
   const I_a = miAnalytic(state.rho);
   return {
     fields: [
-      { key: 'correlation', label: 'correlation rho', value: state.rho, format: 'float' },
-      { key: 'sigma-x', label: 'std dev X (sx)', value: state.sigmaX, format: 'float' },
-      { key: 'sigma-y', label: 'std dev Y (sy)', value: state.sigmaY, format: 'float' },
-      { key: 'mutual-info', label: 'mutual information I(X;Y) bits', value: I_a, format: 'float' }
+      { key: 'correlation', label: 'correlation $\\rho$', value: state.rho.toFixed(3), format: 'float' },
+      { key: 'sigma-x', label: 'std dev X ($\\sigma_x$)', value: state.sigmaX.toFixed(2), format: 'float' },
+      { key: 'sigma-y', label: 'std dev Y ($\\sigma_y$)', value: state.sigmaY.toFixed(2), format: 'float' },
+      { key: 'mutual-info', label: 'mutual info I(X;Y) (nats)', value: I_a.toFixed(3), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
   const inv = [];
-  // Mutual information bounds: I(X;Y) >= 0 always
   const I_a = miAnalytic(state.rho);
   inv.push({
     key: 'mutual-info-nonneg',
-    label: 'I(X;Y) >= 0',
+    label: 'I(X;Y) >= 0 (nonnegative)',
     value: I_a.toExponential(2),
     status: I_a >= -1e-10 ? 'pass' : 'drift'
   });
-  // For independent variables (rho=0), I should be ~0
-  if (state.rho === 0) {
+  if (Math.abs(state.rho) < 1e-10) {
     inv.push({
       key: 'independence-check',
-      label: 'I(X;Y) = 0 when rho = 0',
+      label: 'I(X;Y) = 0 when $\\rho = 0$',
       value: I_a.toExponential(2),
       status: I_a < 1e-10 ? 'pass' : 'drift'
     });
   }
-  // Cross-check: numeric vs analytic should match
-  const I_n = miNumeric(state.rho);
+  const joint = sample2DGaussianPdf({ rho: state.rho, sigmaX: state.sigmaX, sigmaY: state.sigmaY, gridN: 96, span: 3.2 });
+  const I_n = miNumeric(joint);
   const rel = Math.abs(I_n - I_a) / (Math.max(Math.abs(I_a), 1e-10));
   inv.push({
     key: 'numeric-analytic-match',
-    label: 'numeric I(X;Y) matches analytic',
+    label: 'numeric vs analytic within 1%',
     value: rel.toExponential(2),
     status: rel < 0.01 ? 'pass' : 'pending'
   });
