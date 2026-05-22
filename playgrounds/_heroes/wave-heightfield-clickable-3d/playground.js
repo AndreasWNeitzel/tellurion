@@ -333,23 +333,22 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'wave-speed-ms', label: 'Wave speed', value: st.waveSpeed || 1, format: 'float' },
-      { key: 'amplitude-m', label: 'Amplitude', value: st.amplitude || 0.1, format: 'float' },
-      { key: 'wavelength-m', label: 'Wavelength', value: st.wavelength || 2, format: 'float' }
+      { key: 'wave-speed', label: 'Wave speed $c$', value: ui.c, format: 'float' },
+      { key: 'damping-rate', label: 'Damping $\\gamma$', value: ui.gamma, format: 'float' },
+      { key: 'grid-resolution', label: 'Grid size $N$', value: N, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  // Check wave relation: f * lambda = c.
-  const c = st.waveSpeed || 1;
-  const lambda = st.wavelength || 2;
-  const f = c / lambda;
-  const status = f > 0 && Number.isFinite(f) ? 'pass' : 'fail';
+  // Check wave CFL stability: c * dt <= dx. With dt=0.5, dx=2/N, require c <= 4/N.
+  const dx = 2 / N, dt = 0.5;
+  const CFL = ui.c * dt / dx;
+  const status = CFL <= 1.0 ? 'pass' : 'drift';
   return [
     {
-      key: 'wave-equation-check',
-      label: 'Frequency (c/lambda)',
-      value: f.toFixed(3),
+      key: 'cfl-stability',
+      label: 'CFL number $c \\Delta t / \\Delta x$',
+      value: CFL.toFixed(3),
       status: status
     }
   ];
