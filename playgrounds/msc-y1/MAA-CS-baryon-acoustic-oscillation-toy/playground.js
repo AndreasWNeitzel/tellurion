@@ -161,5 +161,5 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () { return { fields: [ { key: 'redshift', label: 'Redshift z', value: st.z.toFixed(2) }, { key: 'mode-k', label: 'Mode k', value: st.k.toFixed(2) } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'bao-scale', label: 'BAO peak visible', value: 'OK', status: 'pass' } ]; };
+window.playground.getState = function () { const rs = r_s(); return { fields: [ { key: 'baryon-fraction', label: 'Baryon fraction R', value: st.R.toFixed(2), format: 'float' }, { key: 'sound-horizon', label: 'Sound horizon r_s (Mpc)', value: rs.toFixed(0), format: 'float' }, { key: 'time', label: 'Time (kyr)', value: st.t.toFixed(0), format: 'float' } ] }; };
+window.playground.getInvariants = function () { const rs = r_s(); return [ { key: 'bao-scale', label: 'Sound horizon matches Planck ~150 Mpc', value: rs.toFixed(0), status: (rs > 140 && rs < 160) ? 'pass' : 'drift' } ]; };
