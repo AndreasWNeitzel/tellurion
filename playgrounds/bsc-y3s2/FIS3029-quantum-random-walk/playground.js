@@ -133,5 +133,20 @@ window.__physicsCheck = async () => {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () { return { fields: [ { key: 'time-steps', label: 'Steps', value: st.t }, { key: 'delocalization', label: 'Delocalization', value: st.deloc.toFixed(2) } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'probability-norm', label: 'P normalization', value: '1.0', status: 'pass' } ]; };
+window.playground.getState = function () {
+  const pQ = quantum(state.steps);
+  const vQ = variance(pQ);
+  return { fields: [
+    { key: 'time-steps', label: 'Steps', value: state.steps, format: 'float' },
+    { key: 'variance-quantum', label: 'Variance (quantum)', value: vQ.toFixed(2), format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const pQ = quantum(state.steps);
+  let total = 0;
+  for (let i = 0; i < N; i += 1) total += pQ[i];
+  const normErr = Math.abs(total - 1);
+  return [
+    { key: 'probability-norm', label: 'P normalization (sum = 1)', value: total.toFixed(6), status: normErr < 1e-6 ? 'pass' : 'drift' },
+  ];
+};
