@@ -220,33 +220,31 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const P = physParams();
+  const chi = chiOf(st.b, P);
+  const chi_deg = (chi * 180 / Math.PI);
+  return {
+    fields: [
+      { key: 'mass-ratio', label: 'Mass ratio m2/m1', value: st.massRatio, format: 'float' },
+      { key: 'impact-param', label: 'Impact parameter b', value: st.b, format: 'float' },
+      { key: 'chi-cm', label: 'Scattering angle (deg)', value: chi_deg, format: 'float' },
+      { key: 'potential', label: 'Interaction', value: st.kind, format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const P = physParams();
+  const chi = chiOf(st.b, P);
+  const chi_physical = chi > 0 && chi < Math.PI;
+  return [
+    {
+      key: 'scattering-angle',
+      label: '0 < chi < pi',
+      value: chi_physical ? 'pass' : `chi=${(chi * 180 / Math.PI).toFixed(1)} deg`,
+      status: chi_physical ? 'pass' : 'drift'
+    }
+  ];
+};
