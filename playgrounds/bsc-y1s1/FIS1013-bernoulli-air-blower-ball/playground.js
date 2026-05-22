@@ -223,33 +223,26 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const diag = diagnostics(sim);
+  return {
+    fields: [
+      { key: 'height', label: 'Height (m)', value: diag.height, format: 'float' },
+      { key: 'speed', label: 'Speed (m/s)', value: diag.speed, format: 'float' },
+      { key: 'tilt', label: 'Tilt (deg)', value: sim.tiltDeg, format: 'float' },
+      { key: 'power', label: 'Jet speed (m/s)', value: sim.U0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const diag = diagnostics(sim);
+  const yeq = diag.yeq;
+  if (!yeq) return [{ key: 'equilibrium', label: 'Equilibrium height', value: 'no solution', status: 'drift' }];
+  const err = Math.abs(diag.height - yeq) / yeq;
+  const status = err < 0.1 ? 'pass' : (err < 0.3 ? 'pending' : 'drift');
+  return [
+    { key: 'levitation-balance', label: 'Height error', value: (err * 100).toFixed(1) + '%', status }
+  ];
+};
