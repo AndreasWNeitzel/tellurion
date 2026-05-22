@@ -306,33 +306,40 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const thetaDeg = parseFloat(sliderTheta.value);
+  const muS = parseFloat(sliderMus.value);
+  const muK = parseFloat(sliderMuk.value);
+  const thetaRad = thetaDeg * Math.PI / 180;
+  const critAngle = Math.atan(muS) * 180 / Math.PI;
+  return {
+    fields: [
+      { key: 'theta', label: 'slope angle (deg)', value: thetaDeg, format: 'float' },
+      { key: 'mus', label: 'mu_s (static)', value: muS, format: 'float' },
+      { key: 'muk', label: 'mu_k (kinetic)', value: muK, format: 'float' },
+      { key: 'velocity', label: 'velocity (m/s)', value: sim.v, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const thetaDeg = parseFloat(sliderTheta.value);
+  const muS = parseFloat(sliderMus.value);
+  const muK = parseFloat(sliderMuk.value);
+  const thetaRad = thetaDeg * Math.PI / 180;
+  const critAngle = Math.atan(muS);
+  const isStaticStable = Math.tan(thetaRad) <= muS;
+  const shouldMove = !isStaticStable;
+  const moving = sim.moving;
+  const equilibrium = isStaticStable && !moving ? 'stable' : (shouldMove && moving ? 'sliding' : 'transition');
+  const status = (shouldMove === moving) ? 'pass' : 'drift';
+  return [
+    {
+      key: 'equilibrium',
+      label: 'equilibrium check',
+      value: equilibrium,
+      status: status
+    }
+  ];
+};
