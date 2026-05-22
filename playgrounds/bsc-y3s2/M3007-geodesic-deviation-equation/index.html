@@ -11,7 +11,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls select { width: 100%; padding: 4px 8px; background: var(--bg-muted); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 13px; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style>
+<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: 1fr; gap: var(--space-3); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls select { width: 100%; padding: 4px 8px; background: var(--bg-muted); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-size: 13px; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; }</style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 </head>
 <body>
@@ -19,17 +19,17 @@
 
   <a href="/" class="playground-back" aria-label="Back to catalog">
     <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
-    <span class="back-title">Geodesic deviation on a sphere</span>
+    <span class="back-title">Geodesic deviation and curvature</span>
   </a>
 
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Geodesic deviation on a sphere</h1>
+      <h1 class="t-title playground-title">Geodesic deviation and curvature</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> two parallel geodesics on a sphere starting at the equator with a small longitudinal offset. They both head north and meet at the pole, even though they started "parallel". This convergence is the geodesic deviation produced by positive curvature. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).</p>
+      <p class="t-body"><strong>What you are seeing:</strong> a bundle of geodesics that all start parallel. On a curved surface they do not stay parallel: the normal separation between neighbours obeys the Jacobi equation of geodesic deviation, $\ddot{\xi} + K\,\xi = 0$, where $K$ is the Gaussian curvature. Positive curvature (a sphere) refocuses the bundle to a conjugate point; zero curvature keeps it parallel; negative curvature (a hyperbolic surface) makes it diverge exponentially. Source: Carroll, <em>Spacetime and Geometry</em>, Ch. 3.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -39,22 +39,23 @@
       <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Two great circles converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> A parallel geodesic bundle on a surface of constant Gaussian curvature $K$. The Jacobi equation $\ddot{\xi} + K\,\xi = 0$ sets the separation: refocusing for $K>0$, parallel for $K=0$, exponential divergence for $K<0$. Source: Carroll, <em>Spacetime and Geometry</em>, Ch. 3.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">surface</span><select id="select-surface" aria-label="surface type"><option value="sphere">Sphere (K=+1)</option><option value="hyperbolic">Hyperbolic (K=-1)</option></select><span class="value" id="value-surface">Sphere</span></div>
-<div class="row"><span class="label">Δφ (init)</span><input aria-label="Δφ (init)" type="range" id="slider-d" min="0.05" max="1.5" step="0.01" value="0.3"><span class="value" id="value-d">0.30</span></div>
+<div class="row"><span class="label">surface</span><select id="select-surface" aria-label="surface curvature"><option value="sphere">Sphere (K = +1)</option><option value="flat">Flat plane (K = 0)</option><option value="hyperbolic">Hyperbolic (K = -1)</option></select><span class="value" id="value-surface">Sphere (K = +1)</span></div>
+<div class="row"><span class="label">spacing $\xi_0$</span><input aria-label="initial spacing" type="range" id="slider-d" min="0.05" max="0.40" step="0.01" value="0.18"><span class="value" id="value-d">0.18</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">Δ:</span><span class="value" id="readout-d">0.10</span></div><span class="value" id="readout-d">0.10</span></div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">separation:</span><span class="value" id="readout-d">0.10</span></div><span class="value" id="readout-d">0.10</span></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch the surface between positive, zero, and negative curvature, and watch the same bundle refocus, stay parallel, or diverge.</li>
+        <li class="t-body">On the sphere, find the conjugate point where every geodesic in the bundle refocuses to a single spot.</li>
+        <li class="t-body">Change the initial spacing: the normalised separation f(s) is unchanged, because geodesic deviation is linear in the starting offset.</li>
       </ul>
     </section>
 

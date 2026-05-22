@@ -1,28 +1,36 @@
-// Geodesic deviation equation. Two nearby geodesics on a sphere of radius R diverge or converge:
-//   D^2 xi / D tau^2 = R^a_bcd u^b u^c xi^d.
-// On a sphere, two great circles starting parallel near the equator converge at the pole.
-// We propagate two test points starting at (theta = pi/2, phi = phi_0) with d phi separation,
-// integrating along the great circles. Their angular separation oscillates between max and 0.
-// Reference: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).
-export function greatCircle(t, theta0, phi0, alpha) {
-  // Geodesic on unit sphere starting at (theta0, phi0) with initial direction alpha
-  // (alpha = 0 means moving east, alpha = pi/2 means moving north).
-  // Parametric form via spherical trig: simple meridional case here (alpha = 0):
-  // theta(t) = theta0, phi(t) = phi0 + t (along equator).
-  // We use a general great-circle solution via rotation matrices.
-  const cAlpha = Math.cos(alpha), sAlpha = Math.sin(alpha);
-  const cT = Math.cos(theta0), sT = Math.sin(theta0);
-  const cP = Math.cos(phi0), sP = Math.sin(phi0);
-  const east = [-sP, cP, 0];
-  const north = [-cT * cP, -cT * sP, sT];
-  const start = [sT * cP, sT * sP, cT];
-  const tHat = [cAlpha * east[0] + sAlpha * north[0], cAlpha * east[1] + sAlpha * north[1], cAlpha * east[2] + sAlpha * north[2]];
-  const pos = [Math.cos(t) * start[0] + Math.sin(t) * tHat[0], Math.cos(t) * start[1] + Math.sin(t) * tHat[1], Math.cos(t) * start[2] + Math.sin(t) * tHat[2]];
-  const newTheta = Math.acos(Math.max(-1, Math.min(1, pos[2])));
-  const newPhi = Math.atan2(pos[1], pos[0]);
-  return { theta: newTheta, phi: newPhi, x: pos[0], y: pos[1], z: pos[2] };
+// sim.js -- geodesic deviation on a surface of constant Gaussian curvature.
+//
+// A one-parameter family of geodesics, each labelled by arc length s, has a
+// normal separation xi(s) between neighbours that obeys the Jacobi equation
+//   xi''(s) + K xi(s) = 0
+// where K is the Gaussian curvature (Carroll, Spacetime and Geometry, Ch 3,
+// eq 3.107). With xi(0) = xi0 and xi'(0) = 0 (geodesics that start parallel):
+//   K > 0   xi = xi0 cos(sqrt(K) s)     they refocus at s = pi / (2 sqrt K)
+//   K = 0   xi = xi0                    parallel geodesics stay parallel
+//   K < 0   xi = xi0 cosh(sqrt(-K) s)   they diverge exponentially
+
+export const SURFACES = {
+  sphere:     { K: 1,  label: 'Sphere (K = +1)' },
+  flat:       { K: 0,  label: 'Flat plane (K = 0)' },
+  hyperbolic: { K: -1, label: 'Hyperbolic (K = -1)' },
+};
+
+// Normalised Jacobi solution f(s) = xi(s) / xi0, with f(0) = 1, f'(0) = 0.
+export function jacobiFactor(s, K) {
+  if (K > 0) return Math.cos(Math.sqrt(K) * s);
+  if (K < 0) return Math.cosh(Math.sqrt(-K) * s);
+  return 1;
 }
-export function angularSeparation(a, b) {
-  const dot = a.x * b.x + a.y * b.y + a.z * b.z;
-  return Math.acos(Math.max(-1, Math.min(1, dot)));
+
+// Arc length of the first conjugate point, where neighbouring geodesics
+// refocus to a point. Finite only for positive curvature.
+export function conjugateDistance(K) {
+  return K > 0 ? Math.PI / (2 * Math.sqrt(K)) : Infinity;
+}
+
+// Residual of the Jacobi equation, f''(s) + K f(s), evaluated with a
+// centred finite difference. A correct Jacobi solution drives this to zero.
+export function jacobiResidual(s, K, h = 1e-3) {
+  const fpp = (jacobiFactor(s + h, K) - 2 * jacobiFactor(s, K) + jacobiFactor(s - h, K)) / (h * h);
+  return fpp + K * jacobiFactor(s, K);
 }
