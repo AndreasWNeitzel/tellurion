@@ -48,7 +48,7 @@ function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   // Torus shifted left of centre so the K(theta) diagnostic panel in
   // the top-right corner no longer overlaps the rotating surface.
-  const cx = canvas.width * 0.36, cy = 200;
+  const cx = canvas.width * 0.36, cy = 230;
   const R = 100, r = 100 / st.Rr;
   let kMax = 0;
   for (let i = 0; i < 60; i += 1) {
@@ -71,20 +71,25 @@ function render() {
   }
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('Torus: red = K > 0 (outer), blue = K < 0 (inner)', 12, 20);
-  // Below: reference surfaces.
-  const refY = 360, refSize = 60;
+  // Reference surfaces: the three signs of Gaussian curvature, drawn
+  // as a compact bottom legend so the torus keeps the vertical space.
+  const legY = canvas.height - 30;
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'left';
+  ctx.fillText('Reference surfaces, the three signs of Gaussian curvature K:', 12, legY - 16);
   const refs = [
-    { name: 'Sphere (K = 1/R²)', K: sphereK(1), color: '#ef476f' },
-    { name: 'Cylinder (K = 0)', K: 0, color: '#9aa0a6' },
-    { name: 'Hyperbolic (K = -1)', K: hyperbolicK(1), color: '#5bc0eb' },
+    { name: 'sphere', K: sphereK(1), color: '#ef476f' },
+    { name: 'cylinder', K: 0, color: '#9aa0a6' },
+    { name: 'hyperbolic', K: hyperbolicK(1), color: '#5bc0eb' },
   ];
-  refs.forEach((r, i) => {
-    const x0 = canvas.width / 4 + i * canvas.width / 4 - canvas.width / 8;
-    ctx.fillStyle = r.color;
-    ctx.beginPath(); ctx.arc(x0, refY, refSize / 2, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#060608'; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(r.name, x0 - 60, refY + 60);
-    ctx.fillStyle = '#9aa0a6'; ctx.fillText(`K = ${r.K.toFixed(2)}`, x0 - 25, refY + 75);
+  let lx = 12;
+  refs.forEach((rf) => {
+    ctx.fillStyle = rf.color;
+    ctx.beginPath(); ctx.arc(lx + 7, legY - 4, 7, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = '#c8d0e0'; ctx.font = fontString(canvas, 'caption', 'mono');
+    const txt = `${rf.name}  K = ${rf.K.toFixed(2)}`;
+    ctx.fillText(txt, lx + 20, legY);
+    lx += 20 + ctx.measureText(txt).width + 28;
   });
   drawKDiagnostic(R, r, kMax);
   rK.textContent = kMax.toExponential(2);
@@ -97,14 +102,14 @@ function render() {
 // companion to the red/blue coloured torus.
 function drawKDiagnostic(R, r, kMax) {
   const W = canvas.width;
-  const pw = 300, ph = 150, px = W - pw - 16, py = 16;
+  const pw = 300, ph = 150, px = W - pw - 16, py = 48;
   ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
   ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
-  ctx.fillText('Gaussian curvature  K(θ) around the tube', px + 8, py + 16);
+  ctx.fillText('Gaussian curvature K(θ)', px + 8, py + 16);
   const ax = px + 40, ay = py + 26, aw = pw - 52, ah = ph - 48;
   const km = kMax > 0 ? kMax : 1;
   const xOf = (th) => ax + (th / (2 * Math.PI)) * aw;
