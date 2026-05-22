@@ -80,33 +80,27 @@ function bootSync() { st.t = CAPTURE_FRAC * 4.8; render(); if (DETERMINISTIC) re
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const flux = fluxWithLimb(st.p, st.b, st.u1, st.u2);
+  const depth = (1 - flux) * 100;
+  return {
+    fields: [
+      { key: 'depth', label: 'Transit depth (%)', value: depth, format: 'float' },
+      { key: 'radius-ratio', label: 'p (Rp/Rs)', value: st.p, format: 'float' },
+      { key: 'impact-param', label: 'Impact parameter', value: st.b, format: 'float' },
+      { key: 'limb-u1', label: 'Limb u1', value: st.u1, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const flux = fluxWithLimb(st.p, st.b, st.u1, st.u2);
+  const minFlux = 1 - st.p * st.p;
+  const maxFlux = 1;
+  const status = (flux >= minFlux - 0.02 && flux <= maxFlux + 1e-6) ? 'pass' : 'drift';
+  const msg = flux < minFlux ? (minFlux - flux).toExponential(1) + ' below min' : (flux > maxFlux ? (flux - maxFlux).toExponential(1) + ' above max' : 'ok');
+  return [
+    { key: 'flux-bounds', label: 'Flux in [1-p^2, 1]', value: msg, status }
+  ];
+};
