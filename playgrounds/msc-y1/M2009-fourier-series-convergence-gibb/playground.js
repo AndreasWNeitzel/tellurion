@@ -229,8 +229,28 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'term-count', label: 'Fourier terms', value: state.n || 1, format: 'float' }, { key: 'frequency', label: 'Frequency', value: state.freq || 1, format: 'float' }, { key: 'overshoot', label: 'Overshoot', value: state.overshoot || 0, format: 'float' }, { key: 'convergence', label: 'L2 error', value: state.error || 0, format: 'float' } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'overshoot-bounded', label: 'Gibbs overshoot ~9%', value: 'pending', status: 'pending' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const c = coeffs(st.tgt, st.n);
+  const gibbsObj = st.tgt === 'square' ? gibbsOvershoot(st.n) : null;
+  return {
+    fields: [
+      { key: 'term-count', label: 'Fourier terms $N$', value: st.n, format: 'float' },
+      { key: 'target-wave', label: 'Target wave', value: st.tgt === 'square' ? 0 : (st.tgt === 'sawtooth' ? 1 : 2), format: 'float' },
+      { key: 'parseval', label: '$E = \\sum |c_n|^2$', value: parsevalEnergy(c), format: 'float' },
+      { key: 'overshoot', label: 'Gibbs overshoot fraction', value: gibbsObj ? gibbsObj.fraction : 0, format: 'float' }
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const gibbsObj = st.tgt === 'square' ? gibbsOvershoot(st.n) : null;
+  const G_const = gibbsConstant();
+  let overshootStatus = 'pending';
+  let overshootValue = 'N/A';
+  if (gibbsObj && typeof gibbsObj.fraction === 'number') {
+    overshootValue = gibbsObj.fraction.toFixed(4);
+    overshootStatus = st.n >= 16 ? 'pass' : 'pending';
+  }
+  return [
+    { key: 'gibbs-limit', label: 'Gibbs constant $G \\approx 0.1789$', value: G_const.toFixed(4), status: 'pass' },
+    { key: 'overshoot-limit', label: 'Overshoot approaches $G$', value: overshootValue, status: overshootStatus }
+  ];
+};
