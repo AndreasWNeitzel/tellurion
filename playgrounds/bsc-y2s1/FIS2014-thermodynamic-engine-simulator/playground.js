@@ -178,33 +178,34 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const eff = anal.eff;
+  const eff_carnot = carnotEff(st.Th, st.Tc);
+  const Q_in = anal.Q_in;
+  const W_net = anal.W_net;
+  return {
+    fields: [
+      { key: 'cycle-type', label: 'Cycle type', value: st.type, format: undefined },
+      { key: 'hot-temp', label: 'Hot temperature (K)', value: st.Th, format: 'float' },
+      { key: 'cold-temp', label: 'Cold temperature (K)', value: st.Tc, format: 'float' },
+      { key: 'efficiency', label: 'Efficiency', value: eff, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const eff = anal.eff;
+  const eff_carnot = carnotEff(st.Th, st.Tc);
+  const W_net = anal.W_net;
+  const eff_valid = eff >= 0 && eff <= eff_carnot + 0.001;
+  const status = eff_valid ? 'pass' : 'drift';
+  return [
+    {
+      key: 'carnot-bound',
+      label: 'Efficiency <= Carnot',
+      value: eff_valid ? 'pass' : eff.toExponential(2),
+      status: status
+    }
+  ];
+};
