@@ -429,7 +429,8 @@ function render() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`particles: ${st.particles.length}    aurora hits: ${st.nHits}    step: ${st.nSteps}`, 24, 22);
-  ctx.fillText(`solar wind → magnetic mirror reflects particles back before equator → aurora at poles (red = forbidden zone)`, 24, 40);
+  ctx.fillText('solar wind → magnetic mirror reflects particles back before the equator', 24, 40);
+  ctx.fillText('→ aurora rings the poles, never the equator (red = forbidden zone)', 24, 58);
 
   drawDiagnostics();
 
