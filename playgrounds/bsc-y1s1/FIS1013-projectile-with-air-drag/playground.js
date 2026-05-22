@@ -204,27 +204,31 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const v = Math.sqrt(state.sim.vx ** 2 + state.sim.vy ** 2);
+  const none = state.sims && state.sims.none;
+  const drag = state.sims && state.sims.quadratic;
+  const speed = (s) => (s ? Math.hypot(s.vx, s.vy) : 0);
   return {
     fields: [
-      { key: 'v0', label: 'Initial speed (m/s)', value: state.v0, format: 'float' },
-      { key: 'angle', label: 'Launch angle (deg)', value: state.angleDeg, format: 'float' },
-      { key: 'drag-mode', label: 'Drag mode', value: state.dragMode, format: undefined },
-      { key: 'velocity', label: 'Current speed (m/s)', value: v, format: 'float' }
-    ]
+      { key: 'v0', label: 'launch speed $v_0$ (m/s)', value: state.v0, format: 'float' },
+      { key: 'angle', label: 'launch angle (deg)', value: state.angle, format: 'float' },
+      { key: 'speed-nodrag', label: 'speed, no drag (m/s)', value: speed(none), format: 'float' },
+      { key: 'speed-drag', label: 'speed, quadratic drag (m/s)', value: speed(drag), format: 'float' },
+    ],
   };
 };
+let __projE0 = null, __projRef = null;
 window.playground.getInvariants = function () {
-  const v = Math.sqrt(state.sim.vx ** 2 + state.sim.vy ** 2);
-  const v0 = Math.sqrt(state.sim.vx ** 2 + state.sim.vy ** 2);
-  const decreasing = state.dragMode === 'none' ? true : v <= (state.prevV !== undefined ? state.prevV : v0);
-  state.prevV = v;
-  return [
-    {
-      key: 'velocity-monotonic',
-      label: 'v decreases with drag',
-      value: state.dragMode === 'none' ? 'n/a' : (decreasing ? 'pass' : 'warn'),
-      status: state.dragMode === 'none' ? 'pending' : (decreasing ? 'pass' : 'drift')
-    }
-  ];
+  const none = state.sims && state.sims.none;
+  if (!none) return [];
+  // With no drag the projectile is conservative: the mechanical energy
+  // per unit mass, v^2/2 + g y, stays constant along the whole flight.
+  const E = 0.5 * (none.vx * none.vx + none.vy * none.vy) + 9.81 * none.y;
+  if (state.sims !== __projRef) { __projRef = state.sims; __projE0 = E; }
+  const drift = Math.abs(E - __projE0) / Math.max(1e-9, Math.abs(__projE0));
+  return [{
+    key: 'energy',
+    label: 'no-drag flight conserves energy $v^2/2 + g\\,y$',
+    value: drift.toExponential(2),
+    status: drift < 1e-2 ? 'pass' : (drift < 1e-1 ? 'pending' : 'drift'),
+  }];
 };
