@@ -8,6 +8,7 @@
 
 export {
   createState, leapfrog, accBH, accDirect, snapshotTree,
+  kineticEnergy, potentialEnergy,
 } from '../../../shared/js/engine/quadtree-2d.js';
 
 import { createState as createStateImported, leapfrog as leapfrogImported } from '../../../shared/js/engine/quadtree-2d.js';
@@ -66,7 +67,7 @@ export function makeTwoGalaxies(opts = {}) {
       const cx = Math.cos(th), sy = Math.sin(th);
       state.x[2 * idx]     = core.x + r * cx;
       state.x[2 * idx + 1] = core.y + r * sy;
-      state.m[idx] = 1 / N_disk;
+      state.m[idx] = 0;  // Restricted N-body: test particles are massless
       const vCirc = Math.sqrt(M_core / r);
       // Both galaxies spin counter-clockwise: the classic tidal-tail-
       // favorable prograde-prograde geometry (Toomre and Toomre 1972).
