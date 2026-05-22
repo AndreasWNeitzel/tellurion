@@ -43,7 +43,7 @@ const CS = Math.min(PANEL_W / COLS, (H - TOP - 20) / ROWS);
 // One dramatic bolt, not a pulsation: a white-hot head sweeps the path
 // (FLASH_SWEEP frames), then the whole path blazes and the glow decays
 // (FLASH_GLOW frames) to a steady line; REST holds the solved map.
-const FLASH_SWEEP = 26;
+const FLASH_SWEEP = 10;
 const FLASH_GLOW = 32;
 const FLASH_DUR = FLASH_SWEEP + FLASH_GLOW;
 const REST_DUR = 300;          // 5 s hold so the result is readable
