@@ -119,7 +119,7 @@ function drawOven(center, scale) {
   ctx.beginPath(); ctx.arc(cen.x, cen.y, 4, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.8)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('oven', cen.x - 50, cen.y + 26);
+  ctx.fillText('oven', Math.max(8, cen.x - 16), cen.y + 26);
 }
 
 function drawMagnet(center, scale) {
