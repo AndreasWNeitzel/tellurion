@@ -203,33 +203,23 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+window.playground.getState = function () {
+  return { fields: [
+    { key: 'temperature', label: 'Temperature T (J/k_B)', value: st.T, format: 'float' },
+    { key: 'speed', label: 'Animation speed multiplier', value: st.speed, format: 'float' },
+    { key: 'lattice-size', label: 'Lattice size', value: '64x64', format: undefined },
+    { key: 'magnetization', label: 'Magnetization M', value: 'live computed', format: undefined },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const T_c = 2.269; // Critical temperature for 2D Ising
+  const isCritical = Math.abs(st.T - T_c) < 0.2;
+  const isOrdered = st.T < T_c;
+  const isDisordered = st.T > T_c;
+  
+  return [
+    { key: 'critical-temperature', label: 'Critical T_c ~ 2.269 J/k_B (Onsager exact result)', value: isCritical ? 'near T_c' : isOrdered ? 'ordered (T<T_c)' : 'disordered (T>T_c)', status: 'drift' },
+  ];
 }

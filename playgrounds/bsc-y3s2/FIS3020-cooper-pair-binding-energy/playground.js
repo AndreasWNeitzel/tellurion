@@ -187,33 +187,35 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const N0V = st.N0 * st.V;
+  const Eb = bindingEnergy(N0V, st.omega_D);
+  return { fields: [
+    { key: 'coupling', label: 'N(0)V', value: N0V, format: 'float' },
+    { key: 'debye-freq', label: 'hbar*omega_D', value: st.omega_D, format: 'float' },
+    { key: 'binding-energy', label: 'E_b (hbar*omega_D)', value: Eb, format: 'float' },
+    { key: 'binding-log', label: 'log10(E_b)', value: Math.log10(Math.max(Eb, 1e-30)), format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const N0V = st.N0 * st.V;
+  const Eb = bindingEnergy(N0V, st.omega_D);
+
+  // Invariant 1: Binding energy must be positive and decrease exponentially with N(0)V
+  // E_b = 2 hbar omega_D exp(-2 / (N(0)V))
+  // For N(0)V approaching 0, E_b -> 0; for large N(0)V, E_b -> 2*omega_D
+  const EbPositive = Eb > 0;
+  const EbMaxed = Eb <= 2 * st.omega_D * 1.01;
+
+  // Invariant 2: Verify the formula: exp(-2 / N0V) should match Eb / (2*omega_D)
+  const expPart = Math.exp(-2 / Math.max(N0V, 1e-10));
+  const ratio = Eb / (2 * st.omega_D);
+  const formulaError = Math.abs(ratio - expPart) / Math.max(Math.abs(expPart), 1e-30);
+
+  return [
+    { key: 'positivity', label: 'E_b > 0', value: EbPositive ? 'yes' : 'no', status: EbPositive ? 'pass' : 'drift' },
+    { key: 'formula', label: 'Formula E_b = 2*hbar*omega_D*exp(-2/N(0)V)', value: formulaError.toExponential(2), status: formulaError < 1e-10 ? 'pass' : formulaError < 1e-6 ? 'drift' : 'pending' },
+  ];
+};

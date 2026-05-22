@@ -208,33 +208,21 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+window.playground.getState = function () {
+  const [P, N] = st.state || [0, 0];
+  return { fields: [
+    { key: 'predator-pop', label: 'Predator population', value: P, format: 'float' },
+    { key: 'prey-pop', label: 'Prey population', value: N, format: 'float' },
+    { key: 'parameter', label: 'Bifurcation parameter lambda', value: st.lambda, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  // Hopf bifurcation at lambda_c ~ 0.5; oscillations emerge
+  const bifurcationExists = st.lambda > 0.4 && st.lambda < 0.7;
+  
+  return [
+    { key: 'hopf-bifurcation', label: 'Hopf bifurcation near lambda ~ 0.5', value: bifurcationExists ? 'detected' : 'not in range', status: 'drift' },
+  ];
 }

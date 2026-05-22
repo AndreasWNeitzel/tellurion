@@ -223,33 +223,41 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const L = stellarLuminosity(Rs * R_SUN, T);
+  const flux = fluxAt(L, dAu * AU);
+  const inHz = inHabitableZone(L, dAu);
+  const inner = habitableInnerAu(L);
+  const outer = habitableOuterAu(L);
+  return { fields: [
+    { key: 'temperature', label: 'Effective temperature (K)', value: T, format: 'float' },
+    { key: 'radius', label: 'Stellar radius (R_sun)', value: Rs, format: 'float' },
+    { key: 'luminosity', label: 'Luminosity (L_sun)', value: L / L_SUN, format: 'float' },
+    { key: 'distance', label: 'Planet distance (AU)', value: dAu, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const L = stellarLuminosity(Rs * R_SUN, T);
+  const flux = fluxAt(L, dAu * AU);
+  const inner = habitableInnerAu(L);
+  const outer = habitableOuterAu(L);
+  const inHz = inHabitableZone(L, dAu);
+
+  // Invariant 1: Stefan-Boltzmann: L = 4*pi*R^2*sigma*T^4
+  // Check the luminosity formula
+  const expectedL = 4 * Math.PI * (Rs * R_SUN) * (Rs * R_SUN) * 5.670374419e-8 * T * T * T * T;
+  const lumiError = Math.abs(L - expectedL) / Math.max(expectedL, 1);
+
+  // Invariant 2: HZ boundaries obey: inner < outer (always true by definition)
+  const boundaryCorrect = inner < outer;
+
+  // Invariant 3: Planet in HZ iff inner <= d <= outer
+  const inHz_check = (dAu >= inner - 1e-6 && dAu <= outer + 1e-6) === inHz;
+
+  return [
+    { key: 'luminosity-formula', label: 'Stefan-Boltzmann L = 4*pi*R^2*sigma*T^4', value: lumiError.toExponential(2), status: lumiError < 1e-6 ? 'pass' : lumiError < 0.1 ? 'drift' : 'pending' },
+    { key: 'hz-boundaries', label: 'HZ inner < outer', value: boundaryCorrect ? 'yes' : 'no', status: boundaryCorrect ? 'pass' : 'drift' },
+  ];
+};

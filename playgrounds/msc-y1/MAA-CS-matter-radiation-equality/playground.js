@@ -225,33 +225,27 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+window.playground.getState = function () {
+  const z = st.z ?? 0;
+  const a = 1 / (1 + z);
+  const rho_m = st.rho_m0 * a ** (-3);
+  const rho_r = st.rho_r0 * a ** (-4);
+  return { fields: [
+    { key: 'redshift', label: 'Redshift z', value: z, format: 'float' },
+    { key: 'scale-factor', label: 'Scale factor a = 1/(1+z)', value: a, format: 'float' },
+    { key: 'matter-density', label: 'Matter density (relative)', value: rho_m / Math.max(rho_m, rho_r), format: 'float' },
+    { key: 'radiation-density', label: 'Radiation density (relative)', value: rho_r / Math.max(rho_m, rho_r), format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const z = st.z ?? 0;
+  // Equality at z ~ 3400 (z_eq)
+  const z_eq = 3400;
+  const isNearEquality = Math.abs(z - z_eq) < 1000;
+  
+  return [
+    { key: 'matter-radiation-equality', label: 'Equality near z_eq ~ 3400', value: isNearEquality ? 'near' : 'far', status: 'drift' },
+  ];
 }

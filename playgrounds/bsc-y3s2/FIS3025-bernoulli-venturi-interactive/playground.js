@@ -215,33 +215,32 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const vThroat = velocity(st.Q, pipeArea(0.5, st.ratio));
+  const pThroat = pressure(PT, st.rho, vThroat);
+  return { fields: [
+    { key: 'flow-rate', label: 'Flow rate Q', value: st.Q, format: 'float' },
+    { key: 'throat-ratio', label: 'Throat ratio', value: st.ratio, format: 'float' },
+    { key: 'fluid-density', label: 'Density', value: st.rho, format: 'float' },
+    { key: 'velocity-throat', label: 'Velocity @ throat', value: vThroat, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const d = diagnostics(PT, st.rho, st.Q, st.ratio, 200);
+  const bSpread = Math.abs(d.bernoulliSpread);
+  const fSpread = Math.abs(d.fluxSpread);
+
+  // Invariant 1: Bernoulli constant (p + 1/2 rho v^2) must be the same everywhere
+  // Closed-form computation, so spread should be machine epsilon
+  const bernStatus = bSpread < 1e-10 ? 'pass' : bSpread < 1e-6 ? 'drift' : 'pending';
+
+  // Invariant 2: Continuity equation (A*v = constant) everywhere
+  const contStatus = fSpread < 1e-10 ? 'pass' : fSpread < 1e-6 ? 'drift' : 'pending';
+
+  return [
+    { key: 'bernoulli-constant', label: 'Bernoulli spread (closed-form)', value: bSpread.toExponential(2), status: bernStatus },
+    { key: 'continuity-equation', label: 'Flux A*v spread', value: fSpread.toExponential(2), status: contStatus },
+  ];
+};

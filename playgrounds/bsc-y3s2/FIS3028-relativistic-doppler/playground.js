@@ -244,33 +244,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const g = gamma(beta);
+  const thetaRad = thetaDeg * Math.PI / 180;
+  const doppler = dopplerFactor(beta, thetaRad);
+  return { fields: [
+    { key: 'velocity-beta', label: 'Velocity (beta = v/c)', value: beta, format: 'float' },
+    { key: 'lorentz-gamma', label: 'Lorentz gamma', value: g, format: 'float' },
+    { key: 'observation-angle', label: 'Observation angle (degrees)', value: thetaDeg, format: 'float' },
+    { key: 'doppler-factor', label: 'Doppler factor f_obs / f_src', value: doppler, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const g = gamma(beta);
+  const thetaRad = thetaDeg * Math.PI / 180;
+  const doppler = dopplerFactor(beta, thetaRad);
+
+  // Invariant 1: Formula check: f_obs = f_src / (gamma * (1 - beta * cos(theta)))
+  const expectedDoppler = 1 / (g * (1 - beta * Math.cos(thetaRad)));
+  const formulaError = Math.abs(doppler - expectedDoppler) / Math.max(expectedDoppler, 1e-9);
+
+  // Invariant 2: Physical bounds: Doppler factor must be positive (frequency always positive)
+  const isPositive = doppler > 0;
+
+  // Invariant 3: At beta = 0 (no motion), doppler factor = 1 (no shift)
+  let staticCorrect = true;
+  if (beta < 0.01) {
+    if (Math.abs(doppler - 1) > 0.1) staticCorrect = false;
+  }
+
+  return [
+    { key: 'doppler-formula', label: 'Doppler formula f_obs = f_src / (gamma*(1-beta*cos(theta)))', value: formulaError.toExponential(2), status: formulaError < 1e-10 ? 'pass' : formulaError < 1e-6 ? 'drift' : 'pending' },
+    { key: 'positivity', label: 'Doppler factor > 0', value: isPositive ? 'yes' : 'no', status: isPositive ? 'pass' : 'drift' },
+  ];
+};

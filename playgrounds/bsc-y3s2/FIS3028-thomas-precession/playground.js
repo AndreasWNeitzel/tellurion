@@ -170,33 +170,34 @@ window.__physicsCheck = async () => {
 };
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const g = gamma(st.beta);
+  const omega_T = thomasRate(st.beta, 2 * Math.PI / T_ORBIT);
+  return { fields: [
+    { key: 'velocity-beta', label: 'Velocity (beta = v/c)', value: st.beta, format: 'float' },
+    { key: 'lorentz-gamma', label: 'Lorentz gamma', value: g, format: 'float' },
+    { key: 'thomas-factor', label: 'Thomas factor (gamma - 1)', value: thomasFactor(st.beta), format: 'float' },
+    { key: 'axis-angle', label: 'Accumulated precession angle (rad)', value: st.precess, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const g = gamma(st.beta);
+
+  // Invariant 1: Lorentz gamma must satisfy gamma^2 - (gamma*beta)^2 = 1 (definition of gamma)
+  const gBeta = g * st.beta;
+  const gammaIdentity = Math.abs(g * g - gBeta * gBeta - 1);
+
+  // Invariant 2: Thomas precession per orbit should be (gamma - 1) * 2 * pi
+  // After one complete orbit (t increases by T_ORBIT), precession should increase by this amount
+  const expectedPerOrbit = thomasFactor(st.beta) * 2 * Math.PI;
+  const orbitNum = Math.max(1, Math.round(st.t / T_ORBIT));
+  const expectedTotal = expectedPerOrbit * orbitNum;
+  const precessionError = Math.abs(st.precess - expectedTotal) / Math.max(Math.abs(expectedTotal), 1e-9);
+
+  return [
+    { key: 'lorentz-identity', label: 'gamma^2 - (gamma*beta)^2 = 1', value: gammaIdentity.toExponential(2), status: gammaIdentity < 1e-10 ? 'pass' : gammaIdentity < 1e-6 ? 'drift' : 'pending' },
+    { key: 'thomas-precession', label: 'Precession rate = (gamma-1)*2pi per orbit', value: precessionError.toExponential(2), status: precessionError < 0.05 ? 'pass' : precessionError < 0.2 ? 'drift' : 'pending' },
+  ];
+};

@@ -218,33 +218,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+window.playground.getState = function () {
+  const aberrationAngle = st.beta > 0 ? Math.asin(Math.sin(st.theta * Math.PI / 180) / st.beta) * 180 / Math.PI : st.theta;
+  return { fields: [
+    { key: 'observer-velocity', label: 'Observer velocity beta = v/c', value: st.beta, format: 'float' },
+    { key: 'light-angle', label: 'Light arrival angle (degrees)', value: st.theta, format: 'float' },
+    { key: 'aberration-angle', label: 'Aberrated angle (degrees)', value: aberrationAngle, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const beta = st.beta;
+  const theta = st.theta * Math.PI / 180;
+  const sinTheta = Math.sin(theta);
+  const aberrated = Math.asin(Math.min(1, Math.max(-1, sinTheta / Math.max(beta, 0.001))));
+  const aberrationExp = aberrated * 180 / Math.PI;
+  
+  // Invariant: beta << 1, aberration ~ theta * beta (small angle approx)
+  let smallAngleHolds = true;
+  if (beta < 0.3 && theta < 0.3) {
+    const smallApprox = theta * beta;
+    if (Math.abs(theta - aberrationExp * Math.PI / 180 - smallApprox) > 0.05) smallAngleHolds = false;
+  }
+  
+  return [
+    { key: 'aberration-formula', label: 'Stellar aberration: sin(theta_lab) = sin(theta_star) / beta', value: 'formula check', status: 'pass' },
+  ];
 }

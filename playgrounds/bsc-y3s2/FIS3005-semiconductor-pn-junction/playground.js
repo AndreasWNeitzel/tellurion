@@ -268,33 +268,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const { NA, ND, V } = params3();
+  const Wd = depletionWidth(NA, ND, V);
+  const i = diodeCurrentOverI0(V);
+  return { fields: [
+    { key: 'applied-voltage', label: 'Applied V', value: V, format: 'float' },
+    { key: 'na-doping', label: 'NA doping (cm^-3)', value: NA, format: 'float' },
+    { key: 'nd-doping', label: 'ND doping (cm^-3)', value: ND, format: 'float' },
+    { key: 'depletion-width', label: 'Depletion W (nm)', value: Wd * 1e9, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const { NA, ND, V } = params3();
+  const Vbi = builtInPotential(NA, ND);
+  const { xp, xn } = depletionEdges(NA, ND, V);
+  const Wd = depletionWidth(NA, ND, V);
+
+  // Invariant 1: charge balance in depletion layer must hold: NA*xp = ND*xn
+  const chargeBalance = Math.abs((NA * xp - ND * xn) / Math.max(NA * xp, ND * xn, 1e-30));
+  const cbStatus = chargeBalance < 1e-10 ? 'pass' : chargeBalance < 1e-6 ? 'drift' : 'pending';
+
+  // Invariant 2: depletion width should be real and positive (W >= 0, clamped at Vbi)
+  const wStatus = Wd >= 0 && Wd === Wd ? 'pass' : 'drift';
+
+  // Invariant 3: built-in potential must exceed applied bias (Vbi >= V) for realistic device
+  const vbiExceeds = Vbi > V - 1e-10;
+  const vStatus = vbiExceeds ? 'pass' : 'drift';
+
+  return [
+    { key: 'charge-balance', label: 'Charge balance (NA*xp = ND*xn)', value: chargeBalance.toExponential(2), status: cbStatus },
+    { key: 'depletion-positive', label: 'W >= 0', value: Wd >= 0 ? 'yes' : 'no', status: wStatus },
+    { key: 'vbi-exceeds-v', label: 'Vbi > V', value: vbiExceeds ? 'yes' : 'no', status: vStatus },
+  ];
+};

@@ -195,33 +195,36 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const norm = state.tdse ? totalNorm(state.tdse) : 0;
+  const { R, T } = state.tdse ? reflectionTransmission(state.tdse, state.k0) : { R: 0, T: 0 };
+  return { fields: [
+    { key: 'barrier-height', label: 'Barrier height V0', value: state.V0, format: 'float' },
+    { key: 'incident-momentum', label: 'Incident momentum k0', value: state.k0, format: 'float' },
+    { key: 'norm-psi', label: 'Norm |psi|^2', value: norm, format: 'float' },
+    { key: 'reflection-prob', label: 'Reflection probability R', value: R, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  if (!state.tdse) return [{ key: 'not-initialized', label: 'TDSE not initialized', value: 'waiting', status: 'pending' }];
+
+  const norm = totalNorm(state.tdse);
+  const { R, T } = reflectionTransmission(state.tdse, state.k0);
+
+  // Invariant 1: Wavefunction norm should be conserved (= 1.0) by Crank-Nicolson
+  const normError = Math.abs(norm - 1.0);
+
+  // Invariant 2: Probabilities must sum to ~1: R + T = 1 (optical theorem)
+  const probSum = R + T;
+  const probSumError = Math.abs(probSum - 1.0);
+
+  // Invariant 3: Both R and T must be in [0, 1]
+  const probBounds = R >= -1e-6 && R <= 1 + 1e-6 && T >= -1e-6 && T <= 1 + 1e-6;
+
+  return [
+    { key: 'norm-conservation', label: 'Norm = 1 (CN scheme conserves probability)', value: normError.toExponential(2), status: normError < 1e-6 ? 'pass' : normError < 1e-3 ? 'drift' : 'pending' },
+    { key: 'probability-sum', label: 'R + T = 1', value: probSumError.toExponential(2), status: probSumError < 1e-6 ? 'pass' : probSumError < 0.1 ? 'drift' : 'pending' },
+  ];
+};

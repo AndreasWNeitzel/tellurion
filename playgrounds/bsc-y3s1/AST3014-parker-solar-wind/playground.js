@@ -214,33 +214,42 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const cs = csOf(st.T);
+  const rc = criticalRadius(cs);
+  const r_AU = 1.496e11;
+  const u_1AU = parkerSpeed(r_AU, cs);
+  return { fields: [
+    { key: 'temperature', label: 'Temperature (MK)', value: st.T, format: 'float' },
+    { key: 'sound-speed', label: 'Sound speed (km/s)', value: cs / 1000, format: 'float' },
+    { key: 'critical-radius', label: 'Critical r_c (R_sun)', value: rc / R_SUN, format: 'float' },
+    { key: 'velocity-1au', label: 'u(1 AU) (km/s)', value: u_1AU / 1000, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const cs = csOf(st.T);
+  const rc = criticalRadius(cs);
+
+  // Invariant 1: At the sonic surface r = r_c, the speed must equal sound speed (by definition of the solution)
+  const u_at_rc = parkerSpeed(rc, cs);
+  const speedError = Math.abs(u_at_rc - cs) / cs;
+
+  // Invariant 2: Parker solution is transonic: speed increases monotonically with radius, always >= c_s at r >= r_c
+  let isMonotonic = true;
+  const rTest = [rc * 0.8, rc, rc * 1.5, rc * 3, rc * 10];
+  let prevU = 0;
+  for (const r of rTest) {
+    if (r >= rc * 0.9) {
+      const u = parkerSpeed(r, cs);
+      if (u < prevU - 1e3) isMonotonic = false;
+      prevU = u;
+    }
+  }
+
+  return [
+    { key: 'sonic-surface', label: 'u(r_c) = c_s', value: speedError.toExponential(2), status: speedError < 1e-10 ? 'pass' : speedError < 1e-6 ? 'drift' : 'pending' },
+    { key: 'monotonicity', label: 'Speed increases with r (transonic)', value: isMonotonic ? 'yes' : 'no', status: isMonotonic ? 'pass' : 'drift' },
+  ];
+};

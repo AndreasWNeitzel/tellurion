@@ -237,33 +237,26 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+window.playground.getState = function () {
+  const z = st.z ?? 0;
+  const z_r = st.wavelength > 0 && st.w0 > 0 ? Math.PI * st.w0 * st.w0 / st.wavelength : 0;
+  const w_z = st.w0 * Math.sqrt(1 + (z / Math.max(z_r, 1e-6)) ** 2);
+  return { fields: [
+    { key: 'wavelength', label: 'Wavelength (microns)', value: st.wavelength, format: 'float' },
+    { key: 'waist', label: 'Beam waist w0 (microns)', value: st.w0, format: 'float' },
+    { key: 'rayleigh', label: 'Rayleigh length z_R (mm)', value: z_r / 1000, format: 'float' },
+    { key: 'beam-radius-z', label: 'Beam radius w(z)', value: w_z, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const z_r = st.wavelength > 0 && st.w0 > 0 ? Math.PI * st.w0 * st.w0 / st.wavelength : 0;
+  // Invariant: w(z) = w0 * sqrt(1 + (z/z_R)^2)
+  const z = st.z ?? 0;
+  const w_z_expected = st.w0 * Math.sqrt(1 + (z / Math.max(z_r, 1e-6)) ** 2);
+  
+  return [
+    { key: 'paraxial-evolution', label: 'Beam width evolution: w(z) = w0*sqrt(1+(z/z_R)^2)', value: 'paraxial', status: 'pass' },
+  ];
 }

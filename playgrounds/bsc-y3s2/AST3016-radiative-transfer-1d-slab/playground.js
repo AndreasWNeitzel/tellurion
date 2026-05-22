@@ -160,33 +160,37 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const Iout = transmitOptical(st.Iin, st.S, st.tau);
+  const { taus, I } = profileVsTau(st.Iin, st.S, st.tau, 50);
+  return { fields: [
+    { key: 'input-intensity', label: 'I_in', value: st.Iin, format: 'float' },
+    { key: 'source-function', label: 'Source S', value: st.S, format: 'float' },
+    { key: 'optical-depth', label: 'Optical depth tau', value: st.tau, format: 'float' },
+    { key: 'output-intensity', label: 'I_out', value: Iout, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const Iout = transmitOptical(st.Iin, st.S, st.tau);
+
+  // Invariant 1: Thin slab limit (tau -> 0): I_out -> I_in (exponential -> 1)
+  // Invariant 2: Thick slab limit (tau -> infinity): I_out -> S (exponential -> 0)
+  const expTau = Math.exp(-st.tau);
+  const expectedIout = st.Iin * expTau + st.S * (1 - expTau);
+  const formulaError = Math.abs(Iout - expectedIout) / Math.max(Math.abs(expectedIout), 1e-9);
+
+  // Invariant 3: Physical bounds: if S < I_in and tau is positive, intensity decreases
+  // (darkening); if S > I_in, intensity increases (brightening)
+  let correctMonotonicity = true;
+  if (st.tau > 0.01) {
+    if (st.S < st.Iin && Iout > st.Iin) correctMonotonicity = false;
+    if (st.S > st.Iin && Iout < st.Iin) correctMonotonicity = false;
+  }
+
+  return [
+    { key: 'transmission-formula', label: 'I_out formula (closed-form)', value: formulaError.toExponential(2), status: formulaError < 1e-10 ? 'pass' : formulaError < 1e-6 ? 'drift' : 'pending' },
+    { key: 'monotonicity', label: 'I moves toward S (correct direction)', value: correctMonotonicity ? 'yes' : 'no', status: correctMonotonicity ? 'pass' : 'drift' },
+  ];
+};
