@@ -197,33 +197,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const beta = betaFromGamma(st.gamma);
+  const theta_c = openingAngle(st.gamma);
+  return {
+    fields: [
+      { key: 'lorentz-factor', label: 'Lorentz factor gamma', value: st.gamma, format: 'float' },
+      { key: 'beta', label: 'Velocity (v/c)', value: beta, format: 'float' },
+      { key: 'opening-angle', label: 'Beaming angle (deg)', value: theta_c * 180 / Math.PI, format: 'float' },
+      { key: 'geometry', label: 'Geometry', value: st.geom === 'perp' ? 'perpendicular' : 'parallel', format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const beta = betaFromGamma(st.gamma);
+  const beta_valid = beta >= 0 && beta < 1;
+  const gamma_valid = st.gamma >= 1;
+  const status = beta_valid && gamma_valid ? 'pass' : 'drift';
+  return [
+    {
+      key: 'special-relativity-bounds',
+      label: '0 <= beta < 1',
+      value: beta_valid ? 'pass' : beta.toFixed(4),
+      status: status
+    }
+  ];
+};
