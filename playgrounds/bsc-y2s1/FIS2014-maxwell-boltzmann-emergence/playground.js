@@ -227,33 +227,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the disk count, the mean speed and the total kinetic
+// energy. The invariant checks energy conservation: hard-disk
+// collisions and wall reflections are elastic, so the total kinetic
+// energy must not drift from its value at gas creation.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const ke = state.sim ? totalKE(state.sim) : 0;
+  const mv = state.sim ? meanSpeed(state.sim) : 0;
+  return {
+    fields: [
+      { key: 'particles', label: 'hard disks', value: state.sim ? String(state.sim.N) : '0' },
+      { key: 'mean-speed', label: 'mean speed <v>', value: mv, format: 'float' },
+      { key: 'ke', label: 'total kinetic energy', value: ke, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.sim || !state.KE0) return [];
+  const ke = totalKE(state.sim);
+  const drift = Math.abs(ke - state.KE0) / state.KE0;
+  return [{
+    key: 'energy',
+    label: 'kinetic energy conserved (elastic collisions)',
+    value: drift.toExponential(2),
+    status: drift < 5e-3 ? 'pass' : (drift < 5e-2 ? 'pending' : 'drift'),
+  }];
+};
