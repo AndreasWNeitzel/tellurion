@@ -281,33 +281,30 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const vt_stokes = terminalVelocityStokes(b);
+  const vt_quad = terminalVelocityQuadratic(c);
+  return {
+    fields: [
+      { key: 'drop-height', label: 'Drop height (m)', value: y0, format: 'float' },
+      { key: 'stokes-coeff', label: 'Stokes coeff b', value: b, format: 'float' },
+      { key: 'quad-coeff', label: 'Quadratic coeff c', value: c, format: 'float' },
+      { key: 'vt-ratio', label: 'v_t(quad) / v_t(Stokes)', value: vt_quad / Math.max(1e-6, vt_stokes), format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const vt_stokes = terminalVelocityStokes(b);
+  const vt_quad = terminalVelocityQuadratic(c);
+  const vt_positive = vt_stokes > 0 && vt_quad > 0;
+  return [
+    {
+      key: 'terminal-velocity',
+      label: 'v_t > 0 (both)',
+      value: vt_positive ? 'pass' : 'fail',
+      status: vt_positive ? 'pass' : 'drift'
+    }
+  ];
+};
