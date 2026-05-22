@@ -455,29 +455,17 @@ if (CAPTURE_NAME) {
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const L = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d, st.plateau);
+  return {
+    fields: [
+      { key: 'time', label: 'time since explosion (days)', value: st.t_d, format: 'float' },
+      { key: 'luminosity', label: 'bolometric luminosity (erg/s)', value: L, format: 'sci' },
+      { key: 'abs-mag', label: 'absolute bolometric magnitude', value: absoluteBolMag(L), format: 'float' },
+      { key: 'radius', label: 'photospheric radius (cm)', value: fireballRadius_cm(st.t_d, st.v_ej_kms), format: 'sci' },
+    ],
   };
-}
+};
 // The Ni-56 -> Co-56 -> Fe-56 decay chain only moves mass between
 // species, so m_Ni(t) + m_Co(t) + m_Fe(t) stays equal to the
 // initial nickel mass at every time.
