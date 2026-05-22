@@ -129,7 +129,8 @@ function render() {
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(kx(modeInfo().theta), wy(omegaOf()), 5, 0, 6.2832); ctx.fill();
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('k a', PXX + PXW / 2, PXY + PXH + 13);
-  ctx.save(); ctx.translate(PXX - 7, PXY + PXH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('omega', 0, 0); ctx.restore();
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('omega', PXX - 6, PXY + PXH / 2);
   ctx.textAlign = 'left';
 
   // legend / info
