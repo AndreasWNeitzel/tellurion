@@ -315,33 +315,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const M = oneTurn(st.f, PMOM, L, QCH, st.ncells, st.B);
+  const mu = tune(M);
+  return {
+    fields: [
+      { key: 'focal-length', label: 'quadrupole focal length f (m)', value: st.f, format: 'float' },
+      { key: 'tune', label: 'betatron tune mu (rev)', value: mu, format: 'float' },
+      { key: 'cells', label: 'number of FODO cells', value: st.ncells, format: 'float' },
+      { key: 'dipole-field', label: 'dipole bend field B (T)', value: st.B, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const M = oneTurn(st.f, PMOM, L, QCH, st.ncells, st.B);
+  // Symplecticity: det(M) must equal 1 for a symplectic map
+  const d = M[0] * M[3] - M[1] * M[2];
+  inv.push({
+    key: 'symplecticity',
+    label: 'det(M) = 1 (symplectic)',
+    value: d.toFixed(6),
+    status: Math.abs(d - 1.0) < 1e-10 ? 'pass' : 'drift'
+  });
+  // Stability criterion: |trace(M)/2| <= 1
+  const tr = M[0] + M[3];
+  const stable = isStable(M);
+  inv.push({
+    key: 'stability',
+    label: 'stable if |trace(M)/2| <= 1',
+    value: (tr / 2).toFixed(4),
+    status: stable ? 'pass' : 'drift'
+  });
+  return inv;
+};
