@@ -185,7 +185,7 @@ function render() {
   ctx.strokeStyle = 'rgba(148,163,184,0.4)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(xP(kMax), dy0 + 16); ctx.lineTo(xP(kMax), dy1 - 4); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#64748b'; ctx.fillText('sound limit', xP(0.35), yP(1.4));
-  ctx.fillText('zone edge pi/a: v_group = 0 (standing wave)', xP(kMax) - 230, dy0 + 24);
+  ctx.fillText('zone edge: v_group = 0', xP(kMax) - 140, dy0 + 24);
   const kc = Math.min(kMax, st.k);
   ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(xP(kc), yP(omegaK(kc)), 4, 0, 6.2832); ctx.fill();
 
