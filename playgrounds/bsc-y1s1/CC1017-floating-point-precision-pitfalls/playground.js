@@ -298,7 +298,7 @@ function drawScene(rangeErr) {
     // Below the gate when the gate is high (avoids the status banner);
     // above it otherwise (avoids the RANGE GATE label below it).
     const labY = gate.y < 70 ? gate.y + 46 : gate.y - 26;
-    ctx.fillText(`${rangeErr.toFixed(0)} m clock-drift offset`, gate.x, labY);
+    ctx.fillText(`${rangeErr.toFixed(0)} m drift`, gate.x, labY);
   }
 
   // interceptor
