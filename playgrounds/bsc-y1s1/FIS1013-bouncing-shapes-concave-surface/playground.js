@@ -196,11 +196,11 @@ if (document.readyState === 'loading') {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const diag = st.sys ? diagnostics(st.sys) : null;
-  const nActive = st.sys ? st.sys.bodies.length : 0;
+  const nBalls = st.sys ? st.sys.balls.length : 0;
   return {
     fields: [
       { key: 'shape', label: 'Bowl shape', value: st.shape, format: undefined },
-      { key: 'n-bodies', label: 'Particle count', value: nActive, format: 'float' },
+      { key: 'n-balls', label: 'Particle count', value: nBalls, format: 'float' },
       { key: 'curvature', label: 'Curvature a', value: st.a, format: 'float' },
       { key: 'restitution', label: 'Restitution e', value: st.e, format: 'float' }
     ]
@@ -208,13 +208,19 @@ window.playground.getState = function () {
 };
 window.playground.getInvariants = function () {
   const diag = st.sys ? diagnostics(st.sys) : null;
-  const ke_bounded = diag ? (diag.KE >= 0 && diag.KE < 1e6) : true;
+  const energyOK = diag ? Math.abs(diag.energyDrift) < 0.1 : true;
   return [
     {
-      key: 'kinetic-energy',
-      label: 'KE >= 0 and finite',
-      value: ke_bounded ? 'pass' : (diag ? `${diag.KE.toExponential(2)}` : 'pending'),
-      status: ke_bounded ? 'pass' : 'drift'
+      key: 'energy-conservation',
+      label: 'Energy drift $|dE/E_0|$',
+      value: diag ? `${(100 * Math.abs(diag.energyDrift)).toFixed(2)}%` : 'pending',
+      status: energyOK ? 'pass' : 'drift'
+    },
+    {
+      key: 'penetration',
+      label: 'Max surface penetration',
+      value: diag ? `${diag.maxPen.toFixed(4)}` : 'pending',
+      status: diag && diag.maxPen < 0.01 ? 'pass' : (diag ? 'drift' : 'pending')
     }
   ];
 };
