@@ -308,33 +308,34 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const T = Math.pow(10, logT);
+  const particle = PARTICLES.find(p => p.name === species) || PARTICLES[1];
+  const lam = deBroglieNm(T, particle.mEv);
+  const slit_sep = D_NM, slit_width = A_NM;
+  return {
+    fields: [
+      { key: 'species', label: 'Particle species', value: species, format: undefined },
+      { key: 'log-kinetic-energy', label: 'log10(T [eV])', value: logT, format: 'float' },
+      { key: 'de-broglie-wavelength', label: 'de Broglie lambda (nm)', value: lam, format: 'float' },
+      { key: 'slit-separation', label: 'Slit separation (nm)', value: slit_sep, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const T = Math.pow(10, logT);
+  const particle = PARTICLES.find(p => p.name === species) || PARTICLES[1];
+  const lam = deBroglieNm(T, particle.mEv);
+  const fringe_count = (D_NM / lam) * THETA_MAX;
+  const visible_fringes = fringe_count > 1 ? 'yes' : 'no';
+  return [
+    {
+      key: 'double-slit-interference',
+      label: 'Observable interference pattern',
+      value: visible_fringes ? 'visible' : 'too-fine',
+      status: fringe_count > 1 ? 'pass' : 'pending'
+    }
+  ];
+};
