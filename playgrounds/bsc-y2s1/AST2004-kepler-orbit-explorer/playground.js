@@ -403,33 +403,49 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the test orbit's semi-major axis, eccentricity and
+// the orbiting-body count. The invariants check the two integrals
+// of the Kepler problem: each body conserves its orbital energy
+// (1/2 v^2 - GM/r) and its specific angular momentum (x vy - y vx),
+// so the swarm totals must not drift.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+let __E0 = null, __L0 = null, __swarmRef = null;
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'semi-major', label: 'test orbit a (AU)', value: state.test.a, format: 'float' },
+      { key: 'eccentricity', label: 'test orbit e', value: state.test.e, format: 'float' },
+      { key: 'bodies', label: 'orbiting bodies', value: state.swarm ? String(state.swarm.N) : '0' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const sw = state.swarm;
+  if (!sw || !sw.inst) return [];
+  const q = sw.inst.q, p = sw.inst.qdot, N = sw.N;
+  let E = 0, L = 0;
+  for (let i = 0; i < N; i += 1) {
+    const x = q[2 * i], y = q[2 * i + 1], vx = p[2 * i], vy = p[2 * i + 1];
+    const r = Math.hypot(x, y);
+    E += 0.5 * (vx * vx + vy * vy) - 1 / Math.max(1e-12, r);
+    L += x * vy - y * vx;
+  }
+  if (sw !== __swarmRef) { __swarmRef = sw; __E0 = E; __L0 = L; }   // re-baseline on swarm rebuild
+  const eDrift = Math.abs(E - __E0) / Math.max(1e-9, Math.abs(__E0));
+  const lDrift = Math.abs(L - __L0) / Math.max(1e-9, Math.abs(__L0));
+  return [
+    {
+      key: 'energy',
+      label: 'orbital energy conserved (Kepler)',
+      value: eDrift.toExponential(2),
+      status: eDrift < 5e-3 ? 'pass' : (eDrift < 5e-2 ? 'pending' : 'drift'),
+    },
+    {
+      key: 'angular-momentum',
+      label: 'angular momentum conserved',
+      value: lDrift.toExponential(2),
+      status: lDrift < 5e-3 ? 'pass' : (lDrift < 5e-2 ? 'pending' : 'drift'),
+    },
+  ];
+};
