@@ -354,23 +354,39 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const mu = parseFloat(sliderMu?.value || '0.1');
-  const L = parseFloat(sliderL?.value || '1');
+  const mu_val = parseFloat(sliderMu.value);
+  const speed_val = parseFloat(sliderSpeed.value);
+  const nParticles = state.particles.length;
   return {
     fields: [
-      { key: 'mass-ratio', label: 'μ (mass ratio)', value: mu, format: 'float' },
-      { key: 'lagrange', label: 'Lagrange point', value: 'L' + L, format: undefined }
+      { key: 'mass-ratio', label: 'μ (mass ratio)', value: mu_val, format: 'float' },
+      { key: 'speed', label: 'integration speed', value: speed_val, format: 'float' },
+      { key: 'particles', label: 'particles in view', value: nParticles, format: 'int' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const mu = parseFloat(sliderMu?.value || '0.1');
+  const mu_val = parseFloat(sliderMu.value);
+  const stable = mu_val < MU_ROUTH;
+  let jacobiOk = true;
+  for (const p of state.particles) {
+    if (p.sim && p.sim.inst && typeof p.sim.inst.energyDrift === 'number') {
+      const drift = Math.abs(p.sim.inst.energyDrift);
+      if (drift > 0.05) { jacobiOk = false; break; }
+    }
+  }
   return [
     {
-      key: 'equilibrium',
-      label: 'Lagrange point is equilibrium',
-      value: 'fixed',
-      status: 'pass'
+      key: 'jacobi-integral',
+      label: 'Jacobi integral drift $< 5\\%$',
+      value: jacobiOk ? 'good' : 'drift detected',
+      status: jacobiOk ? 'pass' : 'drift'
+    },
+    {
+      key: 'l4-stability',
+      label: '$\\mu < \\mu_{\\mathrm{Routh}} = 0.0385$',
+      value: stable ? 'stable' : 'unstable',
+      status: stable ? 'pass' : 'pending'
     }
   ];
 };
