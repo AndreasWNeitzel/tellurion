@@ -1,54 +1,70 @@
 # Tellurion
 
-Tellurion (originally codenamed "Playgrounds Portfolio") is the source repository for the public site at `tellurion.dev`. In-browser physics and astronomy playgrounds rendered with Canvas2D and SVG, with a WebGL2 carve-out for the 3D showcase pieces. Each one is an interactive simulation backed by a headless numerical engine, not a static figure. The portfolio is built to read as research code rather than textbook clipart.
+Tellurion is the source repository for [tellurion.dev](https://tellurion.dev), a laboratory of interactive physics and astronomy simulations I built over the course of my PhD as a public educational resource. There are 332 playgrounds at the moment, spanning mechanics, electromagnetism, optics, quantum, relativity, statistical mechanics, fluid dynamics, condensed matter, and astrophysics. The set is anchored to the University of Porto FCUP BSc in Physics and MSc in Astronomy and Astrophysics curricula.
+
+The name refers to the 18th-century mechanical apparatus for teaching how the Earth, Moon, and Sun move together: a hand-built physics instrument designed for demonstration through direct manipulation. This site extends the idea to the rest of the curriculum.
+
+## Status
+
+Public beta. The site is functional and the physics is being reviewed by working physicists. Errors are inevitable at this scale: typographic, pedagogical, occasionally substantive. I keep a corrections page at [tellurion.dev/#corrections](https://tellurion.dev/#corrections) and credit reporters. If you find something wrong, please tell me.
 
 ## What is here
 
-- **305 curriculum playgrounds** mapped to the University of Porto FCUP BSc in Physics (years 1-3) and MSc in Astronomy & Astrophysics. Each ships a `spec.md` (physical setup, equations, numerical method, citations, controls, expected features, acceptance thresholds), a headless simulation module, a `playground.js` UI, and the two automated gates described under Testing.
-- **53 heroes** (`playgrounds/_heroes/`) and **5 legends** (`playgrounds/_legends/`): the larger 3D and multi-mode showcase playgrounds. Several use the WebGL2 layer in `shared/js/engine-gl/`, the documented exception to the Canvas2D/SVG rule.
-- **Shared infrastructure**: numerical engines (`shared/js/engine/`), Canvas2D/SVG render primitives and colormaps (`shared/js/render/`), controls including the share-state URL contract (`shared/js/controls/`), and WebGL2 primitives (`shared/js/engine-gl/`).
-- **Dissemination layer**: the landing page (`scripts/build-landing.mjs`, root `index.html`), a controlled tag vocabulary (`docs/TAGS.md`), the curriculum index (`docs/CURRICULUM.md`), and the card index (`docs/INDEX.md`).
+- `playgrounds/` one directory per simulation, scaffolded from `_template/`. Curriculum playgrounds live under `bsc-y1s1` through `bsc-y3s2` and `msc-y1`. The larger 3D and multi-mode showcase pieces are under `_heroes/` and `_legends/`.
+- `shared/` numerical engines under `engine/`, Canvas2D and SVG primitives and colormaps under `render/`, controls (knobs, share-state URL contract) under `controls/`, and the WebGL2 primitives used by the heroes under `engine-gl/`.
+- `scripts/build-landing.mjs` regenerates the landing page from playground `spec.md` frontmatter. `scripts/build-index.mjs` regenerates `docs/INDEX.md`. `scripts/build-curriculum-index.mjs` regenerates `docs/CURRICULUM.md`.
+- `docs/` curriculum mapping, the controlled tag vocabulary, the citation list, and verification standards.
 
-## Curriculum mapping
-
-Every playground carries `primary_uc` and `curriculum_year` in its `spec.md` frontmatter, drawn from FCUP's BSc Physics and MSc Astronomy & Astrophysics units. Regenerate the chronological index with:
+## Run locally
 
 ```
-node scripts/build-curriculum-index.mjs   # writes docs/CURRICULUM.md
+npm install
+npm run dev
+```
+
+Vite serves the site at `http://localhost:5173`. The stack is ES2022 modules, no frameworks; KaTeX for math; Canvas2D and SVG, with a WebGL2 carve-out for the heroes.
+
+To regenerate the landing after editing a playground or its `spec.md` frontmatter:
+
+```
+node scripts/build-landing.mjs
 ```
 
 ## Testing
 
 Each playground carries two automated gates:
 
-- `invariants.test.mjs` (Vitest): conservation and identity checks on the headless simulation (energy, momentum, probability, detailed balance, analytic limiting cases), at thresholds set in the playground's `spec.md`.
+- `invariants.test.mjs` (Vitest): conservation and identity checks on the headless simulation (energy, momentum, probability, detailed balance, analytic limits), at thresholds set in the playground's `spec.md`.
 - `visual.test.mjs` (Playwright): SSIM regression at threshold 0.92 against committed golden frames, run under SwiftShader for reproducible headless capture.
 
-These gates check that the numerics are stable and the render has not regressed between commits. They do not establish that the physics setup or the pedagogy is correct; that review is done by people. A `.verified` marker is written for a playground when both gates pass.
-
-## How to develop
-
-Stack: plain ES2022 modules, no frameworks. KaTeX for math. Canvas2D and SVG, with WebGL2 limited to the heroes (CLAUDE.md hard rule 8).
+These check that the numerics are stable and the render has not regressed between commits. They do not establish that the physics setup is correct; that review is done by people.
 
 ```
-npm install                                             # one-time
-npx vitest run                                           # invariant tests (Vitest)
-npx playwright test                                      # visual gates (SwiftShader-compatible)
-node scripts/build-landing.mjs                           # regen the landing page
-node scripts/build-index.mjs                             # regen docs/INDEX.md
-node scripts/build-curriculum-index.mjs                  # regen docs/CURRICULUM.md
-node scripts/lint-playground-html.mjs <slug>             # pre-ship HTML lint
-node scripts/capture-reference.mjs --playground <slug>   # capture deterministic golden frames
+npx vitest run                 # invariant tests
+npx playwright test            # visual gates
 ```
 
 ## Contributing
 
-The shippable bar for a playground (spec, gates, accessibility, a live invariant readout, a diagnostic plot, the share-state contract) is defined in `CLAUDE.md` and `docs/VERIFICATION.md`. New playgrounds scaffold from `playgrounds/_template/`. House style: no em-dash or en-dash, no emoji, every playground cites a source.
+The contribution surface is small. See [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. For corrections to existing playgrounds, an email is faster than a PR: [andreaswneitzel@gmail.com](mailto:andreaswneitzel@gmail.com).
 
 ## License
 
-MIT. See `LICENSE`.
+MIT. See [`LICENSE`](LICENSE).
+
+## Citation
+
+If you reference a playground in teaching or research, please cite it as:
+
+```
+Neitzel, A. W. (2026). Tellurion: a laboratory of interactive physics simulations. https://tellurion.dev/
+```
+
+A [`CITATION.cff`](CITATION.cff) file is included for tooling that supports the Citation File Format.
 
 ## Maintainer
 
-Andreas W. Neitzel. ORCID 0000-0001-6283-907X. IA/CAUP, University of Porto. andreaswneitzel@gmail.com
+Andreas W. Neitzel
+ORCID: [0000-0001-6283-907X](https://orcid.org/0000-0001-6283-907X)
+PhD candidate, Instituto de Astrofísica e Ciências do Espaço (IA/CAUP), University of Porto
+[andreaswneitzel@gmail.com](mailto:andreaswneitzel@gmail.com)

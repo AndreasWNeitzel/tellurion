@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "Tellurion: a laboratory of interactive physics simulations"
+message: "If you use Tellurion in teaching or research, please cite it as below."
+type: software
+authors:
+  - given-names: "Andreas W."
+    family-names: "Neitzel"
+    orcid: "https://orcid.org/0000-0001-6283-907X"
+    affiliation: "Instituto de Astrofisica e Ciencias do Espaco (IA/CAUP), University of Porto"
+    email: "andreaswneitzel@gmail.com"
+version: 0.1.0
+date-released: 2026-05-23
+url: "https://tellurion.dev/"
+repository-code: "https://github.com/AndreasWNeitzel/tellurion"
+license: MIT
+keywords:
+  - physics
+  - astronomy
+  - interactive simulation
+  - education
+  - canvas
+  - svg
+  - webgl
+  - tellurion

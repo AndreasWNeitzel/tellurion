@@ -4,6 +4,33 @@
   "type": "module",
   "private": true,
   "description": "Tellurion: Canvas2D and SVG physics and ML playgrounds. Public site at tellurion.dev.",
+  "homepage": "https://tellurion.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndreasWNeitzel/tellurion.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AndreasWNeitzel/tellurion/issues",
+    "email": "andreaswneitzel@gmail.com"
+  },
+  "author": {
+    "name": "Andreas W. Neitzel",
+    "email": "andreaswneitzel@gmail.com",
+    "url": "https://orcid.org/0000-0001-6283-907X"
+  },
+  "license": "MIT",
+  "keywords": [
+    "physics",
+    "astronomy",
+    "interactive",
+    "simulation",
+    "education",
+    "canvas",
+    "svg",
+    "webgl",
+    "playground",
+    "tellurion"
+  ],
   "scripts": {
     "scaffold": "bash scripts/scaffold.sh",
     "capture": "node scripts/capture-reference.mjs",
