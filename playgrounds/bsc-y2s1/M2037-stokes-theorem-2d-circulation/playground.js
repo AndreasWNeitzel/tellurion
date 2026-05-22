@@ -11,6 +11,8 @@ const selectF = document.getElementById('select-f');
 const sliderW = document.getElementById('slider-w'); const sliderH = document.getElementById('slider-h');
 const valueF = document.getElementById('value-f'); const valueW = document.getElementById('value-w'); const valueH = document.getElementById('value-h');
 let field = selectF.value; let w = parseFloat(sliderW.value); let h = parseFloat(sliderH.value);
+let cx0 = 0, cy0 = 0; // Center of rectangle in field coordinates
+let isDragging = false, dragStartX = 0, dragStartY = 0, dragStartCx0 = 0, dragStartCy0 = 0;
 selectF.addEventListener('change', () => { field = selectF.value; valueF.textContent = field; });
 sliderW.addEventListener('input', () => { w = parseFloat(sliderW.value); valueW.textContent = w.toFixed(2); });
 sliderH.addEventListener('input', () => { h = parseFloat(sliderH.value); valueH.textContent = h.toFixed(2); });
@@ -34,37 +36,83 @@ function render() {
     const dx = len * u / mag, dy = len * v / mag;
     arrow(c.muted, cx + scale * ix, cy - scale * iy, cx + scale * (ix + dx), cy - scale * (iy + dy));
   }
-  // Rectangle.
+  // Rectangle (now positioned at cx0, cy0 instead of center).
+  const rectX = cx + scale * cx0, rectY = cy - scale * cy0;
   ctx.fillStyle = 'rgba(255, 209, 102, 0.15)';
-  ctx.fillRect(cx - scale * w / 2, cy - scale * h / 2, scale * w, scale * h);
+  ctx.fillRect(rectX - scale * w / 2, rectY - scale * h / 2, scale * w, scale * h);
   ctx.strokeStyle = c.accent; ctx.lineWidth = 2.5;
-  ctx.strokeRect(cx - scale * w / 2, cy - scale * h / 2, scale * w, scale * h);
+  ctx.strokeRect(rectX - scale * w / 2, rectY - scale * h / 2, scale * w, scale * h);
   // Boundary arrows showing CCW orientation.
   ctx.strokeStyle = c.blue; ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(cx - scale * w / 2, cy - scale * h / 2);
-  ctx.lineTo(cx + scale * w / 2, cy - scale * h / 2);
-  ctx.lineTo(cx + scale * w / 2, cy + scale * h / 2);
-  ctx.lineTo(cx - scale * w / 2, cy + scale * h / 2);
+  ctx.moveTo(rectX - scale * w / 2, rectY - scale * h / 2);
+  ctx.lineTo(rectX + scale * w / 2, rectY - scale * h / 2);
+  ctx.lineTo(rectX + scale * w / 2, rectY + scale * h / 2);
+  ctx.lineTo(rectX - scale * w / 2, rectY + scale * h / 2);
   ctx.closePath();
   ctx.stroke();
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`field: ${field}`, 12, 20);
   ctx.fillText(`curl = ${curlAtPoint(field, 0, 0)}`, 12, 38);
   ctx.fillStyle = c.accent;
-  ctx.fillText(`circulation = ${circulationRect(field, 0, 0, w, h).toFixed(3)}, area = ${(w * h).toFixed(3)}`, 12, 56);
+  ctx.fillText(`circulation = ${circulationRect(field, cx0, cy0, w, h).toFixed(3)}, area = ${(w * h).toFixed(3)}`, 12, 56);
 }
-function updateReadout() { readoutC.textContent = circulationRect(field, 0, 0, w, h).toFixed(3); readoutA.textContent = (w * h).toFixed(3); }
+function updateReadout() { readoutC.textContent = circulationRect(field, cx0, cy0, w, h).toFixed(3); readoutA.textContent = (w * h).toFixed(3); }
 function loop() { render(); updateReadout(); requestAnimationFrame(loop); }
+
+// Canvas drag handling for rectangle.
+canvas.addEventListener('mousedown', e => {
+  const rect = canvas.getBoundingClientRect();
+  dragStartX = e.clientX - rect.left;
+  dragStartY = e.clientY - rect.top;
+  dragStartCx0 = cx0;
+  dragStartCy0 = cy0;
+  isDragging = true;
+});
+canvas.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const dx = x - dragStartX;
+  const dy = y - dragStartY;
+  const scale = 70;
+  cx0 = dragStartCx0 + dx / scale;
+  cy0 = dragStartCy0 - dy / scale;
+});
+canvas.addEventListener('mouseup', () => { isDragging = false; });
+canvas.addEventListener('mouseleave', () => { isDragging = false; });
+canvas.addEventListener('touchstart', e => {
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  dragStartX = t.clientX - rect.left;
+  dragStartY = t.clientY - rect.top;
+  dragStartCx0 = cx0;
+  dragStartCy0 = cy0;
+  isDragging = true;
+});
+canvas.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  const x = t.clientX - rect.left;
+  const y = t.clientY - rect.top;
+  const dx = x - dragStartX;
+  const dy = y - dragStartY;
+  const scale = 70;
+  cx0 = dragStartCx0 + dx / scale;
+  cy0 = dragStartCy0 - dy / scale;
+});
+canvas.addEventListener('touchend', () => { isDragging = false; });
+
 function bootSync() {
   if (CAPTURE_NAME) {
     const f = CAPTURE_FRAC || 0;
     const fields = ['unit', 'shear', 'conservative'];
     field = fields[Math.min(2, Math.floor(f * 2.999))]; selectF.value = field;
-    // Also sweep the loop so every frame differs (3 fields alone gave
-    // only 3 distinct frames out of 5) and the circulation = double
-    // integral of curl relation is shown at several loop sizes.
+    // Also sweep the loop and position so every frame differs
     w = 0.7 + f * 3.0; h = 0.6 + f * 2.2;
+    cx0 = -1 + f * 2.5;
     sliderW.value = String(w); sliderH.value = String(h);
   }
   valueF.textContent = field; valueW.textContent = w.toFixed(2); valueH.textContent = h.toFixed(2);
@@ -77,21 +125,21 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const curl = curlAtPoint(field, 0, 0);
-  const circ = circulationRect(field, 0, 0, w, h);
+  const curl = curlAtPoint(field, cx0, cy0);
+  const circ = circulationRect(field, cx0, cy0, w, h);
   const area = w * h;
   return {
     fields: [
       { key: 'field-type', label: 'Vector field', value: field, format: undefined },
-      { key: 'curl-at-center', label: 'Curl (at origin)', value: curl, format: 'float' },
+      { key: 'curl-at-center', label: 'Curl (at rect center)', value: curl, format: 'float' },
       { key: 'circulation', label: 'Circulation (line integral)', value: circ, format: 'float' },
       { key: 'area', label: 'Area of rectangle', value: area, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const curl = curlAtPoint(field, 0, 0);
-  const circ = circulationRect(field, 0, 0, w, h);
+  const curl = curlAtPoint(field, cx0, cy0);
+  const circ = circulationRect(field, cx0, cy0, w, h);
   const area = w * h;
   const flux = curl * area;
   const stokes_error = Math.abs(circ - flux);
