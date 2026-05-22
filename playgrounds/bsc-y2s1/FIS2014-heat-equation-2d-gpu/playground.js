@@ -240,8 +240,8 @@ function render() {
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('mid-row  T(x)', pX + pW / 2, pY - 8);
   ctx.fillText('x', pX + pW / 2, pY + pH + 16);
-  ctx.save(); ctx.translate(pX - 8, pY + pH / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('T', 0, 0); ctx.restore();
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('T', pX - 6, pY + pH / 2);
   ctx.textAlign = 'left';
 
   rEls['sim t'].textContent = simT.toFixed(1);
