@@ -253,33 +253,30 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'velocity-c', label: 'Velocity (beta)', value: st.velocity || 0.5, format: 'float' },
+      { key: 'lorentz-factor', label: 'Lorentz factor', value: st.lorentzFactor || 1, format: 'float' },
+      { key: 'time-dilation-factor', label: 'Time dilation', value: st.timeDilation || 1, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check Lorentz factor definition.
+  const beta = st.velocity || 0.5;
+  const gamma = st.lorentzFactor || 1;
+  const expectedGamma = 1 / Math.sqrt(1 - beta * beta);
+  const error = Math.abs(gamma - expectedGamma) / expectedGamma;
+  const status = error < 1e-9 ? 'pass' : 'drift';
+  return [
+    {
+      key: 'relativity-identity',
+      label: 'Lorentz factor check',
+      value: error.toExponential(2),
+      status: status
+    }
+  ];
+};
