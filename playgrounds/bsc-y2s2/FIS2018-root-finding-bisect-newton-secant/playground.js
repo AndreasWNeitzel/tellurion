@@ -206,33 +206,37 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); startLoop(); }, { once: true }); } else { bootSync(); startLoop(); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const result = st.method === 'bisect' ? bisect(f, st.x0, st.x1)
+               : st.method === 'newton' ? newton(f, df, st.x0)
+               : secant(f, st.x0, st.x1);
+  const root = result.root;
+  const fx = f(root);
+  return {
+    fields: [
+      { key: 'method', label: 'Method', value: st.method, format: undefined },
+      { key: 'root', label: 'Root estimate', value: root, format: 'float' },
+      { key: 'f-root', label: 'f(root)', value: fx, format: 'float' },
+      { key: 'iterations', label: 'Iterations', value: result.trail.length - 1, format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const result = st.method === 'bisect' ? bisect(f, st.x0, st.x1)
+               : st.method === 'newton' ? newton(f, df, st.x0)
+               : secant(f, st.x0, st.x1);
+  const root = result.root;
+  const fx = f(root);
+  const residual = Math.abs(fx);
+  const converged = residual < 1e-8 && result.ok;
+  return [
+    {
+      key: 'root-residual',
+      label: 'f(root) = 0',
+      value: converged ? 'pass' : residual.toExponential(2),
+      status: converged ? 'pass' : (result.ok ? 'pass' : 'pending')
+    }
+  ];
+};
