@@ -48,6 +48,16 @@ const st = {
 //   z: vertical (gradient axis).
 //   y: depth.
 const OVEN_X = -0.1, MAGNET_X0 = 0.20, MAGNET_X1 = 0.80, SCREEN_X = 1.40;
+const BEAM_VX = 1.6;                              // beam speed, world units / s
+// Screen deflection per unit m_J. The atom gains vz linearly across
+// the magnet, then drifts to the screen. Integrating the equations
+// of motion the trajectory integrator uses gives
+//   z = (3 dBdz) (L_mag / vx^2) (L_mag/2 + L_drift)  per unit m_J.
+// The histogram curve must use this same scale as the simulation, or
+// the bars and the theoretical curve will not overlay.
+const SG_L_MAG = MAGNET_X1 - MAGNET_X0;
+const SG_L_DRIFT = SCREEN_X - MAGNET_X1;
+const DEFLECT_PER_MJ = 3.0 * (SG_L_MAG / (BEAM_VX * BEAM_VX)) * (SG_L_MAG / 2 + SG_L_DRIFT);
 
 function projectScene(p, center, scale) {
   // Camera at (0.6, 0.4, 0.1) looking toward (0.7, 0, 0).
@@ -191,8 +201,11 @@ function colorForMJ(m_J, J) {
     [220, 100, 255],
   ];
   const t = u * (stops.length - 1);
-  const i = Math.min(stops.length - 2, Math.floor(t));
-  const f = t - i;
+  // Clamp the stop index at both ends: m_J outside [-J, J] (bins
+  // between or beyond the spots) would otherwise index stops[] out
+  // of range and read a property of undefined.
+  const i = Math.max(0, Math.min(stops.length - 2, Math.floor(t)));
+  const f = Math.max(0, Math.min(1, t - i));
   const r = Math.round(stops[i][0] * (1 - f) + stops[i + 1][0] * f);
   const g = Math.round(stops[i][1] * (1 - f) + stops[i + 1][1] * f);
   const b = Math.round(stops[i][2] * (1 - f) + stops[i + 1][2] * f);
@@ -213,7 +226,7 @@ function spawnAtom() {
 }
 
 function stepAtoms(dt) {
-  const v_x = 1.6;     // beam speed in world units / sec
+  const v_x = BEAM_VX;     // beam speed in world units / sec
   for (let i = st.atoms.length - 1; i >= 0; i--) {
     const a = st.atoms[i];
     const x0 = a.x;
@@ -288,15 +301,17 @@ function drawScreenHistogram(center, scale) {
   // Draw bars
   const barX0 = xPanel + 50;
   const barW = (W - xPanel - 14) - 60;
+  const allowedMJ = mJValues(st.J);
+  const z_per_mJ = st.dBdz * DEFLECT_PER_MJ;
   for (let i = 0; i < nBins; i++) {
     const yMid = yPanel0 + ((nBins - 1 - i) / (nBins - 1)) * (yPanel1 - yPanel0);
     const w = bins[i] / maxB * barW;
     if (w < 1) continue;
-    // Color by which m_J this z falls closest to (quantum spots).
+    // Color by the nearest allowed m_J spot (half-integer for half-
+    // integer J), not the nearest integer.
     const z = -zMax + 2 * zMax * (i / nBins);
-    const z_per_mJ = st.dBdz * 3.0 * 0.4;  // matches the deflection scale
     const m_J_est = z / Math.max(1e-9, z_per_mJ);
-    const m_J = Math.round(m_J_est);
+    const m_J = allowedMJ.reduce((a, b) => (Math.abs(b - m_J_est) < Math.abs(a - m_J_est) ? b : a));
     const col = colorForMJ(m_J, st.J);
     ctx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.85)`;
     ctx.fillRect(barX0, yMid - 1, w, 2);
@@ -326,7 +341,6 @@ function drawScreenHistogram(center, scale) {
     ctx.stroke();
     ctx.setLineDash([]);
   };
-  const z_per_mJ = st.dBdz * 3.0 * 0.4;
   if (st.mode === 'quantum' || st.mode === 'both') {
     drawCurve(z => quantumDensity(z, z_per_mJ, st.J, 0.04), 'rgba(255, 255, 255, 0.55)');
   }
