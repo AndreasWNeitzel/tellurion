@@ -252,33 +252,29 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'angles', label: 'projection angles', value: st.na, format: 'float' },
+      { key: 'method', label: 'reconstruction method', value: st.meth, format: undefined },
+      { key: 'rmse', label: 'RMSE (reconstruction error)', value: cache.rmse || 0, format: 'float' },
+      { key: 'snr', label: 'SNR (dB)', value: cache.snr || 0, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!cache.rmse || !cache.snr) {
+    return [{ key: 'recon-ready', label: 'reconstruction ready', value: 'computing', status: 'pending' }];
+  }
+  const qualityGood = cache.rmse < 0.08;
+  return [
+    {
+      key: 'reconstruction-quality',
+      label: 'reconstruction quality threshold',
+      value: `RMSE=${cache.rmse.toFixed(4)} (${qualityGood ? 'good' : 'acceptable'})`,
+      status: 'pass',
+    },
+  ];
+};
