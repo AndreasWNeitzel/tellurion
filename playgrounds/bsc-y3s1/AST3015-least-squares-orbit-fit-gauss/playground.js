@@ -65,8 +65,8 @@ let hist = [];
 function render() {
   const full = dataset();
   if (!CAPTURE_NAME && running) {
-    st.k += 0.18;                                     // slower point-by-point reveal
-    if (st.k >= st.N + 80) { st.k = 3; hist = []; }   // hold the converged (biased) fit, then regrow
+    st.k += 0.10;                                     // gradual point-by-point reveal
+    if (st.k >= st.N + 60) { st.k = 3; hist = []; }   // hold the converged (biased) fit, then regrow
   }
   const k = Math.max(3, Math.min(st.N, Math.round(st.k)));
   const data = full.slice(0, k);
