@@ -176,33 +176,36 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const S = strehl(st.sigma);
+  const fnull = firstNullArcsec(st.lambda, st.D);
+  return {
+    fields: [
+      { key: "wavelength", label: "Wavelength (nm)", value: st.lambda, format: "float" },
+      { key: "aperture", label: "Aperture (m)", value: st.D, format: "float" },
+      { key: "strehl-ratio", label: "Strehl ratio", value: S, format: "float" },
+      { key: "wavefront-rms", label: "Wavefront RMS (waves)", value: st.sigma, format: "float" }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const S = strehl(st.sigma);
+  const strehlOk = S >= 0 && S <= 1;
+  const sigmaOk = st.sigma >= 0;
+  return [
+    {
+      key: "strehl-bounds",
+      label: "Strehl ratio in [0,1]",
+      value: strehlOk ? "pass" : "fail",
+      status: strehlOk ? "pass" : "drift"
+    },
+    {
+      key: "wavefront-nonneg",
+      label: "Wavefront RMS >= 0",
+      value: sigmaOk ? "pass" : "fail",
+      status: sigmaOk ? "pass" : "drift"
+    }
+  ];
+};
