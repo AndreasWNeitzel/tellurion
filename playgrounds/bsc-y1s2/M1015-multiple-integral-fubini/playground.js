@@ -6,7 +6,7 @@
 // Both accumulated volumes converge to the same number. sim.js core is
 // unchanged.
 
-import { dxDy, dyDx, innerX, innerY, fAt } from './sim.js';
+import { dxDy, dyDx, innerX, innerY, fAt, exact } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -157,33 +157,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the integration rectangle and the double integral
+// evaluated in each order. The invariant is Fubini's theorem: both
+// iteration orders must agree, and here both are also checked
+// against the analytic value of the integral.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const I1 = dxDy(80, 0, st.A, 0, st.B);
+  const I2 = dyDx(80, 0, st.A, 0, st.B);
+  return {
+    fields: [
+      { key: 'domain', label: 'rectangle', value: `[0,${st.A.toFixed(2)}] x [0,${st.B.toFixed(2)}]` },
+      { key: 'integral-xy', label: 'integral dx dy', value: I1, format: 'float' },
+      { key: 'integral-yx', label: 'integral dy dx', value: I2, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const I1 = dxDy(80, 0, st.A, 0, st.B);
+  const I2 = dyDx(80, 0, st.A, 0, st.B);
+  const ex = exact(0, st.A, 0, st.B);
+  const scale = Math.max(1e-9, Math.abs(ex));
+  const drift = Math.max(Math.abs(I1 - ex), Math.abs(I2 - ex)) / scale;
+  return [{
+    key: 'fubini',
+    label: 'both integration orders match the analytic value (Fubini)',
+    value: drift.toExponential(2),
+    status: drift < 5e-3 ? 'pass' : (drift < 5e-2 ? 'pending' : 'drift'),
+  }];
+};
