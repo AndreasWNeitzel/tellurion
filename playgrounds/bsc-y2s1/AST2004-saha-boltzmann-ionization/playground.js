@@ -90,8 +90,8 @@ function drawCurves() {
   ctx.fillStyle = '#ffffff'; ctx.fillText('Balmer line strength = (1-x) f2', x0 + 8, y0 + 48);
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'center';
   ctx.fillText(`peak ~ ${Math.round(bpT)} K (A stars)`, xOf(bpT), y0 + ph - 10);
-  ctx.save(); ctx.translate(14, y0 + ph / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillText('fraction (normalized)', 0, 0); ctx.restore();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('[0,1]', 15, y0 + ph / 2);
 }
 
 function drawGas() {
