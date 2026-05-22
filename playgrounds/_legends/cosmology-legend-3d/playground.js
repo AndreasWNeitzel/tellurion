@@ -753,33 +753,29 @@ if (CAPTURE_NAME) {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const Ok = 1 - st.Om - st.Ol;
+  return {
+    fields: [
+      { key: 'omega-m', label: 'Omega_m', value: st.Om, format: 'float' },
+      { key: 'omega-lambda', label: 'Omega_Lambda', value: st.Ol, format: 'float' },
+      { key: 'omega-k', label: 'Omega_k (curvature)', value: Ok, format: 'float' },
+      { key: 'mode', label: 'Display mode', value: st.mode, format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const Ok = 1 - st.Om - st.Ol;
+  const closure = st.Om + st.Ol + Math.abs(Ok);
+  const closure_ok = Math.abs(closure - 1.0) < 1e-6;
+  return [
+    {
+      key: 'closure',
+      label: 'Omega_sum = 1',
+      value: closure_ok ? 'pass' : closure.toFixed(6),
+      status: closure_ok ? 'pass' : 'drift'
+    }
+  ];
+};
