@@ -367,33 +367,37 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const q_edge = safetyAtEdge(st.B0, st.R, st.a, st.Ip);
+  const q_axis = safetyAxis(st.B0, st.R, st.a, st.Ip);
+  return {
+    fields: [
+      { key: 'b0', label: 'Toroidal B (T)', value: st.B0, format: 'float' },
+      { key: 'ip', label: 'Plasma current (kA)', value: st.Ip, format: 'float' },
+      { key: 'q-edge', label: 'Safety factor q(a)', value: q_edge, format: 'float' },
+      { key: 'q-axis', label: 'Safety factor q(0)', value: q_axis, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const q_edge = safetyAtEdge(st.B0, st.R, st.a, st.Ip);
+  const q_axis = safetyAxis(st.B0, st.R, st.a, st.Ip);
+  const monotonic = q_axis < q_edge;
+  const edge_stable = q_edge > 1.0;
+  return [
+    {
+      key: 'q-monotonicity',
+      label: 'q(0) < q(a)',
+      value: monotonic ? 'pass' : 'fail',
+      status: monotonic ? 'pass' : 'drift'
+    },
+    {
+      key: 'kink-stability',
+      label: 'q(a) > 1 (kink stable)',
+      value: edge_stable ? 'pass' : `q=${q_edge.toFixed(2)}`,
+      status: edge_stable ? 'pass' : 'drift'
+    }
+  ];
+};
