@@ -162,5 +162,26 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () { return { fields: [ { key: 'mass', label: 'Mass', value: st.mass.toExponential(2) }, { key: 'radius', label: 'Radius', value: st.radius.toFixed(2) } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'jeans-stability', label: 'Jeans analysis valid', value: 'OK', status: 'pass' } ]; };
+window.playground.getState = function () {
+  const vc = vCirc(st.sigma);
+  const M_r = massEnclosed(st.sigma, RMAX);
+  return {
+    fields: [
+      { key: 'velocity-dispersion', label: 'Velocity dispersion $\\sigma$', value: st.sigma.toFixed(0), format: 'float' },
+      { key: 'circular-velocity', label: 'Circular velocity $v_c(r)$', value: vc.toFixed(0), format: 'float' },
+      { key: 'enclosed-mass', label: 'M(<r) (solar masses)', value: M_r.toExponential(2), format: 'float' },
+      { key: 'time', label: 'Time (Gyr)', value: (st.t / 1e9).toFixed(2), format: 'float' },
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const vc = vCirc(st.sigma);
+  return [
+    {
+      key: 'velocity-relation',
+      label: 'Flat rotation curve: $v_c = \\sqrt{2} \\sigma$',
+      value: vc.toFixed(0),
+      status: Math.abs(vc - Math.sqrt(2) * st.sigma / 200) < 0.01 ? 'pass' : 'drift',
+    },
+  ];
+};
