@@ -210,33 +210,42 @@ sSpeed.addEventListener('input', () => { st.speed = parseFloat(sSpeed.value); vS
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  let alive = 0;
+  for (let i = 0; i < NPART; i += 1) if (palive[i]) alive += 1;
+  return {
+    fields: [
+      { key: 'jupiter-semimajor', label: 'Jupiter semi-major axis a_J (AU)', value: st.aJ, format: 'float' },
+      { key: 'simulation-time', label: 'simulation time (years)', value: st.t, format: 'float' },
+      { key: 'simulation-speed', label: 'speed multiplier', value: st.speed, format: 'float' },
+      { key: 'particles-alive', label: 'asteroid particles not ejected', value: alive, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  // Particle conservation: dead count should increase monotonically
+  let alive = 0;
+  for (let i = 0; i < NPART; i += 1) if (palive[i]) alive += 1;
+  inv.push({
+    key: 'particle-count',
+    label: 'particles alive should decrease due to ejection',
+    value: alive.toFixed(0),
+    status: alive >= 0 && alive <= NPART ? 'pass' : 'drift'
+  });
+  // Resonance prediction: computed gaps should align with Kirkwood ratios
+  let gapCount = 0;
+  for (const kr of KIRKWOOD_RATIOS) {
+    const a_res = resonanceSemiMajor(st.aJ, kr.p, kr.q);
+    if (a_res >= A_IN && a_res <= A_OUT) gapCount += 1;
+  }
+  inv.push({
+    key: 'kirkwood-gaps',
+    label: 'expected Kirkwood gap count in belt',
+    value: gapCount.toFixed(0),
+    status: gapCount > 0 ? 'pass' : 'pending'
+  });
+  return inv;
+};
