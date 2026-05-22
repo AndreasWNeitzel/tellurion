@@ -109,7 +109,7 @@ function render() {
     // vector expression and did not actually close.)
     const tx = 620, ty = 232, sc = 24, S = triplet ? 1 : 0;
     ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-    ctx.fillText('J_i = J_f + S_lep   (L = 0, allowed)', tx - 80, ty - 78);
+    ctx.fillText('J_i = J_f + S_lep', tx - 80, ty - 78);
     const Li = sc * (st.Ji + 0.6);
     const Lf = sc * (st.Jf + 0.6);
     const thF = 0.7;                                  // J_f drawn tilted by thF
