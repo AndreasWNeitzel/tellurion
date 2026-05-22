@@ -86,7 +86,8 @@ function render() {
   }
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('photon energy (eV, log)', padL + plotW - 140, padT + plotH + 28);
+  ctx.textAlign = 'right';
+  ctx.fillText('E (eV, log)', padL + plotW - 8, padT + plotH + 28);
 
   // Track lines.
   function marker(x, y, color, label) {
