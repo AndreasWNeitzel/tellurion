@@ -72,6 +72,78 @@ function arrow(c, x0, y0, x1, y1) {
   ctx.fill();
 }
 
+// Numerical outward flux through a circle of radius r at the origin.
+// The divergence theorem predicts div * pi r^2.
+function fluxThroughCircle(f, r, aVal) {
+  const N = 240;
+  let sum = 0;
+  for (let i = 0; i < N; i += 1) {
+    const th = 2 * Math.PI * (i + 0.5) / N;
+    const x = r * Math.cos(th), y = r * Math.sin(th);
+    sum += (f.P(x, y, aVal) * Math.cos(th) + f.Q(x, y, aVal) * Math.sin(th)) * r * (2 * Math.PI / N);
+  }
+  return sum;
+}
+
+// Numerical circulation around the same circle. Green's theorem
+// predicts curl * pi r^2.
+function circulationAroundCircle(f, r, aVal) {
+  const N = 240;
+  let sum = 0;
+  for (let i = 0; i < N; i += 1) {
+    const th = 2 * Math.PI * (i + 0.5) / N;
+    const x = r * Math.cos(th), y = r * Math.sin(th);
+    sum += (-f.P(x, y, aVal) * Math.sin(th) + f.Q(x, y, aVal) * Math.cos(th)) * r * (2 * Math.PI / N);
+  }
+  return sum;
+}
+
+// Rule-13 diagnostic: the flux and circulation through a circular loop
+// against the loop radius. Both scale as r^2, the area-scaling of the
+// divergence and Green theorems.
+function drawFluxPlot(f, aVal) {
+  const pw = 290, ph = 150, px = canvas.width - pw - 16, py = 48;
+  ctx.fillStyle = 'rgb(10, 13, 24)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.textAlign = 'left';
+  ctx.fillText('flux and circulation vs loop radius', px + 8, py + 16);
+  const ax = px + 16, ay = py + 26, aw = pw - 30, ah = ph - 44;
+  const rMax = 2.5;
+  const fluxes = [], circs = [];
+  let mag = 1e-9;
+  for (let i = 0; i <= 40; i += 1) {
+    const r = rMax * i / 40;
+    const fx = fluxThroughCircle(f, r, aVal), cr = circulationAroundCircle(f, r, aVal);
+    fluxes.push(fx); circs.push(cr);
+    mag = Math.max(mag, Math.abs(fx), Math.abs(cr));
+  }
+  mag *= 1.15;
+  const xOf = (i) => ax + (i / 40) * aw;
+  const yOf = (val) => ay + ah / 2 - (val / mag) * (ah / 2);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+  ctx.beginPath(); ctx.moveTo(ax, yOf(0)); ctx.lineTo(ax + aw, yOf(0)); ctx.stroke();
+  for (const [arr, col] of [[fluxes, '#ffd166'], [circs, '#ef476f']]) {
+    ctx.strokeStyle = col; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < arr.length; i += 1) {
+      const xx = xOf(i), yy = yOf(arr[i]);
+      if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+    }
+    ctx.stroke();
+  }
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillStyle = '#ffd166'; ctx.fillText('flux', px + 10, ay + 11);
+  ctx.fillStyle = '#ef476f'; ctx.fillText('circulation', px + 10, ay + 25);
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
+  ctx.textAlign = 'right';
+  ctx.fillText('radius r', ax + aw, ay + ah + 12);
+  ctx.textAlign = 'left';
+}
+
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
@@ -122,6 +194,15 @@ function render() {
   ctx.fillText(`div F = ${f.div(0, 0, a).toFixed(3)}`, 12, 38);
   ctx.fillStyle = c.red;
   ctx.fillText(`curl F = ${f.curl(0, 0, a).toFixed(3)}`, 12, 54);
+
+  // Test loop used by the flux/circulation diagnostic.
+  ctx.strokeStyle = 'rgba(225, 225, 245, 0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.arc(cx, cy, scale * 1.5, 0, 2 * Math.PI); ctx.stroke();
+  ctx.setLineDash([]);
+
+  drawFluxPlot(f, a);
 }
 
 function updateReadout() {
@@ -186,26 +267,25 @@ window.playground.getState = function () {
 };
 window.playground.getInvariants = function () {
   const f = FAMILIES[familyName];
-  const divVal = f.div(0, 0, a);
-  const curlVal = f.curl(0, 0, a);
+  const r = 1.5, area = Math.PI * r * r;
+  const flux = fluxThroughCircle(f, r, a);
+  const circ = circulationAroundCircle(f, r, a);
+  const divArea = f.div(0, 0, a) * area;
+  const curlArea = f.curl(0, 0, a) * area;
+  const fluxErr = Math.abs(flux - divArea) / (Math.abs(divArea) + 1e-6);
+  const circErr = Math.abs(circ - curlArea) / (Math.abs(curlArea) + 1e-6);
   return [
     {
-      key: 'field-family-correct',
-      label: 'Field family defined',
-      value: familyName in FAMILIES ? 'pass' : 'fail',
-      status: familyName in FAMILIES ? 'pass' : 'fail'
+      key: 'divergence-theorem',
+      label: 'divergence theorem: loop flux equals div times enclosed area',
+      value: fluxErr.toExponential(1),
+      status: fluxErr < 1e-3 ? 'pass' : (fluxErr < 1e-1 ? 'pending' : 'drift'),
     },
     {
-      key: 'divergence-computed',
-      label: 'Divergence computed',
-      value: Number.isFinite(divVal) ? 'pass' : 'fail',
-      status: Number.isFinite(divVal) ? 'pass' : 'fail'
+      key: 'green-theorem',
+      label: 'Green theorem: loop circulation equals curl times enclosed area',
+      value: circErr.toExponential(1),
+      status: circErr < 1e-3 ? 'pass' : (circErr < 1e-1 ? 'pending' : 'drift'),
     },
-    {
-      key: 'curl-computed',
-      label: 'Curl computed',
-      value: Number.isFinite(curlVal) ? 'pass' : 'fail',
-      status: Number.isFinite(curlVal) ? 'pass' : 'fail'
-    }
   ];
 };
