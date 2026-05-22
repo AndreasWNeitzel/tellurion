@@ -238,33 +238,49 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const E = energy();
+  const cs = crossSections(E);
+  return {
+    fields: [
+      { key: 'photon-energy', label: 'incident photon energy (keV)', value: E, format: 'float' },
+      { key: 'mu-total', label: 'total attenuation coeff (1/cm)', value: cs.mu, format: 'float' },
+      { key: 'slab-thickness', label: 'slab thickness L (cm)', value: st.L, format: 'float' },
+      { key: 'photon-count', label: 'Monte Carlo photons', value: st.n * 1000, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const E = energy();
+  const cs = crossSections(E);
+  // Cross sections must be positive
+  inv.push({
+    key: 'xsec-positive',
+    label: 'all cross sections >= 0',
+    value: `pe=${cs.pe.toFixed(4)}, comp=${cs.compton.toFixed(4)}, ray=${cs.rayleigh.toFixed(4)}`,
+    status: cs.pe >= 0 && cs.compton >= 0 && cs.rayleigh >= 0 ? 'pass' : 'drift'
+  });
+  // Composition sum: individual cross sections sum to total
+  const sum = cs.pe + cs.compton + cs.rayleigh;
+  const rel = Math.abs(sum - cs.mu) / cs.mu;
+  inv.push({
+    key: 'composition-sum',
+    label: 'individual xsecs sum to total mu',
+    value: rel.toExponential(2),
+    status: rel < 1e-10 ? 'pass' : 'drift'
+  });
+  // Energy dependence: Klein-Nishina dominates at high E
+  const energy_high = 500;
+  const cs_high = crossSections(energy_high);
+  const ratio_compton = cs_high.compton / cs.compton;
+  inv.push({
+    key: 'energy-scaling',
+    label: 'Compton increases with E',
+    value: ratio_compton.toFixed(2),
+    status: ratio_compton > 1 ? 'pass' : 'pending'
+  });
+  return inv;
+};
