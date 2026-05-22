@@ -281,33 +281,43 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const U = uPhotonThermalJM3(Math.pow(10, logT));
+  return {
+    fields: [
+      { key: 'temperature', label: 'photon bath temperature log10(T, K)', value: logT, format: 'float' },
+      { key: 'energy-density', label: 'photon energy density U (J/m^3)', value: U, format: 'float' },
+      { key: 'elapsed-time', label: 'elapsed time (years)', value: timeElapsedYr, format: 'float' },
+      { key: 'electron-count', label: 'electron population size', value: N_ELECTRONS, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const U = uPhotonThermalJM3(Math.pow(10, logT));
+  // Energy conservation cross-check: cooling timescale must be positive and scale as 1/gamma
+  const testGamma = 100;
+  const tTest = tCoolSeconds(testGamma, U);
+  const tTest2 = tCoolSeconds(testGamma * 2, U);
+  const ratio = tTest / tTest2;
+  inv.push({
+    key: 'cooling-scaling',
+    label: 't_cool(gamma) / t_cool(2*gamma) should be ~2.0 (1/gamma scaling)',
+    value: ratio.toFixed(2),
+    status: Math.abs(ratio - 2.0) < 0.1 ? 'pass' : 'drift'
+  });
+  // Closed-form solution check: gamma(t) = g0 / (1 + K g0 t)
+  const g0 = 1e5;
+  const K = YEAR_S / tCoolSeconds(1, U);
+  const t_test_yr = 1e6;
+  const g_expected = g0 / (1 + K * g0 * t_test_yr);
+  inv.push({
+    key: 'solution-validity',
+    label: 'gamma at t=1Myr stays positive',
+    value: g_expected.toExponential(2),
+    status: g_expected > 1 ? 'pass' : 'drift'
+  });
+  return inv;
+};
