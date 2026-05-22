@@ -120,7 +120,10 @@ function drawKeyPanel(weights) {
     ctx.fillStyle = tok.fg;
     ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'center';
-    ctx.fillText(`k${i + 1}`, p.px, p.py - r - 4);
+    const label = `k${i + 1}`;
+    const lw = ctx.measureText(label).width;
+    const labelX = Math.max(KEY.x + lw / 2, Math.min(p.px, KEY.x + KEY.w - lw / 2));
+    ctx.fillText(label, labelX, p.py - r - 4);
   }
 
   // query: draw on top, with a soft halo so the draggable affordance reads
