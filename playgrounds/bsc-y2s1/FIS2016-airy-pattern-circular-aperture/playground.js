@@ -297,5 +297,23 @@ if (!window.playground.getState) {
   };
 }
 if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
+  window.playground.getInvariants = function () {
+    const theta1 = rayleighResolution({ lambda: state.lambda, D: state.D });
+    const strehl = strehRatio({ sigmaWaves: state.sigmaWaves });
+    const theta1as = theta1 * 206265;
+    return [
+      {
+        key: 'theta1-positive',
+        label: 'Rayleigh limit $\theta_1 > 0$',
+        value: theta1.toExponential(2),
+        status: theta1 > 0 ? 'pass' : 'drift',
+      },
+      {
+        key: 'strehl-valid',
+        label: 'Strehl ratio in [0, 1]',
+        value: (strehl * 100).toFixed(1) + '%',
+        status: strehl >= 0 && strehl <= 1 ? 'pass' : 'drift',
+      },
+    ];
+  };
 }
