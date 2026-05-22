@@ -139,20 +139,15 @@ function render() {
     const sxp = xToPx(p);
     ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(sxp, BOT.y0 + 4); ctx.lineTo(sxp, BOT.y0 + BOT.h - 4); ctx.stroke(); ctx.setLineDash([]);
-    // Explanatory label so the line's purpose is unmistakable.
+    // Explanatory label, placed below the string so it never collides
+    // with the load arrows in the upper band of the panel.
     ctx.fillStyle = 'rgba(255, 209, 102, 0.95)';
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`adding pokes up to s = ${p.toFixed(2)}`, sxp + 6, BOT.y0 + 18);
-    // Arrow indicating direction.
-    ctx.strokeStyle = 'rgba(255, 209, 102, 0.6)';
-    ctx.beginPath();
-    ctx.moveTo(sxp - 6, BOT.y0 + 30); ctx.lineTo(sxp + 6, BOT.y0 + 30);
-    ctx.moveTo(sxp + 2, BOT.y0 + 26); ctx.lineTo(sxp + 6, BOT.y0 + 30); ctx.lineTo(sxp + 2, BOT.y0 + 34);
-    ctx.stroke();
+    ctx.fillText(`adding pokes up to s = ${p.toFixed(2)}`, X0P + 8, BOT.y0 + BOT.h - 12);
   } else if (!CAPTURE_NAME && p >= 1) {
     ctx.fillStyle = 'rgba(91, 192, 235, 0.85)';
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('full superposition: u(x) = ∫ G(x,s) f(s) ds', xToPx(0.3), BOT.y0 + 18);
+    ctx.fillText('full superposition: u(x) = ∫ G(x,s) f(s) ds', X0P + 8, BOT.y0 + BOT.h - 12);
   }
   ctx.restore();
 
@@ -208,13 +203,27 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const gMax = st.x0 * (1 - st.x0);
+  const uHalf = solve((x) => 1, 1, N).u[N / 2];
   return {
     fields: [
-      { key: 'source_x', label: 'Source position', value: st.x0 || 0, format: 'float' },
-      { key: 'solution_residual', label: 'Poisson residual', value: st.residual || 0, format: 'float' }
+      { key: 'source-x', label: 'poke position $x_0$', value: st.x0, format: 'float' },
+      { key: 'g-max', label: 'peak response $G_{max} = x_0(1-x_0)$', value: gMax, format: 'float' },
+      { key: 'load', label: 'distributed load', value: st.fn },
+      { key: 'u-half', label: 'solution $u(L/2)$ at $f=1$', value: uHalf, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  return [{ key: 'greens-function-solution', label: 'Greens function solves Poisson', value: 'pass', status: 'pass' }];
+  // The constant-load solution has the exact midpoint value
+  // u(L/2) = L^2/8 for L = 1; the numerical Green's-function
+  // superposition must reproduce it.
+  const uHalf = solve((x) => 1, 1, N).u[N / 2];
+  const drift = Math.abs(uHalf - 0.125);
+  return [{
+    key: 'analytic-uhalf',
+    label: 'constant load gives $u(L/2) = L^2/8$',
+    value: drift.toExponential(2),
+    status: drift < 1e-3 ? 'pass' : 'drift'
+  }];
 };
