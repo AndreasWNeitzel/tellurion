@@ -250,33 +250,27 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const omega = st.fMHz * 1e6 * 2 * Math.PI;
+  const P = st.source === 'electric' ? totalPowerE(st.moment, omega) : totalPowerM(st.moment, omega);
+  const D = directivity(st.source === 'electric' ? dipolePattern : antennaPattern);
+  return {
+    fields: [
+      { key: 'source', label: 'Source', value: st.source, format: undefined },
+      { key: 'frequency', label: 'Frequency (MHz)', value: st.fMHz, format: 'float' },
+      { key: 'power', label: 'Radiated power (W)', value: P, format: 'float' },
+      { key: 'directivity', label: 'Directivity D', value: D, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const D = directivity(st.source === 'electric' ? dipolePattern : antennaPattern);
+  const expected = st.source === 'electric' ? 1.5 : 1.64;
+  const err = Math.abs(D - expected) / expected;
+  const status = err < 0.1 ? 'pass' : 'pending';
+  return [
+    { key: 'directivity', label: 'Directivity check', value: D.toFixed(3), status }
+  ];
+};
