@@ -17,7 +17,7 @@
 // freely (no image, no expulsion). The repulsive force on a vertical
 // dipole at height h above the ideal superconductor is
 //
-//   F = 3 m^2 / (32 h^4)            (mu0/4pi = 1, upward),
+//   F = 3 m^2 / (8 h^4)            (mu0/4pi = 1, upward),
 //
 // the image-dipole result; balancing it against weight gives the
 // levitation height. div B = 0 everywhere away from the sources, the
@@ -93,17 +93,17 @@ export function divergence(P, h, mz, sc, lambda, eps = 1e-3) {
 }
 
 // Image-dipole repulsion on a vertical dipole at height h:
-//   F = 3 m^2 / (32 h^4)  (upward, mu0/4pi = 1).
+//   F = 3 m^2 / (8 h^4)  (upward, mu0/4pi = 1).
 export function levitationForce(h, mz) {
-  return (3 * mz * mz) / (32 * h * h * h * h);
+  return (3 * mz * mz) / (8 * h * h * h * h);
 }
 
 // Equilibrium levitation height where the repulsion balances weight
 // W = mass * g. (Ideal Meissner is Earnshaw-unstable; real Type-II
 // pinning supplies stability. The playground states this.)
 export function levitationHeight(mz, weight) {
-  // 3 m^2 / (32 h^4) = W  =>  h = (3 m^2 / (32 W))^{1/4}
-  return Math.pow((3 * mz * mz) / (32 * weight), 0.25);
+  // 3 m^2 / (8 h^4) = W  =>  h = (3 m^2 / (8 W))^{1/4}
+  return Math.pow((3 * mz * mz) / (8 * weight), 0.25);
 }
 
 // London skin profile (fraction of the surface field) at depth d > 0

@@ -28,7 +28,7 @@ const camera = createOrbitCamera(canvas, {
 });
 window.__camera = camera;
 
-const WEIGHT = 0.05, MZ0 = 2.2, TC = 1;
+const WEIGHT = 0.20, MZ0 = 2.2, TC = 1;
 const ui = { TbyTc: 0.4, Bapp: 0.2, lam0: 0.45, mz: MZ0, running: !prefersReducedMotion() };
 let h = 3, hVel = 0;
 
