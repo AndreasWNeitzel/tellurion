@@ -240,23 +240,25 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const z = st.z ?? 0;
-  const z_r = st.wavelength > 0 && st.w0 > 0 ? Math.PI * st.w0 * st.w0 / st.wavelength : 0;
-  const w_z = st.w0 * Math.sqrt(1 + (z / Math.max(z_r, 1e-6)) ** 2);
+  const z_r = rayleighRange(state.w0, state.lambda);
   return { fields: [
-    { key: 'wavelength', label: 'Wavelength (microns)', value: st.wavelength, format: 'float' },
-    { key: 'waist', label: 'Beam waist w0 (microns)', value: st.w0, format: 'float' },
-    { key: 'rayleigh', label: 'Rayleigh length z_R (mm)', value: z_r / 1000, format: 'float' },
-    { key: 'beam-radius-z', label: 'Beam radius w(z)', value: w_z, format: 'float' },
+    { key: 'wavelength', label: 'Wavelength ($\\mu$m)', value: state.lambda, format: 'float' },
+    { key: 'waist', label: 'Beam waist $w_0$ ($\\mu$m)', value: state.w0, format: 'float' },
+    { key: 'rayleigh', label: 'Rayleigh range $z_R$ ($\\mu$m)', value: z_r, format: 'float' },
+    { key: 'divergence', label: 'Divergence angle (mrad)', value: divergenceAngle(state.w0, state.lambda) * 1000, format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  const z_r = st.wavelength > 0 && st.w0 > 0 ? Math.PI * st.w0 * st.w0 / st.wavelength : 0;
-  // Invariant: w(z) = w0 * sqrt(1 + (z/z_R)^2)
-  const z = st.z ?? 0;
-  const w_z_expected = st.w0 * Math.sqrt(1 + (z / Math.max(z_r, 1e-6)) ** 2);
-  
+  const z_r = rayleighRange(state.w0, state.lambda);
+  const m2 = 1.0;
+  const z_r_expected = Math.PI * state.w0 * state.w0 / state.lambda;
+  const z_r_matches = Math.abs(z_r - z_r_expected) < 1e-10 * Math.max(z_r, z_r_expected);
   return [
-    { key: 'paraxial-evolution', label: 'Beam width evolution: w(z) = w0*sqrt(1+(z/z_R)^2)', value: 'paraxial', status: 'pass' },
+    {
+      key: 'paraxial-evolution',
+      label: 'Rayleigh range $z_R = \\pi w_0^2 / \\lambda$',
+      value: z_r_matches ? 'verified' : 'drift',
+      status: z_r_matches ? 'pass' : 'drift'
+    },
   ];
 }
