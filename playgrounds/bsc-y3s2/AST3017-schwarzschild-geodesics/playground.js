@@ -386,6 +386,10 @@ window.playground.getState = function () {
 };
 window.playground.getInvariants = function () {
   if (!state.swarm) return [{ key: "not-initialized", label: "Swarm", value: "pending", status: "pending" }];
-  const swallowed = state.swarm.filter(p => p.status === SWALLOWED).length;
-  return [{ key: "trajectory-valid", label: "Some photons reach infinity", value: (state.N - swallowed) > 0 ? "pass" : "drift", status: (state.N - swallowed) > 0 ? "pass" : "drift" }];
+  let swallowed = 0;
+  for (let i = 0; i < state.swarm.N; i += 1) {
+    if (state.swarm.fates[i] === SWALLOWED) swallowed += 1;
+  }
+  const deflected = state.N - swallowed;
+  return [{ key: "trajectory-valid", label: "Some photons reach infinity", value: deflected > 0 ? "pass" : "drift", status: deflected > 0 ? "pass" : "drift" }];
 };
