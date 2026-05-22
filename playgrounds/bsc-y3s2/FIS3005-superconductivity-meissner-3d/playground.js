@@ -58,6 +58,21 @@ function render() {
   ctx.strokeStyle = sc ? 'rgba(91,192,235,0.7)' : 'rgba(239,71,111,0.7)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(CX, CY, sR, 0, 2 * Math.PI); ctx.stroke();
 
+  // London penetration layer (type I only, when superconducting):
+  // a thin glowing layer at the surface showing exponential field decay.
+  if (sc && st.type === 'I') {
+    const lambdaL = 0.08 * sR;  // penetration depth in pixels (~ 8% of radius)
+    const nRings = 8;
+    for (let i = 0; i < nRings; i += 1) {
+      const frac = i / nRings;
+      const decay = Math.exp(-frac * 3);  // exponential decay over depth
+      const rr = sR + frac * lambdaL;
+      ctx.strokeStyle = `rgba(100,220,255,${0.4 * decay})`;
+      ctx.lineWidth = Math.max(0.4, 1.2 * decay);
+      ctx.beginPath(); ctx.arc(CX, CY, rr, 0, 2 * Math.PI); ctx.stroke();
+    }
+  }
+
   // field-line streamlines seeded across the top; the number of
   // lines is proportional to the applied flux B0 (a denser bundle
   // for a stronger field).
