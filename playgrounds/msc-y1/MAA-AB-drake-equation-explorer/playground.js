@@ -127,7 +127,7 @@ function render() {
     ctx.beginPath(); ctx.moveTo(xm, padT); ctx.lineTo(xm, padT + plotH); ctx.stroke();
     ctx.fillStyle = c.accent;
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`median 1e${median.toFixed(1)}`, xm + 4, padT + 14);
+    ctx.fillText(`median 1e${median.toFixed(1)}`, xm + 4, padT + 30);
   }
 
   // Point estimate line.
@@ -139,7 +139,7 @@ function render() {
     ctx.beginPath(); ctx.moveTo(xp, padT); ctx.lineTo(xp, padT + plotH); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = c.fg;
-    ctx.fillText(`point N = ${pointN.toExponential(2)}`, xp + 4, padT + 30);
+    ctx.fillText(`point N = ${pointN.toExponential(2)}`, xp + 4, padT + 46);
   }
 
   ctx.fillStyle = c.muted;
