@@ -233,33 +233,30 @@ window.__physicsCheck = async () => {
 };
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const dists = ladder(state);
+  const targetLog = state.targetLog;
+  return {
+    fields: [
+      { key: 'target-distance', label: 'Target distance (pc)', value: Math.pow(10, targetLog).toExponential(2) },
+      { key: 'parallax', label: 'Parallax (mas)', value: state.parallax, format: 'float' },
+      { key: 'cepheid-period', label: 'Cepheid period (d)', value: state.cepheidP, format: 'float' },
+      { key: 'sn-apparent-mag', label: 'SN Ia m_app', value: state.snApparent, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const dists = ladder(state);
+  const err = cumErr(state.targetLog);
+  const activeRung = activeRungs(state.targetLog)[0];
+  return [
+    {
+      key: 'distance-chain',
+      label: 'Cumulative error',
+      value: (err * 100).toFixed(1) + '%',
+      status: activeRung ? 'pass' : 'pending'
+    }
+  ];
+};
