@@ -173,7 +173,7 @@ function drawShiftPlot(c, x0, y0, w, h) {
 
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('theta', x0 + padL + plotW - 40, y0 + h - 8);
+  ctx.fillText('theta (deg)', x0 + padL + plotW - 84, y0 + h - 8);
   ctx.save(); ctx.translate(x0 + 12, y0 + padT + 60); ctx.rotate(-Math.PI / 2);
   ctx.fillText('delta lambda (pm)', 0, 0); ctx.restore();
   ctx.fillText('0', x0 + padL - 12, y0 + padT + plotH + 4);
