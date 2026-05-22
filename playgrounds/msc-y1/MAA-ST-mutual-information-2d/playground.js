@@ -210,33 +210,46 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const I_a = miAnalytic(state.rho);
+  return {
+    fields: [
+      { key: 'correlation', label: 'correlation rho', value: state.rho, format: 'float' },
+      { key: 'sigma-x', label: 'std dev X (sx)', value: state.sigmaX, format: 'float' },
+      { key: 'sigma-y', label: 'std dev Y (sy)', value: state.sigmaY, format: 'float' },
+      { key: 'mutual-info', label: 'mutual information I(X;Y) bits', value: I_a, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  // Mutual information bounds: I(X;Y) >= 0 always
+  const I_a = miAnalytic(state.rho);
+  inv.push({
+    key: 'mutual-info-nonneg',
+    label: 'I(X;Y) >= 0',
+    value: I_a.toExponential(2),
+    status: I_a >= -1e-10 ? 'pass' : 'drift'
+  });
+  // For independent variables (rho=0), I should be ~0
+  if (state.rho === 0) {
+    inv.push({
+      key: 'independence-check',
+      label: 'I(X;Y) = 0 when rho = 0',
+      value: I_a.toExponential(2),
+      status: I_a < 1e-10 ? 'pass' : 'drift'
+    });
+  }
+  // Cross-check: numeric vs analytic should match
+  const I_n = miNumeric(state.rho);
+  const rel = Math.abs(I_n - I_a) / (Math.max(Math.abs(I_a), 1e-10));
+  inv.push({
+    key: 'numeric-analytic-match',
+    label: 'numeric I(X;Y) matches analytic',
+    value: rel.toExponential(2),
+    status: rel < 0.01 ? 'pass' : 'pending'
+  });
+  return inv;
+};
