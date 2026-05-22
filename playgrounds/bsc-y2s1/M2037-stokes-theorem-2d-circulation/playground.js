@@ -23,6 +23,48 @@ function vec(field, x, y) {
   return { u: x, v: y };
 }
 function arrow(c, x0, y0, x1, y1) { ctx.strokeStyle = c; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); const a = Math.atan2(y1 - y0, x1 - x0); const head = 4; ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - head * Math.cos(a - 0.32), y1 - head * Math.sin(a - 0.32)); ctx.lineTo(x1 - head * Math.cos(a + 0.32), y1 - head * Math.sin(a + 0.32)); ctx.closePath(); ctx.fill(); }
+// Rule-13 diagnostic: the loop circulation against the enclosed area.
+// Stokes (Green) in 2D makes this a straight line through the origin
+// with slope equal to the curl; the marker is the measured
+// circulation, which sits exactly on the line.
+function drawStokesPlot() {
+  const pw = 280, ph = 150, px = canvas.width - pw - 16, py = 48;
+  ctx.fillStyle = 'rgb(10, 13, 24)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.textAlign = 'left';
+  ctx.fillText('circulation vs enclosed area', px + 8, py + 16);
+  const ax = px + 16, ay = py + 26, aw = pw - 30, ah = ph - 44;
+  const areaMax = 12, circMax = 12;
+  const curl = curlAtPoint(field, cx0, cy0);
+  const xOf = (A) => ax + (A / areaMax) * aw;
+  const yOf = (C) => ay + ah / 2 - (C / circMax) * (ah / 2);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+  ctx.beginPath(); ctx.moveTo(ax, yOf(0)); ctx.lineTo(ax + aw, yOf(0)); ctx.stroke();
+  // Stokes line: circulation = curl times area.
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(xOf(0), yOf(0));
+  ctx.lineTo(xOf(areaMax), yOf(curl * areaMax));
+  ctx.stroke();
+  // Marker at the measured (area, circulation).
+  const area = w * h;
+  const circ = circulationRect(field, cx0, cy0, w, h);
+  ctx.fillStyle = '#ffd166';
+  ctx.beginPath();
+  ctx.arc(xOf(Math.min(area, areaMax)), yOf(Math.max(-circMax, Math.min(circMax, circ))), 4, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
+  ctx.fillText('circulation', px + 8, ay + 10);
+  ctx.textAlign = 'right';
+  ctx.fillText('area', ax + aw, ay + ah + 12);
+  ctx.textAlign = 'left';
+}
+
 function render() {
   const c = colors(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const cx = canvas.width / 2, cy = canvas.height / 2; const scale = 70;
@@ -56,6 +98,7 @@ function render() {
   ctx.fillText(`curl = ${curlAtPoint(field, 0, 0)}`, 12, 38);
   ctx.fillStyle = c.accent;
   ctx.fillText(`circulation = ${circulationRect(field, cx0, cy0, w, h).toFixed(3)}, area = ${(w * h).toFixed(3)}`, 12, 56);
+  drawStokesPlot();
 }
 function updateReadout() { readoutC.textContent = circulationRect(field, cx0, cy0, w, h).toFixed(3); readoutA.textContent = (w * h).toFixed(3); }
 function loop() { render(); updateReadout(); requestAnimationFrame(loop); }
