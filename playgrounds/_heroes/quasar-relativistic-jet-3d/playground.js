@@ -280,9 +280,9 @@ function drawSidePanel() {
   drawRow('beam half-angle', halfBeam.toFixed(1) + ' deg');
   // Indicator of regime.
   let regime = '';
-  if (st.thetaDeg < halfBeam) regime = 'blazar (theta < 1/Gamma)';
-  else if (st.thetaDeg < 45) regime = 'broad-line radio quasar';
-  else regime = 'radio galaxy (edge-on)';
+  if (st.thetaDeg < halfBeam) regime = 'blazar';
+  else if (st.thetaDeg < 45) regime = 'radio quasar';
+  else regime = 'radio galaxy';
   drawRow('regime', regime, '#ffd28a');
   // Pictograph: two bars.
   const barX = x0 + 16, barW = x1 - x0 - 32;
@@ -350,7 +350,7 @@ function drawSidePanel() {
   ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('δ', plotX0 + 4, plotY0 + 10);
   ctx.fillStyle = '#ffd166';
-  ctx.fillText('β_app', plotX0 + 16, plotY0 + 10);
+  ctx.fillText('β_app', plotX0 + 24, plotY0 + 10);
 }
 
 function updateReadout() {
