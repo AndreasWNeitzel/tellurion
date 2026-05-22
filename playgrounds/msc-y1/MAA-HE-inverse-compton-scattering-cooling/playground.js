@@ -144,7 +144,7 @@ function render() {
   ctx.beginPath(); ctx.moveTo(xRef, padT); ctx.lineTo(xRef, padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = c.blue;
-  ctx.fillText('γ = 10⁴', xRef + 4, padT + 14);
+  ctx.fillText('γ = 10⁴', xRef + 4, padT + 28);
   // Title.
   ctx.fillStyle = c.accent; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T = ${T.toFixed(2)} K  U_ph = ${U.toExponential(2)} J/m³`, padL + 12, padT + 14);
@@ -214,7 +214,7 @@ function render() {
   ctx.strokeRect(rightX, histY, rightW, histH);
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`N(γ)  alive = ${nAlive}/${N_ELECTRONS}`, rightX + 4, histY - 4);
-  ctx.fillText(`elapsed t = ${timeElapsedYr.toExponential(2)} yr`, rightX + rightW - 160, histY - 4);
+  ctx.fillText(`elapsed t = ${timeElapsedYr.toExponential(2)} yr`, rightX + rightW - 160, histY - 20);
   ctx.fillText('log γ', rightX + rightW / 2 - 12, padT + plotH + 28);
 }
 
