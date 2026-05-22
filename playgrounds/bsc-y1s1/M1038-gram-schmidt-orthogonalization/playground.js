@@ -200,36 +200,43 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const vecs = state.vectors || [];
-  const orthCount = vecs.filter(v => v && v.orthogonal).length || 0;
+  const v1 = [l1 * Math.cos(a1 * Math.PI / 180), l1 * Math.sin(a1 * Math.PI / 180)];
+  const v2 = [l2 * Math.cos(a2 * Math.PI / 180), l2 * Math.sin(a2 * Math.PI / 180)];
   return {
     fields: [
-      { key: 'vector-count', label: 'vectors', value: vecs.length, format: 'float' },
-      { key: 'ortho-count', label: 'orthogonal', value: orthCount, format: 'float' }
+      { key: 'a1', label: '$\\theta_1$ (deg)', value: a1, format: 'float' },
+      { key: 'l1', label: '$|v_1|$', value: l1, format: 'float' },
+      { key: 'a2', label: '$\\theta_2$ (deg)', value: a2, format: 'float' },
+      { key: 'l2', label: '$|v_2|$', value: l2, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const vecs = state.vectors || [];
-  if (vecs.length < 2) {
-    return [{ key: 'pending', label: 'add vectors', value: 'pending', status: 'pending' }];
-  }
-  let dotMax = 0;
-  for (let i = 0; i < vecs.length; i++) {
-    for (let j = i + 1; j < vecs.length; j++) {
-      const v1 = vecs[i], v2 = vecs[j];
-      if (v1 && v2) {
-        const dot = v1.x * v2.x + v1.y * v2.y + (v1.z || 0) * (v2.z || 0);
-        dotMax = Math.max(dotMax, Math.abs(dot));
-      }
-    }
-  }
+  const v1 = [l1 * Math.cos(a1 * Math.PI / 180), l1 * Math.sin(a1 * Math.PI / 180)];
+  const v2 = [l2 * Math.cos(a2 * Math.PI / 180), l2 * Math.sin(a2 * Math.PI / 180)];
+  const u = gramSchmidt([v1, v2]);
+  const u1 = u[0], u2 = u[1];
+  const dotProd = dot(u1, u2);
+  const u1Norm = norm(u1);
+  const u2Norm = norm(u2);
   return [
     {
       key: 'orthogonality',
-      label: 'vectors orthogonal (max |v_i . v_j|)',
-      value: dotMax.toExponential(2),
-      status: dotMax < 1e-10 ? 'pass' : 'drift'
+      label: 'orthonormality: $u_1 \\cdot u_2$',
+      value: Math.abs(dotProd).toExponential(2),
+      status: Math.abs(dotProd) < 1e-10 ? 'pass' : 'drift'
+    },
+    {
+      key: 'norm-u1',
+      label: '$|u_1|$',
+      value: u1Norm.toFixed(6),
+      status: Math.abs(u1Norm - 1) < 1e-10 ? 'pass' : 'drift'
+    },
+    {
+      key: 'norm-u2',
+      label: '$|u_2|$',
+      value: u2Norm.toFixed(6),
+      status: Math.abs(u2Norm - 1) < 1e-10 ? 'pass' : 'drift'
     }
   ];
 };
