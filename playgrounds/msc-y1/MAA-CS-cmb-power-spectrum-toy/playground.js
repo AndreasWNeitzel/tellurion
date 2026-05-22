@@ -195,5 +195,5 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () { return { fields: [ { key: 'Ome', label: 'Omega_e', value: st.Ome.toFixed(2) }, { key: 'tau', label: 'Tau (reionization)', value: st.tau.toFixed(3) } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'power-spectrum', label: 'Power spectrum computed', value: 'OK', status: 'pass' } ]; };
+window.playground.getState = function () { return { fields: [ { key: 'l-peak', label: 'Acoustic peak $l_{peak}$', value: st.lPeak.toFixed(0), format: 'float' }, { key: 'l-damp', label: 'Damping scale $l_{damp}$', value: st.lDamp.toFixed(0), format: 'float' }, { key: 'modes-built', label: 'Modes accumulated', value: built, format: 'float' } ] }; };
+window.playground.getInvariants = function () { return [ { key: 'power-spectrum', label: 'CMB modes synthesized (built > 0)', value: String(built), status: built > 0 ? 'pass' : 'pending' } ]; };
