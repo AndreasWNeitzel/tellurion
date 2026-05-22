@@ -45,7 +45,7 @@ function grid() {
   ctx.textAlign = 'center';
   for (let e = -3; e <= 2; e += 1) { const x = lx(10 ** e); ctx.beginPath(); ctx.moveTo(x, PY0); ctx.lineTo(x, PY1); ctx.stroke(); ctx.fillText('1e' + e, Math.max(PX0 + 8, Math.min(PX1 - 8, x)), PY1 + 14); }
   ctx.textAlign = 'right';
-  for (let e = -2; e <= 1; e += 1) { const y = ly(10 ** e); ctx.beginPath(); ctx.moveTo(PX0, y); ctx.lineTo(PX1, y); ctx.stroke(); ctx.fillText('1e' + e, 30, y + 3); }
+  for (let e = -2; e <= 1; e += 1) { const y = ly(10 ** e); ctx.beginPath(); ctx.moveTo(PX0, y); ctx.lineTo(PX1, y); ctx.stroke(); ctx.fillText('1e' + e, PX0 - 6, y + 3); }
   ctx.fillStyle = 'rgba(200,210,230,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('k  (omega_p / c units)', (PX0 + PX1) / 2 - 60, H - 64);
   ctx.save(); ctx.translate(16, (PY0 + PY1) / 2 + 30); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'left'; ctx.fillText('omega / omega_p', 0, 0); ctx.restore();
