@@ -29,7 +29,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> a point-mass gravitational lens at the origin distorts the background. The image-plane render shows the source pattern pulled back through the inverse lens map; the two yellow dots mark the discrete image positions of a movable point source (red marker on the source plane below). Drag the canvas to move the source. Source: Schneider, Ehlers, Falco, <em>Gravitational Lenses</em>, Ch. 5 (<code>sef1992</code>).</p>
+      <p class="t-body"><strong>What you are seeing:</strong> a point-mass gravitational lens at the origin bends light rays. Choose "lensed image" to see a striped pattern pulled back through the inverse lens map, with yellow dots marking the discrete image positions of a point source. Switch to "extended source" to visualize how a finite-size circular galaxy gets stretched and magnified into arcs or a complete Einstein ring when source and lens align. Drag the canvas to move the source. Source: Schneider, Ehlers, Falco, <em>Gravitational Lenses</em>, Ch. 5 (<code>sef1992</code>).</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -45,7 +45,8 @@
       <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">β_x</span><input aria-label="beta x" type="range" id="slider-bx" min="-2.0" max="2.0" step="0.01" value="0.3"><span class="value" id="value-bx">0.30</span></div>
 <div class="row"><span class="label">β_y</span><input aria-label="beta y" type="range" id="slider-by" min="-2.0" max="2.0" step="0.01" value="0.1"><span class="value" id="value-by">0.10</span></div>
-<div class="row"><span class="label">pattern</span><select aria-label="pattern" id="select-pattern"><option value="stripes" selected="">stripes</option><option value="checker">checker</option><option value="bullseye">bullseye</option></select><span class="value" id="value-pattern">stripes</span></div>
+<div class="row"><span class="label">view</span><select aria-label="view mode" id="select-view"><option value="lensed-image" selected="">lensed image</option><option value="extended-source">extended source</option></select><span class="value" id="value-view">lensed</span></div>
+<div class="row"><span class="label">source radius</span><input aria-label="source radius" type="range" id="slider-src-radius" min="0.02" max="0.4" step="0.01" value="0.08"><span class="value" id="value-src-radius">0.08</span></div>
 <div class="row"><span class="label">u_min</span><input aria-label="uMin" type="range" id="slider-umin" min="0.02" max="1.0" step="0.01" value="0.20"><span class="value" id="value-umin">0.20</span></div>
 <div class="row"><span class="label">shear γ</span><input aria-label="external shear" type="range" id="slider-shear" min="0.05" max="0.55" step="0.01" value="0.25"><span class="value" id="value-shear">0.25</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><button id="btn-microlensing" type="button" aria-pressed="false">Microlensing</button><button id="btn-caustics" type="button" aria-pressed="false">Caustics</button><span id="share-mount"></span></div>

@@ -8,6 +8,7 @@ import {
   lensPointMass, solvePointMassImages, sourcePattern,
   criticalCaustic, solveShearImages,
 } from './sim.js';
+import { magnificationField } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { rdbu } from '../../../shared/js/render/colormaps.js';
@@ -27,7 +28,8 @@ const rRadii = document.getElementById('readout-radii');
 const rMag = document.getElementById('readout-mag');
 const sBx = document.getElementById('slider-bx'), vBx = document.getElementById('value-bx');
 const sBy = document.getElementById('slider-by'), vBy = document.getElementById('value-by');
-const selPat = document.getElementById('select-pattern'), vPat = document.getElementById('value-pattern');
+const selView = document.getElementById('select-view'), vView = document.getElementById('value-view');
+const sSrcRadius = document.getElementById('slider-src-radius'), vSrcRadius = document.getElementById('value-src-radius');
 const sUmin = document.getElementById('slider-umin'), vUmin = document.getElementById('value-umin');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
@@ -38,6 +40,8 @@ const sShear = document.getElementById('slider-shear'), vShear = document.getEle
 const st = {
   bx: 0.3, by: 0.1, pattern: 'stripes', running: !prefersReducedMotion(),
   VIEW: 3.0,
+  view: 'lensed-image',  // 'lensed-image' or 'extended-source'
+  srcRadius: 0.08,       // radius of extended source in world units
   // Microlensing-event animation: when active, the source moves on a
   // straight trajectory with impact parameter u_min, sweeping right-to-
   // left across the field. A Paczynski-style lightcurve is plotted in
@@ -261,7 +265,103 @@ function renderCaustics() {
   rMag.textContent = muTot.toFixed(2);
 }
 
+// Render extended source: shows a circular source and its lensed arcs
+function renderExtendedSource() {
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+
+  // Image-plane: render the lensed version of the extended source by ray-tracing.
+  // We shoot rays outward from the lens; each ray's image-plane direction is inverted
+  // through the lens and we sample the source intensity if the ray lands in the source.
+  const nRays = 600;
+  const buf = ctx.createImageData(nRays, nRays);
+  const data = buf.data;
+  for (let yy = 0; yy < nRays; yy += 1) {
+    const theta_y = -st.VIEW + (yy / (nRays - 1)) * 2 * st.VIEW;
+    for (let xx = 0; xx < nRays; xx += 1) {
+      const theta_x = -st.VIEW + (xx / (nRays - 1)) * 2 * st.VIEW;
+      // Back-trace through the lens.
+      const [bx_src, by_src] = lensPointMass(theta_x, theta_y);
+      // Check if this ray lands in the extended source.
+      const dx = bx_src - st.bx, dy = by_src - st.by;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      let v = -1;  // Default: dark (outside source).
+      if (dist < st.srcRadius) {
+        // Inside the source: draw a bright radial gradient from center.
+        v = Math.max(0, 1 - dist / st.srcRadius);
+      }
+      const vc = Math.max(-1, Math.min(1, v));
+      const c = rdbu(0.5 + 0.5 * vc);
+      const k = Math.abs(vc);
+      const idx = (yy * nRays + xx) * 4;
+      data[idx] = c.r * k; data[idx + 1] = c.g * k; data[idx + 2] = c.b * k; data[idx + 3] = 255;
+    }
+  }
+  const imgOff = document.createElement('canvas');
+  imgOff.width = nRays; imgOff.height = nRays;
+  imgOff.getContext('2d').putImageData(buf, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(imgOff, 0, 0, W, H);
+
+  // Draw the magnification field as faint contours.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.lineWidth = 0.5;
+  for (let yy = 0; yy < 12; yy += 1) {
+    for (let xx = 0; xx < 12; xx += 1) {
+      const theta_x = -st.VIEW + (xx / 12) * 2 * st.VIEW;
+      const theta_y = -st.VIEW + (yy / 12) * 2 * st.VIEW;
+      const mu = magnificationField(lensPointMass, theta_x, theta_y);
+      const muClamped = Math.max(0.9, Math.min(5, mu));
+      const p = w2s(theta_x, theta_y);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2 + muClamped, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+  }
+
+  // Lens at origin.
+  const lp = w2s(0, 0);
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(lp.x, lp.y, 10, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 209, 102, 0.55)';
+  ctx.setLineDash([4, 4]); ctx.lineWidth = 1.2;
+  const Re = w2s(1, 0).x - lp.x;
+  ctx.beginPath(); ctx.arc(lp.x, lp.y, Re, 0, 2 * Math.PI); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw the extended source circle on the overlay (red, at source position).
+  const sp = w2s(st.bx, st.by);
+  const srcScreenRadius = (st.srcRadius * st.VIEW * Math.min(W, H) * 0.5) / st.VIEW;
+  const scale = Math.min(W, H) * 0.5 / st.VIEW;
+  const rScreen = st.srcRadius * scale;
+  ctx.strokeStyle = '#ff6b6b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(sp.x, sp.y, rScreen, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255, 107, 107, 0.1)';
+  ctx.beginPath();
+  ctx.arc(sp.x, sp.y, rScreen, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // HUD.
+  ctx.fillStyle = 'rgba(6, 8, 14, 0.78)';
+  ctx.fillRect(0, 0, W, 50);
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'left';
+  ctx.fillText(`extended source: β = (${st.bx.toFixed(2)}, ${st.by.toFixed(2)})   radius = ${st.srcRadius.toFixed(2)}`, 24, 22);
+  ctx.fillText(`drag to move the source; watch the arc and ring formation`, 24, 40);
+
+  // Readouts.
+  rBeta.textContent = `(${st.bx.toFixed(2)}, ${st.by.toFixed(2)})`;
+  rRadii.textContent = `radius ${st.srcRadius.toFixed(2)}`;
+  rMag.textContent = 'arcs';
+}
+
 function render() {
+  if (st.view === 'extended-source') { renderExtendedSource(); return; }
+  if (st.caustics) { renderCaustics(); return; }
   if (st.caustics) { renderCaustics(); return; }
 
   ctx.fillStyle = '#060608';
@@ -342,12 +442,14 @@ function tick(now) {
 function syncLabels() {
   vBx.textContent = st.bx.toFixed(2);
   vBy.textContent = st.by.toFixed(2);
-  vPat.textContent = st.pattern;
+  vView.textContent = st.view === 'extended-source' ? 'extended' : 'lensed';
+  vSrcRadius.textContent = st.srcRadius.toFixed(2);
 }
 
 sBx.addEventListener('input', () => { st.bx = parseFloat(sBx.value); syncLabels(); });
 sBy.addEventListener('input', () => { st.by = parseFloat(sBy.value); syncLabels(); });
-selPat.addEventListener('change', () => { st.pattern = selPat.value; syncLabels(); });
+selView.addEventListener('change', () => { st.view = selView.value; syncLabels(); });
+sSrcRadius.addEventListener('input', () => { st.srcRadius = parseFloat(sSrcRadius.value); syncLabels(); });
 if (sUmin) sUmin.addEventListener('input', () => {
   st.uMin = parseFloat(sUmin.value);
   if (vUmin) vUmin.textContent = st.uMin.toFixed(2);
@@ -382,8 +484,8 @@ if (sShear) sShear.addEventListener('input', () => {
   if (vShear) vShear.textContent = st.shear.toFixed(2);
 });
 btnReset.addEventListener('click', () => {
-  st.bx = 0.3; st.by = 0.1; st.pattern = 'stripes';
-  sBx.value = '0.3'; sBy.value = '0.1'; selPat.value = 'stripes';
+  st.bx = 0.3; st.by = 0.1; st.view = 'lensed-image'; st.srcRadius = 0.08;
+  sBx.value = '0.3'; sBy.value = '0.1'; selView.value = 'lensed-image'; sSrcRadius.value = '0.08';
   syncLabels();
 });
 btnPause.addEventListener('click', () => {
