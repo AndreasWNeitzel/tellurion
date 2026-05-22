@@ -231,33 +231,35 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const dt = state.cfl * DX / state.c;
+  const err_upwind = state.upwind ? l2Error(state.upwind, exactSolution(state.u0, state.c, state.t)) : null;
+  return {
+    fields: [
+      { key: 'advection-speed', label: 'Speed c', value: state.c, format: 'float' },
+      { key: 'courant-number', label: 'CFL number', value: state.cfl, format: 'float' },
+      { key: 'time', label: 'Simulation time', value: state.t, format: 'float' },
+      { key: 'dt', label: 'Time step dt', value: dt, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.upwind || !state.u0) {
+    return [{ key: 'cfl-condition', label: 'CFL condition |c*dt/dx| <= 1', value: 'pending', status: 'pending' }];
+  }
+  const dt = state.cfl * DX / state.c;
+  const courant = Math.abs(state.c) * dt / DX;
+  const cfl_ok = courant <= 1.001;
+  const err = l2Error(state.upwind, exactSolution(state.u0, state.c, state.t));
+  const status = cfl_ok && err < 0.1 ? 'pass' : (cfl_ok ? 'pending' : 'drift');
+  return [
+    {
+      key: 'cfl-condition',
+      label: 'CFL: |c*dt/dx|',
+      value: courant.toFixed(4),
+      status: status
+    }
+  ];
+};
