@@ -169,33 +169,34 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const g = reflection(ZL, Z0);
+  const v = vswr(ZL, Z0);
+  const p = powerDelivered(ZL, Z0);
+  return {
+    fields: [
+      { key: 'load-impedance', label: 'Load impedance (Ohm)', value: ZL, format: 'float' },
+      { key: 'reflection-coeff', label: 'Reflection coefficient', value: g, format: 'float' },
+      { key: 'vswr', label: 'VSWR', value: v === Infinity ? Infinity : v, format: 'float' },
+      { key: 'power-ratio', label: 'Power delivered (fraction)', value: p, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const g = reflection(ZL, Z0);
+  const v = vswr(ZL, Z0);
+  const p = powerDelivered(ZL, Z0);
+  // Physical invariant: power delivered must equal 1 - |Gamma|^2
+  const p_check = 1 - g * g;
+  const p_drift = Math.abs(p - p_check);
+  return [
+    {
+      key: 'power-identity',
+      label: 'Power: 1 - |Gamma|^2',
+      value: p_drift > 1e-10 ? p_drift.toExponential(2) : 'pass',
+      status: p_drift > 1e-10 ? 'drift' : 'pass'
+    }
+  ];
+};
