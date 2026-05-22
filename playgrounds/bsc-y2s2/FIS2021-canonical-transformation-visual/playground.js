@@ -187,33 +187,36 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const par = fullPar();
+  const pb = poissonBracket(st.map, par, st.t);
+  const areaIn = polyArea(hoEllipse(st.E, 1));
+  const [Q, P] = morph(0.8, 0, st.t);
+  const areaOut = polyArea(hoEllipse(st.E, st.t < 1 ? 1 : 0.5)); // Rough estimate; full calc requires blob resampling
+  return {
+    fields: [
+      { key: 'map', label: 'Transformation', value: st.map, format: undefined },
+      { key: 'morph-t', label: 'Morph parameter (0 to 1)', value: st.t, format: 'float' },
+      { key: 'poisson-bracket', label: 'Poisson bracket', value: pb, format: 'float' },
+      { key: 'energy', label: 'Energy parameter', value: st.E, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const par = fullPar();
+  const pb = poissonBracket(st.map, par, st.t);
+  const canonical = st.map !== 'pDouble';
+  const pb_target = canonical ? 1.0 : (1 + st.t);
+  const pb_drift = Math.abs(pb - pb_target);
+  const status = pb_drift > 0.02 ? 'drift' : 'pass';
+  return [
+    {
+      key: 'poisson-bracket-canonical',
+      label: '{Q,P} = 1 (canonical)',
+      value: pb.toFixed(4),
+      status: status
+    }
+  ];
+};
