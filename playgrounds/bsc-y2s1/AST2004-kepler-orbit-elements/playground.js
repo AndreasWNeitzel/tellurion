@@ -76,7 +76,7 @@ function drawOrbitDiagnostic(nuNow, rNow) {
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   setCanvasFont(ctx, canvas, 'caption', { family: 'mono', weight: 600, align: 'left' });
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.fillText('orbit radius  r(ν) = a(1-e²)/(1+e cos ν)', px + 8, py + 16);
+  ctx.fillText('r(ν) = a(1-e²)/(1+e cos ν)', px + 8, py + 16);
   const ax = px + 36, ay = py + 24, aw = pw - 48, ah = ph - 46;
   const rPeri = st.a * (1 - st.e), rApo = st.a * (1 + st.e);
   const rLo = 0, rHi = rApo * 1.1;
