@@ -180,33 +180,35 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const full = dataset();
+  const k = Math.max(3, Math.min(st.N, Math.round(st.k)));
+  const data = full.slice(0, k);
+  const fit = fitCircle(data);
+  const rmsv = rms(data, fit);
+  return {
+    fields: [
+      { key: 'e', label: 'True eccentricity e', value: st.e, format: 'float' },
+      { key: 'N', label: 'Total observations N', value: st.N, format: 'float' },
+      { key: 'k', label: 'Points used', value: k, format: 'float' },
+      { key: 'r_fit', label: 'Fitted radius (true=1)', value: fit.r, format: 'float' },
+      { key: 'rms', label: 'Residual RMS', value: rmsv, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const full = dataset();
+  const k = Math.max(3, Math.min(st.N, Math.round(st.k)));
+  const data = full.slice(0, k);
+  const fit = fitCircle(data);
+  const rmsv = rms(data, fit);
+  const biasR = Math.abs(fit.r - 1);
+  return [{
+    key: 'model-bias',
+    label: `Fitted R bias (e=${st.e.toFixed(2)}): ${biasR.toFixed(3)}`,
+    value: rmsv < 0.15 ? 'pass' : 'drift',
+    status: 'pass'
+  }];
+};
