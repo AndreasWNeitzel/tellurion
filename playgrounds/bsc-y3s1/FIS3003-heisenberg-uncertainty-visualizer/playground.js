@@ -122,10 +122,11 @@ function render() {
   ctx.fillText(prod.toFixed(3), gcx, GA.y + 42);
   ctx.fillStyle = 'rgba(226,230,238,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('hbar/2 = 0.50  (hard limit)', gcx, yFloor - 5);
-  ctx.fillStyle = '#9aa0ad';
-  ctx.fillText('cannot go below', gcx, bot + 16);
+  // One state line below the gauge. The redundant "cannot go below"
+  // is dropped: "hard limit" above already says it, and stacking two
+  // lines here crowded them against the gauge-box bottom edge.
   ctx.fillStyle = barC; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(at ? 'minimum (Gaussian)' : 'above the limit', gcx, bot + 30);
+  ctx.fillText(at ? 'minimum (Gaussian)' : 'above the limit', gcx, bot + 18);
   ctx.textAlign = 'left';
 
   rEls['shape'].textContent = st.shape;
