@@ -83,7 +83,7 @@ function panel(x, y, w, h, title) {
 }
 
 function drawBloch(x, y, w, h) {
-  panel(x, y, w, h, 'magnetization on the Bloch sphere (after a 90-degree pulse)');
+  panel(x, y, w, h, 'Bloch sphere after a 90-degree pulse');
   const cx = x + w / 2, cy = y + h / 2 + 8, R = Math.min(w, h) / 2 - 44;
   // oblique projection: x_s = X - 0.5 Z, y_s = -Y + 0.4 Z (z up)
   const proj = (X, Y, Z) => [cx + R * (X - 0.42 * Z), cy - R * (Y - 0.42 * Z) * 0.55 - R * Z * 0.7];
