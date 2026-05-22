@@ -423,33 +423,38 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  let t = 0, cons = 0;
+  if (st.hist && st.hist.length > 0) {
+    t = st.hist[st.hist.length - 1].t;
+    if (st.eq === 'wave') cons = st.hist[st.hist.length - 1].energy;
+    else if (st.eq === 'heat') cons = st.hist[st.hist.length - 1].l2;
+    else if (st.eq === 'schrodinger') cons = st.hist[st.hist.length - 1].norm;
+    else if (st.eq === 'burgers') cons = st.hist[st.hist.length - 1].energy;
+  }
+  return {
+    fields: [
+      { key: 'equation', label: 'PDE', value: st.eq },
+      { key: 'parameter', label: 'Parameter p', value: st.p, format: 'float' },
+      { key: 'time', label: 'Time', value: t, format: 'float' },
+      { key: 'conserved', label: 'Conserved qty', value: cons.toExponential(2) }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  let err = 0;
+  if (st.hist && st.hist.length > 0) {
+    const last = st.hist[st.hist.length - 1];
+    err = last.error || 0;
+  }
+  return [
+    {
+      key: 'solution-error',
+      label: 'Max error vs analytic',
+      value: err.toExponential(2),
+      status: err < 0.01 ? 'pass' : err < 0.1 ? 'pending' : 'drift'
+    }
+  ];
+};
