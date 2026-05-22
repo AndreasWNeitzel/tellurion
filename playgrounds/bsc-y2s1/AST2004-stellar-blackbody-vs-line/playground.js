@@ -158,33 +158,23 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const wienNm = wienPeakNm(st.T);
+  return {
+    fields: [
+      { key: 'temperature', label: 'Temperature (K)', value: st.T, format: 'float' },
+      { key: 'wien-peak', label: 'Wien peak (nm)', value: wienNm, format: 'float' },
+      { key: 'line-depth', label: 'Line depth factor', value: st.depth, format: 'float' },
+      { key: 'scale', label: 'Scale mode', value: st.scale, format: undefined }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const wienNm = wienPeakNm(st.T);
+  const status = wienNm >= 280 && wienNm <= 3000 ? 'pass' : 'pending';
+  return [
+    { key: 'wien-law', label: 'Wien law (lambda_max T)', value: (wienNm * st.T / 1e9).toExponential(2) + ' m K', status }
+  ];
+};
