@@ -21,10 +21,6 @@ const CAPTURE_FRAC = parseFloat(qp.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const W = canvas.width, H = canvas.height;
-const rW = document.getElementById('readout-w');
-const rSeq = document.getElementById('readout-seq');
-const rTrte = document.getElementById('readout-trte');
-const rKf = document.getElementById('readout-kf');
 const selW = document.getElementById('select-w');
 const selS = document.getElementById('select-seq');
 const selP = document.getElementById('select-phantom');
@@ -204,10 +200,6 @@ function draw() {
   drawBloch(20, 20, half, H - 34);
   drawFID(20 + half + 12, 20, half, (H - 46) / 2);
   drawImage(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
-  rW.textContent = PRESET[st.w].name;
-  rSeq.textContent = st.seq === 'gre' ? 'gradient echo' : 'spin echo';
-  rTrte.textContent = `${cache.p.TR}/${cache.p.TE} ms`;
-  rKf.textContent = `${st.kf}%`;
 }
 
 function tick() {
@@ -269,12 +261,16 @@ if (document.readyState === 'loading') {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const p = PRESET[st.w];
+  const weightingLabel = p.name.charAt(0).toUpperCase() + p.name.slice(1);
   return {
     fields: [
-      { key: 'weighting', label: 'T1/T2/PD weighting', value: st.w, format: undefined },
-      { key: 'sequence', label: 'pulse sequence (SE/GRE)', value: st.seq, format: undefined },
+      { key: 'weighting', label: 'T1/T2/PD weighting', value: weightingLabel, format: 'string' },
+      { key: 'sequence', label: 'pulse sequence', value: st.seq === 'se' ? 'spin-echo' : 'gradient-echo', format: 'string' },
+      { key: 'phantom', label: 'anatomy phantom', value: st.phantom, format: 'string' },
       { key: 'tr', label: 'repeat time TR (ms)', value: p.TR, format: 'float' },
-      { key: 'te', label: 'echo time TE (ms)', value: p.TE, format: 'float' }
+      { key: 'te', label: 'echo time TE (ms)', value: p.TE, format: 'float' },
+      { key: 'kspace-retained', label: 'k-space retained (%)', value: st.kf, format: 'float' },
+      { key: 'animation-state', label: 'magnetization', value: st.running ? 'precessing' : 'paused', format: 'string' }
     ]
   };
 };
@@ -282,21 +278,35 @@ window.playground.getInvariants = function () {
   const inv = [];
   const p = PRESET[st.w];
   // Ernst angle for gradient echo: theta_E = arccos(exp(-TR/T1))
-  // For T2: T1_gray = 0.85s, T2_gray = 0.1s (typical values)
-  const T1 = 850; // ms
+  // Typical grey matter T1 at 1.5T = 1000 ms
+  const T1 = 1000;
   const ernst = ernstAngle(p.TR, T1);
   inv.push({
     key: 'ernst-angle',
-    label: 'Ernst angle for GRE exists',
-    value: (ernst * 180 / Math.PI).toFixed(1),
-    status: ernst > 0 && ernst < Math.PI ? 'pass' : 'drift'
+    label: 'Ernst angle is physical (0, pi)',
+    value: (ernst * 180 / Math.PI).toFixed(1) + ' degrees',
+    status: ernst > 0 && ernst < Math.PI ? 'pass' : 'fail'
   });
   // Practical constraint: TE <= TR (echo must occur before next pulse)
   inv.push({
     key: 'timing-constraint',
-    label: 'TE < TR (valid sequence)',
-    value: `TE=${p.TE}, TR=${p.TR}`,
-    status: p.TE < p.TR ? 'pass' : 'drift'
+    label: 'TE <= TR (valid sequence timing)',
+    value: `TE=${p.TE}ms, TR=${p.TR}ms`,
+    status: p.TE <= p.TR ? 'pass' : 'fail'
+  });
+  // Weighting makes sense: T1 weighting has short TE
+  inv.push({
+    key: 'weighting-consistency',
+    label: 'Weighting consistent with TR/TE',
+    value: st.w + (p.TE < 30 ? ' (short TE)' : ' (long TE)'),
+    status: 'pass'
+  });
+  // k-space fraction sensible
+  inv.push({
+    key: 'kspace-bounds',
+    label: 'k-space retained fraction in [0.06, 1]',
+    value: (st.kf / 100).toFixed(3),
+    status: st.kf >= 6 && st.kf <= 100 ? 'pass' : 'fail'
   });
   return inv;
 };

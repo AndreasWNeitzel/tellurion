@@ -14,11 +14,12 @@
 
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <style>
-.pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-.pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+.pg-controls { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-block: var(--space-4); }
+.pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
 .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
 .pg-controls select, .pg-controls input[type="range"] { width: 100%; min-width: 0; }
-.pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+.pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; }
+.pg-controls .row.buttons button { padding: 8px 12px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -60,12 +61,6 @@
     <div class="row"><span class="label">k-space kept (%)</span><input aria-label="fraction of k-space acquired, percent" type="range" id="slider-kf" min="6" max="100" step="2" value="100"><span class="value" id="value-kf">100</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">weighting:</span><span class="value" id="readout-w">T2</span>
-      <span class="label">seq:</span><span class="value" id="readout-seq">spin echo</span>
-      <span class="label">TR/TE:</span><span class="value" id="readout-trte">3000/90 ms</span>
-      <span class="label">k-space:</span><span class="value" id="readout-kf">100%</span>
-    </div><span class="value" id="readout-w">T2</span><span class="value" id="readout-seq">spin echo</span><span class="value" id="readout-trte">3000/90 ms</span><span class="value" id="readout-kf">100%</span></div>
     </section>
 
     <section class="playground-what-to-try">
