@@ -77,7 +77,7 @@ function render() {
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const cxPx = canvas.width * 0.4;
+  const cxPx = canvas.width * 0.31;
   const cyPx = canvas.height / 2;
   const R = Math.min(canvas.width * 0.6, canvas.height) * 0.4;
 
@@ -206,12 +206,51 @@ function render() {
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`alpha = ${alphaDeg} deg, beta = ${betaDeg} deg`, 12, 20);
-  ctx.fillText('drag to rotate', canvas.width - 112, 20);
+  ctx.fillText('drag to rotate', 12, canvas.height - 12);
   const om = holonomy(alphaR, betaR);
   ctx.fillStyle = c.accent;
   ctx.fillText(`Omega = (1 - cos alpha) beta = ${om.toFixed(4)} sr`, 12, 38);
   ctx.fillStyle = c.green;
   ctx.fillText(`holonomy = Omega = ${(om * 180 / Math.PI).toFixed(1)} deg`, 12, 56);
+  drawHolonomyPlot(alphaR, betaR, c);
+}
+
+// Rule-13 diagnostic: holonomy theta versus the equator span beta.
+// For a fixed polar angle alpha the holonomy is linear in beta,
+// theta = (1 - cos alpha) beta, so the plotted line is straight and
+// the marker slides along it as the beta slider moves.
+function drawHolonomyPlot(alphaR, betaR, c) {
+  const pw = 250, ph = 150, px = canvas.width - pw - 16, py = 52;
+  ctx.fillStyle = 'rgba(8,12,22,0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220,230,255,0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220,230,255,0.92)';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
+  ctx.fillText('holonomy vs equator span', px + 8, py + 16);
+  const ax = px + 30, ay = py + 26, aw = pw - 44, ah = ph - 48;
+  const betaMax = 2 * Math.PI;
+  const holMax = holonomy(alphaR, betaMax) || 1;
+  const xOf = (b) => ax + (b / betaMax) * aw;
+  const yOf = (h) => ay + ah - (h / holMax) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.strokeStyle = c.green; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 60; i += 1) {
+    const b = betaMax * i / 60;
+    const xx = xOf(b), yy = yOf(holonomy(alphaR, b));
+    if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+  }
+  ctx.stroke();
+  const bClamped = Math.min(betaR, betaMax);
+  const mx = xOf(bClamped), my = yOf(holonomy(alphaR, bClamped));
+  ctx.fillStyle = c.accent;
+  ctx.beginPath(); ctx.arc(mx, my, 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillText('theta', px + 6, ay + 8);
+  ctx.fillText('0', ax - 4, ay + ah + 12);
+  ctx.fillText('2pi', ax + aw - 14, ay + ah + 12);
 }
 
 function updateReadout() {
