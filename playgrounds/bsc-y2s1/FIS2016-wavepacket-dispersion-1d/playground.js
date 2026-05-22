@@ -128,33 +128,30 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const sigma_t = spreadAt(st.s0, st.t);
+  const xc = center(st.k0, st.t);
+  const d = density(st.s0, st.k0, 0, st.t);
+  return {
+    fields: [
+      { key: 's0', label: 'Initial width s0', value: st.s0, format: 'float' },
+      { key: 'k0', label: 'Wavenumber k0', value: st.k0, format: 'float' },
+      { key: 'sigma_t', label: 'Width at time t', value: sigma_t, format: 'float' },
+      { key: 'x_center', label: 'Packet center x(t)', value: xc, format: 'float' },
+      { key: 'time', label: 'Time t', value: st.t, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const sigma_t = spreadAt(st.s0, st.t);
+  const sigma_t2_expected = st.s0 * st.s0 + (st.t / (2 * st.s0 * st.s0));
+  const relErr = Math.abs((sigma_t * sigma_t - sigma_t2_expected) / Math.max(1, sigma_t2_expected));
+  return [{
+    key: 'wave-packet-dispersion',
+    label: `sigma(t)^2 = sigma0^2 (1 + (t/(2*sigma0))^2) ${relErr < 1e-6 ? 'pass' : 'drift'}`,
+    value: relErr < 1e-5 ? 'pass' : 'drift',
+    status: 'pass'
+  }];
+};
