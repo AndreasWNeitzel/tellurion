@@ -5,6 +5,7 @@
 // deterministic. ICRU Report 90; Boag 1950; Attix 1986.
 import {
   W_AIR, runChamber, collectionEfficiency, saturationCurve,
+  chargeFromEnergy, doseGas, nIonPairs,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -236,33 +237,30 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const R = cache.R || {};
+  return {
+    fields: [
+      { key: 'photon-energy', label: 'photon energy (keV)', value: st.e, format: 'float' },
+      { key: 'voltage', label: 'collecting voltage (V)', value: volts(), format: 'float' },
+      { key: 'dose-rate', label: 'dose rate (Gy/min)', value: st.dr, format: 'float' },
+      { key: 'med-dose', label: 'medium dose (mGy)', value: (R.Dmed || 0) * 1000, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const R = cache.R || {};
+  if (!R.Edep) return [{ key: 'no-result', label: 'simulation not ready', value: 'pending', status: 'pending' }];
+  const QfromEdep = chargeFromEnergy(R.Edep);
+  const dQ = Math.abs(R.Qcreated - QfromEdep) / Math.max(1e-30, Math.abs(R.Qcreated));
+  return [
+    {
+      key: 'charge-from-energy',
+      label: 'ionization-energy consistency',
+      value: dQ.toExponential(2),
+      status: dQ < 1e-10 ? 'pass' : 'drift',
+    },
+  ];
+};
