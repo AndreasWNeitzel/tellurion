@@ -267,33 +267,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the time constant, the live capacitor voltage and
+// its fraction of V0. The invariant verifies the discharge curve
+// satisfies the defining RC ODE, dV/dt = -V / (RC), by comparing a
+// central finite difference of V(t) against -V(t)/tau.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const tau = R * C;
+  const V = vC(t, V0, tau);
+  return {
+    fields: [
+      { key: 'tau', label: 'time constant RC (s)', value: tau, format: 'float' },
+      { key: 'voltage', label: 'capacitor voltage V(t)', value: V, format: 'float' },
+      { key: 'fraction', label: 'V / V0', value: V0 > 0 ? V / V0 : 0, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const tau = R * C;
+  const h = tau * 1e-3;
+  const dVdt = (vC(t + h, V0, tau) - vC(t - h, V0, tau)) / (2 * h);
+  const expected = -vC(t, V0, tau) / tau;
+  const drift = Math.abs(dVdt - expected) / Math.max(1e-12, Math.abs(expected));
+  return [{
+    key: 'rc-ode',
+    label: 'V(t) satisfies dV/dt = -V / (RC)',
+    value: drift.toExponential(2),
+    status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
+  }];
+};
