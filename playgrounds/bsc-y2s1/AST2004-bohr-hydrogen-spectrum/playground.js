@@ -103,7 +103,7 @@ function drawLadder(c, x0, y0, w, h) {
     ctx.fillText(`${eMark.toFixed(1)}`, x0 + padL - 38, y + 3);
   }
   ctx.fillStyle = c.muted;
-  ctx.fillText('E', x0 + 8, y0 + padT - 4);
+  ctx.fillText('E (eV)', Math.max(4, Math.min(x0 + 8, canvas.width - 4 - ctx.measureText('E (eV)').width)), y0 + padT - 4);
 
   // Energy levels n = 1..nMax.
   for (let n = 1; n <= nMax; n += 1) {
