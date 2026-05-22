@@ -126,33 +126,40 @@ function bootSync() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const t = st.t;
+  const E = Math.pow(10, st.logE);
+  const rho0 = Math.pow(10, st.logn);
+  const Rs = shockRadius(E, rho0, t);
+  const Vs = shockSpeed(E, rho0, t);
+  const rho_post = postShockDensity(rho0);
+  return {
+    fields: [
+      { key: 'time', label: 'Simulation time t', value: t, format: 'float' },
+      { key: 'shock-radius', label: 'Shock radius R', value: Rs, format: 'float' },
+      { key: 'shock-speed', label: 'Shock speed v_s', value: Vs, format: 'float' },
+      { key: 'post-shock-density', label: 'Post-shock density rho', value: rho_post, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const t = st.t;
+  if (t < 1e-6) {
+    return [{ key: 'state-init', label: 'Initializing', value: 'pending', status: 'pending' }];
+  }
+  const E = Math.pow(10, st.logE);
+  const rho0 = Math.pow(10, st.logn);
+  const Rs = shockRadius(E, rho0, t);
+  const R_expect_t = Math.pow(E / rho0, 0.2) * Math.pow(t, 0.4);
+  const rel_err = Math.abs(Rs - R_expect_t) / Math.max(Math.abs(R_expect_t), 1e-9);
+  return [
+    {
+      key: 'sedov-taylor-scaling',
+      label: 'Shock radius R ~ t^(2/5)',
+      value: rel_err.toExponential(2),
+      status: rel_err < 0.05 ? 'pass' : 'drift'
+    }
+  ];
+};
