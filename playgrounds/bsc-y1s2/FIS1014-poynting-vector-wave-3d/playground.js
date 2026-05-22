@@ -170,33 +170,38 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const { E, B, S } = fields(0, st.t, { mode: st.mode, k: 2 * Math.PI / st.lambda, E0: st.E0, pol: st.pol });
+  const Smag = norm(S);
+  return {
+    fields: [
+      { key: 'wavelength', label: 'wavelength (λ)', value: st.lambda, format: 'float' },
+      { key: 'amplitude', label: 'amplitude (E₀)', value: st.E0, format: 'float' },
+      { key: 'poynting-mag', label: 'Poynting |S|', value: Smag, format: 'float' },
+      { key: 'e-mag', label: '|E|', value: norm(E), format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const { E, B } = fields(0, st.t, { mode: st.mode, k: 2 * Math.PI / st.lambda, E0: st.E0, pol: st.pol });
+  const dotEB = dot(E, B);
+  const eNorm = norm(E), bNorm = norm(B);
+  const ratio = eNorm / (bNorm + 1e-16);
+  const driftE = Math.abs(ratio - 1.0);
+  return [
+    {
+      key: 'transverse',
+      label: 'E perpendicular to B',
+      value: Math.abs(dotEB).toExponential(2),
+      status: Math.abs(dotEB) < 1e-10 ? 'pass' : 'drift'
+    },
+    {
+      key: 'magnitude-ratio',
+      label: '|E| = |B| (c=1)',
+      value: driftE.toExponential(2),
+      status: driftE < 1e-6 ? 'pass' : 'drift'
+    }
+  ];
+};
