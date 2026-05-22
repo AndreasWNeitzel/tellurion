@@ -264,33 +264,29 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const Omega_p = (M * G * R) / (I_s * state.omega_s);
+  const T_p = (2 * Math.PI) / Math.max(1e-10, Omega_p);
+  return {
+    fields: [
+      { key: 'spin-rate', label: 'Spin rate (rad/s)', value: state.omega_s, format: 'float' },
+      { key: 'nutation', label: 'Nutation angle (rad)', value: state.theta0, format: 'float' },
+      { key: 'precession-rate', label: 'Precession rate (rad/s)', value: Omega_p, format: 'float' },
+      { key: 'precession-period', label: 'Precession period (s)', value: T_p, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const Omega_p = (M * G * R) / (I_s * state.omega_s);
+  const prec_positive = Omega_p > 0;
+  return [
+    {
+      key: 'precession-sign',
+      label: 'Omega_p > 0',
+      value: prec_positive ? 'pass' : `Omega_p=${Omega_p.toFixed(4)}`,
+      status: prec_positive ? 'pass' : 'drift'
+    }
+  ];
+};
