@@ -187,33 +187,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const m = currentMetal();
+  const ke = keMaxEv(nuPhz, m.phi);
+  const nu0 = thresholdFreqPhz(m.phi);
+  return {
+    fields: [
+      { key: 'metal', label: 'Selected metal', value: metalName, format: undefined },
+      { key: 'frequency', label: 'Photon frequency (PHz)', value: nuPhz, format: 'float' },
+      { key: 'ke-max', label: 'KE max (eV)', value: ke, format: 'float' },
+      { key: 'threshold-freq', label: 'Threshold frequency (PHz)', value: nu0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const m = currentMetal();
+  const ke = keMaxEv(nuPhz, m.phi);
+  const nu0 = thresholdFreqPhz(m.phi);
+  // Einstein photoelectric equation: KE_max = h*nu - phi. Check constraint.
+  const H_EV_S = 4.135667696e-15;
+  const photon_energy = H_EV_S * 1e15 * nuPhz;
+  const ke_expected = Math.max(0, photon_energy - m.phi);
+  const ke_drift = Math.abs(ke - ke_expected);
+  // Also check: if nu < nu0, KE must be zero.
+  const below_threshold = nuPhz < nu0 - 1e-10;
+  const status = below_threshold && ke > 1e-8 ? 'drift' : (ke_drift > 1e-10 ? 'drift' : 'pass');
+  return [
+    {
+      key: 'einstein-equation',
+      label: 'Einstein: KE = h*nu - phi',
+      value: status === 'pass' ? 'pass' : ke_drift.toExponential(2),
+      status: status
+    }
+  ];
+};
