@@ -202,8 +202,8 @@ function drawPlot() {
     pctx.stroke();
   }
   // y ticks.
-  pctx.fillStyle = '#5a6068'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'right';
-  for (let l = lLo; l <= lHi; l += 5) pctx.fillText(`10^${l}`, 28, yDrift(Math.pow(10, l)) + 3);
+  pctx.fillStyle = '#5a6068'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
+  for (let l = lLo; l <= lHi; l += 5) pctx.fillText(`10^${l}`, 32, yDrift(Math.pow(10, l)) + 3);
   // Legend.
   pctx.textAlign = 'left'; pctx.font = fontString(canvas, 'caption', 'mono');
   pctx.fillStyle = '#ffd166'; pctx.fillText('mass', 36, dY0 + 12);
