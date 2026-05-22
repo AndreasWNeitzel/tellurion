@@ -88,6 +88,7 @@ function renderState(tableEl) {
     rows.push(`<tr><td class="state-label rail-empty">+${secondary.length - 5} more</td><td></td></tr>`);
   }
   tableEl.innerHTML = rows.join('');
+  typesetMath(tableEl);
 }
 
 function renderInvariants(listEl) {
@@ -105,12 +106,15 @@ function renderInvariants(listEl) {
   listEl.innerHTML = invs.map((inv) => {
     const status = inv.status === 'pass' || inv.status === 'drift' || inv.status === 'pending'
       ? inv.status : 'pending';
-    const val = Number.isFinite(inv.value) ? inv.value.toExponential(2) : '';
+    let val = '';
+    if (typeof inv.value === 'string') val = inv.value;
+    else if (Number.isFinite(inv.value)) val = inv.value.toExponential(2);
     return `<li class="invariant invariant--${status}">`
       + '<span class="invariant-dot"></span>'
       + `<span class="invariant-label">${escapeHtml(inv.label || inv.key)}</span>`
       + `<span class="invariant-value">${escapeHtml(val)}</span></li>`;
   }).join('');
+  typesetMath(listEl);
 }
 
 function renderReferences(section, listEl, refs) {
@@ -126,6 +130,19 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]
   ));
+}
+
+// Render inline KaTeX ($...$) in dynamically inserted rail content, so
+// readout and invariant labels can carry real math instead of ASCII.
+// Guarded: a playground that does not load KaTeX shows the source text.
+function typesetMath(el) {
+  if (typeof window === 'undefined' || !window.renderMathInElement) return;
+  try {
+    window.renderMathInElement(el, {
+      delimiters: [{ left: '$', right: '$', display: false }],
+      throwOnError: false,
+    });
+  } catch { /* KaTeX parse failure: leave the source text in place */ }
 }
 
 // ---- mount + update loop ------------------------------------------------
