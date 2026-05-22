@@ -1,6 +1,6 @@
 // Stellar habitable zone: planet equilibrium temperature vs orbital radius.
 
-import { luminosity, Teq as simTeq, radiusAtT } from './sim.js';
+import { luminosity, Teq as simTeq, radiusAtT, hzBounds, inHZ } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -203,33 +203,31 @@ window.__physicsCheck = async () => {
 };
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const T = Teq(state.a_AU);
+  const L = Lstar();
+  return {
+    fields: [
+      { key: 'teff', label: 'effective temperature (K)', value: state.Teff, format: 'float' },
+      { key: 'r-star', label: 'stellar radius (Rsun)', value: state.Rstar, format: 'float' },
+      { key: 'luminosity', label: 'luminosity (Lsun)', value: L, format: 'float' },
+      { key: 'teq', label: 'planet equilibrium temp (K)', value: T, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const hz = hzBounds(state.Teff, state.Rstar, state.A);
+  const T = Teq(state.a_AU);
+  const inZone = inHZ(state.a_AU, state.Teff, state.Rstar, state.A);
+  const tzoneStatus = inZone ? `${T.toFixed(0)}K in [${hz.rIn.toFixed(2)}-${hz.rOut.toFixed(2)}AU]` : `${T.toFixed(0)}K out of zone`;
+  return [
+    {
+      key: 'habitable-zone-membership',
+      label: 'planet in habitable zone',
+      value: tzoneStatus,
+      status: inZone ? 'pass' : 'drift',
+    },
+  ];
+};
