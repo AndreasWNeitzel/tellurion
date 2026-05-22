@@ -63,8 +63,8 @@ function drawLadder(x, y, w, h, state) {
     // amplitude bar for the current state
     const c = Math.abs(state[n] ?? 0);
     ctx.fillStyle = '#7fd1ff';
-    ctx.fillRect(x0 + 86, yy - 6, (w - 200) * c, 12);
-    if (c > 0.02) { ctx.fillStyle = 'rgba(127,209,255,0.85)'; ctx.fillText(c.toFixed(2), x0 + 90 + (w - 200) * c, yy + 3); }
+    ctx.fillRect(x0 + 124, yy - 6, (w - 244) * c, 12);
+    if (c > 0.02) { ctx.fillStyle = 'rgba(127,209,255,0.85)'; ctx.fillText(c.toFixed(2), x0 + 128 + (w - 244) * c, yy + 3); }
     // ladder operator labels between rungs
     if (n < shown) {
       ctx.fillStyle = 'rgba(143,227,155,0.7)';
@@ -76,7 +76,7 @@ function drawLadder(x, y, w, h, state) {
     ctx.fillText('Pauli: a^dag|1> = 0 (no |2>)', x0, y0 - 8);
   }
   ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('amplitude |c_n|', x0 + 90, y1 + 14);
+  ctx.fillText('amplitude |c_n|', x0 + 124, y1 + 14);
 }
 
 function bars(x, y, w, h, vals, color, labelFn) {
