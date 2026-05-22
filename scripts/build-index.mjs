@@ -173,7 +173,7 @@ function renderHTML(cards) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Playgrounds Portfolio</title>
+  <title>Tellurion</title>
   <link rel="stylesheet" href="./shared/css/tokens.css">
   <link rel="stylesheet" href="./shared/css/base.css">
   <style>

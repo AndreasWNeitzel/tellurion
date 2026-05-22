@@ -1,10 +1,16 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Playgrounds Portfolio. Andreas W. Neitzel</title>
-<meta property="og:title" content="Playgrounds Portfolio">
-<meta property="og:description" content="333 interactive physics, astronomy, and machine-learning playgrounds.">
+<title>Tellurion &middot; interactive physics simulations</title>
+<meta name="description" content="Tellurion is a laboratory of 332 interactive physics simulations covering mechanics, electromagnetism, optics, quantum, relativity, and astrophysics. Built by one physicist as a public educational resource. Currently in public beta.">
+<link rel="canonical" href="https://tellurion.dev/">
+<meta property="og:title" content="Tellurion">
+<meta property="og:site_name" content="Tellurion">
+<meta property="og:url" content="https://tellurion.dev/">
+<meta property="og:type" content="website">
+<meta property="og:description" content="A laboratory of 332 interactive physics simulations. Public beta.">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Tellurion">
+<meta name="twitter:description" content="A laboratory of 332 interactive physics simulations. Public beta.">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -281,6 +287,45 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .about.prep .about-photo.in{opacity:1;transform:scale(1);transition:opacity 500ms ease-out,transform 500ms ease-out}
 @media(max-width:760px){.about-grid{flex-direction:column}.about-l{width:100%;display:flex;
   flex-direction:column;align-items:center}.credits-grid{flex-direction:column;gap:40px}}
+/* Tellurion masthead: refined wordmark, tagline, and quiet status pill. */
+.t-display.wordmark{letter-spacing:0.05em;font-weight:800;margin:0;position:relative;padding-bottom:12px;display:inline-block}
+.t-display.wordmark::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:128px;background:var(--accent-gold);opacity:0.3}
+.masthead-tagline{color:var(--text-secondary);max-width:640px;margin:18px 0 0;line-height:1.6}
+.masthead-status{color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.75rem;margin-top:10px;letter-spacing:0.04em}
+/* Framing aside above the featured row. Quiet body text, not a banner. */
+.landing-framing{padding:12px 0 0;max-width:720px}
+.landing-framing p{color:var(--text-secondary);font-size:0.9375rem;line-height:1.7;margin:0}
+.landing-framing a{color:var(--text-primary);border-bottom:1px solid var(--accent);text-decoration:none;padding-bottom:1px}
+.landing-framing a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+/* About: project block sits above the personal block. */
+.about-project{margin-bottom:48px;max-width:760px}
+.about-project h2{font-size:1.5rem;font-weight:700;letter-spacing:-0.01em;color:var(--text-primary);margin:0 0 18px}
+.about-project p{color:var(--text-secondary);font-size:0.9375rem;line-height:1.75;margin:0 0 14px}
+.about-project p:first-of-type{color:var(--text-primary)}
+.about-project a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
+.about-project a:hover{border-bottom-color:var(--accent)}
+.about .lab + .lab{margin-top:64px}
+/* Credits: corrections section under Special Thanks. */
+.corrections{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-dim)}
+.corrections h3{font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 14px;letter-spacing:0.02em;text-transform:uppercase}
+.corrections-body{color:var(--text-secondary);font-size:0.9375rem;line-height:1.7;max-width:680px;margin:0}
+.corrections-body a{color:var(--text-primary);border-bottom:1px solid var(--accent-dim);text-decoration:none}
+.corrections-empty{margin-top:14px;color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.8125rem}
+/* Hero-tier star indicator is already in place via .cstar (top-left,
+   var(--accent-gold)); no additional rule needed here. */
+/* Footer: two informational rows plus the existing copyright line, on a
+   column layout. The fixed 64px height is replaced with a content height. */
+.sitefoot{flex-direction:column;height:auto;min-height:64px;gap:6px;padding:16px 0;text-align:center}
+.sitefoot-line{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:center;color:var(--text-secondary)}
+.sitefoot-line a{color:var(--text-secondary);text-decoration:none}
+.sitefoot-line a:hover{color:var(--text-primary)}
+.sitefoot-sep{color:var(--text-dimmed)}
+/* Hero-stats moved out of the masthead and now sits as a quiet line just
+   above the catalog. Same look as before. */
+.catalog-stats{color:var(--text-secondary);font-family:var(--f-mono);font-size:0.8125rem;margin:0 0 18px;display:flex;gap:12px;flex-wrap:wrap;align-items:baseline}
+.catalog-stats .hero-stat-num{color:var(--text-primary);font-weight:500;font-variant-numeric:tabular-nums}
+.catalog-stats .hero-stat-label{color:var(--text-secondary);margin-left:4px}
+.catalog-stats .hero-stat-divider{color:var(--text-dimmed)}
 </style>
 </head>
 <body>
@@ -324,9 +369,12 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 </script>
 
 <section class="landing-hero">
-  <h1 class="t-display">Playgrounds Portfolio</h1>
-  <p class="hero-subtitle t-body">Interactive simulations across physics, astronomy, statistical mechanics, and machine learning, aligned to the University of Porto BSc in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
-  <div class="hero-stats t-small"><span class="hero-stat"><span class="hero-stat-num" id="statn" data-target="333">333</span><span class="hero-stat-label">simulations</span></span><span class="hero-stat-divider">&middot;</span><span class="hero-stat"><span class="hero-stat-num">39</span><span class="hero-stat-label">hero-tier</span></span><span class="hero-stat-divider">&middot;</span><span class="hero-stat"><span class="hero-stat-num">13</span><span class="hero-stat-label">categories</span></span><span class="hero-stat-divider">&middot;</span><span class="hero-stat"><span class="hero-stat-num">4</span><span class="hero-stat-label">curricular years</span></span></div>
+  <h1 class="t-display wordmark">Tellurion</h1>
+  <p class="masthead-tagline t-body">A laboratory of interactive physics simulations.</p>
+  <div class="masthead-status t-small">v0.1.0 &middot; public beta</div>
+  <div class="landing-framing">
+    <p>Tellurion is a laboratory of 332 interactive physics simulations, currently in public beta. The physics is being reviewed by working physicists; errors are inevitable at this scale, and if you find one, please <a href="#corrections">tell me</a>. The site improves with every reader who takes the time.</p>
+  </div>
 </section>
 
 <section class="landing-featured">
@@ -346,44 +394,45 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       </div>
     </a>
   </article><div class="featured-row">
-  <a class="card" data-title="the heisenberg uncertainty seesaw" data-uc="fis3003" data-year="'L:F-3Y-1S'" data-tags="quantum fourier animation multi-panel live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-quantum)" href="playgrounds/bsc-y3s1/FIS3003-heisenberg-uncertainty-visualizer/index.html">
-    <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">Adv</span></div>
+  <a class="card" data-title="optical fiber: lp modes, dispersion and pulse broadening" data-uc="fis4035" data-year="bsc-y3s2" data-tags="photonics optical-fiber waveguide-modes dispersion live-readout" data-order="132" data-group="BSc Year 3, Semester 2" style="--tagc:var(--tag-optics)" href="playgrounds/bsc-y3s2/FIS4035-optical-fiber-modes-dispersion/index.html">
+    <div class="cimg" data-thumb="assets/thumbs/thumb-optics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">BSc · Y3</span></div>
     <div class="cbody">
-      <h3 class="ctitle">The Heisenberg Uncertainty Seesaw</h3>
-      <span class="cuc">FIS3003</span>
-      <div class="ctags"><span class="ctag">quantum</span><span class="ctag">fourier</span><span class="ctag">animation</span><span class="ctag">multi-panel</span></div>
+      <h3 class="ctitle">Optical Fiber: LP Modes, Dispersion and Pulse Broadening</h3>
+      <span class="cuc">FIS4035</span>
+      <div class="ctags"><span class="ctag">photonics</span><span class="ctag">optical-fiber</span><span class="ctag">waveguide-modes</span><span class="ctag">dispersion</span></div>
     </div>
   </a>
-  <a class="card" data-title="mri: the bloch equations, the fid and k-space imaging" data-uc="mfm-mp" data-year="msc-y1" data-tags="medical-physics mri bloch k-space live-readout" data-order="310" data-group="MSc Year 1" style="--tagc:var(--tag-medical)" href="playgrounds/msc-y1/MFM-MP-mri-bloch-equations-k-space/index.html">
-    <div class="cimg" data-thumb="assets/thumbs/thumb-medical-physics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">MSc · Y1</span></div>
-    <div class="cbody">
-      <h3 class="ctitle">MRI: the Bloch Equations, the FID and k-Space Imaging</h3>
-      <span class="cuc">MFM-MP</span>
-      <div class="ctags"><span class="ctag">medical-physics</span><span class="ctag">mri</span><span class="ctag">bloch</span><span class="ctag">k-space</span></div>
-    </div>
-  </a>
-  <a class="card" data-title="scattering theory: differential cross section and partial waves" data-uc="mf-aqm" data-year="msc-y1" data-tags="quantum-mechanics scattering partial-waves cross-section live-readout" data-order="310" data-group="MSc Year 1" style="--tagc:var(--tag-quantum)" href="playgrounds/msc-y1/MF-AQM-scattering-theory-differential-cross-section/index.html">
+  <a class="card" data-title="relativistic hydrogen: dirac vs schrodinger, fine structure, zitterbewegung" data-uc="mf-aqm" data-year="msc-y1" data-tags="quantum-mechanics relativistic fine-structure dirac-equation live-readout" data-order="310" data-group="MSc Year 1" style="--tagc:var(--tag-quantum)" href="playgrounds/msc-y1/MF-AQM-dirac-equation-relativistic-hydrogen/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">MSc · Y1</span></div>
     <div class="cbody">
-      <h3 class="ctitle">Scattering Theory: Differential Cross Section and Partial Waves</h3>
+      <h3 class="ctitle">Relativistic Hydrogen: Dirac vs Schrodinger, Fine Structure, Zitterbewegung</h3>
       <span class="cuc">MF-AQM</span>
-      <div class="ctags"><span class="ctag">quantum-mechanics</span><span class="ctag">scattering</span><span class="ctag">partial-waves</span><span class="ctag">cross-section</span></div>
+      <div class="ctags"><span class="ctag">quantum-mechanics</span><span class="ctag">relativistic</span><span class="ctag">fine-structure</span><span class="ctag">dirac-equation</span></div>
     </div>
   </a>
-  <a class="card" data-title="the 4f fourier-optics processor" data-uc="fis3019" data-year="'L:F-3Y-1S'" data-tags="optics fourier image-processing multi-panel live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-optics)" href="playgrounds/bsc-y3s1/FIS3019-fourier-optics-4f-system/index.html">
-    <div class="cimg" data-thumb="assets/thumbs/thumb-optics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">Adv</span></div>
+  <a class="card" data-title="the 2d ising phase transition" data-uc="fis3008" data-year="'L:F-3Y-1S'" data-tags="statistical-mechanics monte-carlo phase-transition lattice live-readout" data-order="900" data-group="Advanced / Cross-curricular" style="--tagc:var(--tag-statistical)" href="playgrounds/bsc-y3s1/FIS3008-ising-2d-gpu-phase-transition/index.html">
+    <div class="cimg" data-thumb="assets/thumbs/thumb-statistical-physics.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">Adv</span></div>
     <div class="cbody">
-      <h3 class="ctitle">The 4f Fourier-Optics Processor</h3>
-      <span class="cuc">FIS3019</span>
-      <div class="ctags"><span class="ctag">optics</span><span class="ctag">fourier</span><span class="ctag">image-processing</span><span class="ctag">multi-panel</span></div>
+      <h3 class="ctitle">The 2D Ising Phase Transition</h3>
+      <span class="cuc">FIS3008</span>
+      <div class="ctags"><span class="ctag">statistical-mechanics</span><span class="ctag">monte-carlo</span><span class="ctag">phase-transition</span><span class="ctag">lattice</span></div>
+    </div>
+  </a>
+  <a class="card" data-title="rayleigh-benard convection: onset of instability" data-uc="fis3025" data-year="bsc-y3s2" data-tags="fluids convection instability linear-stability live-readout" data-order="132" data-group="BSc Year 3, Semester 2" style="--tagc:var(--tag-fluids)" href="playgrounds/bsc-y3s2/FIS3025-rayleigh-benard-convection/index.html">
+    <div class="cimg" data-thumb="assets/thumbs/thumb-fluids.jpg"><div class="cph"></div><span class="cstar" aria-label="hero-tier">&#9733;</span><span class="lvl">BSc · Y3</span></div>
+    <div class="cbody">
+      <h3 class="ctitle">Rayleigh-Benard Convection: Onset of Instability</h3>
+      <span class="cuc">FIS3025</span>
+      <div class="ctags"><span class="ctag">fluids</span><span class="ctag">convection</span><span class="ctag">instability</span><span class="ctag">linear-stability</span></div>
     </div>
   </a></div>
 </section>
 
 <section id="browse" class="landing-catalog">
+  <div class="catalog-stats"><span class="hero-stat"><span class="hero-stat-num" id="statn" data-target="332">332</span><span class="hero-stat-label">simulations</span></span><span class="hero-stat-divider">&middot;</span><span class="hero-stat"><span class="hero-stat-num">39</span><span class="hero-stat-label">hero-tier</span></span><span class="hero-stat-divider">&middot;</span><span class="hero-stat"><span class="hero-stat-num">13</span><span class="hero-stat-label">categories</span></span><span class="hero-stat-divider">&middot;</span><span class="hero-stat"><span class="hero-stat-num">4</span><span class="hero-stat-label">curricular years</span></span></div>
   <header class="catalog-header">
     <h2 class="sec">Catalog</h2>
-    <span class="catalog-count t-small" id="browse-count">Showing <strong>333</strong> simulations</span>
+    <span class="catalog-count t-small" id="browse-count">Showing <strong>332</strong> simulations</span>
   </header>
   <div class="catalog-controls">
     <div class="catalog-search-row">
@@ -3066,6 +3115,14 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 
 <section class="about" id="about">
   <div class="lab">About</div>
+  <div class="about-project">
+    <h2>About Tellurion</h2>
+    <p>Tellurion is a laboratory of interactive physics simulations covering most of the undergraduate physics curriculum: 332 playgrounds spanning mechanics, electromagnetism, optics, quantum, relativity, statistical mechanics, fluid dynamics, condensed matter, and astrophysics. Each playground is built to be operated, not just observed: drag the camera, adjust the parameters, see the consequences.</p>
+    <p>The name refers to the 18th-century mechanical apparatus for teaching how the Earth, Moon, and Sun move together. A tellurion is a hand-built physics instrument designed for demonstration through direct manipulation. This site is a digital tellurion extended to all of physics.</p>
+    <p>Currently in public beta. The site is functional and the physics is being reviewed by working physicists, but at this scale errors are inevitable: typographic, pedagogical, occasionally substantive. I maintain a <a href="#corrections">corrections page</a> and credit anyone who reports an issue. If something looks wrong, please tell me.</p>
+    <p>The project will remain in beta until all 332 playgrounds meet the same standard. Until then, expect occasional rough edges and a steady pace of improvement.</p>
+  </div>
+  <div class="lab">About the author</div>
   <div class="about-grid">
     <div class="about-l">
       <div class="about-photo"></div>
@@ -3082,7 +3139,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       </div>
       <div class="about-bio about-anim">
         <p>I am a fourth-year PhD candidate at the Instituto de Astrof&iacute;sica e Ci&ecirc;ncias do Espa&ccedil;o (IA/CAUP) and the University of Porto, working at the intersection of asteroseismology, Galactic archaeology, and machine learning. My research uses stellar oscillations to reconstruct the formation history of the Milky Way.</p>
-        <p>This website is a personal project in science communication: 333+ physics simulations spanning the undergraduate and graduate physics curriculum, built from scratch as a public educational resource.</p>
+        <p>This website is a personal project in science communication: 332+ physics simulations spanning the undergraduate and graduate physics curriculum, built from scratch as a public educational resource.</p>
       </div>
       <div class="about-cols">
         <div class="about-col about-anim"><h4>Physics</h4><ul><li>Asteroseismology</li><li>Galactic Archaeology</li><li>Statistical Mechanics</li><li>General Relativity</li><li>Quantum Mechanics</li><li>Stellar Structure</li></ul></div>
@@ -3111,11 +3168,20 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <p class="credits-empty">Beta testers will be listed here.</p>
     </div>
   </div>
-  <div class="credits-ver">v0.1.0 &middot; Built 2026-05-21 &middot; 333 simulations</div>
+  <div class="corrections" id="corrections">
+    <h3>Corrections</h3>
+    <p class="corrections-body">This page lists corrections made to the site, with credit to those who reported them. Reports can be sent to <a href="mailto:andreaswneitzel@astro.up.pt">andreaswneitzel@astro.up.pt</a>. Substantive corrections are credited here; minor fixes (typos, formatting) are merged silently.</p>
+    <p class="corrections-empty">No corrections yet. Be the first.</p>
+  </div>
+  <div class="credits-ver">v0.1.0 &middot; Built 2026-05-22 &middot; 332 simulations</div>
 </section>
 
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
-<footer class="sitefoot"><span>&copy; 2026 Andreas W. Neitzel</span><span>Physics &middot; Astrophysics &middot; University of Porto</span></footer>
+<footer class="sitefoot">
+  <div class="sitefoot-line"><span>Tellurion</span><span class="sitefoot-sep">&middot;</span><span>v0.1.0 (public beta)</span><span class="sitefoot-sep">&middot;</span><span>Built 2026-05-22</span><span class="sitefoot-sep">&middot;</span><span>332 simulations</span></div>
+  <div class="sitefoot-line"><a href="#about">About</a><a href="#credits">Credits</a><a href="#corrections">Corrections</a><a href="#">Research</a><span class="sitefoot-sep">&middot;</span><a href="mailto:andreaswneitzel@astro.up.pt">Public beta. Found an issue? Report it.</a></div>
+  <div class="sitefoot-line"><span>&copy; 2026 Andreas W. Neitzel</span><span class="sitefoot-sep">&middot;</span><span>Physics &middot; Astrophysics &middot; University of Porto</span></div>
+</footer>
 
 <script>
 (function(){

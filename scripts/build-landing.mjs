@@ -212,10 +212,17 @@ const heroStatsHTML = heroStats.map(([n, label], i) => {
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Playgrounds Portfolio. Andreas W. Neitzel</title>
-<meta property="og:title" content="Playgrounds Portfolio">
-<meta property="og:description" content="${cards.length} interactive physics, astronomy, and machine-learning playgrounds.">
+<title>Tellurion &middot; interactive physics simulations</title>
+<meta name="description" content="Tellurion is a laboratory of ${cards.length} interactive physics simulations covering mechanics, electromagnetism, optics, quantum, relativity, and astrophysics. Built by one physicist as a public educational resource. Currently in public beta.">
+<link rel="canonical" href="https://tellurion.dev/">
+<meta property="og:title" content="Tellurion">
+<meta property="og:site_name" content="Tellurion">
+<meta property="og:url" content="https://tellurion.dev/">
+<meta property="og:type" content="website">
+<meta property="og:description" content="A laboratory of ${cards.length} interactive physics simulations. Public beta.">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Tellurion">
+<meta name="twitter:description" content="A laboratory of ${cards.length} interactive physics simulations. Public beta.">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -492,6 +499,45 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .about.prep .about-photo.in{opacity:1;transform:scale(1);transition:opacity 500ms ease-out,transform 500ms ease-out}
 @media(max-width:760px){.about-grid{flex-direction:column}.about-l{width:100%;display:flex;
   flex-direction:column;align-items:center}.credits-grid{flex-direction:column;gap:40px}}
+/* Tellurion masthead: refined wordmark, tagline, and quiet status pill. */
+.t-display.wordmark{letter-spacing:0.05em;font-weight:800;margin:0;position:relative;padding-bottom:12px;display:inline-block}
+.t-display.wordmark::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:128px;background:var(--accent-gold);opacity:0.3}
+.masthead-tagline{color:var(--text-secondary);max-width:640px;margin:18px 0 0;line-height:1.6}
+.masthead-status{color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.75rem;margin-top:10px;letter-spacing:0.04em}
+/* Framing aside above the featured row. Quiet body text, not a banner. */
+.landing-framing{padding:12px 0 0;max-width:720px}
+.landing-framing p{color:var(--text-secondary);font-size:0.9375rem;line-height:1.7;margin:0}
+.landing-framing a{color:var(--text-primary);border-bottom:1px solid var(--accent);text-decoration:none;padding-bottom:1px}
+.landing-framing a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+/* About: project block sits above the personal block. */
+.about-project{margin-bottom:48px;max-width:760px}
+.about-project h2{font-size:1.5rem;font-weight:700;letter-spacing:-0.01em;color:var(--text-primary);margin:0 0 18px}
+.about-project p{color:var(--text-secondary);font-size:0.9375rem;line-height:1.75;margin:0 0 14px}
+.about-project p:first-of-type{color:var(--text-primary)}
+.about-project a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
+.about-project a:hover{border-bottom-color:var(--accent)}
+.about .lab + .lab{margin-top:64px}
+/* Credits: corrections section under Special Thanks. */
+.corrections{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-dim)}
+.corrections h3{font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 14px;letter-spacing:0.02em;text-transform:uppercase}
+.corrections-body{color:var(--text-secondary);font-size:0.9375rem;line-height:1.7;max-width:680px;margin:0}
+.corrections-body a{color:var(--text-primary);border-bottom:1px solid var(--accent-dim);text-decoration:none}
+.corrections-empty{margin-top:14px;color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.8125rem}
+/* Hero-tier star indicator is already in place via .cstar (top-left,
+   var(--accent-gold)); no additional rule needed here. */
+/* Footer: two informational rows plus the existing copyright line, on a
+   column layout. The fixed 64px height is replaced with a content height. */
+.sitefoot{flex-direction:column;height:auto;min-height:64px;gap:6px;padding:16px 0;text-align:center}
+.sitefoot-line{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:center;color:var(--text-secondary)}
+.sitefoot-line a{color:var(--text-secondary);text-decoration:none}
+.sitefoot-line a:hover{color:var(--text-primary)}
+.sitefoot-sep{color:var(--text-dimmed)}
+/* Hero-stats moved out of the masthead and now sits as a quiet line just
+   above the catalog. Same look as before. */
+.catalog-stats{color:var(--text-secondary);font-family:var(--f-mono);font-size:0.8125rem;margin:0 0 18px;display:flex;gap:12px;flex-wrap:wrap;align-items:baseline}
+.catalog-stats .hero-stat-num{color:var(--text-primary);font-weight:500;font-variant-numeric:tabular-nums}
+.catalog-stats .hero-stat-label{color:var(--text-secondary);margin-left:4px}
+.catalog-stats .hero-stat-divider{color:var(--text-dimmed)}
 </style>
 </head>
 <body>
@@ -535,9 +581,12 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 </script>
 
 <section class="landing-hero">
-  <h1 class="t-display">Playgrounds Portfolio</h1>
-  <p class="hero-subtitle t-body">Interactive simulations across physics, astronomy, statistical mechanics, and machine learning, aligned to the University of Porto BSc in Physics and MSc in Astronomy and Astrophysics curriculum.</p>
-  <div class="hero-stats t-small">${heroStatsHTML}</div>
+  <h1 class="t-display wordmark">Tellurion</h1>
+  <p class="masthead-tagline t-body">A laboratory of interactive physics simulations.</p>
+  <div class="masthead-status t-small">v${PKG_VERSION} &middot; public beta</div>
+  <div class="landing-framing">
+    <p>Tellurion is a laboratory of ${cards.length} interactive physics simulations, currently in public beta. The physics is being reviewed by working physicists; errors are inevitable at this scale, and if you find one, please <a href="#corrections">tell me</a>. The site improves with every reader who takes the time.</p>
+  </div>
 </section>
 
 <section class="landing-featured">
@@ -549,6 +598,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 </section>
 
 <section id="browse" class="landing-catalog">
+  <div class="catalog-stats">${heroStatsHTML}</div>
   <header class="catalog-header">
     <h2 class="sec">Catalog</h2>
     <span class="catalog-count t-small" id="browse-count">Showing <strong>${cards.length}</strong> simulations</span>
@@ -578,6 +628,14 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 
 <section class="about" id="about">
   <div class="lab">About</div>
+  <div class="about-project">
+    <h2>About Tellurion</h2>
+    <p>Tellurion is a laboratory of interactive physics simulations covering most of the undergraduate physics curriculum: ${cards.length} playgrounds spanning mechanics, electromagnetism, optics, quantum, relativity, statistical mechanics, fluid dynamics, condensed matter, and astrophysics. Each playground is built to be operated, not just observed: drag the camera, adjust the parameters, see the consequences.</p>
+    <p>The name refers to the 18th-century mechanical apparatus for teaching how the Earth, Moon, and Sun move together. A tellurion is a hand-built physics instrument designed for demonstration through direct manipulation. This site is a digital tellurion extended to all of physics.</p>
+    <p>Currently in public beta. The site is functional and the physics is being reviewed by working physicists, but at this scale errors are inevitable: typographic, pedagogical, occasionally substantive. I maintain a <a href="#corrections">corrections page</a> and credit anyone who reports an issue. If something looks wrong, please tell me.</p>
+    <p>The project will remain in beta until all ${cards.length} playgrounds meet the same standard. Until then, expect occasional rough edges and a steady pace of improvement.</p>
+  </div>
+  <div class="lab">About the author</div>
   <div class="about-grid">
     <div class="about-l">
       <div class="about-photo"${existsSync(join('assets', 'profile.jpg')) ? ' style="background-image:url(assets/profile.jpg)"' : ''}></div>
@@ -633,11 +691,20 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
         : '<p class="credits-empty">Beta testers will be listed here.</p>'}
     </div>
   </div>
+  <div class="corrections" id="corrections">
+    <h3>Corrections</h3>
+    <p class="corrections-body">This page lists corrections made to the site, with credit to those who reported them. Reports can be sent to <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>. Substantive corrections are credited here; minor fixes (typos, formatting) are merged silently.</p>
+    <p class="corrections-empty">No corrections yet. Be the first.</p>
+  </div>
   <div class="credits-ver">v${PKG_VERSION} &middot; Built ${BUILD_DATE} &middot; ${cards.length} simulations</div>
 </section>
 
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
-<footer class="sitefoot"><span>&copy; ${BUILD_YEAR} Andreas W. Neitzel</span><span>Physics &middot; Astrophysics &middot; University of Porto</span></footer>
+<footer class="sitefoot">
+  <div class="sitefoot-line"><span>Tellurion</span><span class="sitefoot-sep">&middot;</span><span>v${PKG_VERSION} (public beta)</span><span class="sitefoot-sep">&middot;</span><span>Built ${BUILD_DATE}</span><span class="sitefoot-sep">&middot;</span><span>${cards.length} simulations</span></div>
+  <div class="sitefoot-line"><a href="#about">About</a><a href="#credits">Credits</a><a href="#corrections">Corrections</a><a href="${RESEARCH_URL}"${RESEARCH_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>Research</a><span class="sitefoot-sep">&middot;</span><a href="mailto:${CONTACT_EMAIL}">Public beta. Found an issue? Report it.</a></div>
+  <div class="sitefoot-line"><span>&copy; ${BUILD_YEAR} Andreas W. Neitzel</span><span class="sitefoot-sep">&middot;</span><span>Physics &middot; Astrophysics &middot; University of Porto</span></div>
+</footer>
 
 <script>
 (function(){

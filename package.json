@@ -1,9 +1,9 @@
 {
-  "name": "playgrounds-portfolio",
+  "name": "tellurion",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Canvas2D and SVG physics and ML playgrounds for portfolio use.",
+  "description": "Tellurion: Canvas2D and SVG physics and ML playgrounds. Public site at tellurion.dev.",
   "scripts": {
     "scaffold": "bash scripts/scaffold.sh",
     "capture": "node scripts/capture-reference.mjs",

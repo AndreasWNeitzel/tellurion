@@ -1,6 +1,6 @@
-# Playgrounds Portfolio
+# Tellurion
 
-In-browser physics and astronomy playgrounds rendered with Canvas2D and SVG, with a WebGL2 carve-out for the 3D showcase pieces. Each one is an interactive simulation backed by a headless numerical engine, not a static figure. The portfolio is built to read as research code rather than textbook clipart.
+Tellurion (originally codenamed "Playgrounds Portfolio") is the source repository for the public site at `tellurion.dev`. In-browser physics and astronomy playgrounds rendered with Canvas2D and SVG, with a WebGL2 carve-out for the 3D showcase pieces. Each one is an interactive simulation backed by a headless numerical engine, not a static figure. The portfolio is built to read as research code rather than textbook clipart.
 
 ## What is here
 
