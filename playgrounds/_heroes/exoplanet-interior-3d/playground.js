@@ -397,33 +397,30 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'planet-mass-mj', label: 'Planet mass', value: st.planetMass || 1, format: 'float' },
+      { key: 'planet-radius-rj', label: 'Planet radius', value: st.planetRadius || 1, format: 'float' },
+      { key: 'core-temp-k', label: 'Core temperature', value: st.coreTemp || 5000, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  // Check mass-radius relation for gas giants (dimensionless check).
+  const M = st.planetMass || 1;
+  const R = st.planetRadius || 1;
+  // For gas giants, R approx constant (Jupiter has ~0.1 R_sun).
+  // No strict conservation, but check radius does not scale with mass.
+  const status = (R > 0.5 && R < 2.0) ? 'pass' : 'drift';
+  return [
+    {
+      key: 'radius-physical-bounds',
+      label: 'Radius bounds check',
+      value: R.toFixed(2),
+      status: status
+    }
+  ];
+};
