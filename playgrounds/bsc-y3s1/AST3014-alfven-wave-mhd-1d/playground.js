@@ -185,33 +185,38 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const B0 = st.B_nT * 1e-9;
+  const rho = st.n_amu_cc * 1.66e-27 * 1e6;
+  const vA = alfvenSpeedMS(B0, rho);
+  return {
+    fields: [
+      { key: 'B0', label: 'Magnetic field B0', value: st.B_nT, format: 'float' },
+      { key: 'rho', label: 'Plasma density n', value: st.n_amu_cc, format: 'float' },
+      { key: 'vA', label: 'Alfven speed vA', value: vA / 1000, format: 'float' },
+      { key: 'time', label: 'Simulation time', value: st.t, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const B0 = st.B_nT * 1e-9;
+  const rho = st.n_amu_cc * 1.66e-27 * 1e6;
+  const vA = alfvenSpeedMS(B0, rho);
+  const invs = [];
+  // Check Walen relation: at a sample point, v_y = -b_y / sqrt(mu0 rho)
+  // Sample at x=0, which has both signal amplitude
+  const xSamp = 0;
+  const bSamp = bField(xSamp, st.t, LAMBDA, AMP, vA);
+  const vSamp = vField(xSamp, st.t, LAMBDA, AMP, vA, B0, rho);
+  const vWalen = -bSamp / Math.sqrt(MU0 * rho);
+  const relErr = Math.abs((vSamp - vWalen) / Math.max(1, Math.abs(vWalen)));
+  invs.push({
+    key: 'walen-relation',
+    label: 'Walen relation (v_y = -b_y / sqrt(mu0 rho))',
+    value: relErr < 1e-10 ? 'pass' : (relErr < 1e-8 ? 'drift' : 'fail'),
+    status: relErr < 1e-8 ? 'pass' : (relErr < 1e-6 ? 'drift' : 'fail')
+  });
+  return invs;
+};
