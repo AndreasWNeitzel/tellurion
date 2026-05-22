@@ -41,7 +41,21 @@ const state = {
   sim: null,
   trail: [],
   playing: !(DETERMINISTIC || prefersReducedMotion()),
+  // Multi-particle mode: show 5 particles at different speeds to
+  // visualize that period is independent of speed while radius scales with it.
+  multiTrails: [],
 };
+
+function initMultiParticles() {
+  const speeds = [0.4, 0.7, 1.0, 1.3, 1.6];
+  state.multiTrails = speeds.map(sp => ({
+    v: sp,
+    sim: createCyclotron({ B: state.B, v: sp, q: state.q, m: state.m }),
+    trail: [],
+  }));
+}
+
+initMultiParticles();
 
 function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
 const tok = {
@@ -52,6 +66,7 @@ const tok = {
 function rebuild() {
   state.sim = createCyclotron({ B: state.B, v: state.v, q: state.q, m: state.m });
   state.trail = [];
+  initMultiParticles();
 }
 
 function worldToPx(x, y) {
@@ -113,10 +128,32 @@ function drawAll() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Trail
+  // Multi-particle trails (from swarm at different speeds).
+  const colors = [
+    'rgba(100, 200, 255, 0.3)',  // slow: blue
+    'rgba(100, 220, 220, 0.4)',  // blue-cyan
+    'rgba(241, 210, 138, 0.5)',  // medium: orange (the focused one)
+    'rgba(255, 150, 100, 0.4)',  // orange-red
+    'rgba(255, 100, 100, 0.3)',  // fast: red
+  ];
+  for (let i = 0; i < state.multiTrails.length; i += 1) {
+    const mt = state.multiTrails[i];
+    if (mt.trail.length >= 2) {
+      ctx.strokeStyle = colors[i];
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      for (let j = 0; j < mt.trail.length; j += 1) {
+        const p = worldToPx(mt.trail[j][0], mt.trail[j][1]);
+        if (j === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+      }
+      ctx.stroke();
+    }
+  }
+
+  // Trail (the main single particle, shown with emphasis).
   if (state.trail.length >= 2) {
-    ctx.strokeStyle = 'rgba(241, 210, 138, 0.65)';
-    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = 'rgba(241, 210, 138, 0.85)';
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     for (let i = 0; i < state.trail.length; i += 1) {
       const p = worldToPx(state.trail[i][0], state.trail[i][1]);
@@ -153,19 +190,30 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText('B is out of page (dots)', 60, H - 24);
+  ctx.fillText('B out of page (dots)', 60, H - 32);
   ctx.fillStyle = 'rgba(127, 177, 216, 0.75)';
-  ctx.fillText('analytic circle (dashed)', 260, H - 24);
+  ctx.fillText('analytic circle (dashed)', 260, H - 32);
+  ctx.fillStyle = 'rgba(200, 200, 200, 0.7)';
+  ctx.fillText('swarm (blue to red = slow to fast)', 520, H - 32);
   ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('particle trail', 480, H - 24);
+  ctx.fillText('main particle (orange)', 60, H - 14);
 }
 
 function tickN(n) {
   for (let i = 0; i < n; i += 1) {
+    // Step the main particle.
     stepCyclotron(state.sim, 0.005);
     if (state.sim.nSteps % 2 === 0) {
       state.trail.push([state.sim.x, state.sim.y]);
       if (state.trail.length > 800) state.trail.shift();
+    }
+    // Step all multi-particle swarm members.
+    for (const mt of state.multiTrails) {
+      stepCyclotron(mt.sim, 0.005);
+      if (mt.sim.nSteps % 4 === 0) {
+        mt.trail.push([mt.sim.x, mt.sim.y]);
+        if (mt.trail.length > 400) mt.trail.shift();
+      }
     }
   }
 }
@@ -180,6 +228,12 @@ function applyLiveParams() {
   state.sim.B = state.B;
   state.sim.q = state.q;
   state.sim.m = state.m;
+  // Update multi-particle swarm as well.
+  for (const mt of state.multiTrails) {
+    mt.sim.B = state.B;
+    mt.sim.q = state.q;
+    mt.sim.m = state.m;
+  }
 }
 sliderB.addEventListener('input', () => { state.B = parseFloat(sliderB.value); valueB.textContent = state.B.toFixed(2); applyLiveParams(); });
 sliderV.addEventListener('input', () => {
