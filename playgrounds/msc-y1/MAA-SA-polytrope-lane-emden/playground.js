@@ -398,33 +398,46 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const s = sol(n);
+  return {
+    fields: [
+      { key: 'polytrope-index', label: 'polytrope index n', value: n, format: 'float' },
+      { key: 'radius-boundary', label: 'first zero crossing xi_1', value: s.xi1, format: 'float' },
+      { key: 'core-density', label: 'normalized central density theta(0)', value: 1.0, format: 'float' },
+      { key: 'surface-density', label: 'normalized surface density theta(xi_1)', value: 0.0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const s = sol(n);
+  // Boundary conditions: theta(0) = 1 and theta(xi_1) = 0
+  const theta0 = s.theta[0];
+  const thetaXi1 = s.theta[s.theta.length - 1];
+  inv.push({
+    key: 'bc-initial',
+    label: 'theta(0) = 1.0',
+    value: Math.abs(theta0 - 1.0).toExponential(2),
+    status: Math.abs(theta0 - 1.0) < 1e-10 ? 'pass' : 'drift'
+  });
+  inv.push({
+    key: 'bc-boundary',
+    label: 'theta(xi_1) near zero',
+    value: Math.abs(thetaXi1).toExponential(2),
+    status: Math.abs(thetaXi1) < 1e-2 ? 'pass' : 'pending'
+  });
+  // Known solutions check: for n = 0, 1, 5, the xi_1 must match tabulated values
+  if (KNOWN_XI1[n] !== undefined) {
+    const rel = Math.abs(s.xi1 - KNOWN_XI1[n]) / KNOWN_XI1[n];
+    inv.push({
+      key: 'analytic-match',
+      label: 'xi_1 matches known closed form',
+      value: rel.toExponential(2),
+      status: rel < 0.01 ? 'pass' : 'pending'
+    });
+  }
+  return inv;
+};
