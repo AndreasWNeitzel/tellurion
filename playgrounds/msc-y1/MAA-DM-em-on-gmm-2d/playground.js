@@ -321,6 +321,3 @@ window.playground.getInvariants = function () {
     }
   ];
 };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
