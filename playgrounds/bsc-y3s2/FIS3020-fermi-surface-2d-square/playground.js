@@ -257,8 +257,7 @@ window.playground.getInvariants = function () {
   const filling_valid = f >= 0 && f <= 1;
   const Ef = fermiEnergyAtFilling(f, 1, 60);
   const dos = densityOfStates(1, 200, 50);
-  const maxDOS = Math.max(...dos.map(d => d.count));
-  const doshighest = dos[dos.length - 1].count;
+  const maxDOS = Math.max(...dos.bins);
   const status = filling_valid ? 'pass' : 'drift';
   return [
     {
