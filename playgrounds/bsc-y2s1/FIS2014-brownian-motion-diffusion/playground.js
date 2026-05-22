@@ -119,7 +119,8 @@ function render() {
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(mx(t), my(msd(ens)), 3.5, 0, 6.3); ctx.fill();
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('t', QX + QW / 2, M1Y + M1H + 13);
-  ctx.save(); ctx.translate(QX - 7, M1Y + M1H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('<r^2>', 0, 0); ctx.restore();
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('<r^2>', QX - 6, M1Y + M1H / 2);
   ctx.textAlign = 'left'; ctx.fillStyle = '#7fd6ff'; ctx.fillText('4 D t', QX + 8, M1Y + 14);
   ctx.fillStyle = '#e6c878'; ctx.fillText('measured', QX + 8, M1Y + 28);
 
