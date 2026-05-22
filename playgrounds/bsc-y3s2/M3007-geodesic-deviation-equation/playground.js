@@ -14,7 +14,25 @@ sD.addEventListener('input', () => { st.dphi = parseFloat(sD.value); vD.textCont
 btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 let last = performance.now();
-function project(x, y, z) { return { px: canvas.width / 2 + x * 180 + z * 50, py: canvas.height / 2 - y * 180 + z * 50, depth: z }; }
+let yaw = 0, pitch = 0.32;
+let dragging = false, lastX = 0, lastY = 0;
+canvas.addEventListener('pointerdown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture?.(e.pointerId); });
+window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  yaw += (e.clientX - lastX) * 0.006;
+  pitch = Math.max(-1.3, Math.min(1.3, pitch + (e.clientY - lastY) * 0.006));
+  lastX = e.clientX; lastY = e.clientY;
+});
+function project(x, y, z) {
+  const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  const x1 = x * cy - z * sy;
+  const z1 = x * sy + z * cy;
+  const cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const y1 = y * cp - z1 * sp;
+  const z2 = y * sp + z1 * cp;
+  return { px: canvas.width / 2 + x1 * 180 + z2 * 50, py: canvas.height / 2 - y1 * 180 + z2 * 50, depth: z2 };
+}
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const cx = canvas.width / 2, cy = canvas.height / 2;
@@ -54,6 +72,8 @@ function render() {
   const sep = angularSeparation(g1, g2);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Δ (rad) = ${sep.toFixed(3)} | Δφ_init = ${st.dphi.toFixed(2)}`, 12, canvas.height - 12);
+  ctx.fillStyle = 'rgba(150,160,175,0.7)';
+  ctx.fillText('drag to rotate', canvas.width - 108, canvas.height - 12);
   rD.textContent = sep.toFixed(3);
   lastSep = sep;
 }
@@ -67,19 +87,25 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'initial-delta-phi', label: 'initial separation', value: st.dphi, format: 'float' },
-      { key: 'geodesic-separation', label: 'geodesic separation (rad)', value: lastSep, format: 'float' },
-      { key: 'evolution-time', label: 'evolution time', value: Math.min(Math.PI / 2, (st.t / 3) * Math.PI / 2), format: 'float' },
+      { key: 'initial-delta-phi', label: 'initial separation $\\Delta\\phi$', value: st.dphi, format: 'float' },
+      { key: 'geodesic-separation', label: 'geodesic separation $\\xi$ (rad)', value: lastSep, format: 'float' },
+      { key: 'evolution-time', label: 'arc length travelled', value: Math.min(Math.PI / 2, (st.t / 3) * Math.PI / 2), format: 'float' },
     ],
   };
 };
 window.playground.getInvariants = function () {
+  // Two geodesics launched parallel from the equator, dphi apart, must
+  // refocus to a single point at the pole: the Jacobi equation on the
+  // unit sphere is xi'' + xi = 0, so the separation returns to zero.
+  const atPole1 = greatCircle(Math.PI / 2, Math.PI / 2, 0, Math.PI / 2);
+  const atPole2 = greatCircle(Math.PI / 2, Math.PI / 2, st.dphi, Math.PI / 2);
+  const sepAtPole = angularSeparation(atPole1, atPole2);
   return [
     {
-      key: 'geodesic-equation',
-      label: 'geodesic deviation equation hold',
-      value: 'evolving on sphere',
-      status: 'pass',
+      key: 'jacobi',
+      label: 'Jacobi equation $\\ddot{\\xi} + \\xi = 0$: parallel geodesics refocus at the pole',
+      value: sepAtPole.toExponential(2),
+      status: sepAtPole < 1e-3 ? 'pass' : (sepAtPole < 1e-1 ? 'pending' : 'drift'),
     },
   ];
 };
