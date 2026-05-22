@@ -273,8 +273,22 @@ window.__physicsCheck = async () => {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'scalar-field', label: 'phi (M_Pl)', value: state.phi || 15, format: 'float' }, { key: 'potential', label: 'V(phi)', value: state.V || 0, format: 'float' }, { key: 'hubble', label: 'H (M_Pl)', value: state.H || 1, format: 'float' }, { key: 'epsilon', label: 'epsilon_1', value: state.epsilon || 0.01, format: 'float' } ] }; };
-window.playground.getInvariants = function () { const eps = state.epsilon || 0; return [ { key: 'epsilon-positive', label: 'epsilon >= 0', value: eps >= 0 ? 'pass' : 'fail', status: eps >= 0 ? 'pass' : 'drift' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const H = Math.sqrt(Math.max(V(state.phi) / 3, 1e-12));
+  return {
+    fields: [
+      { key: 'scalar-field', label: '$\\phi$ ($M_{Pl}$)', value: state.phi, format: 'float' },
+      { key: 'potential', label: '$V(\\phi)$ ($M_{Pl}^4$)', value: V(state.phi), format: 'float' },
+      { key: 'hubble', label: '$H$ ($M_{Pl}$)', value: H, format: 'float' },
+      { key: 'efolding', label: 'e-folds $N$', value: state.N, format: 'float' }
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const eps = epsilon(state.phi);
+  const inflating = eps < 1;
+  return [
+    { key: 'slow-roll-active', label: 'Slow-roll ($\\epsilon < 1$)', value: inflating ? 'yes' : 'no', status: inflating ? 'pass' : 'drift' },
+    { key: 'epsilon-positive', label: '$\\epsilon_1 \\geq 0$', value: eps >= 0 ? 'pass' : 'fail', status: eps >= 0 ? 'pass' : 'drift' },
+    { key: 'phi-positive', label: '$\\phi > 0$', value: state.phi > 0 ? 'pass' : 'fail', status: state.phi > 0 ? 'pass' : 'drift' }
+  ];
+};
