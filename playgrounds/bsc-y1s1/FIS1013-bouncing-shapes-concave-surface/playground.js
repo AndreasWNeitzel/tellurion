@@ -192,33 +192,29 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const diag = st.sys ? diagnostics(st.sys) : null;
+  const nActive = st.sys ? st.sys.bodies.length : 0;
+  return {
+    fields: [
+      { key: 'shape', label: 'Bowl shape', value: st.shape, format: undefined },
+      { key: 'n-bodies', label: 'Particle count', value: nActive, format: 'float' },
+      { key: 'curvature', label: 'Curvature a', value: st.a, format: 'float' },
+      { key: 'restitution', label: 'Restitution e', value: st.e, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const diag = st.sys ? diagnostics(st.sys) : null;
+  const ke_bounded = diag ? (diag.KE >= 0 && diag.KE < 1e6) : true;
+  return [
+    {
+      key: 'kinetic-energy',
+      label: 'KE >= 0 and finite',
+      value: ke_bounded ? 'pass' : (diag ? `${diag.KE.toExponential(2)}` : 'pending'),
+      status: ke_bounded ? 'pass' : 'drift'
+    }
+  ];
+};
