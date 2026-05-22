@@ -178,33 +178,30 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const qTotal = charges.reduce((s, c) => s + c.q, 0);
+  const p = [0, 0, 0];
+  for (const c of charges) {
+    p[0] += c.q * c.r[0]; p[1] += c.q * c.r[1]; p[2] += c.q * c.r[2];
+  }
+  const pMag = Math.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+  return {
+    fields: [
+      { key: 'dist', label: 'Distribution', value: st.dist, format: undefined },
+      { key: 'order', label: 'Expansion order', value: st.order, format: undefined },
+      { key: 'monopole', label: 'Monopole Q', value: qTotal, format: 'float' },
+      { key: 'dipole-mag', label: 'Dipole |p|', value: pMag, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const exact1 = Math.abs(exactPotential(charges, [20, 0, 0]));
+  const approx1 = Math.abs(multipolePotential(charges, st.order, [20, 0, 0]));
+  const rel1 = exact1 > 1e-10 ? Math.abs(exact1 - approx1) / exact1 : Math.abs(exact1 - approx1);
+  const status = rel1 < 0.1 ? 'pass' : (rel1 < 0.5 ? 'pending' : 'drift');
+  return [
+    { key: 'expansion-error', label: 'Truncation error @ r=20', value: rel1.toExponential(2), status }
+  ];
+};
