@@ -223,33 +223,37 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const M = meanAnomaly((typeof performance !== 'undefined' ? performance.now() : Date.now()));
+  const r = solveKepler(M, e);
+  return {
+    fields: [
+      { key: 'eccentricity', label: 'Eccentricity e', value: e, format: 'float' },
+      { key: 'orbit-speed', label: 'Orbit speed factor', value: speed, format: 'float' },
+      { key: 'mean-anomaly', label: 'Mean anomaly M (rad)', value: (M % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI), format: 'float' },
+      { key: 'eccentric-anomaly', label: 'Eccentric anomaly E (rad)', value: r.E, format: 'float' },
+      { key: 'newton-iterations', label: 'Newton iterations', value: r.iterations, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const M = meanAnomaly((typeof performance !== 'undefined' ? performance.now() : Date.now()));
+  const r = solveKepler(M, e);
+  const residual_final = Math.abs(r.E - e * Math.sin(r.E) - M);
+  return [
+    {
+      key: 'kepler-satisfied',
+      label: 'Kepler equation M = E - e sin(E)',
+      value: residual_final.toExponential(2),
+      status: residual_final < 1e-11 ? 'pass' : 'drift'
+    },
+    {
+      key: 'convergence-rate',
+      label: 'Newton convergence (quadratic)',
+      value: r.iterations < 15 ? 'pass' : 'slow',
+      status: r.iterations < 15 ? 'pass' : 'pending'
+    }
+  ];
+};
