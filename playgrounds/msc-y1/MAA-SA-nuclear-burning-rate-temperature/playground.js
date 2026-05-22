@@ -84,10 +84,8 @@ function render() {
   ctx.strokeStyle = '#3a3a44'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, yt); ctx.lineTo(x0, yb); ctx.lineTo(x1, yb); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('log₁₀ T (K)', (x0 + x1) / 2, H - 14);
-  const yAxisLabel = 'log ε';
-  const w = ctx.measureText(yAxisLabel).width;
-  ctx.save(); ctx.translate(Math.max(4, pad.l / 2 - w / 2), (yt + yb) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(yAxisLabel, 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(13, (yt + yb) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'start'; ctx.textBaseline = 'middle'; ctx.fillText('ε', 2, 0); ctx.restore();
   ctx.textAlign = 'left';
   ctx.textAlign = 'left';
 
