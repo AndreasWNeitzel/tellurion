@@ -211,33 +211,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
-  };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+window.playground.getState = function () {
+  const potts = state.potts;
+  if (!potts) return { fields: [] };
+  const m = orderParameter(potts);
+  const e = energyPerSite(potts);
+  const acc = potts.totalAttempts > 0 ? (potts.accSteps / potts.totalAttempts) : 0;
+  return { fields: [
+    { key: 'q-state', label: 'Number of states (q)', value: potts.q, format: 'float' },
+    { key: 'temperature', label: 'Temperature (T)', value: potts.T, format: 'float' },
+    { key: 'order-parameter', label: 'Order parameter (M)', value: m, format: 'float' },
+    { key: 'energy-per-site', label: 'Energy per site', value: e, format: 'float' }
+  ] };
+};
+window.playground.getInvariants = function () {
+  const potts = state.potts;
+  if (!potts) return [];
+  const m = orderParameter(potts);
+  const t_c = critTemperature(potts.q);
+  const inOrder = potts.T <= t_c && m > 0.3;
+  const inDisorder = potts.T > t_c && m < 0.2;
+  const acc = potts.totalAttempts > 0 ? (potts.accSteps / potts.totalAttempts) : 0;
+  return [
+    { key: 'order-param-range', label: 'Order parameter in [0,1]', value: (m >= 0 && m <= 1) ? 'pass' : 'drift', status: (m >= 0 && m <= 1) ? 'pass' : 'drift' },
+    { key: 'phase-consistency', label: 'Consistent with T', value: (inOrder || inDisorder || (potts.T > 0.5 && potts.T < t_c + 0.3)) ? 'pass' : 'pending', status: (inOrder || inDisorder) ? 'pass' : 'pending' }
+  ];
+};
