@@ -40,10 +40,11 @@
       <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Gaussian curvature on a torus (top), three reference surfaces below. Source: Riley-Hobson Ch. 26 (`riley-hobson`).</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Gaussian curvature on a selectable surface: torus, sphere, cylinder, or saddle. Red marks K &gt; 0, blue marks K &lt; 0, grey marks K = 0. Source: Riley-Hobson Ch. 26 (`riley-hobson`).</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">Surface</span><select aria-label="Surface" id="select-surface"><option value="torus">Torus</option><option value="sphere">Sphere</option><option value="cylinder">Cylinder</option><option value="saddle">Saddle</option></select></div>
 <div class="row"><span class="label">R / r</span><input aria-label="R / r" type="range" id="slider-R" min="1.5" max="6" step="0.05" value="3"><span class="value" id="value-R">3.00</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
@@ -53,8 +54,8 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch between the four surfaces and watch how the curvature colouring and the K profile change.</li>
+        <li class="t-body">Drag the canvas to rotate the surface; vary the torus aspect ratio R/r.</li>
       </ul>
     </section>
 

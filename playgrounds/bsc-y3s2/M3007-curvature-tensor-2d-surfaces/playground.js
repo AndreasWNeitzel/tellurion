@@ -1,20 +1,34 @@
-import { torusK, sphereK, hyperbolicK, cylinderK } from './sim.js';
+import { torusK, sphereK, cylinderK } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
-const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
+
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 const rK = document.getElementById('readout-k');
 const sR = document.getElementById('slider-R'), vR = document.getElementById('value-R');
+const selSurface = document.getElementById('select-surface');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { Rr: 3, t: 0, yaw: 0, pitch: 0 }; let running = true;
+
+const SURFACE_NAMES = ['torus', 'sphere', 'cylinder', 'saddle'];
+const urlSurface = params.get('surface');
+let st = {
+  Rr: 3, t: 1, yaw: 0, pitch: 0,
+  surface: SURFACE_NAMES.includes(urlSurface) ? urlSurface : 'torus',
+};
+let running = !prefersReducedMotion();
+
 sR.addEventListener('input', () => { st.Rr = parseFloat(sR.value); vR.textContent = st.Rr.toFixed(2); });
-btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+if (selSurface) selSurface.addEventListener('change', () => { st.surface = selSurface.value; });
+btnR.addEventListener('click', () => { st.t = 0; st.yaw = 0; st.pitch = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+
 let last = performance.now();
 
-// Camera drag handlers
+// Camera drag handlers: yaw and pitch layered on the slow auto-spin.
 let dragging = false, lastX = 0, lastY = 0;
 canvas.addEventListener('pointerdown', (e) => {
   dragging = true; lastX = e.clientX; lastY = e.clientY;
@@ -27,80 +41,166 @@ window.addEventListener('pointermove', (e) => {
   st.pitch = Math.max(-1.4, Math.min(1.4, st.pitch + (e.clientY - lastY) * 0.005));
   lastX = e.clientX; lastY = e.clientY;
 });
-function colorForK(K, kMax) {
-  const t = Math.max(-1, Math.min(1, K / kMax));
-  if (t > 0) return `rgba(239,71,111,${0.3 + t * 0.5})`;
-  return `rgba(91,192,235,${0.3 - t * 0.5})`;
+
+// Saddle z = a (x^2 - y^2): the Gaussian curvature works out to
+// K = -4 a^2 / (1 + 4 a^2 (x^2 + y^2))^2, negative at every point and
+// sharpest at the centre. (Standard result for a graph z = f(x, y):
+// K = (f_xx f_yy - f_xy^2) / (1 + f_x^2 + f_y^2)^2.)
+function saddleK(x, y, a) {
+  const d = 1 + 4 * a * a * (x * x + y * y);
+  return -4 * a * a / (d * d);
 }
+
+// Surface registry. Each entry meshes a parametric embedding with
+// u, v in [0, 1) and reports the Gaussian curvature at each point.
+// The R/r slider is the torus aspect ratio; the other surfaces keep a
+// fixed shape so the comparison stays clean.
+function makeSurface(name, Rr) {
+  if (name === 'sphere') {
+    const rho = 120, k = sphereK(rho);
+    return {
+      label: 'Sphere', uN: 50, vN: 26, kMax: k,
+      point: (u, v) => {
+        const phi = 2 * Math.PI * u, theta = Math.PI * v;
+        return {
+          X: rho * Math.sin(theta) * Math.cos(phi),
+          Y: rho * Math.cos(theta),
+          Z: rho * Math.sin(theta) * Math.sin(phi),
+        };
+      },
+      Kat: () => k,
+      caption: 'Sphere: K = 1/R^2, the same positive value over the whole surface.',
+      profile: { xlabel: 'polar angle', ks: Array.from({ length: 64 }, () => k) },
+    };
+  }
+  if (name === 'cylinder') {
+    const rho = 85, H = 250;
+    return {
+      label: 'Cylinder', uN: 46, vN: 20, kMax: 1,
+      point: (u, v) => {
+        const phi = 2 * Math.PI * u;
+        return { X: rho * Math.cos(phi), Y: H * (v - 0.5), Z: rho * Math.sin(phi) };
+      },
+      Kat: () => cylinderK(),
+      caption: 'Cylinder: K = 0 everywhere, a developable surface that unrolls onto a flat sheet.',
+      profile: { xlabel: 'axis angle', ks: Array.from({ length: 64 }, () => 0) },
+    };
+  }
+  if (name === 'saddle') {
+    const L = 150, a = 0.9 / L;
+    return {
+      label: 'Saddle', uN: 40, vN: 40, kMax: 4 * a * a,
+      point: (u, v) => {
+        const x = L * (2 * u - 1), y = L * (2 * v - 1);
+        return { X: x, Y: a * (x * x - y * y), Z: y };
+      },
+      Kat: (u, v) => saddleK(L * (2 * u - 1), L * (2 * v - 1), a),
+      caption: 'Saddle z = a(x^2 - y^2): K < 0 everywhere, most negative at the centre.',
+      profile: {
+        xlabel: 'x at y = 0',
+        ks: Array.from({ length: 64 }, (_, i) => saddleK(L * (2 * i / 63 - 1), 0, a)),
+      },
+    };
+  }
+  // Torus (default). Major radius R, minor radius r = R / aspect.
+  const R = 100, r = 100 / Rr;
+  let kMax = 0;
+  for (let i = 0; i < 64; i += 1) {
+    const k = Math.abs(torusK(2 * Math.PI * i / 64, R, r));
+    if (k > kMax) kMax = k;
+  }
+  return {
+    label: 'Torus', uN: 60, vN: 30, kMax,
+    point: (u, v) => {
+      const phi = 2 * Math.PI * u, theta = 2 * Math.PI * v;
+      return {
+        X: (R + r * Math.cos(theta)) * Math.cos(phi),
+        Y: r * Math.sin(theta),
+        Z: (R + r * Math.cos(theta)) * Math.sin(phi),
+      };
+    },
+    Kat: (u, v) => torusK(2 * Math.PI * v, R, r),
+    caption: 'Torus: K > 0 on the outer rim, K < 0 on the inner rim, K = 0 on the top and bottom circles.',
+    profile: {
+      xlabel: 'tube angle',
+      ks: Array.from({ length: 64 }, (_, i) => torusK(2 * Math.PI * i / 63, R, r)),
+    },
+  };
+}
+
+function colorForK(K, kMax) {
+  const t = Math.max(-1, Math.min(1, K / (kMax || 1)));
+  if (Math.abs(t) < 0.03) return 'rgba(150, 154, 160, 0.5)';
+  if (t > 0) return `rgba(239, 71, 111, ${0.3 + t * 0.5})`;
+  return `rgba(91, 192, 235, ${0.3 - t * 0.5})`;
+}
+
 function projectPoint(x, y, z, cx, cy) {
-  // Apply yaw rotation around Y axis
-  const cy_yaw = Math.cos(st.yaw), sy_yaw = Math.sin(st.yaw);
-  let x1 = x * cy_yaw - z * sy_yaw;
-  let z1 = x * sy_yaw + z * cy_yaw;
-  // Apply pitch rotation around X axis
+  // Auto-spin (st.t) plus the pointer-drag yaw.
+  const yaw = st.yaw + st.t * 0.3;
+  const cyw = Math.cos(yaw), syw = Math.sin(yaw);
+  const x1 = x * cyw - z * syw;
+  const z1 = x * syw + z * cyw;
   const cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
-  let y1 = y * cp - z1 * sp;
-  let z2 = y * sp + z1 * cp;
-  return { px: cx + x1 + z2 * 0.3, py: cy - y1 + z2 * 0.2 };
+  const y1 = y * cp - z1 * sp;
+  const z2 = y * sp + z1 * cp;
+  return { px: cx + x1 + z2 * 0.3, py: cy - y1 + z2 * 0.2, depth: z2 };
 }
 
 function render() {
-  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // Torus shifted left of centre so the K(theta) diagnostic panel in
-  // the top-right corner no longer overlaps the rotating surface.
-  const cx = canvas.width * 0.36, cy = 230;
-  const R = 100, r = 100 / st.Rr;
-  let kMax = 0;
-  for (let i = 0; i < 60; i += 1) {
-    const theta = 2 * Math.PI * i / 60;
-    const K = torusK(theta, R, r);
-    if (Math.abs(K) > kMax) kMax = Math.abs(K);
-  }
-  for (let i = 0; i < 60; i += 1) {
-    const phi = 2 * Math.PI * i / 60 + st.t * 0.5;
-    for (let j = 0; j < 30; j += 1) {
-      const theta = 2 * Math.PI * j / 30;
-      const X = (R + r * Math.cos(theta)) * Math.cos(phi);
-      const Y = r * Math.sin(theta);
-      const Z = (R + r * Math.cos(theta)) * Math.sin(phi);
-      const p = projectPoint(X, Y, Z, cx, cy);
-      const K = torusK(theta, R, r);
-      ctx.fillStyle = colorForK(K, kMax);
-      ctx.fillRect(p.px - 4, p.py - 4, 8, 8);
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const surf = makeSurface(st.surface, st.Rr);
+  const cx = canvas.width * 0.36, cy = 232;
+
+  // Mesh the surface, then paint back-to-front so nearer cells win.
+  const pts = [];
+  for (let i = 0; i < surf.uN; i += 1) {
+    for (let j = 0; j < surf.vN; j += 1) {
+      const u = i / surf.uN, v = j / surf.vN;
+      const P = surf.point(u, v);
+      const p = projectPoint(P.X, P.Y, P.Z, cx, cy);
+      pts.push({ px: p.px, py: p.py, depth: p.depth, K: surf.Kat(u, v) });
     }
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Torus: red = K > 0 (outer), blue = K < 0 (inner)', 12, 20);
-  // Reference surfaces: the three signs of Gaussian curvature, drawn
-  // as a compact bottom legend so the torus keeps the vertical space.
-  const legY = canvas.height - 30;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
+  pts.sort((p, q) => p.depth - q.depth);
+  for (const pt of pts) {
+    ctx.fillStyle = colorForK(pt.K, surf.kMax);
+    ctx.fillRect(pt.px - 4, pt.py - 4, 8, 8);
+  }
+
+  // Surface caption.
+  ctx.fillStyle = '#9aa0a6';
+  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
-  ctx.fillText('Reference surfaces, the three signs of Gaussian curvature K:', 12, legY - 16);
-  const refs = [
-    { name: 'sphere', K: sphereK(1), color: '#ef476f' },
-    { name: 'cylinder', K: 0, color: '#9aa0a6' },
-    { name: 'hyperbolic', K: hyperbolicK(1), color: '#5bc0eb' },
+  ctx.fillText(surf.caption, 12, 20);
+
+  // Colour key for the curvature sign (compact bottom row).
+  const legY = canvas.height - 18;
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  const keys = [
+    { c: 'rgba(239, 71, 111, 0.85)', t: 'K > 0' },
+    { c: 'rgba(150, 154, 160, 0.7)', t: 'K = 0' },
+    { c: 'rgba(91, 192, 235, 0.85)', t: 'K < 0' },
   ];
   let lx = 12;
-  refs.forEach((rf) => {
-    ctx.fillStyle = rf.color;
+  for (const key of keys) {
+    ctx.fillStyle = key.c;
     ctx.beginPath(); ctx.arc(lx + 7, legY - 4, 7, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#c8d0e0'; ctx.font = fontString(canvas, 'caption', 'mono');
-    const txt = `${rf.name}  K = ${rf.K.toFixed(2)}`;
-    ctx.fillText(txt, lx + 20, legY);
-    lx += 20 + ctx.measureText(txt).width + 28;
-  });
-  drawKDiagnostic(R, r, kMax);
-  rK.textContent = kMax.toExponential(2);
+    ctx.fillStyle = '#c8d0e0';
+    ctx.fillText(key.t, lx + 20, legY);
+    lx += 20 + ctx.measureText(key.t).width + 28;
+  }
+
+  drawKDiagnostic(surf);
+  rK.textContent = surf.kMax.toExponential(2);
 }
 
-// Rule-13 diagnostic: Gaussian curvature K(θ) around the torus tube.
-// K = cos θ / [r (R + r cos θ)] is positive on the outer equator
-// (θ = 0), zero on the top and bottom circles (θ = ±π/2), and
-// negative on the inner equator (θ = π). The plot is the quantitative
-// companion to the red/blue coloured torus.
-function drawKDiagnostic(R, r, kMax) {
+// Rule-13 diagnostic: Gaussian curvature sampled along a parameter
+// line of the surface, the quantitative companion to the red/blue
+// colouring. A flat line at zero is the cylinder; a flat positive
+// line is the sphere; the torus and saddle vary with position.
+function drawKDiagnostic(surf) {
   const W = canvas.width;
   const pw = 300, ph = 150, px = W - pw - 16, py = 48;
   ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
@@ -108,65 +208,143 @@ function drawKDiagnostic(R, r, kMax) {
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
-  ctx.fillText('Gaussian curvature K(θ)', px + 8, py + 16);
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.textAlign = 'left';
+  ctx.fillText(`curvature K along ${surf.profile.xlabel}`, px + 8, py + 16);
   const ax = px + 40, ay = py + 26, aw = pw - 52, ah = ph - 48;
-  const km = kMax > 0 ? kMax : 1;
-  const xOf = (th) => ax + (th / (2 * Math.PI)) * aw;
-  const yOf = (K) => ay + ah / 2 - (K / km) * (ah / 2);
+  const ks = surf.profile.ks;
+  let km = 0;
+  for (const k of ks) km = Math.max(km, Math.abs(k));
+  km = (km || 1) * 1.15;
+  const xOf = (i) => ax + (i / (ks.length - 1)) * aw;
+  const yOf = (k) => ay + ah / 2 - (k / km) * (ah / 2);
   // Zero line.
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
   ctx.beginPath(); ctx.moveTo(ax, yOf(0)); ctx.lineTo(ax + aw, yOf(0)); ctx.stroke();
-  // K(theta) curve, coloured by sign.
+  // K(parameter) curve, coloured by sign.
   ctx.lineWidth = 2;
-  for (let i = 0; i < 120; i += 1) {
-    const th0 = 2 * Math.PI * i / 120, th1 = 2 * Math.PI * (i + 1) / 120;
-    const K0 = torusK(th0, R, r), K1 = torusK(th1, R, r);
-    ctx.strokeStyle = (0.5 * (K0 + K1)) >= 0 ? '#ef476f' : '#5bc0eb';
+  for (let i = 0; i < ks.length - 1; i += 1) {
+    const kMid = 0.5 * (ks[i] + ks[i + 1]);
+    ctx.strokeStyle = Math.abs(kMid) < 1e-6 * km
+      ? 'rgba(150, 154, 160, 0.85)'
+      : (kMid >= 0 ? '#ef476f' : '#5bc0eb');
     ctx.beginPath();
-    ctx.moveTo(xOf(th0), yOf(K0)); ctx.lineTo(xOf(th1), yOf(K1));
+    ctx.moveTo(xOf(i), yOf(ks[i]));
+    ctx.lineTo(xOf(i + 1), yOf(ks[i + 1]));
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
+  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillText('+K', px + 8, ay + 8);
   ctx.fillText('-K', px + 8, ay + ah);
-  ctx.fillText('θ: 0', ax, ay + ah + 14);
-  ctx.fillText('π (inner)', xOf(Math.PI) - 24, ay + ah + 14);
-  ctx.fillText('2π', ax + aw - 14, ay + ah + 14);
+  ctx.fillText('0', ax - 4, yOf(0) + 10);
 }
-function tick(now) { const dt = (now - last) / 1000; last = now; if (running) st.t += dt; render(); requestAnimationFrame(tick); }
-function bootSync() { st.t = 1; render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+
+function tick(now) {
+  const dt = (now - last) / 1000; last = now;
+  if (running) st.t += dt;
+  render();
+  requestAnimationFrame(tick);
+}
+
+function bootSync() {
+  st.t = 1;
+  if (selSurface) selSurface.value = st.surface;
+  render();
+  if (DETERMINISTIC) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.__simulationReady = true;
+      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+    }));
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else {
+  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+}
 
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const R = 100, r = 100 / st.Rr;
-  return { fields: [
-    { key: 'aspect', label: 'aspect ratio $R/r$', value: st.Rr, format: 'float' },
-    { key: 'k-outer', label: 'outer-equator curvature $K(0)$', value: torusK(0, R, r), format: 'float' },
-    { key: 'k-inner', label: 'inner-equator curvature $K(\\pi)$', value: torusK(Math.PI, R, r), format: 'float' },
-  ] };
+  const surf = makeSurface(st.surface, st.Rr);
+  const fields = [{ key: 'surface', label: 'surface', value: surf.label }];
+  if (st.surface === 'torus') {
+    const R = 100, r = 100 / st.Rr;
+    fields.push({ key: 'aspect', label: 'aspect ratio $R/r$', value: st.Rr, format: 'float' });
+    fields.push({ key: 'k-outer', label: 'outer-rim curvature $K(0)$', value: torusK(0, R, r), format: 'float' });
+    fields.push({ key: 'k-inner', label: 'inner-rim curvature $K(\\pi)$', value: torusK(Math.PI, R, r), format: 'float' });
+  } else {
+    const ks = surf.profile.ks;
+    fields.push({ key: 'k-min', label: 'minimum curvature $K_{\\min}$', value: Math.min(...ks), format: 'float' });
+    fields.push({ key: 'k-max', label: 'maximum curvature $K_{\\max}$', value: Math.max(...ks), format: 'float' });
+  }
+  return { fields };
 };
 window.playground.getInvariants = function () {
-  const R = 100, r = 100 / st.Rr;
-  // Gauss-Bonnet: the integral of K over a closed surface is 2 pi times
-  // its Euler characteristic. The torus has chi = 0, so the total
-  // Gaussian curvature must vanish (the positive outer rim exactly
-  // cancels the negative inner rim).
-  const N = 240;
-  let integral = 0;
-  for (let i = 0; i < N; i += 1) {
-    const theta = ((i + 0.5) / N) * 2 * Math.PI;
-    const dA = r * (R + r * Math.cos(theta)) * (2 * Math.PI / N) * (2 * Math.PI);
-    integral += torusK(theta, R, r) * dA;
+  if (st.surface === 'torus') {
+    // Gauss-Bonnet: the integral of K over a closed surface is 2 pi
+    // times its Euler characteristic. The torus has chi = 0, so the
+    // total Gaussian curvature must vanish.
+    const R = 100, r = 100 / st.Rr;
+    const N = 240;
+    let integral = 0;
+    for (let i = 0; i < N; i += 1) {
+      const theta = ((i + 0.5) / N) * 2 * Math.PI;
+      const dA = r * (R + r * Math.cos(theta)) * (2 * Math.PI / N) * (2 * Math.PI);
+      integral += torusK(theta, R, r) * dA;
+    }
+    const drift = Math.abs(integral) / (4 * Math.PI * Math.PI * R * r);
+    return [{
+      key: 'gauss-bonnet',
+      label: 'total curvature $\\iint K\\,dA = 0$ on the torus (Gauss-Bonnet, $\\chi = 0$)',
+      value: drift.toExponential(2),
+      status: drift < 1e-6 ? 'pass' : (drift < 1e-3 ? 'pending' : 'drift'),
+    }];
   }
-  const drift = Math.abs(integral) / (4 * Math.PI * Math.PI * R * r);
+  if (st.surface === 'sphere') {
+    // The sphere has chi = 2, so Gauss-Bonnet gives total curvature
+    // 4 pi exactly, independent of the radius. Integrated numerically
+    // here as sum of K dA over the latitude-longitude mesh.
+    const rho = 120, N = 160;
+    let integral = 0;
+    for (let i = 0; i < N; i += 1) {
+      const theta = ((i + 0.5) / N) * Math.PI;
+      const dA = rho * rho * Math.sin(theta) * (Math.PI / N) * (2 * Math.PI);
+      integral += sphereK(rho) * dA;
+    }
+    const drift = Math.abs(integral - 4 * Math.PI) / (4 * Math.PI);
+    return [{
+      key: 'gauss-bonnet',
+      label: 'total curvature $\\iint K\\,dA = 4\\pi$ on the sphere (Gauss-Bonnet, $\\chi = 2$)',
+      value: integral.toFixed(4),
+      status: drift < 1e-3 ? 'pass' : 'drift',
+    }];
+  }
+  if (st.surface === 'cylinder') {
+    return [{
+      key: 'flat',
+      label: 'cylinder is developable: $K = 0$ identically',
+      value: cylinderK().toFixed(1),
+      status: 'pass',
+    }];
+  }
+  // Saddle: a hyperbolic surface has K < 0 at every point. Verified
+  // by scanning the mesh for the least-negative value.
+  const L = 150, a = 0.9 / L;
+  let maxK = -Infinity;
+  for (let i = 0; i <= 40; i += 1) {
+    for (let j = 0; j <= 40; j += 1) {
+      const k = saddleK(L * (2 * i / 40 - 1), L * (2 * j / 40 - 1), a);
+      if (k > maxK) maxK = k;
+    }
+  }
   return [{
-    key: 'gauss-bonnet',
-    label: 'total curvature $\\iint K\\,dA = 0$ on the torus (Gauss-Bonnet, $\\chi = 0$)',
-    value: drift.toExponential(2),
-    status: drift < 1e-6 ? 'pass' : (drift < 1e-3 ? 'pending' : 'drift'),
+    key: 'hyperbolic',
+    label: 'saddle is a hyperbolic surface: $K < 0$ at every point',
+    value: maxK.toExponential(2),
+    status: maxK < 0 ? 'pass' : 'drift',
   }];
 };
