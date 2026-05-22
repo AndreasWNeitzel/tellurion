@@ -109,14 +109,14 @@ function drawLobe() {
   const glow = ctx.createRadialGradient(o.sx, o.sy, 1, o.sx, o.sy, 14);
   glow.addColorStop(0, '#ffffff'); glow.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(o.sx, o.sy, 14, 0, 2 * Math.PI); ctx.fill();
-  const tail = proj(-0.55, 0, 0), tip = proj(2.45, 0, 0);
+  const tail = proj(-0.55, 0, 0), tip = proj(1.45, 0, 0);
   ctx.strokeStyle = '#ef476f'; ctx.fillStyle = '#ef476f'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(tail.sx, tail.sy); ctx.lineTo(tip.sx, tip.sy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(tip.sx, tip.sy);
   ctx.lineTo(tip.sx - 11, tip.sy - 6); ctx.lineTo(tip.sx - 11, tip.sy + 6);
   ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('beta (velocity)', tip.sx + 8, tip.sy + 4);
+  ctx.fillText('beta (velocity)', tail.sx, tail.sy + 18);
 }
 
 function drawRestInset() {
