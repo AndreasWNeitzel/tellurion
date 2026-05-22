@@ -289,33 +289,30 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const hw = halfWidthHalfDepth(st.wavelengths, st.profile, st.depth);
+  return {
+    fields: [
+      { key: 'vsini', label: 'v sin i (km/s)', value: st.vsiniKmS, format: 'float' },
+      { key: 'sigma', label: 'Line sigma', value: st.sigma, format: 'float' },
+      { key: 'depth', label: 'Line depth', value: st.depth, format: 'float' },
+      { key: 'hw-hd', label: 'FWHM (wavelength)', value: hw, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!st.profile || st.profile.length === 0) return [];
+  const min_profile = Math.min(...st.profile);
+  const max_profile = Math.max(...st.profile);
+  const in_bounds = min_profile >= 0 && max_profile <= 1.5;
+  return [
+    {
+      key: 'profile-bounds',
+      label: 'Profile in [0, 1.5]',
+      value: in_bounds ? 'pass' : `[${min_profile.toFixed(3)}, ${max_profile.toFixed(3)}]`,
+      status: in_bounds ? 'pass' : 'drift'
+    }
+  ];
+};
