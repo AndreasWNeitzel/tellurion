@@ -273,29 +273,17 @@ if (document.readyState === 'loading') {
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const theta1 = rayleighResolution({ lambda: state.lambda, D: state.D });
+  return {
+    fields: [
+      { key: 'wavelength', label: 'wavelength $\\lambda$ (nm)', value: state.lambda * 1e9, format: 'float' },
+      { key: 'aperture', label: 'aperture $D$ (m)', value: state.D, format: 'float' },
+      { key: 'rayleigh-angle', label: 'Rayleigh angle $\\theta_1$ (arcsec)', value: theta1 * 206265, format: 'float' },
+      { key: 'strehl', label: 'Strehl ratio', value: strehRatio({ sigmaWaves: state.sigmaWaves }), format: 'percent' },
+    ],
   };
-}
+};
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () {
     const theta1 = rayleighResolution({ lambda: state.lambda, D: state.D });
@@ -304,7 +292,7 @@ if (!window.playground.getInvariants) {
     return [
       {
         key: 'theta1-positive',
-        label: 'Rayleigh limit $\theta_1 > 0$',
+        label: 'Rayleigh limit $\\theta_1 > 0$',
         value: theta1.toExponential(2),
         status: theta1 > 0 ? 'pass' : 'drift',
       },
