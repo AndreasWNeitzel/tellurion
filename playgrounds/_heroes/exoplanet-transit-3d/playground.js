@@ -226,7 +226,7 @@ function drawPlot() {
     }
     pctx.stroke();
     pctx.fillStyle = 'rgba(255,255,255,0.6)'; pctx.textAlign = 'left';
-    pctx.fillText('reflected light + secondary eclipse (zoom)', ix + 2, iy - 3);
+    pctx.fillText('reflected light (zoom)', ix + 2, iy - 3);
   }
 }
 
