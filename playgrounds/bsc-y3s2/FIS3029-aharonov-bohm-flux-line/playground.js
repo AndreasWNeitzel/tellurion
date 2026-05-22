@@ -196,8 +196,21 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'flux', label: 'Flux (phi0)', value: state.flux || 0, format: 'float' }, { key: 'phase', label: 'Phase (rad)', value: state.phase || 0, format: 'float' }, { key: 'slits', label: 'Slit count', value: state.slits || 2, format: 'float' }, { key: 'intensity', label: 'Max intensity', value: 1, format: 'float' } ] }; };
-window.playground.getInvariants = function () { const f = state.flux || 0; return [ { key: 'flux-nonneg', label: 'Flux >= 0', value: f >= 0 ? 'pass' : 'fail', status: f >= 0 ? 'pass' : 'drift' }, { key: 'phase-periodic', label: 'Phase in [0,2pi]', value: (state.phase || 0) >= 0 ? 'pass' : 'pending', status: 'pending' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const Imax = intensity(st.phi);
+  return {
+    fields: [
+      { key: 'flux-phase', label: 'AB phase $\\Phi/\\Phi_0$', value: st.phi, format: 'float' },
+      { key: 'time', label: 'Time (a.u.)', value: st.t, format: 'float' },
+      { key: 'intensity-max', label: '$I_{max}$ (a.u.)', value: Imax, format: 'float' },
+      { key: 'wavenumber', label: 'Wavenumber $k$ (rad/px)', value: K, format: 'float' }
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const phi = st.phi % (2 * Math.PI);
+  const Imax = intensity(st.phi);
+  return [
+    { key: 'phase-periodic', label: 'Phase mod $2\\pi$', value: phi.toFixed(3), status: 'pass' },
+    { key: 'intensity-nonneg', label: '$I \\geq 0$', value: Imax >= 0 ? 'yes' : 'no', status: Imax >= 0 ? 'pass' : 'drift' }
+  ];
+};
