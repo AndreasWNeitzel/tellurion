@@ -29,10 +29,11 @@ const rStu = document.getElementById('readout-stu');
 const slE = document.getElementById('slider-e'), vE = document.getElementById('value-e');
 const slT = document.getElementById('slider-th'), vT = document.getElementById('value-th');
 const selO = document.getElementById('select-order');
+const selCh = document.getElementById('select-channel'), vCh = document.getElementById('value-channel');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const DEF_E = 100, DEF_T = 60, DEF_O = 'tree';
-const st = { eRaw: DEF_E, thDeg: DEF_T, order: DEF_O, running: !prefersReducedMotion(), ph: 0 };
+const DEF_E = 100, DEF_T = 60, DEF_O = 'tree', DEF_CH = 's-only';
+const st = { eRaw: DEF_E, thDeg: DEF_T, order: DEF_O, channel: DEF_CH, running: !prefersReducedMotion(), ph: 0 };
 const sqrtS = () => st.eRaw / 100;                       // GeV
 const cosTh = () => Math.cos(st.thDeg * Math.PI / 180);
 const nVert = () => (st.order === 'loop' ? 4 : 2);
@@ -86,51 +87,115 @@ function pulse(x0, y0, x1, y1, p, col) {
 
 function drawDiagram(x, y, w, h) {
   const V = nVert();
-  panel(x, y, w, h, `Feynman diagram: e+ e- -> mu+ mu-  (s-channel, ${V} vertices)`);
+  let title, isT = st.channel === 't-channel';
+  if (st.channel === 'both') {
+    title = `Feynman diagrams: s and t channels, ${V} vertices each`;
+  } else if (isT) {
+    title = `Feynman diagram: Bhabha (t-channel, e+ e- -> e+ e-, ${V} vertices)`;
+  } else {
+    title = `Feynman diagram: e+ e- -> mu+ mu-  (s-channel, ${V} vertices)`;
+  }
+  panel(x, y, w, h, title);
+
   const cy = y + h / 2 + 6;
   const xeIn = x + 60, xV1 = x + w * 0.34, xV2 = x + w * 0.66, xmOut = x + w - 60;
   const dy = 64;
   const cE = '#6fb4ff', cMU = '#ff9d6f', cG = '#ffd166', cL = '#c08bff';
   const fl = st.ph;
-  // incoming e- (lower) and e+ (upper) into V1
-  fermion(xeIn, cy + dy, xV1, cy, cE, 'e-', xeIn - 26, cy + dy + 4);
-  fermion(xeIn, cy - dy, xV1, cy, cE, 'e+', xeIn - 26, cy - dy);
-  pulse(xeIn, cy + dy, xV1, cy, fl, cE);
-  pulse(xeIn, cy - dy, xV1, cy, fl, cE);
-  // outgoing mu- (lower) and mu+ (upper) from V2
-  fermion(xV2, cy, xmOut, cy + dy, cMU, 'mu-', xmOut + 6, cy + dy + 4);
-  fermion(xV2, cy, xmOut, cy - dy, cMU, 'mu+', xmOut + 6, cy - dy);
-  pulse(xV2, cy, xmOut, cy + dy, fl, cMU);
-  pulse(xV2, cy, xmOut, cy - dy, fl, cMU);
-  if (V === 2) {
-    photon(xV1, xV2, cy, cG);
-    ctx.fillStyle = cG; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('gamma*  (q^2 = s)', (xV1 + xV2) / 2 - 44, cy - 16);
+
+  if (st.channel === 'both') {
+    // Draw both diagrams side by side, split vertically
+    const sep = w / 2 - 8;
+    // S-channel (left)
+    drawDiagramChannel('s', x + 2, cy, sep - 4, V, fl, cE, cMU, cG, cL);
+    // T-channel (right)
+    drawDiagramChannel('t', x + sep + 6, cy, sep - 4, V, fl, cE, cMU, cG, cL);
   } else {
-    // photon -> fermion loop (vacuum polarisation) -> photon
-    const xa = xV1 + (xV2 - xV1) * 0.30, xb = xV1 + (xV2 - xV1) * 0.70;
-    photon(xV1, xa, cy, cG); photon(xb, xV2, cy, cG);
-    const lcx = (xa + xb) / 2, lr = (xb - xa) / 2;
-    ctx.strokeStyle = cL; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.ellipse(lcx, cy, lr, 22, 0, 0, 2 * Math.PI); ctx.stroke();
-    const la = fl * 2 * Math.PI;
-    ctx.fillStyle = cL;
-    ctx.beginPath(); ctx.arc(lcx + lr * Math.cos(la), cy + 22 * Math.sin(la), 3.5, 0, 2 * Math.PI); ctx.fill();
-    ctx.beginPath(); ctx.arc(lcx + lr * Math.cos(la + Math.PI), cy + 22 * Math.sin(la + Math.PI), 3.5, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = cL; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('e+e- loop', lcx - 26, cy - 30);
-    for (const xv of [xa, xb]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 3, 0, 2 * Math.PI); ctx.fill(); }
+    // Single diagram
+    const finalCol = isT ? cE : cMU;
+    const finalLabel = isT ? 'e' : 'mu';
+
+    // incoming e- (lower) and e+ (upper) into V1
+    fermion(xeIn, cy + dy, xV1, cy, cE, 'e-', xeIn - 26, cy + dy + 4);
+    fermion(xeIn, cy - dy, xV1, cy, cE, 'e+', xeIn - 26, cy - dy);
+    pulse(xeIn, cy + dy, xV1, cy, fl, cE);
+    pulse(xeIn, cy - dy, xV1, cy, fl, cE);
+    // outgoing (lower and upper) from V2
+    fermion(xV2, cy, xmOut, cy + dy, finalCol, finalLabel + '-', xmOut + 6, cy + dy + 4);
+    fermion(xV2, cy, xmOut, cy - dy, finalCol, finalLabel + '+', xmOut + 6, cy - dy);
+    pulse(xV2, cy, xmOut, cy + dy, fl, finalCol);
+    pulse(xV2, cy, xmOut, cy - dy, fl, finalCol);
+
+    if (V === 2) {
+      if (isT) {
+        // t-channel: electron line crosses
+        fermion(xeIn, cy - dy, xV2, cy + dy, cE, '', 0, 0);
+        fermion(xeIn, cy + dy, xV1, cy, cE, '', 0, 0);
+        photon(xV1, xV2, cy, cG);
+        ctx.fillStyle = cG; ctx.font = fontString(canvas, 'caption', 'mono');
+        ctx.fillText('gamma* (q^2 = t, spacelike)', (xV1 + xV2) / 2 - 58, cy - 16);
+      } else {
+        // s-channel: standard diagram
+        photon(xV1, xV2, cy, cG);
+        ctx.fillStyle = cG; ctx.font = fontString(canvas, 'caption', 'mono');
+        ctx.fillText('gamma*  (q^2 = s)', (xV1 + xV2) / 2 - 44, cy - 16);
+      }
+    } else {
+      // photon -> fermion loop (vacuum polarisation) -> photon
+      const xa = xV1 + (xV2 - xV1) * 0.30, xb = xV1 + (xV2 - xV1) * 0.70;
+      photon(xV1, xa, cy, cG); photon(xb, xV2, cy, cG);
+      const lcx = (xa + xb) / 2, lr = (xb - xa) / 2;
+      ctx.strokeStyle = cL; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(lcx, cy, lr, 22, 0, 0, 2 * Math.PI); ctx.stroke();
+      const la = fl * 2 * Math.PI;
+      ctx.fillStyle = cL;
+      ctx.beginPath(); ctx.arc(lcx + lr * Math.cos(la), cy + 22 * Math.sin(la), 3.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(lcx + lr * Math.cos(la + Math.PI), cy + 22 * Math.sin(la + Math.PI), 3.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = cL; ctx.font = fontString(canvas, 'caption', 'mono');
+      ctx.fillText('e+e- loop', lcx - 26, cy - 30);
+      for (const xv of [xa, xb]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 3, 0, 2 * Math.PI); ctx.fill(); }
+    }
+
+    // vertices
+    for (const xv of [xV1, xV2]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 4, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
+    ctx.fillText('vertex (factor e)', xV1 - 30, cy + 26);
   }
-  // vertices
-  for (const xv of [xV1, xV2]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 4, 0, 2 * Math.PI); ctx.fill(); }
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('vertex (factor e)', xV1 - 30, cy + 26);
+
   // amplitude / |M|^2 alpha-power tags
   const aE = amplitudeAlphaExponent(V), mP = matrixElementAlphaPower(V);
   ctx.font = fontString(canvas, 'body', 'mono'); ctx.fillStyle = '#9be8b0';
   ctx.fillText(`M  ~  alpha^${aE}` + (V === 2 ? '  (= alpha)' : ''), x + 16, y + h - 36);
   ctx.fillStyle = '#ffd166';
   ctx.fillText(`|M|^2 ~ sigma ~ alpha^${mP}` + (V === 4 ? '   (suppressed by alpha^2 ~ 1/137^2 vs tree)' : '   (tree level)'), x + 16, y + h - 14);
+}
+
+function drawDiagramChannel(ch, x, cy, w, V, fl, cE, cMU, cG, cL) {
+  const xeIn = x + 16, xV1 = x + w * 0.35, xV2 = x + w * 0.65, xmOut = x + w - 16;
+  const dy = 48;
+  const isT = ch === 't';
+
+  if (isT) {
+    // t-channel: electrons cross
+    fermion(xeIn, cy + dy, xV1, cy, cE, 'e-', xeIn - 20, cy + dy + 4);
+    fermion(xeIn, cy - dy, xV2, cy + dy, cE, 'e+', xeIn - 20, cy - dy);
+    fermion(xV1, cy, xmOut, cy - dy, cE, 'e+', xmOut - 4, cy - dy - 2);
+    fermion(xV2, cy + dy, xmOut, cy + dy, cE, 'e-', xmOut - 4, cy + dy - 2);
+    pulse(xeIn, cy + dy, xV1, cy, fl, cE);
+    pulse(xV1, cy, xmOut, cy - dy, fl, cE);
+  } else {
+    // s-channel: standard
+    fermion(xeIn, cy + dy, xV1, cy, cE, 'e-', xeIn - 20, cy + dy + 4);
+    fermion(xeIn, cy - dy, xV1, cy, cE, 'e+', xeIn - 20, cy - dy);
+    fermion(xV2, cy, xmOut, cy + dy, cMU, 'mu-', xmOut - 4, cy + dy + 4);
+    fermion(xV2, cy, xmOut, cy - dy, cMU, 'mu+', xmOut - 4, cy - dy);
+    pulse(xeIn, cy + dy, xV1, cy, fl, cE);
+    pulse(xV2, cy, xmOut, cy + dy, fl, cMU);
+  }
+  photon(xV1, xV2, cy, cG);
+  for (const xv of [xV1, xV2]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xv, cy, 3, 0, 2 * Math.PI); ctx.fill(); }
+  ctx.fillStyle = 'rgba(200,200,200,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.fillText(isT ? 't-ch' : 's-ch', x + w / 2 - 16, cy + 60);
 }
 
 function drawSigma(x, y, w, h) {
@@ -246,13 +311,18 @@ function tick() {
   requestAnimationFrame(tick);
 }
 
-function syncLabels() { vE.textContent = sqrtS().toFixed(2); vT.textContent = String(st.thDeg); }
+function syncLabels() {
+  vE.textContent = sqrtS().toFixed(2);
+  vT.textContent = String(st.thDeg);
+  vCh.textContent = st.channel === 'both' ? 'both' : (st.channel === 't-channel' ? 't' : 's');
+}
 slE.addEventListener('input', () => { st.eRaw = parseInt(slE.value, 10); syncLabels(); draw(); });
 slT.addEventListener('input', () => { st.thDeg = parseInt(slT.value, 10); syncLabels(); draw(); });
 selO.addEventListener('change', () => { st.order = selO.value; draw(); });
+selCh.addEventListener('change', () => { st.channel = selCh.value; syncLabels(); draw(); });
 bR.addEventListener('click', () => {
-  st.eRaw = DEF_E; st.thDeg = DEF_T; st.order = DEF_O; st.ph = 0; st.running = true;
-  slE.value = String(DEF_E); slT.value = String(DEF_T); selO.value = DEF_O;
+  st.eRaw = DEF_E; st.thDeg = DEF_T; st.order = DEF_O; st.channel = DEF_CH; st.ph = 0; st.running = true;
+  slE.value = String(DEF_E); slT.value = String(DEF_T); selO.value = DEF_O; selCh.value = DEF_CH;
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); syncLabels(); draw();
 });
 bP.addEventListener('click', () => {
@@ -261,13 +331,14 @@ bP.addEventListener('click', () => {
   bP.setAttribute('aria-pressed', String(!st.running));
 });
 
-function getState() { return { e: String(st.eRaw), th: String(st.thDeg), order: st.order }; }
+function getState() { return { e: String(st.eRaw), th: String(st.thDeg), order: st.order, channel: st.channel }; }
 function restoreState() {
   const s = parseUrlState();
   if (!s) return;
   if (s.e) { st.eRaw = parseInt(s.e, 10); slE.value = s.e; }
   if (s.th) { st.thDeg = parseInt(s.th, 10); slT.value = s.th; }
   if (s.order) { st.order = s.order; selO.value = s.order; }
+  if (s.channel) { st.channel = s.channel; selCh.value = s.channel; }
 }
 
 function boot() {

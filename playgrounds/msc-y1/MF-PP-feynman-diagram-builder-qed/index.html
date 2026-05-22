@@ -56,6 +56,7 @@
     <div class="row"><span class="label">sqrt(s) (GeV)</span><input aria-label="centre-of-mass energy, x100" type="range" id="slider-e" min="22" max="2000" step="2" value="100"><span class="value" id="value-e">1.00</span></div>
     <div class="row"><span class="label">scattering angle (deg)</span><input aria-label="scattering angle, degrees" type="range" id="slider-th" min="5" max="175" step="5" value="60"><span class="value" id="value-th">60</span></div>
     <div class="row"><span class="label">diagram order</span><select aria-label="diagram order" id="select-order" style="grid-column: span 2;"><option value="tree">tree (2 vertices, alpha^2)</option><option value="loop">one-loop (4 vertices, alpha^4)</option></select></div>
+    <div class="row"><span class="label">show channels</span><select aria-label="channel visualization" id="select-channel" style="grid-column: span 2;"><option value="s-only">s-channel only</option><option value="t-channel">t-channel (Bhabha)</option><option value="both">both s and t (with interference)</option></select><span class="value" id="value-channel">s</span></div>
     <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
   </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
