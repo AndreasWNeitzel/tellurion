@@ -242,33 +242,34 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const J = action(st.pot, Epar(), st.w0);
+  const E = Epar();
+  const w = omegaOfE(st.pot, E, st.w0);
+  return {
+    fields: [
+      { key: 'potential', label: 'Potential', value: st.pot, format: undefined },
+      { key: 'energy', label: 'Energy', value: E, format: 'float' },
+      { key: 'frequency', label: 'Frequency omega(E)', value: w, format: 'float' },
+      { key: 'action', label: 'Action J', value: J, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const J = action(st.pot, Epar(), st.w0);
+  const dJ = jHist.length > 1 ? Math.abs(J - jHist[0]) : 0;
+  const ramp_speed = Math.abs(st.ramp);
+  const is_adiabatic = ramp_speed < 0.1;
+  const acceptable_drift = is_adiabatic ? 0.05 * J : 0.3 * J;
+  const status = dJ < acceptable_drift ? 'pass' : (ramp_speed > 0 ? 'pending' : 'drift');
+  return [
+    {
+      key: 'action-conservation',
+      label: 'Action conserved (adiabatic invariant)',
+      value: status === 'pass' ? 'pass' : (dJ / Math.max(J, 1e-6)).toExponential(2),
+      status: status
+    }
+  ];
+};
