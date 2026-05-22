@@ -13,6 +13,8 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   use: {
     headless: true,
+    // bypassCSP: waitForFunction evaluates in-page, which the playground CSP would block.
+    bypassCSP: true,
     viewport: { width: 800, height: 600 },
     deviceScaleFactor: 2,
     actionTimeout: 30_000,
