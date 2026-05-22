@@ -208,33 +208,39 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const r_em = state.rRatio * HORIZON;
+  const f = redshiftFactor(r_em);
+  const z = redshift_z(r_em);
+  const cr = clockRate(r_em);
+  return {
+    fields: [
+      { key: 'radius-ratio', label: 'Radius (r_em / 2M)', value: state.rRatio, format: 'float' },
+      { key: 'redshift-factor', label: 'Redshift factor f_obs/f_em', value: f, format: 'float' },
+      { key: 'redshift-z', label: 'Redshift parameter z', value: z === Infinity ? 'inf' : z, format: z === Infinity ? undefined : 'float' },
+      { key: 'clock-rate', label: 'Clock rate (proper/coordinate)', value: cr, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const r_em = state.rRatio * HORIZON;
+  if (r_em <= HORIZON) {
+    return [
+      { key: 'schwarzschild-bound', label: 'Outside event horizon', value: 'breach', status: 'drift' }
+    ];
+  }
+  const f = redshiftFactor(r_em);
+  const cr = clockRate(r_em);
+  const f_expected = Math.sqrt(1 - 2 * 1.0 / r_em);
+  const f_drift = Math.abs(f - f_expected);
+  return [
+    {
+      key: 'redshift-consistency',
+      label: 'f = sqrt(1 - 2M/r)',
+      value: f_drift > 1e-10 ? f_drift.toExponential(2) : 'pass',
+      status: f_drift > 1e-10 ? 'drift' : 'pass'
+    }
+  ];
+};
