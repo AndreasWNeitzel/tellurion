@@ -211,33 +211,30 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const curve = shape === 'blob' ? blob(0, 0, a, b, 0.3, 3) : ellipse(0, 0, a, b);
+  const f = flux(curve, cx, cy, Q);
+  const inside = (shape === 'blob') ? insideEllipse(cx, cy, 0, 0, a - 0.3, b - 0.3) : insideEllipse(cx, cy, 0, 0, a, b);
+  const expected = inside ? Q / EPS0 : 0;
+  return {
+    fields: [
+      { key: 'flux', label: 'Flux (C/F)', value: f, format: 'float' },
+      { key: 'charge-x', label: 'Charge x', value: cx, format: 'float' },
+      { key: 'semi-a', label: 'Semi-axis a', value: a, format: 'float' },
+      { key: 'semi-b', label: 'Semi-axis b', value: b, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const curve = shape === 'blob' ? blob(0, 0, a, b, 0.3, 3) : ellipse(0, 0, a, b);
+  const f = flux(curve, cx, cy, Q);
+  const inside = (shape === 'blob') ? insideEllipse(cx, cy, 0, 0, a - 0.3, b - 0.3) : insideEllipse(cx, cy, 0, 0, a, b);
+  const expected = inside ? Q / EPS0 : 0;
+  const err = Math.abs(f - expected);
+  const status = err / Math.max(Math.abs(expected), 1e-15) < 0.01 ? 'pass' : 'drift';
+  return [
+    { key: 'gauss-law', label: 'Gauss law flux check', value: (expected > 0 ? f / expected : (err < 1e-12 ? '1' : '0')).toFixed(4), status }
+  ];
+};
