@@ -267,26 +267,34 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const Omega_p = (M * G * R) / (I_s * state.omega_s);
+  const Omega_p = precessionRate(state.omega_s);
   const T_p = (2 * Math.PI) / Math.max(1e-10, Omega_p);
   return {
     fields: [
       { key: 'spin-rate', label: 'Spin rate (rad/s)', value: state.omega_s, format: 'float' },
-      { key: 'nutation', label: 'Nutation angle (rad)', value: state.theta0, format: 'float' },
+      { key: 'tilt-angle', label: 'Tilt angle (rad)', value: state.theta0, format: 'float' },
       { key: 'precession-rate', label: 'Precession rate (rad/s)', value: Omega_p, format: 'float' },
       { key: 'precession-period', label: 'Precession period (s)', value: T_p, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const Omega_p = (M * G * R) / (I_s * state.omega_s);
-  const prec_positive = Omega_p > 0;
+  const Omega_p = precessionRate(state.omega_s);
+  const inv = 1 / Math.max(0.1, state.omega_s);
+  const theoretical_rate = M_TOP * G_GRAV * R_COM / (I_SPIN * state.omega_s);
+  const matches = Math.abs(Omega_p - theoretical_rate) < 1e-6;
   return [
     {
-      key: 'precession-sign',
-      label: 'Omega_p > 0',
-      value: prec_positive ? 'pass' : `Omega_p=${Omega_p.toFixed(4)}`,
-      status: prec_positive ? 'pass' : 'drift'
+      key: 'precession-formula',
+      label: '$\\Omega_p = Mgr / (I_s \\omega_s)$',
+      value: Omega_p > 0 ? 'pass' : `Omega_p=${Omega_p.toFixed(6)}`,
+      status: Omega_p > 0 ? 'pass' : 'drift'
+    },
+    {
+      key: 'inverse-spin-rate',
+      label: '$\\Omega_p \\propto 1/\\omega_s$',
+      value: `ratio=${(Omega_p / Math.max(1e-10, theoretical_rate)).toFixed(4)}`,
+      status: matches ? 'pass' : 'pending'
     }
   ];
 };
