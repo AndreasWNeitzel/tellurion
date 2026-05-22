@@ -130,7 +130,7 @@ function drawZB(x, y, w, h) {
 }
 
 function drawScaling(x, y, w, h) {
-  panel(x, y, w, h, 'fine-structure splitting vs Z (log-log, slope 4: proportional to Z^4)');
+  panel(x, y, w, h, 'fine-structure splitting vs Z (proportional to Z^4)');
   const x0 = x + 34, x1 = x + w - 14, y0 = y + 28, y1 = y + h - 24;
   const zMax = 118;
   const xs = [], ys = [];
