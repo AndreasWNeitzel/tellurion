@@ -353,29 +353,17 @@ if (CAPTURE_NAME) {
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const RM = rotationMeasure(st.B_uG * 1e-6, st.n_e, st.L_pc);
+  return {
+    fields: [
+      { key: 'b-field', label: 'magnetic field $B$ ($\\mu$G)', value: st.B_uG, format: 'float' },
+      { key: 'density', label: 'electron density $n_e$', value: st.n_e, format: 'float' },
+      { key: 'rotation-measure', label: 'rotation measure RM', value: RM, format: 'float' },
+      { key: 'rotation-angle', label: 'rotation angle (deg)', value: rotationAngleDeg(RM, lambda_m()), format: 'float' },
+    ],
   };
-}
+};
 // Faraday rotation grows as the square of the wavelength,
 // delta-chi = RM * lambda^2, so doubling the wavelength quadruples
 // the rotation angle. That lambda^2 scaling is the invariant.
