@@ -318,8 +318,34 @@ window.__physicsCheck = async () => {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'primary-energy', label: 'Primary energy (eV)', value: state.E || 1e15, format: 'float' }, { key: 'altitude', label: 'Altitude (km)', value: state.h || 20, format: 'float' }, { key: 'particle-count', label: 'Particles', value: state.N || 0, format: 'float' }, { key: 'shower-max', label: 'Shower max (g/cm2)', value: state.X_max || 600, format: 'float' } ] }; };
-window.playground.getInvariants = function () { const N = state.N || 0; return [ { key: 'particle-count-positive', label: 'Particle count > 0', value: N > 0 ? 'pass' : 'pending', status: N > 0 ? 'pass' : 'pending' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const Xmax = X0 * Math.log(state.E0 / Ec);
+  const sMax = Math.log2(state.E0 / Ec);
+  const nLayers = Math.min(tree.length, state.steps + 1);
+  const nGround = tree.length > 0 ? tree[tree.length - 1].length : 0;
+  return { fields: [
+    { key: 'E0', label: 'primary energy $E_0$ (GeV)', value: state.E0.toExponential(2), format: 'string' },
+    { key: 'zenith', label: 'zenith angle (deg)', value: state.zenithDeg, format: 'float' },
+    { key: 'Xmax', label: 'cascade depth $X_{\max}$ (g/cm$^2$)', value: Xmax.toFixed(1), format: 'string' },
+    { key: 'n-ground', label: 'particles at ground level', value: nGround, format: 'float' },
+  ] };
+};
+window.playground.getInvariants = function () {
+  const Xmax = X0 * Math.log(state.E0 / Ec);
+  const sMax = Math.log2(state.E0 / Ec);
+  const nLayers = tree.length;
+  const nGround = tree.length > 0 ? tree[tree.length - 1].length : 0;
+  return [
+    {
+      key: 'Xmax-monotonic',
+      label: '$X_{\max}$ increases with energy',
+      value: Xmax.toFixed(1),
+      status: Xmax > 0 && state.E0 > Ec ? 'pass' : 'drift',
+    },
+    {
+      key: 'cascade-develops',
+      label: 'cascade has $\ge 1$ particle at ground',
+      value: nGround > 0 ? 'pass' : 'pending',
+      status: nGround > 0 ? 'pass' : 'pending',
+    },
+  ];
+};
