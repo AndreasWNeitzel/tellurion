@@ -276,33 +276,46 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
+// State reports the total energy, angular momentum and linear-
+// momentum magnitude. The invariants check the conserved quantities
+// of the three-body Hamiltonian: total energy and total angular
+// momentum must not drift under the symplectic flow (angular
+// momentum drift is normalised so zero-L orbits like the figure-8
+// are handled cleanly).
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+let __L0 = null, __tbRef = null;
+window.playground.getState = function () {
+  const tb = state.tb;
+  if (!tb) return { fields: [] };
+  const d = threeBodyDiagnostics(tb);
+  return {
+    fields: [
+      { key: 'energy', label: 'total energy', value: d.energy, format: 'float' },
+      { key: 'angular-momentum', label: 'angular momentum', value: d.angularMomentum, format: 'float' },
+      { key: 'momentum', label: 'total momentum |P|', value: d.momentumMag, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const tb = state.tb;
+  if (!tb) return [];
+  const d = threeBodyDiagnostics(tb);
+  if (tb !== __tbRef) { __tbRef = tb; __L0 = d.angularMomentum; }   // re-baseline on orbit change
+  const eDrift = Math.abs(d.energyDrift);
+  const lDrift = Math.abs(d.angularMomentum - __L0) / Math.max(0.1, Math.abs(__L0));
+  return [
+    {
+      key: 'energy',
+      label: 'total energy conserved (three-body Hamiltonian)',
+      value: eDrift.toExponential(2),
+      status: eDrift < 1e-3 ? 'pass' : (eDrift < 1e-2 ? 'pending' : 'drift'),
+    },
+    {
+      key: 'angular-momentum',
+      label: 'total angular momentum conserved',
+      value: lDrift.toExponential(2),
+      status: lDrift < 1e-3 ? 'pass' : (lDrift < 1e-2 ? 'pending' : 'drift'),
+    },
+  ];
+};
