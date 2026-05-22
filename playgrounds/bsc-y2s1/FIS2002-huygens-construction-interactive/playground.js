@@ -192,33 +192,28 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const k = 2 * Math.PI / st.lambda;
+  const src = st.shape === 'arc' ? sourcesArc(st.N, st.aperture, 520, 0, 0) : sourcesLine(st.N, st.aperture, 0, 0);
+  return {
+    fields: [
+      { key: 'aperture', label: 'Aperture type', value: st.shape, format: undefined },
+      { key: 'num-sources', label: 'Number of sources', value: st.N, format: undefined },
+      { key: 'wavelength', label: 'Wavelength (px)', value: st.lambda, format: 'float' },
+      { key: 'aperture-width', label: 'Aperture width (px)', value: st.aperture, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const k = 2 * Math.PI / st.lambda;
+  const src = st.shape === 'arc' ? sourcesArc(st.N, st.aperture, 520, 0, 0) : sourcesLine(st.N, st.aperture, 0, 0);
+  const amp0 = farFieldAmplitude(src, 0, k);
+  const expected = src.length;
+  const err = Math.abs(amp0 - expected) / expected;
+  const status = err < 1.0 ? 'pass' : 'pending';
+  return [
+    { key: 'on-axis', label: 'On-axis amplitude vs N', value: (amp0 / expected).toFixed(3), status }
+  ];
+};
