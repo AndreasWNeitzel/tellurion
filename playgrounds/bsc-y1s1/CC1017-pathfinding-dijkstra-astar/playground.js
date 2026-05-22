@@ -29,6 +29,7 @@ const valueSeed = document.getElementById('value-seed');
 const valueWeight = document.getElementById('value-weight');
 const btnRestart = document.getElementById('btn-restart');
 const btnPlay = document.getElementById('btn-playpause');
+const btnNextMap = document.getElementById('btn-nextmap');
 
 const W = canvas.width, H = canvas.height;
 // Higher resolution: ~3.3x the cells of the old 40x26 map, so the
@@ -48,7 +49,7 @@ const FLASH_DUR = FLASH_SWEEP + FLASH_GLOW;
 const REST_DUR = 300;          // 5 s hold so the result is readable
 
 const st = {
-  seed: 7, speed: 6, w: 1, k: 0, g: null, dj: null, as: null,
+  seed: 7, speed: 20, w: 1, k: 0, g: null, dj: null, as: null,
   phase: 'search', restT: 0, playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
@@ -237,10 +238,17 @@ btnPlay.addEventListener('click', () => {
   btnPlay.textContent = st.playing ? 'Pause' : 'Play';
   btnPlay.setAttribute('aria-pressed', String(!st.playing));
 });
+btnNextMap.addEventListener('click', nextMap);
 
 function advanceFlash(key, goal) {
   if (st.k > goal && st[key] < 0) st[key] = 0;
   else if (st[key] >= 0 && st[key] < FLASH_DUR) st[key] += 1;
+}
+function nextMap() {
+  st.seed = (st.seed % 40) + 1;
+  valueSeed.textContent = String(st.seed);
+  sliderSeed.value = String(st.seed);
+  rebuild();
 }
 function tick() {
   if (st.playing) {
@@ -254,7 +262,7 @@ function tick() {
       if (st.djFlashT >= FLASH_DUR && st.asFlashT >= FLASH_DUR) { st.phase = 'rest'; st.restT = REST_DUR; }
     } else {
       st.restT -= 1;
-      if (st.restT <= 0) { st.seed = (st.seed % 40) + 1; valueSeed.textContent = String(st.seed); sliderSeed.value = String(st.seed); rebuild(); }
+      if (st.restT <= 0) nextMap();
     }
     render();
   }
