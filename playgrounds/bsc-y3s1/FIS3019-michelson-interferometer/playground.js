@@ -137,7 +137,9 @@ function render() {
   ctx.strokeStyle = c.blue; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(xCur, yFor(Inow), 5, 0, 6.28); ctx.stroke();
   ctx.fillStyle = c.blue; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`L = ${Lcur.toFixed(1)} nm  I = ${Inow.toFixed(3)}`, xCur + 6, padT + 14);
+  const curLabel = `L = ${Lcur.toFixed(1)} nm  I = ${Inow.toFixed(3)}`;
+  const curLabelW = ctx.measureText(curLabel).width;
+  ctx.fillText(curLabel, Math.max(4, Math.min(xCur + 6, canvas.width - 4 - curLabelW)), padT + 14);
 }
 
 function updateReadout() {
