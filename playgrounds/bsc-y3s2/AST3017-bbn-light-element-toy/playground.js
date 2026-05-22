@@ -222,12 +222,28 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () {
-  return { fields: [
-    { key: 'time', label: 'cosmic time (s)', value: state.time ? state.time.toExponential(2) : '0', format: 'string' },
-    { key: 'temperature', label: 'temperature (MeV)', value: (state.T || 0).toFixed(2), format: 'float' },
-  ] };
-};
-window.playground.getInvariants = function () {
-  return [ { key: 't-positive', label: 'T > 0', value: (state.T || 0) > 0 ? 'pass' : 'drift', status: (state.T || 0) > 0 ? 'pass' : 'drift' } ];
-};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    const T = 1.0 * Math.pow(0.07, st.tau);
+    const t = 1 + st.tau * 1000;
+    return { fields: [
+      { key: 'temperature', label: 'temperature (MeV)', value: T.toFixed(2), format: 'float' },
+      { key: 'time', label: 'cosmic time (s)', value: t.toFixed(0), format: 'float' },
+      { key: 'baryon-photon-ratio', label: '$\\eta_{10}$ (baryon/photon ratio)', value: st.eta.toFixed(2), format: 'float' },
+    ] };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () {
+    try {
+      const yp = Yp(st.eta);
+      const ok = Math.abs(yp - OBS_Yp) < 0.006;
+      return [{
+        key: 'helium-fraction',
+        label: '$Y_p$ matches Planck CMB',
+        value: yp.toFixed(3),
+        status: ok ? 'pass' : (Math.abs(yp - OBS_Yp) < 0.015 ? 'pending' : 'drift'),
+      }];
+    } catch (e) { return []; }
+  };
+}
