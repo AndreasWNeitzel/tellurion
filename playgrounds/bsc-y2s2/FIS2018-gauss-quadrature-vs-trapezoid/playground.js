@@ -266,13 +266,30 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const fnKey = FN_NAMES[state.fnIdx];
+  const { fn, exact } = testFns[fnKey];
+  const eGL = Math.abs(gaussLegendre(fn, state.n) - exact);
+  const eTr = Math.abs(trapezoid(fn, state.n) - exact);
   return {
     fields: [
-      { key: 'order', label: 'Quadrature order', value: st.order || 1, format: 'float' },
-      { key: 'error', label: 'Integration error', value: st.error || 0, format: 'float' }
+      { key: 'order', label: 'Quadrature order $n$', value: state.n, format: 'float' },
+      { key: 'function', label: 'Function', value: fnKey, format: undefined },
+      { key: 'gl-error', label: 'GL error', value: eGL, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  return [{ key: 'quadrature-convergence', label: 'Higher order reduces error', value: 'pass', status: 'pass' }];
+  const fnKey = FN_NAMES[state.fnIdx];
+  const { fn, exact } = testFns[fnKey];
+  const eGL = Math.abs(gaussLegendre(fn, state.n) - exact);
+  const eTr = Math.abs(trapezoid(fn, state.n) - exact);
+  const glBetter = eGL < eTr;
+  return [
+    {
+      key: 'gl-convergence',
+      label: 'Gauss-Legendre $<$ Trapezoid error',
+      value: glBetter ? 'yes' : 'no',
+      status: glBetter ? 'pass' : 'pending'
+    }
+  ];
 };
