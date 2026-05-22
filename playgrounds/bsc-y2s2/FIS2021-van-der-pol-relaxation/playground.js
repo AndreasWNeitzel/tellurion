@@ -190,33 +190,34 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const s = state.sim;
+  const energy = s ? 0.5 * s.v * s.v + 0.5 * s.x * s.x : 0;
+  return {
+    fields: [
+      { key: 'damping-param', label: 'Damping parameter mu', value: state.mu, format: 'float' },
+      { key: 'position', label: 'Position x', value: s ? s.x : 0, format: 'float' },
+      { key: 'velocity', label: 'Velocity v', value: s ? s.v : 0, format: 'float' },
+      { key: 'time', label: 'Simulation time', value: s ? s.t : 0, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.sim) {
+    return [{ key: 'limit-cycle-attractor', label: 'Globally attracting limit cycle', value: 'pending', status: 'pending' }];
+  }
+  const s = state.sim;
+  const x_bounded = Math.abs(s.x) <= 3.0;
+  const v_bounded = Math.abs(s.v) <= 3.0;
+  const status = x_bounded && v_bounded ? 'pass' : 'drift';
+  return [
+    {
+      key: 'limit-cycle-bounded',
+      label: 'Phase trajectory bounded',
+      value: status === 'pass' ? 'pass' : `x=${s.x.toFixed(2)},v=${s.v.toFixed(2)}`,
+      status: status
+    }
+  ];
+};
