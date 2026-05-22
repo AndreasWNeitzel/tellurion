@@ -306,12 +306,35 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () {
-  return { fields: [
-    { key: 'eigenvalue', label: 'eigenvalue lambda', value: state.lambda ? state.lambda.toFixed(2) : '0', format: 'string' },
-    { key: 'mode-n', label: 'mode index', value: state.n || 0, format: 'float' },
-  ] };
-};
-window.playground.getInvariants = function () {
-  return [ { key: 'lambda-positive', label: 'lambda > 0', value: (state.lambda || 0) > 0 ? 'pass' : 'pending', status: (state.lambda || 0) > 0 ? 'pass' : 'pending' } ];
-};
+if (!window.playground.getState) {
+  window.playground.getState = function () {
+    return { fields: [
+      { key: 'mode-index', label: 'mode index $k$', value: N, format: 'float' },
+      { key: 'eigenvalue', label: 'eigenvalue $\\lambda_k$', value: sol.lambda && N > 0 ? sol.lambda[N - 1].toFixed(3) : '0', format: 'float' },
+      { key: 'node-count', label: 'interior nodes', value: sol.modes && N > 0 ? nodeCount(sol.modes[N - 1]) : 0, format: 'float' },
+    ] };
+  };
+}
+if (!window.playground.getInvariants) {
+  window.playground.getInvariants = function () {
+    try {
+      if (!sol || !sol.modes || N < 1) return [];
+      const invs = [];
+      const lam = sol.lambda[N - 1];
+      invs.push({
+        key: 'lambda-positive',
+        label: '$\\lambda_k > 0$',
+        value: lam.toFixed(3),
+        status: lam > 0 ? 'pass' : 'drift',
+      });
+      const nc = nodeCount(sol.modes[N - 1]);
+      invs.push({
+        key: 'oscillation-count',
+        label: `mode $k=${N}$ has $k-1=${N-1}$ nodes`,
+        value: nc,
+        status: nc === N - 1 ? 'pass' : 'drift',
+      });
+      return invs;
+    } catch (e) { return []; }
+  };
+}
