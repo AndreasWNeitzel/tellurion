@@ -44,6 +44,14 @@ export function interiorAngleSum(alphaRad, betaRad) {
   return Math.PI + holonomy(alphaRad, betaRad);
 }
 
+// Hyperbolic holonomy: on the hyperbolic plane (K = -1), the holonomy
+// for a triangle with the same vertex setup is the negative of the sphere:
+// Omega = (cos alpha - 1) * beta = -(1 - cos alpha) * beta.
+// This represents the defect: the angle sum falls short of pi instead of exceeding it.
+export function holonomyHyperbolic(alphaRad, betaRad) {
+  return (Math.cos(alphaRad) - 1) * betaRad;
+}
+
 // Sphere geometry helpers.
 export function sphericalToCartesian(lat, lon) {
   // lat in [-pi/2, pi/2], lon in [-pi, pi].
