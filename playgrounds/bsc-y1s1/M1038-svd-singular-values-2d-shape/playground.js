@@ -111,7 +111,9 @@ function render() {
   const panelH = canvas.height;
   drawPanel(cs, panelW * 0, 0, panelW, panelH, circle,  cs.muted,  'unit circle');
   drawPanel(cs, panelW * 1, 0, panelW, panelH, afterVT, cs.blue,   'after V^T (rotate)');
-  drawPanel(cs, panelW * 2, 0, panelW, panelH, afterS,  cs.accent, `after S (s_1=${s.s1.toFixed(2)}, s_2=${s.s2.toFixed(2)})`);
+  drawPanel(cs, panelW * 2, 0, panelW, panelH, afterS,  cs.accent, 'after S (scale)');
+  ctx.fillStyle = cs.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(`s_1=${s.s1.toFixed(2)}  s_2=${s.s2.toFixed(2)}`, panelW * 2 + 8, 30);
   drawPanel(cs, panelW * 3, 0, panelW, panelH, afterU,  cs.red,    'after U (rotate)');
 }
 
