@@ -366,33 +366,37 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const lines = filteredLines();
+  const line = lines[lineIdx];
+  if (!line) {
+    return { fields: [
+      { key: 'series', label: 'Series', value: seriesFilter, format: undefined },
+      { key: 'nmax', label: 'n max', value: nMax, format: undefined }
+    ] };
+  }
+  return {
+    fields: [
+      { key: 'series', label: 'Series', value: line.series, format: undefined },
+      { key: 'transition', label: 'Transition', value: line.nHigh + ' -> ' + line.nLow, format: undefined },
+      { key: 'wavelength', label: 'Wavelength (nm)', value: line.lambdaNm, format: 'float' },
+      { key: 'energy', label: 'Photon energy (eV)', value: -E_R / (line.nLow * line.nLow) + E_R / (line.nHigh * line.nHigh), format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const lines = filteredLines();
+  const line = lines[lineIdx];
+  if (!line) return [{ key: 'rydberg', label: 'Rydberg formula', value: 'no line', status: 'pending' }];
+  const lambda = line.lambdaNm;
+  const deltaE = -E_R / (line.nLow * line.nLow) + E_R / (line.nHigh * line.nHigh);
+  const hc = 1239.84193;
+  const lambdaCheck = hc / Math.abs(deltaE);
+  const err = Math.abs(lambda - lambdaCheck) / lambda;
+  const status = err < 1e-3 ? 'pass' : 'drift';
+  return [
+    { key: 'rydberg', label: 'Rydberg formula check', value: (err * 100).toExponential(2) + '%', status }
+  ];
+};
