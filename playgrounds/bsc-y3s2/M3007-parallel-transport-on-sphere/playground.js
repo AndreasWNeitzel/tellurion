@@ -1,7 +1,7 @@
-// Parallel-transport playground. Render a sphere or hyperbolic surface wireframe with a
+// Parallel-transport playground. Render a sphere wireframe with a
 // Beltrami triangle and the holonomy readout.
 
-import { holonomy, holonomyHyperbolic, interiorAngleSum, sphericalToCartesian } from './sim.js';
+import { holonomy, interiorAngleSum, sphericalToCartesian } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -17,34 +17,15 @@ const readoutAbc   = document.getElementById('readout-abc');
 
 const sliderAlpha = document.getElementById('slider-alpha');
 const sliderBeta  = document.getElementById('slider-beta');
-const selectSurface = document.getElementById('select-surface');
 const valueAlpha  = document.getElementById('value-alpha');
 const valueBeta   = document.getElementById('value-beta');
-const valueSurface = document.getElementById('value-surface');
 
 let alphaDeg = parseFloat(sliderAlpha.value);
 let betaDeg = parseFloat(sliderBeta.value);
-let surfaceType = 'sphere';
 let transportPhase = 0;   // 0..1 progress of the transported vector around the loop
-let yaw = 0, pitch = 0.6;   // Camera rotation angles
 
 sliderAlpha.addEventListener('input', () => { alphaDeg = parseFloat(sliderAlpha.value); valueAlpha.textContent = String(alphaDeg); });
 sliderBeta.addEventListener('input', () => { betaDeg = parseFloat(sliderBeta.value); valueBeta.textContent = String(betaDeg); });
-selectSurface.addEventListener('input', () => { surfaceType = selectSurface.value; valueSurface.textContent = selectSurface.options[selectSurface.selectedIndex].text; });
-
-// Camera drag handlers
-let dragging = false, lastX = 0, lastY = 0;
-canvas.addEventListener('pointerdown', (e) => {
-  dragging = true; lastX = e.clientX; lastY = e.clientY;
-  canvas.setPointerCapture?.(e.pointerId);
-});
-window.addEventListener('pointerup', () => { dragging = false; });
-window.addEventListener('pointermove', (e) => {
-  if (!dragging) return;
-  yaw += (e.clientX - lastX) * 0.005;
-  pitch = Math.max(0.05, Math.min(1.45, pitch + (e.clientY - lastY) * 0.005));
-  lastX = e.clientX; lastY = e.clientY;
-});
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -60,19 +41,23 @@ function colors() {
   };
 }
 
-// Render: orthographic projection with adjustable camera via yaw/pitch.
+// Render: orthographic projection from a viewpoint above the equator
+// looking down toward the north pole at an oblique angle.
 function project(p, cxPx, cyPx, R) {
-  // Apply yaw (horizontal rotation around z-axis).
+  // Rotate so y-axis points right, z-axis up, x-axis toward viewer.
+  // Use simple rotation: from (x, y, z) view from (1, -1, 0.7) direction.
+  const yaw = -0.4, pitch = 0.6;
   const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  const cp = Math.cos(pitch), sp = Math.sin(pitch);
+  // Rotate around z by yaw.
   let x = p.x * cy - p.y * sy;
   let y = p.x * sy + p.y * cy;
   let z = p.z;
-  // Apply pitch (vertical tilt around x-axis).
-  const cp = Math.cos(pitch), sp = Math.sin(pitch);
-  const y2 = y * cp - z * sp;
-  const z2 = y * sp + z * cp;
-  y = y2; z = z2;
-  return { px: cxPx + R * x, py: cyPx - R * z, depth: y };
+  // Rotate around y by pitch (tilt).
+  const x2 = x * cp + z * sp;
+  const z2 = -x * sp + z * cp;
+  x = x2; z = z2;
+  return { px: cxPx + R * y, py: cyPx - R * z, depth: x };
 }
 
 function render() {
@@ -208,27 +193,20 @@ function render() {
   // Readout text.
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`${surfaceType === 'sphere' ? 'Sphere' : 'Hyperbolic'}: alpha = ${alphaDeg} deg, beta = ${betaDeg} deg`, 12, 20);
-  const om = getHolonomy(alphaR, betaR);
+  ctx.fillText(`alpha = ${alphaDeg} deg, beta = ${betaDeg} deg`, 12, 20);
+  const om = holonomy(alphaR, betaR);
   ctx.fillStyle = c.accent;
-  const omLabel = surfaceType === 'sphere' ? 'Omega = (1 - cos alpha) beta' : 'Omega = (cos alpha - 1) beta';
-  ctx.fillText(`${omLabel} = ${om.toFixed(4)} sr`, 12, 38);
+  ctx.fillText(`Omega = (1 - cos alpha) beta = ${om.toFixed(4)} sr`, 12, 38);
   ctx.fillStyle = c.green;
   ctx.fillText(`holonomy = Omega = ${(om * 180 / Math.PI).toFixed(1)} deg`, 12, 56);
-}
-
-function getHolonomy(alphaR, betaR) {
-  return surfaceType === 'sphere' ? holonomy(alphaR, betaR) : holonomyHyperbolic(alphaR, betaR);
 }
 
 function updateReadout() {
   const alphaR = alphaDeg * Math.PI / 180;
   const betaR = betaDeg * Math.PI / 180;
-  const om = getHolonomy(alphaR, betaR);
+  const om = holonomy(alphaR, betaR);
   readoutOm.textContent = om.toFixed(4);
-  // For hyperbolic: angle defect A + B + C - pi = -(integrated K) = -Omega = -defect
-  const angleDefect = surfaceType === 'sphere' ? interiorAngleSum(alphaR, betaR) - Math.PI : Math.PI - interiorAngleSum(alphaR, betaR);
-  readoutAbc.textContent = angleDefect.toFixed(4);
+  readoutAbc.textContent = (interiorAngleSum(alphaR, betaR) - Math.PI).toFixed(4);
 }
 
 function loop() {
@@ -278,10 +256,9 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   const alpha = alphaDeg * Math.PI / 180;
   const beta = betaDeg * Math.PI / 180;
-  const hol = getHolonomy(alpha, beta);
+  const hol = holonomy(alpha, beta);
   return {
     fields: [
-      { key: 'surface', label: 'Surface type', value: surfaceType, format: 'string' },
       { key: 'alpha', label: 'Polar angle alpha (deg)', value: alphaDeg, format: 'float' },
       { key: 'beta', label: 'Equator span beta (deg)', value: betaDeg, format: 'float' },
       { key: 'holonomy', label: 'Holonomy (rad)', value: hol, format: 'float' },
@@ -292,9 +269,9 @@ window.playground.getState = function () {
 window.playground.getInvariants = function () {
   const alpha = alphaDeg * Math.PI / 180;
   const beta = betaDeg * Math.PI / 180;
-  const hol = getHolonomy(alpha, beta);
+  const hol = holonomy(alpha, beta);
   const angleSum = interiorAngleSum(alpha, beta);
-  const solidAngle = surfaceType === 'sphere' ? angleSum - Math.PI : Math.PI - angleSum;
+  const solidAngle = angleSum - Math.PI;
   const relError = Math.abs(hol - solidAngle) / (Math.abs(solidAngle) + 1e-9);
   return [
     {
