@@ -32,7 +32,10 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const DEF_T = 'hard', DEF_KA = 3.0, DEF_STR = 2.0;
 const NTH = 60;
-const st = { target: DEF_T, ka: DEF_KA, str: DEF_STR, running: !prefersReducedMotion(), ph: 0, deltas: null, R: null, sigma: 0, optRel: 0 };
+// Panel C (polar plot) geometry, shared by the renderer and the drag-probe.
+const PCX = 20 + (W - 52) / 2 + 12, PCY = 270, PCW = (W - 52) / 2, PCH = H - 270 - 16;
+const POLAR_CX = PCX + PCW * 0.5, POLAR_CY = PCY + PCH * 0.56;
+const st = { target: DEF_T, ka: DEF_KA, str: DEF_STR, running: !prefersReducedMotion(), ph: 0, probe: 0, pinned: false, deltas: null, R: null, sigma: 0, optRel: 0 };
 
 function potential(r) {
   if (st.target === 'yukawa') return r === 0 ? 0 : st.str * Math.exp(-1.4 * r) / r;
@@ -81,7 +84,7 @@ function drawSurface(x, y, w, h) {
   panel(x, y, w, h, 'dsigma/dOmega surface of revolution about the beam axis (incident -> )');
   const cx = x + w * 0.56, cy = y + h * 0.54, S = Math.min(w * 0.5, h) * 0.62;
   const viewPhi = 0.6, tilt = 0.52;                    // fixed oblique 3D view
-  const thProbe = st.ph * Math.PI;                     // swept polar-angle probe
+  const thProbe = st.probe * Math.PI;                     // swept polar-angle probe
   // incident plane-wave wavefronts sweeping in from the left
   ctx.strokeStyle = 'rgba(127,160,210,0.30)'; ctx.lineWidth = 1;
   for (let m = 0; m < 6; m += 1) {
@@ -187,7 +190,7 @@ function drawPartial(x, y, w, h) {
 }
 
 function drawPolar(x, y, w, h) {
-  panel(x, y, w, h, 'polar dsigma/dOmega(theta): forward peak to the right');
+  panel(x, y, w, h, 'polar dsigma/dOmega(theta): drag to probe theta');
   const cx = x + w * 0.5, cy = y + h * 0.56, S = Math.min(w, h) * 0.36;
   ctx.strokeStyle = 'rgba(255,255,255,0.12)';
   for (const fr of [0.33, 0.66, 1]) { ctx.beginPath(); ctx.arc(cx, cy, S * fr, 0, 2 * Math.PI); ctx.stroke(); }
@@ -203,7 +206,7 @@ function drawPolar(x, y, w, h) {
   }
   ctx.closePath(); ctx.stroke();
   // probe marker at theta = st.ph * pi
-  const thP = st.ph * Math.PI;
+  const thP = st.probe * Math.PI;
   const rP = Math.sqrt(Math.max(0, st.R[Math.round(thP / Math.PI * NTH)] / norm));
   ctx.strokeStyle = 'rgba(255,209,102,0.6)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + S * Math.cos(thP), cy - S * Math.sin(thP)); ctx.stroke();
@@ -219,7 +222,7 @@ function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   drawSurface(20, 22, W - 40, 232);
   drawPartial(20, 270, (W - 52) / 2, H - 270 - 16);
-  drawPolar(20 + (W - 52) / 2 + 12, 270, (W - 52) / 2, H - 270 - 16);
+  drawPolar(PCX, PCY, PCW, PCH);
   rKa.textContent = st.ka.toFixed(2);
   rSig.textContent = st.sigma.toFixed(3);
   rOpt.textContent = st.target === 'hard' ? `${(st.optRel * 100).toExponential(1)}%` : 'n/a (Born)';
@@ -232,6 +235,7 @@ function tick() {
     st.ph += LIVE_FRAC;
     if (st.ph >= 1) { st.ph = 0; }                     // continuous spin of the 3D surface
   }
+  if (!st.pinned) st.probe = st.ph;                    // probe sweeps with the spin until grabbed
   draw();
   requestAnimationFrame(tick);
 }
@@ -250,6 +254,7 @@ sKa.addEventListener('input', () => { st.ka = parseFloat(sKa.value) / 100; syncL
 sStr.addEventListener('input', () => { st.str = parseFloat(sStr.value) / 100; syncLabels(); rebuild(); draw(); });
 bR.addEventListener('click', () => {
   st.target = DEF_T; st.ka = DEF_KA; st.str = DEF_STR;
+  st.pinned = false; st.probe = 0;
   selT.value = DEF_T; sKa.value = String(DEF_KA * 100); sStr.value = String(DEF_STR * 100);
   syncLabels(); syncStrEnabled(); rebuild(); draw();
 });
@@ -258,6 +263,38 @@ bP.addEventListener('click', () => {
   bP.textContent = st.running ? 'Pause' : 'Play';
   bP.setAttribute('aria-pressed', String(!st.running));
 });
+
+// Drag inside the polar panel to park the theta-probe at a chosen angle.
+// While unpinned the probe sweeps with the animation; a drag pins it.
+let probing = false;
+function probeFromEvent(ev) {
+  const r = canvas.getBoundingClientRect();
+  const px = (ev.clientX - r.left) * (W / r.width);
+  const py = (ev.clientY - r.top) * (H / r.height);
+  if (px < PCX || px > PCX + PCW || py < PCY || py > PCY + PCH) return false;
+  const ang = Math.abs(Math.atan2(POLAR_CY - py, px - POLAR_CX));
+  st.probe = Math.max(0, Math.min(1, ang / Math.PI));
+  st.pinned = true;
+  return true;
+}
+canvas.addEventListener('pointerdown', (ev) => {
+  if (probeFromEvent(ev)) { probing = true; canvas.setPointerCapture(ev.pointerId); draw(); }
+});
+canvas.addEventListener('pointermove', (ev) => {
+  const r = canvas.getBoundingClientRect();
+  const px = (ev.clientX - r.left) * (W / r.width);
+  const py = (ev.clientY - r.top) * (H / r.height);
+  const over = px >= PCX && px <= PCX + PCW && py >= PCY && py <= PCY + PCH;
+  canvas.style.cursor = probing ? 'grabbing' : (over ? 'grab' : 'default');
+  if (probing) { probeFromEvent(ev); draw(); }
+});
+function endProbe(ev) {
+  if (!probing) return;
+  probing = false;
+  try { canvas.releasePointerCapture(ev.pointerId); } catch {}
+}
+canvas.addEventListener('pointerup', endProbe);
+canvas.addEventListener('pointercancel', endProbe);
 
 function getState() { return { target: st.target, ka: st.ka.toFixed(2), str: st.str.toFixed(2) }; }
 function restoreState() {
@@ -273,7 +310,7 @@ function boot() {
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
-    st.ph = f;
+    st.ph = f; st.probe = f;
     draw();
   } else {
     draw();
@@ -301,6 +338,7 @@ window.playground.getState = function () {
     fields: [
       { key: 'ka', label: 'wavenumber ka (hard sphere radius × k)', value: st.ka, format: 'float' },
       { key: 'sigma-tot', label: 'total cross section sigma_tot', value: st.sigma, format: 'float' },
+      { key: 'probe-theta', label: 'probe angle theta (deg)', value: st.probe * 180, format: 'float' },
       { key: 'lmax', label: 'max partial wave l', value: lMax(st.ka), format: 'float' },
       { key: 'target', label: 'scattering target', value: st.target, format: undefined }
     ]
