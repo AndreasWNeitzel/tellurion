@@ -216,33 +216,31 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const r = state.sim ? orderParameter(state.sim) : 0;
+  return {
+    fields: [
+      { key: 'coupling', label: 'Coupling K', value: state.K, format: 'float' },
+      { key: 'critical', label: 'Critical Kc', value: criticalCoupling(state.gamma), format: 'float' },
+      { key: 'order-param', label: 'Order parameter r', value: r, format: 'float' },
+      { key: 'linewidth', label: 'Linewidth gamma', value: state.gamma, format: 'float' },
+    ],
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.sim) return [{ key: 'not-initialized', label: 'Simulation', value: 'pending', status: 'pending' }];
+  const r = orderParameter(state.sim);
+  const Kc = criticalCoupling(state.gamma);
+  const behavior = state.K < Kc ? 'incoherent' : 'synchronized';
+  const r_bounds = r >= 0 && r <= 1 ? 'pass' : 'drift';
+  return [
+    {
+      key: 'order-bounds',
+      label: 'Order parameter in [0,1]',
+      value: r.toFixed(3),
+      status: r_bounds,
+    },
+  ];
+};
