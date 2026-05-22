@@ -43,10 +43,37 @@ const DX0 = 520, DX1 = W - 24;                            // DOS box
 // amplitude (an autoscaled axis would hide it).
 function dispBounds() { return [-6.5, 6.5]; }
 
+function drawLattice(xStart, yStart, width, height) {
+  // Schematic of the 1D chain with atoms and hoppings.
+  const nAtoms = 5;
+  const spacing = width / (nAtoms + 1);
+  const atomRadius = 3.5;
+  ctx.strokeStyle = 'rgba(150,160,180,0.6)'; ctx.lineWidth = 1;
+  // Draw hopping bonds.
+  for (let i = 0; i < nAtoms - 1; i += 1) {
+    const x1 = xStart + (i + 1) * spacing;
+    const x2 = xStart + (i + 2) * spacing;
+    ctx.beginPath(); ctx.moveTo(x1, yStart); ctx.lineTo(x2, yStart); ctx.stroke();
+  }
+  // Draw atoms.
+  ctx.fillStyle = '#5bc0eb'; ctx.strokeStyle = 'rgba(91,192,235,0.8)'; ctx.lineWidth = 1.4;
+  for (let i = 0; i < nAtoms; i += 1) {
+    const x = xStart + (i + 1) * spacing;
+    ctx.beginPath(); ctx.arc(x, yStart, atomRadius, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+  }
+  // Label.
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono', 400);
+  ctx.textAlign = 'center'; ctx.fillText('hopping  t', xStart + width / 2, yStart + 18);
+}
+
 function draw1D() {
   const [eLo, eHi] = dispBounds();
   const xOf = (k) => PX0 + (k + Math.PI) / (2 * Math.PI) * (PX1 - PX0);
   const yOf = (E) => PY1 - (E - eLo) / (eHi - eLo) * (PY1 - PY0);
+
+  // Draw lattice schematic above the band plot.
+  drawLattice(PX0, 14, PX1 - PX0, 20);
+
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
