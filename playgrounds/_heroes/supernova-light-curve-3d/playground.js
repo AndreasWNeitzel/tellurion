@@ -57,6 +57,7 @@ function applyPreset(name) {
   st.m_Ni = p.m0_Ni;
   st.t_diff_d = p.t_diff_d;
   st.v_ej_kms = p.v_ej_kms;
+  st.plateau = p.plateau || null;   // Type II recombination plateau, null for Ia
   sMni.value = String(p.m0_Ni);
   sTdiff.value = String(p.t_diff_d);
   sVej.value = String(p.v_ej_kms);
@@ -185,7 +186,7 @@ function drawLightcurvePanel() {
   let Lmax = 0;
   for (let k = 0; k < N; k++) {
     const t = (k / (N - 1)) * st.T_MAX_D + 0.5;
-    const L = bolometricLuminosity_ergS(t, st.m_Ni, st.t_diff_d);
+    const L = bolometricLuminosity_ergS(t, st.m_Ni, st.t_diff_d, st.plateau);
     t_arr.push(t); L_arr.push(L);
     if (L > Lmax) Lmax = L;
   }
@@ -232,7 +233,7 @@ function drawLightcurvePanel() {
   ctx.stroke();
   ctx.setLineDash([]);
   // Current cursor.
-  const Lnow = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d);
+  const Lnow = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d, st.plateau);
   const xc = xForT(st.t_d), yc = yForL(Lnow);
   ctx.fillStyle = 'rgba(255, 255, 200, 1)';
   ctx.beginPath(); ctx.arc(xc, yc, 5, 0, 2 * Math.PI); ctx.fill();
@@ -358,10 +359,10 @@ function draw() {
   let Lmax = 0;
   for (let k = 0; k < N; k++) {
     const t = (k / (N - 1)) * st.T_MAX_D + 0.5;
-    const L = bolometricLuminosity_ergS(t, st.m_Ni, st.t_diff_d);
+    const L = bolometricLuminosity_ergS(t, st.m_Ni, st.t_diff_d, st.plateau);
     if (L > Lmax) Lmax = L;
   }
-  const Lnow = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d);
+  const Lnow = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d, st.plateau);
   const L_norm = Math.max(0, Math.min(1, Lnow / Lmax));
   drawFireball(cam, st.t_d, L_norm);
   drawLightcurvePanel();

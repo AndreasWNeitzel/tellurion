@@ -66,8 +66,22 @@ export function trappingFactor(t_days, t_diff_days = 14) {
   return 1 - Math.exp(-x * x);
 }
 
-export function bolometricLuminosity_ergS(t_days, m0_Ni_solar, t_diff_days = 14) {
-  return decayPower_ergS(t_days, m0_Ni_solar) * trappingFactor(t_days, t_diff_days);
+// Type II-P recombination plateau: a hydrogen-recombination wave
+// releases the shock-deposited energy at a roughly constant
+// luminosity for ~100 days, then the photosphere recedes and the
+// light curve drops onto the radioactive tail. Modelled as a rise
+// followed by a sigmoid cutoff at t_plateau. Type Ia has no plateau.
+export function plateauShape(t_days, t_plateau_days) {
+  if (!t_plateau_days) return 0;
+  const rise = 1 - Math.exp(-((t_days / 12) ** 2));
+  const drop = 1 / (1 + Math.exp((t_days - t_plateau_days) / 8));
+  return rise * drop;
+}
+
+export function bolometricLuminosity_ergS(t_days, m0_Ni_solar, t_diff_days = 14, plateau = null) {
+  const radio = decayPower_ergS(t_days, m0_Ni_solar) * trappingFactor(t_days, t_diff_days);
+  if (!plateau) return radio;
+  return radio + plateau.L_ergS * plateauShape(t_days, plateau.t_d);
 }
 
 // =========================================================================
@@ -100,6 +114,9 @@ export const SN_PRESETS = {
     v_ej_kms: 3500,
     M_ej_solar: 15.0,
     peak_MV: -16.7,
+    // Recombination-powered sustained bright phase: ~1.4e42 erg/s
+    // (M_bol ~ -16.7) held for ~110 days, then onto the Co-56 tail.
+    plateau: { L_ergS: 1.45e42, t_d: 110 },
   },
 };
 
