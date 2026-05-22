@@ -217,12 +217,35 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
+function drakeParams() {
+  return {
+    ...DEFAULTS,
+    R_star: Math.pow(10, logR),
+    f_l: Math.pow(10, logFl),
+    f_i: Math.pow(10, logFi),
+    L: Math.pow(10, logL),
+  };
+}
 window.playground.getState = function () {
+  const p = drakeParams();
   return { fields: [
-    { key: 'num-planets', label: 'planets N_p', value: state.Np || 1, format: 'float' },
-    { key: 'num-civ', label: 'civilizations N_c', value: Math.round(state.Nc || 0), format: 'float' },
+    { key: 'rate', label: 'star formation rate $R_*$ (1/yr)', value: p.R_star, format: 'float' },
+    { key: 'f-life', label: 'fraction with life $f_\\ell$', value: p.f_l, format: 'float' },
+    { key: 'lifetime', label: 'civilisation lifetime $L$ (yr)', value: p.L, format: 'float' },
+    { key: 'civ', label: 'communicating civilisations $N$', value: drakeN(p), format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  return [ { key: 'params-positive', label: 'all params > 0', value: (state.Np > 0 && state.Nc >= 0) ? 'pass' : 'drift', status: (state.Np > 0 && state.Nc >= 0) ? 'pass' : 'drift' } ];
+  const p = drakeParams();
+  const N = drakeN(p);
+  // The Drake count is the product of its seven factors; cross-check
+  // drakeN against the explicit product, and confirm N stays non-negative.
+  const product = p.R_star * p.f_p * p.n_e * p.f_l * p.f_i * p.f_c * p.L;
+  const drift = Math.abs(N - product) / Math.max(1e-12, product);
+  return [{
+    key: 'drake-product',
+    label: 'Drake equation $N = R_* f_p n_e f_\\ell f_i f_c L$',
+    value: drift.toExponential(2),
+    status: (N >= 0 && drift < 1e-9) ? 'pass' : 'drift',
+  }];
 };
