@@ -211,7 +211,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   ctx.fillText('σ  →  jet vs torus power', bp.x + 2, bp.y + 12);
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 240, 0.70)';
-  ctx.fillText('jet f = σ/(1+σ),  torus f = 1/(1+σ)', bp.x + 2, bp.y + 24);
+  ctx.fillText('jet: σ/(1+σ),  torus: 1/(1+σ)', bp.x + 2, bp.y + 24);
   const bAxY = bp.y + bp.h - 22, bAxX = bp.x + 36;
   const bAxW = bp.w - 44, bAxH = bp.h - 52;
   const sLo = -4, sHi = 1;        // log10(σ) sweep range.
