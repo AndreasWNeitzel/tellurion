@@ -251,33 +251,33 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const rangeWithSpin = state.trails.current.length > 0 ? state.trails.current[state.trails.current.length - 1].x : 0;
+  const rangeNoSpin = state.trails.zero.length > 0 ? state.trails.zero[state.trails.zero.length - 1].x : 0;
+  return {
+    fields: [
+      { key: 'v0', label: 'initial speed (m/s)', value: state.v0, format: 'float' },
+      { key: 'angle', label: 'launch angle (deg)', value: state.angle, format: 'float' },
+      { key: 'spin', label: 'spin (rad/s)', value: state.spin, format: 'float' },
+      { key: 'range-delta', label: 'range difference (m)', value: rangeWithSpin - rangeNoSpin, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const rangeWithSpin = state.trails.current.length > 0 ? state.trails.current[state.trails.current.length - 1].x : 0;
+  const rangeNoSpin = state.trails.zero.length > 0 ? state.trails.zero[state.trails.zero.length - 1].x : 0;
+  const rangeOpp = state.trails.opposite.length > 0 ? state.trails.opposite[state.trails.opposite.length - 1].x : 0;
+  const delta = Math.abs(rangeWithSpin - rangeNoSpin);
+  const deltaOpp = Math.abs(rangeNoSpin - rangeOpp);
+  const spinEffect = state.spin !== 0 ? (delta > 0.1 ? 'pass' : 'drift') : 'pass';
+  return [
+    {
+      key: 'magnus-deflection',
+      label: 'spin causes range change (m)',
+      value: delta.toFixed(2),
+      status: spinEffect
+    }
+  ];
+};
