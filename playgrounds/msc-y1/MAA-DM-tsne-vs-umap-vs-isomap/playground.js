@@ -289,19 +289,28 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'method', label: 'algorithm', value: st.method || 'tsne', format: undefined },
-      { key: 'n-points', label: 'data points', value: st.npts || 0, format: 'float' },
-      { key: 'perplexity', label: 'perplexity/neighbors', value: st.perp || 30, format: 'float' },
+      { key: 'dataset', label: 'dataset', value: state.dataset, format: undefined },
+      { key: 'n-points', label: 'data points N', value: state.N.toFixed(0), format: 'float' },
+      { key: 'neighbors', label: 'neighbors (k-NN)', value: state.k.toFixed(0), format: 'float' },
+      { key: 'perplexity', label: 'perplexity (t-SNE)', value: state.perplexity.toFixed(0), format: 'float' },
     ],
   };
 };
 window.playground.getInvariants = function () {
+  const hasData = state.data !== null;
+  const hasEmbeddings = state.embeddings !== null && state.embeddings.pca;
   return [
     {
+      key: 'data-loaded',
+      label: 'Dataset loaded',
+      value: hasData ? `${state.N} points, ${state.data.D}D` : 'pending',
+      status: hasData ? 'pass' : 'pending',
+    },
+    {
       key: 'embedding-computed',
-      label: 'embedding ready',
-      value: (st.npts || 0) > 0 ? 'computed' : 'pending',
-      status: (st.npts || 0) > 0 ? 'pass' : 'pending',
+      label: 'Embeddings computed',
+      value: hasEmbeddings ? 'ready' : 'computing',
+      status: hasEmbeddings ? 'pass' : 'pending',
     },
   ];
 };
