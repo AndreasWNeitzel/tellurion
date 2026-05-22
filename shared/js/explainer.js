@@ -222,6 +222,9 @@ async function build() {
     </article>`;
 
   const open = () => {
+    // Lock the page scroll so its scrollbar does not show alongside
+    // the dialog's own scrollbar (the reported double scrollbar).
+    document.documentElement.style.overflow = 'hidden';
     if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
     ensureKatex(() => window.renderMathInElement && window.renderMathInElement(dlg, {
       delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
@@ -233,6 +236,8 @@ async function build() {
   dlg.querySelector('.explainer-close').addEventListener('click', close);
   dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dlg.open) close(); });
+  // Restore page scroll on every close path (button, backdrop, Escape).
+  dlg.addEventListener('close', () => { document.documentElement.style.overflow = ''; });
 
   document.body.appendChild(btn);
   document.body.appendChild(dlg);
