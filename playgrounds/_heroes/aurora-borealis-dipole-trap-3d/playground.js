@@ -146,6 +146,39 @@ function drawEarth() {
   ctx.beginPath(); ctx.moveTo(top.x, top.y); ctx.lineTo(bot.x, bot.y); ctx.stroke();
 }
 
+function drawMirrorBoundary() {
+  // Visual representation of the magnetic-mirror effect: a
+  // semitransparent equatorial band where particles are forbidden
+  // (they reflect before reaching here). This makes the dipole-trap
+  // physics visceral: particles CANNOT enter low magnetic latitudes.
+  // Boundary sits at approximately 50 degrees magnetic latitude
+  // (beyond which the mirroring force becomes very strong).
+  const boundLat = 50;
+  const lamB = (90 - boundLat) * Math.PI / 180;
+  const r = REARTH * 1.045;
+  ctx.fillStyle = 'rgba(255, 100, 100, 0.08)';  // dim red: forbidden zone
+  ctx.beginPath();
+  // Draw the forbidden zone as a band from -50 to +50 latitude.
+  for (let k = 0; k <= 96; k += 1) {
+    const phi = (k / 96) * 2 * Math.PI;
+    const x = r * Math.sin(lamB) * Math.cos(phi);
+    const z = r * Math.sin(lamB) * Math.sin(phi);
+    const y = r * Math.cos(lamB);
+    const p = project(x, y, z);
+    if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+  }
+  for (let k = 96; k >= 0; k -= 1) {
+    const phi = (k / 96) * 2 * Math.PI;
+    const x = r * Math.sin(lamB) * Math.cos(phi);
+    const z = r * Math.sin(lamB) * Math.sin(phi);
+    const y = -r * Math.cos(lamB);
+    const p = project(x, y, z);
+    ctx.lineTo(p.x, p.y);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
 function drawAuroralOval() {
   // Auroral oval at magnetic latitude ~ 67 deg, drawn as a thick glowing
   // GREEN BAND on the ionosphere shell (north = borealis, south =
@@ -250,6 +283,14 @@ function update(dt) {
     // field is negligible so the stream still travels nearly straight.
     stepLorentz(p, dt, 8.0, st.mdip);
     p.age += dt;
+    // Track minimum magnetic latitude reached (the mirror point where
+    // the particle reflects). This demonstrates why particles don't
+    // reach the equator: the field converges toward the poles, forcing
+    // a reversal before low latitudes are reached.
+    const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+    const sinLat = Math.abs(p.y) / Math.max(1e-6, r);
+    const latDeg = Math.asin(sinLat) * 180 / Math.PI;
+    if (latDeg < p.minMagLat) p.minMagLat = latDeg;
     // Check excitation
     const color = checkAuroralExcitation(p);
     if (color) {
@@ -260,9 +301,8 @@ function update(dt) {
       // Bin the impact by magnetic latitude (= asin(y / |r|)) into a
       // 36-bin histogram from -90 to +90 deg. The bimodal peaks at
       // +/- 67 deg are the auroral ovals.
-      const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
-      const latDeg = Math.asin(p.y / Math.max(1e-9, r)) * 180 / Math.PI;
-      const bin = Math.max(0, Math.min(35, Math.floor((latDeg + 90) / 5)));
+      const latDegImp = Math.asin(p.y / Math.max(1e-9, r)) * 180 / Math.PI;
+      const bin = Math.max(0, Math.min(35, Math.floor((latDegImp + 90) / 5)));
       st.latHist[bin] += 1;
       // Remove particle (it deposited its energy).
       st.particles.splice(i, 1);
@@ -373,10 +413,13 @@ function render() {
 
   // Order: field lines behind, Earth, ionosphere shell, auroral oval,
   // particles, hits in front. Ionosphere is a faint cyan glow ABOVE
-  // the surface that the green oval band sits on.
+  // the surface that the green oval band sits on. The mirror boundary
+  // (forbidden equatorial zone) is drawn as a red band to show why
+  // particles do not precipitate at the equator.
   drawFieldLines();
   drawEarth();
   drawIonosphere();
+  drawMirrorBoundary();
   drawAuroralOval();
   drawParticles();
   drawAuroraHits();
@@ -386,7 +429,7 @@ function render() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`particles: ${st.particles.length}    aurora hits: ${st.nHits}    step: ${st.nSteps}`, 24, 22);
-  ctx.fillText(`solar-wind protons → magnetic mirror → atmospheric oxygen → 558 nm (green) / 630 nm (red)`, 24, 40);
+  ctx.fillText(`solar wind → magnetic mirror reflects particles back before equator → aurora at poles (red = forbidden zone)`, 24, 40);
 
   drawDiagnostics();
 

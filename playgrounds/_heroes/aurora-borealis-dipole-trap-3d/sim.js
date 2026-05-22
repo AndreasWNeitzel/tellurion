@@ -113,6 +113,7 @@ export function spawnParticle(rng) {
     age: 0,
     excited: false,
     color: 'green',
+    minMagLat: 90,  // minimum magnetic latitude reached (starts high, updates as particle moves)
   };
 }
 
