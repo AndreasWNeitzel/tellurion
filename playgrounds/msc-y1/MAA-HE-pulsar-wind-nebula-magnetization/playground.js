@@ -282,8 +282,24 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [ { key: 'time', label: 'Time (kyr)', value: state.t || 0, format: 'float' }, { key: 'field-strength', label: 'B-field (mG)', value: state.B || 1, format: 'float' }, { key: 'particle-count', label: 'Particles', value: state.N || 1000, format: 'float' }, { key: 'luminosity', label: 'L (erg/s)', value: state.L || 1e33, format: 'float' } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'field-nonneg', label: 'B-field >= 0', value: (state.B || 0) >= 0 ? 'pass' : 'fail', status: (state.B || 0) >= 0 ? 'pass' : 'drift' } ]; };
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+  const L = Math.pow(10, st.logL);
+  const Pext = Math.pow(10, st.logP);
+  const R_TS_pc = terminationRadius(L, Pext) / PC;
+  return {
+    fields: [
+      { key: 'spin-down-lum', label: '$\\log L_{sd}$ (erg/s)', value: st.logL, format: 'float' },
+      { key: 'ext-pressure', label: '$\\log P_{ext}$ (dyne/cm$^2$)', value: st.logP, format: 'float' },
+      { key: 'shock-radius', label: '$R_{TS}$ (pc)', value: R_TS_pc, format: 'float' },
+      { key: 'magnetization', label: 'Magnetization $\\sigma$', value: st.sigma, format: 'float' }
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  const L = Math.pow(10, st.logL);
+  const Pext = Math.pow(10, st.logP);
+  const R_TS = terminationRadius(L, Pext);
+  return [
+    { key: 'radius-positive', label: '$R_{TS} > 0$', value: R_TS > 0 ? 'yes' : 'no', status: R_TS > 0 ? 'pass' : 'drift' },
+    { key: 'sigma-bounded', label: '$0 < \\sigma < 1$', value: st.sigma > 0 && st.sigma < 1 ? 'yes' : 'no', status: st.sigma > 0 && st.sigma < 1 ? 'pass' : 'drift' }
+  ];
+};
