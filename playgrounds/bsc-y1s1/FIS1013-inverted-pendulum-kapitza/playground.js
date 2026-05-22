@@ -228,23 +228,32 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const sim = state.sim || {};
   return {
     fields: [
-      { key: 'frequency', label: 'Drive frequency (Hz)', value: state.freq, format: 'float' },
-      { key: 'amplitude', label: 'Drive amplitude (rad)', value: state.amp, format: 'float' },
-      { key: 'angle', label: 'Pendulum angle (rad)', value: state.theta, format: 'float' },
-      { key: 'angular-vel', label: 'Angular velocity', value: state.omega, format: 'float' }
+      { key: 'drive-amplitude', label: 'Drive amplitude a (m)', value: state.a, format: 'float' },
+      { key: 'drive-frequency', label: 'Drive frequency $\\omega$ (rad/s)', value: state.omega, format: 'float' },
+      { key: 'angle', label: 'Pendulum angle $\\theta$ (rad)', value: sim.theta || 0, format: 'float' },
+      { key: 'angular-vel', label: 'Angular velocity $\\dot{\\theta}$ (rad/s)', value: sim.thetadot || 0, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const angle_bounded = Math.abs(state.theta) < 2 * Math.PI;
+  const sim = state.sim || {};
+  const stable = isStable(state.a, state.omega);
+  const ratio = stabilityRatio(state.a, state.omega);
   return [
     {
-      key: 'angle-physical',
-      label: '|theta| < 2*pi',
-      value: angle_bounded ? 'pass' : `theta=${state.theta.toFixed(3)}`,
-      status: angle_bounded ? 'pass' : 'drift'
+      key: 'stability-criterion',
+      label: 'Kapitza criterion $a^2\\omega^2 / (2gl)$',
+      value: `${ratio.toFixed(3)}`,
+      status: stable ? 'pass' : 'drift'
+    },
+    {
+      key: 'angle-bounded',
+      label: 'Pendulum angle $|\\theta|$ reasonable',
+      value: `${Math.abs(sim.theta || 0).toFixed(3)} rad`,
+      status: Math.abs(sim.theta || 0) < Math.PI ? 'pass' : 'drift'
     }
   ];
 };
