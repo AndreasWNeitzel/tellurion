@@ -12,8 +12,6 @@ const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas      = document.getElementById('stage');
 const ctx         = canvas.getContext('2d', { alpha: false });
-const readoutS    = document.getElementById('readout-s');
-const readoutCond = document.getElementById('readout-cond');
 
 const sliders = ['a', 'b', 'c', 'd'].reduce((o, k) => {
   o[k] = document.getElementById(`slider-${k}`);
@@ -117,19 +115,8 @@ function render() {
   drawPanel(cs, panelW * 3, 0, panelW, panelH, afterU,  cs.red,    'after U (rotate)');
 }
 
-function updateReadout() {
-  const s = svd2x2(a, b, c, d);
-  readoutS.textContent = `${s.s1.toFixed(3)}, ${s.s2.toFixed(3)}`;
-  if (s.s2 > 1e-12) {
-    readoutCond.textContent = (s.s1 / s.s2).toFixed(3);
-  } else {
-    readoutCond.textContent = 'inf';
-  }
-}
-
 function loop() {
   render();
-  updateReadout();
   requestAnimationFrame(loop);
 }
 
@@ -145,7 +132,6 @@ function bootSync() {
   sliders.vc.textContent = c.toFixed(2);
   sliders.vd.textContent = d.toFixed(2);
   render();
-  updateReadout();
 
   if (DETERMINISTIC) {
     requestAnimationFrame(() => {
@@ -173,28 +159,79 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const M = [[a, b], [c, d]];
-  const { s } = svd2x2(M);
-  const cond = Math.max(1e-12, s[0]) / Math.max(1e-12, s[1]);
+  const s = svd2x2(a, b, c, d);
+  const det = a * d - b * c;
+  const cond = s.s2 > 1e-12 ? s.s1 / s.s2 : Infinity;
+  const frobenius = Math.sqrt(s.s1 * s.s1 + s.s2 * s.s2);
   return {
     fields: [
-      { key: 'det', label: 'det(M) = ad - bc', value: a * d - b * c, format: 'float' },
-      { key: 'sigma-1', label: 'Singular value s1', value: s[0], format: 'float' },
-      { key: 'sigma-2', label: 'Singular value s2', value: s[1], format: 'float' },
-      { key: 'condition', label: 'Condition number', value: cond, format: 'float' }
+      { key: 'matrix-entries', label: 'Matrix M', value: `[[${a.toFixed(2)}, ${b.toFixed(2)}], [${c.toFixed(2)}, ${d.toFixed(2)}]]`, format: 'string' },
+      { key: 'det', label: 'det(M)', value: det, format: 'exponential2' },
+      { key: 'trace', label: 'trace(M)', value: a + d, format: 'float' },
+      { key: 'sigma-1', label: 'Singular value s_1', value: s.s1, format: 'exponential2' },
+      { key: 'sigma-2', label: 'Singular value s_2', value: s.s2, format: 'exponential2' },
+      { key: 'condition', label: 'Condition number kappa(M)', value: cond === Infinity ? 'infinity' : cond.toFixed(3), format: 'string' },
+      { key: 'frobenius', label: 'Frobenius norm ||M||', value: frobenius, format: 'exponential2' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  const M = [[a, b], [c, d]];
-  const { s } = svd2x2(M);
-  const s_ordered = s[0] >= s[1];
-  return [
-    {
-      key: 'singular-order',
-      label: 's1 >= s2',
-      value: s_ordered ? 'pass' : `${s[0].toFixed(3)} < ${s[1].toFixed(3)}`,
-      status: s_ordered ? 'pass' : 'drift'
-    }
-  ];
+  const s = svd2x2(a, b, c, d);
+  const det = a * d - b * c;
+  const inv = [];
+
+  // Singular values are non-negative and ordered
+  inv.push({
+    key: 'singular-order',
+    label: 's_1 >= s_2 >= 0 (ordered)',
+    value: `${s.s1.toFixed(4)} >= ${s.s2.toFixed(4)}`,
+    status: (s.s1 >= s.s2 && s.s2 >= 0) ? 'pass' : 'fail'
+  });
+
+  // Reconstruction: ||M - U S V^T|| should be tiny
+  const u1 = s.u1, u2 = s.u2, v1 = s.v1, v2 = s.v2;
+  const recon_a = s.s1 * u1.x * v1.x + s.s2 * u2.x * v2.x;
+  const recon_b = s.s1 * u1.x * v1.y + s.s2 * u2.x * v2.y;
+  const recon_c = s.s1 * u1.y * v1.x + s.s2 * u2.y * v2.x;
+  const recon_d = s.s1 * u1.y * v1.y + s.s2 * u2.y * v2.y;
+  const recon_err = Math.abs(recon_a - a) + Math.abs(recon_b - b) + Math.abs(recon_c - c) + Math.abs(recon_d - d);
+  inv.push({
+    key: 'reconstruction',
+    label: 'M = U S V^T (reconstruction error)',
+    value: recon_err.toFixed(2e-10),
+    status: recon_err < 1e-8 ? 'pass' : 'fail'
+  });
+
+  // Orthonormality: U columns should be orthonormal
+  const u_dot = u1.x * u2.x + u1.y * u2.y;
+  const u_norm1_sq = u1.x * u1.x + u1.y * u1.y;
+  const u_norm2_sq = u2.x * u2.x + u2.y * u2.y;
+  const u_ortho = Math.abs(u_dot) < 1e-10 && Math.abs(u_norm1_sq - 1) < 1e-10 && Math.abs(u_norm2_sq - 1) < 1e-10;
+  inv.push({
+    key: 'u-orthonormal',
+    label: 'U is orthonormal (rotation)',
+    value: u_ortho ? 'yes' : 'no',
+    status: u_ortho ? 'pass' : 'fail'
+  });
+
+  // Determinant check: det(M) = s1 * s2 (for proper SVD)
+  const det_expected = s.s1 * s.s2;
+  inv.push({
+    key: 'det-relationship',
+    label: 'det(M) <= s_1 * s_2 (singular values bound)',
+    value: `${det.toFixed(3)} vs ${det_expected.toFixed(3)}`,
+    status: Math.abs(det) <= det_expected + 1e-10 ? 'pass' : 'fail'
+  });
+
+  // Frobenius norm: ||M||^2 = s1^2 + s2^2
+  const frobenius_sq = a * a + b * b + c * c + d * d;
+  const frobenius_sv_sq = s.s1 * s.s1 + s.s2 * s.s2;
+  inv.push({
+    key: 'frobenius',
+    label: '||M||^2 = s_1^2 + s_2^2',
+    value: (Math.abs(frobenius_sq - frobenius_sv_sq) < 1e-10) ? 'match' : 'mismatch',
+    status: (Math.abs(frobenius_sq - frobenius_sv_sq) < 1e-10) ? 'pass' : 'fail'
+  });
+
+  return inv;
 };

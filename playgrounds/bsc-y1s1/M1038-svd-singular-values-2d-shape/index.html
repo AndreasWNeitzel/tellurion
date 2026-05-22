@@ -68,22 +68,21 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Matrix entries">
+    <div class="row"><span class="label">M = [[a, b], [c, d]]</span></div>
     <div class="row"><span class="label">a</span><input aria-label="a" type="range" id="slider-a" min="-3" max="3" step="0.05" value="1.5"><span class="value" id="value-a">1.50</span></div>
     <div class="row"><span class="label">b</span><input aria-label="b" type="range" id="slider-b" min="-3" max="3" step="0.05" value="-0.7"><span class="value" id="value-b">-0.70</span></div>
     <div class="row"><span class="label">c</span><input aria-label="c" type="range" id="slider-c" min="-3" max="3" step="0.05" value="0.4"><span class="value" id="value-c">0.40</span></div>
     <div class="row"><span class="label">d</span><input aria-label="d" type="range" id="slider-d" min="-3" max="3" step="0.05" value="2.1"><span class="value" id="value-d">2.10</span></div>
   </div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">s_1, s_2:</span><span class="value" id="readout-s">0, 0</span>
-      <span class="label">cond(M):</span><span class="value" id="readout-cond">0</span>
-    </div><span class="value" id="readout-s">0, 0</span><span class="value" id="readout-cond">0</span></div>
     </section>
 
     <section class="playground-what-to-try">
-      <h2 class="t-label">WHAT TO TRY</h2>
+      <h2 class="t-label">INTERPRETATIONS</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body"><strong>Pure rotation:</strong> Set all to cos(theta), -sin(theta), sin(theta), cos(theta). You get s_1 = s_2 = 1 and both panels stay circles.</li>
+        <li class="t-body"><strong>Pure scaling:</strong> Set b=c=0 and vary a, d. Then V^T does nothing (circle stays circle), S stretches it, and U does nothing.</li>
+        <li class="t-body"><strong>Singular matrix:</strong> Set ad = bc to make the determinant zero. The ellipse collapses to a line segment; s_2 → 0 and cond(M) → infinity.</li>
+        <li class="t-body"><strong>Symmetric matrix:</strong> Set b=c. The first and last rotations are the same; V = U (up to sign). The ellipse axes align with the coordinate axes.</li>
       </ul>
     </section>
 
