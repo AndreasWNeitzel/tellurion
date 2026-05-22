@@ -178,7 +178,7 @@ function render() {
   ctx.fillText('face-on  (x, y)', lcx - lR - 16, lcy + lR + 16);
 
   // BOTTOM-LEFT PANEL: meridional (R, z) box inside the zero-velocity curve
-  const px0 = 18, px1 = 332, py0 = 320, py1 = 570;
+  const px0 = 18, px1 = 332, py0 = 320, py1 = 548;
   const Rlo = Math.max(0.05 * KPC, Rmin * 0.7), Rhi = viewR;
   const zhi = viewZ;
   const RtoX = (R) => px0 + (R - Rlo) / (Rhi - Rlo) * (px1 - px0);
