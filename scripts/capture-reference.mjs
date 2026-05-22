@@ -73,7 +73,12 @@ const FRAMES = [
 
 const { server, url: baseUrl } = await startStaticServer(ROOT);
 const browser = await chromium.launch({ headless: true });
-const ctx     = await browser.newContext({ viewport: { width: 800, height: 600 }, deviceScaleFactor: 2 });
+// bypassCSP: the playground pages ship a strict Content-Security-Policy
+// with no 'unsafe-eval'; Playwright's waitForFunction evaluates in-page
+// and would be blocked by it. Bypassing CSP in the capture context does
+// not change the render (every playground resource is CSP-allowed
+// anyway), it only lets the capture harness poll readiness.
+const ctx     = await browser.newContext({ viewport: { width: 800, height: 600 }, deviceScaleFactor: 2, bypassCSP: true });
 const page    = await ctx.newPage();
 
 try {
