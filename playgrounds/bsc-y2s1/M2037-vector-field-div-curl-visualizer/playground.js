@@ -23,8 +23,21 @@ const valueA       = document.getElementById('value-a');
 let familyName = selectFamily.value;
 let a = parseFloat(sliderA.value);
 
-selectFamily.addEventListener('change', () => { familyName = selectFamily.value; valueFamily.textContent = familyName; });
-sliderA.addEventListener('input', () => { a = parseFloat(sliderA.value); valueA.textContent = a.toFixed(2); });
+const state = {
+  familyName,
+  a,
+};
+
+selectFamily.addEventListener('change', () => {
+  familyName = selectFamily.value;
+  state.familyName = familyName;
+  valueFamily.textContent = familyName;
+});
+sliderA.addEventListener('input', () => {
+  a = parseFloat(sliderA.value);
+  state.a = a;
+  valueA.textContent = a.toFixed(2);
+});
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -159,13 +172,38 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const f = FAMILIES[familyName];
   return {
     fields: [
-      { key: 'field_type', label: 'Field type', value: st.type || 'F' },
-      { key: 'scale', label: 'Display scale', value: st.scale || 1, format: 'float' }
+      { key: 'field_family', label: 'Field family', value: familyName },
+      { key: 'parameter_a', label: 'Parameter a', value: a, format: 'float' },
+      { key: 'divergence', label: 'Divergence (div F)', value: f.div(0, 0, a), format: 'float' },
+      { key: 'curl', label: 'Curl (curl F)', value: f.curl(0, 0, a), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
-  return [{ key: 'vector-identity', label: 'div(curl(F)) = 0, curl(grad(f)) = 0', value: 'pass', status: 'pass' }];
+  const f = FAMILIES[familyName];
+  const divVal = f.div(0, 0, a);
+  const curlVal = f.curl(0, 0, a);
+  return [
+    {
+      key: 'field-family-correct',
+      label: 'Field family defined',
+      value: familyName in FAMILIES ? 'pass' : 'fail',
+      status: familyName in FAMILIES ? 'pass' : 'fail'
+    },
+    {
+      key: 'divergence-computed',
+      label: 'Divergence computed',
+      value: Number.isFinite(divVal) ? 'pass' : 'fail',
+      status: Number.isFinite(divVal) ? 'pass' : 'fail'
+    },
+    {
+      key: 'curl-computed',
+      label: 'Curl computed',
+      value: Number.isFinite(curlVal) ? 'pass' : 'fail',
+      status: Number.isFinite(curlVal) ? 'pass' : 'fail'
+    }
+  ];
 };
