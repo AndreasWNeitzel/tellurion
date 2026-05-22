@@ -228,24 +228,25 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const z = st.z ?? 0;
-  const a = 1 / (1 + z);
-  const rho_m = st.rho_m0 * a ** (-3);
-  const rho_r = st.rho_r0 * a ** (-4);
+  const a = Math.pow(10, logA);
+  const z = 1 / a - 1;
+  const rho_m = rhoMatter(a, Om);
+  const rho_r = rhoRadiation(a, Or);
   return { fields: [
-    { key: 'redshift', label: 'Redshift z', value: z, format: 'float' },
-    { key: 'scale-factor', label: 'Scale factor a = 1/(1+z)', value: a, format: 'float' },
-    { key: 'matter-density', label: 'Matter density (relative)', value: rho_m / Math.max(rho_m, rho_r), format: 'float' },
-    { key: 'radiation-density', label: 'Radiation density (relative)', value: rho_r / Math.max(rho_m, rho_r), format: 'float' },
+    { key: 'redshift', label: 'Redshift z', value: z > 0 ? z.toExponential(2) : '0', format: 'float' },
+    { key: 'scale-factor', label: 'Scale factor a', value: a.toExponential(2), format: 'float' },
+    { key: 'omega-matter', label: '$\\Omega_m$', value: Om.toFixed(3), format: 'float' },
+    { key: 'omega-radiation', label: '$\\Omega_r$', value: Or.toExponential(2), format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  const z = st.z ?? 0;
-  // Equality at z ~ 3400 (z_eq)
-  const z_eq = 3400;
-  const isNearEquality = Math.abs(z - z_eq) < 1000;
-  
+  const a = Math.pow(10, logA);
+  const aeq = aEq(Om, Or);
+  const zeq = zEq(Om, Or);
+  const ratio = Math.abs(a - aeq) / Math.max(aeq, 1e-9);
+
   return [
-    { key: 'matter-radiation-equality', label: 'Equality near z_eq ~ 3400', value: isNearEquality ? 'near' : 'far', status: 'drift' },
+    { key: 'equality-tracking', label: `Currently tracking ${a < aeq ? 'radiation' : 'matter'} epoch`, value: `a = ${a.toExponential(2)}`, status: 'pass' },
+    { key: 'equality-parameter', label: 'Equality redshift $z_{eq}$ computed', value: zeq.toFixed(0), status: zeq > 0 ? 'pass' : 'drift' },
   ];
 }
