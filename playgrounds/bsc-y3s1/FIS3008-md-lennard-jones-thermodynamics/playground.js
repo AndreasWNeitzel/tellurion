@@ -193,29 +193,17 @@ if (document.readyState === 'loading') {
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const T = temperature(state);
+  return {
+    fields: [
+      { key: 'temperature', label: 'temperature $T$', value: T, format: 'float' },
+      { key: 'pressure', label: 'pressure $P$', value: pressure(state, T), format: 'float' },
+      { key: 'density', label: 'number density $\\rho$', value: st.rho, format: 'float' },
+      { key: 'energy', label: 'total energy $E$', value: diagnostics(state.inst).energy, format: 'float' },
+    ],
   };
-}
+};
 // Pairwise Lennard-Jones forces are symmetric and the thermostat
 // rescales every velocity uniformly, so the box's total momentum is
 // conserved; initialised at zero, it stays at the numerical floor.
