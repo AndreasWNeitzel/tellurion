@@ -351,33 +351,52 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  if (!state.duf || !state.duf.inst || !state.duf.inst.state) {
+    const x = state.duf ? (state.duf.inst ? (state.duf.inst.state ? state.duf.inst.state[0] : 0.1) : 0.1) : 0.1;
+    const v = state.duf ? (state.duf.inst ? (state.duf.inst.state ? state.duf.inst.state[1] : 0) : 0) : 0;
+    return {
+      fields: [
+        { key: 'param-delta', label: 'Damping delta', value: state.params.delta, format: 'float' },
+        { key: 'param-gamma', label: 'Drive amplitude gamma', value: state.params.gamma, format: 'float' },
+        { key: 'param-omega', label: 'Drive frequency omega', value: state.params.omega, format: 'float' },
+        { key: 'position-x', label: 'Position x', value: x, format: 'float' },
+        { key: 'velocity-v', label: 'Velocity v', value: v, format: 'float' }
+      ]
+    };
+  }
+  return {
+    fields: [
+      { key: 'param-delta', label: 'Damping delta', value: state.params.delta, format: 'float' },
+      { key: 'param-gamma', label: 'Drive amplitude gamma', value: state.params.gamma, format: 'float' },
+      { key: 'param-omega', label: 'Drive frequency omega', value: state.params.omega, format: 'float' },
+      { key: 'position-x', label: 'Position x', value: state.duf.inst.state[0], format: 'float' },
+      { key: 'velocity-v', label: 'Velocity v', value: state.duf.inst.state[1], format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  if (!state.duf || !state.duf.inst || !state.duf.inst.state) {
+    return [{ key: 'state-init', label: 'Initializing', value: 'pending', status: 'pending' }];
+  }
+  const x = state.duf.inst.state[0];
+  const v = state.duf.inst.state[1];
+  const bounded = Math.abs(x) < 3 && Math.abs(v) < 3;
+  const wellform = Math.sign(x * x - 1) !== 0;
+  return [
+    {
+      key: 'phase-space-bounded',
+      label: 'Phase space bounded (|x|, |v| < 3)',
+      value: bounded ? 'bounded' : 'diverging',
+      status: bounded ? 'pass' : 'drift'
+    },
+    {
+      key: 'attractor-structure',
+      label: 'In double-well regime',
+      value: wellform ? 'bistable' : 'transitional',
+      status: 'pending'
+    }
+  ];
+};
