@@ -201,5 +201,33 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function () { return { fields: [ { key: 'iter', label: 'Iterations', value: st.iter }, { key: 'elbo', label: 'ELBO', value: (st.elbo || 0).toExponential(2) } ] }; };
-window.playground.getInvariants = function () { return [ { key: 'vi-convergence', label: 'ELBO monotone increase', value: 'OK', status: 'pass' } ]; };
+window.playground.getState = function () {
+  const last = state.lossHistory[state.lossHistory.length - 1];
+  const sX = Math.exp(state.theta.logSX);
+  const sY = Math.exp(state.theta.logSY);
+  return {
+    fields: [
+      { key: 'iterations', label: 'Iterations', value: state.iter.toFixed(0), format: 'float' },
+      { key: 'elbo', label: 'ELBO (nats)', value: (last !== undefined ? last.toFixed(3) : '-'), format: undefined },
+      { key: 'mean-x', label: 'Posterior mean $\\mu_x$', value: state.theta.muX.toFixed(2), format: 'float' },
+      { key: 'mean-y', label: 'Posterior mean $\\mu_y$', value: state.theta.muY.toFixed(2), format: 'float' },
+    ]
+  };
+};
+window.playground.getInvariants = function () {
+  let monotone = true;
+  for (let i = 1; i < state.lossHistory.length; i += 1) {
+    if (state.lossHistory[i] < state.lossHistory[i - 1] - 1e-10) {
+      monotone = false;
+      break;
+    }
+  }
+  return [
+    {
+      key: 'vi-convergence',
+      label: 'ELBO monotone non-decreasing',
+      value: state.iter.toString(),
+      status: monotone ? 'pass' : 'drift'
+    }
+  ];
+};
