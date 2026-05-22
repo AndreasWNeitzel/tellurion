@@ -89,6 +89,7 @@ function render() {
   let varr = 0; for (let i = 0; i < I.length; i += 1) varr += (I[i] - mean) ** 2; varr /= I.length;
   const V = mean > 0 ? Math.sqrt(varr) / mean : 0;
   st.lastV = V;                                  // exposed to the rail invariant
+  st.lastMean = mean;
   const BINS = 40, HXMAX = 6;
   const binW = HXMAX / BINS;
   const hist = new Float64Array(BINS);
@@ -191,29 +192,15 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 // Reports the live control values as state. A later refinement pass
 // can replace this with playground-specific physical quantities.
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'contrast', label: 'speckle contrast $V$', value: st.lastV ?? 0, format: 'float' },
+      { key: 'mean-intensity', label: 'mean intensity $\\langle I \\rangle$', value: st.lastMean ?? 0, format: 'float' },
+      { key: 'dr0', label: 'aperture ratio $D/r_0$', value: st.Dr0, format: 'float' },
+    ],
   };
-}
+};
 // Fully developed speckle has negative-exponential intensity, for
 // which sigma equals the mean, so the contrast V = sigma/mean -> 1.
 if (!window.playground.getInvariants) {
