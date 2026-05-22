@@ -82,7 +82,7 @@ function drawGofr() {
   ctx.textAlign = 'center'; ctx.fillText('r  (sigma)', (PX0 + PX1) / 2, H - 28);
   // plain-words caption (kept clear of the top-right readout box)
   ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('g(r): neighbour density / bulk; peaks = coordination shells in the box', (PX0 + PX1) / 2, H - 12);
+  ctx.fillText('g(r): neighbor density / bulk', (PX0 + PX1) / 2, H - 12);
   ctx.save(); ctx.translate(PX0 - 30, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('g(r)', 0, 0); ctx.restore();
   // g = 1 reference: an ideal gas has no structure

@@ -83,7 +83,7 @@ function paintPlot() {
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.fillText('temperature  T', (PX0 + PX1) / 2, H - 22);
   ctx.save(); ctx.translate(PX0 - 34, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('|M|', 0, 0); ctx.restore();
+  ctx.textAlign = 'left'; ctx.fillText('|M|', 0, 0); ctx.restore();
   for (let g = 0; g <= 4; g += 1) {
     const yy = PY1 - (g / 4) * (PY1 - PY0);
     ctx.strokeStyle = 'rgba(120,130,150,0.15)'; ctx.beginPath(); ctx.moveTo(PX0, yy); ctx.lineTo(PX1, yy); ctx.stroke();

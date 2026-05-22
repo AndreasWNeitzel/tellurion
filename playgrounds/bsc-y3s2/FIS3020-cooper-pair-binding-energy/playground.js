@@ -118,7 +118,8 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.fillStyle = '#9aa0a6';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('|g(ξ)|', x0 + 8, y0 + pad.t - 3);
-  ctx.fillText('ξ / ℏω_D (fixed window)', x0 + w - 130, y0 + h - pad.b + 12);
+  ctx.textAlign = 'right';
+  ctx.fillText('ξ / ℏω_D', x0 + w - 20, y0 + h - pad.b + 12);
 
   const xToPx = (xi) => x0 + pad.l + (xi + xi_max) / (2 * xi_max) * (w - pad.l - pad.r);
   const maxG = 1 / Math.max(Math.abs(0 + Ecur), 1e-6) * 1.5;
