@@ -174,7 +174,6 @@ window.__physicsCheck = async () => {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const g = gamma(st.beta);
-  const omega_T = thomasRate(st.beta, 2 * Math.PI / T_ORBIT);
   return { fields: [
     { key: 'velocity-beta', label: 'Velocity (beta = v/c)', value: st.beta, format: 'float' },
     { key: 'lorentz-gamma', label: 'Lorentz gamma', value: g, format: 'float' },
