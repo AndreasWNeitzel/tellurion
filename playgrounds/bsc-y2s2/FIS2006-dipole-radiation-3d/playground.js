@@ -28,7 +28,7 @@ for (const kk of READOUTS) {
   readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[kk] = b;
 }
 
-const st = { source: 'electric', fMHz: 100, moment: 1.0, t: 0, running: 1 };
+const st = { source: 'electric', fMHz: 100, moment: 1.0, t: 0, running: 1, camYaw: 0, camPitch: 0, manual: false };
 function patternFn() { return st.source === 'antenna' ? antennaPattern : dipolePattern; }
 function omega() { return 2 * Math.PI * st.fMHz * 1e6; }
 function powerW() {
@@ -59,7 +59,11 @@ function render() {
   // about z (yaw) is invisible. Tumbling it (pitch sweep) is what
   // makes the toroidal 3D structure read: the donut rocks from
   // near-edge-on to near-face-on. yaw is kept for subtle parallax.
-  const pat = patternFn(), yaw = st.t * 0.22, pitch = -0.95 + 0.66 * Math.sin(st.t * 0.31), scale = 168;
+  const pat = patternFn(), scale = 168;
+  // Automatic tumble until the user grabs the scene; after that yaw and
+  // pitch are driven by the pointer drag (handlers defined below).
+  const yaw = st.manual ? st.camYaw : st.t * 0.22;
+  const pitch = st.manual ? st.camPitch : -0.95 + 0.66 * Math.sin(st.t * 0.31);
 
   // radiation-pattern surface of revolution: radius = pattern(theta)
   const NT = 56, NP = 52, faces = [];
@@ -158,7 +162,7 @@ function render() {
   ctx.globalCompositeOperation = 'source-over';
   ctx.lineWidth = 1;
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText(`${st.source === 'antenna' ? 'half-wave antenna' : st.source + ' dipole'} radiation pattern (rotating)`, SX + SW / 2, SY + SH + 20);
+  ctx.fillText(`${st.source === 'antenna' ? 'half-wave antenna' : st.source + ' dipole'} radiation pattern (drag to orbit)`, SX + SW / 2, SY + SH + 20);
   ctx.textAlign = 'left';
 
   // polar pattern panel
@@ -216,11 +220,49 @@ const bReset = document.createElement('button'); bReset.type = 'button'; bReset.
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
 bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
 bReset.addEventListener('click', () => {
-  Object.assign(st, { source: 'electric', fMHz: 100, moment: 1.0, t: 0, running: 1 });
+  Object.assign(st, { source: 'electric', fMHz: 100, moment: 1.0, t: 0, running: 1, camYaw: 0, camPitch: 0, manual: false });
   srSel.value = 'electric'; cF.inp.value = '100'; cF.val.textContent = '100'; cM.inp.value = '1'; cM.val.textContent = '1.0';
   bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); render();
 });
 bPause.addEventListener('click', () => { st.running = st.running ? 0 : 1; bPause.textContent = st.running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!st.running)); });
+
+// Drag inside the 3D scene to orbit the radiation pattern. Grabbing
+// switches off the automatic tumble and hands yaw and pitch to the
+// pointer; Reset restores the automatic rotation.
+canvas.style.cursor = 'grab';
+let dragging = false, dragX = 0, dragY = 0, dragYaw0 = 0, dragPitch0 = 0;
+function inScene(e) {
+  const r = canvas.getBoundingClientRect();
+  const lx = (e.clientX - r.left) * canvas.width / r.width;
+  const ly = (e.clientY - r.top) * canvas.height / r.height;
+  return lx >= SX && lx <= SX + SW && ly >= SY && ly <= SY + SH;
+}
+canvas.addEventListener('pointerdown', (e) => {
+  if (!inScene(e)) return;
+  if (!st.manual) {
+    st.camYaw = st.t * 0.22;
+    st.camPitch = -0.95 + 0.66 * Math.sin(st.t * 0.31);
+    st.manual = true;
+  }
+  dragging = true;
+  dragX = e.clientX; dragY = e.clientY;
+  dragYaw0 = st.camYaw; dragPitch0 = st.camPitch;
+  canvas.style.cursor = 'grabbing';
+  try { canvas.setPointerCapture(e.pointerId); } catch { /* pointer capture is best-effort */ }
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  st.camYaw = dragYaw0 + (e.clientX - dragX) * 0.011;
+  st.camPitch = Math.max(-1.5, Math.min(1.5, dragPitch0 + (e.clientY - dragY) * 0.011));
+});
+function endDrag(e) {
+  if (!dragging) return;
+  dragging = false;
+  canvas.style.cursor = 'grab';
+  try { canvas.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+}
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
 
 let lastT = performance.now();
 function tick(now) {
