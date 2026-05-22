@@ -265,33 +265,38 @@ if (document.readyState === 'loading') {
 }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  const p = PRESET[st.w];
+  return {
+    fields: [
+      { key: 'weighting', label: 'T1/T2/PD weighting', value: st.w, format: undefined },
+      { key: 'sequence', label: 'pulse sequence (SE/GRE)', value: st.seq, format: undefined },
+      { key: 'tr', label: 'repeat time TR (ms)', value: p.TR, format: 'float' },
+      { key: 'te', label: 'echo time TE (ms)', value: p.TE, format: 'float' }
+    ]
   };
-}
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () { return []; };
-}
+};
+window.playground.getInvariants = function () {
+  const inv = [];
+  const p = PRESET[st.w];
+  // Ernst angle for gradient echo: theta_E = arccos(exp(-TR/T1))
+  // For T2: T1_gray = 0.85s, T2_gray = 0.1s (typical values)
+  const T1 = 850; // ms
+  const ernst = ernstAngle(p.TR, T1);
+  inv.push({
+    key: 'ernst-angle',
+    label: 'Ernst angle for GRE exists',
+    value: (ernst * 180 / Math.PI).toFixed(1),
+    status: ernst > 0 && ernst < Math.PI ? 'pass' : 'drift'
+  });
+  // Practical constraint: TE <= TR (echo must occur before next pulse)
+  inv.push({
+    key: 'timing-constraint',
+    label: 'TE < TR (valid sequence)',
+    value: `TE=${p.TE}, TR=${p.TR}`,
+    status: p.TE < p.TR ? 'pass' : 'drift'
+  });
+  return inv;
+};
