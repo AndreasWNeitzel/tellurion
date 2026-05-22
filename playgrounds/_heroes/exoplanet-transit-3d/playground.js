@@ -90,6 +90,7 @@ const ui = { Rp: 0.1, aOverRs: 6, inc: Math.PI / 2, period: 4, u1: 0.45, u2: 0.2
 let sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });
 function resolve() {
   sim = makeTransit({ Rp: ui.Rp, a: ui.aOverRs, inc: ui.inc, period: ui.period, u1: ui.u1, u2: ui.u2 });
+  rebuildCurve();
   fitCamera();
 }
 fitCamera();
@@ -264,7 +265,6 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
   if (ui.running) sim.t += dt * (ui.period / 14);    // one orbit in ~14 s (slower so the transit is watchable)
   camera.tickIdle(now);
-  rebuildCurve();
   frame();
   requestAnimationFrame(tick);
 }
