@@ -258,7 +258,7 @@ function render() {
   const o0 = project(cam, [0, 0, 0]);
   if (o0) { ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.fillText('launch', o0[0] - 6, o0[1] + 16); }
   const gx = 46, gy = H - 40, gL = 26;
-  for (const [v, c, lab] of [[[1, 0, 0], '#ff8d6b', 'x range'], [[0, 1, 0], '#7ad88a', 'y side'], [[0, 0, 1], '#7ab6ff', 'z up']]) {
+  for (const [v, c, lab] of [[[1, 0, 0], '#ff8d6b', 'x'], [[0, 1, 0], '#7ad88a', 'y'], [[0, 0, 1], '#7ab6ff', 'z']]) {
     const ex = dot(v, cam.right), ey = dot(v, cam.up);
     const tx = gx + ex * gL, ty = gy - ey * gL;
     ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(tx, ty); ctx.stroke();
