@@ -107,7 +107,7 @@ function draw1D() {
     ctx.stroke();
   }
 
-  // DOS panel (1D single band only)
+  // DOS panel: g(E) for the single band, or the SSH two-band histogram.
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(DX0, PY0); ctx.lineTo(DX0, PY1); ctx.lineTo(DX1, PY1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.textAlign = 'center';
@@ -127,8 +127,31 @@ function draw1D() {
     ctx.strokeStyle = 'rgba(6,214,160,0.6)'; ctx.setLineDash([6, 4]);
     ctx.beginPath(); ctx.moveTo(DX0, yF); ctx.lineTo(DX1, yF); ctx.stroke(); ctx.setLineDash([]);
   } else {
-    ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.textAlign = 'center';
-    ctx.fillText(`gap = ${sshGap(st.t, st.t * st.dim).toFixed(2)}`, (DX0 + DX1) / 2, (PY0 + PY1) / 2);
+    // SSH density of states: histogram both bands over the Brillouin
+    // zone. The gap shows as an empty band of energies; the van Hove
+    // edges show as peaks where the bands flatten.
+    const NB = 56, bins = new Array(NB).fill(0);
+    for (let i = 0; i < 4000; i += 1) {
+      const k = -Math.PI + (i / 4000) * 2 * Math.PI;
+      const sb = sshBands(k, st.t, st.t * st.dim);
+      for (const band of bands) {
+        const idx = Math.floor((sb[band] - eLo) / (eHi - eLo) * NB);
+        if (idx >= 0 && idx < NB) bins[idx] += 1;
+      }
+    }
+    let gmax = 1;
+    for (const b of bins) gmax = Math.max(gmax, b);
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i < NB; i += 1) {
+      const E = eLo + ((i + 0.5) / NB) * (eHi - eLo);
+      const X = DX0 + (bins[i] / gmax) * (DX1 - DX0), Y = yOf(E);
+      if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(6,214,160,0.6)'; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(DX0, yF); ctx.lineTo(DX1, yF); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
+    ctx.fillText(`gap = ${sshGap(st.t, st.t * st.dim).toFixed(2)}`, (DX0 + DX1) / 2, PY0 + 14);
   }
 }
 
