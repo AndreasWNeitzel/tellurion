@@ -236,11 +236,21 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const Vop = st.ph * st.voc;
+  const Iop = Math.max(0, cellCurrent(Vop, st.p));
   return { fields: [
-    { key: 'voltage', label: 'voltage (V)', value: (sim.V || 0).toFixed(2), format: 'float' },
-    { key: 'current', label: 'current (mA)', value: (sim.I || 0).toFixed(1), format: 'float' },
+    { key: 'voltage', label: 'Operating voltage (V)', value: Vop.toFixed(3), format: 'float' },
+    { key: 'current', label: 'Operating current (A/cm$^2$)', value: Iop.toFixed(2), format: 'float' },
+    { key: 'bandgap', label: 'Bandgap $E_g$ (eV)', value: st.Eg.toFixed(2), format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  return [ { key: 'current-nonneg', label: 'I >= 0', value: (sim.I || 0) >= 0 ? 'pass' : 'drift', status: (sim.I || 0) >= 0 ? 'pass' : 'drift' } ];
+  const Vop = st.ph * st.voc;
+  const Iop = Math.max(0, cellCurrent(Vop, st.p));
+  const validV = Vop >= 0 && Vop <= st.voc;
+  const validI = Iop >= 0;
+  return [
+    { key: 'voltage-bounds', label: 'Voltage in valid range', value: validV ? 'pass' : 'drift', status: validV ? 'pass' : 'drift' },
+    { key: 'current-nonneg', label: 'Current >= 0', value: validI ? 'pass' : 'drift', status: validI ? 'pass' : 'drift' },
+  ];
 };
