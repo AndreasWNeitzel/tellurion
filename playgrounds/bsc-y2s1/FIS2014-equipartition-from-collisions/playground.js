@@ -70,33 +70,18 @@ function bootSync() { for (let k = 0; k < CAPTURE_FRAC * 800; k += 1) step(state
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 
-// === Diagnostics interface (Layout System v2, generic fallback) ===
-// Reports the live control values as state. A later refinement pass
-// can replace this with playground-specific physical quantities.
+// === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-if (!window.playground.getState) {
-  window.playground.getState = function () {
-    const fields = [];
-    document.querySelectorAll('#controls input, #controls select').forEach((el) => {
-      if (el.type === 'button') return;
-      let label = (el.getAttribute('aria-label') || '').trim();
-      if (!label) {
-        const row = el.closest('.row');
-        const lab = row && (row.querySelector('.label') || row.querySelector('label'));
-        if (lab) label = lab.textContent.trim();
-      }
-      if (!label && el.id) label = el.id.replace(/^(slider|select|toggle)-/, '').replace(/[-_]/g, ' ');
-      if (!label) label = 'control';
-      const key = (el.id || label).replace(/^(slider|select|toggle)-/, '').replace(/[\s_]+/g, '-').toLowerCase();
-      let value = el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
-      const num = Number(value);
-      if (value !== '' && Number.isFinite(num)) value = num;
-      fields.push({ key, label, value,
-        format: typeof value === 'number' ? 'float' : undefined });
-    });
-    return { fields };
+window.playground.getState = function () {
+  return {
+    fields: [
+      { key: 'particles', label: 'particles $N$', value: st.N, format: 'int' },
+      { key: 'target-temp', label: 'target temperature $T$', value: st.T, format: 'float' },
+      { key: 'mean-ke', label: 'mean kinetic energy $\\langle KE \\rangle$', value: meanKE(state), format: 'float' },
+      { key: 'mean-speed', label: 'mean speed $\\langle |v| \\rangle$', value: meanSpeed(state), format: 'float' },
+    ],
   };
-}
+};
 // Hard-disk collisions and wall reflections are elastic, so the
 // total (hence mean) kinetic energy is conserved. The baseline is
 // captured on first sample and re-taken when a reset re-seeds it.
