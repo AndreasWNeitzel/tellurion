@@ -211,18 +211,25 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const [P, N] = st.state || [0, 0];
+  const prey_x = state.sim ? state.sim.x : 0;
+  const pred_y = state.sim ? state.sim.y : 0;
+  const K_val = state.K;
   return { fields: [
-    { key: 'predator-pop', label: 'Predator population', value: P, format: 'float' },
-    { key: 'prey-pop', label: 'Prey population', value: N, format: 'float' },
-    { key: 'parameter', label: 'Bifurcation parameter lambda', value: st.lambda, format: 'float' },
+    { key: 'prey-population', label: 'Prey density $x$', value: prey_x, format: 'float' },
+    { key: 'predator-population', label: 'Predator density $y$', value: pred_y, format: 'float' },
+    { key: 'carrying-capacity', label: 'Carrying capacity $K$', value: K_val, format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  // Hopf bifurcation at lambda_c ~ 0.5; oscillations emerge
-  const bifurcationExists = st.lambda > 0.4 && st.lambda < 0.7;
-  
+  if (!state.sim) return [{ key: 'state-uninit', label: 'State uninitialized', value: 'pending', status: 'pending' }];
+  const KH = hopfThreshold(FIXED_PARAMS);
+  const isOscillating = state.K > KH;
   return [
-    { key: 'hopf-bifurcation', label: 'Hopf bifurcation near lambda ~ 0.5', value: bifurcationExists ? 'detected' : 'not in range', status: 'drift' },
+    {
+      key: 'hopf-bifurcation',
+      label: 'Hopf bifurcation at $K_H \\approx ' + KH.toFixed(2) + '$',
+      value: isOscillating ? 'oscillating' : 'stable',
+      status: 'pass'
+    },
   ];
 }
