@@ -11,11 +11,12 @@ dist/
 .vite/
 *.tsbuildinfo
 
-# Test artifacts (ephemeral; goldens live under references/golden-frames/ and are committed)
-# Both the legacy flat layout playgrounds/<slug>/ and the curriculum-aligned
-# playgrounds/<year>/<UC>-<slug>/ layout are covered.
-playgrounds/*/references/captured/
-playgrounds/*/*/references/captured/
+# Test artifacts: all references/ output is generated and regeneratable
+# via scripts/capture-reference.mjs. Nothing under references/ should be
+# tracked; it is pixel-regression diagnostic data that goes stale on
+# every playground update and provides no user value.
+playgrounds/*/references/
+playgrounds/*/*/references/
 playgrounds/*/failures/
 playgrounds/*/*/failures/
 playwright-report/
