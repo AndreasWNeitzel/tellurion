@@ -309,8 +309,9 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   background:var(--accent);transform:scaleX(0);transform-origin:center;transition:transform 250ms ease}
 .nav-links a.active::after{transform:scaleX(1)}
 .nav-icons{display:flex;gap:20px;align-items:center}
-.nav-icons a{color:var(--text-dimmed);display:flex;transition:color var(--t-fast)}
-.nav-icons a:hover{color:var(--text-secondary)}
+.nav-icons a,.nav-icons button{color:var(--text-dimmed);display:flex;align-items:center;background:none;border:0;padding:0;cursor:pointer;transition:color var(--t-fast)}
+.nav-icons a:hover,.nav-icons button:hover{color:var(--text-secondary)}
+.nav-icons button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
 .nav-icons svg{width:18px;height:18px}
 .nav-burger{display:none;background:none;border:none;color:var(--text-secondary);font-size:20px;cursor:pointer;padding:4px 8px}
 .nav-mobile{display:none;position:fixed;top:56px;left:0;right:0;z-index:199;background:var(--bg-surface);
@@ -560,6 +561,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <a href="#credits">Credits</a>
     </div>
     <div class="nav-icons">
+      <button type="button" id="nav-search" aria-label="Search the catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg></button>
       <a href="${LINKEDIN_URL}"${LINKEDIN_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''} aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0H12v2.2h.07c.63-1.2 2.17-2.47 4.46-2.47C21.4 7.73 24 10.1 24 14.8V24h-5v-8.2c0-1.96-.04-4.48-2.73-4.48-2.73 0-3.15 2.13-3.15 4.33V24h-5V8z"/></svg></a>
     </div>
     <button class="nav-burger" id="nav-burger" type="button" aria-label="Menu" aria-expanded="false">&#9776;</button>
@@ -588,6 +590,13 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   window.__sfx = { filterActivate, filterDeactivate };
   window.__amb = { toggleAmbient, ambientActive };
   mountCursor();
+  // Nav search-icon: scroll to the catalog and focus its search input.
+  document.getElementById('nav-search')?.addEventListener('click', () => {
+    const browse = document.getElementById('browse');
+    const input = document.getElementById('search-input');
+    if (browse) browse.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (input) setTimeout(() => input.focus({ preventScroll: true }), 350);
+  });
 </script>
 
 <section class="landing-hero">
