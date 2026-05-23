@@ -11,6 +11,12 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Tellurion">
 <meta name="twitter:description" content="A laboratory of 332 interactive physics simulations. Public beta.">
+<link rel="icon" type="image/x-icon" href="assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -86,10 +92,6 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .nav.depth{border-bottom-color:var(--border-subtle)}
 .nav-in{max-width:1280px;height:56px;margin:0 auto;padding:0 24px;display:flex;align-items:center;
   justify-content:space-between;gap:24px}
-.nav-mono{font-family:var(--f-mono);font-weight:500;font-size:14px;letter-spacing:0.08em;
-  color:var(--text-primary);padding:6px 10px;border:1px solid var(--border-subtle);border-radius:4px;
-  text-decoration:none;transition:border-color var(--t-fast)}
-.nav-mono:hover{border-color:var(--border-active)}
 .nav-links{display:flex;gap:32px}
 .nav-links a{position:relative;padding:19px 0;font-size:13px;font-weight:500;letter-spacing:0.01em;
   color:var(--text-secondary);text-decoration:none;transition:color var(--t-fast)}
@@ -289,8 +291,9 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 @media(max-width:760px){.about-grid{flex-direction:column}.about-l{width:100%;display:flex;
   flex-direction:column;align-items:center}.credits-grid{flex-direction:column;gap:40px}}
 /* Tellurion masthead: refined wordmark, tagline, and quiet status pill. */
-.t-display.wordmark{letter-spacing:0.05em;font-weight:800;margin:0;position:relative;padding-bottom:12px;display:inline-block}
+.t-display.wordmark{letter-spacing:0.05em;font-weight:800;margin:0;position:relative;padding-bottom:12px;display:inline-flex;align-items:center;gap:14px}
 .t-display.wordmark::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:128px;background:var(--accent-gold);opacity:0.3}
+.wordmark-icon{width:0.78em;height:0.78em;border-radius:6px;flex:none;display:block}
 .masthead-tagline{color:var(--text-secondary);max-width:640px;margin:18px 0 0;line-height:1.6}
 .masthead-status{color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.75rem;margin-top:10px;letter-spacing:0.04em}
 /* Framing aside above the featured row. Quiet body text, not a banner. */
@@ -341,7 +344,6 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 <body>
 <nav class="nav" id="nav">
   <div class="nav-in">
-    <a class="nav-mono" href="index.html" aria-label="Home">AN</a>
     <div class="nav-links">
       <a href="#browse">Simulations</a>
       <a href="#about">About</a>
@@ -388,7 +390,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 </script>
 
 <section class="landing-hero">
-  <h1 class="t-display wordmark">Tellurion</h1>
+  <h1 class="t-display wordmark"><img class="wordmark-icon" src="assets/favicon/android-chrome-192x192.png" alt="" aria-hidden="true">Tellurion</h1>
   <p class="masthead-tagline t-body">A laboratory of interactive physics simulations.</p>
   <div class="masthead-status t-small">v0.1.0 &middot; in beta</div>
   <div class="landing-framing">
@@ -3157,7 +3159,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       </div>
       <div class="about-stack about-anim">
         <div class="lab">Built with</div>
-        <div class="tags"><span>Vanilla JavaScript</span><span>Canvas2D</span><span>SVG</span><span>WebGL2</span><span>Web Audio API</span><span>KaTeX</span><span>HTML5 / CSS3</span><span>Node.js</span><span>Claude</span></div>
+        <div class="tags"><span>Vanilla JavaScript</span><span>Canvas2D</span><span>SVG</span><span>WebGL2</span><span>Web Audio API</span><span>KaTeX</span><span>HTML5 / CSS3</span><span>Node.js</span><span>Claude</span><span>Midjourney</span></div>
       </div>
     </div>
   </div>
