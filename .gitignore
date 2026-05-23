@@ -121,3 +121,7 @@ htmlcov/
 # Raw card-image source drop (heavy input; derive assets/thumbs via
 # scripts/build-card-thumbs.mjs, which is committed)
 images/
+
+# Local archive of superseded playgrounds. Kept on the maintainer's
+# disk for reference and possible future restoration. Never deployed.
+_archive/
