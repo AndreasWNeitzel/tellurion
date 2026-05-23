@@ -20,18 +20,15 @@ Each playground must ship with:
 
 1. `spec.md` with frontmatter (see `docs/TAGS.md` and existing playgrounds).
 2. `sim.js`: headless numerical engine.
-3. `invariants.test.mjs`: at least five Vitest invariant tests.
+3. `invariants.test.mjs`: at least five Vitest invariant tests. This is the correctness gate.
 4. `index.html` + `playground.js`: the UI.
-5. `references/golden-frames/`: five PNG frames captured at deterministic seeds.
-6. `visual.test.mjs`: Playwright SSIM check against the golden frames at threshold 0.92.
-7. `README.md`: three short paragraphs.
-8. `.verified` marker: written by the `ship-one` flow after every gate passes.
+5. `README.md`: three short paragraphs.
+
+The optional pixel-regression suite (`visual.test.mjs` plus `references/golden-frames/` PNGs) is supported locally for diagnostic use but its outputs are gitignored. Regenerate goldens with `node scripts/capture-reference.mjs --playground <slug>` if you want to run the visual gates on your machine.
 
 ## Style
 
 - No em-dash and no en-dash anywhere.
 - No emoji in source, docs, captions, or commit messages.
 - No AI-tells in prose: delve, leverage as verb, in conclusion, moreover, furthermore, it's worth noting, navigate as metaphor, tapestry, landscape as metaphor.
-- Citations as `arXiv:YYMM.NNNNN`, `ADS:bibcode`, `doi:...`, a repository `url:...`, or explicit `[no-source: internal-reasoning]` tag.
-
-See `CLAUDE.md` for the full hard-rule list.
+- Citations as `arXiv:YYMM.NNNNN`, `ADS:bibcode`, `doi:...`, or a repository `url:...`.
