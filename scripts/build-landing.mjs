@@ -655,7 +655,10 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <div class="lab">About the author</div>
   <div class="about-grid">
     <div class="about-l">
-      <div class="about-photo"${existsSync(join('assets', 'profile.jpg')) ? ' style="background-image:url(assets/profile.jpg)"' : ''}></div>
+      <div class="about-photo"${
+        existsSync(join('assets', 'profile.png')) ? ' style="background-image:url(assets/profile.png)"' :
+        existsSync(join('assets', 'profile.jpg')) ? ' style="background-image:url(assets/profile.jpg)"' : ''
+      }></div>
       <div class="about-contact">
         <a href="mailto:${CONTACT_EMAIL}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>${CONTACT_EMAIL}</a>
         <a href="${LINKEDIN_URL}"${LINKEDIN_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0H12v2.2h.07c.63-1.2 2.17-2.47 4.46-2.47C21.4 7.73 24 10.1 24 14.8V24h-5v-8.2c0-1.96-.04-4.48-2.73-4.48-2.73 0-3.15 2.13-3.15 4.33V24h-5V8z"/></svg>LinkedIn</a>
