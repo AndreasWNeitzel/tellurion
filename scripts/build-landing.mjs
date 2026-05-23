@@ -47,7 +47,6 @@ function curOf(cy) {
 // github references (the code is private, destined for a paid
 // domain), so these are neutral placeholders to be pointed at the
 // real domain later. No github.com / github.io strings anywhere.
-const RESEARCH_URL = '#';
 const LINKEDIN_URL = 'https://www.linkedin.com/in/andreaswneitzel/';
 const CONTACT_EMAIL = 'andreaswneitzel@gmail.com';
 const BETA_TESTERS = [
@@ -559,7 +558,6 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <a href="#contributing">Contribute</a>
       <a href="#upcoming">Upcoming</a>
       <a href="#credits">Credits</a>
-      <a href="${RESEARCH_URL}"${RESEARCH_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>Research</a>
     </div>
     <div class="nav-icons">
       <a href="${LINKEDIN_URL}"${LINKEDIN_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''} aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0H12v2.2h.07c.63-1.2 2.17-2.47 4.46-2.47C21.4 7.73 24 10.1 24 14.8V24h-5v-8.2c0-1.96-.04-4.48-2.73-4.48-2.73 0-3.15 2.13-3.15 4.33V24h-5V8z"/></svg></a>
@@ -573,7 +571,6 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <a href="#contributing">Contribute</a>
   <a href="#upcoming">Upcoming</a>
   <a href="#credits">Credits</a>
-  <a href="${RESEARCH_URL}"${RESEARCH_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>Research</a>
 </div>
 <div class="page-transition show" id="ptrans" aria-hidden="true"></div>
 <div class="pgprog" id="pgprog" aria-hidden="true"></div>
@@ -727,7 +724,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
 <footer class="sitefoot">
   <div class="sitefoot-line"><span>Tellurion</span><span class="sitefoot-sep">&middot;</span><span>v${PKG_VERSION} (public beta)</span><span class="sitefoot-sep">&middot;</span><span>Built ${BUILD_DATE}</span><span class="sitefoot-sep">&middot;</span><span>${cards.length} simulations</span></div>
-  <div class="sitefoot-line"><a href="#about">About</a><a href="#credits">Credits</a><a href="#corrections">Corrections</a><a href="${RESEARCH_URL}"${RESEARCH_URL.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>Research</a><span class="sitefoot-sep">&middot;</span><a href="mailto:${CONTACT_EMAIL}">Public beta. Found an issue? Report it.</a></div>
+  <div class="sitefoot-line"><a href="#about">About</a><a href="#contributing">Contribute</a><a href="#upcoming">Upcoming</a><a href="#credits">Credits</a><a href="#corrections">Corrections</a><span class="sitefoot-sep">&middot;</span><a href="mailto:${CONTACT_EMAIL}">Public beta. Found an issue? Report it.</a></div>
   <div class="sitefoot-line"><span>&copy; ${BUILD_YEAR} Andreas W. Neitzel</span></div>
 </footer>
 
