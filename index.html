@@ -352,6 +352,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <a href="#credits">Credits</a>
     </div>
     <div class="nav-icons">
+      <button type="button" id="nav-random" aria-label="Open a random playground" title="Surprise me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg></button>
       <button type="button" id="nav-search" aria-label="Search the catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg></button>
     </div>
     <button class="nav-burger" id="nav-burger" type="button" aria-label="Menu" aria-expanded="false">&#9776;</button>
@@ -386,6 +387,13 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     const input = document.getElementById('search-input');
     if (browse) browse.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (input) setTimeout(() => input.focus({ preventScroll: true }), 350);
+  });
+  // Nav "Surprise me": jump to a random playground.
+  document.getElementById('nav-random')?.addEventListener('click', () => {
+    const cards = document.querySelectorAll('.card[href]');
+    if (cards.length === 0) return;
+    const target = cards[Math.floor(Math.random() * cards.length)];
+    if (target && target.href) window.location.href = target.href;
   });
 </script>
 
@@ -671,7 +679,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="aurora borealis - charged particles in earths dipole" data-uc="fis2013" data-year="hero" data-tags="electromagnetism stellar animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-electromagnetism)" href="playgrounds/_heroes/aurora-borealis-dipole-trap-3d/index.html">
+  <a class="card" data-title="aurora borealis - charged particles in earths dipole" data-uc="fis2013" data-year="hero" data-tags="electromagnetism stellar animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-electromagnetism)" href="playgrounds/_heroes/aurora-borealis-dipole-trap-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-electromagnetism.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Aurora Borealis - Charged Particles in Earths Dipole</h3>
@@ -727,7 +735,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="bec vortex lattice in a rotating trap" data-uc="fis3017" data-year="hero" data-tags="quantum condensed-matter animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/bec-vortex-lattice-3d/index.html">
+  <a class="card" data-title="bec vortex lattice in a rotating trap" data-uc="fis3017" data-year="hero" data-tags="quantum condensed-matter animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/bec-vortex-lattice-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">BEC Vortex Lattice in a Rotating Trap</h3>
@@ -735,7 +743,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">quantum</span><span class="ctag">condensed-matter</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="bell inequality and quantum entanglement" data-uc="fis3007" data-year="hero" data-tags="quantum animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/bell-inequality-entanglement-3d/index.html">
+  <a class="card" data-title="bell inequality and quantum entanglement" data-uc="fis3007" data-year="hero" data-tags="quantum animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/bell-inequality-entanglement-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Bell Inequality and Quantum Entanglement</h3>
@@ -799,7 +807,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">electromagnetism</span><span class="ctag">3d</span><span class="ctag">field-visualization</span><span class="ctag">animation</span></div>
     </div>
   </a>
-  <a class="card" data-title="black hole" data-uc="ast3014" data-year="hero" data-tags="black-hole general-relativity three-d animation live-readout legend" data-order="90" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_legends/blackhole-legend-3d/index.html">
+  <a class="card" data-title="black hole" data-uc="ast3014" data-year="hero" data-tags="black-hole general-relativity three-d animation live-readout legend" data-order="950" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_legends/blackhole-legend-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-relativity.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Black Hole</h3>
@@ -807,7 +815,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">black-hole</span><span class="ctag">general-relativity</span><span class="ctag">three-d</span><span class="ctag">animation</span></div>
     </div>
   </a>
-  <a class="card" data-title="black hole geodesics" data-uc="evf" data-year="hero" data-tags="relativity animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_heroes/blackhole-geodesics-3d/index.html">
+  <a class="card" data-title="black hole geodesics" data-uc="evf" data-year="hero" data-tags="relativity animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_heroes/blackhole-geodesics-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-relativity.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Black Hole Geodesics</h3>
@@ -863,7 +871,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">electromagnetism</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="brewster angle and fresnel reflection" data-uc="fis1014" data-year="hero" data-tags="optics electromagnetism animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-optics)" href="playgrounds/_heroes/brewster-fresnel-reflection-3d/index.html">
+  <a class="card" data-title="brewster angle and fresnel reflection" data-uc="fis1014" data-year="hero" data-tags="optics electromagnetism animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-optics)" href="playgrounds/_heroes/brewster-fresnel-reflection-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-optics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Brewster Angle and Fresnel Reflection</h3>
@@ -935,7 +943,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="cepheid variable period-luminosity" data-uc="ast3014" data-year="hero" data-tags="stellar asteroseismology animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/cepheid-period-luminosity-3d/index.html">
+  <a class="card" data-title="cepheid variable period-luminosity" data-uc="ast3014" data-year="hero" data-tags="stellar asteroseismology animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/cepheid-period-luminosity-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-stellar.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Cepheid Variable Period-Luminosity</h3>
@@ -951,7 +959,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">galactic</span><span class="ctag">particle</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="cherenkov radiation cone" data-uc="fis2013" data-year="hero" data-tags="electromagnetism animation three-d live-readout relativity" data-order="90" data-group="Featured" style="--tagc:var(--tag-electromagnetism)" href="playgrounds/_heroes/cherenkov-radiation-cone-3d/index.html">
+  <a class="card" data-title="cherenkov radiation cone" data-uc="fis2013" data-year="hero" data-tags="electromagnetism animation three-d live-readout relativity" data-order="950" data-group="Featured" style="--tagc:var(--tag-electromagnetism)" href="playgrounds/_heroes/cherenkov-radiation-cone-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-electromagnetism.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Cherenkov Radiation Cone</h3>
@@ -1023,7 +1031,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">galactic</span><span class="ctag">animation</span><span class="ctag">multi-panel</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="cosmic ray air shower" data-uc="fis3030" data-year="hero" data-tags="particle-physics astrophysics three-d animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/cosmic-ray-air-shower-3d/index.html">
+  <a class="card" data-title="cosmic ray air shower" data-uc="fis3030" data-year="hero" data-tags="particle-physics astrophysics three-d animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/cosmic-ray-air-shower-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Cosmic Ray Air Shower</h3>
@@ -1095,7 +1103,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="dark matter halo and the galactic rotation curve" data-uc="maa-gd" data-year="hero" data-tags="stellar animation three-d live-readout gravity" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/dark-matter-halo-rotation-curve-3d/index.html">
+  <a class="card" data-title="dark matter halo and the galactic rotation curve" data-uc="maa-gd" data-year="hero" data-tags="stellar animation three-d live-readout gravity" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/dark-matter-halo-rotation-curve-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-stellar.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Dark Matter Halo and the Galactic Rotation Curve</h3>
@@ -1175,7 +1183,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">electromagnetism</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="earth axial precession + nutation 3d" data-uc="ast2004" data-year="hero" data-tags="mechanics animation multi-panel live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html">
+  <a class="card" data-title="earth axial precession + nutation 3d" data-uc="ast2004" data-year="hero" data-tags="mechanics animation multi-panel live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-mechanics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Earth Axial Precession + Nutation 3D</h3>
@@ -1183,7 +1191,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">multi-panel</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="earth-moon-sun tides" data-uc="ast2004" data-year="hero" data-tags="mechanics animation three-d live-readout gravity" data-order="90" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/earth-moon-tides-3d/index.html">
+  <a class="card" data-title="earth-moon-sun tides" data-uc="ast2004" data-year="hero" data-tags="mechanics animation three-d live-readout gravity" data-order="950" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/earth-moon-tides-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-mechanics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Earth-Moon-Sun Tides</h3>
@@ -1191,7 +1199,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">three-d</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="earth, moon, sun and eclipse prediction" data-uc="ast2004" data-year="hero" data-tags="stellar animation live-readout three-d" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/earth-eclipse-prediction-3d/index.html">
+  <a class="card" data-title="earth, moon, sun and eclipse prediction" data-uc="ast2004" data-year="hero" data-tags="stellar animation live-readout three-d" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/earth-eclipse-prediction-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-earth-eclipse-prediction-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Earth, Moon, Sun and Eclipse Prediction</h3>
@@ -1263,7 +1271,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">numerics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="exoplanet interior" data-uc="evf" data-year="hero" data-tags="planetary mass-radius hydrostatic animation hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/exoplanet-interior-3d/index.html">
+  <a class="card" data-title="exoplanet interior" data-uc="evf" data-year="hero" data-tags="planetary mass-radius hydrostatic animation hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/exoplanet-interior-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-numerics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Exoplanet Interior</h3>
@@ -1271,7 +1279,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">planetary</span><span class="ctag">mass-radius</span><span class="ctag">hydrostatic</span><span class="ctag">animation</span></div>
     </div>
   </a>
-  <a class="card" data-title="exoplanet transit" data-uc="evf" data-year="hero" data-tags="stellar animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/exoplanet-transit-3d/index.html">
+  <a class="card" data-title="exoplanet transit" data-uc="evf" data-year="hero" data-tags="stellar animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/exoplanet-transit-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-exoplanet-transit-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Exoplanet Transit</h3>
@@ -1279,7 +1287,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">stellar</span><span class="ctag">animation</span><span class="ctag">live-readout</span><span class="ctag">webgl2</span></div>
     </div>
   </a>
-  <a class="card" data-title="expanding universe" data-uc="evf" data-year="hero" data-tags="cosmology animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-cosmology)" href="playgrounds/_heroes/expanding-universe-3d/index.html">
+  <a class="card" data-title="expanding universe" data-uc="evf" data-year="hero" data-tags="cosmology animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-cosmology)" href="playgrounds/_heroes/expanding-universe-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-cosmology.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Expanding Universe</h3>
@@ -1295,7 +1303,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">optics</span><span class="ctag">interference</span><span class="ctag">spectroscopy</span><span class="ctag">instrument</span></div>
     </div>
   </a>
-  <a class="card" data-title="faraday rotation in magnetized plasma" data-uc="ast3014" data-year="hero" data-tags="plasma electromagnetism three-d animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/faraday-rotation-plasma-3d/index.html">
+  <a class="card" data-title="faraday rotation in magnetized plasma" data-uc="ast3014" data-year="hero" data-tags="plasma electromagnetism three-d animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/faraday-rotation-plasma-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-fluids.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Faraday Rotation in Magnetized Plasma</h3>
@@ -1343,7 +1351,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">particle-physics</span><span class="ctag">accelerator</span><span class="ctag">beam-dynamics</span><span class="ctag">courant-snyder</span></div>
     </div>
   </a>
-  <a class="card" data-title="foucault pendulum on a rotating earth" data-uc="fis1013" data-year="hero" data-tags="mechanics animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/foucault-pendulum-rotating-earth-3d/index.html">
+  <a class="card" data-title="foucault pendulum on a rotating earth" data-uc="fis1013" data-year="hero" data-tags="mechanics animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/foucault-pendulum-rotating-earth-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-mechanics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Foucault Pendulum on a Rotating Earth</h3>
@@ -1471,7 +1479,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">optics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="gravitational lensing" data-uc="ast3017" data-year="hero" data-tags="relativity animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_heroes/gravitational-lensing-3d/index.html">
+  <a class="card" data-title="gravitational lensing" data-uc="ast3017" data-year="hero" data-tags="relativity animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_heroes/gravitational-lensing-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-gravitational-lensing-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Gravitational Lensing</h3>
@@ -1511,7 +1519,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">interactive-drag</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="gravity in n spatial dimensions" data-uc="ast2004" data-year="hero" data-tags="mechanics animation live-readout gravity three-d" data-order="90" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/gravity-in-n-dimensions-3d/index.html">
+  <a class="card" data-title="gravity in n spatial dimensions" data-uc="ast2004" data-year="hero" data-tags="mechanics animation live-readout gravity three-d" data-order="950" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/gravity-in-n-dimensions-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-gravity-in-n-dimensions-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Gravity in n Spatial Dimensions</h3>
@@ -1519,7 +1527,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span><span class="ctag">gravity</span></div>
     </div>
   </a>
-  <a class="card" data-title="greenhouse effect" data-uc="ast3017" data-year="hero" data-tags="climate planetary animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/greenhouse-effect-3d/index.html">
+  <a class="card" data-title="greenhouse effect" data-uc="ast3017" data-year="hero" data-tags="climate planetary animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/greenhouse-effect-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-numerics.jpg"><div class="cph"></div><span class="cstar" aria-label="featured">&#9733;</span><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Greenhouse Effect</h3>
@@ -1583,7 +1591,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">quantum</span><span class="ctag">atomic</span><span class="ctag">spectroscopy</span><span class="ctag">multi-panel</span></div>
     </div>
   </a>
-  <a class="card" data-title="hydrogen orbitals 3d" data-uc="fis3029" data-year="hero" data-tags="quantum atomic-molecular animation multi-panel live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/hydrogen-orbitals-3d/index.html">
+  <a class="card" data-title="hydrogen orbitals 3d" data-uc="fis3029" data-year="hero" data-tags="quantum atomic-molecular animation multi-panel live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/hydrogen-orbitals-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Hydrogen Orbitals 3D</h3>
@@ -1695,7 +1703,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="kelvin-helmholtz instability" data-uc="fis2014" data-year="hero" data-tags="fluid-dynamics animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/kelvin-helmholtz-instability-3d/index.html">
+  <a class="card" data-title="kelvin-helmholtz instability" data-uc="fis2014" data-year="hero" data-tags="fluid-dynamics animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/kelvin-helmholtz-instability-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-fluids.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Kelvin-Helmholtz Instability</h3>
@@ -1799,7 +1807,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">electromagnetism</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="laser cavity" data-uc="evf" data-year="hero" data-tags="optics animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-optics)" href="playgrounds/_heroes/laser-cavity-3d/index.html">
+  <a class="card" data-title="laser cavity" data-uc="evf" data-year="hero" data-tags="optics animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-optics)" href="playgrounds/_heroes/laser-cavity-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-laser-cavity-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Laser Cavity</h3>
@@ -1887,7 +1895,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">interactive-drag</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="lorenz attractor ensemble" data-uc="fis2021" data-year="hero" data-tags="mechanics animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html">
+  <a class="card" data-title="lorenz attractor ensemble" data-uc="fis2021" data-year="hero" data-tags="mechanics animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-mechanics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Lorenz Attractor Ensemble</h3>
@@ -1911,7 +1919,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">electromagnetism</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="magnetic reconnection at an x-point" data-uc="fis3005" data-year="hero" data-tags="plasma magnetohydrodynamics animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/magnetic-reconnection-x-point-3d/index.html">
+  <a class="card" data-title="magnetic reconnection at an x-point" data-uc="fis3005" data-year="hero" data-tags="plasma magnetohydrodynamics animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/magnetic-reconnection-x-point-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-fluids.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Magnetic Reconnection at an X-point</h3>
@@ -1943,7 +1951,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="map projection explorer" data-uc="m3007" data-year="hero" data-tags="numerics relativity interactive three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/map-projection-explorer/index.html">
+  <a class="card" data-title="map projection explorer" data-uc="m3007" data-year="hero" data-tags="numerics relativity interactive three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/map-projection-explorer/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-numerics.jpg"><div class="cph"></div><span class="cstar" aria-label="featured">&#9733;</span><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Map Projection Explorer</h3>
@@ -1999,7 +2007,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">exoplanets</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="meissner effect" data-uc="evf" data-year="hero" data-tags="solid-state animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-solid-state)" href="playgrounds/_heroes/superconductor-meissner-3d/index.html">
+  <a class="card" data-title="meissner effect" data-uc="evf" data-year="hero" data-tags="solid-state animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-solid-state)" href="playgrounds/_heroes/superconductor-meissner-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-superconductor-meissner-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Meissner Effect</h3>
@@ -2095,7 +2103,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">numerics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="n-body orrery and chaotic asteroid pair" data-uc="ast2004" data-year="hero" data-tags="mechanics animation live-readout gravity three-d" data-order="90" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/n-body-orrery-3d/index.html">
+  <a class="card" data-title="n-body orrery and chaotic asteroid pair" data-uc="ast2004" data-year="hero" data-tags="mechanics animation live-readout gravity three-d" data-order="950" data-group="Featured" style="--tagc:var(--tag-mechanics)" href="playgrounds/_heroes/n-body-orrery-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-mechanics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">N-body Orrery and Chaotic Asteroid Pair</h3>
@@ -2255,7 +2263,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="penrose aperiodic tiling" data-uc="fis3010" data-year="hero" data-tags="crystallography mathematics animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-solid-state)" href="playgrounds/_heroes/penrose-aperiodic-tiling-3d/index.html">
+  <a class="card" data-title="penrose aperiodic tiling" data-uc="fis3010" data-year="hero" data-tags="crystallography mathematics animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-solid-state)" href="playgrounds/_heroes/penrose-aperiodic-tiling-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-condensed-matter.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Penrose Aperiodic Tiling</h3>
@@ -2287,7 +2295,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">electromagnetism</span><span class="ctag">3d</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="pp chain vs cno cycle" data-uc="ast3014" data-year="hero" data-tags="stellar animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/pp-chain-cno-cycle-nucleosynthesis-3d/index.html">
+  <a class="card" data-title="pp chain vs cno cycle" data-uc="ast3014" data-year="hero" data-tags="stellar animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/pp-chain-cno-cycle-nucleosynthesis-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-stellar.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">pp Chain vs CNO Cycle</h3>
@@ -2391,7 +2399,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">quantum</span><span class="ctag">statistical-mechanics</span><span class="ctag">multi-panel</span><span class="ctag">animation</span></div>
     </div>
   </a>
-  <a class="card" data-title="quantum tunnelling" data-uc="evf" data-year="hero" data-tags="quantum animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/quantum-tunnelling-barrier-3d/index.html">
+  <a class="card" data-title="quantum tunnelling" data-uc="evf" data-year="hero" data-tags="quantum animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/quantum-tunnelling-barrier-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Quantum Tunnelling</h3>
@@ -2407,7 +2415,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">quantum</span><span class="ctag">animation</span><span class="ctag">side-by-side-comparator</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="quasar relativistic jet" data-uc="ast3016" data-year="hero" data-tags="astrophysics special-relativity animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/quasar-relativistic-jet-3d/index.html">
+  <a class="card" data-title="quasar relativistic jet" data-uc="ast3016" data-year="hero" data-tags="astrophysics special-relativity animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/quasar-relativistic-jet-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-stellar.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Quasar Relativistic Jet</h3>
@@ -2415,7 +2423,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">astrophysics</span><span class="ctag">special-relativity</span><span class="ctag">animation</span><span class="ctag">three-d</span></div>
     </div>
   </a>
-  <a class="card" data-title="radial-velocity exoplanet detection" data-uc="ast3017" data-year="hero" data-tags="stellar animation three-d live-readout exoplanets" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/radial-velocity-exoplanet-detection-3d/index.html">
+  <a class="card" data-title="radial-velocity exoplanet detection" data-uc="ast3017" data-year="hero" data-tags="stellar animation three-d live-readout exoplanets" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/radial-velocity-exoplanet-detection-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-radial-velocity-exoplanet-detection-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Radial-Velocity Exoplanet Detection</h3>
@@ -2439,7 +2447,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">fluids</span><span class="ctag">convection</span><span class="ctag">instability</span><span class="ctag">linear-stability</span></div>
     </div>
   </a>
-  <a class="card" data-title="rayleigh-taylor instability" data-uc="fis2014" data-year="hero" data-tags="fluid-dynamics astrophysics animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/rayleigh-taylor-instability-3d/index.html">
+  <a class="card" data-title="rayleigh-taylor instability" data-uc="fis2014" data-year="hero" data-tags="fluid-dynamics astrophysics animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/rayleigh-taylor-instability-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-fluids.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Rayleigh-Taylor Instability</h3>
@@ -2487,7 +2495,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">quantum-mechanics</span><span class="ctag">relativistic</span><span class="ctag">fine-structure</span><span class="ctag">dirac-equation</span></div>
     </div>
   </a>
-  <a class="card" data-title="relativistic starship" data-uc="evf" data-year="hero" data-tags="relativity animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_heroes/special-relativity-starship-3d/index.html">
+  <a class="card" data-title="relativistic starship" data-uc="evf" data-year="hero" data-tags="relativity animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-relativity)" href="playgrounds/_heroes/special-relativity-starship-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-special-relativity-starship-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Relativistic Starship</h3>
@@ -2639,7 +2647,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">electromagnetism</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="slit experiment" data-uc="fis3007" data-year="hero" data-tags="quantum optics animation live-readout legend" data-order="90" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_legends/slit-experiment-legend-3d/index.html">
+  <a class="card" data-title="slit experiment" data-uc="fis3007" data-year="hero" data-tags="quantum optics animation live-readout legend" data-order="950" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_legends/slit-experiment-legend-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Slit Experiment</h3>
@@ -2655,7 +2663,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">photovoltaics</span><span class="ctag">semiconductors</span><span class="ctag">detailed-balance</span><span class="ctag">solar-cell</span></div>
     </div>
   </a>
-  <a class="card" data-title="soliton canal" data-uc="evf" data-year="hero" data-tags="fluids-mhd animation live-readout webgl2 hero" data-order="90" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/soliton-canal-3d/index.html">
+  <a class="card" data-title="soliton canal" data-uc="evf" data-year="hero" data-tags="fluids-mhd animation live-readout webgl2 hero" data-order="950" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/soliton-canal-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-soliton-canal-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Soliton Canal</h3>
@@ -2759,7 +2767,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">stellar</span><span class="ctag">quantum</span><span class="ctag">animation</span><span class="ctag">multi-panel</span></div>
     </div>
   </a>
-  <a class="card" data-title="stellar pulsation modes in 3d" data-uc="maa-as" data-year="hero" data-tags="stellar animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/stellar-pulsation-3d/index.html">
+  <a class="card" data-title="stellar pulsation modes in 3d" data-uc="maa-as" data-year="hero" data-tags="stellar animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/stellar-pulsation-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-stellar.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Stellar Pulsation Modes in 3D</h3>
@@ -2767,7 +2775,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">stellar</span><span class="ctag">animation</span><span class="ctag">three-d</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="stellar rotation and line broadening" data-uc="ast3015" data-year="hero" data-tags="stellar animation live-readout three-d" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/stellar-rotation-line-broadening-3d/index.html">
+  <a class="card" data-title="stellar rotation and line broadening" data-uc="ast3015" data-year="hero" data-tags="stellar animation live-readout three-d" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/stellar-rotation-line-broadening-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-stellar.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Stellar Rotation and Line Broadening</h3>
@@ -2783,7 +2791,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">stellar-structure</span><span class="ctag">polytrope</span><span class="ctag">lane-emden</span><span class="ctag">nuclear-burning</span></div>
     </div>
   </a>
-  <a class="card" data-title="stern-gerlach spin quantization" data-uc="fis3003" data-year="hero" data-tags="quantum animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/stern-gerlach-spin-quantization-3d/index.html">
+  <a class="card" data-title="stern-gerlach spin quantization" data-uc="fis3003" data-year="hero" data-tags="quantum animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-quantum)" href="playgrounds/_heroes/stern-gerlach-spin-quantization-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-quantum.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Stern-Gerlach Spin Quantization</h3>
@@ -2815,7 +2823,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">numerics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="supernova light curve" data-uc="ast3017" data-year="hero" data-tags="supernova nucleosynthesis stellar-evolution animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/supernova-light-curve-3d/index.html">
+  <a class="card" data-title="supernova light curve" data-uc="ast3017" data-year="hero" data-tags="supernova nucleosynthesis stellar-evolution animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/supernova-light-curve-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-numerics.jpg"><div class="cph"></div><span class="cstar" aria-label="featured">&#9733;</span><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Supernova Light Curve</h3>
@@ -2831,7 +2839,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">numerics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="synchrotron radiation cone" data-uc="ast3016" data-year="hero" data-tags="plasma electromagnetism astrophysics animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/synchrotron-radiation-cone-3d/index.html">
+  <a class="card" data-title="synchrotron radiation cone" data-uc="ast3016" data-year="hero" data-tags="plasma electromagnetism astrophysics animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/synchrotron-radiation-cone-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-fluids.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Synchrotron Radiation Cone</h3>
@@ -2983,7 +2991,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">condensed-matter</span><span class="ctag">band-structure</span><span class="ctag">quantum</span><span class="ctag">multi-panel</span></div>
     </div>
   </a>
-  <a class="card" data-title="tokamak plasma confinement 3d" data-uc="ast3014" data-year="hero" data-tags="fluids-mhd animation live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html">
+  <a class="card" data-title="tokamak plasma confinement 3d" data-uc="ast3014" data-year="hero" data-tags="fluids-mhd animation live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-fluids)" href="playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-fluids.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Tokamak Plasma Confinement 3D</h3>
@@ -3031,7 +3039,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">mechanics</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="two-galaxy collision" data-uc="maa-gd" data-year="hero" data-tags="stellar animation three-d live-readout gravity" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/galaxy-collision-3d/index.html">
+  <a class="card" data-title="two-galaxy collision" data-uc="maa-gd" data-year="hero" data-tags="stellar animation three-d live-readout gravity" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/galaxy-collision-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/card-galaxy-collision-3d.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Two-Galaxy Collision</h3>
@@ -3071,7 +3079,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">stellar</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="wave heightfield (clickable)" data-uc="fis2016" data-year="hero" data-tags="waves click-seed animation live-readout interactive-drag" data-order="90" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/wave-heightfield-clickable-3d/index.html">
+  <a class="card" data-title="wave heightfield (clickable)" data-uc="fis2016" data-year="hero" data-tags="waves click-seed animation live-readout interactive-drag" data-order="950" data-group="Featured" style="--tagc:var(--tag-numerics)" href="playgrounds/_heroes/wave-heightfield-clickable-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-numerics.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">Wave Heightfield (Clickable)</h3>
@@ -3095,7 +3103,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="ctags"><span class="ctag">waves</span><span class="ctag">animation</span><span class="ctag">live-readout</span></div>
     </div>
   </a>
-  <a class="card" data-title="white-dwarf cooling sequence" data-uc="ast3014" data-year="hero" data-tags="stellar asteroseismology animation three-d live-readout" data-order="90" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/white-dwarf-cooling-3d/index.html">
+  <a class="card" data-title="white-dwarf cooling sequence" data-uc="ast3014" data-year="hero" data-tags="stellar asteroseismology animation three-d live-readout" data-order="950" data-group="Featured" style="--tagc:var(--tag-stellar)" href="playgrounds/_heroes/white-dwarf-cooling-3d/index.html">
     <div class="cimg" data-thumb="assets/thumbs/thumb-stellar.jpg"><div class="cph"></div><span class="lvl">Adv</span></div>
     <div class="cbody">
       <h3 class="ctitle">White-Dwarf Cooling Sequence</h3>
