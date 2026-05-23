@@ -26,8 +26,22 @@ coverage/
 playgrounds/*/.verified
 playgrounds/*/*/.verified
 
-# Claude Code audit logs
-.claude/logs/
+# AI tooling configuration (kept local; not for a public repo).
+# .claude/ holds agents, commands, hooks, settings, logs, worktrees;
+# CLAUDE.md is the project's local Claude-Code directives file.
+# Defensive entries for adjacent tools to keep the public repo clean
+# of any AI-assistant traces if those tools get used later.
+.claude/
+CLAUDE.md
+.cursor/
+.cursorrules
+.cursorignore
+.aider*
+.continue/
+.continuerules
+.windsurfrules
+.codeium/
+.copilot*
 
 # Environment
 .env
@@ -40,9 +54,18 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/settings.json.example
+*.swp
+*~
+*.bak
 
-# Local-only Claude settings
-.claude/settings.local.json
+# Python tool caches (these scripts use Python for some build steps)
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
 
 # Raw card-image source drop (heavy input; derive assets/thumbs via
 # scripts/build-card-thumbs.mjs, which is committed)
