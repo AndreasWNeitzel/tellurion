@@ -305,6 +305,15 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .about-project a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
 .about-project a:hover{border-bottom-color:var(--accent)}
 .about .lab + .lab{margin-top:64px}
+/* Contributing and Upcoming: standalone sections between About and Credits. */
+.contributing,.upcoming{padding:64px 0 32px;max-width:760px}
+.contributing-body,.upcoming-body{color:var(--text-secondary);font-size:0.9375rem;line-height:1.75}
+.contributing-body p,.upcoming-body p{margin:0 0 14px}
+.contributing-body p:first-of-type,.upcoming-body p:first-of-type{color:var(--text-primary)}
+.contributing-body ul{margin:0 0 14px;padding-left:20px}
+.contributing-body li{margin:4px 0}
+.contributing-body a,.upcoming-body a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
+.contributing-body a:hover,.upcoming-body a:hover{border-bottom-color:var(--accent)}
 /* Credits: corrections section under Special Thanks. */
 .corrections{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-dim)}
 .corrections h3{font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 14px;letter-spacing:0.02em;text-transform:uppercase}
@@ -335,6 +344,8 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     <div class="nav-links">
       <a href="#browse">Simulations</a>
       <a href="#about">About</a>
+      <a href="#contributing">Contribute</a>
+      <a href="#upcoming">Upcoming</a>
       <a href="#credits">Credits</a>
       <a href="#">Research</a>
     </div>
@@ -347,6 +358,8 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 <div class="nav-mobile" id="nav-mobile">
   <a href="#browse">Simulations</a>
   <a href="#about">About</a>
+  <a href="#contributing">Contribute</a>
+  <a href="#upcoming">Upcoming</a>
   <a href="#credits">Credits</a>
   <a href="#">Research</a>
 </div>
@@ -3141,6 +3154,29 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
         <div class="tags"><span>Vanilla JavaScript</span><span>Canvas2D</span><span>SVG</span><span>WebGL2</span><span>Web Audio API</span><span>KaTeX</span><span>HTML5 / CSS3</span><span>Node.js</span></div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="contributing" id="contributing">
+  <div class="lab">Contributing</div>
+  <div class="contributing-body">
+    <p>Tellurion improves through reader reports. Email me at <a href="mailto:andreaswneitzel@gmail.com?subject=Tellurion%3A%20">andreaswneitzel@gmail.com</a> with <strong>Tellurion</strong> in the subject line and tell me what you found. Worth reporting:</p>
+    <ul>
+      <li>visual glitches (something rendered off-screen, misaligned, or broken)</li>
+      <li>spelling or grammar errors in any caption, description, or label</li>
+      <li>physics errors (wrong equation, wrong sign, misleading explanation)</li>
+      <li>citations that do not match the playground, or chapter and section references that are off</li>
+      <li>anything else that looks wrong</li>
+    </ul>
+    <p>Reports are credited on the <a href="#corrections">corrections page</a>. Pull requests are welcome on the public repository, but opening an issue first is faster than going straight to a PR.</p>
+  </div>
+</section>
+
+<section class="upcoming" id="upcoming">
+  <div class="lab">Upcoming</div>
+  <div class="upcoming-body">
+    <p>Next on the roadmap: multilingual rollout in Portuguese, German, French, and Italian. If you read physics in any of these and want to review a translation before it goes live, email me at <a href="mailto:andreaswneitzel@gmail.com?subject=Tellurion%20translation">andreaswneitzel@gmail.com</a> with <strong>Tellurion translation</strong> in the subject line and tell me which language.</p>
+    <p>Further items roll in as they ship.</p>
   </div>
 </section>
 
