@@ -48,7 +48,7 @@ function curOf(cy) {
 // domain), so these are neutral placeholders to be pointed at the
 // real domain later. No github.com / github.io strings anywhere.
 const RESEARCH_URL = '#';
-const LINKEDIN_URL = '#';
+const LINKEDIN_URL = 'https://www.linkedin.com/in/andreaswneitzel/';
 const CONTACT_EMAIL = 'andreaswneitzel@gmail.com';
 const BETA_TESTERS = [
   // { name: "...", institution: "..." }
@@ -644,7 +644,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <div class="about-project">
     <h2>About Tellurion</h2>
     <p>Tellurion is a laboratory of ${cards.length} interactive physics simulations spanning mechanics, electromagnetism, optics, quantum, relativity, statistical mechanics, fluid dynamics, condensed matter, and astrophysics. Each one is built to be operated, not just observed: drag the camera, adjust the parameters, see what happens.</p>
-    <p>The name refers to the 18th-century mechanical apparatus for teaching how the Earth, Moon, and Sun move together: a hand-built physics instrument designed for demonstration through direct manipulation. This site extends the idea to the rest of physics.</p>
+    <p>The name refers to the <a href="https://en.wikipedia.org/wiki/Tellurion" target="_blank" rel="noopener">tellurion</a>, an 18th-century mechanical apparatus for teaching how the Earth, Moon, and Sun move together: a hand-built physics instrument designed for demonstration through direct manipulation. This site extends the idea to the rest of physics.</p>
     <p>Currently in beta. Reports of errors are credited on the <a href="#corrections">corrections page</a>.</p>
   </div>
   <div class="lab">About the author</div>
