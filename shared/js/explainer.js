@@ -301,11 +301,9 @@ function mountChrome() {
   ].join('');
   document.head.appendChild(css);
 
-  // Shared star field (same class and seed as the landing, so the
-  // background reads as continuous across navigations and never
-  // flickers). Created only here, after the _CAPTURE early-return,
-  // so deterministic capture stays byte-identical to the goldens.
-  mountStarField();
+  // Star field lives only on the homepage; playground pages keep the
+  // GPU and the CPU clear for the simulation itself. Custom cursor is
+  // also homepage-only.
   mountCursor();
 
   // The Layout System v2 template provides its own .playground-back.

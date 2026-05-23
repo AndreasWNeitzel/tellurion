@@ -12,10 +12,14 @@ const STARFIELD_ENABLED = true;
 
 import { mulberry32 } from './render/rng.js';
 
+// Layer opacities boosted from the original (0.25-0.45 / 0.15-0.30 /
+// 0.08-0.18) so stars are actually perceptible. The previous tuning
+// produced a brightest-pixel of rgb(86,88,94) against bg-void (7,9,15),
+// well below perception threshold on most displays.
 const LAYERS = [
-  { n: 300, omin: 0.25, omax: 0.45, r: 0.5, par: 0.015, damp: 0.040 },
-  { n: 120, omin: 0.15, omax: 0.30, r: 0.8, par: 0.008, damp: 0.025 },
-  { n: 40, omin: 0.08, omax: 0.18, r: 1.2, par: 0.003, damp: 0.012 },
+  { n: 300, omin: 0.45, omax: 0.75, r: 0.7, par: 0.015, damp: 0.040 },
+  { n: 120, omin: 0.30, omax: 0.55, r: 1.0, par: 0.008, damp: 0.025 },
+  { n: 40, omin: 0.20, omax: 0.40, r: 1.5, par: 0.003, damp: 0.012 },
 ];
 
 export class StarField {
