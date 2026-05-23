@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Toy parton distributions
-$x f(x)$ for $u_v$, $d_v$, gluon, sea quarks. Source: Griffiths-Particles Ch. 9 (`griffiths-particles`).
+$x f(x)$ for $u_v$, $d_v$, gluon, sea quarks. Source: Griffiths-Particles Ch. 9.
 
 ## Explainer
 

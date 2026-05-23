@@ -115,4 +115,4 @@ Classical: $P(x, N) = \binom{N}{(N+x)/2} 2^{-N}$. Quantum: $|\psi_{t+1}(x)\rangl
 
 ## Citations
 
-Kempe 2003, Contemporary Physics 44, 307 (`kempe2003`).
+Kempe 2003, Contemporary Physics 44, 307.

@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Earth eclipse prediction
-3D Sun-Earth-Moon geometry, eclipse search. Source: Meeus, Astronomical Algorithms, 2nd ed. (`meeus1998`).
+3D Sun-Earth-Moon geometry, eclipse search. Source: Meeus, Astronomical Algorithms, 2nd ed..
 
 ## Explainer
 

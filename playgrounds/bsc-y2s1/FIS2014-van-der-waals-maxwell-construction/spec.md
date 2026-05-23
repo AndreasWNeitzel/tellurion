@@ -118,7 +118,7 @@ by bisecting `p_co` between the spinodal pressures, with the liquid and
 gas roots located by spinodal-bracketed monotone bisection (no
 cubic-root branch logic). Spinodal volumes solve `(3V-1)^2 = 4 T V^3`
 by bracketed bisection. Reference: Callen, *Thermodynamics* (2nd ed.),
-Sec. 3.6 and Problem 9.4-1 (`callen`).
+Sec. 3.6 and Problem 9.4-1.
 
 ## Controls
 
@@ -157,4 +157,4 @@ Sec. 3.6 and Problem 9.4-1 (`callen`).
 - `T >= 1`: `maxwell` returns null (single phase).
 
 Source: Callen, *Thermodynamics* (2nd ed.), Sec. 3.6 and Problem
-9.4-1 (`callen`).
+9.4-1.

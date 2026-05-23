@@ -149,7 +149,7 @@ ghost markers, time bar at bottom showing progress through T.
 
 ## Citations
 
-- Huygens 1673, Horologium Oscillatorium (`huygens1673`).
+- Huygens 1673, Horologium Oscillatorium.
 - Lemos, Analytical Mechanics Ch. 2 (alternate).
 
 ## Stretch goals

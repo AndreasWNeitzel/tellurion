@@ -160,6 +160,4 @@ long integrations.
 - `p = 2, k > 0`: isotropic oscillator, closed ellipse about centre.
 - `E > 0`: unbound, single turning point.
 
-Source: Goldstein, *Classical Mechanics*, 3rd ed., Ch. 3
-(`goldstein`); Landau and Lifshitz, *Mechanics*, Sec. 14-15
-(`landau-mechanics`).
+Source: Goldstein, *Classical Mechanics*, 3rd ed., Ch. 3; Landau and Lifshitz, *Mechanics*, Sec. 14-15.

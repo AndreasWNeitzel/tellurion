@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Lagrangian vs Newtonian formalism
-Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3 (`lemos-mech`).
+Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3.
 
 ## Explainer
 

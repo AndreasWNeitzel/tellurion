@@ -34,7 +34,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Mandel-Agol transit
-Analytic transit light curve; uniform-source closed form plus quadratic limb darkening via ring decomposition. Source: Mandel & Agol 2002 (`mandelagol2002`).
+Analytic transit light curve; uniform-source closed form plus quadratic limb darkening via ring decomposition. Source: Mandel & Agol 2002.
 
 ## Explainer
 

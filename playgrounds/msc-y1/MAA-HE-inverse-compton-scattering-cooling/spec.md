@@ -145,7 +145,7 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 
 ## Citations
 
-- Rybicki and Lightman, *Radiative Processes in Astrophysics*, Ch. 7 (`rybickilightman1979`).
+- Rybicki and Lightman, *Radiative Processes in Astrophysics*, Ch. 7.
 
 ## Stretch goals
 

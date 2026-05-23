@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Root-finding shootout
-Bisection, Newton-Raphson, and the secant method on a selectable test function. Source: Villate VPython Numerical Methods Ch. 4 (`villate-vpython`).
+Bisection, Newton-Raphson, and the secant method on a selectable test function. Source: Villate VPython Numerical Methods Ch. 4.
 
 ## Explainer
 

@@ -138,7 +138,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Hecht, *Optics*, 5e, Ch. 9 (`hecht2017`).
+- Hecht, *Optics*, 5e, Ch. 9.
 - Companion playgrounds: `fabry-perot-finesse` (multi-beam interference), `thin-film-interference` (two-beam).
 
 ## Stretch goals

@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Penrose aperiodic tiling
-P3 rhombi by Conway-Penrose deflation. Source: Senechal, *Quasicrystals and Geometry*, CUP 1995, Ch. 6 (`senechal-quasicrystals`); originals: Penrose, *Bull. Inst. Math. Appl.* 10 (1974) 266; Shechtman et al., *Phys. Rev. Lett.* 53 (1984) 1951.
+P3 rhombi by Conway-Penrose deflation. Source: Senechal, *Quasicrystals and Geometry*, CUP 1995, Ch. 6; originals: Penrose, *Bull. Inst. Math. Appl.* 10 (1974) 266; Shechtman et al., *Phys. Rev. Lett.* 53 (1984) 1951.
 
 ## Explainer
 
@@ -114,5 +114,4 @@ Penrose's original construction is in *Bull. Inst. Math. Appl.* 10
 (1974) 266. The deflation/inflation arithmetic and the golden-ratio
 limit are derived in Senechal, *Quasicrystals and Geometry*, CUP
 1995, Chapter 6. The physical-quasicrystal discovery is Shechtman
-et al., *Phys. Rev. Lett.* 53 (1984) 1951
-(`shechtman-quasicrystals`).
+et al., *Phys. Rev. Lett.* 53 (1984) 1951.

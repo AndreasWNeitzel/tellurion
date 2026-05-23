@@ -145,7 +145,7 @@ repetition-code BER for n = 1, 3, 5, 7, 11 with current-p cursor.
 ## Citations
 
 - Cover and Thomas, Elements of Information Theory 2e Ch. 7
-  (`cover-thomas`).
+ .
 - MacKay, Information Theory, Inference, and Learning Algorithms Ch. 1.
 
 ## Stretch goals

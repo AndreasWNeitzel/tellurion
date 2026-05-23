@@ -142,5 +142,5 @@ streamlines integrate `-grad phi` by normalized steps.
 - Coaxial: `phi(r) = A ln r + B`.
 
 Source: Griffiths, *Introduction to Electrodynamics*, 4th ed.,
-Sec. 2.5 and 3.1 (`griffithsem2017`); Press et al., *Numerical
+Sec. 2.5 and 3.1; Press et al., *Numerical
 Recipes*, Sec. 20.5.

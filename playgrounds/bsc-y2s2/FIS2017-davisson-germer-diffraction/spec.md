@@ -149,7 +149,7 @@ If KaTeX or Canvas2D is unavailable, the figure caption still reads as a paper s
 
 ## Citations
 
-- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 3 (`eisberg-resnick`).
+- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 3.
 - C. Davisson and L. H. Germer, Phys. Rev. 30, 705 (1927): original electron-diffraction experiment.
 
 ## Stretch goals

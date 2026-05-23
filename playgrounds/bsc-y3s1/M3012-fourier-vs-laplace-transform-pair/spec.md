@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Fourier vs Laplace transforms
-Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15 (`arfken-weber`).
+Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15.
 
 ## Explainer
 

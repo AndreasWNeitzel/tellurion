@@ -122,4 +122,4 @@ D2Q9 distribution functions $f_i$ on a 2D grid. BGK collision $f_i \to f_i - (f_
 
 ## Citations
 
-Kruger et al., "The Lattice Boltzmann Method", Springer 2017 (`kruger2017`).
+Kruger et al., "The Lattice Boltzmann Method", Springer 2017.

@@ -134,5 +134,5 @@ normalized-step Euler integrations of `B`.
 - Helmholtz at separation R: maximally flat central field.
 
 Source: Griffiths, *Introduction to Electrodynamics*, 4th ed.,
-Sec. 5.2 (`griffithsem2017`); Jackson, *Classical Electrodynamics*,
+Sec. 5.2; Jackson, *Classical Electrodynamics*,
 Sec. 5.3.

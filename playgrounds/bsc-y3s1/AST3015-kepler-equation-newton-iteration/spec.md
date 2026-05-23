@@ -138,7 +138,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 2 (`carroll-ostlie`).
+- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 2.
 - Curtis, *Orbital Mechanics for Engineering Students*, Ch. 3, for the numerical methods (laguerre iteration is faster but Newton is the textbook intro).
 
 ## Stretch goals

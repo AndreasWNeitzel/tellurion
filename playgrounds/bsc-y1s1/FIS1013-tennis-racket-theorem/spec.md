@@ -152,7 +152,7 @@ figure is legible without Canvas2D.
 
 ## Citations
 - Goldstein, Poole, Safko, *Classical Mechanics*, 3e, Sec. 5.6
-  (`goldstein-mech`).
+ .
 
 ## Stretch goals
 - Polhode/herpolhode trace on the inertia ellipsoid.

@@ -156,7 +156,7 @@ If KaTeX or Canvas2D is unavailable, the figure caption still reads as a paper s
 
 ## Citations
 
-- Marion and Thornton, *Classical Dynamics of Particles and Systems*, 5e, Ch. 2 (`marion-thornton`).
+- Marion and Thornton, *Classical Dynamics of Particles and Systems*, 5e, Ch. 2.
 
 ## Stretch goals
 

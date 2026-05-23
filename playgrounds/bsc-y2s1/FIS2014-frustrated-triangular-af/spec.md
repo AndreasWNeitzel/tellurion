@@ -139,7 +139,7 @@ Canvas2D only.
 ## Citations
 
 - Wannier 1950, "Antiferromagnetism. The triangular Ising net", Phys. Rev. 79, 357.
-- Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics, Section 5.4 (`newmanbarkema1999`).
+- Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics, Section 5.4.
 - Diep 2013, Frustrated Spin Systems, Chapter 1 (background only).
 
 ## Stretch goals

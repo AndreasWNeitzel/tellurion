@@ -106,8 +106,8 @@ SSH: `H(k) = [[0, t1 + t2 e^{-ika}],[h.c., 0]]`,
 Closed-form dispersions; the 2D Fermi surface is contoured by
 sign-change marching on a `k`-grid. Deterministic, no RNG.
 Reference: Kittel, Introduction to Solid State Physics (8th ed.),
-Ch. 7-9 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics,
-Ch. 10 (`ashcroft-mermin`).
+Ch. 7-9; Ashcroft and Mermin, Solid State Physics,
+Ch. 10.
 
 ## Controls
 
@@ -155,9 +155,9 @@ Fermi surface at the captured `E_F`.
 ## Citations
 
 - Kittel, Introduction to Solid State Physics (8th ed.), Ch. 7-9
-  (`kittel-cm`).
+ .
 - Ashcroft and Mermin, Solid State Physics, Ch. 10
-  (`ashcroft-mermin`).
+ .
 
 ## Stretch goals
 

@@ -152,7 +152,7 @@ If KaTeX or Canvas2D is unavailable, sliders remain functional and the figure ca
 
 ## Citations
 
-- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 2 (`eisberg-resnick`).
+- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 2.
 
 ## Stretch goals
 

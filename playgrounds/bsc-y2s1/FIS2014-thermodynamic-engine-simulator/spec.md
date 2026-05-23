@@ -136,5 +136,5 @@ an ideal regenerator (the isochoric heats are internal).
 - `Tc = Th`: zero efficiency.
 - Carnot: reversible, `eta = 1 - Tc/Th` exactly.
 
-Source: Callen, *Thermodynamics*, 2nd ed., Ch. 4 (`callen`); Reif,
-*Fundamentals of Statistical and Thermal Physics*, Ch. 5 (`reif`).
+Source: Callen, *Thermodynamics*, 2nd ed., Ch. 4; Reif,
+*Fundamentals of Statistical and Thermal Physics*, Ch. 5.

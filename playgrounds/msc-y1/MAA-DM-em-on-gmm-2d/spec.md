@@ -164,8 +164,8 @@ Canvas2D only.
 
 ## Citations
 
-- Bishop 2006, PRML, Section 9.2 (`bishop2006`).
-- Murphy 2022, Probabilistic Machine Learning Vol. 1, Section 17.2 (`murphy2022pml`).
+- Bishop 2006, PRML, Section 9.2.
+- Murphy 2022, Probabilistic Machine Learning Vol. 1, Section 17.2.
 - Dempster, Laird, Rubin 1977, "Maximum Likelihood from Incomplete Data via the EM Algorithm", J. Royal Stat. Soc. B 39, 1.
 
 ## Stretch goals

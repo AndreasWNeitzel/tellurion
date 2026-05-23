@@ -211,7 +211,7 @@ Canvas2D only.
 
 ## Citations
 
-- Berry 1981, Eur. J. Phys. 2, 91 (`berry1981`).
+- Berry 1981, Eur. J. Phys. 2, 91.
 - Tabachnikov 2005, Geometry and Billiards (American Mathematical Society).
 - Bunimovich 1979 (Stadium); Sinai 1970 (Sinai billiard).
 

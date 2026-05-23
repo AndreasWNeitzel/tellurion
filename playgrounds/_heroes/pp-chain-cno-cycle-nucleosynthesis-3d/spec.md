@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # pp chain vs CNO cycle
-T^4 vs T^17. Source: Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Ch. 18 (`kippenhahn-weigert`). Solar-neutrino context: Bahcall, Neutrino Astrophysics, CUP 1989 (`bahcall-neutrino-astrophysics`).
+T^4 vs T^17. Source: Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Ch. 18. Solar-neutrino context: Bahcall, Neutrino Astrophysics, CUP 1989.
 
 ## Explainer
 

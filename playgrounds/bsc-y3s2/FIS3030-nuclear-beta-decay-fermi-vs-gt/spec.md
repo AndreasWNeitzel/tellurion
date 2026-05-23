@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Fermi vs Gamow-Teller beta decay
-Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9 (`krane-nuclear`).
+Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9.
 
 ## Explainer
 

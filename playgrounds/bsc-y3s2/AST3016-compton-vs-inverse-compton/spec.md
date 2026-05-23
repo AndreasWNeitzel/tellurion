@@ -150,7 +150,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Rybicki and Lightman, *Radiative Processes in Astrophysics*, Ch. 7 (`rybickilightman1979`).
+- Rybicki and Lightman, *Radiative Processes in Astrophysics*, Ch. 7.
 - Companion playground: `compton-scattering-kinematics` for the bare elastic geometry.
 
 ## Stretch goals

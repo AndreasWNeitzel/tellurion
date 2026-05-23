@@ -133,7 +133,7 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 
 ## Citations
 
-- Krane, *Introductory Nuclear Physics*, Ch. 5 (`krane-nuclear`).
+- Krane, *Introductory Nuclear Physics*, Ch. 5.
 - Mayer 1949, Jensen 1949: original spin-orbit shell-model papers.
 
 ## Stretch goals

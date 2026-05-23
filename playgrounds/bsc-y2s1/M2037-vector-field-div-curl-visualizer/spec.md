@@ -215,7 +215,7 @@ If KaTeX or Canvas2D is unavailable, the selector and slider still operate.
 
 ## Citations
 
-- Riley-Hobson-Bence, *Mathematical Methods for Physics and Engineering*, 3e, Ch. 10 (`riley-hobson`).
+- Riley-Hobson-Bence, *Mathematical Methods for Physics and Engineering*, 3e, Ch. 10.
 
 ## Stretch goals
 

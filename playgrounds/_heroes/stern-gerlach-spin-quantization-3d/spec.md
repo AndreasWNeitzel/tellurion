@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Stern-Gerlach spin quantization
-2J+1 discrete spots, not a classical band. Source: Sakurai and Napolitano, Modern Quantum Mechanics, 2nd ed., Sec. 1.1 (`sakurai-napolitano`); original experiment: Gerlach and Stern, Z. Phys. 9 (1922) 349.
+2J+1 discrete spots, not a classical band. Source: Sakurai and Napolitano, Modern Quantum Mechanics, 2nd ed., Sec. 1.1; original experiment: Gerlach and Stern, Z. Phys. 9 (1922) 349.
 
 ## Explainer
 
@@ -116,6 +116,6 @@ quadratically with $L$; and inversely with $v^2$.
 Sakurai and Napolitano, *Modern Quantum Mechanics*, 2nd ed., CUP
 2017, Section 1.1 derives the deflection formula and the classical
 vs quantum predictions in full. The original experiment is Gerlach
-and Stern, *Z. Phys.* 9 (1922) 349 (`gerlach-stern-1922`); see also
+and Stern, *Z. Phys.* 9 (1922) 349; see also
 Friedrich and Herschbach, *Phys. Today* 56 (2003) 12 for the
 historical context.

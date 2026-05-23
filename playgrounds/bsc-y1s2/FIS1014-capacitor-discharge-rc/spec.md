@@ -135,7 +135,7 @@ If KaTeX or Canvas2D is unavailable, sliders still work.
 
 ## Citations
 
-- Griffiths, *Introduction to Electrodynamics*, 5e, Ch. 7 (`griffithsem2017`).
+- Griffiths, *Introduction to Electrodynamics*, 5e, Ch. 7.
 
 ## Stretch goals
 

@@ -148,7 +148,7 @@ If KaTeX or Canvas2D is unavailable, sliders remain functional.
 
 ## Citations
 
-- Arfken-Weber, *Mathematical Methods for Physicists*, 7e, Ch. 3 (`arfken-weber`).
+- Arfken-Weber, *Mathematical Methods for Physicists*, 7e, Ch. 3.
 
 ## Stretch goals
 

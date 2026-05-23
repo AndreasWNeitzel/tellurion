@@ -155,7 +155,7 @@ Canvas2D only.
 
 - Chirikov 1979, "A universal instability of many-dimensional oscillator systems", Physics Reports 52, 263 - 379.
 - Greene 1979, "A method for determining a stochastic transition", Journal of Mathematical Physics 20, 1183.
-- Ott 2002, Chaos in Dynamical Systems, 2e, Section 7.4 (`ott2002`).
+- Ott 2002, Chaos in Dynamical Systems, 2e, Section 7.4.
 
 ## Stretch goals
 

@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Aurora borealis
-Dipole magnetic trap + Boris pusher. Source: Stormer, The Polar Aurora, Oxford 1955 (`stormer1955`).
+Dipole magnetic trap + Boris pusher. Source: Stormer, The Polar Aurora, Oxford 1955.
 
 ## Explainer
 

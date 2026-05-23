@@ -147,7 +147,7 @@ delta t vs b curve with current-b cursor.
 ## Citations
 
 - Schutz, A First Course in General Relativity 2e Ch. 11
-  (`schutz-firstcourse`).
+ .
 - Bertotti, Iess, Tortora 2003 Nature.
 
 ## Stretch goals

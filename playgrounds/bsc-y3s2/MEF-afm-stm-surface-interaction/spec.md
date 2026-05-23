@@ -241,9 +241,9 @@ GPU-free in node.
 In `docs/CITATIONS.bib`:
 
 - Chen, Introduction to Scanning Tunneling Microscopy, 2nd ed., OUP
-  2008 (`chen2008`), the tunnelling current and the decay constant.
+  2008, the tunnelling current and the decay constant.
 - Binnig, Quate and Gerber, Phys. Rev. Lett. 56 (1986) 930
-  (`binnig1986`), the atomic force microscope and the tip-sample
+ , the atomic force microscope and the tip-sample
   force.
 
 ## Stretch goals

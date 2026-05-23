@@ -115,8 +115,8 @@ silicon at 300 K.
 Closed-form depletion-approximation expressions; the band potential
 is the quadratic integral of the triangular field. Deterministic,
 no RNG. Reference: Sze and Ng, Physics of Semiconductor Devices
-(3rd ed.), Ch. 2 (`sze-devices`); Kittel, Introduction to Solid
-State Physics (8th ed.), Ch. 19 (`kittel-cm`).
+(3rd ed.), Ch. 2; Kittel, Introduction to Solid
+State Physics (8th ed.), Ch. 19.
 
 ## Controls
 
@@ -171,9 +171,9 @@ with the operating point at the captured bias.
 ## Citations
 
 - Sze and Ng, Physics of Semiconductor Devices (3rd ed.), Ch. 2
-  (`sze-devices`).
+ .
 - Kittel, Introduction to Solid State Physics (8th ed.), Ch. 19
-  (`kittel-cm`).
+ .
 
 ## Stretch goals
 

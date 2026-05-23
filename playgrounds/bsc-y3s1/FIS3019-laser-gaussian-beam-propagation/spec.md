@@ -106,8 +106,7 @@ Gouy phase `psi = atan(z/zR)`. A collimated beam focuses to
 
 Closed-form complex-`q` bilinear transforms; the focused waist is
 found from the propagated `q` (where `Re(1/q) = 0`). Deterministic,
-no RNG. Reference: Siegman, Lasers (1986), Ch. 17 and 19
-(`siegman1986`); Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).
+no RNG. Reference: Siegman, Lasers (1986), Ch. 17 and 19; Hecht, Optics (5th ed.), Ch. 13.
 
 ## Controls
 
@@ -157,8 +156,8 @@ Static frame: the beam envelope and focus at the captured `f`.
 
 ## Citations
 
-- Siegman, Lasers (1986), Ch. 17 and 19 (`siegman1986`).
-- Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).
+- Siegman, Lasers (1986), Ch. 17 and 19.
+- Hecht, Optics (5th ed.), Ch. 13.
 
 ## Stretch goals
 

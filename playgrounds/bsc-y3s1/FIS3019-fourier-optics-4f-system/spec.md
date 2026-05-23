@@ -161,8 +161,7 @@ In-line iterative radix-2 Cooley-Tukey FFT (power-of-two `N = 128`),
 `1/N` normalization. Masks act on the unshifted frequency grid; the
 displayed spectrum is fftshifted and log-scaled. Deterministic, no
 RNG. Reference: Goodman, Introduction to Fourier Optics (4th ed.),
-Ch. 5-6 (`goodman-fourier`); Hecht, Optics (5th ed.), Ch. 13
-(`hecht2017`).
+Ch. 5-6; Hecht, Optics (5th ed.), Ch. 13.
 
 ## Controls
 
@@ -213,8 +212,8 @@ Static frame: the three panels at the captured filter radius.
 ## Citations
 
 - Goodman, Introduction to Fourier Optics (4th ed.), Ch. 5-6
-  (`goodman-fourier`).
-- Hecht, Optics (5th ed.), Ch. 13 (`hecht2017`).
+ .
+- Hecht, Optics (5th ed.), Ch. 13.
 
 ## Stretch goals
 

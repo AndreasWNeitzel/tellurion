@@ -138,7 +138,7 @@ connecting arrow.
 ## Citations
 
 - Hartle, Gravity: An Introduction to Einstein's General Relativity Ch. 9
-  (`schutz-firstcourse`).
+ .
 - Carroll, Spacetime and Geometry Ch. 5.
 - Pound and Rebka 1959.
 

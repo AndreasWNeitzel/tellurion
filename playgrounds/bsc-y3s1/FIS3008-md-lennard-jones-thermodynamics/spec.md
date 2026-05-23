@@ -110,7 +110,7 @@ separately); minimum-image convention; lattice initial positions,
 Maxwell-Boltzmann velocities with the net momentum removed;
 deterministic at the supplied seed. `dt = 0.004` for the live run.
 Reference: Allen and Tildesley, Computer Simulation of Liquids
-(2nd ed.), Ch. 1-3 (`allen-tildesley`).
+(2nd ed.), Ch. 1-3.
 
 ## Controls
 
@@ -162,7 +162,7 @@ Static frame: the particle box (KE-coloured) plus the current
 ## Citations
 
 - Allen and Tildesley, Computer Simulation of Liquids (2nd ed.),
-  Ch. 1-3 (`allen-tildesley`).
+  Ch. 1-3.
 
 ## Stretch goals
 

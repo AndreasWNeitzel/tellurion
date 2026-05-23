@@ -147,8 +147,8 @@ If KaTeX or Canvas2D is unavailable, sliders still control the readout.
 
 ## Citations
 
-- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 8 (`carroll-ostlie`).
-- Hansen-Kawaler-Trimble, *Stellar Interiors*, 2e, Ch. 3 (`hansen-kawaler`) for the stellar-atmosphere chemical mixture.
+- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 8.
+- Hansen-Kawaler-Trimble, *Stellar Interiors*, 2e, Ch. 3 for the stellar-atmosphere chemical mixture.
 
 ## Stretch goals
 

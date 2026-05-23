@@ -112,7 +112,7 @@ from a seeded Box-Muller stream. A slider change deterministically
 rebuilds the ensemble and re-diffuses it to the current step count, so
 the displayed cloud is always consistent with the current `D`.
 Reference: Reif, *Fundamentals of Statistical and Thermal Physics*,
-Ch. 1 (random walk) and Sec. 15.5-15.6 (Einstein relation) (`reif`).
+Ch. 1 (random walk) and Sec. 15.5-15.6 (Einstein relation).
 
 ## Controls
 
@@ -146,4 +146,4 @@ Ch. 1 (random walk) and Sec. 15.5-15.6 (Einstein relation) (`reif`).
 - Doubling `T` doubles `D` and hence `<r^2>` at fixed `t`.
 
 Source: Reif, *Fundamentals of Statistical and Thermal Physics*,
-Ch. 1 and Sec. 15.5-15.6 (`reif`).
+Ch. 1 and Sec. 15.5-15.6.

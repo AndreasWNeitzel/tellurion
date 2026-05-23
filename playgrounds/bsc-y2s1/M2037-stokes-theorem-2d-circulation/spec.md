@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Stokes theorem in 2D
-Three vector fields (unit-curl, shear, conservative) and a draggable rectangle. Circulation = $\iint$ curl $dA$ closed-form for these uniform-curl fields. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
+Three vector fields (unit-curl, shear, conservative) and a draggable rectangle. Circulation = $\iint$ curl $dA$ closed-form for these uniform-curl fields. Source: Riley-Hobson Ch. 10.
 
 ## Explainer
 

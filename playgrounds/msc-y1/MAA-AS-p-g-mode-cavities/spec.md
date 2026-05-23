@@ -96,7 +96,7 @@ Kurtz, *Asteroseismology*, Chapter 3.
 
 ## Physical setup
 
-A stellar oscillation of angular frequency $\omega$ and degree $\ell$ propagates only where it is above the Lamb frequency $S_\ell$ and the buoyancy frequency $N$ is on the appropriate side: the acoustic (p) cavity requires $\omega > \max(N, S_\ell)$, the gravity (g) cavity requires $\omega < \min(N, S_\ell)$. A low-$\omega$ mode is trapped in the radiative core, a high-$\omega$ mode in the envelope, and an intermediate one is a mixed mode coupling both through the evanescent zone. Source: Aerts, Christensen-Dalsgaard and Kurtz Ch. 3 (`aerts-asteroseism`).
+A stellar oscillation of angular frequency $\omega$ and degree $\ell$ propagates only where it is above the Lamb frequency $S_\ell$ and the buoyancy frequency $N$ is on the appropriate side: the acoustic (p) cavity requires $\omega > \max(N, S_\ell)$, the gravity (g) cavity requires $\omega < \min(N, S_\ell)$. A low-$\omega$ mode is trapped in the radiative core, a high-$\omega$ mode in the envelope, and an intermediate one is a mixed mode coupling both through the evanescent zone. Source: Aerts, Christensen-Dalsgaard and Kurtz Ch. 3.
 
 ## Numerical method
 

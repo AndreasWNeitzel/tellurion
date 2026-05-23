@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Synchrotron spectrum
-Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
+Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6.
 
 ## Explainer
 

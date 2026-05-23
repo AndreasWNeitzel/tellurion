@@ -148,8 +148,8 @@ If KaTeX or Canvas2D is unavailable, sliders still set $T$ and $n$ and the reado
 
 ## Citations
 
-- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 12 (`carroll-ostlie`).
-- Binney-Tremaine, *Galactic Dynamics*, 2e, Ch. 4 (`binneytremaine2008`) for the dynamical-friction context.
+- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 12.
+- Binney-Tremaine, *Galactic Dynamics*, 2e, Ch. 4 for the dynamical-friction context.
 
 ## Stretch goals
 

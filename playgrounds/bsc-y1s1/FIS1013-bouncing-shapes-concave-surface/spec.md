@@ -157,7 +157,7 @@ property so the figure reads without Canvas2D.
 
 ## Citations
 - Kleppner and Kolenkow, *An Introduction to Mechanics*, 2e, ch. 4
-  (`kleppner`).
+ .
 
 ## Stretch goals
 - Finite-radius disks with disk-disk collisions.

@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # PSF and Strehl ratio
-Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8 (`born-wolf`).
+Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8.
 
 ## Explainer
 

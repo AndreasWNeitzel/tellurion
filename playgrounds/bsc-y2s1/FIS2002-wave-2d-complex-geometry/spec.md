@@ -120,7 +120,7 @@ zero; a quadratic sponge band absorbs outgoing waves. The engine is
 `addWallWithSlits`, `makeSponge`, `stepBarriered` and `addSourceRing`;
 the original four exports are unchanged so the existing wave heroes do
 not regress. Reference: Crawford, *Waves* (Berkeley Physics Course
-Vol. 3), Ch. 7 (`crawford-waves`); Hecht, *Optics* (5th ed.), Ch. 10.
+Vol. 3), Ch. 7; Hecht, *Optics* (5th ed.), Ch. 10.
 
 ## Controls
 
@@ -163,5 +163,4 @@ Scene (`invariants.test.mjs`):
 - No barrier: the free source reproduces a circular wavefront.
 - `gamma = 0`: energy is conserved up to sponge absorption.
 
-Source: Crawford, *Waves* (Berkeley Physics Course Vol. 3), Ch. 7
-(`crawford-waves`); Hecht, *Optics* (5th ed.), Ch. 10 (`hecht2017`).
+Source: Crawford, *Waves* (Berkeley Physics Course Vol. 3), Ch. 7; Hecht, *Optics* (5th ed.), Ch. 10.

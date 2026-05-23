@@ -108,7 +108,7 @@ Closed-form SEMF and decay arithmetic; the U-238 and Th-232 series are
 the canonical ordered mode sequences. The animation walks the chain
 and shows the emitted particle; the chart traces the path. Reference:
 Krane, *Introductory Nuclear Physics*, Ch. 3 (mass formula) and
-Ch. 6-8 (alpha/beta/gamma) (`krane-nuclear`).
+Ch. 6-8 (alpha/beta/gamma).
 
 ## Controls
 
@@ -142,5 +142,4 @@ Ch. 6-8 (alpha/beta/gamma) (`krane-nuclear`).
 - Gamma: `(Z, N)` unchanged.
 - Both series terminate on stable lead (`Z = 82`).
 
-Source: Krane, *Introductory Nuclear Physics*, Ch. 3, 6-8
-(`krane-nuclear`).
+Source: Krane, *Introductory Nuclear Physics*, Ch. 3, 6-8.

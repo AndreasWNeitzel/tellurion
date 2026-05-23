@@ -148,7 +148,7 @@ If KaTeX or Canvas2D is unavailable, the slider still works.
 
 ## Citations
 
-- Jackson, *Classical Electrodynamics*, 3e, Ch. 8 (`jackson1998`).
+- Jackson, *Classical Electrodynamics*, 3e, Ch. 8.
 - Pozar, *Microwave Engineering*, for the engineering Smith-chart variant.
 
 ## Stretch goals

@@ -146,8 +146,8 @@ Canvas2D only.
 
 ## Citations
 
-- MacKay 2003, Information Theory, Inference, and Learning Algorithms, Chapter 2 and Section 33.7 (`mackay2003`).
-- Bishop 2006, Pattern Recognition and Machine Learning, Section 10.1 (`bishop2006`).
+- MacKay 2003, Information Theory, Inference, and Learning Algorithms, Chapter 2 and Section 33.7.
+- Bishop 2006, Pattern Recognition and Machine Learning, Section 10.1.
 - Murphy 2022, Probabilistic Machine Learning Vol. 1, Section 6.3.5.
 
 ## Stretch goals

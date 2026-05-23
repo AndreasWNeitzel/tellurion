@@ -137,7 +137,7 @@ Canvas2D only. Top: f(x) with trapezoid nodes (orange dots) and GL nodes
 ## Citations
 
 - Trefethen, Approximation Theory and Approximation Practice Ch. 18
-  (`trefethen-spectral`).
+ .
 - Press et al., Numerical Recipes 3e Ch. 4.
 
 ## Stretch goals

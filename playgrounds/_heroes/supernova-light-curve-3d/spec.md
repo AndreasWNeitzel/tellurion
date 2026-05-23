@@ -37,9 +37,9 @@ what_to_try:
 # Supernova Light Curve
 
 A radioactive-decay-powered light curve in 3D.
-Source: Arnett, *ApJ* 253 (1982) 785 (`arnett-1982`); Filippenko,
-*ARA&A* 35 (1997) 309 (`filippenko-1997-sn-types`); Hillebrandt and
-Niemeyer, *ARA&A* 38 (2000) 191 (`hillebrandt-niemeyer-sn-ia`).
+Source: Arnett, *ApJ* 253 (1982) 785; Filippenko,
+*ARA&A* 35 (1997) 309; Hillebrandt and
+Niemeyer, *ARA&A* 38 (2000) 191.
 
 ## Explainer
 
@@ -132,10 +132,9 @@ and dims as the light curve evolves.
 
 ### Where this comes from
 
-Arnett, *ApJ* 253 (1982) 785 (`arnett-1982`) derived the Arnett rule.
+Arnett, *ApJ* 253 (1982) 785 derived the Arnett rule.
 The Type-Ia / Type-II classification and the canonical light-curve
-phenomenology are reviewed in Filippenko, *ARA&A* 35 (1997) 309
-(`filippenko-1997-sn-types`). Hillebrandt and Niemeyer, *ARA&A* 38
-(2000) 191 (`hillebrandt-niemeyer-sn-ia`) review the Type Ia
+phenomenology are reviewed in Filippenko, *ARA&A* 35 (1997) 309. Hillebrandt and Niemeyer, *ARA&A* 38
+(2000) 191 review the Type Ia
 thermonuclear runaway. The original SN1987A discovery is West et al.,
 *A&A* 177 (1987) L1.

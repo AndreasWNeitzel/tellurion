@@ -182,7 +182,7 @@ sentence describing the jet-levitation balance.
 
 ## Citations
 - Tritton, *Physical Fluid Dynamics*, 2e, turbulent free jet
-  (`tritton`).
+ .
 
 ## Stretch goals
 - Two balls sharing one jet; vortex shedding wobble.

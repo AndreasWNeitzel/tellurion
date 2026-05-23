@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Toy least-squares orbit fit
-Noisy positions along a Kepler orbit; fit a circle by least squares. The fit is biased when $e > 0$. Source: Bate-Mueller-White Ch. 5 (`bmw`).
+Noisy positions along a Kepler orbit; fit a circle by least squares. The fit is biased when $e > 0$. Source: Bate-Mueller-White Ch. 5.
 
 ## Explainer
 

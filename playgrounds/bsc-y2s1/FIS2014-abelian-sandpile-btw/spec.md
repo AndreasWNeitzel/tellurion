@@ -175,7 +175,7 @@ log-log avalanche-size histogram with s^(-1.21) reference line.
 ## Citations
 
 - Bak, Tang, Wiesenfeld 1987 PRL.
-- Bak 1996, How Nature Works (`bak1996`).
+- Bak 1996, How Nature Works.
 
 ## Stretch goals
 

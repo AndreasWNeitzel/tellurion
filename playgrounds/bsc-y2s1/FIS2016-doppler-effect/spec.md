@@ -149,7 +149,7 @@ Bottom: f_obs(theta) curve with reference line at f = 1.
 
 ## Citations
 
-- Crawford, Waves and Oscillations Ch. 4 (`crawford-waves`).
+- Crawford, Waves and Oscillations Ch. 4.
 - French, Vibrations and Waves Ch. 7 (alternate).
 
 ## Stretch goals

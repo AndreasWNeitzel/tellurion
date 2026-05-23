@@ -37,7 +37,7 @@ references:
   - "Aarseth, Gravitational N-Body Simulations, Cambridge University Press, 2003."
 ---
 # Quadtree N-body
-2D galactic disk under gravity; live Barnes-Hut tree. Source: Barnes and Hut, Nature 324 (1986) 446 (`barnes-hut1986`).
+2D galactic disk under gravity; live Barnes-Hut tree. Source: Barnes and Hut, Nature 324 (1986) 446.
 
 ## Explainer
 
@@ -114,4 +114,4 @@ per body is $O(\log N)$ instead of $O(N)$.
 
 The Barnes-Hut tree algorithm is from Barnes and Hut, Nature 324
 (1986) 446. The kick-drift-kick leapfrog and Plummer softening
-practice follow Springel, MNRAS 364 (2005) 1105 (`gadget2`).
+practice follow Springel, MNRAS 364 (2005) 1105.

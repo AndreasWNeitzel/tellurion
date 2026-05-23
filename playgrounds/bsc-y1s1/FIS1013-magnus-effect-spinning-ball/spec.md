@@ -191,7 +191,7 @@ ball.
 
 ## Citations
 
-- Adair 1990, The Physics of Baseball (`adair1990`).
+- Adair 1990, The Physics of Baseball.
 - Jackson, Classical Electrodynamics Ch. 12.
 
 ## Stretch goals

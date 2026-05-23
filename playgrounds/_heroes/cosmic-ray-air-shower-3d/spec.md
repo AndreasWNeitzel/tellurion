@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Cosmic ray air shower
-Heitler cascade + Gaisser-Hillas profile. Source: Matthews, *Astropart. Phys.* 22 (2005) 387 (`matthews-2005`); Gaisser, *Cosmic Rays and Particle Physics*, CUP 1990 (`gaisser-cosmic-rays`).
+Heitler cascade + Gaisser-Hillas profile. Source: Matthews, *Astropart. Phys.* 22 (2005) 387; Gaisser, *Cosmic Rays and Particle Physics*, CUP 1990.
 
 ## Explainer
 
@@ -116,8 +116,8 @@ signal used by Pierre Auger, IceCube, and Telescope Array.
 
 ### Where this comes from
 
-Matthews, *Astropart. Phys.* 22 (2005) 387 (`matthews-2005`) gives
+Matthews, *Astropart. Phys.* 22 (2005) 387 gives
 the analytic Heitler-style model used here. Gaisser, *Cosmic Rays
-and Particle Physics*, CUP 1990 (`gaisser-cosmic-rays`) is the
+and Particle Physics*, CUP 1990 is the
 standard reference. Modern observational synthesis: Kampert and
 Unger, *Astropart. Phys.* 35 (2012) 660 (Auger mass composition).

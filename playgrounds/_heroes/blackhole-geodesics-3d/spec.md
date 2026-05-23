@@ -222,8 +222,8 @@ Confirmed in `invariants.test.mjs` and `tests/schwarzschild-geodesic.test.mjs`.
 ## Citations
 
 - Misner, Thorne and Wheeler, Gravitation, Freeman 1973, Ch. 25
-  (`mtw-gravitation`).
-- Hartle, Gravity, Addison-Wesley 2003, Ch. 9 (`hartle-gravity`).
+ .
+- Hartle, Gravity, Addison-Wesley 2003, Ch. 9.
 
 ## Risk register
 

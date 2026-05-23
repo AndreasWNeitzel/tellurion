@@ -150,8 +150,8 @@ Canvas2D only.
 
 ## Citations
 
-- Murphy 2022, PML Vol. 1, Ch. 17 (`murphy2022pml`).
-- MacKay 2003, Information Theory, Inference, and Learning Algorithms, Ch. 45 (`mackay2003`).
+- Murphy 2022, PML Vol. 1, Ch. 17.
+- MacKay 2003, Information Theory, Inference, and Learning Algorithms, Ch. 45.
 - Rasmussen and Williams 2006, Gaussian Processes for Machine Learning (background).
 
 ## Stretch goals

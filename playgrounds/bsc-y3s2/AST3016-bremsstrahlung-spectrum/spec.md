@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Thermal bremsstrahlung
-Flat below $h\nu = kT$, exponential cutoff above. Source: Rybicki-Lightman Ch. 5 (`rybickilightman1979`).
+Flat below $h\nu = kT$, exponential cutoff above. Source: Rybicki-Lightman Ch. 5.
 
 ## Explainer
 

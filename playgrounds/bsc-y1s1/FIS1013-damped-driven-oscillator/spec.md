@@ -169,7 +169,7 @@ a dashed peak marker.
 ## Citations
 
 - Strogatz, Nonlinear Dynamics and Chaos 2e Ch. 7.
-- Marion and Thornton, Classical Dynamics Ch. 3 (`marion-thornton`).
+- Marion and Thornton, Classical Dynamics Ch. 3.
 
 ## Stretch goals
 

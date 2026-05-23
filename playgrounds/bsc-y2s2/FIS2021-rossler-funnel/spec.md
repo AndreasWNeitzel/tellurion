@@ -145,9 +145,9 @@ If WebGL is unavailable: the playground uses only Canvas2D and SVG, so this is n
 
 ## Citations
 
-- Rossler 1976, Phys. Lett. A 57, 397 (`rossler1976`).
-- Strogatz 2024, Nonlinear Dynamics and Chaos, 2e, Section 12.4 (`strogatz2024`).
-- Ott 2002, Chaos in Dynamical Systems, 2e, Section 3.5 (`ott2002`).
+- Rossler 1976, Phys. Lett. A 57, 397.
+- Strogatz 2024, Nonlinear Dynamics and Chaos, 2e, Section 12.4.
+- Ott 2002, Chaos in Dynamical Systems, 2e, Section 3.5.
 - Benettin et al. 1980, Meccanica 15, 9 - 30, for the tangent-renormalization Lyapunov estimator.
 
 ## Stretch goals

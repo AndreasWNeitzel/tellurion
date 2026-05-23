@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Engine cycle explorer
-Four idealized cycles on the PV plane: Otto, Diesel, Carnot, Stirling. Source: Callen Ch. 4-5 (`callen`).
+Four idealized cycles on the PV plane: Otto, Diesel, Carnot, Stirling. Source: Callen Ch. 4-5.
 
 ## Explainer
 

@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Stellar pulsation 3D
-Surface Y_l^m oscillation pattern. Source: Aerts et al. Ch. 3 (`aerts-asteroseism`).
+Surface Y_l^m oscillation pattern. Source: Aerts et al. Ch. 3.
 
 ## Explainer
 

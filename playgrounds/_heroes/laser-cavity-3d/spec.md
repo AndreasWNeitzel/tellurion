@@ -224,9 +224,9 @@ Confirmed in `invariants.test.mjs` and `tests/laser-rate.test.mjs`.
 ## Citations
 
 - Siegman, Lasers, University Science Books 1986, Ch. 13
-  (`siegman-lasers`).
+ .
 - Svelto, Principles of Lasers, 5th ed., Springer 2010, Ch. 7-8
-  (`svelto-lasers`).
+ .
 
 ## Risk register
 

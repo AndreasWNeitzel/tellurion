@@ -145,7 +145,7 @@ Canvas2D only; no fallback needed.
 ## Citations
 
 - Misner, Thorne, Wheeler 1973, Gravitation, Section 25.5.
-- Binney and Tremaine 2008, Galactic Dynamics, 2e, Section 3.6 (`binneytremaine2008`).
+- Binney and Tremaine 2008, Galactic Dynamics, 2e, Section 3.6.
 - Carroll 2004, Spacetime and Geometry, Section 5.5 for the 1PN derivation.
 
 ## Stretch goals

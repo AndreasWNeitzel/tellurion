@@ -141,7 +141,7 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 
 ## Citations
 
-- Hecht, *Optics*, 5e, Ch. 9 (`hecht2017`).
+- Hecht, *Optics*, 5e, Ch. 9.
 
 ## Stretch goals
 

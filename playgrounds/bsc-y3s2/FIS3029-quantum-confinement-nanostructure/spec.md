@@ -191,11 +191,11 @@ GPU-free in node.
 
 In `docs/CITATIONS.bib`:
 
-- Griffiths, Introduction to Quantum Mechanics (`griffiths-qm`), the
+- Griffiths, Introduction to Quantum Mechanics, the
   infinite square well.
 - Davies, The Physics of Low-Dimensional Semiconductors, CUP 1998
-  (`davies1998`), the confinement energy and the dimensional DOS.
-- Ashcroft and Mermin, Solid State Physics (`ashcroft-mermin`), the
+ , the confinement energy and the dimensional DOS.
+- Ashcroft and Mermin, Solid State Physics, the
   free-electron `sqrt(E)` density of states.
 
 ## Stretch goals

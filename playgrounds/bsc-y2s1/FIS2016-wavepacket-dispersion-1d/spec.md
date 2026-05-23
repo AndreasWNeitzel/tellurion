@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Free-particle Gaussian wavepacket
-The packet center drifts at $\hbar k_0 / m$; the width broadens as $\sigma(t) = \sigma_0\sqrt{1 + (\hbar t/2m\sigma_0^2)^2}$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).
+The packet center drifts at $\hbar k_0 / m$; the width broadens as $\sigma(t) = \sigma_0\sqrt{1 + (\hbar t/2m\sigma_0^2)^2}$. Source: Eisberg-Resnick Ch. 5.
 
 ## Explainer
 

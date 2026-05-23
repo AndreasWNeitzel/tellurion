@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Magnetic reconnection at an X-point
-Sweet-Parker geometry, M_A = S^(-1/2). Source: Priest and Forbes, Magnetic Reconnection, Ch. 4 (`priest-forbes-reconnection`); Kulsrud, Plasma Physics for Astrophysics, Ch. 14 (`kulsrud-plasma-astro`).
+Sweet-Parker geometry, M_A = S^(-1/2). Source: Priest and Forbes, Magnetic Reconnection, Ch. 4; Kulsrud, Plasma Physics for Astrophysics, Ch. 14.
 
 ## Explainer
 

@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Dark energy and the fate of the universe
-Friedmann a(t) under different Omega_m, Omega_L. Source: Ryden Ch. 5-6 (`ryden2017`).
+Friedmann a(t) under different Omega_m, Omega_L. Source: Ryden Ch. 5-6.
 
 ## Explainer
 

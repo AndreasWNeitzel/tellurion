@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Gaussian curvature
-Sphere, cylinder, hyperbolic plane, and torus. Source: Riley-Hobson Ch. 26 (`riley-hobson`).
+Sphere, cylinder, hyperbolic plane, and torus. Source: Riley-Hobson Ch. 26.
 
 ## Explainer
 

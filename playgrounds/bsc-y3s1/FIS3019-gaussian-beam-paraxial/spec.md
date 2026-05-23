@@ -145,8 +145,8 @@ Canvas2D only.
 
 ## Citations
 
-- Siegman 1986, Lasers, Chapter 17 (`siegman1986`).
-- Hecht 2017, Optics, 5e, Section 13.1 (`hecht2017`).
+- Siegman 1986, Lasers, Chapter 17.
+- Hecht 2017, Optics, 5e, Section 13.1.
 - Born and Wolf 1999, Principles of Optics, 7e, Section 13.4.
 
 ## Stretch goals

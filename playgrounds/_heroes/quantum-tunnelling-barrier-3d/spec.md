@@ -243,9 +243,9 @@ Confirmed in `invariants.test.mjs` and `tests/tdse-cn.test.mjs`.
 ## Citations
 
 - Griffiths, Introduction to Quantum Mechanics, 3rd ed., CUP 2018,
-  Ch. 2 (`griffiths-qm`).
+  Ch. 2.
 - Press, Teukolsky, Vetterling and Flannery, Numerical Recipes,
-  3rd ed., CUP 2007, Sec. 19.2 (`numerical-recipes`).
+  3rd ed., CUP 2007, Sec. 19.2.
 
 ## Risk register
 

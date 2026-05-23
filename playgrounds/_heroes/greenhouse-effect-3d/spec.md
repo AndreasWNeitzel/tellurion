@@ -38,8 +38,7 @@ what_to_try:
 
 A radiative-balance laboratory for planetary surface temperature.
 Source: Pierrehumbert, *Principles of Planetary Climate*, CUP 2010,
-Ch. 4 (`pierrehumbert-pp`); Hansen et al., *Science* 213 (1981) 957
-(`hansen-1981-co2-climate`); IPCC AR6 WG1 2021 (`ipcc-ar6`).
+Ch. 4; Hansen et al., *Science* 213 (1981) 957; IPCC AR6 WG1 2021.
 
 ## Explainer
 
@@ -121,11 +120,9 @@ narrowly escaped a similar fate by losing its early hydrogen.
 
 ### Where this comes from
 
-Pierrehumbert, *Principles of Planetary Climate*, CUP 2010, Ch. 4
-(`pierrehumbert-pp`), is the standard reference for the
+Pierrehumbert, *Principles of Planetary Climate*, CUP 2010, Ch. 4, is the standard reference for the
 greenhouse-effect derivation in introductory format. The CO2 climate
-sensitivity is discussed in Hansen et al., *Science* 213 (1981) 957
-(`hansen-1981-co2-climate`); the IPCC AR6 report (2021)
+sensitivity is discussed in Hansen et al., *Science* 213 (1981) 957; the IPCC AR6 report (2021)
 synthesises modern observational constraints. The runaway-greenhouse
 limit and Venus comparison are in Ingersoll, *J. Atmos. Sci.* 26
 (1969) 1191.

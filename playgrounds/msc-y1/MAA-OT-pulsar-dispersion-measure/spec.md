@@ -109,4 +109,4 @@ Dispersion delay $\Delta t = \mathrm{DM}/(2.41 \times 10^{-4}) (1/f_\mathrm{MHz}
 
 ## Citations
 
-Lorimer & Kramer, "Handbook of Pulsar Astronomy" ch. 4 (`lorimer-kramer`).
+Lorimer & Kramer, "Handbook of Pulsar Astronomy" ch. 4.

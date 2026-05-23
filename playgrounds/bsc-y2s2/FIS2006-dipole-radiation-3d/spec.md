@@ -109,8 +109,7 @@ max(pattern)/integral`: `3/2` for the dipole, `~1.64` for the antenna.
 Closed-form patterns and Larmor power; the radiation surface is a
 revolved `pattern(theta)` mesh, painter-sorted and projected with a
 rotating orthographic camera; the polar panel plots the same pattern.
-Reference: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 9
-(`jackson1998`).
+Reference: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 9.
 
 ## Controls
 
@@ -148,5 +147,4 @@ Reference: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 9
 - `theta -> 0, pi`: the radiated intensity vanishes.
 - Ideal dipole vs antenna: the antenna is strictly more directional.
 
-Source: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 9
-(`jackson1998`).
+Source: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 9.

@@ -235,14 +235,14 @@ in node.
 
 In `docs/CITATIONS.bib`:
 
-- Rayleigh, Phil. Mag. (6) 32 (1916) 529 (`rayleigh1916`), the
+- Rayleigh, Phil. Mag. (6) 32 (1916) 529, the
   original linear theory and the free-free critical value.
 - Chandrasekhar, Hydrodynamic and Hydromagnetic Stability, OUP 1961,
-  Ch. II (`chandrasekhar1961`), the marginal curves, the free-free
+  Ch. II, the marginal curves, the free-free
   `27 pi^4/4`, and the principle of exchange of stabilities.
 - Drazin and Reid, Hydrodynamic Stability, CUP 2004, sec. 2
-  (`drazin-reid`), the neutral curve `(k^2+pi^2)^3/k^2`.
-- Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`), the projection
+ , the neutral curve `(k^2+pi^2)^3/k^2`.
+- Chorin, Math. Comput. 22 (1968) 745, the projection
   method (the engine's nonlinear-DNS stretch path).
 
 ## Stretch goals

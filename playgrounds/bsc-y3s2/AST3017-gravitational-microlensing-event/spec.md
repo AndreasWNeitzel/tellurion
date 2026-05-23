@@ -112,4 +112,4 @@ Scaffolded with single + binary lens physics; Newton solver for binary case + fi
 
 ## Citations
 
-Paczynski 1986, ApJ 304, 1 (`paczynski1986`).
+Paczynski 1986, ApJ 304, 1.

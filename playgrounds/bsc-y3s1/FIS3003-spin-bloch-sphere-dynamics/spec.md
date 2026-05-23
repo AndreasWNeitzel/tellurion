@@ -117,8 +117,8 @@ precession axis `Omega(t + dt/2)`, by angle `|Omega| dt`. For a
 constant axis (free Larmor) this is exact; for the time-varying axis
 it is third-order in `dt` with `|S|` preserved to machine precision.
 `dt = 1/240`. Reference: Sakurai and Napolitano, Modern Quantum
-Mechanics (3rd ed.), Sec. 2.1 (`sakurai-qm`); Griffiths,
-Introduction to Quantum Mechanics (3rd ed.), Sec. 4.4 (`griffiths-qm`).
+Mechanics (3rd ed.), Sec. 2.1; Griffiths,
+Introduction to Quantum Mechanics (3rd ed.), Sec. 4.4.
 
 ## Controls
 
@@ -173,9 +173,9 @@ captured time, its trajectory, and the drive axis.
 ## Citations
 
 - Sakurai and Napolitano, Modern Quantum Mechanics (3rd ed.),
-  Sec. 2.1 (`sakurai-qm`).
+  Sec. 2.1.
 - Griffiths, Introduction to Quantum Mechanics (3rd ed.), Sec. 4.4
-  (`griffiths-qm`).
+ .
 
 ## Stretch goals
 

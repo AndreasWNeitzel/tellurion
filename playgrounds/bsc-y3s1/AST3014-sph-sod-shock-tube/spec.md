@@ -165,12 +165,12 @@ colored by initial half; three stacked panels plot rho(x), v(x), P(x).
 ## Citations
 
 - Sod 1978, J. Comp. Phys. 27, 1, "A survey of several finite difference
-  methods for systems of nonlinear hyperbolic conservation laws" (`sod1978`).
-- Monaghan 1992, ARAA 30, 543, "Smoothed particle hydrodynamics" (`monaghan1992`).
+  methods for systems of nonlinear hyperbolic conservation laws".
+- Monaghan 1992, ARAA 30, 543, "Smoothed particle hydrodynamics".
 - Price 2012, J. Comp. Phys. 231, 759, "Smoothed particle hydrodynamics and
-  magnetohydrodynamics" (`price2012sph`).
+  magnetohydrodynamics".
 - LeVeque 2002, Finite Volume Methods for Hyperbolic Problems, Ch. 14
-  (`leveque2002`).
+ .
 
 ## Stretch goals
 

@@ -144,7 +144,7 @@ arrow (length = r). Right: r(t) time series.
 
 ## Citations
 
-- Kuramoto 1984 (`kuramoto1984`).
+- Kuramoto 1984.
 - Strogatz, Nonlinear Dynamics 2e Ch. 8.
 
 ## Stretch goals

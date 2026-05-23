@@ -216,14 +216,14 @@ GPU-free in node.
 In `docs/CITATIONS.bib`:
 
 - Chen, Introduction to Plasma Physics and Controlled Fusion, 2nd
-  ed., Plenum 1984, ch. 2 (`chen1984`), the guiding-centre drifts
+  ed., Plenum 1984, ch. 2, the guiding-centre drifts
   and the mirror invariant.
-- Boris, Proc. 4th Conf. Num. Sim. Plasmas (1970) (`boris1970`), the
+- Boris, Proc. 4th Conf. Num. Sim. Plasmas (1970), the
   Boris pusher.
 - Northrop, The Adiabatic Motion of Charged Particles, Interscience
-  1963 (`northrop1963`), the adiabatic invariant.
+  1963, the adiabatic invariant.
 - Jackson, Classical Electrodynamics, 3rd ed., Wiley 1998
-  (`jackson1998`), the Lorentz force.
+ , the Lorentz force.
 
 ## Stretch goals
 

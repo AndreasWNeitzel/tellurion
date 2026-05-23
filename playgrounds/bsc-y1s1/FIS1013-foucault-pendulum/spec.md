@@ -157,7 +157,7 @@ initial swing axis. Current bob position highlighted in warm orange.
 
 ## Citations
 
-- Marion and Thornton, Classical Dynamics 5e Ch. 10 (`marion-thornton`).
+- Marion and Thornton, Classical Dynamics 5e Ch. 10.
 - Foucault 1851, Comptes Rendus.
 
 ## Stretch goals

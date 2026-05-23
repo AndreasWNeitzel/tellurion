@@ -106,8 +106,8 @@ ellipse orientation `psi = atan2(S2,S1)/2`, ellipticity
 
 Closed-form 2x2 complex matrix algebra; the ellipse is the locus
 `Re[(Ex,Ey) e^{i omega t}]`. Deterministic, no RNG. Reference:
-Hecht, Optics (5th ed.), Ch. 8 (`hecht2017`); Born and Wolf,
-Principles of Optics (7th ed.), Sec. 1.4 (`born-wolf`).
+Hecht, Optics (5th ed.), Ch. 8; Born and Wolf,
+Principles of Optics (7th ed.), Sec. 1.4.
 
 ## Controls
 
@@ -159,9 +159,9 @@ Static frame: the input and output ellipses plus the sphere points.
 
 ## Citations
 
-- Hecht, Optics (5th ed.), Ch. 8 (`hecht2017`).
+- Hecht, Optics (5th ed.), Ch. 8.
 - Born and Wolf, Principles of Optics (7th ed.), Sec. 1.4
-  (`born-wolf`).
+ .
 
 ## Stretch goals
 

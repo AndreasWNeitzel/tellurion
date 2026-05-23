@@ -144,7 +144,7 @@ ticks, fixed-end pegs as white dots.
 
 ## Citations
 
-- French, Vibrations and Waves Ch. 5 (`french-vibrations`).
+- French, Vibrations and Waves Ch. 5.
 - Crawford, Waves and Oscillations Ch. 2 (alternate).
 
 ## Stretch goals

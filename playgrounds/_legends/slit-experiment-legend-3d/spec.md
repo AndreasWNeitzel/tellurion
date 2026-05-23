@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Slit Experiment Legend
-Fraunhofer N-slit + de Broglie. Source: Hecht, *Optics*, 5th ed., Ch. 10 (`hecht-optics`); Tonomura et al., *Am. J. Phys.* 57 (1989) 117 (`tonomura1989`); Davisson and Germer, *Nature* 119 (1927) 558 (`davisson-germer-1927`).
+Fraunhofer N-slit + de Broglie. Source: Hecht, *Optics*, 5th ed., Ch. 10; Tonomura et al., *Am. J. Phys.* 57 (1989) 117; Davisson and Germer, *Nature* 119 (1927) 558.
 
 ## Explainer
 
@@ -130,6 +130,5 @@ classic 50-degree angle (Davisson and Germer 1927).
 The Fraunhofer formula is in Hecht, *Optics*, 5th ed., Pearson 2017,
 Sections 10.1 (single slit), 10.2.2 (double slit), 10.2.3 (grating).
 The single-electron build-up of the fringes is Tonomura et al.,
-*Am. J. Phys.* 57 (1989) 117 (`tonomura1989`). Davisson-Germer:
-Davisson and Germer, *Nature* 119 (1927) 558
-(`davisson-germer-1927`).
+*Am. J. Phys.* 57 (1989) 117. Davisson-Germer:
+Davisson and Germer, *Nature* 119 (1927) 558.

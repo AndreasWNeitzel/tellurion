@@ -170,10 +170,10 @@ Visual gate: SSIM > 0.92 against the five committed deterministic golden frames,
 
 ## Citations
 
-- Barnes and Hut, Nature 324, 446 (1986): the O(N log N) octree (`barneshut1986`).
-- Barnes and Efstathiou (1987): the tree code applied to interacting galaxies (`barnesefstathiou1987`).
-- Springel, MNRAS 364, 1105 (2005): tree(+PM) gravity, leapfrog, Plummer-equivalent softening (`springel2005gadget2`).
-- Binney and Tremaine, *Galactic Dynamics*, 2nd ed., Ch. 8: dynamical friction and tidal disruption (`binney-tremaine`).
+- Barnes and Hut, Nature 324, 446 (1986): the O(N log N) octree.
+- Barnes and Efstathiou (1987): the tree code applied to interacting galaxies.
+- Springel, MNRAS 364, 1105 (2005): tree(+PM) gravity, leapfrog, Plummer-equivalent softening.
+- Binney and Tremaine, *Galactic Dynamics*, 2nd ed., Ch. 8: dynamical friction and tidal disruption.
 - Helmi et al., Nature 563, 85 (2018); Belokurov et al., MNRAS 478, 611 (2018): the Gaia-Enceladus / Sausage integrals-of-motion signature.
 
 ## Risk register

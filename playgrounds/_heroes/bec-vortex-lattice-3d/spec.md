@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # BEC vortex lattice in a rotating trap
-Quantized vortices in a rotating Bose-Einstein condensate. Source: Pitaevskii and Stringari, Bose-Einstein Condensation and Superfluidity, Ch. 11 (`pitaevskii-stringari-bec`); Pethick and Smith, Bose-Einstein Condensation in Dilute Gases, 2nd ed., Ch. 9 (`pethick-smith-bec`).
+Quantized vortices in a rotating Bose-Einstein condensate. Source: Pitaevskii and Stringari, Bose-Einstein Condensation and Superfluidity, Ch. 11; Pethick and Smith, Bose-Einstein Condensation in Dilute Gases, 2nd ed., Ch. 9.
 
 ## Explainer
 
@@ -122,7 +122,7 @@ a_s / a_{\rm ho})^{2/5} / 2$ and $\xi = 1/\sqrt{2\mu}$.
 The Thomas-Fermi derivation and Feynman vortex law are in Pitaevskii
 and Stringari, *Bose-Einstein Condensation and Superfluidity*, OUP
 2016, Sections 11.4 to 11.6. Vortex lattices in dilute gases are
-reviewed in Cooper, *Adv. Phys.* 57 (2008) 539 (`cooper-rotating-bec`).
+reviewed in Cooper, *Adv. Phys.* 57 (2008) 539.
 Pethick and Smith, *Bose-Einstein Condensation in Dilute Gases*, 2nd
 ed. CUP 2008, Chapter 9 covers the same material at a slightly more
 elementary level.

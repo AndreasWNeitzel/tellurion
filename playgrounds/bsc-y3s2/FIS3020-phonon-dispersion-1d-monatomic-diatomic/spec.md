@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # 1D phonon dispersion
-Monatomic acoustic vs diatomic acoustic + optical; gap at zone boundary. Source: Ashcroft-Mermin Ch. 22 (`ashcroft-mermin`).
+Monatomic acoustic vs diatomic acoustic + optical; gap at zone boundary. Source: Ashcroft-Mermin Ch. 22.
 
 ## Explainer
 

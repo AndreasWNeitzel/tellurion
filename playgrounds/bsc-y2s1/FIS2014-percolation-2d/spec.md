@@ -143,7 +143,7 @@ Canvas2D only.
 
 ## Citations
 
-- Stauffer and Aharony 1994, Introduction to Percolation Theory, Chapter 2 (`staufferaharony1994`).
+- Stauffer and Aharony 1994, Introduction to Percolation Theory, Chapter 2.
 - Newman and Ziff 2000, "Efficient Monte Carlo algorithm and high-precision results for percolation", Phys. Rev. Lett. 85, 4104.
 - Hoshen and Kopelman 1976, Phys. Rev. B 14, 3438 (cluster labeling algorithm).
 

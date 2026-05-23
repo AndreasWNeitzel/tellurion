@@ -40,7 +40,7 @@ what_to_try:
 
 Twelve forward map projections with the Tissot indicatrix made visible.
 Source: Snyder, Map Projections: A Working Manual, USGS Professional
-Paper 1395, 1987 (`snyder1987`).
+Paper 1395, 1987.
 
 ## Explainer
 

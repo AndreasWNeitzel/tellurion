@@ -150,7 +150,7 @@ phase portrait (x_cart, theta).
 
 ## Citations
 
-- Marion and Thornton, Classical Dynamics 5e Ch. 7 (`marion-thornton`).
+- Marion and Thornton, Classical Dynamics 5e Ch. 7.
 - Goldstein, Classical Mechanics Ch. 8 (alternate Lagrangian treatment).
 
 ## Stretch goals

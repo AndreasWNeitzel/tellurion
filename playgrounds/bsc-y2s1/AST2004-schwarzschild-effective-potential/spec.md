@@ -157,7 +157,7 @@ when applicable.
 ## Citations
 
 - Carroll, Spacetime and Geometry Ch. 5.
-- Hartle, Gravity Ch. 9 (`schutz-firstcourse`).
+- Hartle, Gravity Ch. 9.
 
 ## Stretch goals
 

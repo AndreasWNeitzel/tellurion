@@ -162,7 +162,7 @@ Canvas2D only.
 
 ## Citations
 
-- Goodfellow, Bengio, Courville 2016, Deep Learning, Chapter 6 (`goodfellow2016`).
+- Goodfellow, Bengio, Courville 2016, Deep Learning, Chapter 6.
 - Bishop and Bishop 2024, Deep Learning: Foundations and Concepts.
 - Rumelhart, Hinton, Williams 1986, Nature 323, 533.
 

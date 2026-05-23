@@ -223,9 +223,9 @@ Confirmed in `invariants.test.mjs` and `tests/friedmann.test.mjs`.
 ## Citations
 
 - Ryden, Introduction to Cosmology, 2nd ed., CUP 2017, Ch. 5-6
-  (`ryden-cosmology`).
+ .
 - Dodelson, Modern Cosmology, 2nd ed., Academic 2020, Ch. 2
-  (`dodelson-cosmology`).
+ .
 
 ## Risk register
 

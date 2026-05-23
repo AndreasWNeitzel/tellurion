@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Atmospheric speckle statistics
-$N \sim (D/r_0)^2$ speckles per realization. Source: Roddier (`hardy-ao`); Goodman (`goodman-speckle`).
+$N \sim (D/r_0)^2$ speckles per realization. Source: Roddier; Goodman.
 
 ## Explainer
 

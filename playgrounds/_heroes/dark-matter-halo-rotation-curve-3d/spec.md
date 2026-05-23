@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Dark matter halo rotation curve
-NFW halo + bulge + disk; v_c(r) plateaued by DM. Source: Navarro, Frenk, White, ApJ 462 (1996) 563 (`navarro-frenk-white-1996`).
+NFW halo + bulge + disk; v_c(r) plateaued by DM. Source: Navarro, Frenk, White, ApJ 462 (1996) 563.
 
 ## Explainer
 
@@ -118,7 +118,7 @@ flat.
 
 The NFW dark-halo profile is from Navarro, Frenk and White, ApJ 462
 (1996) 563. The Hernquist bulge profile is from Hernquist, ApJ 356
-(1990) 359 (`hernquist1990`); the rotation curve derivations are
+(1990) 359; the rotation curve derivations are
 in Binney and Tremaine, *Galactic Dynamics*, 2nd ed., Princeton 2008,
 Ch. 2. The empirical flat-rotation-curve case is from Rubin and Ford,
 ApJ 159 (1970) 379.

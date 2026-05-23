@@ -149,7 +149,7 @@ by local temperature.
 ## Citations
 
 - Frank, King, Raine, Accretion Power in Astrophysics 3e Ch. 5
-  (`frank-king-raine`).
+ .
 - Shakura and Sunyaev 1973 A&A.
 
 ## Stretch goals

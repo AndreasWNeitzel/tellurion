@@ -114,8 +114,8 @@ Closed-form vector algebra; an orthographic 3D projection with a
 fixed tilt and a yaw that is a pure function of the capture
 fraction. Painter-sorted spheres with a radial-gradient shade.
 Reference: Kittel, Introduction to Solid State Physics (8th ed.),
-Ch. 1-2 (`kittel-cm`); Ashcroft and Mermin, Solid State Physics,
-Ch. 4-6 (`ashcroft-mermin`).
+Ch. 1-2; Ashcroft and Mermin, Solid State Physics,
+Ch. 4-6.
 
 ## Controls
 
@@ -171,9 +171,9 @@ orientation plus the XRD strip.
 ## Citations
 
 - Kittel, Introduction to Solid State Physics (8th ed.), Ch. 1-2
-  (`kittel-cm`).
+ .
 - Ashcroft and Mermin, Solid State Physics, Ch. 4-6
-  (`ashcroft-mermin`).
+ .
 
 ## Stretch goals
 

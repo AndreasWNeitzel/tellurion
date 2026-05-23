@@ -110,7 +110,7 @@ enumerate the Stark sublevels. The term-diagram fan is auto-normalised
 per level (Zeeman and Stark differ by orders of magnitude, so the fan
 is schematic while the readout and the zoomed spectrum carry the true
 magnitudes). Reference: Griffiths, *Introduction to Quantum
-Mechanics* (3rd ed.), Ch. 6 (`griffiths-qm`).
+Mechanics* (3rd ed.), Ch. 6.
 
 ## Controls
 
@@ -146,4 +146,4 @@ Mechanics* (3rd ed.), Ch. 6 (`griffiths-qm`).
 - Ground state: no linear Stark, only a quadratic pull-down.
 
 Source: Griffiths, *Introduction to Quantum Mechanics* (3rd ed.),
-Ch. 6 (`griffiths-qm`).
+Ch. 6.

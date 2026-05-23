@@ -295,14 +295,14 @@ invariants run GPU-free in node.
 
 In `docs/CITATIONS.bib`:
 
-- Chorin, Math. Comput. 22 (1968) 745 (`chorin1968`), the projection method.
-- Harlow and Welch, Phys. Fluids 8 (1965) 2182 (`harlow-welch1965`), the MAC staggered grid.
-- Stam, Proc. SIGGRAPH 99 (1999) 121 (`stam1999`), stable semi-Lagrangian advection.
-- Batchelor, An Introduction to Fluid Dynamics, CUP, 1967 (`batchelor1967`), Stokes flow.
-- Williamson, Annu. Rev. Fluid Mech. 28 (1996) 477 (`williamson1996`), the St-Re relation (the weak Strouhal reference).
-- Kraichnan, Phys. Fluids 10 (1967) 1417 (`kraichnan1967`), the 2D-cascade caveat.
-- Selle, Fedkiw, Kim, Liu, Rossignac, J. Sci. Comput. 35 (2008) 350 (`selle2008-bfecc`), the BFECC low-dissipation advection.
-- Steinhoff and Underhill, Phys. Fluids 6 (1994) 2738 (`steinhoff1994`), vorticity confinement.
+- Chorin, Math. Comput. 22 (1968) 745, the projection method.
+- Harlow and Welch, Phys. Fluids 8 (1965) 2182, the MAC staggered grid.
+- Stam, Proc. SIGGRAPH 99 (1999) 121, stable semi-Lagrangian advection.
+- Batchelor, An Introduction to Fluid Dynamics, CUP, 1967, Stokes flow.
+- Williamson, Annu. Rev. Fluid Mech. 28 (1996) 477, the St-Re relation (the weak Strouhal reference).
+- Kraichnan, Phys. Fluids 10 (1967) 1417, the 2D-cascade caveat.
+- Selle, Fedkiw, Kim, Liu, Rossignac, J. Sci. Comput. 35 (2008) 350, the BFECC low-dissipation advection.
+- Steinhoff and Underhill, Phys. Fluids 6 (1994) 2738, vorticity confinement.
 
 ## Stretch goals
 

@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Voigt profile decomposition
-Gaussian core × Lorentzian wings. Source: Mihalas Stellar Atmospheres Ch. 9 (`mihalas-atm`).
+Gaussian core × Lorentzian wings. Source: Mihalas Stellar Atmospheres Ch. 9.
 
 ## Explainer
 

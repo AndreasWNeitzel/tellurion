@@ -208,12 +208,12 @@ GPU-free in node.
 
 In `docs/CITATIONS.bib`:
 
-- Stix, Waves in Plasmas, AIP 1992 (`stix1992`), the cold-plasma
+- Stix, Waves in Plasmas, AIP 1992, the cold-plasma
   O/X modes, cutoffs and resonances.
-- Swanson, Plasma Waves, 2nd ed., IOP 2003 (`swanson2003`), the
+- Swanson, Plasma Waves, 2nd ed., IOP 2003, the
   Appleton-Hartree and Bohm-Gross relations.
 - Chen, Introduction to Plasma Physics and Controlled Fusion, 2nd
-  ed., ch. 4 (`chen1984`), the wave branches.
+  ed., ch. 4, the wave branches.
 
 ## Stretch goals
 

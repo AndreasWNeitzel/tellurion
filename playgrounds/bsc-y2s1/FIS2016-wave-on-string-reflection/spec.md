@@ -140,7 +140,7 @@ its current pulse profile.
 
 ## Citations
 
-- French, Vibrations and Waves Ch. 7 (`french-vibrations`).
+- French, Vibrations and Waves Ch. 7.
 - Crawford, Waves and Oscillations Ch. 2.
 
 ## Stretch goals

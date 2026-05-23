@@ -145,7 +145,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 7 (`carroll-ostlie`).
+- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 7.
 - Kasting et al. 1993 (ApJ 412, 506) for the canonical CHZ band; the 1.37 / 0.354 bounds are the recent revisions.
 
 ## Stretch goals

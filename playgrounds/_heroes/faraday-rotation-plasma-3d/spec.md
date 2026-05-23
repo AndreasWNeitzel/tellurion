@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Faraday rotation in magnetized plasma
-chi = RM lambda^2. Source: Beck, *Astron. Astrophys. Rev.* 24 (2015) 4 (`beck-2015-magnetic-fields`); Burn, *Mon. Not. R. Astron. Soc.* 133 (1966) 67 (`burn-1966`).
+chi = RM lambda^2. Source: Beck, *Astron. Astrophys. Rev.* 24 (2015) 4; Burn, *Mon. Not. R. Astron. Soc.* 133 (1966) 67.
 
 ## Explainer
 
@@ -119,8 +119,6 @@ RM\,\lambda^2$ line to extract $RM$.
 
 ### Where this comes from
 
-Modern review: Beck, *Astron. Astrophys. Rev.* 24 (2015) 4
-(`beck-2015-magnetic-fields`). Foundational treatment of Faraday
-depolarization: Burn, *Mon. Not. R. Astron. Soc.* 133 (1966) 67
-(`burn-1966`). Classic pulsar-foreground RM application: Manchester
+Modern review: Beck, *Astron. Astrophys. Rev.* 24 (2015) 4. Foundational treatment of Faraday
+depolarization: Burn, *Mon. Not. R. Astron. Soc.* 133 (1966) 67. Classic pulsar-foreground RM application: Manchester
 and Taylor, *Pulsars*, W. H. Freeman 1977, Chapter 8.

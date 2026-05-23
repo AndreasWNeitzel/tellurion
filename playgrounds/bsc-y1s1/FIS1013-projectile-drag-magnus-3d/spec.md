@@ -140,5 +140,4 @@ RK4 on `(p, v)` with `dt = 0.002`, terminating at the ground crossing
 - `c = 0, cM = 0`: exact projectile parabola.
 - `omega = 0`: reduces to pure-drag trajectory.
 
-Source: Marion and Thornton, *Classical Dynamics*, 5th ed., Ch. 2
-(`marion-thornton`); R. K. Adair, *The Physics of Baseball*.
+Source: Marion and Thornton, *Classical Dynamics*, 5th ed., Ch. 2; R. K. Adair, *The Physics of Baseball*.

@@ -143,5 +143,5 @@ canvas2d (the physics is pure geometry, no GPU compute needed).
 - Standing: superposition of two counter-propagating waves.
 
 Source: Griffiths, *Introduction to Electrodynamics*, 4th ed.,
-Sec. 9.2 (`griffithsem2017`); Jackson, *Classical Electrodynamics*,
+Sec. 9.2; Jackson, *Classical Electrodynamics*,
 Ch. 7.

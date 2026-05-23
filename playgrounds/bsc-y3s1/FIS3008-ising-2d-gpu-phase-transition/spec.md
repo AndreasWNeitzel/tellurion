@@ -110,8 +110,8 @@ sublattice couples only to the other. Deterministic at a fixed seed
 (`mulberry32` via `rng.js`). The sweep, energy and magnetization are
 the shared `lattice-mc` engine; the playground adds the running
 estimators. Reference: Newman and Barkema, Monte Carlo Methods in
-Statistical Physics, Ch. 3 (`newman-barkema`); Onsager,
-Phys. Rev. 65, 117 (1944) (`onsager1944`).
+Statistical Physics, Ch. 3; Onsager,
+Phys. Rev. 65, 117 (1944).
 
 ## Controls
 
@@ -152,9 +152,9 @@ Onsager curve and the measured operating point.
 
 ## Citations
 
-- Onsager, Phys. Rev. 65, 117 (1944) (`onsager1944`).
+- Onsager, Phys. Rev. 65, 117 (1944).
 - Newman and Barkema, Monte Carlo Methods in Statistical Physics,
-  Ch. 3 (`newman-barkema`).
+  Ch. 3.
 
 ## Stretch goals
 

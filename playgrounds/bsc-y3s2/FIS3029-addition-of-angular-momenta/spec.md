@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Adding two angular momenta
-$j_1 \otimes j_2 = |j_1-j_2| \oplus \dots \oplus j_1+j_2$. Source: Sakurai QM Ch. 3 (`sakurai-qm`).
+$j_1 \otimes j_2 = |j_1-j_2| \oplus \dots \oplus j_1+j_2$. Source: Sakurai QM Ch. 3.
 
 ## Explainer
 

@@ -144,7 +144,7 @@ Canvas2D only.
 
 ## Citations
 
-- Rybicki and Lightman 1979, Radiative Processes in Astrophysics, Section 4.8 (`rybickilightman1979`).
+- Rybicki and Lightman 1979, Radiative Processes in Astrophysics, Section 4.8.
 - Lind and Blandford 1985, Astrophys. J. 295, 358 (relativistic beaming of jet emission).
 
 ## Stretch goals

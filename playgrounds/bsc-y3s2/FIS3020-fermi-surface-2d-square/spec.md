@@ -135,8 +135,8 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 
 ## Citations
 
-- Ashcroft-Mermin, *Solid State Physics*, Ch. 8 (`ashcroft-mermin`).
-- Kittel, *Introduction to Solid State Physics*, Ch. 7 (`kittel-cm`).
+- Ashcroft-Mermin, *Solid State Physics*, Ch. 8.
+- Kittel, *Introduction to Solid State Physics*, Ch. 7.
 
 ## Stretch goals
 

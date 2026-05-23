@@ -37,10 +37,8 @@ what_to_try:
 # Wormhole Legend
 
 Four-mode laboratory for the Morris-Thorne / Ellis traversable wormhole.
-Source: Morris and Thorne, *Am. J. Phys.* 56 (1988) 395
-(`morris-thorne-wormhole-1988`); Ellis, *J. Math. Phys.* 14 (1973) 104
-(`ellis-drainhole-1973`); Misner, Thorne and Wheeler, *Gravitation*,
-W. H. Freeman 1973, Box 13 (`mtw-gravitation`).
+Source: Morris and Thorne, *Am. J. Phys.* 56 (1988) 395; Ellis, *J. Math. Phys.* 14 (1973) 104; Misner, Thorne and Wheeler, *Gravitation*,
+W. H. Freeman 1973, Box 13.
 
 ## Explainer
 
@@ -133,9 +131,8 @@ acceleration $|R_{\rm tidal}| \sim 1/r(l)^2$ a traveller experiences.
 
 ### Where this comes from
 
-The Morris-Thorne formulation is in *Am. J. Phys.* 56 (1988) 395
-(`morris-thorne-wormhole-1988`). The Ellis drainhole special case is
-in Ellis, *J. Math. Phys.* 14 (1973) 104 (`ellis-drainhole-1973`).
+The Morris-Thorne formulation is in *Am. J. Phys.* 56 (1988) 395. The Ellis drainhole special case is
+in Ellis, *J. Math. Phys.* 14 (1973) 104.
 The chapter-length introduction in MTW *Gravitation* (Box 13 and
 following) gives the embedding diagram derivation. The exotic-matter
 requirement and ANEC violations are reviewed in Visser, *Lorentzian

@@ -154,7 +154,7 @@ Canvas2D only.
 
 ## Citations
 
-- LeVeque 1992, Numerical Methods for Conservation Laws, Chapter 9 (`leveque1992`).
+- LeVeque 1992, Numerical Methods for Conservation Laws, Chapter 9.
 - LeVeque 2002, Finite Volume Methods for Hyperbolic Problems, Chapter 4 - 6 (TVD discussion).
 - MacCormack 1969, "The Effect of Viscosity in Hypervelocity Impact Cratering", AIAA Paper 69-354.
 

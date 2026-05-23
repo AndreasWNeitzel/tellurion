@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Foucault pendulum
-Coriolis precession of the swing plane. Source: Goldstein, Classical Mechanics, Ch. 4.10 (`goldstein-mechanics`).
+Coriolis precession of the swing plane. Source: Goldstein, Classical Mechanics, Ch. 4.10.
 
 ## Explainer
 

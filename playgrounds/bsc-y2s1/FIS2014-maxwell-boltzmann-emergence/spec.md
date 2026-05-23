@@ -147,7 +147,7 @@ MB analytic curve overlaid.
 
 ## Citations
 
-- Reif, Fundamentals of Statistical and Thermal Physics Ch. 1 (`reif`).
+- Reif, Fundamentals of Statistical and Thermal Physics Ch. 1.
 - Krauth, Statistical Mechanics: Algorithms and Computations Ch. 2.
 
 ## Stretch goals

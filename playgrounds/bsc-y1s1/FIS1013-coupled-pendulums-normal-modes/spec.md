@@ -164,8 +164,8 @@ If KaTeX or Canvas2D is unavailable, sliders and buttons still operate.
 
 ## Citations
 
-- French, *Vibrations and Waves* (MIT Introductory Physics), Ch. 5 (`french-waves`).
-- Crawford, *Waves* (Berkeley Vol. 3), Ch. 1-2 (`crawford-waves`) for the canonical normal-mode treatment.
+- French, *Vibrations and Waves* (MIT Introductory Physics), Ch. 5.
+- Crawford, *Waves* (Berkeley Vol. 3), Ch. 1-2 for the canonical normal-mode treatment.
 
 ## Stretch goals
 

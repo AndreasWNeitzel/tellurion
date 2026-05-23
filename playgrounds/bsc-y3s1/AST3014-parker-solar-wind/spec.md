@@ -93,7 +93,7 @@ Astrophysics*, Chapter 2 (after Parker 1958).
 
 ## Physical setup
 
-Parker (1958) isothermal solar wind. The velocity satisfies $(u^2/c_s^2 - 1)\,u^{-1}\,du/dr = (2/r)(1 - r_c/r)$ with sonic crossing at $r_c = GM/(2 c_s^2)$; the unique transonic branch passes through $u = c_s$ at $r = r_c$ and is supersonic beyond. Source: Shu Vol II Ch. 17 (`shu-vol2`); Frank-King-Raine Ch. 2 (`frank-king-raine`).
+Parker (1958) isothermal solar wind. The velocity satisfies $(u^2/c_s^2 - 1)\,u^{-1}\,du/dr = (2/r)(1 - r_c/r)$ with sonic crossing at $r_c = GM/(2 c_s^2)$; the unique transonic branch passes through $u = c_s$ at $r = r_c$ and is supersonic beyond. Source: Shu Vol II Ch. 17; Frank-King-Raine Ch. 2.
 
 ## Numerical method
 

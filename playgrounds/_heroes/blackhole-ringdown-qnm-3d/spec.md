@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Black-hole ringdown (quasinormal mode)
-Damped sinusoid set by mass + spin. Source: Berti, Cardoso, Will, Phys. Rev. D 73 (2006) 064030 (`berti-cardoso-will-qnm`); first BH ringdown: Vishveshwara, Nature 227 (1970) 936.
+Damped sinusoid set by mass + spin. Source: Berti, Cardoso, Will, Phys. Rev. D 73 (2006) 064030; first BH ringdown: Vishveshwara, Nature 227 (1970) 936.
 
 ## Explainer
 
@@ -112,9 +112,9 @@ theorem: that a Kerr BH is fully described by mass and spin alone.
 ### Where this comes from
 
 Quasinormal-mode tabulation is from Berti, Cardoso and Will, *Phys.
-Rev. D* 73 (2006) 064030 (`berti-cardoso-will-qnm`); see also the QNM
+Rev. D* 73 (2006) 064030; see also the QNM
 data on https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/.
 The first identification of a BH ringdown in a gravitational-wave
 signal was GW150914, Abbott et al., *Phys. Rev. Lett.* 116 (2016)
-061102 (`abbott-gw150914`). The classical formulation is in
+061102. The classical formulation is in
 Chandrasekhar, *The Mathematical Theory of Black Holes*, Oxford 1983.

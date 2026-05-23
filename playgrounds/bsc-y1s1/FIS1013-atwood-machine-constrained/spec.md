@@ -146,6 +146,5 @@ integrator). The rig loops when travel exceeds 1.5 m.
 - `M -> 0`: classical Atwood result, equal tensions.
 - `m1 = m2`: equilibrium, `a = 0` for any pulley.
 
-Source: Marion and Thornton, *Classical Dynamics*, 5th ed., Sec. 2
-(`marion-thornton`); Kleppner and Kolenkow, *An Introduction to
+Source: Marion and Thornton, *Classical Dynamics*, 5th ed., Sec. 2; Kleppner and Kolenkow, *An Introduction to
 Mechanics*, Ch. 6.

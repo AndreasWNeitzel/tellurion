@@ -144,7 +144,7 @@ trajectory (yellow).
 
 ## Citations
 
-- FitzHugh 1961 Biophys J 1, 445 (`fitzhugh-nagumo1961`).
+- FitzHugh 1961 Biophys J 1, 445.
 - Nagumo, Arimoto, Yoshizawa 1962 Proc IRE 50, 2061.
 - Strogatz, Nonlinear Dynamics Ch. 7.
 

@@ -143,7 +143,7 @@ If KaTeX or Canvas2D is unavailable, sliders remain functional and the figure ca
 
 ## Citations
 
-- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 3 (`eisberg-resnick`).
+- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 3.
 - de Broglie 1924 thesis: matter waves with $\lambda = h/p$.
 - Davisson and Germer 1927: experimental confirmation via electron diffraction in nickel.
 

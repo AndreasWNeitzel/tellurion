@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # BAO toy
-Sound wave + baryon shell freeze at $r_s \approx 150$ Mpc. Source: Liddle Ch. 11 (`liddle-cosmology`).
+Sound wave + baryon shell freeze at $r_s \approx 150$ Mpc. Source: Liddle Ch. 11.
 
 ## Explainer
 

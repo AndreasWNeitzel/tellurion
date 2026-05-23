@@ -165,7 +165,7 @@ If KaTeX or Canvas2D is unavailable, the dropdown still operates.
 
 ## Citations
 
-- Hansen-Kawaler-Trimble, *Stellar Interiors*, 2e, Ch. 7 (`hansen-kawaler`).
+- Hansen-Kawaler-Trimble, *Stellar Interiors*, 2e, Ch. 7.
 - Chandrasekhar, *Introduction to the Study of Stellar Structure*, classical reference.
 
 ## Stretch goals

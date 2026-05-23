@@ -162,7 +162,7 @@ If KaTeX or Canvas2D is unavailable, sliders remain functional and the figure ca
 
 ## Citations
 
-- Marion-Thornton, *Classical Dynamics of Particles and Systems*, 5e, Ch. 2 (`marion-thornton`).
+- Marion-Thornton, *Classical Dynamics of Particles and Systems*, 5e, Ch. 2.
 - Companion playground: `projectile-with-air-drag` for the 2D version.
 
 ## Stretch goals

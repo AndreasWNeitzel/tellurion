@@ -145,7 +145,7 @@ Canvas2D only.
 
 ## Citations
 
-- Hecht 2017, Optics, 5e, Section 10.2.5 (`hecht2017`).
+- Hecht 2017, Optics, 5e, Section 10.2.5.
 - Born and Wolf 1999, Principles of Optics, 7e, Section 8.6.2.
 - Numerical Recipes, 3e, Section 6.5 (for the J_1 series + asymptotic approximation).
 

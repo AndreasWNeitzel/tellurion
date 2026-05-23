@@ -110,7 +110,7 @@ normalised `P(y)`; the dots accumulate deterministically (fixed seed,
 so the capture is reproducible). The analytic `P(y)` and the
 binning-free CDF are computed by trapezoidal integration. Reference:
 Eisberg and Resnick, *Quantum Physics of Atoms* (2nd ed.), Ch. 3
-and 5 (`eisberg-resnick`).
+and 5.
 
 ## Controls
 
@@ -147,4 +147,4 @@ and 5 (`eisberg-resnick`).
 - Large N: the empirical distribution converges to `|psi|^2`.
 
 Source: Eisberg and Resnick, *Quantum Physics of Atoms* (2nd ed.),
-Ch. 3 and 5 (`eisberg-resnick`).
+Ch. 3 and 5.

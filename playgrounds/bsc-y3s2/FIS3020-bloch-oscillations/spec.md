@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Bloch oscillations
-Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12 (`ashcroft-mermin`).
+Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12.
 
 ## Explainer
 

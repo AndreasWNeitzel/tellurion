@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Lienard-Wiechert beaming
-Relativistic radiation collimates into a forward cone of opening angle $\sim 1/\gamma$. Two limits (a parallel and a perpendicular to v) are shown. Source: Jackson 3e Ch. 14 (`jackson3e`).
+Relativistic radiation collimates into a forward cone of opening angle $\sim 1/\gamma$. Two limits (a parallel and a perpendicular to v) are shown. Source: Jackson 3e Ch. 14.
 
 ## Explainer
 

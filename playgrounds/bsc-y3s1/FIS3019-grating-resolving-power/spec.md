@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Diffraction grating resolving power
-$N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10 (`hecht2017`).
+$N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10.
 
 ## Explainer
 

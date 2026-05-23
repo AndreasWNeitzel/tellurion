@@ -122,7 +122,7 @@ diffusivity (safety factor 0.9) and shown in the readout; it is
 re-evaluated whenever conductivity is painted or a preset loads.
 Insulated (zero-flux) outer edges unless a cell is held fixed
 (Dirichlet). Reference: Press et al., *Numerical Recipes* (3rd ed.),
-Sec. 20.2 (`press2007`); Incropera, *Fundamentals of Heat and Mass
+Sec. 20.2; Incropera, *Fundamentals of Heat and Mass
 Transfer*, Ch. 5.
 
 ## Controls
@@ -168,6 +168,5 @@ Transfer*, Ch. 5.
 - Insulated, source-free: `sum T` is invariant (discrete energy
   conservation).
 
-Source: Press et al., *Numerical Recipes* (3rd ed.), Sec. 20.2
-(`press2007`); Incropera, *Fundamentals of Heat and Mass Transfer*,
+Source: Press et al., *Numerical Recipes* (3rd ed.), Sec. 20.2; Incropera, *Fundamentals of Heat and Mass Transfer*,
 Ch. 5.

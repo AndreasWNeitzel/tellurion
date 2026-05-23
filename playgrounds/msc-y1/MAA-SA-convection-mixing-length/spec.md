@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Mixing-length convection
-Schwarzschild criterion + MLT parameter $\alpha = l_m / H_P$. Source: Hansen-Kawaler Ch. 5 (`hansen-kawaler`).
+Schwarzschild criterion + MLT parameter $\alpha = l_m / H_P$. Source: Hansen-Kawaler Ch. 5.
 
 ## Explainer
 

@@ -118,4 +118,4 @@ real transverse momentum) with a core-peaked, sqrt(depth) profile.
 
 ## Citations
 
-Heitler, "The Quantum Theory of Radiation", Oxford 1954 (`heitler1954`).
+Heitler, "The Quantum Theory of Radiation", Oxford 1954.

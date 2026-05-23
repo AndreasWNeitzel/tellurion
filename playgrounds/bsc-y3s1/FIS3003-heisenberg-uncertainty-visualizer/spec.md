@@ -109,7 +109,7 @@ the direct discrete Fourier transform of psi, then normalised so
 `integral |phi|^2 dk = 1`. Variances are computed from the two
 densities. N = 192 for display (256 in the headless tests).
 Reference: Griffiths, *Introduction to Quantum Mechanics* (3rd ed.),
-Sec. 1.6 and 3.5 (`griffiths-qm`).
+Sec. 1.6 and 3.5.
 
 ## Controls
 
@@ -146,4 +146,4 @@ Sec. 1.6 and 3.5 (`griffiths-qm`).
   packets (the product cannot fall below `hbar/2`).
 
 Source: Griffiths, *Introduction to Quantum Mechanics* (3rd ed.),
-Sec. 1.6 (`griffiths-qm`).
+Sec. 1.6.

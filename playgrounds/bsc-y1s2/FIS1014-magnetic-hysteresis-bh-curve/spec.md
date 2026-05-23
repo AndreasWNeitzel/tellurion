@@ -146,6 +146,5 @@ is integrated each frame.
 - `k -> 0`: loop collapses toward the anhysteretic curve.
 - Large `Hm`: full saturation, maximal remanence.
 
-Source: Jiles and Atherton, *JMMM* 61, 48 (1986) (`jiles-atherton`);
-Griffiths, *Introduction to Electrodynamics*, 4th ed., Sec. 6
-(`griffithsem2017`).
+Source: Jiles and Atherton, *JMMM* 61, 48 (1986);
+Griffiths, *Introduction to Electrodynamics*, 4th ed., Sec. 6.

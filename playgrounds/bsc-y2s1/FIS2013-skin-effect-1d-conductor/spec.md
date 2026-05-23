@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Skin effect
-Exponential decay of the AC electric field inside a conductor; skin depth $\delta = \sqrt{2/(\omega \mu \sigma)}$. Source: Griffiths E&M Ch. 9 (`griffiths-em`).
+Exponential decay of the AC electric field inside a conductor; skin depth $\delta = \sqrt{2/(\omega \mu \sigma)}$. Source: Griffiths E&M Ch. 9.
 
 ## Explainer
 

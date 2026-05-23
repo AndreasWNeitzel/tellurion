@@ -143,7 +143,7 @@ If KaTeX or Canvas2D is unavailable, sliders remain functional and the figure ca
 
 ## Citations
 
-- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 2 (`eisberg-resnick`).
+- Eisberg and Resnick, *Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles*, 2e, Ch. 2.
 - Work-function values from canonical compilations; the spread (2.14 to 6.35 eV) covers Cs, K, Na, Ca, Zn, Ag, W, Pt.
 
 ## Stretch goals

@@ -114,4 +114,4 @@ Units G = M = 1, ln(Lambda) = 3, rho from particle count.
 
 ## Citations
 
-Binney & Tremaine, Galactic Dynamics 2e, section 8.1 (`binney-tremaine`).
+Binney & Tremaine, Galactic Dynamics 2e, section 8.1.

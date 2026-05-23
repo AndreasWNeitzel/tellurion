@@ -153,8 +153,8 @@ shown as dots; ground line and legend.
 
 ## Citations
 
-- Marion and Thornton, Classical Dynamics 5e Ch. 2 (`marion-thornton`).
-- Adair 1990, The Physics of Baseball (`adair1990`).
+- Marion and Thornton, Classical Dynamics 5e Ch. 2.
+- Adair 1990, The Physics of Baseball.
 
 ## Stretch goals
 

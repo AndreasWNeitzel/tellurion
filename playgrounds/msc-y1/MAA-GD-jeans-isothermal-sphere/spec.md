@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Singular isothermal sphere
-$\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).
+$\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4.
 
 ## Explainer
 

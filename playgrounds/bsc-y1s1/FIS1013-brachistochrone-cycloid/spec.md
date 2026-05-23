@@ -162,8 +162,8 @@ traversal time.
 
 ## Citations
 
-- Marion and Thornton, Classical Dynamics 5e Ch. 6 (`marion-thornton`).
-- Lemos, Analytical Mechanics, Ch. 2 (`lemos-analytical`).
+- Marion and Thornton, Classical Dynamics 5e Ch. 6.
+- Lemos, Analytical Mechanics, Ch. 2.
 
 ## Stretch goals
 

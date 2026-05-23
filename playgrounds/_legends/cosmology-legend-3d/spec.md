@@ -40,10 +40,9 @@ what_to_try:
 Four-mode laboratory for the Friedmann universe and its early-time
 quantum fluctuations.
 Source: Ryden, *Introduction to Cosmology*, 2nd ed., Cambridge University
-Press 2017, Ch. 5 to 6 (`ryden-cosmology`); Mukhanov, *Physical
-Foundations of Cosmology*, CUP 2005 (`mukhanov-cosmology`); Baumann,
-*Cosmology*, CUP 2022 (`baumann-cosmology`); Planck Collaboration 2018
-(`planck-2018-cosmology`).
+Press 2017, Ch. 5 to 6; Mukhanov, *Physical
+Foundations of Cosmology*, CUP 2005; Baumann,
+*Cosmology*, CUP 2022; Planck Collaboration 2018.
 
 ## Explainer
 
@@ -151,9 +150,8 @@ sits comfortably inside.
 ### Where this comes from
 
 The Friedmann equation is in Ryden, *Introduction to Cosmology*, 2nd
-ed., Ch. 5 (`ryden-cosmology`). The CMB power spectrum and Delta T / T
+ed., Ch. 5. The CMB power spectrum and Delta T / T
 amplitude are from Planck Collaboration, *Astron. Astrophys.* 641
-(2020) A6 (`planck-2018-cosmology`). The slow-roll inflation
+(2020) A6. The slow-roll inflation
 construction is in Mukhanov, *Physical Foundations of Cosmology*, CUP
-2005 (`mukhanov-cosmology`), and Baumann, *Cosmology*, CUP 2022
-(`baumann-cosmology`).
+2005, and Baumann, *Cosmology*, CUP 2022.

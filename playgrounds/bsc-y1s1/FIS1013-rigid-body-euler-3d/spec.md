@@ -151,5 +151,4 @@ plane perpendicular to L).
 - Axisymmetric (I1=I2): steady precession of omega about the symmetry
   axis at constant cone angle.
 
-Source: Landau and Lifshitz, *Mechanics*, 3rd ed., Sec. 37
-(`landau-mechanics`); Marion and Thornton, *Classical Dynamics*, Ch. 11.
+Source: Landau and Lifshitz, *Mechanics*, 3rd ed., Sec. 37; Marion and Thornton, *Classical Dynamics*, Ch. 11.

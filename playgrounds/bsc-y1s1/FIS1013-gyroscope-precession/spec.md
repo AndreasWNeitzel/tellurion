@@ -141,7 +141,7 @@ trail. Right: Omega_p vs omega_s curve.
 
 ## Citations
 
-- Marion and Thornton, Classical Dynamics 5e Ch. 11 (`marion-thornton`).
+- Marion and Thornton, Classical Dynamics 5e Ch. 11.
 - Goldstein, Classical Mechanics Ch. 5 (alternate Lagrangian treatment).
 
 ## Stretch goals

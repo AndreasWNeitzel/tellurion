@@ -37,7 +37,7 @@ references:
   - "Murray and Dermott, Solar System Dynamics, Ch. 2."
 ---
 # Keplerian orbit elements
-Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).
+Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2.
 
 ## Explainer
 

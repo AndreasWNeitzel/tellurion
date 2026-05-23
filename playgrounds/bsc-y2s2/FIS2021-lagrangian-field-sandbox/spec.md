@@ -118,9 +118,8 @@ peri- and apoapsis.
 Classical RK4 from the shared `ode-rk` engine (gate-tested
 separately); fixed `dt = 1/240` with an accumulator. Deterministic
 from the initial conditions, no RNG. Reference: Goldstein, Poole and
-Safko, Classical Mechanics (3rd ed.), Ch. 1-3 (`goldstein-mech`);
-Landau and Lifshitz, Mechanics (3rd ed.), Sec. 1-7
-(`landau-mechanics`).
+Safko, Classical Mechanics (3rd ed.), Ch. 1-3;
+Landau and Lifshitz, Mechanics (3rd ed.), Sec. 1-7.
 
 ## Controls
 
@@ -180,9 +179,9 @@ time.
 ## Citations
 
 - Goldstein, Poole and Safko, Classical Mechanics (3rd ed.),
-  Ch. 1-3 (`goldstein-mech`).
+  Ch. 1-3.
 - Landau and Lifshitz, Mechanics (3rd ed.), Sec. 1-7
-  (`landau-mechanics`).
+ .
 
 ## Stretch goals
 

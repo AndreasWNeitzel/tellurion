@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Group vs phase velocity
-Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6 (`crawford-waves`).
+Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6.
 
 ## Explainer
 

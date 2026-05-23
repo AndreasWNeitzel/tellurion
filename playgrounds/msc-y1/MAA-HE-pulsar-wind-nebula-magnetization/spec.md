@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # PWN magnetization
-Crab-like nebula: termination shock + magnetization. Source: Kennel-Coroniti 1984; Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
+Crab-like nebula: termination shock + magnetization. Source: Kennel-Coroniti 1984; Rybicki-Lightman Ch. 6.
 
 ## Explainer
 

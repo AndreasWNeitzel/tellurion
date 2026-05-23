@@ -114,7 +114,7 @@ for `grad(div u)` and the Laplacian, stable at
 `dt < dx / (v_P sqrt 2)` (safety 0.85). A quadratic sponge absorbs the
 edges so the wavefronts are not contaminated by box reflections.
 Reference: Landau and Lifshitz, *Theory of Elasticity* (Vol. 7),
-Sec. 22-24 (`landau-elasticity`).
+Sec. 22-24.
 
 ## Controls
 
@@ -150,4 +150,4 @@ Sec. 22-24 (`landau-elasticity`).
 - Explosive source: divergence only (pure P, `v_P`).
 
 Source: Landau and Lifshitz, *Theory of Elasticity* (Vol. 7),
-Sec. 22-24 (`landau-elasticity`).
+Sec. 22-24.

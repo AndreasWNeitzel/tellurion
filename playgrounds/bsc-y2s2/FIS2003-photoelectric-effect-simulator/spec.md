@@ -105,7 +105,7 @@ Closed-form Einstein relation in eV and PHz; the I-V curve is the
 saturating response with a hard zero below the cutoff; the Einstein
 line and its least-squares slope/intercept are computed analytically.
 Reference: Eisberg and Resnick, *Quantum Physics of Atoms* (2nd ed.),
-Sec. 2.2-2.3 (`eisberg-resnick`).
+Sec. 2.2-2.3.
 
 ## Controls
 
@@ -144,4 +144,4 @@ Sec. 2.2-2.3 (`eisberg-resnick`).
   anti-classical result).
 
 Source: Eisberg and Resnick, *Quantum Physics of Atoms* (2nd ed.),
-Sec. 2.2-2.3 (`eisberg-resnick`).
+Sec. 2.2-2.3.

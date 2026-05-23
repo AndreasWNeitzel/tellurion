@@ -112,8 +112,7 @@ numerically stable `ln cosh`. Free energy reconstructed by summing
 `(1/2)^{n+1} lnC` along the flow, terminating at the decoupled
 `(K=0, h)` sink where the remainder is exactly `ln(2 cosh h)`.
 Reference: Goldenfeld, Lectures on Phase Transitions and the RG,
-Ch. 9 (`goldenfeld`); Nelson and Fisher, Ann. Phys. 91, 226 (1975)
-(`nelson-fisher1975`).
+Ch. 9; Nelson and Fisher, Ann. Phys. 91, 226 (1975).
 
 ## Controls
 
@@ -168,8 +167,8 @@ captured number of steps, or the cobweb staircase.
 ## Citations
 
 - Goldenfeld, Lectures on Phase Transitions and the RG, Ch. 9
-  (`goldenfeld`).
-- Nelson and Fisher, Ann. Phys. 91, 226 (1975) (`nelson-fisher1975`).
+ .
+- Nelson and Fisher, Ann. Phys. 91, 226 (1975).
 
 ## Stretch goals
 

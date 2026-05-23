@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Quasar relativistic jet
-Doppler boost from a bulk-relativistic flow. Source: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 4 (`rybicki-lightman`); unification scheme: Urry and Padovani, PASP 107 (1995) 803 (`urry-padovani-unified`).
+Doppler boost from a bulk-relativistic flow. Source: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 4; unification scheme: Urry and Padovani, PASP 107 (1995) 803.
 
 ## Explainer
 

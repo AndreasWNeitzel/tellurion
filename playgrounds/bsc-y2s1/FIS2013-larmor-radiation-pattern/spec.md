@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Larmor radiation pattern
-Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11 (`griffiths-em`).
+Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11.
 
 ## Explainer
 

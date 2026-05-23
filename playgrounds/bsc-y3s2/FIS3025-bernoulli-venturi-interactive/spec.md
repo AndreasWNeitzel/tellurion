@@ -204,9 +204,9 @@ The invariants run GPU-free in node.
 In `docs/CITATIONS.bib`:
 
 - Tritton, Physical Fluid Dynamics, 2nd ed., OUP 1988, ch. 5
-  (`tritton`), Bernoulli's theorem and the Venturi.
+ , Bernoulli's theorem and the Venturi.
 - Batchelor, An Introduction to Fluid Dynamics, CUP 1967, sec. 3.5
-  (`batchelor1967`), Bernoulli's theorem for steady inviscid flow.
+ , Bernoulli's theorem for steady inviscid flow.
 
 ## Stretch goals
 

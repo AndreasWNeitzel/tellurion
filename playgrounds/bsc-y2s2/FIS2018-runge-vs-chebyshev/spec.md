@@ -146,7 +146,7 @@ vs n for both schemes with cursor at current n.
 ## Citations
 
 - Trefethen, Approximation Theory and Approximation Practice
-  (`trefethen-spectral`).
+ .
 - Press et al., Numerical Recipes 3e Ch. 5.
 
 ## Stretch goals

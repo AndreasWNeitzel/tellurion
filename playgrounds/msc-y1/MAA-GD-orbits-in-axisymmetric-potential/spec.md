@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Orbits in a disk potential
-Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3 (`binney-tremaine`).
+Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3.
 
 ## Explainer
 

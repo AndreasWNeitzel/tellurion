@@ -132,7 +132,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Carroll, *Spacetime and Geometry*, Ch. 3 (`carroll2019`) for the GR-textbook treatment.
+- Carroll, *Spacetime and Geometry*, Ch. 3 for the GR-textbook treatment.
 - do Carmo, *Differential Geometry of Curves and Surfaces*, for the rigorous derivation.
 
 ## Stretch goals

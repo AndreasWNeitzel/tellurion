@@ -122,4 +122,4 @@ Scaffolded; $Y_l^m$ renderer + polytrope $N(r), S_l(r)$ profile not yet implemen
 
 ## Citations
 
-Aerts, Christensen-Dalsgaard, Kurtz, "Asteroseismology", Springer 2010 (`aerts2010`).
+Aerts, Christensen-Dalsgaard, Kurtz, "Asteroseismology", Springer 2010.

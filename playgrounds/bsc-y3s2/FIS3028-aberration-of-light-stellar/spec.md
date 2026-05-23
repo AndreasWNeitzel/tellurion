@@ -139,7 +139,7 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 
 ## Citations
 
-- Jackson, *Classical Electrodynamics*, 3e, Ch. 11 (`jackson1998`).
+- Jackson, *Classical Electrodynamics*, 3e, Ch. 11.
 - J. Bradley 1729: empirical discovery of annual aberration.
 
 ## Stretch goals

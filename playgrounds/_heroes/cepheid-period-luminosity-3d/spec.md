@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Cepheid period-luminosity relation
-Leavitt Law. Source: Madore + Freedman, *PASP* 103 (1991) 933 (`madore-freedman-1991`); original discovery: Leavitt, *Harvard Coll. Obs. Circ.* 173 (1912) 1 (`leavitt-1912`).
+Leavitt Law. Source: Madore + Freedman, *PASP* 103 (1991) 933; original discovery: Leavitt, *Harvard Coll. Obs. Circ.* 173 (1912) 1.
 
 ## Explainer
 
@@ -119,8 +119,8 @@ asymmetric shape observed in real Cepheids.
 ### Where this comes from
 
 Original PL discovery: Leavitt, *Harvard Coll. Obs. Circ.* 173 (1912)
-1 (`leavitt-1912`). Modern HST calibration: Madore + Freedman,
-*Publ. Astron. Soc. Pacific* 103 (1991) 933 (`madore-freedman-1991`).
+1. Modern HST calibration: Madore + Freedman,
+*Publ. Astron. Soc. Pacific* 103 (1991) 933.
 Reviews: Freedman, *Astrophys. J.* 919 (2021) 16; Riess et al.,
 *Astrophys. J.* 826 (2016) 56. The kappa-mechanism theory is in
 Cox, *Theory of Stellar Pulsation*, Princeton 1980.

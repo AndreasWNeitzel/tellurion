@@ -138,7 +138,7 @@ theta marker.
 
 ## Citations
 
-- Landau and Lifshitz, Mechanics 3e Sec. 30 (`landau-lifshitz-mechanics`).
+- Landau and Lifshitz, Mechanics 3e Sec. 30.
 - Kapitza 1951.
 
 ## Stretch goals

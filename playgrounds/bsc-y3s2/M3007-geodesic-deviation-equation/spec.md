@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Geodesic deviation
-Two parallel-starting geodesics on a sphere converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).
+Two parallel-starting geodesics on a sphere converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3.
 
 ## Explainer
 

@@ -149,7 +149,7 @@ two trace strips on the right show x(t) and y(t) separately.
 
 ## Citations
 
-- Crawford, Waves and Oscillations Ch. 1 (`crawford-waves`).
+- Crawford, Waves and Oscillations Ch. 1.
 - Bowditch, On the Motion of a Pendulum Suspended from Two Points (1815) for
   the historical observation.
 

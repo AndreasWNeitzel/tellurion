@@ -117,7 +117,7 @@ Direct coherent superposition. The displayed field is evaluated on a
 tanh-compressed with an auto-scaled knee so the pattern is visible for
 any N, wavelength and aperture. The far-field amplitude is the exact
 array sum `|sum exp(i k r_i . dir)| / N`. Reference: Hecht, *Optics*
-(5th ed.), Sec. 10.1-10.2 (`hecht2017`).
+(5th ed.), Sec. 10.1-10.2.
 
 ## Controls
 
@@ -154,4 +154,4 @@ array sum `|sum exp(i k r_i . dir)| / N`. Reference: Hecht, *Optics*
 - Continuous-aperture limit (large N): the array far field converges
   to the analytic sinc.
 
-Source: Hecht, *Optics* (5th ed.), Sec. 10.1-10.2 (`hecht2017`).
+Source: Hecht, *Optics* (5th ed.), Sec. 10.1-10.2.

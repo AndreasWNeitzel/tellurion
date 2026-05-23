@@ -185,12 +185,12 @@ invariants run GPU-free in node.
 
 In `docs/CITATIONS.bib`:
 
-- Goodman, Introduction to Fourier Optics (`goodman-fourier`), the
+- Goodman, Introduction to Fourier Optics, the
   pupil-filtered imaging model.
-- Born and Wolf, Principles of Optics (`born-wolf`), the Rayleigh
+- Born and Wolf, Principles of Optics, the Rayleigh
   resolution criterion.
 - Mack, Fundamental Principles of Optical Lithography, Wiley 2007
-  (`mack2007`), the lithography model, `k1` and the wavelengths.
+ , the lithography model, `k1` and the wavelengths.
 
 ## Stretch goals
 

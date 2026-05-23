@@ -151,7 +151,7 @@ Canvas2D only.
 
 - Kosterlitz and Thouless 1973, "Ordering, metastability and phase transitions in two-dimensional systems", J. Phys. C 6, 1181.
 - Hasenbusch 2005, "The two-dimensional XY model at the transition temperature: a high-precision Monte Carlo study", Phys. Rev. B 71, 094507.
-- Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics, Section 5.5 (`newmanbarkema1999`).
+- Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics, Section 5.5.
 
 ## Stretch goals
 

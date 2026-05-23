@@ -114,4 +114,4 @@ $$\mathbf{v}_\mathrm{after} = \mathbf{v}_\mathrm{before} + \mathbf{v}_P \cdot (\
 
 ## Citations
 
-Bate, Mueller, White, "Fundamentals of Astrodynamics" ch. 8 (`bmw1971`).
+Bate, Mueller, White, "Fundamentals of Astrodynamics" ch. 8.

@@ -115,8 +115,8 @@ non-canonical `(q, 2p)` with `{Q,P} = 2`.
 The Poisson bracket is the exact analytic Jacobian determinant; the
 area is the shoelace polygon area of the mapped boundary.
 Deterministic, no RNG. Reference: Goldstein, Poole and Safko,
-Classical Mechanics (3rd ed.), Ch. 9 (`goldstein-mech`); Landau and
-Lifshitz, Mechanics (3rd ed.), Sec. 45 (`landau-mechanics`).
+Classical Mechanics (3rd ed.), Ch. 9; Landau and
+Lifshitz, Mechanics (3rd ed.), Sec. 45.
 
 ## Controls
 
@@ -169,9 +169,9 @@ Static frame: the blob and its image at the captured parameter.
 ## Citations
 
 - Goldstein, Poole and Safko, Classical Mechanics (3rd ed.), Ch. 9
-  (`goldstein-mech`).
+ .
 - Landau and Lifshitz, Mechanics (3rd ed.), Sec. 45
-  (`landau-mechanics`).
+ .
 
 ## Stretch goals
 

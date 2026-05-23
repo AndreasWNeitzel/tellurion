@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Bell inequality and quantum entanglement
-Singlet correlation + CHSH. Source: Bell, *Physics* 1 (1964) 195 (`bell-1964`); CHSH derivation: Clauser, Horne, Shimony, Holt, *Phys. Rev. Lett.* 23 (1969) 880 (`chsh-1969`); experimental verification: Aspect et al., *Phys. Rev. Lett.* 49 (1982) 91 (`aspect-1982`).
+Singlet correlation + CHSH. Source: Bell, *Physics* 1 (1964) 195; CHSH derivation: Clauser, Horne, Shimony, Holt, *Phys. Rev. Lett.* 23 (1969) 880; experimental verification: Aspect et al., *Phys. Rev. Lett.* 49 (1982) 91.
 
 ## Explainer
 
@@ -120,10 +120,10 @@ the Lipschitz envelope, and that pinch is the CHSH violation.
 
 ### Where this comes from
 
-Bell, *Physics* 1 (1964) 195 (`bell-1964`) introduced the
+Bell, *Physics* 1 (1964) 195 introduced the
 inequalities. The CHSH form is in Clauser, Horne, Shimony, Holt,
-*Phys. Rev. Lett.* 23 (1969) 880 (`chsh-1969`). The first decisive
+*Phys. Rev. Lett.* 23 (1969) 880. The first decisive
 experiment is Aspect, Grangier and Roger, *Phys. Rev. Lett.* 49
-(1982) 91 (`aspect-1982`). Loophole-free tests: Hensen et al.
+(1982) 91. Loophole-free tests: Hensen et al.
 *Nature* 526 (2015) 682; Giustina et al. *Phys. Rev. Lett.* 115
 (2015) 250401; Shalm et al. *Phys. Rev. Lett.* 115 (2015) 250402.

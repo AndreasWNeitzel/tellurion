@@ -109,7 +109,7 @@ with `c1 = cos th1`, `c2 = cos th2`. `R = |r|^2`,
 Closed-form Fresnel with a small complex helper so the total internal
 reflection branch (imaginary `cos th2`) is exact; the beams are drawn
 with width proportional to `sqrt(R)` or `sqrt(T)`. Reference: Hecht,
-*Optics* (5th ed.), Sec. 4.6 (`hecht2017`); Jackson, *Classical
+*Optics* (5th ed.), Sec. 4.6; Jackson, *Classical
 Electrodynamics* (3rd ed.), Sec. 7.3.
 
 ## Controls
@@ -145,4 +145,4 @@ Electrodynamics* (3rd ed.), Sec. 7.3.
 - `th1 -> 90 deg`: `R -> 1` for both polarizations.
 - `n1 = n2`: no interface, no reflection.
 
-Source: Hecht, *Optics* (5th ed.), Sec. 4.6 (`hecht2017`).
+Source: Hecht, *Optics* (5th ed.), Sec. 4.6.

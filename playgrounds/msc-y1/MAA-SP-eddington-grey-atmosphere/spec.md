@@ -142,7 +142,7 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 
 ## Citations
 
-- Hansen-Kawaler-Trimble, *Stellar Interiors*, 2e, Ch. 3 (`hansen-kawaler`).
+- Hansen-Kawaler-Trimble, *Stellar Interiors*, 2e, Ch. 3.
 - Mihalas, *Stellar Atmospheres*, for the rigorous Eddington-Barbier derivation.
 
 ## Stretch goals

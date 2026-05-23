@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Stellar rotation and line broadening
-Doppler-broadened line from a rotating limb-darkened disk. Source: Gray Ch. 17 (`gray2005`).
+Doppler-broadened line from a rotating limb-darkened disk. Source: Gray Ch. 17.
 
 ## Explainer
 

@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Linear perturbation growth
-$\delta \propto a$ in matter era; Lambda saturates growth. Source: Liddle Ch. 12 (`liddle-cosmology`).
+$\delta \propto a$ in matter era; Lambda saturates growth. Source: Liddle Ch. 12.
 
 ## Explainer
 

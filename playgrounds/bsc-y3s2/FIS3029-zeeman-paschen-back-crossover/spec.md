@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Zeeman to Paschen-Back
-Low-$B$ Zeeman: $g_J m_J \mu_B B$. High-$B$ Paschen-Back: $(m_L + 2m_S) \mu_B B$. Source: Griffiths QM Ch. 6.4 (`griffiths-qm`).
+Low-$B$ Zeeman: $g_J m_J \mu_B B$. High-$B$ Paschen-Back: $(m_L + 2m_S) \mu_B B$. Source: Griffiths QM Ch. 6.4.
 
 ## Explainer
 

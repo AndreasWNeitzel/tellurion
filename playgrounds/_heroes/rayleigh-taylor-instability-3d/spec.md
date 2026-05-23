@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Rayleigh-Taylor instability
-sigma = sqrt(A k g). Source: Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Oxford 1961, Ch. 10 (`chandrasekhar-hydro`); originals: Rayleigh, *Proc. Lond. Math. Soc.* 14 (1883) 170; Taylor, *Proc. R. Soc. A* 201 (1950) 192.
+sigma = sqrt(A k g). Source: Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Oxford 1961, Ch. 10; originals: Rayleigh, *Proc. Lond. Math. Soc.* 14 (1883) 170; Taylor, *Proc. R. Soc. A* 201 (1950) 192.
 
 ## Explainer
 

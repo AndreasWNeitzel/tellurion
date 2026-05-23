@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # BCS gap, self-consistent
-$\Delta(T)$ from the BCS gap equation; universal ratio $2\Delta_0 / k_B T_c \approx 3.53$. Source: Ashcroft-Mermin Ch. 34 (`ashcroft-mermin`).
+$\Delta(T)$ from the BCS gap equation; universal ratio $2\Delta_0 / k_B T_c \approx 3.53$. Source: Ashcroft-Mermin Ch. 34.
 
 ## Explainer
 

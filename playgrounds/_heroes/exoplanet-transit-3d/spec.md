@@ -243,9 +243,9 @@ Confirmed in `invariants.test.mjs` and `tests/transit.test.mjs`.
 
 ## Citations
 
-- Mandel and Agol, ApJ 580 (2002) L171 (`mandel-agol-2002`).
+- Mandel and Agol, ApJ 580 (2002) L171.
 - Seager and Mallen-Ornelas, ApJ 585 (2003) 1038
-  (`seager-mallen-ornelas`).
+ .
 
 ## Risk register
 

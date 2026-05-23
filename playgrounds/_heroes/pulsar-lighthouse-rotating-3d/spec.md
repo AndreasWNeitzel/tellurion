@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Pulsar lighthouse
-Magnetic-dipole rotator with off-axis beam. Source: Lorimer and Kramer, Handbook of Pulsar Astronomy, Ch. 3 (`lorimer-kramer-pulsars`).
+Magnetic-dipole rotator with off-axis beam. Source: Lorimer and Kramer, Handbook of Pulsar Astronomy, Ch. 3.
 
 ## Explainer
 

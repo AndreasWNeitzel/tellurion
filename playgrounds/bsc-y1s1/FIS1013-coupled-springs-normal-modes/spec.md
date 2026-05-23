@@ -222,7 +222,7 @@ phase portrait.
 
 ## Citations
 
-- Goldstein, Poole, Safko 2001, Classical Mechanics 3e, Ch. 6 (`goldstein2001`).
+- Goldstein, Poole, Safko 2001, Classical Mechanics 3e, Ch. 6.
 - Marion and Thornton, Classical Dynamics 5e, Ch. 12 (alternate cite).
 
 ## Stretch goals

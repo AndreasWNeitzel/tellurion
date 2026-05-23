@@ -143,7 +143,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Jackson, *Classical Electrodynamics*, 3e, Ch. 11 (`jackson1998`).
+- Jackson, *Classical Electrodynamics*, 3e, Ch. 11.
 - Einstein 1907 / Ives-Stilwell 1938 experimental confirmation of transverse Doppler.
 
 ## Stretch goals

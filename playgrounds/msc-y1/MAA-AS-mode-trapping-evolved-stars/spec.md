@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Mode trapping in evolved stars
-Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018 (`mosser2018-trap`); Aerts et al. Ch. 3 (`aerts-asteroseism`).
+Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018; Aerts et al. Ch. 3.
 
 ## Explainer
 

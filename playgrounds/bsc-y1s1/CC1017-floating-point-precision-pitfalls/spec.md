@@ -163,10 +163,10 @@ All confirmed in `invariants.test.mjs` (12 tests passing).
 
 ## Citations
 - GAO/IMTEC-92-26, "Patriot Missile Defense: Software Problem Led to
-  System Failure at Dhahran" (1992) (`gao1992patriot`).
+  System Failure at Dhahran" (1992).
 - R. Skeel, "Roundoff error and the Patriot missile," SIAM News
   25(4), 1992.
 - D. Goldberg, "What every computer scientist should know about
   floating-point arithmetic," ACM Comput. Surv. 23 (1991)
-  (`goldberg1991`).
-- Newman, *Computational Physics*, Ch. 4 (`newman2013`).
+ .
+- Newman, *Computational Physics*, Ch. 4.

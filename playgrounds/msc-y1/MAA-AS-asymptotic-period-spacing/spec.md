@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Asymptotic period spacing
-$\Pi_1$ distinguishes RGB (~80 s) from RC (~250 s). Source: Aerts et al. Ch. 3 (`aerts-asteroseism`).
+$\Pi_1$ distinguishes RGB (~80 s) from RC (~250 s). Source: Aerts et al. Ch. 3.
 
 ## Explainer
 

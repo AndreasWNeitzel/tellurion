@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Main-sequence M-L relation
-Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
+Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7.
 
 ## Explainer
 

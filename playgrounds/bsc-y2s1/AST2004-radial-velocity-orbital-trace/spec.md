@@ -34,7 +34,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Radial velocity orbital trace
-Orbit and corresponding RV curve, side by side. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
+Orbit and corresponding RV curve, side by side. Source: Carroll-Ostlie Ch. 7.
 
 ## Explainer
 

@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Synchrotron radiation cone
-Beaming half-angle 1/gamma. Source: Rybicki and Lightman, *Radiative Processes in Astrophysics*, Ch. 6 (`rybicki-lightman`); Jackson, *Classical Electrodynamics*, 3rd ed., Sec. 14.4 (`jackson3e`).
+Beaming half-angle 1/gamma. Source: Rybicki and Lightman, *Radiative Processes in Astrophysics*, Ch. 6; Jackson, *Classical Electrodynamics*, 3rd ed., Sec. 14.4.
 
 ## Explainer
 

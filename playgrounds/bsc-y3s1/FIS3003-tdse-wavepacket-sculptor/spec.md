@@ -113,8 +113,8 @@ system is tridiagonal and complex, solved with the shared
 `cn-tridiag` Thomas solver. N = 640 points (512 in the headless
 tests), Dirichlet ends with the box wide enough that packets do not
 reach the walls. Reference: Griffiths, *Introduction to Quantum
-Mechanics* (3rd ed.), Ch. 1-2 (`griffiths-qm`); Press et al.,
-*Numerical Recipes* (3rd ed.), Sec. 20.2 (`press2007`).
+Mechanics* (3rd ed.), Ch. 1-2; Press et al.,
+*Numerical Recipes* (3rd ed.), Sec. 20.2.
 
 ## Controls
 
@@ -153,4 +153,4 @@ Mechanics* (3rd ed.), Ch. 1-2 (`griffiths-qm`); Press et al.,
 - Harmonic ground state: time-independent `|psi|^2`, `E = omega/2`.
 
 Source: Griffiths, *Introduction to Quantum Mechanics* (3rd ed.),
-Ch. 1-2 (`griffiths-qm`).
+Ch. 1-2.

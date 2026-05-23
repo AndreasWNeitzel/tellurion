@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Double-slit single-photon accumulator
-Each photon is a hit; the fringes emerge from the ensemble. Source: Hecht, Optics, Ch. 10 (`hecht-optics`).
+Each photon is a hit; the fringes emerge from the ensemble. Source: Hecht, Optics, Ch. 10.
 
 ## Explainer
 

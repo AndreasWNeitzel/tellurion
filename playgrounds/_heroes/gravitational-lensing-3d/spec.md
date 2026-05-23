@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Gravitational lensing
-Point-mass lens + Einstein ring. Source: Schneider, Ehlers, Falco, Gravitational Lenses, Ch. 5 (`sef1992`).
+Point-mass lens + Einstein ring. Source: Schneider, Ehlers, Falco, Gravitational Lenses, Ch. 5.
 
 ## Explainer
 

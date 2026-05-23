@@ -256,9 +256,9 @@ under the posterior and a monospace summary readout. No GPU path.
 ## Citations
 
 - Gelman et al., Bayesian Data Analysis, 3rd ed., Section 2.2:
-  Beta-binomial conjugate analysis (`gelman-bda3`).
+  Beta-binomial conjugate analysis.
 - Murphy, Probabilistic Machine Learning: An Introduction, Section
-  11.2: the Beta-Bernoulli model (`murphy-pml1`).
+  11.2: the Beta-Bernoulli model.
 - Press et al., Numerical Recipes, Section 6.1: Lanczos log-gamma.
 
 ## Stretch goals

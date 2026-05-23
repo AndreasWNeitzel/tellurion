@@ -154,8 +154,8 @@ Canvas2D only.
 
 ## Citations
 
-- Wu 1982, "The Potts model", Rev. Mod. Phys. 54, 235 (`wu1982potts`).
-- Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics, Chapter 5 (`newmanbarkema1999`).
+- Wu 1982, "The Potts model", Rev. Mod. Phys. 54, 235.
+- Newman and Barkema 1999, Monte Carlo Methods in Statistical Physics, Chapter 5.
 
 ## Stretch goals
 

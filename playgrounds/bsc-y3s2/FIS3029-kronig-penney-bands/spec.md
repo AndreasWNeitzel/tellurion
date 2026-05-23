@@ -137,7 +137,7 @@ Canvas2D only.
 
 ## Citations
 
-- Shankar 1994, Principles of Quantum Mechanics, 2e, Section 19.3 (`shankar1994`).
+- Shankar 1994, Principles of Quantum Mechanics, 2e, Section 19.3.
 - Ashcroft and Mermin 1976, Solid State Physics, Chapter 8.
 - Sakurai and Napolitano 2017, Modern QM 3e, Section 5.7.
 

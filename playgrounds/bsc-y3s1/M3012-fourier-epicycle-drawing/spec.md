@@ -104,4 +104,4 @@ The reconstruction $z(t) = \sum_k C_k e^{2\pi i k t / N}$ is animated by walking
 
 ## Citations
 
-Folland, "Fourier Analysis and Its Applications" ch. 2 (`folland1992`).
+Folland, "Fourier Analysis and Its Applications" ch. 2.

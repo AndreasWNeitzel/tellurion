@@ -122,4 +122,4 @@ Scaffolded with full physics specification; engine and 2D FFT not yet implemente
 
 ## Citations
 
-Thompson, Moran & Swenson, "Interferometry and Synthesis in Radio Astronomy" chs. 3-4 (`tms2017`).
+Thompson, Moran & Swenson, "Interferometry and Synthesis in Radio Astronomy" chs. 3-4.

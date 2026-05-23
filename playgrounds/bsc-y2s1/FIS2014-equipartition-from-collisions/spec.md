@@ -34,7 +34,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Equipartition from collisions
-2D hard-disk gas; the mean translational kinetic energy converges to $kT$. Source: Reif Ch. 7 (`reif`).
+2D hard-disk gas; the mean translational kinetic energy converges to $kT$. Source: Reif Ch. 7.
 
 ## Explainer
 

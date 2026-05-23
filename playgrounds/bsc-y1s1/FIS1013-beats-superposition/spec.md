@@ -153,7 +153,7 @@ envelope shadow (middle), frequency spectrum (bottom).
 ## Citations
 
 - Crawford, Waves and Oscillations, Berkeley Physics Vol. 3 Ch. 1
-  (`crawford-waves`).
+ .
 - French, Vibrations and Waves Ch. 1 (alternate).
 
 ## Stretch goals

@@ -152,8 +152,8 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Liddle, *An Introduction to Modern Cosmology*, 3e, Ch. 4 (`liddle-cosmology`).
-- Mukhanov, *Physical Foundations of Cosmology*, Ch. 1 (`mukhanov-cosmology`) for the rigorous derivation.
+- Liddle, *An Introduction to Modern Cosmology*, 3e, Ch. 4.
+- Mukhanov, *Physical Foundations of Cosmology*, Ch. 1 for the rigorous derivation.
 
 ## Stretch goals
 

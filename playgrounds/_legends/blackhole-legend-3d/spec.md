@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Black Hole Legend
-A black-hole laboratory: photon orbits, accretion-disk imaging, gravitational lensing, Kerr frame dragging, embedded geometry. Source: Misner, Thorne, Wheeler, *Gravitation*, Ch. 25 (`mtw-gravitation`); Bardeen, Press, Teukolsky, *Astrophys. J.* 178 (1972) 347 (`bardeen-press-teukolsky-1972`); Luminet, *Astron. Astrophys.* 75 (1979) 228 (`luminet-1979`); Refsdal, *Mon. Not. R. Astron. Soc.* 128 (1964) 295 (`refsdal-1964`).
+A black-hole laboratory: photon orbits, accretion-disk imaging, gravitational lensing, Kerr frame dragging, embedded geometry. Source: Misner, Thorne, Wheeler, *Gravitation*, Ch. 25; Bardeen, Press, Teukolsky, *Astrophys. J.* 178 (1972) 347; Luminet, *Astron. Astrophys.* 75 (1979) 228; Refsdal, *Mon. Not. R. Astron. Soc.* 128 (1964) 295.
 
 ## Explainer
 

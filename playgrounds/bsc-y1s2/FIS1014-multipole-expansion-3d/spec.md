@@ -135,5 +135,5 @@ into a side panel.
 - `r -> infinity`: leading nonzero multipole dominates.
 
 Source: Griffiths, *Introduction to Electrodynamics*, 4th ed.,
-Sec. 3.4 (`griffithsem2017`); Jackson, *Classical Electrodynamics*,
+Sec. 3.4; Jackson, *Classical Electrodynamics*,
 Sec. 4.1.

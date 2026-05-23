@@ -205,12 +205,12 @@ are robust. The invariants run GPU-free in node.
 
 In `docs/CITATIONS.bib`:
 
-- Saffman, Vortex Dynamics, CUP 1992 (`saffman1992`), the
+- Saffman, Vortex Dynamics, CUP 1992, the
   point-vortex Hamiltonian, conserved impulse, and the pair speed.
-- Aref, Annu. Rev. Fluid Mech. 15 (1983) 345 (`aref1983`),
+- Aref, Annu. Rev. Fluid Mech. 15 (1983) 345,
   integrable/chaotic N-vortex motion.
 - Batchelor, An Introduction to Fluid Dynamics, CUP 1967, sec. 7.3
-  (`batchelor1967`), line vortices and induced velocity.
+ , line vortices and induced velocity.
 
 ## Stretch goals
 

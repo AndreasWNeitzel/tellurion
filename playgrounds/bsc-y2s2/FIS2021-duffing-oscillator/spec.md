@@ -136,8 +136,8 @@ Canvas2D only; no fallback needed.
 
 ## Citations
 
-- Strogatz 2024, Nonlinear Dynamics and Chaos, 2e, Section 12.5 (`strogatz2024`).
-- Ott 2002, Chaos in Dynamical Systems, 2e, Section 7.2 (`ott2002`).
+- Strogatz 2024, Nonlinear Dynamics and Chaos, 2e, Section 12.5.
+- Ott 2002, Chaos in Dynamical Systems, 2e, Section 7.2.
 - Guckenheimer and Holmes 1983, Nonlinear Oscillations, Dynamical Systems, and Bifurcations of Vector Fields, Section 2.2 (background only).
 
 ## Stretch goals

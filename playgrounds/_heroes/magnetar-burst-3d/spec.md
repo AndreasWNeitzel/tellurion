@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Magnetar burst
-B > 10^14 G, crustquake reconnection X-ray flares. Source: Duncan and Thompson, *Astrophys. J.* 392 (1992) L9 (`duncan-thompson-1992`); review: Mereghetti, *Astron. Astrophys. Rev.* 15 (2008) 225 (`mereghetti-2008`).
+B > 10^14 G, crustquake reconnection X-ray flares. Source: Duncan and Thompson, *Astrophys. J.* 392 (1992) L9; review: Mereghetti, *Astron. Astrophys. Rev.* 15 (2008) 225.
 
 ## Explainer
 
@@ -122,9 +122,8 @@ exponentially for giant flares).
 
 ### Where this comes from
 
-Magnetar model: Duncan and Thompson, *Astrophys. J.* 392 (1992) L9
-(`duncan-thompson-1992`). Observational review: Mereghetti,
-*Astron. Astrophys. Rev.* 15 (2008) 225 (`mereghetti-2008`).
+Magnetar model: Duncan and Thompson, *Astrophys. J.* 392 (1992) L9. Observational review: Mereghetti,
+*Astron. Astrophys. Rev.* 15 (2008) 225.
 Quantum vacuum effects: Adler, *Ann. Phys.* 67 (1971) 599
 (birefringence). 2004 giant flare: Hurley et al., *Nature* 434
 (2005) 1098.

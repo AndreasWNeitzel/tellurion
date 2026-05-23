@@ -143,6 +143,4 @@ animated relative trajectory.
 - `b` large: `chi -> 0`, no scattering.
 - Yukawa with large `lambda`: approaches the bare Coulomb behaviour.
 
-Source: Goldstein, *Classical Mechanics*, 3rd ed., Ch. 3.7
-(`goldstein`); Landau and Lifshitz, *Mechanics*, Sec. 18-19
-(`landau-mechanics`).
+Source: Goldstein, *Classical Mechanics*, 3rd ed., Ch. 3.7; Landau and Lifshitz, *Mechanics*, Sec. 18-19.

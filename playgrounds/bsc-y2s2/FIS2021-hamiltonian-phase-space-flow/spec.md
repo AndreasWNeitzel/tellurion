@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Hamiltonian phase-space flow
-Click to seed tracers; each one traces an orbit at constant energy. Source: Lemos Ch. 6 (`lemos-mech`).
+Click to seed tracers; each one traces an orbit at constant energy. Source: Lemos Ch. 6.
 
 ## Explainer
 

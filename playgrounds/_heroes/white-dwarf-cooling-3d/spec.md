@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # White-dwarf cooling sequence
-Mestel cooling + C/O crystallization. Source: Fontaine, Brassard, Bergeron, PASP 113 (2001) 409 (`fontaine-brassard-bergeron-2001`); Mestel, MNRAS 112 (1952) 583 (`mestel-cooling`); Winget et al., ApJ 315 (1987) L77 (`winget-1987`).
+Mestel cooling + C/O crystallization. Source: Fontaine, Brassard, Bergeron, PASP 113 (2001) 409; Mestel, MNRAS 112 (1952) 583; Winget et al., ApJ 315 (1987) L77.
 
 ## Explainer
 
@@ -128,8 +128,8 @@ are denser.
 Original cooling law: Mestel, *Mon. Not. R. Astron. Soc.* 112 (1952)
 583. The standard modern review and crystallization timescales are
 in Fontaine, Brassard and Bergeron, *Publ. Astron. Soc. Pacific*
-113 (2001) 409 (`fontaine-brassard-bergeron-2001`). The luminosity
+113 (2001) 409. The luminosity
 function bump from crystallization was first identified by Winget et
-al., *Astrophys. J.* 315 (1987) L77 (`winget-1987`). The
+al., *Astrophys. J.* 315 (1987) L77. The
 mass-radius relation comes from Chandrasekhar's polytrope theory
-fitted by Eggleton, *Astrophys. J.* 268 (1983) 368 (`eggleton-1983`).
+fitted by Eggleton, *Astrophys. J.* 268 (1983) 368.

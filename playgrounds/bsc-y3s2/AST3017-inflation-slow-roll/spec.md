@@ -156,7 +156,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Mukhanov, *Physical Foundations of Cosmology*, Ch. 5 (`mukhanov-cosmology`).
+- Mukhanov, *Physical Foundations of Cosmology*, Ch. 5.
 - Planck 2018 results VI: Cosmological parameters (A&A 641, A6).
 - Starobinsky 1980; Linde 1982 chaotic inflation; Freese, Frieman, Olinto 1990 natural inflation.
 

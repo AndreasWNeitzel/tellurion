@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Gravity in n dimensions
-Bertrand-Ehrenfest stability of orbits. Source: Tangherlini, Nuovo Cim. 27 (1963) 636 (`tangherlini1963`).
+Bertrand-Ehrenfest stability of orbits. Source: Tangherlini, Nuovo Cim. 27 (1963) 636.
 
 ## Explainer
 

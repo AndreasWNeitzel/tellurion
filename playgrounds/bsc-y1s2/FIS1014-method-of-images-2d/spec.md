@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Method of images, 2D
-A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2 (`griffiths-em`).
+A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2.
 
 ## Explainer
 

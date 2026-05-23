@@ -115,8 +115,8 @@ vortex lattice `a = sqrt(2 Phi0/(sqrt3 B))`,
 Closed-form field, streamline-integrated for the lines (which stop
 at the sphere when superconducting). Deterministic, no RNG.
 Reference: Tinkham, Introduction to Superconductivity (2nd ed.),
-Ch. 1-5 (`tinkham`); Kittel, Introduction to Solid State Physics
-(8th ed.), Ch. 10-12 (`kittel-cm`).
+Ch. 1-5; Kittel, Introduction to Solid State Physics
+(8th ed.), Ch. 10-12.
 
 ## Controls
 
@@ -159,9 +159,9 @@ the captured temperature.
 ## Citations
 
 - Tinkham, Introduction to Superconductivity (2nd ed.), Ch. 1-5
-  (`tinkham`).
+ .
 - Kittel, Introduction to Solid State Physics (8th ed.), Ch. 10-12
-  (`kittel-cm`).
+ .
 
 ## Stretch goals
 

@@ -163,8 +163,8 @@ Canvas2D only.
 
 ## Citations
 
-- Binney and Tremaine 2008, Galactic Dynamics 2e, Section 3.3 (`binneytremaine2008`).
-- Murray and Dermott 1999, Solar System Dynamics, Chapter 3 (`murraydermott1999`).
+- Binney and Tremaine 2008, Galactic Dynamics 2e, Section 3.3.
+- Murray and Dermott 1999, Solar System Dynamics, Chapter 3.
 - Routh 1875 (Routh stability criterion); reproduced in Szebehely 1967, Theory of Orbits, Section 4.6.
 
 ## Stretch goals

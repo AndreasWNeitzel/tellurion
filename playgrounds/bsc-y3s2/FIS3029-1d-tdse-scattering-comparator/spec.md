@@ -150,7 +150,7 @@ Canvas2D only.
 ## Citations
 
 - Newman 2013, Computational Physics, Chapter 9 Exercise 9.8.
-- Griffiths and Schroeter 2018, Introduction to Quantum Mechanics, 3e, Section 2.5 (`griffithsqm2018`).
+- Griffiths and Schroeter 2018, Introduction to Quantum Mechanics, 3e, Section 2.5.
 - Press et al. Numerical Recipes 3e, Section 2.4 (Thomas algorithm).
 
 ## Stretch goals

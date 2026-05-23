@@ -103,7 +103,7 @@ The Racah closed-form sum with a memoised factorial, evaluated on the
 doubled-integer (2j) scale so half-integers are exact. The vector
 model fixes J along the axis and places J1 on its cone with J2
 closing the triangle. Reference: Sakurai and Napolitano, *Modern
-Quantum Mechanics* (2nd ed.), Sec. 3.8 (`sakurai-qm`).
+Quantum Mechanics* (2nd ed.), Sec. 3.8.
 
 ## Controls
 
@@ -137,4 +137,4 @@ Quantum Mechanics* (2nd ed.), Sec. 3.8 (`sakurai-qm`).
   coefficients.
 
 Source: Sakurai and Napolitano, *Modern Quantum Mechanics* (2nd ed.),
-Sec. 3.8 (`sakurai-qm`).
+Sec. 3.8.

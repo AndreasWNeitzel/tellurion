@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Stellar blackbody + lines
-Planck continuum plus Balmer / Ca II / Na D absorption lines. Source: Carroll-Ostlie Ch. 3 (`carroll-ostlie`).
+Planck continuum plus Balmer / Ca II / Na D absorption lines. Source: Carroll-Ostlie Ch. 3.
 
 ## Explainer
 

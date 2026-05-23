@@ -146,9 +146,9 @@ Canvas2D only.
 
 ## Citations
 
-- Griffiths and Schroeter 2018, Introduction to Quantum Mechanics, 3e, Sections 2.2 - 2.6 (`griffithsqm2018`).
-- Sakurai and Napolitano 2017, Modern Quantum Mechanics, 3e, Section 2.3 (`sakurai2017`).
-- Shankar 1994, Principles of Quantum Mechanics, 2e, Section 5.2 (`shankar1994`).
+- Griffiths and Schroeter 2018, Introduction to Quantum Mechanics, 3e, Sections 2.2 - 2.6.
+- Sakurai and Napolitano 2017, Modern Quantum Mechanics, 3e, Section 2.3.
+- Shankar 1994, Principles of Quantum Mechanics, 2e, Section 5.2.
 
 ## Stretch goals
 

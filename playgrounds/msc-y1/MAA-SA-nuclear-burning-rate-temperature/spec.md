@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Nuclear burning rates
-pp $\propto T^4$, CNO $\propto T^{18}$, 3-α $\propto T^{40}$. Source: Hansen-Kawaler Ch. 6 (`hansen-kawaler`).
+pp $\propto T^4$, CNO $\propto T^{18}$, 3-α $\propto T^{40}$. Source: Hansen-Kawaler Ch. 6.
 
 ## Explainer
 

@@ -113,8 +113,8 @@ Simpson (4000 intervals) converges fast even as `mu -> 0` for the
 Bose gas. `mu(tau)` is the closed form for MB and a 200-step
 bisection on the monotone `N(mu)` for FD and BE; BEC is detected when
 `N(mu=0)` cannot hold all particles. Reference: Pathria and Beale,
-Statistical Mechanics (3rd ed.), Ch. 7-8 (`pathria`); Reif,
-Fundamentals of Statistical and Thermal Physics, Ch. 9 (`reif`).
+Statistical Mechanics (3rd ed.), Ch. 7-8; Reif,
+Fundamentals of Statistical and Thermal Physics, Ch. 9.
 
 ## Controls
 
@@ -169,9 +169,9 @@ the condensate spike and the occupation-cells cartoon.
 ## Citations
 
 - Pathria and Beale, Statistical Mechanics (3rd ed.), Ch. 7-8
-  (`pathria`).
+ .
 - Reif, Fundamentals of Statistical and Thermal Physics, Ch. 9
-  (`reif`).
+ .
 
 ## Stretch goals
 

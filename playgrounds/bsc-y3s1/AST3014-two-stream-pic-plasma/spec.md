@@ -164,7 +164,7 @@ Canvas2D only.
 
 ## Citations
 
-- Hockney and Eastwood 1988, Computer Simulation Using Particles, Chapters 5 - 8 (`hockneyeastwood1988`).
+- Hockney and Eastwood 1988, Computer Simulation Using Particles, Chapters 5 - 8.
 - Krall and Trivelpiece 1973, Principles of Plasma Physics.
 - Birdsall and Langdon 1985, Plasma Physics via Computer Simulation.
 

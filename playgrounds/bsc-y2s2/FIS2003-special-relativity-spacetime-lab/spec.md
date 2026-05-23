@@ -106,8 +106,7 @@ over a fixed cycle; the rod is drawn at `L0/gamma` against its dashed
 rest length, the clock hands advance by the home and proper times, and
 the Minkowski panel draws the light cone, the simultaneity grid (slope
 beta) and the bent twin worldline at a panel-fitted scale. Reference:
-Taylor and Wheeler, *Spacetime Physics* (2nd ed.), Ch. 3-4
-(`taylor-wheeler`); Eisberg and Resnick, *Quantum Physics*, Ch. 1.
+Taylor and Wheeler, *Spacetime Physics* (2nd ed.), Ch. 3-4; Eisberg and Resnick, *Quantum Physics*, Ch. 1.
 
 ## Controls
 
@@ -143,5 +142,4 @@ Taylor and Wheeler, *Spacetime Physics* (2nd ed.), Ch. 3-4
 - `beta = 0`: no contraction, no dilation, gamma = 1.
 - `addVelocity(1, v) = 1`: the speed of light is frame-invariant.
 
-Source: Taylor and Wheeler, *Spacetime Physics* (2nd ed.), Ch. 3-4
-(`taylor-wheeler`).
+Source: Taylor and Wheeler, *Spacetime Physics* (2nd ed.), Ch. 3-4.

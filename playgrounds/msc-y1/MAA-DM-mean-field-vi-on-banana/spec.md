@@ -147,7 +147,7 @@ Canvas2D only.
 
 ## Citations
 
-- Bishop and Bishop 2024, Deep Learning: Foundations and Concepts, Chapter 16 (`bishop2006`).
+- Bishop and Bishop 2024, Deep Learning: Foundations and Concepts, Chapter 16.
 - Blei, Kucukelbir, McAuliffe 2017, "Variational Inference: A Review for Statisticians", J. Am. Stat. Assoc. 112, 859.
 
 ## Stretch goals

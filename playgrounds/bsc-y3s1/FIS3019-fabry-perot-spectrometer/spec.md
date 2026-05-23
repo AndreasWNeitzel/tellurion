@@ -105,9 +105,8 @@ separation `dLambda` is resolved when `R_p >= lambda/dLambda` and
 
 Closed-form evaluation (no iteration); the spacing is scanned over
 about three orders and `T(d)` plotted per line plus the sum.
-Deterministic, no RNG. Reference: Hecht, Optics (5th ed.), Ch. 9.6
-(`hecht2017`); Born and Wolf, Principles of Optics (7th ed.),
-Sec. 7.6 (`born-wolf`).
+Deterministic, no RNG. Reference: Hecht, Optics (5th ed.), Ch. 9.6; Born and Wolf, Principles of Optics (7th ed.),
+Sec. 7.6.
 
 ## Controls
 
@@ -155,9 +154,9 @@ Static frame: the two Airy combs and their sum at the captured R.
 
 ## Citations
 
-- Hecht, Optics (5th ed.), Ch. 9.6 (`hecht2017`).
+- Hecht, Optics (5th ed.), Ch. 9.6.
 - Born and Wolf, Principles of Optics (7th ed.), Sec. 7.6
-  (`born-wolf`).
+ .
 
 ## Stretch goals
 

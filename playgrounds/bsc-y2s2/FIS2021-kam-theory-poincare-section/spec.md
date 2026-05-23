@@ -110,8 +110,8 @@ Direct iteration of the exact map; the Poincare section is the
 plotted point cloud; the golden-torus orbit `p0 = 2 pi phi` is
 overlaid. Deterministic (fixed seed grid, no RNG). Reference:
 Lichtenberg and Lieberman, Regular and Chaotic Dynamics (2nd ed.),
-Ch. 4 (`lichtenberg-lieberman`); Goldstein, Poole and Safko,
-Classical Mechanics (3rd ed.), Ch. 11 (`goldstein-mech`).
+Ch. 4; Goldstein, Poole and Safko,
+Classical Mechanics (3rd ed.), Ch. 11.
 
 ## Controls
 
@@ -153,9 +153,9 @@ Static frame: the Poincare section at the captured `K`.
 ## Citations
 
 - Lichtenberg and Lieberman, Regular and Chaotic Dynamics (2nd
-  ed.), Ch. 4 (`lichtenberg-lieberman`).
+  ed.), Ch. 4.
 - Goldstein, Poole and Safko, Classical Mechanics (3rd ed.),
-  Ch. 11 (`goldstein-mech`).
+  Ch. 11.
 
 ## Stretch goals
 

@@ -146,7 +146,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Liddle, *An Introduction to Modern Cosmology*, 3e, Ch. 4 (`liddle-cosmology`).
+- Liddle, *An Introduction to Modern Cosmology*, 3e, Ch. 4.
 - Companion playground: `matter-radiation-equality` (early-universe components).
 
 ## Stretch goals

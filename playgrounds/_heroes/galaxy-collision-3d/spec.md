@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Galaxy collision
-Two-galaxy fly-by via Barnes-Hut quadtree. Source: Toomre and Toomre, ApJ 178 (1972) 623 (`toomretoomre1972`).
+Two-galaxy fly-by via Barnes-Hut quadtree. Source: Toomre and Toomre, ApJ 178 (1972) 623.
 
 ## Explainer
 
@@ -93,6 +93,6 @@ torques.
 The classical "two-galaxy fly-by stretches tidal tails" picture is
 Toomre and Toomre, ApJ 178 (1972) 623. The Barnes-Hut tree is from
 Barnes and Hut, Nature 324 (1986) 446; the softening and leapfrog
-practice follow Springel 2005 (`gadget2`). The shared engine that
+practice follow Springel 2005. The shared engine that
 both this playground and the algorithm-demo CC1017 quadtree
 playground use lives in `shared/js/engine/quadtree-2d.js`.

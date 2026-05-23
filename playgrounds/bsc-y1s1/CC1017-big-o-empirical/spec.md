@@ -132,6 +132,5 @@ $N\lceil\log_2 N\rceil$).
 - Visual SSIM > 0.92 on the five reference frames (deterministic).
 - 9/9 invariant tests pass.
 
-Source: Newman, Computational Physics Ch. 4 (`newman2013`); Cormen,
-Leiserson, Rivest, Stein, Introduction to Algorithms, 3rd ed., Ch. 2
-(`cormen2009`).
+Source: Newman, Computational Physics Ch. 4; Cormen,
+Leiserson, Rivest, Stein, Introduction to Algorithms, 3rd ed., Ch. 2.

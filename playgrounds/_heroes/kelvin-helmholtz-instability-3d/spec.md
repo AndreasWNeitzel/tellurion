@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Kelvin-Helmholtz instability
-Stuart cats-eye, sigma = k U / 2. Source: Stuart, *J. Fluid Mech.* 29 (1967) 417 (`stuart-1967`); Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Oxford 1961, Ch. 11 (`chandrasekhar-hydro`).
+Stuart cats-eye, sigma = k U / 2. Source: Stuart, *J. Fluid Mech.* 29 (1967) 417; Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Oxford 1961, Ch. 11.
 
 ## Explainer
 
@@ -108,10 +108,10 @@ concentrated and the inter-vortex separatrix sharpens.
 
 ### Where this comes from
 
-Stuart, *J. Fluid Mech.* 29 (1967) 417 (`stuart-1967`) gave the
+Stuart, *J. Fluid Mech.* 29 (1967) 417 gave the
 exact streamfunction. The general dispersion relation is in
 Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Oxford
-1961, Chapter 11 (`chandrasekhar-hydro`). Modern treatment: Drazin
+1961, Chapter 11. Modern treatment: Drazin
 and Reid, *Hydrodynamic Stability*, 2nd ed., CUP 2004. The
 astrophysical applications are reviewed in Schekochihin and Cowley,
 *Phys. Plasmas* 13 (2006) 056501.

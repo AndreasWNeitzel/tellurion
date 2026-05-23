@@ -224,11 +224,11 @@ Confirmed in `invariants.test.mjs` and the shared
 ## Citations
 
 - Drazin and Johnson, Solitons: An Introduction, CUP 1989, Ch. 2
-  (`drazin-johnson`).
+ .
 - Trefethen, Spectral Methods in MATLAB, SIAM 2000, Program 27
-  (`trefethen-spectral`).
+ .
 - Zabusky and Kruskal, Phys. Rev. Lett. 15 (1965) 240 (soliton
-  recurrence and fission) (`zabusky-kruskal`).
+  recurrence and fission).
 
 ## Risk register
 

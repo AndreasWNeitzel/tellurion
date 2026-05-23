@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Transverse vs longitudinal modes
-Same dispersion, different polarization. Source: Crawford Ch. 5 (`crawford-waves`).
+Same dispersion, different polarization. Source: Crawford Ch. 5.
 
 ## Explainer
 

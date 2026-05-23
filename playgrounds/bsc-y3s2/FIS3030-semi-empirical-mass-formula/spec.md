@@ -150,7 +150,7 @@ If KaTeX or Canvas2D is unavailable, the slider still operates.
 
 ## Citations
 
-- Krane, *Introductory Nuclear Physics*, Ch. 3 (`krane-nuclear`).
+- Krane, *Introductory Nuclear Physics*, Ch. 3.
 - Bethe and Weizsacker 1935 / 1936.
 
 ## Stretch goals

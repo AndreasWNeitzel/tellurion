@@ -39,9 +39,9 @@ what_to_try:
 
 Five-mode laboratory for the second-most-extreme object in the universe.
 Source: Shapiro and Teukolsky, *Black Holes, White Dwarfs and Neutron Stars*,
-1983, Ch. 9 (`shapiro-teukolsky-bh-wd-ns`); Lattimer and Prakash, *ApJ* 550
-(2001) 426 (`lattimer-prakash-mass-radius`); Lorimer and Kramer, *Handbook of
-Pulsar Astronomy*, 2005 (`lorimer-kramer-pulsar-handbook`).
+1983, Ch. 9; Lattimer and Prakash, *ApJ* 550
+(2001) 426; Lorimer and Kramer, *Handbook of
+Pulsar Astronomy*, 2005.
 
 ## Explainer
 
@@ -171,12 +171,11 @@ lengthening of $P(t)$.
 ### Where this comes from
 
 Shapiro and Teukolsky, *Black Holes, White Dwarfs and Neutron Stars*,
-Wiley 1983, Ch. 9 to 10 (`shapiro-teukolsky-bh-wd-ns`) for the TOV
+Wiley 1983, Ch. 9 to 10 for the TOV
 equation, magnetic-dipole spindown, and pulsar lighthouse model.
-Lattimer and Prakash, *ApJ* 550 (2001) 426 (`lattimer-prakash-mass-radius`)
+Lattimer and Prakash, *ApJ* 550 (2001) 426
 for the M-R curve. Lorimer and Kramer, *Handbook of Pulsar Astronomy*,
-CUP 2005 (`lorimer-kramer-pulsar-handbook`) for pulse profiles, beaming
+CUP 2005 for pulse profiles, beaming
 fractions, and glitch phenomenology. Anderson and Itoh, *Nature* 256
-(1975) 25 (`anderson-itoh-glitch`) for the vortex-unpinning glitch
-model. Hurley et al., *Nature* 434 (2005) 1098
-(`hurley-sgr1806-20-2005`) for the SGR 1806-20 giant flare.
+(1975) 25 for the vortex-unpinning glitch
+model. Hurley et al., *Nature* 434 (2005) 1098 for the SGR 1806-20 giant flare.

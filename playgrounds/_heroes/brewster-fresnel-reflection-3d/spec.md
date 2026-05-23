@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Brewster angle and Fresnel reflection
-R_s, R_p, theta_B, theta_c. Source: Hecht, *Optics*, 5th ed., Pearson 2017, Ch. 4 (`hecht-optics`); original: Brewster, *Phil. Trans. R. Soc.* 105 (1815) 125.
+R_s, R_p, theta_B, theta_c. Source: Hecht, *Optics*, 5th ed., Pearson 2017, Ch. 4; original: Brewster, *Phil. Trans. R. Soc.* 105 (1815) 125.
 
 ## Explainer
 

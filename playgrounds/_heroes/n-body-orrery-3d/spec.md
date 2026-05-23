@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # 3D N-body orrery
-Yoshida-4 symplectic; two ghosts diverging. Source: Yoshida, Phys. Lett. A 150 (1990) 262 (`yoshida1990`).
+Yoshida-4 symplectic; two ghosts diverging. Source: Yoshida, Phys. Lett. A 150 (1990) 262.
 
 ## Explainer
 

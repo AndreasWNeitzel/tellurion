@@ -133,7 +133,7 @@ Canvas2D only.
 
 ## Citations
 
-- Griffiths and Schroeter 2018, Introduction to Quantum Mechanics, 3e, Section 8.1 (`griffithsqm2018`).
+- Griffiths and Schroeter 2018, Introduction to Quantum Mechanics, 3e, Section 8.1.
 - Bender and Wu 1969, "Anharmonic oscillator", Phys. Rev. 184, 1231.
 - Newman 2013, Computational Physics, Section 6.3 (Numerov method for shooting; teaching reference).
 

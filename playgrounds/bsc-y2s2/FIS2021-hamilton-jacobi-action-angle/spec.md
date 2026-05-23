@@ -111,9 +111,8 @@ invariant under a slow `w0(t)`.
 The action and period are turning-point-desingularized midpoint
 integrals; the orbit evolves by velocity-Verlet; the angle advances
 by `omega dt`. Deterministic, no RNG. Reference: Goldstein, Poole
-and Safko, Classical Mechanics (3rd ed.), Ch. 10
-(`goldstein-mech`); Landau and Lifshitz, Mechanics (3rd ed.),
-Sec. 49-50 (`landau-mechanics`).
+and Safko, Classical Mechanics (3rd ed.), Ch. 10; Landau and Lifshitz, Mechanics (3rd ed.),
+Sec. 49-50.
 
 ## Controls
 
@@ -166,9 +165,9 @@ circle at the captured energy.
 ## Citations
 
 - Goldstein, Poole and Safko, Classical Mechanics (3rd ed.),
-  Ch. 10 (`goldstein-mech`).
+  Ch. 10.
 - Landau and Lifshitz, Mechanics (3rd ed.), Sec. 49-50
-  (`landau-mechanics`).
+ .
 
 ## Stretch goals
 

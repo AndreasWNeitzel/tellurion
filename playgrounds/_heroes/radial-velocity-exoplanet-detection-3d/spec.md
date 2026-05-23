@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Radial velocity detection of exoplanets
-Doppler wobble of a host star reveals a planet. Source: Murray and Dermott, Solar System Dynamics, Ch. 2 (`murraydermott1999`).
+Doppler wobble of a host star reveals a planet. Source: Murray and Dermott, Solar System Dynamics, Ch. 2.
 
 ## Explainer
 
@@ -107,6 +107,5 @@ detected by both techniques.
 
 The two-body RV formula and the Kepler-solver setup are in Murray and
 Dermott, *Solar System Dynamics*, CUP 1999, Ch. 2. The historical
-detection of 51 Peg b is Mayor and Queloz, *Nature* 378 (1995) 355
-(`mayor-queloz-1995`). Modern RV technique is reviewed by Lovis and
+detection of 51 Peg b is Mayor and Queloz, *Nature* 378 (1995) 355. Modern RV technique is reviewed by Lovis and
 Fischer in Seager (ed.), *Exoplanets*, U. Arizona Press 2010, Ch. 2.

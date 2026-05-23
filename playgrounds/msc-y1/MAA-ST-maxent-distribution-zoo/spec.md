@@ -146,7 +146,7 @@ Canvas2D only.
 
 ## Citations
 
-- MacKay 2003, Information Theory, Inference, and Learning Algorithms, Section 22.2 (`mackay2003`).
+- MacKay 2003, Information Theory, Inference, and Learning Algorithms, Section 22.2.
 - Cover and Thomas 2006, Elements of Information Theory, 2e, Section 12.1.
 - Jaynes 1957, "Information Theory and Statistical Mechanics", Phys. Rev. 106 (the original maxent principle).
 

@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Cherenkov radiation cone
-The "light boom" of relativistic charged particles. Source: Jackson, Classical Electrodynamics, Section 13.4 (`jackson3e`).
+The "light boom" of relativistic charged particles. Source: Jackson, Classical Electrodynamics, Section 13.4.
 
 ## Explainer
 

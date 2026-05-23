@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Adiabatic vs isothermal
-Same initial state, two reversible processes; the adiabatic is steeper. Source: Callen Ch. 4 (`callen`).
+Same initial state, two reversible processes; the adiabatic is steeper. Source: Callen Ch. 4.
 
 ## Explainer
 

@@ -36,7 +36,7 @@ what_to_try:
 ---
 
 # Hawking radiation and black-hole evaporation
-T_H ~ 1/M. Source: Hawking, *Commun. Math. Phys.* 43 (1975) 199 (`hawking-1975`); original Letter: Hawking, *Nature* 248 (1974) 30 (`hawking-1974`).
+T_H ~ 1/M. Source: Hawking, *Commun. Math. Phys.* 43 (1975) 199; original Letter: Hawking, *Nature* 248 (1974) 30.
 
 ## Explainer
 
@@ -125,8 +125,8 @@ return to the universe (the information-paradox debate).
 ### Where this comes from
 
 The Hawking-temperature derivation is in Hawking, *Commun. Math.
-Phys.* 43 (1975) 199 (`hawking-1975`); the original 4-page
-Letter is *Nature* 248 (1974) 30 (`hawking-1974`). The evaporation
+Phys.* 43 (1975) 199; the original 4-page
+Letter is *Nature* 248 (1974) 30. The evaporation
 formula and the primordial-BH constraints are reviewed in Carr,
 *Astrophys. J.* 833 (2016) 61, and Page, *Phys. Rev. D* 13 (1976)
 198 (the Stefan-Boltzmann emission integral over all particle

@@ -34,7 +34,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Michelson fringe counter
-Moving one arm of a Michelson interferometer by $\lambda/2$ produces one full fringe at the center. The rendered pattern is the ring system for a divergent source. Source: Hecht Optics Ch. 9.4 (`hecht2017`).
+Moving one arm of a Michelson interferometer by $\lambda/2$ produces one full fringe at the center. The rendered pattern is the ring system for a divergent source. Source: Hecht Optics Ch. 9.4.
 
 ## Explainer
 

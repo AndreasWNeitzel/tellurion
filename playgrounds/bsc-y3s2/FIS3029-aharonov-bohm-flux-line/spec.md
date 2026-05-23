@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Aharonov-Bohm flux line
-Solenoid behind a double slit shifts the fringe pattern by $\Phi/\Phi_0$ cycles. Source: Sakurai Ch. 2 (`sakurai-qm`).
+Solenoid behind a double slit shifts the fringe pattern by $\Phi/\Phi_0$ cycles. Source: Sakurai Ch. 2.
 
 ## Explainer
 

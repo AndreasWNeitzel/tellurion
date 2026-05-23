@@ -240,9 +240,9 @@ Confirmed in `invariants.test.mjs` and `tests/meissner.test.mjs`.
 ## Citations
 
 - Tinkham, Introduction to Superconductivity, 2nd ed., Dover 2004,
-  Ch. 1-2 (`tinkham-superconductivity`).
+  Ch. 1-2.
 - Jackson, Classical Electrodynamics, 3rd ed., Wiley 1998, Sec. 5.6
-  (image of a dipole in a perfect diamagnet) (`jackson-em`).
+  (image of a dipole in a perfect diamagnet).
 
 ## Risk register
 

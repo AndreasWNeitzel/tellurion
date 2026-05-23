@@ -115,7 +115,7 @@ velocity-Verlet integration of the coupled chain is used in the
 invariants to confirm the analytic frequencies dynamically. The
 diatomic motion is the Bloch form with the acoustic (in-phase) or
 optical (out-of-phase sublattice) pattern. Reference: Ashcroft and
-Mermin, *Solid State Physics*, Ch. 22 (`ashcroft-mermin`).
+Mermin, *Solid State Physics*, Ch. 22.
 
 ## Controls
 
@@ -152,5 +152,4 @@ Mermin, *Solid State Physics*, Ch. 22 (`ashcroft-mermin`).
 - `K1 = K2`: the diatomic gap closes (the monatomic chain).
 - `k -> 0`: the acoustic frequency vanishes (uniform translation).
 
-Source: Ashcroft and Mermin, *Solid State Physics*, Ch. 22
-(`ashcroft-mermin`).
+Source: Ashcroft and Mermin, *Solid State Physics*, Ch. 22.

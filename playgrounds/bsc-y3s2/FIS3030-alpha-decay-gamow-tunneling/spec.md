@@ -91,7 +91,7 @@ Krane, *Introductory Nuclear Physics*, Chapter 8 (after Gamow 1928).
 
 ## Physical setup
 
-A preformed alpha particle is bound in the nuclear well and must tunnel the Coulomb barrier $V(r) = 1.44 Z'/r$ (MeV, fm) to escape with energy $Q$. The semiclassical penetration factor gives $\log_{10} T_{1/2} = a + b\,Z/\sqrt{Q}$, the Geiger-Nuttall law (textbook $a = -46.83$, $b = 1.61$ with $Z$ the daughter charge and $Q$ in MeV). Source: Krane Nuclear Physics Ch. 8 (`krane-nuclear`).
+A preformed alpha particle is bound in the nuclear well and must tunnel the Coulomb barrier $V(r) = 1.44 Z'/r$ (MeV, fm) to escape with energy $Q$. The semiclassical penetration factor gives $\log_{10} T_{1/2} = a + b\,Z/\sqrt{Q}$, the Geiger-Nuttall law (textbook $a = -46.83$, $b = 1.61$ with $Z$ the daughter charge and $Q$ in MeV). Source: Krane Nuclear Physics Ch. 8.
 
 ## Numerical method
 

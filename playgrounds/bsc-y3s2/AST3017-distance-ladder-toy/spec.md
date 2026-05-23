@@ -34,7 +34,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Distance ladder toy
-Four-rung overlap and error propagation. Source: Carroll-Ostlie Ch. 24 (`carroll-ostlie`).
+Four-rung overlap and error propagation. Source: Carroll-Ostlie Ch. 24.
 
 ## Explainer
 

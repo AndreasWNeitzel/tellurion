@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Toy CMB temperature power spectrum
-Three free parameters: first-peak position, damping scale, amplitude. Source: Liddle Ch. 12 (`liddle-cosmology`).
+Three free parameters: first-peak position, damping scale, amplitude. Source: Liddle Ch. 12.
 
 ## Explainer
 

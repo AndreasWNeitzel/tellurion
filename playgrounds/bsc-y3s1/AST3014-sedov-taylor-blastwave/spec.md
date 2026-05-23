@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Sedov-Taylor blast wave
-Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17 (`shu-vol2`).
+Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17.
 
 ## Explainer
 

@@ -142,7 +142,7 @@ Canvas2D only.
 ## Citations
 
 - Roche 1849, on the disruption of fluid satellites (historical).
-- Binney and Tremaine 2008, Galactic Dynamics 2e, Section 8.2 (`binneytremaine2008`).
+- Binney and Tremaine 2008, Galactic Dynamics 2e, Section 8.2.
 - Hurley and Tout 1998, MNRAS 300 (tidal-disruption framework, binary stars).
 
 ## Stretch goals

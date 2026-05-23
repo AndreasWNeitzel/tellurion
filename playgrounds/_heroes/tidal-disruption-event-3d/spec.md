@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Tidal disruption event
-Star + SMBH + t^-5/3 fallback. Source: Rees, *Nature* 333 (1988) 523 (`rees-1988-tde`); Hills, *Nature* 254 (1975) 295; review: Komossa, *J. High Energy Astrophys.* 7 (2015) 148.
+Star + SMBH + t^-5/3 fallback. Source: Rees, *Nature* 333 (1988) 523; Hills, *Nature* 254 (1975) 295; review: Komossa, *J. High Energy Astrophys.* 7 (2015) 148.
 
 ## Explainer
 
@@ -120,9 +120,9 @@ $$t_{\rm peak} \;\approx\; 2\pi
 ### Where this comes from
 
 The tidal-radius criterion and the $t^{-5/3}$ fallback law are
-Rees, *Nature* 333 (1988) 523 (`rees-1988-tde`); earlier:
+Rees, *Nature* 333 (1988) 523; earlier:
 Hills, *Nature* 254 (1975) 295. Modern numerical-relativity
 simulations and observations are reviewed in Komossa,
-*J. High Energy Astrophys.* 7 (2015) 148 (`komossa-tde-review`).
+*J. High Energy Astrophys.* 7 (2015) 148.
 Energy distribution and stream dynamics: Lodato, King and Pringle,
 *Mon. Not. R. Astron. Soc.* 392 (2009) 332.

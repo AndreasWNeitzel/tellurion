@@ -247,9 +247,9 @@ Confirmed in `invariants.test.mjs` and `tests/special-relativity.test.mjs`.
 ## Citations
 
 - Rindler, Relativity: Special, General and Cosmological, 2nd ed.,
-  OUP 2006, Sec. 4 (`rindler-relativity`).
+  OUP 2006, Sec. 4.
 - Misner, Thorne and Wheeler, Gravitation, Freeman 1973, Sec. 2
-  (I_nu/nu^3 invariance, beaming) (`mtw-gravitation`).
+  (I_nu/nu^3 invariance, beaming).
 
 ## Risk register
 

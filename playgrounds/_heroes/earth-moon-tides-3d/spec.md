@@ -35,7 +35,7 @@ what_to_try:
 ---
 
 # Earth-Moon-Sun tides
-Differential gravity, L=2 Legendre, spring vs neap. Source: Murray and Dermott, Solar System Dynamics, Ch. 4 (`murraydermott1999`).
+Differential gravity, L=2 Legendre, spring vs neap. Source: Murray and Dermott, Solar System Dynamics, Ch. 4.
 
 ## Explainer
 

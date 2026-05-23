@@ -144,8 +144,8 @@ If KaTeX or Canvas2D is unavailable, the figure caption still reads as a paper s
 
 ## Citations
 
-- Carroll and Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 5 (`carroll-ostlie`).
-- Eisberg and Resnick, *Quantum Physics*, 2e, Ch. 5 (`eisberg-resnick`) for the deeper Bohr derivation.
+- Carroll and Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 5.
+- Eisberg and Resnick, *Quantum Physics*, 2e, Ch. 5 for the deeper Bohr derivation.
 
 ## Stretch goals
 

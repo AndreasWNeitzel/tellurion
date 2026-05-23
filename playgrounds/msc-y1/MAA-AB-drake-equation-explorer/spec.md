@@ -142,7 +142,7 @@ If KaTeX or Canvas2D is unavailable, sliders still operate.
 
 ## Citations
 
-- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 7 (`carroll-ostlie`).
+- Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 7.
 - Drake, F. 1961: original Green Bank meeting formulation.
 
 ## Stretch goals

@@ -202,7 +202,7 @@ Canvas2D only.
 
 ## Citations
 
-- Hockney and Eastwood 1988, Computer Simulation Using Particles, Chapters 5 - 7 (`hockneyeastwood1988`).
+- Hockney and Eastwood 1988, Computer Simulation Using Particles, Chapters 5 - 7.
 - Binney and Tremaine 2008, Galactic Dynamics 2e, Chapter 6 (numerical methods).
 
 ## Stretch goals

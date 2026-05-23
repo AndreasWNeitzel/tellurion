@@ -33,7 +33,7 @@ what_to_try:
   - Compare the diagnostic plot against the live scene.
 ---
 # Laplace-Lagrange secular theory
-Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7 (`murray-dermott`).
+Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7.
 
 ## Explainer
 

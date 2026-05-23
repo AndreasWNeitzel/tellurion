@@ -144,7 +144,7 @@ result so the figure reads without Canvas2D.
 
 ## Citations
 - Cormen, Leiserson, Rivest, Stein, *Introduction to Algorithms*, 3e,
-  ch. 24 (`cormen2009`); Hart, Nilsson, Raphael (1968), A*.
+  ch. 24; Hart, Nilsson, Raphael (1968), A*.
 
 ## Stretch goals
 - Weighted/inadmissible heuristic slider to show A* losing optimality.

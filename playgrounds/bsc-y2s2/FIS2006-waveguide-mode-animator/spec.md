@@ -104,8 +104,7 @@ Closed-form cutoff, propagation and field expressions; the
 cross-section map samples the modal field on a grid (diverging
 colour, animated by `cos(omega t)`), the longitudinal strip draws a
 travelling wave at `lambda_g` or an evanescent envelope. Reference:
-Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 8
-(`jackson1998`).
+Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 8.
 
 ## Controls
 
@@ -139,5 +138,4 @@ Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 8
 - `f -> f_c+`: `lambda_g -> infinity`, `beta -> 0`.
 - Square guide: `TEm0` and `TE0m` become degenerate.
 
-Source: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 8
-(`jackson1998`).
+Source: Jackson, *Classical Electrodynamics* (3rd ed.), Ch. 8.
