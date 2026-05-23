@@ -598,7 +598,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <p class="masthead-tagline t-body">A laboratory of interactive physics simulations.</p>
   <div class="masthead-status t-small">v${PKG_VERSION} &middot; in beta</div>
   <div class="landing-framing">
-    <p>Currently in beta. If something looks off, <a href="#corrections">let me know</a>.</p>
+    <p>Currently in beta. If something looks off, <a href="#contributing">let me know</a>.</p>
   </div>
 </section>
 
