@@ -49,7 +49,7 @@ const FLASH_DUR = FLASH_SWEEP + FLASH_GLOW;
 const REST_DUR = 300;          // 5 s hold so the result is readable
 
 const st = {
-  seed: 7, speed: 20, w: 1, k: 0, g: null, dj: null, as: null,
+  seed: 7, speed: 5, w: 1, k: 0, g: null, dj: null, as: null,
   phase: 'search', restT: 0, playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
