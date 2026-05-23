@@ -172,19 +172,9 @@ async function build() {
   const setup = section(body, 'Physical setup');
   const eqs = section(body, 'Governing equations') || section(body, 'Equations');
   const numerics = section(body, 'Numerical method');
-  // Bibliographic origin: prefer an explicit section, then frontmatter,
-  // then a "Source:/Reference:" line in the body, then the figcaption.
-  let cites = section(body, 'Citations') || section(body, 'References');
-  if (!cites && fm.primary_citation) cites = `- ${fm.primary_citation}${fm.primary_chapter ? `, ch. ${fm.primary_chapter}` : ''}`;
-  if (!cites) {
-    const sm = body.match(/(?:Source|Reference|Refs?)\s*[:.-][^\n]+/i);
-    if (sm) cites = sm[0].trim();
-  }
-  if (!cites) {
-    const cap = document.querySelector('figcaption, [data-slot="caption"]');
-    const ct = cap && cap.textContent.match(/(?:Source|Reference)\s*[:.][^.]+\.?/i);
-    if (ct) cites = ct[0].trim();
-  }
+  // Citations are deliberately not rendered in the explainer dialog: bibkey
+  // identifiers are internal book-keeping, and prose sources already live in
+  // the page caption and in each playground's spec.md.
   if (!plain && !setup && !eqs && !explainer) return;
 
   const btn = document.createElement('button');
@@ -218,7 +208,6 @@ async function build() {
       <button class="explainer-close" type="button" aria-label="Close">close</button>
       <h2>${esc(title)}</h2>
       ${main}
-      ${cites ? `<section><h3>Where this comes from</h3>${mdToHtml(cites)}</section>` : ''}
     </article>`;
 
   const open = () => {
