@@ -681,7 +681,6 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
         ['Website Architecture', 'Andreas W. Neitzel'],
         ['Curriculum Mapping', 'Andreas W. Neitzel'],
       ].map(([k, v]) => `<div class="crow"><div class="ck">${k}</div><div class="cv">${v}</div></div>`).join('')}
-      <p class="credits-note">Assisted with Claude Code (Anthropic).</p>
     </div>
     <div class="credits-col">
       <h3>Special Thanks</h3>
