@@ -658,9 +658,9 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     </div>
     <div class="about-r">
       <h2 class="about-name about-anim">Andreas W. Neitzel</h2>
-      <p class="about-title about-anim">Physicist</p>
+      <p class="about-title about-anim">PhD candidate in Astronomy</p>
       <div class="about-bio about-anim">
-        <p>I work in astrophysics. Tellurion is a passion project: every simulation, every numerical engine, every line of the site is hand-built. The repository is public.</p>
+        <p>During my academic years, I wrote several physics simulations to help build intuition for the classes I was taking. Seeing how useful they were to me, I decided to give them a makeover and share them with others. Eventually, this idea grew into its own passion project, with the aim to include physics simulations for as many concepts as possible. Thus, Tellurion was born.</p>
       </div>
       <div class="about-stack about-anim">
         <div class="lab">Built with</div>
