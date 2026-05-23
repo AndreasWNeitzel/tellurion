@@ -672,7 +672,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       </div>
       <div class="about-stack about-anim">
         <div class="lab">Built with</div>
-        <div class="tags"><span>Vanilla JavaScript</span><span>Canvas2D</span><span>SVG</span><span>WebGL2</span><span>Web Audio API</span><span>KaTeX</span><span>HTML5 / CSS3</span><span>Node.js</span></div>
+        <div class="tags"><span>Vanilla JavaScript</span><span>Canvas2D</span><span>SVG</span><span>WebGL2</span><span>Web Audio API</span><span>KaTeX</span><span>HTML5 / CSS3</span><span>Node.js</span><span>Claude</span></div>
       </div>
     </div>
   </div>
