@@ -36,7 +36,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A Green's-function playground for the 1D problem -u'' = f on [0, 1] with the ends pinned at zero. The response to a single point spike is the tent G(x, x'): zero at both walls, peaked at the spike, with a unit downward kink there. Because the equation is linear, the response to any source is the superposition of tents weighted by the source value, u = integral G f. Panel A shows the source and the solution it produces (each on its own scale, since the solution is usually far smaller); Panel B is the draggable tent and the faint stack of weighted tents that build u; Panel C shows that the recovered u really does satisfy -u'' = f and lists the defining facts. The Green function is symmetric, vanishes at both pinned ends, has a unit downward slope kink at the source point, and the weighted superposition of tents reproduces the exact solution and the analytic sine series. Reference: Arfken, Weber and Harris, Mathematical Methods for Physicists, Chapter 10; Stakgold, Green's Functions and Boundary Value Problems.</p>
+      <p class="t-body">A Green's-function playground for the 1D problem -u'' = f on [0, 1] with the ends pinned at zero. The response to a single point spike is the tent G(x, x'): zero at both walls, peaked at the spike, with a unit downward kink there. Because the equation is linear, the response to any source is the superposition of tents weighted by the source value, u = integral G f. Panel A shows the source and the solution it produces (each on its own scale, since the solution is usually far smaller); Panel B is the draggable tent and the faint stack of weighted tents that build u; Panel C shows that the recovered u really does satisfy -u'' = f and lists the defining facts. The Green function is symmetric, vanishes at both pinned ends, has a unit downward slope kink at the source point, and the weighted superposition of tents reproduces the exact solution and the analytic sine series.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -50,7 +50,7 @@
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
       To solve -u'' = f you can first solve it for a single spike at one point x'. That answer is the Green's function, a tent that is zero at both walls and has a kink where the spike sits. Any source is just a pile of spikes, so the full solution is the same pile of tents, each scaled by how strong the source is there: u(x) = integral G(x, x') f(x') dx'.
       <em>Method:</em> closed-form tent Green's function, trapezoidal superposition, shared tridiagonal reference solve; Canvas2D, deterministic.
-      <em>Source:</em> Arfken, Weber and Harris, Mathematical Methods for Physicists.</figcaption>
+      <em></figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">

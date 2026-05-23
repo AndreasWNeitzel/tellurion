@@ -42,7 +42,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">An explicit finite-difference solver for the variable-conductivity heat equation dT/dt = div(kappa grad T) + S on a 96x96 grid. The primary scene is the physical temperature field (viridis) overlaid with live conductive-flux streamlines q = -kappa grad T; the side panel is the mid-row cross-section T(x). Five presets (composite wall, uniform rod, room radiator, finned heat sink, insulated quench), a paint brush for metal, insulator, heat and cold, and sliders for the conductivity contrast, the source temperature and the time-lapse rate. A composite wall keeps the heat flux continuous while the temperature gradient steepens in the poorer conductor, an insulated box conserves total heat, and uniform conductivity relaxes to the linear Laplace profile. Reference: Incropera, Fundamentals of Heat and Mass Transfer, Chapters 2 and 5.</p>
+      <p class="t-body">An explicit finite-difference solver for the variable-conductivity heat equation dT/dt = div(kappa grad T) + S on a 96x96 grid. The primary scene is the physical temperature field (viridis) overlaid with live conductive-flux streamlines q = -kappa grad T; the side panel is the mid-row cross-section T(x). Five presets (composite wall, uniform rod, room radiator, finned heat sink, insulated quench), a paint brush for metal, insulator, heat and cold, and sliders for the conductivity contrast, the source temperature and the time-lapse rate. A composite wall keeps the heat flux continuous while the temperature gradient steepens in the poorer conductor, an insulated box conserves total heat, and uniform conductivity relaxes to the linear Laplace profile.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -52,7 +52,7 @@
       <canvas class="playground-canvas" id="stage" width="1170" height="600"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Explicit-FD heat diffusion with variable conductivity and flux streamlines. Source: Press et al., Numerical Recipes, Sec. 20.2 (`press2007`).</figcaption>
+    <figcaption class="t-small playground-caption">Figure 1. Explicit-FD heat diffusion with variable conductivity and flux streamlines.</figcaption>
 
     <section class="playground-controls">
       <div id="controls" class="pg-controls"></div>
