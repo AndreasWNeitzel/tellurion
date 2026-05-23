@@ -95,3 +95,7 @@ Worlds*.
 * T_eq = T_star sqrt(R_star / 2 a) (1 - A)^0.25 with A = 0.3 albedo.
 * HZ inner edge: ~ 273 K + greenhouse offset.
 * HZ outer edge: ~ 200 K maximum greenhouse.
+
+## Citations
+
+- Carroll & Ostlie, An Introduction to Modern Astrophysics, 2nd ed., Ch. 28: The Search for Life.

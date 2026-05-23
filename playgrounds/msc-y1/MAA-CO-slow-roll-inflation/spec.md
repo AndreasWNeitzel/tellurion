@@ -121,3 +121,7 @@ observational plane of Planck 2018 (Akrami et al., A&A 641, A10).
 * V = 1/2 m^2 phi^2 (chaotic quadratic)
 * V = lambda phi^4 / 4
 * V = V_0 (1 - exp(-sqrt(2/3) phi / M_Pl))^2 (Starobinsky-like)
+
+## Citations
+
+- Dodelson, Modern Cosmology, 2nd ed., Ch. 8: Inflation.
