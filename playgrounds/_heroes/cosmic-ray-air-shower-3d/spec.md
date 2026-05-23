@@ -1,5 +1,5 @@
 ---
-title: Cosmic Ray Air Shower (Hero)
+title: Cosmic Ray Air Shower
 slug: cosmic-ray-air-shower-3d
 status: verified
 audience: portfolio

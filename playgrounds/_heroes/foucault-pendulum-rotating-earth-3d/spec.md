@@ -1,5 +1,5 @@
 ---
-title: Foucault Pendulum on a Rotating Earth (Hero)
+title: Foucault Pendulum on a Rotating Earth
 slug: foucault-pendulum-rotating-earth-3d
 status: verified
 audience: portfolio

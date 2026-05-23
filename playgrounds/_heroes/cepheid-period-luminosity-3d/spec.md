@@ -1,5 +1,5 @@
 ---
-title: Cepheid Variable Period-Luminosity (Hero)
+title: Cepheid Variable Period-Luminosity
 slug: cepheid-period-luminosity-3d
 status: verified
 audience: portfolio

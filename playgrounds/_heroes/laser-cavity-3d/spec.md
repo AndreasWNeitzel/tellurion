@@ -1,5 +1,5 @@
 ---
-title: Laser Cavity (Hero)
+title: Laser Cavity
 description: A gain medium between two mirrors driven by the laser rate equations. Below the lasing threshold a faint trickle; cross the sharp threshold and the cavity fills with synchronized photons and the beam ignites. The threshold and the Q-switched giant pulse are emergent, not scripted.
 caption: Figure 1. Laser rate equations driving an atom/photon particle cavity; the threshold and the Q-switched giant pulse are emergent. Source: Siegman, Lasers, Ch. 13.
 slug: laser-cavity-3d

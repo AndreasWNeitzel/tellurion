@@ -1,5 +1,5 @@
 ---
-title: Neutron Star Legend
+title: Neutron Star
 slug: neutron-star-legend-3d
 status: verified
 audience: portfolio

@@ -1,5 +1,5 @@
 ---
-title: Double-Slit Single-Photon Accumulator (Hero)
+title: Double-Slit Single-Photon Accumulator
 slug: double-slit-single-photon-accumulator-3d
 status: superseded
 superseded_by: slit-experiment-legend-3d

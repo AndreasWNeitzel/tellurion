@@ -1,5 +1,5 @@
 ---
-title: Map Projection Explorer (Hero)
+title: Map Projection Explorer
 slug: map-projection-explorer
 status: verified
 audience: portfolio

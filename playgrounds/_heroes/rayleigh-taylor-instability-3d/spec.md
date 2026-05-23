@@ -1,5 +1,5 @@
 ---
-title: Rayleigh-Taylor Instability (Hero)
+title: Rayleigh-Taylor Instability
 slug: rayleigh-taylor-instability-3d
 status: verified
 audience: portfolio

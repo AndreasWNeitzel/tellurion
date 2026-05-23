@@ -1,5 +1,5 @@
 ---
-title: Pulsar Lighthouse (Hero)
+title: Pulsar Lighthouse
 slug: pulsar-lighthouse-rotating-3d
 status: superseded
 superseded_by: neutron-star-legend-3d

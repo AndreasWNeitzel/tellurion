@@ -1,5 +1,5 @@
 ---
-title: Hawking Radiation and BH Evaporation (Hero)
+title: Hawking Radiation and BH Evaporation
 slug: hawking-radiation-bh-evaporation-3d
 status: superseded
 superseded_by: blackhole-legend-3d

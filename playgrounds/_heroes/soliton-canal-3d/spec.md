@@ -1,5 +1,5 @@
 ---
-title: Soliton Canal (Hero)
+title: Soliton Canal
 description: A real Korteweg-de Vries soliton travels down a 3D reflective water canal without changing shape; launch a taller one behind it and watch it overtake, pass clean through the smaller one, and emerge unchanged.
 caption: Figure 1. Height field of the KdV equation u_t + 6 u u_x + u_xxx = 0 lofted into a 3D canal surface. Method: Fourier pseudo-spectral spatial derivatives with integrating-factor RK4 time stepping (Trefethen 2000, Prog. 27), WebGL2 Fresnel water. Source: Drazin and Johnson, Solitons, Ch. 2.
 slug: soliton-canal-3d

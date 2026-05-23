@@ -1,5 +1,5 @@
 ---
-title: Magnetic Reconnection at an X-point (Hero)
+title: Magnetic Reconnection at an X-point
 slug: magnetic-reconnection-x-point-3d
 status: verified
 audience: portfolio

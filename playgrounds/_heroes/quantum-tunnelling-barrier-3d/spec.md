@@ -1,5 +1,5 @@
 ---
-title: Quantum Tunnelling (Hero)
+title: Quantum Tunnelling
 description: A Crank-Nicolson wavepacket hits a barrier you can raise, lower and sculpt. Part reflects, part tunnels through; a classical ball with the same energy always bounces. Probability is conserved to round-off every step.
 caption: Figure 1. Crank-Nicolson TDSE; potential terrain V(x) and the phase-coloured probability curtain |psi|^2, with a classical-ball contrast. Source: Griffiths, Quantum Mechanics, Ch. 2.
 slug: quantum-tunnelling-barrier-3d

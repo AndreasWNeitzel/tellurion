@@ -1,5 +1,5 @@
 ---
-title: Hydrogen Orbitals 3D (Hero)
+title: Hydrogen Orbitals 3D
 description: 'The exact quantum shapes of the hydrogen atom, drawn as a 3D probability cloud. Pick the quantum numbers n, l, m and watch the orbital change from a sphere to dumbbells, rings and multi-lobed shells. View as density, phase, or a lit isosurface; drag to orbit, scroll to zoom.'
 caption: 'Figure 1. Hydrogen orbitals: the electron probability cloud |psi|^2 for quantum numbers (n, l, m). Brighter regions are where the electron is more likely to be found, and the colour key in the corner shows the active scale. Method: exact hydrogenic wavefunctions (radial Laguerre times spherical harmonic) volume ray-marched on the GPU. Source: Eisberg and Resnick, Quantum Physics, Ch. 5.'
 slug: hydrogen-orbitals-3d

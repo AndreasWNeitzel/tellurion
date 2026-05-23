@@ -1,5 +1,5 @@
 ---
-title: Earth Axial Precession + Nutation 3D (Hero)
+title: Earth Axial Precession + Nutation 3D
 description: "Earth spins like a tilted top. Gravity from the Sun and Moon slowly swings its spin axis around a big cone, one full turn every ~25,800 years (this is why the pole star changes over millennia), with a small 18.6-year wobble on top. Drag to orbit the view, scroll to zoom; the year counter runs forward."
 caption: "Figure 1. The Earth's spin axis (white line) traces a slow precession cone driven by lunisolar gravity, with the 18.6-year nutation wobble superposed. Method: closed-form IAU precession-nutation series. Source: Smart, Textbook on Spherical Astronomy."
 slug: earth-axial-precession-nutation-3d

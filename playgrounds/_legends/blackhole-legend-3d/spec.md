@@ -1,5 +1,5 @@
 ---
-title: Black Hole Legend
+title: Black Hole
 slug: blackhole-legend-3d
 status: verified
 audience: portfolio

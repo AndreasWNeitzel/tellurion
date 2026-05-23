@@ -1,5 +1,5 @@
 ---
-title: Aurora Borealis - Charged Particles in Earth's Dipole (Hero)
+title: Aurora Borealis - Charged Particles in Earth's Dipole
 slug: aurora-borealis-dipole-trap-3d
 status: verified
 audience: portfolio

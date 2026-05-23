@@ -1,5 +1,5 @@
 ---
-title: Magnetar Burst (Hero)
+title: Magnetar Burst
 slug: magnetar-burst-3d
 status: superseded
 superseded_by: neutron-star-legend-3d

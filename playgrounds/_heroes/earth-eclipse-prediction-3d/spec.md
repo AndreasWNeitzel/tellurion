@@ -1,5 +1,5 @@
 ---
-title: Earth, Moon, Sun and Eclipse Prediction (Hero)
+title: Earth, Moon, Sun and Eclipse Prediction
 slug: earth-eclipse-prediction-3d
 status: verified
 audience: portfolio

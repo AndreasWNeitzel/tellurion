@@ -1,5 +1,5 @@
 ---
-title: Quasar Relativistic Jet (Hero)
+title: Quasar Relativistic Jet
 slug: quasar-relativistic-jet-3d
 status: verified
 audience: portfolio

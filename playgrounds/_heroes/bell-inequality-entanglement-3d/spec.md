@@ -1,5 +1,5 @@
 ---
-title: Bell Inequality and Quantum Entanglement (Hero)
+title: Bell Inequality and Quantum Entanglement
 slug: bell-inequality-entanglement-3d
 status: verified
 audience: portfolio

@@ -1,5 +1,5 @@
 ---
-title: Exoplanet Transit (Hero)
+title: Exoplanet Transit
 description: A planet crosses its star edge-on, the light dips by (Rp/Rs)^2, the dip's U-shape comes from limb darkening, and tilting the orbit shrinks the transit to a graze, then vanishes. The light curve is the observable.
 caption: Figure 1. Star + planet on a Keplerian orbit; light curve from intensity-weighted overlap of a quadratic limb-darkened disc and the planet's circular shadow. Source: Mandel and Agol, ApJ 580 (2002) L171.
 slug: exoplanet-transit-3d

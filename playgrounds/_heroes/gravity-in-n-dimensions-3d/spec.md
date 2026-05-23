@@ -1,5 +1,5 @@
 ---
-title: Gravity in n Spatial Dimensions (Hero)
+title: Gravity in n Spatial Dimensions
 slug: gravity-in-n-dimensions-3d
 status: verified
 audience: portfolio

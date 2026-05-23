@@ -1,5 +1,5 @@
 ---
-title: Stern-Gerlach Spin Quantization (Hero)
+title: Stern-Gerlach Spin Quantization
 slug: stern-gerlach-spin-quantization-3d
 status: verified
 audience: portfolio

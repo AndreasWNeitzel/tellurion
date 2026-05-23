@@ -1,5 +1,5 @@
 ---
-title: Tidal Disruption Event (Hero)
+title: Tidal Disruption Event
 slug: tidal-disruption-event-3d
 status: superseded
 superseded_by: blackhole-legend-3d

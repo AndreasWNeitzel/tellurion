@@ -1,5 +1,5 @@
 ---
-title: Wormhole Legend
+title: Wormhole
 slug: wormhole-legend-3d
 status: verified
 audience: portfolio

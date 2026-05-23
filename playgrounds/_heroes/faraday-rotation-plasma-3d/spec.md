@@ -1,5 +1,5 @@
 ---
-title: Faraday Rotation in Magnetized Plasma (Hero)
+title: Faraday Rotation in Magnetized Plasma
 slug: faraday-rotation-plasma-3d
 status: verified
 audience: portfolio

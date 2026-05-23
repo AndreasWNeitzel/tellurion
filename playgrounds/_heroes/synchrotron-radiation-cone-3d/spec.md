@@ -1,5 +1,5 @@
 ---
-title: Synchrotron Radiation Cone (Hero)
+title: Synchrotron Radiation Cone
 slug: synchrotron-radiation-cone-3d
 status: verified
 audience: portfolio

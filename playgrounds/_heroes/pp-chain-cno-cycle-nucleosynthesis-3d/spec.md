@@ -1,5 +1,5 @@
 ---
-title: pp Chain vs CNO Cycle (Hero)
+title: pp Chain vs CNO Cycle
 slug: pp-chain-cno-cycle-nucleosynthesis-3d
 status: verified
 audience: portfolio

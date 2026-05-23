@@ -1,5 +1,5 @@
 ---
-title: Black Hole Geodesics (Hero)
+title: Black Hole Geodesics
 description: A ray-marched Schwarzschild black hole with a lensed sky, photon ring, shadow and beamed disc; fire test photons and watch the razor-sharp capture threshold at the impact parameter b = 3 sqrt(3) M.
 caption: Figure 1. Ray-marched Schwarzschild/Kerr black hole with equatorial null and timelike geodesics from the orbit equation d2u/dphi2 + u = 3 M u^2. Source: Misner, Thorne and Wheeler, Gravitation, Ch. 25.
 slug: blackhole-geodesics-3d

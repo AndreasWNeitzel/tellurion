@@ -1,5 +1,5 @@
 ---
-title: Dark Matter Halo and the Galactic Rotation Curve (Hero)
+title: Dark Matter Halo and the Galactic Rotation Curve
 slug: dark-matter-halo-rotation-curve-3d
 status: verified
 audience: portfolio

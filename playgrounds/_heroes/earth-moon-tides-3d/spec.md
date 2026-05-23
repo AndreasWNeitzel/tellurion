@@ -1,5 +1,5 @@
 ---
-title: Earth-Moon-Sun Tides (Hero)
+title: Earth-Moon-Sun Tides
 slug: earth-moon-tides-3d
 status: verified
 audience: portfolio

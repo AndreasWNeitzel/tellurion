@@ -1,5 +1,5 @@
 ---
-title: Relativistic Starship (Hero)
+title: Relativistic Starship
 description: Throttle a starship toward light speed and watch the exact Lorentz optics: stars bunch forward (aberration), shift blue ahead and red astern (Doppler), the bow field brightens (beaming), the ship length-contracts and the twin clocks drift apart.
 caption: Figure 1. Cockpit sky under relativistic aberration, Doppler shift and beaming at speed beta, with the lab-frame length-contracted ship and twin clocks. Method: exact Lorentz transform of photon 4-momenta. Source: Rindler, Relativity, Sec. 4.
 slug: special-relativity-starship-3d

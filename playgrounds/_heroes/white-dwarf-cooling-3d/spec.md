@@ -1,5 +1,5 @@
 ---
-title: White-Dwarf Cooling Sequence (Hero)
+title: White-Dwarf Cooling Sequence
 slug: white-dwarf-cooling-3d
 status: verified
 audience: portfolio

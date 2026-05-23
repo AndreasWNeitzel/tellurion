@@ -1,5 +1,5 @@
 ---
-title: Two-Galaxy Collision (Hero)
+title: Two-Galaxy Collision
 slug: galaxy-collision-3d
 status: verified
 audience: portfolio

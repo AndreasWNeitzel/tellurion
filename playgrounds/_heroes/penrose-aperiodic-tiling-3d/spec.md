@@ -1,5 +1,5 @@
 ---
-title: Penrose Aperiodic Tiling (Hero)
+title: Penrose Aperiodic Tiling
 slug: penrose-aperiodic-tiling-3d
 status: verified
 audience: portfolio

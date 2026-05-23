@@ -1,5 +1,5 @@
 ---
-title: Lorenz Attractor Ensemble (Hero)
+title: Lorenz Attractor Ensemble
 description: "Edward Lorenz's 1963 chaos model, shown as a swarm. A few thousand trajectories (4096) start a hair apart and are integrated with RK4 at sigma=10, rho=28, beta=8/3; the GPU paints how they crowd as a glowing viridis density field on the famous two-lobed butterfly attractor. Nearby starts diverge exponentially yet stay on the same shape. Sliders set integration speed and trail length; drag to orbit, scroll to zoom."
 caption: "Figure 1. Ensemble density of 4096 Lorenz trajectories (sigma=10, rho=28, beta=8/3): brighter regions are where trajectories crowd on the attractor. The cloud starts in a 10^-3 ball and is stretched across the whole butterfly within seconds, the signature of deterministic chaos. Method: CPU RK4 per trajectory, GPU additive density splatting with ACES tonemapping. Source: Strogatz, Nonlinear Dynamics and Chaos, Ch. 9."
 slug: lorenz-attractor-3d-ensemble

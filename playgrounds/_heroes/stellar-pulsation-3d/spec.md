@@ -1,5 +1,5 @@
 ---
-title: Stellar Pulsation Modes in 3D (Hero)
+title: Stellar Pulsation Modes in 3D
 slug: stellar-pulsation-3d
 status: verified
 audience: portfolio

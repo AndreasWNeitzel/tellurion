@@ -1,5 +1,5 @@
 ---
-title: BEC Vortex Lattice in a Rotating Trap (Hero)
+title: BEC Vortex Lattice in a Rotating Trap
 slug: bec-vortex-lattice-3d
 status: verified
 audience: portfolio

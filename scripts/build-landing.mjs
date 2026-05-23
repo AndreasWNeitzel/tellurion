@@ -135,7 +135,7 @@ for (const c of cards) {
 
 function cardHTML(c, featured = false) {
   const thumb = c.thumb ? `assets/thumbs/${c.thumb}` : '';
-  const star = c.tier === 'hero' ? '<span class="cstar" aria-label="hero-tier">&#9733;</span>' : '';
+  const star = c.tier === 'hero' ? '<span class="cstar" aria-label="featured">&#9733;</span>' : '';
   return `
   <a class="card${featured ? ' card-f' : ''}" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-year="${c.curriculum_year}" data-tags="${c.tags.join(' ')}" data-order="${c.order}" data-group="${c.group}" style="--tagc:${c.tagcolor}" href="${c.path}/index.html">
     <div class="cimg"${thumb ? ` data-thumb="${thumb}"` : ''}><div class="cph"></div>${star}<span class="lvl">${shortBadge(c.badge)}</span></div>
@@ -199,7 +199,7 @@ const nCategories = new Set(cards.map(c => c.ptag).filter(Boolean)).size;
 const nYears = new Set(cards.map(c => c.badge).filter(b => /Y\d/.test(b))).size;
 const heroStats = [
   [cards.length, 'simulations'],
-  [nHeroTier, 'hero-tier'],
+  [nHeroTier, 'featured'],
   [nCategories, 'categories'],
   [nYears, 'curricular years'],
 ].filter(([n]) => n > 0);
@@ -268,7 +268,7 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .hero-stat-num{color:var(--text-primary);font-weight:500;font-variant-numeric:tabular-nums}
 .hero-stat-label{color:var(--text-secondary);margin-left:4px}
 .hero-stat-divider{color:var(--text-dimmed)}
-/* Section rhythm: the hero and the featured row are the "this is the
+/* Section rhythm: the masthead and the featured row are the "this is the
    site" zone; a thin rule marks the transition into the browsable
    catalog. */
 .landing-featured{padding:32px 0 48px}
@@ -532,7 +532,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .corrections-body{color:var(--text-secondary);font-size:0.9375rem;line-height:1.7;max-width:680px;margin:0}
 .corrections-body a{color:var(--text-primary);border-bottom:1px solid var(--accent-dim);text-decoration:none}
 .corrections-empty{margin-top:14px;color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.8125rem}
-/* Hero-tier star indicator is already in place via .cstar (top-left,
+/* Featured-card star indicator is already in place via .cstar (top-left,
    var(--accent-gold)); no additional rule needed here. */
 /* Footer: two informational rows plus the existing copyright line, on a
    column layout. The fixed 64px height is replaced with a content height. */
@@ -541,7 +541,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .sitefoot-line a{color:var(--text-secondary);text-decoration:none}
 .sitefoot-line a:hover{color:var(--text-primary)}
 .sitefoot-sep{color:var(--text-dimmed)}
-/* Hero-stats moved out of the masthead and now sits as a quiet line just
+/* Stats moved out of the masthead and now sits as a quiet line just
    above the catalog. Same look as before. */
 .catalog-stats{color:var(--text-secondary);font-family:var(--f-mono);font-size:0.8125rem;margin:0 0 18px;display:flex;gap:12px;flex-wrap:wrap;align-items:baseline}
 .catalog-stats .hero-stat-num{color:var(--text-primary);font-weight:500;font-variant-numeric:tabular-nums}
@@ -605,7 +605,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 <section class="landing-featured">
   <header class="featured-header">
     <h2 class="sec">Featured today</h2>
-    <span class="t-small featured-meta">Rotates daily &middot; ${heroPool.length} hero-tier playgrounds in the catalog</span>
+    <span class="t-small featured-meta">Rotates daily &middot; ${heroPool.length} featured playgrounds in the catalog</span>
   </header>
   ${spotlightHTML}
 </section>

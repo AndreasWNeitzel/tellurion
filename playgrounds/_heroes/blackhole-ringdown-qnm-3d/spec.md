@@ -1,5 +1,5 @@
 ---
-title: Black-Hole Ringdown (Hero)
+title: Black-Hole Ringdown
 slug: blackhole-ringdown-qnm-3d
 status: superseded
 superseded_by: blackhole-legend-3d

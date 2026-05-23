@@ -1,5 +1,5 @@
 ---
-title: Meissner Effect (Hero)
+title: Meissner Effect
 description: Cool a superconductor below Tc and it expels the magnetic field, levitating the magnet above it. Field lines curve around the cold sample and thread straight through a warm one; warm it past Tc and the magnet drops.
 caption: Figure 1. Image-dipole Meissner screening; field-line streamlines curve around the cold sample, a London skin on the surface, and the magnet levitates. Source: Tinkham, Introduction to Superconductivity, Ch. 1-2.
 slug: superconductor-meissner-3d

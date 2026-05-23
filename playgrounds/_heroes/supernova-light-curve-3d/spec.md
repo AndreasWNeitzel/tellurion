@@ -1,5 +1,5 @@
 ---
-title: Supernova Light Curve (Hero)
+title: Supernova Light Curve
 slug: supernova-light-curve-3d
 status: verified
 audience: portfolio

@@ -1,5 +1,5 @@
 ---
-title: N-body Orrery and Chaotic Asteroid Pair (Hero)
+title: N-body Orrery and Chaotic Asteroid Pair
 slug: n-body-orrery-3d
 status: verified
 audience: portfolio

@@ -1,5 +1,5 @@
 ---
-title: Slit Experiment Legend
+title: Slit Experiment
 slug: slit-experiment-legend-3d
 status: verified
 audience: portfolio

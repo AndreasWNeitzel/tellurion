@@ -1,5 +1,5 @@
 ---
-title: Stellar Rotation and Line Broadening (Hero)
+title: Stellar Rotation and Line Broadening
 slug: stellar-rotation-line-broadening-3d
 status: verified
 audience: portfolio

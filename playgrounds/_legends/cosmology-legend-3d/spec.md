@@ -1,5 +1,5 @@
 ---
-title: Cosmology Legend
+title: Cosmology
 slug: cosmology-legend-3d
 status: verified
 audience: portfolio

@@ -1,5 +1,5 @@
 ---
-title: Cherenkov Radiation Cone (Hero)
+title: Cherenkov Radiation Cone
 slug: cherenkov-radiation-cone-3d
 status: verified
 audience: portfolio

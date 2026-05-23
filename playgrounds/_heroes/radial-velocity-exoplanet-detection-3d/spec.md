@@ -1,5 +1,5 @@
 ---
-title: Radial-Velocity Exoplanet Detection (Hero)
+title: Radial-Velocity Exoplanet Detection
 slug: radial-velocity-exoplanet-detection-3d
 status: verified
 audience: portfolio

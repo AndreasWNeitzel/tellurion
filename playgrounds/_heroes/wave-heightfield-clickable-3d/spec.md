@@ -1,5 +1,5 @@
 ---
-title: Wave Heightfield (Clickable Hero)
+title: Wave Heightfield (Clickable)
 description: "Click the shaded 3D surface to drop a ripple into a damped 2D wave equation on a 256x256 grid with fixed (Dirichlet) walls. Concentric ridges spread at speed c, bounce off the walls, and successive clicks interfere. Sliders set the wave speed, damping, impulse height and width; drag to orbit, scroll to zoom."
 caption: "Figure 1. Shaded heightfield of the displacement u(x,y,t) for the damped 2D wave equation, with click-seeded Gaussian impulses reflecting off Dirichlet walls and interfering. Method: explicit finite-difference time stepping on a 256x256 grid, Blinn-Phong shaded surface. Source: French, Vibrations and Waves, Ch. 6."
 slug: wave-heightfield-clickable-3d

@@ -1,5 +1,5 @@
 ---
-title: Exoplanet Interior (Hero)
+title: Exoplanet Interior
 description: Pick a composition, watch the cutaway. A layered terrestrial planet (iron core, silicate mantle, optional water and gas envelope) at chosen mass; the central pressure, the mass-radius position, and the pressure profile are computed live from a constant-density hydrostatic balance.
 caption: Figure 1. Layered planet cutaway with the mass-radius curve and the pressure profile. Source: Seager et al. ApJ 669 (2007) 1279; Zapolsky and Salpeter ApJ 158 (1969) 809.
 slug: exoplanet-interior-3d

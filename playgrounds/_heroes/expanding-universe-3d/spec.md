@@ -1,5 +1,5 @@
 ---
-title: Expanding Universe (Hero)
+title: Expanding Universe
 description: A 3D galaxy lattice obeying the live Friedmann equation. Choose what the universe is made of and watch it decelerate, accelerate, or collapse to a Big Crunch; click a galaxy and read the redshift of its light.
 caption: Figure 1. Comoving galaxy lattice with proper positions scaled by the integrated Friedmann a(t). Source: Ryden, Introduction to Cosmology, Ch. 5-6.
 slug: expanding-universe-3d

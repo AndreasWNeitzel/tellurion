@@ -163,3 +163,25 @@
     --t-focus: 0ms;
   }
 }
+
+/* Gradient pill: a small uppercase chip used to mark special playgrounds
+   (multi-mode tours, featured pieces). Originally introduced as the
+   "LEGEND" badge; promoted here for reuse with color variants matched to
+   the playground's topic. Apply as: <span class="pill pill--violet">SHOWCASE</span> */
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #000;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+.pill--amber  { background: linear-gradient(90deg, #ffd28a, #ff7c8a); }
+.pill--rose   { background: linear-gradient(90deg, #ffc8e0, #ff8aa8); }
+.pill--cyan   { background: linear-gradient(90deg, #b9d8ff, #7ec8f0); }
+.pill--mint   { background: linear-gradient(90deg, #b8f0c8, #6ed8a8); }
+.pill--violet { background: linear-gradient(90deg, #d8b8ff, #a880ff); }
+.pill--gold   { background: linear-gradient(90deg, #ffe7a8, #c9a84c); }

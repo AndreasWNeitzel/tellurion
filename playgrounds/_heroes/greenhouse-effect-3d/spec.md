@@ -1,5 +1,5 @@
 ---
-title: Greenhouse Effect (Hero)
+title: Greenhouse Effect
 slug: greenhouse-effect-3d
 status: verified
 audience: portfolio

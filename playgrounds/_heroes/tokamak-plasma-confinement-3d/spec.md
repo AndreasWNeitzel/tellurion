@@ -1,5 +1,5 @@
 ---
-title: Tokamak Plasma Confinement 3D (Hero)
+title: Tokamak Plasma Confinement 3D
 description: "A tokamak holds a 100-million-degree plasma with magnetic fields instead of walls. A toroidal vessel carries helical field lines (coloured by field strength); charged particles either spiral along the field (passing) or get mirror-trapped on the weak-field outboard side, tracing the classic banana orbits. Drag to orbit, scroll to zoom."
 caption: "Figure 1. Tokamak magnetic confinement: helical field lines coloured by |B|, a glowing plasma core, and co-passing, counter-passing and trapped (banana-orbit) particle populations. Method: 1/R toroidal field plus a current-driven poloidal twist (safety factor q), guiding-centre particle classification. Source: Goedbloed and Poedts, Principles of Magnetohydrodynamics, Ch. 5."
 slug: tokamak-plasma-confinement-3d

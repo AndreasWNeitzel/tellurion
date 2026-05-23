@@ -1,5 +1,5 @@
 ---
-title: Kelvin-Helmholtz Instability (Hero)
+title: Kelvin-Helmholtz Instability
 slug: kelvin-helmholtz-instability-3d
 status: verified
 audience: portfolio

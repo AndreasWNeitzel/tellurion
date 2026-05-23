@@ -1,5 +1,5 @@
 ---
-title: Brewster Angle and Fresnel Reflection (Hero)
+title: Brewster Angle and Fresnel Reflection
 slug: brewster-fresnel-reflection-3d
 status: verified
 audience: portfolio

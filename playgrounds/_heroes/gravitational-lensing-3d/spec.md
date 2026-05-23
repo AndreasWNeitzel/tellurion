@@ -1,5 +1,5 @@
 ---
-title: Gravitational Lensing (Hero)
+title: Gravitational Lensing
 slug: gravitational-lensing-3d
 status: verified
 audience: portfolio
