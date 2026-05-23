@@ -951,12 +951,30 @@ window.playground.getState = function () {
   };
 };
 window.playground.getInvariants = function () {
+  const M = st.M_solar;
+  const R = R_km() * 1000;
+  const G = 6.674e-11;
+  const c = 2.998e8;
+  const compactness = (2 * G * M * 1.989e30) / (c * c * R);
+
   return [
     {
-      key: 'ns-physics',
-      label: 'neutron star legend',
-      value: 'ready',
-      status: 'pass'
+      key: 'compactness',
+      label: `M/R = ${(compactness / 1000).toFixed(3)}`,
+      value: (compactness / 1000).toFixed(3),
+      status: (compactness < 1 && compactness > 0.1) ? 'pass' : 'drift'
+    },
+    {
+      key: 'causal-limit',
+      label: 'R > 2GM/c^2',
+      value: R > (2 * G * M * 1.989e30) / (c * c) ? 'yes' : 'no',
+      status: R > (2 * G * M * 1.989e30) / (c * c) ? 'pass' : 'drift'
+    },
+    {
+      key: 'mass-radius',
+      label: `${M.toFixed(2)} M_sun, ${R_km().toFixed(1)} km`,
+      value: R_km().toFixed(1),
+      status: (R_km() > 8 && R_km() < 16) ? 'pass' : 'drift'
     }
   ];
 };

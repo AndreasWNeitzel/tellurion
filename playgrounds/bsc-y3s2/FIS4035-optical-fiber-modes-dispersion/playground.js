@@ -272,14 +272,40 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const modes = guidedModeCount(st.V);
   return {
     fields: [
-      { key: 'wavelength', label: 'wavelength (nm)', value: (st?.wavelength || 1550).toFixed(1), format: 'float' },
-      { key: 'core-radius', label: 'core radius (um)', value: (st?.coreRadius || 5).toFixed(2), format: 'float' },
-      { key: 'na', label: 'numerical aperture', value: (st?.NA || 0.1).toFixed(3), format: 'float' },
+      { key: 'v-number', label: 'V-number', value: st.V.toFixed(2), format: 'float' },
+      { key: 'mode-count', label: 'guided modes', value: modes, format: 'float' },
+      { key: 'dispersion-length', label: 'L_D', value: st.LD.toFixed(1), format: 'float' },
     ],
   };
 };
 window.playground.getInvariants = function () {
-  return [{ key: 'dispersion', label: 'modal dispersion computed', value: 'ready', status: 'pass' }];
+  const modes = guidedModeCount(st.V);
+  const cur = solveLP(st.V, st.l, st.m);
+  const bValue = cur ? cur.b : null;
+  const Tt = pulseWidth(st.zNow, 1, -1 / st.LD);
+  const singleModeBelow = st.V < 2.405;
+
+  return [
+    {
+      key: 'single-mode-condition',
+      label: st.V < 2.405 ? 'V < 2.405 (single)' : `V = ${st.V.toFixed(2)} (multi)`,
+      value: modes.toString(),
+      status: (singleModeBelow && modes === 1) || (!singleModeBelow && modes > 1) ? 'pass' : 'drift'
+    },
+    {
+      key: 'b-value-range',
+      label: bValue ? `b = ${bValue.toFixed(3)}` : 'cutoff',
+      value: bValue ? bValue.toFixed(3) : '0.000',
+      status: (bValue === null || (bValue > 0 && bValue < 1)) ? 'pass' : 'drift'
+    },
+    {
+      key: 'pulse-broadening',
+      label: `T/T0 = ${Tt.toFixed(2)}`,
+      value: Tt.toFixed(2),
+      status: Tt >= 1 ? 'pass' : 'drift'
+    }
+  ];
 };

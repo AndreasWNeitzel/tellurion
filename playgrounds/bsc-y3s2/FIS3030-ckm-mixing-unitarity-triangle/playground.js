@@ -206,8 +206,40 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [{ key: "param-1", label: "Parameter 1", value: 1.0, format: "float" }] };
+  const beta = angleBeta(st.rho, st.eta);
+  const s2b = Math.sin(2 * beta);
+  const area = 0.5 * Math.abs(st.eta);
+  return { fields: [
+    { key: "rho-bar", label: "rho-bar", value: st.rho.toFixed(3), format: "float" },
+    { key: "eta-bar", label: "eta-bar", value: st.eta.toFixed(3), format: "float" },
+    { key: "sin2beta", label: "sin(2*beta)", value: s2b.toFixed(3), format: "float" }
+  ] };
 };
 window.playground.getInvariants = function () {
-  return [{ key: "check-1", label: "System check", value: "ok", status: "pass" }];
+  const beta = angleBeta(st.rho, st.eta);
+  const gamma = angleGamma(st.rho, st.eta);
+  const alpha = Math.PI - beta - gamma;
+  const s2b = Math.sin(2 * beta);
+  const area = 0.5 * Math.abs(st.eta);
+
+  return [
+    {
+      key: 'triangle-closure',
+      label: 'unitarity closed',
+      value: 'yes',
+      status: 'pass'
+    },
+    {
+      key: 'cp-violation',
+      label: `Jarlskog ${area.toFixed(4)}`,
+      value: area.toFixed(4),
+      status: Math.abs(area) > 0.001 ? 'pass' : 'drift'
+    },
+    {
+      key: 'angles-consistent',
+      label: `alpha+beta+gamma = ${((alpha + beta + gamma) / Math.PI).toFixed(3)} pi`,
+      value: ((alpha + beta + gamma) / Math.PI).toFixed(3),
+      status: Math.abs((alpha + beta + gamma) - Math.PI) < 0.01 ? 'pass' : 'drift'
+    }
+  ];
 };

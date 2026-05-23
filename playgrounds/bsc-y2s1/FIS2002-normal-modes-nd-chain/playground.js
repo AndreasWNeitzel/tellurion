@@ -242,8 +242,37 @@ else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [{ key: "param-1", label: "Parameter 1", value: 1.0, format: "float" }] };
+  const omega = omegaOf();
+  const omega0 = 2 * Math.sqrt(K1 / m);
+  return { fields: [
+    { key: "mode-n", label: "mode n", value: st.mode, format: "float" },
+    { key: "omega", label: "omega / omega_0", value: (omega / omega0).toFixed(3), format: "float" }
+  ] };
 };
 window.playground.getInvariants = function () {
-  return [{ key: "check-1", label: "System check", value: "ok", status: "pass" }];
+  const omega = omegaOf();
+  const omega0 = 2 * Math.sqrt(K1 / m);
+  const gap = st.lattice === 'diatomic' ? bandGap(K1, st.Kratio * K1, m) : 0;
+  const omegaMax = st.lattice === 'monatomic' ? omega0 : Math.sqrt(2 * (K1 + st.Kratio * K1) / m);
+
+  return [
+    {
+      key: 'omega-below-ceiling',
+      label: `omega ${(omega / omega0).toFixed(3)} omega_0`,
+      value: (omega / omega0).toFixed(3),
+      status: (omega < omegaMax * 1.01) ? 'pass' : 'drift'
+    },
+    {
+      key: 'band-gap-monatomic',
+      label: st.lattice === 'monatomic' ? 'no band gap' : `gap ${gap.toFixed(3)}`,
+      value: gap.toFixed(3),
+      status: st.lattice === 'monatomic' ? (gap < 1e-9 ? 'pass' : 'drift') : (gap > 0 ? 'pass' : 'drift')
+    },
+    {
+      key: 'chain-bounded',
+      label: `${st.N} masses, mode ${st.mode}`,
+      value: st.mode <= modeMax() ? 'ok' : 'overflow',
+      status: st.mode <= modeMax() ? 'pass' : 'drift'
+    }
+  ];
 };

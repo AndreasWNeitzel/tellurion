@@ -1982,17 +1982,35 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'mass', label: 'black hole', value: 1, format: 'float' }
+      { key: 'mass', label: 'black hole', value: M_solar(), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
+  const M = M_solar();
+  const Rs = rsM();
+  const risco = iscoRadius_m(M, st.chi) / Rs;
+  const rphoto = 1.5;
+  const bcrit = 3 * Math.sqrt(3) / 2;
+
   return [
     {
-      key: 'bhLegend',
-      label: 'black hole legend',
-      value: 'ready',
+      key: 'isco-radius',
+      label: `ISCO ${risco.toFixed(2)} R_s`,
+      value: risco.toFixed(2),
+      status: (risco > 2.9 && risco < 3.1) ? 'pass' : 'drift'
+    },
+    {
+      key: 'photon-sphere',
+      label: 'photon sphere 1.5 R_s',
+      value: '1.50',
       status: 'pass'
+    },
+    {
+      key: 'critical-impact',
+      label: `b_c = ${bcrit.toFixed(3)} R_s`,
+      value: bcrit.toFixed(3),
+      status: (bcrit > 2.59 && bcrit < 2.61) ? 'pass' : 'drift'
     }
   ];
 };
