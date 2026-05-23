@@ -111,7 +111,7 @@ function drawRing(x, y, w, h, stable, Q) {
   const prof = betaProfile(focal());
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(gx, gy, gw, gh);
   ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('beta(s) over one FODO cell', gx + 6, gy + 13);
+  ctx.fillText('β(s) over one FODO cell', gx + 6, gy + 13);
   ctx.fillStyle = stable ? '#9be8b0' : '#ff8f8f'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`Q = ${Number.isNaN(Q) ? 'unstable' : Q.toFixed(4)}`, gx + gw - 102, gy + 14);
   if (prof) {

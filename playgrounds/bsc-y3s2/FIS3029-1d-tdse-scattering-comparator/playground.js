@@ -130,9 +130,9 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillStyle = tok.accent;
-  ctx.fillText('Re psi', W - 24, 20);
+  ctx.fillText('Re ψ', W - 24, 20);
   ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('|psi|^2 (x 1.5)', W - 24, 34);
+  ctx.fillText('|ψ|^2 (x 1.5)', W - 24, 34);
 }
 
 function rebuild() {

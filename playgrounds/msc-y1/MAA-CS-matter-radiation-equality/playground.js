@@ -173,7 +173,7 @@ function drawDensity(c, a) {
   ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(xm, y0); ctx.lineTo(xm, y1); ctx.stroke();
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('rho/rho_crit  vs  a   (blue=radiation, gold=matter, violet=Lambda)', x0 + 6, y0 + 10);
+  ctx.fillText('ρ/rho_crit  vs  a   (blue=radiation, gold=matter, violet=Λ)', x0 + 6, y0 + 10);
   ctx.textAlign = 'right';
   ctx.fillText('a ->', x1 - 4, y1 + 14);
 }

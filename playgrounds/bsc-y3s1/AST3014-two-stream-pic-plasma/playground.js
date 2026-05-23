@@ -91,7 +91,7 @@ function drawAll() {
   ctx.fillStyle = '#0a0a0e'; ctx.fillRect(PX, TRACE_Y, PW, TRACE_H);
   ctx.strokeStyle = 'rgba(255,255,255,0.20)'; ctx.strokeRect(PX + 0.5, TRACE_Y + 0.5, PW - 1, TRACE_H - 1);
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText('log |rho_hat[k=1]| vs time; dashed = analytic slope gamma = omega_p/(2 sqrt 2)', PX + 8, TRACE_Y + 13);
+  ctx.fillText('log |rho_hat[k=1]| vs time; dashed = analytic slope γ = omega_p/(2 sqrt 2)', PX + 8, TRACE_Y + 13);
   if (state.modeHist.length >= 2) {
     const logs = state.modeHist.map(v => Math.log(Math.max(1e-6, v)));
     let lo = Infinity, hi = -Infinity;

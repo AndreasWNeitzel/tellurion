@@ -245,7 +245,7 @@ function drawTitles() {
   ctx.textAlign = 'center';
   ctx.fillStyle = tokens.fgFaint;
   ctx.font = fontString(canvas, 'tick');
-  ctx.fillText('theta', PHASE.x + PHASE.w / 2, PHASE.y + PHASE.h + 26);
+  ctx.fillText('θ', PHASE.x + PHASE.w / 2, PHASE.y + PHASE.h + 26);
   ctx.save();
   ctx.translate(PHASE.x - 38, PHASE.y + PHASE.h / 2);
   ctx.rotate(-Math.PI / 2);

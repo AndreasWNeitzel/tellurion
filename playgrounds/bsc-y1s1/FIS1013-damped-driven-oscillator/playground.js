@@ -113,7 +113,7 @@ function drawAll() {
   ctx.textAlign = 'left';
   ctx.fillText('x(t)', padL + 6, traceY + 14);
   ctx.fillStyle = 'rgba(214, 138, 105, 0.55)';
-  ctx.fillText('F_0 cos(omega t) (drive)', padL + 60, traceY + 14);
+  ctx.fillText('F_0 cos(ω t) (drive)', padL + 60, traceY + 14);
 
   // Response curve panel
   ctx.fillStyle = '#0a0a0e';
@@ -159,7 +159,7 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentCool;
-  ctx.fillText('A(omega)', padL + 6, curveY + 14);
+  ctx.fillText('A(ω)', padL + 6, curveY + 14);
   // x axis ticks
   ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';

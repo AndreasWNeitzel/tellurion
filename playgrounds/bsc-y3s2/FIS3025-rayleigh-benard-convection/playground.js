@@ -132,7 +132,7 @@ function drawNeutralCurve() {
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(X(K_C), Yv(RA_C), 4, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Ra_c = 27 pi^4/4 at k_c = pi/sqrt2', X(K_C) - 4, Yv(RA_C) - 8);
+  ctx.fillText('Ra_c = 27 π^4/4 at k_c = π/sqrt2', X(K_C) - 4, Yv(RA_C) - 8);
   // operating point
   const unstable = linearSigma(NY, st.Ra, st.Pr, st.k) > 0;
   ctx.fillStyle = unstable ? '#ff5a5a' : '#5affa0';

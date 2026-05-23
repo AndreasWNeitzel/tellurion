@@ -208,8 +208,8 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'center';
-  ctx.fillText('theta = 0 (in front)',  obs1.px, obs1.py - 10);
-  ctx.fillText('theta = pi (behind)',   obs2.px, obs2.py - 10);
+  ctx.fillText('θ = 0 (in front)',  obs1.px, obs1.py - 10);
+  ctx.fillText('θ = π (behind)',   obs2.px, obs2.py - 10);
   ctx.fillText(`f = ${observedFreq(state.v, 0).toFixed(3)}`,        obs1.px, obs1.py + 18);
   ctx.fillText(`f = ${observedFreq(state.v, Math.PI).toFixed(3)}`, obs2.px, obs2.py + 18);
 
@@ -250,7 +250,7 @@ function drawAll() {
   ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('observed frequency vs theta (0 to pi)', barX + 6, barY + 14);
+  ctx.fillText('observed frequency vs θ (0 to π)', barX + 6, barY + 14);
   // Plot curve
   ctx.strokeStyle = tok.accentCool;
   ctx.lineWidth = 1.4;

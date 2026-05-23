@@ -85,7 +85,7 @@ function drawTau(c, x0, y_off, w, h) {
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T_eff = ${Teff} K`, x0 + padL + plotW - 130, y_off + 14);
-  ctx.fillText('tau', x0 + padL + plotW - 16, y_off + padT + plotH + 24);
+  ctx.fillText('τ', x0 + padL + plotW - 16, y_off + padT + plotH + 24);
   ctx.save(); ctx.translate(x0 + 16, y_off + padT + plotH / 2 + 24); ctx.rotate(-Math.PI / 2);
   ctx.fillText('T (K)', 0, 0); ctx.restore();
 }
@@ -109,7 +109,7 @@ function drawLimb(c, x0, y_off, w, h) {
 
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Eddington limb darkening I(mu) = 0.4 + 0.6 mu', x0 + 12, y_off + 14);
+  ctx.fillText('Eddington limb darkening I(μ) = 0.4 + 0.6 μ', x0 + 12, y_off + 14);
 }
 
 // Wyman 2013 blackbody temperature (K) -> sRGB at unit luminance.

@@ -523,7 +523,7 @@ function drawLighthouseMode(cam, spinPhase) {
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('pulse profile I(phi) over one rotation', px + 8, py - 6);
+  ctx.fillText('pulse profile I(φ) over one rotation', px + 8, py - 6);
   // Plot intensity over phi in [0, 2 pi].
   const rho = beamHalfAngle_rad(P_s());
   const alpha = st.alpha_deg * DEG;
@@ -549,8 +549,8 @@ function drawLighthouseMode(cam, spinPhase) {
   // Axes.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.75)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('phi = 0', px + 30, py + ph - 4);
-  ctx.fillText('2 pi', px + pw - 30, py + ph - 4);
+  ctx.fillText('φ = 0', px + 30, py + ph - 4);
+  ctx.fillText('2 π', px + pw - 30, py + ph - 4);
   ctx.fillText('I = 0', px + 6, py + ph - 16);
   ctx.fillText('I = 1', px + 6, py + 16);
   // Sanity strip.

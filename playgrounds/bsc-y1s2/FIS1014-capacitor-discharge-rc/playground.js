@@ -168,7 +168,7 @@ function drawPlot(c, x0, y_off, w, h) {
   ctx.setLineDash([]);
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('tau', xFor(tau) + 4, y_off + padT + 12);
+  ctx.fillText('τ', xFor(tau) + 4, y_off + padT + 12);
   ctx.fillText('V0/e', xFor(tau) - 30, yFor(V0 / Math.E) + 3);
 
   // Current-time marker.
@@ -190,7 +190,7 @@ function drawPlot(c, x0, y_off, w, h) {
   ctx.save(); ctx.translate(x0 + 16, y_off + padT + plotH / 2 + 20); ctx.rotate(-Math.PI / 2);
   ctx.fillText('V (volts)', 0, 0); ctx.restore();
   ctx.fillStyle = c.orange;
-  ctx.fillText('V(t) = V_0 exp(-t/tau)', x0 + padL + 12, y_off + 18);
+  ctx.fillText('V(t) = V_0 exp(-t/τ)', x0 + padL + 12, y_off + 18);
 }
 
 function render() {

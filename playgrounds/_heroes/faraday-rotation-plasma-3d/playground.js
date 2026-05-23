@@ -193,7 +193,7 @@ function drawChiLambda2() {
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText('chi(lambda^2) line fit', x + 8, y - 6);
+  ctx.fillText('χ(λ^2) line fit', x + 8, y - 6);
 
   const RM = currentRM();
   // Plot lambda^2 from 0 to 0.05 m^2 (lambda 0 to ~ 22 cm).
@@ -252,8 +252,8 @@ function drawChiLambda2() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', x + 30, y + h - 16);
   ctx.fillText(`${lam2_max.toFixed(2)}`, x + w - 30, y + h - 16);
-  ctx.fillText('lambda^2 (m^2)', x + w / 2 - 30, y + h - 4);
-  ctx.fillText('chi (deg, wrapped)', x + 8, y + 18);
+  ctx.fillText('λ^2 (m^2)', x + w / 2 - 30, y + h - 4);
+  ctx.fillText('χ (deg, wrapped)', x + 8, y + 18);
 }
 
 function updateReadout() {

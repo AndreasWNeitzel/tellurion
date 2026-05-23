@@ -253,7 +253,7 @@ function drawKeplerThirdLawInset() {
   ctx.save();
   ctx.translate(KPL.x - 36, KPL.y + KPL.h / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('T^2 / (4 pi^2) (yr^2)', 0, 0);
+  ctx.fillText('T^2 / (4 π^2) (yr^2)', 0, 0);
   ctx.restore();
 }
 

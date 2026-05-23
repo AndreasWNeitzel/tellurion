@@ -161,7 +161,7 @@ function drawScene() {
   const keyY = H - 70;
   ctx.fillStyle = '#ffd166'; ctx.fillText('L  spin angular momentum', 30, keyY);
   ctx.fillStyle = '#ef476f'; ctx.fillText('W  weight Mg', 30, keyY + 16);
-  ctx.fillStyle = '#06d6a0'; ctx.fillText('tau = r x W  drives precession', 30, keyY + 32);
+  ctx.fillStyle = '#06d6a0'; ctx.fillText('τ = r x W  drives precession', 30, keyY + 32);
 }
 
 function drawCurve() {

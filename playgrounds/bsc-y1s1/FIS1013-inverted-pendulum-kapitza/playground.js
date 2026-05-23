@@ -156,7 +156,7 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('U_eff(theta)', potX + 6, panelY + 14);
+  ctx.fillText('U_eff(θ)', potX + 6, panelY + 14);
 }
 
 function tickN(n) {

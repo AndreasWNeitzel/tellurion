@@ -77,7 +77,7 @@ function draw1D() {
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('wavevector  k  (-pi .. pi)', (PX0 + PX1) / 2, H - 16);
+  ctx.fillText('wavevector  k  (-π .. π)', (PX0 + PX1) / 2, H - 16);
   ctx.save(); ctx.translate(24, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('energy  E(k)', 0, 0); ctx.restore();
   // E_F line + filled shading
   const yF = yOf(st.EF);
@@ -180,7 +180,7 @@ function draw2D() {
     ctx.fillRect(X - 1.2, Y - 1.2, 2.4, 2.4);
   }
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('kx (-pi..pi)', (PX0 + PX1) / 2, H - 16);
+  ctx.fillText('kx (-π..π)', (PX0 + PX1) / 2, H - 16);
   ctx.save(); ctx.translate(24, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('ky', 0, 0); ctx.restore();
   ctx.fillStyle = '#06d6a0'; ctx.textAlign = 'left'; ctx.fillText('Fermi surface at E_F', DX0, PY0 + 12);
   ctx.fillStyle = 'rgba(150,160,180,0.7)';

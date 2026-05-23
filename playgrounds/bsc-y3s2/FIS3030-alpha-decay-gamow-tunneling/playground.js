@@ -125,7 +125,7 @@ function drawBarrier(c) {
   ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('tunneling region', xToPx(R_NUC) + 6, y0 + 14);
   ctx.fillStyle = c.muted; ctx.textAlign = 'left';
-  ctx.fillText('alpha wavefunction tunnels the Coulomb barrier', 12, 16);
+  ctx.fillText('α wavefunction tunnels the Coulomb barrier', 12, 16);
 }
 
 function drawNuclearScene(c) {

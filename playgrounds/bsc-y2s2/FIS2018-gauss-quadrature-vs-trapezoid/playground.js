@@ -149,7 +149,7 @@ function drawAll() {
   ctx.fillStyle = tok.accentWarm;
   ctx.fillText('trapezoid panels', padL + 60, topY + 14);
   ctx.fillStyle = tok.accentCool;
-  ctx.fillText('Gauss-Legendre bars (alpha ~ weight)', padL + 200, topY + 14);
+  ctx.fillText('Gauss-Legendre bars (α ~ weight)', padL + 200, topY + 14);
   ctx.fillStyle = 'rgba(220, 220, 220, 0.70)';
   ctx.fillText(PHYSICS[fnKey] ?? '', padL + 6, topY + topH - 8);
 

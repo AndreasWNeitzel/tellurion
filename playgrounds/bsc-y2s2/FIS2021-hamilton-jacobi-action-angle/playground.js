@@ -150,14 +150,14 @@ function render() {
   ctx.fillStyle = '#ef476f';
   ctx.beginPath(); ctx.arc(LCX + (q - mid) * SC, CY - p * SC, 5, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('shaded area = 2 pi J', LCX, H - 32);
+  ctx.fillText('shaded area = 2 π J', LCX, H - 32);
 
   // right panel: the action-angle loop (a circle for the harmonic)
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(RCX - 150, CY); ctx.lineTo(RCX + 150, CY);
   ctx.moveTo(RCX, CY - 138); ctx.lineTo(RCX, CY + 138); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
-  ctx.fillText('action-angle  (theta winds uniformly)', RCX, H - 14);
+  ctx.fillText('action-angle  (θ winds uniformly)', RCX, H - 14);
   // The whole point of action-angle variables: the canonical
   // transform turns ANY 1-DOF bound orbit into a circle of radius
   // sqrt(2 J) swept at the constant rate omega, for Kepler exactly

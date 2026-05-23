@@ -34,7 +34,7 @@ function drawWell() {
   ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('infinite well: levels E_n and wavefunctions psi_n(x) = sin(n pi x / L)', x + 6, y + 14);
+  ctx.fillText('infinite well: levels E_n and wavefunctions psi_n(x) = sin(n π x / L)', x + 6, y + 14);
   // energy axis: show the first 5 levels and their psi_n
   const Emax = energyLevel(6, st.L, st.m);
   const eY = (E) => y + h - 24 - (h - 60) * (E / Emax);
@@ -99,7 +99,7 @@ function draw() {
   drawWell();
   drawDOS();
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('change dimensionality: the DOS shape changes qualitatively (E^1/2 / step / spike / delta)', 30, H - 64);
+  ctx.fillText('change dimensionality: the DOS shape changes qualitatively (E^1/2 / step / spike / δ)', 30, H - 64);
 
   const e1 = energyLevel(1, st.L, st.m), e2 = energyLevel(2, st.L, st.m);
   rE1.textContent = e1.toFixed(3);

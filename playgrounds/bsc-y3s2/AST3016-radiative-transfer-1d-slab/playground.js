@@ -122,7 +122,7 @@ function render() {
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('diagnostic: I(tau) relaxes exponentially toward S', dx0 + 8, dy0 + 13);
+  ctx.fillText('diagnostic: I(τ) relaxes exponentially toward S', dx0 + 8, dy0 + 13);
   const r = profileVsTau(st.Iin, st.S, st.tau, 160);
   const xP = (tt) => dx0 + 10 + tt / st.tau * (dx1 - dx0 - 20);
   const yP = (iv) => dy1 - 8 - iv / vmax * (dy1 - dy0 - 26);

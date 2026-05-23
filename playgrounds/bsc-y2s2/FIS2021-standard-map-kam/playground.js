@@ -91,7 +91,7 @@ function drawPortrait() {
   const cur = toPx(state.tr.theta, state.tr.p);
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cur.px, cur.py, 3.4, 0, TWO_PI); ctx.fill();
   ctx.fillStyle = 'rgba(241,210,138,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('phase portrait  (theta -> , p ^);  gold = this rotor', PP.x + 6, PP.y + PP.h - 8);
+  ctx.fillText('phase portrait  (θ -> , p ^);  gold = this rotor', PP.x + 6, PP.y + PP.h - 8);
 }
 
 function drawRotor() {
@@ -115,7 +115,7 @@ function drawRotor() {
   ctx.fillStyle = '#9fb0cc'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('kicked rotor', cx, cy - R - 18);
   ctx.fillText('free spin, then a', cx, cy + R + 26);
-  ctx.fillText('kick of K sin(theta)', cx, cy + R + 41);
+  ctx.fillText('kick of K sin(θ)', cx, cy + R + 41);
   // p gauge
   const gy = cy + R + 64, gw = RP.w - 30;
   ctx.strokeStyle = 'rgba(150,160,185,0.4)'; ctx.strokeRect(RP.x + 15, gy, gw, 10);

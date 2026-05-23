@@ -87,7 +87,7 @@ function drawPotential(x, y, w, h) {
   ctx.beginPath(); ctx.arc(X(phi), Y(POTENTIALS[st.pot].V(phi)) - 6, 6, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
   ctx.fillText(`phi = ${phi.toFixed(2)},  N remaining = ${(st.N * (1 - st.ph)).toFixed(0)}`, x + 12, y + h - 10);
-  ctx.fillText('phi ->', x1 - 44, y1 + 14);
+  ctx.fillText('φ ->', x1 - 44, y1 + 14);
 }
 
 function drawModes(x, y, w, h) {

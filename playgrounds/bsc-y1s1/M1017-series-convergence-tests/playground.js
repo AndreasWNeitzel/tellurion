@@ -55,7 +55,7 @@ function drawTests(px, py, pw, ph) {
   ctx.strokeStyle = 'rgba(239,71,111,0.6)'; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(px + 32, yOf(1)); ctx.lineTo(px + pw - 12, yOf(1)); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('rho = 1', px + 34, yOf(1) - 4);
+  ctx.fillText('ρ = 1', px + 34, yOf(1) - 4);
   const curve = (fn, col) => {
     ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath();
     let started = false;

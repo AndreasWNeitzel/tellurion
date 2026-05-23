@@ -157,7 +157,7 @@ function render() {
   ctx.fillText(`elapsed: ${ts.travelNow.toFixed(2)}`, CX_R, CKY + CKR + 36);
   ctx.fillStyle = '#ffd24a';
   ctx.fillText('moving clock', (CX_L + CX_R) / 2, CKY - CKR - 6);
-  ctx.fillText('runs slow by 1 / gamma', (CX_L + CX_R) / 2, CKY - CKR + 8);
+  ctx.fillText('runs slow by 1 / γ', (CX_L + CX_R) / 2, CKY - CKR + 8);
   ctx.textAlign = 'left';
 
   const barX = CX_L - 60, barY = CKY + CKR + 50, barW = (CX_R + 60) - barX, barH = 14;

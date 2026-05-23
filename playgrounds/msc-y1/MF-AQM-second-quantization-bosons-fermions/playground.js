@@ -97,7 +97,7 @@ function drawCommutator(x, y, w, h, state) {
   const result = commutatorAction(state, st.stat);        // must equal state
   const half = (h - 40) / 2;
   ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('|psi>', x + 8, y + 30);
+  ctx.fillText('|ψ>', x + 8, y + 30);
   bars(x + 8, y + 32, w - 16, half - 6, Array.from(state), '#7fd1ff');
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
   ctx.fillText(isF ? '(a a^dag + a^dag a)|psi>' : '(a a^dag - a^dag a)|psi>', x + 8, y + 36 + half);

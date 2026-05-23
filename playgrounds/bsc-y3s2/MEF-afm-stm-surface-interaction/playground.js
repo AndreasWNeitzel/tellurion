@@ -128,7 +128,7 @@ function drawLaw(px0, py0, pw, ph) {
   ctx.save(); ctx.beginPath(); ctx.rect(px0, py0, pw, ph); ctx.clip();
   ctx.fillStyle = 'rgba(226,232,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   if (st.mode === 'afm') {
-    ctx.fillText('Lennard-Jones force F(d): F=0 at 2^(1/6) sigma', px0 + 8, py0 + 14);
+    ctx.fillText('Lennard-Jones force F(d): F=0 at 2^(1/6) σ', px0 + 8, py0 + 14);
     const dMin = 1.6, dMax = 9;
     let fmax = 1e-9; for (let dd = dMin; dd < dMax; dd += 0.02) fmax = Math.max(fmax, Math.abs(ljForce(dd, EPS, SIG)));
     const X = (dd) => px0 + 10 + (pw - 20) * (dd - dMin) / (dMax - dMin);
@@ -140,7 +140,7 @@ function drawLaw(px0, py0, pw, ph) {
     const dm = ljMinDistance(SIG);
     ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(dm), Y(0), 4, 0, 6.2832); ctx.fill();
   } else {
-    ctx.fillText('STM current I ~ V e^(-2 kappa d)', px0 + 8, py0 + 14);
+    ctx.fillText('STM current I ~ V e^(-2 κ d)', px0 + 8, py0 + 14);
     const dMin = 2, dMax = 12;
     const I0 = stmCurrent(dMin, BIAS, st.phi);
     const decades = 8;

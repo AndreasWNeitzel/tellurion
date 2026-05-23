@@ -74,7 +74,7 @@ function render() {
     ctx.beginPath(); ctx.moveTo(ex, nlY - 56); ctx.lineTo(ex, nlY + 56); ctx.stroke();
   }
   ctx.fillStyle = 'rgba(255,209,102,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('epsilon tube', valToX(centre), nlY + 74);
+  ctx.fillText('ε tube', valToX(centre), nlY + 74);
   // term dots: early grey, tail blue
   for (let n = 1; n <= NMAX; n += 1) {
     ctx.fillStyle = n >= st.N0 ? 'rgba(91,192,235,0.9)' : 'rgba(150,156,168,0.45)';

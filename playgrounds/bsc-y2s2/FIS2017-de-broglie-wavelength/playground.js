@@ -194,7 +194,7 @@ function drawCurve(c) {
     ctx.fillText(`1e${lT}`, x, y1 + 14);
   }
   ctx.textAlign = 'left'; ctx.fillStyle = c.muted;
-  ctx.fillText('lambda (nm) vs T (eV)', 10, y0 + 8);
+  ctx.fillText('λ (nm) vs T (eV)', 10, y0 + 8);
 
   for (const p of PARTICLES) {
     ctx.strokeStyle = p.color;

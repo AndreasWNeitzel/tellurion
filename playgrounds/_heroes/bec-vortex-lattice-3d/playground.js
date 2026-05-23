@@ -204,7 +204,7 @@ function drawVorticesAndAxes() {
   // Label.
   ctx.fillStyle = 'rgba(255, 240, 200, 0.85)';
   ctx.font = fontString(canvas, 'body');
-  ctx.fillText('Omega', c.x + aR * Math.cos((a0 + a1) / 2) + 6, c.y + aR * Math.sin((a0 + a1) / 2));
+  ctx.fillText('Ω', c.x + aR * Math.cos((a0 + a1) / 2) + 6, c.y + aR * Math.sin((a0 + a1) / 2));
 }
 
 function drawCount() {

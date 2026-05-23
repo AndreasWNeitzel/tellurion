@@ -152,9 +152,9 @@ function drawWigner(x, y, w, h) {
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(PX(xq), PY(0), 3, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('x = sqrt2 Re(alpha) ->', x1c - 150, y1c + 16);
+  ctx.fillText('x = sqrt2 Re(α) ->', x1c - 150, y1c + 16);
   ctx.fillText('p', PX(0) + 4, y0c + 6);
-  ctx.fillText('|alpha|=sqrt(nbar)', Math.min(PX(xq) + 6, x1c - 110), PY(0) - 6);
+  ctx.fillText('|α|=sqrt(nbar)', Math.min(PX(xq) + 6, x1c - 110), PY(0) - 6);
 }
 
 function draw() {

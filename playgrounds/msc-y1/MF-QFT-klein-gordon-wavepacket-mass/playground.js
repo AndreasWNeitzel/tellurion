@@ -88,7 +88,7 @@ function drawDispersion(x, y, w, h) {
   // light line omega = |k|
   ctx.strokeStyle = 'rgba(255,143,143,0.45)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(kMax), Y(kMax)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('omega = |k| (light)', X(kMax) - 110, Y(kMax) + 14);
+  ctx.fillStyle = 'rgba(255,143,143,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('ω = |k| (light)', X(kMax) - 110, Y(kMax) + 14);
   ctx.strokeStyle = '#7fd1ff'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 160; i += 1) { const k = kMax * i / 160; const xx = X(k), yy = Y(omega(k, m)); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
   ctx.stroke();

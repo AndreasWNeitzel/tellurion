@@ -116,7 +116,7 @@ function drawLobe() {
   ctx.lineTo(tip.sx - 11, tip.sy - 6); ctx.lineTo(tip.sx - 11, tip.sy + 6);
   ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('beta (velocity)', tail.sx, tail.sy + 18);
+  ctx.fillText('β (velocity)', tail.sx, tail.sy + 18);
 }
 
 function drawRestInset() {

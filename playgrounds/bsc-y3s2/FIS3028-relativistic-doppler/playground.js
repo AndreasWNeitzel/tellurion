@@ -101,14 +101,14 @@ function drawCartesian(c, x0, y0, w, h) {
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', x0 + padL - 6, y0 + padT + plotH + 14);
-  ctx.fillText('pi/2', x0 + padL + plotW / 2 - 12, y0 + padT + plotH + 14);
-  ctx.fillText('pi', x0 + padL + plotW - 8, y0 + padT + plotH + 14);
+  ctx.fillText('π/2', x0 + padL + plotW / 2 - 12, y0 + padT + plotH + 14);
+  ctx.fillText('π', x0 + padL + plotW - 8, y0 + padT + plotH + 14);
   ctx.fillText(yMax.toFixed(2), x0 + padL - 32, y0 + padT + 6);
   ctx.fillText('1.00', x0 + padL - 28, yFor(1) + 3);
   ctx.fillText(yMin.toFixed(2), x0 + padL - 32, y0 + padT + plotH);
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('theta (rad)', x0 + padL + plotW - 60, y0 + padT + plotH + 26);
+  ctx.fillText('θ (rad)', x0 + padL + plotW - 60, y0 + padT + plotH + 26);
   ctx.save(); ctx.translate(x0 + 12, y0 + padT + plotH / 2 + 30); ctx.rotate(-Math.PI / 2);
   ctx.fillText('f_obs / f_src (log)', 0, 0); ctx.restore();
   ctx.fillStyle = c.accent;

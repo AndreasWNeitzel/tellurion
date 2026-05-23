@@ -136,7 +136,7 @@ function drawLightcurve() {
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText('lightcurve  L(phi)', x + 8, y - 6);
+  ctx.fillText('lightcurve  L(φ)', x + 8, y - 6);
 
   // One-period phase-folded lightcurve over [0, 1], so the sweeping
   // marker (st.phase wraps in [0,1)) spans the full plot from the
@@ -183,7 +183,7 @@ function drawLightcurve() {
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('phi = 0', x + 40, y + h - 10);
+  ctx.fillText('φ = 0', x + 40, y + h - 10);
   ctx.fillText('1', x + 40 + ((1 - phi_min) / (phi_max - phi_min)) * (w - 60) - 4, y + h - 10);
   ctx.fillText('2', x + 40 + ((1.8 - phi_min) / (phi_max - phi_min)) * (w - 60) - 4, y + h - 10);
   ctx.fillText('L_min', x + 8, y + h - 24);

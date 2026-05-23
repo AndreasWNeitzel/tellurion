@@ -65,8 +65,8 @@ function drawTriangle() {
   ctx.beginPath(); ctx.moveTo(X(-0.05), Y(0)); ctx.lineTo(X(1.15), Y(0)); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(X(0), Y(-0.04)); ctx.lineTo(X(0), Y(0.85)); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('rho-bar', X(1.0), Y(0) + 16);
-  ctx.fillText('eta-bar', X(0) + 6, Y(0.8));
+  ctx.fillText('ρ-bar', X(1.0), Y(0) + 16);
+  ctx.fillText('η-bar', X(0) + 6, Y(0.8));
 
   // Filled triangle (area = Jarlskog ~ CP violation).
   ctx.fillStyle = 'rgba(255,209,102,0.14)';
@@ -121,7 +121,7 @@ function drawTriangle() {
   ctx.fillText(`beta=${(beta * 180 / Math.PI).toFixed(0)}`, X(1) - 70, Y(0) - 8);
   ctx.fillText(`alpha=${(alpha * 180 / Math.PI).toFixed(0)}`, X(A[0]) + 8, Y(A[1]) - 8);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('apex (rho-bar, eta-bar)', X(A[0]) + 8, Y(A[1]) + 14);
+  ctx.fillText('apex (ρ-bar, η-bar)', X(A[0]) + 8, Y(A[1]) + 14);
 }
 
 function drawCP() {

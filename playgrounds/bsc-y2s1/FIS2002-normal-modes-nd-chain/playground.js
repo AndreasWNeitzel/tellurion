@@ -104,7 +104,7 @@ function render() {
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(PXX, PXY, PXW, PXH);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(PXX, PXY, PXW, PXH);
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('dispersion  omega(k)   (click to pick a mode)', PXX + PXW / 2, PXY - 6);
+  ctx.fillText('dispersion  ω(k)   (click to pick a mode)', PXX + PXW / 2, PXY - 6);
   const wMax = st.lattice === 'monatomic' ? 2 * Math.sqrt(K1 / m) * 1.08 : Math.sqrt(2 * (K1 + st.Kratio * K1) / m) * 1.08;
   const kx = (th) => PXX + 8 + (th / Math.PI) * (PXW - 16);
   const wy = (w) => PXY + PXH - 14 - (w / wMax) * (PXH - 26);
@@ -129,7 +129,7 @@ function render() {
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(kx(modeInfo().theta), wy(omegaOf()), 5, 0, 6.2832); ctx.fill();
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('k a', PXX + PXW / 2, PXY + PXH + 13);
-  ctx.save(); ctx.translate(PXX - 7, PXY + PXH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('omega', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(PXX - 7, PXY + PXH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('ω', 0, 0); ctx.restore();
   ctx.textAlign = 'left';
 
   // legend / info

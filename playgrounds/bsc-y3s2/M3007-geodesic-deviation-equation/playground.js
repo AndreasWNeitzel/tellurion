@@ -240,7 +240,7 @@ function drawDeviationPlot(spec) {
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(xOf(sc), yOf(spec.fn(sc)), 4, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillText('xi', px + 8, ay + 8);
+  ctx.fillText('ξ', px + 8, ay + 8);
   ctx.fillText(spec.xlabel, ax + aw - ctx.measureText(spec.xlabel).width, ay + ah + 12);
 }
 

@@ -135,7 +135,7 @@ function draw3D() {
   ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(CX, CY - 150); ctx.lineTo(CX, CY + 150); ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('toroidal sin^2(theta) pattern about the acceleration axis', CX, CY + 250);
+  ctx.fillText('toroidal sin^2(θ) pattern about the acceleration axis', CX, CY + 250);
 }
 
 function render() {

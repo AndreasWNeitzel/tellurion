@@ -89,7 +89,7 @@ function draw() {
     ctx.fillText(PITCHES[z] + 'nm', bx, CY + CH - 4);
   }
   ctx.fillStyle = 'rgba(255,210,120,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Rayleigh R = k1 lambda / NA = ' + R.toFixed(1) + ' nm  (zones < R: not resolved, red)', X0 + 8, CY + 14);
+  ctx.fillText('Rayleigh R = k1 λ / NA = ' + R.toFixed(1) + ' nm  (zones < R: not resolved, red)', X0 + 8, CY + 14);
 
   rLam.textContent = lam.toFixed(1) + ' nm';
   rCut.textContent = (cutoffFreq(st.NA, lam) * 1000).toFixed(3) + ' /um';

@@ -183,8 +183,8 @@ function render() {
   for (let a = 180; a >= 0; a -= 1) { const th = Math.PI * a / 180, rr = pat(th) * pr; ctx.lineTo(pcx - rr * Math.sin(th), pcy - rr * Math.cos(th)); }
   ctx.closePath(); ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('theta = 0 (null)', pcx, pcy - pr - 12);
-  ctx.fillText('theta = 90 (max)', pcx + pr + 2, pcy + 4);
+  ctx.fillText('θ = 0 (null)', pcx, pcy - pr - 12);
+  ctx.fillText('θ = 90 (max)', pcx + pr + 2, pcy + 4);
 
   const P = powerW(), D = directivity(pat), lamM = C / (st.fMHz * 1e6);
   rEls['source'].textContent = st.source;

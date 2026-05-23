@@ -75,7 +75,7 @@ function drawAxes() {
   ctx.fillStyle = tok.fgMuted;
   ctx.font = fontString(canvas, 'caption');
   ctx.textAlign = 'center';
-  ctx.fillText('theta (coin bias)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 32);
+  ctx.fillText('θ (coin bias)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 32);
   ctx.save();
   ctx.translate(PLOT.x - 38, PLOT.y + PLOT.h / 2);
   ctx.rotate(-Math.PI / 2);

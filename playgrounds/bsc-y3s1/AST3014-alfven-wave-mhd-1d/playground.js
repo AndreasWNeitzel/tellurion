@@ -121,7 +121,7 @@ function render() {
   ctx.fillStyle = 'rgba(91,192,235,0.9)';
   ctx.fillText('cyan = plasma v_y (frozen-in)', 46, sceneTop + sceneH + 18);
   ctx.fillStyle = 'rgba(255,200,120,0.9)';
-  ctx.fillText('orange = b_y; magnetic tension; Walen: v_y = -/+ b_y / sqrt(mu0 rho)', 250, sceneTop + sceneH + 18);
+  ctx.fillText('orange = b_y; magnetic tension; Walen: v_y = -/+ b_y / sqrt(mu0 ρ)', 250, sceneTop + sceneH + 18);
 
   // Quantitative strip: b_y(x) and v_y(x), showing the antiphase.
   const stripTop = sceneTop + sceneH + 30, stripH = H - stripTop - 24;

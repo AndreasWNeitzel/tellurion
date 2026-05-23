@@ -105,7 +105,7 @@ function render() {
   ctx.fillStyle = '#0d1117'; ctx.fillRect(pX, pY, pW, pH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(pX + 0.5, pY + 0.5, pW - 1, pH - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('density profile rho(r)', pX + 8, pY + 14);
+  ctx.fillText('density profile ρ(r)', pX + 8, pY + 14);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let i = 0; i <= 120; i += 1) {
     const rMpc = i / 120 * MPC_VIEW;

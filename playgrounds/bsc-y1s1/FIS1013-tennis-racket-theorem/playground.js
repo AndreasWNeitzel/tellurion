@@ -190,7 +190,7 @@ function drawPanel() {
   const x0 = SCENE_W + 16, x1 = W - 16, yt = 64, yb = H - 96, mid = (yt + yb) / 2;
   ctx.fillStyle = '#0b0c12'; ctx.fillRect(x0 - 8, yt - 30, x1 - x0 + 24, yb - yt + 60);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('body-frame omega(t)', x0, yt - 12);
+  ctx.fillText('body-frame ω(t)', x0, yt - 12);
   ctx.strokeStyle = '#2a2a34'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, mid); ctx.lineTo(x1, mid); ctx.moveTo(x0, yt); ctx.lineTo(x0, yb); ctx.stroke();
   const sc = (yb - yt) / 2 / (st.spin * 1.25);

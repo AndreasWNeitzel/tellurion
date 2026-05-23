@@ -85,9 +85,9 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('f(q a) vs epsilon = (q a)^2', LX0, LY0 - 8);
+  ctx.fillText('f(q a) vs ε = (q a)^2', LX0, LY0 - 8);
   ctx.textAlign = 'center';
-  ctx.fillText('epsilon', (LX0 + LX1) / 2, LY1 + 20);
+  ctx.fillText('ε', (LX0 + LX1) / 2, LY1 + 20);
 
   // Right: band structure E(k) reduced zone, ka in [0, pi]
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
@@ -138,10 +138,10 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('epsilon(k a) band structure (reduced zone)', RX0, RY0 - 8);
+  ctx.fillText('ε(k a) band structure (reduced zone)', RX0, RY0 - 8);
   ctx.textAlign = 'center';
   ctx.fillText('0', RX0, RY1 + 14);
-  ctx.fillText('pi', RX1, RY1 + 14);
+  ctx.fillText('π', RX1, RY1 + 14);
   ctx.fillText('k a', (RX0 + RX1) / 2, RY1 + 30);
 
   // Tick marks on epsilon axis (right)

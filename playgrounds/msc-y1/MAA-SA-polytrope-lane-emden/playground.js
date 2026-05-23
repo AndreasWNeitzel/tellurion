@@ -161,7 +161,7 @@ function drawStar(c, s) {
   // right-aligned on the same line, so keep the title compact enough
   // that the two cannot collide on a narrow star panel.
   ctx.fillText(`polytrope star  n = ${n}`, 12, 18);
-  ctx.fillText('rho/rho_c = theta^n  (wedge: cutaway interior)', 12, STAR.h - 12);
+  ctx.fillText('ρ/rho_c = θ^n  (wedge: cutaway interior)', 12, STAR.h - 12);
   ctx.textAlign = 'right';
   ctx.fillStyle = c.accent;
   ctx.fillText(xiD < s.xi[s.xi.length - 1] - 1e-6 ? 'finite radius' : 'diffuse', STAR.w - 14, 18);

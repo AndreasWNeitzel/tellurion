@@ -172,7 +172,7 @@ function render() {
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('dispersion  omega(k) = 2 sqrt(K/m) |sin(ka/2)|  over the first Brillouin zone', dx0 + 8, dy0 + 12);
+  ctx.fillText('dispersion  ω(k) = 2 sqrt(K/m) |sin(ka/2)|  over the first Brillouin zone', dx0 + 8, dy0 + 12);
   const kMax = Math.PI, wMax = 2;
   const xP = (kk) => dx0 + 12 + kk / kMax * (dx1 - dx0 - 24);
   const yP = (ww) => dy1 - 6 - ww / (wMax * 1.08) * (dy1 - dy0 - 22);

@@ -109,7 +109,7 @@ function render() {
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx, dy, dw, dh);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx + 0.5, dy + 0.5, dw - 1, dh - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('dispersion nu^2(k)  (diagnostic)', dx + 8, dy + 16);
+  ctx.fillText('dispersion ν^2(k)  (diagnostic)', dx + 8, dy + 16);
   const kMax = 6, y0 = -6, y1 = 12;
   const xPk = (k) => dx + 10 + k / kMax * (dw - 20);
   const yPk = (v) => dy + dh - 14 - (v - y0) / (y1 - y0) * (dh - 36);
@@ -129,7 +129,7 @@ function render() {
     ctx.fillText(`k* = ${kStar.toFixed(2)}`, xPk(kStar) + 4, dy + 30);
   }
   ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('k', dx + dw - 16, dy + dh - 2); ctx.fillText('nu^2', dx + 6, dy + 28);
+  ctx.fillText('k', dx + dw - 16, dy + dh - 2); ctx.fillText('ν^2', dx + 6, dy + 28);
   ctx.fillText(`k_crit(cs=0) = ${kCrit(st.kappa, GS).toFixed(2)}`, dx + 8, dy + dh - 4);
 
   rQ.textContent = Q.toFixed(2);

@@ -76,7 +76,7 @@ function drawPlates(x, y, w, h) {
   const exX0 = x + 16, exX1 = pL - 22;
   if (exX1 - exX0 > 60) {
     ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('excluded: lambda > 2d', exX0, cy - ph2 - 8);
+    ctx.fillText('excluded: λ > 2d', exX0, cy - ph2 - 8);
     for (let m = 0; m < 3; m += 1) {
       const lamPx = gapPx * (2.2 + 1.3 * m);            // wider than the gap -> cannot fit
       ctx.strokeStyle = 'rgba(255,143,143,0.5)'; ctx.lineWidth = 1.2; ctx.beginPath();

@@ -153,7 +153,7 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('phase (x_cart, theta)', phaseX + 6, phaseY + 14);
+  ctx.fillText('phase (x_cart, θ)', phaseX + 6, phaseY + 14);
 }
 
 function tickN(n) {

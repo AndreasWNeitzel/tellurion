@@ -79,7 +79,7 @@ function drawGofr() {
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'center'; ctx.fillText('r  (sigma)', (PX0 + PX1) / 2, H - 28);
+  ctx.textAlign = 'center'; ctx.fillText('r  (σ)', (PX0 + PX1) / 2, H - 28);
   // plain-words caption (kept clear of the top-right readout box)
   ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('g(r): neighbor density / bulk', (PX0 + PX1) / 2, H - 12);

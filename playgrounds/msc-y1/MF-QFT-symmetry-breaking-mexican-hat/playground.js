@@ -116,9 +116,9 @@ function drawSlice(x, y, w, h) {
     ctx.fillStyle = 'rgba(241,192,105,0.85)';
     ctx.fillText(`Higgs: m_H = ${higgsMass(mu2()).toFixed(2)} (radial curvature)`, x0 + 6, y0 + 14);
   } else {
-    ctx.fillStyle = 'rgba(200,215,240,0.8)'; ctx.fillText('symmetric: single minimum at |phi| = 0', x0 + 6, y0 + 14);
+    ctx.fillStyle = 'rgba(200,215,240,0.8)'; ctx.fillText('symmetric: single minimum at |φ| = 0', x0 + 6, y0 + 14);
   }
-  ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.fillText('Re(phi) ->', x1 - 60, y1 + 14);
+  ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.fillText('Re(φ) ->', x1 - 60, y1 + 14);
 }
 
 function drawOrder(x, y, w, h) {

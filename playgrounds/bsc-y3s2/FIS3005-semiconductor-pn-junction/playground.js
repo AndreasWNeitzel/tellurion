@@ -96,7 +96,7 @@ function drawLeft() {
     ctx.lineTo(xOf(0), cy + 0.42 * (RY1 - RY0));
     ctx.lineTo(xOf(xn), cy); ctx.stroke();
     ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.textAlign = 'left';
-    ctx.fillText('rho(x): -qNA (p), +qND (n)', LX0 + 6, RY0 + 14);
+    ctx.fillText('ρ(x): -qNA (p), +qND (n)', LX0 + 6, RY0 + 14);
     ctx.fillStyle = '#ffd166'; ctx.fillText(`E(x) triangular, |E|max = ${(Emax / 1e6).toFixed(2)} MV/m`, LX0 + 6, RY1 - 8);
   }
 }

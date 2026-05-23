@@ -70,9 +70,9 @@ function drawBZ(c, x0, y_off, w, h) {
 
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Gamma (0, 0)', cxPx - 32, cyPx + 14);
-  ctx.fillText('M (pi, pi)', cxPx + size - 60, cyPx - size + 14);
-  ctx.fillText('Brillouin zone [-pi, pi]^2', x0 + 12, y_off + 16);
+  ctx.fillText('Γ (0, 0)', cxPx - 32, cyPx + 14);
+  ctx.fillText('M (π, π)', cxPx + size - 60, cyPx - size + 14);
+  ctx.fillText('Brillouin zone [-π, π]^2', x0 + 12, y_off + 16);
 }
 
 function drawDOS(c, x0, y_off, w, h) {

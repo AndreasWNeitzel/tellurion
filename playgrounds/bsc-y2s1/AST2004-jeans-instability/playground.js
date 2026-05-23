@@ -136,14 +136,14 @@ function render() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('k (1/m)', padL + plotW - 50, padT + plotH + 28);
   ctx.save(); ctx.translate(16, padT + plotH / 2 + 40); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('omega^2 (1/s^2), signed-log', 0, 0); ctx.restore();
+  ctx.fillText('ω^2 (1/s^2), signed-log', 0, 0); ctx.restore();
 
   // Label regions.
   ctx.fillStyle = c.red;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Jeans-unstable (omega^2 < 0)', padL + 12, padT + plotH - 8);
+  ctx.fillText('Jeans-unstable (ω^2 < 0)', padL + 12, padT + plotH - 8);
   ctx.fillStyle = c.blue;
-  ctx.fillText('sound-wave (omega^2 > 0)', padL + plotW - 180, padT + 24);
+  ctx.fillText('sound-wave (ω^2 > 0)', padL + plotW - 180, padT + 24);
 
   // ======================================================================
   // RIGHT: live evolution of a 1D density field under the dispersion.

@@ -119,7 +119,7 @@ function render() {
   ctx.fillStyle = trap > 0.5 ? '#ffd166' : '#06d6a0'; ctx.font = fontString(canvas, 'body');
   ctx.fillText(trap > 0.5 ? 'mode TRAPPED: rings at the glitch (a deltaP dip)' : 'mode propagating across the cavity', x0 + 8, 48);
   ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('radial displacement xi(r)   <-- centre        fractional radius r/R        surface -->', x0 + 8, pb + 16);
+  ctx.fillText('radial displacement ξ(r)   <-- centre        fractional radius r/R        surface -->', x0 + 8, pb + 16);
 
   // recovered asymptotic spacing: the live invariant
   let mean = 0;

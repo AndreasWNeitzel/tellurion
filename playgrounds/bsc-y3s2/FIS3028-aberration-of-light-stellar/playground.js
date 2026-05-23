@@ -165,7 +165,7 @@ function render() {
   ctx.fillText(`max aberration = ${(aberrationShift(Math.PI / 2, beta) * RAD_TO_AS).toFixed(2)} arcsec`, 12, 56);
   if (Math.abs(logBeta - Math.log10(BETA_EARTH_ORBIT)) < 0.05) {
     ctx.fillStyle = c.accent;
-    ctx.fillText('(this is Earth\'s annual orbital beta)', 12, 74);
+    ctx.fillText('(this is Earth\'s annual orbital β)', 12, 74);
   }
 }
 

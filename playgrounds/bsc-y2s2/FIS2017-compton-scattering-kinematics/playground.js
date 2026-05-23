@@ -126,11 +126,11 @@ function drawDiagram(c, x0, y0, w, h) {
   ctx.stroke();
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('theta', cx + R * 0.32 * Math.cos(-th / 2), cy + R * 0.32 * Math.sin(-th / 2));
+  ctx.fillText('θ', cx + R * 0.32 * Math.cos(-th / 2), cy + R * 0.32 * Math.sin(-th / 2));
 
-  ctx.fillStyle = c.blue;   ctx.fillText('photon in (lambda)', x0 + 12, y0 + 16);
-  ctx.fillStyle = c.orange; ctx.fillText('photon out (lambda prime)', x0 + 12, y0 + 32);
-  ctx.fillStyle = c.red;    ctx.fillText('recoil electron (phi)', x0 + 12, y0 + 48);
+  ctx.fillStyle = c.blue;   ctx.fillText('photon in (λ)', x0 + 12, y0 + 16);
+  ctx.fillStyle = c.orange; ctx.fillText('photon out (λ prime)', x0 + 12, y0 + 32);
+  ctx.fillStyle = c.red;    ctx.fillText('recoil electron (φ)', x0 + 12, y0 + 48);
 }
 
 function drawArrow(color, ax, ay, bx, by) {
@@ -173,9 +173,9 @@ function drawShiftPlot(c, x0, y0, w, h) {
 
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('theta (deg)', x0 + padL + plotW - 84, y0 + h - 8);
+  ctx.fillText('θ (deg)', x0 + padL + plotW - 84, y0 + h - 8);
   ctx.save(); ctx.translate(x0 + 12, y0 + padT + 60); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('delta lambda (pm)', 0, 0); ctx.restore();
+  ctx.fillText('δ λ (pm)', 0, 0); ctx.restore();
   ctx.fillText('0', x0 + padL - 12, y0 + padT + plotH + 4);
   ctx.fillText('180', x0 + padL + plotW - 18, y0 + padT + plotH + 14);
   ctx.fillText(yMax.toFixed(2), x0 + padL - 38, y0 + padT + 8);

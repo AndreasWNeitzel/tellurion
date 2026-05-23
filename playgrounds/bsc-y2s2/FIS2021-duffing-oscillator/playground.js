@@ -206,7 +206,7 @@ function drawBifurcation() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('bifurcation in gamma', RIGHT_X + 8, 16);
+  ctx.fillText('bifurcation in γ', RIGHT_X + 8, 16);
   ctx.textAlign = 'right';
   ctx.fillText(`gamma = ${state.params.gamma.toFixed(3)}`, RIGHT_X + RIGHT_W - 4, 16);
   ctx.textAlign = 'left';

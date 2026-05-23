@@ -219,7 +219,7 @@ function drawWaveField() {
   ctx.stroke();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('I(theta)', SCREEN_X + 24, AXIS_Y - SCREEN_HALF - 8);
+  ctx.fillText('I(θ)', SCREEN_X + 24, AXIS_Y - SCREEN_HALF - 8);
 
   const slitYs = slitYsPx();
   ctx.lineWidth = 1;

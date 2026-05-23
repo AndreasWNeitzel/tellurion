@@ -83,8 +83,8 @@ function drawSeries(x, y, w, h) {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#6fb4ff'; ctx.fillText('Fourier sum', px + 6, py + 13);
   ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.fillText('target', px + 92, py + 13);
-  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.fillText('-pi', px - 2, py + ph + 14);
-  ctx.fillText('pi', px + pw - 10, py + ph + 14);
+  ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.fillText('-π', px - 2, py + ph + 14);
+  ctx.fillText('π', px + pw - 10, py + ph + 14);
 }
 
 function drawEpicycles(x, y, w, h) {

@@ -228,7 +228,7 @@ function drawNucleus(node, prev, phase) {
     }
     ctx.globalAlpha = 1;
     ctx.fillStyle = 'rgba(255,224,140,0.92)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
-    ctx.fillText('alpha (He-4)', xR - protRad * 1.5, yR - protRad * 2.4);
+    ctx.fillText('α (He-4)', xR - protRad * 1.5, yR - protRad * 2.4);
     ctx.fillStyle = 'rgba(200,210,225,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText('2 protons + 2 neutrons', xR - protRad * 1.5, yR + protRad * 3.0);
   } else if (isBeta) {
@@ -296,7 +296,7 @@ function drawGeigerNuttall() {
     const y = log10HalfLifeAlpha(par.Z, par.N);
     pts.push({ x, y, k, label: isoLabel(par) });
   }
-  if (pts.length === 0) { ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('(no alpha steps in this series)', GX + 16, GY + 60); return; }
+  if (pts.length === 0) { ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('(no α steps in this series)', GX + 16, GY + 60); return; }
 
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
   const xMin = Math.min(...xs) - 1, xMax = Math.max(...xs) + 1;
@@ -348,7 +348,7 @@ function drawSegre() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(CHX, CHY, CHW, CHH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(CHX, CHY, CHW, CHH);
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('Segre chart: N (right) vs Z (up); zigzag = alpha down-left, beta up-left', CHX + 10, CHY + 18);
+  ctx.fillText('Segre chart: N (right) vs Z (up); zigzag = α down-left, β up-left', CHX + 10, CHY + 18);
 
   let nMin = 1e9, nMax = -1e9, zMin = 1e9, zMax = -1e9;
   for (const p of path) { nMin = Math.min(nMin, p.N); nMax = Math.max(nMax, p.N); zMin = Math.min(zMin, p.Z); zMax = Math.max(zMax, p.Z); }

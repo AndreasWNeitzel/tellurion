@@ -272,7 +272,7 @@ function drawXRD() {
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('powder XRD:  intensity vs  2 theta  (Cu K-alpha, a = 4 A)', (x0 + x1) / 2, H - 14);
+  ctx.fillText('powder XRD:  intensity vs  2 θ  (Cu K-α, a = 4 A)', (x0 + x1) / 2, H - 14);
   const lines = powderLines(st.lat, 4.0, 1.5406, 24);
   const tmax = Math.PI;
   const selS = st.hkl[0] ** 2 + st.hkl[1] ** 2 + st.hkl[2] ** 2;

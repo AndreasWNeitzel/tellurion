@@ -75,7 +75,7 @@ function drawHalo() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('rho ~ 1/r^2; circular orbits at constant v_c', SCENE_CX, SCENE_CY + SCENE_R + 22);
+  ctx.fillText('ρ ~ 1/r^2; circular orbits at constant v_c', SCENE_CX, SCENE_CY + SCENE_R + 22);
 }
 
 function drawGraphs() {
@@ -93,7 +93,7 @@ function drawGraphs() {
   for (let i = 0; i <= 120; i += 1) { const r = 1 + (RMAX - 1) * i / 120; const X = xOf(r), Y = yOf(vc); if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('v_c(r) = sqrt(2) sigma  (flat)', px + 8, yT + 16);
+  ctx.fillText('v_c(r) = sqrt(2) σ  (flat)', px + 8, yT + 16);
   ctx.textAlign = 'center'; ctx.fillText('r (kpc)', px + pw / 2, yT + yH - 4);
 
   const m0 = massEnclosed(RMAX * 3.086e19, sigma_si) / 1.989e30;
@@ -110,7 +110,7 @@ function drawGraphs() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('M(<r) = 2 sigma^2 r / G  (linear)', px + 8, y2 + 16);
+  ctx.fillText('M(<r) = 2 σ^2 r / G  (linear)', px + 8, y2 + 16);
   ctx.textAlign = 'center'; ctx.fillText('r (kpc)', px + pw / 2, y2 + y2H - 4);
 
   rV.textContent = `${vc.toFixed(0)} km/s`;

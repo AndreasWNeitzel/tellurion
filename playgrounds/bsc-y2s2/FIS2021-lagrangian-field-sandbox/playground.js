@@ -219,7 +219,7 @@ function drawPhase() {
     for (let i = 0; i < ls.length; i += 1) { const X = PX(ls[i][0]), Y = PY(ls[i][1]); if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
     ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-    ctx.fillText('H = E0 level set, area = 2 pi J', cx - R + 2, cy + R - 4);
+    ctx.fillText('H = E0 level set, area = 2 π J', cx - R + 2, cy + R - 4);
   } else if (trail.length > 2) {
     // 2-DOF systems have no clean 1-DOF level set; shade the swept
     // phase region instead so the control still moves a large area.

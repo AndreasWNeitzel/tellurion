@@ -152,7 +152,7 @@ function drawEOS(x, y, w, h) {
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
   ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (let l = 17; l <= 19; l += 1) ctx.fillText(`1e${l}`, X(l) - 8, py + ph + 13);
-  ctx.fillText('rho (kg/m^3)', px + pw / 2 - 30, py + ph + 25);
+  ctx.fillText('ρ (kg/m^3)', px + pw / 2 - 30, py + ph + 25);
   for (let l = 31; l <= 36; l += 1) ctx.fillText(`1e${l}`, x + 6, Y(l) + 3);
   for (const k of KEYS) {
     const sel = k === st.eos;

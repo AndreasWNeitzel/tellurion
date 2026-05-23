@@ -39,8 +39,8 @@ function render() {
   ctx.strokeStyle = 'rgba(150,160,180,0.55)'; ctx.lineWidth = 1.2;
   ctx.strokeRect(BX, BY, BW, BH);
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('theta  (0 .. 2 pi)', BX + BW / 2, H - 14);
-  ctx.save(); ctx.translate(28, BY + BH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('p  (0 .. 2 pi)', 0, 0); ctx.restore();
+  ctx.fillText('θ  (0 .. 2 π)', BX + BW / 2, H - 14);
+  ctx.save(); ctx.translate(28, BY + BH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('p  (0 .. 2 π)', 0, 0); ctx.restore();
 
   const K = st.K, nOrb = st.orbits, nIt = st.iters;
   for (let o = 0; o < nOrb; o += 1) {

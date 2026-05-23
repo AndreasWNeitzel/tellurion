@@ -142,7 +142,7 @@ function render() {
   ctx.fillStyle = '#ff5d5d'; ctx.beginPath(); ctx.arc(elx(nu), ely(Math.max(0, K)), 4, 0, 6.2832); ctx.fill();
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`nu0 = ${nu0.toFixed(2)} PHz`, elx(nu0), ELY + ELH - 2);
-  ctx.fillText('nu', ELX + ELW / 2, ELY + ELH + 13); ctx.textAlign = 'left';
+  ctx.fillText('ν', ELX + ELW / 2, ELY + ELH + 13); ctx.textAlign = 'left';
 
   rEls['metal'].textContent = st.metal;
   rEls['nu (PHz)'].textContent = nu.toFixed(3);

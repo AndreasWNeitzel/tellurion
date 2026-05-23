@@ -81,7 +81,7 @@ function render() {
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Delta(T)/Delta0', 10, pad.t - 4); ctx.fillText('T/Tc', W - 46, H - pad.b + 12);
+  ctx.fillText('Δ(T)/Delta0', 10, pad.t - 4); ctx.fillText('T/Tc', W - 46, H - pad.b + 12);
   const xToPx = (t) => pad.l + t * (W - pad.l - pad.r);
   // 1.08 headroom so the flat Delta(T~0) ~ 1 segment does not graze the
   // panel boundary.

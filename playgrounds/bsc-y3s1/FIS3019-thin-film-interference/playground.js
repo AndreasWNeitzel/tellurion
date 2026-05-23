@@ -105,7 +105,7 @@ function drawAll() {
     ctx.fillText(`${lam}`, px, curveY + curveH + 30);
   }
   ctx.textAlign = 'left';
-  ctx.fillText('R(lambda)', padL + 6, curveY + 14);
+  ctx.fillText('R(λ)', padL + 6, curveY + 14);
 
   // Bottom: color swatch + history strip
   const swatchY = curveY + curveH + 50;

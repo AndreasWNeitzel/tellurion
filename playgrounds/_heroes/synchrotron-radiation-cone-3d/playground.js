@@ -224,7 +224,7 @@ function drawPulse() {
   ctx.strokeRect(PULSE.x + 0.5, PULSE.y + 0.5, PULSE.w - 1, PULSE.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText('observed pulse I(phi)', PULSE.x + 8, PULSE.y - 6);
+  ctx.fillText('observed pulse I(φ)', PULSE.x + 8, PULSE.y - 6);
 
   const N = 200;
   ctx.strokeStyle = 'rgba(255, 200, 120, 0.95)';
@@ -254,9 +254,9 @@ function drawPulse() {
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('-pi', PULSE.x + 32, PULSE.y + PULSE.h - 10);
+  ctx.fillText('-π', PULSE.x + 32, PULSE.y + PULSE.h - 10);
   ctx.fillText('0', PULSE.x + PULSE.w / 2 - 4, PULSE.y + PULSE.h - 10);
-  ctx.fillText('+pi', PULSE.x + PULSE.w - 36, PULSE.y + PULSE.h - 10);
+  ctx.fillText('+π', PULSE.x + PULSE.w - 36, PULSE.y + PULSE.h - 10);
 }
 
 function drawSpectrum() {
@@ -267,7 +267,7 @@ function drawSpectrum() {
   ctx.strokeRect(SPEC.x + 0.5, SPEC.y + 0.5, SPEC.w - 1, SPEC.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText('spectrum F(nu/nu_c)', SPEC.x + 8, SPEC.y - 6);
+  ctx.fillText('spectrum F(ν/nu_c)', SPEC.x + 8, SPEC.y - 6);
 
   // Log-log of F(x) for x in [0.01, 10].
   const N = 200;
@@ -303,7 +303,7 @@ function drawSpectrum() {
   ctx.fillText('nu_c', xNuC + 4, SPEC.y + 24);
   // Power-law indicator nu^(1/3) at low frequency.
   ctx.fillStyle = 'rgba(120, 240, 200, 0.85)';
-  ctx.fillText('F ~ nu^(1/3)', SPEC.x + 40, SPEC.y + 24);
+  ctx.fillText('F ~ ν^(1/3)', SPEC.x + 40, SPEC.y + 24);
   ctx.fillText('exp cutoff', SPEC.x + SPEC.w - 90, SPEC.y + 24);
   // Axis labels.
   ctx.fillStyle = 'rgba(200, 210, 230, 0.55)';

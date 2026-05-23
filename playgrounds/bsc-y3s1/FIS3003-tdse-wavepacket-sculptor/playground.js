@@ -92,7 +92,7 @@ function render() {
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(xpix(mi), PY + 4); ctx.lineTo(xpix(mi), base); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('|psi(x)|^2 phase-coloured over V(x); dashed line = <x>', PX + PW / 2, PY + PH + 18);
+  ctx.fillText('|ψ(x)|^2 phase-coloured over V(x); dashed line = <x>', PX + PW / 2, PY + PH + 18);
   ctx.textAlign = 'left';
 
   // <x>(t) trace
@@ -111,9 +111,9 @@ function render() {
   // phase colour-wheel legend (anchored below the top-right HUD)
   const LG = 184;
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('phase arg(psi)', QX, LG);
+  ctx.fillText('phase arg(ψ)', QX, LG);
   for (let q = 0; q < 60; q += 1) { ctx.fillStyle = `hsl(${(q / 60 * 360).toFixed(0)},85%,60%)`; ctx.fillRect(QX + q * 2.4, LG + 8, 2.6, 14); }
-  ctx.fillStyle = '#9aa0ad'; ctx.fillText('-pi', QX, LG + 38); ctx.fillText('+pi', QX + 60 * 2.4 - 16, LG + 38);
+  ctx.fillStyle = '#9aa0ad'; ctx.fillText('-π', QX, LG + 38); ctx.fillText('+π', QX + 60 * 2.4 - 16, LG + 38);
   ctx.fillStyle = '#c8ccd6';
   ctx.fillText(`potential: ${st.pot}`, QX, LG + 66);
   ctx.fillText(`steps ${st.nstep}/${HORIZON}`, QX, LG + 88);

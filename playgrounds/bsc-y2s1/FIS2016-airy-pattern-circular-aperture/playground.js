@@ -145,7 +145,7 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('I / I_0 vs theta', PROF_X, PROF_Y - 8);
+  ctx.fillText('I / I_0 vs θ', PROF_X, PROF_Y - 8);
   ctx.fillText('0', PROF_X + 2, PROF_Y + PROF_H + 14);
   ctx.textAlign = 'right';
   ctx.fillText(thetaWinAS.toFixed(0) + ' arcsec', PROF_X + PROF_W - 2, PROF_Y + PROF_H + 14);

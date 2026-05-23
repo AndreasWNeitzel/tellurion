@@ -141,7 +141,7 @@ function drawSurface(x, y, w, h) {
   ctx.strokeStyle = 'rgba(241,192,105,0.7)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(cx - S * 1.25, cy); ctx.lineTo(cx + S * 1.35, cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx + S * 1.35, cy); ctx.lineTo(cx + S * 1.28, cy - 5); ctx.lineTo(cx + S * 1.28, cy + 5); ctx.closePath(); ctx.fillStyle = 'rgba(241,192,105,0.8)'; ctx.fill();
-  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.fillText('forward (theta=0)', cx + S * 0.6, cy - 8);
+  ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.fillText('forward (θ=0)', cx + S * 0.6, cy - 8);
 }
 
 function drawPartial(x, y, w, h) {
@@ -213,7 +213,7 @@ function drawPolar(x, y, w, h) {
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(cx + S * rP * Math.cos(thP), cy - S * rP * Math.sin(thP), 4, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(241,192,105,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('theta=0', cx + S * 0.9, cy - 6); ctx.fillText('theta=pi', cx - S - 4, cy - 6);
+  ctx.fillText('θ=0', cx + S * 0.9, cy - 6); ctx.fillText('θ=π', cx - S - 4, cy - 6);
   ctx.fillStyle = 'rgba(200,215,240,0.7)';
   ctx.fillText(`sigma_tot = ${st.sigma.toFixed(3)}   dsigma/dOmega(${(thP * 180 / Math.PI).toFixed(0)}) = ${st.R[Math.round(thP / Math.PI * NTH)].toFixed(2)}`, x + 10, y + h - 10);
 }

@@ -82,7 +82,7 @@ function render() {
   ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('complex s-plane: F(s) domain-coloured (hue = phase, brightness = |F|)', PX + 8, PY + 16);
   ctx.fillStyle = 'rgba(120,200,255,0.9)';
-  ctx.fillText('Fourier axis  s = i omega', x0 + 6, PY + PH - 8);
+  ctx.fillText('Fourier axis  s = i ω', x0 + 6, PY + PH - 8);
   ctx.fillStyle = '#fb7185'; ctx.fillText('x = pole', PX + 8, PY + PH - 8);
 
   // Diagnostics: f(t) and |F(omega)|^2 (the |F| cut along the i-axis).

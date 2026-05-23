@@ -162,7 +162,7 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = tok.accentCool;
-  ctx.fillText('y(x, t) = sin(n pi x / L) cos(2 pi f_n t)', 60, H - 24);
+  ctx.fillText('y(x, t) = sin(n π x / L) cos(2 π f_n t)', 60, H - 24);
   ctx.fillStyle = tok.accentWarm;
   ctx.textAlign = 'right';
   ctx.fillText('orange dots: antinodes', W - 60, H - 24);

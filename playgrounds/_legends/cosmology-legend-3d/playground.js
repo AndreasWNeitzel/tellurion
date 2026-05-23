@@ -417,7 +417,7 @@ function drawCMBMode(cam) {
   ctx.fillText(`T_LSS = ${(T_LAST_SCATTERING).toFixed(0)} K (at z = ${Z_LAST_SCATTERING})`, 14, H - 32);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('Delta T / T ~ 10^-5 anisotropies are the seeds of all later structure.', 14, H - 14);
+  ctx.fillText('Δ T / T ~ 10^-5 anisotropies are the seeds of all later structure.', 14, H - 14);
 }
 
 // =========================================================================
@@ -478,7 +478,7 @@ function drawInflationMode() {
   // Axes labels.
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('phi (M_Pl)', lpx + lpw - 60, lpy + lph - 12);
+  ctx.fillText('φ (M_Pl)', lpx + lpw - 60, lpy + lph - 12);
   ctx.fillText('V', lpx + 8, lpy + 18);
 
   // Right half: (n_s, r) plane with Planck box.
@@ -510,7 +510,7 @@ function drawInflationMode() {
   ctx.strokeRect(xForN(0.957), yForR(0.061), xForN(0.973) - xForN(0.957), yForR(0) - yForR(0.061));
   ctx.fillStyle = 'rgba(120, 220, 200, 0.95)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Planck 2-sigma', xForN(0.957) + 4, yForR(0.061) + 12);
+  ctx.fillText('Planck 2-σ', xForN(0.957) + 4, yForR(0.061) + 12);
 
   // Track both potentials' (n_s, r) for N = 30..70.
   const tracks = [

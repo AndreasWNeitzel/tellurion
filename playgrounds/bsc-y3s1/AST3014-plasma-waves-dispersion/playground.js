@@ -48,11 +48,11 @@ function grid() {
   for (let e = -2; e <= 1; e += 1) { const y = ly(10 ** e); ctx.beginPath(); ctx.moveTo(PX0, y); ctx.lineTo(PX1, y); ctx.stroke(); ctx.fillText('1e' + e, PX0 - 6, y + 3); }
   ctx.fillStyle = 'rgba(200,210,230,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('k  (omega_p / c units)', (PX0 + PX1) / 2 - 60, H - 64);
-  ctx.save(); ctx.translate(16, (PY0 + PY1) / 2 + 30); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'left'; ctx.fillText('omega / omega_p', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(16, (PY0 + PY1) / 2 + 30); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'left'; ctx.fillText('ω / omega_p', 0, 0); ctx.restore();
   // light line omega = c k
   ctx.strokeStyle = 'rgba(120,200,255,0.4)'; ctx.setLineDash([4, 4]); ctx.beginPath();
   ctx.moveTo(lx(WLO / C), ly(WLO)); ctx.lineTo(lx(WHI / C), ly(WHI)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(120,200,255,0.6)'; ctx.fillText('omega = c k', lx(WHI / C) - 70, ly(WHI) + 14);
+  ctx.fillStyle = 'rgba(120,200,255,0.6)'; ctx.fillText('ω = c k', lx(WHI / C) - 70, ly(WHI) + 14);
   // omega_p reference
   ctx.strokeStyle = 'rgba(255,210,120,0.45)'; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(PX0, ly(st.wpRel)); ctx.lineTo(PX1, ly(st.wpRel)); ctx.stroke(); ctx.setLineDash([]);
@@ -100,7 +100,7 @@ function draw() {
     }
     ctx.stroke();
     ctx.fillStyle = 'rgba(180,200,230,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-    ctx.fillText('wave at (k, omega), travelling at phase speed', ix0, iy + 24);
+    ctx.fillText('wave at (k, ω), travelling at phase speed', ix0, iy + 24);
 
     const vph = mk.w / mk.k;
     let vgr = vph;

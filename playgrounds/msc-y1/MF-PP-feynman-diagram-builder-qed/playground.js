@@ -133,12 +133,12 @@ function drawDiagram(x, y, w, h) {
         fermion(xeIn, cy + dy, xV1, cy, cE, '', 0, 0);
         photon(xV1, xV2, cy, cG);
         ctx.fillStyle = cG; ctx.font = fontString(canvas, 'caption', 'mono');
-        ctx.fillText('gamma* (q^2 = t, spacelike)', (xV1 + xV2) / 2 - 58, cy - 16);
+        ctx.fillText('γ* (q^2 = t, spacelike)', (xV1 + xV2) / 2 - 58, cy - 16);
       } else {
         // s-channel: standard diagram
         photon(xV1, xV2, cy, cG);
         ctx.fillStyle = cG; ctx.font = fontString(canvas, 'caption', 'mono');
-        ctx.fillText('gamma*  (q^2 = s)', (xV1 + xV2) / 2 - 44, cy - 16);
+        ctx.fillText('γ*  (q^2 = s)', (xV1 + xV2) / 2 - 44, cy - 16);
       }
     } else {
       // photon -> fermion loop (vacuum polarisation) -> photon
@@ -287,7 +287,7 @@ function drawAux(x, y, w, h) {
   ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', gx - 4, gy + gh + 14); ctx.fillText('90', gx + gw / 2 - 8, gy + gh + 14);
   ctx.fillText('180', gx + gw - 16, gy + gh + 14);
-  ctx.fillText('dsigma/dOmega vs theta -- symmetric about 90 deg', gx + 8, gy + 14);
+  ctx.fillText('dsigma/dOmega vs θ -- symmetric about 90 deg', gx + 8, gy + 14);
 }
 
 function draw() {

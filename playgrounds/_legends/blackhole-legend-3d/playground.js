@@ -740,7 +740,7 @@ function drawLensingMode(cam) {
   ctx.fillText('LENSING (Refsdal 1964): drag the cyan source dot on the canvas to move it across the BH.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('When the source crosses the BH (beta = 0), the two images merge into a complete Einstein ring.', 14, 70);
+  ctx.fillText('When the source crosses the BH (β = 0), the two images merge into a complete Einstein ring.', 14, 70);
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`beta = (${bx.toFixed(2)}, ${by.toFixed(2)}) theta_E,  |beta| = ${beta.toFixed(2)} theta_E`, 14, H - 50);
   ctx.fillText(`mu_+ = ${mu_plus.toFixed(2)}  mu_- = ${mu_minus.toFixed(2)}  mu_total = ${mu.toFixed(2)}`, 14, H - 32);
@@ -941,11 +941,11 @@ function drawFrameDragMode(cam) {
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Each arrow is a GYROSCOPE that started pointing to "infinity-anchored north." It precesses at omega(r) ~ 2 chi / r^3.', 14, 70);
-  ctx.fillText('White particles dropped at rest from r = 3, 5, 7 M: chi = 0 they fall straight; chi > 0 they spiral with the dragged spacetime.', 14, 88);
+  ctx.fillText('White particles dropped at rest from r = 3, 5, 7 M: χ = 0 they fall straight; χ > 0 they spiral with the dragged spacetime.', 14, 88);
   if (a < 0.02) {
     ctx.fillStyle = 'rgba(255, 130, 130, 0.95)';
     ctx.font = fontString(canvas, 'caption');
-    ctx.fillText('Set chi > 0 to see the gyroscopes precess and the dropped particle spiral inward.', 14, 106);
+    ctx.fillText('Set χ > 0 to see the gyroscopes precess and the dropped particle spiral inward.', 14, 106);
   }
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'caption', 'mono');
@@ -1080,7 +1080,7 @@ function drawSpacetimeMode(cam) {
   ctx.fillText('Spacetime as geometry: Flamm embedding + photons traveling on the curved surface.', 14, 52);
   ctx.font = fontString(canvas, 'caption');
   ctx.fillText('Photons at large b escape after a deflection; at b < 2.598 R_s they spiral down the throat and are captured.', 14, 70);
-  ctx.fillText('z(r) = 2 sqrt(R_s (r - R_s)); the surface is the spatial geometry of a t = const, theta = pi/2 slice.', 14, 88);
+  ctx.fillText('z(r) = 2 sqrt(R_s (r - R_s)); the surface is the spatial geometry of a t = const, θ = π/2 slice.', 14, 88);
   ctx.fillStyle = 'rgba(255, 180, 100, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('orange ring: horizon throat; white dashed: photon sphere at 1.5 R_s', 14, H - 14);
@@ -1156,7 +1156,7 @@ function drawRingdownMode(_cam) {
   ctx.fillText('Ringdown: the post-merger Kerr BH oscillates and decays in its (l,m,n)=(2,2,0) QNM.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('The bulge co-rotates at the QNM frequency; its amplitude decays by 1/e in tau (damping time).', 14, 70);
+  ctx.fillText('The bulge co-rotates at the QNM frequency; its amplitude decays by 1/e in τ (damping time).', 14, 70);
   ctx.fillText('LIGO/Virgo measures the resulting damped sinusoid below.', 14, 88);
 
   // Strain panel.
@@ -1168,7 +1168,7 @@ function drawRingdownMode(_cam) {
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('gravitational-wave strain h(t) = h_0 exp(-t/tau) cos(2 pi f t)', px0 + 8, py0 - 6);
+  ctx.fillText('gravitational-wave strain h(t) = h_0 exp(-t/τ) cos(2 π f t)', px0 + 8, py0 - 6);
   const midY = py0 + ph / 2;
   ctx.strokeStyle = 'rgba(200, 210, 230, 0.18)';
   ctx.setLineDash([3, 3]);
@@ -1213,7 +1213,7 @@ function drawRingdownMode(_cam) {
   ctx.fillText(`f = ${props.f_Hz.toExponential(2)} Hz  tau = ${(props.tau_s * 1000).toFixed(2)} ms  Q = ${props.Q.toFixed(2)}`, px0 + 8, py0 + ph + 18);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('GW150914 fit: f ~ 251 Hz, tau ~ 4 ms (M = 62 Msun, chi = 0.69).', px0 + 8, py0 + ph + 32);
+  ctx.fillText('GW150914 fit: f ~ 251 Hz, τ ~ 4 ms (M = 62 Msun, χ = 0.69).', px0 + 8, py0 + ph + 32);
 }
 
 // =========================================================================
@@ -1275,7 +1275,7 @@ function drawHawkingMode(cam) {
   ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('Planck spectrum B_nu(T = T_H)  (intensity vs. log nu)', px0 + 8, py0 - 6);
+  ctx.fillText('Planck spectrum B_nu(T = T_H)  (intensity vs. log ν)', px0 + 8, py0 - 6);
 
   const log_nu_min = 4, log_nu_max = 22;   // Hz.
   const k_B = 1.380649e-23, h_pl = 6.62607015e-34, c_si = 2.998e8;
@@ -1380,7 +1380,7 @@ function drawHawkingMode(cam) {
   ctx.fillText('Hawking radiation: blackbody emission at T_H from the horizon.', 14, 52);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('Move mass slider through 1e-12 M_sun (primordial, gamma) to 1e9 M_sun (SMBH, deep radio).', 14, 70);
+  ctx.fillText('Move mass slider through 1e-12 M_sun (primordial, γ) to 1e9 M_sun (SMBH, deep radio).', 14, 70);
   ctx.fillText('Cyan tail: outgoing positive-energy quantum. Red tail: negative-energy partner sinks in.', 14, 88);
 }
 
