@@ -80,7 +80,38 @@ for (const path of walk('playgrounds')) {
 cards.sort((a, b) => a.title.localeCompare(b.title));
 
 const TAGS = ['mechanics', 'quantum', 'electromagnetism', 'optics', 'statistical-physics', 'fluids-mhd', 'solid-state', 'cosmology', 'relativity', 'stellar', 'medical-physics', 'numerics'];
-const heroPool = cards.filter(c => c.tier === 'hero');
+// Curated Featured pool. Slugs (not curriculum_year=hero) drive the
+// homepage Featured row, the gold-star indicator on cards, and the
+// featured-count stat. Edit this list to recurate.
+const CURATED_FEATURED_SLUGS = new Set([
+  'CC1017-pathfinding-dijkstra-astar',
+  'gravitational-lensing-3d',
+  'MAA-DM-backprop-tiny-net',
+  'blackhole-legend-3d',
+  'hydrogen-orbitals-3d',
+  'M3012-fourier-epicycle-drawing',
+  'foucault-pendulum-rotating-earth-3d',
+  'FIS1013-lissajous-figures',
+  'map-projection-explorer',
+  'AST2004-mercury-precession-pn',
+  'FIS2014-potts-q-state-transition',
+  'special-relativity-starship-3d',
+  'soliton-canal-3d',
+  'AST2004-stellar-blackbody-vs-line',
+  'lorenz-attractor-3d-ensemble',
+  'FIS1013-tennis-racket-theorem',
+  'FIS2002-wave-2d-complex-geometry',
+  'FIS2014-thermodynamic-engine-simulator',
+  'wave-heightfield-clickable-3d',
+  'FIS2013-cyclotron-uniform-b',
+  'earth-eclipse-prediction-3d',
+  'earth-moon-tides-3d',
+  'MAA-AS-stellar-oscillation-modes',
+  'MAA-DM-bayesian-coin-update',
+  'FIS1014-poynting-vector-wave-3d',
+]);
+const isFeatured = (c) => CURATED_FEATURED_SLUGS.has(c.slug);
+const heroPool = cards.filter(isFeatured);
 
 // Map an arbitrary first-tag to one of the 12 canonical categories
 // (specs carry a free tags[] list, not a primary_tag field).
@@ -134,7 +165,7 @@ for (const c of cards) {
 
 function cardHTML(c, featured = false) {
   const thumb = c.thumb ? `assets/thumbs/${c.thumb}` : '';
-  const star = c.tier === 'hero' ? '<span class="cstar" aria-label="featured">&#9733;</span>' : '';
+  const star = isFeatured(c) ? '<span class="cstar" aria-label="featured">&#9733;</span>' : '';
   return `
   <a class="card${featured ? ' card-f' : ''}" data-title="${c.title.toLowerCase()}" data-uc="${(c.primary_uc || '').toLowerCase()}" data-year="${c.curriculum_year}" data-tags="${c.tags.join(' ')}" data-order="${c.order}" data-group="${c.group}" style="--tagc:${c.tagcolor}" href="${c.path}/index.html">
     <div class="cimg"${thumb ? ` data-thumb="${thumb}"` : ''}><div class="cph"></div>${star}<span class="lvl">${shortBadge(c.badge)}</span></div>
@@ -193,7 +224,7 @@ const spotlightHTML = spotlight
 // Hero stats line. Each number is computed from the catalogue; a stat
 // that cannot be computed (count 0) is dropped together with its
 // divider rather than shown as "0" or "N/A".
-const nHeroTier = cards.filter(c => c.tier === 'hero').length;
+const nHeroTier = cards.filter(isFeatured).length;
 const nCategories = new Set(cards.map(c => c.ptag).filter(Boolean)).size;
 const nYears = new Set(cards.map(c => c.badge).filter(b => /Y\d/.test(b))).size;
 const heroStats = [
