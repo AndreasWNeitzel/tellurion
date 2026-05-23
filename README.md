@@ -13,7 +13,7 @@ Public beta. The site is functional and the physics is being reviewed by working
 - `playgrounds/` one directory per simulation, scaffolded from `_template/`. Curriculum playgrounds live under `bsc-y1s1` through `bsc-y3s2` and `msc-y1`. The larger 3D and multi-mode showcase pieces are under `_heroes/` and `_legends/`.
 - `shared/` numerical engines under `engine/`, Canvas2D and SVG primitives and colormaps under `render/`, controls (knobs, share-state URL contract) under `controls/`, and the WebGL2 primitives used by the heroes under `engine-gl/`.
 - `scripts/build-landing.mjs` regenerates the landing page from playground `spec.md` frontmatter. `scripts/build-index.mjs` regenerates `docs/INDEX.md`. `scripts/build-curriculum-index.mjs` regenerates `docs/CURRICULUM.md`.
-- `docs/` curriculum mapping, the controlled tag vocabulary, the citation list, and verification standards.
+- `docs/` curriculum mapping (`CURRICULUM.md`), the playground card index (`INDEX.md`), the controlled tag vocabulary (`TAGS.md`), and the source-of-truth bibliography (`CITATIONS.bib`).
 
 ## Run locally
 
@@ -32,21 +32,17 @@ node scripts/build-landing.mjs
 
 ## Testing
 
-Each playground carries two automated gates:
-
-- `invariants.test.mjs` (Vitest): conservation and identity checks on the headless simulation (energy, momentum, probability, detailed balance, analytic limits), at thresholds set in the playground's `spec.md`.
-- `visual.test.mjs` (Playwright): SSIM regression at threshold 0.92 against committed golden frames, run under SwiftShader for reproducible headless capture.
-
-These check that the numerics are stable and the render has not regressed between commits. They do not establish that the physics setup is correct; that review is done by people.
+Each playground ships an `invariants.test.mjs` (Vitest): conservation and identity checks on the headless simulation, at thresholds set in the playground's `spec.md`. These check that the numerics are stable. They do not establish that the physics setup is correct; that review is done by people.
 
 ```
-npx vitest run                 # invariant tests
-npx playwright test            # visual gates
+npx vitest run
 ```
 
-## Contributing
+A pixel-regression suite (`visual.test.mjs` under Playwright, SSIM 0.92) is available for local diagnostic use. Reference frames are not committed; regenerate them locally first with `node scripts/capture-reference.mjs --playground <slug>` and then run `npx playwright test`.
 
-The contribution surface is small. See [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. For corrections to existing playgrounds, an email is faster than a PR: [andreaswneitzel@gmail.com](mailto:andreaswneitzel@gmail.com).
+## Corrections and contributions
+
+For corrections to existing playgrounds, email is the fastest path: [andreaswneitzel@gmail.com](mailto:andreaswneitzel@gmail.com). For larger changes, open an issue before opening a pull request.
 
 ## License
 

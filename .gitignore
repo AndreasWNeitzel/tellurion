@@ -36,6 +36,37 @@ tests/audit-snaps/
 # Internal diagnostic notes
 diagnostics/
 
+# Internal docs and process notes. The user-facing references kept
+# tracked are docs/CURRICULUM.md, docs/INDEX.md, docs/TAGS.md, and
+# docs/CITATIONS.bib. Everything else under docs/ is internal QA,
+# audit reports, build-order notes, hero queues, session logs.
+CONTRIBUTING.md
+NOTES.md
+docs/A11Y_REPORT.md
+docs/AESTHETIC.md
+docs/ARCHITECTURE.md
+docs/AUDIT.md
+docs/BUILD_ORDER.md
+docs/CURRICULUM-BIBLE-BACKLOG.md
+docs/FEEDBACK-*.md
+docs/HERO-GATES.md
+docs/HERO-PROMOTION-QUEUE.md
+docs/HERO_VISUAL_STANDARD.md
+docs/HEROES.md
+docs/INTERACTIVITY_AUDIT.md
+docs/NEEDS-ATTENTION.md
+docs/PERF_REPORT.md
+docs/PLAYGROUND-CATALOGUE.md
+docs/PLAYGROUND-LIST.txt
+docs/PLAYGROUND_SPEC.md
+docs/QUALITY-AUDIT.md
+docs/QUALITY-UPGRADE-REPORT.md
+docs/QUALITY_AUDIT.md
+docs/SESSION-REPORT.md
+docs/SMOKE_REPORT.md
+docs/STATIC-PLOT-AUDIT.md
+docs/VERIFICATION.md
+
 # Scratch / probe scripts (leading underscore is the project's marker)
 scripts/_*.mjs
 
