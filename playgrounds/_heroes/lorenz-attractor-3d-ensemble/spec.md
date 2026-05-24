@@ -180,7 +180,7 @@ In-page gates: `__cpuVsGpu` checks the live ensemble diameter is in the attracto
 
 ## Limiting cases for verification
 
-- rho < 24.74 (sub-critical): trajectories spiral into a stable fixed point, no chaos. This build fixes rho = 28; the sub-critical regime is the prime target for the planned hero-promotion rho slider.
+- rho < 24.74 (sub-critical): trajectories spiral into a stable fixed point, no chaos. This build fixes rho = 28; the sub-critical regime is the prime target for the planned rho slider.
 - Tiny initial ball: the cloud stays coherent for a short transient, then separates exponentially. Larger sigma sharpens the x-y slaving.
 - Volume contraction: the attractor has zero volume, so the rendered sheet is thin from every angle.
 
@@ -196,4 +196,4 @@ The Canvas2D path renderer (same CPU RK4) draws the trajectories directly when t
 ## Risk register
 
 - The `lambda_max` readout is a coarse proxy from the ensemble diameter growth, not a Benettin Lyapunov-spectrum calculation; it lands near the textbook value (~0.9) but is illustrative, not a measurement. Stated in the readout context and here.
-- rho is fixed at 28 in this build. The spec previously claimed a rho slider; that control does not exist here and is deferred to hero-promotion (see DEVNOTES).
+- rho is fixed at 28 in this build. The spec previously claimed a rho slider; that control does not exist here and is deferred (see DEVNOTES).
