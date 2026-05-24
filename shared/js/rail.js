@@ -118,7 +118,7 @@ function renderInvariants(listEl) {
 
   if (invs.length === 0) {
     if (invarView !== 'empty') {
-      listEl.innerHTML = '<li class="rail-empty t-small">No invariants registered</li>';
+      listEl.innerHTML = '<li class="rail-empty t-small">N/A</li>';
       invarView = 'empty';
     }
     return;
