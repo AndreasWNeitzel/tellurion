@@ -14,6 +14,12 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
 </head>
 <body>
 <main class="playground-layout" data-focus="false">
