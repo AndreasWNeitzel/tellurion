@@ -277,6 +277,21 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
     margin: 0 -12px 8px;
     border-bottom: 1px solid var(--border-dim);
   }
+
+  /* About / Credits / Contributing: desktop padding (96/80/64 top) wastes
+     a full phone screen of empty space above the section label. The
+     LAB->content margin of 48 px also dominates the 664 px viewport.
+     Tighten so the section title is reachable within one tap.
+     The base rules sit later in source order with same specificity,
+     so the override needs !important here. */
+  .about        { padding: 40px 0 24px !important; }
+  .credits      { padding: 32px 0 16px !important; }
+  .contributing,
+  .upcoming     { padding: 24px 0 12px !important; }
+  .about .lab,
+  .credits .lab { margin-bottom: 16px !important; }
+  .credits-grid { gap: 24px !important; }
+  .about-grid   { gap: 20px !important; }
 }
 /* Phone landscape: more horizontal room means 3 columns are comfortable;
    short height means tight cards keep multiple rows in view. The
