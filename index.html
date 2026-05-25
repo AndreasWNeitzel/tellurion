@@ -256,6 +256,27 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   .featured-header .featured-meta { font-size: 0.7rem; }
   .landing-hero { padding-bottom: 8px; }
   .landing-featured { padding-top: 8px; }
+
+  /* Sticky search bar under the 56 px nav: lets the user re-search and
+     change sort/grouping without scrolling 30 screens back to the top
+     of the 332-card grid. Chips stay non-sticky (would eat too much
+     vertical space when wrapped to 4 rows); active-filter state is
+     legible from the "Showing N of M, filtered by ..." count above.
+     display:contents on the parent removes its box from layout so the
+     sticky child's containing block becomes #browse (tall enough to
+     stick throughout the entire grid scroll). */
+  .catalog-controls { display: contents; }
+  .catalog-search-row {
+    position: sticky;
+    top: 56px;
+    z-index: 30;
+    background: var(--bg-frosted);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    backdrop-filter: blur(14px) saturate(1.3);
+    padding: 8px 12px;
+    margin: 0 -12px 8px;
+    border-bottom: 1px solid var(--border-dim);
+  }
 }
 /* Phone landscape: more horizontal room means 3 columns are comfortable;
    short height means tight cards keep multiple rows in view. */
