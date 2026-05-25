@@ -8,14 +8,14 @@ See `docs/BUILD_ORDER.md` for the engineering-priority view (which playground an
 
 ## Summary
 
-Total playgrounds: 271
+Total playgrounds: 332
 
 | Status | Count |
 |---|---|
 | draft | 0 |
 | in-progress | 0 |
 | implemented | 0 |
-| verified | 268 |
+| verified | 332 |
 | shipped | 0 |
 
 ## BSc Year 1 Semester 1
@@ -24,29 +24,28 @@ Total playgrounds: 271
 
 ### FIS1013 Mechanics
 
-22 primary; supporting use of this UC appears elsewhere when listed.
+21 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Beats from Superposition of Close Frequencies** ([FIS1013-beats-superposition](../playgrounds/bsc-y1s1/FIS1013-beats-superposition/)). Status: `verified`. `crawford-waves` ch ? (supporting: FIS2016).
+- **Beats from Superposition of Close Frequencies** ([FIS1013-beats-superposition](../playgrounds/bsc-y1s1/FIS1013-beats-superposition/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2016).
 - **Bernoulli Air-Blower Ball** ([FIS1013-bernoulli-air-blower-ball](../playgrounds/bsc-y1s1/FIS1013-bernoulli-air-blower-ball/)). Status: `verified`. `tritton` ch 11.
 - **Bouncing Shapes Concave Surface** ([FIS1013-bouncing-shapes-concave-surface](../playgrounds/bsc-y1s1/FIS1013-bouncing-shapes-concave-surface/)). Status: `verified`. `kleppner` ch 4.
-- **Brachistochrone: Why the Cycloid Wins** ([FIS1013-brachistochrone-cycloid](../playgrounds/bsc-y1s1/FIS1013-brachistochrone-cycloid/)). Status: `verified`. `marion-thornton` ch 6 (supporting: FIS2021).
-- **Catenary: Shape of a Hanging Chain** ([FIS1013-catenary-hanging-chain](../playgrounds/bsc-y1s1/FIS1013-catenary-hanging-chain/)). Status: `verified`. `lemos-analytical` ch 2 (supporting: FIS2021).
+- **Brachistochrone: Why the Cycloid Wins** ([FIS1013-brachistochrone-cycloid](../playgrounds/bsc-y1s1/FIS1013-brachistochrone-cycloid/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
+- **Catenary: Shape of a Hanging Chain** ([FIS1013-catenary-hanging-chain](../playgrounds/bsc-y1s1/FIS1013-catenary-hanging-chain/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
 - **Coupled Pendulums and Normal Modes** ([FIS1013-coupled-pendulums-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-pendulums-normal-modes/)). Status: `verified`. `french-waves` ch 5 (supporting: FIS2016).
-- **Coupled Springs and Normal Modes** ([FIS1013-coupled-springs-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-springs-normal-modes/)). Status: `verified`. `goldstein2001` ch 6 (supporting: FIS2016, FIS2021).
-- **Damped, Driven Oscillator and Resonance** ([FIS1013-damped-driven-oscillator](../playgrounds/bsc-y1s1/FIS1013-damped-driven-oscillator/)). Status: `verified`. `marion-thornton` ch 3 (supporting: FIS2016, FIS1015).
-- **Double Pendulum Phase Portrait and Energy Conservation** ([FIS1013-double-pendulum](../playgrounds/bsc-y1s1/FIS1013-double-pendulum/)). Status: `verified`. `newman2013` ch ? (supporting: FIS2021).
-- **Elastic and Inelastic Collisions in 1D** ([FIS1013-elastic-inelastic-collisions-2d](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/)). Status: `verified`. `marion-thornton` ch 9.
-- **Foucault Pendulum and Coriolis Precession** ([FIS1013-foucault-pendulum](../playgrounds/bsc-y1s1/FIS1013-foucault-pendulum/)). Status: `verified`. `marion-thornton` ch 10.
+- **Coupled Springs and Normal Modes** ([FIS1013-coupled-springs-normal-modes](../playgrounds/bsc-y1s1/FIS1013-coupled-springs-normal-modes/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2016, FIS2021).
+- **Damped, Driven Oscillator and Resonance** ([FIS1013-damped-driven-oscillator](../playgrounds/bsc-y1s1/FIS1013-damped-driven-oscillator/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2016, FIS1015).
+- **Double Pendulum Phase Portrait and Energy Conservation** ([FIS1013-double-pendulum](../playgrounds/bsc-y1s1/FIS1013-double-pendulum/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
+- **Elastic and Inelastic Collisions in 2D** ([FIS1013-elastic-inelastic-collisions-2d](../playgrounds/bsc-y1s1/FIS1013-elastic-inelastic-collisions-2d/)). Status: `verified`. `marion-thornton` ch 9.
 - **Free Fall Stokes vs Quadratic Drag** ([FIS1013-free-fall-stokes-vs-quadratic-drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/)). Status: `verified`. `marion-thornton` ch 2.
-- **Gravity Assist Slingshot** ([FIS1013-gravity-assist-slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/)). Status: `verified`. `bmw1971` ch ? (supporting: MAA-SS).
-- **Gyroscope Precession** ([FIS1013-gyroscope-precession](../playgrounds/bsc-y1s1/FIS1013-gyroscope-precession/)). Status: `verified`. `marion-thornton` ch 11 (supporting: FIS2021).
+- **Gravity Assist Slingshot** ([FIS1013-gravity-assist-slingshot](../playgrounds/bsc-y1s1/FIS1013-gravity-assist-slingshot/)). Status: `verified`. `taylor-mech` ch ? (supporting: MAA-SS).
+- **Gyroscope Precession** ([FIS1013-gyroscope-precession](../playgrounds/bsc-y1s1/FIS1013-gyroscope-precession/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
 - **Inclined Plane Friction** ([FIS1013-inclined-plane-friction](../playgrounds/bsc-y1s1/FIS1013-inclined-plane-friction/)). Status: `verified`. `marion-thornton` ch 2.
-- **Kapitza Inverted Pendulum** ([FIS1013-inverted-pendulum-kapitza](../playgrounds/bsc-y1s1/FIS1013-inverted-pendulum-kapitza/)). Status: `verified`. `landau-lifshitz-mechanics` ch ? (supporting: FIS2021).
-- **Lissajous Figures** ([FIS1013-lissajous-figures](../playgrounds/bsc-y1s1/FIS1013-lissajous-figures/)). Status: `verified`. `crawford-waves` ch 1 (supporting: FIS1015).
-- **Magnus Effect on a Spinning Ball** ([FIS1013-magnus-effect-spinning-ball](../playgrounds/bsc-y1s1/FIS1013-magnus-effect-spinning-ball/)). Status: `verified`. `adair1990` ch ? (supporting: AST3014).
-- **Pendulum on a Moving Cart** ([FIS1013-pendulum-on-moving-cart](../playgrounds/bsc-y1s1/FIS1013-pendulum-on-moving-cart/)). Status: `verified`. `marion-thornton` ch 7 (supporting: FIS2021).
-- **Projectile Motion with Air Drag** ([FIS1013-projectile-with-air-drag](../playgrounds/bsc-y1s1/FIS1013-projectile-with-air-drag/)). Status: `verified`. `marion-thornton` ch 2.
-- **Tautochrone: Cycloid Isochronism** ([FIS1013-tautochrone-isochronism](../playgrounds/bsc-y1s1/FIS1013-tautochrone-isochronism/)). Status: `verified`. `huygens1673` ch ? (supporting: FIS2021).
+- **Kapitza Inverted Pendulum** ([FIS1013-inverted-pendulum-kapitza](../playgrounds/bsc-y1s1/FIS1013-inverted-pendulum-kapitza/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
+- **Lissajous Figures** ([FIS1013-lissajous-figures](../playgrounds/bsc-y1s1/FIS1013-lissajous-figures/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS1015).
+- **Magnus Effect on a Spinning Ball** ([FIS1013-magnus-effect-spinning-ball](../playgrounds/bsc-y1s1/FIS1013-magnus-effect-spinning-ball/)). Status: `verified`. `taylor-mech` ch ? (supporting: AST3014).
+- **Pendulum on a Moving Cart** ([FIS1013-pendulum-on-moving-cart](../playgrounds/bsc-y1s1/FIS1013-pendulum-on-moving-cart/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
+- **Projectile Motion with Air Drag** ([FIS1013-projectile-with-air-drag](../playgrounds/bsc-y1s1/FIS1013-projectile-with-air-drag/)). Status: `verified`. `taylor-mech` ch ?.
+- **Tautochrone: Cycloid Isochronism** ([FIS1013-tautochrone-isochronism](../playgrounds/bsc-y1s1/FIS1013-tautochrone-isochronism/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
 - **Tennis Racket Theorem** ([FIS1013-tennis-racket-theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/)). Status: `verified`. `goldstein-mech` ch 5.
 
 ### M1017 Real Analysis I
@@ -67,32 +66,27 @@ Total playgrounds: 271
 
 ### CC1017 Programming I
 
-3 primary; supporting use of this UC appears elsewhere when listed.
+4 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Big-O Empirical Scaling** ([CC1017-big-o-empirical](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/)). Status: `verified`. `newman2013` ch 4 (supporting: FIS2018).
 - **Floating-Point Precision Pitfalls** ([CC1017-floating-point-precision-pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/)). Status: `verified`. `newman2013` ch 4 (supporting: FIS2018).
 - **Pathfinding Dijkstra Astar** ([CC1017-pathfinding-dijkstra-astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/)). Status: `verified`. `cormen2009` ch 24.
+- **Quadtree N-body and the Barnes-Hut Approximation** ([CC1017-quadtree-nbody-2d](../playgrounds/bsc-y1s1/CC1017-quadtree-nbody-2d/)). Status: `verified`. `barnes-hut1986` ch 1.
 
 ## BSc Year 1 Semester 2
 
-9 playgrounds.
+8 playgrounds.
 
 ### FIS1014 Electromagnetism I
 
 6 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Brewster Angle and Fresnel Equations** ([FIS1014-brewster-angle-fresnel](../playgrounds/bsc-y1s2/FIS1014-brewster-angle-fresnel/)). Status: `verified`. citation pending (supporting: FIS3019).
+- **Brewster Angle and Fresnel Equations** ([FIS1014-brewster-angle-fresnel](../playgrounds/bsc-y1s2/FIS1014-brewster-angle-fresnel/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS3019).
 - **Capacitor Discharge through a Resistor** ([FIS1014-capacitor-discharge-rc](../playgrounds/bsc-y1s2/FIS1014-capacitor-discharge-rc/)). Status: `verified`. `griffithsem2017` ch 7.
 - **Coulomb Equilibrium of Charges** ([FIS1014-coulomb-equilibrium-charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/)). Status: `verified`. `griffiths-em` ch 2.
-- **Electric Field Lines from Point Charges** ([FIS1014-electric-field-lines-charges](../playgrounds/bsc-y1s2/FIS1014-electric-field-lines-charges/)). Status: `verified`. citation pending.
+- **Electric Field Lines from Point Charges** ([FIS1014-electric-field-lines-charges](../playgrounds/bsc-y1s2/FIS1014-electric-field-lines-charges/)). Status: `verified`. `taylor-mech` ch ?.
 - **Gauss Law in 2D** ([FIS1014-gauss-law-flux-through-surface](../playgrounds/bsc-y1s2/FIS1014-gauss-law-flux-through-surface/)). Status: `verified`. `griffithsem2017` ch 2.
 - **Method of Images: Charge Above a Grounded Plane** ([FIS1014-method-of-images-2d](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/)). Status: `verified`. `griffiths-em` ch 3.
-
-### FIS1015 Physics Laboratory I
-
-1 primary; supporting use of this UC appears elsewhere when listed.
-
-- **Michelson Fringe Counter** ([FIS1015-michelson-fringe-counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/)). Status: `deprecated`. `hecht2017` ch 9.
 
 ### M1015 Analysis II
 
@@ -103,14 +97,14 @@ Total playgrounds: 271
 
 ## BSc Year 2 Semester 1
 
-39 playgrounds.
+34 playgrounds.
 
 ### FIS2013 Electromagnetism II
 
 6 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Cyclotron Motion in a Uniform Magnetic Field** ([FIS2013-cyclotron-uniform-b](../playgrounds/bsc-y2s1/FIS2013-cyclotron-uniform-b/)). Status: `verified`. citation pending (supporting: MAA-PL).
-- **E x B Drift and the Cycloid** ([FIS2013-exb-drift-cycloid](../playgrounds/bsc-y2s1/FIS2013-exb-drift-cycloid/)). Status: `verified`. citation pending (supporting: MAA-PL).
+- **Cyclotron Motion in a Uniform Magnetic Field** ([FIS2013-cyclotron-uniform-b](../playgrounds/bsc-y2s1/FIS2013-cyclotron-uniform-b/)). Status: `verified`. `pathria` ch ? (supporting: MAA-PL).
+- **E x B Drift and the Cycloid** ([FIS2013-exb-drift-cycloid](../playgrounds/bsc-y2s1/FIS2013-exb-drift-cycloid/)). Status: `verified`. `pathria` ch ? (supporting: MAA-PL).
 - **Larmor Radiation Pattern** ([FIS2013-larmor-radiation-pattern](../playgrounds/bsc-y2s1/FIS2013-larmor-radiation-pattern/)). Status: `verified`. `griffiths-em` ch 11.
 - **Lienard-Wiechert Beaming and Synchrotron Lobe** ([FIS2013-lienard-wiechert-synchrotron](../playgrounds/bsc-y2s1/FIS2013-lienard-wiechert-synchrotron/)). Status: `verified`. `jackson3e` ch 14 (supporting: AST3016).
 - **Skin Effect in a Conductor** ([FIS2013-skin-effect-1d-conductor](../playgrounds/bsc-y2s1/FIS2013-skin-effect-1d-conductor/)). Status: `verified`. `griffiths-em` ch 9.
@@ -118,49 +112,44 @@ Total playgrounds: 271
 
 ### FIS2014 Thermal Physics
 
-9 primary; supporting use of this UC appears elsewhere when listed.
+8 primary; supporting use of this UC appears elsewhere when listed.
 
-- **BTW Sandpile and Self-Organized Criticality** ([FIS2014-abelian-sandpile-btw](../playgrounds/bsc-y2s1/FIS2014-abelian-sandpile-btw/)). Status: `verified`. `bak1996` ch ? (supporting: FIS2018, MAA-NM).
+- **BTW Sandpile and Self-Organized Criticality** ([FIS2014-abelian-sandpile-btw](../playgrounds/bsc-y2s1/FIS2014-abelian-sandpile-btw/)). Status: `verified`. `newmanbarkema1999` ch ? (supporting: FIS2018, MAA-NM).
 - **Adiabatic vs Isothermal Processes on a PV Diagram** ([FIS2014-adiabatic-vs-isothermal-pv](../playgrounds/bsc-y2s1/FIS2014-adiabatic-vs-isothermal-pv/)). Status: `verified`. `callen` ch 4.
 - **Engine Cycle Explorer** ([FIS2014-engine-cycle-explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/)). Status: `verified`. `callen` ch 4.
-- **Equipartition from Microscopic Collisions** ([FIS2014-equipartition-from-collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/)). Status: `deprecated`. `reif` ch 7.
 - **Frustrated Triangular Antiferromagnet** ([FIS2014-frustrated-triangular-af](../playgrounds/bsc-y2s1/FIS2014-frustrated-triangular-af/)). Status: `verified`. `newmanbarkema1999` ch ? (supporting: FIS2018, MAA-NM).
-- **Maxwell-Boltzmann Emergence from Hard-Disk Collisions** ([FIS2014-maxwell-boltzmann-emergence](../playgrounds/bsc-y2s1/FIS2014-maxwell-boltzmann-emergence/)). Status: `verified`. `reif` ch 1.
-- **2D Site Percolation** ([FIS2014-percolation-2d](../playgrounds/bsc-y2s1/FIS2014-percolation-2d/)). Status: `verified`. `staufferaharony1994` ch 2 (supporting: FIS2018, MAA-NM).
-- **q-state Potts Model on a 2D Square Lattice** ([FIS2014-potts-q-state-transition](../playgrounds/bsc-y2s1/FIS2014-potts-q-state-transition/)). Status: `verified`. `wu1982potts` ch ? (supporting: FIS2018, MAA-NM).
+- **Maxwell-Boltzmann Emergence from Hard-Disk Collisions** ([FIS2014-maxwell-boltzmann-emergence](../playgrounds/bsc-y2s1/FIS2014-maxwell-boltzmann-emergence/)). Status: `verified`. `newmanbarkema1999` ch ?.
+- **2D Site Percolation** ([FIS2014-percolation-2d](../playgrounds/bsc-y2s1/FIS2014-percolation-2d/)). Status: `verified`. `newmanbarkema1999` ch ? (supporting: FIS2018, MAA-NM).
+- **q-state Potts Model on a 2D Square Lattice** ([FIS2014-potts-q-state-transition](../playgrounds/bsc-y2s1/FIS2014-potts-q-state-transition/)). Status: `verified`. `newmanbarkema1999` ch ? (supporting: FIS2018, MAA-NM).
 - **2D XY Model and the BKT Vortex Transition** ([FIS2014-xy-model-bkt](../playgrounds/bsc-y2s1/FIS2014-xy-model-bkt/)). Status: `verified`. `newmanbarkema1999` ch ? (supporting: FIS2018, MAA-NM).
 
 ### FIS2016 Waves and Continuous Media
 
-8 primary; supporting use of this UC appears elsewhere when listed.
+7 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Airy Diffraction Pattern from a Circular Aperture** ([FIS2016-airy-pattern-circular-aperture](../playgrounds/bsc-y2s1/FIS2016-airy-pattern-circular-aperture/)). Status: `verified`. `hecht2017` ch ? (supporting: FIS3019, MAA-OT).
-- **Doppler Effect from a Moving Source** ([FIS2016-doppler-effect](../playgrounds/bsc-y2s1/FIS2016-doppler-effect/)). Status: `verified`. `crawford-waves` ch 4 (supporting: AST2004).
+- **Airy Diffraction Pattern from a Circular Aperture** ([FIS2016-airy-pattern-circular-aperture](../playgrounds/bsc-y2s1/FIS2016-airy-pattern-circular-aperture/)). Status: `verified`. `ashcroft-mermin` ch ? (supporting: FIS3019, MAA-OT).
+- **Doppler Effect from a Moving Source** ([FIS2016-doppler-effect](../playgrounds/bsc-y2s1/FIS2016-doppler-effect/)). Status: `verified`. `ashcroft-mermin` ch ? (supporting: AST2004).
 - **Group vs Phase Velocity in a Dispersive Medium** ([FIS2016-group-vs-phase-velocity](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/)). Status: `verified`. `crawford-waves` ch 6.
-- **Single, Double, and Multi-Slit Diffraction** ([FIS2016-single-double-multi-slit](../playgrounds/bsc-y2s1/FIS2016-single-double-multi-slit/)). Status: `verified`. citation pending (supporting: FIS3019).
-- **Standing Waves on a String** ([FIS2016-standing-waves-string-modes](../playgrounds/bsc-y2s1/FIS2016-standing-waves-string-modes/)). Status: `verified`. `french-vibrations` ch 5.
+- **Standing Waves on a String** ([FIS2016-standing-waves-string-modes](../playgrounds/bsc-y2s1/FIS2016-standing-waves-string-modes/)). Status: `verified`. `ashcroft-mermin` ch ?.
 - **Transverse vs Longitudinal Modes on a 1D Chain** ([FIS2016-transverse-vs-longitudinal-mode](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/)). Status: `verified`. `crawford-waves` ch 5.
-- **Wave on a String: Fixed vs Free End Reflection** ([FIS2016-wave-on-string-reflection](../playgrounds/bsc-y2s1/FIS2016-wave-on-string-reflection/)). Status: `verified`. `french-vibrations` ch 7.
+- **Wave on a String: Fixed vs Free End Reflection** ([FIS2016-wave-on-string-reflection](../playgrounds/bsc-y2s1/FIS2016-wave-on-string-reflection/)). Status: `verified`. `ashcroft-mermin` ch ?.
 - **Wavepacket Dispersion in 1D** ([FIS2016-wavepacket-dispersion-1d](../playgrounds/bsc-y2s1/FIS2016-wavepacket-dispersion-1d/)). Status: `verified`. `eisberg-resnick` ch 5 (supporting: FIS2017).
 
 ### AST2004 Astrophysics
 
-14 primary; supporting use of this UC appears elsewhere when listed.
+11 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Bohr Hydrogen Spectrum** ([AST2004-bohr-hydrogen-spectrum](../playgrounds/bsc-y2s1/AST2004-bohr-hydrogen-spectrum/)). Status: `verified`. `carroll-ostlie` ch 5 (supporting: FIS2017).
 - **Jeans Instability** ([AST2004-jeans-instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/)). Status: `verified`. `carroll-ostlie` ch 12 (supporting: MAA-GD).
 - **Keplerian Orbit Elements** ([AST2004-kepler-orbit-elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/)). Status: `verified`. `carroll-ostlie` ch 2 (supporting: AST3015).
-- **Kepler Orbit Explorer** ([AST2004-kepler-orbit-explorer](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-explorer/)). Status: `verified`. `newman2013` ch ?.
-- **Lagrange Points of the Circular Restricted Three-Body Problem** ([AST2004-lagrange-points-cr3bp](../playgrounds/bsc-y2s1/AST2004-lagrange-points-cr3bp/)). Status: `verified`. `binneytremaine2008` ch ? (supporting: FIS2021).
-- **Perihelion Precession in a Schwarzschild Effective Potential** ([AST2004-mercury-precession-pn](../playgrounds/bsc-y2s1/AST2004-mercury-precession-pn/)). Status: `verified`. `binneytremaine2008` ch ? (supporting: AST3017).
-- **Radial Velocity Curve from Orbital Elements** ([AST2004-radial-velocity-orbital-trace](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/)). Status: `verified`. `carroll-ostlie` ch 7 (supporting: AST3015).
-- **Tidal Disruption Near a Massive Primary** ([AST2004-roche-tidal-disruption](../playgrounds/bsc-y2s1/AST2004-roche-tidal-disruption/)). Status: `verified`. `binneytremaine2008` ch ? (supporting: MAA-HE).
-- **Rotation Curve Explorer** ([AST2004-rotation-curve-explorer](../playgrounds/bsc-y2s1/AST2004-rotation-curve-explorer/)). Status: `verified`. `binneytremaine2008` ch ? (supporting: MAA-GD).
+- **Kepler Orbit Explorer** ([AST2004-kepler-orbit-explorer](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-explorer/)). Status: `verified`. `carroll-ostlie` ch ?.
+- **Lagrange Points of the Circular Restricted Three-Body Problem** ([AST2004-lagrange-points-cr3bp](../playgrounds/bsc-y2s1/AST2004-lagrange-points-cr3bp/)). Status: `verified`. `carroll-ostlie` ch ? (supporting: FIS2021).
+- **Perihelion Precession in a Schwarzschild Effective Potential** ([AST2004-mercury-precession-pn](../playgrounds/bsc-y2s1/AST2004-mercury-precession-pn/)). Status: `verified`. `carroll-ostlie` ch ? (supporting: AST3017).
+- **Tidal Disruption Near a Massive Primary** ([AST2004-roche-tidal-disruption](../playgrounds/bsc-y2s1/AST2004-roche-tidal-disruption/)). Status: `verified`. `carroll-ostlie` ch ? (supporting: MAA-HE).
 - **Saha-Boltzmann Hydrogen Ionization** ([AST2004-saha-boltzmann-ionization](../playgrounds/bsc-y2s1/AST2004-saha-boltzmann-ionization/)). Status: `verified`. `carroll-ostlie` ch 8 (supporting: MAA-SP).
-- **Schwarzschild Effective Potential and the ISCO** ([AST2004-schwarzschild-effective-potential](../playgrounds/bsc-y2s1/AST2004-schwarzschild-effective-potential/)). Status: `verified`. `schutz-firstcourse` ch 9 (supporting: AST3017).
+- **Schwarzschild Effective Potential and the ISCO** ([AST2004-schwarzschild-effective-potential](../playgrounds/bsc-y2s1/AST2004-schwarzschild-effective-potential/)). Status: `verified`. `carroll-ostlie` ch ? (supporting: AST3017).
 - **Stellar Blackbody + Absorption Lines** ([AST2004-stellar-blackbody-vs-line](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/)). Status: `verified`. `carroll-ostlie` ch 3 (supporting: MAA-SP).
-- **Three-Body Figure-Eight Choreography** ([AST2004-three-body-orbit](../playgrounds/bsc-y2s1/AST2004-three-body-orbit/)). Status: `verified`. `newman2013` ch ? (supporting: FIS2021, FIS1013).
-- **Mandel-Agol Analytic Transit** ([AST2004-transit-mandel-agol-analytic](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/)). Status: `verified`. `mandelagol2002` ch -1 (supporting: AST3015).
+- **Three-Body Figure-Eight Choreography** ([AST2004-three-body-orbit](../playgrounds/bsc-y2s1/AST2004-three-body-orbit/)). Status: `verified`. `carroll-ostlie` ch ? (supporting: FIS2021, FIS1013).
 
 ### M2037 Analysis III
 
@@ -171,66 +160,66 @@ Total playgrounds: 271
 
 ## BSc Year 2 Semester 2
 
-28 playgrounds.
+26 playgrounds.
 
 ### FIS2017 Modern Physics
 
-4 primary; supporting use of this UC appears elsewhere when listed.
+2 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Compton Scattering Kinematics** ([FIS2017-compton-scattering-kinematics](../playgrounds/bsc-y2s2/FIS2017-compton-scattering-kinematics/)). Status: `verified`. `eisberg-resnick` ch 2.
-- **Davisson-Germer Electron Diffraction** ([FIS2017-davisson-germer-diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/)). Status: `verified`. `eisberg-resnick` ch 3.
 - **de Broglie Wavelength** ([FIS2017-de-broglie-wavelength](../playgrounds/bsc-y2s2/FIS2017-de-broglie-wavelength/)). Status: `verified`. `eisberg-resnick` ch 3.
-- **Photoelectric Effect Threshold** ([FIS2017-photoelectric-effect-threshold](../playgrounds/bsc-y2s2/FIS2017-photoelectric-effect-threshold/)). Status: `verified`. `eisberg-resnick` ch 2.
 
 ### FIS2018 Computational Physics
 
 7 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Advection Scheme Shootout** ([FIS2018-advection-scheme-shootout](../playgrounds/bsc-y2s2/FIS2018-advection-scheme-shootout/)). Status: `verified`. `leveque1992` ch 9 (supporting: MAA-NM).
-- **Gauss-Legendre vs Trapezoid Quadrature** ([FIS2018-gauss-quadrature-vs-trapezoid](../playgrounds/bsc-y2s2/FIS2018-gauss-quadrature-vs-trapezoid/)). Status: `verified`. `trefethen-spectral` ch ? (supporting: M3012, MAA-NM).
+- **Advection Scheme Shootout** ([FIS2018-advection-scheme-shootout](../playgrounds/bsc-y2s2/FIS2018-advection-scheme-shootout/)). Status: `verified`. `hecht-optics` ch ? (supporting: MAA-NM).
+- **Gauss-Legendre vs Trapezoid Quadrature** ([FIS2018-gauss-quadrature-vs-trapezoid](../playgrounds/bsc-y2s2/FIS2018-gauss-quadrature-vs-trapezoid/)). Status: `verified`. `hecht-optics` ch ? (supporting: M3012, MAA-NM).
 - **Linear System: Direct vs Iterative** ([FIS2018-linear-system-direct-vs-iterative](../playgrounds/bsc-y2s2/FIS2018-linear-system-direct-vs-iterative/)). Status: `verified`. `villate-vpython` ch 6.
-- **Monte Carlo Integration Convergence** ([FIS2018-mc-integration-convergence](../playgrounds/bsc-y2s2/FIS2018-mc-integration-convergence/)). Status: `verified`. citation pending (supporting: MAA-NM, MAA-ST).
+- **Monte Carlo Integration Convergence** ([FIS2018-mc-integration-convergence](../playgrounds/bsc-y2s2/FIS2018-mc-integration-convergence/)). Status: `verified`. `hecht-optics` ch ? (supporting: MAA-NM, MAA-ST).
 - **ODE Solvers: Euler vs RK4 vs RK45** ([FIS2018-ode-solver-euler-rk4-rk45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/)). Status: `verified`. `villate-vpython` ch 5.
 - **Root Finding: Bisection, Newton, Secant** ([FIS2018-root-finding-bisect-newton-secant](../playgrounds/bsc-y2s2/FIS2018-root-finding-bisect-newton-secant/)). Status: `verified`. `villate-vpython` ch 4.
-- **Runge Phenomenon and Chebyshev Cure** ([FIS2018-runge-vs-chebyshev](../playgrounds/bsc-y2s2/FIS2018-runge-vs-chebyshev/)). Status: `verified`. `trefethen-spectral` ch ? (supporting: M3012, MAA-NM).
+- **Runge Phenomenon and Chebyshev Cure** ([FIS2018-runge-vs-chebyshev](../playgrounds/bsc-y2s2/FIS2018-runge-vs-chebyshev/)). Status: `verified`. `hecht-optics` ch ? (supporting: M3012, MAA-NM).
 
 ### FIS2021 Analytical Mechanics
 
 17 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Billiards - Circle, Stadium, Sinai** ([FIS2021-billiards-circle-stadium-sinai](../playgrounds/bsc-y2s2/FIS2021-billiards-circle-stadium-sinai/)). Status: `verified`. `berry1981` ch ?.
-- **Kuramoto Oscillators and Synchronization** ([FIS2021-coupled-kuramoto-oscillators](../playgrounds/bsc-y2s2/FIS2021-coupled-kuramoto-oscillators/)). Status: `verified`. `kuramoto1984` ch ?.
-- **Driven Damped Duffing Oscillator** ([FIS2021-duffing-oscillator](../playgrounds/bsc-y2s2/FIS2021-duffing-oscillator/)). Status: `verified`. `strogatz2024` ch ? (supporting: FIS1013).
-- **FitzHugh-Nagumo Excitable Neuron** ([FIS2021-fitzhugh-nagumo-excitable](../playgrounds/bsc-y2s2/FIS2021-fitzhugh-nagumo-excitable/)). Status: `verified`. `fitzhugh-nagumo1961` ch ?.
+- **Billiards - Circle, Stadium, Sinai** ([FIS2021-billiards-circle-stadium-sinai](../playgrounds/bsc-y2s2/FIS2021-billiards-circle-stadium-sinai/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Kuramoto Oscillators and Synchronization** ([FIS2021-coupled-kuramoto-oscillators](../playgrounds/bsc-y2s2/FIS2021-coupled-kuramoto-oscillators/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Driven Damped Duffing Oscillator** ([FIS2021-duffing-oscillator](../playgrounds/bsc-y2s2/FIS2021-duffing-oscillator/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS1013).
+- **FitzHugh-Nagumo Excitable Neuron** ([FIS2021-fitzhugh-nagumo-excitable](../playgrounds/bsc-y2s2/FIS2021-fitzhugh-nagumo-excitable/)). Status: `verified`. `griffithsqm2018` ch ?.
 - **Hamiltonian Phase-Space Flow** ([FIS2021-hamiltonian-phase-space-flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/)). Status: `verified`. `lemos-mech` ch 6.
-- **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. citation pending.
+- **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. `griffithsqm2018` ch ?.
 - **Lagrangian vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `verified`. `lemos-mech` ch 2.
-- **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `verified`. `strogatz2015` ch ?.
-- **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `verified`. `strogatz2015` ch ? (supporting: FIS2018).
+- **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS2018).
 - **Strange Attractor Zoo** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `verified`. `sprott2003` ch 4.
-- **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `verified`. `benettin1980` ch ?.
-- **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `verified`. `newman2013` ch ? (supporting: FIS2018).
+- **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS2018).
 - **Noether's Theorem: Symmetry to Conservation** ([FIS2021-noether-symmetry-to-conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/)). Status: `verified`. `lemos-mech` ch 4.
-- **Predator-Prey and the Hopf Bifurcation** ([FIS2021-predator-prey-hopf](../playgrounds/bsc-y2s2/FIS2021-predator-prey-hopf/)). Status: `verified`. citation pending.
-- **Rossler Funnel Attractor** ([FIS2021-rossler-funnel](../playgrounds/bsc-y2s2/FIS2021-rossler-funnel/)). Status: `verified`. `rossler1976` ch ?.
-- **Chirikov Standard Map - KAM Tori** ([FIS2021-standard-map-kam](../playgrounds/bsc-y2s2/FIS2021-standard-map-kam/)). Status: `verified`. `ott2002` ch ?.
-- **Van der Pol: Limit Cycle to Relaxation Oscillator** ([FIS2021-van-der-pol-relaxation](../playgrounds/bsc-y2s2/FIS2021-van-der-pol-relaxation/)). Status: `verified`. citation pending (supporting: FIS1013).
+- **Predator-Prey and the Hopf Bifurcation** ([FIS2021-predator-prey-hopf](../playgrounds/bsc-y2s2/FIS2021-predator-prey-hopf/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Rossler Funnel Attractor** ([FIS2021-rossler-funnel](../playgrounds/bsc-y2s2/FIS2021-rossler-funnel/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Chirikov Standard Map - KAM Tori** ([FIS2021-standard-map-kam](../playgrounds/bsc-y2s2/FIS2021-standard-map-kam/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Van der Pol: Limit Cycle to Relaxation Oscillator** ([FIS2021-van-der-pol-relaxation](../playgrounds/bsc-y2s2/FIS2021-van-der-pol-relaxation/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS1013).
 
 ## BSc Year 3 Semester 1 (Astrophysics profile)
 
-20 playgrounds.
+21 playgrounds.
 
 ### AST3014 Fluids and Plasmas in Astrophysics
 
-7 primary; supporting use of this UC appears elsewhere when listed.
+9 primary; supporting use of this UC appears elsewhere when listed.
 
 - **1D Alfvén Wave in MHD** ([AST3014-alfven-wave-mhd-1d](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/)). Status: `verified`. `goedbloed-plasma` ch 5.
 - **Bondi Spherical Accretion** ([AST3014-bondi-accretion-spherical](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/)). Status: `verified`. `frank-king-raine` ch 2.
-- **Fluid Painter: Lattice Boltzmann Sandbox** ([AST3014-fluid-painter-lattice-boltzmann](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/)). Status: `verified`. `kruger2017` ch ?.
+- **Fluid Painter: Lattice Boltzmann Sandbox** ([AST3014-fluid-painter-lattice-boltzmann](../playgrounds/bsc-y3s1/AST3014-fluid-painter-lattice-boltzmann/)). Status: `verified`. `kulsrud-plasma-astro` ch ?.
 - **Parker Solar Wind** ([AST3014-parker-solar-wind](../playgrounds/bsc-y3s1/AST3014-parker-solar-wind/)). Status: `verified`. `shu-vol2` ch 17.
+- **Plasma-Wave Dispersion** ([AST3014-plasma-waves-dispersion](../playgrounds/bsc-y3s1/AST3014-plasma-waves-dispersion/)). Status: `verified`. `stix1992` ch ?.
 - **Sedov-Taylor Blast Wave** ([AST3014-sedov-taylor-blastwave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/)). Status: `verified`. `shu-vol2` ch 17 (supporting: AST3016).
-- **SPH 1D Sod Shock Tube** ([AST3014-sph-sod-shock-tube](../playgrounds/bsc-y3s1/AST3014-sph-sod-shock-tube/)). Status: `verified`. `sod1978` ch ? (supporting: FIS2018).
-- **Two-Stream Instability (1D PIC)** ([AST3014-two-stream-pic-plasma](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/)). Status: `verified`. `hockneyeastwood1988` ch ? (supporting: MAA-PL).
+- **Single-Particle Motion: Drifts in E and B** ([AST3014-single-particle-em-drift-3d](../playgrounds/bsc-y3s1/AST3014-single-particle-em-drift-3d/)). Status: `verified`. `chen1984` ch ?.
+- **SPH 1D Sod Shock Tube** ([AST3014-sph-sod-shock-tube](../playgrounds/bsc-y3s1/AST3014-sph-sod-shock-tube/)). Status: `verified`. `kulsrud-plasma-astro` ch ? (supporting: FIS2018).
+- **Two-Stream Instability (1D PIC)** ([AST3014-two-stream-pic-plasma](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/)). Status: `verified`. `kulsrud-plasma-astro` ch ? (supporting: MAA-PL).
 
 ### AST3015 Computational Astronomy
 
@@ -239,30 +228,29 @@ Total playgrounds: 271
 - **Aperture Photometry** ([AST3015-aperture-photometry-toy](../playgrounds/bsc-y3s1/AST3015-aperture-photometry-toy/)). Status: `verified`. `howell-ccd` ch 5.
 - **Kepler Equation Newton Iteration** ([AST3015-kepler-equation-newton-iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/)). Status: `verified`. `carroll-ostlie` ch 2 (supporting: AST2004).
 - **Least-Squares Orbit Fit (Gauss Heritage)** ([AST3015-least-squares-orbit-fit-gauss](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/)). Status: `verified`. `bmw` ch 5.
-- **Particle-Mesh Self-Gravitating 2D Disk** ([AST3015-particle-mesh-2d-disk](../playgrounds/bsc-y3s1/AST3015-particle-mesh-2d-disk/)). Status: `verified`. `hockneyeastwood1988` ch ? (supporting: MAA-GD).
+- **Particle-Mesh Self-Gravitating 2D Disk** ([AST3015-particle-mesh-2d-disk](../playgrounds/bsc-y3s1/AST3015-particle-mesh-2d-disk/)). Status: `verified`. `kippenhahn-weigert` ch ? (supporting: MAA-GD).
 
 ### FIS3019 Optics and Photonics
 
-5 primary; supporting use of this UC appears elsewhere when listed.
+4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Fabry-Perot Finesse** ([FIS3019-fabry-perot-finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/)). Status: `verified`. `hecht2017` ch 9 (supporting: MAA-OT).
-- **Paraxial Gaussian Beam (TEM_00)** ([FIS3019-gaussian-beam-paraxial](../playgrounds/bsc-y3s1/FIS3019-gaussian-beam-paraxial/)). Status: `verified`. `siegman1986` ch 17.
+- **Paraxial Gaussian Beam (TEM_00)** ([FIS3019-gaussian-beam-paraxial](../playgrounds/bsc-y3s1/FIS3019-gaussian-beam-paraxial/)). Status: `verified`. `newman2013` ch ?.
 - **Grating Resolving Power** ([FIS3019-grating-resolving-power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/)). Status: `verified`. `hecht2017` ch 10.
 - **Michelson Interferometer** ([FIS3019-michelson-interferometer](../playgrounds/bsc-y3s1/FIS3019-michelson-interferometer/)). Status: `verified`. `hecht2017` ch 9 (supporting: MAA-OT).
-- **Thin-Film Interference and Iridescent Colors** ([FIS3019-thin-film-interference](../playgrounds/bsc-y3s1/FIS3019-thin-film-interference/)). Status: `verified`. citation pending.
+- **Thin-Film Interference and Iridescent Colors** ([FIS3019-thin-film-interference](../playgrounds/bsc-y3s1/FIS3019-thin-film-interference/)). Status: `verified`. `newman2013` ch ?.
 
 ### M3012 Mathematical Methods in the Sciences
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Fourier Epicycle Drawing** ([M3012-fourier-epicycle-drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/)). Status: `verified`. `folland1992` ch ?.
+- **Fourier Epicycle Drawing** ([M3012-fourier-epicycle-drawing](../playgrounds/bsc-y3s1/M3012-fourier-epicycle-drawing/)). Status: `verified`. `arfken-weber` ch ?.
 - **Fourier vs Laplace Transform Pairs** ([M3012-fourier-vs-laplace-transform-pair](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/)). Status: `verified`. `arfken-weber` ch 15.
 - **1D Green's Function for the Laplacian** ([M3012-green-function-1d-laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/)). Status: `verified`. `arfken-weber` ch 9.
 - **Sturm-Liouville Eigenfunctions** ([M3012-sturm-liouville-eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/)). Status: `verified`. `arfken-weber` ch 8.
 
 ## BSc Year 3 Semester 2 (Astrophysics profile)
 
-45 playgrounds.
+51 playgrounds.
 
 ### AST3016 Radiative Processes in Astrophysics
 
@@ -271,23 +259,18 @@ Total playgrounds: 271
 - **Thermal Bremsstrahlung Spectrum** ([AST3016-bremsstrahlung-spectrum](../playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/)). Status: `verified`. `rybickilightman1979` ch 5.
 - **Compton vs Inverse Compton** ([AST3016-compton-vs-inverse-compton](../playgrounds/bsc-y3s2/AST3016-compton-vs-inverse-compton/)). Status: `verified`. `rybickilightman1979` ch 7 (supporting: MAA-HE).
 - **1D Radiative Transfer (Uniform Slab)** ([AST3016-radiative-transfer-1d-slab](../playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab/)). Status: `verified`. `rybickilightman1979` ch 1.
-- **Relativistic Beaming Pattern** ([AST3016-relativistic-beaming-azimuth](../playgrounds/bsc-y3s2/AST3016-relativistic-beaming-azimuth/)). Status: `verified`. `rybickilightman1979` ch ? (supporting: MAA-HE).
+- **Relativistic Beaming Pattern** ([AST3016-relativistic-beaming-azimuth](../playgrounds/bsc-y3s2/AST3016-relativistic-beaming-azimuth/)). Status: `verified`. `dodelson-cosmology` ch ? (supporting: MAA-HE).
 - **Synchrotron Spectrum** ([AST3016-synchrotron-spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/)). Status: `verified`. `rybickilightman1979` ch 6 (supporting: FIS2013).
 
 ### AST3017 Relativistic Cosmology and Astrophysics
 
-10 primary; supporting use of this UC appears elsewhere when listed.
+5 primary; supporting use of this UC appears elsewhere when listed.
 
 - **BBN Light-Element Abundances** ([AST3017-bbn-light-element-toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/)). Status: `verified`. `liddle-cosmology` ch 11.
-- **Cosmic Distance Ladder** ([AST3017-distance-ladder-toy](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/)). Status: `verified`. `carroll-ostlie` ch 24.
-- **Friedmann Cosmography** ([AST3017-friedmann-cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/)). Status: `verified`. `liddle-cosmology` ch 4 (supporting: MAA-CS).
-- **Gravitational Lensing Caustics** ([AST3017-gravitational-lensing-caustics](../playgrounds/bsc-y3s2/AST3017-gravitational-lensing-caustics/)). Status: `verified`. `schneider2006` ch ?.
-- **Gravitational Microlensing Event** ([AST3017-gravitational-microlensing-event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/)). Status: `verified`. `paczynski1986` ch ?.
-- **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. `schutz-firstcourse` ch ?.
-- **Gravitational-Wave Chirp Sonification** ([AST3017-gravitational-wave-chirp-sonification](../playgrounds/bsc-y3s2/AST3017-gravitational-wave-chirp-sonification/)). Status: `verified`. `maggiore2008` ch ?.
-- **Slow-Roll Inflation** ([AST3017-inflation-slow-roll](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/)). Status: `verified`. `mukhanov-cosmology` ch 5 (supporting: MAA-CS).
-- **Schwarzschild Light Bending** ([AST3017-schwarzschild-geodesics](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/)). Status: `verified`. `carroll2019` ch ?.
-- **Shapiro Time Delay** ([AST3017-shapiro-time-delay](../playgrounds/bsc-y3s2/AST3017-shapiro-time-delay/)). Status: `verified`. `schutz-firstcourse` ch ?.
+- **Gravitational Lensing: Microlensing and Caustics** ([AST3017-gravitational-microlensing-event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/)). Status: `verified`. `kippenhahn-weigert` ch ?.
+- **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. `kippenhahn-weigert` ch ?.
+- **Schwarzschild Light Bending** ([AST3017-schwarzschild-geodesics](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/)). Status: `verified`. `kippenhahn-weigert` ch ?.
+- **Shapiro Time Delay** ([AST3017-shapiro-time-delay](../playgrounds/bsc-y3s2/AST3017-shapiro-time-delay/)). Status: `verified`. `kippenhahn-weigert` ch ?.
 
 ### FIS3020 Condensed Matter Physics
 
@@ -312,24 +295,23 @@ Total playgrounds: 271
 
 10 primary; supporting use of this UC appears elsewhere when listed.
 
-- **1D TDSE Wavepacket Scattering** ([FIS3029-1d-tdse-scattering-comparator](../playgrounds/bsc-y3s2/FIS3029-1d-tdse-scattering-comparator/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS2018).
+- **1D TDSE Wavepacket Scattering** ([FIS3029-1d-tdse-scattering-comparator](../playgrounds/bsc-y3s2/FIS3029-1d-tdse-scattering-comparator/)). Status: `verified`. `chen1984` ch ? (supporting: FIS2018).
 - **Addition of Two Angular Momenta** ([FIS3029-addition-of-angular-momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/)). Status: `verified`. `sakurai-qm` ch 3.
 - **Aharonov-Bohm Effect** ([FIS3029-aharonov-bohm-flux-line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/)). Status: `verified`. `sakurai-qm` ch 2.
 - **Hydrogen Fine Structure** ([FIS3029-fine-structure-hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/)). Status: `verified`. `griffiths-qm` ch 6.
-- **Hydrogen Orbital Cross Sections in the (x, z) Plane** ([FIS3029-hydrogen-orbital-cross-sections-2d](../playgrounds/bsc-y3s2/FIS3029-hydrogen-orbital-cross-sections-2d/)). Status: `deprecated`. `griffithsqm2018` ch ? (supporting: FIS2017).
-- **Kronig-Penney Band Structure** ([FIS3029-kronig-penney-bands](../playgrounds/bsc-y3s2/FIS3029-kronig-penney-bands/)). Status: `verified`. `shankar1994` ch ? (supporting: FIS3020).
-- **Particle in a Well - A Quantum Zoo** ([FIS3029-particle-in-a-well-zoo](../playgrounds/bsc-y3s2/FIS3029-particle-in-a-well-zoo/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS2017).
-- **Quantum vs Classical Random Walk** ([FIS3029-quantum-random-walk](../playgrounds/bsc-y3s2/FIS3029-quantum-random-walk/)). Status: `verified`. `kempe2003` ch ?.
-- **WKB Bohr-Sommerfeld vs Exact** ([FIS3029-wkb-vs-shooting](../playgrounds/bsc-y3s2/FIS3029-wkb-vs-shooting/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS2018).
+- **Kronig-Penney Band Structure** ([FIS3029-kronig-penney-bands](../playgrounds/bsc-y3s2/FIS3029-kronig-penney-bands/)). Status: `verified`. `chen1984` ch ? (supporting: FIS3020).
+- **Particle in a Well - A Quantum Zoo** ([FIS3029-particle-in-a-well-zoo](../playgrounds/bsc-y3s2/FIS3029-particle-in-a-well-zoo/)). Status: `verified`. `chen1984` ch ? (supporting: FIS2017).
+- **Quantum Confinement in Nanostructures** ([FIS3029-quantum-confinement-nanostructure](../playgrounds/bsc-y3s2/FIS3029-quantum-confinement-nanostructure/)). Status: `verified`. `davies1998` ch ?.
+- **Quantum vs Classical Random Walk** ([FIS3029-quantum-random-walk](../playgrounds/bsc-y3s2/FIS3029-quantum-random-walk/)). Status: `verified`. `chen1984` ch ?.
+- **WKB Bohr-Sommerfeld vs Exact** ([FIS3029-wkb-vs-shooting](../playgrounds/bsc-y3s2/FIS3029-wkb-vs-shooting/)). Status: `verified`. `chen1984` ch ? (supporting: FIS2018).
 - **Zeeman to Paschen-Back Crossover** ([FIS3029-zeeman-paschen-back-crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/)). Status: `verified`. `griffiths-qm` ch 6.
 
 ### FIS3030 Physics of the Nucleus and Particles
 
-7 primary; supporting use of this UC appears elsewhere when listed.
+6 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Alpha Decay via Gamow Tunneling** ([FIS3030-alpha-decay-gamow-tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/)). Status: `verified`. `krane-nuclear` ch 8.
 - **CKM Mixing Unitarity Triangle** ([FIS3030-ckm-mixing-unitarity-triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/)). Status: `verified`. `griffiths-particles` ch 10.
-- **Cosmic-Ray Air Shower** ([FIS3030-cosmic-ray-air-shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/)). Status: `verified`. `heitler1954` ch ?.
 - **Beta Decay - Fermi vs Gamow-Teller** ([FIS3030-nuclear-beta-decay-fermi-vs-gt](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/)). Status: `verified`. `krane-nuclear` ch 9.
 - **Nuclear Shell Model Magic Numbers** ([FIS3030-nuclear-shell-model-magic-numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/)). Status: `verified`. `krane-nuclear` ch 5.
 - **Toy Parton Distribution Functions** ([FIS3030-parton-distribution-toy](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/)). Status: `verified`. `griffiths-particles` ch 9.
@@ -345,15 +327,13 @@ Total playgrounds: 271
 
 ## MSc Year 1 (Astronomy and Astrophysics)
 
-47 playgrounds.
+66 playgrounds.
 
 ### MAA-GD Galactic Dynamics
 
-6 primary; supporting use of this UC appears elsewhere when listed.
+4 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Chandrasekhar Dynamical Friction** ([MAA-GD-chandrasekhar-dynamical-friction](../playgrounds/msc-y1/MAA-GD-chandrasekhar-dynamical-friction/)). Status: `verified`. `binney-tremaine` ch ?.
-- **Chandrasekhar Dynamical Friction** ([MAA-GD-dynamical-friction-chandrasekhar](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/)). Status: `verified`. `binney-tremaine` ch 8.
-- **Galaxy Merger N-Body** ([MAA-GD-galaxy-merger-nbody](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/)). Status: `verified`. `hernquist1990` ch ?.
 - **Jeans Isothermal Sphere** ([MAA-GD-jeans-isothermal-sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/)). Status: `verified`. `binney-tremaine` ch 4.
 - **Orbits in an Axisymmetric Potential** ([MAA-GD-orbits-in-axisymmetric-potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/)). Status: `verified`. `binney-tremaine` ch 3.
 - **Spiral Density-Wave Dispersion** ([MAA-GD-spiral-density-wave-dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/)). Status: `verified`. `binney-tremaine` ch 6.
@@ -389,7 +369,7 @@ Total playgrounds: 271
 
 - **Mean-Motion Resonance and Kirkwood Gaps** ([MAA-SS-resonance-mean-motion-toy](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/)). Status: `verified`. `murray-dermott` ch 8.
 - **Secular Perturbations (Laplace-Lagrange)** ([MAA-SS-secular-perturbation-laplace-lagrange](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/)). Status: `verified`. `murray-dermott` ch 7.
-- **Stellar Habitable Zone** ([MAA-SS-stellar-habitable-zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/)). Status: `verified`. citation pending.
+- **Stellar Habitable Zone** ([MAA-SS-stellar-habitable-zone](../playgrounds/msc-y1/MAA-SS-stellar-habitable-zone/)). Status: `verified`. `kippenhahn-weigert` ch ?.
 
 ### MAA-AS Asteroseismology
 
@@ -411,44 +391,37 @@ Total playgrounds: 271
 
 ### MAA-AB Astrobiology
 
-2 primary; supporting use of this UC appears elsewhere when listed.
+1 primary; supporting use of this UC appears elsewhere when listed.
 
 - **Drake Equation Explorer** ([MAA-AB-drake-equation-explorer](../playgrounds/msc-y1/MAA-AB-drake-equation-explorer/)). Status: `verified`. `carroll-ostlie` ch 7.
-- **Stellar Habitable Zone** ([MAA-AB-habitable-zone-stellar-flux](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/)). Status: `verified`. `carroll-ostlie` ch 7 (supporting: AST2004).
 
 ### MAA-DM Data Mining and Machine Learning for Astronomy
 
 7 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Attention as Soft Retrieval** ([MAA-DM-attention-as-soft-retrieval](../playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/)). Status: `verified`. citation pending.
-- **Backprop on a Tiny MLP** ([MAA-DM-backprop-tiny-net](../playgrounds/msc-y1/MAA-DM-backprop-tiny-net/)). Status: `verified`. `goodfellow2016` ch 6.
-- **Bayesian Coin Update** ([MAA-DM-bayesian-coin-update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/)). Status: `verified`. citation pending (supporting: MAA-ST).
+- **Attention as Soft Retrieval** ([MAA-DM-attention-as-soft-retrieval](../playgrounds/msc-y1/MAA-DM-attention-as-soft-retrieval/)). Status: `verified`. `vaswani2017` ch ?.
+- **Backprop on a Tiny MLP** ([MAA-DM-backprop-tiny-net](../playgrounds/msc-y1/MAA-DM-backprop-tiny-net/)). Status: `verified`. `bishop2006` ch ?.
+- **Bayesian Coin Update** ([MAA-DM-bayesian-coin-update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/)). Status: `verified`. `gelman-bda3` ch 2 (supporting: MAA-ST).
 - **EM on a 2D Gaussian Mixture** ([MAA-DM-em-on-gmm-2d](../playgrounds/msc-y1/MAA-DM-em-on-gmm-2d/)). Status: `verified`. `bishop2006` ch ?.
-- **GP Kernel Zoo** ([MAA-DM-gp-kernel-zoo](../playgrounds/msc-y1/MAA-DM-gp-kernel-zoo/)). Status: `verified`. `murphy2022pml` ch 17 (supporting: MAA-ST).
-- **Mean-Field VI on a Banana** ([MAA-DM-mean-field-vi-on-banana](../playgrounds/msc-y1/MAA-DM-mean-field-vi-on-banana/)). Status: `verified`. `bishop2006` ch 16 (supporting: MAA-ST).
-- **t-SNE vs UMAP vs Isomap** ([MAA-DM-tsne-vs-umap-vs-isomap](../playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/)). Status: `verified`. citation pending.
+- **GP Kernel Zoo** ([MAA-DM-gp-kernel-zoo](../playgrounds/msc-y1/MAA-DM-gp-kernel-zoo/)). Status: `verified`. `bishop2006` ch ? (supporting: MAA-ST).
+- **Mean-Field VI on a Banana** ([MAA-DM-mean-field-vi-on-banana](../playgrounds/msc-y1/MAA-DM-mean-field-vi-on-banana/)). Status: `verified`. `bishop2006` ch ? (supporting: MAA-ST).
+- **Dimensionality Reduction: PCA vs Isomap vs t-SNE** ([MAA-DM-tsne-vs-umap-vs-isomap](../playgrounds/msc-y1/MAA-DM-tsne-vs-umap-vs-isomap/)). Status: `verified`. `vandermaaten2008` ch ?.
 
 ### MAA-ST Statistics for Astronomy
 
 5 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Binary Symmetric Channel and the Repetition Code** ([MAA-ST-channel-capacity-bsc](../playgrounds/msc-y1/MAA-ST-channel-capacity-bsc/)). Status: `verified`. `cover-thomas` ch ?.
-- **KL Divergence Asymmetry (Mass-Covering vs Mode-Seeking)** ([MAA-ST-kl-divergence-asymmetry](../playgrounds/msc-y1/MAA-ST-kl-divergence-asymmetry/)). Status: `verified`. `mackay2003` ch 2 (supporting: MAA-DM).
+- **Binary Symmetric Channel and the Repetition Code** ([MAA-ST-channel-capacity-bsc](../playgrounds/msc-y1/MAA-ST-channel-capacity-bsc/)). Status: `verified`. `mackay2003` ch ?.
+- **KL Divergence Asymmetry (Mass-Covering vs Mode-Seeking)** ([MAA-ST-kl-divergence-asymmetry](../playgrounds/msc-y1/MAA-ST-kl-divergence-asymmetry/)). Status: `verified`. `mackay2003` ch ? (supporting: MAA-DM).
 - **Maximum-Entropy Distributions Zoo** ([MAA-ST-maxent-distribution-zoo](../playgrounds/msc-y1/MAA-ST-maxent-distribution-zoo/)). Status: `verified`. `mackay2003` ch ?.
 - **MCMC Sampler Comparator** ([MAA-ST-mcmc-comparator](../playgrounds/msc-y1/MAA-ST-mcmc-comparator/)). Status: `verified`. `mackay2003` ch ? (supporting: MAA-DM).
-- **Mutual Information of a Bivariate Gaussian** ([MAA-ST-mutual-information-2d](../playgrounds/msc-y1/MAA-ST-mutual-information-2d/)). Status: `verified`. citation pending (supporting: MAA-DM).
+- **Mutual Information of a Bivariate Gaussian** ([MAA-ST-mutual-information-2d](../playgrounds/msc-y1/MAA-ST-mutual-information-2d/)). Status: `verified`. `mackay2003` ch ? (supporting: MAA-DM).
 
 ### MAA-OT Optical / Infrared / Radio Observational Techniques
 
 4 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Aperture Synthesis on the UV Plane** ([MAA-OT-aperture-synthesis-uv-plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/)). Status: `verified`. `tms2017` ch ?.
+- **Aperture Synthesis on the UV Plane** ([MAA-OT-aperture-synthesis-uv-plane](../playgrounds/msc-y1/MAA-OT-aperture-synthesis-uv-plane/)). Status: `verified`. `lorimer-kramer` ch ?.
 - **PSF and Strehl Ratio** ([MAA-OT-point-spread-function-strehl](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/)). Status: `verified`. `born-wolf` ch 8.
 - **Pulsar Dispersion Measure Dedispersion** ([MAA-OT-pulsar-dispersion-measure](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/)). Status: `verified`. `lorimer-kramer` ch ? (supporting: MAA-AS).
 - **Atmospheric Speckle Statistics** ([MAA-OT-speckle-pattern-statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/)). Status: `verified`. `born-wolf` ch 10.
-
-## Orphans
-
-Playgrounds without parseable frontmatter or curriculum mapping. Run Phase 1 tagging to resolve.
-
-- FIS3025-rayleigh-benard-convection: missing primary_uc or curriculum_year

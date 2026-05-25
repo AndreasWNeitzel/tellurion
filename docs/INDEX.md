@@ -3,13 +3,13 @@
 Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build:index`.
 
 - **[BBN Light-Element Abundances](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/index.html)** &nbsp; (verified, verified 2026-05-19T10:34:02Z)
-  Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11 (`liddle-cosmology`).
+  Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11.
 
 - **[Fourier vs Laplace Transform Pairs](../playgrounds/bsc-y3s1/M3012-fourier-vs-laplace-transform-pair/index.html)** &nbsp; (verified, verified 2026-05-19T10:26:01Z)
-  Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15 (`arfken-weber`).
+  Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15.
 
 - **[Bloch Oscillations](../playgrounds/bsc-y3s2/FIS3020-bloch-oscillations/index.html)** &nbsp; (verified, verified 2026-05-19T09:53:15Z)
-  Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12 (`ashcroft-mermin`).
+  Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12.
 
 - **[Gravitational Waves: Inspiral, Merger, and Detection](../playgrounds/msc-y1/MF-GR-gravitational-wave-detector/index.html)** &nbsp; (verified, verified 2026-05-19T09:48:11Z)
   When two black holes spiral together they shake spacetime itself, sending out a gravitational wave whose frequency sweeps upward into a "chirp". LIGO digs that chirp out of detector noise with a matched filter. The playground generates the inspiral waveform and shows how matched filtering recovers it even when it is buried below the noise.
@@ -53,23 +53,17 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Cooper Pair Binding Energy](../playgrounds/bsc-y3s2/FIS3020-cooper-pair-binding-energy/index.html)** &nbsp; (verified, verified 2026-05-19T04:15:19Z)
   Two electrons normally repel. Yet add just two extra electrons above a filled Fermi sea with the faintest attraction between them and they *always* form a bound pair, no matter how weak the attraction. That counterintuitive fact, Cooper's 1956 result, is the seed of superconductivity. The playground sweeps the coupling and shows the binding energy and the pa
 
-- **[Cosmic Distance Ladder](../playgrounds/bsc-y3s2/AST3017-distance-ladder-toy/index.html)** &nbsp; (verified, verified 2026-05-19T04:11:41Z)
-  Four-rung overlap and error propagation. Source: Carroll-Ostlie Ch. 24 (`carroll-ostlie`).
-
 - **[1D Green's Function for the Laplacian](../playgrounds/bsc-y3s1/M3012-green-function-1d-laplacian/index.html)** &nbsp; (verified, verified 2026-05-19T04:06:38Z)
-  Tent-shaped $G(x, x_0)$ with Dirichlet BC; convolution gives $u(x) = \int G f dx'$. Source: Arfken-Weber Ch. 9 (`arfken-weber`).
+  Tent-shaped $G(x, x_0)$ with Dirichlet BC; convolution gives $u(x) = \int G f dx'$. Source: Arfken-Weber Ch. 9.
 
 - **[BCS Gap, Self-Consistent](../playgrounds/bsc-y3s2/FIS3020-bcs-gap-self-consistent/index.html)** &nbsp; (verified, verified 2026-05-19T03:59:35Z)
-  $\Delta(T)$ from the BCS gap equation; universal ratio $2\Delta_0 / k_B T_c \approx 3.53$. Source: Ashcroft-Mermin Ch. 34 (`ashcroft-mermin`).
+  $\Delta(T)$ from the BCS gap equation; universal ratio $2\Delta_0 / k_B T_c \approx 3.53$. Source: Ashcroft-Mermin Ch. 34.
 
 - **[Aharonov-Bohm Effect](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/index.html)** &nbsp; (verified, verified 2026-05-19T03:56:32Z)
-  Solenoid behind a double slit shifts the fringe pattern by $\Phi/\Phi_0$ cycles. Source: Sakurai Ch. 2 (`sakurai-qm`).
+  Solenoid behind a double slit shifts the fringe pattern by $\Phi/\Phi_0$ cycles. Source: Sakurai Ch. 2.
 
 - **[Addition of Two Angular Momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/index.html)** &nbsp; (verified, verified 2026-05-19T03:53:19Z)
-  $j_1 \otimes j_2 = |j_1-j_2| \oplus \dots \oplus j_1+j_2$. Source: Sakurai QM Ch. 3 (`sakurai-qm`).
-
-- **[Slow-Roll Inflation: Ball on the Potential](../playgrounds/msc-y1/MAA-CO-slow-roll-inflation/index.html)** &nbsp; (verified, verified 2026-05-19T03:26:53Z)
-  A golden ball rolls down an inflaton potential V(phi) under Hubble friction. Slow-roll parameters epsilon(phi) and eta(phi) computed live; n_s and r plotted on a Planck-style n_s-r plane.
+  $j_1 \otimes j_2 = |j_1-j_2| \oplus \dots \oplus j_1+j_2$. Source: Sakurai QM Ch. 3.
 
 - **[Fresnel and Snell at an Interface](../playgrounds/bsc-y2s2/FIS2006-fresnel-snell-3d-interface/index.html)** &nbsp; (verified, verified 2026-05-19T03:14:25Z)
   When light hits glass it partly reflects and partly bends through. Exactly how much of each depends on the angle and the polarization. The playground sweeps the incidence angle and shows two special angles: Brewster, where the reflection of one polarization switches off entirely, and the critical angle, beyond which the light cannot leave a dense medium at a
@@ -85,9 +79,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Mutual Information of a Bivariate Gaussian](../playgrounds/msc-y1/MAA-ST-mutual-information-2d/index.html)** &nbsp; (verified, verified 2026-05-19T03:14:25Z)
   Mutual information answers "how much does knowing $X$ tell you about $Y$?" in bits, capturing any dependence, not just linear correlation. For two correlated Gaussians it has a clean closed form, so the playground can show the joint cloud, its marginals, and the exact mutual information as you tighten the correlation.
-
-- **[Quantum Double Slit, One Particle at a Time](../playgrounds/bsc-y2s2/FIS2003-quantum-double-slit-accumulator/index.html)** &nbsp; (verified, verified 2026-05-19T03:14:25Z)
-  Fire particles at a double slit one at a time. Each lands as a single random dot, so a few look like noise. Let thousands accumulate and an interference pattern emerges, even though every particle went through alone. Turn on a detector that records which slit was used and the pattern dissolves. This is the heart of quantum mechanics.
 
 - **[Radioactive Decay Chain](../playgrounds/bsc-y2s2/FIS2003-nuclear-decay-chain-animation/index.html)** &nbsp; (verified, verified 2026-05-19T03:14:25Z)
   A heavy nucleus like uranium-238 is not stable. It sheds pieces step by step, transmuting into a chain of daughter nuclides until it reaches a stable lead isotope. The playground walks that chain and shows why each step happens and how wildly the half-lives vary.
@@ -113,17 +104,11 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[CT Reconstruction: Radon, Filtered Back-Projection and MLEM](../playgrounds/msc-y1/MFM-MP-ct-reconstruction-lab/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   A CT scanner only ever measures shadows: X-ray attenuation along lines through the body, at many angles. The playground builds those shadows (the sinogram) from a phantom, then reconstructs the slice two ways, filtered back-projection and iterative MLEM, and shows the error fall as you add angles.
 
-- **[Fabry-Perot Finesse](../playgrounds/bsc-y3s1/FIS3019-fabry-perot-finesse/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
-  Two parallel partial mirrors a fixed gap apart. Light bounces between them many times, and the many reflections interfere. The result is that the cavity transmits almost nothing except at razor-sharp resonant wavelengths. This is the Fabry-Perot etalon, the heart of laser cavities, optical filters, and gravitational-wave detectors.
-
 - **[FODO Synchrotron: Betatron Tune, Emittance and Stop Bands](../playgrounds/msc-y1/MF-PP-particle-accelerator-betatron/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   A particle in a circular accelerator must be steered around the ring millions of times without drifting into the wall. It is kept on course by alternating focusing and defocusing magnets, the same trick as alternating-gradient "strong focusing". The playground propagates a particle through a FODO lattice and shows whether the motion is stable, its oscillatio
 
 - **[Fourier Series: Convergence, Epicycles and the Gibbs Overshoot](../playgrounds/msc-y1/M2009-fourier-series-convergence-gibb/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   Any repeating signal, no matter how jagged, can be built by stacking pure sine waves. The playground takes a square, sawtooth or triangle wave and rebuilds it from $N$ sines, three ways at once: the reconstructed curve against the true wave, a chain of spinning vectors whose tip draws it, and the leftover error as you add terms. It also exposes the famous Gi
-
-- **[Friedmann Expansion: Radiation, Matter and Lambda Eras](../playgrounds/msc-y1/MF-GR-friedmann-expansion-multicomponent/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
-  The entire expansion history of the universe, from the radiation fireball through the matter era to today's accelerating dark-energy era, follows from one ordinary differential equation, the Friedmann equation, fed by three ingredients. The playground integrates it and shows the scale factor and which component is in charge at each epoch.
 
 - **[Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW](../playgrounds/msc-y1/MF-GR-geodesics-curved-spacetime-3d/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   In general relativity gravity is not a force; it is the shape of spacetime, and freely falling bodies just follow the straightest possible paths (geodesics) through that curved geometry. The playground integrates those paths in three famous spacetimes and shows the orbits, precession, frame dragging, and cosmic expansion that result.
@@ -179,23 +164,20 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Two-Stream Instability (1D PIC)](../playgrounds/bsc-y3s1/AST3014-two-stream-pic-plasma/index.html)** &nbsp; (verified, verified 2026-05-19T02:57:21Z)
   Shoot two electron beams through each other. The smooth counter-flow is unstable: tiny density ripples feed on the beam energy and grow explosively, then roll up into swirls in phase space and saturate. This two-stream instability is a foundational plasma effect and a classic test of particle-in-cell simulation.
 
-- **[2D Waves in a Drawable Geometry](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
+- **[2D Wave Diffraction: Slits and Obstacles](../playgrounds/bsc-y2s1/FIS2002-wave-2d-complex-geometry/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
   Put obstacles in the path of a wave and it does not just stop: it bends around corners, squeezes through gaps and spreads on the far side, and forms interference patterns behind two slits. The playground solves the real 2D wave equation on a geometry you draw, so diffraction and interference emerge from the physics rather than being faked.
 
 - **[Alpha Decay via Gamow Tunneling](../playgrounds/bsc-y3s2/FIS3030-alpha-decay-gamow-tunneling/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
   An alpha particle is trapped inside a nucleus by a Coulomb barrier taller than its own energy. Classically it can never get out. Quantum- mechanically it tunnels, and because tunneling probability is exponentially sensitive to the barrier, half-lives span 30 orders of magnitude for a tiny change in decay energy. That extreme sensitivity is the Geiger-Nuttall
 
 - **[CKM Mixing Unitarity Triangle](../playgrounds/bsc-y3s2/FIS3030-ckm-mixing-unitarity-triangle/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
-  Wolfenstein parameterization; triangle area is Jarlskog (CP violation). Source: Griffiths-Particles Ch. 10 (`griffiths-particles`).
+  Wolfenstein parameterization; triangle area is Jarlskog (CP violation). Source: Griffiths-Particles Ch. 10.
 
 - **[de Broglie Wavelength](../playgrounds/bsc-y2s2/FIS2017-de-broglie-wavelength/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
   Every particle has a wavelength. A slow electron has one comparable to an atom (so it diffracts off crystals); a thrown baseball has one absurdly tiny (so it never does). The playground plots that wavelength against kinetic energy for five species on log-log axes, and shows the double-slit pattern emerging dot by dot.
 
-- **[Earth Axial Precession + Nutation 3D (Hero)](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
+- **[Earth Axial Precession + Nutation 3D](../playgrounds/_heroes/earth-axial-precession-nutation-3d/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
   Earth spins like a top, and like a top whose axis is pushed, its spin axis slowly sweeps out a giant cone instead of tipping over. That 26000-year wobble (plus a smaller 18.6-year nod) is why the pole star changes over millennia. The playground shows the spin axis tracing the precession cone with the nutation ripple on top.
-
-- **[Friedmann Cosmography](../playgrounds/bsc-y3s2/AST3017-friedmann-cosmography/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
-  The whole expansion history of a flat universe is set by one number, the matter fraction $\Omega_m$ (the rest is the cosmological constant). The playground dials it and shows how the expansion rate, the age of the universe, and distances to far galaxies all change, the cosmography behind every "how old / how far" number in cosmology.
 
 - **[Jaynes-Cummings Model: Collapse and Revival](../playgrounds/bsc-y3s2/FIS4035-jaynes-cummings-model/index.html)** &nbsp; (verified, verified 2026-05-19T02:46:08Z)
   One atom, one quantized light mode, exchanging a single quantum of energy. If the field were classical the atom would flip up and down forever (Rabi flopping). Because the field is quantum, those oscillations collapse to silence and then, remarkably, revive. That collapse-and-revival is direct evidence the electromagnetic field is quantized.
@@ -338,9 +320,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Eddington Grey Atmosphere](../playgrounds/msc-y1/MAA-SP-eddington-grey-atmosphere/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
   The light leaving a star is not emitted from a surface but from a fuzzy layer where the gas goes from opaque to transparent. The Eddington grey atmosphere is the simplest model of that layer, and it predicts where the photosphere is and why the spectrum looks slightly hotter at the disk center than the edge (limb darkening). The playground shows the temperat
 
-- **[Galaxy Merger N-Body](../playgrounds/msc-y1/MAA-GD-galaxy-merger-nbody/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
-  Two literature-standard multi-component galaxies fall together as one fully three-dimensional self-gravitating system. There are 12000 live N-body particles total: at the default mass ratio about 11500 are luminous stars (most of the particle count, light) and only about 500 are dark-matter particles in the two Hernquist halos (few, and about 92x heavier per
-
 - **[Incompressible Wake and the Projection Method](../playgrounds/bsc-y3s2/FIS3025-navier-stokes-2d-gpu-fullscreen/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
   Flow past a blunt obstacle does completely different things depending on one number, the Reynolds number: it can creep around smoothly, form a steady trapped bubble, shed a regular train of alternating vortices (the von Karman street you see behind bridge piers and chimneys), or break up into broadband turbulence. The playground solves the real incompressibl
 
@@ -348,13 +327,13 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The KL divergence measures how different one distribution is from another, but it is not symmetric: $\mathrm{KL}(P\|Q)$ and $\mathrm{KL}(Q\|P)$ are different numbers and, more importantly, they want different answers when you fit a simple $Q$ to a complex $P$. The playground fits one Gaussian to a two-bump target both ways and shows the qualitatively opposit
 
 - **[Mean-Motion Resonance and Kirkwood Gaps](../playgrounds/msc-y1/MAA-SS-resonance-mean-motion-toy/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
-  Kirkwood gaps in the asteroid belt at 2:1, 3:1, 5:2, 7:3 with Jupiter. Source: Murray-Dermott Ch. 8 (`murray-dermott`).
+  Kirkwood gaps in the asteroid belt at 2:1, 3:1, 5:2, 7:3 with Jupiter. Source: Murray-Dermott Ch. 8.
 
 - **[Nuclear Burning Rates vs Temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
-  pp $\propto T^4$, CNO $\propto T^{18}$, 3-α $\propto T^{40}$. Source: Hansen-Kawaler Ch. 6 (`hansen-kawaler`).
+  pp $\propto T^4$, CNO $\propto T^{18}$, 3-α $\propto T^{40}$. Source: Hansen-Kawaler Ch. 6.
 
 - **[Secular Perturbations (Laplace-Lagrange)](../playgrounds/msc-y1/MAA-SS-secular-perturbation-laplace-lagrange/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
-  Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7 (`murray-dermott`).
+  Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7.
 
 - **[TDSE Wavepacket Sculptor](../playgrounds/bsc-y3s1/FIS3003-tdse-wavepacket-sculptor/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
   A quantum particle is a spread-out wavepacket, not a dot. Launch it into different potentials, a wall, a box, a spring, a barrier, a crystal, and watch it disperse, bounce, tunnel, and refocus. The playground integrates the actual Schrodinger equation, so the probability stays exactly normalized while all this happens.
@@ -363,10 +342,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A grid of magnetic spins, each up or down, each preferring to match its neighbors. Cool it and the whole sheet spontaneously magnetizes; heat it and the order melts. The switch is razor-sharp at one critical temperature. The 2D Ising model is the simplest system with a true phase transition, and one of the few solved exactly.
 
 - **[Voigt Profile Decomposition](../playgrounds/msc-y1/MAA-SP-voigt-profile-decomposition/index.html)** &nbsp; (verified, verified 2026-05-19T01:48:17Z)
-  Gaussian core × Lorentzian wings. Source: Mihalas Stellar Atmospheres Ch. 9 (`mihalas-atm`).
-
-- **[Chandrasekhar Dynamical Friction](../playgrounds/msc-y1/MAA-GD-dynamical-friction-chandrasekhar/index.html)** &nbsp; (verified, verified 2026-05-19T01:36:57Z)
-  Friction on a massive perturber in a Maxwellian background; peaks near $v \sim \sigma$. Source: Binney-Tremaine Ch. 8 (`binney-tremaine`).
+  Gaussian core × Lorentzian wings. Source: Mihalas Stellar Atmospheres Ch. 9.
 
 - **[EM on a 2D Gaussian Mixture](../playgrounds/msc-y1/MAA-DM-em-on-gmm-2d/index.html)** &nbsp; (verified, verified 2026-05-19T01:36:57Z)
   You are given a cloud of points that is secretly a blend of a few overlapping Gaussian blobs, but you are told neither which point came from which blob nor the blobs' shapes. Expectation-Maximization recovers both by a chicken-and-egg loop: guess the blobs, softly assign points, refit the blobs, repeat. The playground animates the ellipses snapping onto the 
@@ -375,46 +351,43 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A Gaussian process is a probability distribution not over numbers but over whole functions. Before you see data it is a fog of plausible curves; show it a few points and the fog collapses to curves that pass through them, with calibrated uncertainty (wide between points, tight on them). The playground lets you pick the kernel and watch prior and posterior.
 
 - **[Jeans Isothermal Sphere](../playgrounds/msc-y1/MAA-GD-jeans-isothermal-sphere/index.html)** &nbsp; (verified, verified 2026-05-19T01:36:57Z)
-  $\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4 (`binney-tremaine`).
+  $\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4.
 
 - **[Mean-Field VI on a Banana](../playgrounds/msc-y1/MAA-DM-mean-field-vi-on-banana/index.html)** &nbsp; (verified, verified 2026-05-19T01:36:57Z)
   Variational inference turns Bayesian inference into optimization: instead of sampling the true posterior, pick the closest member of a simple family of distributions. The playground does exactly that, fitting an axis-aligned Gaussian to a curved "banana" posterior, and the visible mismatch is the whole lesson about what VI gets wrong.
 
 - **[Orbits in an Axisymmetric Potential](../playgrounds/msc-y1/MAA-GD-orbits-in-axisymmetric-potential/index.html)** &nbsp; (verified, verified 2026-05-19T01:36:57Z)
-  Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3 (`binney-tremaine`).
+  Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3.
 
 - **[Shakura-Sunyaev Accretion Disc Temperature](../playgrounds/msc-y1/MAA-HE-accretion-disk-temperature-profile/index.html)** &nbsp; (verified, verified 2026-05-19T01:36:57Z)
   Gas spiraling onto a black hole or neutron star cannot fall straight in: it forms a disk, and friction between adjacent rings heats it until it glows. The playground computes how hot each radius gets and the spectrum that results, the model behind the blue glow of cataclysmic variables and the UV bump of quasars.
 
 - **[Atmospheric Speckle Statistics](../playgrounds/msc-y1/MAA-OT-speckle-pattern-statistics/index.html)** &nbsp; (verified, verified 2026-05-19T01:30:58Z)
-  $N \sim (D/r_0)^2$ speckles per realization. Source: Roddier (`hardy-ao`); Goodman (`goodman-speckle`).
+  $N \sim (D/r_0)^2$ speckles per realization. Source: Roddier; Goodman.
 
 - **[Inverse-Compton Cooling](../playgrounds/msc-y1/MAA-HE-inverse-compton-scattering-cooling/index.html)** &nbsp; (verified, verified 2026-05-19T01:30:58Z)
   In ordinary Compton scattering a photon gives energy to an electron. Reverse it: a fast electron slamming into a low-energy photon kicks the photon up to X-ray or gamma-ray energies, and the electron cools. This inverse-Compton process is how relativistic electrons in jets and the cosmic web produce high-energy radiation. The playground follows the electron'
 
 - **[Main-Sequence Mass-Luminosity Relation](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/index.html)** &nbsp; (verified, verified 2026-05-19T01:30:58Z)
-  Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
+  Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7.
 
 - **[Mixing-Length Convection](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/index.html)** &nbsp; (verified, verified 2026-05-19T01:30:58Z)
-  Schwarzschild criterion + MLT parameter $\alpha = l_m / H_P$. Source: Hansen-Kawaler Ch. 5 (`hansen-kawaler`).
+  Schwarzschild criterion + MLT parameter $\alpha = l_m / H_P$. Source: Hansen-Kawaler Ch. 5.
 
 - **[PSF and Strehl Ratio](../playgrounds/msc-y1/MAA-OT-point-spread-function-strehl/index.html)** &nbsp; (verified, verified 2026-05-19T01:30:58Z)
-  Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8 (`born-wolf`).
+  Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8.
 
 - **[Pulsar Wind Nebula Magnetization](../playgrounds/msc-y1/MAA-HE-pulsar-wind-nebula-magnetization/index.html)** &nbsp; (verified, verified 2026-05-19T01:30:58Z)
-  Crab-like nebula: termination shock + magnetization. Source: Kennel-Coroniti 1984; Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
+  Crab-like nebula: termination shock + magnetization. Source: Kennel-Coroniti 1984; Rybicki-Lightman Ch. 6.
 
 - **[Spiral Density-Wave Dispersion](../playgrounds/msc-y1/MAA-GD-spiral-density-wave-dispersion/index.html)** &nbsp; (verified, verified 2026-05-19T01:30:58Z)
-  $\nu^2(k)$ for tightly-wound spiral waves; Toomre $Q$ boundary. Source: Binney-Tremaine Ch. 6 (`binney-tremaine`).
+  $\nu^2(k)$ for tightly-wound spiral waves; Toomre $Q$ boundary. Source: Binney-Tremaine Ch. 6.
 
-- **[Wave Heightfield (Clickable Hero)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified, verified 2026-05-19T01:23:43Z)
+- **[Wave Heightfield (Clickable)](../playgrounds/_heroes/wave-heightfield-clickable-3d/index.html)** &nbsp; (verified, verified 2026-05-19T01:23:43Z)
   A drumhead rendered as a lit 3D surface that you can poke. Every click drops a ripple that spreads at a fixed speed, bounces off the rim, and adds to every other ripple. It is an interactive ripple tank, the cleanest demonstration of how 2D waves propagate, reflect, interfere, and decay.
 
-- **[Tokamak Plasma Confinement 3D (Hero)](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-19T01:21:52Z)
+- **[Tokamak Plasma Confinement 3D](../playgrounds/_heroes/tokamak-plasma-confinement-3d/index.html)** &nbsp; (verified, verified 2026-05-19T01:21:52Z)
   A fusion plasma is ten times hotter than the Sun's core, so no material wall can touch it. A tokamak holds it with magnetic fields twisted into a doughnut. The playground shows the helical field lines, the nested flux surfaces they wrap, and charged particles spiralling along them, the geometry that confines a star in a bottle.
-
-- **[Schwarzschild-Kerr Black Hole 3D (Hero)](../playgrounds/_heroes/schwarzschild-kerr-blackhole-3d/index.html)** &nbsp; (verified, verified 2026-05-19T01:19:33Z)
-  A black hole does not just have a hole punched in the sky behind it. It bends light so severely that you see the far side of its accretion disk lensed up and over the top and wrapped underneath, a dark shadow where light fell in, and a razor-thin bright ring of light that orbited the hole before escaping. The playground ray-traces exactly that for a non-rota
 
 - **[Bayesian Coin Update](../playgrounds/msc-y1/MAA-DM-bayesian-coin-update/index.html)** &nbsp; (verified, verified 2026-05-19T00:28:27Z)
   A coin of unknown fairness. The horizontal axis is the bias $\theta$, the probability it lands heads, running from a coin that never gives heads ($\theta = 0$) to one that always does ($\theta = 1$). A fair coin sits at $\theta = 0.5$. You do not know $\theta$; you only get to flip and count. The curves on screen are not the coin, they are your *belief about
@@ -431,7 +404,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Frustrated Triangular Antiferromagnet](../playgrounds/bsc-y2s1/FIS2014-frustrated-triangular-af/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
   Put antiferromagnetic spins (each wanting to be opposite its neighbours) on a triangular lattice and they cannot all be satisfied at once: every triangle has a built-in conflict. This is geometric frustration, and the playground shows its strange consequence, a system that never orders and keeps a huge ground-state degeneracy even at zero temperature.
 
-- **[Hydrogen Orbitals 3D (Hero)](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
+- **[Hydrogen Orbitals 3D](../playgrounds/_heroes/hydrogen-orbitals-3d/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
   The electron in a hydrogen atom has no orbit and no path. It is a standing wave around the proton, and what you can know is only the probability of finding it somewhere. The playground draws those probability clouds, the orbitals, in 3D, and lets you dial the three quantum numbers to morph the shape.
 
 - **[Projectile with Drag and the Magnus Force in 3D](../playgrounds/bsc-y1s1/FIS1013-projectile-drag-magnus-3d/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
@@ -441,22 +414,22 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The Ising model has two states per site; the Potts model generalizes to $q$ states, and that one number changes the very nature of the phase transition: continuous for small $q$, abruptly first-order for large $q$. The playground runs the 2D Potts model and lets you watch order appear, and the transition change character, as you vary $q$ and temperature.
 
 - **[Stokes Theorem 2D Circulation](../playgrounds/bsc-y2s1/M2037-stokes-theorem-2d-circulation/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
-  Three vector fields (unit-curl, shear, conservative) and a draggable rectangle. Circulation = $\iint$ curl $dA$ closed-form for these uniform-curl fields. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
+  Three vector fields (unit-curl, shear, conservative) and a draggable rectangle. Circulation = $\iint$ curl $dA$ closed-form for these uniform-curl fields. Source: Riley-Hobson Ch. 10.
 
 - **[Transverse vs Longitudinal Modes on a 1D Chain](../playgrounds/bsc-y2s1/FIS2016-transverse-vs-longitudinal-mode/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
-  Same dispersion, different polarization. Source: Crawford Ch. 5 (`crawford-waves`).
+  Same dispersion, different polarization. Source: Crawford Ch. 5.
 
 - **[Wavepacket Dispersion in 1D](../playgrounds/bsc-y2s1/FIS2016-wavepacket-dispersion-1d/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
-  The packet center drifts at $\hbar k_0 / m$; the width broadens as $\sigma(t) = \sigma_0\sqrt{1 + (\hbar t/2m\sigma_0^2)^2}$. Source: Eisberg-Resnick Ch. 5 (`eisberg-resnick`).
+  The packet center drifts at $\hbar k_0 / m$; the width broadens as $\sigma(t) = \sigma_0\sqrt{1 + (\hbar t/2m\sigma_0^2)^2}$. Source: Eisberg-Resnick Ch. 5.
 
 - **[Advection Scheme Shootout](../playgrounds/bsc-y2s2/FIS2018-advection-scheme-shootout/index.html)** &nbsp; (verified, verified 2026-05-18T21:08:02Z)
   The simplest PDE in existence, "move this shape to the right at constant speed", is brutally hard to solve numerically without wrecking the shape. The playground races four classic schemes on the same moving square pulse so you see each one's characteristic failure: smearing, ringing, or instability.
 
 - **[Lagrangian vs Newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/index.html)** &nbsp; (verified, verified 2026-05-18T21:08:02Z)
-  Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3 (`lemos-mech`).
+  Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3.
 
 - **[Linear System: Direct vs Iterative](../playgrounds/bsc-y2s2/FIS2018-linear-system-direct-vs-iterative/index.html)** &nbsp; (verified, verified 2026-05-18T21:08:02Z)
-  Poisson 1D problem; Thomas tridiagonal direct solver vs Jacobi, Gauss-Seidel, CG. Source: Villate Ch. 6 (`villate-vpython`).
+  Poisson 1D problem; Thomas tridiagonal direct solver vs Jacobi, Gauss-Seidel, CG. Source: Villate Ch. 6.
 
 - **[Lyapunov Spectrum via Benettin QR](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/index.html)** &nbsp; (verified, verified 2026-05-18T21:08:02Z)
   "This system is chaotic" is a quantitative statement: nearby trajectories diverge exponentially, and the exponent that measures it is the Lyapunov exponent. The playground actually computes the full Lyapunov spectrum of the Henon map live, with a built-in exact check that proves the algorithm is right.
@@ -465,7 +438,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   One of the most intricate objects in mathematics comes from iterating the simplest possible nonlinear formula and asking a single yes/no question. The playground lets you zoom into the Mandelbrot set endlessly and find the same motifs repeating at every scale, infinite complexity from one line of arithmetic.
 
 - **[Noether's Theorem: Symmetry to Conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/index.html)** &nbsp; (verified, verified 2026-05-18T21:08:02Z)
-  Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4 (`lemos-mech`).
+  Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4.
 
 - **[Rossler Funnel Attractor](../playgrounds/bsc-y2s2/FIS2021-rossler-funnel/index.html)** &nbsp; (verified, verified 2026-05-18T21:08:02Z)
   The Rossler system is the minimal recipe for chaos: a flat spiral plus a single fold. It strips chaos down to its essence so you can literally watch the stretch-and-fold mechanism, and watch it arrive through a clean period-doubling cascade as you turn one knob.
@@ -482,9 +455,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Divergence and Curl Visualizer](../playgrounds/bsc-y2s1/M2037-vector-field-div-curl-visualizer/index.html)** &nbsp; (verified, verified 2026-05-18T20:40:17Z)
   Divergence and curl are the two local questions you can ask of any flow: is fluid being created here, and is it spinning here? The playground draws a 2D vector field and a probe that reports both at the point you place it, turning the formulas into something you can see by dropping a tiny paddlewheel into the stream.
 
-- **[Equipartition from Microscopic Collisions](../playgrounds/bsc-y2s1/FIS2014-equipartition-from-collisions/index.html)** &nbsp; (deprecated, verified 2026-05-18T20:40:17Z)
-  2D hard-disk gas; the mean translational kinetic energy converges to $kT$. Source: Reif Ch. 7 (`reif`).
-
 - **[FitzHugh-Nagumo Excitable Neuron](../playgrounds/bsc-y2s2/FIS2021-fitzhugh-nagumo-excitable/index.html)** &nbsp; (verified, verified 2026-05-18T20:40:17Z)
   A neuron does something odd: a small poke does almost nothing, but a poke past a threshold triggers a big, stereotyped spike that always looks the same regardless of how hard you pushed. The playground is the FitzHugh-Nagumo model, the minimal two-variable system that captures this all-or-nothing excitability and its phase-plane geometry.
 
@@ -492,10 +462,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Iterate one of the simplest possible nonlinear maps and the points do not fill an area or settle to a cycle: they pile up on a delicate, infinitely-layered curve, a strange attractor. The playground iterates the Henon map and lets you zoom in to see the self-similar fractal structure that captures the essence of dissipative chaos.
 
 - **[ODE Solvers: Euler vs RK4 vs RK45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/index.html)** &nbsp; (verified, verified 2026-05-18T20:40:17Z)
-  Three integrators on the simple harmonic oscillator; Euler drifts energy upward, RK4 is accurate, RK45 estimates its own error. Source: Villate VPython Numerical Methods (`villate-vpython`).
-
-- **[Photoelectric Effect Threshold](../playgrounds/bsc-y2s2/FIS2017-photoelectric-effect-threshold/index.html)** &nbsp; (verified, verified 2026-05-18T20:40:17Z)
-  Shine light on a metal and electrons fly off, but only if the light's frequency is high enough, no matter how bright it is. That single fact killed the wave-only picture of light and won Einstein the Nobel Prize. The playground sweeps the photon frequency and shows the sharp threshold and the straight-line energy law.
+  Three integrators on the simple harmonic oscillator; Euler drifts energy upward, RK4 is accurate, RK45 estimates its own error. Source: Villate VPython Numerical Methods.
 
 - **[Standing Waves on a String](../playgrounds/bsc-y2s1/FIS2016-standing-waves-string-modes/index.html)** &nbsp; (verified, verified 2026-05-18T20:40:17Z)
   Pluck a guitar string and it does not vibrate at just any frequency: only a discrete ladder of standing-wave patterns fits between the fixed ends. The playground shows those modes and how an arbitrary pluck is a sum of them, which is why an instrument has a definite pitch and timbre.
@@ -503,35 +470,26 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Wave on a String: Fixed vs Free End Reflection](../playgrounds/bsc-y2s1/FIS2016-wave-on-string-reflection/index.html)** &nbsp; (verified, verified 2026-05-18T20:40:17Z)
   A pulse running down a string bounces off the end, but how it bounces depends entirely on what the end is attached to. A fixed end flips the pulse upside down; a free end reflects it upright. The playground runs both cases on parallel strings so the difference is unmistakable.
 
-- **[Mandel-Agol Analytic Transit](../playgrounds/bsc-y2s1/AST2004-transit-mandel-agol-analytic/index.html)** &nbsp; (verified, verified 2026-05-18T20:39:28Z)
-  Analytic transit light curve; uniform-source closed form plus quadratic limb darkening via ring decomposition. Source: Mandel & Agol 2002 (`mandelagol2002`).
-
 - **[Adiabatic vs Isothermal Processes on a PV Diagram](../playgrounds/bsc-y2s1/FIS2014-adiabatic-vs-isothermal-pv/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
-  Same initial state, two reversible processes; the adiabatic is steeper. Source: Callen Ch. 4 (`callen`).
+  Same initial state, two reversible processes; the adiabatic is steeper. Source: Callen Ch. 4.
 
 - **[BTW Sandpile and Self-Organized Criticality](../playgrounds/bsc-y2s1/FIS2014-abelian-sandpile-btw/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
   Add sand one grain at a time to a pile and most grains do nothing, but occasionally one triggers an avalanche, and those avalanches come in all sizes with no typical scale. The system tunes itself to the critical point with no parameter adjustment. The playground is the Bak-Tang-Wiesenfeld sandpile, the original model of self-organized criticality.
 
 - **[Keplerian Orbit Elements](../playgrounds/bsc-y2s1/AST2004-kepler-orbit-elements/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
-  Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2 (`carroll-ostlie`).
+  Vary the six classical elements (a, e, i, Ω, ω, ν) and watch a 3D orbit redraw. Source: Carroll-Ostlie Ch. 2.
 
 - **[Lienard-Wiechert Beaming and Synchrotron Lobe](../playgrounds/bsc-y2s1/FIS2013-lienard-wiechert-synchrotron/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
-  Relativistic radiation collimates into a forward cone of opening angle $\sim 1/\gamma$. Two limits (a parallel and a perpendicular to v) are shown. Source: Jackson 3e Ch. 14 (`jackson3e`).
+  Relativistic radiation collimates into a forward cone of opening angle $\sim 1/\gamma$. Two limits (a parallel and a perpendicular to v) are shown. Source: Jackson 3e Ch. 14.
 
 - **[Perihelion Precession in a Schwarzschild Effective Potential](../playgrounds/bsc-y2s1/AST2004-mercury-precession-pn/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
   In Newtonian gravity a planet retraces the exact same ellipse forever. General relativity adds a tiny extra pull that makes the ellipse slowly rotate, so the point of closest approach (perihelion) creeps around. This is the famous anomalous precession of Mercury, the first triumph of general relativity. The playground exaggerates the effect so you can watch 
 
-- **[Radial Velocity Curve from Orbital Elements](../playgrounds/bsc-y2s1/AST2004-radial-velocity-orbital-trace/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
-  Orbit and corresponding RV curve, side by side. Source: Carroll-Ostlie Ch. 7 (`carroll-ostlie`).
-
 - **[Schwarzschild Effective Potential and the ISCO](../playgrounds/bsc-y2s1/AST2004-schwarzschild-effective-potential/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
   Orbits around a black hole are not just Newtonian ellipses with a twist: general relativity adds a term that, close in, overwhelms the centrifugal barrier, so there is a smallest stable circular orbit (the ISCO) and, inside it, an inescapable plunge. The playground plots the effective potential and a ball rolling in it so you can see the ISCO and the capture
 
-- **[Single, Double, and Multi-Slit Diffraction](../playgrounds/bsc-y2s1/FIS2016-single-double-multi-slit/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
-  Light through slits does not make slit-shaped bright bands; it makes a pattern of fringes whose spacing and sharpness depend on the slit width, their spacing, and how many there are. The playground sweeps from one slit to two to many and shows how the pattern is the product of two effects.
-
 - **[Stellar Blackbody + Absorption Lines](../playgrounds/bsc-y2s1/AST2004-stellar-blackbody-vs-line/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
-  Planck continuum plus Balmer / Ca II / Na D absorption lines. Source: Carroll-Ostlie Ch. 3 (`carroll-ostlie`).
+  Planck continuum plus Balmer / Ca II / Na D absorption lines. Source: Carroll-Ostlie Ch. 3.
 
 - **[Transmission Line Impedance Matching](../playgrounds/bsc-y2s1/FIS2013-transmission-line-impedance-matching/index.html)** &nbsp; (verified, verified 2026-05-18T20:26:43Z)
   Send a signal down a cable into a load that does not "match" and part of it bounces straight back, setting up standing waves that waste power and can destroy a transmitter. The playground shows the forward and reflected waves on a transmission line and how matching the impedance kills the reflection.
@@ -543,13 +501,13 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   An Atwood machine is two weights on a rope over a pulley, the classic demo of how a constraint (the inextensible rope) couples two motions into one. The twist here is a heavy pulley: its rotational inertia slows everything down and the rope tension is no longer the same on both sides. The playground shows the masses moving and the tensions live.
 
 - **[Cauchy Sequence Convergence Monitor](../playgrounds/bsc-y1s1/M1017-cauchy-sequence-convergence-monitor/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
-  Partial sums of four series; Cauchy width $w(N_0) = \max |a_n - a_m|$ for $n, m \ge N_0$. Geometric, $\zeta(2)$, and Leibniz arctan converge; harmonic does not. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
+  Partial sums of four series; Cauchy width $w(N_0) = \max |a_n - a_m|$ for $n, m \ge N_0$. Geometric, $\zeta(2)$, and Leibniz arctan converge; harmonic does not. Source: Arfken-Weber Ch. 1.
 
 - **[Coupled Springs and Normal Modes](../playgrounds/bsc-y1s1/FIS1013-coupled-springs-normal-modes/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
   Couple two oscillators and a generic motion looks like a mess: energy sloshes back and forth between them. But there are exactly two special patterns, the normal modes, in which both masses oscillate at a single frequency. Every possible motion is just a sum of those two. The playground lets you excite either mode or a mix and watch the energy beat between t
 
 - **[Epsilon-Delta Continuity Visualizer](../playgrounds/bsc-y1s1/M1017-epsilon-delta-continuity-visualizer/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
-  Slider for $x_0$ and $\epsilon$. The accent-yellow box shows the maximum $\delta_{\max}(\epsilon)$ such that $|x - x_0| < \delta$ implies $|f(x) - f(x_0)| < \epsilon$ for $f = \sin$. Demonstrates continuity at every point. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
+  Slider for $x_0$ and $\epsilon$. The accent-yellow box shows the maximum $\delta_{\max}(\epsilon)$ such that $|x - x_0| < \delta$ implies $|f(x) - f(x_0)| < \epsilon$ for $f = \sin$. Demonstrates continuity at every point. Source: Arfken-Weber Ch. 1.
 
 - **[Gram-Schmidt Orthogonalization](../playgrounds/bsc-y1s1/M1038-gram-schmidt-orthogonalization/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
   Gram-Schmidt turns any set of independent vectors into a clean orthonormal set spanning the same space, by repeatedly subtracting off the part of each vector that already lies along the directions chosen so far. The playground shows two skewed vectors being straightened into a perpendicular, unit-length pair, step by step.
@@ -573,7 +531,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The textbook says a projectile traces a clean parabola and the optimal launch angle is exactly 45 degrees. Add air drag and both statements break: the path becomes a lopsided arc that falls steeper than it rose, and the best angle drops below 45. The playground fires projectiles with and without drag side by side so the difference is unmistakable.
 
 - **[Series Convergence Tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
-  Four series (geometric, p-series 2, harmonic, alternating Leibniz) with partial sums plotted and the limit as a dashed line where finite. Source: Arfken-Weber Ch. 1 (`arfken-weber`).
+  Four series (geometric, p-series 2, harmonic, alternating Leibniz) with partial sums plotted and the limit as a dashed line where finite. Source: Arfken-Weber Ch. 1.
 
 - **[Tautochrone: Cycloid Isochronism](../playgrounds/bsc-y1s1/FIS1013-tautochrone-isochronism/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
   Release several beads from different heights on the same special curve, and they all reach the bottom at exactly the same instant, no matter where they started. That curve is the cycloid, and this "same-time" property (the tautochrone) is one of the most beautiful results in mechanics. The playground releases beads from different points and they arrive toget
@@ -618,10 +576,10 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A large perturber enters from the left through N=200 background particles drawn from a Maxwellian of dispersion sigma. Gravitational focusing pulls particles into an overdense wake trailing the perturber; the wake's pull decelerates it. The perturber speed readout decreases over time.
 
 - **[Asymptotic Period Spacing in Red Giants](../playgrounds/msc-y1/MAA-AS-asymptotic-period-spacing/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
-  $\Pi_1$ distinguishes RGB (~80 s) from RC (~250 s). Source: Aerts et al. Ch. 3 (`aerts-asteroseism`).
+  $\Pi_1$ distinguishes RGB (~80 s) from RC (~250 s). Source: Aerts et al. Ch. 3.
 
 - **[Baryon Acoustic Oscillation (Toy)](../playgrounds/msc-y1/MAA-CS-baryon-acoustic-oscillation-toy/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
-  Sound wave + baryon shell freeze at $r_s \approx 150$ Mpc. Source: Liddle Ch. 11 (`liddle-cosmology`).
+  Sound wave + baryon shell freeze at $r_s \approx 150$ Mpc. Source: Liddle Ch. 11.
 
 - **[Cosmic Distance Ladder Journey](../playgrounds/msc-y1/MAA-CO-cosmic-distance-ladder/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
   Click through four rungs of the distance ladder. Parallax: a nearby star swings against background, baseline 2 AU. Cepheid period-luminosity: a pulsating star with period 30 d, M_V from the Leavitt law. Type Ia: standard candle M_V = -19.3. Hubble flow: galaxy at z = 0.5, distance from D = cz/H_0.
@@ -630,43 +588,37 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The Drake equation is not a prediction; it is a bookkeeping device that turns the question "how many civilizations could we talk to" into a product of seven factors you can argue about one at a time. The playground lets you set each factor and watch the estimate swing over many orders of magnitude, which is the real lesson.
 
 - **[Linear Perturbation Growth in LCDM](../playgrounds/msc-y1/MAA-CS-linear-perturbation-growth/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
-  $\delta \propto a$ in matter era; Lambda saturates growth. Source: Liddle Ch. 12 (`liddle-cosmology`).
+  $\delta \propto a$ in matter era; Lambda saturates growth. Source: Liddle Ch. 12.
 
 - **[Mode Trapping in Evolved Stars](../playgrounds/msc-y1/MAA-AS-mode-trapping-evolved-stars/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
-  Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018 (`mosser2018-trap`); Aerts et al. Ch. 3 (`aerts-asteroseism`).
+  Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018; Aerts et al. Ch. 3.
 
 - **[Rotational Splitting of Multiplets](../playgrounds/msc-y1/MAA-AS-rotational-splitting-multiplets/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
-  Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8 (`aerts-asteroseism`).
-
-- **[Stellar Habitable Zone](../playgrounds/msc-y1/MAA-AB-habitable-zone-stellar-flux/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
-  The habitable zone is the ring of orbits around a star where a rocky planet could hold liquid water: close enough not to freeze, far enough not to boil. The playground sets the star's luminosity and shows the zone move in and out, with the key surprise that it is not fixed in absolute distance but scales with the square root of the star's brightness.
+  Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8.
 
 - **[Stellar Oscillation Modes](../playgrounds/msc-y1/MAA-AS-stellar-oscillation-modes/index.html)** &nbsp; (verified, verified 2026-05-18T18:23:45Z)
   A stellar disk breathes, rings, and ripples according to the chosen spherical-harmonic mode $Y_l^m(\theta, \phi) \cos(\omega t)$. Sliders for radial order $n$, degree $l$, azimuthal order $m$ morph the surface pattern. Side panel shows the propagation diagram (Brunt-Vaisala and Lamb frequencies vs radius for an $n = 3$ polytrope) with the current mode freque
 
 - **[Hydrogen Fine Structure](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/index.html)** &nbsp; (verified, verified 2026-05-18T18:19:31Z)
-  Bohr levels split by $\alpha^2$ corrections; degeneracy is $j$-labeled. Source: Griffiths QM Ch. 6 (`griffiths-qm`).
+  Bohr levels split by $\alpha^2$ corrections; degeneracy is $j$-labeled. Source: Griffiths QM Ch. 6.
 
 - **[1D Phonon Dispersion (Monatomic and Diatomic)](../playgrounds/bsc-y3s2/FIS3020-phonon-dispersion-1d-monatomic-diatomic/index.html)** &nbsp; (verified, verified 2026-05-18T18:08:09Z)
-  Monatomic acoustic vs diatomic acoustic + optical; gap at zone boundary. Source: Ashcroft-Mermin Ch. 22 (`ashcroft-mermin`).
+  Monatomic acoustic vs diatomic acoustic + optical; gap at zone boundary. Source: Ashcroft-Mermin Ch. 22.
 
 - **[Quantum vs Classical Random Walk](../playgrounds/bsc-y3s2/FIS3029-quantum-random-walk/index.html)** &nbsp; (verified, verified 2026-05-18T18:08:09Z)
   Side-by-side: classical (binomial) on the left, Hadamard quantum walk on the right, both on a 101-site 1D lattice. The classical distribution is a Gaussian widening as $\sqrt{N}$; the quantum is the characteristic double-peaked distribution widening as $N$. Quantum amplitudes drawn with hue from phase, brightness from $|\psi|^2$. Bottom panel overlays both h
 
 - **[CMB Power Spectrum (Toy)](../playgrounds/msc-y1/MAA-CS-cmb-power-spectrum-toy/index.html)** &nbsp; (verified, verified 2026-05-18T18:00:29Z)
-  Three free parameters: first-peak position, damping scale, amplitude. Source: Liddle Ch. 12 (`liddle-cosmology`).
+  Three free parameters: first-peak position, damping scale, amplitude. Source: Liddle Ch. 12.
 
 - **[Pulsar Dispersion Measure Dedispersion](../playgrounds/msc-y1/MAA-OT-pulsar-dispersion-measure/index.html)** &nbsp; (verified, verified 2026-05-18T18:00:29Z)
   Dynamic spectrum: frequency vertical (400 to 1600 MHz), time horizontal. The pulse arrives later at lower frequencies, tracing the classic $\propto f^{-2}$ DM sweep. Below, the dedispersed time series shifts each channel by the chosen DM and sums; correct DM gives a sharp narrow spike, wrong DM gives a smeared blob. Presets for Crab, B1937+21, Vela, FRB-like
 
 - **[Thermal Bremsstrahlung Spectrum](../playgrounds/bsc-y3s2/AST3016-bremsstrahlung-spectrum/index.html)** &nbsp; (verified, verified 2026-05-18T18:00:29Z)
-  Flat below $h\nu = kT$, exponential cutoff above. Source: Rybicki-Lightman Ch. 5 (`rybickilightman1979`).
+  Flat below $h\nu = kT$, exponential cutoff above. Source: Rybicki-Lightman Ch. 5.
 
 - **[1D Radiative Transfer (Uniform Slab)](../playgrounds/bsc-y3s2/AST3016-radiative-transfer-1d-slab/index.html)** &nbsp; (verified, verified 2026-05-18T17:50:24Z)
-  Slab with constant $S$ and finite $\tau$; closed-form $I(\tau) = I_{in} e^{-\tau} + S(1-e^{-\tau})$. Source: Rybicki-Lightman Ch. 1 (`rybickilightman1979`).
-
-- **[Cosmic-Ray Air Shower](../playgrounds/bsc-y3s2/FIS3030-cosmic-ray-air-shower/index.html)** &nbsp; (verified, verified 2026-05-18T17:50:24Z)
-  Atmosphere is drawn as a gradient from dark space to ground. A primary cosmic ray streaks in from the top; the shower front then propagates downward and the Heitler cascade fans out into a bright-cored cone, colour-coded by particle energy (white at high energy near shower maximum, gold mid-cascade, blue once below the critical energy). The descending front 
+  Slab with constant $S$ and finite $\tau$; closed-form $I(\tau) = I_{in} e^{-\tau} + S(1-e^{-\tau})$. Source: Rybicki-Lightman Ch. 1.
 
 - **[Gravitational Redshift in Schwarzschild](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/index.html)** &nbsp; (verified, verified 2026-05-18T17:50:24Z)
   A photon climbing out of a gravity well loses energy and arrives redder, the deeper it started, the redder it gets, diverging to infinite redshift right at a black hole's horizon. The playground moves the emission radius and shows the shifted spectral line and the redshift factor.
@@ -678,7 +630,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Treat the nucleus as a charged liquid drop and five simple terms predict the binding energy of every nucleus, why iron is the most bound, why heavy nuclei fission and light ones fuse, and where the stable isotopes lie. The playground sweeps $Z$ and $A$ and shows each term's contribution.
 
 - **[Synchrotron Spectrum](../playgrounds/bsc-y3s2/AST3016-synchrotron-spectrum/index.html)** &nbsp; (verified, verified 2026-05-18T17:50:24Z)
-  Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6 (`rybickilightman1979`).
+  Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6.
 
 - **[Compton vs Inverse Compton](../playgrounds/bsc-y3s2/AST3016-compton-vs-inverse-compton/index.html)** &nbsp; (verified, verified 2026-05-18T17:39:02Z)
   The same photon-electron collision, run two ways. A photon hitting a slow electron loses energy (Compton). A relativistic electron hitting a low-energy photon dumps energy into it, boosting it by $\gamma^2$ (inverse Compton). The playground puts both on one energy axis so the contrast, and the regime where the simple formulas break, is explicit.
@@ -687,10 +639,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The Fermi surface is the boundary in momentum space between filled and empty electron states. Its shape decides almost every electronic property of a metal. The playground fills a simple square-lattice band and shows the Fermi surface morph as you add electrons, including the special nested shape at half filling that drives magnetism.
 
 - **[Geodesic Deviation on a Sphere](../playgrounds/bsc-y3s2/M3007-geodesic-deviation-equation/index.html)** &nbsp; (verified, verified 2026-05-18T17:39:02Z)
-  Two parallel-starting geodesics on a sphere converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3 (`carroll-spacetime`).
-
-- **[Hydrogen Orbital Cross Sections in the (x, z) Plane](../playgrounds/bsc-y3s2/FIS3029-hydrogen-orbital-cross-sections-2d/index.html)** &nbsp; (deprecated, verified 2026-05-18T17:39:02Z)
-  The hydrogen atom's electron does not orbit; it occupies standing-wave clouds set by three integers. The playground slices the probability cloud through the nucleus so you see the real shapes, spherical shells, dumbbells, cloverleaves, and where they have nodes, as you dial the quantum numbers.
+  Two parallel-starting geodesics on a sphere converge at the pole. Source: Carroll Spacetime and Geometry Ch. 3.
 
 - **[Nuclear Shell Model Magic Numbers](../playgrounds/bsc-y3s2/FIS3030-nuclear-shell-model-magic-numbers/index.html)** &nbsp; (verified, verified 2026-05-18T17:39:02Z)
   Nuclei with 2, 8, 20, 28, 50, 82, or 126 protons or neutrons are unusually tightly bound and stable, the nuclear "magic numbers", the analogue of noble-gas electron shells. They do not come out of a naive potential; you need a strong spin-orbit force. The playground fills nucleon levels and lights up the closures.
@@ -699,7 +648,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Move through a field of stars and they all shift toward the direction you are heading, like rain slanting onto your windshield. The playground places stars evenly in their rest frame and boosts the observer, watching the whole sky bunch forward. For Earth's orbit the shift is tiny (about 20 arcseconds), the effect Bradley used in 1728 to prove the Earth move
 
 - **[Thomas Precession](../playgrounds/bsc-y3s2/FIS3028-thomas-precession/index.html)** &nbsp; (verified, verified 2026-05-18T17:39:02Z)
-  A gyroscope on a circular orbit picks up $(\gamma - 1)$ rad of extra rotation per revolution. Source: Jackson 3e Ch. 11.8 (`jackson3e`).
+  A gyroscope on a circular orbit picks up $(\gamma - 1)$ rad of extra rotation per revolution. Source: Jackson 3e Ch. 11.8.
 
 - **[Parallel Transport on a Sphere](../playgrounds/bsc-y3s2/M3007-parallel-transport-on-sphere/index.html)** &nbsp; (verified, verified 2026-05-18T17:30:56Z)
   Carry an arrow around a triangle drawn on a globe, always keeping it "as parallel as possible" to itself. On a flat plane it returns unchanged. On the sphere it comes back rotated, by an angle exactly equal to the area you enclosed. That rotation-from-curvature is the geometric heart of gauge theory and general relativity.
@@ -707,20 +656,17 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Relativistic Beaming Pattern](../playgrounds/bsc-y3s2/AST3016-relativistic-beaming-azimuth/index.html)** &nbsp; (verified, verified 2026-05-18T17:25:36Z)
   A source that glows equally in all directions in its own frame looks utterly different when it moves near light speed: nearly all its light is swept into a narrow forward cone and hugely brightened. The playground sweeps the source speed and shows the isotropic glow collapse into a headlight beam, the effect behind blazars and AGN jets.
 
-- **[Slow-Roll Inflation](../playgrounds/bsc-y3s2/AST3017-inflation-slow-roll/index.html)** &nbsp; (verified, verified 2026-05-18T17:25:36Z)
-  The early universe is thought to have inflated, expanded exponentially, driven by a scalar field rolling slowly down its potential. Different potential shapes predict different patterns in the cosmic microwave background. The playground plots each model's prediction on the $(n_s, r)$ plane that Planck actually measured, so you see which survive and which are
-
 - **[WKB Bohr-Sommerfeld vs Exact](../playgrounds/bsc-y3s2/FIS3029-wkb-vs-shooting/index.html)** &nbsp; (verified, verified 2026-05-18T17:25:36Z)
   The WKB approximation estimates quantum energy levels from a single classical integral, no Schrodinger equation solved. The playground pits it against the exact levels for a harmonic well (where WKB is perfect) and a quartic well (where it is close but not exact), so you see exactly when the semiclassical shortcut works.
 
 - **[Zeeman to Paschen-Back Crossover](../playgrounds/bsc-y3s2/FIS3029-zeeman-paschen-back-crossover/index.html)** &nbsp; (verified, verified 2026-05-18T17:25:36Z)
-  Low-$B$ Zeeman: $g_J m_J \mu_B B$. High-$B$ Paschen-Back: $(m_L + 2m_S) \mu_B B$. Source: Griffiths QM Ch. 6.4 (`griffiths-qm`).
+  Low-$B$ Zeeman: $g_J m_J \mu_B B$. High-$B$ Paschen-Back: $(m_L + 2m_S) \mu_B B$. Source: Griffiths QM Ch. 6.4.
 
 - **[Beta Decay - Fermi vs Gamow-Teller](../playgrounds/bsc-y3s2/FIS3030-nuclear-beta-decay-fermi-vs-gt/index.html)** &nbsp; (verified, verified 2026-05-18T17:20:09Z)
-  Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9 (`krane-nuclear`).
+  Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9.
 
 - **[Gaussian Curvature of 2D Surfaces](../playgrounds/bsc-y3s2/M3007-curvature-tensor-2d-surfaces/index.html)** &nbsp; (verified, verified 2026-05-18T17:20:09Z)
-  Sphere, cylinder, hyperbolic plane, and torus. Source: Riley-Hobson Ch. 26 (`riley-hobson`).
+  Sphere, cylinder, hyperbolic plane, and torus. Source: Riley-Hobson Ch. 26.
 
 - **[Kronig-Penney Band Structure](../playgrounds/bsc-y3s2/FIS3029-kronig-penney-bands/index.html)** &nbsp; (verified, verified 2026-05-18T17:20:09Z)
   A crystal is a periodic potential. Solve the Schrodinger equation in one and the allowed electron energies are not a continuum and not sharp atomic levels: they clump into bands separated by forbidden gaps. The Kronig-Penney model gets this with the simplest possible periodic potential, a row of delta spikes, and the playground shows the bands open and the g
@@ -729,52 +675,49 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Bounce a radar pulse off a planet on the far side of the Sun and the echo comes back late, by up to a couple of hundred microseconds. The light did not slow down locally; the spacetime it crossed is curved, so the path is longer. This is the Shapiro delay, the fourth classical test of general relativity, and the playground shows the extra round-trip time gro
 
 - **[Toy Parton Distribution Functions](../playgrounds/bsc-y3s2/FIS3030-parton-distribution-toy/index.html)** &nbsp; (verified, verified 2026-05-18T17:20:09Z)
-  $x f(x)$ for $u_v$, $d_v$, gluon, sea quarks. Source: Griffiths-Particles Ch. 9 (`griffiths-particles`).
+  $x f(x)$ for $u_v$, $d_v$, gluon, sea quarks. Source: Griffiths-Particles Ch. 9.
 
 - **[Aperture Photometry](../playgrounds/bsc-y3s1/AST3015-aperture-photometry-toy/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
-  Synthetic Moffat PSF on a CCD; aperture + sky annulus recovers true flux. Source: Howell CCD Handbook (`howell-ccd`).
+  Synthetic Moffat PSF on a CCD; aperture + sky annulus recovers true flux. Source: Howell CCD Handbook.
 
 - **[Bondi Spherical Accretion](../playgrounds/bsc-y3s1/AST3014-bondi-accretion-spherical/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
-  Bondi radius and accretion rate for a steady spherically symmetric inflow; sonic point at $r_B/2$. Source: Frank-King-Raine Ch. 2 (`frank-king-raine`).
+  Bondi radius and accretion rate for a steady spherically symmetric inflow; sonic point at $r_B/2$. Source: Frank-King-Raine Ch. 2.
 
 - **[Paraxial Gaussian Beam (TEM_00)](../playgrounds/bsc-y3s1/FIS3019-gaussian-beam-paraxial/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
   A laser beam is not a parallel pencil of light. It has a narrowest point (the waist), and on either side it flares out as a hyperbola. The tighter you focus it, the faster it spreads, a hard limit set by diffraction. The playground shows the waist, the hyperbolic envelope, and the curving wavefronts.
 
 - **[Relativistic Collisions and Mandelstam s](../playgrounds/bsc-y3s2/FIS3028-relativistic-collision-mandelstam/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
-  $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3 (`griffiths-particles`).
+  $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3.
 
 - **[Sturm-Liouville Eigenfunctions](../playgrounds/bsc-y3s1/M3012-sturm-liouville-eigenfunctions/index.html)** &nbsp; (verified, verified 2026-05-18T17:11:53Z)
-  Pluck a string fixed at both ends and it rings in a sum of pure modes, each a sine, each with its own frequency. The playground projects any starting shape onto those modes and evolves it. The point is general: those modes are the eigenfunctions of a Sturm-Liouville operator, and they form a complete orthonormal basis, the engine behind every Fourier expansi
+  Pluck a string fixed at both ends and it rings in a sum of pure modes, each with its own frequency. Here the string's mass density $\rho(x)$ is yours to choose. With a uniform density the modes are exactly the textbook sines and the spectrum is $\lambda_n=n^2$; load the string in the middle, put a step in the density, or taper it, and the modes bend toward t
 
 - **[1D Alfvén Wave in MHD](../playgrounds/bsc-y3s1/AST3014-alfven-wave-mhd-1d/index.html)** &nbsp; (verified, verified 2026-05-18T17:04:04Z)
-  Transverse magnetic perturbation travels at $v_A = B_0/\sqrt{\mu_0 \rho}$; magnetic-tension restoring force. Source: Goedbloed-Poedts Ch. 5 (`goedbloed-plasma`).
+  Transverse magnetic perturbation travels at $v_A = B_0/\sqrt{\mu_0 \rho}$; magnetic-tension restoring force. Source: Goedbloed-Poedts Ch. 5.
 
 - **[Kepler Equation Newton Iteration](../playgrounds/bsc-y3s1/AST3015-kepler-equation-newton-iteration/index.html)** &nbsp; (verified, verified 2026-05-18T17:04:04Z)
   To say where a planet is at a given time you must solve one equation that has no closed-form answer. Newton's method finds it in a handful of steps, and the playground shows the error squaring at each iteration: the textbook picture of quadratic convergence.
 
 - **[Least-Squares Orbit Fit (Gauss Heritage)](../playgrounds/bsc-y3s1/AST3015-least-squares-orbit-fit-gauss/index.html)** &nbsp; (verified, verified 2026-05-18T16:53:59Z)
-  Noisy positions along a Kepler orbit; fit a circle by least squares. The fit is biased when $e > 0$. Source: Bate-Mueller-White Ch. 5 (`bmw`).
+  Noisy positions along a Kepler orbit; fit a circle by least squares. The fit is biased when $e > 0$. Source: Bate-Mueller-White Ch. 5.
 
 - **[Particle-Mesh Self-Gravitating 2D Disk](../playgrounds/bsc-y3s1/AST3015-particle-mesh-2d-disk/index.html)** &nbsp; (verified, verified 2026-05-18T16:53:59Z)
   A flat disk of 1500 stars, each pulling on every other by gravity. Done naively that is 1500-squared force calculations per step. The particle-mesh trick does it in near-linear time by routing gravity through a grid, and the disk it evolves spontaneously grows spiral arms, the same way model galaxies do.
 
 - **[Sedov-Taylor Blast Wave](../playgrounds/bsc-y3s1/AST3014-sedov-taylor-blastwave/index.html)** &nbsp; (verified, verified 2026-05-18T16:53:59Z)
-  Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17 (`shu-vol2`).
+  Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17.
 
 - **[SPH 1D Sod Shock Tube](../playgrounds/bsc-y3s1/AST3014-sph-sod-shock-tube/index.html)** &nbsp; (verified, verified 2026-05-18T16:53:59Z)
   A tube with a membrane: dense high-pressure gas on the left, thin low-pressure gas on the right. Pop the membrane and three distinct features race apart at once. The exact answer is known, so the Sod shock tube is the pass/fail exam every fluid code must take. Here it is solved with smoothed-particle hydrodynamics (SPH) and overlaid on the analytic truth.
-
-- **[Davisson-Germer Electron Diffraction](../playgrounds/bsc-y2s2/FIS2017-davisson-germer-diffraction/index.html)** &nbsp; (verified, verified 2026-05-18T16:43:11Z)
-  Fire electrons (particles) at a crystal and they come back in sharp bright beams at specific angles, exactly the way X-rays diffract. That 1927 result by Davisson and Germer was the first direct proof that matter has a wavelength. The playground reproduces their nickel experiment and lets you dial the voltage.
 
 - **[Gauss-Legendre vs Trapezoid Quadrature](../playgrounds/bsc-y2s2/FIS2018-gauss-quadrature-vs-trapezoid/index.html)** &nbsp; (verified, verified 2026-05-18T16:43:11Z)
   Two ways to compute an integral numerically. The trapezoidal rule lays down evenly spaced points and connects them with straight lines. Gauss-Legendre instead chooses both the point positions and their weights optimally. For smooth functions Gauss-Legendre is staggeringly more accurate for the same number of points, and the playground shows that gap shrink a
 
 - **[Grating Resolving Power](../playgrounds/bsc-y3s1/FIS3019-grating-resolving-power/index.html)** &nbsp; (verified, verified 2026-05-18T16:43:11Z)
-  $N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10 (`hecht2017`).
+  $N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10.
 
 - **[Hamiltonian Phase-Space Flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/index.html)** &nbsp; (verified, verified 2026-05-18T16:43:11Z)
-  Click to seed tracers; each one traces an orbit at constant energy. Source: Lemos Ch. 6 (`lemos-mech`).
+  Click to seed tracers; each one traces an orbit at constant energy. Source: Lemos Ch. 6.
 
 - **[Kuramoto Oscillators and Synchronization](../playgrounds/bsc-y2s2/FIS2021-coupled-kuramoto-oscillators/index.html)** &nbsp; (verified, verified 2026-05-18T16:43:11Z)
   A crowd of oscillators, each ticking at its own natural rate, weakly pulled toward the group. Below a coupling threshold they drift independently (noise). Above it they suddenly snap into lockstep. This is the Kuramoto model, the canonical explanation for spontaneous synchronization: fireflies flashing together, pacemaker cells, clapping audiences, power gri
@@ -789,7 +732,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Predators and prey. Give the prey more food (raise their carrying capacity) and intuition says the system gets healthier. Instead, the stable balance suddenly collapses into wild boom-and-bust cycles. This is the paradox of enrichment, and it falls straight out of a Hopf bifurcation.
 
 - **[Root Finding: Bisection, Newton, Secant](../playgrounds/bsc-y2s2/FIS2018-root-finding-bisect-newton-secant/index.html)** &nbsp; (verified, verified 2026-05-18T16:43:11Z)
-  Bisection, Newton-Raphson, and the secant method on a selectable test function. Source: Villate VPython Numerical Methods Ch. 4 (`villate-vpython`).
+  Bisection, Newton-Raphson, and the secant method on a selectable test function. Source: Villate VPython Numerical Methods Ch. 4.
 
 - **[Thin-Film Interference and Iridescent Colors](../playgrounds/bsc-y3s1/FIS3019-thin-film-interference/index.html)** &nbsp; (verified, verified 2026-05-18T16:43:11Z)
   A soap bubble or an oil slick is colorless material, yet it shimmers with color. The color is not pigment: it is interference between the light reflected off the top of a thin film and the light reflected off its bottom. Change the thickness and the color changes. The playground sweeps the film thickness and shows the reflected spectrum and the resulting hue
@@ -807,19 +750,16 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A ball rolling in a double-well (two valleys, one hill between), damped, and shaken periodically. At gentle shaking it settles into a simple repeating motion. Crank up the drive and it period-doubles again and again, then goes chaotic, hopping between wells unpredictably. The Duffing oscillator is the cleanest mechanical route to chaos with one knob.
 
 - **[Larmor Radiation Pattern](../playgrounds/bsc-y2s1/FIS2013-larmor-radiation-pattern/index.html)** &nbsp; (verified, verified 2026-05-18T16:30:14Z)
-  Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11 (`griffiths-em`).
+  Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11.
 
 - **[Maxwell-Boltzmann Emergence from Hard-Disk Collisions](../playgrounds/bsc-y2s1/FIS2014-maxwell-boltzmann-emergence/index.html)** &nbsp; (verified, verified 2026-05-18T16:30:14Z)
   Start every disk in a box with the *same* speed and only random directions. Let them collide. Within seconds the speeds spread out into a smooth bell-like distribution and stay there. No one imposed that distribution; it emerges from collisions alone. This is the microscopic origin of temperature and the Maxwell-Boltzmann law.
 
 - **[Monte Carlo Integration Convergence](../playgrounds/bsc-y2s2/FIS2018-mc-integration-convergence/index.html)** &nbsp; (verified, verified 2026-05-18T16:30:14Z)
-  You can estimate an integral by throwing random darts and averaging. The estimate wobbles toward the true value, and its error shrinks, but slowly: only as $1/\sqrt N$. The playground races two dart-throwing strategies against the exact answer so you see both the slow convergence and how a smarter sampling lowers the error.
-
-- **[Rotation Curve Explorer](../playgrounds/bsc-y2s1/AST2004-rotation-curve-explorer/index.html)** &nbsp; (verified, verified 2026-05-18T16:30:14Z)
-  Measure how fast stars orbit at different distances from a galaxy's center and plot speed versus radius: the rotation curve. Newtonian gravity from the visible stars and gas predicts the speed should fall off at large radius. It does not, it stays flat. That single stubborn fact is the strongest everyday evidence for dark matter, and the playground lets you 
+  A shape sits in the unit square. Uniform random darts are thrown at the square and accumulate continuously, coloured green inside the shape and red outside. The fraction of darts that land inside estimates the shape's area, because the unit square has area 1 and the area is the integral of the shape's indicator function.
 
 - **[Skin Effect in a Conductor](../playgrounds/bsc-y2s1/FIS2013-skin-effect-1d-conductor/index.html)** &nbsp; (verified, verified 2026-05-18T16:30:14Z)
-  Exponential decay of the AC electric field inside a conductor; skin depth $\delta = \sqrt{2/(\omega \mu \sigma)}$. Source: Griffiths E&M Ch. 9 (`griffiths-em`).
+  Exponential decay of the AC electric field inside a conductor; skin depth $\delta = \sqrt{2/(\omega \mu \sigma)}$. Source: Griffiths E&M Ch. 9.
 
 - **[Three-Body Figure-Eight Choreography](../playgrounds/bsc-y2s1/AST2004-three-body-orbit/index.html)** &nbsp; (verified, verified 2026-05-18T16:30:14Z)
   The three-body problem has no general solution: three masses pulling on each other usually move chaotically. But hidden inside that chaos are rare, exact periodic solutions. The most beautiful is the figure-eight: three equal stars chasing each other forever along a single figure-eight curve. The playground runs it, and a slider lets you nudge it to watch th
@@ -840,10 +780,10 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Cross an electric field with a magnetic field and a charged particle released from rest does something surprising: it does not run along the electric field. It loops in cycloid arcs and, on average, drifts sideways, perpendicular to both fields, at a speed that does not depend on its charge or mass. This E-cross-B drift moves plasma in the magnetosphere, Hal
 
 - **[Engine Cycle Explorer](../playgrounds/bsc-y2s1/FIS2014-engine-cycle-explorer/index.html)** &nbsp; (verified, verified 2026-05-18T16:21:14Z)
-  Four idealized cycles on the PV plane: Otto, Diesel, Carnot, Stirling. Source: Callen Ch. 4-5 (`callen`).
+  Four idealized cycles on the PV plane: Otto, Diesel, Carnot, Stirling. Source: Callen Ch. 4-5.
 
 - **[Group vs Phase Velocity in a Dispersive Medium](../playgrounds/bsc-y2s1/FIS2016-group-vs-phase-velocity/index.html)** &nbsp; (verified, verified 2026-05-18T16:21:14Z)
-  Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6 (`crawford-waves`).
+  Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6.
 
 - **[Jeans Instability](../playgrounds/bsc-y2s1/AST2004-jeans-instability/index.html)** &nbsp; (verified, verified 2026-05-18T16:21:14Z)
   A cloud of gas in space is caught between two effects: its own gravity pulling it inward and its pressure pushing back. The playground shows which one wins as a function of the size of the disturbance. Small ripples just bounce as sound waves; ripples larger than a critical length collapse. That threshold is why gas clouds turn into stars.
@@ -869,11 +809,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Line Integral vs Path](../playgrounds/bsc-y1s2/M1015-line-integral-vs-path/index.html)** &nbsp; (verified, verified 2026-05-18T16:05:47Z)
   Push something from A to B through a force field and add up the work done along the way. For some fields the answer depends only on A and B; for others it depends on the route you took. The playground walks two paths between the same endpoints (a straight chord and a semicircular arc) and shows the work each accumulates. When they disagree, the field is not 
 
-- **[Michelson Fringe Counter](../playgrounds/bsc-y1s2/FIS1015-michelson-fringe-counter/index.html)** &nbsp; (deprecated, verified 2026-05-18T16:05:47Z)
-  Moving one arm of a Michelson interferometer by $\lambda/2$ produces one full fringe at the center. The rendered pattern is the ring system for a divergent source. Source: Hecht Optics Ch. 9.4 (`hecht2017`).
-
 - **[Multiple Integral Fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/index.html)** &nbsp; (verified, verified 2026-05-18T16:05:47Z)
-  Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10 (`riley-hobson`).
+  Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10.
 
 - **[Brewster Angle and Fresnel Equations](../playgrounds/bsc-y1s2/FIS1014-brewster-angle-fresnel/index.html)** &nbsp; (verified, verified 2026-05-18T15:56:36Z)
   Light hitting glass partly reflects and partly refracts. How much reflects depends on the angle and on the polarization, and at one special angle (Brewster's angle) one polarization does not reflect at all. That is why polarized sunglasses kill glare off water and roads.
@@ -885,7 +822,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Draw any closed loop around a charge and count the electric field lines poking out through it. The number depends only on the charge inside, not on the loop's size or shape, and is exactly zero if the charge sits outside. Drag the charge in and out of the loop and watch the flux readout snap between a fixed value and zero. That is Gauss's law, made tactile.
 
 - **[Method of Images: Charge Above a Grounded Plane](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/index.html)** &nbsp; (verified, verified 2026-05-18T15:56:36Z)
-  A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2 (`griffiths-em`).
+  A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2.
 
 - **[Brachistochrone: Why the Cycloid Wins](../playgrounds/bsc-y1s1/FIS1013-brachistochrone-cycloid/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
   Three frictionless beads start together at A and slide under gravity to a lower point B: one down a straight ramp, one along a circular arc, one along a cycloid (the curve traced by a point on a rolling wheel). The straight line is the shortest path, yet the cycloid bead always arrives first. The fastest descent is not the shortest route. Johann Bernoulli po
@@ -898,9 +835,6 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 
 - **[Damped, Driven Oscillator and Resonance](../playgrounds/bsc-y1s1/FIS1013-damped-driven-oscillator/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
   A mass on a spring, with friction, pushed by a steady sinusoidal force. Sweep the push frequency and the steady swing amplitude rises to a sharp peak then falls away. That peak is resonance, the reason a swing goes high when you push it in time and the reason bridges, glasses, and circuits have frequencies you must not hit.
-
-- **[Foucault Pendulum and Coriolis Precession](../playgrounds/bsc-y1s1/FIS1013-foucault-pendulum/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
-  A long pendulum swings in a straight line. Watch for a while and the line itself slowly turns, like a clock hand. Nothing pushes it sideways; the floor (the Earth) is rotating underneath it. In 1851 Leon Foucault hung a 67 m pendulum in the Pantheon in Paris and let the public watch the planet spin. This is that experiment, with the clock sped up so you do n
 
 - **[Free Fall Stokes vs Quadratic Drag](../playgrounds/bsc-y1s1/FIS1013-free-fall-stokes-vs-quadratic-drag/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
   Three identical balls are dropped from the same height at the same instant. One falls in vacuum, one through a fluid that resists it in proportion to its speed, and one through air, where resistance grows with the square of the speed. They separate immediately, and each settles into a different steady fall. This is the difference between "no drag", "slow/sma
@@ -923,5 +857,143 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Logistic Map Cobweb and Bifurcation Diagram](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/index.html)** &nbsp; (verified, verified 2026-05-18T15:34:16Z)
   This is the single most famous equation in chaos, and it is one line of arithmetic. Think of $x$ as a population as a fraction of the most the environment can hold, so $x$ runs from 0 (extinct) to 1 (packed full). Each generation, the next value is computed from the current one. A single knob, $r$, controls how fast the population breeds. Turn that one knob 
 
-- **[Lorenz Attractor Ensemble (Hero)](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-18T15:34:16Z)
+- **[Lorenz Attractor Ensemble](../playgrounds/_heroes/lorenz-attractor-3d-ensemble/index.html)** &nbsp; (verified, verified 2026-05-18T15:34:16Z)
   In 1963 the meteorologist Edward Lorenz stripped a weather model down to three numbers and three equations and found something that changed science: a system with no randomness in it at all, whose future is still effectively unpredictable. This playground releases thousands of trajectories from almost the same starting point. They stay together for a moment,
+
+- **[Aurora Borealis - Charged Particles in Earth's Dipole](../playgrounds/_heroes/aurora-borealis-dipole-trap-3d/index.html)** &nbsp; (verified)
+  Dipole magnetic trap + Boris pusher. Source: Stormer, The Polar Aurora, Oxford 1955.
+
+- **[BEC Vortex Lattice in a Rotating Trap](../playgrounds/_heroes/bec-vortex-lattice-3d/index.html)** &nbsp; (verified)
+  Quantized vortices in a rotating Bose-Einstein condensate. Source: Pitaevskii and Stringari, Bose-Einstein Condensation and Superfluidity, Ch. 11; Pethick and Smith, Bose-Einstein Condensation in Dilute Gases, 2nd ed., Ch. 9.
+
+- **[Bell Inequality and Quantum Entanglement](../playgrounds/_heroes/bell-inequality-entanglement-3d/index.html)** &nbsp; (verified)
+  Singlet correlation + CHSH. Source: Bell, *Physics* 1 (1964) 195; CHSH derivation: Clauser, Horne, Shimony, Holt, *Phys. Rev. Lett.* 23 (1969) 880; experimental verification: Aspect et al., *Phys. Rev. Lett.* 49 (1982) 91.
+
+- **[Black Hole](../playgrounds/_legends/blackhole-legend-3d/index.html)** &nbsp; (verified)
+  A black-hole laboratory: photon orbits, accretion-disk imaging, gravitational lensing, Kerr frame dragging, embedded geometry. Source: Misner, Thorne, Wheeler, *Gravitation*, Ch. 25; Bardeen, Press, Teukolsky, *Astrophys. J.* 178 (1972) 347; Luminet, *Astron. Astrophys.* 75 (1979) 228; Refsdal, *Mon. Not. R. Astron. Soc.* 128 (1964) 295.
+
+- **[Black Hole Geodesics](../playgrounds/_heroes/blackhole-geodesics-3d/index.html)** &nbsp; (verified)
+  Gravity, in Einstein's general relativity, is not a force pulling things in. It is the shape of spacetime; light and matter simply follow the straightest available paths (geodesics) through that shape. Near a black hole the shape is so curved that there is a knife-edge: aim a photon a fraction of a percent too close and it cannot get back out, no matter how 
+
+- **[Brewster Angle and Fresnel Reflection](../playgrounds/_heroes/brewster-fresnel-reflection-3d/index.html)** &nbsp; (verified)
+  R_s, R_p, theta_B, theta_c. Source: Hecht, *Optics*, 5th ed., Pearson 2017, Ch. 4; original: Brewster, *Phil. Trans. R. Soc.* 105 (1815) 125.
+
+- **[Cepheid Variable Period-Luminosity](../playgrounds/_heroes/cepheid-period-luminosity-3d/index.html)** &nbsp; (verified)
+  Leavitt Law. Source: Madore + Freedman, *PASP* 103 (1991) 933; original discovery: Leavitt, *Harvard Coll. Obs. Circ.* 173 (1912) 1.
+
+- **[Cherenkov Radiation Cone](../playgrounds/_heroes/cherenkov-radiation-cone-3d/index.html)** &nbsp; (verified)
+  The "light boom" of relativistic charged particles. Source: Jackson, Classical Electrodynamics, Section 13.4.
+
+- **[Cosmic Ray Air Shower](../playgrounds/_heroes/cosmic-ray-air-shower-3d/index.html)** &nbsp; (verified)
+  Heitler cascade + Gaisser-Hillas profile. Source: Matthews, *Astropart. Phys.* 22 (2005) 387; Gaisser, *Cosmic Rays and Particle Physics*, CUP 1990.
+
+- **[Cosmology](../playgrounds/_legends/cosmology-legend-3d/index.html)** &nbsp; (verified)
+  Four-mode laboratory for the Friedmann universe and its early-time quantum fluctuations. Source: Ryden, *Introduction to Cosmology*, 2nd ed., Cambridge University Press 2017, Ch. 5 to 6; Mukhanov, *Physical Foundations of Cosmology*, CUP 2005; Baumann, *Cosmology*, CUP 2022; Planck Collaboration 2018.
+
+- **[Dark Matter Halo and the Galactic Rotation Curve](../playgrounds/_heroes/dark-matter-halo-rotation-curve-3d/index.html)** &nbsp; (verified)
+  NFW halo + bulge + disk; v_c(r) plateaued by DM. Source: Navarro, Frenk, White, ApJ 462 (1996) 563.
+
+- **[Earth-Moon-Sun Tides](../playgrounds/_heroes/earth-moon-tides-3d/index.html)** &nbsp; (verified)
+  Differential gravity, L=2 Legendre, spring vs neap. Source: Murray and Dermott, Solar System Dynamics, Ch. 4.
+
+- **[Earth, Moon, Sun and Eclipse Prediction](../playgrounds/_heroes/earth-eclipse-prediction-3d/index.html)** &nbsp; (verified)
+  3D Sun-Earth-Moon geometry, eclipse search. Source: Meeus, Astronomical Algorithms, 2nd ed..
+
+- **[Exoplanet Interior](../playgrounds/_heroes/exoplanet-interior-3d/index.html)** &nbsp; (verified)
+  A terrestrial-to-mini-Neptune planet decomposed into concentric layers of (in order from the centre): an iron core, a silicate mantle, an optional water/ice layer, an optional H/He envelope. The big panel is a 3D cutaway sphere that rotates so you can see the layered structure; the side panels show where this planet falls on a family of mass- radius curves a
+
+- **[Exoplanet Transit](../playgrounds/_heroes/exoplanet-transit-3d/index.html)** &nbsp; (verified)
+  A planet orbits its star. Whenever it passes between us and the star, it blocks a tiny fraction of the light, like an insect crossing a streetlamp. The dip is sharp, periodic, and tells you the planet's size: how much it blocks is the square of the planet-to-star radius ratio. From a few thousand such dips, the Kepler mission found thousands of planets we ca
+
+- **[Expanding Universe](../playgrounds/_heroes/expanding-universe-3d/index.html)** &nbsp; (verified)
+  Space itself stretches. The galaxies are not flying through space away from an explosion; the space between them is growing, so every observer sees everyone else receding and nobody is at the centre. How fast that growth is, and whether it speeds up, slows down, or reverses, is set by one quantity: what the universe is made of. Ordinary matter gravitates and
+
+- **[Faraday Rotation in Magnetized Plasma](../playgrounds/_heroes/faraday-rotation-plasma-3d/index.html)** &nbsp; (verified)
+  chi = RM lambda^2. Source: Beck, *Astron. Astrophys. Rev.* 24 (2015) 4; Burn, *Mon. Not. R. Astron. Soc.* 133 (1966) 67.
+
+- **[Foucault Pendulum on a Rotating Earth](../playgrounds/_heroes/foucault-pendulum-rotating-earth-3d/index.html)** &nbsp; (verified)
+  Coriolis precession of the swing plane. Source: Goldstein, Classical Mechanics, Ch. 4.10.
+
+- **[Gravitational Lensing](../playgrounds/_heroes/gravitational-lensing-3d/index.html)** &nbsp; (verified)
+  Point-mass lens + Einstein ring. Source: Schneider, Ehlers, Falco, Gravitational Lenses, Ch. 5.
+
+- **[Gravity in n Spatial Dimensions](../playgrounds/_heroes/gravity-in-n-dimensions-3d/index.html)** &nbsp; (verified)
+  Bertrand-Ehrenfest stability of orbits. Source: Tangherlini, Nuovo Cim. 27 (1963) 636.
+
+- **[Greenhouse Effect](../playgrounds/_heroes/greenhouse-effect-3d/index.html)** &nbsp; (verified)
+  A radiative-balance laboratory for planetary surface temperature. Source: Pierrehumbert, *Principles of Planetary Climate*, CUP 2010, Ch. 4; Hansen et al., *Science* 213 (1981) 957; IPCC AR6 WG1 2021.
+
+- **[Kelvin-Helmholtz Instability](../playgrounds/_heroes/kelvin-helmholtz-instability-3d/index.html)** &nbsp; (verified)
+  Stuart cats-eye, sigma = k U / 2. Source: Stuart, *J. Fluid Mech.* 29 (1967) 417; Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Oxford 1961, Ch. 11.
+
+- **[Laser Cavity](../playgrounds/_heroes/laser-cavity-3d/index.html)** &nbsp; (verified)
+  A laser is not just a bright lamp. Below a certain pump rate it does nothing special: atoms get excited and dribble out incoherent light. Above a threshold pump, something abrupt happens: photons already in the cavity stimulate excited atoms to emit MORE photons in exact step, which stimulate yet more, and the cavity fills with one coherent, synchronized fie
+
+- **[Magnetic Reconnection at an X-point](../playgrounds/_heroes/magnetic-reconnection-x-point-3d/index.html)** &nbsp; (verified)
+  Sweet-Parker geometry, M_A = S^(-1/2). Source: Priest and Forbes, Magnetic Reconnection, Ch. 4; Kulsrud, Plasma Physics for Astrophysics, Ch. 14.
+
+- **[Map Projection Explorer](../playgrounds/_heroes/map-projection-explorer/index.html)** &nbsp; (verified)
+  Twelve forward map projections with the Tissot indicatrix made visible. Source: Snyder, Map Projections: A Working Manual, USGS Professional Paper 1395, 1987.
+
+- **[Meissner Effect](../playgrounds/_heroes/superconductor-meissner-3d/index.html)** &nbsp; (verified)
+  Most materials let a magnetic field pass through them. A superconductor, below a certain temperature, does the opposite: it sets up surface currents that cancel the field everywhere inside, so the field is pushed out. Because the field cannot get in, a magnet brought near is repelled, and it can hover with nothing touching it. This is the Meissner effect, th
+
+- **[N-body Orrery and Chaotic Asteroid Pair](../playgrounds/_heroes/n-body-orrery-3d/index.html)** &nbsp; (verified)
+  Yoshida-4 symplectic; two ghosts diverging. Source: Yoshida, Phys. Lett. A 150 (1990) 262.
+
+- **[Neutron Star](../playgrounds/_legends/neutron-star-legend-3d/index.html)** &nbsp; (verified)
+  Five-mode laboratory for the second-most-extreme object in the universe. Source: Shapiro and Teukolsky, *Black Holes, White Dwarfs and Neutron Stars*, 1983, Ch. 9; Lattimer and Prakash, *ApJ* 550 (2001) 426; Lorimer and Kramer, *Handbook of Pulsar Astronomy*, 2005.
+
+- **[Penrose Aperiodic Tiling](../playgrounds/_heroes/penrose-aperiodic-tiling-3d/index.html)** &nbsp; (verified)
+  P3 rhombi by Conway-Penrose deflation. Source: Senechal, *Quasicrystals and Geometry*, CUP 1995, Ch. 6; originals: Penrose, *Bull. Inst. Math. Appl.* 10 (1974) 266; Shechtman et al., *Phys. Rev. Lett.* 53 (1984) 1951.
+
+- **[pp Chain vs CNO Cycle](../playgrounds/_heroes/pp-chain-cno-cycle-nucleosynthesis-3d/index.html)** &nbsp; (verified)
+  T^4 vs T^17. Source: Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Ch. 18. Solar-neutrino context: Bahcall, Neutrino Astrophysics, CUP 1989.
+
+- **[Quadtree N-body and the Barnes-Hut Approximation](../playgrounds/bsc-y1s1/CC1017-quadtree-nbody-2d/index.html)** &nbsp; (verified)
+  2D galactic disk under gravity; live Barnes-Hut tree. Source: Barnes and Hut, Nature 324 (1986) 446.
+
+- **[Quantum Tunnelling](../playgrounds/_heroes/quantum-tunnelling-barrier-3d/index.html)** &nbsp; (verified)
+  A classical ball that does not have enough energy to get over a hill rolls back, every time. A quantum particle is a wave, and a wave does not stop dead at a wall; a little of it leaks out the far side. So a particle facing a barrier it could never climb classically still has a real chance of being found beyond it. That is quantum tunnelling, and it is not e
+
+- **[Quasar Relativistic Jet](../playgrounds/_heroes/quasar-relativistic-jet-3d/index.html)** &nbsp; (verified)
+  Doppler boost from a bulk-relativistic flow. Source: Rybicki and Lightman, Radiative Processes in Astrophysics, Ch. 4; unification scheme: Urry and Padovani, PASP 107 (1995) 803.
+
+- **[Radial-Velocity Exoplanet Detection](../playgrounds/_heroes/radial-velocity-exoplanet-detection-3d/index.html)** &nbsp; (verified)
+  Doppler wobble of a host star reveals a planet. Source: Murray and Dermott, Solar System Dynamics, Ch. 2.
+
+- **[Rayleigh-Taylor Instability](../playgrounds/_heroes/rayleigh-taylor-instability-3d/index.html)** &nbsp; (verified)
+  sigma = sqrt(A k g). Source: Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Oxford 1961, Ch. 10; originals: Rayleigh, *Proc. Lond. Math. Soc.* 14 (1883) 170; Taylor, *Proc. R. Soc. A* 201 (1950) 192.
+
+- **[Relativistic Starship](../playgrounds/_heroes/special-relativity-starship-3d/index.html)** &nbsp; (verified)
+  Light has a fixed speed for everyone, and that single fact rebuilds geometry. As you throttle up, the stars do not just stream past: their positions, colours and brightness all change because you are transforming the photons themselves. Aberration sweeps the whole sky toward your direction of travel, so near light speed the universe ahead collapses into a sm
+
+- **[Slit Experiment](../playgrounds/_legends/slit-experiment-legend-3d/index.html)** &nbsp; (verified)
+  Fraunhofer N-slit + de Broglie. Source: Hecht, *Optics*, 5th ed., Ch. 10; Tonomura et al., *Am. J. Phys.* 57 (1989) 117; Davisson and Germer, *Nature* 119 (1927) 558.
+
+- **[Soliton Canal](../playgrounds/_heroes/soliton-canal-3d/index.html)** &nbsp; (verified)
+  Drop a stone in a pond and the ripple spreads out and fades: ordinary waves disperse. In 1834 John Scott Russell chased a single hump of water down a canal on horseback and watched it travel for kilometres without changing shape. That hump is a soliton. It survives because the water's nonlinearity (taller water moves faster, so the back of the hump catches u
+
+- **[Stellar Pulsation Modes in 3D](../playgrounds/_heroes/stellar-pulsation-3d/index.html)** &nbsp; (verified)
+  Surface Y_l^m oscillation pattern. Source: Aerts et al. Ch. 3.
+
+- **[Stellar Rotation and Line Broadening](../playgrounds/_heroes/stellar-rotation-line-broadening-3d/index.html)** &nbsp; (verified)
+  Doppler-broadened line from a rotating limb-darkened disk. Source: Gray Ch. 17.
+
+- **[Stern-Gerlach Spin Quantization](../playgrounds/_heroes/stern-gerlach-spin-quantization-3d/index.html)** &nbsp; (verified)
+  2J+1 discrete spots, not a classical band. Source: Sakurai and Napolitano, Modern Quantum Mechanics, 2nd ed., Sec. 1.1; original experiment: Gerlach and Stern, Z. Phys. 9 (1922) 349.
+
+- **[Supernova Light Curve](../playgrounds/_heroes/supernova-light-curve-3d/index.html)** &nbsp; (verified)
+  A radioactive-decay-powered light curve in 3D. Source: Arnett, *ApJ* 253 (1982) 785; Filippenko, *ARA&A* 35 (1997) 309; Hillebrandt and Niemeyer, *ARA&A* 38 (2000) 191.
+
+- **[Synchrotron Radiation Cone](../playgrounds/_heroes/synchrotron-radiation-cone-3d/index.html)** &nbsp; (verified)
+  Beaming half-angle 1/gamma. Source: Rybicki and Lightman, *Radiative Processes in Astrophysics*, Ch. 6; Jackson, *Classical Electrodynamics*, 3rd ed., Sec. 14.4.
+
+- **[Two-Galaxy Collision](../playgrounds/_heroes/galaxy-collision-3d/index.html)** &nbsp; (verified)
+  Two-galaxy fly-by via Barnes-Hut quadtree. Source: Toomre and Toomre, ApJ 178 (1972) 623.
+
+- **[White-Dwarf Cooling Sequence](../playgrounds/_heroes/white-dwarf-cooling-3d/index.html)** &nbsp; (verified)
+  Mestel cooling + C/O crystallization. Source: Fontaine, Brassard, Bergeron, PASP 113 (2001) 409; Mestel, MNRAS 112 (1952) 583; Winget et al., ApJ 315 (1987) L77.
+
+- **[Wormhole](../playgrounds/_legends/wormhole-legend-3d/index.html)** &nbsp; (verified)
+  Four-mode laboratory for the Morris-Thorne / Ellis traversable wormhole. Source: Morris and Thorne, *Am. J. Phys.* 56 (1988) 395; Ellis, *J. Math. Phys.* 14 (1973) 104; Misner, Thorne and Wheeler, *Gravitation*, W. H. Freeman 1973, Box 13.
