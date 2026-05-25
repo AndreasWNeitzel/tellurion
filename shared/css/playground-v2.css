@@ -58,6 +58,26 @@ body:has(.playground-layout) {
 .playground-controls    { max-width: var(--col-controls-max); margin-left: auto; margin-right: auto; }
 .playground-canvas      { width: 100%; max-width: var(--col-center-max); height: auto; }
 
+/* Default reading flow (all regimes): canvas comes immediately after the
+   title; the description and "what to try" sit BELOW the simulation. The
+   center column becomes a flex column so `order:` cleanly relocates
+   children without touching per-playground HTML. The mobile block
+   re-declares an order that interleaves controls between canvas and
+   prose; the rail-hosted controls stay outside this flex container. */
+.playground-center {
+  display: flex;
+  flex-direction: column;
+}
+.playground-header        { order: 1; }
+.playground-canvas-frame  { order: 2; }
+.playground-caption       { order: 3; }
+.playground-controls      { order: 4; }
+.playground-intro         { order: 5; margin-top: var(--space-3); }
+.playground-extra-canvases{ order: 6; }
+.playground-what-to-try   { order: 7; }
+.playground-equations     { order: 8; }
+.playground-related       { order: 9; }
+
 /* Regime B: mid (1024-1399px) — single column, rail hidden. */
 @media (max-width: 1399px) {
   .playground-layout {
@@ -70,10 +90,11 @@ body:has(.playground-layout) {
   .playground-rail { display: none; grid-column: auto; }
 }
 
-/* Regime C: narrow (<1024px) — single column, focus toggle hidden. */
+/* Regime C: narrow (<1024px) — single column, focus toggle hidden
+   (the toggle hide is declared further down, after the base rule,
+   so source order beats the base specificity). */
 @media (max-width: 1023px) {
   .playground-layout { padding: 72px 16px 48px; }
-  .playground-focus-toggle { display: none; }
   .playground-canvas { max-width: 100%; }
 }
 
@@ -737,6 +758,16 @@ body:has(.playground-layout) {
 }
 .playground-focus-toggle:hover { color: var(--text-primary); }
 .playground-focus-toggle svg { width: 18px; height: 18px; display: block; }
+
+/* Hide the focus toggle on phone and tablet (the pre-existing intent
+   per the Regime C comment), restated here so source order favours
+   the override of the base rule above. The earlier same-specificity
+   rule inside @media (max-width: 1023px) appeared earlier in the
+   stylesheet and was therefore beaten by the unconditional
+   `display: inline-flex` declared after it. */
+@media (max-width: 1023px) {
+  .playground-focus-toggle { display: none; }
+}
 
 .playground-layout[data-focus="true"] {
   grid-template-columns: minmax(0, var(--col-focus-max));
