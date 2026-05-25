@@ -745,6 +745,33 @@ body:has(.playground-layout) {
   transition: transform var(--t-focus), opacity var(--t-focus);
   pointer-events: none;
 }
+/* When the controls panel has been hoisted into the rail, keep the
+   rail visible in focus mode so sliders are still reachable: float a
+   semi-transparent strip over the wider canvas with only the controls
+   showing. The diagnostics sections continue to fade out (an immersive
+   "look + adjust" mode, not a full HUD). */
+.playground-layout[data-focus="true"] .playground-rail:has(.playground-controls.in-rail) {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+  background: rgba(12, 14, 22, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-left: 1px solid var(--border-subtle);
+  border-radius: 12px 0 0 12px;
+  padding: 14px 18px 14px 18px;
+}
+.playground-layout[data-focus="true"] .playground-rail:has(.playground-controls.in-rail) > section {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+.playground-layout[data-focus="true"] .playground-rail:has(.playground-controls.in-rail) > .playground-controls.in-rail {
+  opacity: 1;
+  pointer-events: auto;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
 .playground-layout[data-focus="true"] .playground-header,
 .playground-layout[data-focus="true"] .playground-intro,
 .playground-layout[data-focus="true"] .playground-caption,
