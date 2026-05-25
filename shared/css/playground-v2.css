@@ -589,6 +589,24 @@ body:has(.playground-layout) {
 .playground-related h2 { color: var(--text-secondary); margin-bottom: 16px; }
 .related-strip { display: flex; gap: 16px; flex-wrap: wrap; }
 
+/* Mobile spacing overrides. The earlier @media (max-width: 768px) block
+   already set tighter margins for each section, but the base rules in
+   the section above (.playground-header { margin-bottom: 24px }, etc.)
+   came later in source order with the same specificity and won the
+   cascade, so phones were rendering desktop-sized gaps. Restating the
+   overrides here, AFTER the base rules, fixes the cascade. */
+@media (max-width: 768px) {
+  .playground-header        { margin-bottom: 8px; }
+  .playground-canvas-frame  { margin-bottom: 8px; }
+  .playground-caption       { margin-top: 6px; }
+  .playground-controls      { margin-block: 4px 16px; }
+  .playground-intro         { margin-top: 16px; margin-bottom: 16px; }
+  .playground-what-to-try   { margin-top: 20px; }
+  .playground-related       { margin-top: 24px; }
+  .playground-equations     { margin-top: 16px; }
+  .playground-extra-canvases{ margin-top: 8px; }
+}
+
 /* ---- 7. RIGHT RAIL ------------------------------------------------------ */
 
 .playground-rail {
