@@ -399,7 +399,12 @@ function mountChrome() {
 // session storage so a dismissed hint stays dismissed for the session.
 function mountRotateHint() {
   if (typeof window === 'undefined') return;
-  if (window.innerWidth >= 769) return;                                // not a phone-sized viewport
+  // Phone-sized portrait only: rotating an iPad portrait (768x1024) to
+  // landscape gains little because the playground already has 748 px of
+  // canvas width. Phones (<=600 wide) genuinely benefit. The 769 floor
+  // also dragged iPad portrait into mount territory, which the user
+  // would dismiss instinctively.
+  if (window.innerWidth > 600) return;
   const portrait = window.matchMedia && window.matchMedia('(orientation: portrait)');
   if (portrait && !portrait.matches) return;                           // already landscape
   if (sessionStorage && sessionStorage.getItem('rotate-hint-dismissed') === '1') return;
