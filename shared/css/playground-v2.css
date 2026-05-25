@@ -779,10 +779,12 @@ body:has(.playground-layout) {
   .playground-back .back-title { display: none; }
   .playground-back .back-chevron { width: 14px; height: 14px; }
 }
-/* Landscape phone: the viewport is short (~340 px), so reclaim the
+/* Landscape phone: the viewport is short (~340-430 px), so reclaim the
    top padding that previously cleared the back button. The chip now
-   floats over the empty left-of-title area instead of stealing rows. */
-@media (max-width: 1023px) and (orientation: landscape) {
+   floats over the empty left-of-title area instead of stealing rows.
+   Gated by max-height (not max-width) so iPhone 14 Pro Max landscape
+   at 932 wide still matches; iPad landscape at 768 tall does not. */
+@media (orientation: landscape) and (max-height: 500px) {
   .playground-layout { padding-top: 14px; }
   .playground-header { padding-left: 40px; }
 }
@@ -796,7 +798,11 @@ body:has(.playground-layout) {
 @media (orientation: landscape) and (max-height: 500px) {
   .playground-canvas-frame canvas,
   .playground-canvas {
-    max-height: calc(100vh - 90px);
+    /* Chrome budget: 14 px layout pad + 42 px header + 48 px caption
+       (2 lines) + 48 px chip footprint = ~150 px. The previous 90 px
+       budget left captions cropped below the viewport on iPhone 14
+       Pro Max landscape (430 tall). */
+    max-height: calc(100vh - 130px);
     width: auto;
     height: auto;
     max-width: 100%;
