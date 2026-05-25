@@ -379,6 +379,9 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
     margin: 0 -24px 8px;
     border-bottom: 1px solid var(--border-dim);
   }
+  /* Anchor jumps need to clear the 56 nav + 54 search row + 8 padding =
+     ~120 of fixed chrome. */
+  html { scroll-padding-top: 120px; }
 }
 /* Page transitions (Section 9): fades only, no slide/zoom. The star
    field canvas is parented to <html> so it never fades. */
