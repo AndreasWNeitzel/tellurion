@@ -11,6 +11,11 @@
 // This module self-initialises on DOMContentLoaded. If the page has
 // no .playground-rail (an unmigrated playground), it does nothing.
 
+// Side-effect import: hoists .playground-controls into the rail at
+// >= 1400 px viewports so sliders are reachable without scrolling.
+// Returns to inline placement below the canvas on narrower viewports.
+import './controls-layout.js';
+
 const STATE_HZ = 10;
 const INVAR_HZ = 5;
 

@@ -88,8 +88,8 @@
   --col-center-max:   880px;
   --col-text-max:     720px;
   --col-controls-max: 720px;
-  --col-rail-width:   260px;
-  --col-rail-gap:     48px;
+  --col-rail-width:   320px;
+  --col-rail-gap:     40px;
   --col-focus-max:    1280px;
   --bp-rails-full:    1400px;
   --bp-single-col:    1023px;
