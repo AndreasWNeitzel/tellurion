@@ -17,8 +17,20 @@
 // Both moves are idempotent and reversible via a hidden sentinel span
 // that marks the original DOM position.
 const BP_RAIL = 1400;
-const BP_HUD  = 768;
 const SENTINEL_DATA = 'controls-original-slot';
+
+// "Phone" = portrait <=768 px OR short-and-landscape (the screen we
+// want the Controls chip on). The 768 px width breakpoint alone fails
+// on modern phones whose landscape width exceeds 768 (iPhone 12 = 844,
+// iPhone 14 Pro Max = 932), so the chip was missing on real landscape
+// devices even though Playwright's iPhone-12-landscape emulator (750)
+// triggered it. The orientation+max-height clause catches all phones
+// in landscape regardless of width while still excluding tablets,
+// which are >=600 px tall even in landscape.
+function isPhoneViewport() {
+  if (window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches) return true;
+  return window.innerWidth <= 768;
+}
 
 function findRail()    { return document.querySelector('.playground-rail'); }
 function findCenter()  { return document.querySelector('.playground-center'); }
@@ -87,7 +99,7 @@ function onResize() {
 // via the close button, the grip-area backdrop, or Escape. Pulling the panel
 // out of the page flow gives the canvas the full screen above the chip.
 function mountMobileHud() {
-  if (window.innerWidth > BP_HUD) return;                  // not a phone
+  if (!isPhoneViewport()) return;                          // not a phone
   if (document.querySelector('.controls-hud')) return;     // already mounted
 
   const chip = document.createElement('button');
@@ -161,7 +173,7 @@ function mountMobileHud() {
 }
 
 function tearDownMobileHud() {
-  if (window.innerWidth <= BP_HUD) return;                 // still phone
+  if (isPhoneViewport()) return;                           // still phone
   const hud = document.querySelector('.controls-hud');
   const chip = document.querySelector('.controls-hud-chip');
   if (!hud && !chip) return;
@@ -180,7 +192,7 @@ function tearDownMobileHud() {
 }
 
 function syncMobileHud() {
-  if (window.innerWidth <= BP_HUD) mountMobileHud();
+  if (isPhoneViewport()) mountMobileHud();
   else tearDownMobileHud();
 }
 
