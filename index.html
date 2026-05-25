@@ -309,10 +309,12 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
      gets pushed below the fold under the sticky search bar. Shrink. */
   .catalog-empty { padding: 40px 16px !important; }
   .catalog-empty-reset { margin-top: 16px !important; }
-  /* Anchor scrolls also need to clear the sticky search bar (search +
-     group toggle = ~140 px when both rows are present). The base
-     html.scroll-padding-top is 72; bump for phone. */
-  html { scroll-padding-top: 160px; }
+  /* Anchor scrolls also need to clear the sticky search bar. Total
+     chrome: 56 (nav) + ~140 (search row + group toggle) = 196. Bump
+     html.scroll-padding-top from the base 72 to 200 so an anchor
+     jump lands the target section just below the sticky bar instead
+     of half-overlapping it. */
+  html { scroll-padding-top: 200px; }
 
   /* About-section inner spacing: desktop margins (48 px after the
      intro, 64 px between the two LAB rows, 36 px between cols) are
