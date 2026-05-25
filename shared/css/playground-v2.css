@@ -533,7 +533,18 @@ body:has(.playground-layout) {
   display: block;
   border-radius: var(--radius-md);
   background: #060608;
+  /* Critical for mobile: without this, the browser intercepts touch
+     gestures for page scroll/zoom and cancels the canvas's
+     pointermove events mid-drag. 3D-camera playgrounds (drag to
+     rotate, pinch to zoom) become unusable on phones. `touch-action:
+     none` routes every touch on the canvas to the canvas, not the
+     browser's scroller; the visitor still scrolls the page by
+     touching outside the canvas. */
+  touch-action: none;
 }
+/* Same fix for diagnostic / extra canvases that also handle drag. */
+.playground-canvas-frame canvas,
+.playground-extra-canvases canvas { touch-action: none; }
 
 .playground-caption {
   display: block;
