@@ -779,6 +779,35 @@ body:has(.playground-layout) {
   .playground-layout { padding-top: 14px; }
   .playground-header { padding-left: 40px; }
 }
+
+/* Landscape phone canvas height cap. Without this the canvas keeps
+   its width-driven aspect (e.g. 730 x 500), pushing the caption and
+   the entire page hundreds of pixels below the 340 px viewport. Cap
+   the canvas to (viewport - chrome) and let CSS scale it down with
+   aspect ratio preserved via height/width:auto. The drawing buffer
+   stays at its JS-set resolution; only the visual box shrinks. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .playground-canvas-frame canvas,
+  .playground-canvas {
+    max-height: calc(100vh - 90px);
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  /* Caption sits between the Controls chip (bottom-left) and the
+     "What is this?" pill (bottom-right). Pad it so the first and last
+     characters are not hidden under either fab. */
+  .playground-caption {
+    padding-left: 116px;
+    padding-right: 132px;
+    margin-top: 4px;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+}
 .back-title {
   max-width: 28ch;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
