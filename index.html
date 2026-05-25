@@ -202,6 +202,94 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
 .cur-group.collapsed .chev{transform:rotate(-90deg)}
 .cur-wrap{overflow:hidden;transition:max-height .3s ease;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 @media(max-width:600px){.sitefoot{flex-direction:column;height:auto;gap:6px;padding:20px 0;text-align:center}}
+
+/* === Phone catalog browsing ============================================= */
+/* The 1-column grid at <=600 px made browsing 336 cards impractical:
+   only 2.5 cards per viewport, ~250 scroll screens to scan the catalog.
+   Switch to a 2-column grid on phone portrait with compact cards, and
+   3 columns on phone landscape where width is plentiful. Tighten the
+   masthead so the first cards appear within the first viewport. */
+@media (max-width: 600px) {
+  /* Masthead compaction: title + tagline fit in ~120 px instead of ~250. */
+  .t-display.wordmark { font-size: 1.85rem; padding-bottom: 8px; gap: 10px; }
+  .t-display.wordmark::after { width: 80px; }
+  .wordmark-icon { width: 0.72em; height: 0.72em; }
+  .masthead-tagline { font-size: 0.9rem; margin-top: 10px; line-height: 1.45; }
+  .masthead-status { font-size: 0.7rem; margin-top: 6px; }
+  .landing-framing { padding: 8px 0 0; }
+  .landing-framing p { font-size: 0.875rem; line-height: 1.5; }
+
+  /* 2-column card grid with compact cards (includes the featured row
+     at the top of the landing page, which previously dropped to 1 col). */
+  .card-grid,
+  .cur-wrap,
+  .featured-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .featured-row > :nth-child(4) { display: none; }
+  .card { min-height: 0; border-radius: 6px; }
+  .cimg { height: 88px; }
+  .cbody { padding: 8px 10px 10px; }
+  .ctitle { font-size: 0.875rem; line-height: 1.25; -webkit-line-clamp: 2; }
+  .cuc { margin: 2px 0 6px; font-size: 0.6875rem; }
+  .ctags { gap: 4px; margin-top: 4px; max-height: 18px; }
+  .ctag { font-size: 0.65rem; padding: 1px 5px; }
+  .lvl { font-size: 9px; padding: 2px 5px; top: 6px; right: 6px; }
+  .cstar { font-size: 11px; padding: 3px; top: 7px; left: 7px; }
+  .cur-group { margin: 18px 0 6px; }
+
+  /* Spotlight: at default ~509 px tall it eats 80% of viewport before the
+     grid appears. Shrink to ~280 px so the 2-col featured row lands in
+     the first scroll. */
+  .spotlight-link { grid-template-rows: 110px auto !important; }
+  .spotlight-body { padding: 12px 14px 14px !important; gap: 4px !important; }
+  .spotlight-title { font-size: 1.05rem !important; line-height: 1.25 !important; }
+  .spotlight-uc { font-size: 0.7rem !important; }
+  .spotlight-desc { font-size: 0.85rem !important; line-height: 1.4 !important;
+    margin-top: 6px !important; display: -webkit-box; -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden; }
+  .spotlight-tags { margin-top: 8px !important; gap: 4px !important; }
+  .spotlight-image .star-marker { top: 8px; left: 10px; font-size: 16px; }
+
+  /* "FEATURED TODAY" curation header and section headers: tighten footprint. */
+  .cur-group { font-size: 0.7rem; }
+  .featured-header { margin: 6px 0 8px; }
+  .featured-header .sec { font-size: 1rem; }
+  .featured-header .featured-meta { font-size: 0.7rem; }
+  .landing-hero { padding-bottom: 8px; }
+  .landing-featured { padding-top: 8px; }
+}
+/* Phone landscape: more horizontal room means 3 columns are comfortable;
+   short height means tight cards keep multiple rows in view. */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .card-grid,
+  .cur-wrap,
+  .featured-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .featured-row > :nth-child(4) { display: none; }
+  .card { min-height: 0; }
+  .cimg { height: 76px; }
+  .cbody { padding: 8px 10px 10px; }
+  .ctitle { font-size: 0.875rem; line-height: 1.25; -webkit-line-clamp: 2; }
+  .cuc { margin: 2px 0 4px; font-size: 0.6875rem; }
+  .ctags { display: none; }
+  /* Tighter masthead so cards land above the fold quickly. */
+  .t-display.wordmark { font-size: 1.65rem; padding-bottom: 6px; }
+  .masthead-tagline { font-size: 0.875rem; margin-top: 6px; }
+  .masthead-status { display: none; }
+  .landing-framing { padding: 6px 0 0; }
+  .landing-framing p { font-size: 0.85rem; }
+  /* Spotlight stack is too tall for landscape; tuck it side-by-side. */
+  .spotlight-link { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) !important; grid-template-rows: auto !important; min-height: 0 !important; }
+  .spotlight-body { padding: 10px 14px 12px !important; gap: 2px !important; justify-content: flex-start !important; }
+  .spotlight-title { font-size: 0.95rem !important; line-height: 1.2 !important; }
+  .spotlight-uc { font-size: 0.65rem !important; margin: 0 !important; }
+  .spotlight-desc { font-size: 0.78rem !important; line-height: 1.35 !important;
+    margin-top: 4px !important; display: -webkit-box; -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden; }
+  .spotlight-tags { margin-top: 4px !important; gap: 3px !important; }
+  .spotlight-tags .ctag { font-size: 0.6rem; padding: 1px 4px; }
+  .featured-header { margin: 4px 0 6px !important; }
+  .featured-header .sec { font-size: 0.85rem !important; }
+  .featured-header .featured-meta { font-size: 0.7rem !important; }
+}
 /* Page transitions (Section 9): fades only, no slide/zoom. The star
    field canvas is parented to <html> so it never fades. */
 .page-transition{position:fixed;inset:0;background:var(--bg-void);opacity:0;
