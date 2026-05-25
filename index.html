@@ -364,6 +364,21 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   .featured-header { margin: 4px 0 6px !important; }
   .featured-header .sec { font-size: 0.85rem !important; }
   .featured-header .featured-meta { font-size: 0.7rem !important; }
+
+  /* Sticky search on landscape phone too: 390-430 px vertical means
+     the same scrolling pain as portrait. Match the portrait block. */
+  .catalog-controls { display: contents; }
+  .catalog-search-row {
+    position: sticky;
+    top: 56px;
+    z-index: 30;
+    background: var(--bg-frosted);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    backdrop-filter: blur(14px) saturate(1.3);
+    padding: 6px 24px;
+    margin: 0 -24px 8px;
+    border-bottom: 1px solid var(--border-dim);
+  }
 }
 /* Page transitions (Section 9): fades only, no slide/zoom. The star
    field canvas is parented to <html> so it never fades. */
