@@ -735,6 +735,32 @@ body:has(.playground-layout) {
 }
 .playground-back:hover { color: var(--text-primary); }
 .back-chevron { width: 16px; height: 16px; flex: none; }
+
+/* Phone-and-tablet back-button compaction. Same-specificity rules
+   declared inside the earlier @media (max-width: 768px) block were
+   defeated by this base rule via source order. Restating the override
+   AFTER the base lets it actually shrink the chip to chevron-only and
+   tuck it into the corner, freeing the title from the top padding it
+   was previously forced to reserve for a desktop-sized back button. */
+@media (max-width: 1023px) {
+  .playground-back {
+    top: 12px;
+    left: 10px;
+    padding: 6px 8px;
+    font-size: 0.7rem;
+    border-radius: var(--radius-sm);
+    gap: 0;
+  }
+  .playground-back .back-title { display: none; }
+  .playground-back .back-chevron { width: 14px; height: 14px; }
+}
+/* Landscape phone: the viewport is short (~340 px), so reclaim the
+   top padding that previously cleared the back button. The chip now
+   floats over the empty left-of-title area instead of stealing rows. */
+@media (max-width: 1023px) and (orientation: landscape) {
+  .playground-layout { padding-top: 14px; }
+  .playground-header { padding-left: 40px; }
+}
 .back-title {
   max-width: 28ch;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
