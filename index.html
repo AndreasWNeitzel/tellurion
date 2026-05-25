@@ -279,8 +279,11 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   }
 }
 /* Phone landscape: more horizontal room means 3 columns are comfortable;
-   short height means tight cards keep multiple rows in view. */
-@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+   short height means tight cards keep multiple rows in view. The
+   width clause used to be capped at 900 px but iPhone 14 Pro Max is
+   932 wide; orientation+max-height already excludes tablets (>=600
+   tall in landscape), so the width clause was redundant and wrong. */
+@media (orientation: landscape) and (max-height: 500px) {
   .card-grid,
   .cur-wrap,
   .featured-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
