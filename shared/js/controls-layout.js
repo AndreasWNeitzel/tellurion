@@ -4,15 +4,16 @@
 //  >= 1400 px (desktop)   the panel moves into .playground-rail as its
 //                         first child so the visitor can adjust sliders
 //                         next to the canvas without scrolling.
-//  <= 768 px (phone)      a floating "Controls" chip appears at the
-//                         bottom-left of the viewport and toggles a
-//                         translucent HUD overlay containing the panel.
+//  phone viewport          a floating "Controls" chip appears at the
+//  (<=600 portrait OR      bottom-left of the viewport and toggles a
+//   landscape <=500 h)     translucent HUD overlay containing the panel.
 //                         The panel stays in its inline DOM slot until
 //                         the chip is tapped; only then does it move
 //                         into the HUD body, and it returns to the slot
 //                         when the HUD is dismissed.
 //  in between              the panel sits in its inline slot below the
-//                         canvas frame.
+//                         canvas frame (tablet portrait + tablet
+//                         landscape + narrow desktop).
 //
 // Both moves are idempotent and reversible via a hidden sentinel span
 // that marks the original DOM position.
