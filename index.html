@@ -296,6 +296,19 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
      "Tellurion v0.1.0 · Built ... · 332 simulations" right below, and
      on phone the duplicate adds a redundant scroll. */
   .credits-ver  { display: none; }
+
+  /* About-section inner spacing: desktop margins (48 px after the
+     intro, 64 px between the two LAB rows, 36 px between cols) are
+     designed for a wide layout where these gaps read as breathing
+     room. On phone they read as dead space. Tighten without losing
+     the visual breakpoints. */
+  .about-project        { margin-bottom: 24px !important; }
+  .about-project h2     { font-size: 1.2rem !important; margin-bottom: 12px !important; }
+  .about .lab + .lab    { margin-top: 28px !important; }
+  .about-name           { font-size: 1.4rem !important; }
+  .about-bio            { margin-top: 16px !important; }
+  .about-stack          { margin-top: 20px !important; }
+  .about-cols           { margin-top: 20px !important; gap: 20px !important; }
 }
 /* Phone landscape: more horizontal room means 3 columns are comfortable;
    short height means tight cards keep multiple rows in view. The
