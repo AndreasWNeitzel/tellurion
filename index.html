@@ -292,6 +292,10 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   .credits .lab { margin-bottom: 16px !important; }
   .credits-grid { gap: 24px !important; }
   .about-grid   { gap: 20px !important; }
+  /* Hide the in-credits version line: the sitefoot already shows
+     "Tellurion v0.1.0 · Built ... · 332 simulations" right below, and
+     on phone the duplicate adds a redundant scroll. */
+  .credits-ver  { display: none; }
 }
 /* Phone landscape: more horizontal room means 3 columns are comfortable;
    short height means tight cards keep multiple rows in view. The
