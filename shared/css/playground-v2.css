@@ -3,6 +3,24 @@
    inline pedagogical sections, and focus mode. Consumes tokens.css.
    See the v2 master specification for the authoritative rules. */
 
+/* Force the dark palette on every Layout v2 page. shared/js/explainer.js
+   hard-codes html { background: var(--bg-void) } (dark), but --fg follows
+   prefers-color-scheme. A visitor on a light-mode OS would otherwise read
+   dark text on a dark background: invisible. Scoping via :has() keeps the
+   catalog landing page free to honour the system preference. */
+:root:has(.playground-layout) {
+  color-scheme: dark;
+  --bg:       #0E0F10;
+  --fg:       #E8E8E6;
+  --fg-muted: #9A9C9F;
+  --fg-faint: #5C5E61;
+  --grid:     #9A9C9F33;
+  --grid-strong: #9A9C9F66;
+  --accent:        #6BB4E0;
+  --accent-warm:   #E48566;
+  --accent-soft:   #6BB4E022;
+}
+
 /* base.css clamps <body> to --content-max (760px) and adds page
    padding. A v2 playground page must NOT inherit that clamp: the
    two-zone grid is ~1188px wide and manages its own width and
