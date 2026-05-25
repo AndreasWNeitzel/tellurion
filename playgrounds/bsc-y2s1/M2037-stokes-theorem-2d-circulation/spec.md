@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Riley, Hobson, Bence, Mathematical Methods for Physics and Engineering, Third ed., Ch. 10."
 ---
 # Stokes theorem in 2D
 Three vector fields (unit-curl, shear, conservative) and a draggable rectangle. Circulation = $\iint$ curl $dA$ closed-form for these uniform-curl fields. Source: Riley-Hobson Ch. 10.

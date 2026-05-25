@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Riley, Hobson, Bence, Mathematical Methods for Physics and Engineering, Third ed., Ch. 10."
 ---
 # Fubini's theorem in 2D
 Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10.

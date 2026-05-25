@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Gelman et al., Bayesian Data Analysis, 3rd ed., Ch. 2."
 ---
 
 # Bayesian Coin Update

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 9."
 ---
 # Skin effect
 Exponential decay of the AC electric field inside a conductor; skin depth $\delta = \sqrt{2/(\omega \mu \sigma)}$. Source: Griffiths E&M Ch. 9.

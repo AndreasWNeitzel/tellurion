@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Lemos, Analytical Mechanics, Ch. 4."
 ---
 # Noether's theorem
 Rotation symmetry of a central potential preserves $L_z$; breaking the symmetry makes $L_z$ drift. Source: Lemos Ch. 4.

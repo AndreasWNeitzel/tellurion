@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Carroll, Spacetime and Geometry: An Introduction to General Relativity."
 ---
 
 # Geodesics in Curved Spacetime: Schwarzschild, Kerr, FLRW

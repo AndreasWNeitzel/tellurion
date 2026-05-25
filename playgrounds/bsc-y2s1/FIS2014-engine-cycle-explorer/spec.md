@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Callen, Thermodynamics and an Introduction to Thermostatistics, Second ed., Ch. 4."
 ---
 # Engine cycle explorer
 Four idealized cycles on the PV plane: Otto, Diesel, Carnot, Stirling. Source: Callen Ch. 4-5.

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Newman, Computational Physics, Revised printing ed., Ch. 4."
 ---
 
 # Floating-point pitfalls: the Patriot missile failure

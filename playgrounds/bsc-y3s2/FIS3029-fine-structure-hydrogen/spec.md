@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, 3rd ed., Ch. 6."
 ---
 # Hydrogen fine structure
 Bohr levels split by $\alpha^2$ corrections; degeneracy is $j$-labeled. Source: Griffiths QM Ch. 6.

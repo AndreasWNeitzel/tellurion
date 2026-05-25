@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Rybicki, Lightman, Radiative Processes in Astrophysics, Ch. 6."
 ---
 # Synchrotron spectrum
 Hump for one electron; power-law for an ensemble. Source: Rybicki-Lightman Ch. 6.

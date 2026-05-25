@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Sprott, Chaos and Time-Series Analysis, Ch. 4."
 ---
 
 # Lorenz Attractor

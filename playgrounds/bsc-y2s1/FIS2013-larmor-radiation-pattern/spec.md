@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 11."
 ---
 # Larmor radiation pattern
 Non-relativistic accelerating charge radiates with the $\sin^2\theta$ angular distribution; total power follows the Larmor formula. Source: Griffiths E&M Ch. 11.

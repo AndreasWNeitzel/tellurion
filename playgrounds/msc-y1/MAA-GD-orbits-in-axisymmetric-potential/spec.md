@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Binney, Tremaine, Galactic Dynamics, 2nd ed., Ch. 3."
 ---
 # Orbits in a disk potential
 Miyamoto-Nagai potential; generic orbits are rosettes. Source: Binney-Tremaine Ch. 3.

@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Jaynes, Cummings, Comparison of Quantum and Semiclassical Radiation Theories with Application to the Beam Maser."
 ---
 
 # Jaynes-Cummings Model: Collapse and Revival

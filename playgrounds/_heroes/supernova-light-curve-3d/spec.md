@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Arnett, Type I supernovae. I. Analytic solutions for the early part of the light curve, Ch. 1."
 ---
 
 # Supernova Light Curve

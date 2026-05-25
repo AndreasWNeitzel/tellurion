@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Jackson, Classical Electrodynamics, 3rd ed., Ch. 11."
 ---
 # Thomas precession
 A gyroscope on a circular orbit picks up $(\gamma - 1)$ rad of extra rotation per revolution. Source: Jackson 3e Ch. 11.8.

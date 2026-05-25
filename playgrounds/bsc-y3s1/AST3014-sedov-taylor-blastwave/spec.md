@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Shu, The Physics of Astrophysics Volume II: Gas Dynamics, Ch. 17."
 ---
 # Sedov-Taylor blast wave
 Self-similar point-explosion blast: $R \propto (E t^2/\rho)^{1/5}$. Source: Shu Vol II Ch. 17.

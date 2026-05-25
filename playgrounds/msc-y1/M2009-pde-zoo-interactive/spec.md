@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "LeVeque, Finite Difference Methods for Ordinary and Partial Differential Equations: Steady-State and Time-Dependent Problems."
 ---
 
 # PDE Zoo: Wave, Heat, Laplace, Schrodinger and Burgers

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Crawford, Waves (Berkeley Physics Course Vol. 3), Ch. 6."
 ---
 # Group vs phase velocity
 Two-component superposition; envelope and carrier move at different speeds in dispersive media. Source: Crawford Ch. 6.

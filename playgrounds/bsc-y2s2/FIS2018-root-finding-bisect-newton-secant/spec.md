@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Villate, Computational Physics with VPython, Ch. 4."
 ---
 # Root-finding shootout
 Bisection, Newton-Raphson, and the secant method on a selectable test function. Source: Villate VPython Numerical Methods Ch. 4.

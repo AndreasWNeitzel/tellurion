@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Murray, Dermott, Solar System Dynamics, Ch. 7."
 ---
 # Laplace-Lagrange secular theory
 Two-planet eccentricity exchange via mode beating. Source: Murray-Dermott Ch. 7.

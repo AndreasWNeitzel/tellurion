@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Higgs, Broken Symmetries and the Masses of Gauge Bosons."
 ---
 
 # Spontaneous Symmetry Breaking: the Mexican-Hat Potential

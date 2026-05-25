@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Oppenheimer, Volkoff, On Massive Neutron Cores."
 ---
 
 # Neutron Stars: the TOV Equation and the Mass-Radius Diagram

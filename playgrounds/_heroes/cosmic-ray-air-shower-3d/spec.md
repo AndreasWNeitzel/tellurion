@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Matthews, A Heitler model of extensive air showers, Ch. 1."
 ---
 
 # Cosmic ray air shower

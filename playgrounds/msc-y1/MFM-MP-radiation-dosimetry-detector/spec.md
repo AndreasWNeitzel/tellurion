@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "{ICRU}, Key Data for Ionizing-Radiation Dosimetry: Measurement Standards and Applications (ICRU Report 90)."
 ---
 
 # Ionization-Chamber Dosimetry: Charge, W and Bragg-Gray

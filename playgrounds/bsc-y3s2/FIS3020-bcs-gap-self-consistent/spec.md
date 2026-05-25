@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Ashcroft, Mermin, Solid State Physics, Ch. 34."
 ---
 # BCS gap, self-consistent
 $\Delta(T)$ from the BCS gap equation; universal ratio $2\Delta_0 / k_B T_c \approx 3.53$. Source: Ashcroft-Mermin Ch. 34.

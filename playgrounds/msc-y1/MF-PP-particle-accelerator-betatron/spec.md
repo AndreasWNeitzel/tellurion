@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Courant, Snyder, Theory of the Alternating-Gradient Synchrotron."
 ---
 
 # FODO Synchrotron: Betatron Tune, Emittance and Stop Bands

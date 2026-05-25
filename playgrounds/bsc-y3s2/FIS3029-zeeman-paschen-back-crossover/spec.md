@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, 3rd ed., Ch. 6."
 ---
 # Zeeman to Paschen-Back
 Low-$B$ Zeeman: $g_J m_J \mu_B B$. High-$B$ Paschen-Back: $(m_L + 2m_S) \mu_B B$. Source: Griffiths QM Ch. 6.4.

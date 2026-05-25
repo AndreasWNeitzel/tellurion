@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "van der Maaten, Hinton, Visualizing Data using t-SNE."
 ---
 
 # Dimensionality Reduction: PCA vs Isomap vs t-SNE

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Liddle, An Introduction to Modern Cosmology, Third ed., Ch. 4."
 ---
 
 # Matter, radiation, and dark energy: equality and dominance

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Villate, Computational Physics with VPython, Ch. 5."
 ---
 # ODE solvers shootout
 Three integrators on the simple harmonic oscillator; Euler drifts energy upward, RK4 is accurate, RK45 estimates its own error. Source: Villate VPython Numerical Methods.

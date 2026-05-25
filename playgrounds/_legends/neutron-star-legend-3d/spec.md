@@ -33,6 +33,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Shapiro, Teukolsky, Black Holes, White Dwarfs, and Neutron Stars: The Physics of Compact Objects, Ch. 9."
 ---
 
 # Neutron Star Legend

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---
 # Mode trapping in evolved stars
 Periodic ΔP modulation from a buoyancy-frequency glitch. Source: Mosser et al. 2018; Aerts et al. Ch. 3.

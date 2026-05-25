@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Liddle, An Introduction to Modern Cosmology, Third ed., Ch. 11."
 ---
 # BAO toy
 Sound wave + baryon shell freeze at $r_s \approx 150$ Mpc. Source: Liddle Ch. 11.

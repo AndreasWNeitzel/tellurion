@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Shockley, Queisser, Detailed Balance Limit of Efficiency of p-n Junction Solar Cells."
 ---
 
 # Solar Cell: I-V, Fill Factor and the Shockley-Queisser Limit

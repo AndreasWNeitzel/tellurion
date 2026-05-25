@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Lemos, Analytical Mechanics, Ch. 6."
 ---
 # Hamiltonian phase-space flow
 Click to seed tracers; each one traces an orbit at constant energy. Source: Lemos Ch. 6.

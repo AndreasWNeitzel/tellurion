@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Villate, Computational Physics with VPython, Ch. 6."
 ---
 # Direct vs iterative linear-system solvers
 Poisson 1D problem; Thomas tridiagonal direct solver vs Jacobi, Gauss-Seidel, CG. Source: Villate Ch. 6.

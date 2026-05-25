@@ -36,6 +36,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Misner, Thorne, Wheeler, Gravitation, Ch. 25."
 ---
 
 # Black Hole Geodesics

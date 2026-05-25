@@ -33,6 +33,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Eisberg, Resnick, Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles, Second ed., Ch. 5."
 ---
 
 # Hydrogen Orbitals 3D

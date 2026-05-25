@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Morris, Thorne, Wormholes in spacetime and their use for interstellar travel: A tool for teaching general relativity, Ch. 1."
 ---
 
 # Wormhole Legend

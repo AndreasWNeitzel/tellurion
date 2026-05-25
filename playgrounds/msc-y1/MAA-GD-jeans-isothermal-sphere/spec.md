@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Binney, Tremaine, Galactic Dynamics, 2nd ed., Ch. 4."
 ---
 # Singular isothermal sphere
 $\rho \propto r^{-2}$ gives a flat rotation curve $v_c = \sqrt 2 \sigma$. Source: Binney-Tremaine Ch. 4.

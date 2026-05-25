@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Arfken, Weber, Harris, Mathematical Methods for Physicists: A Comprehensive Guide, Seventh ed., Ch. 15."
 ---
 # Fourier vs Laplace transforms
 Side-by-side time-domain, $|F(\omega)|^2$ and $F(s)$ with pole map. Source: Arfken-Weber Ch. 15.

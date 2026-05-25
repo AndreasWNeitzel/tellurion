@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Bate, Mueller, White, Fundamentals of Astrodynamics, Ch. 5."
 ---
 # Toy least-squares orbit fit
 Noisy positions along a Kepler orbit; fit a circle by least squares. The fit is biased when $e > 0$. Source: Bate-Mueller-White Ch. 5.

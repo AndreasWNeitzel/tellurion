@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Elementary Particles, Second (revised) ed., Ch. 9."
 ---
 # Toy parton distributions
 $x f(x)$ for $u_v$, $d_v$, gluon, sea quarks. Source: Griffiths-Particles Ch. 9.

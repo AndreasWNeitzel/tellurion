@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Howell, Handbook of CCD Astronomy, 2nd ed., Ch. 5."
 ---
 # Toy aperture photometry
 Synthetic Moffat PSF on a CCD; aperture + sky annulus recovers true flux. Source: Howell CCD Handbook.

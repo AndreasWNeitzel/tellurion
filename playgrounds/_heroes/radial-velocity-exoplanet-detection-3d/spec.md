@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Murray, Dermott, Solar System Dynamics, Ch. 2."
 ---
 
 # Radial velocity detection of exoplanets

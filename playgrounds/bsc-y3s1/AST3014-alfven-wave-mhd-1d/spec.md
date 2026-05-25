@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Goedbloed, Poedts, Principles of Magnetohydrodynamics, Ch. 5."
 ---
 # Alfvén wave, 1D
 Transverse magnetic perturbation travels at $v_A = B_0/\sqrt{\mu_0 \rho}$; magnetic-tension restoring force. Source: Goedbloed-Poedts Ch. 5.

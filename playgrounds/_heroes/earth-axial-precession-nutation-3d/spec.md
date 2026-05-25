@@ -33,6 +33,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Marion, Thornton, Classical Dynamics of Particles and Systems, Fifth ed., Ch. 11."
 ---
 
 # Earth Axial Precession + Nutation 3D

@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "St{\\o}rmer, The Polar Aurora, Ch. 1."
 ---
 
 # Aurora borealis

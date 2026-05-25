@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Frank, King, Raine, Accretion Power in Astrophysics, Third ed., Ch. 2."
 ---
 # Bondi spherical accretion
 Bondi radius and accretion rate for a steady spherically symmetric inflow; sonic point at $r_B/2$. Source: Frank-King-Raine Ch. 2.

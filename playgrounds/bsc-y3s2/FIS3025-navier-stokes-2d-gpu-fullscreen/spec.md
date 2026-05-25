@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Chorin, Numerical Solution of the {Navier}-{Stokes} Equations."
 ---
 
 # Incompressible Wake and the Projection Method

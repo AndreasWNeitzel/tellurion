@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Bortfeld, An analytical approximation of the Bragg curve for therapeutic proton beams."
 ---
 
 # Proton Therapy: the Bragg Peak and the Spread-Out Bragg Peak

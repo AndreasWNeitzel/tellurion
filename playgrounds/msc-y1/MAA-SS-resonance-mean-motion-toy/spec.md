@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Murray, Dermott, Solar System Dynamics, Ch. 8."
 ---
 # Mean-motion resonances
 Kirkwood gaps in the asteroid belt at 2:1, 3:1, 5:2, 7:3 with Jupiter. Source: Murray-Dermott Ch. 8.

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 2."
 ---
 # Coulomb equilibrium of charges
 Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths, Introduction to Electrodynamics, Ch. 2.

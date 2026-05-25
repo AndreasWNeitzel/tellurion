@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Hecht, Optics, Fifth ed., Ch. 9."
 ---
 
 # Michelson interferometer: visibility and coherence length

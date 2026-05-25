@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Rybicki, Lightman, Radiative Processes in Astrophysics, Ch. 1."
 ---
 # 1D radiative transfer
 Slab with constant $S$ and finite $\tau$; closed-form $I(\tau) = I_{in} e^{-\tau} + S(1-e^{-\tau})$. Source: Rybicki-Lightman Ch. 1.

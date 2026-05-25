@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Arfken, Weber, Harris, Mathematical Methods for Physicists: A Comprehensive Guide, Seventh ed., Ch. 9."
 ---
 # Green's function, 1D Laplacian
 Tent-shaped $G(x, x_0)$ with Dirichlet BC; convolution gives $u(x) = \int G f dx'$. Source: Arfken-Weber Ch. 9.

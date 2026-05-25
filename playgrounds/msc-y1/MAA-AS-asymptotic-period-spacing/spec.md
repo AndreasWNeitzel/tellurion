@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---
 # Asymptotic period spacing
 $\Pi_1$ distinguishes RGB (~80 s) from RC (~250 s). Source: Aerts et al. Ch. 3.

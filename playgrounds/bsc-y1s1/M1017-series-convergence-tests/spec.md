@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Arfken, Weber, Harris, Mathematical Methods for Physicists: A Comprehensive Guide, Seventh ed., Ch. 1."
 ---
 # Series convergence tests
 Four series (geometric, p-series 2, harmonic, alternating Leibniz) with partial sums plotted and the limit as a dashed line where finite. Source: Arfken-Weber Ch. 1.

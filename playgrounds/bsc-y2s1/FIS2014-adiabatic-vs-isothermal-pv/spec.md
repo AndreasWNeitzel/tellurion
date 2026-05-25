@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Callen, Thermodynamics and an Introduction to Thermostatistics, Second ed., Ch. 4."
 ---
 # Adiabatic vs isothermal
 Same initial state, two reversible processes; the adiabatic is steeper. Source: Callen Ch. 4.

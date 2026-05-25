@@ -33,6 +33,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "French, Vibrations and Waves, Ch. 6."
 ---
 
 # Wave Heightfield (Clickable)

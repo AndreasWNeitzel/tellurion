@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Liddle, An Introduction to Modern Cosmology, Third ed., Ch. 12."
 ---
 # Toy CMB temperature power spectrum
 Three free parameters: first-peak position, damping scale, amplitude. Source: Liddle Ch. 12.

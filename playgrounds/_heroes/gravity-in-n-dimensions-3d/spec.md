@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Tangherlini, Schwarzschild field in n dimensions and the dimensionality of space problem, Ch. 1."
 ---
 
 # Gravity in n dimensions

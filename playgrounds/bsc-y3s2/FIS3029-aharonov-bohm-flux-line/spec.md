@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Sakurai, Modern Quantum Mechanics, 3rd ed., Ch. 2."
 ---
 # Aharonov-Bohm flux line
 Solenoid behind a double slit shifts the fringe pattern by $\Phi/\Phi_0$ cycles. Source: Sakurai Ch. 2.

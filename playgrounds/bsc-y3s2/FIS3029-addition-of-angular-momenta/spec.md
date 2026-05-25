@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Sakurai, Modern Quantum Mechanics, 3rd ed., Ch. 3."
 ---
 # Adding two angular momenta
 $j_1 \otimes j_2 = |j_1-j_2| \oplus \dots \oplus j_1+j_2$. Source: Sakurai QM Ch. 3.

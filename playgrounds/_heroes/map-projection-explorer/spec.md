@@ -34,6 +34,8 @@ what_to_try:
   - Switch to Mollweide or Hammer: every indicatrix has the same area but shapes squash.
   - Compare Winkel tripel and Robinson, where neither distortion is zero nor runaway.
   - Drag the globe to recentre the azimuthal projections on a different hemisphere.
+references:
+  - "Snyder, Map Projections: A Working Manual, Ch. 1."
 ---
 
 # Map Projection Explorer

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Elementary Particles, Second (revised) ed., Ch. 3."
 ---
 # Mandelstam $s$: fixed-target vs collider
 $\sqrt s \propto \sqrt{E_{lab}}$ for fixed targets, but $\propto E_{lab}$ for symmetric colliders. Source: Griffiths Particles Ch. 3.

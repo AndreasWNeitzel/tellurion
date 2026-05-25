@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Goldstein, Poole, Safko, Classical Mechanics, 3rd ed., Ch. 4."
 ---
 
 # Foucault pendulum

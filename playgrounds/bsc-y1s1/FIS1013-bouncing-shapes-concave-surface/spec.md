@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kleppner, Kolenkow, An Introduction to Mechanics, 2nd ed., Ch. 4."
 ---
 
 # Bouncing balls in a concave bowl

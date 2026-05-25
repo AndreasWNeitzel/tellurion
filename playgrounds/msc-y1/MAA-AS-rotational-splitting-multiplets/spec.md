@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---
 # Rotational splitting
 Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8.

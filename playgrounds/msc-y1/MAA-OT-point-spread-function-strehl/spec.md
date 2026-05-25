@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Born, Wolf, Principles of Optics, Seventh (expanded) ed., Ch. 8."
 ---
 # PSF and Strehl ratio
 Airy PSF + Maréchal $S = e^{-(2\pi\sigma)^2}$. Source: Born-Wolf Ch. 8.

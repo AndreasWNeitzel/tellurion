@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Sakurai, Napolitano, Modern Quantum Mechanics, Second ed., Ch. 1."
 ---
 
 # Stern-Gerlach spin quantization

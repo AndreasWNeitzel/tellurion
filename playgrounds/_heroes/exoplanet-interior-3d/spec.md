@@ -36,6 +36,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Seager et al., Mass-Radius Relationships for Solid Exoplanets, Ch. 1."
 ---
 
 # Exoplanet Interior

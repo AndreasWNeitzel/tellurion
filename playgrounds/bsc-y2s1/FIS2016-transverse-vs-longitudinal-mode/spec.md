@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Crawford, Waves (Berkeley Physics Course Vol. 3), Ch. 5."
 ---
 # Transverse vs longitudinal modes
 Same dispersion, different polarization. Source: Crawford Ch. 5.

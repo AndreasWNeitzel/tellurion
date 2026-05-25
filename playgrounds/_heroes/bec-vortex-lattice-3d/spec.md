@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Pitaevskii, Stringari, Bose-Einstein Condensation and Superfluidity, Ch. 11."
 ---
 
 # BEC vortex lattice in a rotating trap

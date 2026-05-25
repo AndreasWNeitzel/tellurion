@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Krane, Introductory Nuclear Physics, Ch. 9."
 ---
 # Fermi vs Gamow-Teller beta decay
 Selection rules and Kurie plot. Source: Krane Nuclear Physics Ch. 9.

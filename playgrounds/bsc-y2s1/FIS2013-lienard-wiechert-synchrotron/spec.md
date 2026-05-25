@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Jackson, Classical Electrodynamics, 3rd ed., Ch. 14."
 ---
 # Lienard-Wiechert beaming
 Relativistic radiation collimates into a forward cone of opening angle $\sim 1/\gamma$. Two limits (a parallel and a perpendicular to v) are shown. Source: Jackson 3e Ch. 14.

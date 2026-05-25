@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Peskin, Schroeder, An Introduction to Quantum Field Theory."
 ---
 
 # QED Feynman Diagram: e+e- to mu+mu-, |M|^2 and the Cross Section

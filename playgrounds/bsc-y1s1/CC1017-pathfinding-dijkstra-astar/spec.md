@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Cormen et al., Introduction to Algorithms, 3rd ed., Ch. 24."
 ---
 
 # Dijkstra vs A* on a city grid

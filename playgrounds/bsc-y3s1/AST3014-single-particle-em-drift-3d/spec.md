@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Chen, Introduction to Plasma Physics and Controlled Fusion, 2nd ed."
 ---
 
 # Single-Particle Motion: Drifts in E and B

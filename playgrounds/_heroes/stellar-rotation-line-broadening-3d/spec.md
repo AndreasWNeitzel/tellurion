@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Gray, The Observation and Analysis of Stellar Photospheres, 3rd ed., Ch. 17."
 ---
 
 # Stellar rotation and line broadening

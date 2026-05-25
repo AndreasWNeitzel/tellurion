@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Arfken, Weber, Harris, Mathematical Methods for Physicists: A Comprehensive Guide, Seventh ed., Ch. 1."
 ---
 # Cauchy sequence convergence monitor
 Partial sums of four series; Cauchy width $w(N_0) = \max |a_n - a_m|$ for $n, m \ge N_0$. Geometric, $\zeta(2)$, and Leibniz arctan converge; harmonic does not. Source: Arfken-Weber Ch. 1.

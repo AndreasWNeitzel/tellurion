@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Tritton, Physical Fluid Dynamics, 2nd ed."
 ---
 
 # Bernoulli and the Venturi Effect

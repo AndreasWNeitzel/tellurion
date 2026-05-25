@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Scattering Theory: The Quantum Theory of Nonrelativistic Collisions."
 ---
 
 # Scattering Theory: Differential Cross Section and Partial Waves

@@ -36,6 +36,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Rindler, Relativity: Special, General, and Cosmological, 2nd ed., Ch. 4."
 ---
 
 # Relativistic Starship

@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---
 # p- and g-mode cavities
 

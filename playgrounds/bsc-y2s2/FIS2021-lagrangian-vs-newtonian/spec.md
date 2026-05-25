@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Lemos, Analytical Mechanics, Ch. 2."
 ---
 # Lagrangian vs Newtonian formalism
 Same planar-pendulum dynamics shown three ways. Source: Lemos Ch. 2-3.

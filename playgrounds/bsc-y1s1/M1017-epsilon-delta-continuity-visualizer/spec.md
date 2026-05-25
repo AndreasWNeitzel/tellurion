@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Arfken, Weber, Harris, Mathematical Methods for Physicists: A Comprehensive Guide, Seventh ed., Ch. 1."
 ---
 # Epsilon-delta continuity visualizer
 Slider for $x_0$ and $\epsilon$. The accent-yellow box shows the maximum $\delta_{\max}(\epsilon)$ such that $|x - x_0| < \delta$ implies $|f(x) - f(x_0)| < \epsilon$ for $f = \sin$. Demonstrates continuity at every point. Source: Arfken-Weber Ch. 1.

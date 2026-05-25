@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Julli{\\`e}re, Tunneling between ferromagnetic films."
 ---
 
 # Spin Valve: GMR/TMR Hysteresis and the Two-Current Model

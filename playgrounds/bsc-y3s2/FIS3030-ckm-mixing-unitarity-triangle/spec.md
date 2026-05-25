@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Elementary Particles, Second (revised) ed., Ch. 10."
 ---
 # CKM unitarity triangle
 Wolfenstein parameterization; triangle area is Jarlskog (CP violation). Source: Griffiths-Particles Ch. 10.

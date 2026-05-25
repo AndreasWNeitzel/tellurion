@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Liddle, An Introduction to Modern Cosmology, Third ed., Ch. 11."
 ---
 # BBN light-element abundances
 Empirical fits of $Y_p$, $D/H$, $^7$Li$/H$ vs $\eta_{10}$. Source: Liddle Ch. 11.

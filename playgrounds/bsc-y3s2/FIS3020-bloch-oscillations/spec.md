@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Ashcroft, Mermin, Solid State Physics, Ch. 12."
 ---
 # Bloch oscillations
 Particle in a tilted cosine band; quasi-momentum slides through the BZ and Bragg-reflects. Source: Ashcroft-Mermin Ch. 12.

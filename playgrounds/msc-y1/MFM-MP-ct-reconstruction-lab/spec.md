@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kak, Slaney, Principles of Computerized Tomographic Imaging."
 ---
 
 # CT Reconstruction: Radon, Filtered Back-Projection and MLEM

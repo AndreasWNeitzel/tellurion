@@ -32,6 +32,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Senechal, Quasicrystals and Geometry, Ch. 6."
 ---
 
 # Penrose aperiodic tiling

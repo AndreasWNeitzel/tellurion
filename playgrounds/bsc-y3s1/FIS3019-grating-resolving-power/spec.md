@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Hecht, Optics, Fifth ed., Ch. 10."
 ---
 # Diffraction grating resolving power
 $N$-slit grating; principal maxima at $d \sin\theta = m\lambda$, resolving power $R = mN$. Source: Hecht Ch. 10.

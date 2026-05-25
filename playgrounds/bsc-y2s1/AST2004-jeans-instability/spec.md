@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed., Ch. 12."
 ---
 
 # Jeans instability: dispersion relation and length scale

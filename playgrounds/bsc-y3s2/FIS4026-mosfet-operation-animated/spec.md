@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Shichman, Hodges, Modeling and Simulation of Insulated-Gate Field-Effect Transistor Switching Circuits."
 ---
 
 # MOSFET Operation: Channel, Pinch-off and I-V Regions

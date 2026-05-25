@@ -31,6 +31,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Binney, Tremaine, Galactic Dynamics, 2nd ed., Ch. 6."
 ---
 # Lin-Shu dispersion
 $\nu^2(k)$ for tightly-wound spiral waves; Toomre $Q$ boundary. Source: Binney-Tremaine Ch. 6.

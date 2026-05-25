@@ -30,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Casimir, On the attraction between two perfectly conducting plates."
 ---
 
 # Casimir Effect: Zero-Point Modes and the d^-4 Pressure
