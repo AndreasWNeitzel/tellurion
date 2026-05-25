@@ -536,15 +536,16 @@ body:has(.playground-layout) {
   /* Critical for mobile: without this, the browser intercepts touch
      gestures for page scroll/zoom and cancels the canvas's
      pointermove events mid-drag. 3D-camera playgrounds (drag to
-     rotate, pinch to zoom) become unusable on phones. `touch-action:
-     none` routes every touch on the canvas to the canvas, not the
-     browser's scroller; the visitor still scrolls the page by
-     touching outside the canvas. */
-  touch-action: none;
+     rotate) become unusable on phones. pinch-zoom lets the browser
+     handle two-finger pinch (zooms the page, useful for detail
+     inspection), while single-finger drag is routed to the canvas's
+     pointer handlers (rotates the camera). The visitor still scrolls
+     the page by touching outside the canvas. */
+  touch-action: pinch-zoom;
 }
-/* Same fix for diagnostic / extra canvases that also handle drag. */
+/* Same treatment for diagnostic / extra canvases. */
 .playground-canvas-frame canvas,
-.playground-extra-canvases canvas { touch-action: none; }
+.playground-extra-canvases canvas { touch-action: pinch-zoom; }
 
 .playground-caption {
   display: block;
