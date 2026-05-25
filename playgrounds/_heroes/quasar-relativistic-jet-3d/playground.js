@@ -396,9 +396,9 @@ function readSliders() {
 selCj.addEventListener('change', readSliders);
 
 // Mouse-drag camera orbit + wheel zoom.
-canvas.addEventListener('mousedown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
-window.addEventListener('mouseup', () => { st.drag = false; });
-window.addEventListener('mousemove', (e) => {
+canvas.addEventListener('pointerdown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
+window.addEventListener('pointerup', () => { st.drag = false; });
+window.addEventListener('pointermove', (e) => {
   if (!st.drag) return;
   st.camYaw += (e.clientX - st.lastX) * 0.006;
   st.camPitch = Math.max(-1.2, Math.min(1.2, st.camPitch + (e.clientY - st.lastY) * 0.006));

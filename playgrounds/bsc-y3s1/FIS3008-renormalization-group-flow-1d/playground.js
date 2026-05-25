@@ -236,9 +236,9 @@ function pointerToParams(e) {
   const u = Math.max(0.001, Math.min(0.999, uOfX(px)));
   return { K: kOfU(u), h: Math.max(-1.5, Math.min(1.5, hOfY(py))) };
 }
-canvas.addEventListener('mousedown', (e) => { const p = pointerToParams(e); if (p) { dragging = true; setStart(p.K, p.h); } });
-canvas.addEventListener('mousemove', (e) => { if (!dragging) return; const p = pointerToParams(e); if (p) setStart(p.K, p.h); });
-window.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('pointerdown', (e) => { const p = pointerToParams(e); if (p) { dragging = true; setStart(p.K, p.h); } });
+canvas.addEventListener('pointermove', (e) => { if (!dragging) return; const p = pointerToParams(e); if (p) setStart(p.K, p.h); });
+window.addEventListener('pointerup', () => { dragging = false; });
 
 sK.addEventListener('input', () => { st.K0 = parseFloat(sK.value); vK.textContent = st.K0.toFixed(2); render(); });
 sH.addEventListener('input', () => { st.h0 = parseFloat(sH.value); vH.textContent = st.h0.toFixed(2); render(); });

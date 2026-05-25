@@ -39,9 +39,9 @@ selG.addEventListener('change', () => { st.geom = selG.value; });
 btnR.addEventListener('click', () => { st.az = 0.6; st.el = 0.25; st.running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { st.running = !st.running; btnP.textContent = st.running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!st.running)); });
 
-canvas.addEventListener('mousedown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
-window.addEventListener('mouseup', () => { st.drag = false; });
-window.addEventListener('mousemove', (e) => {
+canvas.addEventListener('pointerdown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
+window.addEventListener('pointerup', () => { st.drag = false; });
+window.addEventListener('pointermove', (e) => {
   if (!st.drag) return;
   st.az += (e.clientX - st.lastX) * 0.005;
   st.el = Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, st.el + (e.clientY - st.lastY) * 0.005));

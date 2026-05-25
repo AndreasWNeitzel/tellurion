@@ -165,15 +165,15 @@ function dragFromX(clientX) {
   }
   syncLabels(); render();
 }
-canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener('pointerdown', (e) => {
   const r = canvas.getBoundingClientRect();
   const px = (e.clientX - r.left) * W / r.width;
   // grab whichever handle (object or lens) is nearer the cursor
   dragTarget = Math.abs(px - xOf(st.zL_mm * 1e-3)) < Math.abs(px - xOf(st.z0_mm * 1e-3)) ? 'lens' : 'object';
   dragFromX(e.clientX);
 });
-canvas.addEventListener('mousemove', (e) => { if (dragTarget) dragFromX(e.clientX); });
-window.addEventListener('mouseup', () => { dragTarget = null; });
+canvas.addEventListener('pointermove', (e) => { if (dragTarget) dragFromX(e.clientX); });
+window.addEventListener('pointerup', () => { dragTarget = null; });
 
 sW0.addEventListener('input', () => { st.w0_um = parseInt(sW0.value, 10); syncLabels(); render(); });
 sF.addEventListener('input', () => { st.f_mm = parseInt(sF.value, 10); syncLabels(); render(); });

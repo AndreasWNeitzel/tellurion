@@ -208,7 +208,7 @@ slX.addEventListener('input', () => { st.running = false; bP.textContent = 'Play
 // tent appears immediately in the source/solution/residual panels.
 // Shift+click clears all user tents.
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener('pointerdown', (e) => {
   const r = canvas.getBoundingClientRect();
   const cx = (e.clientX - r.left) * (W / r.width);
   const cy = (e.clientY - r.top) * (H / r.height);

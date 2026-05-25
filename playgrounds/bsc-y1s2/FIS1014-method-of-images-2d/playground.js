@@ -229,9 +229,9 @@ function evWorld(e) {
   const r = canvas.getBoundingClientRect();
   return toWorld((e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height);
 }
-canvas.addEventListener('mousedown', (e) => { dragging = true; const w = evWorld(e); [st.rx, st.ry] = clampReal(st.cfg, w.x, w.y); render(); });
-canvas.addEventListener('mousemove', (e) => { if (!dragging) return; const w = evWorld(e); [st.rx, st.ry] = clampReal(st.cfg, w.x, w.y); render(); });
-window.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('pointerdown', (e) => { dragging = true; const w = evWorld(e); [st.rx, st.ry] = clampReal(st.cfg, w.x, w.y); render(); });
+canvas.addEventListener('pointermove', (e) => { if (!dragging) return; const w = evWorld(e); [st.rx, st.ry] = clampReal(st.cfg, w.x, w.y); render(); });
+window.addEventListener('pointerup', () => { dragging = false; });
 canvas.addEventListener('mouseleave', () => { dragging = false; });
 
 function setCfg(cfg) {

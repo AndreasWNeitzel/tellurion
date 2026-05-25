@@ -159,9 +159,9 @@ btnPause.addEventListener('click', () => {
 });
 
 let dragging = false, lastX = 0;
-canvas.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; });
-window.addEventListener('mouseup', () => { dragging = false; });
-window.addEventListener('mousemove', (e) => {
+canvas.addEventListener('pointerdown', (e) => { dragging = true; lastX = e.clientX; });
+window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointermove', (e) => {
   if (!dragging) return;
   st.az += (e.clientX - lastX) * 0.005;
   lastX = e.clientX;

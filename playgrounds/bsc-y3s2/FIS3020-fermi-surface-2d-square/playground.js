@@ -167,7 +167,7 @@ function canvasToK(px, py) {
 }
 
 let dragging = false, dragY = 0;
-canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener('pointerdown', (e) => {
   const rect = canvas.getBoundingClientRect();
   const px = (e.clientX - rect.left) * (canvas.width / rect.width);
   const py = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -183,7 +183,7 @@ canvas.addEventListener('mousedown', (e) => {
     dragging = true; dragY = py;
   }
 });
-canvas.addEventListener('mousemove', (e) => {
+canvas.addEventListener('pointermove', (e) => {
   if (!dragging) return;
   const rect = canvas.getBoundingClientRect();
   const py = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -191,7 +191,7 @@ canvas.addEventListener('mousemove', (e) => {
   dragY = py;
   sliderF.value = String(f); valueF.textContent = f.toFixed(3);
 });
-canvas.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('pointerup', () => { dragging = false; });
 
 function updateReadout() {
   const Ef = fermiEnergyAtFilling(f, 1, 80);

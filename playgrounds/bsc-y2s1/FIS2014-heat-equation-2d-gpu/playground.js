@@ -298,9 +298,9 @@ bPause.addEventListener('click', () => { running = !running; bPause.textContent 
 
 let painting = false;
 function evToGrid(e) { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) * canvas.width / r.width, (e.clientY - r.top) * canvas.height / r.height]; }
-canvas.addEventListener('mousedown', e => { painting = true; const [x, y] = evToGrid(e); st.mx = x; st.my = y; st.over = true; paintAt(x, y); render(); });
-canvas.addEventListener('mousemove', e => { const [x, y] = evToGrid(e); st.mx = x; st.my = y; st.over = true; if (painting) paintAt(x, y); render(); });
-window.addEventListener('mouseup', () => { painting = false; });
+canvas.addEventListener('pointerdown', e => { painting = true; const [x, y] = evToGrid(e); st.mx = x; st.my = y; st.over = true; paintAt(x, y); render(); });
+canvas.addEventListener('pointermove', e => { const [x, y] = evToGrid(e); st.mx = x; st.my = y; st.over = true; if (painting) paintAt(x, y); render(); });
+window.addEventListener('pointerup', () => { painting = false; });
 canvas.addEventListener('mouseleave', () => { painting = false; st.over = false; render(); });
 
 // loop and capture

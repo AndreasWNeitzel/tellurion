@@ -104,7 +104,7 @@ function updateReadout() { readoutC.textContent = circulationRect(field, cx0, cy
 function loop() { render(); updateReadout(); requestAnimationFrame(loop); }
 
 // Canvas drag handling for rectangle.
-canvas.addEventListener('mousedown', e => {
+canvas.addEventListener('pointerdown', e => {
   const rect = canvas.getBoundingClientRect();
   dragStartX = e.clientX - rect.left;
   dragStartY = e.clientY - rect.top;
@@ -112,7 +112,7 @@ canvas.addEventListener('mousedown', e => {
   dragStartCy0 = cy0;
   isDragging = true;
 });
-canvas.addEventListener('mousemove', e => {
+canvas.addEventListener('pointermove', e => {
   if (!isDragging) return;
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -123,7 +123,7 @@ canvas.addEventListener('mousemove', e => {
   cx0 = dragStartCx0 + dx / scale;
   cy0 = dragStartCy0 - dy / scale;
 });
-canvas.addEventListener('mouseup', () => { isDragging = false; });
+canvas.addEventListener('pointerup', () => { isDragging = false; });
 canvas.addEventListener('mouseleave', () => { isDragging = false; });
 canvas.addEventListener('touchstart', e => {
   const rect = canvas.getBoundingClientRect();

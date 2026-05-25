@@ -281,9 +281,9 @@ btnPause.addEventListener('click', () => {
 
 // Drag to rotate: horizontal = azimuth, vertical = tilt.
 let dragging = false, lastX = 0, lastY = 0;
-canvas.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
-window.addEventListener('mouseup', () => { dragging = false; });
-window.addEventListener('mousemove', (e) => {
+canvas.addEventListener('pointerdown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+window.addEventListener('pointerup', () => { dragging = false; });
+window.addEventListener('pointermove', (e) => {
   if (!dragging) return;
   st.az += (e.clientX - lastX) * 0.005;
   st.tilt = Math.max(-1.3, Math.min(1.3, st.tilt + (e.clientY - lastY) * 0.005));

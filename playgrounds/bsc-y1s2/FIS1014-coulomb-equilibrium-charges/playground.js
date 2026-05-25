@@ -38,9 +38,9 @@ btnE.addEventListener('click', () => {
 });
 btnT.addEventListener('click', () => { tracing = !tracing; running = tracing; trace = []; btnT.textContent = tracing ? 'Stop trace' : 'Trace orbit'; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function clientToWorld(cx, cy) { const rect = canvas.getBoundingClientRect(); const sx = canvas.width / rect.width, sy = canvas.height / rect.height; return { x: ((cx - rect.left) * sx - canvas.width / 2) / 60, y: -((cy - rect.top) * sy - canvas.height / 2) / 60 }; }
-canvas.addEventListener('mousedown', (e) => { dragging = true; const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; test.vx = 0; test.vy = 0; trace = [[w.x, w.y]]; canvas.classList.add('dragging'); });
-canvas.addEventListener('mousemove', (e) => { if (dragging) { const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; trace.push([w.x, w.y]); if (trace.length > 600) trace.shift(); } });
-window.addEventListener('mouseup', () => { dragging = false; canvas.classList.remove('dragging'); });
+canvas.addEventListener('pointerdown', (e) => { dragging = true; const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; test.vx = 0; test.vy = 0; trace = [[w.x, w.y]]; canvas.classList.add('dragging'); });
+canvas.addEventListener('pointermove', (e) => { if (dragging) { const w = clientToWorld(e.clientX, e.clientY); test.x = w.x; test.y = w.y; trace.push([w.x, w.y]); if (trace.length > 600) trace.shift(); } });
+window.addEventListener('pointerup', () => { dragging = false; canvas.classList.remove('dragging'); });
 function colors() { return { bg: '#060608', fg: '#e8e8e8', muted: '#9aa0a6', accent: '#ffd166', pos: '#ef476f', neg: '#5bc0eb', test: '#06d6a0' }; }
 const PHYSICS_DT = 1 / 240;
 let last = performance.now(), acc = 0;

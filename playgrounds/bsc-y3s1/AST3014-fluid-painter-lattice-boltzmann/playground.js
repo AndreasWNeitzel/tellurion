@@ -109,9 +109,9 @@ function drawWakeDiagnostic() {
 }
 
 let drawing = false;
-canvas.addEventListener('mousedown', (e) => { drawing = true; modifyAt(e); });
-canvas.addEventListener('mousemove', (e) => { if (drawing) modifyAt(e); });
-canvas.addEventListener('mouseup',   () => { drawing = false; });
+canvas.addEventListener('pointerdown', (e) => { drawing = true; modifyAt(e); });
+canvas.addEventListener('pointermove', (e) => { if (drawing) modifyAt(e); });
+canvas.addEventListener('pointerup',   () => { drawing = false; });
 function modifyAt(e) {
   const rect = canvas.getBoundingClientRect();
   const x = Math.floor((e.clientX - rect.left) / rect.width * NX);

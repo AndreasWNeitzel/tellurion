@@ -44,9 +44,9 @@ function proj(x, y, z) {
   return { sx: CX + x * SC, sy: CY - ez * SC * Math.cos(st.el) - ey * SC * Math.sin(st.el), d: ey };
 }
 
-canvas.addEventListener('mousedown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
-window.addEventListener('mouseup', () => { st.drag = false; });
-window.addEventListener('mousemove', (e) => {
+canvas.addEventListener('pointerdown', (e) => { st.drag = true; st.lastX = e.clientX; st.lastY = e.clientY; });
+window.addEventListener('pointerup', () => { st.drag = false; });
+window.addEventListener('pointermove', (e) => {
   if (!st.drag) return;
   st.az += (e.clientX - st.lastX) * 0.006;
   st.el = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, st.el + (e.clientY - st.lastY) * 0.006));
