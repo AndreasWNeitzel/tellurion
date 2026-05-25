@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
+primary_citation: griffithsqm2018
 supporting_ucs: [FIS1013]
 curriculum_year: bsc-y2s2
 hook: 'Drive a particle in a double well harder and harder and its steady rhythm splits, splits again, then shatters into chaos, all from one knob.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
 ---
 
 # Driven damped Duffing oscillator

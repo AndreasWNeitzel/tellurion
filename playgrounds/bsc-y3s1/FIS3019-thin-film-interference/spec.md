@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3019
+primary_citation: newman2013
 supporting_ucs: []
 curriculum_year: bsc-y3s1
 hook: 'The colours in an oil slick or a soap bubble are not pigment: the two reflections off a thin film interfere, and which colour survives depends on the thickness.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Newman, Computational Physics, Revised printing ed."
 ---
 
 # Thin-film interference and iridescent colors

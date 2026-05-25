@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004
+primary_citation: carroll-ostlie
 supporting_ucs: [MAA-HE]
 curriculum_year: bsc-y2s1
 hook: 'Send a self-gravitating cloud too close to a heavy mass and tides win: it shears into a long stream the moment it crosses the Roche limit.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed."
 ---
 
 # Tidal disruption near a massive primary

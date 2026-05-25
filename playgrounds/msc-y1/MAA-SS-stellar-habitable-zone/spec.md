@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-SS
+primary_citation: kippenhahn-weigert
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'Move a planet between the inner and outer habitable-zone edges; the surface goes ice, ocean, or steam depending on equilibrium temperature.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Second ed."
 ---
 
 # Stellar Habitable Zone

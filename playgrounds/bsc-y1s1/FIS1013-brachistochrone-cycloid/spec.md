@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "The fastest slide between two points is not the straight line. Release three beads at once down a ramp, a circular arc and a cycloid: the cycloid wins every time, because diving steeply early buys speed that more than pays back the longer path."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Brachistochrone: why the cycloid wins

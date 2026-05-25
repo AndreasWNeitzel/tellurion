@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3015
+primary_citation: kippenhahn-weigert
 supporting_ucs: [MAA-GD]
 curriculum_year: bsc-y3s1
 hook: 'A thousand particles pull on each other through a grid, not pair by pair; the disk they form grows the swing-amplified spiral patterns galaxies show.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Second ed."
 ---
 
 # Particle-mesh 2D self-gravitating disk

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: AST3014
+primary_citation: kulsrud-plasma-astro
 supporting_ucs: []
 curriculum_year: bsc-y3s1
 hook: 'Draw an obstacle by click-drag and watch the flow respond in real time: it accelerates around the body and leaves a low-speed wake behind it, the speed shown as a colour field.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kulsrud, Plasma Physics for Astrophysics."
 ---
 
 # Fluid Painter: Lattice Boltzmann Sandbox

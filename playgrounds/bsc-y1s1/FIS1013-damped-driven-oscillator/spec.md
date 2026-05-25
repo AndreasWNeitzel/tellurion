@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2016, FIS1015]
 curriculum_year: bsc-y1s1
 hook: "Push a swing at just the right rhythm and small pushes build huge swings; push off-rhythm and almost nothing happens. That selectivity is resonance, and how sharp it is depends on one number: the damping."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Damped, driven oscillator and the resonance curve

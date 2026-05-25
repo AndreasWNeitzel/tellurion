@@ -14,6 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 4
 curriculum_year: 'L:F-2Y-2S'
 primary_uc: FIS2003
+primary_citation: callen
 share_state_keys: []
 invariants:
   - key: runs
@@ -28,6 +29,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Callen, Thermodynamics and an Introduction to Thermostatistics, Second ed."
 ---
 
 # The Photoelectric Effect

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-ST
+primary_citation: mackay2003
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'Tell the playground only a few facts about a quantity (its range, its mean, its variance) and it draws the single least-committal distribution consistent with them. The same rule produces the uniform, the exponential, the Gaussian and the Laplace, one per constraint set.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "MacKay, Information Theory, Inference, and Learning Algorithms."
 ---
 
 # Maximum-entropy distributions: a small zoo

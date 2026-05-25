@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3017
+primary_citation: kippenhahn-weigert
 supporting_ucs: []
 curriculum_year: bsc-y3s2
 hook: 'Aim a light ray near a black hole: outside a critical impact parameter it bends and escapes, inside it spirals through the photon sphere and is swallowed.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Second ed."
 ---
 
 # Schwarzschild Light Bending

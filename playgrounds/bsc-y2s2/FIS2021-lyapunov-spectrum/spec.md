@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
+primary_citation: griffithsqm2018
 supporting_ucs: []
 curriculum_year: bsc-y2s2
 hook: 'Track how a tiny error grows along a strange attractor and you measure chaos as a number; the two exponents must sum to ln|b| exactly, which proves the method.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
 ---
 
 # Lyapunov Spectrum of the Henon Map

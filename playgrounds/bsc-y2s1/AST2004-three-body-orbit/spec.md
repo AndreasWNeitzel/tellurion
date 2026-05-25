@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004
+primary_citation: carroll-ostlie
 supporting_ucs: [FIS2021, FIS1013]
 curriculum_year: bsc-y2s1
 hook: 'Three equal stars can chase each other forever around a single figure-eight, the most elegant exact solution of the three-body problem; nudge one and the dance falls apart.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed."
 ---
 
 # Three-Body Figure-Eight Choreography

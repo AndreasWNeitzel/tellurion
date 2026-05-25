@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1014
+primary_citation: taylor-mech
 supporting_ucs: [FIS3019]
 curriculum_year: bsc-y1s2
 hook: "Light hitting glass at one special angle reflects only one polarization; the other passes straight through. That is Brewster's angle, why polarized sunglasses kill glare and why laser windows are cut at a slant."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Brewster angle and the Fresnel reflectance

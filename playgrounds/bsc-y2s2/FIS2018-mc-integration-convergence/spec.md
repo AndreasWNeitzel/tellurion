@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2018
+primary_citation: hecht-optics
 supporting_ucs: [MAA-NM, MAA-ST]
 curriculum_year: bsc-y2s2
 hook: 'Throw random darts at a shape and the fraction inside is its area; the error falls only as 1/sqrt(N), so ten times the accuracy costs a hundred times the darts.'
@@ -30,6 +31,8 @@ what_to_try:
   - Pick the quarter disk and watch 4x the hit fraction approach pi.
   - Switch shapes and confirm the estimate re-converges to the new area.
   - Read the convergence panel: the error tracks the 1/sqrt(N) line.
+references:
+  - "Hecht, Optics, 5th ed."
 ---
 
 # Monte Carlo integration and 1/sqrt(N) convergence

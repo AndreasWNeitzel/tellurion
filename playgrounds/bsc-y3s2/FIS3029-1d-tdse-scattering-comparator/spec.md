@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3029
+primary_citation: chen1984
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y3s2
 hook: 'Throw a quantum wavepacket at a barrier and watch part of it tunnel through and part reflect, with total probability conserved to machine precision.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Chen, Introduction to Plasma Physics and Controlled Fusion, 2nd ed."
 ---
 
 # 1D TDSE wavepacket scattering off a barrier

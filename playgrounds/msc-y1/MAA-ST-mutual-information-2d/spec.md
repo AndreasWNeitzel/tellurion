@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-ST
+primary_citation: mackay2003
 supporting_ucs: [MAA-DM]
 curriculum_year: msc-y1
 hook: 'Correlation only sees straight-line dependence; mutual information sees all of it, in nats. For two correlated Gaussians it is exactly -1/2 ln(1 - rho^2): zero when independent, diverging as one variable comes to determine the other.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "MacKay, Information Theory, Inference, and Learning Algorithms."
 ---
 
 # Mutual information of a bivariate Gaussian

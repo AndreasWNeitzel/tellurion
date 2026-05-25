@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "Hang a pendulum from a cart that is free to roll. Swing the pendulum and the cart slides the other way: with no outside push the centre of mass cannot move, so the two trade momentum back and forth."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Pendulum on a moving cart

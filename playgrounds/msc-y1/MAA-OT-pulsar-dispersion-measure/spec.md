@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-OT
+primary_citation: lorimer-kramer
 supporting_ucs: [MAA-AS]
 curriculum_year: msc-y1
 hook: 'A radio pulse sweeps from high to low frequency through the ionized interstellar medium; dedispersion realigns the channels to a single sharp spike.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Lorimer, Kramer, Handbook of Pulsar Astronomy."
 ---
 
 # Pulsar Dispersion Measure Dedispersion

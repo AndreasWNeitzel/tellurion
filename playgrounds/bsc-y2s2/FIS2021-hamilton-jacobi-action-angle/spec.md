@@ -14,6 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 6
 curriculum_year: 'L:F-2Y-2S'
 primary_uc: FIS2021
+primary_citation: griffithsqm2018
 share_state_keys: []
 invariants:
   - key: runs
@@ -28,6 +29,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
 ---
 
 # Action-Angle Variables

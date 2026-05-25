@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3019
+primary_citation: newman2013
 supporting_ucs: []
 curriculum_year: bsc-y3s1
 hook: 'A laser beam is not a pencil ray: it has a narrowest waist, then spreads as a hyperbola, and the tighter you focus it the faster it diverges.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Newman, Computational Physics, Revised printing ed."
 ---
 
 # Paraxial Gaussian beam (TEM_00)

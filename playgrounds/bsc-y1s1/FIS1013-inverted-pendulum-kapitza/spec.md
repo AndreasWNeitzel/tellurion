@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "A pendulum hangs down because down is stable. Shake its pivot up and down fast enough and a second stable position appears, straight up: the pendulum stands on end and stays there, balanced by nothing but the vibration."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Kapitza inverted pendulum

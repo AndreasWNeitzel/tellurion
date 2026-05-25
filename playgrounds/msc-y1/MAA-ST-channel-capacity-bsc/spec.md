@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-ST
+primary_citation: mackay2003
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'If a channel randomly flips your bits, how much can you still send reliably? Shannon''s answer is exact: there is a hard ceiling, and below it the error rate can be driven to zero.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "MacKay, Information Theory, Inference, and Learning Algorithms."
 ---
 
 # Binary symmetric channel and the repetition code

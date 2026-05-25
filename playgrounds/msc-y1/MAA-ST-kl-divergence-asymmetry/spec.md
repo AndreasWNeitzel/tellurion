@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-ST
+primary_citation: mackay2003
 supporting_ucs: [MAA-DM]
 curriculum_year: msc-y1
 hook: 'The KL divergence is not symmetric: fitting a simple Gaussian to a two-bump target one way covers both bumps, the other way collapses onto one, and the two answers are qualitatively opposite.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "MacKay, Information Theory, Inference, and Learning Algorithms."
 ---
 
 # KL divergence asymmetry: mass-covering vs mode-seeking

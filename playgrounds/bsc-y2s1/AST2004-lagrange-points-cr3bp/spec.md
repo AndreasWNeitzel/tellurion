@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004
+primary_citation: carroll-ostlie
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y2s1
 hook: 'In the rotating frame of two orbiting masses there are five places a third body can sit still: the Lagrange points, three of them unstable, two stable.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed."
 ---
 
 # Lagrange points of the CR3BP

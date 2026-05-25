@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2016, FIS2021]
 curriculum_year: bsc-y1s1
 hook: "Two carts between three springs. Push them the same way and they march in step; push them apart and they bounce against each other faster. Every possible motion is just these two patterns added together."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Coupled springs and normal modes

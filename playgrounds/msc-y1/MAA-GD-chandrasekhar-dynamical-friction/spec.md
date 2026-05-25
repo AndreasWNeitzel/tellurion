@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-GD
+primary_citation: binney-tremaine
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'A massive body plows through a star field and drags a gravitational wake that slows it down.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Binney, Tremaine, Galactic Dynamics, 2nd ed."
 ---
 
 # Chandrasekhar Dynamical Friction

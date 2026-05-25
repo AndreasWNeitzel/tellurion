@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: []
 curriculum_year: bsc-y1s1
 hook: "In a vacuum a thrown ball traces a perfect, symmetric parabola. Add air and the truth is messier: the path is shorter, the descent steeper than the climb, and the best launch angle drops below 45 degrees."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Projectile motion with air drag

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-DM
+primary_citation: bishop2006
 supporting_ucs: [MAA-ST]
 curriculum_year: msc-y1
 hook: 'A Gaussian process is a probability distribution over whole functions; pick a kernel and watch the prior fog of plausible curves collapse onto a handful of data points with calibrated uncertainty (wide between points, tight on them).'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Bishop, Pattern Recognition and Machine Learning."
 ---
 
 # Gaussian process kernel zoo

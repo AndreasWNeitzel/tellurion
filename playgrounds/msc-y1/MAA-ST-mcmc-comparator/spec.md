@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-ST
+primary_citation: mackay2003
 supporting_ucs: [MAA-DM]
 curriculum_year: msc-y1
 hook: 'Three Markov-chain Monte Carlo samplers race on the same hard target. Random-walk Metropolis crawls and gets stuck where Hamiltonian Monte Carlo sweeps across in long strides; the honest scorecard is effective samples per second, not acceptance rate.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "MacKay, Information Theory, Inference, and Learning Algorithms."
 ---
 
 # MCMC Sampler Comparator

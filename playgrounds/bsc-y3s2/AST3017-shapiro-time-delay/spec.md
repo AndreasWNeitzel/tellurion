@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3017
+primary_citation: kippenhahn-weigert
 supporting_ucs: []
 curriculum_year: bsc-y3s2
 hook: 'Radar a planet across the Sun and the echo comes back late; the curved spacetime near the Sun literally lengthens the path light takes.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Second ed."
 ---
 
 # Shapiro time delay

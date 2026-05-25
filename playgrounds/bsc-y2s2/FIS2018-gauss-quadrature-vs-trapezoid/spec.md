@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2018
+primary_citation: hecht-optics
 supporting_ucs: [M3012, MAA-NM]
 curriculum_year: bsc-y2s2
 hook: 'The trapezoid rule needs hundreds of points where Gauss-Legendre nails a smooth integral with a handful, just by choosing where to sample.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Hecht, Optics, 5th ed."
 ---
 
 # Gauss-Legendre vs trapezoid quadrature

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3014
+primary_citation: kulsrud-plasma-astro
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y3s1
 hook: 'Pop a membrane between high- and low-pressure gas and three things race apart at once: a shock, a contact surface, and a rarefaction fan.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kulsrud, Plasma Physics for Astrophysics."
 ---
 
 # SPH 1D Sod shock tube

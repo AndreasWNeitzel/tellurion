@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-AS
+primary_citation: aerts2010
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'A stellar surface oscillates in spherical harmonic modes; p-modes live above the Lamb frequency, g-modes below the Brunt-Vaisala.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology."
 ---
 
 # Stellar Oscillation Modes

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [MAA-SS]
 curriculum_year: bsc-y1s1
 hook: 'A spacecraft skims past a planet on a hyperbola; the planet rest frame conserves speed, the solar-system frame does not.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Gravity Assist Slingshot

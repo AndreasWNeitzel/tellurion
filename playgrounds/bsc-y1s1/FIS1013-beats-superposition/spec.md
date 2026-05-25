@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2016]
 curriculum_year: bsc-y1s1
 hook: "Play two notes a hair apart and you do not hear two notes: you hear one note that throbs, loud-soft-loud, at the difference frequency. That throb is beats, and it is how a piano tuner zeroes a string by ear."

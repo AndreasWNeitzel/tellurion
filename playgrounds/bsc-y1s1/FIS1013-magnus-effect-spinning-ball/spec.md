@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [AST3014]
 curriculum_year: bsc-y1s1
 hook: "A spinning ball curves. The spin drags air around with it, the flow is faster on one side than the other, and the pressure difference pushes the ball sideways. That is the Magnus force, the physics of a curveball, a topspin forehand and a banana free kick."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Magnus effect on a spinning ball

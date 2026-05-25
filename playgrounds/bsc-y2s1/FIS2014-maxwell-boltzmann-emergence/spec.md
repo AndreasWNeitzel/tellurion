@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2014
+primary_citation: newmanbarkema1999
 supporting_ucs: []
 curriculum_year: bsc-y2s1
 hook: 'Start every disk at the same speed and let them collide; within moments the speeds spread into the bell-shaped Maxwell-Boltzmann curve and stay there.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Newman, Barkema, Monte Carlo Methods in Statistical Physics."
 ---
 
 # Maxwell-Boltzmann emergence from hard-disk collisions

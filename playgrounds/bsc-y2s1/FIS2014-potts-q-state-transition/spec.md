@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2014
+primary_citation: newmanbarkema1999
 supporting_ucs: [FIS2018, MAA-NM]
 curriculum_year: bsc-y2s1
 hook: 'Generalize the Ising magnet to q colours and one dial flips the phase transition from a smooth second-order one to an abrupt first-order jump.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Newman, Barkema, Monte Carlo Methods in Statistical Physics."
 ---
 
 # q-state Potts model on a 2D square lattice

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: FIS3029
+primary_citation: chen1984
 supporting_ucs: []
 curriculum_year: bsc-y3s2
 hook: 'A quantum walk spreads as N while a classical walk spreads as sqrt(N): the quadratic quantum speedup in one picture.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Chen, Introduction to Plasma Physics and Controlled Fusion, 2nd ed."
 ---
 
 # Quantum vs Classical Random Walk

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
+primary_citation: griffithsqm2018
 supporting_ucs: [FIS1013]
 curriculum_year: bsc-y2s2
 hook: 'Add damping that is negative for small swings and positive for large ones and any start spirals onto the same loop; crank it up and the loop becomes a jerky relaxation tick.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
 ---
 
 # Van der Pol: limit cycle to relaxation oscillator

@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2016
+primary_citation: ashcroft-mermin
 supporting_ucs: []
 curriculum_year: bsc-y2s1
 hook: 'Send a pulse down a string: it flips upside-down when it hits a clamped end, and bounces back upright from a free one.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Ashcroft, Mermin, Solid State Physics."
 ---
 
 # Wave on a string: fixed vs free-end reflection

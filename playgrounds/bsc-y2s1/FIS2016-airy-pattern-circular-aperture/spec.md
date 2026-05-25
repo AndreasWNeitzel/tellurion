@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2016
+primary_citation: ashcroft-mermin
 supporting_ucs: [FIS3019, MAA-OT]
 curriculum_year: bsc-y2s1
 hook: 'A perfect lens cannot focus a star to a point; a round aperture always smears it into a bright disk ringed by faint halos, and that sets the resolution limit.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Ashcroft, Mermin, Solid State Physics."
 ---
 
 # Airy diffraction pattern from a circular aperture

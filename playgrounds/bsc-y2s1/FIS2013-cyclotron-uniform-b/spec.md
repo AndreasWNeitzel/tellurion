@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2013
+primary_citation: pathria
 supporting_ucs: [MAA-PL]
 curriculum_year: bsc-y2s1
 hook: 'A charge in a uniform magnetic field never speeds up or slows down; the force only turns it, locking it onto a circle at a frequency that does not depend on its speed.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Pathria, Beale, Statistical Mechanics, Fourth ed."
 ---
 
 # Cyclotron motion in a uniform magnetic field

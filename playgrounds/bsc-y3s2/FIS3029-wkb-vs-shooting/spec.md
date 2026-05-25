@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3029
+primary_citation: chen1984
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y3s2
 hook: 'The old quantum rule, fit a whole number of half-waves into the well, nails the harmonic oscillator exactly, yet misses the quartic well''s ground state by a factor of three.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Chen, Introduction to Plasma Physics and Controlled Fusion, 2nd ed."
 ---
 
 # WKB Bohr-Sommerfeld vs exact eigenvalues

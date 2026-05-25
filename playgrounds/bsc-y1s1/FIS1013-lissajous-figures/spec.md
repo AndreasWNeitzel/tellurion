@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS1015]
 curriculum_year: bsc-y1s1
 hook: "Feed one sine wave to the x-axis and another to the y-axis. If their frequencies are in a simple ratio the dot traces a closed figure; nudge the phase and the figure morphs. These are Lissajous curves, the patterns an oscilloscope draws."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Lissajous figures

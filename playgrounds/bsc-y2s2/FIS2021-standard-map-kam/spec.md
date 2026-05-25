@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
+primary_citation: griffithsqm2018
 supporting_ucs: []
 curriculum_year: bsc-y2s2
 hook: 'Kick a rotor harder and harder: orderly invariant curves survive at first, then the last golden torus breaks and chaos floods the phase space.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
 ---
 
 # Chirikov standard map and KAM-torus breakdown

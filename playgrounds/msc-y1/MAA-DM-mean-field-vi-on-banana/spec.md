@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-DM
+primary_citation: bishop2006
 supporting_ucs: [MAA-ST]
 curriculum_year: msc-y1
 hook: 'Variational inference turns Bayesian inference into optimization; watch a mean-field Gaussian squeeze itself into a curved banana posterior and see exactly what that approximation gets wrong.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Bishop, Pattern Recognition and Machine Learning."
 ---
 
 # Mean-field VI on a banana

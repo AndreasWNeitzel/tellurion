@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
+primary_citation: griffithsqm2018
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y2s2
 hook: 'One equation, z -> z^2 + c, iterated for every point of the plane, draws the most intricate object in mathematics, infinitely detailed at every zoom.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
 ---
 
 # Mandelbrot Rainbow Explorer

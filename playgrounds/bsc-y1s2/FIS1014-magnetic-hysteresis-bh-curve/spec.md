@@ -14,6 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 4
 curriculum_year: 'L:F-1Y-2S'
 primary_uc: FIS1004
+primary_citation: marion-thornton
 share_state_keys: []
 invariants:
   - key: runs
@@ -28,6 +29,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Marion, Thornton, Classical Dynamics of Particles and Systems, Fifth ed."
 ---
 
 # Magnetic Hysteresis: Domains and the B-H Loop

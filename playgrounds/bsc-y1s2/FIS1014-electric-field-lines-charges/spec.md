@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1014
+primary_citation: taylor-mech
 supporting_ucs: []
 curriculum_year: bsc-y1s2
 hook: "Electric field lines make the invisible field visible: each line is everywhere tangent to E, and where the lines crowd together the field is strong. Watch the classic patterns appear, a dipole's bridge, two like charges pushing apart, the four-lobed quadrupole, a lone charge's starburst."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Electric field lines from point charges

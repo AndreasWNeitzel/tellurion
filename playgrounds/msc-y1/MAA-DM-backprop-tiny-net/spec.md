@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-DM
+primary_citation: bishop2006
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'Watch a tiny neural network learn a 2D boundary: the decision surface bends, the weights thicken, and the loss falls, all driven by one rule, backpropagation.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Bishop, Pattern Recognition and Machine Learning."
 ---
 
 # Backpropagation on a tiny MLP

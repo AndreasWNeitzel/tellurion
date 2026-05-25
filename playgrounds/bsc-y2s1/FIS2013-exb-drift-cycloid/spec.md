@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2013
+primary_citation: pathria
 supporting_ucs: [MAA-PL]
 curriculum_year: bsc-y2s1
 hook: 'Cross an electric and a magnetic field and a charge released from rest does not fly along E; it loops in cycloids and drifts sideways at exactly E/B.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Pathria, Beale, Statistical Mechanics, Fourth ed."
 ---
 
 # E x B drift and the cycloid

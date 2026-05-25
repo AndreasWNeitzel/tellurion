@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-CO
+primary_citation: dodelson2020
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'Four rungs of the cosmic distance ladder, with their working ranges and accumulated error.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Dodelson, Schmidt, Modern Cosmology, 2nd ed."
 ---
 
 # Cosmic Distance Ladder Journey

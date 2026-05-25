@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004
+primary_citation: carroll-ostlie
 supporting_ucs: []
 curriculum_year: bsc-y2s1
 hook: 'Set the size and shape of an orbit and watch it close perfectly, lap after lap; the energy, angular momentum, and the arrow pointing at perihelion never drift.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed."
 ---
 
 # Kepler Orbit Explorer

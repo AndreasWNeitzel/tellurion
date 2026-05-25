@@ -14,6 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 4
 curriculum_year: 'L:F-2Y-1S'
 primary_uc: FIS2001
+primary_citation: griffithsem2017
 share_state_keys: []
 invariants:
   - key: runs
@@ -28,6 +29,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Electrodynamics, Fourth ed."
 ---
 
 # Brownian Motion and the Diffusion Law

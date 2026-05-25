@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: MAA-OT
+primary_citation: lorimer-kramer
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'A radio interferometer images the sky one baseline at a time as Earth rotates.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Lorimer, Kramer, Handbook of Pulsar Astronomy."
 ---
 
 # Aperture Synthesis on the UV Plane

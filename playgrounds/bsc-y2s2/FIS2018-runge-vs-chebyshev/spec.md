@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2018
+primary_citation: hecht-optics
 supporting_ucs: [M3012, MAA-NM]
 curriculum_year: bsc-y2s2
 hook: 'Interpolate a gentle bump with more and more equally spaced points and it gets worse, wild oscillations at the edges; Chebyshev nodes cure it.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Hecht, Optics, 5th ed."
 ---
 
 # Runge phenomenon and the Chebyshev cure

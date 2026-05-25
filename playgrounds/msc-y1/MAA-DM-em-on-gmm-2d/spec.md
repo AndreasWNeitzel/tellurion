@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-DM
+primary_citation: bishop2006
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'A cloud of points secretly blends a few overlapping Gaussian bumps; watch Expectation-Maximization recover their shapes and weights by alternating soft guesses and refits until the ellipses snap onto the data.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Bishop, Pattern Recognition and Machine Learning."
 ---
 
 # EM on a 2D Gaussian mixture

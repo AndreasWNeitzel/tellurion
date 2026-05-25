@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: MAA-HE
+primary_citation: frank-king-raine
 supporting_ucs: []
 curriculum_year: msc-y1
 hook: 'Gas cannot fall straight onto a black hole; it forms a disk that friction heats until it glows, and this profile is the model behind the blue glow of cataclysmic variables and the UV bump of quasars.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Frank, King, Raine, Accretion Power in Astrophysics, Third ed."
 ---
 
 # Shakura-Sunyaev accretion disc temperature profile

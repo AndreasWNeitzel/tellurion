@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3014
+primary_citation: kulsrud-plasma-astro
 supporting_ucs: [MAA-PL]
 curriculum_year: bsc-y3s1
 hook: 'Two counter-streaming electron beams are unstable: density ripples grow exponentially at the analytic rate omega_p/(2 sqrt 2), the beams wind into phase-space electron-hole vortices, and a spectrogram shows mode 1 dominating then spawning harmonics at saturation.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Kulsrud, Plasma Physics for Astrophysics."
 ---
 
 # Two-stream instability via 1D-1V PIC

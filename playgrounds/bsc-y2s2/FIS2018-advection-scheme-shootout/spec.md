@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2018
+primary_citation: hecht-optics
 supporting_ucs: [MAA-NM]
 curriculum_year: bsc-y2s2
 hook: 'Translate a square pulse with four numerical schemes and watch them fail differently: one smears it, one wiggles, one blows up past a Courant limit.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Hecht, Optics, 5th ed."
 ---
 
 # Advection scheme shootout

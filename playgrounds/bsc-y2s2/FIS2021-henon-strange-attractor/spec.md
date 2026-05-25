@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
+primary_citation: griffithsqm2018
 supporting_ucs: []
 curriculum_year: bsc-y2s2
 hook: 'Two lines of arithmetic, iterated, fold a square of points onto an object that is neither a curve nor an area: a fractal with structure at every zoom.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
 ---
 
 # Henon Strange Attractor

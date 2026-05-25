@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-15
 primary_uc: M3012
+primary_citation: arfken-weber
 supporting_ucs: []
 curriculum_year: bsc-y3s1
 hook: 'A chain of rotating circles, sorted largest to smallest, redraws any closed path through the discrete Fourier transform.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Arfken, Weber, Harris, Mathematical Methods for Physicists: A Comprehensive Guide, Seventh ed."
 ---
 
 # Fourier Epicycle Drawing

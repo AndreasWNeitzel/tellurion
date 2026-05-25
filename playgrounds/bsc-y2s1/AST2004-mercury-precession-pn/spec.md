@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST2004
+primary_citation: carroll-ostlie
 supporting_ucs: [AST3017]
 curriculum_year: bsc-y2s1
 hook: 'Add a small 1/r^3 nudge to Newtonian gravity and the ellipse stops closing: perihelion creeps around into a slow rosette, the effect that fixed Mercury''s missing 43 arcseconds.'
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed."
 ---
 
 # Perihelion precession in a Schwarzschild-like potential

@@ -14,6 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 5
 curriculum_year: 'L:F-3Y-1S'
 primary_uc: FIS3003
+primary_citation: griffiths-particles
 share_state_keys: []
 invariants:
   - key: runs
@@ -28,6 +29,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Griffiths, Introduction to Elementary Particles, Second (revised) ed."
 ---
 
 # Adding Angular Momenta - The Vector Model

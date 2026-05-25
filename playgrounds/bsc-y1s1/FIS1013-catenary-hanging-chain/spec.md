@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "Hang a chain from two points and it makes neither a parabola nor a circle: it settles into a catenary, y = a cosh(x/a). Drag a tower of this suspension bridge and watch the fixed-length cable re-solve into its new hanging shape."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Catenary: shape of a hanging chain

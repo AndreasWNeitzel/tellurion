@@ -5,6 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1013
+primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "Two rods, one pinned to the end of the other, swinging under gravity. Start two of them a hair apart and within seconds their paths are nothing alike. This is deterministic chaos in the simplest mechanical system that shows it."
@@ -29,6 +30,8 @@ invariants:
 what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
+references:
+  - "Taylor, Classical Mechanics."
 ---
 
 # Double Pendulum Phase Portrait and Energy Conservation
