@@ -124,29 +124,8 @@ canvas.addEventListener('pointermove', e => {
   cy0 = dragStartCy0 - dy / scale;
 });
 canvas.addEventListener('pointerup', () => { isDragging = false; });
+canvas.addEventListener('pointercancel', () => { isDragging = false; });
 canvas.addEventListener('mouseleave', () => { isDragging = false; });
-canvas.addEventListener('touchstart', e => {
-  const rect = canvas.getBoundingClientRect();
-  const t = e.touches[0];
-  dragStartX = t.clientX - rect.left;
-  dragStartY = t.clientY - rect.top;
-  dragStartCx0 = cx0;
-  dragStartCy0 = cy0;
-  isDragging = true;
-});
-canvas.addEventListener('touchmove', e => {
-  if (!isDragging) return;
-  const rect = canvas.getBoundingClientRect();
-  const t = e.touches[0];
-  const x = t.clientX - rect.left;
-  const y = t.clientY - rect.top;
-  const dx = x - dragStartX;
-  const dy = y - dragStartY;
-  const scale = 70;
-  cx0 = dragStartCx0 + dx / scale;
-  cy0 = dragStartCy0 - dy / scale;
-});
-canvas.addEventListener('touchend', () => { isDragging = false; });
 
 function bootSync() {
   if (CAPTURE_NAME) {
