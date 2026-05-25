@@ -497,16 +497,15 @@ body:has(.playground-layout) {
 .playground-controls.in-hud { margin: 0; max-width: 100%; }
 
 /* Hide the chip + HUD outside the phone viewport. "Phone viewport"
-   here means portrait <=768 px OR landscape with <=500 px height
-   (catches modern phones whose landscape width exceeds 768, e.g.
-   iPhone 12 = 844, iPhone 14 Pro Max = 932). The JS already tears
-   them down on resize, but a CSS guard prevents a flicker on the
-   first paint before the layout script runs.
+   here means portrait <=600 px OR landscape with <=500 px height.
+   iPad portrait at 768 has 1024 vertical for inline controls so it
+   does not need the HUD pattern; landscape phones (iPhone 12 =
+   844 wide, iPhone 14 Pro Max = 932 wide) do.
 
    Match logic: hide when wide AND (portrait OR not-short). That
    leaves landscape-and-short (phones in landscape) un-hidden. */
-@media (min-width: 769px) and (orientation: portrait),
-       (min-width: 769px) and (min-height: 501px) {
+@media (min-width: 601px) and (orientation: portrait),
+       (min-width: 601px) and (min-height: 501px) {
   .controls-hud, .controls-hud-chip { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {

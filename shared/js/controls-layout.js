@@ -19,17 +19,20 @@
 const BP_RAIL = 1400;
 const SENTINEL_DATA = 'controls-original-slot';
 
-// "Phone" = portrait <=768 px OR short-and-landscape (the screen we
-// want the Controls chip on). The 768 px width breakpoint alone fails
-// on modern phones whose landscape width exceeds 768 (iPhone 12 = 844,
-// iPhone 14 Pro Max = 932), so the chip was missing on real landscape
-// devices even though Playwright's iPhone-12-landscape emulator (750)
-// triggered it. The orientation+max-height clause catches all phones
-// in landscape regardless of width while still excluding tablets,
-// which are >=600 px tall even in landscape.
+// "Phone" = portrait <=600 px OR short-and-landscape (the screen we
+// want the Controls chip on). The previous 768 px width threshold
+// also captured iPad portrait at exactly 768, where the HUD chip
+// pattern is unnecessary (the device has 1024 px of vertical space
+// for inline controls). Use 600 to match the rest of the phone-only
+// @media rules across the codebase.
+//
+// The orientation+max-height clause catches modern phones in landscape
+// regardless of width (iPhone 12 = 844, iPhone 14 Pro Max = 932 wide)
+// while still excluding tablets, which are >=600 px tall even in
+// landscape.
 function isPhoneViewport() {
   if (window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches) return true;
-  return window.innerWidth <= 768;
+  return window.innerWidth <= 600;
 }
 
 function findRail()    { return document.querySelector('.playground-rail'); }
