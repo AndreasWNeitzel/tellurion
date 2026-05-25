@@ -298,6 +298,14 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
      "Tellurion v0.1.0 · Built ... · 332 simulations" right below, and
      on phone the duplicate adds a redundant scroll. */
   .credits-ver  { display: none; }
+  /* Empty-state padding 80 px is desktop sizing; on phone the message
+     gets pushed below the fold under the sticky search bar. Shrink. */
+  .catalog-empty { padding: 40px 16px !important; }
+  .catalog-empty-reset { margin-top: 16px !important; }
+  /* Anchor scrolls also need to clear the sticky search bar (search +
+     group toggle = ~140 px when both rows are present). The base
+     html.scroll-padding-top is 72; bump for phone. */
+  html { scroll-padding-top: 160px; }
 
   /* About-section inner spacing: desktop margins (48 px after the
      intro, 64 px between the two LAB rows, 36 px between cols) are
