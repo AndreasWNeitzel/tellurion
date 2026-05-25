@@ -63,17 +63,15 @@ export function createOrbitCamera(canvas, opts = {}) {
     state.radius = Math.max(state.minRadius, Math.min(state.maxRadius, state.radius * Math.exp(e.deltaY * state.zoomRatePerWheel)));
     state.lastInputAt = performance.now();
   };
-  const onTouchMove = (e) => {
-    if (!state.dragging || !e.touches[0]) return;
-    onMove({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-  };
-
   canvas.addEventListener('pointerdown', onDown);
   canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('pointerup', onUp);
   canvas.addEventListener('pointercancel', onUp);
   canvas.addEventListener('wheel', onWheel, { passive: false });
-  canvas.addEventListener('touchmove', onTouchMove);
+  // Note: no touchmove handler. Pointer events already fire for touch
+  // on every browser we support (iOS Safari 13+, Chrome, Firefox).
+  // The previous touchmove handler called onMove a second time per
+  // move event, doubling the camera rotation speed on touch devices.
 
   function eyePosition() {
     const az = state.azimuthDeg * TO_RAD;
@@ -118,7 +116,6 @@ export function createOrbitCamera(canvas, opts = {}) {
     canvas.removeEventListener('pointerup', onUp);
     canvas.removeEventListener('pointercancel', onUp);
     canvas.removeEventListener('wheel', onWheel);
-    canvas.removeEventListener('touchmove', onTouchMove);
   }
 
   return {
