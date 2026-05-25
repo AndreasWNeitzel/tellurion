@@ -1064,7 +1064,18 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 
 try { mkdirSync('dist', { recursive: true }); } catch {}
 writeFileSync('dist/index.html', html);
-writeFileSync('index.html', html);
+// SAFETY GUARD: the root index.html carries hand-tuned mobile UX CSS
+// (sticky search, scroll-to-top FAB, breakpoint overrides, padding
+// rationalization, etc.) that does NOT live in this script's template.
+// A bare regeneration silently loses ~200 lines of mobile fixes.
+// Refuse to overwrite without --force-root. To accept the wipe and
+// then re-apply hand edits, run: node scripts/build-landing.mjs --force-root
+if (process.argv.includes('--force-root')) {
+  writeFileSync('index.html', html);
+} else {
+  console.log('SKIPPED root index.html (would wipe hand-tuned mobile CSS).');
+  console.log('  Pass --force-root to override and then re-apply hand edits.');
+}
 
 // Runtime catalogue for the in-playground "Related" strip (Section 14).
 // The playground chrome fetches this; it is capture-suppressed there,
@@ -1078,4 +1089,5 @@ const catalogue = cards.map(c => ({
 }));
 mkdirSync('shared', { recursive: true });
 writeFileSync('shared/playgrounds-catalogue.json', JSON.stringify(catalogue));
-console.log(`Wrote dist/index.html, index.html, shared/playgrounds-catalogue.json (${cards.length} cards, ${heroPool.length} hero-tier).`);
+const wroteRoot = process.argv.includes('--force-root') ? ', index.html' : '';
+console.log(`Wrote dist/index.html${wroteRoot}, shared/playgrounds-catalogue.json (${cards.length} cards, ${heroPool.length} hero-tier).`);
