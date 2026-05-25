@@ -360,6 +360,19 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}
   z-index:150;opacity:0;transition:opacity 250ms ease;pointer-events:none}
 .scrollprog.on{opacity:1}
 .scrollprog .sp-fill{height:100%;width:0;background:var(--accent)}
+/* Scroll-to-top FAB: only useful on phone where the 332-card grid spans
+   ~150 scroll-screens. Hidden by default (the JS toggles [hidden]
+   once the user has scrolled past two viewports). */
+.scroll-top{position:fixed;left:16px;bottom:16px;z-index:150;width:40px;height:40px;
+  display:none;align-items:center;justify-content:center;background:var(--bg-frosted);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border:1px solid var(--border-subtle);border-radius:50%;color:var(--text-secondary);
+  cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.28);transition:opacity 220ms ease,transform 220ms ease}
+.scroll-top:hover{color:var(--text-primary)}
+.scroll-top svg{width:18px;height:18px}
+@media (max-width: 768px) {
+  .scroll-top:not([hidden]) { display: flex; }
+}
 .ambtoggle{position:fixed;right:16px;bottom:14px;z-index:150;width:24px;height:24px;
   display:flex;align-items:center;justify-content:center;background:transparent;border:none;
   color:var(--text-dimmed);font-size:16px;cursor:pointer;line-height:1;font-family:var(--f-ui)}
@@ -3361,6 +3374,11 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   <div class="credits-ver">v0.1.0 &middot; Built 2026-05-24 &middot; 332 simulations</div>
 </section>
 
+<button class="scroll-top" id="scroll-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
 <footer class="sitefoot">
   <div class="sitefoot-line"><span>Tellurion</span><span class="sitefoot-sep">&middot;</span><span>v0.1.0 (public beta)</span><span class="sitefoot-sep">&middot;</span><span>Built 2026-05-24</span><span class="sitefoot-sep">&middot;</span><span>332 simulations</span></div>
@@ -3564,6 +3582,17 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   if(navEl){
     var navScroll=function(){ navEl.classList.toggle('depth',(window.scrollY||0)>80); };
     window.addEventListener('scroll',navScroll,{passive:true}); navScroll();
+  }
+
+  // Scroll-to-top: appears once the user is past two viewports deep.
+  var scrollTop=document.getElementById('scroll-top');
+  if(scrollTop){
+    var threshold=function(){ return Math.max(800, window.innerHeight*2); };
+    var stScroll=function(){ scrollTop.hidden=(window.scrollY||0) < threshold(); };
+    window.addEventListener('scroll',stScroll,{passive:true}); stScroll();
+    scrollTop.addEventListener('click',function(){
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
   }
   var burger=document.getElementById('nav-burger'), navMob=document.getElementById('nav-mobile');
   if(burger&&navMob){
